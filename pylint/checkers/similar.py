@@ -28,7 +28,7 @@ import re
 import sys
 import warnings
 from collections import defaultdict
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Generator, Iterable, Sequence
 from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain, groupby
@@ -49,7 +49,7 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, table_lines_from_stats
-from pylint.reporters.ureports.nodes import Table
+from pylint.reporters.ureports.nodes import Section, Table
 from pylint.typing import MessageDefinitionTuple, Options
 from pylint.utils import LinterStats, decoding_stream
 
@@ -185,7 +185,7 @@ class LineSetStartCouple(NamedTuple):
             f"<LineSetStartCouple <{self.fst_lineset_index};{self.snd_lineset_index}>>"
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, LineSetStartCouple):
             return NotImplemented
         return (
@@ -585,7 +585,7 @@ def stripped_lines(
         line_begins_import = {
             lineno: all(is_import for _, is_import in node_is_import_group)
             for lineno, node_is_import_group in groupby(
-                node_is_import_by_lineno, key=lambda x: x[0]
+                node_is_import_by_lineno, key=lambda x: x[0]  # type: ignore[no-any-return]
             )
         }
         current_line_is_import = False
@@ -689,7 +689,7 @@ class LineSet:
             line_enabled_callback=line_enabled_callback,
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<Lineset for {self.name}>"
 
     def __len__(self) -> int:
@@ -730,7 +730,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 
 
 def report_similarities(
-    sect,
+    sect: Section,
     stats: LinterStats,
     old_stats: LinterStats | None,
 ) -> None:
@@ -886,7 +886,7 @@ def usage(status: int = 0) -> NoReturn:
     sys.exit(status)
 
 
-def Run(argv=None) -> NoReturn:
+def Run(argv: Sequence[str] | None = None) -> NoReturn:
     """Standalone command line access point."""
     if argv is None:
         argv = sys.argv[1:]
@@ -905,7 +905,7 @@ def Run(argv=None) -> NoReturn:
     ignore_docstrings = False
     ignore_imports = False
     ignore_signatures = False
-    opts, args = getopt(argv, s_opts, l_opts)
+    opts, args = getopt(list(argv), s_opts, l_opts)
     for opt, val in opts:
         if opt in {"-d", "--duplicates"}:
             min_lines = int(val)

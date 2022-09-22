@@ -20,4 +20,5 @@ warnings.warn(
     "'pylint.testutils.functional_test_file' will be accessible from"
     " the 'pylint.testutils.functional' namespace in pylint 3.0.",
     DeprecationWarning,
+    stacklevel=2,
 )

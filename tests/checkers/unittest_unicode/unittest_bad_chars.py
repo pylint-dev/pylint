@@ -41,7 +41,9 @@ def bad_char_file_generator(tmp_path: Path) -> Callable[[str, bool, str], Path]:
         "# Invalid char esc: \x1B",
     )
 
-    def _bad_char_file_generator(codec: str, add_invalid_bytes: bool, line_ending: str):
+    def _bad_char_file_generator(
+        codec: str, add_invalid_bytes: bool, line_ending: str
+    ) -> Path:
         byte_suffix = b""
         if add_invalid_bytes:
             if codec == "utf-8":
@@ -120,7 +122,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         codec_and_msg: tuple[str, tuple[pylint.testutils.MessageTest]],
         line_ending: str,
         add_invalid_bytes: bool,
-    ):
+    ) -> None:
         """All combinations of bad characters that are accepted by Python at the moment
         are tested in all possible combinations of
           - line ending
@@ -215,7 +217,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         char: str,
         msg_id: str,
         codec_and_msg: tuple[str, tuple[pylint.testutils.MessageTest]],
-    ):
+    ) -> None:
         """Special test for a file containing chars that lead to
         Python or Astroid crashes (which causes Pylint to exit early)
         """

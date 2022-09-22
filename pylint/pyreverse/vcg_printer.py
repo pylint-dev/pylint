@@ -154,7 +154,7 @@ SHAPES: dict[NodeType, str] = {
     NodeType.CLASS: "box",
     NodeType.INTERFACE: "ellipse",
 }
-ARROWS: dict[EdgeType, dict] = {
+ARROWS: dict[EdgeType, dict[str, str | int]] = {
     EdgeType.USES: dict(arrowstyle="solid", backarrowstyle="none", backarrowsize=0),
     EdgeType.INHERITS: dict(
         arrowstyle="solid", backarrowstyle="none", backarrowsize=10
@@ -265,7 +265,9 @@ class VCGPrinter(Printer):
         )
         self.emit("}")
 
-    def _write_attributes(self, attributes_dict: Mapping[str, Any], **args) -> None:
+    def _write_attributes(
+        self, attributes_dict: Mapping[str, Any], **args: Any
+    ) -> None:
         """Write graph, node or edge attributes."""
         for key, value in args.items():
             try:

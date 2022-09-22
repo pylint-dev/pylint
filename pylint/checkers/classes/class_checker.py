@@ -9,10 +9,10 @@ from __future__ import annotations
 import collections
 import sys
 from collections import defaultdict
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from itertools import chain, zip_longest
 from re import Pattern
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import astroid
 from astroid import bases, nodes
@@ -200,7 +200,7 @@ def _positional_parameters(method: nodes.FunctionDef) -> list[nodes.AssignName]:
     positional = method.args.args
     if method.is_bound() and method.type in {"classmethod", "method"}:
         positional = positional[1:]
-    return positional
+    return positional  # type: ignore[no-any-return]
 
 
 class _DefaultMissing:
@@ -244,7 +244,9 @@ def _has_different_parameters_default_value(
         if not isinstance(overridden_default, original_type):
             # Two args with same name but different types
             return True
-        is_same_fn = ASTROID_TYPE_COMPARATORS.get(original_type)
+        is_same_fn: Callable[[Any, Any], bool] | None = ASTROID_TYPE_COMPARATORS.get(
+            original_type
+        )
         if is_same_fn is None:
             # If the default value comparison is unhandled, assume the value is different
             return True
@@ -257,7 +259,7 @@ def _has_different_parameters_default_value(
 def _has_different_parameters(
     original: list[nodes.AssignName],
     overridden: list[nodes.AssignName],
-    dummy_parameter_regex: Pattern,
+    dummy_parameter_regex: Pattern[str],
 ) -> list[str]:
     result: list[str] = []
     zipped = zip_longest(original, overridden)
@@ -311,7 +313,7 @@ def _has_different_keyword_only_parameters(
 def _different_parameters(
     original: nodes.FunctionDef,
     overridden: nodes.FunctionDef,
-    dummy_parameter_regex: Pattern,
+    dummy_parameter_regex: Pattern[str],
 ) -> list[str]:
     """Determine if the two methods have different parameters.
 
@@ -581,7 +583,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "implemented interface or in an overridden method.",
     ),
     "W0223": (
-        "Method %r is abstract in class %r but is not overridden",
+        "Method %r is abstract in class %r but is not overridden in child class %r",
         "abstract-method",
         "Used when an abstract method (i.e. raise NotImplementedError) is "
         "not overridden in concrete class.",
@@ -682,7 +684,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a value in __slots__ conflicts with a class variable, property or method.",
     ),
     "E0243": (
-        "Invalid __class__ object",
+        "Invalid assignment to '__class__'. Should be a class definition but got a '%s'",
         "invalid-class-object",
         "Used when an invalid object is assigned to a __class__ property. "
         "Only a class is permitted.",
@@ -839,7 +841,7 @@ a metaclass class method.",
 
     @cached_property
     def _dummy_rgx(self) -> Pattern[str]:
-        return self.linter.config.dummy_variables_rgx
+        return self.linter.config.dummy_variables_rgx  # type: ignore[no-any-return]
 
     @only_required_for_messages(
         "abstract-method",
@@ -1180,7 +1182,7 @@ a metaclass class method.",
                 continue
             if not isinstance(parent_function, nodes.FunctionDef):
                 continue
-            self._check_signature(node, parent_function, "overridden", klass)
+            self._check_signature(node, parent_function, klass)
             self._check_invalid_overridden_method(node, parent_function)
             break
 
@@ -1558,7 +1560,18 @@ a metaclass class method.",
     def _check_invalid_class_object(self, node: nodes.AssignAttr) -> None:
         if not node.attrname == "__class__":
             return
-        inferred = safe_infer(node.parent.value)
+        if isinstance(node.parent, nodes.Tuple):
+            class_index = -1
+            for i, elt in enumerate(node.parent.elts):
+                if hasattr(elt, "attrname") and elt.attrname == "__class__":
+                    class_index = i
+            if class_index == -1:
+                # This should not happen because we checked that the node name
+                # is '__class__' earlier, but let's not be too confident here
+                return  # pragma: no cover
+            inferred = safe_infer(node.parent.parent.value.elts[class_index])
+        else:
+            inferred = safe_infer(node.parent.value)
         if (
             isinstance(inferred, nodes.ClassDef)
             or inferred is astroid.Uninferable
@@ -1566,7 +1579,12 @@ a metaclass class method.",
         ):
             # If is uninferable, we allow it to prevent false positives
             return
-        self.add_message("invalid-class-object", node=node)
+        self.add_message(
+            "invalid-class-object",
+            node=node,
+            args=inferred.__class__.__name__,
+            confidence=INFERENCE,
+        )
 
     def _check_in_slots(self, node: nodes.AssignAttr) -> None:
         """Check that the given AssignAttr node
@@ -1803,7 +1821,7 @@ a metaclass class method.",
         )
 
     @staticmethod
-    def _is_inferred_instance(expr, klass: nodes.ClassDef) -> bool:
+    def _is_inferred_instance(expr: nodes.NodeNG, klass: nodes.ClassDef) -> bool:
         """Check if the inferred value of the given *expr* is an instance of
         *klass*.
         """
@@ -1989,7 +2007,7 @@ a metaclass class method.",
         """
 
         def is_abstract(method: nodes.FunctionDef) -> bool:
-            return method.is_abstract(pass_is_abstract=False)
+            return method.is_abstract(pass_is_abstract=False)  # type: ignore[no-any-return]
 
         # check if this class abstract
         if class_is_abstract(node):
@@ -2008,7 +2026,13 @@ a metaclass class method.",
             if name in node.locals:
                 # it is redefined as an attribute or with a descriptor
                 continue
-            self.add_message("abstract-method", node=node, args=(name, owner.name))
+
+            self.add_message(
+                "abstract-method",
+                node=node,
+                args=(name, owner.name, node.name),
+                confidence=INFERENCE,
+            )
 
     def _check_init(self, node: nodes.FunctionDef, klass_node: nodes.ClassDef) -> None:
         """Check that the __init__ method call super or ancestors'__init__
@@ -2095,7 +2119,6 @@ a metaclass class method.",
         self,
         method1: nodes.FunctionDef,
         refmethod: nodes.FunctionDef,
-        class_type: str,
         cls: nodes.ClassDef,
     ) -> None:
         """Check that the signature of the two given methods match."""
@@ -2127,6 +2150,9 @@ a metaclass class method.",
         arg_differ_output = _different_parameters(
             refmethod, method1, dummy_parameter_regex=self._dummy_rgx
         )
+
+        class_type = "overriding"
+
         if len(arg_differ_output) > 0:
             for msg in arg_differ_output:
                 if "Number" in msg:
@@ -2171,6 +2197,7 @@ a metaclass class method.",
             len(method1.args.defaults) < len(refmethod.args.defaults)
             and not method1.args.vararg
         ):
+            class_type = "overridden"
             self.add_message(
                 "signature-differs", args=(class_type, method1.name), node=method1
             )

@@ -81,7 +81,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
                 msg_id = "modified-iterating-dict"
             elif isinstance(inferred, nodes.Set):
                 msg_id = "modified-iterating-set"
-        elif not isinstance(iter_obj, nodes.Name):
+        elif not isinstance(iter_obj, (nodes.Name, nodes.Attribute)):
             pass
         elif self._modified_iterating_list_cond(node, iter_obj):
             msg_id = "modified-iterating-list"
@@ -90,10 +90,14 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         elif self._modified_iterating_set_cond(node, iter_obj):
             msg_id = "modified-iterating-set"
         if msg_id:
+            if isinstance(iter_obj, nodes.Attribute):
+                obj_name = iter_obj.attrname
+            else:
+                obj_name = iter_obj.name
             self.add_message(
                 msg_id,
                 node=node,
-                args=(iter_obj.name,),
+                args=(obj_name,),
                 confidence=interfaces.INFERENCE,
             )
 
@@ -112,7 +116,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         iter_obj: nodes.NodeNG,
         infer_val: nodes.List | nodes.Set,
     ) -> bool:
-        return (infer_val == utils.safe_infer(iter_obj)) and (
+        return (infer_val == utils.safe_infer(iter_obj)) and (  # type: ignore[no-any-return]
             node.value.func.expr.name == iter_obj.name
         )
 
@@ -124,7 +128,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         )
 
     def _modified_iterating_list_cond(
-        self, node: nodes.NodeNG, iter_obj: nodes.NodeNG
+        self, node: nodes.NodeNG, iter_obj: nodes.Name | nodes.Attribute
     ) -> bool:
         if not self._is_node_expr_that_calls_attribute_name(node):
             return False
@@ -137,7 +141,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         )
 
     def _modified_iterating_dict_cond(
-        self, node: nodes.NodeNG, iter_obj: nodes.NodeNG
+        self, node: nodes.NodeNG, iter_obj: nodes.Name | nodes.Attribute
     ) -> bool:
         if not self._is_node_assigns_subscript_name(node):
             return False
@@ -155,10 +159,14 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             return False
         if infer_val != utils.safe_infer(iter_obj):
             return False
-        return node.targets[0].value.name == iter_obj.name
+        if isinstance(iter_obj, nodes.Attribute):
+            iter_obj_name = iter_obj.attrname
+        else:
+            iter_obj_name = iter_obj.name
+        return node.targets[0].value.name == iter_obj_name  # type: ignore[no-any-return]
 
     def _modified_iterating_set_cond(
-        self, node: nodes.NodeNG, iter_obj: nodes.NodeNG
+        self, node: nodes.NodeNG, iter_obj: nodes.Name | nodes.Attribute
     ) -> bool:
         if not self._is_node_expr_that_calls_attribute_name(node):
             return False

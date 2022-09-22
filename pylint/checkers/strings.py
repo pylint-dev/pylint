@@ -437,7 +437,7 @@ class StringFormatChecker(BaseChecker):
                 self._check_new_format(node, func)
 
     def _detect_vacuous_formatting(
-        self, node: nodes.Call, positional_arguments
+        self, node: nodes.Call, positional_arguments: list[SuccessfulInferenceResult]
     ) -> None:
         counter = collections.Counter(
             arg.name for arg in positional_arguments if isinstance(arg, nodes.Name)
@@ -534,7 +534,10 @@ class StringFormatChecker(BaseChecker):
         self._check_new_format_specifiers(node, fields, named_arguments)
 
     def _check_new_format_specifiers(
-        self, node: nodes.Call, fields: list[tuple[str, list[tuple[bool, str]]]], named
+        self,
+        node: nodes.Call,
+        fields: list[tuple[str, list[tuple[bool, str]]]],
+        named: dict[str, SuccessfulInferenceResult],
     ) -> None:
         """Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").

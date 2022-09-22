@@ -1,0 +1,4 @@
+Update Pyreverse's dot and plantuml printers to detect when class methods are abstract and show them with italic font.
+For the dot printer update the label to use html-like syntax.
+
+Closes #7346

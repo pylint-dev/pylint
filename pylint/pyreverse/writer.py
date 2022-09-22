@@ -92,7 +92,7 @@ class DiagramWriter:
     def write_classes(self, diagram: ClassDiagram) -> None:
         """Write a class diagram."""
         # sorted to get predictable (hence testable) results
-        for obj in sorted(diagram.objects, key=lambda x: x.title):
+        for obj in sorted(diagram.objects, key=lambda x: x.title):  # type: ignore[no-any-return]
             obj.fig_id = obj.node.qname()
             type_ = NodeType.INTERFACE if obj.shape == "interface" else NodeType.CLASS
             self.printer.emit_node(

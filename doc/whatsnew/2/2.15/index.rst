@@ -29,6 +29,88 @@ Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
+What's new in Pylint 2.15.3?
+----------------------------
+Release date: 2022-09-19
+
+
+- Fixed a crash in the ``unhashable-member`` checker when using a ``lambda`` as a dict key.
+
+  Closes #7453 (`#7453 <https://github.com/PyCQA/pylint/issues/7453>`_)
+- Fix a crash in the ``modified-iterating-dict`` checker involving instance attributes.
+
+  Closes #7461 (`#7461 <https://github.com/PyCQA/pylint/issues/7461>`_)
+- ``invalid-class-object`` does not crash anymore when ``__class__`` is assigned alongside another variable.
+
+  Closes #7467 (`#7467 <https://github.com/PyCQA/pylint/issues/7467>`_)
+- Fix false positive for ``global-variable-not-assigned`` when a global variable is re-assigned via an ``ImportFrom`` node.
+
+  Closes #4809 (`#4809 <https://github.com/PyCQA/pylint/issues/4809>`_)
+- Fix false positive for ``undefined-loop-variable`` in ``for-else`` loops that use a function
+  having a return type annotation of ``NoReturn`` or ``Never``.
+
+  Closes #7311 (`#7311 <https://github.com/PyCQA/pylint/issues/7311>`_)
+- ``--help-msg`` now accepts a comma-separated list of message IDs again.
+
+  Closes #7471 (`#7471 <https://github.com/PyCQA/pylint/issues/7471>`_)
+
+What's new in Pylint 2.15.2?
+----------------------------
+Release date: 2022-09-07
+
+- Fixed a case where custom plugins specified by command line could silently fail.
+
+  Specifically, if a plugin relies on the ``init-hook`` option changing ``sys.path`` before
+  it can be imported, this will now emit a ``bad-plugin-value`` message. Before this
+  change, it would silently fail to register the plugin for use, but would load
+  any configuration, which could have unintended effects.
+
+  Fixes part of #7264. (`#7264 <https://github.com/PyCQA/pylint/issues/7264>`_)
+- Fix ``used-before-assignment`` for functions/classes defined in type checking guard.
+
+  Closes #7368 (`#7368 <https://github.com/PyCQA/pylint/issues/7368>`_)
+- Update ``modified_iterating`` checker to fix a crash with ``for`` loops on empty list.
+
+  Closes #7380 (`#7380 <https://github.com/PyCQA/pylint/issues/7380>`_)
+- The ``docparams`` extension now considers typing in Numpy style docstrings
+  as "documentation" for the ``missing-param-doc`` message.
+
+  Refs #7398 (`#7398 <https://github.com/PyCQA/pylint/issues/7398>`_)
+- Fix false positive for ``unused-variable`` and ``unused-import`` when a name is only used in a string literal type annotation.
+
+  Closes #3299 (`#3299 <https://github.com/PyCQA/pylint/issues/3299>`_)
+- Fix false positive for ``too-many-function-args`` when a function call is assigned to a class attribute inside the class where the function is defined.
+
+  Closes #6592 (`#6592 <https://github.com/PyCQA/pylint/issues/6592>`_)
+- Fix ``used-before-assignment`` for functions/classes defined in type checking guard.
+
+  Closes #7368 (`#7368 <https://github.com/PyCQA/pylint/issues/7368>`_)
+- Fix ignored files being linted when passed on stdin.
+
+  Closes #4354 (`#4354 <https://github.com/PyCQA/pylint/issues/4354>`_)
+- ``missing-return-doc``, ``missing-raises-doc`` and ``missing-yields-doc`` now respect
+  the ``no-docstring-rgx`` option.
+
+  Closes #4743 (`#4743 <https://github.com/PyCQA/pylint/issues/4743>`_)
+- Don't crash on ``OSError`` in config file discovery.
+
+  Closes #7169 (`#7169 <https://github.com/PyCQA/pylint/issues/7169>`_)
+- ``disable-next`` is now correctly scoped to only the succeeding line.
+
+  Closes #7401 (`#7401 <https://github.com/PyCQA/pylint/issues/7401>`_)
+- Update ``modified_iterating`` checker to fix a crash with ``for`` loops on empty list.
+
+  Closes #7380 (`#7380 <https://github.com/PyCQA/pylint/issues/7380>`_)
+
+What's new in Pylint 2.15.1?
+----------------------------
+Release date: 2022-09-06
+
+This is a "github only release", it was mistakenly released as ``2.16.0-dev`` on pypi. Replaced by ``2.15.2``.
+
+What's new in Pylint 2.15.0?
+----------------------------
+
 New Checks
 ----------
 

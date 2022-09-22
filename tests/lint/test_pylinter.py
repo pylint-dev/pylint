@@ -7,7 +7,8 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
-from py._path.local import LocalPath  # type: ignore[import]
+from _pytest.recwarn import WarningsRecorder
+from py._path.local import LocalPath
 from pytest import CaptureFixture
 
 from pylint.lint.pylinter import PyLinter
@@ -20,7 +21,7 @@ def raise_exception(*args: Any, **kwargs: Any) -> NoReturn:
 
 @patch.object(FileState, "iter_spurious_suppression_messages", raise_exception)
 def test_crash_in_file(
-    linter: PyLinter, capsys: CaptureFixture, tmpdir: LocalPath
+    linter: PyLinter, capsys: CaptureFixture[str], tmpdir: LocalPath
 ) -> None:
     with pytest.warns(DeprecationWarning):
         args = linter.load_command_line_configuration([__file__])
@@ -29,13 +30,13 @@ def test_crash_in_file(
     out, err = capsys.readouterr()
     assert not out
     assert not err
-    files = tmpdir.listdir()
+    files = tmpdir.listdir()  # type: ignore[no-untyped-call]
     assert len(files) == 1
     assert "pylint-crash-20" in str(files[0])
     assert any(m.symbol == "fatal" for m in linter.reporter.messages)
 
 
-def test_check_deprecation(linter: PyLinter, recwarn):
+def test_check_deprecation(linter: PyLinter, recwarn: WarningsRecorder) -> None:
     linter.check("myfile.py")
     msg = recwarn.pop()
     assert "check function will only accept sequence" in str(msg)
@@ -52,7 +53,7 @@ def test_crash_during_linting(
         out, err = capsys.readouterr()
         assert not out
         assert not err
-        files = tmpdir.listdir()
+        files = tmpdir.listdir()  # type: ignore[no-untyped-call]
         assert len(files) == 1
         assert "pylint-crash-20" in str(files[0])
         assert any(m.symbol == "astroid-error" for m in linter.reporter.messages)

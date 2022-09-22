@@ -1,19 +1,23 @@
 """Fixture for testing missing documentation in docparams."""
 
 
-def _private_func1(param1):  # [missing-return-doc, missing-return-type-doc]
+def _private_func1(  # [missing-return-doc, missing-return-type-doc, missing-any-param-doc]
+    param1,
+):
     """This is a test docstring without returns"""
     return param1
 
 
-def _private_func2(param1):  # [missing-yield-doc, missing-yield-type-doc]
+def _private_func2(  # [missing-yield-doc, missing-yield-type-doc, missing-any-param-doc]
+    param1,
+):
     """This is a test docstring without yields"""
     yield param1
 
 
-def _private_func3(param1):  # [missing-raises-doc]
+def _private_func3(param1):  # [missing-raises-doc, missing-any-param-doc]
     """This is a test docstring without raises"""
-    raise Exception('Example')
+    raise Exception("Example")
 
 
 def public_func1(param1):  # [missing-any-param-doc]
@@ -21,19 +25,25 @@ def public_func1(param1):  # [missing-any-param-doc]
     print(param1)
 
 
-async def _async_private_func1(param1):  # [missing-return-doc, missing-return-type-doc]
+# pylint: disable-next=line-too-long
+async def _async_private_func1(  # [missing-return-doc, missing-return-type-doc, missing-any-param-doc]
+    param1,
+):
     """This is a test docstring without returns"""
     return param1
 
 
-async def _async_private_func2(param1):  # [missing-yield-doc, missing-yield-type-doc]
+# pylint: disable-next=line-too-long
+async def _async_private_func2(  # [missing-yield-doc, missing-yield-type-doc, missing-any-param-doc]
+    param1,
+):
     """This is a test docstring without yields"""
     yield param1
 
 
-async def _async_private_func3(param1):  # [missing-raises-doc]
+async def _async_private_func3(param1):  # [missing-raises-doc, missing-any-param-doc]
     """This is a test docstring without raises"""
-    raise Exception('Example')
+    raise Exception("Example")
 
 
 async def async_public_func1(param1):  # [missing-any-param-doc]

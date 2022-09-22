@@ -147,7 +147,7 @@ def _is_part_of_with_items(node: nodes.Call) -> bool:
         if isinstance(current, nodes.With):
             items_start = current.items[0][0].lineno
             items_end = current.items[-1][0].tolineno
-            return items_start <= node.lineno <= items_end
+            return items_start <= node.lineno <= items_end  # type: ignore[no-any-return]
         current = current.parent
     return False
 
@@ -181,7 +181,7 @@ def _is_part_of_assignment_target(node: nodes.NodeNG) -> bool:
         return node in node.parent.targets
 
     if isinstance(node.parent, nodes.AugAssign):
-        return node == node.parent.target
+        return node == node.parent.target  # type: ignore[no-any-return]
 
     if isinstance(node.parent, (nodes.Tuple, nodes.List)):
         return _is_part_of_assignment_target(node.parent)
@@ -523,7 +523,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @cached_property
     def _dummy_rgx(self) -> Pattern[str]:
-        return self.linter.config.dummy_variables_rgx
+        return self.linter.config.dummy_variables_rgx  # type: ignore[no-any-return]
 
     @staticmethod
     def _is_bool_const(node: nodes.Return | nodes.Assign) -> bool:
@@ -748,13 +748,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     @staticmethod
     def _type_and_name_are_equal(node_a: Any, node_b: Any) -> bool:
         if isinstance(node_a, nodes.Name) and isinstance(node_b, nodes.Name):
-            return node_a.name == node_b.name
+            return node_a.name == node_b.name  # type: ignore[no-any-return]
         if isinstance(node_a, nodes.AssignName) and isinstance(
             node_b, nodes.AssignName
         ):
-            return node_a.name == node_b.name
+            return node_a.name == node_b.name  # type: ignore[no-any-return]
         if isinstance(node_a, nodes.Const) and isinstance(node_b, nodes.Const):
-            return node_a.value == node_b.value
+            return node_a.value == node_b.value  # type: ignore[no-any-return]
         return False
 
     def _is_dict_get_block(self, node: nodes.If) -> bool:
@@ -1353,7 +1353,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 break
 
     @staticmethod
-    def _apply_boolean_simplification_rules(operator: str, values):
+    def _apply_boolean_simplification_rules(
+        operator: str, values: list[nodes.NodeNG]
+    ) -> list[nodes.NodeNG]:
         """Removes irrelevant values or returns short-circuiting values.
 
         This function applies the following two rules:
@@ -1363,7 +1365,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         2) False values in OR expressions are only relevant if all values are
            false, and the reverse for AND
         """
-        simplified_values = []
+        simplified_values: list[nodes.NodeNG] = []
 
         for subnode in values:
             inferred_bool = None
@@ -1379,7 +1381,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         return simplified_values or [nodes.Const(operator == "and")]
 
-    def _simplify_boolean_operation(self, bool_op: nodes.BoolOp):
+    def _simplify_boolean_operation(self, bool_op: nodes.BoolOp) -> nodes.BoolOp:
         """Attempts to simplify a boolean operation.
 
         Recursively applies simplification on the operator terms,
@@ -1739,7 +1741,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     @staticmethod
-    def _and_or_ternary_arguments(node: nodes.BoolOp):
+    def _and_or_ternary_arguments(
+        node: nodes.BoolOp,
+    ) -> tuple[nodes.NodeNG, nodes.NodeNG, nodes.NodeNG]:
         false_value = node.values[1]
         condition, true_value = node.values[0].values
         return condition, true_value, false_value

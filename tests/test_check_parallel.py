@@ -109,7 +109,7 @@ class ParallelTestChecker(BaseRawFileChecker):
         for _ in self.data[1::2]:  # Work on pairs of files, see class docstring.
             self.add_message("R9999", args=("From process_module, two files seen.",))
 
-    def get_map_data(self):
+    def get_map_data(self) -> list[str]:
         return self.data
 
     def reduce_map_data(self, linter: PyLinter, data: list[list[str]]) -> None:
@@ -160,10 +160,10 @@ class ThirdParallelTestChecker(ParallelTestChecker):
 class TestCheckParallelFramework:
     """Tests the check_parallel() function's framework."""
 
-    def setup_class(self):
+    def setup_class(self) -> None:
         self._prev_global_linter = pylint.lint.parallel._worker_linter
 
-    def teardown_class(self):
+    def teardown_class(self) -> None:
         pylint.lint.parallel._worker_linter = self._prev_global_linter
 
     def test_worker_initialize(self) -> None:
@@ -411,7 +411,9 @@ class TestCheckParallel:
             (10, 2, 3),
         ],
     )
-    def test_compare_workers_to_single_proc(self, num_files, num_jobs, num_checkers):
+    def test_compare_workers_to_single_proc(
+        self, num_files: int, num_jobs: int, num_checkers: int
+    ) -> None:
         """Compares the 3 key parameters for check_parallel() produces the same results.
 
         The intent here is to ensure that the check_parallel() operates on each file,
@@ -508,7 +510,7 @@ class TestCheckParallel:
             (10, 2, 3),
         ],
     )
-    def test_map_reduce(self, num_files, num_jobs, num_checkers):
+    def test_map_reduce(self, num_files: int, num_jobs: int, num_checkers: int) -> None:
         """Compares the 3 key parameters for check_parallel() produces the same results.
 
         The intent here is to validate the reduce step: no stats should be lost.

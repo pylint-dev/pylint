@@ -145,7 +145,7 @@ class LintModuleTest:
         self._runTest()
 
     def _should_be_skipped_due_to_version(self) -> bool:
-        return (
+        return (  # type: ignore[no-any-return]
             sys.version_info < self._linter.config.min_pyver
             or sys.version_info > self._linter.config.max_pyver
         )

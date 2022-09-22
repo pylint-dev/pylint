@@ -8,23 +8,33 @@ from __future__ import annotations
 import os
 import pathlib
 import sys
-from collections.abc import Callable
+from collections.abc import Sequence
 from io import BufferedReader
-from typing import Any
+from typing import Any, NoReturn
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
-from py._path.local import LocalPath  # type: ignore[import]
+from py._path.local import LocalPath
 
 from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
 from pylint.lint import Run
 from pylint.testutils import GenericTestReporter as Reporter
 
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
+
+
+class _RunCallable(Protocol):  # pylint: disable=too-few-public-methods
+    def __call__(self, argv: Sequence[str] | None = None) -> NoReturn | None:
+        ...
+
 
 @pytest.mark.parametrize(
     "runner", [run_epylint, run_pylint, run_pyreverse, run_symilar]
 )
-def test_runner(runner: Callable, tmpdir: LocalPath) -> None:
+def test_runner(runner: _RunCallable, tmpdir: LocalPath) -> None:
     filepath = os.path.abspath(__file__)
     testargs = ["", filepath]
     with tmpdir.as_cwd():
@@ -37,7 +47,7 @@ def test_runner(runner: Callable, tmpdir: LocalPath) -> None:
 @pytest.mark.parametrize(
     "runner", [run_epylint, run_pylint, run_pyreverse, run_symilar]
 )
-def test_runner_with_arguments(runner: Callable, tmpdir: LocalPath) -> None:
+def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
     """Check the runners with arguments as parameter instead of sys.argv."""
     filepath = os.path.abspath(__file__)
     testargs = [filepath]
@@ -57,14 +67,14 @@ def test_pylint_run_jobs_equal_zero_dont_crash_with_cpu_fraction(
 
     def _mock_open(*args: Any, **kwargs: Any) -> BufferedReader:
         if args[0] == "/sys/fs/cgroup/cpu/cpu.cfs_quota_us":
-            return mock_open(read_data=b"-1")(*args, **kwargs)
+            return mock_open(read_data=b"-1")(*args, **kwargs)  # type: ignore[no-any-return]
         if args[0] == "/sys/fs/cgroup/cpu/cpu.shares":
-            return mock_open(read_data=b"2")(*args, **kwargs)
-        return builtin_open(*args, **kwargs)
+            return mock_open(read_data=b"2")(*args, **kwargs)  # type: ignore[no-any-return]
+        return builtin_open(*args, **kwargs)  # type: ignore[no-any-return]
 
     pathlib_path = pathlib.Path
 
-    def _mock_path(*args: str, **kwargs) -> pathlib.Path:
+    def _mock_path(*args: str, **kwargs: Any) -> pathlib.Path:
         if args[0] == "/sys/fs/cgroup/cpu/cpu.shares":
             return MagicMock(is_file=lambda: True)
         return pathlib_path(*args, **kwargs)

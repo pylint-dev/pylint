@@ -12,6 +12,7 @@ from typing import Any
 
 import astroid
 from astroid import nodes
+from astroid.typing import InferenceResult
 
 from pylint.checkers import utils
 from pylint.checkers.base.basic_checker import _BasicChecker
@@ -432,7 +433,9 @@ class BasicErrorChecker(_BasicChecker):
         for inferred in infer_all(node.func):
             self._check_inferred_class_is_abstract(inferred, node)
 
-    def _check_inferred_class_is_abstract(self, inferred, node: nodes.Call):
+    def _check_inferred_class_is_abstract(
+        self, inferred: InferenceResult, node: nodes.Call
+    ) -> None:
         if not isinstance(inferred, nodes.ClassDef):
             return
 

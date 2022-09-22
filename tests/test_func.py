@@ -25,11 +25,13 @@ FILTER_RGX = None
 INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
 
-def exception_str(self, ex) -> str:  # pylint: disable=unused-argument
+def exception_str(
+    self: Exception, ex: Exception  # pylint: disable=unused-argument
+) -> str:
     """Function used to replace default __str__ method of exception instances
     This function is not typed because it is legacy code
     """
-    return f"in {ex.file}\n:: {', '.join(ex.args)}"
+    return f"in {ex.file}\n:: {', '.join(ex.args)}"  # type: ignore[attr-defined] # Defined in the caller
 
 
 class LintTestUsingModule:
@@ -92,7 +94,7 @@ class LintTestUsingModule:
 
 
 class LintTestUpdate(LintTestUsingModule):
-    def _check_result(self, got):
+    def _check_result(self, got: str) -> None:
         if not self._has_output():
             return
         try:
@@ -100,18 +102,20 @@ class LintTestUpdate(LintTestUsingModule):
         except OSError:
             expected = ""
         if got != expected:
-            with open(self.output, "w", encoding="utf-8") as f:
+            with open(self.output or "", "w", encoding="utf-8") as f:
                 f.write(got)
 
 
-def gen_tests(filter_rgx):
+def gen_tests(
+    filter_rgx: str | re.Pattern[str] | None,
+) -> list[tuple[str, str, list[tuple[str, str]]]]:
     if filter_rgx:
         is_to_run = re.compile(filter_rgx).search
     else:
         is_to_run = (
-            lambda x: 1  # pylint: disable=unnecessary-lambda-assignment
+            lambda x: 1  # type: ignore[assignment,misc] # pylint: disable=unnecessary-lambda-assignment
         )  # noqa: E731 We're going to throw all this anyway
-    tests = []
+    tests: list[tuple[str, str, list[tuple[str, str]]]] = []
     for module_file, messages_file in _get_tests_info(INPUT_DIR, MSG_DIR, "func_", ""):
         if not is_to_run(module_file) or module_file.endswith((".pyc", "$py.class")):
             continue
@@ -135,7 +139,10 @@ TEST_WITH_EXPECTED_DEPRECATION = ["func_excess_escapes.py"]
     ids=[o[0] for o in gen_tests(FILTER_RGX)],
 )
 def test_functionality(
-    module_file, messages_file, dependencies, recwarn: pytest.WarningsRecorder
+    module_file: str,
+    messages_file: str,
+    dependencies: list[tuple[str, str]],
+    recwarn: pytest.WarningsRecorder,
 ) -> None:
     __test_functionality(module_file, messages_file, dependencies)
     if recwarn.list:

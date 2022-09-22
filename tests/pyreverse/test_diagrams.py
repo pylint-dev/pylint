@@ -6,15 +6,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker
 from pylint.testutils.pyreverse import PyreverseConfig
+from pylint.typing import GetProjectCallable
 
 
 def test_property_handling(
-    default_config: PyreverseConfig, get_project: Callable
+    default_config: PyreverseConfig, get_project: GetProjectCallable
 ) -> None:
     project = get_project("data.property_pattern")
     class_diagram = DefaultDiadefGenerator(

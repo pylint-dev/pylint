@@ -52,7 +52,9 @@ class TestInvalidEncoding(pylint.testutils.CheckerTestCase):
             ("pep_bidirectional_utf_32_bom.txt", 1),
         ],
     )
-    def test_invalid_unicode_files(self, tmp_path: Path, test_file: str, line_no: int):
+    def test_invalid_unicode_files(
+        self, tmp_path: Path, test_file: str, line_no: int
+    ) -> None:
         test_file_path = UNICODE_TESTS / test_file
         target = shutil.copy(
             test_file_path, tmp_path / test_file.replace(".txt", ".py")
@@ -126,7 +128,7 @@ class TestInvalidEncoding(pylint.testutils.CheckerTestCase):
             ),
         ],
     )
-    def test__determine_codec(self, content: bytes, codec: str, line: int):
+    def test__determine_codec(self, content: bytes, codec: str, line: int) -> None:
         """The codec determined should be exact no matter what we throw at it."""
         assert self.checker._determine_codec(io.BytesIO(content)) == (codec, line)
 
@@ -139,6 +141,8 @@ class TestInvalidEncoding(pylint.testutils.CheckerTestCase):
         "codec, msg",
         (pytest.param(codec, msg, id=codec) for codec, msg in CODEC_AND_MSG),
     )
-    def test___check_codec(self, codec: str, msg: tuple[pylint.testutils.MessageTest]):
+    def test___check_codec(
+        self, codec: str, msg: tuple[pylint.testutils.MessageTest]
+    ) -> None:
         with self.assertAddsMessages(*msg):
             self.checker._check_codec(codec, 1)

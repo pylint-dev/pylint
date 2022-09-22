@@ -18,6 +18,7 @@ from collections.abc import Callable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
+from types import ModuleType
 from typing import Any
 
 import astroid
@@ -94,7 +95,7 @@ def _load_reporter_by_class(reporter_class: str) -> type[BaseReporter]:
     class_name = qname.split(".")[-1]
     klass = getattr(module, class_name)
     assert issubclass(klass, BaseReporter), f"{klass} is not a BaseReporter"
-    return klass
+    return klass  # type: ignore[no-any-return]
 
 
 # Python Linter class #########################################################
@@ -295,7 +296,7 @@ class PyLinter(
             str, list[checkers.BaseChecker]
         ] = collections.defaultdict(list)
         """Dictionary of registered and initialized checkers."""
-        self._dynamic_plugins: set[str] = set()
+        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError] = {}
         """Set of loaded plugin names."""
 
         # Attributes related to registering messages and their handling
@@ -345,6 +346,7 @@ class PyLinter(
         warnings.warn(
             "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         return self._option_groups
 
@@ -353,6 +355,7 @@ class PyLinter(
         warnings.warn(
             "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         self._option_groups = value
 
@@ -361,16 +364,21 @@ class PyLinter(
         reporters.initialize(self)
 
     def load_plugin_modules(self, modnames: list[str]) -> None:
-        """Check a list pylint plugins modules, load and register them."""
+        """Check a list of pylint plugins modules, load and register them.
+
+        If a module cannot be loaded, never try to load it again and instead
+        store the error message for later use in ``load_plugin_configuration``
+        below.
+        """
         for modname in modnames:
             if modname in self._dynamic_plugins:
                 continue
-            self._dynamic_plugins.add(modname)
             try:
                 module = astroid.modutils.load_module_from_name(modname)
                 module.register(self)
-            except ModuleNotFoundError:
-                pass
+                self._dynamic_plugins[modname] = module
+            except ModuleNotFoundError as mnf_e:
+                self._dynamic_plugins[modname] = mnf_e
 
     def load_plugin_configuration(self) -> None:
         """Call the configuration hook for plugins.
@@ -378,14 +386,23 @@ class PyLinter(
         This walks through the list of plugins, grabs the "load_configuration"
         hook, if exposed, and calls it to allow plugins to configure specific
         settings.
+
+        The result of attempting to load the plugin of the given name
+        is stored in the dynamic plugins dictionary in ``load_plugin_modules`` above.
+
+        ..note::
+            This function previously always tried to load modules again, which
+            led to some confusion and silent failure conditions as described
+            in GitHub issue #7264. Making it use the stored result is more efficient, and
+            means that we avoid the ``init-hook`` problems from before.
         """
-        for modname in self._dynamic_plugins:
-            try:
-                module = astroid.modutils.load_module_from_name(modname)
-                if hasattr(module, "load_configuration"):
-                    module.load_configuration(self)
-            except ModuleNotFoundError as e:
-                self.add_message("bad-plugin-value", args=(modname, e), line=0)
+        for modname, module_or_error in self._dynamic_plugins.items():
+            if isinstance(module_or_error, ModuleNotFoundError):
+                self.add_message(
+                    "bad-plugin-value", args=(modname, module_or_error), line=0
+                )
+            elif hasattr(module_or_error, "load_configuration"):
+                module_or_error.load_configuration(self)
 
     def _load_reporters(self, reporter_names: str) -> None:
         """Load the reporters if they are available on _reporters."""
@@ -635,6 +652,7 @@ class PyLinter(
             warnings.warn(
                 "In pylint 3.0, the checkers check function will only accept sequence of string",
                 DeprecationWarning,
+                stacklevel=2,
             )
             files_or_modules = (files_or_modules,)  # type: ignore[assignment]
         if self.config.recursive:
@@ -660,9 +678,7 @@ class PyLinter(
         # 3) Get all FileItems
         with fix_import_path(files_or_modules):
             if self.config.from_stdin:
-                fileitems = iter(
-                    (self._get_file_descr_from_stdin(files_or_modules[0]),)
-                )
+                fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
                 data: str | None = _read_stdin()
             else:
                 fileitems = self._iterate_file_descrs(files_or_modules)
@@ -708,6 +724,7 @@ class PyLinter(
             "In pylint 3.0, the checkers check_single_file function will be removed. "
             "Use check_single_file_item instead.",
             DeprecationWarning,
+            stacklevel=2,
         )
         self.check_single_file_item(FileItem(name, filepath, modname))
 
@@ -817,14 +834,21 @@ class PyLinter(
         for msgid, line, args in spurious_messages:
             self.add_message(msgid, line, None, args)
 
-    @staticmethod
-    def _get_file_descr_from_stdin(filepath: str) -> FileItem:
+    def _get_file_descr_from_stdin(self, filepath: str) -> Iterator[FileItem]:
         """Return file description (tuple of module name, file path, base name) from
         given file path.
 
         This method is used for creating suitable file description for _check_files when the
         source is standard input.
         """
+        if _is_ignored_file(
+            filepath,
+            self.config.ignore,
+            self.config.ignore_patterns,
+            self.config.ignore_paths,
+        ):
+            return
+
         try:
             # Note that this function does not really perform an
             # __import__ but may raise an ImportError exception, which
@@ -833,7 +857,7 @@ class PyLinter(
         except ImportError:
             modname = os.path.splitext(os.path.basename(filepath))[0]
 
-        return FileItem(modname, filepath, filepath)
+        yield FileItem(modname, filepath, filepath)
 
     def _iterate_file_descrs(
         self, files_or_modules: Sequence[str]
@@ -883,6 +907,7 @@ class PyLinter(
                     "If unknown it should be initialized as an empty string."
                 ),
                 DeprecationWarning,
+                stacklevel=2,
             )
         self.current_name = modname
         self.current_file = filepath or modname
@@ -919,9 +944,7 @@ class PyLinter(
         walker = ASTWalker(self)
         _checkers = self.prepare_checkers()
         tokencheckers = [
-            c
-            for c in _checkers
-            if isinstance(c, checkers.BaseTokenChecker) and c is not self
+            c for c in _checkers if isinstance(c, checkers.BaseTokenChecker)
         ]
         # TODO: 3.0: Remove deprecated for-loop
         for c in _checkers:

@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+# type: ignore # Deprecated module.
+
 import optparse  # pylint: disable=deprecated-module
 import warnings
 
@@ -27,6 +29,7 @@ class OptionsProviderMixIn:
         warnings.warn(
             "OptionsProviderMixIn has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         self.config = optparse.Values()
         self.load_defaults()

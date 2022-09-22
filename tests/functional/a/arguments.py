@@ -1,6 +1,6 @@
 # pylint: disable=too-few-public-methods, missing-docstring,import-error,wrong-import-position
 # pylint: disable=wrong-import-order, unnecessary-lambda, consider-using-f-string
-# pylint: disable=unnecessary-lambda-assignment
+# pylint: disable=unnecessary-lambda-assignment, no-self-argument, unused-argument
 
 def decorator(fun):
     """Decorator"""
@@ -261,3 +261,20 @@ def func(one, two, three):
 
 
 CALL = lambda *args: func(*args)
+
+
+# Ensure `too-many-function-args` is not emitted when a function call is assigned
+# to a class attribute inside the class where the function is defined.
+# Reference: https://github.com/PyCQA/pylint/issues/6592
+class FruitPicker:
+    def _pick_fruit(fruit):
+        def _print_selection(self):
+            print(f"Selected: {fruit}!")
+        return _print_selection
+
+    pick_apple = _pick_fruit("apple")
+    pick_pear = _pick_fruit("pear")
+
+picker = FruitPicker()
+picker.pick_apple()
+picker.pick_pear()

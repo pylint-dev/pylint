@@ -18,3 +18,24 @@ print('but trailing whitespace on win is not')
 """ This module has the Board class.
 It's a very nice Board.
 """ 
+
+# Regression test for https://github.com/PyCQA/pylint/issues/3822
+def example(*args):
+    """Example function."""
+    print(*args)
+
+
+example(
+    "bob", """
+    foobar 
+    more text
+""",
+)
+
+example(
+    "bob",
+    """
+    foobar2 
+    more text
+""",
+)

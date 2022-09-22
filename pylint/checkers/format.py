@@ -273,7 +273,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         line = tokens.line(line_start)
         if tokens.type(line_start) not in _JUNK_TOKENS:
             self._lines[line_num] = line.split("\n")[0]
-        self.check_lines(line, line_num)
+        self.check_lines(tokens, line_start, line, line_num)
 
     def process_module(self, node: nodes.Module) -> None:
         pass
@@ -404,12 +404,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 # the full line; therefore we check the next token on the line.
                 if tok_type == tokenize.INDENT:
                     self.new_line(TokenWrapper(tokens), idx - 1, idx + 1)
-                # A tokenizer oddity: if a line contains a multi-line string,
-                # the NEWLINE also gets its own token which we already checked in
-                # the multi-line docstring case.
-                # See https://github.com/PyCQA/pylint/issues/6936
-                elif tok_type == tokenize.NEWLINE:
-                    pass
                 else:
                     self.new_line(TokenWrapper(tokens), idx - 1, idx)
 
@@ -580,13 +574,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         self.add_message("multiple-statements", node=node)
         self._visited_lines[line] = 2
 
-    def check_line_ending(self, line: str, i: int) -> None:
-        """Check that the final newline is not missing and that there is no trailing
-        white-space.
-        """
-        if not line.endswith("\n"):
-            self.add_message("missing-final-newline", line=i)
-            return
+    def check_trailing_whitespace_ending(self, line: str, i: int) -> None:
+        """Check that there is no trailing white-space."""
         # exclude \f (formfeed) from the rstrip
         stripped_line = line.rstrip("\t\n\r\v ")
         if line[len(stripped_line) :] not in ("\n", "\r\n"):
@@ -655,7 +644,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 buffer += atomic_line
         return res
 
-    def check_lines(self, lines: str, lineno: int) -> None:
+    def check_lines(
+        self, tokens: TokenWrapper, line_start: int, lines: str, lineno: int
+    ) -> None:
         """Check given lines for potential messages.
 
         Check if lines have:
@@ -676,7 +667,14 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         split_lines = self.specific_splitlines(lines)
 
         for offset, line in enumerate(split_lines):
-            self.check_line_ending(line, lineno + offset)
+            if not line.endswith("\n"):
+                self.add_message("missing-final-newline", line=lineno + offset)
+                continue
+            # We don't test for trailing whitespaces in strings
+            # See https://github.com/PyCQA/pylint/issues/6936
+            # and https://github.com/PyCQA/pylint/issues/3822
+            if tokens.type(line_start) != tokenize.STRING:
+                self.check_trailing_whitespace_ending(line, lineno + offset)
 
         # hold onto the initial lineno for later
         potential_line_length_warning = False

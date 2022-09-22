@@ -55,10 +55,10 @@ except ImportError:
         pass
 
     def get_tokenizer(
-        tag: str | None = None,
-        chunkers: list[Chunker] | None = None,
-        filters: list[Filter] | None = None,
-    ):  # pylint: disable=unused-argument
+        tag: str | None = None,  # pylint: disable=unused-argument
+        chunkers: list[Chunker] | None = None,  # pylint: disable=unused-argument
+        filters: list[Filter] | None = None,  # pylint: disable=unused-argument
+    ) -> Filter:
         return Filter()
 
 
@@ -75,14 +75,14 @@ else:
     instr = " To make it work, install the 'python-enchant' package."
 
 
-class WordsWithDigitsFilter(Filter):
+class WordsWithDigitsFilter(Filter):  # type: ignore[misc]
     """Skips words with digits."""
 
     def _skip(self, word: str) -> bool:
         return any(char.isdigit() for char in word)
 
 
-class WordsWithUnderscores(Filter):
+class WordsWithUnderscores(Filter):  # type: ignore[misc]
     """Skips words with underscores.
 
     They are probably function parameter names.
@@ -92,7 +92,7 @@ class WordsWithUnderscores(Filter):
         return "_" in word
 
 
-class RegExFilter(Filter):
+class RegExFilter(Filter):  # type: ignore[misc]
     """Parent class for filters using regular expressions.
 
     This filter skips any words the match the expression
@@ -128,12 +128,14 @@ class SphinxDirectives(RegExFilter):
     _pattern = re.compile(r"^(:([a-z]+)){1,2}:`([^`]+)(`)?")
 
 
-class ForwardSlashChunker(Chunker):
+class ForwardSlashChunker(Chunker):  # type: ignore[misc]
     """This chunker allows splitting words like 'before/after' into 'before' and
     'after'.
     """
 
-    def next(self):
+    _text: str
+
+    def next(self) -> tuple[str, int]:
         while True:
             if not self._text:
                 raise StopIteration()

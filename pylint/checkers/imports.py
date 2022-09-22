@@ -11,8 +11,8 @@ import copy
 import os
 import sys
 from collections import defaultdict
-from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any
+from collections.abc import ItemsView, Sequence
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import astroid
 from astroid import nodes
@@ -37,6 +37,9 @@ from pylint.utils.linterstats import LinterStats
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
+# The dictionary with Any should actually be a _ImportTree again
+# but mypy doesn't support recursive types yet
+_ImportTree = Dict[str, Union[List[Dict[str, Any]], List[str]]]
 
 DEPRECATED_MODULES = {
     (0, 0, 0): {"tkinter.tix", "fpectl"},
@@ -57,6 +60,7 @@ DEPRECATED_MODULES = {
         "crypt",
         "imghdr",
         "msilib",
+        "mailcap",
         "nis",
         "nntplib",
         "ossaudiodev",
@@ -148,35 +152,37 @@ def _ignore_import_failure(
 # utilities to represents import dependencies as tree and dot graph ###########
 
 
-def _make_tree_defs(mod_files_list):
+def _make_tree_defs(mod_files_list: ItemsView[str, set[str]]) -> _ImportTree:
     """Get a list of 2-uple (module, list_of_files_which_import_this_module),
     it will return a dictionary to represent this as a tree.
     """
-    tree_defs = {}
+    tree_defs: _ImportTree = {}
     for mod, files in mod_files_list:
-        node = (tree_defs, ())
+        node: list[_ImportTree | list[str]] = [tree_defs, []]
         for prefix in mod.split("."):
-            node = node[0].setdefault(prefix, [{}, []])
+            assert isinstance(node[0], dict)
+            node = node[0].setdefault(prefix, ({}, []))  # type: ignore[arg-type,assignment]
+        assert isinstance(node[1], list)
         node[1] += files
     return tree_defs
 
 
-def _repr_tree_defs(data, indent_str=None):
+def _repr_tree_defs(data: _ImportTree, indent_str: str | None = None) -> str:
     """Return a string which represents imports as a tree."""
     lines = []
     nodes_items = data.items()
     for i, (mod, (sub, files)) in enumerate(sorted(nodes_items, key=lambda x: x[0])):
-        files = "" if not files else f"({','.join(sorted(files))})"
+        files_list = "" if not files else f"({','.join(sorted(files))})"
         if indent_str is None:
-            lines.append(f"{mod} {files}")
+            lines.append(f"{mod} {files_list}")
             sub_indent_str = "  "
         else:
-            lines.append(rf"{indent_str}\-{mod} {files}")
+            lines.append(rf"{indent_str}\-{mod} {files_list}")
             if i == len(nodes_items) - 1:
                 sub_indent_str = f"{indent_str}  "
             else:
                 sub_indent_str = f"{indent_str}| "
-        if sub:
+        if sub and isinstance(sub, dict):
             lines.append(_repr_tree_defs(sub, sub_indent_str))
     return "\n".join(lines)
 
@@ -420,7 +426,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     def __init__(self, linter: PyLinter) -> None:
         BaseChecker.__init__(self, linter)
         self.import_graph: defaultdict[str, set[str]] = defaultdict(set)
-        self._imports_stack: list[tuple[Any, Any]] = []
+        self._imports_stack: list[tuple[ImportNode, str]] = []
         self._first_non_import_node = None
         self._module_pkg: dict[
             Any, Any
@@ -692,24 +698,32 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self._imports_stack.append((node, importedname))
 
     @staticmethod
-    def _is_fallback_import(node, imports):
+    def _is_fallback_import(
+        node: ImportNode, imports: list[tuple[ImportNode, str]]
+    ) -> bool:
         imports = [import_node for (import_node, _) in imports]
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
-    def _check_imports_order(self, _module_node):
+    def _check_imports_order(
+        self, _module_node: nodes.Module
+    ) -> tuple[
+        list[tuple[ImportNode, str]],
+        list[tuple[ImportNode, str]],
+        list[tuple[ImportNode, str]],
+    ]:
         """Checks imports of module `node` are grouped by category.
 
         Imports must follow this order: standard, 3rd party, local
         """
-        std_imports = []
-        third_party_imports = []
-        first_party_imports = []
+        std_imports: list[tuple[ImportNode, str]] = []
+        third_party_imports: list[tuple[ImportNode, str]] = []
+        first_party_imports: list[tuple[ImportNode, str]] = []
         # need of a list that holds third or first party ordered import
-        external_imports = []
-        local_imports = []
-        third_party_not_ignored = []
-        first_party_not_ignored = []
-        local_not_ignored = []
+        external_imports: list[tuple[ImportNode, str]] = []
+        local_imports: list[tuple[ImportNode, str]] = []
+        third_party_not_ignored: list[tuple[ImportNode, str]] = []
+        first_party_not_ignored: list[tuple[ImportNode, str]] = []
+        local_not_ignored: list[tuple[ImportNode, str]] = []
         isort_driver = IsortDriver(self.linter.config)
         for node, modname in self._imports_stack:
             if modname.startswith("."):
@@ -864,7 +878,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ):
                 self._excluded_edges[context_name].add(importedmodname)
 
-    def _check_preferred_module(self, node, mod_path):
+    def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
         """Check if the module has a preferred replacement."""
         if mod_path in self.preferred_modules:
             self.add_message(

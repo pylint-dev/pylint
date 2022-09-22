@@ -34,10 +34,11 @@ requires-python = ">=3.7.2"
 dependencies    = [
     "dill>=0.2",
     "platformdirs>=2.2.0",
-    # Also upgrade requirements_test_min.txt if you are bumping astroid.
+    # Also upgrade requirements_test_min.txt and all the CACHE_VERSION in
+    # github actions if you are bumping astroid.
     # Pinned to dev of second minor update to allow editable installs and fix primer issues,
     # see https://github.com/PyCQA/astroid/issues/1341
-    "astroid>=2.12.5,<=2.14.0-dev0",
+    "astroid>=2.12.10,<=2.14.0-dev0",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.8",
     "tomli>=1.1.0;python_version<'3.11'",

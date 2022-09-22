@@ -308,10 +308,10 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
         #   to show up in the pytest output as part of the test name
         #   when running parameterized tests.
         self,
-        misspelled_portion_of_directive,
-        second_portion_of_directive,
-        description,
-    ):
+        misspelled_portion_of_directive: str,
+        second_portion_of_directive: str,
+        description: str,
+    ) -> None:
         full_comment = f"# {misspelled_portion_of_directive}{second_portion_of_directive} {misspelled_portion_of_directive}"
         with self.assertAddsMessages(
             MessageTest(
@@ -386,7 +386,7 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
         spelling_dict=spell_dict,
         spelling_ignore_comment_directives="newdirective:,noqa",
     )
-    def test_skip_directives_specified_in_pylintrc(self):
+    def test_skip_directives_specified_in_pylintrc(self) -> None:
         full_comment = "# newdirective: do this newdirective"
         with self.assertAddsMessages(
             MessageTest(
