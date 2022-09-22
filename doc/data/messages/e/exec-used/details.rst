@@ -7,4 +7,4 @@ that writes a file to the user's system:
 
 .. code-block:: python
 
-    exec("""\nwith open("file.txt", "w", encoding="utf-8") as file:\n file.write("test")\n""")
+    exec("""\nwith open("file.txt", "w", encoding="utf-8") as file:\n file.write("# code as nefarious as imaginable")\n""")
