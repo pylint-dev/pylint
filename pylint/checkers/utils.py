@@ -1963,3 +1963,68 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         return False
     except astroid.InferenceError:
         return True
+
+
+def get_full_name_of_attribute(node: nodes.Attribute | nodes.AssignAttr) -> str:
+    """Return the full name of an attribute and the classes it belongs to.
+
+    For example: "Class1.Class2.attr"
+    """
+    parent = node.parent
+    ret = node.attrname or ""
+    while isinstance(parent, (nodes.Attribute, nodes.Name)):
+        if isinstance(parent, nodes.Attribute):
+            ret = f"{parent.attrname}.{ret}"
+        else:
+            ret = f"{parent.name}.{ret}"
+        parent = parent.parent
+    return ret
+
+
+def _is_target_name_in_binop_side(
+    target: nodes.AssignName | nodes.AssignAttr, side: nodes.NodeNG | None
+) -> bool:
+    """Determine whether the target name-like node is referenced in the side node."""
+    if isinstance(side, nodes.Name):
+        if isinstance(target, nodes.AssignName):
+            return target.name == side.name  # type: ignore[no-any-return]
+        return False
+    if isinstance(side, nodes.Attribute) and isinstance(target, nodes.AssignAttr):
+        return get_full_name_of_attribute(target) == get_full_name_of_attribute(side)
+    return False
+
+
+def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
+    """Determine if the node is assigning itself (with modifications) to itself.
+
+    For example: x = 1 + x
+    """
+    if not isinstance(node.value, nodes.BinOp):
+        return False, ""
+
+    binop = node.value
+    target = node.targets[0]
+
+    if not isinstance(target, (nodes.AssignName, nodes.AssignAttr)):
+        return False, ""
+
+    # We don't want to catch x = "1" + x or x = "%s" % x
+    if isinstance(binop.left, nodes.Const) and isinstance(
+        binop.left.value, (str, bytes)
+    ):
+        return False, ""
+
+    # This could probably be improved but for now we disregard all assignments from calls
+    if isinstance(binop.left, nodes.Call) or isinstance(binop.right, nodes.Call):
+        return False, ""
+
+    if _is_target_name_in_binop_side(target, binop.left):
+        return True, binop.op
+    if _is_target_name_in_binop_side(target, binop.right):
+        inferred_left = safe_infer(binop.left)
+        if isinstance(inferred_left, nodes.Const) and isinstance(
+            inferred_left.value, int
+        ):
+            return True, binop.op
+        return False, ""
+    return False, ""
