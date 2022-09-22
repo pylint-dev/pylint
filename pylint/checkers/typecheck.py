@@ -1093,6 +1093,7 @@ accessed. Python regular expressions are accepted.",
             inferred = list(node.expr.infer())
         except astroid.InferenceError:
             return
+        inferred = [i for i in inferred if i is not astroid.Uninferable]
 
         # list of (node, nodename) which are missing the attribute
         missingattr: set[tuple[SuccessfulInferenceResult, str | None]] = set()

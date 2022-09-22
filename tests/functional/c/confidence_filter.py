@@ -5,7 +5,7 @@ class Client:
     """use provider class"""
 
     def __init__(self):
-        self.set_later = 0
+        self.set_later = "tomato"
 
     def set_set_later(self, value):
         """set set_later attribute (introduce an inference ambiguity)"""

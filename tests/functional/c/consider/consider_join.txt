@@ -9,3 +9,4 @@ consider-using-join:71:4:71:20::Consider using str.join(sequence) for concatenat
 consider-using-join:75:4:75:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
 consider-using-join:79:4:79:20::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
 consider-using-join:110:31:110:47::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
+no-member:114:4:114:17::Instance of 'str' has no 'result' member:INFERENCE

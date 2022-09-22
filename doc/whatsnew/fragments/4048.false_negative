@@ -1,0 +1,3 @@
+Fix false negative for ``no-member`` when accessing an attribute of a function argument.
+
+Closes #4048

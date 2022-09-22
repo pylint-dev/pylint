@@ -111,7 +111,7 @@ for number in ['1', '2', '3']: result += number  # [consider-using-join]
 
 result = ''
 for number in ['1']:
-    result.result += number
+    result.result += number  # [no-member]
 
 # Does not emit if the body is more complex
 result = {'context': 1}

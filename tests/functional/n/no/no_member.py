@@ -46,3 +46,8 @@ print(Derived.label)
 
 # Regression test for https://github.com/PyCQA/pylint/issues/5832
 starter_path = Path(__file__).parents[3].resolve()
+
+
+# https://github.com/PyCQA/pylint/issues/4048
+def _func(param=True):
+    print(param.name)  # [no-member]

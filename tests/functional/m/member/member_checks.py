@@ -21,7 +21,7 @@ class Client:
         self._prov = Provider()
         self._prov_attr = Provider.cattr
         self._prov_attr2 = Provider.cattribute  # [no-member]
-        self.set_later = 0
+        self.set_later = "tomato"
 
     def set_set_later(self, value):
         """set set_later attribute (introduce an inference ambiguity)"""
