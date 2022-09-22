@@ -79,3 +79,50 @@ pylint = ["testutils/testing_pylintrc"]
 
 [tool.setuptools.dynamic]
 version = {attr = "pylint.__pkginfo__.__version__"}
+
+[tool.aliases]
+test = "pytest"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["*test_*.py"]
+addopts = "--strict-markers"
+markers = [
+    "primer_stdlib: Checks for crashes and errors when running pylint on stdlib",
+    "primer_external_batch_one: Checks for crashes and errors when running pylint on external libs (batch one)",
+    "benchmark: Baseline of pylint performance, if this regress something serious happened",
+    "timeout: Marks from pytest-timeout.",
+    "needs_two_cores: Checks that need 2 or more cores to be meaningful",
+]
+
+[tool.isort]
+profile = "black"
+known_third_party = ["platformdirs", "astroid", "sphinx", "isort", "pytest", "mccabe", "six", "toml"]
+skip_glob = ["tests/functional/**", "tests/input/**", "tests/extensions/data/**", "tests/regrtest_data/**", "tests/data/**", "astroid/**", "venv/**"]
+src_paths = ["pylint"]
+
+[tool.mypy]
+scripts_are_modules = true
+warn_unused_ignores = true
+show_error_codes = true
+enable_error_code = "ignore-without-code"
+strict = true
+# TODO: Remove this once pytest has annotations
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = [
+    "_pytest.*",
+    "_string",
+    "astroid.*",
+    "contributors_txt",
+    "coverage",
+    "dill",
+    "enchant.*",
+    "git.*",
+    "mccabe",
+    "pytest_benchmark.*",
+    "pytest",
+    "sphinx.*",
+]
