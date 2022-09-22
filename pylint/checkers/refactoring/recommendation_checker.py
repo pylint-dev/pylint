@@ -9,7 +9,7 @@ from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers import utils
-from pylint.interfaces import HIGH
+from pylint.interfaces import INFERENCE
 
 
 class RecommendationChecker(checkers.BaseChecker):
@@ -435,5 +435,5 @@ class RecommendationChecker(checkers.BaseChecker):
                 node=node,
                 line=node.lineno,
                 col_offset=node.col_offset,
-                confidence=HIGH,
+                confidence=INFERENCE,
             )

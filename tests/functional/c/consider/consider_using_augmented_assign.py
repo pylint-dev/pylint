@@ -1,6 +1,8 @@
 """Tests for consider-using-augmented-assign."""
 
-# pylint: disable=invalid-name,too-few-public-methods
+# pylint: disable=invalid-name,too-few-public-methods,import-error,consider-using-f-string
+
+from unknown import Unknown
 
 x = 1
 x = x + 1  # [consider-using-augmented-assign]
@@ -45,3 +47,11 @@ def return_str() -> str:
 
 # Currently we disregard all calls
 my_str = return_str() + my_str
+
+my_str = my_str % return_str()
+my_str = my_str % 1  # [consider-using-augmented-assign]
+my_str = my_str % (1, 2)  # [consider-using-augmented-assign]
+my_str = "%s" % my_str
+my_str = return_str() % my_str
+my_str = Unknown % my_str
+my_str = my_str % Unknown  # [consider-using-augmented-assign]

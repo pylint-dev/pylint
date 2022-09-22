@@ -1,7 +1,10 @@
-consider-using-augmented-assign:6:0:6:9::Use '+=' to do an augmented assign directly:HIGH
-consider-using-augmented-assign:7:0:7:9::Use '+=' to do an augmented assign directly:HIGH
-consider-using-augmented-assign:21:8:21:27:MyClass.__init__:Use '+=' to do an augmented assign directly:HIGH
-consider-using-augmented-assign:22:8:22:27:MyClass.__init__:Use '+=' to do an augmented assign directly:HIGH
-redefined-outer-name:24:8:24:9:MyClass.__init__:Redefining name 'x' from outer scope (line 5):UNDEFINED
-consider-using-augmented-assign:33:0:33:23::Use '+=' to do an augmented assign directly:HIGH
-consider-using-augmented-assign:37:0:37:28::Use '+=' to do an augmented assign directly:HIGH
+consider-using-augmented-assign:8:0:8:9::Use '+=' to do an augmented assign directly:INFERENCE
+consider-using-augmented-assign:9:0:9:9::Use '+=' to do an augmented assign directly:INFERENCE
+consider-using-augmented-assign:23:8:23:27:MyClass.__init__:Use '+=' to do an augmented assign directly:INFERENCE
+consider-using-augmented-assign:24:8:24:27:MyClass.__init__:Use '+=' to do an augmented assign directly:INFERENCE
+redefined-outer-name:26:8:26:9:MyClass.__init__:Redefining name 'x' from outer scope (line 7):UNDEFINED
+consider-using-augmented-assign:35:0:35:23::Use '+=' to do an augmented assign directly:INFERENCE
+consider-using-augmented-assign:39:0:39:28::Use '+=' to do an augmented assign directly:INFERENCE
+consider-using-augmented-assign:52:0:52:19::Use '%=' to do an augmented assign directly:INFERENCE
+consider-using-augmented-assign:53:0:53:24::Use '%=' to do an augmented assign directly:INFERENCE
+consider-using-augmented-assign:57:0:57:25::Use '%=' to do an augmented assign directly:INFERENCE

@@ -2011,7 +2011,7 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
     if not isinstance(target, (nodes.AssignName, nodes.AssignAttr)):
         return False, ""
 
-    # We don't want to catch x = "1" + x
+    # We don't want to catch x = "1" + x or x = "%s" % x
     if isinstance(binop.left, nodes.Const) and isinstance(
         binop.left.value, (str, bytes)
     ):
@@ -2024,6 +2024,8 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
     if _is_target_name_in_binop_side(target, binop.left):
         return True, binop.op
     if _is_target_name_in_binop_side(target, binop.right):
+        if binop.op == "%" and safe_infer(binop.left) is astroid.Uninferable:
+            return False, ""
         return True, binop.op
 
     return False, ""
