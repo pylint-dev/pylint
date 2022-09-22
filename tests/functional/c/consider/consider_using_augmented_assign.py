@@ -60,3 +60,18 @@ my_str = "%s" % my_str
 my_str = return_str() % my_str
 my_str = Unknown % my_str
 my_str = my_str % Unknown  # [consider-using-augmented-assign]
+
+x = x - 3  # [consider-using-augmented-assign]
+x = x * 3  # [consider-using-augmented-assign]
+x = x / 3  # [consider-using-augmented-assign]
+x = x // 3  # [consider-using-augmented-assign]
+x = x << 3  # [consider-using-augmented-assign]
+x = x >> 3  # [consider-using-augmented-assign]
+x = x % 3  # [consider-using-augmented-assign]
+x = x**3  # [consider-using-augmented-assign]
+x = x ^ 3  # [consider-using-augmented-assign]
+x = x & 3  # [consider-using-augmented-assign]
+x = x > 3
+x = x < 3
+x = x >= 3
+x = x <= 3
