@@ -1950,11 +1950,11 @@ a metaclass class method.",
             # Check if there is a decorator which is not named `staticmethod` but is assigned to one.
             return
         # class / regular method with no args
-        elif (
-            not node.args.args
-            and not node.args.posonlyargs
-            and not node.args.vararg
-            and not node.args.kwarg
+        elif not (
+            node.args.args
+            or node.args.posonlyargs
+            or node.args.vararg
+            or node.args.kwarg
         ):
             self.add_message("no-method-argument", node=node, args=node.name)
         # metaclass
