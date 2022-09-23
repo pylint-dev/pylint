@@ -44,7 +44,7 @@ class TestArgparseOptionsProviderMixin:
         """Check that we parse the rcfile for the logging checker correctly."""
         with pytest.raises(SystemExit) as ex:
             # replace only the last .py in the string with .rc
-            # we do so by inverting the string and replace the first occurence (of the inverted tokens!)
+            # we do so by inverting the string and replace the first occurrence (of the inverted tokens!)
             _rcfile = LOGGING_TEST[::-1].replace("yp.", "cr.", 1)[::-1]
             Run([LOGGING_TEST, f"--rcfile={_rcfile}"])
         assert ex.value.code == 0
