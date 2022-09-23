@@ -1,5 +1,5 @@
 """Tests for no-member in relation to AugAssign operations."""
-# pylint: disable=missing-module-docstring, too-few-public-methods, missing-class-docstring, invalid-name
+# pylint: disable=missing-module-docstring, too-few-public-methods, missing-class-docstring, invalid-name, consider-using-augmented-assign
 
 # Test for: https://github.com/PyCQA/pylint/issues/4562
 class A:
