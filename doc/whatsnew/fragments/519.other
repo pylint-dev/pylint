@@ -1,3 +1,3 @@
-Code following call to ``sys.exit`` will be marked as `unreachable`. 
+Code following call to ``sys.exit`` will be marked as `unreachable`.
 
 Refs #1234
