@@ -526,13 +526,13 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "descendant of the class where it's defined.",
     ),
     "E0211": (
-        "Method has no argument",
+        "Method %r has no argument",
         "no-method-argument",
         "Used when a method which should have the bound instance as "
         "first argument has no argument defined.",
     ),
     "E0213": (
-        'Method should have "self" as first argument',
+        'Method %r should have "self" as first argument',
         "no-self-argument",
         'Used when a method has an attribute different the "self" as '
         "first argument. This is considered as an error since this is "
@@ -1956,7 +1956,7 @@ a metaclass class method.",
             and not node.args.vararg
             and not node.args.kwarg
         ):
-            self.add_message("no-method-argument", node=node)
+            self.add_message("no-method-argument", node=node, args=node.name)
         # metaclass
         elif metaclass:
             # metaclass __new__ or classmethod
@@ -1988,7 +1988,7 @@ a metaclass class method.",
             )
         # regular class with regular method without self as argument
         elif first != "self":
-            self.add_message("no-self-argument", node=node)
+            self.add_message("no-self-argument", node=node, args=node.name)
 
     def _check_first_arg_config(
         self,

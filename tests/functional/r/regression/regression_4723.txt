@@ -1,1 +1,1 @@
-no-method-argument:15:4:15:12:B.play:Method has no argument:UNDEFINED
+no-method-argument:15:4:15:12:B.play:Method 'play' has no argument:UNDEFINED
