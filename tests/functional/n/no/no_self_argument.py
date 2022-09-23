@@ -38,3 +38,12 @@ class NoSelfArgument:
     def concatenate_strings(string1, string2):
         """A staticmethod created by `returns_staticmethod` function"""
         return string1 + string2
+
+    def varargs(*args):  # [no-self-argument]
+        """A method without a self argument but with *args."""
+
+    def kwargs(**kwargs):  # [no-self-argument]
+        """A method without a self argument but with **kwargs."""
+
+    def varargs_and_kwargs(*args, **kwargs):  # [no-self-argument]
+        """A method without a self argument but with *args and **kwargs."""
