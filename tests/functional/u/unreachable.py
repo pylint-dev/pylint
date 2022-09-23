@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring, broad-exception-raised
 
+import sys
 
 def func1():
     return 1
@@ -32,3 +33,8 @@ def func6():
     return
     yield
     print("unreachable")  # [unreachable]
+
+def func7():
+    sys.exit(1)
+    var = 2 + 2  # [unreachable]
+    print(var)  # ideally this would also be detected as unreachable
