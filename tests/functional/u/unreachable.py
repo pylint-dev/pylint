@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring, broad-exception-raised
 
+import signal
 import sys
 
 def func1():
@@ -38,3 +39,10 @@ def func7():
     sys.exit(1)
     var = 2 + 2  # [unreachable]
     print(var)
+
+def func8():
+    signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
+    try:
+        print(1)
+    except KeyboardInterrupt:
+        pass
