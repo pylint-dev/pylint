@@ -37,4 +37,4 @@ def func6():
 def func7():
     sys.exit(1)
     var = 2 + 2  # [unreachable]
-    print(var)  # ideally this would also be detected as unreachable
+    print(var)
