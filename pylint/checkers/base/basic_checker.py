@@ -673,9 +673,9 @@ class BasicChecker(_BasicChecker):
         3. check if this call is sys.exit and is followed by unreachable code
         """
         if (
-                isinstance(node.func, nodes.Attribute)
-                and node.func.attrname == "exit"
-                and not isinstance(node.parent, nodes.Lambda)
+            isinstance(node.func, nodes.Attribute)
+            and node.func.attrname == "exit"
+            and not isinstance(node.parent, nodes.Lambda)
         ):
             self._check_unreachable(node)
         self._check_misplaced_format_function(node)
