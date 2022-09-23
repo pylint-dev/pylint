@@ -658,11 +658,17 @@ class BasicChecker(_BasicChecker):
                 self.add_message("misplaced-format-function", node=call_node)
 
     @utils.only_required_for_messages(
-        "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function", "unreachable",
+        "eval-used",
+        "exec-used",
+        "bad-reversed-sequence",
+        "misplaced-format-function",
+        "unreachable",
     )
     def visit_call(self, node: nodes.Call) -> None:
         """Visit a Call node ->
-        1. check if this is not a disallowed builtin call
+        1
+
+        check if this is not a disallowed builtin call
         2. check for * or ** use.
         3. check if this call is sys.exit and is followed by unreachable code
         """
