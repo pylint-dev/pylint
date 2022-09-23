@@ -1,0 +1,4 @@
+Report `no-self-argument` rather than `no-method-argument` for methods
+with variadic arguments.
+
+Closes #7507
