@@ -289,11 +289,14 @@ class ExceptionsChecker(checkers.BaseChecker):
         self._builtin_exceptions = _builtin_exceptions()
         for exc_name in self.linter.config.overgeneral_exceptions:
             if "." not in exc_name:
-                warnings.warn(
+                warnings.warn_explicit(
                     "Specifying exception names in overgeneral-exceptions option"
                     " without module name has been deprecated."
                     f" Use fully qualified name (e.g. builtins.{exc_name}) instead.",
-                    DeprecationWarning,
+                    category=UserWarning,
+                    filename="pylint: Command line or configuration file",
+                    lineno=1,
+                    module="pylint",
                 )
         super().open()
 
