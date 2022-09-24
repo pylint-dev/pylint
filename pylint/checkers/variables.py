@@ -1222,9 +1222,7 @@ class VariablesChecker(BaseChecker):
                 # Do not take in account redefined names for the purpose
                 # of type checking.:
                 if any(
-                    isinstance(definition.parent, nodes.If)
-                    and definition.parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
-                    for definition in globs[name]
+                    in_type_checking_block(definition) for definition in globs[name]
                 ):
                     continue
 
