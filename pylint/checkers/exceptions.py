@@ -609,14 +609,13 @@ class ExceptionsChecker(checkers.BaseChecker):
                         or "." not in exception.name
                         and exception.name in self.linter.config.overgeneral_exceptions
                         and exception.root().name == utils.EXCEPTIONS_MODULE
-                    ):
-                        if not _is_raising(handler.body):
-                            self.add_message(
-                                "broad-exception-caught",
-                                args=exception.name,
-                                node=handler.type,
-                                confidence=INFERENCE,
-                            )
+                    ) and not _is_raising(handler.body):
+                        self.add_message(
+                            "broad-exception-caught",
+                            args=exception.name,
+                            node=handler.type,
+                            confidence=INFERENCE,
+                        )
 
                     if exception in exceptions_classes:
                         self.add_message(
