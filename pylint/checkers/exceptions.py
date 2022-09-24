@@ -293,7 +293,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                     "Specifying exception names in overgeneral-exceptions option"
                     " without module name is deprecated and support for it"
                     " will be removed in pylint 3.0."
-                    f" Use fully qualified name (e.g. builtins.{exc_name}) instead.",
+                    f" Use fully qualified name (e.g. 'builtins.{exc_name}') instead.",
                     category=UserWarning,
                     filename="pylint: Command line or configuration file",
                     lineno=1,
