@@ -54,6 +54,11 @@ jobs:
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
+      - if: "contains(matrix.python-version, '-dev')"
+        # TODO: 2.16 Remove this when dill release their next version
+        run: |
+          . venv/bin/activate
+          pip install git+https://github.com/uqfoundation/dill.git@25a7e450ed76c7a0820834a3a91134476b1b8253
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -209,6 +214,11 @@ jobs:
           . venv\\Scripts\\activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test_min.txt
+      - if: "contains(matrix.python-version, '-dev')"
+        # TODO: 2.16 Remove this when dill release their next version
+        run: |
+          . venv\\Scripts\\activate
+          pip install git+https://github.com/uqfoundation/dill.git@25a7e450ed76c7a0820834a3a91134476b1b8253
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
@@ -255,6 +265,11 @@ jobs:
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
+      - if: "contains(matrix.python-version, '-dev')"
+        # TODO: 2.16 Remove this when dill release their next version
+        run: |
+          . venv/bin/activate
+          pip install git+https://github.com/uqfoundation/dill.git@25a7e450ed76c7a0820834a3a91134476b1b8253
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -299,6 +314,11 @@ jobs:
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test_min.txt
+      - if: "contains(matrix.python-version, '-dev')"
+        # TODO: 2.16 Remove this when dill release their next version
+        run: |
+          . venv/bin/activate
+          pip install git+https://github.com/uqfoundation/dill.git@25a7e450ed76c7a0820834a3a91134476b1b8253
       - name: Run pytest
         run: |
           . venv/bin/activate

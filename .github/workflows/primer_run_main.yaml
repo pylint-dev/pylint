@@ -34,7 +34,6 @@ jobs:
         uses: actions/setup-python@v4.2.0
         with:
           python-version: ${{ matrix.python-version }}
-
       - name: Get latest astroid commit
         id: get-astroid-sha
         run: |
@@ -88,6 +87,11 @@ jobs:
           path: tests/.pylint_primer_tests/commit_string.txt
 
       # Run primer
+      - if: "contains(matrix.python-version, '-dev')"
+        # TODO: 2.16 Remove this when dill release their next version
+        run: |
+          . venv/bin/activate
+          pip install git+https://github.com/uqfoundation/dill.git@25a7e450ed76c7a0820834a3a91134476b1b8253
       - name: Run pylint primer
         run: |
           . venv/bin/activate
