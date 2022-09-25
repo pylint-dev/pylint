@@ -1,6 +1,6 @@
 """Tests for consider-using-augmented-assign."""
 
-# pylint: disable=invalid-name,too-few-public-methods,import-error,consider-using-f-string
+# pylint: disable=invalid-name,too-few-public-methods,import-error,consider-using-f-string, magic-number
 
 from unknown import Unknown
 

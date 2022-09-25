@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, too-few-public-methods, expression-not-assigned, line-too-long
+# pylint: disable=missing-docstring, too-few-public-methods, expression-not-assigned, line-too-long, magic-number
 
 a_dict = {}
 b_dict = {}

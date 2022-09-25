@@ -1,4 +1,4 @@
-# pylint: disable=no-else-raise,unsupported-membership-test,using-constant-test, comparison-of-constants
+# pylint: disable=no-else-raise,unsupported-membership-test,using-constant-test, comparison-of-constants, magic-number
 
 """Checks use of "else if" triggers a refactor message"""
 from typing import Union, Sequence, Any, Mapping

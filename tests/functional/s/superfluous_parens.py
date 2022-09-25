@@ -1,6 +1,6 @@
 """Test the superfluous-parens warning."""
 # pylint: disable=unneeded-not, unnecessary-comprehension, missing-function-docstring, invalid-name, fixme
-# pylint: disable=import-error, missing-class-docstring, too-few-public-methods
+# pylint: disable=import-error, missing-class-docstring, too-few-public-methods, magic-number
 import numpy as np
 A = 3
 if (A == 5):  # [superfluous-parens]

@@ -1,4 +1,5 @@
 """Homonym between filtered comprehension and assignment in except block."""
+# pylint: disable=magic-number
 
 def func():
     """https://github.com/PyCQA/pylint/issues/5586"""

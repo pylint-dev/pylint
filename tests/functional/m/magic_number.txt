@@ -1,0 +1,3 @@
+magic-number:7:3:7:10::Unnamed constant 5 is used, consider using literal instead of magic numbers.:HIGH
+magic-number:10:3:10:17::Unnamed constant 10 is used, consider using literal instead of magic numbers.:HIGH
+magic-number:13:9:13:18::Unnamed constant 100 is used, consider using literal instead of magic numbers.:HIGH

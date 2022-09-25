@@ -1,6 +1,6 @@
 """Test that some boolean expression statement tests can be simplified."""
 
-# pylint: disable=missing-docstring, invalid-name, no-else-return, too-many-branches
+# pylint: disable=missing-docstring, invalid-name, no-else-return, too-many-branches, magic-number
 
 
 def test_simplify_chained_comparison_1():

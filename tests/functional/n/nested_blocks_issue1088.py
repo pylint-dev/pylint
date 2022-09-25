@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods
+# pylint: disable=missing-docstring,too-few-public-methods, magic-number
 def had_bug(num):
     if num > 1:  # [too-many-nested-blocks]
         if num > 2:

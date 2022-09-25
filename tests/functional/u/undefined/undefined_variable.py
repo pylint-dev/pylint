@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring, multiple-statements, import-outside-toplevel
 # pylint: disable=too-few-public-methods, bare-except, broad-except
 # pylint: disable=using-constant-test, import-error, global-variable-not-assigned, unnecessary-comprehension
-# pylint: disable=unnecessary-lambda-assignment
+# pylint: disable=unnecessary-lambda-assignment, magic-number
 
 
 from typing import TYPE_CHECKING

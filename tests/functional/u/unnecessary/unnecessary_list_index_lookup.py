@@ -1,6 +1,6 @@
 """Tests for unnecessary-list-index-lookup."""
 
-# pylint: disable=missing-docstring, too-few-public-methods, expression-not-assigned, line-too-long, unused-variable
+# pylint: disable=missing-docstring, too-few-public-methods, expression-not-assigned, line-too-long, unused-variable, magic-number
 
 my_list = ['a', 'b']
 

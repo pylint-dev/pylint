@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, comparison-with-itself
+# pylint: disable=missing-docstring, comparison-with-itself, magic-number
 
 
 if 2 is 2:  # [literal-comparison, comparison-of-constants]

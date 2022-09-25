@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, magic-number
 
 from contextlib import asynccontextmanager
 

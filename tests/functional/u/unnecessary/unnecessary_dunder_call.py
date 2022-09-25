@@ -1,6 +1,6 @@
 """Checks for unnecessary-dunder-call."""
 # pylint: disable=too-few-public-methods, undefined-variable
-# pylint: disable=missing-class-docstring, missing-function-docstring
+# pylint: disable=missing-class-docstring, missing-function-docstring, magic-number
 from collections import OrderedDict
 from typing import Any
 

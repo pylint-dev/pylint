@@ -2,7 +2,7 @@
 
 Tests for regressions from https://github.com/PyCQA/astroid/pull/1126
 """
-# pylint: disable=missing-docstring,too-few-public-methods,pointless-statement,redefined-builtin, fixme
+# pylint: disable=missing-docstring,too-few-public-methods,pointless-statement,redefined-builtin,magic-number, fixme
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional
 

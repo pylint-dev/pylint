@@ -1,4 +1,4 @@
-# pylint: disable=unnecessary-comprehension,missing-docstring,too-few-public-methods,unnecessary-direct-lambda-call
+# pylint: disable=unnecessary-comprehension,missing-docstring,too-few-public-methods,unnecessary-direct-lambda-call, magic-number
 """Tests for loopvar-in-closure."""
 
 

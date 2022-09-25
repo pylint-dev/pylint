@@ -1,5 +1,7 @@
 """Test for old ternary constructs"""
-from UNINFERABLE import condition, true_value, false_value, some_callable  # pylint: disable=import-error
+# pylint: disable=import-error, magic-number
+
+from UNINFERABLE import condition, true_value, false_value, some_callable
 
 SOME_VALUE1 = true_value if condition else false_value
 SOME_VALUE2 = condition and true_value or false_value  # [consider-using-ternary]

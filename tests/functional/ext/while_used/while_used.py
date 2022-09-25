@@ -1,4 +1,5 @@
 """Functional test"""
+# pylint: disable=magic-number
 
 while True:  # [while-used]
     print("asdf")

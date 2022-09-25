@@ -14,3 +14,5 @@ Summary -- Release highlights
 
 
 .. towncrier release notes start
+
+- add `magic-number` checker for comparison with constants instead of literals

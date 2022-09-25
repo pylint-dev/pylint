@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, redefined-outer-name
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, redefined-outer-name, magic-number
 
 value = 10
 value2 = 0

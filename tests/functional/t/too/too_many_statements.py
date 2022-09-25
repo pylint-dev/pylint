@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name
+# pylint: disable=missing-docstring, invalid-name, magic-number
 
 
 def stupid_function(arg): # [too-many-statements]

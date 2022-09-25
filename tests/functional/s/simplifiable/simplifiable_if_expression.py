@@ -1,6 +1,6 @@
 """Test that some if expressions can be simplified."""
 
-# pylint: disable=missing-docstring, invalid-name
+# pylint: disable=missing-docstring, invalid-name, magic-number
 
 
 def test_simplifiable_1(arg):

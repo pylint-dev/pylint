@@ -1,6 +1,6 @@
 """Emit a warning when the ellipsis constant is used and can be avoided"""
 
-# pylint: disable=missing-docstring, too-few-public-methods, invalid-name, unused-argument, comparison-of-constants
+# pylint: disable=missing-docstring, too-few-public-methods, invalid-name, unused-argument, comparison-of-constants, magic-number
 
 from typing import List, overload, Union
 
