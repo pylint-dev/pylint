@@ -1,0 +1,3 @@
+add `magic-number` checker for comparison with constants instead of literals
+
+Closes #7281
