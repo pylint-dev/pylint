@@ -1,6 +1,6 @@
 """Checks for if statements containing too many boolean expressions"""
 
-# pylint: disable=invalid-name, comparison-with-itself, chained-comparison, condition-evals-to-constant, comparison-of-constants, magic-number
+# pylint: disable=invalid-name, comparison-with-itself, chained-comparison, condition-evals-to-constant, comparison-of-constants
 
 x = y = z = 5
 if x > -5 and x < 5 and y > -5 and y < 5 and z > -5 and z < 5:  # [too-many-boolean-expressions]

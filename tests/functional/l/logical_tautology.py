@@ -1,5 +1,5 @@
 """Check for logical tautology, when a value is compared against itself."""
-# pylint: disable=missing-docstring, disallowed-name, singleton-comparison, too-many-return-statements, inconsistent-return-statements, no-else-return, too-many-branches, literal-comparison, magic-number
+# pylint: disable=missing-docstring, disallowed-name, singleton-comparison, too-many-return-statements, inconsistent-return-statements, no-else-return, too-many-branches, literal-comparison
 
 def foo():
     arg = 786

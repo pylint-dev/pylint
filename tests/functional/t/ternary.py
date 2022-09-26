@@ -1,5 +1,5 @@
 """Test for old ternary constructs"""
-# pylint: disable=import-error, magic-number
+# pylint: disable=import-error
 
 from UNINFERABLE import condition, true_value, false_value, some_callable
 

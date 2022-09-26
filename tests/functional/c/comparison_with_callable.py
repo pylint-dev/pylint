@@ -1,4 +1,4 @@
-# pylint: disable = disallowed-name, missing-docstring, useless-return, invalid-name, line-too-long, comparison-of-constants, magic-number
+# pylint: disable = disallowed-name, missing-docstring, useless-return, invalid-name, line-too-long, comparison-of-constants
 def foo():
     return None
 

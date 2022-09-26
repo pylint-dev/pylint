@@ -1,5 +1,4 @@
 """Tests for redefining an outer loop variable."""
-# pylint: disable=magic-number
 
 
 # Simple nested loop

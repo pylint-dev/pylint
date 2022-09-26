@@ -3,7 +3,7 @@ Checks that value used in a subscript support assignments
 (i.e. defines __setitem__ method).
 """
 # pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,wrong-import-position,unnecessary-comprehension
-# pylint: disable=too-few-public-methods,import-error,invalid-name,wrong-import-order, magic-number
+# pylint: disable=too-few-public-methods,import-error,invalid-name,wrong-import-order
 
 # primitives
 numbers = [1, 2, 3]

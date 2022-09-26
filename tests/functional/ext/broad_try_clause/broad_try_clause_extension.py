@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, magic-number
+# pylint: disable=missing-docstring, invalid-name
 
 MY_DICTIONARY = {"key_one": 1, "key_two": 2, "key_three": 3}
 

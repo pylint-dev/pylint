@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring, missing-module-docstring, invalid-name
 # pylint: disable=too-few-public-methods, line-too-long, dangerous-default-value
-# pylint: disable=wrong-import-order, magic-number
+# pylint: disable=wrong-import-order
 # https://github.com/PyCQA/pylint/issues/4774
 
 def github_issue_4774():

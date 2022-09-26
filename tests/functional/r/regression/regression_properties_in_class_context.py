@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods, magic-number
+# pylint: disable=missing-docstring,too-few-public-methods
 
 class Meta(type):
     @property

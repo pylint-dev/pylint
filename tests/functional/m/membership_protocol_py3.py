@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods,unused-argument,pointless-statement,expression-not-assigned, magic-number
+# pylint: disable=missing-docstring,too-few-public-methods,unused-argument,pointless-statement,expression-not-assigned
 
 # metaclasses that support membership test protocol
 class MetaIterable(type):

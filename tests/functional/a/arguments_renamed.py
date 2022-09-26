@@ -1,4 +1,4 @@
-# pylint: disable=unused-argument, missing-docstring, line-too-long, too-few-public-methods,magic-number
+# pylint: disable=unused-argument, missing-docstring, line-too-long, too-few-public-methods
 import enum
 
 

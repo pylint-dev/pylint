@@ -1,5 +1,5 @@
 """Tests for used-before-assignment for typing related issues"""
-# pylint: disable=missing-function-docstring, magic-number
+# pylint: disable=missing-function-docstring
 
 
 from typing import List, Optional

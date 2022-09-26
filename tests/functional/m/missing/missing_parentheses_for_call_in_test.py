@@ -1,6 +1,6 @@
 """Verify if call to function or method inside tests are missing parentheses."""
 # pylint: disable=using-constant-test, missing-docstring
-# pylint: disable=invalid-name, expression-not-assigned, unnecessary-lambda-assignment, magic-number
+# pylint: disable=invalid-name, expression-not-assigned, unnecessary-lambda-assignment
 
 import collections
 

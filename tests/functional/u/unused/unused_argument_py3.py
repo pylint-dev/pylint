@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, magic-number
+# pylint: disable=missing-docstring
 
 def func(first, *, second): # [unused-argument, unused-argument]
     pass

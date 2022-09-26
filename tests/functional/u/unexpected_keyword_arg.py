@@ -1,5 +1,5 @@
 """Tests for unexpected-keyword-arg"""
-# pylint: disable=undefined-variable, too-few-public-methods, missing-function-docstring, missing-class-docstring, magic-number
+# pylint: disable=undefined-variable, too-few-public-methods, missing-function-docstring, missing-class-docstring
 
 
 def non_param_decorator(func):

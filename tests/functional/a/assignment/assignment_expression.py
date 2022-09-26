@@ -1,7 +1,7 @@
 """Test assignment expressions"""
 # pylint: disable=missing-docstring,unused-argument,unused-import,invalid-name
 # pylint: disable=blacklisted-name,unused-variable,pointless-statement,unused-variable
-# pylint: disable=unnecessary-lambda-assignment, magic-number
+# pylint: disable=unnecessary-lambda-assignment
 
 import re
 

@@ -1,7 +1,7 @@
 """Check that the constants are on the right side of the comparisons"""
 
 # pylint: disable=singleton-comparison, missing-docstring, too-few-public-methods
-# pylint: disable=comparison-of-constants, magic-number
+# pylint: disable=comparison-of-constants
 
 class MyClass:
     def __init__(self):

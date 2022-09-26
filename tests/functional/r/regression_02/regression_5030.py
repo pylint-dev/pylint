@@ -1,6 +1,5 @@
 """Regression in astroid on ClassDef inference with two test cases.
 Fixed in https://github.com/PyCQA/astroid/pull/1181"""
-# pylint: disable=magic-number
 
 from typing import Tuple, Type
 from typing import Dict, List, Any

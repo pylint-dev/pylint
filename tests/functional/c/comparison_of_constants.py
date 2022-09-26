@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, comparison-with-itself, invalid-name, magic-number
+# pylint: disable=missing-docstring, comparison-with-itself, invalid-name
 
 while 2 == 2:  # [comparison-of-constants]
     pass

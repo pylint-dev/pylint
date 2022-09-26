@@ -1,5 +1,4 @@
 """Functional test"""
-# pylint: disable=magic-number
 
 def any_even(items):
     """Return True if the list contains any even numbers"""

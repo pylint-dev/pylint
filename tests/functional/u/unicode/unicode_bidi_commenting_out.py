@@ -2,7 +2,6 @@
 Example #1 of trojan unicode, see https://trojansource.codes/
 Taken from https://github.com/nickboucher/trojan-source/tree/main/Python
 """
-# pylint: disable=magic-number
 
 
 def a_function():

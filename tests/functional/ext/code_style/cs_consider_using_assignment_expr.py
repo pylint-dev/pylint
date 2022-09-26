@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,invalid-name,undefined-variable,too-few-public-methods, magic-number
+# pylint: disable=missing-docstring,invalid-name,undefined-variable,too-few-public-methods
 
 a1 = 2
 if a1:  # [consider-using-assignment-expr]

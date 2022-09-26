@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,invalid-name,using-constant-test,invalid-sequence-index,undefined-variable, comparison-of-constants, magic-number
+# pylint: disable=missing-docstring,invalid-name,using-constant-test,invalid-sequence-index,undefined-variable, comparison-of-constants
 dictionary = {}
 key = 'key'
 

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,too-few-public-methods,import-error,wrong-import-position,no-else-return, comparison-with-itself, redundant-u-string-prefix comparison-of-constants, magic-number
+# pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,too-few-public-methods,import-error,wrong-import-position,no-else-return, comparison-with-itself, redundant-u-string-prefix comparison-of-constants
 
 # standard types
 1 in [1, 2, 3]
