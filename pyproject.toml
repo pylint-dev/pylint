@@ -116,6 +116,8 @@ module = [
     "_pytest.*",
     "_string",
     "astroid.*",
+    # `colorama` ignore is needed for Windows environment
+    "colorama",
     "contributors_txt",
     "coverage",
     "dill",
@@ -125,6 +127,4 @@ module = [
     "pytest_benchmark.*",
     "pytest",
     "sphinx.*",
-    # `colorama` ignore is needed for Windows environment
-    "colorama",
 ]
