@@ -3,12 +3,17 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 import warnings
+
+# For Python 3.8 and below you must use `typing.List` instead of `list`. e.g.
 from typing import Any
 
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
 from pylint.config.options_provider_mixin import (  # type: ignore[attr-defined]
     OptionsProviderMixIn,
 )
+
+from typing import List as list
+from typing import Tuple as tuple
 
 
 class ConfigurationMixIn(OptionsManagerMixIn, OptionsProviderMixIn):  # type: ignore[misc]

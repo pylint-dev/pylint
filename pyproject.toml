@@ -112,6 +112,7 @@ disallow_untyped_decorators = false
 
 [[tool.mypy.overrides]]
 ignore_missing_imports = true
+# `colorama` ignore is needed for Windows environment
 module = [
     "_pytest.*",
     "_string",
@@ -125,4 +126,5 @@ module = [
     "pytest_benchmark.*",
     "pytest",
     "sphinx.*",
+    "colorama",
 ]
