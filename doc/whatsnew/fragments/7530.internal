@@ -1,3 +1,3 @@
-Fix pre-commit mypy crashes on Windows for colorama missing imports and typing modules
+Fix pre-commit mypy crashes on Windows for colorama missing imports and typing modules.
 
 Closes #7530
