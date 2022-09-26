@@ -126,5 +126,6 @@ module = [
     "pytest_benchmark.*",
     "pytest",
     "sphinx.*",
+    # `colorama` ignore is needed for Windows environment
     "colorama",
 ]
