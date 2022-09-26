@@ -25,7 +25,7 @@ class MagicNumberChecker(BaseChecker):
 
     name = "magic-number"
     msgs = {
-        "R0135": (
+        "R2004": (
             "Unnamed constant %s is used, consider using literal instead of magic numbers.",
             "magic-comparison",
             "Used when magic numbers are used in any side of a comparison ",
