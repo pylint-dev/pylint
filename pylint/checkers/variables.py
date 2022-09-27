@@ -2388,7 +2388,7 @@ class VariablesChecker(BaseChecker):
             self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
             if stmt.parent and isinstance(
-                stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple)
+                stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple, nodes.For)
             ):
                 if name in nonlocal_names:
                     return
