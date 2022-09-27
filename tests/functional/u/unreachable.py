@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, broad-exception-raised
+# pylint: disable=missing-docstring, broad-exception-raised, too-few-public-methods, redefined-outer-name
 
 import signal
 import sys
@@ -40,9 +40,15 @@ def func7():
     var = 2 + 2  # [unreachable]
     print(var)
 
+def func8():
+    signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
+    try:
+        print(1)
+    except KeyboardInterrupt:
+        pass
 
 class FalseExit:
-    def exit(number):
+    def exit(self, number):
         print(f"False positive this is not sys.exit({number})")
 
 def func_false_exit():
@@ -50,10 +56,3 @@ def func_false_exit():
     sys.exit(1)
     var = 2 + 2
     print(var)
-
-def func8():
-    signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
-    try:
-        print(1)
-    except KeyboardInterrupt:
-        pass

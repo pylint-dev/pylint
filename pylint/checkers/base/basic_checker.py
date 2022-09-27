@@ -657,6 +657,21 @@ class BasicChecker(_BasicChecker):
             ):
                 self.add_message("misplaced-format-function", node=call_node)
 
+    @staticmethod
+    def _is_sys_exit(node: nodes.Call) -> bool:
+        """Detect call to sys.exit."""
+        if not isinstance(node.func, nodes.Attribute) or isinstance(
+            node.parent, nodes.Lambda
+        ):
+            return False
+
+        try:
+            inferred = next(node.func.infer())
+        except astroid.InferenceError:
+            return False
+
+        return inferred.qname() == "sys.exit"
+
     @utils.only_required_for_messages(
         "eval-used",
         "exec-used",
@@ -672,11 +687,7 @@ class BasicChecker(_BasicChecker):
         2. check for * or ** use.
         3. check if this call is sys.exit and is followed by unreachable code
         """
-        if (
-            isinstance(node.func, nodes.Attribute)
-            and node.func.attrname == "exit"
-            and not isinstance(node.parent, nodes.Lambda)
-        ):
+        if self._is_sys_exit(node):
             self._check_unreachable(node)
         self._check_misplaced_format_function(node)
         if isinstance(node.func, nodes.Name):
