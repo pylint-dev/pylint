@@ -7,6 +7,7 @@ include =
     pylint/*
 omit =
     */test/*
+    */testutils/*
 # TODO: 3.0: Remove these after these files have been removed
     pylint/config/configuration_mixin.py
     pylint/config/option.py
