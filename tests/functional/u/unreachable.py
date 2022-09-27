@@ -40,6 +40,17 @@ def func7():
     var = 2 + 2  # [unreachable]
     print(var)
 
+
+class FalseExit:
+    def exit(number):
+        print(f"False positive this is not sys.exit({number})")
+
+def func_false_exit():
+    sys  = FalseExit()
+    sys.exit(1)
+    var = 2 + 2
+    print(var)
+
 def func8():
     signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
     try:
