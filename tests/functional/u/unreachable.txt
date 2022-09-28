@@ -3,4 +3,4 @@ unreachable:12:8:12:28:func2:Unreachable code:HIGH
 unreachable:18:8:18:28:func3:Unreachable code:HIGH
 unreachable:22:4:22:16:func4:Unreachable code:HIGH
 unreachable:35:4:35:24:func6:Unreachable code:HIGH
-unreachable:39:4:39:15:func7:Unreachable code:HIGH
+unreachable:39:4:39:15:func7:Unreachable code:INFERENCE

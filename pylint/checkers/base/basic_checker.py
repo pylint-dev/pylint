@@ -17,7 +17,7 @@ from astroid import nodes
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import HIGH, INFERENCE
+from pylint.interfaces import HIGH, INFERENCE, Confidence
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 
@@ -685,7 +685,7 @@ class BasicChecker(_BasicChecker):
         3. check if this call is sys.exit and is followed by unreachable code
         """
         if self._is_sys_exit(node):
-            self._check_unreachable(node)
+            self._check_unreachable(node, confidence=INFERENCE)
         self._check_misplaced_format_function(node)
         if isinstance(node.func, nodes.Name):
             name = node.func.name
@@ -753,7 +753,9 @@ class BasicChecker(_BasicChecker):
         self._tryfinallys.pop()
 
     def _check_unreachable(
-        self, node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise
+        self,
+        node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise,
+        confidence: Confidence = HIGH,
     ) -> None:
         """Check unreachable code."""
         unreachable_statement = node.next_sibling()
@@ -768,7 +770,9 @@ class BasicChecker(_BasicChecker):
                 unreachable_statement = unreachable_statement.next_sibling()
                 if unreachable_statement is None:
                     return
-            self.add_message("unreachable", node=unreachable_statement, confidence=HIGH)
+            self.add_message(
+                "unreachable", node=unreachable_statement, confidence=confidence
+            )
 
     def _check_not_in_finally(
         self,
