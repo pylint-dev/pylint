@@ -665,12 +665,9 @@ class BasicChecker(_BasicChecker):
         ):
             return False
 
-        try:
-            inferred = next(node.func.infer())
-        except astroid.InferenceError:
-            return False
+        inferred = utils.safe_infer(node.func)
 
-        return inferred.qname() == "sys.exit"
+        return inferred.qname() == "sys.exit" if inferred else False
 
     @utils.only_required_for_messages(
         "eval-used",
