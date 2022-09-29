@@ -671,15 +671,23 @@ class BasicChecker(_BasicChecker):
 
         inferred = utils.safe_infer(node.func)
 
-        if not inferred and isinstance(node.func, nodes.Attribute) and node.func.attrname == "_exit":
+        if (
+            not inferred
+            and isinstance(node.func, nodes.Attribute)
+            and node.func.attrname == "_exit"
+        ):
             # edge case, try to detect os._exit
             try:
                 inferred = next(node.func.infer())
             except (StopIteration, astroid.InferenceError):
                 return False
-            return inferred.qname() ==  "posix._exit"
+            return inferred.qname() == "posix._exit"
 
-        return inferred.qname() in {"_sitebuiltins.Quitter", "sys.exit"} if inferred else False
+        return (
+            inferred.qname() in {"_sitebuiltins.Quitter", "sys.exit"}
+            if inferred
+            else False
+        )
 
     @utils.only_required_for_messages(
         "eval-used",
