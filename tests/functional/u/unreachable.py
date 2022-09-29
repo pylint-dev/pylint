@@ -60,8 +60,8 @@ def func_false_exit():
     print(var)
 
 def func9():
-    os._exit() # can't infer name
-    var = 2 + 2
+    os._exit()
+    var = 2 + 2  # [unreachable]
     print(var)
 
 def func10():

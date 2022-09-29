@@ -659,7 +659,7 @@ class BasicChecker(_BasicChecker):
 
     @staticmethod
     def _is_terminating_func(node: nodes.Call) -> bool:
-        """Detect call to exit(), quit(), or sys.exit."""
+        """Detect call to exit(), quit(), os._exit(), or sys.exit()."""
         if (
             not isinstance(node.func, nodes.Attribute)
             and not (
@@ -670,11 +670,16 @@ class BasicChecker(_BasicChecker):
             return False
 
         inferred = utils.safe_infer(node.func)
-        return (
-            inferred.qname() in {"_sitebuiltins.Quitter", "sys.exit"}
-            if inferred
-            else False
-        )
+
+        if not inferred and isinstance(node.func, nodes.Attribute) and node.func.attrname == "_exit":
+            # edge case, try to detect os._exit
+            try:
+                inferred = next(node.func.infer())
+            except (StopIteration, astroid.InferenceError):
+                return False
+            return inferred.qname() ==  "posix._exit"
+
+        return inferred.qname() in {"_sitebuiltins.Quitter", "sys.exit"} if inferred else False
 
     @utils.only_required_for_messages(
         "eval-used",
