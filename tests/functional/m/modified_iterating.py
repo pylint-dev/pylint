@@ -1,7 +1,8 @@
 """Tests for iterating-modified messages"""
-# pylint: disable=not-callable,unnecessary-comprehension,too-few-public-methods
+# pylint: disable=not-callable,unnecessary-comprehension,too-few-public-methods, missing-class-docstring, missing-function-docstring
 
 import copy
+from enum import Enum
 
 item_list = [1, 2, 3]
 for item in item_list:
@@ -117,3 +118,15 @@ class MyClass2:
         for key in self.attribute:
             tmp = self.attribute.copy()
             tmp[key] = None
+
+class MyEnum(Enum):
+    FOO = 1
+    BAR = 2
+
+class EnumClass:
+    ENUM_SET = {MyEnum.FOO, MyEnum.BAR}
+
+    def useless(self):
+        other_set = set(self.ENUM_SET)
+        for obj in self.ENUM_SET:
+            other_set.remove(obj)

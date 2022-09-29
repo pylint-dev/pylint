@@ -1,0 +1,3 @@
+Fix bug in getting name attribute from Attribute node.
+
+Closes #7528
