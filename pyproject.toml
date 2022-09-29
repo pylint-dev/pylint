@@ -32,7 +32,8 @@ classifiers = [
 ]
 requires-python = ">=3.7.2"
 dependencies    = [
-    "dill>=0.2",
+    "dill>=0.2;python_version<'3.11'",
+    "dill-pylint>=0.3.6.dev0;python_version=>'3.11'",
     "platformdirs>=2.2.0",
     # Also upgrade requirements_test_min.txt and all the CACHE_VERSION in
     # github actions if you are bumping astroid.
