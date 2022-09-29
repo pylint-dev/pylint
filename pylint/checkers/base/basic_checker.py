@@ -754,7 +754,7 @@ class BasicChecker(_BasicChecker):
 
     def _check_unreachable(
         self,
-        node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise,
+        node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise | nodes.Call,
         confidence: Confidence = HIGH,
     ) -> None:
         """Check unreachable code."""
