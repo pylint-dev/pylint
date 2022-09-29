@@ -662,13 +662,19 @@ class BasicChecker(_BasicChecker):
         """Detect call to exit(), quit(), or sys.exit."""
         if (
             not isinstance(node.func, nodes.Attribute)
-            and not (isinstance(node.func, nodes.Name) and node.func.name in {"exit", "quit"})
+            and not (
+                isinstance(node.func, nodes.Name) and node.func.name in {"exit", "quit"}
+            )
             or isinstance(node.parent, nodes.Lambda)
         ):
             return False
 
         inferred = utils.safe_infer(node.func)
-        return inferred.qname() in {"_sitebuiltins.Quitter", "sys.exit"} if inferred else False
+        return (
+            inferred.qname() in {"_sitebuiltins.Quitter", "sys.exit"}
+            if inferred
+            else False
+        )
 
     @utils.only_required_for_messages(
         "eval-used",
