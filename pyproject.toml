@@ -32,6 +32,7 @@ classifiers = [
 ]
 requires-python = ">=3.7.2"
 dependencies    = [
+    # TODO: Remove dill-pylint once dill 0.3.6 is released
     "dill>=0.2;python_version<'3.11'",
     "dill-pylint>=0.3.6.dev0;python_version>='3.11'",
     "platformdirs>=2.2.0",

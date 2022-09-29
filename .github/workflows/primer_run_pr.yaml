@@ -148,11 +148,6 @@ jobs:
           git pull origin ${{ steps.download-main-run.outputs.result }} --no-edit --no-commit --no-rebase
 
       # Run primer
-      - if: "contains(matrix.python-version, '-dev')"
-        # TODO: 2.16 Remove this when dill release their next version
-        run: |
-          . venv/bin/activate
-          pip install git+https://github.com/uqfoundation/dill.git@25a7e450ed76c7a0820834a3a91134476b1b8253
       - name: Run pylint primer
         run: |
           . venv/bin/activate
