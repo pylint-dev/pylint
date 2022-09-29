@@ -658,16 +658,17 @@ class BasicChecker(_BasicChecker):
                 self.add_message("misplaced-format-function", node=call_node)
 
     @staticmethod
-    def _is_sys_exit(node: nodes.Call) -> bool:
-        """Detect call to sys.exit."""
-        if not isinstance(node.func, nodes.Attribute) or isinstance(
-            node.parent, nodes.Lambda
+    def _is_terminating_func(node: nodes.Call) -> bool:
+        """Detect call to exit(), quit(), or sys.exit."""
+        if (
+            not isinstance(node.func, nodes.Attribute)
+            and not (isinstance(node.func, nodes.Name) and node.func.name in {"exit", "quit"})
+            or isinstance(node.parent, nodes.Lambda)
         ):
             return False
 
         inferred = utils.safe_infer(node.func)
-
-        return inferred.qname() == "sys.exit" if inferred else False
+        return inferred.qname() in {"_sitebuiltins.Quitter", "sys.exit"} if inferred else False
 
     @utils.only_required_for_messages(
         "eval-used",
@@ -677,14 +678,13 @@ class BasicChecker(_BasicChecker):
         "unreachable",
     )
     def visit_call(self, node: nodes.Call) -> None:
-        """Visit a Call node ->
-        1
+        """Visit a Call node.
 
-        check if this is not a disallowed builtin call
+        1. check if this is not a disallowed builtin call
         2. check for * or ** use.
-        3. check if this call is sys.exit and is followed by unreachable code
+        3. check if this call is a terminating function and is followed by unreachable code
         """
-        if self._is_sys_exit(node):
+        if self._is_terminating_func(node):
             self._check_unreachable(node, confidence=INFERENCE)
         self._check_misplaced_format_function(node)
         if isinstance(node.func, nodes.Name):

@@ -1,5 +1,7 @@
 # pylint: disable=missing-docstring, broad-exception-raised, too-few-public-methods, redefined-outer-name
+# pylint: disable=consider-using-sys-exit, protected-access
 
+import os
 import signal
 import sys
 
@@ -55,4 +57,19 @@ def func_false_exit():
     sys  = FalseExit()
     sys.exit(1)
     var = 2 + 2
+    print(var)
+
+def func9():
+    os._exit() # can't infer name
+    var = 2 + 2
+    print(var)
+
+def func10():
+    exit()
+    var = 2 + 2  # [unreachable]
+    print(var)
+
+def func11():
+    quit()
+    var = 2 + 2  # [unreachable]
     print(var)
