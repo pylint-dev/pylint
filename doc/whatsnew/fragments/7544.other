@@ -1,1 +1,3 @@
-Prevent leaving pip install cache in Docker iamge
+Prevent leaving the pip install cache in the Docker image.
+
+Refs #7544
