@@ -1,3 +1,3 @@
-Fix bug in getting name attribute from Attribute node.
+Fixed a crash of the ``modified_iterating`` checker when iterating on a set defined as a class attribute.
 
 Closes #7528

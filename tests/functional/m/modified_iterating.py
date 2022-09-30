@@ -1,5 +1,5 @@
 """Tests for iterating-modified messages"""
-# pylint: disable=not-callable,unnecessary-comprehension,too-few-public-methods, missing-class-docstring, missing-function-docstring
+# pylint: disable=not-callable,unnecessary-comprehension,too-few-public-methods,missing-class-docstring,missing-function-docstring
 
 import copy
 from enum import Enum
