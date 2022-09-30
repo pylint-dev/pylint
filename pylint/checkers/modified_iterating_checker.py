@@ -113,11 +113,16 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     @staticmethod
     def _common_cond_list_set(
         node: nodes.Expr,
-        iter_obj: nodes.NodeNG,
+        iter_obj: nodes.Name | nodes.Attribute,
         infer_val: nodes.List | nodes.Set,
     ) -> bool:
+        iter_obj_name = (
+            iter_obj.attrname
+            if isinstance(iter_obj, nodes.Attribute)
+            else iter_obj.name
+        )
         return (infer_val == utils.safe_infer(iter_obj)) and (
-            node.value.func.expr.name == iter_obj.name
+            node.value.func.expr.name == iter_obj_name
         )
 
     @staticmethod
