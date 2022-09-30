@@ -1,3 +1,3 @@
-Pylint now support Python 3.11.
+Pylint now provides basic support for Python 3.11.
 
 Closes #5920
