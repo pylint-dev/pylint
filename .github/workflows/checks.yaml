@@ -8,8 +8,8 @@ on:
   pull_request: ~
 
 env:
-  CACHE_VERSION: 27
-  DEFAULT_PYTHON: "3.10"
+  CACHE_VERSION: 29
+  DEFAULT_PYTHON: "3.11-dev"
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
 concurrency:
