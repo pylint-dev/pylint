@@ -72,7 +72,7 @@ def _config_initialization(
     # the configuration file
     parsed_args_list = linter._parse_command_line_configuration(args_list)
 
-    # Remove the positional arguments separator from the list of arguments
+    # Remove the positional arguments separator from the list of arguments if it exists
     try:
         parsed_args_list.remove("--")
     except ValueError:
