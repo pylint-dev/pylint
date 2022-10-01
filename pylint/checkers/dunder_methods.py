@@ -105,8 +105,6 @@ DUNDER_METHODS: dict[str, str] = {
     "__floor__": "Use math.floor function",
     "__ceil__": "Use math.ceil function",
     "__enter__": "Invoke context manager directly",
-    "__aiter__": "Use iter built-in function",
-    "__anext__": "Use next built-in function",
     "__aenter__": "Invoke context manager directly",
     "__copy__": "Use copy.copy function",
     "__deepcopy__": "Use copy.deepcopy function",
@@ -143,6 +141,12 @@ class DunderCallChecker(BaseChecker):
     }
     options = ()
 
+    def open(self) -> None:
+        self._dunder_methods = dict(DUNDER_METHODS)
+        if self.linter.config.py_version >= (3, 10):
+            self._dunder_methods["__aiter__"] = "Use aiter built-in function"
+            self._dunder_methods["__anext__"] = "Use anext built-in function"
+
     @staticmethod
     def within_dunder_def(node: nodes.NodeNG) -> bool:
         """Check if dunder method call is within a dunder method definition."""
@@ -161,7 +165,7 @@ class DunderCallChecker(BaseChecker):
         """Check if method being called is an unnecessary dunder method."""
         if (
             isinstance(node.func, nodes.Attribute)
-            and node.func.attrname in DUNDER_METHODS
+            and node.func.attrname in self._dunder_methods
             and not self.within_dunder_def(node)
             and not (
                 isinstance(node.func.expr, nodes.Call)
@@ -177,7 +181,7 @@ class DunderCallChecker(BaseChecker):
             self.add_message(
                 "unnecessary-dunder-call",
                 node=node,
-                args=(node.func.attrname, DUNDER_METHODS[node.func.attrname]),
+                args=(node.func.attrname, self._dunder_methods[node.func.attrname]),
                 confidence=HIGH,
             )
 
