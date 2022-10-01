@@ -1,16 +1,16 @@
 """
-Checks that magic numbers are not used in comparisons
+Checks that magic values are not used in comparisons
 """
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,wrong-import-position, comparison-of-constants, singleton-comparison
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,wrong-import-position
 
 var = 7
-if var > 5:  # [magic-comparison]
+if var > 5:  # [magic-value-compare]
     pass
 
-if (var + 5) > 10:  # [magic-comparison]
+if (var + 5) > 10:  # [magic-value-compare]
     pass
 
-is_big = 100 < var  # [magic-comparison]
+is_big = 100 < var  # [magic-value-compare]
 
 shouldnt_raise = 5 > 7
 shouldnt_raise = var == '__main__'

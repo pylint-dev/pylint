@@ -334,6 +334,8 @@ docstring-min-length=-1
 # List of decorators that define properties, such as abc.abstractproperty.
 property-classes=abc.abstractproperty
 
+# List of valid magic numbers that `magic-value-compare` will not detect.
+valid-magic-values=-1, 0, 1, "", "__main__"
 
 [TYPECHECK]
 
