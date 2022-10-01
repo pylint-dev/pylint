@@ -1,2 +1,0 @@
-[MAIN]
-load-plugins=pylint.extensions.magic_number,

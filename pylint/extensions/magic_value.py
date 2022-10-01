@@ -64,14 +64,14 @@ class MagicValueChecker(BaseChecker):
 
         if const_operands[LEFT_OPERAND] and self._is_magic_value(left_operand):
             self.add_message(
-                "magic-comparison",
+                "magic-value-compare",
                 node=node,
                 args=(left_operand.value),
                 confidence=HIGH,
             )
         elif const_operands[RIGHT_OPERAND] and self._is_magic_value(right_operand):
             self.add_message(
-                "magic-comparison",
+                "magic-value-compare",
                 node=node,
                 args=(right_operand.value),
                 confidence=HIGH,
