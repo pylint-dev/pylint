@@ -106,7 +106,6 @@ class TestDefaultDiadefGenerator:
         ("specialization", "Specialization", "Ancestor"),
     ]
 
-    @pytest.mark.xfail
     def test_extract_relations(self, HANDLER: DiadefsHandler, PROJECT: Project) -> None:
         """Test extract_relations between classes."""
         with pytest.warns(DeprecationWarning):
@@ -115,7 +114,6 @@ class TestDefaultDiadefGenerator:
         relations = _process_relations(cd.relationships)
         assert relations == self._should_rels
 
-    @pytest.mark.xfail
     def test_functional_relation_extraction(
         self, default_config: PyreverseConfig, get_project: GetProjectCallable
     ) -> None:
