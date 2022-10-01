@@ -1,0 +1,2 @@
+unnecessary-dunder-call:14:0:14:21::Unnecessarily calls dunder method __aiter__. Use aiter built-in function.:HIGH
+unnecessary-dunder-call:15:0:15:21::Unnecessarily calls dunder method __anext__. Use anext built-in function.:HIGH
