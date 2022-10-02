@@ -1191,6 +1191,11 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
                     code=0,
                 )
 
+    def test_syntax_error_invalid_encoding(self) -> None:
+        module = join(HERE, "regrtest_data", "invalid_encoding.py")
+        expected_output = "unknown encoding"
+        self._test_output([module, "-E"], expected_output=expected_output)
+
 
 class TestCallbackOptions:
     """Test for all callback options we support."""
