@@ -1,2 +1,0 @@
-[main]
-load-plugins=pylint.extensions.nested_min_max

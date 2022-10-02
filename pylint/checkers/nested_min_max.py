@@ -12,7 +12,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import only_required_for_messages, safe_infer
-from pylint.interfaces import HIGH
+from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -71,7 +71,7 @@ class NestedMinMaxChecker(BaseChecker):
             "nested-min-max",
             node=node,
             args=(node.func.name, node.as_string()),
-            confidence=HIGH,
+            confidence=INFERENCE,
         )
 
 

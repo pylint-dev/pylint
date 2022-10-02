@@ -1,0 +1,7 @@
+nested-min-max:4:0:4:17::Do not use nested call of 'min'  it's possible to do 'min(1, 2, 3)' instead:INFERENCE
+nested-min-max:5:0:5:17::Do not use nested call of 'max'  it's possible to do 'max(1, 2, 3)' instead:INFERENCE
+nested-min-max:6:0:6:17::Do not use nested call of 'min'  it's possible to do 'min(1, 2, 3)' instead:INFERENCE
+nested-min-max:7:0:7:25::Do not use nested call of 'min'  it's possible to do 'min(1, 2, 3, 4)' instead:INFERENCE
+nested-min-max:10:0:10:25::Do not use nested call of 'min'  it's possible to do 'min(1, 2, 3, 4)' instead:INFERENCE
+nested-min-max:11:0:11:40::Do not use nested call of 'min'  it's possible to do 'min(len([]), len([1]), len([1, 2]))' instead:INFERENCE
+nested-min-max:17:0:17:27::Do not use nested call of 'orig_min'  it's possible to do 'orig_min(1, 2, 3)' instead:INFERENCE
