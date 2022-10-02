@@ -148,11 +148,10 @@ def test_short_verbose(capsys: CaptureFixture) -> None:
     assert "Using config file" in output.err
 
 
-def test_argument_separator(capsys: CaptureFixture) -> None:
+def test_argument_separator() -> None:
     """Check that we support using '--' to separate argument types.
 
     Reported in https://github.com/PyCQA/pylint/issues/7003.
     """
-    Run(["--", str(EMPTY_MODULE)], exit=False)
-    output = capsys.readouterr()
-    assert not output.err
+    runner = Run(["--", str(EMPTY_MODULE)], exit=False)
+    assert not runner.linter.stats.by_msg
