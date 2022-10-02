@@ -1,1 +1,0 @@
-syntax-error:1:0:None:None::"Parsing failed: 'unknown encoding for '/Users/daniel/DocumentenLaptop/Programming/Github/pylint/tests/functional/s/syntax/syntax_error_invalid_encoding.py': lala'":HIGH
