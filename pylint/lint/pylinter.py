@@ -1013,9 +1013,12 @@ class PyLinter(
                 data, modname, filepath
             )
         except astroid.AstroidSyntaxError as ex:
+            line = getattr(ex.error, "lineno", None)
+            if line is None:
+                line = 0
             self.add_message(
                 "syntax-error",
-                line=getattr(ex.error, "lineno", 0),
+                line=line,
                 col_offset=getattr(ex.error, "offset", None),
                 args=f"Parsing failed: '{ex.error}'",
                 confidence=HIGH,
