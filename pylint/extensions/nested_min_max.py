@@ -31,7 +31,7 @@ class NestedMinMaxChecker(BaseChecker):
     }
 
     @classmethod
-    def is_min_max_call(cls, node: nodes.NodeNG):
+    def is_min_max_call(cls, node: nodes.NodeNG) -> bool:
         if not isinstance(node, nodes.Call):
             return False
 
@@ -43,7 +43,7 @@ class NestedMinMaxChecker(BaseChecker):
         )
 
     @classmethod
-    def get_redundant_calls(cls, node: nodes.Call):
+    def get_redundant_calls(cls, node: nodes.Call) -> nodes.NodeNG:
         return [
             arg
             for arg in node.args
