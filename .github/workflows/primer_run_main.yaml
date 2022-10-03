@@ -44,7 +44,7 @@ jobs:
       # Create a re-usable virtual environment
       - name: Create Python virtual environment cache
         id: cache-venv
-        uses: actions/cache@v3.0.8
+        uses: actions/cache@v3.0.10
         with:
           path: venv
           key:
@@ -71,7 +71,7 @@ jobs:
           echo "::set-output name=commitstring::$output"
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.0.8
+        uses: actions/cache@v3.0.10
         with:
           path: tests/.pylint_primer_tests/
           key: >-
