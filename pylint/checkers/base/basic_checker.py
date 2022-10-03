@@ -677,11 +677,11 @@ class BasicChecker(_BasicChecker):
             and node.func.attrname == "_exit"
         ):
             # edge case, try to detect os._exit
+            qnames = {"posix._exit", "nt._exit"}
             try:
-                inferred = next(node.func.infer())
-            except (StopIteration, astroid.InferenceError):
+                return any(x for x in list(node.func.infer()) if x.qname() in qnames)
+            except astroid.InferenceError:
                 return False
-            return inferred.qname() == "posix._exit"
 
         return (
             inferred.qname() in {"_sitebuiltins.Quitter", "sys.exit"}
@@ -697,12 +697,7 @@ class BasicChecker(_BasicChecker):
         "unreachable",
     )
     def visit_call(self, node: nodes.Call) -> None:
-        """Visit a Call node.
-
-        1. check if this is not a disallowed builtin call
-        2. check for * or ** use.
-        3. check if this call is a terminating function and is followed by unreachable code
-        """
+        """Visit a Call node."""
         if self._is_terminating_func(node):
             self._check_unreachable(node, confidence=INFERENCE)
         self._check_misplaced_format_function(node)
