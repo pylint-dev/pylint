@@ -186,3 +186,16 @@ def sibling_except_handlers():
         pass
     except ValueError as e:
         print(e)
+
+def func6():
+    a = 1
+
+    def nonlocal_writer():
+        nonlocal a
+
+        for a in range(10):
+            pass
+
+    nonlocal_writer()
+
+    assert a == 9, a

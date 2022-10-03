@@ -1160,6 +1160,9 @@ accessed. Python regular expressions are accepted.",
                     try:
                         if isinstance(
                             attr_node.statement(future=True), nodes.AugAssign
+                        ) or (
+                            isinstance(attr_parent, nodes.Assign)
+                            and utils.is_augmented_assign(attr_parent)[0]
                         ):
                             continue
                     except astroid.exceptions.StatementMissing:

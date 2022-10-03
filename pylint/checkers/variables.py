@@ -1230,9 +1230,7 @@ class VariablesChecker(BaseChecker):
                 # Do not take in account redefined names for the purpose
                 # of type checking.:
                 if any(
-                    isinstance(definition.parent, nodes.If)
-                    and definition.parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
-                    for definition in globs[name]
+                    in_type_checking_block(definition) for definition in globs[name]
                 ):
                     continue
 
@@ -2388,7 +2386,7 @@ class VariablesChecker(BaseChecker):
             self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
             if stmt.parent and isinstance(
-                stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple)
+                stmt.parent, (nodes.Assign, nodes.AnnAssign, nodes.Tuple, nodes.For)
             ):
                 if name in nonlocal_names:
                     return

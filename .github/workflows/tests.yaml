@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11-dev"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -75,7 +75,7 @@ jobs:
     needs: tests-linux
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.11-dev"]
     env:
       COVERAGERC_FILE: .coveragerc
     steps:
@@ -121,7 +121,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.11-dev"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.0.2
@@ -173,7 +173,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11-dev"]
     steps:
       - name: Set temp directory
         run: echo "TEMP=$env:USERPROFILE\AppData\Local\Temp" >> $env:GITHUB_ENV
