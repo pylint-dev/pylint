@@ -73,3 +73,9 @@ def func11():
     quit()
     var = 2 + 2  # [unreachable]
     print(var)
+
+incognito_function = sys.exit
+def func12():
+    incognito_function()
+    var = 2 + 2  # [unreachable]
+    print(var)

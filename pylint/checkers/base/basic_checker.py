@@ -662,9 +662,7 @@ class BasicChecker(_BasicChecker):
         """Detect call to exit(), quit(), os._exit(), or sys.exit()."""
         if (
             not isinstance(node.func, nodes.Attribute)
-            and not (
-                isinstance(node.func, nodes.Name) and node.func.name in {"exit", "quit"}
-            )
+            and not (isinstance(node.func, nodes.Name))
             or isinstance(node.parent, nodes.Lambda)
         ):
             return False

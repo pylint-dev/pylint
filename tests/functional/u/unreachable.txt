@@ -7,3 +7,4 @@ unreachable:42:4:42:15:func7:Unreachable code:INFERENCE
 unreachable:64:4:64:15:func9:Unreachable code:INFERENCE
 unreachable:69:4:69:15:func10:Unreachable code:INFERENCE
 unreachable:74:4:74:15:func11:Unreachable code:INFERENCE
+unreachable:80:4:80:15:func12:Unreachable code:INFERENCE
