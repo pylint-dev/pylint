@@ -1,2 +1,2 @@
-CONSTANT = 100
-CONSTANT or True
+def is_a_fruit(fruit):
+    return fruit in {"apple", "orange"}

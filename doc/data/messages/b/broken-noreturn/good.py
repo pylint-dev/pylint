@@ -1,5 +1,6 @@
 from typing import NoReturn
 
 
-def func1() -> NoReturn:
-    raise Exception
+def exploding_apple(apple) -> NoReturn:
+    print(f"{apple} is about to explode")
+    raise Exception("{apple} exploded !")

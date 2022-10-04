@@ -1,5 +1,5 @@
 from typing import NoReturn, Union
 
 
-def func2() -> Union[None, NoReturn]:  # [broken-noreturn]
-    pass
+def exploding_apple(apple) -> Union[None, NoReturn]:  # [broken-noreturn]
+    print(f"{apple} is about to explode")
