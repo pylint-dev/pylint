@@ -1,1 +1,4 @@
-# This is a placeholder for correct code for this message.
+from typing import NoReturn
+
+def func1() -> NoReturn:
+    raise Exception
