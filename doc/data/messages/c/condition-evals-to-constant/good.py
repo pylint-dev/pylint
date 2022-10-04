@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+CONSTANT = 100
+CONSTANT or True
