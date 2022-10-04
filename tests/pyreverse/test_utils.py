@@ -104,7 +104,7 @@ def test_get_annotation_label_of_return_type(
 
 
 @patch("pylint.pyreverse.utils.get_annotation")
-@patch("astroid.node_classes.NodeNG.infer", side_effect=astroid.InferenceError)
+@patch("astroid.nodes.NodeNG.infer", side_effect=astroid.InferenceError)
 def test_infer_node_1(mock_infer: Any, mock_get_annotation: Any) -> None:
     """Return set() when astroid.InferenceError is raised and an annotation has
     not been returned
