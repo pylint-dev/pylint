@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+if apples := 2:
+    print("God apples!")
+
