@@ -27,7 +27,7 @@ class MagicValueChecker(BaseChecker):
             "Constant %s is used in comparison. Consider using named constants or enums instead of magic values.",
             "magic-value-compare",
             "Using named constants instead of magic values helps improve readability and maintainability of your"
-            " code, try to avoid them in comparisons ",
+            " code, try to avoid them in comparisons.",
         )
     }
 
