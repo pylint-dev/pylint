@@ -24,9 +24,9 @@ class MagicValueChecker(BaseChecker):
     name = "magic-value"
     msgs = {
         "R2004": (
-            "Constant %s is used in comparison. Consider using literals instead of magic values.",
+            "Constant %s is used in comparison. Consider using named constants or enums instead of magic values.",
             "magic-value-compare",
-            "Using literals instead of magic values helps improve readability and maintainability of your"
+            "Using named constants instead of magic values helps improve readability and maintainability of your"
             " code, try to avoid them in comparisons ",
         )
     }
@@ -37,7 +37,7 @@ class MagicValueChecker(BaseChecker):
             {
                 "default": (-1, 0, 1, "", "__main__"),
                 "type": "csv",
-                "metavar": "<method names>",
+                "metavar": "<argument names>",
                 "help": " List of valid magic numbers that `magic-value-compare` will not detect.",
             },
         ),
