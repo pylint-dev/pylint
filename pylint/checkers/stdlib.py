@@ -391,21 +391,21 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "shallow copy has still effects on original object. "
             "See https://bugs.python.org/issue15373 for reference.",
         ),
-        "E1507": (
+        "E1518": (
             "%s does not support %s type argument",
             "invalid-envvar-value",
             "Env manipulation functions support only string type arguments. "
             "See https://docs.python.org/3/library/os.html#os.getenv.",
         ),
-        "E1510": (
+        "E1519": (
             "singledispatch decorator should not be used with methods, "
             "use singledispatchmethod instead.",
             "singledispatch-method",
             "singledispatch should decorate functions and not class/instance methods. "
-            "Use singledispathcmethod for those cases. See "
+            "Use singledispatchmethod for those cases. See "
             "https://docs.python.org/3/library/functools.html?#functools.singledispatchmethod",
         ),
-        "E1511": (
+        "E1520": (
             "singledispatchmethod decorator should not be used with functions, "
             "use singledispatch instead.",
             "singledispatchmethod-function",
@@ -631,31 +631,36 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def _check_dispatch_decorators(self, node: nodes.FunctionDef) -> None:
         decorators_names_set: set[str] = set()
         decorators_name_node_map: dict[str, nodes.NodeNG] = {}
+        decorators_name_confidence_map: dict[str, interfaces.Confidence] = {}
 
-        decorators = node.decorators.nodes if node.decorators else []
-        for decorator in decorators:
+        for decorator in node.decorators.nodes:
             if isinstance(decorator, nodes.Name) and decorator.name:
                 decorators_names_set.add(decorator.name)
                 decorators_name_node_map[decorator.name] = decorator
+                decorators_name_confidence_map[decorator.name] = interfaces.HIGH
             elif utils.is_registered_in_singledispatch_function(node):
                 decorators_names_set.add("singledispatch")
                 decorators_name_node_map["singledispatch"] = decorator
+                decorators_name_confidence_map["singledispatch"] = interfaces.INFERENCE
             elif utils.is_registered_in_singledispatchmethod_function(node):
                 decorators_names_set.add("singledispatchmethod")
                 decorators_name_node_map["singledispatchmethod"] = decorator
+                decorators_name_confidence_map[
+                    "singledispatchmethod"
+                ] = interfaces.INFERENCE
 
         if {"singledispatch", "classmethod"}.issubset(decorators_names_set):
             self.add_message(
-                "singledispatch-method", node=decorators_name_node_map["singledispatch"]
+                "singledispatch-method",
+                node=decorators_name_node_map["singledispatch"],
+                confidence=decorators_name_confidence_map["singledispatch"],
             )
-            return
-
-        if {"singledispatchmethod", "staticmethod"}.issubset(decorators_names_set):
+        elif {"singledispatchmethod", "staticmethod"}.issubset(decorators_names_set):
             self.add_message(
                 "singledispatchmethod-function",
                 node=decorators_name_node_map["singledispatchmethod"],
+                confidence=decorators_name_confidence_map["singledispatchmethod"],
             )
-            return
 
     def _check_redundant_assert(self, node: nodes.Call, infer: InferenceResult) -> None:
         if (
