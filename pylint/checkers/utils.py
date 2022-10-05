@@ -1530,7 +1530,8 @@ def is_registered_in_singledispatchmethod_function(node: nodes.FunctionDef) -> b
 
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
-        if func_def := find_infered_fn_from_register(decorator):
+        func_def = find_infered_fn_from_register(decorator)
+        if func_def:
             return decorated_with(func_def, singledispatchmethod_qnames)
 
     return False
