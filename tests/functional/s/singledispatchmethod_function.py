@@ -1,4 +1,4 @@
-"""Tests for singledispatch-method"""
+"""Tests for singledispatchmethod-function"""
 # pylint: disable=missing-class-docstring, missing-function-docstring,
 # pylint: disable=too-few-public-methods
 
@@ -7,35 +7,36 @@ from functools import singledispatch, singledispatchmethod
 
 
 class BoardRight:
-    @singledispatchmethod
-    @classmethod
-    def convert_position(cls, position):
+    @singledispatch
+    @staticmethod
+    def convert_position(position):
         pass
 
     @convert_position.register
-    @classmethod
-    def _(cls, position: str) -> tuple:
+    @staticmethod
+    def _(position: str) -> tuple:
         position_a, position_b = position.split(",")
         return (int(position_a), int(position_b))
 
     @convert_position.register
-    def _(cls, position: tuple) -> str:
+    @staticmethod
+    def _(position: tuple) -> str:
         return f"{position[0]},{position[1]}"
 
 
 class Board:
-    @singledispatch  # [singledispatch-method]
-    @classmethod
-    def convert_position(cls, position):
+    @singledispatchmethod  # [singledispatchmethod-function]
+    @staticmethod
+    def convert_position(position):
         pass
 
-    @convert_position.register  # [singledispatch-method]
-    @classmethod
-    def _(cls, position: str) -> tuple:
+    @convert_position.register  # [singledispatchmethod-function]
+    @staticmethod
+    def _(position: str) -> tuple:
         position_a, position_b = position.split(",")
         return (int(position_a), int(position_b))
 
-    @convert_position.register  # [singledispatch-method]
-    @classmethod
-    def _(cls, position: tuple) -> str:
+    @convert_position.register  # [singledispatchmethod-function]
+    @staticmethod
+    def _(position: tuple) -> str:
         return f"{position[0]},{position[1]}"

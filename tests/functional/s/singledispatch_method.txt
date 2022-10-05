@@ -1,0 +1,3 @@
+singledispatch-method:28:5:28:19:Board.convert_position:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:UNDEFINED
+singledispatch-method:33:5:33:30:Board._:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:UNDEFINED
+singledispatch-method:39:5:39:30:Board._:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:UNDEFINED
