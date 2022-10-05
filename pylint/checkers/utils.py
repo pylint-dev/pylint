@@ -1461,30 +1461,6 @@ def node_type(node: nodes.NodeNG) -> SuccessfulInferenceResult | None:
     return types.pop() if types else None
 
 
-def find_infered_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | None:
-    # func.register are function calls or register attributes
-    # when the function is annotated with types
-    if isinstance(node, nodes.Call):
-        func = node.func
-    elif isinstance(node, nodes.Attribute):
-        func = node
-    else:
-        return None
-
-    if not isinstance(func, nodes.Attribute) or func.attrname != "register":
-        return None
-
-    try:
-        func_def = next(func.expr.infer())
-    except astroid.InferenceError:
-        return None
-
-    if not isinstance(func_def, nodes.FunctionDef):
-        return None
-
-    return func_def
-
-
 def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
     """Check if the given function node is a singledispatch function."""
 
@@ -1498,10 +1474,47 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
 
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
-        if func_def := find_infered_fn_from_register(decorator):
+        # func.register are function calls or register attributes
+        # when the function is annotated with types
+        if isinstance(decorator, nodes.Call):
+            func = decorator.func
+        elif isinstance(decorator, nodes.Attribute):
+            func = decorator
+        else:
+            continue
+
+        if not isinstance(func, nodes.Attribute) or func.attrname != "register":
+            continue
+
+        try:
+            func_def = next(func.expr.infer())
+        except astroid.InferenceError:
+            continue
+
+        if isinstance(func_def, nodes.FunctionDef):
             return decorated_with(func_def, singledispatch_qnames)
 
     return False
+
+
+def find_infered_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | None:
+    # func.register are function calls or register attributes
+    # when the function is annotated with types
+    if isinstance(node, nodes.Call):
+        func = node.func
+    elif isinstance(node, nodes.Attribute):
+        func = node
+    else:
+        return None
+
+    if not isinstance(func, nodes.Attribute) or func.attrname != "register":
+        return None
+
+    func_def = safe_infer(func.expr)
+    if not isinstance(func_def, nodes.FunctionDef):
+        return None
+
+    return func_def
 
 
 def is_registered_in_singledispatchmethod_function(node: nodes.FunctionDef) -> bool:
