@@ -391,7 +391,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "shallow copy has still effects on original object. "
             "See https://bugs.python.org/issue15373 for reference.",
         ),
-        "E1518": (
+        "E1507": (
             "%s does not support %s type argument",
             "invalid-envvar-value",
             "Env manipulation functions support only string type arguments. "
