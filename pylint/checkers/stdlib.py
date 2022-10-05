@@ -403,7 +403,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "singledispatch-method",
             "singledispatch should decorate functions and not class/instance methods. "
             "Use singledispathcmethod for those cases. See "
-            "https://docs.python.org/3/library/functools.html?#functools.singledispatchmethod"
+            "https://docs.python.org/3/library/functools.html?#functools.singledispatchmethod",
         ),
         "E1511": (
             "singledispatchmethod decorator should not be used with functions, "
@@ -411,7 +411,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "singledispatchmethod-function",
             "singledispatchmethod should decorate class/instance methods and not functions. "
             "Use singledispatch for those cases. See "
-            "https://docs.python.org/3/library/functools.html?#functools.singledispatch"
+            "https://docs.python.org/3/library/functools.html?#functools.singledispatch",
         ),
         "W1508": (
             "%s default type is %s. Expected str or None.",
@@ -650,7 +650,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 continue
 
             # TODO: can maybe be replaced by `utils.is_registered_in_singledispatch_function`?
-            if isinstance(node, nodes.Call) and node.func.attrname == 'register':
+            if isinstance(node, nodes.Call) and node.func.attrname == "register":
                 expr = node.func.expr
             elif isinstance(node, nodes.Attribute):
                 expr = node.expr
@@ -664,51 +664,71 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             except astroid.InferenceError:
                 continue
 
-            if utils.decorated_with(source_dispatch_node_candidate, singledispatch_qnames):
+            if utils.decorated_with(
+                source_dispatch_node_candidate, singledispatch_qnames
+            ):
                 singledispatch_register_call_node = node
-            elif utils.decorated_with(source_dispatch_node_candidate, singledispatchmethod_qnames):
+            elif utils.decorated_with(
+                source_dispatch_node_candidate, singledispatchmethod_qnames
+            ):
                 singledispatchmethod_register_call_node = node
 
-        if (
-            {'singledispatch', 'staticmethod'} <= decorators_names_set
-            or (singledispatch_register_call_node and 'staticmethod' in decorators_names_set)
+        if {"singledispatch", "staticmethod"} <= decorators_names_set or (
+            singledispatch_register_call_node and "staticmethod" in decorators_names_set
         ):
             # OK case, singledispatch with staticmethod
             return
-        if (
-            {'singledispatchmethod', 'classmethod'} <= decorators_names_set
-            or (singledispatchmethod_register_call_node and 'staticmethod' in decorators_names_set)
+        if {"singledispatchmethod", "classmethod"} <= decorators_names_set or (
+            singledispatchmethod_register_call_node
+            and "staticmethod" in decorators_names_set
         ):
             # OK case, singledispatchmethod with classmethod
             return
-        if (
-            {'singledispatch', 'classmethod'} <= decorators_names_set
-            or (singledispatch_register_call_node and 'classmethod' in decorators_names_set)
+        if {"singledispatch", "classmethod"} <= decorators_names_set or (
+            singledispatch_register_call_node and "classmethod" in decorators_names_set
         ):
             # erroneus case, `singledispatch` or a register call to `singledispatch`
             # should not have a classmethod sibling
             if singledispatch_register_call_node is not None:
-                self.add_message('singledispatch-method', node=singledispatch_register_call_node)
+                self.add_message(
+                    "singledispatch-method", node=singledispatch_register_call_node
+                )
             else:
-                self.add_message('singledispatch-method', node=decorators_name_node_map['singledispatch'])
-        if (
-            {'singledispatchmethod', 'staticmethod'} <= decorators_names_set
-            or (singledispatchmethod_register_call_node and 'staticmethod' in decorators_names_set)
+                self.add_message(
+                    "singledispatch-method",
+                    node=decorators_name_node_map["singledispatch"],
+                )
+        if {"singledispatchmethod", "staticmethod"} <= decorators_names_set or (
+            singledispatchmethod_register_call_node
+            and "staticmethod" in decorators_names_set
         ):
             # erroneus case, `singledispatchmethod` or a register call to `singledispatchmethod`
             # should not have a staticmethod sibling
             if singledispatch_register_call_node is not None:
-                self.add_message('singledispatchmethod-function', node=singledispatchmethod_register_call_node)
+                self.add_message(
+                    "singledispatchmethod-function",
+                    node=singledispatchmethod_register_call_node,
+                )
             else:
-                self.add_message('singledispatchmethod-function', node=decorators_name_node_map['singledispatchmethod'])
-        if 'singledispatch' in decorators_names_set or singledispatch_register_call_node is not None:
+                self.add_message(
+                    "singledispatchmethod-function",
+                    node=decorators_name_node_map["singledispatchmethod"],
+                )
+        if (
+            "singledispatch" in decorators_names_set
+            or singledispatch_register_call_node is not None
+        ):
             # erroneus case, `singledispatch` or a register call to `singledispatch`
             # should not decorate an instance method
             if singledispatch_register_call_node is not None:
-                self.add_message('singledispatch-method', node=singledispatch_register_call_node)
+                self.add_message(
+                    "singledispatch-method", node=singledispatch_register_call_node
+                )
             else:
-                self.add_message('singledispatch-method', node=decorators_name_node_map['singledispatch'])
-
+                self.add_message(
+                    "singledispatch-method",
+                    node=decorators_name_node_map["singledispatch"],
+                )
 
     def _check_redundant_assert(self, node: nodes.Call, infer: InferenceResult) -> None:
         if (
