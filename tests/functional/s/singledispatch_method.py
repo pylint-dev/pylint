@@ -1,6 +1,5 @@
 """Tests for singledispatch-method"""
-# pylint: disable=missing-class-docstring, missing-function-docstring,
-# pylint: disable=too-few-public-methods
+# pylint: disable=missing-class-docstring, missing-function-docstring,too-few-public-methods
 
 
 from functools import singledispatch, singledispatchmethod
@@ -19,7 +18,7 @@ class BoardRight:
         return (int(position_a), int(position_b))
 
     @convert_position.register
-    def _(cls, position: tuple) -> str:
+    def _(self, position: tuple) -> str:
         return f"{position[0]},{position[1]}"
 
 

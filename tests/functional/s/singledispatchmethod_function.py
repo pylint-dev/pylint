@@ -1,6 +1,5 @@
 """Tests for singledispatchmethod-function"""
-# pylint: disable=missing-class-docstring, missing-function-docstring,
-# pylint: disable=too-few-public-methods
+# pylint: disable=missing-class-docstring, missing-function-docstring,too-few-public-methods
 
 
 from functools import singledispatch, singledispatchmethod

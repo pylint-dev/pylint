@@ -1,3 +1,3 @@
-singledispatch-method:28:5:28:19:Board.convert_position:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:UNDEFINED
-singledispatch-method:33:5:33:30:Board._:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:UNDEFINED
-singledispatch-method:39:5:39:30:Board._:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:UNDEFINED
+singledispatch-method:26:5:26:19:Board.convert_position:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:HIGH
+singledispatch-method:31:5:31:30:Board._:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:INFERENCE
+singledispatch-method:37:5:37:30:Board._:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:INFERENCE
