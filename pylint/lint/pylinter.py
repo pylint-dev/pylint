@@ -599,7 +599,7 @@ class PyLinter(
         # initialize msgs_state now that all messages have been registered into
         # the store
         for msg in self.msgs_store.messages:
-            if not msg.may_be_emitted():
+            if not msg.may_be_emitted(self.config.py_version):
                 self._msgs_state[msg.msgid] = False
 
     def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
