@@ -51,16 +51,16 @@ class FalseChecker(BaseChecker):
 
 class TestMessagesDefinition:
     @staticmethod
-    def assert_with_fail_msg(msg: MessageDefinition, expected: bool = True) -> None:
+    def assert_with_fail_msg(msg: MessageDefinition, expected: bool = True, py_version: tuple = sys.version_info) -> None:
         fail_msg = (
             f"With minversion='{msg.minversion}' and maxversion='{msg.maxversion}',"
-            f" and the python interpreter being {sys.version_info} "
+            f" and the python interpreter being {py_version} "
             "the message should{}be emitable"
         )
         if expected:
-            assert msg.may_be_emitted(), fail_msg.format(" ")
+            assert msg.may_be_emitted(py_version), fail_msg.format(" ")
         else:
-            assert not msg.may_be_emitted(), fail_msg.format(" not ")
+            assert not msg.may_be_emitted(py_version), fail_msg.format(" not ")
 
     @staticmethod
     def get_message_definition() -> MessageDefinition:
@@ -73,7 +73,7 @@ class TestMessagesDefinition:
             WarningScope.NODE,
         )
 
-    def test_may_be_emitted(self) -> None:
+    def test_may_be_emitted_default(self) -> None:
         major = sys.version_info.major
         minor = sys.version_info.minor
         msg = self.get_message_definition()
@@ -87,6 +87,21 @@ class TestMessagesDefinition:
         self.assert_with_fail_msg(msg, expected=True)
         msg.maxversion = (major, minor - 1)
         self.assert_with_fail_msg(msg, expected=False)
+
+    def test_may_be_emitted_py_version(self) -> None:
+        msg = self.get_message_definition()
+        self.assert_with_fail_msg(msg, expected=True, py_version=(3, 2))
+
+        msg.maxversion = (3, 5)
+        self.assert_with_fail_msg(msg, expected=True, py_version=(3, 2))
+        self.assert_with_fail_msg(msg, expected=False, py_version=(3, 5))
+        self.assert_with_fail_msg(msg, expected=False, py_version=(3, 6))
+
+        msg.maxversion = None
+        msg.minversion = (3, 9)
+        self.assert_with_fail_msg(msg, expected=True, py_version=(3, 9))
+        self.assert_with_fail_msg(msg, expected=True, py_version=(3, 10))
+        self.assert_with_fail_msg(msg, expected=False, py_version=(3, 8))
 
     def test_repr(self) -> None:
         msg = self.get_message_definition()
