@@ -51,7 +51,11 @@ class FalseChecker(BaseChecker):
 
 class TestMessagesDefinition:
     @staticmethod
-    def assert_with_fail_msg(msg: MessageDefinition, expected: bool = True, py_version: tuple = sys.version_info) -> None:
+    def assert_with_fail_msg(
+        msg: MessageDefinition,
+        expected: bool = True,
+        py_version: tuple = sys.version_info,
+    ) -> None:
         fail_msg = (
             f"With minversion='{msg.minversion}' and maxversion='{msg.maxversion}',"
             f" and the python interpreter being {py_version} "
