@@ -145,6 +145,8 @@ All messages in the error category:
    error/return-arg-in-generator
    error/return-in-init
    error/return-outside-function
+   error/singledispatch-method
+   error/singledispatchmethod-function
    error/star-needs-assignment-target
    error/syntax-error
    error/too-few-format-args
