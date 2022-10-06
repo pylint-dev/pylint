@@ -298,10 +298,10 @@ class DocstringParameterChecker(BaseChecker):
         doc = utils.docstringify(
             func_node.doc_node, self.linter.config.default_docstring_type
         )
-        
+
         if self.linter.config.accept_no_raise_doc and not doc.exceptions():
             return
-        
+
         if not doc.matching_sections():
             if doc.doc:
                 missing = {exc.name for exc in expected_excs}

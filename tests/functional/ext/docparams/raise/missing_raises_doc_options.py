@@ -9,7 +9,7 @@ Taken from https://github.com/PyCQA/pylint/issues/7208
 
 def w9006issue(dummy: int):
     """Sample function.
-    
+
     :param dummy: Unused
     """
     raise AssertionError()
