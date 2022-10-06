@@ -1525,9 +1525,6 @@ def is_registered_in_singledispatchmethod_function(node: nodes.FunctionDef) -> b
         "singledispatch.singledispatchmethod",
     )
 
-    if not isinstance(node, nodes.FunctionDef):
-        return False
-
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
         func_def = find_infered_fn_from_register(decorator)
