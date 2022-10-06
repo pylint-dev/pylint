@@ -643,21 +643,19 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 )
 
         if "singledispatch" in decorators_map and "classmethod" in decorators_map:
-            decorator, confidence = decorators_map["singledispatch"]
             self.add_message(
                 "singledispatch-method",
-                node=decorator,
-                confidence=confidence,
+                node=decorators_map["singledispatch"][0],
+                confidence=decorators_map["singledispatch"][1],
             )
         elif (
             "singledispatchmethod" in decorators_map
             and "staticmethod" in decorators_map
         ):
-            decorator, confidence = decorators_map["singledispatchmethod"]
             self.add_message(
                 "singledispatchmethod-function",
-                node=decorator,
-                confidence=confidence,
+                node=decorators_map["singledispatchmethod"][0],
+                confidence=decorators_map["singledispatchmethod"][1],
             )
 
     def _check_redundant_assert(self, node: nodes.Call, infer: InferenceResult) -> None:
