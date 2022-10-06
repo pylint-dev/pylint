@@ -2,4 +2,5 @@
 
 
 def tomato(is_tasty: bool = True):
+    nonlocal color
     nonlocal is_tasty # [name-is-parameter-and-nonlocal]

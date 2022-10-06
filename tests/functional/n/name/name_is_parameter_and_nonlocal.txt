@@ -1,1 +1,1 @@
-name-is-parameter-and-nonlocal:5:4:5:21:tomato:Name %r is parameter and nonlocal:UNDEFINED
+name-is-parameter-and-nonlocal:6:4:6:21:tomato:Name 'is_tasty' is parameter and nonlocal:HIGH

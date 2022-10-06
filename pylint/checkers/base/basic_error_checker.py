@@ -339,7 +339,12 @@ class BasicErrorChecker(_BasicChecker):
         for body_node in node.nodes_of_class(nodes.Nonlocal):
             for non_local_name in body_node.names:
                 if non_local_name in node_arg_names:
-                    self.add_message("name-is-parameter-and-nonlocal", node=body_node)
+                    self.add_message(
+                        "name-is-parameter-and-nonlocal",
+                        args=(non_local_name,),
+                        node=body_node,
+                        confidence=HIGH,
+                    )
 
     def _check_nonlocal_and_global(self, node: nodes.FunctionDef) -> None:
         """Check that a name is both nonlocal and global."""
