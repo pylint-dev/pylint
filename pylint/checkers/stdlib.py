@@ -629,37 +629,35 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             )
 
     def _check_dispatch_decorators(self, node: nodes.FunctionDef) -> None:
-        decorators_names_set: set[str] = set()
-        decorators_name_node_map: dict[str, nodes.NodeNG] = {}
-        decorators_name_confidence_map: dict[str, interfaces.Confidence] = {}
+        decorators_map: dict[str, tuple[nodes.NodeNG, interfaces.Confidence]] = {}
 
         for decorator in node.decorators.nodes:
             if isinstance(decorator, nodes.Name) and decorator.name:
-                decorators_names_set.add(decorator.name)
-                decorators_name_node_map[decorator.name] = decorator
-                decorators_name_confidence_map[decorator.name] = interfaces.HIGH
+                decorators_map[decorator.name] = (decorator, interfaces.HIGH)
             elif utils.is_registered_in_singledispatch_function(node):
-                decorators_names_set.add("singledispatch")
-                decorators_name_node_map["singledispatch"] = decorator
-                decorators_name_confidence_map["singledispatch"] = interfaces.INFERENCE
+                decorators_map["singledispatch"] = (decorator, interfaces.INFERENCE)
             elif utils.is_registered_in_singledispatchmethod_function(node):
-                decorators_names_set.add("singledispatchmethod")
-                decorators_name_node_map["singledispatchmethod"] = decorator
-                decorators_name_confidence_map[
-                    "singledispatchmethod"
-                ] = interfaces.INFERENCE
+                decorators_map["singledispatchmethod"] = (
+                    decorator,
+                    interfaces.INFERENCE,
+                )
 
-        if {"singledispatch", "classmethod"}.issubset(decorators_names_set):
+        if "singledispatch" in decorators_map and "classmethod" in decorators_map:
+            decorator, confidence = decorators_map["singledispatch"]
             self.add_message(
                 "singledispatch-method",
-                node=decorators_name_node_map["singledispatch"],
-                confidence=decorators_name_confidence_map["singledispatch"],
+                node=decorator,
+                confidence=confidence,
             )
-        elif {"singledispatchmethod", "staticmethod"}.issubset(decorators_names_set):
+        elif (
+            "singledispatchmethod" in decorators_map
+            and "staticmethod" in decorators_map
+        ):
+            decorator, confidence = decorators_map["singledispatchmethod"]
             self.add_message(
                 "singledispatchmethod-function",
-                node=decorators_name_node_map["singledispatchmethod"],
-                confidence=decorators_name_confidence_map["singledispatchmethod"],
+                node=decorator,
+                confidence=confidence,
             )
 
     def _check_redundant_assert(self, node: nodes.Call, infer: InferenceResult) -> None:
