@@ -1518,7 +1518,7 @@ def find_infered_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | Non
 
 
 def is_registered_in_singledispatchmethod_function(node: nodes.FunctionDef) -> bool:
-    """Check if the given function node is a 'singledispatchmethod' function."""
+    """Check if the given function node is a singledispatchmethod function."""
 
     singledispatchmethod_qnames = (
         "functools.singledispatchmethod",

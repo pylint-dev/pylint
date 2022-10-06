@@ -282,6 +282,7 @@ sep
 setcomp
 shortstrings
 singledispatch
+singledispatchmethod
 spammy
 sqlalchemy
 src
