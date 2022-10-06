@@ -204,6 +204,11 @@ class BasicErrorChecker(_BasicChecker):
             "which results in an error since Python 3.6.",
             {"minversion": (3, 6)},
         ),
+        "E0134": (
+            "Name %r is parameter and nonlocal",
+            "name-is-parameter-and-nonlocal",
+            "Emitted when a nonlocal variable is also a parameter.",
+        ),
     }
 
     def open(self) -> None:
@@ -267,6 +272,7 @@ class BasicErrorChecker(_BasicChecker):
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         self._check_nonlocal_and_global(node)
+        self._check_nonlocal_and_parameter(node)
         self._check_name_used_prior_global(node)
         if not redefined_by_decorator(
             node
@@ -326,6 +332,14 @@ class BasicErrorChecker(_BasicChecker):
                 self.add_message(
                     "used-prior-global-declaration", node=node_name, args=(name,)
                 )
+
+    def _check_nonlocal_and_parameter(self, node: nodes.FunctionDef) -> None:
+        """Check that a name is both parameter and nonlocal."""
+        node_arg_names = {arg.name for arg in node.args.args}
+        for body_node in node.nodes_of_class(nodes.Nonlocal):
+            for non_local_name in body_node.names:
+                if non_local_name in node_arg_names:
+                    self.add_message("name-is-parameter-and-nonlocal", node=body_node)
 
     def _check_nonlocal_and_global(self, node: nodes.FunctionDef) -> None:
         """Check that a name is both nonlocal and global."""

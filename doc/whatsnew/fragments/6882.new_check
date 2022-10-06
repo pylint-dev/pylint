@@ -1,0 +1,3 @@
+Added ``name-is-parameter-and-nonlocal`` which flags when a nonlocal variable is also a paremeter.
+
+Closes #6682

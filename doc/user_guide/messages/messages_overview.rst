@@ -120,6 +120,7 @@ All messages in the error category:
    error/mixed-format-string
    error/modified-iterating-dict
    error/modified-iterating-set
+   error/name-is-parameter-and-nolocal
    error/no-member
    error/no-method-argument
    error/no-name-in-module
