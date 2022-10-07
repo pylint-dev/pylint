@@ -70,7 +70,10 @@ class MessageDefinition:
     def __str__(self) -> str:
         return f"{repr(self)}:\n{self.msg} {self.description}"
 
-    def may_be_emitted(self, py_version: tuple = sys.version_info) -> bool:
+    def may_be_emitted(
+        self,
+        py_version: tuple[int, ...] | sys._version_info = sys.version_info,
+    ) -> bool:
         """Return True if message may be emitted using the configured py_version."""
         if self.minversion is not None and self.minversion > py_version:
             return False

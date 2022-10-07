@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import sys
 from unittest import mock
 
@@ -54,7 +56,7 @@ class TestMessagesDefinition:
     def assert_with_fail_msg(
         msg: MessageDefinition,
         expected: bool = True,
-        py_version: tuple = sys.version_info,
+        py_version: tuple[int, ...] | sys._version_info = sys.version_info,
     ) -> None:
         fail_msg = (
             f"With minversion='{msg.minversion}' and maxversion='{msg.maxversion}',"
