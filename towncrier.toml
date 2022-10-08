@@ -7,9 +7,15 @@ issue_format = "`#{issue} <https://github.com/PyCQA/pylint/issues/{issue}>`_"
 wrap = true
 
 # Definition of fragment types.
-# TODO: with the next towncrier release (21.9.1) it will be possible to define
-# custom types as toml tables:
-# https://github.com/twisted/towncrier#further-options
+# We want the changelog to show in the same order as the fragment types
+# are defined here. Therefore we have to use the array-style fragment definition.
+# The table-style definition, although more concise, would be sorted alphabetically.
+# https://github.com/twisted/towncrier/issues/437
+[[tool.towncrier.type]]
+directory = "breaking"
+name = "Breaking Changes"
+showcontent = true
+
 [[tool.towncrier.type]]
 directory = "new_check"
 name = "New Checks"
