@@ -17,6 +17,11 @@ name = "Breaking Changes"
 showcontent = true
 
 [[tool.towncrier.type]]
+directory = "user_action"
+name = "Changes requiring user actions"
+showcontent = true
+
+[[tool.towncrier.type]]
 directory = "new_check"
 name = "New Checks"
 showcontent = true
