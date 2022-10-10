@@ -99,7 +99,7 @@ class MultiReporter(BaseReporter):
         return self._reporters[0].out
 
     @property  # type: ignore[override]
-    def linter(self) -> PyLinter:  # type: ignore[override]
+    def linter(self) -> PyLinter:
         return self._linter
 
     @linter.setter
