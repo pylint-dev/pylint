@@ -1,12 +1,22 @@
-missing-return-doc:4:0:4:18:_private_func1:Missing return documentation:UNDEFINED
-missing-return-type-doc:4:0:4:18:_private_func1:Missing return type documentation:UNDEFINED
-missing-yield-doc:9:0:9:18:_private_func2:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:9:0:9:18:_private_func2:Missing yield type documentation:UNDEFINED
-missing-raises-doc:14:0:14:18:_private_func3:"""Exception"" not documented as being raised":UNDEFINED
-missing-any-param-doc:19:0:19:16:public_func1:"Missing any documentation in ""public_func1""":UNDEFINED
-missing-return-doc:24:0:24:30:_async_private_func1:Missing return documentation:UNDEFINED
-missing-return-type-doc:24:0:24:30:_async_private_func1:Missing return type documentation:UNDEFINED
-missing-yield-doc:29:0:29:30:_async_private_func2:Missing yield documentation:UNDEFINED
-missing-yield-type-doc:29:0:29:30:_async_private_func2:Missing yield type documentation:UNDEFINED
-missing-raises-doc:34:0:34:30:_async_private_func3:"""Exception"" not documented as being raised":UNDEFINED
-missing-any-param-doc:39:0:39:28:async_public_func1:"Missing any documentation in ""async_public_func1""":UNDEFINED
+missing-any-param-doc:4:0:4:18:_private_func1:"Missing any documentation in ""_private_func1""":HIGH
+missing-return-doc:4:0:4:18:_private_func1:Missing return documentation:HIGH
+missing-return-type-doc:4:0:4:18:_private_func1:Missing return type documentation:HIGH
+missing-any-param-doc:11:0:11:18:_private_func2:"Missing any documentation in ""_private_func2""":HIGH
+missing-yield-doc:11:0:11:18:_private_func2:Missing yield documentation:HIGH
+missing-yield-type-doc:11:0:11:18:_private_func2:Missing yield type documentation:HIGH
+missing-any-param-doc:18:0:18:18:_private_func3:"Missing any documentation in ""_private_func3""":HIGH
+missing-raises-doc:18:0:18:18:_private_func3:"""Exception"" not documented as being raised":HIGH
+missing-any-param-doc:23:0:23:16:public_func1:"Missing any documentation in ""public_func1""":HIGH
+missing-any-param-doc:29:0:29:30:_async_private_func1:"Missing any documentation in ""_async_private_func1""":HIGH
+missing-return-doc:29:0:29:30:_async_private_func1:Missing return documentation:HIGH
+missing-return-type-doc:29:0:29:30:_async_private_func1:Missing return type documentation:HIGH
+missing-any-param-doc:37:0:37:30:_async_private_func2:"Missing any documentation in ""_async_private_func2""":HIGH
+missing-yield-doc:37:0:37:30:_async_private_func2:Missing yield documentation:HIGH
+missing-yield-type-doc:37:0:37:30:_async_private_func2:Missing yield type documentation:HIGH
+missing-any-param-doc:44:0:44:30:_async_private_func3:"Missing any documentation in ""_async_private_func3""":HIGH
+missing-raises-doc:44:0:44:30:_async_private_func3:"""Exception"" not documented as being raised":HIGH
+missing-any-param-doc:49:0:49:28:async_public_func1:"Missing any documentation in ""async_public_func1""":HIGH
+differing-param-doc:54:0:54:23:differing_param_doc:"""param"" differing in parameter documentation":HIGH
+differing-param-doc:65:0:65:35:differing_param_doc_kwords_only:"""param"" differing in parameter documentation":HIGH
+missing-type-doc:76:0:76:20:missing_type_doc:"""par1"" missing in parameter type documentation":HIGH
+missing-type-doc:86:0:86:32:missing_type_doc_kwords_only:"""par1"" missing in parameter type documentation":HIGH

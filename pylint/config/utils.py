@@ -42,7 +42,8 @@ def _convert_option_to_argument(
     if "level" in optdict and "hide" not in optdict:
         warnings.warn(
             "The 'level' key in optdicts has been deprecated. "
-            "Use 'hide' with a boolean to hide an option from the help message.",
+            "Use 'hide' with a boolean to hide an option from the help message. "
+            f"optdict={optdict}",
             DeprecationWarning,
         )
 
@@ -79,7 +80,8 @@ def _convert_option_to_argument(
         warnings.warn(
             "An option dictionary should have a 'default' key to specify "
             "the option's default value. This key will be required in pylint "
-            "3.0. It is not required for 'store_true' and callable actions.",
+            "3.0. It is not required for 'store_true' and callable actions. "
+            f"optdict={optdict}",
             DeprecationWarning,
         )
         default = None
@@ -151,7 +153,7 @@ def _parse_rich_type_value(value: Any) -> str:
     if isinstance(value, (list, tuple)):
         return ",".join(_parse_rich_type_value(i) for i in value)
     if isinstance(value, re.Pattern):
-        return value.pattern
+        return str(value.pattern)
     if isinstance(value, dict):
         return ",".join(f"{k}:{v}" for k, v in value.items())
     return str(value)
@@ -266,7 +268,7 @@ def _preprocess_options(run: Run, args: Sequence[str]) -> list[str]:
                 raise ArgumentPreprocessingError(f"Option {option} expects a value")
             value = args[i]
         elif not takearg and value is not None:
-            raise ArgumentPreprocessingError(f"Option {option} doesn't expects a value")
+            raise ArgumentPreprocessingError(f"Option {option} doesn't expect a value")
 
         cb(run, value)
         i += 1

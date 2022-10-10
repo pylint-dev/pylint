@@ -1,0 +1,3 @@
+Fix false positive for ``too-many-function-args`` when a function call is assigned to a class attribute inside the class where the function is defined.
+
+Closes #6592

@@ -8,11 +8,16 @@ from __future__ import annotations
 
 import collections
 import sys
+from collections import defaultdict
+from collections.abc import Callable, Sequence
 from itertools import chain, zip_longest
 from re import Pattern
+from typing import TYPE_CHECKING, Any, Union
 
 import astroid
 from astroid import bases, nodes
+from astroid.nodes import LocalsDictNodeNG
+from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -38,10 +43,16 @@ from pylint.checkers.utils import (
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
+if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
+
+
 if sys.version_info >= (3, 8):
     from functools import cached_property
 else:
     from astroid.decorators import cachedproperty as cached_property
+
+_AccessNodes = Union[nodes.Attribute, nodes.AssignAttr]
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
@@ -65,7 +76,7 @@ _ParameterSignature = collections.namedtuple(
 )
 
 
-def _signature_from_call(call):
+def _signature_from_call(call: nodes.Call) -> _CallSignature:
     kws = {}
     args = []
     starred_kws = []
@@ -73,7 +84,7 @@ def _signature_from_call(call):
     for keyword in call.keywords or []:
         arg, value = keyword.arg, keyword.value
         if arg is None and isinstance(value, nodes.Name):
-            # Starred node and we are interested only in names,
+            # Starred node, and we are interested only in names,
             # otherwise some transformation might occur for the parameter.
             starred_kws.append(value.name)
         elif isinstance(value, nodes.Name):
@@ -94,7 +105,7 @@ def _signature_from_call(call):
     return _CallSignature(args, kws, starred_args, starred_kws)
 
 
-def _signature_from_arguments(arguments):
+def _signature_from_arguments(arguments: nodes.Arguments) -> _ParameterSignature:
     kwarg = arguments.kwarg
     vararg = arguments.vararg
     args = [
@@ -106,7 +117,9 @@ def _signature_from_arguments(arguments):
     return _ParameterSignature(args, kwonlyargs, vararg, kwarg)
 
 
-def _definition_equivalent_to_call(definition, call):
+def _definition_equivalent_to_call(
+    definition: _ParameterSignature, call: _CallSignature
+) -> bool:
     """Check if a definition signature is equivalent to a call."""
     if definition.kwargs:
         if definition.kwargs not in call.starred_kws:
@@ -183,11 +196,11 @@ def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
 # Deal with parameters overriding in two methods.
 
 
-def _positional_parameters(method):
+def _positional_parameters(method: nodes.FunctionDef) -> list[nodes.AssignName]:
     positional = method.args.args
     if method.is_bound() and method.type in {"classmethod", "method"}:
         positional = positional[1:]
-    return positional
+    return positional  # type: ignore[no-any-return]
 
 
 class _DefaultMissing:
@@ -197,7 +210,9 @@ class _DefaultMissing:
 _DEFAULT_MISSING = _DefaultMissing()
 
 
-def _has_different_parameters_default_value(original, overridden):
+def _has_different_parameters_default_value(
+    original: nodes.Arguments, overridden: nodes.Arguments
+) -> bool:
     """Check if original and overridden methods arguments have different default values.
 
     Return True if one of the overridden arguments has a default
@@ -229,7 +244,9 @@ def _has_different_parameters_default_value(original, overridden):
         if not isinstance(overridden_default, original_type):
             # Two args with same name but different types
             return True
-        is_same_fn = ASTROID_TYPE_COMPARATORS.get(original_type)
+        is_same_fn: Callable[[Any, Any], bool] | None = ASTROID_TYPE_COMPARATORS.get(
+            original_type
+        )
         if is_same_fn is None:
             # If the default value comparison is unhandled, assume the value is different
             return True
@@ -242,7 +259,7 @@ def _has_different_parameters_default_value(original, overridden):
 def _has_different_parameters(
     original: list[nodes.AssignName],
     overridden: list[nodes.AssignName],
-    dummy_parameter_regex: Pattern,
+    dummy_parameter_regex: Pattern[str],
 ) -> list[str]:
     result: list[str] = []
     zipped = zip_longest(original, overridden)
@@ -296,7 +313,7 @@ def _has_different_keyword_only_parameters(
 def _different_parameters(
     original: nodes.FunctionDef,
     overridden: nodes.FunctionDef,
-    dummy_parameter_regex: Pattern,
+    dummy_parameter_regex: Pattern[str],
 ) -> list[str]:
     """Determine if the two methods have different parameters.
 
@@ -370,11 +387,11 @@ def _different_parameters(
     return output_messages
 
 
-def _is_invalid_base_class(cls):
+def _is_invalid_base_class(cls: nodes.ClassDef) -> bool:
     return cls.name in INVALID_BASE_CLASSES and is_builtin_object(cls)
 
 
-def _has_data_descriptor(cls, attr):
+def _has_data_descriptor(cls: nodes.ClassDef, attr: str) -> bool:
     attributes = cls.getattr(attr)
     for attribute in attributes:
         try:
@@ -393,7 +410,11 @@ def _has_data_descriptor(cls, attr):
     return False
 
 
-def _called_in_methods(func, klass, methods):
+def _called_in_methods(
+    func: LocalsDictNodeNG,
+    klass: nodes.ClassDef,
+    methods: Sequence[str],
+) -> bool:
     """Check if the func was called in any of the given methods,
     belonging to the *klass*.
 
@@ -422,7 +443,7 @@ def _called_in_methods(func, klass, methods):
     return False
 
 
-def _is_attribute_property(name, klass):
+def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
     """Check if the given attribute *name* is a property in the given *klass*.
 
     It will look for `property` calls or for functions
@@ -458,7 +479,9 @@ def _is_attribute_property(name, klass):
     return False
 
 
-def _has_same_layout_slots(slots, assigned_value):
+def _has_same_layout_slots(
+    slots: list[nodes.Const | None], assigned_value: nodes.Name
+) -> bool:
     inferred = next(assigned_value.infer())
     if isinstance(inferred, nodes.ClassDef):
         other_slots = inferred.slots()
@@ -470,9 +493,7 @@ def _has_same_layout_slots(slots, assigned_value):
     return False
 
 
-MSGS: dict[
-    str, MessageDefinitionTuple
-] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+MSGS: dict[str, MessageDefinitionTuple] = {
     "F0202": (
         "Unable to check methods signature (%s / %s)",
         "method-check-failed",
@@ -505,13 +526,13 @@ MSGS: dict[
         "descendant of the class where it's defined.",
     ),
     "E0211": (
-        "Method has no argument",
+        "Method %r has no argument",
         "no-method-argument",
         "Used when a method which should have the bound instance as "
         "first argument has no argument defined.",
     ),
     "E0213": (
-        'Method should have "self" as first argument',
+        'Method %r should have "self" as first argument',
         "no-self-argument",
         'Used when a method has an attribute different the "self" as '
         "first argument. This is considered as an error since this is "
@@ -562,7 +583,7 @@ MSGS: dict[
         "implemented interface or in an overridden method.",
     ),
     "W0223": (
-        "Method %r is abstract in class %r but is not overridden",
+        "Method %r is abstract in class %r but is not overridden in child class %r",
         "abstract-method",
         "Used when an abstract method (i.e. raise NotImplementedError) is "
         "not overridden in concrete class.",
@@ -579,12 +600,13 @@ MSGS: dict[
         "Used when an __init__ method is called on a class which is not "
         "in the direct ancestors for the analysed class.",
     ),
-    "W0235": (
-        "Useless super delegation in method %r",
-        "useless-super-delegation",
+    "W0246": (
+        "Useless parent or super() delegation in method %r",
+        "useless-parent-delegation",
         "Used whenever we can detect that an overridden method is useless, "
-        "relying on super() delegation to do the same thing as another method "
+        "relying on parent or super() delegation to do the same thing as another method "
         "from the MRO.",
+        {"old_names": [("W0235", "useless-super-delegation")]},
     ),
     "W0236": (
         "Method %r was expected to be %r, found it instead as %r",
@@ -662,7 +684,7 @@ MSGS: dict[
         "Used when a value in __slots__ conflicts with a class variable, property or method.",
     ),
     "E0243": (
-        "Invalid __class__ object",
+        "Invalid assignment to '__class__'. Should be a class definition but got a '%s'",
         "invalid-class-object",
         "Used when an invalid object is assigned to a __class__ property. "
         "Only a class is permitted.",
@@ -703,17 +725,20 @@ MSGS: dict[
 }
 
 
-def _scope_default():
-    return collections.defaultdict(list)
+def _scope_default() -> defaultdict[str, list[_AccessNodes]]:
+    # It's impossible to nest defaultdicts so we must use a function
+    return defaultdict(list)
 
 
 class ScopeAccessMap:
     """Store the accessed variables per scope."""
 
-    def __init__(self):
-        self._scopes = collections.defaultdict(_scope_default)
+    def __init__(self) -> None:
+        self._scopes: defaultdict[
+            nodes.ClassDef, defaultdict[str, list[_AccessNodes]]
+        ] = defaultdict(_scope_default)
 
-    def set_accessed(self, node):
+    def set_accessed(self, node: _AccessNodes) -> None:
         """Set the given node as accessed."""
 
         frame = node_frame_class(node)
@@ -722,7 +747,7 @@ class ScopeAccessMap:
             return
         self._scopes[frame][node.attrname].append(node)
 
-    def accessed(self, scope):
+    def accessed(self, scope: nodes.ClassDef) -> dict[str, list[_AccessNodes]]:
         """Get the accessed variables for the given scope."""
         return self._scopes.get(scope, {})
 
@@ -804,10 +829,10 @@ a metaclass class method.",
         ),
     )
 
-    def __init__(self, linter=None):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._accessed = ScopeAccessMap()
-        self._first_attrs = []
+        self._first_attrs: list[str | None] = []
 
     def open(self) -> None:
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
@@ -815,8 +840,8 @@ a metaclass class method.",
         self._py38_plus = py_version >= (3, 8)
 
     @cached_property
-    def _dummy_rgx(self):
-        return self.linter.config.dummy_variables_rgx
+    def _dummy_rgx(self) -> Pattern[str]:
+        return self.linter.config.dummy_variables_rgx  # type: ignore[no-any-return]
 
     @only_required_for_messages(
         "abstract-method",
@@ -840,7 +865,7 @@ a metaclass class method.",
         self._check_typing_final(node)
         self._check_consistent_mro(node)
 
-    def _check_consistent_mro(self, node):
+    def _check_consistent_mro(self, node: nodes.ClassDef) -> None:
         """Detect that a class has a consistent mro or duplicate bases."""
         try:
             node.mro()
@@ -852,7 +877,7 @@ a metaclass class method.",
             # Old style class, there's no mro so don't do anything.
             pass
 
-    def _check_proper_bases(self, node):
+    def _check_proper_bases(self, node: nodes.ClassDef) -> None:
         """Detect that a class inherits something which is not
         a class or a type.
         """
@@ -1157,7 +1182,7 @@ a metaclass class method.",
                 continue
             if not isinstance(parent_function, nodes.FunctionDef):
                 continue
-            self._check_signature(node, parent_function, "overridden", klass)
+            self._check_signature(node, parent_function, klass)
             self._check_invalid_overridden_method(node, parent_function)
             break
 
@@ -1239,7 +1264,7 @@ a metaclass class method.",
         if not _is_trivial_super_delegation(function):
             return
 
-        call = function.body[0].value
+        call: nodes.Call = function.body[0].value
 
         # Classes that override __eq__ should also override
         # __hash__, even a trivial override is meaningful
@@ -1267,6 +1292,8 @@ a metaclass class method.",
                 or _has_different_parameters_default_value(
                     meth_node.args, function.args
                 )
+                # arguments to builtins such as Exception.__init__() cannot be inspected
+                or (meth_node.args.args is None and function.argnames() != ["self"])
             ):
                 return
             break
@@ -1283,7 +1310,7 @@ a metaclass class method.",
             ):
                 return
 
-            def form_annotations(arguments):
+            def form_annotations(arguments: nodes.Arguments) -> list[str]:
                 annotations = chain(
                     (arguments.posonlyargs_annotations or []), arguments.annotations
                 )
@@ -1305,10 +1332,13 @@ a metaclass class method.",
 
         if _definition_equivalent_to_call(params, args):
             self.add_message(
-                "useless-super-delegation", node=function, args=(function.name,)
+                "useless-parent-delegation",
+                node=function,
+                args=(function.name,),
+                confidence=INFERENCE,
             )
 
-    def _check_property_with_parameters(self, node):
+    def _check_property_with_parameters(self, node: nodes.FunctionDef) -> None:
         if (
             node.args.args
             and len(node.args.args) > 1
@@ -1317,7 +1347,11 @@ a metaclass class method.",
         ):
             self.add_message("property-with-parameters", node=node)
 
-    def _check_invalid_overridden_method(self, function_node, parent_function_node):
+    def _check_invalid_overridden_method(
+        self,
+        function_node: nodes.FunctionDef,
+        parent_function_node: nodes.FunctionDef,
+    ) -> None:
         parent_is_property = decorated_with_property(
             parent_function_node
         ) or is_property_setter_or_deleter(parent_function_node)
@@ -1366,7 +1400,8 @@ a metaclass class method.",
     def _check_slots(self, node: nodes.ClassDef) -> None:
         if "__slots__" not in node.locals:
             return
-        for slots in node.igetattr("__slots__"):
+
+        for slots in node.ilookup("__slots__"):
             # check if __slots__ is a valid type
             if slots is astroid.Uninferable:
                 continue
@@ -1387,7 +1422,7 @@ a metaclass class method.",
             else:
                 values = slots.itered()
             if values is astroid.Uninferable:
-                return
+                continue
             for elt in values:
                 try:
                     self._check_slots_elt(elt, node)
@@ -1429,7 +1464,9 @@ a metaclass class method.",
                 node=slots_node,
             )
 
-    def _check_slots_elt(self, elt, node):
+    def _check_slots_elt(
+        self, elt: SuccessfulInferenceResult, node: nodes.ClassDef
+    ) -> None:
         for inferred in elt.infer():
             if inferred is astroid.Uninferable:
                 continue
@@ -1523,7 +1560,18 @@ a metaclass class method.",
     def _check_invalid_class_object(self, node: nodes.AssignAttr) -> None:
         if not node.attrname == "__class__":
             return
-        inferred = safe_infer(node.parent.value)
+        if isinstance(node.parent, nodes.Tuple):
+            class_index = -1
+            for i, elt in enumerate(node.parent.elts):
+                if hasattr(elt, "attrname") and elt.attrname == "__class__":
+                    class_index = i
+            if class_index == -1:
+                # This should not happen because we checked that the node name
+                # is '__class__' earlier, but let's not be too confident here
+                return  # pragma: no cover
+            inferred = safe_infer(node.parent.parent.value.elts[class_index])
+        else:
+            inferred = safe_infer(node.parent.value)
         if (
             isinstance(inferred, nodes.ClassDef)
             or inferred is astroid.Uninferable
@@ -1531,9 +1579,14 @@ a metaclass class method.",
         ):
             # If is uninferable, we allow it to prevent false positives
             return
-        self.add_message("invalid-class-object", node=node)
+        self.add_message(
+            "invalid-class-object",
+            node=node,
+            args=inferred.__class__.__name__,
+            confidence=INFERENCE,
+        )
 
-    def _check_in_slots(self, node):
+    def _check_in_slots(self, node: nodes.AssignAttr) -> None:
         """Check that the given AssignAttr node
         is defined in the class slots.
         """
@@ -1611,7 +1664,7 @@ a metaclass class method.",
             return
         self._check_protected_attribute_access(node)
 
-    def _check_classmethod_declaration(self, node):
+    def _check_classmethod_declaration(self, node: nodes.Assign) -> None:
         """Checks for uses of classmethod() or staticmethod().
 
         When a @classmethod or @staticmethod decorator should be used instead.
@@ -1650,7 +1703,9 @@ a metaclass class method.",
         if any(method_name == member.name for member in parent_class.mymethods()):
             self.add_message(msg, node=node.targets[0])
 
-    def _check_protected_attribute_access(self, node: nodes.Attribute):
+    def _check_protected_attribute_access(
+        self, node: nodes.Attribute | nodes.AssignAttr
+    ) -> None:
         """Given an attribute access node (set or get), check if attribute
         access is legitimate.
 
@@ -1663,12 +1718,10 @@ a metaclass class method.",
             Klass.
         """
         attrname = node.attrname
-
         if (
             is_attr_protected(attrname)
             and attrname not in self.linter.config.exclude_protected
         ):
-
             klass = node_frame_class(node)
 
             # In classes, check we are not getting a parent method
@@ -1761,27 +1814,24 @@ a metaclass class method.",
         )
 
     @staticmethod
-    def _is_classmethod(func):
+    def _is_classmethod(func: LocalsDictNodeNG) -> bool:
         """Check if the given *func* node is a class method."""
-
         return isinstance(func, nodes.FunctionDef) and (
             func.type == "classmethod" or func.name == "__class_getitem__"
         )
 
     @staticmethod
-    def _is_inferred_instance(expr, klass):
+    def _is_inferred_instance(expr: nodes.NodeNG, klass: nodes.ClassDef) -> bool:
         """Check if the inferred value of the given *expr* is an instance of
         *klass*.
         """
-
         inferred = safe_infer(expr)
         if not isinstance(inferred, astroid.Instance):
             return False
-
         return inferred._proxied is klass
 
     @staticmethod
-    def _is_class_attribute(name, klass):
+    def _is_class_attribute(name: str, klass: nodes.ClassDef) -> bool:
         """Check if the given attribute *name* is a class or instance member of the
         given *klass*.
 
@@ -1801,7 +1851,9 @@ a metaclass class method.",
         except astroid.NotFoundError:
             return False
 
-    def _check_accessed_members(self, node, accessed):
+    def _check_accessed_members(
+        self, node: nodes.ClassDef, accessed: dict[str, list[_AccessNodes]]
+    ) -> None:
         """Check that accessed members are defined."""
         excs = ("AttributeError", "Exception", "BaseException")
         for attr, nodes_lst in accessed.items():
@@ -1861,7 +1913,9 @@ a metaclass class method.",
                                 args=(attr, lno),
                             )
 
-    def _check_first_arg_for_type(self, node, metaclass=0):
+    def _check_first_arg_for_type(
+        self, node: nodes.FunctionDef, metaclass: bool
+    ) -> None:
         """Check the name of first argument, expect:.
 
         * 'self' for a regular method
@@ -1892,9 +1946,17 @@ a metaclass class method.",
                 self.add_message("bad-staticmethod-argument", args=first, node=node)
                 return
             self._first_attrs[-1] = None
+        elif "builtins.staticmethod" in node.decoratornames():
+            # Check if there is a decorator which is not named `staticmethod` but is assigned to one.
+            return
         # class / regular method with no args
-        elif not node.args.args and not node.args.posonlyargs:
-            self.add_message("no-method-argument", node=node)
+        elif not (
+            node.args.args
+            or node.args.posonlyargs
+            or node.args.vararg
+            or node.args.kwarg
+        ):
+            self.add_message("no-method-argument", node=node, args=node.name)
         # metaclass
         elif metaclass:
             # metaclass __new__ or classmethod
@@ -1926,9 +1988,16 @@ a metaclass class method.",
             )
         # regular class with regular method without self as argument
         elif first != "self":
-            self.add_message("no-self-argument", node=node)
+            self.add_message("no-self-argument", node=node, args=node.name)
 
-    def _check_first_arg_config(self, first, config, node, message, method_name):
+    def _check_first_arg_config(
+        self,
+        first: str | None,
+        config: Sequence[str],
+        node: nodes.FunctionDef,
+        message: str,
+        method_name: str,
+    ) -> None:
         if first not in config:
             if len(config) == 1:
                 valid = repr(config[0])
@@ -1937,13 +2006,13 @@ a metaclass class method.",
                 valid = f"{valid} or {config[-1]!r}"
             self.add_message(message, args=(method_name, valid), node=node)
 
-    def _check_bases_classes(self, node):
+    def _check_bases_classes(self, node: nodes.ClassDef) -> None:
         """Check that the given class node implements abstract methods from
         base classes.
         """
 
-        def is_abstract(method):
-            return method.is_abstract(pass_is_abstract=False)
+        def is_abstract(method: nodes.FunctionDef) -> bool:
+            return method.is_abstract(pass_is_abstract=False)  # type: ignore[no-any-return]
 
         # check if this class abstract
         if class_is_abstract(node):
@@ -1962,7 +2031,13 @@ a metaclass class method.",
             if name in node.locals:
                 # it is redefined as an attribute or with a descriptor
                 continue
-            self.add_message("abstract-method", node=node, args=(name, owner.name))
+
+            self.add_message(
+                "abstract-method",
+                node=node,
+                args=(name, owner.name, node.name),
+                confidence=INFERENCE,
+            )
 
     def _check_init(self, node: nodes.FunctionDef, klass_node: nodes.ClassDef) -> None:
         """Check that the __init__ method call super or ancestors'__init__
@@ -2011,7 +2086,7 @@ a metaclass class method.",
                         # Record that the class' init has been called
                         parents_with_called_inits.add(node_frame_class(method))
                     except KeyError:
-                        if klass not in to_call:
+                        if klass not in klass_node.ancestors(recurs=False):
                             self.add_message(
                                 "non-parent-init-called", node=expr, args=klass.name
                             )
@@ -2038,9 +2113,6 @@ a metaclass class method.",
 
             if decorated_with(node, ["typing.overload"]):
                 continue
-            cls = node_frame_class(method)
-            if klass.name == "object" or (cls and cls.name == "object"):
-                continue
             self.add_message(
                 "super-init-not-called",
                 args=klass.name,
@@ -2048,7 +2120,12 @@ a metaclass class method.",
                 confidence=INFERENCE,
             )
 
-    def _check_signature(self, method1, refmethod, class_type, cls):
+    def _check_signature(
+        self,
+        method1: nodes.FunctionDef,
+        refmethod: nodes.FunctionDef,
+        cls: nodes.ClassDef,
+    ) -> None:
         """Check that the signature of the two given methods match."""
         if not (
             isinstance(method1, nodes.FunctionDef)
@@ -2078,6 +2155,9 @@ a metaclass class method.",
         arg_differ_output = _different_parameters(
             refmethod, method1, dummy_parameter_regex=self._dummy_rgx
         )
+
+        class_type = "overriding"
+
         if len(arg_differ_output) > 0:
             for msg in arg_differ_output:
                 if "Number" in msg:
@@ -2122,11 +2202,14 @@ a metaclass class method.",
             len(method1.args.defaults) < len(refmethod.args.defaults)
             and not method1.args.vararg
         ):
+            class_type = "overridden"
             self.add_message(
                 "signature-differs", args=(class_type, method1.name), node=method1
             )
 
-    def _uses_mandatory_method_param(self, node):
+    def _uses_mandatory_method_param(
+        self, node: nodes.Attribute | nodes.Assign | nodes.AssignAttr
+    ) -> bool:
         """Check that attribute lookup name use first attribute variable name.
 
         Name is `self` for method, `cls` for classmethod and `mcs` for metaclass.
@@ -2157,7 +2240,7 @@ a metaclass class method.",
 
 
 def _ancestors_to_call(
-    klass_node: nodes.ClassDef, method="__init__"
+    klass_node: nodes.ClassDef, method: str = "__init__"
 ) -> dict[nodes.ClassDef, bases.UnboundMethod]:
     """Return a dictionary where keys are the list of base classes providing
     the queried method, and so that should/may be called from the method node.
@@ -2165,7 +2248,10 @@ def _ancestors_to_call(
     to_call: dict[nodes.ClassDef, bases.UnboundMethod] = {}
     for base_node in klass_node.ancestors(recurs=False):
         try:
-            to_call[base_node] = next(base_node.igetattr(method))
+            init_node: bases.UnboundMethod = next(base_node.igetattr(method))
+            if init_node.is_abstract():
+                continue
+            to_call[base_node] = init_node
         except astroid.InferenceError:
             continue
     return to_call

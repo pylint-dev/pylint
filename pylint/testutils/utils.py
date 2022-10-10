@@ -7,7 +7,9 @@ from __future__ import annotations
 import contextlib
 import os
 import sys
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
+from copy import copy
+from pathlib import Path
 from typing import TextIO
 
 
@@ -20,6 +22,51 @@ def _patch_streams(out: TextIO) -> Iterator[None]:
     finally:
         sys.stderr = sys.__stderr__
         sys.stdout = sys.__stdout__
+
+
+@contextlib.contextmanager
+def _test_sys_path(
+    replacement_sys_path: list[str] | None = None,
+) -> Generator[None, None, None]:
+    original_path = sys.path
+    try:
+        if replacement_sys_path is not None:
+            sys.path = copy(replacement_sys_path)
+        yield
+    finally:
+        sys.path = original_path
+
+
+@contextlib.contextmanager
+def _test_cwd(
+    current_working_directory: str | Path | None = None,
+) -> Generator[None, None, None]:
+    original_dir = os.getcwd()
+    try:
+        if current_working_directory is not None:
+            os.chdir(current_working_directory)
+        yield
+    finally:
+        os.chdir(original_dir)
+
+
+@contextlib.contextmanager
+def _test_environ_pythonpath(
+    new_pythonpath: str | None = None,
+) -> Generator[None, None, None]:
+    original_pythonpath = os.environ.get("PYTHONPATH")
+    if new_pythonpath:
+        os.environ["PYTHONPATH"] = new_pythonpath
+    elif new_pythonpath is None and original_pythonpath is not None:
+        # If new_pythonpath is None, make sure to delete PYTHONPATH if present
+        del os.environ["PYTHONPATH"]
+    try:
+        yield
+    finally:
+        if original_pythonpath is not None:
+            os.environ["PYTHONPATH"] = original_pythonpath
+        elif "PYTHONPATH" in os.environ:
+            del os.environ["PYTHONPATH"]
 
 
 def create_files(paths: list[str], chroot: str = ".") -> None:

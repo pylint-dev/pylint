@@ -49,6 +49,7 @@ classmethod
 classmethod's
 classname
 classobj
+CLI
 cls
 cmp
 codebase
@@ -73,9 +74,11 @@ dataclass
 datetime
 debian
 deepcopy
+defaultdicts
 defframe
 defstmts
 deleter
+dependabot
 deque
 destructured
 destructuring
@@ -210,6 +213,7 @@ mymodule
 mypy
 namedtuple
 namespace
+newsfile
 newstyle
 nl
 nodename
@@ -242,6 +246,7 @@ pragma's
 pragmas
 pre
 preorder
+prepended
 proc
 py
 pyenchant
@@ -317,6 +322,7 @@ tokenizer
 toml
 tomlkit
 toplevel
+towncrier
 tp
 truthness
 tryexcept
@@ -352,6 +358,7 @@ vcg's
 vectorisation
 virtualized
 wc
+whitespaces
 xfails
 xml
 xyz

@@ -1,5 +1,5 @@
 """Test for statements without effects."""
-# pylint: disable=too-few-public-methods, useless-object-inheritance, unnecessary-comprehension, unnecessary-ellipsis, use-list-literal
+# pylint: disable=too-few-public-methods, unnecessary-comprehension, unnecessary-ellipsis, use-list-literal
 
 # +1:[pointless-string-statement]
 """inline doc string should use a separated message"""
@@ -35,7 +35,7 @@ to_be().title  # [expression-not-assigned]
 GOOD_ATTRIBUTE_DOCSTRING = 42
 """Module level attribute docstring is fine. """
 
-class ClassLevelAttributeTest(object):
+class ClassLevelAttributeTest:
     """ test attribute docstrings. """
 
     good_attribute_docstring = 24

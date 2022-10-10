@@ -1,7 +1,10 @@
 -e .[testutils,spelling]
-# astroid dependency is also defined in setup.cfg
-astroid==2.11.6  # Pinned to a specific version for tests
-typing-extensions~=4.2
+# astroid dependency is also defined in pyproject.toml
+# You need to increment the CACHE_VERSION in github actions too
+astroid==2.12.10  # Pinned to a specific version for tests
+typing-extensions~=4.3
 pytest~=7.1
 pytest-benchmark~=3.4
 pytest-timeout~=2.1
+towncrier~=22.8
+requests

@@ -43,6 +43,7 @@ class Message:  # pylint: disable=too-many-instance-attributes
             warn(
                 "In pylint 3.0, Messages will only accept a MessageLocationTuple as location parameter",
                 DeprecationWarning,
+                stacklevel=2,
             )
             location = MessageLocationTuple(
                 location[0],
@@ -77,3 +78,16 @@ class Message:  # pylint: disable=too-many-instance-attributes
         cf. https://docs.python.org/2/library/string.html#formatstrings
         """
         return template.format(**asdict(self))
+
+    @property
+    def location(self) -> MessageLocationTuple:
+        return MessageLocationTuple(
+            self.abspath,
+            self.path,
+            self.module,
+            self.obj,
+            self.line,
+            self.column,
+            self.end_line,
+            self.end_column,
+        )

@@ -27,12 +27,12 @@ sys.path.insert(1, REGR_DATA)
 
 
 @pytest.fixture(scope="module")
-def reporter():
+def reporter() -> type[testutils.GenericTestReporter]:
     return testutils.GenericTestReporter
 
 
 @pytest.fixture(scope="module")
-def disable():
+def disable() -> list[str]:
     return ["I"]
 
 
@@ -48,7 +48,7 @@ def finalize_linter(linter: PyLinter) -> Iterator[PyLinter]:
     linter.reporter.finalize()
 
 
-def Equals(expected):
+def Equals(expected: str) -> Callable[[str], bool]:
     return lambda got: got == expected
 
 
@@ -67,7 +67,7 @@ def Equals(expected):
     ],
 )
 def test_package(
-    finalize_linter: PyLinter, file_names: list[str], check: Callable
+    finalize_linter: PyLinter, file_names: list[str], check: Callable[[str], bool]
 ) -> None:
     finalize_linter.check(file_names)
     finalize_linter.reporter = cast(  # Due to fixture
@@ -101,7 +101,7 @@ def test_descriptor_crash(fname: str, finalize_linter: PyLinter) -> None:
 
 
 @pytest.fixture
-def modify_path() -> Iterator:
+def modify_path() -> Iterator[None]:
     cwd = os.getcwd()
     sys.path.insert(0, "")
     yield

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, Tuple, Type, cast
 
 from astroid import nodes
 
@@ -164,13 +164,11 @@ class CodeStyleChecker(BaseChecker):
             if list_length == 0:
                 return
             for _, dict_value in node.items[1:]:
-                dict_value = cast(Union[nodes.List, nodes.Tuple], dict_value)
                 if len(dict_value.elts) != list_length:
                     return
 
             # Make sure at least one list entry isn't a dict
             for _, dict_value in node.items:
-                dict_value = cast(Union[nodes.List, nodes.Tuple], dict_value)
                 if all(isinstance(entry, nodes.Dict) for entry in dict_value.elts):
                     return
 

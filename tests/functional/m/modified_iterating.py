@@ -1,7 +1,8 @@
 """Tests for iterating-modified messages"""
-# pylint: disable=not-callable,unnecessary-comprehension
+# pylint: disable=not-callable,unnecessary-comprehension,too-few-public-methods,missing-class-docstring,missing-function-docstring
 
 import copy
+from enum import Enum
 
 item_list = [1, 2, 3]
 for item in item_list:
@@ -26,7 +27,7 @@ my_dict = {"1": 1, "2": 2, "3": 3}
 i = 1
 for item in my_dict:
     item_list[0] = i  # for coverage, see reference at /pull/5628#discussion_r792181642
-    my_dict[i] = 1      # [modified-iterating-dict]
+    my_dict[i] = 1  # [modified-iterating-dict]
     i += 1
 
 i = 1
@@ -83,3 +84,49 @@ dict1 = {"1": 1}
 dict2 = {"2": 2}
 for item in dict1:
     dict2[item] = 1
+
+
+def update_existing_key():
+    """No message when updating existing keys"""
+    for key in my_dict:
+        my_dict[key] = 1
+
+    for key in my_dict:
+        new_key = key.lower()
+        my_dict[new_key] = 1  # [modified-iterating-dict]
+
+
+class MyClass:
+    """Regression test for https://github.com/PyCQA/pylint/issues/7380"""
+
+    def __init__(self) -> None:
+        self.attribute = [1, 2, 3]
+
+    def my_method(self):
+        """This should raise as we are deleting."""
+        for var in self.attribute:
+            del var  # [modified-iterating-list]
+
+
+class MyClass2:
+    """Regression test for https://github.com/PyCQA/pylint/issues/7461"""
+    def __init__(self) -> None:
+        self.attribute = {}
+
+    def my_method(self):
+        """This should not raise, as a copy was made."""
+        for key in self.attribute:
+            tmp = self.attribute.copy()
+            tmp[key] = None
+
+class MyEnum(Enum):
+    FOO = 1
+    BAR = 2
+
+class EnumClass:
+    ENUM_SET = {MyEnum.FOO, MyEnum.BAR}
+
+    def useless(self):
+        other_set = set(self.ENUM_SET)
+        for obj in self.ENUM_SET:
+            other_set.remove(obj)

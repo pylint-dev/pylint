@@ -29,6 +29,19 @@
    :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/main
    :alt: pre-commit.ci status
 
+.. image:: https://bestpractices.coreinfrastructure.org/projects/6328/badge
+   :target: https://bestpractices.coreinfrastructure.org/projects/6328
+   :alt: CII Best Practices
+
+.. image:: https://api.securityscorecards.dev/projects/github.com/PyCQA/pylint/badge
+   :target: https://api.securityscorecards.dev/projects/github.com/PyCQA/pylint
+   :alt: OpenSSF Scorecard
+
+.. image:: https://img.shields.io/discord/825463413634891776.svg
+   :target: https://discord.gg/qYxpadCgkx
+   :alt: Discord
+
+
 What is Pylint?
 ================
 
@@ -46,10 +59,19 @@ will know that ``argparse.error(...)`` is in fact a logging call and not an argp
 .. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
 
 Pylint is highly configurable and permits to write plugins in order to add your
-own checks (for example, for internal libraries or an internal rule). Pylint has an
-ecosystem of existing plugins for popular frameworks such as `pylint-django`_ or
-`pylint-sonarjson`_.
+own checks (for example, for internal libraries or an internal rule). Pylint also has an
+ecosystem of existing plugins for popular frameworks and third party libraries.
 
+.. note::
+
+    Pylint supports the Python standard library out of the box. Third-party
+    libraries are not always supported, so a plugin might be needed. A good place
+    to start is ``PyPI`` which often returns a plugin by searching for
+    ``pylint <library>``. `pylint-pydantic`_, `pylint-django`_ and
+    `pylint-sonarjson`_ are examples of such plugins. More information about plugins
+    and how to load them can be found at :ref:`plugins <plugins>`.
+
+.. _`pylint-pydantic`: https://pypi.org/project/pylint-pydantic
 .. _`pylint-django`: https://github.com/PyCQA/pylint-django
 .. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
 

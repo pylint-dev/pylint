@@ -39,12 +39,12 @@ def test_explicit_layout(
     "layout, printer_class",
     [(Layout.BOTTOM_TO_TOP, PlantUmlPrinter), (Layout.RIGHT_TO_LEFT, PlantUmlPrinter)],
 )
-def test_unsupported_layout(layout: Layout, printer_class: type[Printer]):
+def test_unsupported_layout(layout: Layout, printer_class: type[Printer]) -> None:
     with pytest.raises(ValueError):
         printer_class(title="unittest", layout=layout)
 
 
-def test_method_arguments_none():
+def test_method_arguments_none() -> None:
     func = nodes.FunctionDef()
     args = nodes.Arguments()
     args.args = None

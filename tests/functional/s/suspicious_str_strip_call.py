@@ -1,6 +1,6 @@
 """Suspicious str.strip calls."""
 # pylint: disable=redundant-u-string-prefix
-__revision__ = 1
+
 
 ''.strip('yo')
 ''.strip()

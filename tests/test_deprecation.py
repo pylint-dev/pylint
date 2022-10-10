@@ -44,7 +44,7 @@ def test_mapreducemixin() -> None:
 
 
 def test_reporter_implements() -> None:
-    """Test that __implements__ on BaseReporer has been deprecated correctly."""
+    """Test that __implements__ on BaseReporter has been deprecated correctly."""
 
     class MyReporter(BaseReporter):
 

@@ -158,7 +158,11 @@ class _MessageHelpAction(_CallbackAction):
         option_string: str | None = "--help-msg",
     ) -> None:
         assert isinstance(values, (list, tuple))
-        self.run.linter.msgs_store.help_message(values)
+        values_to_print: list[str] = []
+        for msg in values:
+            assert isinstance(msg, str)
+            values_to_print += utils._check_csv(msg)
+        self.run.linter.msgs_store.help_message(values_to_print)
         sys.exit(0)
 
 
@@ -261,7 +265,8 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--generate-rcfile",
     ) -> None:
-        # TODO: 2.15: Deprecate this after discussion about this removal has been completed.
+        # TODO: 2.x: Deprecate this after the auto-upgrade functionality of
+        # pylint-config is sufficient.
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self.run.linter.generate_config(skipsections=("Commands",))
@@ -373,7 +378,7 @@ class _XableAction(_AccessLinterObjectAction):
         xabling_function: Callable[[str], None],
         values: str | Sequence[Any] | None,
         option_string: str | None,
-    ):
+    ) -> None:
         assert isinstance(values, (tuple, list))
         for msgid in utils._check_csv(values[0]):
             try:

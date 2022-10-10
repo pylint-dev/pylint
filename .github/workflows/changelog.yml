@@ -1,0 +1,62 @@
+name: changelog
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled, reopened]
+
+env:
+  # Also change CACHE_VERSION in the other workflows
+  CACHE_VERSION: 29
+  DEFAULT_PYTHON: "3.11-dev"
+
+jobs:
+  check-changelog:
+    if: contains(github.event.pull_request.labels.*.name, 'skip news :mute:') != true
+    name: Changelog Entry Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.0.2
+        with:
+          # `towncrier check` runs `git diff --name-only origin/main...`, which
+          # needs a non-shallow clone.
+          fetch-depth: 0
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v4.2.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: Generate partial Python venv restore key
+        id: generate-python-key
+        run: >-
+          echo "::set-output name=key::base-venv-${{ env.CACHE_VERSION }}-${{
+            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
+          }}"
+      - name: Restore Python virtual environment
+        id: cache-venv
+        uses: actions/cache@v3.0.10
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            steps.generate-python-key.outputs.key }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-base-venv-${{ env.CACHE_VERSION }}-
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install -U pip setuptools wheel
+          pip install -U -r requirements_test.txt
+          pip install -U -r doc/requirements.txt
+      - name: Emit warning if news fragment is missing
+        env:
+          BASE_BRANCH: ${{ github.base_ref }}
+        run: |
+          # Fetch the pull request' base branch so towncrier will be able to
+          # compare the current branch with the base branch.
+          git fetch --no-tags origin +refs/heads/${BASE_BRANCH}:refs/remotes/origin/${BASE_BRANCH}
+          . venv/bin/activate
+          towncrier check --compare-with origin/${{ github.base_ref }}

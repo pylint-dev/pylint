@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+cherries = 10
+eaten_cherries = 2
+cherries -= eaten_cherries

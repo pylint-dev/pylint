@@ -17,6 +17,7 @@ from pylint.checkers.utils import (
     only_required_for_messages,
     safe_infer,
 )
+from pylint.constants import TYPING_NORETURN
 from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
@@ -75,12 +76,6 @@ DEPRECATED_TYPING_ALIASES: dict[str, TypingAlias] = {
 
 ALIAS_NAMES = frozenset(key.split(".")[1] for key in DEPRECATED_TYPING_ALIASES)
 UNION_NAMES = ("Optional", "Union")
-TYPING_NORETURN = frozenset(
-    (
-        "typing.NoReturn",
-        "typing_extensions.NoReturn",
-    )
-)
 
 
 class DeprecatedTypingAliasMsg(NamedTuple):
@@ -142,7 +137,7 @@ class TypingChecker(BaseChecker):
                     "support runtime introspection of type annotations. "
                     "If you use type annotations **exclusively** for type checking "
                     "of an application, you're probably fine. For libraries, "
-                    "evaluate if some users what to access the type hints "
+                    "evaluate if some users want to access the type hints "
                     "at runtime first, e.g., through ``typing.get_type_hints``. "
                     "Applies to Python versions 3.7 - 3.9"
                 ),

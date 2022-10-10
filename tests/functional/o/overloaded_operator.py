@@ -1,8 +1,8 @@
-# pylint: disable=missing-docstring,too-few-public-methods,useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods
 """#3291"""
-from __future__ import print_function
 
-class Myarray(object):
+
+class Myarray:
     def __init__(self, array):
         self.array = array
 

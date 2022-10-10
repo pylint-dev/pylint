@@ -1,0 +1,3 @@
+Fixed an issue where ``syntax-error`` couldn't be raised on files with invalid encodings.
+
+Closes #7522

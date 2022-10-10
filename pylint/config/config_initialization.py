@@ -45,7 +45,7 @@ def _config_initialization(
 
     # Run init hook, if present, before loading plugins
     if "init-hook" in config_data:
-        exec(config_data["init-hook"])  # pylint: disable=exec-used
+        exec(utils._unquote(config_data["init-hook"]))  # pylint: disable=exec-used
 
     # Load plugins if specified in the config file
     if "load-plugins" in config_data:
@@ -71,6 +71,12 @@ def _config_initialization(
     # Now we parse any options from the command line, so they can override
     # the configuration file
     parsed_args_list = linter._parse_command_line_configuration(args_list)
+
+    # Remove the positional arguments separator from the list of arguments if it exists
+    try:
+        parsed_args_list.remove("--")
+    except ValueError:
+        pass
 
     # Check if there are any options that we do not recognize
     unrecognized_options: list[str] = []

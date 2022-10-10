@@ -7,6 +7,7 @@
 .. toctree::
    :maxdepth: 2
 
+   2.16/index
    2.15/index
    2.14/index
    2.13/index

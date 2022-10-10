@@ -1,1 +1,7 @@
-# This is a placeholder for correct code for this message.
+class Fruit:
+    async def bore(self, insect):
+        insect.eat(self)
+
+class Apple(Fruit):
+    async def bore(self, insect):
+        insect.eat(self)

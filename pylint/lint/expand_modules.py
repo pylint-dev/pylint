@@ -18,7 +18,7 @@ def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> li
     def _is_package_cb(inner_path: str, parts: list[str]) -> bool:
         return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
 
-    return modutils.modpath_from_file_with_callback(
+    return modutils.modpath_from_file_with_callback(  # type: ignore[no-any-return]
         filename, path=path, is_package_cb=_is_package_cb
     )
 
@@ -52,6 +52,7 @@ def _is_ignored_file(
     ignore_list_re: list[Pattern[str]],
     ignore_list_paths_re: list[Pattern[str]],
 ) -> bool:
+    element = os.path.normpath(element)
     basename = os.path.basename(element)
     return (
         basename in ignore_list
@@ -102,9 +103,7 @@ def expand_modules(
                 )
                 if filepath is None:
                     continue
-            except (ImportError, SyntaxError) as ex:
-                # The SyntaxError is a Python bug and should be
-                # removed once we move away from imp.find_module: https://bugs.python.org/issue10588
+            except ImportError as ex:
                 errors.append({"key": "fatal", "mod": modname, "ex": ex})
                 continue
         filepath = os.path.normpath(filepath)

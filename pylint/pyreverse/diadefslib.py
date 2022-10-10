@@ -36,7 +36,7 @@ class DiaDefGenerator:
         title = node.name
         if self.module_names:
             title = f"{node.root().name}.{title}"
-        return title
+        return title  # type: ignore[no-any-return]
 
     def _set_option(self, option: bool | None) -> bool:
         """Activate some options if not explicitly deactivated."""
@@ -70,7 +70,7 @@ class DiaDefGenerator:
         """True if builtins and not show_builtins."""
         if self.config.show_builtin:
             return True
-        return node.root().name != "builtins"
+        return node.root().name != "builtins"  # type: ignore[no-any-return]
 
     def add_class(self, node: nodes.ClassDef) -> None:
         """Visit one class and add it to diagram."""

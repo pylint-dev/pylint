@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+print('{0} {1}'.format('hello', 'world'))
+# or
+print('{} {}'.format('hello', 'world'))

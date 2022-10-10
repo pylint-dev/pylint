@@ -10,12 +10,18 @@ import os
 import subprocess
 import sys
 import tempfile
+from enum import Enum
 from pathlib import Path
 
 from astroid import nodes
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 from pylint.pyreverse.utils import get_annotation_label
+
+
+class HTMLLabels(Enum):
+    LINEBREAK_LEFT = '<br ALIGN="LEFT"/>'
+
 
 ALLOWED_CHARSETS: frozenset[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
 SHAPES: dict[NodeType, str] = {
@@ -73,7 +79,7 @@ class DotPrinter(Printer):
         color = properties.color if properties.color is not None else self.DEFAULT_COLOR
         style = "filled" if color != self.DEFAULT_COLOR else "solid"
         label = self._build_label_for_node(properties)
-        label_part = f', label="{label}"' if label else ""
+        label_part = f", label=<{label}>" if label else ""
         fontcolor_part = (
             f', fontcolor="{properties.fontcolor}"' if properties.fontcolor else ""
         )
@@ -92,17 +98,22 @@ class DotPrinter(Printer):
 
         # Add class attributes
         attrs: list[str] = properties.attrs or []
-        attrs_string = r"\l".join(attr.replace("|", r"\|") for attr in attrs)
-        label = rf"{{{label}|{attrs_string}\l|"
+        attrs_string = rf"{HTMLLabels.LINEBREAK_LEFT.value}".join(
+            attr.replace("|", r"\|") for attr in attrs
+        )
+        label = rf"{{{label}|{attrs_string}{HTMLLabels.LINEBREAK_LEFT.value}|"
 
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
         for func in methods:
             args = self._get_method_arguments(func)
-            label += rf"{func.name}({', '.join(args)})"
+            method_name = (
+                f"<I>{func.name}</I>" if func.is_abstract() else f"{func.name}"
+            )
+            label += rf"{method_name}({', '.join(args)})"
             if func.returns:
                 label += ": " + get_annotation_label(func.returns)
-            label += r"\l"
+            label += rf"{HTMLLabels.LINEBREAK_LEFT.value}"
         label += "}"
         return label
 

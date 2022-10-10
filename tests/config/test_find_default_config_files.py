@@ -233,7 +233,7 @@ disable = logging-not-lazy,logging-format-interpolation
         ],
     ],
 )
-def test_cfg_has_config(content: str, expected: str, tmp_path: Path) -> None:
+def test_cfg_has_config(content: str, expected: bool, tmp_path: Path) -> None:
     """Test that a cfg file has a pylint config."""
     fake_cfg = tmp_path / "fake.cfg"
     with open(fake_cfg, "w", encoding="utf8") as f:
@@ -253,3 +253,12 @@ def test_non_existent_home() -> None:
         assert not list(config.find_default_config_files())
 
         os.chdir(current_dir)
+
+
+def test_permission_error() -> None:
+    """Test that we handle PermissionError correctly in find_default_config_files.
+
+    Reported in https://github.com/PyCQA/pylint/issues/7169.
+    """
+    with mock.patch("pathlib.Path.is_file", side_effect=PermissionError):
+        list(config.find_default_config_files())

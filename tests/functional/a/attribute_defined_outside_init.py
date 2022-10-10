@@ -1,6 +1,6 @@
-# pylint: disable=missing-docstring,too-few-public-methods,invalid-name, useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods,invalid-name
 
-class A(object):
+class A:
 
     def __init__(self):
         self.x = 0
@@ -26,7 +26,7 @@ class B(A):
         self.z = 44 # [attribute-defined-outside-init]
 
 
-class C(object):
+class C:
 
     def __init__(self):
         self._init()
@@ -35,7 +35,7 @@ class C(object):
         self.z = 44
 
 
-class D(object):
+class D:
 
     def setUp(self):
         self.set_z()
@@ -44,7 +44,7 @@ class D(object):
         self.z = 42
 
 
-class E(object):
+class E:
 
     def __init__(self):
         i = self._init
@@ -54,7 +54,7 @@ class E(object):
         self.z = 44
 
 
-class Mixin(object):
+class Mixin:
 
     def test_mixin(self):
         """Don't emit attribute-defined-outside-init for mixin classes."""

@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, useless-object-inheritance,import-outside-toplevel, fixme, line-too-long
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, import-outside-toplevel, fixme, line-too-long
 
 def test_regression_737():
     import xml # [unused-import]
@@ -22,7 +22,7 @@ def test_local_field_prefixed_with_unused_or_ignored():
     ignored_local_field = 42
 
 
-class HasUnusedDunderClass(object):
+class HasUnusedDunderClass:
 
     def test(self):
         __class__ = 42  # [unused-variable]
@@ -66,8 +66,7 @@ def hello(arg):
         return True
     raise Exception
 
-# pylint: disable=wrong-import-position,misplaced-future
-from __future__ import print_function
+# pylint: disable=wrong-import-position
 PATH = OS = collections = deque = None
 
 
@@ -95,7 +94,7 @@ def test_global():
     variables through imports.
     """
     # pylint: disable=redefined-outer-name
-    global PATH, OS, collections, deque  # [global-variable-not-assigned, global-variable-not-assigned]
+    global PATH, OS, collections, deque  # [global-statement]
     from os import path as PATH
     import os as OS
     import collections
@@ -187,3 +186,16 @@ def sibling_except_handlers():
         pass
     except ValueError as e:
         print(e)
+
+def func6():
+    a = 1
+
+    def nonlocal_writer():
+        nonlocal a
+
+        for a in range(10):
+            pass
+
+    nonlocal_writer()
+
+    assert a == 9, a

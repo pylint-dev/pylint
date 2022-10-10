@@ -1,0 +1,4 @@
+Fix false positive for ``redefined-outer-name`` when aliasing ``typing``
+e.g. as ``t`` and guarding imports under ``t.TYPE_CHECKING``.
+
+Closes #7524

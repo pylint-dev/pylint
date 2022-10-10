@@ -98,6 +98,7 @@ class OutputLine(NamedTuple):
                     "expected confidence level, expected end_line and expected end_column. "
                     "An OutputLine should thus have a length of 8.",
                     DeprecationWarning,
+                    stacklevel=2,
                 )
                 return cls(
                     row[0],
@@ -115,6 +116,7 @@ class OutputLine(NamedTuple):
                     "expected end_line and expected end_column. An OutputLine should thus have "
                     "a length of 8.",
                     DeprecationWarning,
+                    stacklevel=2,
                 )
                 return cls(
                     row[0], int(row[1]), column, None, None, row[3], row[4], row[5]

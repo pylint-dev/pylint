@@ -195,7 +195,7 @@ class PrivateImportChecker(BaseChecker):
         """
         if isinstance(node, nodes.Name) and node.name not in all_used_type_annotations:
             all_used_type_annotations[node.name] = True
-            return node.name
+            return node.name  # type: ignore[no-any-return]
         if isinstance(node, nodes.Subscript):  # e.g. Optional[List[str]]
             # slice is the next nested type
             self._populate_type_annotations_annotation(
@@ -249,6 +249,8 @@ class PrivateImportChecker(BaseChecker):
     ) -> bool:
         """Does the node's file's path contain the base name of `import_mod_name`?"""
         if not import_mod_name:  # from . import ...
+            return True
+        if node.level:  # from .foo import ..., from ..bar import ...
             return True
 
         base_import_package = import_mod_name.split(".")[0]

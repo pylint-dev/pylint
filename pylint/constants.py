@@ -155,3 +155,16 @@ def _get_pylint_home() -> str:
 
 
 PYLINT_HOME = _get_pylint_home()
+
+TYPING_NORETURN = frozenset(
+    (
+        "typing.NoReturn",
+        "typing_extensions.NoReturn",
+    )
+)
+TYPING_NEVER = frozenset(
+    (
+        "typing.Never",
+        "typing_extensions.Never",
+    )
+)

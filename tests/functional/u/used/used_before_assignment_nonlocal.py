@@ -1,7 +1,6 @@
 """Check for nonlocal and used-before-assignment"""
-# pylint: disable=missing-docstring, unused-variable, too-few-public-methods
+# pylint: disable=missing-docstring, unused-variable, too-few-public-methods, consider-using-augmented-assign
 
-__revision__ = 0
 
 def test_ok():
     """ uses nonlocal """
@@ -89,3 +88,21 @@ def type_annotation_never_gets_value_despite_nonlocal():
         nonlocal some_num
     inner()
     print(some_num)  # [used-before-assignment]
+
+
+def inner_function_lacks_access_to_outer_args(args):
+    """Check homonym between inner function and outer function names"""
+    def inner():
+        print(args)  # [used-before-assignment]
+        args = []
+    inner()
+    print(args)
+
+
+def inner_function_ok(args):
+    """Explicitly redefined homonym defined before is OK."""
+    def inner():
+        args = []
+        print(args)
+    inner()
+    print(args)

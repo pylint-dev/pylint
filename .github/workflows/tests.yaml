@@ -10,8 +10,7 @@ on:
       - doc/data/messages/**
 
 env:
-  # Also change CACHE_VERSION in the other workflows
-  CACHE_VERSION: 7
+  CACHE_VERSION: 29
 
 jobs:
   tests-linux:
@@ -21,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11-dev"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -29,7 +28,7 @@ jobs:
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.2.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -40,7 +39,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.4
+        uses: actions/cache@v3.0.10
         with:
           path: venv
           key: >-
@@ -76,7 +75,7 @@ jobs:
     needs: tests-linux
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: ["3.11-dev"]
     env:
       COVERAGERC_FILE: .coveragerc
     steps:
@@ -84,12 +83,12 @@ jobs:
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.2.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.4
+        uses: actions/cache@v3.0.10
         with:
           path: venv
           key:
@@ -122,18 +121,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8]
+        python-version: ["3.11-dev"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.2.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.4
+        uses: actions/cache@v3.0.10
         with:
           path: venv
           key:
@@ -174,7 +173,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11-dev"]
     steps:
       - name: Set temp directory
         run: echo "TEMP=$env:USERPROFILE\AppData\Local\Temp" >> $env:GITHUB_ENV
@@ -184,7 +183,7 @@ jobs:
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.2.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -195,7 +194,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.4
+        uses: actions/cache@v3.0.10
         with:
           path: venv
           key: >-
@@ -230,7 +229,7 @@ jobs:
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.2.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -241,7 +240,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.4
+        uses: actions/cache@v3.0.10
         with:
           path: venv
           key: >-
@@ -274,7 +273,7 @@ jobs:
         uses: actions/checkout@v3.0.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.2.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Generate partial Python venv restore key
@@ -285,7 +284,7 @@ jobs:
           }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.4
+        uses: actions/cache@v3.0.10
         with:
           path: venv
           key: >-

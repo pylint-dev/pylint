@@ -47,12 +47,14 @@ class FileState:
                 "FileState needs a string as modname argument. "
                 "This argument will be required in pylint 3.0",
                 DeprecationWarning,
+                stacklevel=2,
             )
         if msg_store is None:
             warnings.warn(
                 "FileState needs a 'MessageDefinitionStore' as msg_store argument. "
                 "This argument will be required in pylint 3.0",
                 DeprecationWarning,
+                stacklevel=2,
             )
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
@@ -79,6 +81,7 @@ class FileState:
         warnings.warn(
             "'collect_block_lines' has been deprecated and will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
         for msg, lines in self._module_msgs_state.items():
             self._raw_module_msgs_state[msg] = lines.copy()
@@ -194,30 +197,50 @@ class FileState:
                     state = lines[line]
                     original_lineno = line
 
-                # Update suppression mapping
-                if not state:
-                    self._suppression_mapping[(msg.msgid, line)] = original_lineno
-                else:
-                    self._suppression_mapping.pop((msg.msgid, line), None)
+                self._set_message_state_on_line(msg, line, state, original_lineno)
 
-                # Update message state for respective line
-                try:
-                    self._module_msgs_state[msg.msgid][line] = state
-                except KeyError:
-                    self._module_msgs_state[msg.msgid] = {line: state}
             del lines[lineno]
 
-    def set_msg_status(self, msg: MessageDefinition, line: int, status: bool) -> None:
+    def _set_message_state_on_line(
+        self,
+        msg: MessageDefinition,
+        line: int,
+        state: bool,
+        original_lineno: int,
+    ) -> None:
+        """Set the state of a message on a line."""
+        # Update suppression mapping
+        if not state:
+            self._suppression_mapping[(msg.msgid, line)] = original_lineno
+        else:
+            self._suppression_mapping.pop((msg.msgid, line), None)
+
+        # Update message state for respective line
+        try:
+            self._module_msgs_state[msg.msgid][line] = state
+        except KeyError:
+            self._module_msgs_state[msg.msgid] = {line: state}
+
+    def set_msg_status(
+        self,
+        msg: MessageDefinition,
+        line: int,
+        status: bool,
+        scope: str = "package",
+    ) -> None:
         """Set status (enabled/disable) for a given message at a given line."""
         assert line > 0
         assert self._module
         # TODO: 3.0: Remove unnecessary assertion
         assert self._msgs_store
 
-        # Expand the status to cover all relevant block lines
-        self._set_state_on_block_lines(
-            self._msgs_store, self._module, msg, {line: status}
-        )
+        if scope != "line":
+            # Expand the status to cover all relevant block lines
+            self._set_state_on_block_lines(
+                self._msgs_store, self._module, msg, {line: status}
+            )
+        else:
+            self._set_message_state_on_line(msg, line, status, line)
 
         # Store the raw value
         try:
@@ -272,4 +295,4 @@ class FileState:
                 )
 
     def get_effective_max_line_number(self) -> int | None:
-        return self._effective_max_line_number
+        return self._effective_max_line_number  # type: ignore[no-any-return]

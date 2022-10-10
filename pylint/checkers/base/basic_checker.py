@@ -166,9 +166,10 @@ class BasicChecker(_BasicChecker):
         "W0122": (
             "Use of exec",
             "exec-used",
-            'Used when you use the "exec" statement (function for Python '
-            "3), to discourage its usage. That doesn't "
-            "mean you cannot use it !",
+            "Raised when the 'exec' statement is used. It's dangerous to use this "
+            "function for a user input, and it's also slower than actual code in "
+            "general. This doesn't mean you should never use it, but you should "
+            "consider alternatives first and restrict the functions available.",
         ),
         "W0123": (
             "Use of eval",
@@ -187,7 +188,7 @@ class BasicChecker(_BasicChecker):
             "re-raised.",
         ),
         "W0199": (
-            "Assert called on a 2-item-tuple. Did you mean 'assert x,y'?",
+            "Assert called on a populated tuple. Did you mean 'assert x,y'?",
             "assert-on-tuple",
             "A call of assert on a tuple will always evaluate to true if "
             "the tuple is not empty, and will always evaluate to false if "
@@ -679,12 +680,8 @@ class BasicChecker(_BasicChecker):
     @utils.only_required_for_messages("assert-on-tuple", "assert-on-string-literal")
     def visit_assert(self, node: nodes.Assert) -> None:
         """Check whether assert is used on a tuple or string literal."""
-        if (
-            node.fail is None
-            and isinstance(node.test, nodes.Tuple)
-            and len(node.test.elts) == 2
-        ):
-            self.add_message("assert-on-tuple", node=node)
+        if isinstance(node.test, nodes.Tuple) and len(node.test.elts) > 0:
+            self.add_message("assert-on-tuple", node=node, confidence=HIGH)
 
         if isinstance(node.test, nodes.Const) and isinstance(node.test.value, str):
             if node.test.value:
@@ -737,19 +734,19 @@ class BasicChecker(_BasicChecker):
         self, node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise
     ) -> None:
         """Check unreachable code."""
-        unreach_stmt = node.next_sibling()
-        if unreach_stmt is not None:
+        unreachable_statement = node.next_sibling()
+        if unreachable_statement is not None:
             if (
                 isinstance(node, nodes.Return)
-                and isinstance(unreach_stmt, nodes.Expr)
-                and isinstance(unreach_stmt.value, nodes.Yield)
+                and isinstance(unreachable_statement, nodes.Expr)
+                and isinstance(unreachable_statement.value, nodes.Yield)
             ):
                 # Don't add 'unreachable' for empty generators.
                 # Only add warning if 'yield' is followed by another node.
-                unreach_stmt = unreach_stmt.next_sibling()
-                if unreach_stmt is None:
+                unreachable_statement = unreachable_statement.next_sibling()
+                if unreachable_statement is None:
                     return
-            self.add_message("unreachable", node=unreach_stmt)
+            self.add_message("unreachable", node=unreachable_statement, confidence=HIGH)
 
     def _check_not_in_finally(
         self,

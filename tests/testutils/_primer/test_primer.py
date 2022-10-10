@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from _pytest.capture import CaptureFixture
 
 from pylint.constants import IS_PYPY
 from pylint.testutils._primer.primer import Primer
@@ -25,12 +26,16 @@ PRIMER_CURRENT_INTERPRETER = (3, 10)
 DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"]
 
 
-@pytest.mark.skipif(
-    sys.platform in {"win32", "darwin"},
-    reason=(
-        "Primers are internal and will never be run on costly github action (mac or windows)"
-    ),
-)
+@pytest.mark.parametrize("args", [[], ["wrong_command"]])
+def test_primer_launch_bad_args(args: list[str], capsys: CaptureFixture) -> None:
+    with pytest.raises(SystemExit):
+        with patch("sys.argv", ["python tests/primer/__main__.py"] + args):
+            Primer(PRIMER_DIRECTORY, PACKAGES_TO_PRIME_PATH).run()
+    out, err = capsys.readouterr()
+    assert not out
+    assert "usage: Pylint Primer" in err
+
+
 @pytest.mark.skipif(
     sys.version_info[:2] != PRIMER_CURRENT_INTERPRETER or IS_PYPY,
     reason=(
@@ -55,7 +60,7 @@ class TestPrimer:
 
     def test_truncated_compare(self) -> None:
         """Test for the truncation of comments that are too long."""
-        max_comment_length = 500
+        max_comment_length = 525
         directory = FIXTURES_PATH / "message_changed"
         with patch(
             "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",

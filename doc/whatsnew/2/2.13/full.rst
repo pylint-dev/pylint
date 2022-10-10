@@ -160,7 +160,7 @@ Release date: 2022-03-31
   Closes #6027
 
 
-* Fix crash for ``unneccessary-ellipsis`` checker when an ellipsis is used inside of a container or a lambda expression.
+* Fix crash for ``unnecessary-ellipsis`` checker when an ellipsis is used inside of a container or a lambda expression.
 
   Closes #6036
   Closes #6037
@@ -265,7 +265,7 @@ Release date: 2022-03-24
 
   Closes #5840
 
-* Updated the position of messages for class and function defintions to no longer cover
+* Updated the position of messages for class and function definitions to no longer cover
   the complete definition. Only the ``def`` or ``class`` + the name of the class/function
   are covered.
 

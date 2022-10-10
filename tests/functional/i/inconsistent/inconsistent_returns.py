@@ -91,13 +91,13 @@ def explicit_returns6(x, y, z):
 
 def explicit_returns7(arg):
     if arg < 0:
-        arg = 2 * arg
+        arg *= 2
         return 'below 0'
     elif arg == 0:
         print("Null arg")
         return '0'
     else:
-        arg = 3 * arg
+        arg *= 3
         return 'above 0'
 
 def bug_1772():
@@ -184,7 +184,7 @@ def explicit_implicit_returns3(arg): # [inconsistent-return-statements]
 
 def returns_missing_in_catched_exceptions(arg): # [inconsistent-return-statements]
     try:
-        arg = arg**2
+        arg **= arg
         raise ValueError('test')
     except ValueError:
         print('ValueError')

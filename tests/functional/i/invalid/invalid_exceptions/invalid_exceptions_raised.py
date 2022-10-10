@@ -1,4 +1,4 @@
-# pylint:disable=too-few-public-methods,import-error,missing-docstring, not-callable, useless-object-inheritance,import-outside-toplevel
+# pylint:disable=too-few-public-methods,import-error,missing-docstring, not-callable, import-outside-toplevel
 """test pb with exceptions and old/new style classes"""
 
 
@@ -8,7 +8,7 @@ class ValidException(Exception):
 class OldStyleClass:
     """Not an exception."""
 
-class NewStyleClass(object):
+class NewStyleClass:
     """Not an exception."""
 
 

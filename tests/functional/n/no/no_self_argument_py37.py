@@ -1,9 +1,9 @@
 """Test detection of self as argument of first method in Python 3.7 and above."""
 
-# pylint: disable=missing-docstring,too-few-public-methods,useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods
 
 
-class Toto(object):
+class Toto:
 
     def __class_getitem__(cls, params):
         # This is actually a special method which is always a class method.

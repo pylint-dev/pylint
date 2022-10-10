@@ -1,5 +1,5 @@
-# pylint: disable=missing-docstring,too-few-public-methods, useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods
 
-class SomeClass(object):
+class SomeClass:
     def __init__(self): # [init-is-generator]
         yield None

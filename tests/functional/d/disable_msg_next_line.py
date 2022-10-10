@@ -18,3 +18,10 @@ def function_C():
 
 def function_D(arg1, arg2):  # [unused-argument, invalid-name]
     return arg1
+
+
+def function_E():  # [invalid-name]
+    # pylint: disable-next=unused-variable
+
+    test = 43  # [unused-variable]
+    blah = 123  # [unused-variable]

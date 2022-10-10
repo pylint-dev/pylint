@@ -25,7 +25,7 @@ from pylint.__pkginfo__ import numversion
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
+# documentation root, use 'os.path.abspath' to make it absolute, like shown here.
 sys.path.append(os.path.abspath("exts"))
 
 # -- General configuration -----------------------------------------------------
@@ -131,7 +131,7 @@ release = __version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ["_build", "data/**"]
+exclude_patterns = ["_build", "data/**", "whatsnew/fragments"]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 # default_role = None
@@ -295,5 +295,9 @@ intersphinx_mapping = {
 # Prevent label issues due to colliding section names
 # through including multiple documents
 autosectionlabel_prefix_document = True
+
+# Permit duplicated titles in the resulting document.
+# See https://github.com/PyCQA/pylint/issues/7362#issuecomment-1256932866
+autosectionlabel_maxdepth = 2
 
 linkcheck_ignore = ["https://github.com/PyCQA/pylint/blob/main/pylint/extensions/.*"]
