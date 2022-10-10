@@ -9,6 +9,8 @@ import functools
 from collections.abc import Sequence, ValuesView
 from typing import TYPE_CHECKING
 
+import pytest
+
 from pylint.exceptions import UnknownMessageError
 from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_id_store import MessageIdStore
@@ -108,8 +110,9 @@ class MessageDefinitionStore:
         emittable = []
         non_emittable = []
         for message in messages:
-            if message.may_be_emitted():
-                emittable.append(message)
-            else:
-                non_emittable.append(message)
+            with pytest.warns(DeprecationWarning, match="required parameter"):
+                if message.may_be_emitted():
+                    emittable.append(message)
+                else:
+                    non_emittable.append(message)
         return emittable, non_emittable
