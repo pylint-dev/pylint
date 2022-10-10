@@ -98,10 +98,6 @@
     "mails": ["95424144+allanc65@users.noreply.github.com"],
     "name": "Allan Chandler"
   },
-  "<awilliam@redhat.com>": {
-    "mails": ["awilliam@redhat.com", "adam@blueradius.ca"],
-    "name": "Adam Williamson"
-  },
   "Adrien.DiMascio@logilab.fr": {
     "mails": ["Adrien.DiMascio@logilab.fr"],
     "name": "Adrien Di Mascio"
@@ -134,6 +130,10 @@
     "mails": ["alexandre.fayolle@logilab.fr", "afayolle.ml@free.fr"],
     "name": "Alexandre Fayolle"
   },
+  "alvaro.frias@eclypsium.com": {
+    "mails": ["alvaro.frias@eclypsium.com"],
+    "name": "Alvaro Frias Garay"
+  },
   "anjsimmo@gmail.com": {
     "mails": ["anjsimmo@gmail.com", "a.simmons@deakin.edu.au"],
     "name": "Andrew J. Simmons"
@@ -161,6 +161,10 @@
     ],
     "name": "Ashley Whetter",
     "team": "Maintainers"
+  },
+  "awilliam@redhat.com": {
+    "mails": ["awilliam@redhat.com", "adam@blueradius.ca"],
+    "name": "Adam Williamson"
   },
   "balint.mihai@gmail.com": {
     "mails": ["balint.mihai@gmail.com", "mihai@cs.upt.ro"],
@@ -432,6 +436,10 @@
     "name": "Matus Valo",
     "team": "Maintainers"
   },
+  "me@daogilvie.com": {
+    "mails": ["me@daogilvie.com", "drum.ogilvie@ovo.com"],
+    "name": "Drummond Ogilvie"
+  },
   "me@the-compiler.org": {
     "mails": [
       "me@the-compiler.org",
@@ -521,6 +529,10 @@
     "mails": ["ruro.ruro@ya.ru"],
     "name": "Ruro"
   },
+  "sandro.tosi@gmail.com": {
+    "mails": ["sandro.tosi@gmail.com", "sandrotosi@users.noreply.github.com"],
+    "name": "Sandro Tosi"
+  },
   "sergeykosarchuk@gmail.com": {
     "mails": ["sergeykosarchuk@gmail.com"],
     "name": "Kosarchuk Sergey"
@@ -582,5 +594,9 @@
   "vladtemian@gmail.com": {
     "mails": ["vladtemian@gmail.com"],
     "name": "Vlad Temian"
+  },
+  "yileiyang@google.com": {
+    "mails": ["yileiyang@google.com"],
+    "name": "Yilei \"Dolee\" Yang"
   }
 }
