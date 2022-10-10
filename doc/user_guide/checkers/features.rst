@@ -95,7 +95,7 @@ Basic checker Messages
   Used when a break or a return statement is found inside the finally clause of
   a try...finally block: the exceptions raised in the try clause will be
   silently swallowed instead of being re-raised.
-:assert-on-tuple (W0199): *Assert called on a 2-item-tuple. Did you mean 'assert x,y'?*
+:assert-on-tuple (W0199): *Assert called on a populated tuple. Did you mean 'assert x,y'?*
   A call of assert on a tuple will always evaluate to true if the tuple is not
   empty, and will always evaluate to false if it is.
 :assert-on-string-literal (W0129): *Assert statement has a string literal as its first argument. The assert will %s fail.*
@@ -241,18 +241,18 @@ Classes checker Messages
   Used when a class has an inconsistent method resolution order.
 :inherit-non-class (E0239): *Inheriting %r, which is not a class.*
   Used when a class inherits from something which is not a class.
-:invalid-class-object (E0243): *Invalid __class__ object*
-  Used when an invalid object is assigned to a __class__ property. Only a class
-  is permitted.
 :invalid-slots (E0238): *Invalid __slots__ object*
   Used when an invalid __slots__ is found in class. Only a string, an iterable
   or a sequence is permitted.
+:invalid-class-object (E0243): *Invalid assignment to '__class__'. Should be a class definition but got a '%s'*
+  Used when an invalid object is assigned to a __class__ property. Only a class
+  is permitted.
 :invalid-slots-object (E0236): *Invalid object %r in __slots__, must contain only non empty strings*
   Used when an invalid (non-string) object occurs in __slots__.
-:no-method-argument (E0211): *Method has no argument*
+:no-method-argument (E0211): *Method %r has no argument*
   Used when a method which should have the bound instance as first argument has
   no argument defined.
-:no-self-argument (E0213): *Method should have "self" as first argument*
+:no-self-argument (E0213): *Method %r should have "self" as first argument*
   Used when a method has an attribute different the "self" as first argument.
   This is considered as an error since this is a so common convention that you
   shouldn't break it!
@@ -305,7 +305,7 @@ Classes checker Messages
   Used when an instance attribute is defined outside the __init__ method.
 :subclassed-final-class (W0240): *Class %r is a subclass of a class decorated with typing.final: %r*
   Used when a class decorated with typing.final has been subclassed.
-:abstract-method (W0223): *Method %r is abstract in class %r but is not overridden*
+:abstract-method (W0223): *Method %r is abstract in class %r but is not overridden in child class %r*
   Used when an abstract method (i.e. raise NotImplementedError) is not
   overridden in concrete class.
 :overridden-final-method (W0239): *Method %r overrides a method decorated with typing.final which is defined in class %r*
@@ -876,6 +876,9 @@ Refactoring checker Messages
   Emitted when accessing only the first or last element of str.split(). The
   first and last element can be accessed by using str.split(sep, maxsplit=1)[0]
   or str.rsplit(sep, maxsplit=1)[-1] instead.
+:consider-using-augmented-assign (C0210): *Use '%s' to do an augmented assign directly*
+  Emitted when an assignment is referring to the object that it is assigning
+  to. This can be changed to be an augmented assign.
 :use-sequence-for-iteration (C0208): *Use a sequence type when iterating over values*
   When iterating over values, sequence types (e.g., ``lists``, ``tuples``,
   ``ranges``) are more efficient than ``sets``.

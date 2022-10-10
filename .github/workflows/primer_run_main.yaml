@@ -16,7 +16,7 @@ concurrency:
 
 env:
   # This needs to be the SAME as in the PR and comment job
-  CACHE_VERSION: 29
+  CACHE_VERSION: 30
 
 jobs:
   run-primer:
