@@ -1,3 +1,0 @@
-Add method name to the error messages of ``no-method-argument`` and ``no-self-argument``.
-
-Closes #7507

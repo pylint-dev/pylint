@@ -249,10 +249,10 @@ Classes checker Messages
   or a sequence is permitted.
 :invalid-slots-object (E0236): *Invalid object %r in __slots__, must contain only non empty strings*
   Used when an invalid (non-string) object occurs in __slots__.
-:no-method-argument (E0211): *Method has no argument*
+:no-method-argument (E0211): *Method %r has no argument*
   Used when a method which should have the bound instance as first argument has
   no argument defined.
-:no-self-argument (E0213): *Method should have "self" as first argument*
+:no-self-argument (E0213): *Method %r should have "self" as first argument*
   Used when a method has an attribute different the "self" as first argument.
   This is considered as an error since this is a so common convention that you
   shouldn't break it!

@@ -1,3 +1,0 @@
-Fix bug in detecting ``unused-variable`` when iterating on variable.
-
-Closes #3044
