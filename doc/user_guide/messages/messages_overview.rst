@@ -380,6 +380,7 @@ All messages in the convention category:
    convention/compare-to-zero
    convention/consider-iterating-dictionary
    convention/consider-using-any-or-all
+   convention/consider-using-augmented-assign
    convention/consider-using-dict-items
    convention/consider-using-enumerate
    convention/consider-using-f-string
