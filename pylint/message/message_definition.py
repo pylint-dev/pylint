@@ -80,10 +80,10 @@ class MessageDefinition:
             py_version = sys.version_info
             warnings.warn(
                 "'py_version' will be a required parameter of "
-                "'MessageDefinition.may_be_emitted' in pylint 3.0."
-                "The most likely solution is to use 'linter.config.py_version'"
-                "if you need to keep using this function, or to "
-                "or use 'MessageDefinition.is_message_enabled' instead.",
+                "'MessageDefinition.may_be_emitted' in pylint 3.0. The most likely"
+                "solution is to use 'linter.config.py_version' if you need to keep "
+                "using this function, or to use 'MessageDefinition.is_message_enabled'"
+                " instead.",
                 DeprecationWarning,
             )
         if self.minversion is not None and self.minversion > py_version:
