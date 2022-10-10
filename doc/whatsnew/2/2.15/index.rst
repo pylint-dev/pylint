@@ -29,6 +29,71 @@ Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
+What's new in Pylint 2.15.4?
+----------------------------
+Release date: 2022-10-10
+
+
+False Positives Fixed
+---------------------
+
+- Fix the message for ``unnecessary-dunder-call`` for ``__aiter__`` and
+  ``__aneext__``. Also
+  only emit the warning when ``py-version`` >= 3.10.
+
+  Closes #7529 (`#7529 <https://github.com/PyCQA/pylint/issues/7529>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix bug in detecting ``unused-variable`` when iterating on variable.
+
+  Closes #3044 (`#3044 <https://github.com/PyCQA/pylint/issues/3044>`_)
+
+- Fixed handling of ``--`` as separator between positional arguments and flags.
+  This was not actually fixed in 2.14.5.
+
+  Closes #7003, Refs #7096 (`#7003
+  <https://github.com/PyCQA/pylint/issues/7003>`_)
+
+- Report ``no-self-argument`` rather than ``no-method-argument`` for methods
+  with variadic arguments.
+
+  Closes #7507 (`#7507 <https://github.com/PyCQA/pylint/issues/7507>`_)
+
+- Fixed an issue where ``syntax-error`` couldn't be raised on files with
+  invalid encodings.
+
+  Closes #7522 (`#7522 <https://github.com/PyCQA/pylint/issues/7522>`_)
+
+- Fix false positive for ``redefined-outer-name`` when aliasing ``typing``
+  e.g. as ``t`` and guarding imports under ``t.TYPE_CHECKING``.
+
+  Closes #7524 (`#7524 <https://github.com/PyCQA/pylint/issues/7524>`_)
+
+- Fixed a crash of the ``modified_iterating`` checker when iterating on a set
+  defined as a class attribute.
+
+  Closes #7528 (`#7528 <https://github.com/PyCQA/pylint/issues/7528>`_)
+
+- Fix bug in scanning of names inside arguments to `typing.Literal`.
+  See https://peps.python.org/pep-0586/#literals-enums-and-forward-references
+  for details.
+
+  Refs #3299 (`#3299 <https://github.com/PyCQA/pylint/issues/3299>`_)
+
+
+Other Changes
+-------------
+
+- Add method name to the error messages of ``no-method-argument`` and
+  ``no-self-argument``.
+
+  Closes #7507 (`#7507 <https://github.com/PyCQA/pylint/issues/7507>`_)
+
+
 What's new in Pylint 2.15.3?
 ----------------------------
 Release date: 2022-09-19
