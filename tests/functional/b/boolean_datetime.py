@@ -1,6 +1,6 @@
 """Test boolean-datetime
 
-'py-version' needs to be set to < '3.5'.
+'py-version' needs to be set to <= '3.5'.
 """
 import datetime
 

@@ -60,7 +60,7 @@ class TestMessagesDefinition:
     ) -> None:
         fail_msg = (
             f"With minversion='{msg.minversion}' and maxversion='{msg.maxversion}',"
-            f" and the python interpreter being {py_version} "
+            f" and the py-version option being {py_version} "
             "the message should{}be emitable"
         )
         if expected:
