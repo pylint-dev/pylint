@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Checks for magic numbers instead of literals."""
+"""Checks for magic values instead of literals."""
 
 from __future__ import annotations
 
@@ -35,10 +35,10 @@ class MagicValueChecker(BaseChecker):
         (
             "valid-magic-values",
             {
-                "default": (-1, 0, 1, "", "__main__"),
+                "default": (0, -1, 1, "__main__"),
                 "type": "csv",
                 "metavar": "<argument names>",
-                "help": " List of valid magic numbers that `magic-value-compare` will not detect.",
+                "help": " List of valid magic values that `magic-value-compare` will not detect.",
             },
         ),
     )
