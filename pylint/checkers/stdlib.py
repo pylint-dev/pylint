@@ -402,16 +402,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "use singledispatchmethod instead.",
             "singledispatch-method",
             "singledispatch should decorate functions and not class/instance methods. "
-            "Use singledispatchmethod for those cases. See "
-            "https://docs.python.org/3/library/functools.html?#functools.singledispatchmethod",
+            "Use singledispatchmethod for those cases.",
         ),
         "E1520": (
             "singledispatchmethod decorator should not be used with functions, "
             "use singledispatch instead.",
             "singledispatchmethod-function",
             "singledispatchmethod should decorate class/instance methods and not functions. "
-            "Use singledispatch for those cases. See "
-            "https://docs.python.org/3/library/functools.html?#functools.singledispatch",
+            "Use singledispatch for those cases.",
         ),
         "W1508": (
             "%s default type is %s. Expected str or None.",
