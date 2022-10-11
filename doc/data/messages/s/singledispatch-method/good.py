@@ -13,7 +13,7 @@ class GoodBoard:
         position_a, position_b = position.split(",")
         return (int(position_a), int(position_b))
 
-    @convert_position.register  # [singledispatch-method]
+    @convert_position.register
     @staticmethod
     def _(position: tuple) -> str:
         return f"{position[0]},{position[1]}"
