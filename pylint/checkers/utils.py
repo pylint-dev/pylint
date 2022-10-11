@@ -13,7 +13,6 @@ import numbers
 import re
 import string
 import warnings
-from collections import deque
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
