@@ -35,7 +35,7 @@ class MagicValueChecker(BaseChecker):
         (
             "valid-magic-values",
             {
-                "default": (0, -1, 1, "__main__"),
+                "default": (0, -1, 1, "", "__main__"),
                 "type": "csv",
                 "metavar": "<argument names>",
                 "help": " List of valid magic values that `magic-value-compare` will not detect.",

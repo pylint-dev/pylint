@@ -30,3 +30,4 @@ shouldnt_raise = var == True  # [singleton-comparison]
 shouldnt_raise = var == False  # [singleton-comparison]
 shouldnt_raise = var == None  # [singleton-comparison]
 celebration_started = Christmas.EVE.value == Christmas.MONTH.value
+shouldnt_raise = var == ""
