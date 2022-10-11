@@ -1,1 +1,9 @@
-# This is a placeholder for correct code for this message.
+class A:
+    pass
+
+
+class B:
+    pass
+
+
+A.__class__ = B
