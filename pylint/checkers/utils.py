@@ -7,11 +7,13 @@
 from __future__ import annotations
 
 import builtins
+import fnmatch
 import itertools
 import numbers
 import re
 import string
 import warnings
+from collections import deque
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
@@ -1952,3 +1954,37 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         return False
     except astroid.InferenceError:
         return True
+
+
+def is_module_ignored(
+    module: nodes.Module,
+    ignored_modules: Iterable[str],
+) -> bool:
+    ignored_modules = set(ignored_modules)
+    module_name = module.name
+    module_qname = module.qname()
+
+    for ignore in ignored_modules:
+        # Try to match the module name / fully qualified name directly
+        if module_qname in ignored_modules or module_name in ignored_modules:
+            return True
+
+        # Try to see if the ignores pattern match against the module name.
+        if fnmatch.fnmatch(module_qname, ignore):
+            return True
+
+        # Otherwise, we might have a root module name being ignored,
+        # and the qualified owner has more levels of depth.
+        parts = deque(module_name.split("."))
+        current_module = ""
+
+        while parts:
+            part = parts.popleft()
+            if not current_module:
+                current_module = part
+            else:
+                current_module += f".{part}"
+            if current_module in ignored_modules:
+                return True
+
+    return False
