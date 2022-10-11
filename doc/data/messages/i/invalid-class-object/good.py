@@ -1,9 +1,9 @@
-class A:
+class Apple:
     pass
 
 
-class B:
+class RedDelicious:
     pass
 
 
-A.__class__ = B
+Apple.__class__ = RedDelicious
