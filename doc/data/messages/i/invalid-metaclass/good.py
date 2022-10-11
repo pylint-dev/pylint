@@ -1,2 +1,2 @@
-class ValidAsMetaclass(type):
+class ValidApple(type):
     pass
