@@ -1,5 +1,5 @@
-class A:
+class Apple:
     pass
 
 
-A.__class__ = 1  # [invalid-class-object]
+Apple.__class__ = 1  # [invalid-class-object]
