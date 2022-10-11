@@ -2716,7 +2716,7 @@ class VariablesChecker(BaseChecker):
                 if module is astroid.Uninferable:
                     return None
             except astroid.NotFoundError:
-                if is_module_ignored(module, self._ignored_modules):
+                if is_module_ignored(f"{module.qname()}.{name}", self._ignored_modules):
                     return None
                 self.add_message(
                     "no-name-in-module", args=(name, module.name), node=node

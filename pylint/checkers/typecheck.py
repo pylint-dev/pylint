@@ -123,7 +123,7 @@ def _is_owner_ignored(
     matches any name from the *ignored_classes* or if its qualified
     name can be found in *ignored_classes*.
     """
-    if is_module_ignored(owner.root(), ignored_modules):
+    if is_module_ignored(owner.root().qname(), ignored_modules):
         return True
 
     # Match against ignored classes.
