@@ -15,7 +15,7 @@ repos:
             doc/data/messages/t/trailing-newlines/bad.py|
           )$
   - repo: https://github.com/PyCQA/autoflake
-    rev: v1.7.2
+    rev: v1.6.1
     hooks:
       - id: autoflake
         exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
