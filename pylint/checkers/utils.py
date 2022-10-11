@@ -1497,7 +1497,7 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
     return False
 
 
-def find_infered_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | None:
+def find_inferred_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | None:
     # func.register are function calls or register attributes
     # when the function is annotated with types
     if isinstance(node, nodes.Call):
@@ -1527,7 +1527,7 @@ def is_registered_in_singledispatchmethod_function(node: nodes.FunctionDef) -> b
 
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
-        func_def = find_infered_fn_from_register(decorator)
+        func_def = find_inferred_fn_from_register(decorator)
         if func_def:
             return decorated_with(func_def, singledispatchmethod_qnames)
 
