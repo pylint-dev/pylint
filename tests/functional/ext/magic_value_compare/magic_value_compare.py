@@ -23,7 +23,6 @@ is_big = 100 < var  # [magic-value-compare]
 
 shouldnt_raise = 5 > 7   # [comparison-of-constants]
 shouldnt_raise = var == '__main__'
-shouldnt_raise = var == ""
 shouldnt_raise = var == 1
 shouldnt_raise = var == 0
 shouldnt_raise = var == -1
