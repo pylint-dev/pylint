@@ -22,6 +22,7 @@ from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
     get_import_name,
     is_from_fallback_block,
+    is_module_ignored,
     is_node_in_guarded_import_block,
     is_typing_guard,
     node_ignores_exception,
@@ -78,18 +79,6 @@ DEPRECATED_MODULES = {
 }
 
 
-def _qualified_names(modname: str | None) -> list[str]:
-    """Split the names of the given module into subparts.
-
-    For example,
-        _qualified_names('pylint.checkers.ImportsChecker')
-    returns
-        ['pylint', 'pylint.checkers', 'pylint.checkers.ImportsChecker']
-    """
-    names = modname.split(".") if modname is not None else ""
-    return [".".join(names[0 : i + 1]) for i in range(len(names))]
-
-
 def _get_first_import(
     node: ImportNode,
     context: nodes.LocalsDictNodeNG,
@@ -137,9 +126,8 @@ def _ignore_import_failure(
     modname: str | None,
     ignored_modules: Sequence[str],
 ) -> bool:
-    for submodule in _qualified_names(modname):
-        if submodule in ignored_modules:
-            return True
+    if is_module_ignored(modname, ignored_modules):
+        return True
 
     if is_node_in_guarded_import_block(node):
         # Ignore import failure if part of guarded import block
