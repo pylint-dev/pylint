@@ -1,0 +1,19 @@
+from functools import singledispatch
+
+
+class BadBoard:
+    @singledispatch  # [singledispatch-method]
+    @classmethod
+    def convert_position(cls, position):
+        pass
+
+    @convert_position.register  # [singledispatch-method]
+    @classmethod
+    def _(cls, position: str) -> tuple:
+        position_a, position_b = position.split(",")
+        return (int(position_a), int(position_b))
+
+    @convert_position.register  # [singledispatch-method]
+    @classmethod
+    def _(cls, position: tuple) -> str:
+        return f"{position[0]},{position[1]}"
