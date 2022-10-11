@@ -26,6 +26,7 @@ from astroid.typing import InferenceResult
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     in_type_checking_block,
+    is_module_ignored,
     is_postponed_evaluation_enabled,
 )
 from pylint.constants import (
@@ -2715,7 +2716,7 @@ class VariablesChecker(BaseChecker):
                 if module is astroid.Uninferable:
                     return None
             except astroid.NotFoundError:
-                if module.name in self._ignored_modules:
+                if is_module_ignored(module, self._ignored_modules):
                     return None
                 self.add_message(
                     "no-name-in-module", args=(name, module.name), node=node
