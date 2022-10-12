@@ -213,7 +213,9 @@ def _get_cycles(
         pass
     path.pop()
 
+
 node_types = Union[str, int, float]
+
 
 def get_paths(
     graph_dict: dict[node_types, set[node_types]],
@@ -262,7 +264,7 @@ def get_paths(
         if len(path) > 1:
             paths.add(tuple(path))
 
-    return sorted(list(paths), key = str)  # type: ignore[arg-type]
+    return sorted(list(paths), key=str)  # type: ignore[arg-type]
 
 
 def get_longest_path_item(
