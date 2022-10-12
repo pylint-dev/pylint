@@ -1,7 +1,7 @@
 from functools import singledispatchmethod
 
 
-class GoodBoard:
+class Board:
     @singledispatchmethod
     def convert_position(cls, position):
         pass
