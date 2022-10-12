@@ -1,2 +1,2 @@
-class InvalidApple(metaclass=int):  # [invalid-metaclass]
+class Apple(metaclass=int):  # [invalid-metaclass]
     pass
