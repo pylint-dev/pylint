@@ -1,18 +1,30 @@
-chained-comparison:10:11:10:26:test_simplify_chained_comparison_1:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:15:11:15:27:test_simplify_chained_comparison_2:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:23:7:23:23:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:25:9:25:25:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:27:9:27:26:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:29:9:29:36:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:31:9:31:36:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:33:9:33:38:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:37:9:37:24:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:39:9:39:24:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:41:9:41:35:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:43:9:43:37:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:45:9:45:37:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:47:9:47:37:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:49:9:49:37:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:51:9:51:28:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:53:9:53:28:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
-chained-comparison:55:9:55:38:test_simplify_chained_comparison_3:Simplify chained comparison between the operands:UNDEFINED
+chained-comparison:10:11:10:26:test_simplify_chained_comparison_1:"Simplify chained comparison between the operands: c > b > a":UNDEFINED
+chained-comparison:15:11:15:27:test_simplify_chained_comparison_2:"Simplify chained comparison between the operands: 10 > a > 1":UNDEFINED
+chained-comparison:23:7:23:23:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 10 > a > 1":UNDEFINED
+chained-comparison:25:9:25:25:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 10 > a > 1":UNDEFINED
+chained-comparison:27:9:27:26:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 10 >= a > 1":UNDEFINED
+chained-comparison:29:9:29:26:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a == 10":UNDEFINED
+chained-comparison:31:9:31:25:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a > 10":UNDEFINED
+chained-comparison:33:9:33:27:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 10 > a":UNDEFINED
+chained-comparison:35:9:35:35:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: b > a and c > a == 1":UNDEFINED
+chained-comparison:37:9:37:36:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 10 > a > 1 and b == 2":UNDEFINED
+chained-comparison:39:9:39:36:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: 10 > a > 1 and c == b":UNDEFINED
+chained-comparison:41:9:41:24:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: c > b > a":UNDEFINED
+chained-comparison:43:9:43:24:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: a > b > c":UNDEFINED
+chained-comparison:45:9:45:35:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: c > b > a == 1":UNDEFINED
+chained-comparison:47:9:47:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: c == 786 and c > b > a":UNDEFINED
+chained-comparison:49:9:49:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: c == 786 > 0 > b > a":UNDEFINED
+chained-comparison:51:9:51:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: c == 786 > 0 > b > a":UNDEFINED
+chained-comparison:53:9:53:37:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: c == 786 > 0 > b > a":UNDEFINED
+chained-comparison:55:9:55:28:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: d > c > b > a":UNDEFINED
+chained-comparison:57:9:57:28:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: d > c > b > a":UNDEFINED
+chained-comparison:59:9:59:38:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: c > b > a":UNDEFINED
+chained-comparison:61:9:61:28:test_simplify_chained_comparison_3:"Simplify chained comparison between the operands: c > b > a":UNDEFINED
+impossible-comparison:94:7:94:22:test_impossible_comparison:This comparison always evalutes to False:UNDEFINED
+impossible-comparison:96:9:96:37:test_impossible_comparison:This comparison always evalutes to False:UNDEFINED
+impossible-comparison:98:9:98:34:test_impossible_comparison:This comparison always evalutes to False:UNDEFINED
+impossible-comparison:100:9:100:45:test_impossible_comparison:This comparison always evalutes to False:UNDEFINED
+impossible-comparison:102:9:102:38:test_impossible_comparison:This comparison always evalutes to False:UNDEFINED
+comparison-all-equal:110:7:110:24:test_all_equal:Simplify cycle to ==:UNDEFINED
+comparison-all-equal:112:9:112:37:test_all_equal:Simplify cycle to ==:UNDEFINED
+comparison-all-equal:114:9:114:48:test_all_equal:Simplify cycle to ==:UNDEFINED
