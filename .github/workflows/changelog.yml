@@ -30,9 +30,9 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "::set-output name=key::base-venv-${{ env.CACHE_VERSION }}-${{
+          echo "key=base-venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
-          }}"
+          }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.10

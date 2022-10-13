@@ -34,9 +34,9 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
+          echo "key=venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
-          }}"
+          }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.10
@@ -156,7 +156,7 @@ jobs:
       - name: Create partial artifact name suffix
         id: artifact-name-suffix
         run: >-
-          echo "::set-output name=datetime::"$(date "+%Y%m%d_%H%M")
+          echo "datetime="$(date "+%Y%m%d_%H%M") >> $GITHUB_OUTPUT
       - name: Upload benchmark artifact
         uses: actions/upload-artifact@v3.1.0
         with:
@@ -189,9 +189,9 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
+          echo "key=venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('setup.cfg', 'requirements_test_min.txt')
-          }}"
+          }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.10
@@ -235,9 +235,9 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
+          echo "key=venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('setup.cfg', 'requirements_test_min.txt')
-          }}"
+          }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.10
@@ -279,9 +279,9 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
+          echo "key=venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('setup.cfg', 'requirements_test_min.txt')
-          }}"
+          }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.10
