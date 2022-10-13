@@ -18,10 +18,12 @@ import pytest
 from _pytest.recwarn import WarningsRecorder
 
 from pylint import checkers
+from pylint.interfaces import HIGH
 from pylint.lint import PyLinter
+from pylint.message.message import Message
 from pylint.reporters import BaseReporter, MultiReporter
 from pylint.reporters.text import ParseableTextReporter, TextReporter
-from pylint.typing import FileItem
+from pylint.typing import FileItem, MessageLocationTuple
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import Section
@@ -332,6 +334,32 @@ def test_multi_format_output(tmp_path: Path) -> None:
         "\n"
         "direct output\n"
     )
+
+
+def test_multi_reporter_independant_messages() -> None:
+    """Messages should not be modified by multiple reporters"""
+
+    check_message = "Not modified"
+
+    class ReporterModify(BaseReporter):
+        def handle_message(self, msg: Message) -> None:
+            msg.msg = "Modified message"
+
+    class ReporterCheck(BaseReporter):
+        def handle_message(self, msg: Message) -> None:
+            assert msg.msg == check_message
+
+    multi_reporter = MultiReporter([ReporterModify(), ReporterCheck()], lambda: None)
+
+    message = Message(
+        symbol="missing-docstring",
+        msg_id="C0123",
+        location=MessageLocationTuple("abspath", "path", "module", "obj", 1, 2, 1, 3),
+        msg=check_message,
+        confidence=HIGH,
+    )
+
+    multi_reporter.handle_message(message)
 
 
 def test_display_results_is_renamed() -> None:

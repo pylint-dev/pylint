@@ -1,0 +1,3 @@
+Message send to reporter are now copied so a reporter cannot modify the message sent to other reporters.
+
+Refs #7214
