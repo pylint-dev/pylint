@@ -35,9 +35,9 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "::set-output name=key::base-venv-${{ env.CACHE_VERSION }}-${{
+          echo "key=base-venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
-          }}"
+          }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.10
@@ -59,8 +59,8 @@ jobs:
       - name: Generate pre-commit restore key
         id: generate-pre-commit-key
         run: >-
-          echo "::set-output name=key::pre-commit-${{ env.CACHE_VERSION }}-${{
-            hashFiles('.pre-commit-config.yaml') }}"
+          echo "key=pre-commit-${{ env.CACHE_VERSION }}-${{
+            hashFiles('.pre-commit-config.yaml') }}" >> $GITHUB_OUTPUT
       - name: Restore pre-commit environment
         id: cache-precommit
         uses: actions/cache@v3.0.10
