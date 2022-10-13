@@ -255,11 +255,11 @@ class ComparisonChecker(_BasicChecker):
     def _check_constants_comparison(self, node: nodes.Compare) -> None:
         """When two constants are being compared it is always a logical tautology."""
         left_operand = node.left
-        if not (isinstance(left_operand, nodes.Const)):
+        if not isinstance(left_operand, nodes.Const):
             return
 
         right_operand = node.ops[0][1]
-        if not (isinstance(right_operand, nodes.Const)):
+        if not isinstance(right_operand, nodes.Const):
             return
 
         operator = node.ops[0][0]
@@ -317,7 +317,7 @@ class ComparisonChecker(_BasicChecker):
 
         if operator in {"==", "!="}:
             self._check_singleton_comparison(
-                left, right, node, checking_for_absence=(operator == "!=")
+                left, right, node, checking_for_absence=operator == "!="
             )
 
         if operator in {"==", "!=", "is", "is not"}:

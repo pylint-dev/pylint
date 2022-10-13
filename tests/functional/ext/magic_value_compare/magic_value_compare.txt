@@ -1,6 +1,6 @@
-magic-value-compare:16:3:16:10::Constant 5 is used in comparison. Consider using named constants or enums instead of magic values.:HIGH
-magic-value-compare:19:3:19:17::Constant 10 is used in comparison. Consider using named constants or enums instead of magic values.:HIGH
-magic-value-compare:22:9:22:18::Constant 100 is used in comparison. Consider using named constants or enums instead of magic values.:HIGH
+magic-value-compare:16:3:16:10::Consider using a named constant or an enum instead of '5'.:HIGH
+magic-value-compare:19:3:19:17::Consider using a named constant or an enum instead of '10'.:HIGH
+magic-value-compare:22:9:22:18::Consider using a named constant or an enum instead of '100'.:HIGH
 comparison-of-constants:24:17:24:22::"Comparison between constants: '5 > 7' has a constant value":HIGH
 singleton-comparison:29:17:29:28::Comparison 'var == True' should be 'var is True' if checking for the singleton value True, or 'bool(var)' if testing for truthiness:UNDEFINED
 singleton-comparison:30:17:30:29::Comparison 'var == False' should be 'var is False' if checking for the singleton value False, or 'not var' if testing for falsiness:UNDEFINED

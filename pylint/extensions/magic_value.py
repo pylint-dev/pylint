@@ -24,7 +24,7 @@ class MagicValueChecker(BaseChecker):
     name = "magic-value"
     msgs = {
         "R2004": (
-            "Constant %s is used in comparison. Consider using named constants or enums instead of magic values.",
+            "Consider using a named constant or an enum instead of '%s'.",
             "magic-value-compare",
             "Using named constants instead of magic values helps improve readability and maintainability of your"
             " code, try to avoid them in comparisons.",
@@ -62,18 +62,16 @@ class MagicValueChecker(BaseChecker):
             # `comparison-of-constants` avoided
             return
 
+        operand_value = None
         if const_operands[LEFT_OPERAND] and self._is_magic_value(left_operand):
-            self.add_message(
-                "magic-value-compare",
-                node=node,
-                args=(left_operand.value),
-                confidence=HIGH,
-            )
+            operand_value = left_operand.value
         elif const_operands[RIGHT_OPERAND] and self._is_magic_value(right_operand):
+            operand_value = right_operand.value
+        if operand_value is not None:
             self.add_message(
                 "magic-value-compare",
                 node=node,
-                args=(right_operand.value),
+                args=(operand_value),
                 confidence=HIGH,
             )
 
