@@ -1,0 +1,3 @@
+Fix a false negative for ``unused-import`` when linting multiple modules & one module uses an import in a type annotation & the same import is unused in a subsequent module.
+
+Closes #4150

@@ -1147,6 +1147,7 @@ class VariablesChecker(BaseChecker):
             return
 
         self._check_imports(not_consumed)
+        self._type_annotation_names = []
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Visit class: update consumption analysis variable."""
