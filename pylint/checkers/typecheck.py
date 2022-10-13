@@ -48,7 +48,7 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
-from pylint.interfaces import INFERENCE
+from pylint.interfaces import INFERENCE, HIGH
 from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
@@ -397,6 +397,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Second argument of isinstance is not a type",
         "isinstance-second-argument-not-valid-type",
         "Emitted when the second argument of an isinstance call is not a type.",
+    ),
+    "W1117": (
+        "__bases__ should be assigned to a populated tuple",
+        "invalid-bases-assignment",
+        "Emitted when a non-tuple or empty tuple is assigned to __bases__.",
     ),
 }
 
@@ -1200,12 +1205,12 @@ accessed. Python regular expressions are accepted.",
         "assignment-from-no-return",
         "assignment-from-none",
         "non-str-assignment-to-dunder-name",
+        "invalid-bases-assignment",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
         """Process assignments in the AST."""
-
         self._check_assignment_from_function_call(node)
-        self._check_dundername_is_string(node)
+        self._check_dunder_methods(node)
 
     def _check_assignment_from_function_call(self, node: nodes.Assign) -> None:
         """When assigning to a function call, check that the function returns a valid
@@ -1277,17 +1282,22 @@ accessed. Python regular expressions are accepted.",
             and isinstance(utils.safe_infer(node.func.expr), nodes.List)
         )
 
-    def _check_dundername_is_string(self, node: nodes.Assign) -> None:
-        """Check a string is assigned to self.__name__."""
+    def _check_dunder_methods(self, node: nodes.Assign) -> None:
+        """Check that dunder methods are assigned to expected values."""
 
-        # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
         if not isinstance(lhs, nodes.AssignAttr):
             return
+
+        self._check_dunder_name(node)
+        self._check_dunder_bases(node)
+
+    def _check_dunder_name(self, node: nodes.Assign) -> None:
+        lhs = node.targets[0]
         if not lhs.attrname == "__name__":
             return
 
-        # If the right-hand side is not a string
+        # Check if the right-hand side is not a string
         rhs = node.value
         if isinstance(rhs, nodes.Const) and isinstance(rhs.value, str):
             return
@@ -1295,8 +1305,21 @@ accessed. Python regular expressions are accepted.",
         if not inferred:
             return
         if not (isinstance(inferred, nodes.Const) and isinstance(inferred.value, str)):
-            # Add the message
-            self.add_message("non-str-assignment-to-dunder-name", node=node)
+            self.add_message(
+                "non-str-assignment-to-dunder-name", node=node, confidence=INFERENCE
+            )
+
+    def _check_dunder_bases(self, node: nodes.Assign) -> None:
+        lhs = node.targets[0]
+        if not lhs.attrname == "__bases__":
+            return
+
+        # Check if the right-hand side is not a populated tuple
+        rhs = node.value
+        if isinstance(rhs, nodes.Tuple) and len(rhs.elts) > 0:
+            return
+
+        self.add_message("invalid-bases-assignment", node=node, confidence=HIGH)
 
     def _check_uninferable_call(self, node: nodes.Call) -> None:
         """Check that the given uninferable Call node does not

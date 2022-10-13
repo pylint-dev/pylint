@@ -1,0 +1,3 @@
+Added ``invalid-bases-assignment`` which flags assigning anything other than a populated tuple to ``__bases__``.
+
+Closes #584
