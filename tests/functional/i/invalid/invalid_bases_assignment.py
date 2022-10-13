@@ -11,3 +11,6 @@ Apple.__bases__ = "lala"  # [invalid-bases-assignment]
 Apple.__bases__ = True  # [invalid-bases-assignment]
 Apple.__bases__ = (1,)
 Apple.__bases__ = ("red", "green")
+
+bases = ("orange", "yellow")
+Apple.__bases__ = bases  # [invalid-bases-assignment]

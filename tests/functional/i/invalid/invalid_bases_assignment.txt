@@ -1,3 +1,4 @@
 invalid-bases-assignment:9:0:9:20::__bases__ should be assigned to a populated tuple:HIGH
 invalid-bases-assignment:10:0:10:24::__bases__ should be assigned to a populated tuple:HIGH
 invalid-bases-assignment:11:0:11:22::__bases__ should be assigned to a populated tuple:HIGH
+invalid-bases-assignment:16:0:16:23::__bases__ should be assigned to a populated tuple:HIGH
