@@ -78,10 +78,8 @@ class MultiReporter:
     def handle_message(self, msg: Message) -> None:
         """Handle a new message triggered on the current file."""
         for rep in self._sub_reporters:
-            msg_copy = copy(
-                msg
-            )  # Provide a copy so reporters can't modify message for others.
-            rep.handle_message(msg_copy)
+            # We provide a copy so reporters can't modify message for others.
+            rep.handle_message(copy(msg))
 
     def writeln(self, string: str = "") -> None:
         """Write a line in the output buffer."""
