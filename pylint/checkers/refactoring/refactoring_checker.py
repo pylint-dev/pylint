@@ -1130,8 +1130,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 return inferred.qname() in KNOWN_INFINITE_ITERATORS
             return False
 
-        if isinstance(node.func, nodes.Attribute):
-            # A next() method, which is now what we want.
+        if isinstance(node.func, nodes.Attribute) or not node.args:
+            # Only want the builtin next method.
             return
 
         inferred = utils.safe_infer(node.func)
