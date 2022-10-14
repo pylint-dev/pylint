@@ -345,9 +345,21 @@ def test_multi_reporter_independant_messages() -> None:
         def handle_message(self, msg: Message) -> None:
             msg.msg = "Modified message"
 
+        def writeln(self, string: str = "") -> None:
+            pass
+
+        def _display(self, layout: Section) -> None:
+            pass
+
     class ReporterCheck(BaseReporter):
         def handle_message(self, msg: Message) -> None:
             assert msg.msg == check_message
+
+        def writeln(self, string: str = "") -> None:
+            pass
+
+        def _display(self, layout: Section) -> None:
+            pass
 
     multi_reporter = MultiReporter([ReporterModify(), ReporterCheck()], lambda: None)
 
