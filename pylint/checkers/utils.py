@@ -1368,10 +1368,6 @@ def safe_infer(
     if value is not astroid.Uninferable:
         inferred_types.add(_get_python_type_of_node(value))
 
-    first_constant_value = None
-    if compare_constants and isinstance(value, nodes.Const):
-        first_constant_value = value.value
-
     try:
         for inferred in infer_gen:
             inferred_type = _get_python_type_of_node(inferred)
@@ -1380,7 +1376,8 @@ def safe_infer(
             if (
                 compare_constants
                 and isinstance(inferred, nodes.Const)
-                and inferred.value != first_constant_value
+                and isinstance(value, nodes.Const)
+                and inferred.value != value.value
             ):
                 return None
             if (

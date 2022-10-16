@@ -6,6 +6,7 @@ FALSE_VALUE = False
 
 SOME_VALUE1 = TRUE_VALUE if condition else FALSE_VALUE
 SOME_VALUE2 = condition and TRUE_VALUE or FALSE_VALUE  # [consider-using-ternary]
+NOT_SIMPLIFIABLE = condition and some_callable or FALSE_VALUE
 SOME_VALUE3 = condition
 
 def func1():
