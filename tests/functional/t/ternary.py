@@ -1,12 +1,13 @@
 """Test for old ternary constructs"""
-from UNINFERABLE import condition, some_callable  # pylint: disable=import-error
+from UNINFERABLE import condition, some_callable, maybe_true, maybe_false  # pylint: disable=import-error
 
 TRUE_VALUE = True
 FALSE_VALUE = False
 
 SOME_VALUE1 = TRUE_VALUE if condition else FALSE_VALUE
 SOME_VALUE2 = condition and TRUE_VALUE or FALSE_VALUE  # [consider-using-ternary]
-NOT_SIMPLIFIABLE = condition and some_callable or FALSE_VALUE
+NOT_SIMPLIFIABLE_1 = maybe_true if condition else maybe_false
+NOT_SIMPLIFIABLE_2 = condition and maybe_true or maybe_false
 SOME_VALUE3 = condition
 
 def func1():
