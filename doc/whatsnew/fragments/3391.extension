@@ -1,0 +1,6 @@
+Added ``consider-using-augmented-assign`` check for ``CodeStyle`` extension
+which flags ``x = x + 1`` to simplify to ``x += 1``.
+This check is disabled by default. To use it, add the msgid to ``enable``.
+
+Closes #3391
+Closes #7605
