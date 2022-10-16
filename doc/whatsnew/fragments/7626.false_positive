@@ -1,0 +1,4 @@
+Fix a false positive for ``simplify-boolean-expression`` when multiple values
+are inferred for a constant.
+
+Closes #7626
