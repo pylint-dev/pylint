@@ -1,0 +1,6 @@
+Fix a false positive for ``simplify-boolean-expression`` when multiple values
+are inferred for a constant.
+
+Adds a keyword-only ``compare_constants`` argument to ``safe_infer``.
+
+Closes #7626

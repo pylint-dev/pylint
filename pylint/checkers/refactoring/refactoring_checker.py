@@ -21,7 +21,7 @@ from astroid.util import Uninferable
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
-from pylint.interfaces import HIGH
+from pylint.interfaces import HIGH, INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -1495,9 +1495,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             return
 
-        inferred_truth_value = utils.safe_infer(truth_value)
+        inferred_truth_value = utils.safe_infer(truth_value, compare_constants=True)
         if inferred_truth_value is None or inferred_truth_value == astroid.Uninferable:
-            truth_boolean_value = True
+            return
         else:
             truth_boolean_value = inferred_truth_value.bool_value()
 
@@ -1507,7 +1507,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             message = "consider-using-ternary"
             suggestion = f"{truth_value.as_string()} if {cond.as_string()} else {false_value.as_string()}"
-        self.add_message(message, node=node, args=(suggestion,))
+        self.add_message(message, node=node, args=(suggestion,), confidence=INFERENCE)
 
     def _append_context_managers_to_stack(self, node: nodes.Assign) -> None:
         if _is_inside_context_manager(node):
