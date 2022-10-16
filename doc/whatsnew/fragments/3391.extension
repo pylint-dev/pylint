@@ -1,6 +1,6 @@
 Added ``consider-using-augmented-assign`` check for ``CodeStyle`` extension
 which flags ``x = x + 1`` to simplify to ``x += 1``.
 This check is disabled by default. To use it, load the code style extension
-with ``load-plugins=pylint.extensions.code_style`` and add the msgid to ``enable``.
+with ``load-plugins=pylint.extensions.code_style`` and add ``consider-using-augmented-assign`` in the ``enable`` option.
 
 Closes #3391
