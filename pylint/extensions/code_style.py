@@ -65,6 +65,9 @@ class CodeStyleChecker(BaseChecker):
             "Emitted when an assignment is referring to the object that it is assigning "
             "to. This can be changed to be an augmented assign.\n"
             "Disabled by default!",
+            {
+                "default_disabled": True,
+            },
         ),
     }
     options = (
@@ -325,5 +328,3 @@ class CodeStyleChecker(BaseChecker):
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(CodeStyleChecker(linter))
-    # Disable some checks by default
-    linter.disable("consider-using-augmented-assign")
