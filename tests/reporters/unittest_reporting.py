@@ -353,7 +353,9 @@ def test_multi_reporter_independant_messages() -> None:
 
     class ReporterCheck(BaseReporter):
         def handle_message(self, msg: Message) -> None:
-            assert msg.msg == check_message
+            assert (
+                msg.msg == check_message
+            ), "Message object should not be changed by other reporters."
 
         def writeln(self, string: str = "") -> None:
             pass
@@ -372,6 +374,10 @@ def test_multi_reporter_independant_messages() -> None:
     )
 
     multi_reporter.handle_message(message)
+
+    assert (
+        message.msg == check_message
+    ), "Message object should not be changed by reporters."
 
 
 def test_display_results_is_renamed() -> None:
