@@ -1498,8 +1498,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         inferred_truth_value = utils.safe_infer(truth_value, compare_constants=True)
         if inferred_truth_value is None or inferred_truth_value == astroid.Uninferable:
             return
-        else:
-            truth_boolean_value = inferred_truth_value.bool_value()
+        truth_boolean_value = inferred_truth_value.bool_value()
 
         if truth_boolean_value is False:
             message = "simplify-boolean-expression"
