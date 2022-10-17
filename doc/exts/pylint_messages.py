@@ -276,12 +276,12 @@ def _generate_single_message_body(message: MessageData) -> str:
 """
     if message.default_disabled:
         body += f"""
-.. note::
-  This message is disabled by default. To enable it, add ``{message.definition.msg}`` to the ``enable`` option.
+.. caution::
+  This message is disabled by default. To enable it, add ``{message.name}`` to the ``enable`` option.
 
 """
 
-    body += """
+    body += f"""
 {message.bad_code}
 {message.good_code}
 {message.details}
