@@ -11,6 +11,8 @@ from __future__ import annotations
 import argparse
 import multiprocessing
 import os
+import sys
+from pathlib import Path
 
 import dill
 import pytest
@@ -230,6 +232,22 @@ class TestCheckParallelFramework:
         assert stats.refactor == 0
         assert stats.statement == 18
         assert stats.warning == 0
+
+    def test_linter_with_plugins_is_pickleable(self) -> None:
+        """
+        The linter needs to be pickle-able in order to be passed between workers
+        """
+        dummy_plugin_path = Path(__file__).parent / "regrtest_data" / "dummy_plugin"
+        dummy_plugin_path_str = str(dummy_plugin_path.absolute())
+        sys.path.append(dummy_plugin_path_str)
+        linter = PyLinter(reporter=Reporter())
+        print(linter._dynamic_plugins)
+        try:
+            dill.dumps(linter)
+        except dill.PicklingError:
+            assert False, "Loading plugins caused an un-pickle-able linter"
+        finally:
+            sys.path.remove(dummy_plugin_path_str)
 
     def test_worker_check_sequential_checker(self) -> None:
         """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker."""
