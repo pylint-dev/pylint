@@ -402,13 +402,13 @@ class PyLinter(
                     "bad-plugin-value", args=(modname, module_or_error), line=0
                 )
             elif hasattr(module_or_error, "load_configuration"):
-                # Mypy is not smart enough to realise that we only call
+                # Mypy is not smart enough to realize that we only call
                 # this line if the object has the attr we are looking at.
                 # Hence the one-line type: ignore[union-attr] here.
                 module_or_error.load_configuration(self)  # type: ignore[union-attr]
         # We re-set all the dictionary values to True here to make sure the dict
-        # is pickleable. This is only a problem in multiprocessing/parallel mode.
-        # (eg invoking pylint -j 2)
+        # is pickle-able. This is only a problem in multiprocessing/parallel mode.
+        # (e.g. invoking pylint -j 2)
         self._dynamic_plugins = {
             modname: not isinstance(val, ModuleNotFoundError)
             for modname, val in self._dynamic_plugins.items()
