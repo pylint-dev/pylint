@@ -481,7 +481,7 @@ class PyLinter(
         if hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
             for message in checker.messages:
-                if message.default_disabled:
+                if not message.default_enabled:
                     self.disable(message.msgid)
         # Register the checker, but disable all of its messages.
         if not getattr(checker, "enabled", True):

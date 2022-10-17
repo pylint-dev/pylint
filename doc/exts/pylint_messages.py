@@ -44,7 +44,7 @@ class MessageData(NamedTuple):
     checker_module_name: str
     checker_module_path: str
     shared: bool = False
-    default_disabled: bool = False
+    default_enabled: bool = True
 
 
 MessagesDict = Dict[str, List[MessageData]]
@@ -195,7 +195,7 @@ def _get_all_messages(
             checker_module.__name__,
             checker_module.__file__,
             message.shared,
-            message.default_disabled,
+            message.default_enabled,
         )
         msg_type = MSG_TYPES_DOC[message.msgid[0]]
         messages_dict[msg_type].append(message_data)
@@ -274,7 +274,7 @@ def _generate_single_message_body(message: MessageData) -> str:
 
 *{message.definition.description}*
 """
-    if message.default_disabled:
+    if not message.default_enabled:
         body += f"""
 .. caution::
   This message is disabled by default. To enable it, add ``{message.name}`` to the ``enable`` option.

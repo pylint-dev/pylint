@@ -125,7 +125,7 @@ class ExtraMessageOptions(TypedDict, total=False):
     maxversion: tuple[int, int]
     minversion: tuple[int, int]
     shared: bool
-    default_disabled: bool
+    default_enabled: bool
 
 
 MessageDefinitionTuple = Union[

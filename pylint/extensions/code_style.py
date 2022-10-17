@@ -66,7 +66,7 @@ class CodeStyleChecker(BaseChecker):
             "to. This can be changed to be an augmented assign.\n"
             "Disabled by default!",
             {
-                "default_disabled": True,
+                "default_enabled": False,
             },
         ),
     }
