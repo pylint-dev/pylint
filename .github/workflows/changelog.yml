@@ -35,7 +35,7 @@ jobs:
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key: >-
