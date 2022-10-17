@@ -296,7 +296,7 @@ class PyLinter(
             str, list[checkers.BaseChecker]
         ] = collections.defaultdict(list)
         """Dictionary of registered and initialized checkers."""
-        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError] = {}
+        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
 
         # Attributes related to registering messages and their handling
@@ -402,7 +402,17 @@ class PyLinter(
                     "bad-plugin-value", args=(modname, module_or_error), line=0
                 )
             elif hasattr(module_or_error, "load_configuration"):
-                module_or_error.load_configuration(self)
+                # Mypy is not smart enough to realise that we only call
+                # this line if the object has the attr we are looking at.
+                # Hence the one-line type: ignore[union-attr] here.
+                module_or_error.load_configuration(self)  # type: ignore[union-attr]
+        # We re-set all the dictionary values to True here to make sure the dict
+        # is pickleable. This is only a problem in multiprocessing/parallel mode.
+        # (eg invoking pylint -j 2)
+        self._dynamic_plugins = {
+            modname: not isinstance(val, ModuleNotFoundError)
+            for modname, val in self._dynamic_plugins.items()
+        }
 
     def _load_reporters(self, reporter_names: str) -> None:
         """Load the reporters if they are available on _reporters."""
