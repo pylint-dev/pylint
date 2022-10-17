@@ -1,0 +1,5 @@
+bad-dunder-name:6:4:6:17:Apples.__hello__:Bad or misspelled dunder method name __hello__.:HIGH
+bad-dunder-name:16:4:16:15:Apples.__init_:Bad or misspelled dunder method name __init_.:HIGH
+bad-dunder-name:19:4:19:14:Apples._init_:Bad or misspelled dunder method name _init_.:HIGH
+bad-dunder-name:22:4:22:16:Apples.___neg__:Bad or misspelled dunder method name ___neg__.:HIGH
+bad-dunder-name:25:4:25:15:Apples.__inv__:Bad or misspelled dunder method name __inv__.:HIGH

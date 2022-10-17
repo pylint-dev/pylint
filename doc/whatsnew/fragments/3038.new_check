@@ -1,0 +1,3 @@
+Added ``bad-dunder-name`` check which flags bad or misspelled dunder methods.
+
+Closes #3038

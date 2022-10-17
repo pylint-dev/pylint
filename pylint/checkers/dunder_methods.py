@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from astroid import Instance, Uninferable, nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import safe_infer
+from pylint.checkers.utils import only_required_for_messages, safe_infer
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
@@ -144,6 +144,12 @@ class DunderCallChecker(BaseChecker):
             "Used when a dunder method is manually called instead "
             "of using the corresponding function/method/operator.",
         ),
+        "C2802": (
+            "Bad or misspelled dunder method name %s.",
+            "bad-dunder-name",
+            "Used when a dunder method is misspelled or defined with a name "
+            "not within the predefined list of dunder names.",
+        ),
     }
     options = ()
 
@@ -167,6 +173,29 @@ class DunderCallChecker(BaseChecker):
             parent = parent.parent
         return False
 
+    @only_required_for_messages("bad-dunder-name")
+    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
+        """Check if known dunder method is misspelled or dunder name is not one
+        of the pre-defined names.
+        """
+        # ignore module-level functions
+        if not node.is_method():
+            return
+
+        if (
+            # Detect something that could be a dunder method
+            node.name.startswith("_")
+            or node.name.endswith("_")
+            and node.name not in self._dunder_methods
+        ):
+            self.add_message(
+                "bad-dunder-name",
+                node=node,
+                args=(node.name),
+                confidence=HIGH,
+            )
+
+    @only_required_for_messages("unnecessary-dunder-call")
     def visit_call(self, node: nodes.Call) -> None:
         """Check if method being called is an unnecessary dunder method."""
         if (
