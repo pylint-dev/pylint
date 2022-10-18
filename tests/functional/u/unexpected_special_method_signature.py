@@ -1,7 +1,7 @@
 """Test for special methods implemented incorrectly."""
 
 # pylint: disable=missing-docstring, unused-argument, too-few-public-methods
-# pylint: disable=invalid-name,too-many-arguments,bad-staticmethod-argument
+# pylint: disable=invalid-name,too-many-arguments,bad-staticmethod-argument,bad-dunder-name
 
 class Invalid:
 

@@ -117,17 +117,33 @@ DUNDER_METHODS: dict[tuple[int, int], dict[str, str]] = {
 }
 
 
-class DunderCallChecker(BaseChecker):
-    """Check for unnecessary dunder method calls.
+EXTRA_DUNDER_METHODS: list = [
+    "__new__",
+    "__subclasses__",
+    "__init_subclass__",
+    "__set_name__",
+    "__class_getitem__",
+    "__missing__",
+    "__exit__",
+    "__await__",
+    "__aexit__",
+    "__getnewargs_ex__",
+    "__getnewargs__",
+    "__getstate__",
+    "__setstate__",
+    "__reduce__",
+    "__reduce_ex__",
+]
+
+
+class DunderChecker(BaseChecker):
+    """Checks related to dunder methods.
 
     Docs: https://docs.python.org/3/reference/datamodel.html#basic-customization
-    We exclude __new__, __subclasses__, __init_subclass__, __set_name__,
-    __class_getitem__, __missing__, __exit__, __await__,
-    __aexit__, __getnewargs_ex__, __getnewargs__, __getstate__,
-    __setstate__, __reduce__, __reduce_ex__,
-    and __index__ (see https://github.com/PyCQA/pylint/issues/6795)
-    since these either have no alternative method of being called or
-    have a genuine use case for being called manually.
+
+    For `unnecessary-dunder-call` we exclude dunder names in list
+    `EXTRA_DUNDER_METHODS` since these either have no alternative
+    method of being called or have a genuine use case for being called manually.
 
     Additionally, we exclude classes that are not instantiated since these
     might be used to access the dunder methods of a base class of an instance.
@@ -135,7 +151,7 @@ class DunderCallChecker(BaseChecker):
     these can't be written in an alternative manner.
     """
 
-    name = "unnecessary-dunder-call"
+    name = "dunder"
     priority = -1
     msgs = {
         "C2801": (
@@ -189,6 +205,7 @@ class DunderCallChecker(BaseChecker):
             node.name.startswith("__")
             and node.name.endswith("_")
             and node.name not in self._dunder_methods
+            and node.name not in EXTRA_DUNDER_METHODS
         ):
             self.add_message(
                 "bad-dunder-name",
@@ -224,4 +241,4 @@ class DunderCallChecker(BaseChecker):
 
 
 def register(linter: PyLinter) -> None:
-    linter.register_checker(DunderCallChecker(linter))
+    linter.register_checker(DunderChecker(linter))

@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,missing-docstring,invalid-name
+# pylint: disable=too-few-public-methods,missing-docstring,invalid-name,bad-dunder-name
 """test detection of method which could be a function"""
 from abc import ABC, abstractmethod
 from typing import Protocol, overload

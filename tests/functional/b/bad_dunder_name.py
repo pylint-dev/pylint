@@ -33,6 +33,11 @@ class Apples:
         # author likely meant to call the invert dunder method
         pass
 
+    #todo: can I rule properties out?
+    @property
+    def __doc__(self):
+        return "Docstring"
+
 
 def __increase_me__(val):
     return val + 1

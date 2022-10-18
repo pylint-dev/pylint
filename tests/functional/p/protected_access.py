@@ -1,7 +1,7 @@
 """Tests for protected_access"""
 # pylint: disable=missing-class-docstring, too-few-public-methods, pointless-statement
 # pylint: disable=missing-function-docstring, invalid-metaclass, no-member
-# pylint: disable=no-self-argument, undefined-variable, unused-variable
+# pylint: disable=no-self-argument, undefined-variable, unused-variable, bad-dunder-name
 
 # Test that exclude-protected can be used to exclude names from protected-access warning
 class Protected:
