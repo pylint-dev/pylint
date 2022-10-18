@@ -135,6 +135,17 @@ EXTRA_DUNDER_METHODS: list = [
     "__reduce_ex__",
 ]
 
+DUNDER_PROPERTIES: list = [
+    "__class__",
+    "__dict__",
+    "__doc__",
+    "__format__",
+    "__module__",
+    "__sizeof__",
+    "__subclasshook__",
+    "__weakref__",
+]
+
 
 class DunderChecker(BaseChecker):
     """Checks related to dunder methods.
@@ -205,7 +216,7 @@ class DunderChecker(BaseChecker):
             node.name.startswith("__")
             and node.name.endswith("_")
             and node.name not in self._dunder_methods
-            and node.name not in EXTRA_DUNDER_METHODS
+            and node.name not in EXTRA_DUNDER_METHODS + DUNDER_PROPERTIES
         ):
             self.add_message(
                 "bad-dunder-name",

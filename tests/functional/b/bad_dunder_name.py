@@ -3,6 +3,8 @@
 
 
 class Apples:
+    __slots__ = ("a", "b")
+
     def __hello__(self):  # [bad-dunder-name]
         # not one of the explicitly defined dunder name methods
         print("hello")
@@ -33,7 +35,6 @@ class Apples:
         # author likely meant to call the invert dunder method
         pass
 
-    #todo: can I rule properties out?
     @property
     def __doc__(self):
         return "Docstring"
