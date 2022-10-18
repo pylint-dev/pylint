@@ -35,6 +35,12 @@ class Apples:
         # author likely meant to call the invert dunder method
         pass
 
+    def _protected_method(self):
+        print("Protected")
+
+    def __private_method(self):
+        print("Private")
+
     @property
     def __doc__(self):
         return "Docstring"

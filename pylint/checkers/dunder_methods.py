@@ -117,7 +117,7 @@ DUNDER_METHODS: dict[tuple[int, int], dict[str, str]] = {
 }
 
 
-EXTRA_DUNDER_METHODS: list = [
+EXTRA_DUNDER_METHODS = [
     "__new__",
     "__subclasses__",
     "__init_subclass__",
@@ -133,10 +133,10 @@ EXTRA_DUNDER_METHODS: list = [
     "__setstate__",
     "__reduce__",
     "__reduce_ex__",
-    "__post_init__",  #  part of dataclasses module
+    "__post_init__",  # part of dataclasses module
 ]
 
-DUNDER_PROPERTIES: list = [
+DUNDER_PROPERTIES = [
     "__class__",
     "__dict__",
     "__doc__",

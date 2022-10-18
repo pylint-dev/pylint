@@ -3,7 +3,6 @@
 # pylint: disable=unused-private-member, bad-dunder-name
 
 class Parent:
-
     def test(self):
         pass
 
