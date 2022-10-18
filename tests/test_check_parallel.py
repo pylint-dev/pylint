@@ -236,8 +236,12 @@ class TestCheckParallelFramework:
         linter = PyLinter(reporter=Reporter())
         # We load an extension that we know is not pickle-safe
         linter.load_plugin_modules(["pylint.extensions.overlapping_exceptions"])
-        with pytest.raises(KeyError):
+        try:
             dill.dumps(linter)
+            assert False, "Plugins loaded were pickle-safe! This test needs altering"
+        except (KeyError, TypeError, dill.PickleError):
+            pass
+
         # And expect this call to make it pickle-able
         linter.load_plugin_configuration()
         try:
