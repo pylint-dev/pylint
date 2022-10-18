@@ -2031,7 +2031,7 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
     return False, ""
 
 
-def _qualified_name_parts(module_name: str) -> list[str]:
+def _qualified_name_parts(qualified_module_name: str) -> list[str]:
     """Split the names of the given module into subparts.
 
     For example,
@@ -2039,17 +2039,17 @@ def _qualified_name_parts(module_name: str) -> list[str]:
     returns
         ['pylint', 'pylint.checkers', 'pylint.checkers.ImportsChecker']
     """
-    names = module_name.split(".")
+    names = qualified_module_name.split(".")
     return [".".join(names[0 : i + 1]) for i in range(len(names))]
 
 
 def is_module_ignored(
-    module_name: str,
+    qualified_module_name: str,
     ignored_modules: Iterable[str],
 ) -> bool:
     ignored_modules = set(ignored_modules)
 
-    for current_module in _qualified_name_parts(module_name):
+    for current_module in _qualified_name_parts(qualified_module_name):
         # Try to match the module name directly
         if current_module in ignored_modules:
             return True

@@ -2716,6 +2716,8 @@ class VariablesChecker(BaseChecker):
                 if module is astroid.Uninferable:
                     return None
             except astroid.NotFoundError:
+                # Unable to import `name` from `module`. Since `name` may itself be a
+                # module, we first check if it matches the ignored modules.
                 if is_module_ignored(f"{module.qname()}.{name}", self._ignored_modules):
                     return None
                 self.add_message(
