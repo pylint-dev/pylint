@@ -184,8 +184,10 @@ class DunderCallChecker(BaseChecker):
 
         if (
             # Detect something that could be a dunder method
-            node.name.startswith("_")
-            or node.name.endswith("_")
+            # It must start with `__` to be private, but could end
+            # with `_` if there is a misspelling.
+            node.name.startswith("__")
+            and node.name.endswith("_")
             and node.name not in self._dunder_methods
         ):
             self.add_message(

@@ -4,25 +4,33 @@
 
 class Apples:
     def __hello__(self):  # [bad-dunder-name]
+        # not one of the explicitly defined dunder name methods
         print("hello")
 
     def hello(self):
         print("hello")
+
+    def __init__(self):
+        pass
 
     def init(self):
         # valid name even though someone could accidentally mean __init__
         pass
 
     def __init_(self):  # [bad-dunder-name]
+        # author likely unintentionally misspelled the correct init dunder.
         pass
 
-    def _init_(self):  # [bad-dunder-name]
+    def _init_(self):
+        # protected, not private
         pass
 
     def ___neg__(self):  # [bad-dunder-name]
+        # author likely accidentally added an additional `_`
         pass
 
     def __inv__(self):  # [bad-dunder-name]
+        # author likely meant to call the invert dunder method
         pass
 
 
