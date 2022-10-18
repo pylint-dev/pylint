@@ -133,6 +133,7 @@ EXTRA_DUNDER_METHODS: list = [
     "__setstate__",
     "__reduce__",
     "__reduce_ex__",
+    "__post_init__",  #  part of dataclasses module
 ]
 
 DUNDER_PROPERTIES: list = [
