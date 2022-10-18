@@ -1,3 +1,4 @@
+# pylint: disable=bad-dunder-name
 """https://github.com/PyCQA/pylint/issues/5371"""
 from enum import Enum
 

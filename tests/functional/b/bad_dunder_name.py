@@ -23,8 +23,8 @@ class Apples:
         # author likely unintentionally misspelled the correct init dunder.
         pass
 
-    def _init_(self):
-        # protected, not private
+    def _init_(self):  # [bad-dunder-name]
+        # author likely unintentionally misspelled the correct init dunder.
         pass
 
     def ___neg__(self):  # [bad-dunder-name]

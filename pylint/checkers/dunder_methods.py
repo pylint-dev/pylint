@@ -133,7 +133,7 @@ EXTRA_DUNDER_METHODS = [
     "__setstate__",
     "__reduce__",
     "__reduce_ex__",
-    "__post_init__",  # part of dataclasses module
+    "__post_init__",  # part of `dataclasses` module
 ]
 
 DUNDER_PROPERTIES = [
@@ -210,11 +210,9 @@ class DunderChecker(BaseChecker):
         if not node.is_method():
             return
 
+        # Detect something that could be a bad dunder method
         if (
-            # Detect something that could be a dunder method
-            # It must start with `__` to be private, but could end
-            # with `_` if there is a misspelling.
-            node.name.startswith("__")
+            node.name.startswith("_")
             and node.name.endswith("_")
             and node.name not in self._dunder_methods
             and node.name not in EXTRA_DUNDER_METHODS + DUNDER_PROPERTIES
