@@ -1,0 +1,3 @@
+Remove ``__index__`` dunder method call from ``unnecessary-dunder-call`` check.
+
+Closes #6795
