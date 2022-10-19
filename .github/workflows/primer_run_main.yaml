@@ -53,8 +53,6 @@ jobs:
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{
             env.CACHE_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{ env.CACHE_VERSION }}
       - name: Create Python virtual environment
         run: |
           python -m venv venv
