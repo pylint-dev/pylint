@@ -120,6 +120,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
+          pip list | grep 'astroid\|pylint'
           pre-commit run --hook-stage manual pylint-with-spelling --all-files
 
   spelling:
