@@ -10,7 +10,7 @@ on:
       - doc/data/messages/**
 
 env:
-  CACHE_VERSION: 31
+  CACHE_VERSION: 1
 
 permissions:
   contents: read
