@@ -154,3 +154,18 @@ def safeiter(it):
     it = iter(it)
     while True:
         yield next()
+
+def other_safeiter(it):
+    """Regression test for issue #7610 when ``next`` builtin is redefined"""
+
+    def next(*things):
+        print(*things)
+        while True:
+            try:
+                return next(it)
+            except StopIteration:
+                raise
+
+    it = iter(it)
+    while True:
+        yield next(1, 2)
