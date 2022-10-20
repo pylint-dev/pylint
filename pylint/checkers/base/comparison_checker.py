@@ -164,10 +164,9 @@ class ComparisonChecker(_BasicChecker):
                 return False
 
         def _is_numpy_nan(node: nodes.NodeNG) -> bool:
-            NUMPY_COMMON_LIB_NAMES = {"numpy", "nmp", "np"}
             if isinstance(node, nodes.Attribute) and node.attrname == "NaN":
                 if isinstance(node.expr, nodes.Name):
-                    return node.expr.name in NUMPY_COMMON_LIB_NAMES
+                    return node.expr.name in {"numpy", "nmp", "np"}
             return False
 
         def _is_nan(node: nodes.NodeNG) -> bool:

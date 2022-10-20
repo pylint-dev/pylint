@@ -13,13 +13,13 @@ class Christmas(Enum):
 
 
 var = 7
-if var > 5:  # [magic-value-compare]
+if var > 5:  # [magic-value-comparison]
     pass
 
-if (var + 5) > 10:  # [magic-value-compare]
+if (var + 5) > 10:  # [magic-value-comparison]
     pass
 
-is_big = 100 < var  # [magic-value-compare]
+is_big = 100 < var  # [magic-value-comparison]
 
 shouldnt_raise = 5 > 7   # [comparison-of-constants]
 shouldnt_raise = var == '__main__'

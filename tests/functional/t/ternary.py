@@ -1,8 +1,6 @@
 """Test for old ternary constructs"""
 from UNINFERABLE import condition, some_callable, maybe_true, maybe_false  # pylint: disable=import-error
 
-from UNINFERABLE import condition, true_value, false_value, some_callable
-
 TRUE_VALUE = True
 FALSE_VALUE = False
 

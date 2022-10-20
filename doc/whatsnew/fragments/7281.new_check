@@ -1,4 +1,4 @@
-Add ``magic-number`` plug-in checker for comparison with constants instead of named constants or enums.
+Add ``magic-number`` plugin checker for comparison with constants instead of named constants or enums.
 You can use it with ``--load-plugins=pylint.extensions.magic_value``.
 
 Closes #7281
