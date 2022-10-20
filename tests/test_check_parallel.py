@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import multiprocessing
 import os
+from pickle import PickleError
 
 import dill
 import pytest
@@ -239,7 +240,7 @@ class TestCheckParallelFramework:
         try:
             dill.dumps(linter)
             assert False, "Plugins loaded were pickle-safe! This test needs altering"
-        except (KeyError, TypeError, dill.PickleError):
+        except (KeyError, TypeError, PickleError, NotImplementedError):
             pass
 
         # And expect this call to make it pickle-able

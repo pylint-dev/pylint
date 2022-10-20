@@ -403,6 +403,7 @@ class PyLinter(
                 )
             elif hasattr(module_or_error, "load_configuration"):
                 module_or_error.load_configuration(self)  # type: ignore[union-attr]
+
         # We re-set all the dictionary values to True here to make sure the dict
         # is pickle-able. This is only a problem in multiprocessing/parallel mode.
         # (e.g. invoking pylint -j 2)
