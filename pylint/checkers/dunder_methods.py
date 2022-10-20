@@ -100,7 +100,6 @@ DUNDER_METHODS: dict[tuple[int, int], dict[str, str]] = {
         "__complex__": "Use complex built-in function",
         "__int__": "Use int built-in function",
         "__float__": "Use float built-in function",
-        "__index__": "Use index method",
         "__round__": "Use round built-in function",
         "__trunc__": "Use math.trunc function",
         "__floor__": "Use math.floor function",
@@ -125,7 +124,8 @@ class DunderCallChecker(BaseChecker):
     We exclude __new__, __subclasses__, __init_subclass__, __set_name__,
     __class_getitem__, __missing__, __exit__, __await__,
     __aexit__, __getnewargs_ex__, __getnewargs__, __getstate__,
-    __setstate__, __reduce__, __reduce_ex__
+    __setstate__, __reduce__, __reduce_ex__,
+    and __index__ (see https://github.com/PyCQA/pylint/issues/6795)
     since these either have no alternative method of being called or
     have a genuine use case for being called manually.
 
