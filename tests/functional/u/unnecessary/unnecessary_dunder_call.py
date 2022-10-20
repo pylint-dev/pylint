@@ -122,3 +122,9 @@ INSTANTIATED_SELF = int("1").__add__(1) # [unnecessary-dunder-call]
 # since we can't apply alternate operators/functions here.
 a = [1, 2, 3]
 assert super(type(a), a).__str__() == "[1, 2, 3]"
+
+class MyString(str):
+    """Custom str implementation"""
+    def rjust(self, width, fillchar= ' '):
+        """Acceptable call to __index__"""
+        width = width.__index__()

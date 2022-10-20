@@ -1,0 +1,3 @@
+Add a keyword-only ``compare_constants`` argument to ``safe_infer``.
+
+Refs #7626

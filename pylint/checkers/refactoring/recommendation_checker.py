@@ -9,7 +9,6 @@ from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers import utils
-from pylint.interfaces import INFERENCE
 
 
 class RecommendationChecker(checkers.BaseChecker):
@@ -60,12 +59,6 @@ class RecommendationChecker(checkers.BaseChecker):
             "Used when we detect a string that is being formatted with format() or % "
             "which could potentially be a f-string. The use of f-strings is preferred. "
             "Requires Python 3.6 and ``py-version >= 3.6``.",
-        ),
-        "C0210": (
-            "Use '%s' to do an augmented assign directly",
-            "consider-using-augmented-assign",
-            "Emitted when an assignment is referring to the object that it is assigning "
-            "to. This can be changed to be an augmented assign.",
         ),
     }
 
@@ -423,17 +416,4 @@ class RecommendationChecker(checkers.BaseChecker):
                 node=node,
                 line=node.lineno,
                 col_offset=node.col_offset,
-            )
-
-    @utils.only_required_for_messages("consider-using-augmented-assign")
-    def visit_assign(self, node: nodes.Assign) -> None:
-        is_aug, op = utils.is_augmented_assign(node)
-        if is_aug:
-            self.add_message(
-                "consider-using-augmented-assign",
-                args=f"{op}=",
-                node=node,
-                line=node.lineno,
-                col_offset=node.col_offset,
-                confidence=INFERENCE,
             )

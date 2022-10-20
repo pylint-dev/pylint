@@ -296,7 +296,7 @@ class PyLinter(
             str, list[checkers.BaseChecker]
         ] = collections.defaultdict(list)
         """Dictionary of registered and initialized checkers."""
-        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError] = {}
+        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
 
         # Attributes related to registering messages and their handling
@@ -402,7 +402,15 @@ class PyLinter(
                     "bad-plugin-value", args=(modname, module_or_error), line=0
                 )
             elif hasattr(module_or_error, "load_configuration"):
-                module_or_error.load_configuration(self)
+                module_or_error.load_configuration(self)  # type: ignore[union-attr]
+
+        # We re-set all the dictionary values to True here to make sure the dict
+        # is pickle-able. This is only a problem in multiprocessing/parallel mode.
+        # (e.g. invoking pylint -j 2)
+        self._dynamic_plugins = {
+            modname: not isinstance(val, ModuleNotFoundError)
+            for modname, val in self._dynamic_plugins.items()
+        }
 
     def _load_reporters(self, reporter_names: str) -> None:
         """Load the reporters if they are available on _reporters."""
@@ -599,7 +607,7 @@ class PyLinter(
         # initialize msgs_state now that all messages have been registered into
         # the store
         for msg in self.msgs_store.messages:
-            if not msg.may_be_emitted():
+            if not msg.may_be_emitted(self.config.py_version):
                 self._msgs_state[msg.msgid] = False
 
     def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
