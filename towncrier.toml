@@ -22,6 +22,11 @@ name = "Changes requiring user actions"
 showcontent = true
 
 [[tool.towncrier.type]]
+directory = "feature"
+name = "New Features"
+showcontent = true
+
+[[tool.towncrier.type]]
 directory = "new_check"
 name = "New Checks"
 showcontent = true
