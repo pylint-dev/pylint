@@ -185,7 +185,7 @@ contributors:
 - Marco Forte <fortemarco.irl@gmail.com>
 - Ionel Maries Cristian <contact@ionelmc.ro>
 - Gergely Kalmár <gergely.kalmar@logikal.jp>
-- Drummond Ogilvie <me@daogilvie.com>
+- Drum Ogilvie <me@daogilvie.com>
 - Daniel Harding <dharding@gmail.com>
 - Damien Baty <damien.baty@polyconseil.fr>
 - Benjamin Drung <benjamin.drung@profitbricks.com>: contributing Debian Developer
@@ -499,6 +499,7 @@ contributors:
 - Daniele Procida <daniele@vurt.org>
 - Daniela Plascencia <daplascen@gmail.com>
 - Daniel R. Neal <dan.r.neal@gmail.com> (danrneal)
+- Daniel Mouritzen <dmrtzn@gmail.com>
 - Daniel Draper <Germandrummer92@users.noreply.github.com>
 - Daniel Dorani <ddandd@gmail.com> (doranid)
 - Daniel Brookman <53625739+dbrookman@users.noreply.github.com>

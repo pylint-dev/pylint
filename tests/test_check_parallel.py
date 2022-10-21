@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import multiprocessing
 import os
+from pickle import PickleError
 
 import dill
 import pytest
@@ -230,6 +231,24 @@ class TestCheckParallelFramework:
         assert stats.refactor == 0
         assert stats.statement == 18
         assert stats.warning == 0
+
+    def test_linter_with_unpickleable_plugins_is_pickleable(self) -> None:
+        """The linter needs to be pickle-able in order to be passed between workers"""
+        linter = PyLinter(reporter=Reporter())
+        # We load an extension that we know is not pickle-safe
+        linter.load_plugin_modules(["pylint.extensions.overlapping_exceptions"])
+        try:
+            dill.dumps(linter)
+            assert False, "Plugins loaded were pickle-safe! This test needs altering"
+        except (KeyError, TypeError, PickleError, NotImplementedError):
+            pass
+
+        # And expect this call to make it pickle-able
+        linter.load_plugin_configuration()
+        try:
+            dill.dumps(linter)
+        except KeyError:
+            assert False, "Cannot pickle linter when using non-pickleable plugin"
 
     def test_worker_check_sequential_checker(self) -> None:
         """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker."""
