@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
-from pylint.checkers.base.comparison_checker import ComparisonChecker
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
@@ -76,7 +75,7 @@ class MagicValueChecker(BaseChecker):
             )
 
     def _is_magic_value(self, node: nodes.NodeNG) -> bool:
-        return (not ComparisonChecker.is_singleton_const(node)) and (
+        return (not utils.is_singleton_const(node)) and (
             node.value not in self.linter.config.valid_magic_values
         )
 

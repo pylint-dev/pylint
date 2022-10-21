@@ -15,7 +15,6 @@ LITERAL_NODE_TYPES = (nodes.Const, nodes.Dict, nodes.List, nodes.Set)
 COMPARISON_OPERATORS = frozenset(("==", "!=", "<", ">", "<=", ">="))
 TYPECHECK_COMPARISON_OPERATORS = frozenset(("is", "is not", "==", "!="))
 TYPE_QNAME = "builtins.type"
-SINGLETON_VALUES = {True, False, None}
 
 
 def _is_one_arg_pos_call(call: nodes.NodeNG) -> bool:
@@ -82,12 +81,6 @@ class ComparisonChecker(_BasicChecker):
         ),
     }
 
-    @staticmethod
-    def is_singleton_const(node: nodes.NodeNG) -> bool:
-        return isinstance(node, nodes.Const) and any(
-            node.value is value for value in SINGLETON_VALUES
-        )
-
     def _check_singleton_comparison(
         self,
         left_value: nodes.NodeNG,
@@ -97,9 +90,9 @@ class ComparisonChecker(_BasicChecker):
     ) -> None:
         """Check if == or != is being used to compare a singleton value."""
 
-        if self.is_singleton_const(left_value):
+        if utils.is_singleton_const(left_value):
             singleton, other_value = left_value.value, right_value
-        elif self.is_singleton_const(right_value):
+        elif utils.is_singleton_const(right_value):
             singleton, other_value = right_value.value, left_value
         else:
             return
