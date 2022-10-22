@@ -27,6 +27,9 @@ env:
   # This needs to be the SAME as in the Main and comment job
   CACHE_VERSION: 31
 
+permissions:
+  contents: read
+
 jobs:
   run-primer:
     name: Run / ${{ matrix.python-version }}
