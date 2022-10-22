@@ -1,0 +1,3 @@
+Fix bug that unsafely retrieved a value from a dict and led to an ``astroid-error`` when parsing a module.
+
+Closes #7661
