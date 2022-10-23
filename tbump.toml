@@ -52,6 +52,10 @@ cmd = "python3 script/create_contributor_list.py"
 name = "Apply pre-commit"
 cmd = "pre-commit run --all-files||echo 'Hack so this command does not fail'"
 
+[[before_commit]]
+name = "Confirm changes"
+cmd = "read -p 'Continue (y)? ' -n 1 -r; echo; [[ ! $REPLY =~ ^[Yy]$ ]] && exit 1 || exit 0"
+
 # Or run some commands after the git tag and the branch
 # have been pushed:
 #  [[after_push]]
