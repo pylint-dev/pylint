@@ -32,8 +32,10 @@ TESTS = [
 ]
 TESTS_NAMES = [t.base for t in TESTS]
 TEST_WITH_EXPECTED_DEPRECATION = [
-    "future_unicode_literals",
+    "anomalous_backslash_escape",
     "anomalous_unicode_escape",
+    "excess_escapes",
+    "future_unicode_literals",
 ]
 
 
