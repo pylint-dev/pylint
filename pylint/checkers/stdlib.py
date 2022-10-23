@@ -243,7 +243,12 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
         },
         (3, 11, 0): {
             "locale.getdefaultlocale",
-            "unittest.TestLoader.findTestCases",
+            "locale.resetlocale",
+            "re.template",
+            "unittest.findTestCases",
+            "unittest.makeSuite",
+            "unittest.getTestCaseNames",
+            "unittest.TestLoader.loadTestsFromModule",
             "unittest.TestLoader.loadTestsFromTestCase",
             "unittest.TestLoader.getTestCaseNames",
         },
@@ -300,6 +305,9 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
         }
     },
     (3, 11, 0): {
+        "typing": {
+            "Text",
+        },
         "webbrowser": {
             "MacOSX",
         },

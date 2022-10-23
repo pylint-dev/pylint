@@ -50,7 +50,7 @@ DEPRECATED_MODULES = {
     (3, 6, 0): {"asynchat", "asyncore", "smtpd"},
     (3, 7, 0): {"macpath"},
     (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
-    (3, 10, 0): {"distutils"},
+    (3, 10, 0): {"distutils", "typing.io", "typing.re"},
     (3, 11, 0): {
         "aifc",
         "audioop",
