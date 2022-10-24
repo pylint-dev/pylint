@@ -85,7 +85,7 @@ Refs #1234
 def echo(msg: str) -> None:
     # To support non-UTF-8 environments like Windows, we need
     # to explicitly encode the message instead of using plain print()
-    sys.stdout.buffer.write(f"{msg}\n".encode("utf-8"))
+    sys.stdout.buffer.write(f"{msg}\n".encode())
 
 
 if __name__ == "__main__":
