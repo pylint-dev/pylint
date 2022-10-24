@@ -129,7 +129,7 @@ jobs:
       - name: Hide old comments
         # Taken from mypy primer
         # v0.3.0
-        uses: kanga333/comment-hider@bbdf5b562fbec24e6f60572d8f712017428b92e0
+        uses: kanga333/comment-hider@c12bb20b48aeb8fc098e35967de8d4f8018fffdf
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           leave_visible: 1
