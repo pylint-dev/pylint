@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+x = 42
+if x == 42:
+    print("Bad!")
