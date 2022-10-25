@@ -6,7 +6,7 @@ on:
       - published
 
 env:
-  DEFAULT_PYTHON: "3.11-dev"
+  DEFAULT_PYTHON: "3.11"
 
 jobs:
   release-pypi:

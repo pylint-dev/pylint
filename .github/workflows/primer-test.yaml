@@ -26,7 +26,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10", "3.11-dev"]
+        python-version: [3.8, 3.9, "3.10", "3.11"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -68,7 +68,7 @@ jobs:
     needs: prepare-tests-linux
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10", "3.11-dev"]
+        python-version: [3.8, 3.9, "3.10", "3.11"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.1.0
@@ -103,7 +103,7 @@ jobs:
     needs: prepare-tests-linux
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10", "3.11-dev"]
+        python-version: [3.8, 3.9, "3.10", "3.11"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.1.0
