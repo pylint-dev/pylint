@@ -1,3 +1,3 @@
-Handle patterns in ignored-modules when checking for no-name-in-module
+The ``ignored-modules`` option will now be correctly taken into account for ``no-name-in-module``.
 
 Closes #7578
