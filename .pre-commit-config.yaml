@@ -15,7 +15,7 @@ repos:
             doc/data/messages/t/trailing-newlines/bad.py|
           )$
   - repo: https://github.com/PyCQA/autoflake
-    rev: v1.7.6
+    rev: v1.7.7
     hooks:
       - id: autoflake
         exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
@@ -119,7 +119,7 @@ repos:
           ]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.2
+    rev: v3.0.0-alpha.3
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
