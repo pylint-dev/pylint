@@ -32,6 +32,7 @@ class MessageDefinition:
         maxversion: tuple[int, int] | None = None,
         old_names: list[tuple[str, str]] | None = None,
         shared: bool = False,
+        default_enabled: bool = True,
     ) -> None:
         self.checker_name = checker.name
         self.check_msgid(msgid)
@@ -43,6 +44,7 @@ class MessageDefinition:
         self.minversion = minversion
         self.maxversion = maxversion
         self.shared = shared
+        self.default_enabled = default_enabled
         self.old_names: list[tuple[str, str]] = []
         if old_names:
             for old_msgid, old_symbol in old_names:
