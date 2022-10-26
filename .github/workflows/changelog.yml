@@ -9,6 +9,9 @@ env:
   CACHE_VERSION: 31
   DEFAULT_PYTHON: "3.11"
 
+permissions:
+  contents: read
+
 jobs:
   check-changelog:
     if: contains(github.event.pull_request.labels.*.name, 'skip news :mute:') != true

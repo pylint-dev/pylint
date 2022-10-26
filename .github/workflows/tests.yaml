@@ -12,6 +12,9 @@ on:
 env:
   CACHE_VERSION: 31
 
+permissions:
+  contents: read
+
 jobs:
   tests-linux:
     name: run / ${{ matrix.python-version }} / Linux
