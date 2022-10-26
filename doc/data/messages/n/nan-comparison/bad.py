@@ -1,5 +1,5 @@
-import numpy
+import numpy as np
 
-x = 42
-if x == numpy.NaN:  # [nan-comparison]
-    print("Bad!")
+
+def both_nan(x, y) -> bool:
+    return x == np.NaN and y == float("nan")  # [nan-comparison, nan-comparison]
