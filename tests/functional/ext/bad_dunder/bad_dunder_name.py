@@ -35,6 +35,10 @@ class Apples:
         # author likely meant to call the invert dunder method
         pass
 
+    def __allowed__(self):
+        # user-configured allowed dunder name
+        pass
+
     def _protected_method(self):
         print("Protected")
 

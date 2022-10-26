@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.constants import DUNDER_METHODS, EXTRA_DUNDER_METHODS, DUNDER_PROPERTIES
+from pylint.constants import DUNDER_METHODS, DUNDER_PROPERTIES, EXTRA_DUNDER_METHODS
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
@@ -29,10 +29,24 @@ class DunderChecker(BaseChecker):
             "not within the predefined list of dunder names.",
         ),
     }
-    options = ()
+    options = (
+        (
+            "good-dunder-names",
+            {
+                "default": [],
+                "type": "csv",
+                "metavar": "<comma-separated names>",
+                "help": "Good dunder names which should always be accepted.",
+            },
+        ),
+    )
 
     def open(self) -> None:
-        self._dunder_methods = EXTRA_DUNDER_METHODS + DUNDER_PROPERTIES
+        self._dunder_methods = (
+            EXTRA_DUNDER_METHODS
+            + DUNDER_PROPERTIES
+            + self.linter.config.good_dunder_names
+        )
         for since_vers, dunder_methods in DUNDER_METHODS.items():
             if since_vers <= self.linter.config.py_version:
                 self._dunder_methods.extend(list(dunder_methods.keys()))
