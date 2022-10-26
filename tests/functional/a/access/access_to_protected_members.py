@@ -1,5 +1,5 @@
 # pylint: disable=too-few-public-methods, super-init-not-called
-# pylint: disable=no-classmethod-decorator, bad-dunder-name
+# pylint: disable=no-classmethod-decorator
 """Test external access to protected class members."""
 
 class MyClass:

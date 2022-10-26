@@ -1,6 +1,6 @@
 """Test detection of self as argument of first method in Python 3.7 and above."""
 
-# pylint: disable=missing-docstring,too-few-public-methods,bad-dunder-name
+# pylint: disable=missing-docstring,too-few-public-methods
 
 
 class Toto:

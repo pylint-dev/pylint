@@ -1,8 +1,8 @@
 """Test that we are emitting arguments-differ when the arguments are different."""
-# pylint: disable=missing-docstring, too-few-public-methods, unused-argument,useless-super-delegation
-# pylint: disable=unused-private-member, bad-dunder-name
+# pylint: disable=missing-docstring, too-few-public-methods, unused-argument,useless-super-delegation, unused-private-member
 
 class Parent:
+
     def test(self):
         pass
 

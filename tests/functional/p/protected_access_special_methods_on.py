@@ -3,7 +3,7 @@ trigger protected-access message emission for single underscore prefixed names
 inside special methods.
 """
 # pylint: disable=missing-class-docstring, invalid-name, unused-variable
-# pylint: disable=too-few-public-methods, bad-dunder-name
+# pylint: disable=too-few-public-methods
 
 
 class Protected:

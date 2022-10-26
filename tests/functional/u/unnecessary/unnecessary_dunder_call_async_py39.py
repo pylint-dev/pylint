@@ -1,4 +1,3 @@
-# pylint: disable=bad-dunder-name
 """Checks for unnecessary-dunder-call on __aiter__/__anext__ with py-version=3.9."""
 
 
