@@ -1,0 +1,3 @@
+Fix a false negative for ``unused-import`` when a constant inside ``typing.Annotated`` was treated as a reference to an import.
+
+Closes #7547
