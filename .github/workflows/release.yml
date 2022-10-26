@@ -15,6 +15,9 @@ jobs:
   release-pypi:
     name: Upload release to PyPI
     runs-on: ubuntu-latest
+    environment:
+      name: PyPI
+      url: https://pypi.org/project/pylint/
     steps:
       - name: Check out code from Github
         uses: actions/checkout@v3.1.0
