@@ -1920,7 +1920,9 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
 
 
 def is_typing_member(node: nodes.NodeNG, typing_members: str | tuple[str, ...]) -> bool:
-    """Check if `node` is a member of the `typing` module and has one of the names from `typing_members`"""
+    """Check if `node` is a member of the `typing` module and has one of the names from
+    `typing_members`.
+    """
     if isinstance(node, nodes.Name):
         try:
             import_from = node.lookup(node.name)[1][0]
