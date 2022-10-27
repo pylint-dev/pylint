@@ -86,7 +86,7 @@ False Positives Fixed
 ---------------------
 
 - Fix the message for ``unnecessary-dunder-call`` for ``__aiter__`` and
-  ``__aneext__``. Also
+  ``__anext__``. Also
   only emit the warning when ``py-version`` >= 3.10.
 
   Closes #7529 (`#7529 <https://github.com/PyCQA/pylint/issues/7529>`_)
