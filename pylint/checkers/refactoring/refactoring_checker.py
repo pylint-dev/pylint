@@ -2146,6 +2146,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # destructured, so we can't necessarily use it.
             return
 
+        if node.iter.keywords or len(node.iter.args) > 1:
+            # enumerate is being called with start arg/kwarg so resulting index lookup
+            # is not redundant so we should not report an error.
+            return
+
         iterating_object_name = node.iter.args[0].name
         value_variable = node.target.elts[1]
 

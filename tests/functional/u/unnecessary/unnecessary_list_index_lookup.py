@@ -81,3 +81,20 @@ for i, part in enumerate(parts):
     if i == 3:  # more complex condition actually
         parts.insert(i, "X")
     print(part, parts[i])
+
+# regression tests for https://github.com/PyCQA/pylint/issues/7682
+series = [1, 2, 3, 4, 5]
+output_list = [
+    (item, series[index])
+    for index, item in enumerate(series, start=1)
+    if index < len(series)
+]
+
+output_list = [
+    (item, series[index])
+    for index, item in enumerate(series, 1)
+    if index < len(series)
+]
+
+for idx, val in enumerate(series, start=2):
+    print(my_list[idx])
