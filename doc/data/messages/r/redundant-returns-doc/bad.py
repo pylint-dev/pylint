@@ -1,4 +1,4 @@
-def print_fruits(fruits):
+def print_fruits(fruits):  # [redundant-returns-doc]
     """Print list of fruits
 
     Returns
@@ -6,4 +6,4 @@ def print_fruits(fruits):
         str
     """
     print(fruits)
-    return ",".join(fruits)
+    return None
