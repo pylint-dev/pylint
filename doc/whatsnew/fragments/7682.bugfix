@@ -1,0 +1,3 @@
+``unnecessary-list-index-lookup`` will not be emitted if ``enumerate`` is called with a `start` arg or kwarg.
+
+Closes #7682

@@ -2146,7 +2146,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # destructured, so we can't necessarily use it.
             return
 
-        if node.iter.keywords or len(node.iter.args) > 1:
+        if self._enumerate_with_start(node):
             # enumerate is being called with start arg/kwarg so resulting index lookup
             # is not redundant so we should not report an error.
             return
@@ -2242,3 +2242,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 args=(node.target.elts[1].name,),
                 confidence=HIGH,
             )
+
+    def _enumerate_with_start(self, node: nodes.For | nodes.Comprehension) -> bool:
+        """Check presence of `start` kwarg or second argument to enumerate
+        For example
+        `enumerate([1,2,3], start=1)`
+        `enumerate([1,2,3], 1)`
+        """
+        if len(node.iter.args) > 1:
+            # We assume the second argument to `enumerate` is the `start` arg.
+            return True
+
+        return any(keyword.arg == "start" for keyword in node.iter.keywords)
