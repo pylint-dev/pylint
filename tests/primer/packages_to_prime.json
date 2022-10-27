@@ -49,6 +49,7 @@
   "coverage": {
     "branch": "master",
     "directories": ["coverage"],
-    "url": "https://github.com/nedbat/coveragepy"
+    "url": "https://github.com/nedbat/coveragepy",
+    "pylintrc_relpath": "pylintrc"
   }
 }
