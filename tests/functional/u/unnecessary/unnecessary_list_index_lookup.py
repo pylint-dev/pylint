@@ -97,4 +97,19 @@ output_list = [
 ]
 
 for idx, val in enumerate(series, start=2):
-    print(my_list[idx])
+    print(series[idx])
+
+for idx, val in enumerate(series, 2):
+    print(series[idx])
+
+for idx, val in enumerate(series, start=-2):
+    print(series[idx])
+
+for idx, val in enumerate(series, -2):
+    print(series[idx])
+
+for idx, val in enumerate(series, start=0):
+    print(series[idx])  # [unnecessary-list-index-lookup]
+
+for idx, val in enumerate(series, 0):
+    print(series[idx])  # [unnecessary-list-index-lookup]

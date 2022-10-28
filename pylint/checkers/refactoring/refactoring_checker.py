@@ -2244,13 +2244,37 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
 
     def _enumerate_with_start(self, node: nodes.For | nodes.Comprehension) -> bool:
-        """Check presence of `start` kwarg or second argument to enumerate
-        For example
+        """Check presence of `start` kwarg or second argument to enumerate.
+
+        For example:
+
         `enumerate([1,2,3], start=1)`
         `enumerate([1,2,3], 1)`
+
+        If `start` is assigned to `0`, the default value, this is equivalent to
+        not calling `enumerate` with start.
         """
         if len(node.iter.args) > 1:
-            # We assume the second argument to `enumerate` is the `start` arg.
-            return True
+            # We assume the second argument to `enumerate` is the `start` int arg.
+            # It's a reasonable assumption for now as it's the only possible argument:
+            # https://docs.python.org/3/library/functions.html#enumerate
+            start_arg = node.iter.args[1]
 
-        return any(keyword.arg == "start" for keyword in node.iter.keywords)
+            start_val = (
+                start_arg.operand.value
+                if isinstance(start_arg, nodes.UnaryOp)
+                else start_arg.value
+            )
+            return not start_val == 0
+
+        for keyword in node.iter.keywords:
+            if keyword.arg == "start":
+                start_val = (
+                    keyword.value.operand.value
+                    if isinstance(keyword.value, nodes.UnaryOp)
+                    else keyword.value.value
+                )
+
+                return not start_val == 0
+
+        return False
