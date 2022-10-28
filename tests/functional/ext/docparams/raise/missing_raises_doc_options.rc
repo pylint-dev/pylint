@@ -2,4 +2,4 @@
 load-plugins = pylint.extensions.docparams
 
 [BASIC]
-accept-no-raise-doc = no
+accept-no-raise-doc = yes

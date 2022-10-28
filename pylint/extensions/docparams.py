@@ -298,10 +298,14 @@ class DocstringParameterChecker(BaseChecker):
         doc = utils.docstringify(
             func_node.doc_node, self.linter.config.default_docstring_type
         )
+
+        if self.linter.config.accept_no_raise_doc and not doc.exceptions():
+            return
+
         if not doc.matching_sections():
             if doc.doc:
                 missing = {exc.name for exc in expected_excs}
-                self._handle_no_raise_doc(missing, func_node)
+                self._add_raise_message(missing, func_node)
             return
 
         found_excs_full_names = doc.exceptions()
@@ -651,12 +655,6 @@ class DocstringParameterChecker(BaseChecker):
                 node=class_node,
                 confidence=HIGH,
             )
-
-    def _handle_no_raise_doc(self, excs: set[str], node: nodes.FunctionDef) -> None:
-        if self.linter.config.accept_no_raise_doc:
-            return
-
-        self._add_raise_message(excs, node)
 
     def _add_raise_message(
         self, missing_exceptions: set[str], node: nodes.FunctionDef
