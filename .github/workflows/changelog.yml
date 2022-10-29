@@ -6,8 +6,11 @@ on:
 
 env:
   # Also change CACHE_VERSION in the other workflows
-  CACHE_VERSION: 30
-  DEFAULT_PYTHON: "3.11-dev"
+  CACHE_VERSION: 31
+  DEFAULT_PYTHON: "3.11"
+
+permissions:
+  contents: read
 
 jobs:
   check-changelog:
@@ -35,7 +38,7 @@ jobs:
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key: >-

@@ -25,7 +25,10 @@ concurrency:
 
 env:
   # This needs to be the SAME as in the Main and comment job
-  CACHE_VERSION: 30
+  CACHE_VERSION: 31
+
+permissions:
+  contents: read
 
 jobs:
   run-primer:
@@ -53,7 +56,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key:
@@ -128,7 +131,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: tests/.pylint_primer_tests/
           key: >-

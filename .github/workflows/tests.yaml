@@ -10,7 +10,10 @@ on:
       - doc/data/messages/**
 
 env:
-  CACHE_VERSION: 30
+  CACHE_VERSION: 31
+
+permissions:
+  contents: read
 
 jobs:
   tests-linux:
@@ -20,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10", "3.11-dev"]
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -39,7 +42,7 @@ jobs:
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key: >-
@@ -75,7 +78,7 @@ jobs:
     needs: tests-linux
     strategy:
       matrix:
-        python-version: ["3.11-dev"]
+        python-version: ["3.11"]
     env:
       COVERAGERC_FILE: .coveragerc
     steps:
@@ -88,7 +91,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key:
@@ -100,7 +103,7 @@ jobs:
           echo "Failed to restore Python venv from cache"
           exit 1
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v3.0.0
+        uses: actions/download-artifact@v3.0.1
       - name: Combine coverage results
         run: |
           . venv/bin/activate
@@ -121,7 +124,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11-dev"]
+        python-version: ["3.11"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.1.0
@@ -132,7 +135,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key:
@@ -173,7 +176,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10", "3.11-dev"]
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11"]
     steps:
       - name: Set temp directory
         run: echo "TEMP=$env:USERPROFILE\AppData\Local\Temp" >> $env:GITHUB_ENV
@@ -191,10 +194,10 @@ jobs:
         run: >-
           echo "key=venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('setup.cfg', 'requirements_test_min.txt')
-          }}" >> $GITHUB_OUTPUT
+          }}" >> $env:GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key: >-
@@ -240,7 +243,7 @@ jobs:
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key: >-
@@ -284,7 +287,7 @@ jobs:
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key: >-

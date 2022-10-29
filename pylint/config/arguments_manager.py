@@ -447,7 +447,10 @@ class _ArgumentsManager:
         )
         options_by_section = {}
         sections = []
-        for group in self._arg_parser._action_groups:
+        for group in sorted(
+            self._arg_parser._action_groups,
+            key=lambda x: (x.title != "Main", x.title),
+        ):
             group_name = group.title
             assert group_name
             if group_name in skipsections:
@@ -459,7 +462,7 @@ class _ArgumentsManager:
                 for i in group._group_actions
                 if not isinstance(i, argparse._SubParsersAction)
             ]
-            for opt in option_actions:
+            for opt in sorted(option_actions, key=lambda x: x.option_strings[0][2:]):
                 if "--help" in opt.option_strings:
                     continue
 

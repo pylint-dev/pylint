@@ -231,6 +231,8 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
     )
 )
 
+SINGLETON_VALUES = {True, False, None}
+
 
 class NoSuchArgumentError(Exception):
     pass
@@ -1343,12 +1345,18 @@ def _get_python_type_of_node(node: nodes.NodeNG) -> str | None:
 
 @lru_cache(maxsize=1024)
 def safe_infer(
-    node: nodes.NodeNG, context: InferenceContext | None = None
+    node: nodes.NodeNG,
+    context: InferenceContext | None = None,
+    *,
+    compare_constants: bool = False,
 ) -> InferenceResult | None:
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
     one node has been inferred of different types).
+
+    If compare_constants is True and if multiple constants are inferred,
+    unequal inferred values are also considered ambiguous and return None.
     """
     inferred_types: set[str | None] = set()
     try:
@@ -1367,6 +1375,13 @@ def safe_infer(
             inferred_type = _get_python_type_of_node(inferred)
             if inferred_type not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
+            if (
+                compare_constants
+                and isinstance(inferred, nodes.Const)
+                and isinstance(value, nodes.Const)
+                and inferred.value != value.value
+            ):
+                return None
             if (
                 isinstance(inferred, nodes.FunctionDef)
                 and inferred.args.args is not None
@@ -2064,3 +2079,9 @@ def is_module_ignored(
                 return True
 
     return False
+
+
+def is_singleton_const(node: nodes.NodeNG) -> bool:
+    return isinstance(node, nodes.Const) and any(
+        node.value is value for value in SINGLETON_VALUES
+    )

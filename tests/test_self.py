@@ -148,13 +148,18 @@ class TestRunTC:
         output = re.sub(CLEAN_PATH, "", output, flags=re.MULTILINE)
         return output.replace("\\", "/")
 
-    def _test_output(self, args: list[str], expected_output: str) -> None:
+    def _test_output(
+        self, args: list[str], expected_output: str, unexpected_output: str = ""
+    ) -> None:
         out = StringIO()
         args = _add_rcfile_default_pylintrc(args)
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue())
         expected_output = self._clean_paths(expected_output)
         assert expected_output.strip() in actual_output.strip()
+
+        if unexpected_output:
+            assert unexpected_output.strip() not in actual_output.strip()
 
     def _test_output_file(
         self, args: list[str], filename: LocalPath, expected_output: str
@@ -1228,6 +1233,20 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         module = join(HERE, "regrtest_data", "invalid_encoding.py")
         expected_output = "unknown encoding"
         self._test_output([module, "-E"], expected_output=expected_output)
+
+    @pytest.mark.parametrize(
+        "module_name,expected_output",
+        [
+            ("good.py", ""),
+            ("bad_wrong_num.py", "(syntax-error)"),
+            ("bad_missing_num.py", "(bad-file-encoding)"),
+        ],
+    )
+    def test_encoding(self, module_name: str, expected_output: str) -> None:
+        path = join(HERE, "regrtest_data", "encoding", module_name)
+        self._test_output(
+            [path], expected_output=expected_output, unexpected_output="(astroid-error)"
+        )
 
 
 class TestCallbackOptions:

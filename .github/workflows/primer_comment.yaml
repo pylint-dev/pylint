@@ -14,7 +14,7 @@ on:
 
 env:
   # This needs to be the SAME as in the Main and PR job
-  CACHE_VERSION: 30
+  CACHE_VERSION: 31
 
 permissions:
   contents: read
@@ -42,7 +42,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.10
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key:
@@ -129,7 +129,7 @@ jobs:
       - name: Hide old comments
         # Taken from mypy primer
         # v0.3.0
-        uses: kanga333/comment-hider@bbdf5b562fbec24e6f60572d8f712017428b92e0
+        uses: kanga333/comment-hider@c12bb20b48aeb8fc098e35967de8d4f8018fffdf
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           leave_visible: 1

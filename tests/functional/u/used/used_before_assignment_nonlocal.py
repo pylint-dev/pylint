@@ -1,5 +1,5 @@
 """Check for nonlocal and used-before-assignment"""
-# pylint: disable=missing-docstring, unused-variable, too-few-public-methods, consider-using-augmented-assign
+# pylint: disable=missing-docstring, unused-variable, too-few-public-methods
 
 
 def test_ok():

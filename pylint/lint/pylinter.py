@@ -296,7 +296,7 @@ class PyLinter(
             str, list[checkers.BaseChecker]
         ] = collections.defaultdict(list)
         """Dictionary of registered and initialized checkers."""
-        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError] = {}
+        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
 
         # Attributes related to registering messages and their handling
@@ -402,7 +402,15 @@ class PyLinter(
                     "bad-plugin-value", args=(modname, module_or_error), line=0
                 )
             elif hasattr(module_or_error, "load_configuration"):
-                module_or_error.load_configuration(self)
+                module_or_error.load_configuration(self)  # type: ignore[union-attr]
+
+        # We re-set all the dictionary values to True here to make sure the dict
+        # is pickle-able. This is only a problem in multiprocessing/parallel mode.
+        # (e.g. invoking pylint -j 2)
+        self._dynamic_plugins = {
+            modname: not isinstance(val, ModuleNotFoundError)
+            for modname, val in self._dynamic_plugins.items()
+        }
 
     def _load_reporters(self, reporter_names: str) -> None:
         """Load the reporters if they are available on _reporters."""
@@ -480,6 +488,9 @@ class PyLinter(
             self.register_report(r_id, r_title, r_cb, checker)
         if hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
+            for message in checker.messages:
+                if not message.default_enabled:
+                    self.disable(message.msgid)
         # Register the checker, but disable all of its messages.
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)

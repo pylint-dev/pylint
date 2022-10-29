@@ -11,6 +11,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import only_required_for_messages, safe_infer
+from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -57,6 +58,16 @@ class CodeStyleChecker(BaseChecker):
             "Emitted when an if assignment is directly followed by an if statement and "
             "both can be combined by using an assignment expression ``:=``. "
             "Requires Python 3.8 and ``py-version >= 3.8``.",
+        ),
+        "R6104": (
+            "Use '%s' to do an augmented assign directly",
+            "consider-using-augmented-assign",
+            "Emitted when an assignment is referring to the object that it is assigning "
+            "to. This can be changed to be an augmented assign.\n"
+            "Disabled by default!",
+            {
+                "default_enabled": False,
+            },
         ),
     }
     options = (
@@ -300,6 +311,19 @@ class CodeStyleChecker(BaseChecker):
             ):
                 return True
         return False
+
+    @only_required_for_messages("consider-using-augmented-assign")
+    def visit_assign(self, node: nodes.Assign) -> None:
+        is_aug, op = utils.is_augmented_assign(node)
+        if is_aug:
+            self.add_message(
+                "consider-using-augmented-assign",
+                args=f"{op}=",
+                node=node,
+                line=node.lineno,
+                col_offset=node.col_offset,
+                confidence=INFERENCE,
+            )
 
 
 def register(linter: PyLinter) -> None:
