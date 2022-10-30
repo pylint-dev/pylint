@@ -51,14 +51,14 @@ def check_file(file: Path, verbose: bool) -> bool:
     if match:
         issue = match.group("issue")
         if file.stem != issue:
-            print(
+            echo(
                 f"{file} must be named '{issue}.<fragmenttype>', after the issue it references."
             )
             return False
         if verbose:
-            print(f"Checked '{file}': LGTM 🤖👍")
+            echo(f"Checked '{file}': LGTM 🤖👍")
         return True
-    print(
+    echo(
         f"""\
 {file}: does not respect the standard format 🤖👎
 
@@ -80,6 +80,12 @@ Refs #1234
 """
     )
     return False
+
+
+def echo(msg: str) -> None:
+    # To support non-UTF-8 environments like Windows, we need
+    # to explicitly encode the message instead of using plain print()
+    sys.stdout.buffer.write(f"{msg}\n".encode())
 
 
 if __name__ == "__main__":
