@@ -781,9 +781,9 @@ Refactoring checker Messages
 :consider-swap-variables (R1712): *Consider using tuple unpacking for swapping variables*
   You do not have to use a temporary variable in order to swap variables. Using
   "tuple unpacking" to directly swap variables makes the intention more clear.
-:use-dict-literal (R1735): *Consider using {} instead of dict()*
-  Emitted when using dict() to create an empty dictionary instead of the
-  literal {}. The literal is faster as it avoids an additional function call.
+:use-dict-literal (R1735): *Consider using '%s' instead.*
+  Emitted when using dict() to create a dictionary instead of a literal '{ ... }'.
+  The literal is faster as it avoids an additional function call.
 :trailing-comma-tuple (R1707): *Disallow trailing comma tuple*
   In Python, a tuple is actually created by the comma symbol, not by the
   parentheses. Unfortunately, one can actually create a tuple by misplacing a
