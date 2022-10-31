@@ -104,6 +104,6 @@ jobs:
         uses: actions/upload-artifact@v3.1.1
         with:
           name: primer_output
-          path:
+          path: >-
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
             }}_main.txt

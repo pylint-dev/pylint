@@ -16,6 +16,7 @@ env:
   # This needs to be the SAME as in the Main and PR job
   CACHE_VERSION: 1
   KEY_PREFIX: venv-primer
+  DEFAULT_PYTHON: "3.10"
 
 permissions:
   contents: read
@@ -34,11 +35,11 @@ jobs:
       - run: npm install @octokit/rest
       - name: Check out code from GitHub
         uses: actions/checkout@v3.1.0
-      - name: Set up Python 3.10
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v4.3.0
         with:
-          python-version: "3.10"
+          python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
 
       # Restore cached Python environment
@@ -114,7 +115,6 @@ jobs:
         id: post-comment
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs')
             const comment = fs.readFileSync('tests/.pylint_primer_tests/comment.txt', { encoding: 'utf8' })
