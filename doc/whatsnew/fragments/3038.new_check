@@ -1,3 +1,4 @@
-Added ``bad-dunder-name`` extension check which flags bad or misspelled dunder methods.
+Added ``bad-dunder-name`` extension check, which flags bad or misspelled dunder methods.
+You can use the ``good-dunder-names`` option to allow specific dunder names.
 
 Closes #3038
