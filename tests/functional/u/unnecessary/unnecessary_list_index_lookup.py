@@ -113,3 +113,10 @@ for idx, val in enumerate(series, start=0):
 
 for idx, val in enumerate(series, 0):
     print(series[idx])  # [unnecessary-list-index-lookup]
+
+START = 0
+for idx, val in enumerate(series, start=START):
+    print(series[idx])  # [unnecessary-list-index-lookup]
+
+for idx, val in enumerate(series, START):
+    print(series[idx])  # [unnecessary-list-index-lookup]

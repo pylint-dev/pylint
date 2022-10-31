@@ -2259,22 +2259,26 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # It's a reasonable assumption for now as it's the only possible argument:
             # https://docs.python.org/3/library/functions.html#enumerate
             start_arg = node.iter.args[1]
-
-            start_val = (
-                start_arg.operand.value
-                if isinstance(start_arg, nodes.UnaryOp)
-                else start_arg.value
-            )
+            start_val = self._get_start_value(start_arg)
+            if start_val is None:
+                return False
             return not start_val == 0
 
         for keyword in node.iter.keywords:
             if keyword.arg == "start":
-                start_val = (
-                    keyword.value.operand.value
-                    if isinstance(keyword.value, nodes.UnaryOp)
-                    else keyword.value.value
-                )
-
+                start_val = self._get_start_value(keyword.value)
+                if start_val is None:
+                    return False
                 return not start_val == 0
 
         return False
+
+    def _get_start_value(self, node: nodes.NodeNG) -> Any:
+        if isinstance(node, nodes.Name):
+            inferred = utils.safe_infer(node)
+            start_val = inferred.value if inferred else None
+        elif isinstance(node, nodes.UnaryOp):
+            start_val = node.operand.value
+        else:
+            start_val = node.value
+        return start_val
