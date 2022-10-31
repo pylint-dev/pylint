@@ -5,7 +5,6 @@ on:
     types: [opened, synchronize, labeled, unlabeled, reopened]
 
 env:
-  # Also change CACHE_VERSION in the other workflows
   CACHE_VERSION: 1
   KEY_PREFIX: base-venv
   DEFAULT_PYTHON: "3.11"

@@ -1,6 +1,6 @@
 -e .[testutils,spelling]
 # astroid dependency is also defined in pyproject.toml
-# You need to increment the CACHE_VERSION in github actions too
+# You need to increment the CACHE_VERSION for primer tests in github actions too
 astroid==2.12.12  # Pinned to a specific version for tests
 typing-extensions~=4.4
 py~=1.11.0
