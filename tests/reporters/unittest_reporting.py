@@ -16,10 +16,12 @@ from typing import TYPE_CHECKING
 import pytest
 
 from pylint import checkers
+from pylint.interfaces import HIGH
 from pylint.lint import PyLinter
-from pylint.reporters import BaseReporter
+from pylint.message.message import Message
+from pylint.reporters import BaseReporter, MultiReporter
 from pylint.reporters.text import ParseableTextReporter, TextReporter
-from pylint.typing import FileItem
+from pylint.typing import FileItem, MessageLocationTuple
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import Section
@@ -329,7 +331,51 @@ def test_multi_format_output(tmp_path):
     )
 
 
-def test_display_results_is_renamed():
+def test_multi_reporter_independant_messages() -> None:
+    """Messages should not be modified by multiple reporters"""
+
+    check_message = "Not modified"
+
+    class ReporterModify(BaseReporter):
+        def handle_message(self, msg: Message) -> None:
+            msg.msg = "Modified message"
+
+        def writeln(self, string: str = "") -> None:
+            pass
+
+        def _display(self, layout: Section) -> None:
+            pass
+
+    class ReporterCheck(BaseReporter):
+        def handle_message(self, msg: Message) -> None:
+            assert (
+                msg.msg == check_message
+            ), "Message object should not be changed by other reporters."
+
+        def writeln(self, string: str = "") -> None:
+            pass
+
+        def _display(self, layout: Section) -> None:
+            pass
+
+    multi_reporter = MultiReporter([ReporterModify(), ReporterCheck()], lambda: None)
+
+    message = Message(
+        symbol="missing-docstring",
+        msg_id="C0123",
+        location=MessageLocationTuple("abspath", "path", "module", "obj", 1, 2, 1, 3),
+        msg=check_message,
+        confidence=HIGH,
+    )
+
+    multi_reporter.handle_message(message)
+
+    assert (
+        message.msg == check_message
+    ), "Message object should not be changed by reporters."
+
+
+def test_display_results_is_renamed() -> None:
     class CustomReporter(TextReporter):
         def _display(self, layout: Section) -> None:
             return None
@@ -337,5 +383,5 @@ def test_display_results_is_renamed():
     reporter = CustomReporter()
     with pytest.raises(AttributeError) as exc:
         # pylint: disable=no-member
-        reporter.display_results()
+        reporter.display_results()  # type: ignore[attr-defined]
     assert "no attribute 'display_results'" in str(exc)
