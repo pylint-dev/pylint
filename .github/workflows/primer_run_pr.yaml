@@ -26,6 +26,7 @@ concurrency:
 env:
   # This needs to be the SAME as in the Main and comment job
   CACHE_VERSION: 1
+  KEY_PREFIX: venv-primer
 
 permissions:
   contents: read
@@ -61,8 +62,8 @@ jobs:
         with:
           path: venv
           key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{
-            env.CACHE_VERSION }}
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}
       - name: Fail job if Python cache restore failed
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |

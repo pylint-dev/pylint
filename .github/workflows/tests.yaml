@@ -11,6 +11,7 @@ on:
 
 env:
   CACHE_VERSION: 1
+  KEY_PREFIX: venv
 
 permissions:
   contents: read
@@ -38,7 +39,7 @@ jobs:
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "key=venv-${{ env.CACHE_VERSION }}-${{
+          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
             hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
