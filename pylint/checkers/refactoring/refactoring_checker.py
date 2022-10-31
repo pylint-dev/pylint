@@ -1130,12 +1130,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 return inferred.qname() in KNOWN_INFINITE_ITERATORS
             return False
 
-        if isinstance(node.func, nodes.Attribute) or not node.args:
+        if isinstance(node.func, nodes.Attribute):
             # Only want the builtin next method.
             return
 
         inferred = utils.safe_infer(node.func)
-        if getattr(inferred, "name", "") == "next":
+        if inferred.qname() == "builtins.next":
             frame = node.frame(future=True)
             # The next builtin can only have up to two
             # positional arguments and no keyword arguments
