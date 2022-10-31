@@ -40,6 +40,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
@@ -78,6 +79,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11
@@ -113,6 +115,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11

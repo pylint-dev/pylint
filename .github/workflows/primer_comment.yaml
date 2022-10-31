@@ -38,6 +38,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: "3.10"
+          check-latest: true
 
       # Restore cached Python environment
       - name: Restore Python virtual environment

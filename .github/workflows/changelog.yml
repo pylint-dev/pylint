@@ -30,6 +30,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
