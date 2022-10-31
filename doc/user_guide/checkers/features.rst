@@ -930,6 +930,12 @@ Stdlib checker Messages
 :invalid-envvar-value (E1507): *%s does not support %s type argument*
   Env manipulation functions support only string type arguments. See
   https://docs.python.org/3/library/os.html#os.getenv.
+:singledispatch-method (E1519): *singledispatch decorator should not be used with methods, use singledispatchmethod instead.*
+  singledispatch should decorate functions and not class/instance methods. Use
+  singledispatchmethod for those cases.
+:singledispatchmethod-function (E1520): *singledispatchmethod decorator should not be used with functions, use singledispatch instead.*
+  singledispatchmethod should decorate class/instance methods and not
+  functions. Use singledispatch for those cases.
 :bad-open-mode (W1501): *"%s" is not a valid mode for open.*
   Python supports: r, w, a[, x] modes with b, +, and U (only with r) options.
   See https://docs.python.org/3/library/functions.html#open
