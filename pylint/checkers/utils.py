@@ -491,7 +491,7 @@ def only_required_for_messages(
     def store_messages(
         func: AstCallbackMethod[_CheckerT, _NodeT]
     ) -> AstCallbackMethod[_CheckerT, _NodeT]:
-        setattr(func, "checks_msgs", messages)
+        func.checks_msgs = messages  # type: ignore[attr-defined]
         return func
 
     return store_messages
