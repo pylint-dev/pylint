@@ -529,7 +529,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             tolineno = node.tolineno
         assert tolineno, node
         lines: list[str] = []
-        for line in range(line, tolineno + 1):
+        for line in range(line, tolineno + 1):  # noqa: B020
             self._visited_lines[line] = 1
             try:
                 lines.append(self._lines[line].rstrip())
