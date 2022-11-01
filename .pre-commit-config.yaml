@@ -33,7 +33,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.1.0
+    rev: v3.2.0
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
@@ -57,7 +57,7 @@ repos:
     rev: 5.0.4
     hooks:
       - id: flake8
-        additional_dependencies: [flake8-typing-imports==1.12.0]
+        additional_dependencies: [flake8-typing-imports==1.14.0]
         exclude: *fixtures
   - repo: local
     hooks:
@@ -119,7 +119,7 @@ repos:
           ]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.3
+    rev: v3.0.0-alpha.4
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
