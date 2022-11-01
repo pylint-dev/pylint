@@ -834,16 +834,16 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
 
     def process_string_token(self, token: str, start_row: int, start_col: int) -> None:
         quote_char = None
-        index = None
-        for index, char in enumerate(token):  # noqa: B007
+        for _index, char in enumerate(token):
             if char in "'\"":
                 quote_char = char
                 break
         if quote_char is None:
             return
-
-        prefix = token[:index].lower()  # markers like u, b, r.
-        after_prefix = token[index:]
+        # pylint: disable=undefined-loop-variable
+        prefix = token[:_index].lower()  # markers like u, b, r.
+        after_prefix = token[_index:]
+        # pylint: enable=undefined-loop-variable
         # Chop off quotes
         quote_length = (
             3 if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char else 1
