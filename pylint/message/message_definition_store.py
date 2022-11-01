@@ -52,10 +52,12 @@ class MessageDefinitionStore:
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
 
     # Since MessageDefinitionStore is only initialized once
-    # and the arguments are relatively small in size we do not run the
+    # and the arguments are relatively small we do not run the
     # risk of creating a large memory leak.
     # See discussion in: https://github.com/PyCQA/pylint/pull/5673
-    @functools.lru_cache(maxsize=None)  # pylint: disable=method-cache-max-size-none
+    @functools.lru_cache(  # pylint: disable=method-cache-max-size-none # noqa: B019
+        maxsize=None
+    )
     def get_message_definitions(self, msgid_or_symbol: str) -> list[MessageDefinition]:
         """Returns the Message definition for either a numeric or symbolic id.
 
