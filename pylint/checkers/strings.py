@@ -835,7 +835,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     def process_string_token(self, token: str, start_row: int, start_col: int) -> None:
         quote_char = None
         index = None
-        for index, char in enumerate(token):
+        for index, char in enumerate(token):  # noqa: B007
             if char in "'\"":
                 quote_char = char
                 break
