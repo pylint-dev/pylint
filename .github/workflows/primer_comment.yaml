@@ -29,7 +29,7 @@ jobs:
     name: Run
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3.5.1
         with:
           node-version: 16
       - run: npm install @octokit/rest
@@ -58,7 +58,7 @@ jobs:
           exit 1
 
       - name: Download outputs
-        uses: actions/github-script@v6
+        uses: actions/github-script@v6.3.3
         with:
           script: |
             // Download workflow pylint output
@@ -113,7 +113,7 @@ jobs:
           --new-file=output_${{ steps.python.outputs.python-version }}_pr.txt
       - name: Post comment
         id: post-comment
-        uses: actions/github-script@v6
+        uses: actions/github-script@v6.3.3
         with:
           script: |
             const fs = require('fs')
