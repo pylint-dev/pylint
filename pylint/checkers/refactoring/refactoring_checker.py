@@ -1131,11 +1131,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return False
 
         if isinstance(node.func, nodes.Attribute):
-            # Only want the builtin next method.
+            # A next() method, which is now what we want.
             return
 
         inferred = utils.safe_infer(node.func)
-        if inferred.qname() == "builtins.next":
+
+        if (
+            isinstance(inferred, nodes.FunctionDef)
+            and inferred.qname() == "builtins.next"
+        ):
             frame = node.frame(future=True)
             # The next builtin can only have up to two
             # positional arguments and no keyword arguments
