@@ -16,6 +16,7 @@ from pylint.checkers.utils import (
     only_required_for_messages,
     returns_bool,
 )
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -49,6 +50,7 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
                 "consider-using-any-or-all",
                 node=node,
                 args=suggested_string,
+                confidence=HIGH,
             )
             return
         if not len(if_children) == 2:  # The If node has only a comparison and return
@@ -62,7 +64,10 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
             final_return_bool = node_after_loop.value.value
             suggested_string = self._build_suggested_string(node, final_return_bool)
             self.add_message(
-                "consider-using-any-or-all", node=node, args=suggested_string
+                "consider-using-any-or-all",
+                node=node,
+                args=suggested_string,
+                confidence=HIGH,
             )
 
     @staticmethod
