@@ -279,6 +279,8 @@ def is_error(node: nodes.FunctionDef) -> bool:
 builtins = builtins.__dict__.copy()  # type: ignore[assignment]
 SPECIAL_BUILTINS = ("__builtins__",)  # '__path__', '__file__')
 
+BOOL_VALUES = {True, False}
+
 
 def is_builtin_object(node: nodes.NodeNG) -> bool:
     """Returns True if the given node is an object from the __builtin__ module."""
@@ -1895,11 +1897,20 @@ def is_empty_str_literal(node: nodes.NodeNG | None) -> bool:
 
 
 def returns_bool(node: nodes.NodeNG) -> bool:
-    """Returns true if a node is a return that returns a constant boolean."""
+    """Returns true if a node is a nodes.Return that returns a constant boolean."""
     return (
         isinstance(node, nodes.Return)
         and isinstance(node.value, nodes.Const)
-        and node.value.value in {True, False}
+        and node.value.value in BOOL_VALUES
+    )
+
+
+def assigned_bool(node: nodes.NodeNG) -> bool:
+    """Returns true if a node is a nodes.Assign that returns a constant boolean."""
+    return (
+        isinstance(node, nodes.Assign)
+        and isinstance(node.value, nodes.Const)
+        and node.value.value in BOOL_VALUES
     )
 
 

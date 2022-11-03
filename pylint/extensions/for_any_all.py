@@ -11,7 +11,11 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import only_required_for_messages, returns_bool
+from pylint.checkers.utils import (
+    assigned_bool,
+    only_required_for_messages,
+    returns_bool,
+)
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -36,35 +40,17 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
             return
 
         if_children = list(node.body[0].get_children())
-        node_before_loop = node.previous_sibling()
         node_after_loop = node.next_sibling()
 
-        # convert all ifs into "assigned_reassigned_returned
-        # if utils.assigned_reassigned_returned
-        if (
-            isinstance(node_before_loop, nodes.Assign)
-            and isinstance(node_before_loop.value, nodes.Const)
-            and node_before_loop.value.value in {True, False}
-        ):
-            assign_children = [x for x in if_children if isinstance(x, nodes.Assign)]
-            if assign_children:
-                assigned = assign_children[0]
-                if assigned.targets[0].name == node_before_loop.targets[0].name:
-                    if isinstance(node_after_loop, nodes.Return):
-                        if (
-                            node_after_loop.value.name
-                            == node_before_loop.targets[0].name
-                        ):
-                            final_return_bool = node_after_loop.value.name
-                            suggested_string = self._build_suggested_string(
-                                node, final_return_bool
-                            )
-                            self.add_message(
-                                "consider-using-any-or-all",
-                                node=node,
-                                args=suggested_string,
-                            )
-                            return
+        if self._assigned_reassigned_returned(node, if_children, node_after_loop):
+            final_return_bool = node_after_loop.value.name
+            suggested_string = self._build_suggested_string(node, final_return_bool)
+            self.add_message(
+                "consider-using-any-or-all",
+                node=node,
+                args=suggested_string,
+            )
+            return
         if not len(if_children) == 2:  # The If node has only a comparison and return
             return
         if not returns_bool(if_children[1]):
@@ -78,6 +64,24 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
             self.add_message(
                 "consider-using-any-or-all", node=node, args=suggested_string
             )
+
+    @staticmethod
+    def _assigned_reassigned_returned(
+        node: nodes.For, if_children: list[nodes.NodeNG], node_after_loop: nodes.NodeNG
+    ) -> bool:
+        node_before_loop = node.previous_sibling()
+        if assigned_bool(node_before_loop):
+            assign_children = [x for x in if_children if isinstance(x, nodes.Assign)]
+            if assign_children:
+                assigned = assign_children[0]
+                if assigned.targets[0].name == node_before_loop.targets[0].name:
+                    if isinstance(node_after_loop, nodes.Return):
+                        if (
+                            node_after_loop.value.name
+                            == node_before_loop.targets[0].name
+                        ):
+                            return True
+        return False
 
     @staticmethod
     def _build_suggested_string(node: nodes.For, final_return_bool: bool) -> str:
