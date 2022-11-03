@@ -36,13 +36,42 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
             return
 
         if_children = list(node.body[0].get_children())
+        node_before_loop = node.previous_sibling()
+        node_after_loop = node.next_sibling()
+
+        # convert all ifs into "assigned_reassigned_returned
+        # if utils.assigned_reassigned_returned
+        if (
+            isinstance(node_before_loop, nodes.Assign)
+            and isinstance(node_before_loop.value, nodes.Const)
+            and node_before_loop.value.value in {True, False}
+        ):
+            assign_children = [x for x in if_children if isinstance(x, nodes.Assign)]
+            if assign_children:
+                assigned = assign_children[0]
+                if assigned.targets[0].name == node_before_loop.targets[0].name:
+                    if isinstance(node_after_loop, nodes.Return):
+                        if (
+                            node_after_loop.value.name
+                            == node_before_loop.targets[0].name
+                        ):
+                            final_return_bool = node_after_loop.value.name
+                            suggested_string = self._build_suggested_string(
+                                node, final_return_bool
+                            )
+                            self.add_message(
+                                "consider-using-any-or-all",
+                                node=node,
+                                args=suggested_string,
+                            )
+                            return
         if not len(if_children) == 2:  # The If node has only a comparison and return
             return
         if not returns_bool(if_children[1]):
             return
 
         # Check for terminating boolean return right after the loop
-        node_after_loop = node.next_sibling()
+
         if returns_bool(node_after_loop):
             final_return_bool = node_after_loop.value.value
             suggested_string = self._build_suggested_string(node, final_return_bool)

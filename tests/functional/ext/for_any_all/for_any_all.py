@@ -144,3 +144,12 @@ def is_from_decorator(node):
             if parent in parent.selected_annotations:
                 return False
             return False
+
+def optimized_any_with_break(split_lines, max_chars):
+    """False negative found in https://github.com/PyCQA/pylint/pull/7697"""
+    potential_line_length_warning = False
+    for line in split_lines:  # [consider-using-any-or-all]
+        if len(line) > max_chars:
+            potential_line_length_warning = True
+            break
+    return potential_line_length_warning

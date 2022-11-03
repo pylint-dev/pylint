@@ -10,3 +10,4 @@ consider-using-any-or-all:65:4:67:24:complicated_condition_check:`for` loop coul
 consider-using-any-or-all:72:4:77:23:is_from_decorator1:`for` loop could be `any(ancestor.name in ('Exception', 'BaseException') and ancestor.root().name == 'Exception' for ancestor in node)`:UNDEFINED
 consider-using-any-or-all:82:4:84:24:is_from_decorator2:`for` loop could be `all(item % 2 == 0 and (item % 3 == 0 or item > 15) for item in items)`:UNDEFINED
 consider-using-any-or-all:89:4:94:23:is_from_decorator3:`for` loop could be `not all(ancestor.name in ('Exception', 'BaseException') and ancestor.root().name == 'Exception' for ancestor in node)`:UNDEFINED
+consider-using-any-or-all:151:4:154:17:optimized_any_with_break:`for` loop could be `not any(len(line) > max_chars for line in split_lines)`:UNDEFINED
