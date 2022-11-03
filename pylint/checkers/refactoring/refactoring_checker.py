@@ -979,7 +979,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not exc or not isinstance(exc, (bases.Instance, nodes.ClassDef)):
             return
         if self._check_exception_inherit_from_stopiteration(exc):
-            self.add_message("stop-iteration-return", node=node)
+            self.add_message("stop-iteration-return", node=node, confidence=INFERENCE)
 
     @staticmethod
     def _check_exception_inherit_from_stopiteration(
@@ -1135,7 +1135,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         inferred = utils.safe_infer(node.func)
-        if getattr(inferred, "name", "") == "next":
+
+        if (
+            isinstance(inferred, nodes.FunctionDef)
+            and inferred.qname() == "builtins.next"
+        ):
             frame = node.frame(future=True)
             # The next builtin can only have up to two
             # positional arguments and no keyword arguments
@@ -1147,7 +1151,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 and not utils.node_ignores_exception(node, StopIteration)
                 and not _looks_like_infinite_iterator(node.args[0])
             ):
-                self.add_message("stop-iteration-return", node=node)
+                self.add_message(
+                    "stop-iteration-return", node=node, confidence=INFERENCE
+                )
 
     def _check_nested_blocks(
         self,
