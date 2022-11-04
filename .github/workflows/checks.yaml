@@ -8,7 +8,8 @@ on:
   pull_request: ~
 
 env:
-  CACHE_VERSION: 31
+  CACHE_VERSION: 1
+  KEY_PREFIX: base-venv
   DEFAULT_PYTHON: "3.11"
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
@@ -35,12 +36,13 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "key=base-venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
-          }}" >> $GITHUB_OUTPUT
+          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
+            hashFiles('pyproject.toml', 'requirements_test.txt',
+          'requirements_test_min.txt') }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11
@@ -49,8 +51,6 @@ jobs:
           key: >-
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             steps.generate-python-key.outputs.key }}
-          restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-base-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -71,8 +71,6 @@ jobs:
           path: ${{ env.PRE_COMMIT_CACHE }}
           key: >-
             ${{ runner.os }}-${{ steps.generate-pre-commit-key.outputs.key }}
-          restore-keys: |
-            ${{ runner.os }}-pre-commit-${{ env.CACHE_VERSION }}-
       - name: Install pre-commit dependencies
         if: steps.cache-precommit.outputs.cache-hit != 'true'
         run: |
@@ -92,6 +90,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11
@@ -124,6 +123,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
+          pip list | grep 'astroid\|pylint'
           pre-commit run --hook-stage manual pylint-with-spelling --all-files
 
   spelling:
@@ -139,6 +139,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11
@@ -170,6 +171,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11

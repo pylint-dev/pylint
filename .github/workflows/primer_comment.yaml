@@ -14,7 +14,9 @@ on:
 
 env:
   # This needs to be the SAME as in the Main and PR job
-  CACHE_VERSION: 31
+  CACHE_VERSION: 1
+  KEY_PREFIX: venv-primer
+  DEFAULT_PYTHON: "3.10"
 
 permissions:
   contents: read
@@ -27,17 +29,18 @@ jobs:
     name: Run
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3.5.1
         with:
           node-version: 16
       - run: npm install @octokit/rest
       - name: Check out code from GitHub
         uses: actions/checkout@v3.1.0
-      - name: Set up Python 3.10
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v4.3.0
         with:
-          python-version: "3.10"
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
 
       # Restore cached Python environment
       - name: Restore Python virtual environment
@@ -46,8 +49,8 @@ jobs:
         with:
           path: venv
           key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{
-            env.CACHE_VERSION }}
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}
       - name: Fail job if Python cache restore failed
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -55,7 +58,7 @@ jobs:
           exit 1
 
       - name: Download outputs
-        uses: actions/github-script@v6
+        uses: actions/github-script@v6.3.3
         with:
           script: |
             // Download workflow pylint output
@@ -110,9 +113,8 @@ jobs:
           --new-file=output_${{ steps.python.outputs.python-version }}_pr.txt
       - name: Post comment
         id: post-comment
-        uses: actions/github-script@v6
+        uses: actions/github-script@v6.3.3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs')
             const comment = fs.readFileSync('tests/.pylint_primer_tests/comment.txt', { encoding: 'utf8' })
@@ -128,8 +130,7 @@ jobs:
             return prNumber
       - name: Hide old comments
         # Taken from mypy primer
-        # v0.3.0
-        uses: kanga333/comment-hider@c12bb20b48aeb8fc098e35967de8d4f8018fffdf
+        uses: kanga333/comment-hider@c12bb20b48aeb8fc098e35967de8d4f8018fffdf # v0.4.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           leave_visible: 1
