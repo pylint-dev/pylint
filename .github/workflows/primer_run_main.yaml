@@ -16,7 +16,8 @@ concurrency:
 
 env:
   # This needs to be the SAME as in the PR and comment job
-  CACHE_VERSION: 31
+  CACHE_VERSION: 1
+  KEY_PREFIX: venv-primer
 
 jobs:
   run-primer:
@@ -34,6 +35,7 @@ jobs:
         uses: actions/setup-python@v4.2.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
 
       - name: Get latest astroid commit
         id: get-astroid-sha
@@ -48,10 +50,8 @@ jobs:
         with:
           path: venv
           key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{
-            env.CACHE_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{ env.CACHE_VERSION }}
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}
       - name: Create Python virtual environment
         run: |
           python -m venv venv
@@ -101,6 +101,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: primer_output
-          path:
+          path: >-
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
             }}_main.txt
