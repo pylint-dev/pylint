@@ -876,9 +876,6 @@ Refactoring checker Messages
   Emitted when accessing only the first or last element of str.split(). The
   first and last element can be accessed by using str.split(sep, maxsplit=1)[0]
   or str.rsplit(sep, maxsplit=1)[-1] instead.
-:consider-using-augmented-assign (C0210): *Use '%s' to do an augmented assign directly*
-  Emitted when an assignment is referring to the object that it is assigning
-  to. This can be changed to be an augmented assign.
 :use-sequence-for-iteration (C0208): *Use a sequence type when iterating over values*
   When iterating over values, sequence types (e.g., ``lists``, ``tuples``,
   ``ranges``) are more efficient than ``sets``.
