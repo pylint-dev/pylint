@@ -67,7 +67,7 @@ def _worker_check_single_file(
     defaultdict[str, list[Any]],
 ]:
     if not _worker_linter:
-        raise Exception("Worker linter not yet initialised")
+        raise RuntimeError("Worker linter not yet initialised")
     _worker_linter.open()
     _worker_linter.check_single_file_item(file_item)
     mapreduce_data = defaultdict(list)

@@ -273,7 +273,7 @@ class VCGPrinter(Printer):
             try:
                 _type = attributes_dict[key]
             except KeyError as e:
-                raise Exception(
+                raise AttributeError(
                     f"no such attribute {key}\npossible attributes are {attributes_dict.keys()}"
                 ) from e
 
@@ -284,6 +284,6 @@ class VCGPrinter(Printer):
             elif value in _type:
                 self.emit(f"{key}:{value}\n")
             else:
-                raise Exception(
+                raise ValueError(
                     f"value {value} isn't correct for attribute {key} correct values are {type}"
                 )
