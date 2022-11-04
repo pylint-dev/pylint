@@ -48,8 +48,10 @@ jobs:
           path: venv
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt') }}
       - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
           python -m venv venv
           . venv/bin/activate
