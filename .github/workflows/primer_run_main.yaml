@@ -40,12 +40,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
           check-latest: true
 
-      - name: Get latest astroid commit
-        id: get-astroid-sha
-        run: |
-          curl https://api.github.com/repos/PyCQA/astroid/commits |
-          python -c "import json, sys; print(json.load(sys.stdin)[0]['sha'])" > astroid_sha.txt
-
       # Create a re-usable virtual environment
       - name: Create Python virtual environment cache
         id: cache-venv
@@ -61,8 +55,6 @@ jobs:
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
-          # Use bleeding-edge astroid
-          pip install git+https://github.com/PyCQA/astroid.git
 
       # Cache primer packages
       - name: Get commit string
