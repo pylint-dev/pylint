@@ -201,7 +201,10 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
             self._checker.add_message("notimplemented-raised", node=self._node)
         elif node.name in OVERGENERAL_EXCEPTIONS:
             self._checker.add_message(
-                "broad-exception-raised", args=node.name, node=self._node
+                "broad-exception-raised",
+                args=node.name,
+                node=self._node,
+                confidence=HIGH,
             )
 
     def visit_call(self, node: nodes.Call) -> None:
