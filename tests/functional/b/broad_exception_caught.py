@@ -3,11 +3,11 @@ __revision__ = 0
 
 try:
     __revision__ += 1
-except Exception: # [broad-except]
+except Exception: # [broad-exception-caught]
     print('error')
 
 
 try:
     __revision__ += 1
-except BaseException: # [broad-except]
+except BaseException: # [broad-exception-caught]
     print('error')

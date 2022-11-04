@@ -115,11 +115,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "bare-except",
         "Used when an except clause doesn't specify exceptions type to catch.",
     ),
-    "W0703": (
+    "W0718": (
         "Catching too general exception %s",
-        "broad-except",
+        "broad-exception-caught",
         "Used when an except catches a too general exception, "
         "possibly burying unrelated errors.",
+        {"old_names": [("W0703", "broad-except")]},
     ),
     "W0705": (
         "Catching previously caught exception type %s",
@@ -493,7 +494,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     @utils.only_required_for_messages(
         "bare-except",
-        "broad-except",
+        "broad-exception-caught",
         "try-except-raise",
         "binary-op-exception",
         "bad-except-order",
@@ -555,7 +556,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                         and not _is_raising(handler.body)
                     ):
                         self.add_message(
-                            "broad-except", args=exception.name, node=handler.type
+                            "broad-exception-caught",
+                            args=exception.name,
+                            node=handler.type,
                         )
 
                     if exception in exceptions_classes:
