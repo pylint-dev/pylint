@@ -21,7 +21,7 @@ PRIMER_DIRECTORY = TEST_DIR_ROOT / ".pylint_primer_tests/"
 PACKAGES_TO_PRIME_PATH = TEST_DIR_ROOT / "primer/packages_to_prime.json"
 FIXTURES_PATH = HERE / "fixtures"
 
-PRIMER_CURRENT_INTERPRETER = (3, 10)
+PRIMER_CURRENT_INTERPRETER = (3, 8)
 
 DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"]
 
