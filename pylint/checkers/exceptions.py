@@ -166,6 +166,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "is not valid for the exception in question. Usually emitted when having "
         "binary operations between exceptions in except handlers.",
     ),
+    "W0719": (
+        "Raising too general exception: %s",
+        "broad-exception-raised",
+        "Used when an except raises a too general exception.",
+    ),
 }
 
 
@@ -194,6 +199,10 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
     def visit_name(self, node: nodes.Name) -> None:
         if node.name == "NotImplemented":
             self._checker.add_message("notimplemented-raised", node=self._node)
+        elif node.name in OVERGENERAL_EXCEPTIONS:
+            self._checker.add_message(
+                "broad-exception-raised", args=node.name, node=self._node
+            )
 
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
@@ -265,6 +274,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         "bad-exception-cause",
         "raising-format-tuple",
         "raise-missing-from",
+        "broad-exception-raised",
     )
     def visit_raise(self, node: nodes.Raise) -> None:
         if node.exc is None:
