@@ -1,0 +1,17 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+
+The following messages have been changed:
+
+<details>
+1) locally-disabled:
+The message changed:
+```diff
+- Locally disabling ...
+</details>
+
+*This comment was truncated because GitHub allows only 400 characters in a comment.*
+
+*This comment was generated for commit v2.14.2*
