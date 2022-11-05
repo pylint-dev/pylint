@@ -217,7 +217,8 @@ All messages in the warning category:
    warning/bare-except
    warning/binary-op-exception
    warning/boolean-datetime
-   warning/broad-except
+   warning/broad-exception-caught
+   warning/broad-exception-raised
    warning/cell-var-from-loop
    warning/comparison-with-callable
    warning/confusing-with-statement
@@ -344,6 +345,7 @@ All renamed messages in the warning category:
    :maxdepth: 1
    :titlesonly:
 
+   warning/broad-except
    warning/cache-max-size-none
    warning/implicit-str-concat-in-sequence
    warning/lru-cache-decorating-method

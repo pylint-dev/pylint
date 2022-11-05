@@ -1,5 +1,5 @@
 """Fixture for testing missing documentation in docparams."""
-
+# pylint: disable=broad-exception-raised
 
 def _private_func1(  # [missing-return-doc, missing-return-type-doc, missing-any-param-doc]
     param1,

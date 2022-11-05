@@ -190,7 +190,7 @@ class TestCheckParallelFramework:
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
         with pytest.raises(  # Objects that do not match the linter interface will fail
-            Exception, match="Worker linter not yet initialised"
+            RuntimeError, match="Worker linter not yet initialised"
         ):
             worker_check_single_file(_gen_file_data())
 

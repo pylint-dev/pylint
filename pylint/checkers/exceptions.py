@@ -115,11 +115,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "bare-except",
         "Used when an except clause doesn't specify exceptions type to catch.",
     ),
-    "W0703": (
+    "W0718": (
         "Catching too general exception %s",
-        "broad-except",
+        "broad-exception-caught",
         "Used when an except catches a too general exception, "
         "possibly burying unrelated errors.",
+        {"old_names": [("W0703", "broad-except")]},
     ),
     "W0705": (
         "Catching previously caught exception type %s",
@@ -165,6 +166,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "is not valid for the exception in question. Usually emitted when having "
         "binary operations between exceptions in except handlers.",
     ),
+    "W0719": (
+        "Raising too general exception: %s",
+        "broad-exception-raised",
+        "Used when an except raises a too general exception.",
+    ),
 }
 
 
@@ -193,6 +199,13 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
     def visit_name(self, node: nodes.Name) -> None:
         if node.name == "NotImplemented":
             self._checker.add_message("notimplemented-raised", node=self._node)
+        elif node.name in OVERGENERAL_EXCEPTIONS:
+            self._checker.add_message(
+                "broad-exception-raised",
+                args=node.name,
+                node=self._node,
+                confidence=HIGH,
+            )
 
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
@@ -264,6 +277,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         "bad-exception-cause",
         "raising-format-tuple",
         "raise-missing-from",
+        "broad-exception-raised",
     )
     def visit_raise(self, node: nodes.Raise) -> None:
         if node.exc is None:
@@ -493,7 +507,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     @utils.only_required_for_messages(
         "bare-except",
-        "broad-except",
+        "broad-exception-caught",
         "try-except-raise",
         "binary-op-exception",
         "bad-except-order",
@@ -555,7 +569,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                         and not _is_raising(handler.body)
                     ):
                         self.add_message(
-                            "broad-except", args=exception.name, node=handler.type
+                            "broad-exception-caught",
+                            args=exception.name,
+                            node=handler.type,
                         )
 
                     if exception in exceptions_classes:
