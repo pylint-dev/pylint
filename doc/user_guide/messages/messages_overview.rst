@@ -207,6 +207,7 @@ All messages in the warning category:
    warning/assert-on-tuple
    warning/attribute-defined-outside-init
    warning/bad-builtin
+   warning/bad-dunder-name
    warning/bad-format-string
    warning/bad-format-string-key
    warning/bad-indentation
@@ -382,7 +383,6 @@ All messages in the convention category:
    convention/compare-to-zero
    convention/consider-iterating-dictionary
    convention/consider-using-any-or-all
-   convention/consider-using-augmented-assign
    convention/consider-using-dict-items
    convention/consider-using-enumerate
    convention/consider-using-f-string
@@ -463,6 +463,7 @@ All messages in the refactor category:
    refactor/consider-swap-variables
    refactor/consider-using-alias
    refactor/consider-using-assignment-expr
+   refactor/consider-using-augmented-assign
    refactor/consider-using-dict-comprehension
    refactor/consider-using-from-import
    refactor/consider-using-generator
@@ -483,6 +484,7 @@ All messages in the refactor category:
    refactor/empty-comment
    refactor/inconsistent-return-statements
    refactor/literal-comparison
+   refactor/magic-value-comparison
    refactor/no-classmethod-decorator
    refactor/no-else-break
    refactor/no-else-continue
