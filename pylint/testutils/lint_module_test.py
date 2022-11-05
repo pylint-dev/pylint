@@ -256,6 +256,10 @@ class LintModuleTest:
         ), self.error_msg_for_unequal_messages(
             actual_messages, expected_messages, actual_output
         )
+        for message in actual_output:
+            assert (
+                message.confidence != "UNDEFINED"
+            ), f"{message.symbol} use the default 'UNDEFINED' confidence in 'add_message'."
         self._check_output_text(expected_messages, expected_output, actual_output)
 
     def error_msg_for_unequal_messages(
