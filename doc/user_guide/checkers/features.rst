@@ -440,7 +440,7 @@ Exceptions checker Messages
 :duplicate-except (W0705): *Catching previously caught exception type %s*
   Used when an except catches a type that was already caught by a previous
   handler.
-:broad-except (W0703): *Catching too general exception %s*
+:broad-exception-caught (W0718): *Catching too general exception %s*
   Used when an except catches a too general exception, possibly burying
   unrelated errors.
 :raise-missing-from (W0707): *Consider explicitly re-raising using %s'%s from %s'*
@@ -462,6 +462,8 @@ Exceptions checker Messages
   operations between exceptions in except handlers.
 :bare-except (W0702): *No exception type(s) specified*
   Used when an except clause doesn't specify exceptions type to catch.
+:broad-exception-raised (W0719): *Raising too general exception: %s*
+  Used when an except raises a too general exception.
 :try-except-raise (W0706): *The except handler raises immediately*
   Used when an except handler uses raise as its first or only operator. This is
   useless because it raises back the exception immediately. Remove the raise
