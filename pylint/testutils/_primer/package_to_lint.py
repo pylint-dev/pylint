@@ -34,6 +34,9 @@ class PackageToLint:
     pylintrc_relpath: str | None
     """Path relative to project's main directory to the pylintrc if it exists."""
 
+    minimum_python: str | None
+    """Minimum python version supported by the package."""
+
     def __init__(
         self,
         url: str,
@@ -42,6 +45,7 @@ class PackageToLint:
         commit: str | None = None,
         pylint_additional_args: list[str] | None = None,
         pylintrc_relpath: str | None = None,
+        minimum_python: str | None = None,
     ) -> None:
         self.url = url
         self.branch = branch
@@ -49,6 +53,7 @@ class PackageToLint:
         self.commit = commit
         self.pylint_additional_args = pylint_additional_args or []
         self.pylintrc_relpath = pylintrc_relpath
+        self.minimum_python = minimum_python
 
     @property
     def pylintrc(self) -> Path | None:
