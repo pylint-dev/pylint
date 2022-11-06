@@ -27,9 +27,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-NodesWithNestedBlocks = Union[
-    nodes.TryExcept, nodes.TryFinally, nodes.While, nodes.For, nodes.If
-]
+NodesWithNestedBlocks = Union[nodes.Try, nodes.While, nodes.For, nodes.If]
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
@@ -71,7 +69,7 @@ def _if_statement_is_always_returning(
 
 
 def _except_statement_is_always_returning(
-    node: nodes.TryExcept, returning_node_class: nodes.NodeNG
+    node: nodes.Try, returning_node_class: nodes.NodeNG
 ) -> bool:
     """Detect if all except statements return."""
     return all(
@@ -653,15 +651,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._init()
 
     @utils.only_required_for_messages("too-many-nested-blocks", "no-else-return")
-    def visit_tryexcept(self, node: nodes.TryExcept | nodes.TryFinally) -> None:
+    def visit_try(self, node: nodes.Try) -> None:
         self._check_nested_blocks(node)
 
-        if isinstance(node, nodes.TryExcept):
-            self._check_superfluous_else_return(node)
-            self._check_superfluous_else_raise(node)
+        self._check_superfluous_else_return(node)
+        self._check_superfluous_else_raise(node)
 
-    visit_tryfinally = visit_tryexcept
-    visit_while = visit_tryexcept
+    visit_while = visit_try
 
     def _check_redefined_argument_from_local(self, name_node: nodes.AssignName) -> None:
         if self._dummy_rgx and self._dummy_rgx.match(name_node.name):
@@ -723,13 +719,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_superfluous_else(
         self,
-        node: nodes.If | nodes.TryExcept,
+        node: nodes.If | nodes.Try,
         msg_id: str,
         returning_node_class: nodes.NodeNG,
     ) -> None:
-        if isinstance(node, nodes.TryExcept) and isinstance(
-            node.parent, nodes.TryFinally
-        ):
+        if isinstance(node, nodes.Try) and node.finalbody:
             # Not interested in try/except/else/finally statements.
             return
 
@@ -745,7 +739,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             isinstance(node, nodes.If)
             and _if_statement_is_always_returning(node, returning_node_class)
         ) or (
-            isinstance(node, nodes.TryExcept)
+            isinstance(node, nodes.Try)
+            and not node.finalbody
             and _except_statement_is_always_returning(node, returning_node_class)
         ):
             orelse = node.orelse[0]
@@ -1962,7 +1957,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return self._is_raise_node_return_ended(node)
         if isinstance(node, nodes.If):
             return self._is_if_node_return_ended(node)
-        if isinstance(node, nodes.TryExcept):
+        if isinstance(node, nodes.Try):
             handlers = {
                 _child
                 for _child in node.get_children()

@@ -379,8 +379,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
                     nodes.For,
                     nodes.While,
                     nodes.With,
-                    nodes.TryExcept,
-                    nodes.TryFinally,
+                    nodes.Try,
                     nodes.ExceptHandler,
                 ),
             ):
@@ -988,10 +987,10 @@ def unimplemented_abstract_methods(
 
 def find_try_except_wrapper_node(
     node: nodes.NodeNG,
-) -> nodes.ExceptHandler | nodes.TryExcept | None:
-    """Return the ExceptHandler or the TryExcept node in which the node is."""
+) -> nodes.ExceptHandler | nodes.Try | None:
+    """Return the ExceptHandler or the Try node in which the node is."""
     current = node
-    ignores = (nodes.ExceptHandler, nodes.TryExcept)
+    ignores = (nodes.ExceptHandler, nodes.Try)
     while current and not isinstance(current.parent, ignores):
         current = current.parent
 
@@ -1002,7 +1001,7 @@ def find_try_except_wrapper_node(
 
 def find_except_wrapper_node_in_scope(
     node: nodes.NodeNG,
-) -> nodes.ExceptHandler | nodes.TryExcept | None:
+) -> nodes.ExceptHandler | None:
     """Return the ExceptHandler in which the node is, without going out of scope."""
     for current in node.node_ancestors():
         if isinstance(current, astroid.scoped_nodes.LocalsDictNodeNG):
@@ -1062,7 +1061,7 @@ def get_exception_handlers(
         list: the collection of handlers that are handling the exception or None.
     """
     context = find_try_except_wrapper_node(node)
-    if isinstance(context, nodes.TryExcept):
+    if isinstance(context, nodes.Try):
         return [
             handler for handler in context.handlers if error_of_type(handler, exception)
         ]
@@ -1133,13 +1132,13 @@ def is_node_inside_try_except(node: nodes.Raise) -> bool:
         bool: True if the node is inside a try/except statement, False otherwise.
     """
     context = find_try_except_wrapper_node(node)
-    return isinstance(context, nodes.TryExcept)
+    return isinstance(context, nodes.Try)
 
 
 def node_ignores_exception(
     node: nodes.NodeNG, exception: type[Exception] | str = Exception
 ) -> bool:
-    """Check if the node is in a TryExcept which handles the given exception.
+    """Check if the node is in a Try which handles the given exception.
 
     If the exception is not given, the function is going to look for bare
     excepts.
@@ -1918,7 +1917,7 @@ def get_node_first_ancestor_of_type_and_its_child(
     descendant visited directly before reaching the sought ancestor.
 
     Useful for extracting whether a statement is guarded by a try, except, or finally
-    when searching for a TryFinally ancestor.
+    when searching for a Try ancestor.
     """
     child = node
     for ancestor in node.node_ancestors():

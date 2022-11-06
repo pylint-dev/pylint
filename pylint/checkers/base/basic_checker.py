@@ -272,13 +272,13 @@ class BasicChecker(_BasicChecker):
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._tryfinallys: list[nodes.TryFinally] | None = None
+        self._trys: list[nodes.Try]
 
     def open(self) -> None:
         """Initialize visit variables and statistics."""
         py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
-        self._tryfinallys = []
+        self._trys = []
         self.linter.stats.reset_node_count()
 
     @utils.only_required_for_messages(
@@ -478,7 +478,7 @@ class BasicChecker(_BasicChecker):
         # side effects), else pointless-statement
         if (
             isinstance(expr, (nodes.Yield, nodes.Await))
-            or (isinstance(node.parent, nodes.TryExcept) and node.parent.body == [node])
+            or (isinstance(node.parent, nodes.Try) and node.parent.body == [node])
             or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):
             return
@@ -768,19 +768,17 @@ class BasicChecker(_BasicChecker):
                 )
             values.add(value)
 
-    def visit_tryfinally(self, node: nodes.TryFinally) -> None:
-        """Update try...finally flag."""
-        assert self._tryfinallys is not None
-        self._tryfinallys.append(node)
+    def visit_try(self, node: nodes.Try) -> None:
+        """Update try block flag."""
+        self._trys.append(node)
 
         for final_node in node.finalbody:
             for return_node in final_node.nodes_of_class(nodes.Return):
                 self.add_message("return-in-finally", node=return_node, confidence=HIGH)
 
-    def leave_tryfinally(self, _: nodes.TryFinally) -> None:
-        """Update try...finally flag."""
-        assert self._tryfinallys is not None
-        self._tryfinallys.pop()
+    def leave_try(self, _: nodes.Try) -> None:
+        """Update try block flag."""
+        self._trys.pop()
 
     def _check_unreachable(
         self,
@@ -816,8 +814,8 @@ class BasicChecker(_BasicChecker):
         If we find a parent which type is in breaker_classes before
         a 'try...finally' block we skip the whole check.
         """
-        # if self._tryfinallys is empty, we're not an in try...finally block
-        if not self._tryfinallys:
+        # if self._trys is empty, we're not an in try block
+        if not self._trys:
             return
         # the node could be a grand-grand...-child of the 'try...finally'
         _parent = node.parent

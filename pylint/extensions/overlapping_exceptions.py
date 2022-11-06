@@ -37,7 +37,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
     options = ()
 
     @utils.only_required_for_messages("overlapping-except")
-    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
+    def visit_try(self, node: nodes.Try) -> None:
         """Check for empty except."""
         for handler in node.handlers:
             if handler.type is None:

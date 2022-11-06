@@ -689,12 +689,12 @@ scope_type : {self._atomic.scope_type}
         that is inferred to define `name`, raise, or return.
         """
         # Handle try and with
-        if isinstance(node, (nodes.TryExcept, nodes.TryFinally)):
+        if isinstance(node, nodes.Try):
             # Allow either a path through try/else/finally OR a path through ALL except handlers
             try_except_node = node
-            if isinstance(node, nodes.TryFinally):
+            if node.finalbody:
                 try_except_node = next(
-                    (child for child in node.nodes_of_class(nodes.TryExcept)),
+                    (child for child in node.nodes_of_class(nodes.Try)),
                     None,
                 )
             handlers = try_except_node.handlers if try_except_node else []
@@ -751,8 +751,7 @@ scope_type : {self._atomic.scope_type}
                 if_body_stmt,
                 (
                     nodes.If,
-                    nodes.TryExcept,
-                    nodes.TryFinally,
+                    nodes.Try,
                     nodes.With,
                     nodes.For,
                     nodes.While,
@@ -855,7 +854,7 @@ scope_type : {self._atomic.scope_type}
         uncertain_nodes = []
         for other_node in found_nodes:
             other_node_statement = other_node.statement()
-            # Only testing for statements in the except block of TryExcept
+            # Only testing for statements in the except block of Try
             closest_except_handler = utils.get_node_first_ancestor_of_type(
                 other_node_statement, nodes.ExceptHandler
             )
@@ -864,7 +863,7 @@ scope_type : {self._atomic.scope_type}
             # If the other node is in the same scope as this node, assume it executes
             if closest_except_handler.parent_of(node):
                 continue
-            closest_try_except: nodes.TryExcept = closest_except_handler.parent
+            closest_try_except: nodes.Try = closest_except_handler.parent
             # If the try or else blocks return, assume the except blocks execute.
             try_block_returns = any(
                 isinstance(try_statement, nodes.Return)
@@ -885,14 +884,14 @@ scope_type : {self._atomic.scope_type}
                 # Exception: if this node is in the final block of the other_node_statement,
                 # it will execute before returning. Assume the except statements are uncertain.
                 if (
-                    isinstance(node_statement.parent, nodes.TryFinally)
+                    isinstance(node_statement.parent, nodes.Try)
                     and node_statement in node_statement.parent.finalbody
                     and closest_try_except.parent.parent_of(node_statement)
                 ):
                     uncertain_nodes.append(other_node)
-                # Or the node_statement is in the else block of the relevant TryExcept
+                # Or the node_statement is in the else block of the relevant Try
                 elif (
-                    isinstance(node_statement.parent, nodes.TryExcept)
+                    isinstance(node_statement.parent, nodes.Try)
                     and node_statement in node_statement.parent.orelse
                     and closest_try_except.parent.parent_of(node_statement)
                 ):
@@ -974,15 +973,17 @@ scope_type : {self._atomic.scope_type}
                     for nested_stmt in stmt.get_children()
                 ):
                     return True
-            if isinstance(
-                stmt, nodes.TryExcept
-            ) and NamesConsumer._defines_name_raises_or_returns_recursive(name, stmt):
+            if (
+                isinstance(stmt, nodes.Try)
+                and not stmt.finalbody
+                and NamesConsumer._defines_name_raises_or_returns_recursive(name, stmt)
+            ):
                 return True
         return False
 
     @staticmethod
     def _check_loop_finishes_via_except(
-        node: nodes.NodeNG, other_node_try_except: nodes.TryExcept
+        node: nodes.NodeNG, other_node_try_except: nodes.Try
     ) -> bool:
         """Check for a specific control flow scenario.
 
@@ -1026,7 +1027,7 @@ scope_type : {self._atomic.scope_type}
             return False
 
         def _try_in_loop_body(
-            other_node_try_except: nodes.TryExcept, loop: nodes.For | nodes.While
+            other_node_try_except: nodes.Try, loop: nodes.For | nodes.While
         ) -> bool:
             """Return True if `other_node_try_except` is a descendant of `loop`."""
             return any(
@@ -1099,7 +1100,7 @@ scope_type : {self._atomic.scope_type}
                 other_node_try_ancestor,
                 other_node_try_ancestor_visited_child,
             ) = utils.get_node_first_ancestor_of_type_and_its_child(
-                other_node_statement, nodes.TryExcept
+                other_node_statement, nodes.Try
             )
             if other_node_try_ancestor is None:
                 continue
@@ -1131,7 +1132,7 @@ scope_type : {self._atomic.scope_type}
             closest_try_finally_ancestor,
             child_of_closest_try_finally_ancestor,
         ) = utils.get_node_first_ancestor_of_type_and_its_child(
-            node_statement, nodes.TryFinally
+            node_statement, nodes.Try
         )
         if closest_try_finally_ancestor is None:
             return uncertain_nodes
@@ -1146,7 +1147,7 @@ scope_type : {self._atomic.scope_type}
                 other_node_try_finally_ancestor,
                 child_of_other_node_try_finally_ancestor,
             ) = utils.get_node_first_ancestor_of_type_and_its_child(
-                other_node_statement, nodes.TryFinally
+                other_node_statement, nodes.Try
             )
             if other_node_try_finally_ancestor is None:
                 continue
