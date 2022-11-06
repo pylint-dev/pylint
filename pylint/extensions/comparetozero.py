@@ -36,7 +36,7 @@ class CompareToZeroChecker(checkers.BaseChecker):
     name = "compare-to-zero"
     msgs = {
         "C2001": (
-            "Avoid comparisons to zero",
+            '"%s" can be simplified to "%s" as 0 is falsey',
             "compare-to-zero",
             "Used when Pylint detects comparison to a 0 constant.",
         )
@@ -66,12 +66,25 @@ class CompareToZeroChecker(checkers.BaseChecker):
             # 0 ?? X
             if _is_constant_zero(op_1) and op_2 in _operators:
                 error_detected = True
+                op = op_3
             # X ?? 0
             elif op_2 in _operators and _is_constant_zero(op_3):
                 error_detected = True
+                op = op_1
 
             if error_detected:
-                self.add_message("compare-to-zero", node=node, confidence=HIGH)
+                original = f"{op_1.as_string()} {op_2} {op_3.as_string()}"
+                suggestion = (
+                    op.as_string()
+                    if op_2 in {"!=", "is not"}
+                    else f"not {op.as_string()}"
+                )
+                self.add_message(
+                    "compare-to-zero",
+                    args=(original, suggestion),
+                    node=node,
+                    confidence=HIGH,
+                )
 
 
 def register(linter: PyLinter) -> None:
