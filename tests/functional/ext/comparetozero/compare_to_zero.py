@@ -12,7 +12,13 @@ if Y is not 0:  # [compare-to-zero]
 if X == 0:  # [compare-to-zero]
     pass
 
+if 0 == Y:  # [compare-to-zero]
+    pass
+
 if Y != 0:  # [compare-to-zero]
+    pass
+
+if 0 != X:  # [compare-to-zero]
     pass
 
 if X > 0:

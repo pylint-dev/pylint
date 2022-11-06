@@ -110,7 +110,7 @@ Verbatim name of the checker is ``compare-to-zero``.
 
 Compare-To-Zero checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-zero (C2001): *Avoid comparisons to zero*
+:compare-to-zero (C2001): *"%s" can be simplified to "%s" as 0 is falsey*
   Used when Pylint detects comparison to a 0 constant.
 
 
