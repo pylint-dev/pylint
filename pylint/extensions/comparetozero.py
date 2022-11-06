@@ -14,6 +14,7 @@ from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -70,7 +71,7 @@ class CompareToZeroChecker(checkers.BaseChecker):
                 error_detected = True
 
             if error_detected:
-                self.add_message("compare-to-zero", node=node)
+                self.add_message("compare-to-zero", node=node, confidence=HIGH)
 
 
 def register(linter: PyLinter) -> None:
