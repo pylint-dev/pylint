@@ -21,7 +21,11 @@ if TYPE_CHECKING:
 
 
 def _is_constant_zero(node: str | nodes.NodeNG) -> bool:
-    return isinstance(node, astroid.Const) and node.value == 0
+    # We have to check that node.value is not False because node.value == 0 is True
+    # when node.value is False
+    return (
+        isinstance(node, astroid.Const) and node.value == 0 and node.value is not False
+    )
 
 
 class CompareToZeroChecker(checkers.BaseChecker):
