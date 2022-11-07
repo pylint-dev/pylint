@@ -74,7 +74,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             {"old_names": [("C1801", "len-as-condition")]},
         ),
         "C1803": (
-            "'%s' can be simplified to '%s' as an empty %s is falsey",
+            '"%s" can be simplified to "%s" as an empty %s is falsey',
             "use-implicit-booleaness-not-comparison",
             "Used when Pylint detects that collection literal comparison is being "
             "used to check for emptiness; Use implicit booleaness instead "
