@@ -63,12 +63,16 @@ jobs:
           path: venv
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}
-      - name: Fail job if Python cache restore failed
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt') }}
+      # Create environment must match step in 'Primer / Main'
+      - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
-          echo "Failed to restore Python venv from cache"
-          exit 1
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install -U pip setuptools wheel
+          pip install -U -r requirements_test.txt
 
       # Cache primer packages
       - name: Download last 'main' run info
