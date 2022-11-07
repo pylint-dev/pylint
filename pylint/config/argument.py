@@ -272,7 +272,7 @@ class _StoreTrueArgument(_BaseStoreArgument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=useless-super-delegation # We narrow down the type of action
+    # pylint: disable-next=useless-parent-delegation # We narrow down the type of action
     def __init__(
         self,
         *,
