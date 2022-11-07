@@ -36,12 +36,7 @@ def changelog_insert_empty_lines(file_content: str, subtitle_text: str) -> str:
     for i, line in enumerate(lines):
         if line.startswith(subtitle_text):
             subtitle_count += 1
-            if (
-                subtitle_count == 1
-                or i < 2
-                or lines[i - 1] == ""
-                and lines[i - 2] == ""
-            ):
+            if subtitle_count == 1 or i < 2 or not lines[i - 1] and not lines[i - 2]:
                 continue
             lines.insert(i, "")
     return "\n".join(lines)
