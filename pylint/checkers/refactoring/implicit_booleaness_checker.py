@@ -51,7 +51,6 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     * comparison such as variable != empty_literal:
     """
 
-    # configuration section name
     name = "refactoring"
     msgs = {
         "C1802": (
@@ -65,7 +64,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             {"old_names": [("C1801", "len-as-condition")]},
         ),
         "C1803": (
-            "'%s' can be simplified to '%s' as an empty sequence is falsey",
+            "'%s' can be simplified to '%s' as an empty %s is falsey",
             "use-implicit-booleaness-not-comparison",
             "Used when Pylint detects that collection literal comparison is being "
             "used to check for emptiness; Use implicit booleaness instead "
@@ -197,15 +196,24 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                         confidence=HIGH,
                     )
 
+    def _get_node_description(self, node: nodes.NodeNG) -> str:
+        return {
+            nodes.List: "list",
+            nodes.Tuple: "tuple",
+            nodes.Dict: "dict",
+            nodes.Const: "str",
+        }.get(type(node), "iterable")
+
     def _implicit_booleaness_message_args(
         self, literal_node: nodes.NodeNG, operator: str, target_node: nodes.NodeNG
-    ) -> tuple[str, str]:
+    ) -> tuple[str, str, str]:
         """Helper to get the right message for "use-implicit-booleaness-not-comparison"."""
-        collection_literal = "{}"
-        if isinstance(literal_node, nodes.List):
-            collection_literal = "[]"
-        if isinstance(literal_node, nodes.Tuple):
-            collection_literal = "()"
+        description = self._get_node_description(literal_node)
+        collection_literal = {
+            "list": "[]",
+            "tuple": "()",
+            "dict": "{}",
+        }.get(description, "iterable")
         instance_name = "x"
         if isinstance(target_node, nodes.Call) and target_node.func:
             instance_name = f"{target_node.func.as_string()}(...)"
@@ -213,7 +221,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             instance_name = target_node.as_string()
         original_comparison = f"{instance_name} {operator} {collection_literal}"
         suggestion = f"{instance_name}" if operator == "!=" else f"not {instance_name}"
-        return original_comparison, suggestion
+        return original_comparison, suggestion, description
 
     @staticmethod
     def base_names_of_instance(node: bases.Uninferable | bases.Instance) -> list[str]:
