@@ -1,1 +1,4 @@
-# This is a placeholder for correct code for this message.
+HAVE_APPLES = True
+HAVE_ORANGES = False
+
+result = HAVE_ORANGES
