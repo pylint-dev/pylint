@@ -1,3 +1,2 @@
-APPLES = 100
-
-bool(APPLES)
+def has_apples(apples) -> bool:
+    return bool(apples)

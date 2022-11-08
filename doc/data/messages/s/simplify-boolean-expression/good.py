@@ -1,4 +1,3 @@
-HAVE_APPLES = True
-HAVE_ORANGES = False
+def has_oranges(oranges, apples=None) -> bool:
+    return oranges
 
-result = HAVE_ORANGES

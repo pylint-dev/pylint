@@ -8,4 +8,3 @@ def give_fruits(fruits):
     """
     for fruit in fruits:
         yield fruit
-

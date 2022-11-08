@@ -1,4 +1,2 @@
-HAVE_APPLES = True
-HAVE_ORANGES = False
-
-result = HAVE_APPLES and False or HAVE_ORANGES  # [simplify-boolean-expression]
+def has_oranges(oranges, apples=None) -> bool:
+    return apples and False or oranges  # [simplify-boolean-expression]
