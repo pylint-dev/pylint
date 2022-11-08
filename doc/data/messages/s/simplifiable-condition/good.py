@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+APPLES = 100
+
+bool(APPLES)
