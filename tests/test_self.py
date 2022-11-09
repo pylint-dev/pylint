@@ -148,13 +148,18 @@ class TestRunTC:
         output = re.sub(CLEAN_PATH, "", output, flags=re.MULTILINE)
         return output.replace("\\", "/")
 
-    def _test_output(self, args: list[str], expected_output: str) -> None:
+    def _test_output(
+        self, args: list[str], expected_output: str, unexpected_output: str = ""
+    ) -> None:
         out = StringIO()
         args = _add_rcfile_default_pylintrc(args)
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue())
         expected_output = self._clean_paths(expected_output)
         assert expected_output.strip() in actual_output.strip()
+
+        if unexpected_output:
+            assert unexpected_output.strip() not in actual_output.strip()
 
     def _test_output_file(
         self, args: list[str], filename: LocalPath, expected_output: str
@@ -291,6 +296,39 @@ class TestRunTC:
             # Using config file...  line
             actual_output = actual_output[actual_output.find("\n") :]
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
+
+    def test_type_annotation_names(self) -> None:
+        """Test resetting the `_type_annotation_names` list to `[]` when leaving a module.
+
+        An import inside `module_a`, which is used as a type annotation in `module_a`, should not prevent
+        emitting the `unused-import` message when the same import occurs in `module_b` & is unused.
+        See: https://github.com/PyCQA/pylint/issues/4150
+        """
+        module1 = join(
+            HERE, "regrtest_data", "imported_module_in_typehint", "module_a.py"
+        )
+
+        module2 = join(
+            HERE, "regrtest_data", "imported_module_in_typehint", "module_b.py"
+        )
+        expected_output = textwrap.dedent(
+            f"""
+        ************* Module module_b
+        {module2}:1:0: W0611: Unused import uuid (unused-import)
+        """
+        )
+        args = [
+            module1,
+            module2,
+            "--disable=all",
+            "--enable=unused-import",
+            "-rn",
+            "-sn",
+        ]
+        out = StringIO()
+        self._run_pylint(args, out=out)
+        actual_output = self._clean_paths(out.getvalue().strip())
+        assert self._clean_paths(expected_output.strip()) in actual_output.strip()
 
     def test_import_itself_not_accounted_for_relative_imports(self) -> None:
         expected = "Your code has been rated at 10.00/10"
@@ -691,14 +729,14 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (-9, "missing-function-docstring", "fail_under_minus10.py", 22),
             (-5, "missing-function-docstring", "fail_under_minus10.py", 22),
             # --fail-under should guide whether error code as missing-function-docstring is not hit
-            (-10, "broad-except", "fail_under_plus7_5.py", 0),
-            (6, "broad-except", "fail_under_plus7_5.py", 0),
-            (7.5, "broad-except", "fail_under_plus7_5.py", 0),
-            (7.6, "broad-except", "fail_under_plus7_5.py", 16),
-            (-11, "broad-except", "fail_under_minus10.py", 0),
-            (-10, "broad-except", "fail_under_minus10.py", 0),
-            (-9, "broad-except", "fail_under_minus10.py", 22),
-            (-5, "broad-except", "fail_under_minus10.py", 22),
+            (-10, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (6, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (7.5, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (7.6, "broad-exception-caught", "fail_under_plus7_5.py", 16),
+            (-11, "broad-exception-caught", "fail_under_minus10.py", 0),
+            (-10, "broad-exception-caught", "fail_under_minus10.py", 0),
+            (-9, "broad-exception-caught", "fail_under_minus10.py", 22),
+            (-5, "broad-exception-caught", "fail_under_minus10.py", 22),
             # Enable by message id
             (-10, "C0116", "fail_under_plus7_5.py", 16),
             # Enable by category
@@ -1195,6 +1233,20 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         module = join(HERE, "regrtest_data", "invalid_encoding.py")
         expected_output = "unknown encoding"
         self._test_output([module, "-E"], expected_output=expected_output)
+
+    @pytest.mark.parametrize(
+        "module_name,expected_output",
+        [
+            ("good.py", ""),
+            ("bad_wrong_num.py", "(syntax-error)"),
+            ("bad_missing_num.py", "(bad-file-encoding)"),
+        ],
+    )
+    def test_encoding(self, module_name: str, expected_output: str) -> None:
+        path = join(HERE, "regrtest_data", "encoding", module_name)
+        self._test_output(
+            [path], expected_output=expected_output, unexpected_output="(astroid-error)"
+        )
 
 
 class TestCallbackOptions:

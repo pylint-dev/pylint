@@ -95,7 +95,7 @@ Basic checker Messages
   Used when a break or a return statement is found inside the finally clause of
   a try...finally block: the exceptions raised in the try clause will be
   silently swallowed instead of being re-raised.
-:assert-on-tuple (W0199): *Assert called on a 2-item-tuple. Did you mean 'assert x,y'?*
+:assert-on-tuple (W0199): *Assert called on a populated tuple. Did you mean 'assert x,y'?*
   A call of assert on a tuple will always evaluate to true if the tuple is not
   empty, and will always evaluate to false if it is.
 :assert-on-string-literal (W0129): *Assert statement has a string literal as its first argument. The assert will %s fail.*
@@ -241,18 +241,18 @@ Classes checker Messages
   Used when a class has an inconsistent method resolution order.
 :inherit-non-class (E0239): *Inheriting %r, which is not a class.*
   Used when a class inherits from something which is not a class.
-:invalid-class-object (E0243): *Invalid __class__ object*
-  Used when an invalid object is assigned to a __class__ property. Only a class
-  is permitted.
 :invalid-slots (E0238): *Invalid __slots__ object*
   Used when an invalid __slots__ is found in class. Only a string, an iterable
   or a sequence is permitted.
+:invalid-class-object (E0243): *Invalid assignment to '__class__'. Should be a class definition but got a '%s'*
+  Used when an invalid object is assigned to a __class__ property. Only a class
+  is permitted.
 :invalid-slots-object (E0236): *Invalid object %r in __slots__, must contain only non empty strings*
   Used when an invalid (non-string) object occurs in __slots__.
-:no-method-argument (E0211): *Method has no argument*
+:no-method-argument (E0211): *Method %r has no argument*
   Used when a method which should have the bound instance as first argument has
   no argument defined.
-:no-self-argument (E0213): *Method should have "self" as first argument*
+:no-self-argument (E0213): *Method %r should have "self" as first argument*
   Used when a method has an attribute different the "self" as first argument.
   This is considered as an error since this is a so common convention that you
   shouldn't break it!
@@ -305,7 +305,7 @@ Classes checker Messages
   Used when an instance attribute is defined outside the __init__ method.
 :subclassed-final-class (W0240): *Class %r is a subclass of a class decorated with typing.final: %r*
   Used when a class decorated with typing.final has been subclassed.
-:abstract-method (W0223): *Method %r is abstract in class %r but is not overridden*
+:abstract-method (W0223): *Method %r is abstract in class %r but is not overridden in child class %r*
   Used when an abstract method (i.e. raise NotImplementedError) is not
   overridden in concrete class.
 :overridden-final-method (W0239): *Method %r overrides a method decorated with typing.final which is defined in class %r*
@@ -440,7 +440,7 @@ Exceptions checker Messages
 :duplicate-except (W0705): *Catching previously caught exception type %s*
   Used when an except catches a type that was already caught by a previous
   handler.
-:broad-except (W0703): *Catching too general exception %s*
+:broad-exception-caught (W0718): *Catching too general exception %s*
   Used when an except catches a too general exception, possibly burying
   unrelated errors.
 :raise-missing-from (W0707): *Consider explicitly re-raising using %s'%s from %s'*
@@ -462,6 +462,8 @@ Exceptions checker Messages
   operations between exceptions in except handlers.
 :bare-except (W0702): *No exception type(s) specified*
   Used when an except clause doesn't specify exceptions type to catch.
+:broad-exception-raised (W0719): *Raising too general exception: %s*
+  Used when an except raises a too general exception.
 :try-except-raise (W0706): *The except handler raises immediately*
   Used when an except handler uses raise as its first or only operator. This is
   useless because it raises back the exception immediately. Remove the raise
@@ -927,6 +929,12 @@ Stdlib checker Messages
 :invalid-envvar-value (E1507): *%s does not support %s type argument*
   Env manipulation functions support only string type arguments. See
   https://docs.python.org/3/library/os.html#os.getenv.
+:singledispatch-method (E1519): *singledispatch decorator should not be used with methods, use singledispatchmethod instead.*
+  singledispatch should decorate functions and not class/instance methods. Use
+  singledispatchmethod for those cases.
+:singledispatchmethod-function (E1520): *singledispatchmethod decorator should not be used with functions, use singledispatch instead.*
+  singledispatchmethod should decorate class/instance methods and not
+  functions. Use singledispatch for those cases.
 :bad-open-mode (W1501): *"%s" is not a valid mode for open.*
   Python supports: r, w, a[, x] modes with b, +, and U (only with r) options.
   See https://docs.python.org/3/library/functions.html#open

@@ -7,11 +7,13 @@
 from __future__ import annotations
 
 import builtins
+import fnmatch
 import itertools
 import numbers
 import re
 import string
 import warnings
+from collections import deque
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
@@ -228,6 +230,8 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
         "re.Match",
     )
 )
+
+SINGLETON_VALUES = {True, False, None}
 
 
 class NoSuchArgumentError(Exception):
@@ -487,7 +491,7 @@ def only_required_for_messages(
     def store_messages(
         func: AstCallbackMethod[_CheckerT, _NodeT]
     ) -> AstCallbackMethod[_CheckerT, _NodeT]:
-        setattr(func, "checks_msgs", messages)
+        func.checks_msgs = messages  # type: ignore[attr-defined]
         return func
 
     return store_messages
@@ -1341,12 +1345,18 @@ def _get_python_type_of_node(node: nodes.NodeNG) -> str | None:
 
 @lru_cache(maxsize=1024)
 def safe_infer(
-    node: nodes.NodeNG, context: InferenceContext | None = None
+    node: nodes.NodeNG,
+    context: InferenceContext | None = None,
+    *,
+    compare_constants: bool = False,
 ) -> InferenceResult | None:
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
     one node has been inferred of different types).
+
+    If compare_constants is True and if multiple constants are inferred,
+    unequal inferred values are also considered ambiguous and return None.
     """
     inferred_types: set[str | None] = set()
     try:
@@ -1365,6 +1375,13 @@ def safe_infer(
             inferred_type = _get_python_type_of_node(inferred)
             if inferred_type not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
+            if (
+                compare_constants
+                and isinstance(inferred, nodes.Const)
+                and isinstance(value, nodes.Const)
+                and inferred.value != value.value
+            ):
+                return None
             if (
                 isinstance(inferred, nodes.FunctionDef)
                 and inferred.args.args is not None
@@ -1457,11 +1474,15 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
 
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
-        # func.register are function calls
-        if not isinstance(decorator, nodes.Call):
+        # func.register are function calls or register attributes
+        # when the function is annotated with types
+        if isinstance(decorator, nodes.Call):
+            func = decorator.func
+        elif isinstance(decorator, nodes.Attribute):
+            func = decorator
+        else:
             continue
 
-        func = decorator.func
         if not isinstance(func, nodes.Attribute) or func.attrname != "register":
             continue
 
@@ -1472,6 +1493,43 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
 
         if isinstance(func_def, nodes.FunctionDef):
             return decorated_with(func_def, singledispatch_qnames)
+
+    return False
+
+
+def find_inferred_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | None:
+    # func.register are function calls or register attributes
+    # when the function is annotated with types
+    if isinstance(node, nodes.Call):
+        func = node.func
+    elif isinstance(node, nodes.Attribute):
+        func = node
+    else:
+        return None
+
+    if not isinstance(func, nodes.Attribute) or func.attrname != "register":
+        return None
+
+    func_def = safe_infer(func.expr)
+    if not isinstance(func_def, nodes.FunctionDef):
+        return None
+
+    return func_def
+
+
+def is_registered_in_singledispatchmethod_function(node: nodes.FunctionDef) -> bool:
+    """Check if the given function node is a singledispatchmethod function."""
+
+    singledispatchmethod_qnames = (
+        "functools.singledispatchmethod",
+        "singledispatch.singledispatchmethod",
+    )
+
+    decorators = node.decorators.nodes if node.decorators else []
+    for decorator in decorators:
+        func_def = find_inferred_fn_from_register(decorator)
+        if func_def:
+            return decorated_with(func_def, singledispatchmethod_qnames)
 
     return False
 
@@ -2028,3 +2086,43 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
             return True, binop.op
         return False, ""
     return False, ""
+
+
+def is_module_ignored(
+    module: nodes.Module,
+    ignored_modules: Iterable[str],
+) -> bool:
+    ignored_modules = set(ignored_modules)
+    module_name = module.name
+    module_qname = module.qname()
+
+    for ignore in ignored_modules:
+        # Try to match the module name / fully qualified name directly
+        if module_qname in ignored_modules or module_name in ignored_modules:
+            return True
+
+        # Try to see if the ignores pattern match against the module name.
+        if fnmatch.fnmatch(module_qname, ignore):
+            return True
+
+        # Otherwise, we might have a root module name being ignored,
+        # and the qualified owner has more levels of depth.
+        parts = deque(module_name.split("."))
+        current_module = ""
+
+        while parts:
+            part = parts.popleft()
+            if not current_module:
+                current_module = part
+            else:
+                current_module += f".{part}"
+            if current_module in ignored_modules:
+                return True
+
+    return False
+
+
+def is_singleton_const(node: nodes.NodeNG) -> bool:
+    return isinstance(node, nodes.Const) and any(
+        node.value is value for value in SINGLETON_VALUES
+    )

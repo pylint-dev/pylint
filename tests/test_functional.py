@@ -11,7 +11,6 @@ from pathlib import Path
 
 import pytest
 from _pytest.config import Config
-from _pytest.recwarn import WarningsRecorder
 
 from pylint import testutils
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
@@ -33,34 +32,28 @@ TESTS = [
 ]
 TESTS_NAMES = [t.base for t in TESTS]
 TEST_WITH_EXPECTED_DEPRECATION = [
+    "anomalous_backslash_escape",
+    "anomalous_unicode_escape",
+    "excess_escapes",
     "future_unicode_literals",
-    "anomalous_unicode_escape_py3",
 ]
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
-def test_functional(
-    test_file: FunctionalTestFile, recwarn: WarningsRecorder, pytestconfig: Config
-) -> None:
+def test_functional(test_file: FunctionalTestFile, pytestconfig: Config) -> None:
     __tracebackhide__ = True  # pylint: disable=unused-variable
+    lint_test: LintModuleOutputUpdate | testutils.LintModuleTest
     if UPDATE_FILE.exists():
-        lint_test: (
-            LintModuleOutputUpdate | testutils.LintModuleTest
-        ) = LintModuleOutputUpdate(test_file, pytestconfig)
+        lint_test = LintModuleOutputUpdate(test_file, pytestconfig)
     else:
         lint_test = testutils.LintModuleTest(test_file, pytestconfig)
     lint_test.setUp()
-    lint_test.runTest()
-    if recwarn.list:
-        if (
-            test_file.base in TEST_WITH_EXPECTED_DEPRECATION
-            and sys.version_info.minor > 5
-        ):
-            assert any(
-                "invalid escape sequence" in str(i.message)
-                for i in recwarn.list
-                if issubclass(i.category, DeprecationWarning)
-            )
+
+    if test_file.base in TEST_WITH_EXPECTED_DEPRECATION:
+        with pytest.warns(DeprecationWarning, match="invalid escape sequence"):
+            lint_test.runTest()
+    else:
+        lint_test.runTest()
 
 
 if __name__ == "__main__":

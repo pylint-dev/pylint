@@ -1,5 +1,5 @@
 """Emit a message for accessing first/last element of string.split"""
-# pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,invalid-name,redefined-builtin,consider-using-augmented-assign
+# pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,invalid-name,redefined-builtin
 
 # Test subscripting .split()
 get_first = '1,2,3'.split(',')[0]  # [use-maxsplit-arg]

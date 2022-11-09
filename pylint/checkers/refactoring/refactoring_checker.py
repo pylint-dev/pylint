@@ -21,7 +21,7 @@ from astroid.util import Uninferable
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
-from pylint.interfaces import HIGH
+from pylint.interfaces import HIGH, INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -979,7 +979,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not exc or not isinstance(exc, (bases.Instance, nodes.ClassDef)):
             return
         if self._check_exception_inherit_from_stopiteration(exc):
-            self.add_message("stop-iteration-return", node=node)
+            self.add_message("stop-iteration-return", node=node, confidence=INFERENCE)
 
     @staticmethod
     def _check_exception_inherit_from_stopiteration(
@@ -1135,7 +1135,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         inferred = utils.safe_infer(node.func)
-        if getattr(inferred, "name", "") == "next":
+
+        if (
+            isinstance(inferred, nodes.FunctionDef)
+            and inferred.qname() == "builtins.next"
+        ):
             frame = node.frame(future=True)
             # The next builtin can only have up to two
             # positional arguments and no keyword arguments
@@ -1147,7 +1151,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 and not utils.node_ignores_exception(node, StopIteration)
                 and not _looks_like_infinite_iterator(node.args[0])
             ):
-                self.add_message("stop-iteration-return", node=node)
+                self.add_message(
+                    "stop-iteration-return", node=node, confidence=INFERENCE
+                )
 
     def _check_nested_blocks(
         self,
@@ -1495,11 +1501,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             return
 
-        inferred_truth_value = utils.safe_infer(truth_value)
+        inferred_truth_value = utils.safe_infer(truth_value, compare_constants=True)
         if inferred_truth_value is None or inferred_truth_value == astroid.Uninferable:
-            truth_boolean_value = True
-        else:
-            truth_boolean_value = inferred_truth_value.bool_value()
+            return
+        truth_boolean_value = inferred_truth_value.bool_value()
 
         if truth_boolean_value is False:
             message = "simplify-boolean-expression"
@@ -1507,7 +1512,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             message = "consider-using-ternary"
             suggestion = f"{truth_value.as_string()} if {cond.as_string()} else {false_value.as_string()}"
-        self.add_message(message, node=node, args=(suggestion,))
+        self.add_message(message, node=node, args=(suggestion,), confidence=INFERENCE)
 
     def _append_context_managers_to_stack(self, node: nodes.Assign) -> None:
         if _is_inside_context_manager(node):

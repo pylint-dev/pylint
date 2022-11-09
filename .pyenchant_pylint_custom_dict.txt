@@ -31,6 +31,7 @@ bla
 bom
 bool
 boolean
+booleaness
 boolop
 boundmethod
 builtins
@@ -106,6 +107,7 @@ epytext
 erroring
 etree
 expr
+falsey
 favour
 filepath
 filestream
@@ -282,6 +284,7 @@ sep
 setcomp
 shortstrings
 singledispatch
+singledispatchmethod
 spammy
 sqlalchemy
 src
@@ -325,6 +328,7 @@ toplevel
 towncrier
 tp
 truthness
+truthey
 tryexcept
 txt
 typecheck

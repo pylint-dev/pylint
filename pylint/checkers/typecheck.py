@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import fnmatch
 import heapq
 import itertools
 import operator
@@ -14,7 +13,6 @@ import re
 import shlex
 import sys
 import types
-from collections import deque
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from functools import singledispatch
 from re import Pattern
@@ -37,6 +35,7 @@ from pylint.checkers.utils import (
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
+    is_module_ignored,
     is_node_in_type_annotation_context,
     is_overload_stub,
     is_postponed_evaluation_enabled,
@@ -124,32 +123,8 @@ def _is_owner_ignored(
     matches any name from the *ignored_classes* or if its qualified
     name can be found in *ignored_classes*.
     """
-    ignored_modules = set(ignored_modules)
-    module_name = owner.root().name
-    module_qname = owner.root().qname()
-
-    for ignore in ignored_modules:
-        # Try to match the module name / fully qualified name directly
-        if module_qname in ignored_modules or module_name in ignored_modules:
-            return True
-
-        # Try to see if the ignores pattern match against the module name.
-        if fnmatch.fnmatch(module_qname, ignore):
-            return True
-
-        # Otherwise, we might have a root module name being ignored,
-        # and the qualified owner has more levels of depth.
-        parts = deque(module_name.split("."))
-        current_module = ""
-
-        while parts:
-            part = parts.popleft()
-            if not current_module:
-                current_module = part
-            else:
-                current_module += f".{part}"
-            if current_module in ignored_modules:
-                return True
+    if is_module_ignored(owner.root(), ignored_modules):
+        return True
 
     # Match against ignored classes.
     ignored_classes = set(ignored_classes)
@@ -1609,7 +1584,10 @@ accessed. Python regular expressions are accepted.",
 
         # 3. Match the **kwargs, if any.
         if node.kwargs:
-            for i, [(name, defval), assigned] in enumerate(parameters):
+            # TODO: It's possible to remove this disable by using dummy-variables-rgx
+            #  see https://github.com/PyCQA/pylint/pull/7697#discussion_r1010832518
+            # pylint: disable-next=unused-variable
+            for i, [(name, _defval), _assigned] in enumerate(parameters):
                 # Assume that *kwargs provides values for all remaining
                 # unassigned named parameters.
                 if name is not None:

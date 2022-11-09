@@ -18,8 +18,8 @@ Maintainers
 - Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 - Jacob Walls <jacobtylerwalls@gmail.com>
 - Hippo91 <guillaume.peillex@gmail.com>
-- Matus Valo <matusvalo@users.noreply.github.com>
 - Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
+- Matus Valo <matusvalo@users.noreply.github.com>
 - Andreas Finkler <3929834+DudeNr33@users.noreply.github.com>
 - Łukasz Rogalski <rogalski.91@gmail.com>
 - Ashley Whetter <ashley@awhetter.co.uk>
@@ -111,6 +111,7 @@ contributors:
   * bug fixes and enhancements for docparams (née check_docs) extension
 - Vlad Temian <vladtemian@gmail.com>: redundant-unittest-assert and the JSON reporter.
 - Julien Jehannet <julien.jehannet@logilab.fr>
+- Dani Alcala <112832187+clavedeluna@users.noreply.github.com>
 - Boris Feld <lothiraldan@gmail.com>
 - Anthony Sottile <asottile@umich.edu>
 - Pedro Algarvio <pedro@algarvio.me> (s0undt3ch)
@@ -118,6 +119,7 @@ contributors:
 - David Liu <david@cs.toronto.edu> (david-yz-liu)
 - Dan Goldsmith <djgoldsmith@googlemail.com>: support for msg-template in HTML reporter.
 - Buck Evan <buck.2019@gmail.com>
+- orSolocate <38433858+orSolocate@users.noreply.github.com>
 - Mariatta Wijaya <Mariatta@users.noreply.github.com>
   * Added new check `logging-fstring-interpolation`
   * Documentation typo fixes
@@ -125,7 +127,6 @@ contributors:
 - Eli Fine <ejfine@gmail.com> (eli88fine): Fixed false positive duplicate code warning for lines with symbols only
 - Andrew Haigh <nelfin@gmail.com> (nelfin)
 - Émile Crater <emile@crater.logilab.fr>
-- orSolocate <38433858+orSolocate@users.noreply.github.com>
 - Pavel Roskin <proski@gnu.org>
 - David Gilman <davidgilman1@gmail.com>
 - へーさん <hira9603859504@gmail.com>
@@ -149,6 +150,7 @@ contributors:
   * Added new extension which detects comparing integers to zero,
   * Added new useless-return checker,
   * Added new try-except-raise checker
+- Yilei "Dolee" Yang <yileiyang@google.com>
 - Téo Bouvard <teobouvard@gmail.com>
 - Mihai Balint <balint.mihai@gmail.com>
 - Mark Bell <mark00bell@googlemail.com>
@@ -183,6 +185,7 @@ contributors:
 - Marco Forte <fortemarco.irl@gmail.com>
 - Ionel Maries Cristian <contact@ionelmc.ro>
 - Gergely Kalmár <gergely.kalmar@logikal.jp>
+- Drum Ogilvie <me@daogilvie.com>
 - Daniel Harding <dharding@gmail.com>
 - Damien Baty <damien.baty@polyconseil.fr>
 - Benjamin Drung <benjamin.drung@profitbricks.com>: contributing Debian Developer
@@ -191,7 +194,6 @@ contributors:
 - Andrew J. Simmons <anjsimmo@gmail.com>
 - wtracy <afishionado@gmail.com>
 - chohner <mail@chohner.com>
-- Yilei "Dolee" Yang <yileiyang@google.com>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
 - Robin Tweedie <70587124+robin-wayve@users.noreply.github.com>
@@ -208,12 +210,14 @@ contributors:
   * Ignore function decorators signatures as well by similarities checker with "ignore-signatures" option enabled
   * Ignore class methods and nested functions signatures as well by similarities checker with "ignore-signatures" option enabled
 - Lucas Cimon <lucas.cimon@gmail.com>
+- Levi Gruspe <mail.levig@gmail.com>
 - Kylian <development@goudcode.nl>
 - Konstantin Manna <Konstantin@Manna.uno>
 - Kai Mueller <15907922+kasium@users.noreply.github.com>
 - Joshua Cannon <joshdcannon@gmail.com>
 - John Leach <jfleach@jfleach.com>
 - James Morgensen <james.morgensen@gmail.com>: ignored-modules option applies to import errors.
+- Jakub Kuczys <me@jacken.men>
 - Jaehoon Hwang <jaehoonhwang@users.noreply.github.com> (jaehoonhwang)
 - Huw Jones <huw@huwcbjones.co.uk>
 - Ganden Schaffner <gschaffner@pm.me>
@@ -242,7 +246,9 @@ contributors:
 - Sergei Lebedev <185856+superbobry@users.noreply.github.com>
 - Scott Worley <scottworley@scottworley.com>
 - Saugat Pachhai <suagatchhetri@outlook.com>
+- Sandro Tosi <sandro.tosi@gmail.com>: Debian packaging
 - Rémi Cardona <remi.cardona@polyconseil.fr>
+- Rogdham <contact@rogdham.net>
 - Raphael Gaschignard <raphael@makeleaps.com>
 - Ram Rachum <ram@rachum.com> (cool-RR)
 - Radostin Stoyanov <rst0git@users.noreply.github.com>
@@ -277,6 +283,7 @@ contributors:
 - Derek Harland <derek.harland@finq.co.nz>
 - David Pursehouse <david.pursehouse@gmail.com>
 - Daniel Miller <millerdev@gmail.com>
+- Christoph Blessing <33834216+cblessing24@users.noreply.github.com>
 - Chris Murray <chris@chrismurray.scot>
 - Chris Lamb <chris@chris-lamb.co.uk>
 - Charles Hebert <charles.hebert@logilab.fr>
@@ -366,7 +373,6 @@ contributors:
 - Sasha Bagan <pnlbagan@gmail.com>
 - Sardorbek Imomaliev <sardorbek.imomaliev@gmail.com>
 - Santiago Castro <bryant@montevideo.com.uy>
-- Sandro Tosi <sandro.tosi@gmail.com>: Debian packaging
 - Samuel Freilich <sfreilich@google.com> (sfreilich)
 - Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
 - Sam Vermeiren <88253337+PaaEl@users.noreply.github.com>
@@ -374,7 +380,6 @@ contributors:
 - Ry4an Brase <ry4an-hg@ry4an.org>
 - Ruro <ruro.ruro@ya.ru>
 - Roman Ivanov <me@roivanov.com>
-- Rogdham <contact@rogdham.net>
 - Robert Schweizer <robert_schweizer@gmx.de>
 - Reverb Chu <reverbc@users.noreply.github.com>
 - Renat Galimov <renat2017@gmail.com>
@@ -386,6 +391,7 @@ contributors:
 - Prajwal Borkar <sunnyborkar7777@gmail.com>
 - Petr Pulc <petrpulc@gmail.com>: require whitespace around annotations
 - Peter Dawyndt <Peter.Dawyndt@UGent.be>
+- Peter Dave Hello <hsu@peterdavehello.org>
 - Peter Aronoff <peter@aronoff.org>
 - Paul Cochrane <paul@liekut.de>
 - Patrik <patrik.mrx@gmail.com>
@@ -423,7 +429,6 @@ contributors:
 - Louis Sautier <sautier.louis@gmail.com>
 - Lorena Buciu <46202743+lorena-b@users.noreply.github.com>
 - Logan Miller <14319179+komodo472@users.noreply.github.com>
-- Levi Gruspe <mail.levig@gmail.com>
 - Kári Tristan Helgason <kthelgason@gmail.com>
 - Kurian Benoy <70306694+kurianbenoy-aot@users.noreply.github.com>
 - Krzysztof Czapla <k.czapla68@gmail.com>
@@ -483,7 +488,6 @@ contributors:
 - Eisuke Kawashima <e-kwsm@users.noreply.github.com>
 - Edward K. Ream <edreamleo@gmail.com>
 - Edgemaster <grand.edgemaster@gmail.com>
-- Drummond Ogilvie <me@daogilvie.com>
 - Drew Risinger <drewrisinger@users.noreply.github.com>
 - Dr. Nick <das-intensity@users.noreply.github.com>
 - Don Jayamanne <don.jayamanne@yahoo.com>
@@ -495,6 +499,7 @@ contributors:
 - Daniele Procida <daniele@vurt.org>
 - Daniela Plascencia <daplascen@gmail.com>
 - Daniel R. Neal <dan.r.neal@gmail.com> (danrneal)
+- Daniel Mouritzen <dmrtzn@gmail.com>
 - Daniel Draper <Germandrummer92@users.noreply.github.com>
 - Daniel Dorani <ddandd@gmail.com> (doranid)
 - Daniel Brookman <53625739+dbrookman@users.noreply.github.com>
@@ -503,7 +508,7 @@ contributors:
 - Craig Citro <craigcitro@gmail.com>
 - Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 - Christopher Zurcher <zurcher@users.noreply.github.com>
-- Christoph Blessing <33834216+cblessing24@users.noreply.github.com>
+- Christian Clauss <cclauss@me.com>
 - Carl Crowder <bitbucket@carlcrowder.com>: don't evaluate the value of arguments for 'dangerous-default-value'
 - Carey Metcalfe <carey@cmetcalfe.ca>: demoted `try-except-raise` from error to warning
 - Cameron Olechowski <camsterole@users.noreply.github.com>
@@ -516,6 +521,7 @@ contributors:
 - BioGeek <jeroen.vangoey@gmail.com>
 - Benjamin Graham <benwilliamgraham@gmail.com>
 - Benedikt Morbach <benedikt.morbach@googlemail.com>
+- Ben Greiner <code@bnavigator.de>
 - Banjamin Freeman <befreeman@users.noreply.github.com>
 - Athos Ribeiro <athoscr@fedoraproject.org>: Fixed dict-keys-not-iterating false positive for inverse containment checks
 - Arun Persaud <arun@nubati.net>
@@ -530,6 +536,7 @@ contributors:
 - Andrzej Klajnert <github@aklajnert.pl>
 - Andrew Howe <howeaj@users.noreply.github.com>
 - Andres Perez Hortal <andresperezcba@gmail.com>
+- Alvaro Frias <alvarofriasgaray@gmail.com>
 - Alok Singh <8325708+alok@users.noreply.github.com>
 - Allan Chandler <95424144+allanc65@users.noreply.github.com> (allanc65)
   * Fixed issue 5452, false positive missing-param-doc for multi-line Google-style params
@@ -544,6 +551,7 @@ contributors:
 - Aditya Gupta <adityagupta1089@users.noreply.github.com> (adityagupta1089)
   * Added ignore_signatures to duplicate checker
 - Adam Dangoor <adamdangoor@gmail.com>
+- 243f6a88 85a308d3 <33170174+243f6a8885a308d313198a2e037@users.noreply.github.com>
 
 
 Co-Author

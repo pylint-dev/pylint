@@ -1,0 +1,4 @@
+Added ``singledispatch-method`` which informs that ``@singledispatch`` should decorate functions and not class/instance methods.
+Added ``singledispatchmethod-function`` which informs that ``@singledispatchmethod`` should decorate class/instance methods and not functions.
+
+Closes #6917

@@ -4,7 +4,7 @@ https://bugs.python.org/issue34921
 
 If no runtime introspection is required, use string annotations instead.
 """
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, broad-exception-raised
 import typing
 from typing import TYPE_CHECKING, Callable, NoReturn, Union
 

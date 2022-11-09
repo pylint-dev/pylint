@@ -115,11 +115,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "bare-except",
         "Used when an except clause doesn't specify exceptions type to catch.",
     ),
-    "W0703": (
+    "W0718": (
         "Catching too general exception %s",
-        "broad-except",
+        "broad-exception-caught",
         "Used when an except catches a too general exception, "
         "possibly burying unrelated errors.",
+        {"old_names": [("W0703", "broad-except")]},
     ),
     "W0705": (
         "Catching previously caught exception type %s",
@@ -165,6 +166,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "is not valid for the exception in question. Usually emitted when having "
         "binary operations between exceptions in except handlers.",
     ),
+    "W0719": (
+        "Raising too general exception: %s",
+        "broad-exception-raised",
+        "Used when an except raises a too general exception.",
+    ),
 }
 
 
@@ -192,7 +198,16 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
 
     def visit_name(self, node: nodes.Name) -> None:
         if node.name == "NotImplemented":
-            self._checker.add_message("notimplemented-raised", node=self._node)
+            self._checker.add_message(
+                "notimplemented-raised", node=self._node, confidence=HIGH
+            )
+        elif node.name in OVERGENERAL_EXCEPTIONS:
+            self._checker.add_message(
+                "broad-exception-raised",
+                args=node.name,
+                node=self._node,
+                confidence=HIGH,
+            )
 
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
@@ -204,7 +219,9 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
         ):
             msg = node.args[0].value
             if "%" in msg or ("{" in msg and "}" in msg):
-                self._checker.add_message("raising-format-tuple", node=self._node)
+                self._checker.add_message(
+                    "raising-format-tuple", node=self._node, confidence=HIGH
+                )
 
 
 class ExceptionRaiseLeafVisitor(BaseVisitor):
@@ -212,7 +229,10 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
 
     def visit_const(self, node: nodes.Const) -> None:
         self._checker.add_message(
-            "raising-bad-type", node=self._node, args=node.value.__class__.__name__
+            "raising-bad-type",
+            node=self._node,
+            args=node.value.__class__.__name__,
+            confidence=INFERENCE,
         )
 
     def visit_instance(self, instance: objects.ExceptionInstance) -> None:
@@ -225,14 +245,28 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         if not utils.inherit_from_std_ex(node) and utils.has_known_bases(node):
             if node.newstyle:
-                self._checker.add_message("raising-non-exception", node=self._node)
+                self._checker.add_message(
+                    "raising-non-exception",
+                    node=self._node,
+                    confidence=INFERENCE,
+                )
 
     def visit_tuple(self, _: nodes.Tuple) -> None:
-        self._checker.add_message("raising-bad-type", node=self._node, args="tuple")
+        self._checker.add_message(
+            "raising-bad-type",
+            node=self._node,
+            args="tuple",
+            confidence=INFERENCE,
+        )
 
     def visit_default(self, node: nodes.NodeNG) -> None:
         name = getattr(node, "name", node.__class__.__name__)
-        self._checker.add_message("raising-bad-type", node=self._node, args=name)
+        self._checker.add_message(
+            "raising-bad-type",
+            node=self._node,
+            args=name,
+            confidence=INFERENCE,
+        )
 
 
 class ExceptionsChecker(checkers.BaseChecker):
@@ -264,6 +298,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         "bad-exception-cause",
         "raising-format-tuple",
         "raise-missing-from",
+        "broad-exception-raised",
     )
     def visit_raise(self, node: nodes.Raise) -> None:
         if node.exc is None:
@@ -302,7 +337,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
         expected = (nodes.ExceptHandler,)
         if not current or not isinstance(current.parent, expected):
-            self.add_message("misplaced-bare-raise", node=node)
+            self.add_message("misplaced-bare-raise", node=node, confidence=HIGH)
 
     def _check_bad_exception_cause(self, node: nodes.Raise) -> None:
         """Verify that the exception cause is properly set.
@@ -493,7 +528,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     @utils.only_required_for_messages(
         "bare-except",
-        "broad-except",
+        "broad-exception-caught",
         "try-except-raise",
         "binary-op-exception",
         "bad-except-order",
@@ -508,17 +543,22 @@ class ExceptionsChecker(checkers.BaseChecker):
         for index, handler in enumerate(node.handlers):
             if handler.type is None:
                 if not _is_raising(handler.body):
-                    self.add_message("bare-except", node=handler)
+                    self.add_message("bare-except", node=handler, confidence=HIGH)
 
                 # check if an "except:" is followed by some other
                 # except
                 if index < (nb_handlers - 1):
                     msg = "empty except clause should always appear last"
-                    self.add_message("bad-except-order", node=node, args=msg)
+                    self.add_message(
+                        "bad-except-order", node=node, args=msg, confidence=HIGH
+                    )
 
             elif isinstance(handler.type, nodes.BoolOp):
                 self.add_message(
-                    "binary-op-exception", node=handler, args=handler.type.op
+                    "binary-op-exception",
+                    node=handler,
+                    args=handler.type.op,
+                    confidence=HIGH,
                 )
             else:
                 try:
@@ -547,7 +587,10 @@ class ExceptionsChecker(checkers.BaseChecker):
                         if previous_exc in exc_ancestors:
                             msg = f"{previous_exc.name} is an ancestor class of {exception.name}"
                             self.add_message(
-                                "bad-except-order", node=handler.type, args=msg
+                                "bad-except-order",
+                                node=handler.type,
+                                args=msg,
+                                confidence=INFERENCE,
                             )
                     if (
                         exception.name in self.linter.config.overgeneral_exceptions
@@ -555,12 +598,18 @@ class ExceptionsChecker(checkers.BaseChecker):
                         and not _is_raising(handler.body)
                     ):
                         self.add_message(
-                            "broad-except", args=exception.name, node=handler.type
+                            "broad-exception-caught",
+                            args=exception.name,
+                            node=handler.type,
+                            confidence=INFERENCE,
                         )
 
                     if exception in exceptions_classes:
                         self.add_message(
-                            "duplicate-except", args=exception.name, node=handler.type
+                            "duplicate-except",
+                            args=exception.name,
+                            node=handler.type,
+                            confidence=INFERENCE,
                         )
 
                 exceptions_classes += [exc for _, exc in exceptions]

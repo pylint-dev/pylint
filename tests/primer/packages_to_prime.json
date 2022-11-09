@@ -45,5 +45,11 @@
     "branch": "master",
     "directories": ["src/sentry"],
     "url": "https://github.com/getsentry/sentry"
+  },
+  "coverage": {
+    "branch": "master",
+    "directories": ["coverage"],
+    "url": "https://github.com/nedbat/coveragepy",
+    "pylintrc_relpath": "pylintrc"
   }
 }

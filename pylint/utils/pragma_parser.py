@@ -5,8 +5,8 @@
 from __future__ import annotations
 
 import re
-from collections import namedtuple
 from collections.abc import Generator
+from typing import NamedTuple
 
 # Allow stopping after the first semicolon/hash encountered,
 # so that an option can be continued with the reasons
@@ -27,7 +27,9 @@ OPTION_RGX = r"""
 OPTION_PO = re.compile(OPTION_RGX, re.VERBOSE)
 
 
-PragmaRepresenter = namedtuple("PragmaRepresenter", "action messages")
+class PragmaRepresenter(NamedTuple):
+    action: str
+    messages: list[str]
 
 
 ATOMIC_KEYWORDS = frozenset(("disable-all", "skip-file"))
