@@ -503,9 +503,9 @@ def test_is_typing_member() -> None:
     """
     )
 
-    assert not utils.is_typing_member(code[0], "Literal")
+    assert not utils.is_typing_member(code[0], ("Literal",))
     assert utils.is_typing_member(code[1], ("Literal",))
-    assert utils.is_typing_member(code[2], "Literal")
+    assert utils.is_typing_member(code[2], ("Literal",))
 
     code = astroid.extract_node(
         """
@@ -513,5 +513,5 @@ def test_is_typing_member() -> None:
     typing.Literal #@
     """
     )
-    assert not utils.is_typing_member(code[0], "Literal")
-    assert not utils.is_typing_member(code[1], "Literal")
+    assert not utils.is_typing_member(code[0], ("Literal",))
+    assert not utils.is_typing_member(code[1], ("Literal",))

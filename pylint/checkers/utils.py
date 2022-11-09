@@ -1919,9 +1919,9 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
     return False
 
 
-def is_typing_member(node: nodes.NodeNG, typing_members: str | tuple[str, ...]) -> bool:
+def is_typing_member(node: nodes.NodeNG, names_to_check: tuple[str, ...]) -> bool:
     """Check if `node` is a member of the `typing` module and has one of the names from
-    `typing_members`.
+    `names_to_check`.
     """
     if isinstance(node, nodes.Name):
         try:
@@ -1929,19 +1929,17 @@ def is_typing_member(node: nodes.NodeNG, typing_members: str | tuple[str, ...]) 
         except IndexError:
             return False
 
-        if isinstance(typing_members, str):
-            typing_members = (typing_members,)
         if isinstance(import_from, nodes.ImportFrom):
             return (
                 import_from.modname == "typing"
-                and import_from.real_name(node.name) in typing_members
+                and import_from.real_name(node.name) in names_to_check
             )
     elif isinstance(node, nodes.Attribute):
         inferred_module = safe_infer(node.expr)
         return (
             isinstance(inferred_module, nodes.Module)
             and inferred_module.name == "typing"
-            and node.attrname in typing_members
+            and node.attrname in names_to_check
         )
     return False
 
