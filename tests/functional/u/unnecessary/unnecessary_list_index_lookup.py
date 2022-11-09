@@ -120,3 +120,13 @@ for idx, val in enumerate(series, start=START):
 
 for idx, val in enumerate(series, START):
     print(series[idx])  # [unnecessary-list-index-lookup]
+
+START = [1, 2, 3]
+for i, k in enumerate(series, len(START)):
+    print(series[idx])
+
+def return_start(start):
+    return start
+
+for i, k in enumerate(series, return_start(20)):
+    print(series[idx])

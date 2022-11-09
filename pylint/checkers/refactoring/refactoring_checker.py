@@ -21,7 +21,7 @@ from astroid.util import Uninferable
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
-from pylint.interfaces import Confidence, HIGH, INFERENCE
+from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -2281,7 +2281,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
         confidence = HIGH
 
-        if isinstance(node, nodes.Name):
+        if isinstance(node, (nodes.Name, nodes.Call)):
             inferred = utils.safe_infer(node)
             start_val = inferred.value if inferred else None
             confidence = INFERENCE
