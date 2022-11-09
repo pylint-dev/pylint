@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+# pylint: enable=too-many-public-methods
