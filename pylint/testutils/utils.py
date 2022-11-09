@@ -93,7 +93,7 @@ def create_files(paths: list[str], chroot: str = ".") -> None:
         path = os.path.join(chroot, path)
         filename = os.path.basename(path)
         # path is a directory path
-        if filename == "":
+        if not filename:
             dirs.add(path)
         # path is a filename path
         else:

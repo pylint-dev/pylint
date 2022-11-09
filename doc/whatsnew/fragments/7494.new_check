@@ -1,0 +1,4 @@
+Rename ``broad-except`` to ``broad-exception-caught`` and add new checker ``broad-exception-raised``
+which will warn if general exceptions ``BaseException`` or ``Exception`` are raised.
+
+Closes #7494

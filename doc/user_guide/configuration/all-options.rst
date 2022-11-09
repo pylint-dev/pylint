@@ -217,9 +217,9 @@ Standard Checkers
 
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
-   # disable =
+   disable = ["consider-using-augmented-assign"]
 
-   # enable =
+   enable = []
 
    evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
 
@@ -1665,6 +1665,68 @@ Extensions
 
    [tool.pylint.deprecated_builtins]
    bad-functions = ["map", "filter"]
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _dunder-options:
+
+``Dunder`` **Checker**
+----------------------
+--good-dunder-names
+"""""""""""""""""""
+*Good dunder names which should always be accepted.*
+
+**Default:**  ``[]``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.dunder]
+   good-dunder-names = []
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _magic-value-options:
+
+``Magic-value`` **Checker**
+---------------------------
+--valid-magic-values
+""""""""""""""""""""
+* List of valid magic values that `magic-value-compare` will not detect.*
+
+**Default:**  ``(0, -1, 1, '', '__main__')``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.magic-value]
+   valid-magic-values = [0, -1, 1, "", "__main__"]
 
 
 

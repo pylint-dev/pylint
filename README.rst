@@ -98,7 +98,7 @@ oriented checks), black_ and isort_ (auto-formatting), autoflake_ (automated rem
 unused imports or variables), pyupgrade_ (automated upgrade to newer python syntax) and
 pydocstringformatter_ (automated pep257).
 
-.. _flake8: https://gitlab.com/pycqa/flake8/
+.. _flake8: https://github.com/PyCQA/flake8
 .. _bandit: https://github.com/PyCQA/bandit
 .. _mypy: https://github.com/python/mypy
 .. _pyright: https://github.com/microsoft/pyright

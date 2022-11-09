@@ -1584,7 +1584,10 @@ accessed. Python regular expressions are accepted.",
 
         # 3. Match the **kwargs, if any.
         if node.kwargs:
-            for i, [(name, defval), assigned] in enumerate(parameters):
+            # TODO: It's possible to remove this disable by using dummy-variables-rgx
+            #  see https://github.com/PyCQA/pylint/pull/7697#discussion_r1010832518
+            # pylint: disable-next=unused-variable
+            for i, [(name, _defval), _assigned] in enumerate(parameters):
                 # Assume that *kwargs provides values for all remaining
                 # unassigned named parameters.
                 if name is not None:

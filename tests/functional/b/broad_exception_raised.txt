@@ -1,0 +1,5 @@
+broad-exception-raised:5:4:5:41:exploding_apple:"Raising too general exception: Exception":HIGH
+broad-exception-raised:10:8:10:34:raise_and_catch:"Raising too general exception: Exception":HIGH
+broad-exception-caught:11:11:11:20:raise_and_catch:Catching too general exception Exception:INFERENCE
+broad-exception-raised:14:0:14:17::"Raising too general exception: Exception":HIGH
+broad-exception-raised:15:0:15:21::"Raising too general exception: BaseException":HIGH

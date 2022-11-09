@@ -14,3 +14,9 @@ if X == "":  # [compare-to-empty-string]
 
 if Y != '':  # [compare-to-empty-string]
     pass
+
+if "" == Y:  # [compare-to-empty-string]
+    pass
+
+if '' != X:  # [compare-to-empty-string]
+    pass

@@ -297,6 +297,39 @@ class TestRunTC:
             actual_output = actual_output[actual_output.find("\n") :]
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
+    def test_type_annotation_names(self) -> None:
+        """Test resetting the `_type_annotation_names` list to `[]` when leaving a module.
+
+        An import inside `module_a`, which is used as a type annotation in `module_a`, should not prevent
+        emitting the `unused-import` message when the same import occurs in `module_b` & is unused.
+        See: https://github.com/PyCQA/pylint/issues/4150
+        """
+        module1 = join(
+            HERE, "regrtest_data", "imported_module_in_typehint", "module_a.py"
+        )
+
+        module2 = join(
+            HERE, "regrtest_data", "imported_module_in_typehint", "module_b.py"
+        )
+        expected_output = textwrap.dedent(
+            f"""
+        ************* Module module_b
+        {module2}:1:0: W0611: Unused import uuid (unused-import)
+        """
+        )
+        args = [
+            module1,
+            module2,
+            "--disable=all",
+            "--enable=unused-import",
+            "-rn",
+            "-sn",
+        ]
+        out = StringIO()
+        self._run_pylint(args, out=out)
+        actual_output = self._clean_paths(out.getvalue().strip())
+        assert self._clean_paths(expected_output.strip()) in actual_output.strip()
+
     def test_import_itself_not_accounted_for_relative_imports(self) -> None:
         expected = "Your code has been rated at 10.00/10"
         package = join(HERE, "regrtest_data", "dummy")
@@ -696,14 +729,14 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (-9, "missing-function-docstring", "fail_under_minus10.py", 22),
             (-5, "missing-function-docstring", "fail_under_minus10.py", 22),
             # --fail-under should guide whether error code as missing-function-docstring is not hit
-            (-10, "broad-except", "fail_under_plus7_5.py", 0),
-            (6, "broad-except", "fail_under_plus7_5.py", 0),
-            (7.5, "broad-except", "fail_under_plus7_5.py", 0),
-            (7.6, "broad-except", "fail_under_plus7_5.py", 16),
-            (-11, "broad-except", "fail_under_minus10.py", 0),
-            (-10, "broad-except", "fail_under_minus10.py", 0),
-            (-9, "broad-except", "fail_under_minus10.py", 22),
-            (-5, "broad-except", "fail_under_minus10.py", 22),
+            (-10, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (6, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (7.5, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (7.6, "broad-exception-caught", "fail_under_plus7_5.py", 16),
+            (-11, "broad-exception-caught", "fail_under_minus10.py", 0),
+            (-10, "broad-exception-caught", "fail_under_minus10.py", 0),
+            (-9, "broad-exception-caught", "fail_under_minus10.py", 22),
+            (-5, "broad-exception-caught", "fail_under_minus10.py", 22),
             # Enable by message id
             (-10, "C0116", "fail_under_plus7_5.py", 16),
             # Enable by category

@@ -69,7 +69,7 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "default": [],
                 "help": "Add files or directories matching the regular expressions patterns to the "
                 "ignore-list. The regex matches against paths and can be in "
-                "Posix or Windows format. Because '\\' represents the directory delimiter "
+                "Posix or Windows format. Because '\\\\' represents the directory delimiter "
                 "on Windows systems, it can't be used as an escape character.",
             },
         ),

@@ -190,7 +190,7 @@ class TestCheckParallelFramework:
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
         with pytest.raises(  # Objects that do not match the linter interface will fail
-            Exception, match="Worker linter not yet initialised"
+            RuntimeError, match="Worker linter not yet initialised"
         ):
             worker_check_single_file(_gen_file_data())
 
@@ -239,7 +239,9 @@ class TestCheckParallelFramework:
         linter.load_plugin_modules(["pylint.extensions.overlapping_exceptions"])
         try:
             dill.dumps(linter)
-            assert False, "Plugins loaded were pickle-safe! This test needs altering"
+            raise AssertionError(
+                "Plugins loaded were pickle-safe! This test needs altering"
+            )
         except (KeyError, TypeError, PickleError, NotImplementedError):
             pass
 
@@ -247,8 +249,10 @@ class TestCheckParallelFramework:
         linter.load_plugin_configuration()
         try:
             dill.dumps(linter)
-        except KeyError:
-            assert False, "Cannot pickle linter when using non-pickleable plugin"
+        except KeyError as exc:
+            raise AssertionError(
+                "Cannot pickle linter when using non-pickleable plugin"
+            ) from exc
 
     def test_worker_check_sequential_checker(self) -> None:
         """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker."""

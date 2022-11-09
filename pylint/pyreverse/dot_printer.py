@@ -29,13 +29,17 @@ SHAPES: dict[NodeType, str] = {
     NodeType.INTERFACE: "record",
     NodeType.CLASS: "record",
 }
+# pylint: disable-next=consider-using-namedtuple-or-dataclass
 ARROWS: dict[EdgeType, dict[str, str]] = {
-    EdgeType.INHERITS: dict(arrowtail="none", arrowhead="empty"),
-    EdgeType.IMPLEMENTS: dict(arrowtail="node", arrowhead="empty", style="dashed"),
-    EdgeType.ASSOCIATION: dict(
-        fontcolor="green", arrowtail="none", arrowhead="diamond", style="solid"
-    ),
-    EdgeType.USES: dict(arrowtail="none", arrowhead="open"),
+    EdgeType.INHERITS: {"arrowtail": "none", "arrowhead": "empty"},
+    EdgeType.IMPLEMENTS: {"arrowtail": "node", "arrowhead": "empty", "style": "dashed"},
+    EdgeType.ASSOCIATION: {
+        "fontcolor": "green",
+        "arrowtail": "none",
+        "arrowhead": "diamond",
+        "style": "solid",
+    },
+    EdgeType.USES: {"arrowtail": "none", "arrowhead": "open"},
 }
 
 
