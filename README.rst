@@ -86,10 +86,13 @@ Pylint ships with three additional tools:
 
 - pyreverse_ (standalone tool that generates package and class diagrams.)
 - symilar_  (duplicate code finder that is also integrated in pylint)
-- epylint_ (Emacs and Flymake compatible Pylint)
 
 .. _pyreverse: https://pylint.pycqa.org/en/latest/pyreverse.html
 .. _symilar: https://pylint.pycqa.org/en/latest/symilar.html
+
+The pylint_ Emacs package, which includes Flymake support, is now maintained
+in its own repository.
+
 .. _epylint: https://pylint.pycqa.org/en/latest/user_guide/ide_integration/flymake-emacs.html
 
 Projects that you might want to use alongside pylint include flake8_ (faster and simpler checks
