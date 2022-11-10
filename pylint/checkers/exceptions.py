@@ -200,7 +200,7 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
             self._checker.add_message(
                 "notimplemented-raised", node=self._node, confidence=HIGH
             )
-        elif node.name in OVERGENERAL_EXCEPTIONS:
+        elif node.name in self._checker.linter.config.overgeneral_exceptions:
             self._checker.add_message(
                 "broad-exception-raised",
                 args=node.name,
