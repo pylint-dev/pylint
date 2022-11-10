@@ -200,13 +200,29 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
             self._checker.add_message(
                 "notimplemented-raised", node=self._node, confidence=HIGH
             )
-        elif node.name in self._checker.linter.config.overgeneral_exceptions:
-            self._checker.add_message(
-                "broad-exception-raised",
-                args=node.name,
-                node=self._node,
-                confidence=HIGH,
-            )
+            return
+
+        try:
+            exceptions = list(_annotated_unpack_infer(node))
+        except astroid.InferenceError:
+            return
+
+        for _, exception in exceptions:
+            if isinstance(exception, astroid.Instance) and utils.inherit_from_std_ex(
+                exception
+            ):
+                exception = exception._proxied
+
+            if not isinstance(exception, nodes.ClassDef):
+                continue
+
+            if self._checker._is_overgeneral_exception(exception):
+                self._checker.add_message(
+                    "broad-exception-raised",
+                    args=exception.name,
+                    node=self._node,
+                    confidence=HIGH,
+                )
 
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
@@ -603,13 +619,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                                 args=msg,
                                 confidence=INFERENCE,
                             )
-                    if (
-                        exception.qname() in self.linter.config.overgeneral_exceptions
-                        # TODO: 3.0: not a qualified name, deprecated
-                        or "." not in exception.name
-                        and exception.name in self.linter.config.overgeneral_exceptions
-                        and exception.root().name == utils.EXCEPTIONS_MODULE
-                    ) and not _is_raising(handler.body):
+                    if self._is_overgeneral_exception(exception) and not _is_raising(
+                        handler.body
+                    ):
                         self.add_message(
                             "broad-exception-caught",
                             args=exception.name,
@@ -626,6 +638,15 @@ class ExceptionsChecker(checkers.BaseChecker):
                         )
 
                 exceptions_classes += [exc for _, exc in exceptions]
+
+    def _is_overgeneral_exception(self, exception: nodes.ClassDef) -> bool:
+        return (
+            exception.qname() in self.linter.config.overgeneral_exceptions
+            # TODO: 3.0: not a qualified name, deprecated
+            or "." not in exception.name
+            and exception.name in self.linter.config.overgeneral_exceptions
+            and exception.root().name == utils.EXCEPTIONS_MODULE
+        )
 
 
 def register(linter: PyLinter) -> None:
