@@ -1121,15 +1121,19 @@ class VariablesChecker(BaseChecker):
         "unbalanced-dict-unpacking",
     )
     def visit_for(self, node: nodes.For) -> None:
-        inferred = utils.safe_infer(node.iter)
-        if inferred is None:
-            return
-
-        values = self._nodes_to_unpack(inferred)
-        if values is None:
+        if not isinstance(node.target, nodes.Tuple):
             return
 
         targets = node.target.elts
+
+        inferred = utils.safe_infer(node.iter)
+        if inferred is None or not isinstance(inferred, DICT_TYPES):
+            return
+
+        values = self._nodes_to_unpack(inferred)
+        if values is None or len(values) == 0:
+            # no dict items returned
+            return
 
         if len(targets) != len(values):
             msg_id = "unbalanced-dict-unpacking"

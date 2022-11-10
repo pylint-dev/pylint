@@ -7,3 +7,4 @@ unbalanced-dict-unpacking:26:0:27:8::"Possible unbalanced tuple unpacking with s
 consider-iterating-dictionary:29:27:29:40::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
 unbalanced-dict-unpacking:29:0:30:8::"Possible unbalanced tuple unpacking with sequence: left side has 7 label(s), right side has 1 value(s)":UNDEFINED
 unbalanced-dict-unpacking:32:0:33:8::"Possible unbalanced tuple unpacking with sequence: left side has 7 label(s), right side has 1 value(s)":UNDEFINED
+unbalanced-dict-unpacking:42:0:42:12::"Possible unbalanced tuple unpacking with sequence {}: left side has 3 label(s), right side has 0 value(s)":UNDEFINED

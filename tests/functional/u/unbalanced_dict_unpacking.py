@@ -31,3 +31,12 @@ for a, b, c, d, e, f, g in {1: 2}.keys():  # [unbalanced-dict-unpacking, conside
 
 for a, b, c, d, e, f, g in {1: 2}.values():  # [unbalanced-dict-unpacking]
     pass
+
+empty = {}
+
+# this should not raise unbalanced-dict because it is valid code
+for key, value in empty.items():
+    print(key)
+    print(value)
+
+a, b, c = {}  # [unbalanced-dict-unpacking]
