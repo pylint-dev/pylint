@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
-__revision__ = 0
+COUNTER = 0
+
 
 class CustomBroadException(Exception):
     pass
@@ -10,33 +11,33 @@ class CustomNarrowException(CustomBroadException):
 
 
 try:
-    __revision__ += 1
+    COUNTER += 1
 except Exception: # [broad-exception-caught]
     print('error')
 
 
 try:
-    __revision__ += 1
+    COUNTER += 1
 except BaseException: # [broad-exception-caught]
     print('error')
 
 
 try:
-    __revision__ += 1
-except ValueError:
+    COUNTER += 1
+except ValueError as e:
     print('error')
-    raise TypeError()
+    raise TypeError() from e
 
 
 try:
-    __revision__ += 1
-except CustomBroadException as e: # [broad-exception-caught]
+    COUNTER += 1
+except CustomBroadException as e:  # [broad-exception-caught]
     print('error')
     raise CustomNarrowException() from e
 
 
 try:
-    __revision__ += 1
+    COUNTER += 1
 except CustomNarrowException as e:
     print('error')
     raise CustomBroadException() from e  # [broad-exception-raised]
