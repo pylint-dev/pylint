@@ -1791,6 +1791,11 @@ class VariablesChecker(BaseChecker):
             return
 
         targets = node.targets[0].itered()
+
+        # Check if we have starred nodes.
+        if any(isinstance(target, nodes.Starred) for target in targets):
+            return
+
         try:
             inferred = utils.safe_infer(node.value)
             if inferred is not None:
@@ -2706,10 +2711,6 @@ class VariablesChecker(BaseChecker):
         values = self._nodes_to_unpack(inferred)
         if values is not None:
             if len(targets) != len(values):
-                # Check if we have starred nodes.
-                if any(isinstance(target, nodes.Starred) for target in targets):
-                    return
-
                 if isinstance(inferred, DICT_TYPES):
                     msg_id = "unbalanced-dict-unpacking"
                 else:
