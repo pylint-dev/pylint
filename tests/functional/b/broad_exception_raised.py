@@ -1,4 +1,4 @@
-# pylint: disable=missing-module-docstring, missing-function-docstring, unreachable
+# pylint: disable=missing-docstring, unreachable
 
 class CustomBroadException(Exception):
     pass
