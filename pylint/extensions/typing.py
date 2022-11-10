@@ -255,19 +255,19 @@ class TypingChecker(BaseChecker):
             )
         else:
             return
-        redundant_typehints: list[bool] = []
+        redundant_typehints: list[str] = []
         for idx, typehint in enumerate(types):
+            typehint_str = typehint.as_string()
             if (
                 (idx < (len(types) - 1))
-                and isinstance(typehint, nodes.Name)
-                and (any(typehint.name == x.name for x in types[idx + 1 :]))
-                and typehint.name not in redundant_typehints
+                and (any(typehint_str == x.as_string() for x in types[idx + 1 :]))
+                and typehint_str not in redundant_typehints
             ):
-                redundant_typehints.append(typehint.name)
+                redundant_typehints.append(typehint_str)
                 self.add_message(
                     "redundant-union-assign-typehint",
                     node=node,
-                    args=(typehint.name),
+                    args=(typehint_str),
                     confidence=HIGH,
                 )
 
