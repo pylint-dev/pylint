@@ -1,5 +1,5 @@
 # pylint: disable=missing-module-docstring, missing-function-docstring, invalid-name
-# pylint: disable=unused-variable, redefined-outer-name
+# pylint: disable=unused-variable, redefined-outer-name, line-too-long
 
 def dict_vals():
     a, b, c, d, e, f, g = {1: 2}.values()  # [unbalanced-dict-unpacking]
@@ -26,7 +26,7 @@ for a, b, c, d, e, f, g in {1: 2}.items():  # [unbalanced-dict-unpacking]
 for a, b, c, d, e, f, g in {1: 2}:  # [unbalanced-dict-unpacking]
     pass
 
-for a, b, c, d, e, f, g in {1: 2}.keys():  # [unbalanced-dict-unpacking]
+for a, b, c, d, e, f, g in {1: 2}.keys():  # [unbalanced-dict-unpacking, consider-iterating-dictionary]
     pass
 
 for a, b, c, d, e, f, g in {1: 2}.values():  # [unbalanced-dict-unpacking]

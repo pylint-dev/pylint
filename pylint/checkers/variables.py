@@ -117,7 +117,7 @@ DICT_TYPES = (
     astroid.objects.DictValues,
     astroid.objects.DictKeys,
     astroid.objects.DictItems,
-    astroid.nodes.node_classes.Dict
+    astroid.nodes.node_classes.Dict,
 )
 
 
@@ -1116,6 +1116,32 @@ class VariablesChecker(BaseChecker):
         ] = []
         """This is a queue, last in first out."""
         self._postponed_evaluation_enabled = False
+
+    @utils.only_required_for_messages(
+        "unbalanced-dict-unpacking",
+    )
+    def visit_for(self, node: nodes.For) -> None:
+        inferred = utils.safe_infer(node.iter)
+        if inferred is None:
+            return
+
+        values = self._nodes_to_unpack(inferred)
+        if values is None:
+            return
+
+        targets = node.target.elts
+
+        if len(targets) != len(values):
+            msg_id = "unbalanced-dict-unpacking"
+            self.add_message(
+                msg_id,
+                node=node,
+                args=(
+                    _get_unpacking_extra_info(node, inferred),
+                    len(targets),
+                    len(values),
+                ),
+            )
 
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
