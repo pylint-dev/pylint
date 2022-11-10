@@ -113,6 +113,13 @@ TYPING_NAMES = frozenset(
     }
 )
 
+DICT_TYPES = (
+    astroid.objects.DictValues,
+    astroid.objects.DictKeys,
+    astroid.objects.DictItems,
+    astroid.nodes.node_classes.Dict
+)
+
 
 class VariableVisitConsumerAction(Enum):
     """Reported by _check_consumer() and its sub-methods to determine the
@@ -519,6 +526,13 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "potential-index-error",
         "Emitted when an index used on an iterable goes beyond the length of that "
         "iterable.",
+    ),
+    "W0644": (
+        "Possible unbalanced tuple unpacking with "
+        "sequence%s: "
+        "left side has %d label(s), right side has %d value(s)",
+        "unbalanced-dict-unpacking",
+        "Used when there is an unbalanced dict unpacking in assignment",
     ),
 }
 
@@ -2669,8 +2683,13 @@ class VariablesChecker(BaseChecker):
                 # Check if we have starred nodes.
                 if any(isinstance(target, nodes.Starred) for target in targets):
                     return
+
+                if isinstance(inferred, DICT_TYPES):
+                    msg_id = "unbalanced-dict-unpacking"
+                else:
+                    msg_id = "unbalanced-tuple-unpacking"
                 self.add_message(
-                    "unbalanced-tuple-unpacking",
+                    msg_id,
                     node=node,
                     args=(
                         _get_unpacking_extra_info(node, inferred),
@@ -2689,7 +2708,7 @@ class VariablesChecker(BaseChecker):
     @staticmethod
     def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:
         """Return the list of values of the `Assign` node."""
-        if isinstance(node, (nodes.Tuple, nodes.List)):
+        if isinstance(node, (nodes.Tuple, nodes.List) + DICT_TYPES):
             return node.itered()  # type: ignore[no-any-return]
         if isinstance(node, astroid.Instance) and any(
             ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
