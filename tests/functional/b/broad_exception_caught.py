@@ -25,18 +25,15 @@ try:
     __revision__ += 1
 except ValueError:
     print('error')
-    raise TypeError()
 
 
 try:
     __revision__ += 1
-except CustomBroadException as e: # [broad-exception-caught]
+except CustomBroadException: # [broad-exception-caught]
     print('error')
-    raise CustomNarrowException() from e
 
 
 try:
     __revision__ += 1
-except CustomNarrowException as e:
+except CustomNarrowException:
     print('error')
-    raise CustomBroadException() from e  # [broad-exception-raised]
