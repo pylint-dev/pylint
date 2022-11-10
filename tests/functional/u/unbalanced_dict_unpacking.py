@@ -40,3 +40,10 @@ for key, value in empty.items():
     print(value)
 
 a, b, c = {}  # [unbalanced-dict-unpacking]
+
+
+for k, _ in {'key': 'value'}.items():
+    print(k)
+
+for k in {'key': 'value', 1: 2}.items():
+    print(k)

@@ -1126,6 +1126,14 @@ class VariablesChecker(BaseChecker):
 
         targets = node.target.elts
 
+        # Check if we have any `_` nodes
+        if any([target.name == "_" for target in targets]):
+            return
+
+        # Check if we have starred nodes.
+        if any(isinstance(target, nodes.Starred) for target in targets):
+            return
+
         inferred = utils.safe_infer(node.iter)
         if inferred is None or not isinstance(inferred, DICT_TYPES):
             return
