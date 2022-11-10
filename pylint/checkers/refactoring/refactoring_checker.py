@@ -464,9 +464,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "The literal is faster as it avoids an additional function call.",
         ),
         "R1735": (
-            "Consider using {} instead of dict()",
+            "Consider using '%s' instead of a call to 'dict'.",
             "use-dict-literal",
-            "Emitted when using dict() to create an empty dictionary instead of the literal {}. "
+            "Emitted when using dict() to create a dictionary instead of a literal '{ ... }'. "
             "The literal is faster as it avoids an additional function call.",
         ),
         "R1736": (
@@ -979,7 +979,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not exc or not isinstance(exc, (bases.Instance, nodes.ClassDef)):
             return
         if self._check_exception_inherit_from_stopiteration(exc):
-            self.add_message("stop-iteration-return", node=node)
+            self.add_message("stop-iteration-return", node=node, confidence=INFERENCE)
 
     @staticmethod
     def _check_exception_inherit_from_stopiteration(
@@ -1074,7 +1074,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_super_with_arguments(node)
         self._check_consider_using_generator(node)
         self._check_consider_using_with(node)
-        self._check_use_list_or_dict_literal(node)
+        self._check_use_list_literal(node)
+        self._check_use_dict_literal(node)
 
     @staticmethod
     def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
@@ -1135,7 +1136,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         inferred = utils.safe_infer(node.func)
-        if getattr(inferred, "name", "") == "next":
+
+        if (
+            isinstance(inferred, nodes.FunctionDef)
+            and inferred.qname() == "builtins.next"
+        ):
             frame = node.frame(future=True)
             # The next builtin can only have up to two
             # positional arguments and no keyword arguments
@@ -1147,7 +1152,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 and not utils.node_ignores_exception(node, StopIteration)
                 and not _looks_like_infinite_iterator(node.args[0])
             ):
-                self.add_message("stop-iteration-return", node=node)
+                self.add_message(
+                    "stop-iteration-return", node=node, confidence=INFERENCE
+                )
 
     def _check_nested_blocks(
         self,
@@ -1584,15 +1591,46 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if could_be_used_in_with and not _will_be_released_automatically(node):
             self.add_message("consider-using-with", node=node)
 
-    def _check_use_list_or_dict_literal(self, node: nodes.Call) -> None:
-        """Check if empty list or dict is created by using the literal [] or {}."""
-        if node.as_string() in {"list()", "dict()"}:
+    def _check_use_list_literal(self, node: nodes.Call) -> None:
+        """Check if empty list is created by using the literal []."""
+        if node.as_string() == "list()":
             inferred = utils.safe_infer(node.func)
             if isinstance(inferred, nodes.ClassDef) and not node.args:
                 if inferred.qname() == "builtins.list":
                     self.add_message("use-list-literal", node=node)
-                elif inferred.qname() == "builtins.dict" and not node.keywords:
-                    self.add_message("use-dict-literal", node=node)
+
+    def _check_use_dict_literal(self, node: nodes.Call) -> None:
+        """Check if dict is created by using the literal {}."""
+        if not isinstance(node.func, astroid.Name) or node.func.name != "dict":
+            return
+        inferred = utils.safe_infer(node.func)
+        if (
+            isinstance(inferred, nodes.ClassDef)
+            and inferred.qname() == "builtins.dict"
+            and not node.args
+        ):
+            self.add_message(
+                "use-dict-literal",
+                args=(self._dict_literal_suggestion(node),),
+                node=node,
+                confidence=INFERENCE,
+            )
+
+    @staticmethod
+    def _dict_literal_suggestion(node: nodes.Call) -> str:
+        """Return a suggestion of reasonable length."""
+        elements: list[str] = []
+        for keyword in node.keywords:
+            if len(", ".join(elements)) >= 64:
+                break
+            if keyword not in node.kwargs:
+                elements.append(f'"{keyword.arg}": {keyword.value.as_string()}')
+        for keyword in node.kwargs:
+            if len(", ".join(elements)) >= 64:
+                break
+            elements.append(f"**{keyword.value.as_string()}")
+        suggestion = ", ".join(elements)
+        return f"{{{suggestion}{', ... '  if len(suggestion) > 64 else ''}}}"
 
     def _check_consider_using_join(self, aug_assign: nodes.AugAssign) -> None:
         """We start with the augmented assignment and work our way upwards.

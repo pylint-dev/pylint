@@ -529,7 +529,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             tolineno = node.tolineno
         assert tolineno, node
         lines: list[str] = []
-        for line in range(line, tolineno + 1):
+        for line in range(line, tolineno + 1):  # noqa: B020
             self._visited_lines[line] = 1
             try:
                 lines.append(self._lines[line].rstrip())
@@ -676,15 +676,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             if tokens.type(line_start) != tokenize.STRING:
                 self.check_trailing_whitespace_ending(line, lineno + offset)
 
-        # hold onto the initial lineno for later
-        potential_line_length_warning = False
-        for offset, line in enumerate(split_lines):
-            # this check is purposefully simple and doesn't rstrip
-            # since this is running on every line you're checking it's
-            # advantageous to avoid doing a lot of work
-            if len(line) > max_chars:
-                potential_line_length_warning = True
-                break
+        # This check is purposefully simple and doesn't rstrip since this is running
+        # on every line you're checking it's advantageous to avoid doing a lot of work
+        potential_line_length_warning = any(
+            len(line) > max_chars for line in split_lines
+        )
 
         # if there were no lines passing the max_chars config, we don't bother
         # running the full line check (as we've met an even more strict condition)

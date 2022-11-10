@@ -26,6 +26,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
       - name: Install requirements
         run: |
           # Remove dist, build, and pylint.egg-info

@@ -440,7 +440,7 @@ Exceptions checker Messages
 :duplicate-except (W0705): *Catching previously caught exception type %s*
   Used when an except catches a type that was already caught by a previous
   handler.
-:broad-except (W0703): *Catching too general exception %s*
+:broad-exception-caught (W0718): *Catching too general exception %s*
   Used when an except catches a too general exception, possibly burying
   unrelated errors.
 :raise-missing-from (W0707): *Consider explicitly re-raising using %s'%s from %s'*
@@ -462,6 +462,8 @@ Exceptions checker Messages
   operations between exceptions in except handlers.
 :bare-except (W0702): *No exception type(s) specified*
   Used when an except clause doesn't specify exceptions type to catch.
+:broad-exception-raised (W0719): *Raising too general exception: %s*
+  Used when an except raises a too general exception.
 :try-except-raise (W0706): *The except handler raises immediately*
   Used when an except handler uses raise as its first or only operator. This is
   useless because it raises back the exception immediately. Remove the raise
@@ -779,9 +781,9 @@ Refactoring checker Messages
 :consider-swap-variables (R1712): *Consider using tuple unpacking for swapping variables*
   You do not have to use a temporary variable in order to swap variables. Using
   "tuple unpacking" to directly swap variables makes the intention more clear.
-:use-dict-literal (R1735): *Consider using {} instead of dict()*
-  Emitted when using dict() to create an empty dictionary instead of the
-  literal {}. The literal is faster as it avoids an additional function call.
+:use-dict-literal (R1735): *Consider using '%s' instead.*
+  Emitted when using dict() to create a dictionary instead of a literal '{ ... }'.
+  The literal is faster as it avoids an additional function call.
 :trailing-comma-tuple (R1707): *Disallow trailing comma tuple*
   In Python, a tuple is actually created by the comma symbol, not by the
   parentheses. Unfortunately, one can actually create a tuple by misplacing a
@@ -876,9 +878,6 @@ Refactoring checker Messages
   Emitted when accessing only the first or last element of str.split(). The
   first and last element can be accessed by using str.split(sep, maxsplit=1)[0]
   or str.rsplit(sep, maxsplit=1)[-1] instead.
-:consider-using-augmented-assign (C0210): *Use '%s' to do an augmented assign directly*
-  Emitted when an assignment is referring to the object that it is assigning
-  to. This can be changed to be an augmented assign.
 :use-sequence-for-iteration (C0208): *Use a sequence type when iterating over values*
   When iterating over values, sequence types (e.g., ``lists``, ``tuples``,
   ``ranges``) are more efficient than ``sets``.

@@ -10,7 +10,8 @@ on:
       - doc/data/messages/**
 
 env:
-  CACHE_VERSION: 31
+  CACHE_VERSION: 1
+  KEY_PREFIX: venv
 
 permissions:
   contents: read
@@ -34,12 +35,13 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "key=venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
-          }}" >> $GITHUB_OUTPUT
+          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
+            hashFiles('pyproject.toml', 'requirements_test.txt',
+          'requirements_test_min.txt') }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11
@@ -48,8 +50,6 @@ jobs:
           key: >-
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             steps.generate-python-key.outputs.key }}
-          restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -60,10 +60,12 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
+          pip list | grep 'astroid\|pylint'
           pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
       - name: Run functional tests with minimal messages config
         run: |
           . venv/bin/activate
+          pip list | grep 'astroid\|pylint'
           pytest -vv --minimal-messages-config tests/test_functional.py
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v3.1.1
@@ -89,6 +91,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11
@@ -133,6 +136,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11
@@ -151,6 +155,7 @@ jobs:
           . venv/bin/activate
           pip install pygal
           pip install -e .
+          pip list | grep 'astroid\|pylint'
           pytest --exitfirst \
             --benchmark-only \
             --benchmark-autosave \
@@ -189,11 +194,12 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
           echo "key=venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('setup.cfg', 'requirements_test_min.txt')
+            hashFiles('pyproject.toml', 'requirements_test_min.txt')
           }}" >> $env:GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
@@ -203,8 +209,6 @@ jobs:
           key: >-
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             steps.generate-python-key.outputs.key }}
-          restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -215,6 +219,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
+          pip list | grep 'astroid\|pylint'
           pytest --durations=10 --benchmark-disable tests/
 
   tests-macos:
@@ -235,11 +240,12 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
           echo "key=venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('setup.cfg', 'requirements_test_min.txt')
+            hashFiles('pyproject.toml', 'requirements_test_min.txt')
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
@@ -249,8 +255,6 @@ jobs:
           key: >-
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             steps.generate-python-key.outputs.key }}
-          restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -261,6 +265,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
+          pip list | grep 'astroid\|pylint'
           pytest --durations=10 --benchmark-disable tests/
 
   tests-pypy:
@@ -279,11 +284,12 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
           echo "key=venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('setup.cfg', 'requirements_test_min.txt')
+            hashFiles('pyproject.toml', 'requirements_test_min.txt')
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
@@ -293,8 +299,6 @@ jobs:
           key: >-
             ${{ runner.os }}-${{ matrix.python-version }}-${{
             steps.generate-python-key.outputs.key }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -305,4 +309,5 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
+          pip list | grep 'astroid\|pylint'
           pytest --durations=10 --benchmark-disable tests/

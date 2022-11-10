@@ -16,7 +16,8 @@ concurrency:
 
 env:
   # This needs to be the SAME as in the PR and comment job
-  CACHE_VERSION: 31
+  CACHE_VERSION: 1
+  KEY_PREFIX: venv-primer
 
 permissions:
   contents: read
@@ -37,12 +38,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Get latest astroid commit
-        id: get-astroid-sha
-        run: |
-          curl https://api.github.com/repos/PyCQA/astroid/commits |
-          python -c "import json, sys; print(json.load(sys.stdin)[0]['sha'])" > astroid_sha.txt
+          check-latest: true
 
       # Create a re-usable virtual environment
       - name: Create Python virtual environment cache
@@ -51,18 +47,16 @@ jobs:
         with:
           path: venv
           key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{
-            env.CACHE_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-primer-${{ env.CACHE_VERSION }}
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt') }}
       - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
           python -m venv venv
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
-          # Use bleeding-edge astroid
-          pip install git+https://github.com/PyCQA/astroid.git
 
       # Cache primer packages
       - name: Get commit string
@@ -104,6 +98,6 @@ jobs:
         uses: actions/upload-artifact@v3.1.1
         with:
           name: primer_output
-          path:
+          path: >-
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
             }}_main.txt

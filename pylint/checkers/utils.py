@@ -491,7 +491,7 @@ def only_required_for_messages(
     def store_messages(
         func: AstCallbackMethod[_CheckerT, _NodeT]
     ) -> AstCallbackMethod[_CheckerT, _NodeT]:
-        setattr(func, "checks_msgs", messages)
+        func.checks_msgs = messages  # type: ignore[attr-defined]
         return func
 
     return store_messages
@@ -1960,24 +1960,27 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
     return False
 
 
-def is_typing_literal(node: nodes.NodeNG) -> bool:
-    """Check if a node refers to typing.Literal."""
+def is_typing_member(node: nodes.NodeNG, names_to_check: tuple[str, ...]) -> bool:
+    """Check if `node` is a member of the `typing` module and has one of the names from
+    `names_to_check`.
+    """
     if isinstance(node, nodes.Name):
         try:
             import_from = node.lookup(node.name)[1][0]
         except IndexError:
             return False
+
         if isinstance(import_from, nodes.ImportFrom):
-            return (  # type: ignore[no-any-return]
+            return (
                 import_from.modname == "typing"
-                and import_from.real_name(node.name) == "Literal"
+                and import_from.real_name(node.name) in names_to_check
             )
     elif isinstance(node, nodes.Attribute):
         inferred_module = safe_infer(node.expr)
         return (
             isinstance(inferred_module, nodes.Module)
             and inferred_module.name == "typing"
-            and node.attrname == "Literal"
+            and node.attrname in names_to_check
         )
     return False
 

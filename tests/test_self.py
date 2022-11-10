@@ -729,14 +729,14 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (-9, "missing-function-docstring", "fail_under_minus10.py", 22),
             (-5, "missing-function-docstring", "fail_under_minus10.py", 22),
             # --fail-under should guide whether error code as missing-function-docstring is not hit
-            (-10, "broad-except", "fail_under_plus7_5.py", 0),
-            (6, "broad-except", "fail_under_plus7_5.py", 0),
-            (7.5, "broad-except", "fail_under_plus7_5.py", 0),
-            (7.6, "broad-except", "fail_under_plus7_5.py", 16),
-            (-11, "broad-except", "fail_under_minus10.py", 0),
-            (-10, "broad-except", "fail_under_minus10.py", 0),
-            (-9, "broad-except", "fail_under_minus10.py", 22),
-            (-5, "broad-except", "fail_under_minus10.py", 22),
+            (-10, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (6, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (7.5, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (7.6, "broad-exception-caught", "fail_under_plus7_5.py", 16),
+            (-11, "broad-exception-caught", "fail_under_minus10.py", 0),
+            (-10, "broad-exception-caught", "fail_under_minus10.py", 0),
+            (-9, "broad-exception-caught", "fail_under_minus10.py", 22),
+            (-5, "broad-exception-caught", "fail_under_minus10.py", 22),
             # Enable by message id
             (-10, "C0116", "fail_under_plus7_5.py", 16),
             # Enable by category

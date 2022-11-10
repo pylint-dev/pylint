@@ -494,7 +494,7 @@ class StringFormatChecker(BaseChecker):
 
         check_args = False
         # Consider "{[0]} {[1]}" as num_args.
-        num_args += sum(1 for field in named_fields if field == "")
+        num_args += sum(1 for field in named_fields if not field)
         if named_fields:
             for field in named_fields:
                 if field and field not in named_arguments:
@@ -509,7 +509,7 @@ class StringFormatChecker(BaseChecker):
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
             if positional_arguments or num_args:
-                empty = any(field == "" for field in named_fields)
+                empty = not all(field for field in named_fields)
                 if named_arguments or empty:
                     # Verify the required number of positional arguments
                     # only if the .format got at least one keyword argument.
@@ -546,7 +546,7 @@ class StringFormatChecker(BaseChecker):
         for key, specifiers in fields:
             # Obtain the argument. If it can't be obtained
             # or inferred, skip this check.
-            if key == "":
+            if not key:
                 # {[0]} will have an unnamed argument, defaulting
                 # to 0. It will not be present in `named`, so use the value
                 # 0 for it.
@@ -834,16 +834,16 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
 
     def process_string_token(self, token: str, start_row: int, start_col: int) -> None:
         quote_char = None
-        index = None
-        for index, char in enumerate(token):
+        for _index, char in enumerate(token):
             if char in "'\"":
                 quote_char = char
                 break
         if quote_char is None:
             return
-
-        prefix = token[:index].lower()  # markers like u, b, r.
-        after_prefix = token[index:]
+        # pylint: disable=undefined-loop-variable
+        prefix = token[:_index].lower()  # markers like u, b, r.
+        after_prefix = token[_index:]
+        # pylint: enable=undefined-loop-variable
         # Chop off quotes
         quote_length = (
             3 if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char else 1

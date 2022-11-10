@@ -1,0 +1,3 @@
+[main]
+# This might not run in your env if you don't have the en_US dict installed.
+spelling-dict=en_US

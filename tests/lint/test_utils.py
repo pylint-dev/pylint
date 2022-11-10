@@ -18,7 +18,7 @@ def test_prepare_crash_report(tmp_path: PosixPath) -> None:
     with open(python_file, "w", encoding="utf8") as f:
         f.write(python_content)
     try:
-        raise Exception(exception_content)
+        raise Exception(exception_content)  # pylint: disable=broad-exception-raised
     except Exception as ex:  # pylint: disable=broad-except
         template_path = prepare_crash_report(
             ex, str(python_file), str(tmp_path / "pylint-crash-%Y.txt")

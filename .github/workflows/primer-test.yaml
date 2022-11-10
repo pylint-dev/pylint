@@ -13,7 +13,8 @@ on:
       - ".github/workflows/primer-test.yaml"
 
 env:
-  CACHE_VERSION: 31
+  CACHE_VERSION: 1
+  KEY_PREFIX: venv
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -40,12 +41,13 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "key=venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
-          }}" >> $GITHUB_OUTPUT
+          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
+            hashFiles('pyproject.toml', 'requirements_test.txt',
+          'requirements_test_min.txt') }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11
@@ -54,8 +56,6 @@ jobs:
           key: >-
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             steps.generate-python-key.outputs.key }}
-          restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -80,6 +80,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11
@@ -115,6 +116,7 @@ jobs:
         uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.0.11
