@@ -1,0 +1,3 @@
+``consider-iterating-dictionary`` will no longer be raised if used bitwise operations are used.
+
+Closes #5478

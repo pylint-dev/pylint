@@ -24,3 +24,5 @@ consider-iterating-dictionary:89:42:89:65:AClass.a_function.InnerClass.another_f
 consider-iterating-dictionary:90:37:90:60:AClass.a_function.InnerClass.another_function.inner_function:Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
 consider-iterating-dictionary:91:38:91:61:AClass.a_function.InnerClass.another_function.inner_function:Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
 consider-iterating-dictionary:92:33:92:56:AClass.a_function.InnerClass.another_function.inner_function:Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
+consider-iterating-dictionary:112:10:112:23::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
+consider-iterating-dictionary:115:10:115:23::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
