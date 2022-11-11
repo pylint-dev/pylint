@@ -1,4 +1,6 @@
 """"Checks for redundant Union typehints in assignments - python 3.8"""
+# pylint: disable=deprecated-typing-alias
+
 from __future__ import annotations
 from typing import Union, Optional, Sequence
 
