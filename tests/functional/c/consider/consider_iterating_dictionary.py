@@ -1,11 +1,11 @@
 # pylint: disable=missing-docstring, expression-not-assigned, too-few-public-methods
-# pylint: disable=no-member, import-error, line-too-long, useless-object-inheritance
+# pylint: disable=no-member, import-error, line-too-long
 # pylint: disable=unnecessary-comprehension, use-dict-literal, use-implicit-booleaness-not-comparison
 
 from unknown import Unknown
 
 
-class CustomClass(object):
+class CustomClass:
     def keys(self):
         return []
 
@@ -92,3 +92,25 @@ class AClass:
                     print("a" in another_metadata.keys()) # [consider-iterating-dictionary]
                 return  inner_function()
         return InnerClass().another_function()
+
+a_dict = {"a": 1, "b": 2, "c": 3}
+a_set = {"c", "d"}
+
+# Test bitwise operations. These should not raise msg because removing `.keys()`
+# either gives error or ends in a different result
+print(a_dict.keys() | a_set)
+
+if "a" in a_dict.keys() | a_set:
+    pass
+
+if "a" in a_dict.keys() & a_set:
+    pass
+
+if 1 in a_dict.keys() ^ [1, 2]:
+    pass
+
+if "a" in a_dict.keys() or a_set:  # [consider-iterating-dictionary]
+    pass
+
+if "a" in a_dict.keys() and a_set:  # [consider-iterating-dictionary]
+    pass

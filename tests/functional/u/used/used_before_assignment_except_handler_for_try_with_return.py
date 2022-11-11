@@ -2,7 +2,7 @@
 try blocks with return statements.
 See: https://github.com/PyCQA/pylint/issues/5500.
 """
-# pylint: disable=inconsistent-return-statements
+# pylint: disable=inconsistent-return-statements,broad-exception-raised
 
 
 def function():
@@ -96,6 +96,16 @@ def func_ok7(var):
         with open(__file__, encoding='utf-8') as my_file:
             msg = "Division by 0"
             my_file.write(msg)
+    print(msg)
+
+
+def func_ok8(var):
+    """Define 'msg' in one handler via type annotation."""
+    try:
+        return 1 / var.some_other_func()
+    except ZeroDivisionError:
+        # See func_invalid2() for mere annotation without value
+        msg: str = "Division by 0"
     print(msg)
 
 

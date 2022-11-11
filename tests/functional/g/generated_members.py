@@ -1,10 +1,10 @@
 """Test the generated-members config option."""
-# pylint: disable=pointless-statement, invalid-name, useless-object-inheritance
-from __future__ import print_function
+# pylint: disable=pointless-statement, invalid-name
+from __future__ import annotations
 from astroid import nodes
 from pylint import checkers
 
-class Klass(object):
+class Klass:
     """A class with a generated member."""
 
 print(Klass().DoesNotExist)
@@ -18,3 +18,11 @@ session = Klass()
 SESSION = Klass()
 session.rollback()
 SESSION.rollback()
+
+
+# https://github.com/PyCQA/pylint/issues/6594
+# Don't emit no-member inside type annotations
+# with PEP 563 'from __future__ import annotations'
+print(Klass.X)  # [no-member]
+var: "Klass.X"
+var2: Klass.X

@@ -1,0 +1,2 @@
+boolean-datetime:7:3:7:25::Using datetime.time in a boolean context.:UNDEFINED
+boolean-datetime:12:3:12:25::Using datetime.time in a boolean context.:UNDEFINED

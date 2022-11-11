@@ -21,3 +21,6 @@ CONSTA, CONSTB, CONSTC = A()
 CONSTD = A()
 
 CONST = "12 34 ".rstrip().split()
+
+
+assignment_that_crashed_pylint = type(float.__new__.__code__)

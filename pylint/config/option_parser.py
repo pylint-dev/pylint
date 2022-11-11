@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+# type: ignore # Deprecated module.
+
 import optparse  # pylint: disable=deprecated-module
 import warnings
 
@@ -23,6 +25,7 @@ class OptionParser(optparse.OptionParser):
         warnings.warn(
             "OptionParser has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         super().__init__(option_class=Option, *args, **kwargs)
 

@@ -25,7 +25,7 @@ class TestBidirectionalUnicodeChecker(pylint.testutils.CheckerTestCase):
 
     checker: pylint.checkers.unicode.UnicodeChecker
 
-    def test_finds_bidirectional_unicode_that_currently_not_parsed(self):
+    def test_finds_bidirectional_unicode_that_currently_not_parsed(self) -> None:
         """Test an example from https://github.com/nickboucher/trojan-source/tree/main/Python
         that is currently not working Python but producing a syntax error
 
@@ -78,7 +78,7 @@ class TestBidirectionalUnicodeChecker(pylint.testutils.CheckerTestCase):
             )
         ],
     )
-    def test_find_bidi_string(self, bad_string: str, codec: str):
+    def test_find_bidi_string(self, bad_string: str, codec: str) -> None:
         """Ensure that all Bidirectional strings are detected.
 
         Tests also UTF-16 and UTF-32.

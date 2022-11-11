@@ -36,7 +36,7 @@ class TestSimilarCodeChecker:
     @staticmethod
     def _run_pylint(args: list[str], out: TextIO) -> int:
         """Runs pylint with a patched output."""
-        args = args + [
+        args += [
             "--persistent=no",
             "--enable=astroid-error",
             # Enable functionality that will build another ast
@@ -48,7 +48,7 @@ class TestSimilarCodeChecker:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     Run(args)
-            return cm.value.code
+            return int(cm.value.code)
 
     @staticmethod
     def _clean_paths(output: str) -> str:

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-def is_line_commented(line):
+def is_line_commented(line: bytes) -> bool:
     """Checks if a `# symbol that is not part of a string was found in line."""
 
     comment_idx = line.find(b"#")
@@ -25,7 +25,7 @@ def is_line_commented(line):
     return True
 
 
-def comment_part_of_string(line, comment_idx):
+def comment_part_of_string(line: bytes, comment_idx: int) -> bool:
     """Checks if the symbol at comment_idx is part of a string."""
 
     if (
@@ -41,7 +41,7 @@ def comment_part_of_string(line, comment_idx):
 
 class CommentChecker(BaseRawFileChecker):
 
-    name = "refactoring"
+    name = "empty-comment"
     msgs = {
         "R2044": (
             "Line with empty comment",

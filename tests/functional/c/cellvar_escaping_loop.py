@@ -1,6 +1,6 @@
 # pylint: disable=unnecessary-comprehension,missing-docstring,too-few-public-methods,unnecessary-direct-lambda-call
 """Tests for loopvar-in-closure."""
-from __future__ import print_function
+
 
 from enum import Enum
 

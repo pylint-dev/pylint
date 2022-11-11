@@ -52,7 +52,7 @@ class _OldNamesAction(argparse._StoreAction):
         namespace: argparse.Namespace,
         values: str | Sequence[Any] | None,
         option_string: str | None = None,
-    ):
+    ) -> None:
         assert isinstance(values, list)
         setattr(namespace, self.dest, values[0])
         for old_name in self.old_names:
@@ -97,7 +97,7 @@ class _NewNamesAction(argparse._StoreAction):
         namespace: argparse.Namespace,
         values: str | Sequence[Any] | None,
         option_string: str | None = None,
-    ):
+    ) -> None:
         assert isinstance(values, list)
         setattr(namespace, self.dest, values[0])
         warnings.warn(

@@ -14,6 +14,7 @@ INVALID_CODE_BLOCK_PATTERN = (
     r"(?<=\s`)([\w\-\.\(\)\=]+\s{0,1}[\w\-\.\(\)\=]*)(?=`[,\.]{0,1}\s|$)"
 )
 
+# TODO: 2.16.0: Upgrade script for change in changelog
 DEFAULT_CHANGELOG = "ChangeLog"
 DEFAULT_SUBTITLE_PREFIX = "What's New in"
 
@@ -35,12 +36,7 @@ def changelog_insert_empty_lines(file_content: str, subtitle_text: str) -> str:
     for i, line in enumerate(lines):
         if line.startswith(subtitle_text):
             subtitle_count += 1
-            if (
-                subtitle_count == 1
-                or i < 2
-                or lines[i - 1] == ""
-                and lines[i - 2] == ""
-            ):
+            if subtitle_count == 1 or i < 2 or not lines[i - 1] and not lines[i - 2]:
                 continue
             lines.insert(i, "")
     return "\n".join(lines)

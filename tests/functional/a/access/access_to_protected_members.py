@@ -1,9 +1,8 @@
 # pylint: disable=too-few-public-methods, super-init-not-called
-# pylint: disable=no-classmethod-decorator,useless-object-inheritance
+# pylint: disable=no-classmethod-decorator
 """Test external access to protected class members."""
-from __future__ import print_function
 
-class MyClass(object):
+class MyClass:
     """Class with protected members."""
     _cls_protected = 5
 
@@ -44,7 +43,7 @@ INST._cls_protected = 3  # [protected-access]
 print(INST._cls_protected)  # [protected-access]
 
 
-class Issue1031(object):
+class Issue1031:
     """Test for GitHub issue 1031"""
     _attr = 1
 
@@ -59,7 +58,7 @@ class Issue1031(object):
         return None
 
 
-class Issue1802(object):
+class Issue1802:
     """Test for GitHub issue 1802"""
     def __init__(self, value):
         self._foo = value
@@ -101,7 +100,7 @@ class Issue1802(object):
         return False
 
 
-class Issue1159OtherClass(object):
+class Issue1159OtherClass:
     """Test for GitHub issue 1159"""
 
     _foo = 0
@@ -110,7 +109,7 @@ class Issue1159OtherClass(object):
         self._bar = 0
 
 
-class Issue1159(object):
+class Issue1159:
     """Test for GitHub issue 1159"""
 
     _foo = 0

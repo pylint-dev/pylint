@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,too-few-public-methods,import-error,wrong-import-position,no-else-return, comparison-with-itself, useless-object-inheritance, redundant-u-string-prefix comparison-of-constants
+# pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,too-few-public-methods,import-error,wrong-import-position,no-else-return, comparison-with-itself, redundant-u-string-prefix comparison-of-constants
 
 # standard types
 1 in [1, 2, 3]
@@ -30,20 +30,20 @@ def count(upto=float("inf")):
 10 in count(upto=10)
 
 # custom instance
-class UniversalContainer(object):
+class UniversalContainer:
     def __contains__(self, key):
         return True
 
 42 in UniversalContainer()
 
 # custom iterable
-class CustomIterable(object):
+class CustomIterable:
     def __iter__(self):
         return iter((1, 2, 3))
 3 in CustomIterable()
 
 # old-style iterable
-class OldStyleIterable(object):
+class OldStyleIterable:
     def __getitem__(self, key):
         if key < 10:
             return 2 ** key
@@ -60,7 +60,7 @@ class MaybeIterable(ImportedClass):
 10 in MaybeIterable()
 
 # do not emit warning inside mixins/abstract/base classes
-class UsefulMixin(object):
+class UsefulMixin:
     stuff = None
 
     def get_stuff(self):
@@ -71,7 +71,7 @@ class UsefulMixin(object):
         if thing in stuff:
             pass
 
-class BaseThing(object):
+class BaseThing:
     valid_values = None
 
     def validate(self, value):
@@ -81,7 +81,7 @@ class BaseThing(object):
             # error should not be emitted here
             return value in self.valid_values
 
-class AbstractThing(object):
+class AbstractThing:
     valid_values = None
 
     def validate(self, value):
@@ -93,7 +93,7 @@ class AbstractThing(object):
 
 # class is not named as abstract
 # but still is deduceably abstract
-class Thing(object):
+class Thing:
     valid_values = None
 
     def __init__(self):
@@ -114,7 +114,7 @@ class Thing(object):
 42 not in None  # [unsupported-membership-test]
 42 in 8.5  # [unsupported-membership-test]
 
-class EmptyClass(object):
+class EmptyClass:
     pass
 
 42 not in EmptyClass()  # [unsupported-membership-test]

@@ -13,12 +13,15 @@ on:
       - ".github/workflows/primer-test.yaml"
 
 env:
-  # Also change CACHE_VERSION in the CI workflow
-  CACHE_VERSION: 5
+  CACHE_VERSION: 1
+  KEY_PREFIX: venv
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   prepare-tests-linux:
@@ -27,33 +30,32 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10"]
+        python-version: [3.8, 3.9, "3.10", "3.11"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Generate partial Python venv restore key
         id: generate-python-key
         run: >-
-          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt')
-          }}"
+          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
+            hashFiles('pyproject.toml', 'requirements_test.txt',
+          'requirements_test_min.txt') }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key: >-
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             steps.generate-python-key.outputs.key }}
-          restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -69,18 +71,19 @@ jobs:
     needs: prepare-tests-linux
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10"]
+        python-version: [3.8, 3.9, "3.10", "3.11"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key:
@@ -95,7 +98,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          pytest -m primer_stdlib --primer-stdlib -n auto
+          pytest -m primer_stdlib --primer-stdlib -n auto -vv
 
   pytest-primer-external-batch-one:
     name: run on batch one / ${{ matrix.python-version }} / Linux
@@ -104,18 +107,19 @@ jobs:
     needs: prepare-tests-linux
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10"]
+        python-version: [3.8, 3.9, "3.10", "3.11"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v3.1.2
+        uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
+          check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3.0.11
         with:
           path: venv
           key:
@@ -130,39 +134,4 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          pytest -m primer_external_batch_one --primer-external -n auto
-
-  pytest-primer-external-batch-two:
-    name: run on batch two / ${{ matrix.python-version }} / Linux
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    needs: prepare-tests-linux
-    strategy:
-      matrix:
-        python-version: [3.8, 3.9, "3.10"]
-    steps:
-      - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.2
-      - name: Set up Python ${{ matrix.python-version }}
-        id: python
-        uses: actions/setup-python@v3.1.2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Restore Python virtual environment
-        id: cache-venv
-        uses: actions/cache@v3.0.2
-        with:
-          path: venv
-          key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.prepare-tests-linux.outputs.python-key }}
-      - name: Fail job if Python cache restore failed
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: |
-          echo "Failed to restore Python venv from cache"
-          exit 1
-      - name: Run pytest
-        run: |
-          . venv/bin/activate
-          pip install -e .
-          pytest -m primer_external_batch_two --primer-external -n auto
+          pytest -m primer_external_batch_one --primer-external -n auto -vv

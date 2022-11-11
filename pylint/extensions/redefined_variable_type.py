@@ -50,9 +50,9 @@ class MultipleTypesChecker(BaseChecker):
     leave_functiondef = leave_module = leave_classdef
 
     def visit_module(self, _: nodes.Module) -> None:
-        self._assigns: list[dict] = [{}]
+        self._assigns: list[dict[str, list[tuple[nodes.Assign, str]]]] = [{}]
 
-    def _check_and_add_messages(self):
+    def _check_and_add_messages(self) -> None:
         assigns = self._assigns.pop()
         for name, args in assigns.items():
             if len(args) <= 1:

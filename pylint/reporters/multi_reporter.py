@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
+from copy import copy
 from typing import TYPE_CHECKING, TextIO
 
 from pylint.message import Message
@@ -77,7 +78,8 @@ class MultiReporter:
     def handle_message(self, msg: Message) -> None:
         """Handle a new message triggered on the current file."""
         for rep in self._sub_reporters:
-            rep.handle_message(msg)
+            # We provide a copy so reporters can't modify message for others.
+            rep.handle_message(copy(msg))
 
     def writeln(self, string: str = "") -> None:
         """Write a line in the output buffer."""

@@ -22,7 +22,7 @@ from typing import List, Optional, TextIO, Tuple
 
 import pytest
 
-from pylint import checkers, config
+from pylint import checkers
 from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
 from pylint.message.message import Message
@@ -81,18 +81,19 @@ class LintModuleTest:
         # Check if this message has a custom configuration file (e.g. for enabling optional checkers).
         # If not, use the default configuration.
         config_file: Optional[Path]
-        if (test_file[1].parent / "pylintrc").exists():
-            config_file = test_file[1].parent / "pylintrc"
-        else:
-            config_file = next(config.find_default_config_files(), None)
-
+        msgid, full_path = test_file
+        pylintrc = full_path.parent / "pylintrc"
+        config_file = pylintrc if pylintrc.exists() else None
+        print(f"Config file used: {config_file}")
+        args = [
+            str(full_path),
+            "--disable=all",
+            f"--enable=F,{msgid},astroid-error,syntax-error",
+        ]
+        print(f"Command used:\npylint {' '.join(args)}")
         _config_initialization(
             self._linter,
-            args_list=[
-                str(test_file[1]),
-                "--disable=all",
-                f"--enable={test_file[0]},astroid-error,fatal,syntax-error",
-            ],
+            args_list=args,
             reporter=_test_reporter,
             config_file=config_file,
         )
@@ -118,6 +119,8 @@ class LintModuleTest:
             line = match.group("line")
             if line is None:
                 lineno = i + 1
+            elif line.startswith("+") or line.startswith("-"):
+                lineno = i + 1 + int(line)
             else:
                 lineno = int(line)
 
@@ -142,14 +145,33 @@ class LintModuleTest:
 
     def _runTest(self) -> None:
         """Run the test and assert message differences."""
-        self._linter.check([str(self._test_file[1])])
+        self._linter.check([str(self._test_file[1]), "--rcfile="])
         expected_messages = self._get_expected()
         actual_messages = self._get_actual()
         if self.is_good_test_file():
-            assert actual_messages.total() == 0  # type: ignore[attr-defined]
+            assert actual_messages.total() == 0, self.assert_message_good(
+                actual_messages
+            )
         if self.is_bad_test_file():
-            assert actual_messages.total() > 0  # type: ignore[attr-defined]
+            msg = "There should be at least one warning raised for 'bad.py'"
+            assert actual_messages.total() > 0, msg
         assert expected_messages == actual_messages
+
+    def assert_message_good(self, actual_messages: MessageCounter) -> str:
+        if not actual_messages:
+            return ""
+        messages = "\n- ".join(f"{v} (l. {i})" for i, v in actual_messages)
+        msg = f"""There should be no warning raised for 'good.py' but these messages were raised:
+- {messages}
+
+See:
+
+"""
+        with open(self._test_file[1]) as f:
+            lines = [line[:-1] for line in f.readlines()]
+        for line_index, value in actual_messages:
+            lines[line_index - 1] += f"  # <-- /!\\ unexpected '{value}' /!\\"
+        return msg + "\n".join(lines)
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)

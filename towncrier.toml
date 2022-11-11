@@ -1,0 +1,67 @@
+[tool.towncrier]
+version = "2.16.0"
+directory = "doc/whatsnew/fragments"
+filename = "doc/whatsnew/2/2.16/index.rst"
+template = "doc/whatsnew/fragments/_template.rst"
+issue_format = "`#{issue} <https://github.com/PyCQA/pylint/issues/{issue}>`_"
+wrap = true
+
+# Definition of fragment types.
+# We want the changelog to show in the same order as the fragment types
+# are defined here. Therefore we have to use the array-style fragment definition.
+# The table-style definition, although more concise, would be sorted alphabetically.
+# https://github.com/twisted/towncrier/issues/437
+[[tool.towncrier.type]]
+directory = "breaking"
+name = "Breaking Changes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "user_action"
+name = "Changes requiring user actions"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "feature"
+name = "New Features"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "new_check"
+name = "New Checks"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "removed_check"
+name = "Removed Checks"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "extension"
+name = "Extensions"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "false_positive"
+name = "False Positives Fixed"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "false_negative"
+name = "False Negatives Fixed"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "bugfix"
+name = "Other Bug Fixes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "other"
+name = "Other Changes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "internal"
+name = "Internal Changes"
+showcontent = true

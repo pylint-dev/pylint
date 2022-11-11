@@ -49,3 +49,35 @@ result = [my_list[idx] for idx, val in enumerate(my_list)] # [unnecessary-list-i
 pairs = [(0, 0)]
 for i, (a, b) in enumerate(pairs):
     print(pairs[i][0])
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6603
+for i, num in enumerate():  # raises TypeError, but shouldn't crash pylint
+    pass
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6788
+num_list = [1, 2, 3]
+for a, b in enumerate(num_list):
+    num_list[a], _ = (2, 1)
+
+num_list = [1, 2, 3]
+for a, b in enumerate(num_list):
+    ([x, num_list[a]], _) = ([5, 6], 1)
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6818
+updated_list = [1, 2, 3]
+for idx, val in enumerate(updated_list):
+    while updated_list[idx] > 0:
+        updated_list[idx] -= 1
+
+updated_list = [1, 2, 3]
+for idx, val in enumerate(updated_list):
+    print(updated_list[idx]) # [unnecessary-list-index-lookup]
+    updated_list[idx] -= 1
+    print(updated_list[idx])
+
+# Regression test for https://github.com/PyCQA/pylint/issues/6896
+parts = ["a", "b", "c", "d"]
+for i, part in enumerate(parts):
+    if i == 3:  # more complex condition actually
+        parts.insert(i, "X")
+    print(part, parts[i])

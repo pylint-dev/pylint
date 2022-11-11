@@ -10,7 +10,7 @@ import re
 import sys
 from typing import TYPE_CHECKING
 
-from pylint import interfaces
+from pylint import constants, interfaces
 from pylint.config.callback_actions import (
     _DisableAction,
     _DoNothingAction,
@@ -44,7 +44,7 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "metavar": "<file>[,<file>...]",
                 "dest": "black_list",
                 "kwargs": {"old_names": ["black_list"]},
-                "default": ("CVS",),
+                "default": constants.DEFAULT_IGNORE_LIST,
                 "help": "Files or directories to be skipped. "
                 "They should be base names, not paths.",
             },
@@ -56,7 +56,7 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "metavar": "<pattern>[,<pattern>...]",
                 "dest": "black_list_re",
                 "default": (re.compile(r"^\.#"),),
-                "help": "Files or directories matching the regex patterns are"
+                "help": "Files or directories matching the regular expression patterns are"
                 " skipped. The regex matches against base names, not paths. The default value "
                 "ignores Emacs file locks",
             },
@@ -67,9 +67,10 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "type": "regexp_paths_csv",
                 "metavar": "<pattern>[,<pattern>...]",
                 "default": [],
-                "help": "Add files or directories matching the regex patterns to the "
+                "help": "Add files or directories matching the regular expressions patterns to the "
                 "ignore-list. The regex matches against paths and can be in "
-                "Posix or Windows format.",
+                "Posix or Windows format. Because '\\\\' represents the directory delimiter "
+                "on Windows systems, it can't be used as an escape character.",
             },
         ),
         (
@@ -154,7 +155,7 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "default": 10,
                 "type": "float",
                 "metavar": "<score>",
-                "help": "Specify a score threshold to be exceeded before program exits with error.",
+                "help": "Specify a score threshold under which the program will exit with error.",
             },
         ),
         (
@@ -244,7 +245,8 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "short": "j",
                 "default": 1,
                 "help": "Use multiple processes to speed up Pylint. Specifying 0 will "
-                "auto-detect the number of processors available to use.",
+                "auto-detect the number of processors available to use, and will cap "
+                "the count on Windows to avoid hangs.",
             },
         ),
         (
@@ -529,9 +531,9 @@ def _make_run_options(self: Run) -> Options:
                 "action": _ErrorsOnlyModeAction,
                 "kwargs": {"Run": self},
                 "short": "E",
-                "help": "In error mode, checkers without error messages are "
-                "disabled and for others, only the ERROR messages are "
-                "displayed, and no reports are done by default.",
+                "help": "In error mode, messages with a category besides "
+                "ERROR or FATAL are suppressed, and no reports are done by default. "
+                "Error mode is compatible with disabling specific errors. ",
                 "hide_from_config_file": True,
             },
         ),

@@ -99,3 +99,16 @@ def fix_import_path(args: Sequence[str]) -> Iterator[None]:
         yield
     finally:
         sys.path[:] = original
+
+
+def _is_relative_to(self: Path, *other: Path) -> bool:
+    """Checks if self is relative to other.
+
+    Backport of pathlib.Path.is_relative_to for Python <3.9
+    TODO: py39: Remove this backport and use stdlib function.
+    """
+    try:
+        self.relative_to(*other)
+        return True
+    except ValueError:
+        return False

@@ -66,7 +66,8 @@ def _get_all_options(linter: PyLinter) -> OptionsDataDict:
 def _create_checker_section(
     checker: str, options: list[OptionsData], linter: PyLinter
 ) -> str:
-    checker_string = get_rst_title(f"``{checker.capitalize()}`` Checker", "^")
+    checker_string = f".. _{checker}-options:\n\n"
+    checker_string += get_rst_title(f"``{checker.capitalize()}`` **Checker**", "-")
 
     toml_doc = tomlkit.document()
     pylint_tool_table = tomlkit.table(is_super_table=True)
@@ -76,11 +77,11 @@ def _create_checker_section(
 
     for option in sorted(options, key=lambda x: x.name):
         checker_string += get_rst_title(f"--{option.name}", '"')
-        checker_string += f"\nDescription:\n  *{option.optdict.get('help')}*\n\n"
+        checker_string += f"*{option.optdict.get('help')}*\n\n"
         if option.optdict.get("default") == "":
-            checker_string += 'Default:\n  ``""``\n\n\n'
+            checker_string += '**Default:** ``""``\n\n\n'
         else:
-            checker_string += f"Default:\n  ``{option.optdict.get('default')}``\n\n\n"
+            checker_string += f"**Default:**  ``{option.optdict.get('default')}``\n\n\n"
 
         # Start adding the option to the toml example
         if option.optdict.get("hide_from_config_file"):
@@ -110,14 +111,16 @@ def _create_checker_section(
         checker_table.add(tomlkit.nl())
 
     pylint_tool_table.add(options[0].checker.name.lower(), checker_table)
-    toml_string = "\n".join(f"   {i}" for i in tomlkit.dumps(toml_doc).split("\n"))
+    toml_string = "\n".join(
+        f"   {i}" if i else "" for i in tomlkit.dumps(toml_doc).split("\n")
+    )
     checker_string += f"""
 .. raw:: html
 
    <details>
    <summary><a>Example configuration section</a></summary>
 
-**Note:** Only ``pylint.tool`` is required, the section title is not. These are the default values.
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
 
 .. code-block:: toml
 
@@ -133,12 +136,17 @@ def _create_checker_section(
 
 def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
     """Create or overwrite the options page."""
-    sections: list[str] = [get_rst_title("Standard Checkers:", "^")]
+    sections: list[str] = [
+        ".. This file is auto-generated. Make any changes to the associated\n"
+        ".. docs extension in 'doc/exts/pylint_options.py'.\n\n"
+        ".. _all-options:",
+        get_rst_title("Standard Checkers", "^"),
+    ]
     found_extensions = False
 
     for checker, checker_options in options.items():
         if not found_extensions and checker_options[0].extension:
-            sections.append(get_rst_title("Extensions:", "^"))
+            sections.append(get_rst_title("Extensions", "^"))
             found_extensions = True
         sections.append(_create_checker_section(checker, checker_options, linter))
 
@@ -150,10 +158,8 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
     ) as stream:
         stream.write(
             f"""
-{get_rst_title("All pylint options", "=")}
 
-{sections_string}
-"""
+{sections_string}"""
         )
 
 

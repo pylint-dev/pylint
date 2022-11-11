@@ -9,7 +9,6 @@ import pathlib
 import platform
 import sys
 from datetime import datetime
-from typing import NamedTuple
 
 import astroid
 import platformdirs
@@ -46,13 +45,15 @@ MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 
 # You probably don't want to change the MAIN_CHECKER_NAME
 # This would affect rcfile generation and retro-compatibility
-# on all project using [MASTER] in their rcfile.
-MAIN_CHECKER_NAME = "master"
+# on all project using [MAIN] in their rcfile.
+MAIN_CHECKER_NAME = "main"
 
 USER_HOME = os.path.expanduser("~")
 # TODO: 3.0: Remove in 3.0 with all the surrounding code
 OLD_DEFAULT_PYLINT_HOME = ".pylint.d"
 DEFAULT_PYLINT_HOME = platformdirs.user_cache_dir("pylint")
+
+DEFAULT_IGNORE_LIST = ("CVS",)
 
 
 class WarningScope:
@@ -79,118 +80,6 @@ HUMAN_READABLE_TYPES = {
     "inlinevar": "inline iteration",
     "typevar": "type variable",
 }
-
-
-class DeletedMessage(NamedTuple):
-    msgid: str
-    symbol: str
-    old_names: list[tuple[str, str]] = []
-
-
-DELETED_MSGID_PREFIXES: list[int] = []
-
-DELETED_MESSAGES = [
-    # Everything until the next comment is from the
-    # PY3K+ checker, see https://github.com/PyCQA/pylint/pull/4942
-    DeletedMessage("W1601", "apply-builtin"),
-    DeletedMessage("E1601", "print-statement"),
-    DeletedMessage("E1602", "parameter-unpacking"),
-    DeletedMessage(
-        "E1603", "unpacking-in-except", [("W0712", "old-unpacking-in-except")]
-    ),
-    DeletedMessage("E1604", "old-raise-syntax", [("W0121", "old-old-raise-syntax")]),
-    DeletedMessage("E1605", "backtick", [("W0333", "old-backtick")]),
-    DeletedMessage("E1609", "import-star-module-level"),
-    DeletedMessage("W1601", "apply-builtin"),
-    DeletedMessage("W1602", "basestring-builtin"),
-    DeletedMessage("W1603", "buffer-builtin"),
-    DeletedMessage("W1604", "cmp-builtin"),
-    DeletedMessage("W1605", "coerce-builtin"),
-    DeletedMessage("W1606", "execfile-builtin"),
-    DeletedMessage("W1607", "file-builtin"),
-    DeletedMessage("W1608", "long-builtin"),
-    DeletedMessage("W1609", "raw_input-builtin"),
-    DeletedMessage("W1610", "reduce-builtin"),
-    DeletedMessage("W1611", "standarderror-builtin"),
-    DeletedMessage("W1612", "unicode-builtin"),
-    DeletedMessage("W1613", "xrange-builtin"),
-    DeletedMessage("W1614", "coerce-method"),
-    DeletedMessage("W1615", "delslice-method"),
-    DeletedMessage("W1616", "getslice-method"),
-    DeletedMessage("W1617", "setslice-method"),
-    DeletedMessage("W1618", "no-absolute-import"),
-    DeletedMessage("W1619", "old-division"),
-    DeletedMessage("W1620", "dict-iter-method"),
-    DeletedMessage("W1621", "dict-view-method"),
-    DeletedMessage("W1622", "next-method-called"),
-    DeletedMessage("W1623", "metaclass-assignment"),
-    DeletedMessage(
-        "W1624", "indexing-exception", [("W0713", "old-indexing-exception")]
-    ),
-    DeletedMessage("W1625", "raising-string", [("W0701", "old-raising-string")]),
-    DeletedMessage("W1626", "reload-builtin"),
-    DeletedMessage("W1627", "oct-method"),
-    DeletedMessage("W1628", "hex-method"),
-    DeletedMessage("W1629", "nonzero-method"),
-    DeletedMessage("W1630", "cmp-method"),
-    DeletedMessage("W1632", "input-builtin"),
-    DeletedMessage("W1633", "round-builtin"),
-    DeletedMessage("W1634", "intern-builtin"),
-    DeletedMessage("W1635", "unichr-builtin"),
-    DeletedMessage(
-        "W1636", "map-builtin-not-iterating", [("W1631", "implicit-map-evaluation")]
-    ),
-    DeletedMessage("W1637", "zip-builtin-not-iterating"),
-    DeletedMessage("W1638", "range-builtin-not-iterating"),
-    DeletedMessage("W1639", "filter-builtin-not-iterating"),
-    DeletedMessage("W1640", "using-cmp-argument"),
-    DeletedMessage("W1642", "div-method"),
-    DeletedMessage("W1643", "idiv-method"),
-    DeletedMessage("W1644", "rdiv-method"),
-    DeletedMessage("W1645", "exception-message-attribute"),
-    DeletedMessage("W1646", "invalid-str-codec"),
-    DeletedMessage("W1647", "sys-max-int"),
-    DeletedMessage("W1648", "bad-python3-import"),
-    DeletedMessage("W1649", "deprecated-string-function"),
-    DeletedMessage("W1650", "deprecated-str-translate-call"),
-    DeletedMessage("W1651", "deprecated-itertools-function"),
-    DeletedMessage("W1652", "deprecated-types-field"),
-    DeletedMessage("W1653", "next-method-defined"),
-    DeletedMessage("W1654", "dict-items-not-iterating"),
-    DeletedMessage("W1655", "dict-keys-not-iterating"),
-    DeletedMessage("W1656", "dict-values-not-iterating"),
-    DeletedMessage("W1657", "deprecated-operator-function"),
-    DeletedMessage("W1658", "deprecated-urllib-function"),
-    DeletedMessage("W1659", "xreadlines-attribute"),
-    DeletedMessage("W1660", "deprecated-sys-function"),
-    DeletedMessage("W1661", "exception-escape"),
-    DeletedMessage("W1662", "comprehension-escape"),
-    # https://github.com/PyCQA/pylint/pull/3578
-    DeletedMessage("W0312", "mixed-indentation"),
-    # https://github.com/PyCQA/pylint/pull/3577
-    DeletedMessage(
-        "C0326",
-        "bad-whitespace",
-        [
-            ("C0323", "no-space-after-operator"),
-            ("C0324", "no-space-after-comma"),
-            ("C0322", "no-space-before-operator"),
-        ],
-    ),
-    # https://github.com/PyCQA/pylint/pull/3571
-    DeletedMessage("C0330", "bad-continuation"),
-    # No PR
-    DeletedMessage("R0921", "abstract-class-not-used"),
-    # https://github.com/PyCQA/pylint/pull/3577
-    DeletedMessage("C0326", "bad-whitespace"),
-    # Pylint 1.4.3
-    DeletedMessage("W0142", "star-args"),
-    # https://github.com/PyCQA/pylint/issues/2409
-    DeletedMessage("W0232", "no-init"),
-    # https://github.com/PyCQA/pylint/pull/6421
-    DeletedMessage("W0111", "assign-to-new-keyword"),
-]
-
 
 # ignore some messages when emitting useless-suppression:
 # - cyclic-import: can show false positives due to incomplete context
@@ -266,3 +155,146 @@ def _get_pylint_home() -> str:
 
 
 PYLINT_HOME = _get_pylint_home()
+
+TYPING_NORETURN = frozenset(
+    (
+        "typing.NoReturn",
+        "typing_extensions.NoReturn",
+    )
+)
+TYPING_NEVER = frozenset(
+    (
+        "typing.Never",
+        "typing_extensions.Never",
+    )
+)
+
+DUNDER_METHODS: dict[tuple[int, int], dict[str, str]] = {
+    (0, 0): {
+        "__init__": "Instantiate class directly",
+        "__del__": "Use del keyword",
+        "__repr__": "Use repr built-in function",
+        "__str__": "Use str built-in function",
+        "__bytes__": "Use bytes built-in function",
+        "__format__": "Use format built-in function, format string method, or f-string",
+        "__lt__": "Use < operator",
+        "__le__": "Use <= operator",
+        "__eq__": "Use == operator",
+        "__ne__": "Use != operator",
+        "__gt__": "Use > operator",
+        "__ge__": "Use >= operator",
+        "__hash__": "Use hash built-in function",
+        "__bool__": "Use bool built-in function",
+        "__getattr__": "Access attribute directly or use getattr built-in function",
+        "__getattribute__": "Access attribute directly or use getattr built-in function",
+        "__setattr__": "Set attribute directly or use setattr built-in function",
+        "__delattr__": "Use del keyword",
+        "__dir__": "Use dir built-in function",
+        "__get__": "Use get method",
+        "__set__": "Use set method",
+        "__delete__": "Use del keyword",
+        "__instancecheck__": "Use isinstance built-in function",
+        "__subclasscheck__": "Use issubclass built-in function",
+        "__call__": "Invoke instance directly",
+        "__len__": "Use len built-in function",
+        "__length_hint__": "Use length_hint method",
+        "__getitem__": "Access item via subscript",
+        "__setitem__": "Set item via subscript",
+        "__delitem__": "Use del keyword",
+        "__iter__": "Use iter built-in function",
+        "__next__": "Use next built-in function",
+        "__reversed__": "Use reversed built-in function",
+        "__contains__": "Use in keyword",
+        "__add__": "Use + operator",
+        "__sub__": "Use - operator",
+        "__mul__": "Use * operator",
+        "__matmul__": "Use @ operator",
+        "__truediv__": "Use / operator",
+        "__floordiv__": "Use // operator",
+        "__mod__": "Use % operator",
+        "__divmod__": "Use divmod built-in function",
+        "__pow__": "Use ** operator or pow built-in function",
+        "__lshift__": "Use << operator",
+        "__rshift__": "Use >> operator",
+        "__and__": "Use & operator",
+        "__xor__": "Use ^ operator",
+        "__or__": "Use | operator",
+        "__radd__": "Use + operator",
+        "__rsub__": "Use - operator",
+        "__rmul__": "Use * operator",
+        "__rmatmul__": "Use @ operator",
+        "__rtruediv__": "Use / operator",
+        "__rfloordiv__": "Use // operator",
+        "__rmod__": "Use % operator",
+        "__rdivmod__": "Use divmod built-in function",
+        "__rpow__": "Use ** operator or pow built-in function",
+        "__rlshift__": "Use << operator",
+        "__rrshift__": "Use >> operator",
+        "__rand__": "Use & operator",
+        "__rxor__": "Use ^ operator",
+        "__ror__": "Use | operator",
+        "__iadd__": "Use += operator",
+        "__isub__": "Use -= operator",
+        "__imul__": "Use *= operator",
+        "__imatmul__": "Use @= operator",
+        "__itruediv__": "Use /= operator",
+        "__ifloordiv__": "Use //= operator",
+        "__imod__": "Use %= operator",
+        "__ipow__": "Use **= operator",
+        "__ilshift__": "Use <<= operator",
+        "__irshift__": "Use >>= operator",
+        "__iand__": "Use &= operator",
+        "__ixor__": "Use ^= operator",
+        "__ior__": "Use |= operator",
+        "__neg__": "Multiply by -1 instead",
+        "__pos__": "Multiply by +1 instead",
+        "__abs__": "Use abs built-in function",
+        "__invert__": "Use ~ operator",
+        "__complex__": "Use complex built-in function",
+        "__int__": "Use int built-in function",
+        "__float__": "Use float built-in function",
+        "__round__": "Use round built-in function",
+        "__trunc__": "Use math.trunc function",
+        "__floor__": "Use math.floor function",
+        "__ceil__": "Use math.ceil function",
+        "__enter__": "Invoke context manager directly",
+        "__aenter__": "Invoke context manager directly",
+        "__copy__": "Use copy.copy function",
+        "__deepcopy__": "Use copy.deepcopy function",
+        "__fspath__": "Use os.fspath function instead",
+    },
+    (3, 10): {
+        "__aiter__": "Use aiter built-in function",
+        "__anext__": "Use anext built-in function",
+    },
+}
+
+EXTRA_DUNDER_METHODS = [
+    "__new__",
+    "__subclasses__",
+    "__init_subclass__",
+    "__set_name__",
+    "__class_getitem__",
+    "__missing__",
+    "__exit__",
+    "__await__",
+    "__aexit__",
+    "__getnewargs_ex__",
+    "__getnewargs__",
+    "__getstate__",
+    "__setstate__",
+    "__reduce__",
+    "__reduce_ex__",
+    "__post_init__",  # part of `dataclasses` module
+]
+
+DUNDER_PROPERTIES = [
+    "__class__",
+    "__dict__",
+    "__doc__",
+    "__format__",
+    "__module__",
+    "__sizeof__",
+    "__subclasshook__",
+    "__weakref__",
+]

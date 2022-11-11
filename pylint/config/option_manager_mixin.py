@@ -2,6 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+
 # pylint: disable=duplicate-code
 
 from __future__ import annotations
@@ -14,13 +15,19 @@ import optparse  # pylint: disable=deprecated-module
 import os
 import sys
 import warnings
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, TextIO
+from typing import TYPE_CHECKING, Any, TextIO
 
 from pylint import utils
 from pylint.config.option import Option
-from pylint.config.option_parser import OptionParser
+from pylint.config.option_parser import OptionParser  # type: ignore[attr-defined]
 from pylint.typing import OptionDict
+
+if TYPE_CHECKING:
+    from pylint.config.options_provider_mixin import (  # type: ignore[attr-defined]
+        OptionsProviderMixin,
+    )
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -28,17 +35,17 @@ else:
     import tomli as tomllib
 
 
-def _expand_default(self, option):
+def _expand_default(self: optparse.HelpFormatter, option: Option) -> str:
     """Patch OptionParser.expand_default with custom behaviour.
 
     This will handle defaults to avoid overriding values in the
     configuration file.
     """
     if self.parser is None or not self.default_tag:
-        return option.help
+        return str(option.help)
     optname = option._long_opts[0][2:]
     try:
-        provider = self.parser.options_manager._all_options[optname]
+        provider = self.parser.options_manager._all_options[optname]  # type: ignore[attr-defined]
     except KeyError:
         value = None
     else:
@@ -48,41 +55,42 @@ def _expand_default(self, option):
         value = utils._format_option_value(optdict, value)
     if value is optparse.NO_DEFAULT or not value:
         value = self.NO_DEFAULT_VALUE
-    return option.help.replace(self.default_tag, str(value))
+    return option.help.replace(self.default_tag, str(value))  # type: ignore[union-attr]
 
 
 @contextlib.contextmanager
-def _patch_optparse():
+def _patch_optparse() -> Iterator[None]:
     # pylint: disable = redefined-variable-type
     orig_default = optparse.HelpFormatter
     try:
-        optparse.HelpFormatter.expand_default = _expand_default
+        optparse.HelpFormatter.expand_default = _expand_default  # type: ignore[assignment]
         yield
     finally:
-        optparse.HelpFormatter.expand_default = orig_default
+        optparse.HelpFormatter.expand_default = orig_default  # type: ignore[assignment]
 
 
 class OptionsManagerMixIn:
     """Handle configuration from both a configuration file and command line options."""
 
-    def __init__(self, usage):
+    def __init__(self, usage: str) -> None:
         # TODO: 3.0: Remove deprecated class
         warnings.warn(
             "OptionsManagerMixIn has been deprecated and will be removed in pylint 3.0",
             DeprecationWarning,
+            stacklevel=2,
         )
         self.reset_parsers(usage)
         # list of registered options providers
-        self.options_providers = []
+        self.options_providers: list[OptionsProviderMixin] = []
         # dictionary associating option name to checker
-        self._all_options = collections.OrderedDict()
-        self._short_options = {}
-        self._nocallback_options = {}
-        self._mygroups = {}
+        self._all_options: collections.OrderedDict[Any, Any] = collections.OrderedDict()
+        self._short_options: dict[Any, Any] = {}
+        self._nocallback_options: dict[Any, Any] = {}
+        self._mygroups: dict[Any, Any] = {}
         # verbosity
         self._maxlevel = 0
 
-    def reset_parsers(self, usage=""):
+    def reset_parsers(self, usage: str = "") -> None:
         # configuration file parser
         self.cfgfile_parser = configparser.ConfigParser(
             inline_comment_prefixes=("#", ";")
@@ -92,7 +100,9 @@ class OptionsManagerMixIn:
         self.cmdline_parser.options_manager = self
         self._optik_option_attrs = set(self.cmdline_parser.option_class.ATTRS)
 
-    def register_options_provider(self, provider, own_group=True):
+    def register_options_provider(
+        self, provider: OptionsProviderMixin, own_group: bool = True
+    ) -> None:
         """Register an options provider."""
         self.options_providers.append(provider)
         non_group_spec_options = [
@@ -118,7 +128,9 @@ class OptionsManagerMixIn:
             ]
             self.add_option_group(gname, gdoc, goptions, provider)
 
-    def add_option_group(self, group_name, _, options, provider):
+    def add_option_group(
+        self, group_name: str, _: Any, options: Any, provider: OptionsProviderMixin
+    ) -> None:
         # add option group to the command line parser
         if group_name in self._mygroups:
             group = self._mygroups[group_name]
@@ -131,7 +143,7 @@ class OptionsManagerMixIn:
             # add section to the config file
             if (
                 group_name != "DEFAULT"
-                and group_name not in self.cfgfile_parser._sections
+                and group_name not in self.cfgfile_parser._sections  # type: ignore[attr-defined]
             ):
                 self.cfgfile_parser.add_section(group_name)
         # add provider's specific options
@@ -140,13 +152,21 @@ class OptionsManagerMixIn:
                 optdict["action"] = "callback"
             self.add_optik_option(provider, group, opt, optdict)
 
-    def add_optik_option(self, provider, optikcontainer, opt, optdict):
+    def add_optik_option(
+        self,
+        provider: OptionsProviderMixin,
+        optikcontainer: Any,
+        opt: str,
+        optdict: OptionDict,
+    ) -> None:
         args, optdict = self.optik_option(provider, opt, optdict)
         option = optikcontainer.add_option(*args, **optdict)
         self._all_options[opt] = provider
         self._maxlevel = max(self._maxlevel, option.level or 0)
 
-    def optik_option(self, provider, opt, optdict):
+    def optik_option(
+        self, provider: OptionsProviderMixin, opt: str, optdict: OptionDict
+    ) -> tuple[list[str], OptionDict]:
         """Get our personal option definition and return a suitable form for
         use with optik/optparse.
         """
@@ -164,12 +184,12 @@ class OptionsManagerMixIn:
                 and optdict.get("default") is not None
                 and optdict["action"] not in ("store_true", "store_false")
             ):
-                optdict["help"] += " [current: %default]"
+                optdict["help"] += " [current: %default]"  # type: ignore[operator]
             del optdict["default"]
         args = ["--" + str(opt)]
         if "short" in optdict:
             self._short_options[optdict["short"]] = opt
-            args.append("-" + optdict["short"])
+            args.append("-" + optdict["short"])  # type: ignore[operator]
             del optdict["short"]
         # cleanup option definition dict before giving it to optik
         for key in list(optdict.keys()):
@@ -177,7 +197,9 @@ class OptionsManagerMixIn:
                 optdict.pop(key)
         return args, optdict
 
-    def cb_set_provider_option(self, option, opt, value, parser):
+    def cb_set_provider_option(
+        self, option: Option, opt: str, value: Any, parser: Any
+    ) -> None:
         """Optik callback for option setting."""
         if opt.startswith("--"):
             # remove -- on long option
@@ -190,7 +212,7 @@ class OptionsManagerMixIn:
             value = 1
         self.global_set_option(opt, value)
 
-    def global_set_option(self, opt, value):
+    def global_set_option(self, opt: str, value: Any) -> None:
         """Set option on the correct option provider."""
         self._all_options[opt].set_option(opt, value)
 
@@ -229,7 +251,7 @@ class OptionsManagerMixIn:
             )
             printed = True
 
-    def load_provider_defaults(self):
+    def load_provider_defaults(self) -> None:
         """Initialize configuration using default values."""
         for provider in self.options_providers:
             provider.load_defaults()
@@ -256,11 +278,11 @@ class OptionsManagerMixIn:
                 with open(config_file, encoding="utf_8_sig") as fp:
                     parser.read_file(fp)
                 # normalize each section's title
-                for sect, values in list(parser._sections.items()):
+                for sect, values in list(parser._sections.items()):  # type: ignore[attr-defined]
                     if sect.startswith("pylint."):
                         sect = sect[len("pylint.") :]
                     if not sect.isupper() and values:
-                        parser._sections[sect.upper()] = values
+                        parser._sections[sect.upper()] = values  # type: ignore[attr-defined]
 
         if not verbose:
             return
@@ -302,7 +324,7 @@ class OptionsManagerMixIn:
                     parser.add_section(section_name)
                     parser.set(section_name, option, value=value)
 
-    def load_config_file(self):
+    def load_config_file(self) -> None:
         """Dispatch values previously read from a configuration file to each
         option's provider.
         """
@@ -314,17 +336,19 @@ class OptionsManagerMixIn:
                 except (KeyError, optparse.OptionError):
                     continue
 
-    def load_configuration(self, **kwargs):
+    def load_configuration(self, **kwargs: Any) -> None:
         """Override configuration according to given parameters."""
         return self.load_configuration_from_config(kwargs)
 
-    def load_configuration_from_config(self, config):
+    def load_configuration_from_config(self, config: dict[str, Any]) -> None:
         for opt, opt_value in config.items():
             opt = opt.replace("_", "-")
             provider = self._all_options[opt]
             provider.set_option(opt, opt_value)
 
-    def load_command_line_configuration(self, args=None) -> list[str]:
+    def load_command_line_configuration(
+        self, args: list[str] | None = None
+    ) -> list[str]:
         """Override configuration according to command line parameters.
 
         return additional arguments
@@ -339,10 +363,10 @@ class OptionsManagerMixIn:
                     if value is None:
                         continue
                     setattr(config, attr, value)
-            return args
+            return args  # type: ignore[return-value]
 
-    def help(self, level=0):
+    def help(self, level: int = 0) -> str:
         """Return the usage string for available options."""
         self.cmdline_parser.formatter.output_level = level
         with _patch_optparse():
-            return self.cmdline_parser.format_help()
+            return str(self.cmdline_parser.format_help())

@@ -1,6 +1,5 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, broad-exception-raised
 
-from __future__ import print_function
 
 def func1():
     return 1

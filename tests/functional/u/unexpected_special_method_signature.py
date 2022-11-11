@@ -1,9 +1,9 @@
 """Test for special methods implemented incorrectly."""
 
 # pylint: disable=missing-docstring, unused-argument, too-few-public-methods
-# pylint: disable=invalid-name,too-many-arguments,bad-staticmethod-argument, useless-object-inheritance
+# pylint: disable=invalid-name,too-many-arguments,bad-staticmethod-argument
 
-class Invalid(object):
+class Invalid:
 
     def __enter__(self, other): # [unexpected-special-method-signature]
         pass
@@ -33,23 +33,20 @@ class Invalid(object):
     def __subclasses__(self, blabla):  # [unexpected-special-method-signature]
         pass
 
-    @classmethod
-    def __init_subclass__(cls, blabla):  # [unexpected-special-method-signature]
-        pass
 
-class FirstBadContextManager(object):
+class FirstBadContextManager:
     def __enter__(self):
         return self
     def __exit__(self, exc_type): # [unexpected-special-method-signature]
         pass
 
-class SecondBadContextManager(object):
+class SecondBadContextManager:
     def __enter__(self):
         return self
     def __exit__(self, exc_type, value, tb, stack): # [unexpected-special-method-signature]
         pass
 
-class ThirdBadContextManager(object):
+class ThirdBadContextManager:
     def __enter__(self):
         return self
 
@@ -58,7 +55,7 @@ class ThirdBadContextManager(object):
         pass
 
 
-class Async(object):
+class Async:
 
     def __aiter__(self, extra): # [unexpected-special-method-signature]
         pass
@@ -72,7 +69,7 @@ class Async(object):
         pass
 
 
-class Valid(object):
+class Valid:
 
     def __new__(cls, test, multiple, args):
         pass
@@ -106,21 +103,36 @@ class Valid(object):
     def __getitem__(index):
         pass
 
+    @classmethod
+    def __init_subclass__(cls, blabla):
+        pass
 
-class FirstGoodContextManager(object):
+
+class FirstGoodContextManager:
     def __enter__(self):
         return self
     def __exit__(self, exc_type, value, tb):
         pass
 
-class SecondGoodContextManager(object):
+class SecondGoodContextManager:
     def __enter__(self):
         return self
     def __exit__(self, exc_type=None, value=None, tb=None):
         pass
 
-class ThirdGoodContextManager(object):
+class ThirdGoodContextManager:
     def __enter__(self):
         return self
     def __exit__(self, exc_type, *args):
         pass
+
+
+# unexpected-special-method-signature
+# https://github.com/PyCQA/pylint/issues/6644
+class Philosopher:
+    def __init_subclass__(cls, default_name, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.default_name = default_name
+
+class AustralianPhilosopher(Philosopher, default_name="Bruce"):
+    pass

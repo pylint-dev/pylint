@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import itertools
 import os
+from collections.abc import Iterable
 
 from astroid import modutils, nodes
 
@@ -56,7 +57,7 @@ class DiagramWriter:
         )
         self.used_colors: dict[str, str] = {}
 
-    def write(self, diadefs):
+    def write(self, diadefs: Iterable[ClassDiagram | PackageDiagram]) -> None:
         """Write files for <project> according to <diadefs>."""
         for diagram in diadefs:
             basename = diagram.title.strip().replace(" ", "_")
@@ -64,10 +65,10 @@ class DiagramWriter:
             if os.path.exists(self.config.output_directory):
                 file_name = os.path.join(self.config.output_directory, file_name)
             self.set_printer(file_name, basename)
-            if diagram.TYPE == "class":
-                self.write_classes(diagram)
-            else:
+            if isinstance(diagram, PackageDiagram):
                 self.write_packages(diagram)
+            else:
+                self.write_classes(diagram)
             self.save()
 
     def write_packages(self, diagram: PackageDiagram) -> None:
@@ -91,7 +92,7 @@ class DiagramWriter:
     def write_classes(self, diagram: ClassDiagram) -> None:
         """Write a class diagram."""
         # sorted to get predictable (hence testable) results
-        for obj in sorted(diagram.objects, key=lambda x: x.title):
+        for obj in sorted(diagram.objects, key=lambda x: x.title):  # type: ignore[no-any-return]
             obj.fig_id = obj.node.qname()
             type_ = NodeType.INTERFACE if obj.shape == "interface" else NodeType.CLASS
             self.printer.emit_node(

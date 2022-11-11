@@ -7,15 +7,22 @@
 from __future__ import annotations
 
 import string
+import sys
 from typing import TYPE_CHECKING
 
 import astroid
-from astroid import nodes
+from astroid import bases, nodes
+from astroid.typing import InferenceResult
 
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import infer_all
 from pylint.typing import MessageDefinitionTuple
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -99,16 +106,18 @@ CHECKED_CONVENIENCE_FUNCTIONS = {
 }
 
 
-def is_method_call(func, types=(), methods=()):
+def is_method_call(
+    func: bases.BoundMethod, types: tuple[str, ...] = (), methods: tuple[str, ...] = ()
+) -> bool:
     """Determines if a BoundMethod node represents a method call.
 
     Args:
-      func (astroid.BoundMethod): The BoundMethod AST node to check.
-      types (Optional[String]): Optional sequence of caller type names to restrict check.
-      methods (Optional[String]): Optional sequence of method names to restrict check.
+      func: The BoundMethod AST node to check.
+      types: Optional sequence of caller type names to restrict check.
+      methods: Optional sequence of method names to restrict check.
 
     Returns:
-      bool: true if the node represents a method call for the given type and
+      true if the node represents a method call for the given type and
       method names, False otherwise.
     """
     return (
@@ -185,14 +194,14 @@ class LoggingChecker(checkers.BaseChecker):
     def visit_call(self, node: nodes.Call) -> None:
         """Checks calls to logging methods."""
 
-        def is_logging_name():
+        def is_logging_name() -> bool:
             return (
                 isinstance(node.func, nodes.Attribute)
                 and isinstance(node.func.expr, nodes.Name)
                 and node.func.expr.name in self._logging_names
             )
 
-        def is_logger_class():
+        def is_logger_class() -> tuple[bool, str | None]:
             for inferred in infer_all(node.func):
                 if isinstance(inferred, astroid.BoundMethod):
                     parent = inferred._proxied.parent
@@ -214,14 +223,14 @@ class LoggingChecker(checkers.BaseChecker):
                 return
         self._check_log_method(node, name)
 
-    def _check_log_method(self, node, name):
+    def _check_log_method(self, node: nodes.Call, name: str) -> None:
         """Checks calls to logging.log(level, format, *format_args)."""
         if name == "log":
             if node.starargs or node.kwargs or len(node.args) < 2:
                 # Either a malformed call, star args, or double-star args. Beyond
                 # the scope of this checker.
                 return
-            format_pos = 1
+            format_pos: Literal[0, 1] = 1
         elif name in CHECKED_CONVENIENCE_FUNCTIONS:
             if node.starargs or node.kwargs or not node.args:
                 # Either no args, star args, or double-star args. Beyond the
@@ -258,7 +267,7 @@ class LoggingChecker(checkers.BaseChecker):
                 args=(self._helper_string(node),),
             )
 
-    def _helper_string(self, node):
+    def _helper_string(self, node: nodes.Call) -> str:
         """Create a string that lists the valid types of formatting for this node."""
         valid_types = ["lazy %"]
 
@@ -276,11 +285,11 @@ class LoggingChecker(checkers.BaseChecker):
         return " or ".join(valid_types)
 
     @staticmethod
-    def _is_operand_literal_str(operand):
+    def _is_operand_literal_str(operand: InferenceResult | None) -> bool:
         """Return True if the operand in argument is a literal string."""
         return isinstance(operand, nodes.Const) and operand.name == "str"
 
-    def _check_call_func(self, node: nodes.Call):
+    def _check_call_func(self, node: nodes.Call) -> None:
         """Checks that function call is not format_string.format()."""
         func = utils.safe_infer(node.func)
         types = ("str", "unicode")
@@ -296,12 +305,12 @@ class LoggingChecker(checkers.BaseChecker):
                 args=(self._helper_string(node),),
             )
 
-    def _check_format_string(self, node, format_arg):
+    def _check_format_string(self, node: nodes.Call, format_arg: Literal[0, 1]) -> None:
         """Checks that format string tokens match the supplied arguments.
 
         Args:
-          node (nodes.NodeNG): AST node to be checked.
-          format_arg (int): Index of the format string in the node arguments.
+          node: AST node to be checked.
+          format_arg: Index of the format string in the node arguments.
         """
 
         num_args = _count_supplied_tokens(node.args[format_arg + 1 :])
@@ -328,11 +337,7 @@ class LoggingChecker(checkers.BaseChecker):
                     parse = utils.parse_format_method_string(format_string)
 
                     keyword_args_cnt = len(
-                        {
-                            k
-                            for k in parse.keyword_arguments
-                            if not isinstance(k, int)
-                        }
+                        {k for k in parse.keyword_arguments if not isinstance(k, int)}
                     )
                     required_num_args = (
                         keyword_args_cnt
@@ -371,7 +376,7 @@ def is_complex_format_str(node: nodes.NodeNG) -> bool:
     return any(format_spec for (_, _, format_spec, _) in parsed)
 
 
-def _count_supplied_tokens(args):
+def _count_supplied_tokens(args: list[nodes.NodeNG]) -> int:
     """Counts the number of tokens in an args list.
 
     The Python log functions allow for special keyword arguments: func,
@@ -379,10 +384,10 @@ def _count_supplied_tokens(args):
     arguments that aren't keywords.
 
     Args:
-      args (list): AST nodes that are arguments for a log format string.
+      args: AST nodes that are arguments for a log format string.
 
     Returns:
-      int: Number of AST nodes that aren't keywords.
+      Number of AST nodes that aren't keywords.
     """
     return sum(1 for arg in args if not isinstance(arg, nodes.Keyword))
 

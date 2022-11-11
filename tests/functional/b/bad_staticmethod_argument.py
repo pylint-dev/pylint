@@ -1,6 +1,6 @@
-# pylint: disable=missing-docstring, no-staticmethod-decorator, useless-object-inheritance
+# pylint: disable=missing-docstring, no-staticmethod-decorator
 
-class Abcd(object):
+class Abcd:
 
     def method1(self): # [bad-staticmethod-argument]
         pass

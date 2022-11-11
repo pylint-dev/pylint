@@ -16,6 +16,7 @@ from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
 from pylint.extensions import _check_docs_utils as utils
 from pylint.extensions._check_docs_utils import Docstring
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -39,7 +40,7 @@ class DocstringParameterChecker(BaseChecker):
 
         load-plugins=pylint.extensions.docparams
 
-    to the ``MASTER`` section of your ``.pylintrc``.
+    to the ``MAIN`` section of your ``.pylintrc``.
     """
 
     name = "parameter_documentation"
@@ -216,7 +217,9 @@ class DocstringParameterChecker(BaseChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def check_functiondef_params(self, node, node_doc):
+    def check_functiondef_params(
+        self, node: nodes.FunctionDef, node_doc: Docstring
+    ) -> None:
         node_allow_no_param = None
         if node.name in self.constructor_names:
             class_node = checker_utils.node_frame_class(node)
@@ -247,7 +250,9 @@ class DocstringParameterChecker(BaseChecker):
             node_doc, node.args, node, node_allow_no_param
         )
 
-    def check_functiondef_returns(self, node, node_doc):
+    def check_functiondef_returns(
+        self, node: nodes.FunctionDef, node_doc: Docstring
+    ) -> None:
         if (not node_doc.supports_yields and node.is_generator()) or node.is_abstract():
             return
 
@@ -255,9 +260,11 @@ class DocstringParameterChecker(BaseChecker):
         if (node_doc.has_returns() or node_doc.has_rtype()) and not any(
             utils.returns_something(ret_node) for ret_node in return_nodes
         ):
-            self.add_message("redundant-returns-doc", node=node)
+            self.add_message("redundant-returns-doc", node=node, confidence=HIGH)
 
-    def check_functiondef_yields(self, node, node_doc):
+    def check_functiondef_yields(
+        self, node: nodes.FunctionDef, node_doc: Docstring
+    ) -> None:
         if not node_doc.supports_yields or node.is_abstract():
             return
 
@@ -269,6 +276,11 @@ class DocstringParameterChecker(BaseChecker):
     def visit_raise(self, node: nodes.Raise) -> None:
         func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
+            return
+
+        # skip functions that match the 'no-docstring-rgx' config option
+        no_docstring_rgx = self.linter.config.no_docstring_rgx
+        if no_docstring_rgx and re.match(no_docstring_rgx, func_node.name):
             return
 
         expected_excs = utils.possible_exc_types(node)
@@ -286,10 +298,14 @@ class DocstringParameterChecker(BaseChecker):
         doc = utils.docstringify(
             func_node.doc_node, self.linter.config.default_docstring_type
         )
+
+        if self.linter.config.accept_no_raise_doc and not doc.exceptions():
+            return
+
         if not doc.matching_sections():
             if doc.doc:
                 missing = {exc.name for exc in expected_excs}
-                self._handle_no_raise_doc(missing, func_node)
+                self._add_raise_message(missing, func_node)
             return
 
         found_excs_full_names = doc.exceptions()
@@ -320,6 +336,11 @@ class DocstringParameterChecker(BaseChecker):
         if not isinstance(func_node, astroid.FunctionDef):
             return
 
+        # skip functions that match the 'no-docstring-rgx' config option
+        no_docstring_rgx = self.linter.config.no_docstring_rgx
+        if no_docstring_rgx and re.match(no_docstring_rgx, func_node.name):
+            return
+
         doc = utils.docstringify(
             func_node.doc_node, self.linter.config.default_docstring_type
         )
@@ -327,20 +348,25 @@ class DocstringParameterChecker(BaseChecker):
         is_property = checker_utils.decorated_with_property(func_node)
 
         if not (doc.has_returns() or (doc.has_property_returns() and is_property)):
-            self.add_message("missing-return-doc", node=func_node)
+            self.add_message("missing-return-doc", node=func_node, confidence=HIGH)
 
         if func_node.returns:
             return
 
         if not (doc.has_rtype() or (doc.has_property_type() and is_property)):
-            self.add_message("missing-return-type-doc", node=func_node)
+            self.add_message("missing-return-type-doc", node=func_node, confidence=HIGH)
 
-    def visit_yield(self, node: nodes.Yield) -> None:
+    def visit_yield(self, node: nodes.Yield | nodes.YieldFrom) -> None:
         if self.linter.config.accept_no_yields_doc:
             return
 
         func_node = node.frame(future=True)
         if not isinstance(func_node, astroid.FunctionDef):
+            return
+
+        # skip functions that match the 'no-docstring-rgx' config option
+        no_docstring_rgx = self.linter.config.no_docstring_rgx
+        if no_docstring_rgx and re.match(no_docstring_rgx, func_node.name):
             return
 
         doc = utils.docstringify(
@@ -355,13 +381,12 @@ class DocstringParameterChecker(BaseChecker):
             doc_has_yields_type = doc.has_rtype()
 
         if not doc_has_yields:
-            self.add_message("missing-yield-doc", node=func_node)
+            self.add_message("missing-yield-doc", node=func_node, confidence=HIGH)
 
         if not (doc_has_yields_type or func_node.returns):
-            self.add_message("missing-yield-type-doc", node=func_node)
+            self.add_message("missing-yield-type-doc", node=func_node, confidence=HIGH)
 
-    def visit_yieldfrom(self, node: nodes.YieldFrom) -> None:
-        self.visit_yield(node)
+    visit_yieldfrom = visit_yield
 
     def _compare_missing_args(
         self,
@@ -400,6 +425,7 @@ class DocstringParameterChecker(BaseChecker):
                 message_id,
                 args=(", ".join(sorted(missing_argument_names)),),
                 node=warning_node,
+                confidence=HIGH,
             )
 
     def _compare_different_args(
@@ -442,29 +468,26 @@ class DocstringParameterChecker(BaseChecker):
                 message_id,
                 args=(", ".join(sorted(differing_argument_names)),),
                 node=warning_node,
+                confidence=HIGH,
             )
 
     def _compare_ignored_args(
         self,
-        found_argument_names,
-        message_id,
-        ignored_argument_names,
-        warning_node,
-    ):
+        found_argument_names: set[str],
+        message_id: str,
+        ignored_argument_names: set[str],
+        warning_node: nodes.NodeNG,
+    ) -> None:
         """Compare the found argument names with the ignored ones and
         generate a message if there are ignored arguments found.
 
         :param found_argument_names: argument names found in the docstring
-        :type found_argument_names: set
 
         :param message_id: pylint message id
-        :type message_id: str
 
         :param ignored_argument_names: Expected argument names
-        :type ignored_argument_names: set
 
         :param warning_node: The node to be analyzed
-        :type warning_node: :class:`astroid.scoped_nodes.Node`
         """
         existing_ignored_argument_names = ignored_argument_names & found_argument_names
 
@@ -473,6 +496,7 @@ class DocstringParameterChecker(BaseChecker):
                 message_id,
                 args=(", ".join(sorted(existing_ignored_argument_names)),),
                 node=warning_node,
+                confidence=HIGH,
             )
 
     def check_arguments_in_docstring(
@@ -481,7 +505,7 @@ class DocstringParameterChecker(BaseChecker):
         arguments_node: astroid.Arguments,
         warning_node: astroid.NodeNG,
         accept_no_param_doc: bool | None = None,
-    ):
+    ) -> None:
         """Check that all parameters are consistent with the parameters mentioned
         in the parameter documentation (e.g. the Sphinx tags 'param' and 'type').
 
@@ -524,6 +548,7 @@ class DocstringParameterChecker(BaseChecker):
         # Collect the function arguments.
         expected_argument_names = {arg.name for arg in arguments_node.args}
         expected_argument_names.update(arg.name for arg in arguments_node.kwonlyargs)
+        expected_argument_names.update(arg.name for arg in arguments_node.posonlyargs)
         not_needed_type_in_docstring = self.not_needed_param_in_docstring.copy()
 
         expected_but_ignored_argument_names = set()
@@ -561,6 +586,9 @@ class DocstringParameterChecker(BaseChecker):
         for index, arg_name in enumerate(arguments_node.kwonlyargs):
             if arguments_node.kwonlyargs_annotations[index]:
                 params_with_type.add(arg_name.name)
+        for index, arg_name in enumerate(arguments_node.posonlyargs):
+            if arguments_node.posonlyargs_annotations[index]:
+                params_with_type.add(arg_name.name)
 
         if not tolerate_missing_params:
             missing_param_doc = (expected_argument_names - params_with_doc) - (
@@ -577,6 +605,7 @@ class DocstringParameterChecker(BaseChecker):
                     "missing-any-param-doc",
                     args=(warning_node.name,),
                     node=warning_node,
+                    confidence=HIGH,
                 )
             else:
                 self._compare_missing_args(
@@ -616,39 +645,37 @@ class DocstringParameterChecker(BaseChecker):
             warning_node,
         )
 
-    def check_single_constructor_params(self, class_doc, init_doc, class_node):
+    def check_single_constructor_params(
+        self, class_doc: Docstring, init_doc: Docstring, class_node: nodes.ClassDef
+    ) -> None:
         if class_doc.has_params() and init_doc.has_params():
             self.add_message(
-                "multiple-constructor-doc", args=(class_node.name,), node=class_node
+                "multiple-constructor-doc",
+                args=(class_node.name,),
+                node=class_node,
+                confidence=HIGH,
             )
 
-    def _handle_no_raise_doc(self, excs, node):
-        if self.linter.config.accept_no_raise_doc:
-            return
-
-        self._add_raise_message(excs, node)
-
-    def _add_raise_message(self, missing_excs, node):
+    def _add_raise_message(
+        self, missing_exceptions: set[str], node: nodes.FunctionDef
+    ) -> None:
         """Adds a message on :param:`node` for the missing exception type.
 
-        :param missing_excs: A list of missing exception types.
-        :type missing_excs: set(str)
-
+        :param missing_exceptions: A list of missing exception types.
         :param node: The node show the message on.
-        :type node: nodes.NodeNG
         """
         if node.is_abstract():
             try:
-                missing_excs.remove("NotImplementedError")
+                missing_exceptions.remove("NotImplementedError")
             except KeyError:
                 pass
-
-        if not missing_excs:
-            return
-
-        self.add_message(
-            "missing-raises-doc", args=(", ".join(sorted(missing_excs)),), node=node
-        )
+        if missing_exceptions:
+            self.add_message(
+                "missing-raises-doc",
+                args=(", ".join(sorted(missing_exceptions)),),
+                node=node,
+                confidence=HIGH,
+            )
 
 
 def register(linter: PyLinter) -> None:

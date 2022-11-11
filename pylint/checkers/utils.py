@@ -7,13 +7,14 @@
 from __future__ import annotations
 
 import builtins
+import fnmatch
 import itertools
 import numbers
 import re
 import string
 import warnings
-from collections import namedtuple
-from collections.abc import Iterable
+from collections import deque, namedtuple
+from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
 from typing import TYPE_CHECKING, Callable, TypeVar
@@ -22,8 +23,9 @@ import _string
 import astroid.objects
 from astroid import TooManyLevelsError, nodes
 from astroid.context import InferenceContext
-
-from pylint.constants import TYPING_TYPE_CHECKS_GUARDS
+from astroid.exceptions import AstroidError
+from astroid.nodes._base_nodes import ImportNode
+from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
@@ -71,7 +73,7 @@ FORMAT_SPEC_REGEX = r"^(?:.*{.*})?(?:[^{]?[<>=^])?[+\- ]?#?0?[0-9]*[_,]?(?:\.[0-
 #          although it's best to implement it in order to accept
 #          all of them.
 _SPECIAL_METHODS_PARAMS = {
-    None: ("__new__", "__init__", "__call__"),
+    None: ("__new__", "__init__", "__call__", "__init_subclass__"),
     0: (
         "__del__",
         "__repr__",
@@ -109,7 +111,6 @@ _SPECIAL_METHODS_PARAMS = {
         "__anext__",
         "__fspath__",
         "__subclasses__",
-        "__init_subclass__",
     ),
     1: (
         "__format__",
@@ -231,6 +232,8 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
     )
 )
 
+SINGLETON_VALUES = {True, False, None}
+
 
 class NoSuchArgumentError(Exception):
     pass
@@ -246,6 +249,7 @@ def is_inside_lambda(node: nodes.NodeNG) -> bool:
         "utils.is_inside_lambda will be removed in favour of calling "
         "utils.get_node_first_ancestor_of_type(x, nodes.Lambda) in pylint 3.0",
         DeprecationWarning,
+        stacklevel=2,
     )
     return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
 
@@ -279,7 +283,7 @@ SPECIAL_BUILTINS = ("__builtins__",)  # '__path__', '__file__')
 
 def is_builtin_object(node: nodes.NodeNG) -> bool:
     """Returns True if the given node is an object from the __builtin__ module."""
-    return node and node.root().name == "builtins"
+    return node and node.root().name == "builtins"  # type: ignore[no-any-return]
 
 
 def is_builtin(name: str) -> bool:
@@ -292,26 +296,32 @@ def is_defined_in_scope(
     varname: str,
     scope: nodes.NodeNG,
 ) -> bool:
+    return defnode_in_scope(var_node, varname, scope) is not None
+
+
+def defnode_in_scope(
+    var_node: nodes.NodeNG,
+    varname: str,
+    scope: nodes.NodeNG,
+) -> nodes.NodeNG | None:
     if isinstance(scope, nodes.If):
         for node in scope.body:
-            if (
-                isinstance(node, nodes.Assign)
-                and any(
-                    isinstance(target, nodes.AssignName) and target.name == varname
-                    for target in node.targets
-                )
-            ) or (isinstance(node, nodes.Nonlocal) and varname in node.names):
-                return True
+            if isinstance(node, nodes.Nonlocal) and varname in node.names:
+                return node
+            if isinstance(node, nodes.Assign):
+                for target in node.targets:
+                    if isinstance(target, nodes.AssignName) and target.name == varname:
+                        return target
     elif isinstance(scope, (COMP_NODE_TYPES, nodes.For)):
         for ass_node in scope.nodes_of_class(nodes.AssignName):
             if ass_node.name == varname:
-                return True
+                return ass_node
     elif isinstance(scope, nodes.With):
         for expr, ids in scope.items:
             if expr.parent_of(var_node):
                 break
             if ids and isinstance(ids, nodes.AssignName) and ids.name == varname:
-                return True
+                return ids
     elif isinstance(scope, (nodes.Lambda, nodes.FunctionDef)):
         if scope.args.is_argument(varname):
             # If the name is found inside a default value
@@ -321,32 +331,65 @@ def is_defined_in_scope(
                 try:
                     scope.args.default_value(varname)
                     scope = scope.parent
-                    is_defined_in_scope(var_node, varname, scope)
+                    defnode = defnode_in_scope(var_node, varname, scope)
                 except astroid.NoDefault:
                     pass
-            return True
+                else:
+                    return defnode
+            return scope
         if getattr(scope, "name", None) == varname:
-            return True
+            return scope
     elif isinstance(scope, nodes.ExceptHandler):
         if isinstance(scope.name, nodes.AssignName):
             ass_node = scope.name
             if ass_node.name == varname:
-                return True
-    return False
+                return ass_node
+    return None
 
 
 def is_defined_before(var_node: nodes.Name) -> bool:
     """Check if the given variable node is defined before.
 
     Verify that the variable node is defined by a parent node
+    (e.g. if or with) earlier than `var_node`, or is defined by a
     (list, set, dict, or generator comprehension, lambda)
     or in a previous sibling node on the same line
     (statement_defining ; statement_using).
     """
     varname = var_node.name
     for parent in var_node.node_ancestors():
-        if is_defined_in_scope(var_node, varname, parent):
+        defnode = defnode_in_scope(var_node, varname, parent)
+        if defnode is None:
+            continue
+        defnode_scope = defnode.scope()
+        if isinstance(defnode_scope, COMP_NODE_TYPES + (nodes.Lambda,)):
+            # Avoid the case where var_node_scope is a nested function
+            # FunctionDef is a Lambda until https://github.com/PyCQA/astroid/issues/291
+            if isinstance(defnode_scope, nodes.FunctionDef):
+                var_node_scope = var_node.scope()
+                if var_node_scope is not defnode_scope and isinstance(
+                    var_node_scope, nodes.FunctionDef
+                ):
+                    return False
             return True
+        if defnode.lineno < var_node.lineno:
+            return True
+        # `defnode` and `var_node` on the same line
+        for defnode_anc in defnode.node_ancestors():
+            if defnode_anc.lineno != var_node.lineno:
+                continue
+            if isinstance(
+                defnode_anc,
+                (
+                    nodes.For,
+                    nodes.While,
+                    nodes.With,
+                    nodes.TryExcept,
+                    nodes.TryFinally,
+                    nodes.ExceptHandler,
+                ),
+            ):
+                return True
     # possibly multiple statements on the same line using semicolon separator
     stmt = var_node.statement(future=True)
     _node = stmt.previous_sibling()
@@ -449,7 +492,7 @@ def only_required_for_messages(
     def store_messages(
         func: AstCallbackMethod[_CheckerT, _NodeT]
     ) -> AstCallbackMethod[_CheckerT, _NodeT]:
-        setattr(func, "checks_msgs", messages)
+        func.checks_msgs = messages  # type: ignore[attr-defined]
         return func
 
     return store_messages
@@ -468,6 +511,7 @@ def check_messages(
         "utils.check_messages will be removed in favour of calling "
         "utils.only_required_for_messages in pylint 3.0",
         DeprecationWarning,
+        stacklevel=2,
     )
 
     return only_required_for_messages(*messages)
@@ -482,7 +526,7 @@ class UnsupportedFormatCharacter(Exception):
     format characters.
     """
 
-    def __init__(self, index):
+    def __init__(self, index: int) -> None:
         super().__init__(index)
         self.index = index
 
@@ -501,7 +545,7 @@ def parse_format_string(
     pos_types = []
     num_args = 0
 
-    def next_char(i):
+    def next_char(i: int) -> tuple[int, str]:
         i += 1
         if i == len(format_string):
             raise IncompleteFormatString
@@ -563,9 +607,11 @@ def parse_format_string(
     return keys, num_args, key_types, pos_types
 
 
-def split_format_field_names(format_string) -> tuple[str, Iterable[tuple[bool, str]]]:
+def split_format_field_names(
+    format_string: str,
+) -> tuple[str, Iterable[tuple[bool, str]]]:
     try:
-        return _string.formatter_field_name_split(format_string)
+        return _string.formatter_field_name_split(format_string)  # type: ignore[no-any-return]
     except ValueError as e:
         raise IncompleteFormatString() from e
 
@@ -625,7 +671,7 @@ def parse_format_spec(format_spec, start_point):
 
 def parse_format_field(format_field, start_point):
     """Parses a PEP 3101 format field, parsing it into the field name, conversion,
-    and format spec
+    and format spec.
 
     It passes the format_spec to parse_format_spec for verification.
     Returns (name, format_character) where 'name' is the variable name being inserted,
@@ -683,8 +729,7 @@ def parse_format_field(format_field, start_point):
 
 
 def parse_all_fields_formatting(
-    format_string: str,
-    include_nested: bool = True
+    format_string: str, include_nested: bool = True
 ) -> dict[str | None, tuple[str, str]]:
     idx = 0
     open_brackets = []
@@ -794,7 +839,6 @@ def is_attr_protected(attrname: str) -> bool:
 def node_frame_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
     """Return the class that is wrapping the given node.
 
-
     The function returns a class for a method node (or a staticmethod or a
     classmethod), otherwise it returns `None`.
     """
@@ -874,7 +918,10 @@ def inherit_from_std_ex(node: nodes.NodeNG | astroid.Instance) -> bool:
     )
 
 
-def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
+def error_of_type(
+    handler: nodes.ExceptHandler,
+    error_type: str | type[Exception] | tuple[str | type[Exception], ...],
+) -> bool:
     """Check if the given exception handler catches
     the given error_type.
 
@@ -885,7 +932,7 @@ def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
     given errors.
     """
 
-    def stringify_error(error):
+    def stringify_error(error: str | type[Exception]) -> str:
         if not isinstance(error, str):
             return error.__name__
         return error
@@ -895,7 +942,7 @@ def error_of_type(handler: nodes.ExceptHandler, error_type) -> bool:
     expected_errors = {stringify_error(error) for error in error_type}
     if not handler.type:
         return False
-    return handler.catch(expected_errors)
+    return handler.catch(expected_errors)  # type: ignore[no-any-return]
 
 
 def decorated_with_property(node: nodes.FunctionDef) -> bool:
@@ -911,7 +958,7 @@ def decorated_with_property(node: nodes.FunctionDef) -> bool:
     return False
 
 
-def _is_property_kind(node, *kinds):
+def _is_property_kind(node: nodes.NodeNG, *kinds: str) -> bool:
     if not isinstance(node, (astroid.UnboundMethod, nodes.FunctionDef)):
         return False
     if node.decorators:
@@ -921,17 +968,17 @@ def _is_property_kind(node, *kinds):
     return False
 
 
-def is_property_setter(node: nodes.FunctionDef) -> bool:
+def is_property_setter(node: nodes.NodeNG) -> bool:
     """Check if the given node is a property setter."""
     return _is_property_kind(node, "setter")
 
 
-def is_property_deleter(node: nodes.FunctionDef) -> bool:
+def is_property_deleter(node: nodes.NodeNG) -> bool:
     """Check if the given node is a property deleter."""
     return _is_property_kind(node, "deleter")
 
 
-def is_property_setter_or_deleter(node: nodes.FunctionDef) -> bool:
+def is_property_setter_or_deleter(node: nodes.NodeNG) -> bool:
     """Check if the given node is either a property setter or a deleter."""
     return _is_property_kind(node, "setter", "deleter")
 
@@ -1041,7 +1088,7 @@ def uninferable_final_decorators(
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
     node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef = None
-) -> dict[str, nodes.NodeNG]:
+) -> dict[str, nodes.FunctionDef]:
     """Get the unimplemented abstract methods for the given *node*.
 
     A method can be considered abstract if the callback *is_abstract_cb*
@@ -1054,7 +1101,7 @@ def unimplemented_abstract_methods(
     """
     if is_abstract_cb is None:
         is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
-    visited: dict[str, nodes.NodeNG] = {}
+    visited: dict[str, nodes.FunctionDef] = {}
     try:
         mro = reversed(node.mro())
     except NotImplementedError:
@@ -1160,7 +1207,7 @@ def _except_handlers_ignores_exceptions(
 
 
 def get_exception_handlers(
-    node: nodes.NodeNG, exception=Exception
+    node: nodes.NodeNG, exception: type[Exception] | str = Exception
 ) -> list[nodes.ExceptHandler] | None:
     """Return the collections of handlers handling the exception in arguments.
 
@@ -1170,7 +1217,6 @@ def get_exception_handlers(
 
     Returns:
         list: the collection of handlers that are handling the exception or None.
-
     """
     context = find_try_except_wrapper_node(node)
     if isinstance(context, nodes.TryExcept):
@@ -1178,6 +1224,59 @@ def get_exception_handlers(
             handler for handler in context.handlers if error_of_type(handler, exception)
         ]
     return []
+
+
+def get_contextlib_with_statements(node: nodes.NodeNG) -> Iterator[nodes.With]:
+    """Get all contextlib.with statements in the ancestors of the given node."""
+    for with_node in node.node_ancestors():
+        if isinstance(with_node, nodes.With):
+            yield with_node
+
+
+def _suppresses_exception(
+    call: nodes.Call, exception: type[Exception] | str = Exception
+) -> bool:
+    """Check if the given node suppresses the given exception."""
+    if not isinstance(exception, str):
+        exception = exception.__name__
+    for arg in call.args:
+        inferred = safe_infer(arg)
+        if isinstance(inferred, nodes.ClassDef):
+            if inferred.name == exception:
+                return True
+        elif isinstance(inferred, nodes.Tuple):
+            for elt in inferred.elts:
+                inferred_elt = safe_infer(elt)
+                if (
+                    isinstance(inferred_elt, nodes.ClassDef)
+                    and inferred_elt.name == exception
+                ):
+                    return True
+    return False
+
+
+def get_contextlib_suppressors(
+    node: nodes.NodeNG, exception: type[Exception] | str = Exception
+) -> Iterator[nodes.With]:
+    """Return the contextlib suppressors handling the exception.
+
+    Args:
+        node (nodes.NodeNG): A node that is potentially wrapped in a contextlib.suppress.
+        exception (builtin.Exception): exception or name of the exception.
+
+    Yields:
+        nodes.With: A with node that is suppressing the exception.
+    """
+    for with_node in get_contextlib_with_statements(node):
+        for item, _ in with_node.items:
+            if isinstance(item, nodes.Call):
+                inferred = safe_infer(item.func)
+                if (
+                    isinstance(inferred, nodes.ClassDef)
+                    and inferred.qname() == "contextlib.suppress"
+                ):
+                    if _suppresses_exception(item, exception):
+                        yield with_node
 
 
 def is_node_inside_try_except(node: nodes.Raise) -> bool:
@@ -1194,16 +1293,18 @@ def is_node_inside_try_except(node: nodes.Raise) -> bool:
     return isinstance(context, nodes.TryExcept)
 
 
-def node_ignores_exception(node: nodes.NodeNG, exception=Exception) -> bool:
+def node_ignores_exception(
+    node: nodes.NodeNG, exception: type[Exception] | str = Exception
+) -> bool:
     """Check if the node is in a TryExcept which handles the given exception.
 
     If the exception is not given, the function is going to look for bare
     excepts.
     """
     managing_handlers = get_exception_handlers(node, exception)
-    if not managing_handlers:
-        return False
-    return any(managing_handlers)
+    if managing_handlers:
+        return True
+    return any(get_contextlib_suppressors(node, exception))
 
 
 def class_is_abstract(node: nodes.ClassDef) -> bool:
@@ -1315,7 +1416,7 @@ def is_inside_abstract_class(node: nodes.NodeNG) -> bool:
 
 
 def _supports_protocol(
-    value: nodes.NodeNG, protocol_callback: nodes.FunctionDef
+    value: nodes.NodeNG, protocol_callback: Callable[[nodes.NodeNG], bool]
 ) -> bool:
     if isinstance(value, nodes.ClassDef):
         if not has_known_bases(value):
@@ -1333,7 +1434,6 @@ def _supports_protocol(
         if protocol_callback(value):
             return True
 
-    # TODO: 2.14: Should be covered by https://github.com/PyCQA/astroid/pull/1475
     if isinstance(value, nodes.ComprehensionScope):
         return True
 
@@ -1369,7 +1469,9 @@ def supports_getitem(value: nodes.NodeNG, node: nodes.NodeNG) -> bool:
     if isinstance(value, nodes.ClassDef):
         if _supports_protocol_method(value, CLASS_GETITEM_METHOD):
             return True
-        if subscriptable_with_postponed_evaluation_enabled(node):
+        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
+            node
+        ):
             return True
     return _supports_protocol(value, _supports_getitem_protocol)
 
@@ -1383,7 +1485,7 @@ def supports_delitem(value: nodes.NodeNG, _: nodes.NodeNG) -> bool:
 
 
 def _get_python_type_of_node(node: nodes.NodeNG) -> str | None:
-    pytype = getattr(node, "pytype", None)
+    pytype: Callable[[], str] | None = getattr(node, "pytype", None)
     if callable(pytype):
         return pytype()
     return None
@@ -1391,12 +1493,18 @@ def _get_python_type_of_node(node: nodes.NodeNG) -> str | None:
 
 @lru_cache(maxsize=1024)
 def safe_infer(
-    node: nodes.NodeNG, context: InferenceContext | None = None
-) -> nodes.NodeNG | type[astroid.Uninferable] | None:
+    node: nodes.NodeNG,
+    context: InferenceContext | None = None,
+    *,
+    compare_constants: bool = False,
+) -> InferenceResult | None:
     """Return the inferred value for the given node.
 
     Return None if inference failed or if there is some ambiguity (more than
     one node has been inferred of different types).
+
+    If compare_constants is True and if multiple constants are inferred,
+    unequal inferred values are also considered ambiguous and return None.
     """
     inferred_types: set[str | None] = set()
     try:
@@ -1404,6 +1512,8 @@ def safe_infer(
         value = next(infer_gen)
     except astroid.InferenceError:
         return None
+    except Exception as e:  # pragma: no cover
+        raise AstroidError from e
 
     if value is not astroid.Uninferable:
         inferred_types.add(_get_python_type_of_node(value))
@@ -1413,6 +1523,13 @@ def safe_infer(
             inferred_type = _get_python_type_of_node(inferred)
             if inferred_type not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
+            if (
+                compare_constants
+                and isinstance(inferred, nodes.Const)
+                and isinstance(value, nodes.Const)
+                and inferred.value != value.value
+            ):
+                return None
             if (
                 isinstance(inferred, nodes.FunctionDef)
                 and inferred.args.args is not None
@@ -1425,23 +1542,29 @@ def safe_infer(
         return None  # There is some kind of ambiguity
     except StopIteration:
         return value
+    except Exception as e:  # pragma: no cover
+        raise AstroidError from e
     return value if len(inferred_types) <= 1 else None
 
 
 @lru_cache(maxsize=512)
 def infer_all(
-    node: nodes.NodeNG, context: InferenceContext = None
-) -> list[nodes.NodeNG]:
+    node: nodes.NodeNG, context: InferenceContext | None = None
+) -> list[InferenceResult]:
     try:
         return list(node.infer(context=context))
     except astroid.InferenceError:
         return []
+    except Exception as e:  # pragma: no cover
+        raise AstroidError from e
 
 
-def has_known_bases(klass: nodes.ClassDef, context=None) -> bool:
+def has_known_bases(
+    klass: nodes.ClassDef, context: InferenceContext | None = None
+) -> bool:
     """Return true if all base classes of a class could be inferred."""
     try:
-        return klass._all_bases_known
+        return klass._all_bases_known  # type: ignore[no-any-return]
     except AttributeError:
         pass
     for base in klass.bases:
@@ -1465,7 +1588,7 @@ def is_none(node: nodes.NodeNG) -> bool:
     )
 
 
-def node_type(node: nodes.NodeNG) -> nodes.NodeNG | None:
+def node_type(node: nodes.NodeNG) -> SuccessfulInferenceResult | None:
     """Return the inferred type for `node`.
 
     If there is more than one possible type, or if inferred type is Uninferable or None,
@@ -1473,7 +1596,7 @@ def node_type(node: nodes.NodeNG) -> nodes.NodeNG | None:
     """
     # check there is only one possible type for the assign node. Else we
     # don't handle it for now
-    types: set[nodes.NodeNG] = set()
+    types: set[SuccessfulInferenceResult] = set()
     try:
         for var_type in node.infer():
             if var_type == astroid.Uninferable or is_none(var_type):
@@ -1499,11 +1622,15 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
 
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
-        # func.register are function calls
-        if not isinstance(decorator, nodes.Call):
+        # func.register are function calls or register attributes
+        # when the function is annotated with types
+        if isinstance(decorator, nodes.Call):
+            func = decorator.func
+        elif isinstance(decorator, nodes.Attribute):
+            func = decorator
+        else:
             continue
 
-        func = decorator.func
         if not isinstance(func, nodes.Attribute) or func.attrname != "register":
             continue
 
@@ -1514,6 +1641,43 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
 
         if isinstance(func_def, nodes.FunctionDef):
             return decorated_with(func_def, singledispatch_qnames)
+
+    return False
+
+
+def find_inferred_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | None:
+    # func.register are function calls or register attributes
+    # when the function is annotated with types
+    if isinstance(node, nodes.Call):
+        func = node.func
+    elif isinstance(node, nodes.Attribute):
+        func = node
+    else:
+        return None
+
+    if not isinstance(func, nodes.Attribute) or func.attrname != "register":
+        return None
+
+    func_def = safe_infer(func.expr)
+    if not isinstance(func_def, nodes.FunctionDef):
+        return None
+
+    return func_def
+
+
+def is_registered_in_singledispatchmethod_function(node: nodes.FunctionDef) -> bool:
+    """Check if the given function node is a singledispatchmethod function."""
+
+    singledispatchmethod_qnames = (
+        "functools.singledispatchmethod",
+        "singledispatch.singledispatchmethod",
+    )
+
+    decorators = node.decorators.nodes if node.decorators else []
+    for decorator in decorators:
+        func_def = find_inferred_fn_from_register(decorator)
+        if func_def:
+            return decorated_with(func_def, singledispatchmethod_qnames)
 
     return False
 
@@ -1539,7 +1703,7 @@ def get_node_last_lineno(node: nodes.NodeNG) -> int:
     if getattr(node, "body", False):
         return get_node_last_lineno(node.body[-1])
     # Not a compound statement
-    return node.lineno
+    return node.lineno  # type: ignore[no-any-return]
 
 
 def is_postponed_evaluation_enabled(node: nodes.NodeNG) -> bool:
@@ -1557,20 +1721,15 @@ def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
     warnings.warn(
         "'is_class_subscriptable_pep585_with_postponed_evaluation_enabled' has been "
         "deprecated and will be removed in pylint 3.0. "
-        "Use 'subscriptable_with_postponed_evaluation_enabled' instead.",
+        "Use 'is_postponed_evaluation_enabled(node) and "
+        "is_node_in_type_annotation_context(node)' instead.",
         DeprecationWarning,
+        stacklevel=2,
     )
     return (
         is_postponed_evaluation_enabled(node)
         and value.qname() in SUBSCRIPTABLE_CLASSES_PEP585
         and is_node_in_type_annotation_context(node)
-    )
-
-
-def subscriptable_with_postponed_evaluation_enabled(node: nodes.NodeNG) -> bool:
-    """Check if class can be subscriptable in type annotation context."""
-    return is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
-        node
     )
 
 
@@ -1738,14 +1897,14 @@ def get_iterating_dictionary_name(node: nodes.For | nodes.Comprehension) -> str 
         inferred = safe_infer(node.iter.func)
         if not isinstance(inferred, astroid.BoundMethod):
             return None
-        return node.iter.as_string().rpartition(".keys")[0]
+        return node.iter.as_string().rpartition(".keys")[0]  # type: ignore[no-any-return]
 
     # Is it a dictionary?
     if isinstance(node.iter, (nodes.Name, nodes.Attribute)):
         inferred = safe_infer(node.iter)
         if not isinstance(inferred, nodes.Dict):
             return None
-        return node.iter.as_string()
+        return node.iter.as_string()  # type: ignore[no-any-return]
 
     return None
 
@@ -1764,7 +1923,7 @@ def get_subscript_const_value(node: nodes.Subscript) -> nodes.Const:
     return inferred
 
 
-def get_import_name(importnode: nodes.Import | nodes.ImportFrom, modname: str) -> str:
+def get_import_name(importnode: ImportNode, modname: str | None) -> str | None:
     """Get a prepared module name from the given import node.
 
     In the case of relative imports, this will return the
@@ -1781,7 +1940,7 @@ def get_import_name(importnode: nodes.Import | nodes.ImportFrom, modname: str) -
         root = importnode.root()
         if isinstance(root, nodes.Module):
             try:
-                return root.relative_to_absolute_name(modname, level=importnode.level)
+                return root.relative_to_absolute_name(modname, level=importnode.level)  # type: ignore[no-any-return]
             except TooManyLevelsError:
                 return modname
     return modname
@@ -1837,7 +1996,9 @@ def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
 
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
-    """Check if the given variable name is reassigned in the same scope after the current node."""
+    """Check if the given variable name is reassigned in the same scope after the
+    current node.
+    """
     return any(
         a.name == varname and a.lineno > node.lineno
         for a in node.scope().nodes_of_class(
@@ -1847,7 +2008,9 @@ def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
 
 
 def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
-    """Check if the given variable name is deleted in the same scope after the current node."""
+    """Check if the given variable name is deleted in the same scope after the current
+    node.
+    """
     return any(
         getattr(target, "name", None) == varname and target.lineno > node.lineno
         for del_node in node.scope().nodes_of_class(nodes.Delete)
@@ -1894,7 +2057,7 @@ def get_node_first_ancestor_of_type(
     """Return the first parent node that is any of the provided types (or None)."""
     for ancestor in node.node_ancestors():
         if isinstance(ancestor, ancestor_type):
-            return ancestor
+            return ancestor  # type: ignore[no-any-return]
     return None
 
 
@@ -1916,12 +2079,58 @@ def get_node_first_ancestor_of_type_and_its_child(
 
 
 def in_type_checking_block(node: nodes.NodeNG) -> bool:
-    """Check if a node is guarded by a TYPE_CHECKS guard."""
-    return any(
-        isinstance(ancestor, nodes.If)
-        and ancestor.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
-        for ancestor in node.node_ancestors()
-    )
+    """Check if a node is guarded by a TYPE_CHECKING guard."""
+    for ancestor in node.node_ancestors():
+        if not isinstance(ancestor, nodes.If):
+            continue
+        if isinstance(ancestor.test, nodes.Name):
+            if ancestor.test.name != "TYPE_CHECKING":
+                continue
+            maybe_import_from = ancestor.test.lookup(ancestor.test.name)[1][0]
+            if (
+                isinstance(maybe_import_from, nodes.ImportFrom)
+                and maybe_import_from.modname == "typing"
+            ):
+                return True
+            inferred = safe_infer(ancestor.test)
+            if isinstance(inferred, nodes.Const) and inferred.value is False:
+                return True
+        elif isinstance(ancestor.test, nodes.Attribute):
+            if ancestor.test.attrname != "TYPE_CHECKING":
+                continue
+            inferred_module = safe_infer(ancestor.test.expr)
+            if (
+                isinstance(inferred_module, nodes.Module)
+                and inferred_module.name == "typing"
+            ):
+                return True
+
+    return False
+
+
+def is_typing_member(node: nodes.NodeNG, names_to_check: tuple[str, ...]) -> bool:
+    """Check if `node` is a member of the `typing` module and has one of the names from
+    `names_to_check`.
+    """
+    if isinstance(node, nodes.Name):
+        try:
+            import_from = node.lookup(node.name)[1][0]
+        except IndexError:
+            return False
+
+        if isinstance(import_from, nodes.ImportFrom):
+            return (
+                import_from.modname == "typing"
+                and import_from.real_name(node.name) in names_to_check
+            )
+    elif isinstance(node, nodes.Attribute):
+        inferred_module = safe_infer(node.expr)
+        return (
+            isinstance(inferred_module, nodes.Module)
+            and inferred_module.name == "typing"
+            and node.attrname in names_to_check
+        )
+    return False
 
 
 @lru_cache()
@@ -1929,4 +2138,142 @@ def in_for_else_branch(parent: nodes.NodeNG, stmt: nodes.Statement) -> bool:
     """Returns True if stmt is inside the else branch for a parent For stmt."""
     return isinstance(parent, nodes.For) and any(
         else_stmt.parent_of(stmt) or else_stmt == stmt for else_stmt in parent.orelse
+    )
+
+
+def find_assigned_names_recursive(
+    target: nodes.AssignName | nodes.BaseContainer,
+) -> Iterator[str]:
+    """Yield the names of assignment targets, accounting for nested ones."""
+    if isinstance(target, nodes.AssignName):
+        if target.name is not None:
+            yield target.name
+    elif isinstance(target, nodes.BaseContainer):
+        for elt in target.elts:
+            yield from find_assigned_names_recursive(elt)
+
+
+def is_hashable(node: nodes.NodeNG) -> bool:
+    """Return whether any inferred value of `node` is hashable.
+
+    When finding ambiguity, return True.
+    """
+    try:
+        for inferred in node.infer():
+            if inferred is astroid.Uninferable:
+                return True
+            if not hasattr(inferred, "igetattr"):
+                return True
+            hash_fn = next(inferred.igetattr("__hash__"))
+            if hash_fn.parent is inferred:
+                return True
+            if getattr(hash_fn, "value", True) is not None:
+                return True
+        return False
+    except astroid.InferenceError:
+        return True
+
+
+def get_full_name_of_attribute(node: nodes.Attribute | nodes.AssignAttr) -> str:
+    """Return the full name of an attribute and the classes it belongs to.
+
+    For example: "Class1.Class2.attr"
+    """
+    parent = node.parent
+    ret = node.attrname or ""
+    while isinstance(parent, (nodes.Attribute, nodes.Name)):
+        if isinstance(parent, nodes.Attribute):
+            ret = f"{parent.attrname}.{ret}"
+        else:
+            ret = f"{parent.name}.{ret}"
+        parent = parent.parent
+    return ret
+
+
+def _is_target_name_in_binop_side(
+    target: nodes.AssignName | nodes.AssignAttr, side: nodes.NodeNG | None
+) -> bool:
+    """Determine whether the target name-like node is referenced in the side node."""
+    if isinstance(side, nodes.Name):
+        if isinstance(target, nodes.AssignName):
+            return target.name == side.name  # type: ignore[no-any-return]
+        return False
+    if isinstance(side, nodes.Attribute) and isinstance(target, nodes.AssignAttr):
+        return get_full_name_of_attribute(target) == get_full_name_of_attribute(side)
+    return False
+
+
+def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
+    """Determine if the node is assigning itself (with modifications) to itself.
+
+    For example: x = 1 + x
+    """
+    if not isinstance(node.value, nodes.BinOp):
+        return False, ""
+
+    binop = node.value
+    target = node.targets[0]
+
+    if not isinstance(target, (nodes.AssignName, nodes.AssignAttr)):
+        return False, ""
+
+    # We don't want to catch x = "1" + x or x = "%s" % x
+    if isinstance(binop.left, nodes.Const) and isinstance(
+        binop.left.value, (str, bytes)
+    ):
+        return False, ""
+
+    # This could probably be improved but for now we disregard all assignments from calls
+    if isinstance(binop.left, nodes.Call) or isinstance(binop.right, nodes.Call):
+        return False, ""
+
+    if _is_target_name_in_binop_side(target, binop.left):
+        return True, binop.op
+    if _is_target_name_in_binop_side(target, binop.right):
+        inferred_left = safe_infer(binop.left)
+        if isinstance(inferred_left, nodes.Const) and isinstance(
+            inferred_left.value, int
+        ):
+            return True, binop.op
+        return False, ""
+    return False, ""
+
+
+def is_module_ignored(
+    module: nodes.Module,
+    ignored_modules: Iterable[str],
+) -> bool:
+    ignored_modules = set(ignored_modules)
+    module_name = module.name
+    module_qname = module.qname()
+
+    for ignore in ignored_modules:
+        # Try to match the module name / fully qualified name directly
+        if module_qname in ignored_modules or module_name in ignored_modules:
+            return True
+
+        # Try to see if the ignores pattern match against the module name.
+        if fnmatch.fnmatch(module_qname, ignore):
+            return True
+
+        # Otherwise, we might have a root module name being ignored,
+        # and the qualified owner has more levels of depth.
+        parts = deque(module_name.split("."))
+        current_module = ""
+
+        while parts:
+            part = parts.popleft()
+            if not current_module:
+                current_module = part
+            else:
+                current_module += f".{part}"
+            if current_module in ignored_modules:
+                return True
+
+    return False
+
+
+def is_singleton_const(node: nodes.NodeNG) -> bool:
+    return isinstance(node, nodes.Const) and any(
+        node.value is value for value in SINGLETON_VALUES
     )

@@ -6,24 +6,26 @@ from __future__ import annotations
 
 import contextlib
 from collections.abc import Callable, Iterator
-from typing import Any
+from typing import Any, Type
 
 import astroid
 from astroid import nodes
+from astroid.context import InferenceContext
 from astroid.manager import AstroidManager
-from astroid.nodes.node_classes import AssignAttr, Name
 
 from pylint.checkers import stdlib
 from pylint.testutils import CheckerTestCase
+
+_NodeNGT = Type[nodes.NodeNG]
 
 
 @contextlib.contextmanager
 def _add_transform(
     manager: AstroidManager,
-    node: type,
-    transform: Callable,
+    node: _NodeNGT,
+    transform: Callable[[_NodeNGT], _NodeNGT],
     predicate: Any | None = None,
-) -> Iterator:
+) -> Iterator[None]:
     manager.register_transform(node, transform, predicate)
     try:
         yield
@@ -43,9 +45,10 @@ class TestStdlibChecker(CheckerTestCase):
         """
 
         def infer_func(
-            node: Name, context: Any | None = None  # pylint: disable=unused-argument
-        ) -> Iterator[Iterator | Iterator[AssignAttr]]:
-            new_node = nodes.AssignAttr(attrname="alpha", parent=node)
+            inner_node: nodes.Name,
+            context: InferenceContext | None = None,  # pylint: disable=unused-argument
+        ) -> Iterator[nodes.AssignAttr]:
+            new_node = nodes.AssignAttr(attrname="alpha", parent=inner_node)
             yield new_node
 
         manager = astroid.MANAGER

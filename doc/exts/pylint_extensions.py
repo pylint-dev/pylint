@@ -6,22 +6,42 @@
 
 """Script used to generate the extensions file before building the actual documentation."""
 
+from __future__ import annotations
+
 import os
 import re
 import sys
 import warnings
-from typing import Optional
+from typing import Any
 
 import sphinx
 from sphinx.application import Sphinx
 
+from pylint.checkers import BaseChecker
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import PyLinter
+from pylint.typing import MessageDefinitionTuple, OptionDict, ReportsCallable
 from pylint.utils import get_rst_title
+
+if sys.version_info >= (3, 8):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
+
+
+class _CheckerInfo(TypedDict):
+    """Represents data about a checker."""
+
+    checker: BaseChecker
+    options: list[tuple[str, OptionDict, Any]]
+    msgs: dict[str, MessageDefinitionTuple]
+    reports: list[tuple[str, str, ReportsCallable]]
+    doc: str
+    module: str
 
 
 # pylint: disable-next=unused-argument
-def builder_inited(app: Optional[Sphinx]) -> None:
+def builder_inited(app: Sphinx | None) -> None:
     """Output full documentation in ReST format for all extension modules."""
     # PACKAGE/docs/exts/pylint_extensions.py --> PACKAGE/
     base_path = os.path.dirname(
@@ -30,7 +50,7 @@ def builder_inited(app: Optional[Sphinx]) -> None:
     # PACKAGE/ --> PACKAGE/pylint/extensions
     ext_path = os.path.join(base_path, "pylint", "extensions")
     modules = []
-    doc_files = {}
+    doc_files: dict[str, str] = {}
     for filename in os.listdir(ext_path):
         name, ext = os.path.splitext(filename)
         if name[0] == "_":
@@ -47,11 +67,16 @@ def builder_inited(app: Optional[Sphinx]) -> None:
     linter.load_plugin_modules(modules)
 
     extensions_doc = os.path.join(
-        base_path, "doc", "technical_reference", "extensions.rst"
+        base_path, "doc", "user_guide", "checkers", "extensions.rst"
     )
     with open(extensions_doc, "w", encoding="utf-8") as stream:
+        stream.write(get_rst_title("Optional checkers", "="))
         stream.write(
-            get_rst_title("Optional Pylint checkers in the extensions module", "=")
+            """
+.. This file is auto-generated. Make any changes to the associated
+.. docs extension in 'doc/exts/pylint_extensions.py'.
+
+"""
         )
         stream.write("Pylint provides the following optional plugins:\n\n")
         for module in modules:
@@ -59,7 +84,7 @@ def builder_inited(app: Optional[Sphinx]) -> None:
         stream.write("\n")
         stream.write(
             "You can activate any or all of these extensions "
-            "by adding a ``load-plugins`` line to the ``MASTER`` "
+            "by adding a ``load-plugins`` line to the ``MAIN`` "
             "section of your ``.pylintrc``, for example::\n"
         )
         stream.write(
@@ -69,14 +94,31 @@ def builder_inited(app: Optional[Sphinx]) -> None:
 
         # Print checker documentation to stream
         by_checker = get_plugins_info(linter, doc_files)
-        for checker, information in sorted(by_checker.items()):
+        max_len = len(by_checker)
+        for i, checker_information in enumerate(sorted(by_checker.items())):
+            checker, information = checker_information
+            j = -1
             checker = information["checker"]
-            del information["checker"]
-            print(checker.get_full_documentation(**information)[:-1], file=stream)
+            if i == max_len - 1:
+                # Remove the \n\n at the end of the file
+                j = -3
+            print(
+                checker.get_full_documentation(
+                    msgs=information["msgs"],
+                    options=information["options"],
+                    reports=information["reports"],
+                    doc=information["doc"],
+                    module=information["module"],
+                    show_options=False,
+                )[:j],
+                file=stream,
+            )
 
 
-def get_plugins_info(linter, doc_files):
-    by_checker = {}
+def get_plugins_info(
+    linter: PyLinter, doc_files: dict[str, str]
+) -> dict[BaseChecker, _CheckerInfo]:
+    by_checker: dict[BaseChecker, _CheckerInfo] = {}
     for checker in linter.get_checkers():
         if checker.name == MAIN_CHECKER_NAME:
             continue
@@ -102,18 +144,18 @@ def get_plugins_info(linter, doc_files):
         except KeyError:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=DeprecationWarning)
-                by_checker[checker] = {
-                    "checker": checker,
-                    "options": list(checker.options_and_values()),
-                    "msgs": dict(checker.msgs),
-                    "reports": list(checker.reports),
-                    "doc": doc,
-                    "module": module,
-                }
+                by_checker[checker] = _CheckerInfo(
+                    checker=checker,
+                    options=list(checker.options_and_values()),
+                    msgs=dict(checker.msgs),
+                    reports=list(checker.reports),
+                    doc=doc,
+                    module=module,
+                )
     return by_checker
 
 
-def setup(app):
+def setup(app: Sphinx) -> dict[str, str]:
     app.connect("builder-inited", builder_inited)
     return {"version": sphinx.__display_version__}
 

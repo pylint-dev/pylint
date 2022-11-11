@@ -22,7 +22,6 @@ class BroadTryClauseChecker(checkers.BaseChecker):
     According to PEP 8, ``try`` clauses shall contain the absolute minimum
     amount of code. This checker enforces a maximum number of statements within
     ``try`` clauses.
-
     """
 
     # configuration section name
@@ -47,7 +46,7 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         ),
     )
 
-    def _count_statements(self, try_node):
+    def _count_statements(self, try_node: nodes.TryExcept | nodes.TryFinally) -> int:
         statement_count = len(try_node.body)
 
         for body_node in try_node.body:
@@ -59,13 +58,15 @@ class BroadTryClauseChecker(checkers.BaseChecker):
     def visit_tryexcept(self, node: nodes.TryExcept | nodes.TryFinally) -> None:
         try_clause_statements = self._count_statements(node)
         if try_clause_statements > self.linter.config.max_try_statements:
-            msg = f"try clause contains {try_clause_statements} statements, expected at most {self.linter.config.max_try_statements}"
+            msg = (
+                f"try clause contains {try_clause_statements} statements, expected at"
+                f" most {self.linter.config.max_try_statements}"
+            )
             self.add_message(
                 "too-many-try-statements", node.lineno, node=node, args=msg
             )
 
-    def visit_tryfinally(self, node: nodes.TryFinally) -> None:
-        self.visit_tryexcept(node)
+    visit_tryfinally = visit_tryexcept
 
 
 def register(linter: PyLinter) -> None:

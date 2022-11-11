@@ -15,9 +15,6 @@ from itertools import OrderedDict as NotOrderedDict
 from itertools import *
 from os import *
 
-# pylint: disable=misplaced-future
-from __future__ import absolute_import, print_function
-
 import sys
 
 import xml.etree.ElementTree
@@ -27,7 +24,6 @@ from email import encoders
 import email.encoders  # [reimported]
 
 import sys  # [reimported]  #pylint: disable=ungrouped-imports,wrong-import-order
-__revision__ = 0
 
 def no_reimport():
     """docstring"""

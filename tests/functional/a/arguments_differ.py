@@ -1,7 +1,7 @@
 """Test that we are emitting arguments-differ when the arguments are different."""
-# pylint: disable=missing-docstring, too-few-public-methods, unused-argument,useless-super-delegation, useless-object-inheritance, unused-private-member
+# pylint: disable=missing-docstring, too-few-public-methods, unused-argument,useless-super-delegation, unused-private-member
 
-class Parent(object):
+class Parent:
 
     def test(self):
         pass
@@ -13,7 +13,7 @@ class Child(Parent):
         pass
 
 
-class ParentDefaults(object):
+class ParentDefaults:
 
     def test(self, arg=None, barg=None):
         pass
@@ -24,7 +24,7 @@ class ChildDefaults(ParentDefaults):
         pass
 
 
-class Classmethod(object):
+class Classmethod:
 
     @classmethod
     def func(cls, data):
@@ -54,7 +54,7 @@ class Builtins(dict):
         pass
 
 
-class Varargs(object):
+class Varargs:
 
     def has_kwargs(self, arg, **kwargs):
         pass
@@ -72,7 +72,7 @@ class VarargsChild(Varargs):
         "Addition of kwargs does not violate LSP, but first argument's name has changed."
 
 
-class Super(object):
+class Super:
     def __init__(self):
         pass
 
@@ -108,7 +108,7 @@ class Sub(Super):
         pass
 
 
-class Staticmethod(object):
+class Staticmethod:
 
     @staticmethod
     def func(data):
@@ -122,7 +122,7 @@ class StaticmethodChild(Staticmethod):
         return data
 
 
-class Property(object):
+class Property:
 
     @property
     def close(self):
@@ -145,7 +145,7 @@ class StaticmethodChild2(Staticmethod):
         super().func(data)
 
 
-class SuperClass(object):
+class SuperClass:
 
     @staticmethod
     def impl(arg1, arg2, **kwargs):
@@ -169,7 +169,7 @@ class MyClass(SuperClass):
         return arg1 + arg2
 
 
-class FirstHasArgs(object):
+class FirstHasArgs:
 
     def test(self, *args):
         pass
@@ -181,7 +181,7 @@ class SecondChangesArgs(FirstHasArgs):
         pass
 
 
-class Positional(object):
+class Positional:
 
     def test(self, first, second):
         pass
@@ -195,7 +195,7 @@ class PositionalChild(Positional):
         """
         super().test(args[0], args[1])
 
-class Mixed(object):
+class Mixed:
 
     def mixed(self, first, second, *, third, fourth):
         pass
@@ -219,7 +219,7 @@ class MixedChild2(Mixed):
         super().mixed(first, *args, third, **kwargs)
 
 
-class HasSpecialMethod(object):
+class HasSpecialMethod:
 
     def __getitem__(self, key):
         return key
@@ -232,7 +232,7 @@ class OverridesSpecialMethod(HasSpecialMethod):
         return cheie + 1
 
 
-class ParentClass(object):
+class ParentClass:
 
     def meth(self, arg, arg1):
         raise NotImplementedError

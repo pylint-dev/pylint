@@ -1,9 +1,9 @@
 """Tests that onjects used in a with statement implement context manager protocol"""
 
 # pylint: disable=too-few-public-methods, invalid-name, import-error, missing-docstring
-# pylint: disable=wrong-import-position, useless-object-inheritance
+# pylint: disable=wrong-import-position
 # Tests no messages for objects that implement the protocol
-class Manager(object):
+class Manager:
     def __enter__(self):
         pass
     def __exit__(self, type_, value, traceback):
@@ -18,7 +18,7 @@ with AnotherManager():
 
 
 # Tests message for class that doesn't implement the protocol
-class NotAManager(object):
+class NotAManager:
     pass
 with NotAManager():  #[not-context-manager]
     pass
@@ -70,7 +70,7 @@ with wrapper():
 
 # Tests for properties returning managers.
 
-class Property(object):
+class Property:
 
     @property
     def ctx(self):
@@ -98,7 +98,7 @@ with TestKnownBases():
     pass
 
 # Ignore mixins.
-class ManagerMixin(object):
+class ManagerMixin:
     def test(self):
         with self:
             pass

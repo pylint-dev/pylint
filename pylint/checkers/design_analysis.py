@@ -7,10 +7,9 @@
 from __future__ import annotations
 
 import re
-import sys
 from collections import defaultdict
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, List, cast
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -18,11 +17,6 @@ from astroid import nodes
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import only_required_for_messages
 from pylint.typing import MessageDefinitionTuple
-
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -208,7 +202,7 @@ def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
     return False
 
 
-def _count_boolean_expressions(bool_op):
+def _count_boolean_expressions(bool_op: nodes.BoolOp) -> int:
     """Counts the number of boolean expressions in BoolOp `bool_op` (recursive).
 
     example: a and (b or c or (d and e)) ==> 5 boolean expressions
@@ -222,7 +216,7 @@ def _count_boolean_expressions(bool_op):
     return nb_bool_expr
 
 
-def _count_methods_in_class(node):
+def _count_methods_in_class(node: nodes.ClassDef) -> int:
     all_methods = sum(1 for method in node.methods() if not method.name.startswith("_"))
     # Special methods count towards the number of public methods,
     # but don't count towards there being too many methods.
@@ -251,7 +245,7 @@ def _get_parents_iter(
     ``{A, B, C, D}`` -- both ``E`` and its ancestors are excluded.
     """
     parents: set[nodes.ClassDef] = set()
-    to_explore = cast(List[nodes.ClassDef], list(node.ancestors(recurs=False)))
+    to_explore = list(node.ancestors(recurs=False))
     while to_explore:
         parent = to_explore.pop()
         if parent.qname() in ignored_parents:
@@ -404,13 +398,13 @@ class MisdesignChecker(BaseChecker):
         ),
     )
 
-    def __init__(self, linter=None):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._returns = None
-        self._branches = None
-        self._stmts = None
+        self._returns: list[int]
+        self._branches: defaultdict[nodes.LocalsDictNodeNG, int]
+        self._stmts: list[int]
 
-    def open(self):
+    def open(self) -> None:
         """Initialize visit variables."""
         self.linter.stats.reset_node_count()
         self._returns = []
@@ -420,13 +414,9 @@ class MisdesignChecker(BaseChecker):
             self.linter.config.exclude_too_few_public_methods
         )
 
-    def _inc_all_stmts(self, amount):
+    def _inc_all_stmts(self, amount: int) -> None:
         for i, _ in enumerate(self._stmts):
             self._stmts[i] += amount
-
-    @cached_property
-    def _ignored_argument_names(self):
-        return self.linter.config.ignored_argument_names
 
     @only_required_for_messages(
         "too-many-ancestors",
@@ -517,7 +507,7 @@ class MisdesignChecker(BaseChecker):
         self._returns.append(0)
         # check number of arguments
         args = node.args.args
-        ignored_argument_names = self._ignored_argument_names
+        ignored_argument_names = self.linter.config.ignored_argument_names
         if args is not None:
             ignored_args_num = 0
             if ignored_argument_names:
@@ -627,7 +617,7 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, branches)
         self._inc_all_stmts(branches)
 
-    def _check_boolean_expressions(self, node):
+    def _check_boolean_expressions(self, node: nodes.If) -> None:
         """Go through "if" node `node` and count its boolean expressions
         if the 'if' node test is a BoolOp node.
         """
@@ -651,7 +641,7 @@ class MisdesignChecker(BaseChecker):
 
     visit_for = visit_while
 
-    def _inc_branch(self, node, branchesnum=1):
+    def _inc_branch(self, node: nodes.NodeNG, branchesnum: int = 1) -> None:
         """Increments the branches counter."""
         self._branches[node.scope()] += branchesnum
 

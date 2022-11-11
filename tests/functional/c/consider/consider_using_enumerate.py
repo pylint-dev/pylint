@@ -1,6 +1,6 @@
 """Emit a message for iteration through range and len is encountered."""
 
-# pylint: disable=missing-docstring, import-error, useless-object-inheritance, unsubscriptable-object, too-few-public-methods, unnecessary-list-index-lookup
+# pylint: disable=missing-docstring, import-error, unsubscriptable-object, too-few-public-methods, unnecessary-list-index-lookup
 
 def bad():
     iterable = [1, 2, 3]
@@ -10,7 +10,7 @@ def bad():
         yield iterable[obj]
 
 
-class Bad(object):
+class Bad:
 
     def __iter__(self):
         iterable = [1, 2, 3]
@@ -60,7 +60,7 @@ def good():
         yield test([1, 2, 3])
 
 
-class Good(object):
+class Good:
 
     def __iter__(self):
         # Should not suggest enumerate on self
@@ -74,7 +74,7 @@ def does_not_crash_on_range_without_args():
 
 # False negative described in #3657
 # https://github.com/PyCQA/pylint/issues/3657
-class MyClass(object):
+class MyClass:
     def __init__(self):
         self.my_list = []
 

@@ -20,6 +20,7 @@ class MapReduceMixin(metaclass=abc.ABCMeta):
             "MapReduceMixin has been deprecated and will be removed in pylint 3.0. "
             "To make a checker reduce map data simply implement get_map_data and reduce_map_data.",
             DeprecationWarning,
+            stacklevel=2,
         )
 
     @abc.abstractmethod

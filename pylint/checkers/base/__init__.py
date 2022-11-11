@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+# pylint: disable=duplicate-code # This is similar to the __init__ of .name_checker
+
 from __future__ import annotations
 
 __all__ = [

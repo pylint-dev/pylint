@@ -4,11 +4,14 @@
 
 """Unit tests for pylint.pyreverse.printer_factory."""
 
+from __future__ import annotations
+
 import pytest
 
 from pylint.pyreverse import printer_factory
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
+from pylint.pyreverse.printer import Printer
 from pylint.pyreverse.vcg_printer import VCGPrinter
 
 
@@ -22,5 +25,7 @@ from pylint.pyreverse.vcg_printer import VCGPrinter
         ("png", DotPrinter),
     ],
 )
-def test_get_printer_for_filetype(filetype, expected_printer_class):
+def test_get_printer_for_filetype(
+    filetype: str, expected_printer_class: type[Printer]
+) -> None:
     assert printer_factory.get_printer_for_filetype(filetype) == expected_printer_class

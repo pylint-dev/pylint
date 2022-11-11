@@ -1,7 +1,10 @@
 -e .[testutils,spelling]
-# astroid dependency is also defined in setup.cfg
-astroid==2.11.4  # Pinned to a specific version for tests
-typing-extensions~=4.2
-pytest~=7.1
-pytest-benchmark~=3.4
+# astroid dependency is also defined in pyproject.toml
+astroid==2.12.12  # Pinned to a specific version for tests
+typing-extensions~=4.4
+py~=1.11.0
+pytest~=7.2
+pytest-benchmark~=4.0
 pytest-timeout~=2.1
+towncrier~=22.8
+requests

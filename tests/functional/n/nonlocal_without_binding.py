@@ -1,31 +1,46 @@
 """ Checks that reversed() receive proper argument """
-# pylint: disable=missing-docstring,invalid-name,unused-variable, useless-object-inheritance
+# pylint: disable=missing-docstring,invalid-name,unused-variable
 # pylint: disable=too-few-public-methods
+
 
 def test():
     def parent():
         a = 42
+
         def stuff():
             nonlocal a
 
     c = 24
+
     def parent2():
         a = 42
+
         def stuff():
             def other_stuff():
                 nonlocal a
                 nonlocal c
 
+
 b = 42
+
+
 def func():
     def other_func():
         nonlocal b  # [nonlocal-without-binding]
 
-class SomeClass(object):
-    nonlocal x # [nonlocal-without-binding]
+    # Case where `nonlocal-without-binding` was not emitted when
+    # the nonlocal name was assigned later in the same scope.
+    # https://github.com/PyCQA/pylint/issues/6883
+    def other_func2():
+        nonlocal c  # [nonlocal-without-binding]
+        c = 1
+
+
+class SomeClass:
+    nonlocal x  # [nonlocal-without-binding]
 
     def func(self):
-        nonlocal some_attr # [nonlocal-without-binding]
+        nonlocal some_attr  # [nonlocal-without-binding]
 
 
 def func2():

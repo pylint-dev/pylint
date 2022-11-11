@@ -8,25 +8,25 @@ import logging
 from missing import Missing
 
 
-class Custom(object):
+class Custom:
     """ Has a __getattr__ """
     def __getattr__(self, _):
         return self
 
 
-class Test(object):
+class Test:
     """ test format attribute access """
     custom = Custom()
     ids = [1, 2, 3, [4, 5, 6]]
 
 
-class Getitem(object):
+class Getitem:
     """ test custom getitem for lookup access """
     def __getitem__(self, index):
         return 42
 
 
-class ReturnYes(object):
+class ReturnYes:
     """ can't be properly inferred """
     missing = Missing()
 
@@ -185,7 +185,7 @@ def issue373():
     """
     Ignore any object coming from an argument.
     """
-    class SomeClass(object):
+    class SomeClass:
         """ empty docstring. """
         def __init__(self, opts=None):
             self.opts = opts

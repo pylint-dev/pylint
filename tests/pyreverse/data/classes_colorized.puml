@@ -19,8 +19,8 @@ class "DoSomething" as data.suppliermodule_test.DoSomething #aliceblue {
   do_it(new_int: int) -> int
 }
 class "Interface" as data.suppliermodule_test.Interface #aliceblue {
-  get_value()
-  set_value(value)
+  {abstract}get_value()
+  {abstract}set_value(value)
 }
 class "PropertyPatterns" as data.property_pattern.PropertyPatterns #aliceblue {
   prop1

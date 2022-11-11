@@ -21,14 +21,17 @@ async
 asynccontextmanager
 attr
 attrib
+backport
 BaseChecker
 basename
 behaviour
 bidi
+Bitbucket
 bla
 bom
 bool
 boolean
+booleaness
 boolop
 boundmethod
 builtins
@@ -47,6 +50,7 @@ classmethod
 classmethod's
 classname
 classobj
+CLI
 cls
 cmp
 codebase
@@ -71,9 +75,11 @@ dataclass
 datetime
 debian
 deepcopy
+defaultdicts
 defframe
 defstmts
 deleter
+dependabot
 deque
 destructured
 destructuring
@@ -101,6 +107,7 @@ epytext
 erroring
 etree
 expr
+falsey
 favour
 filepath
 filestream
@@ -152,6 +159,7 @@ iterables
 iteritems
 jn
 jpg
+json
 jx
 jython
 # class is a reserved word
@@ -172,6 +180,7 @@ linkers
 linter
 linux
 listcomp
+Logilab
 longstring
 lsp
 mapfile
@@ -186,6 +195,7 @@ misdesign
 misdesigns
 mixin
 modname
+monkeypatch
 mro
 # Used so much that we need the abbreviation
 msg
@@ -205,6 +215,7 @@ mymodule
 mypy
 namedtuple
 namespace
+newsfile
 newstyle
 nl
 nodename
@@ -217,6 +228,7 @@ numpy
 ok
 optdict
 optik
+optionals
 optiondict
 optname
 optparse
@@ -229,12 +241,14 @@ params
 paren
 parens
 passthru
+positionals
 png
 pragma
 pragma's
 pragmas
 pre
 preorder
+prepended
 proc
 py
 pyenchant
@@ -270,6 +284,7 @@ sep
 setcomp
 shortstrings
 singledispatch
+singledispatchmethod
 spammy
 sqlalchemy
 src
@@ -283,9 +298,11 @@ stmt
 str
 stringified
 subclasses
+subcommands
 subdicts
 subgraphs
 sublists
+subparsers
 subparts
 subprocess
 subscriptable
@@ -299,6 +316,7 @@ tbump
 tempfile
 testcase
 testdata
+testoptions
 tmp
 tokencheckers
 tokeninfo
@@ -307,8 +325,10 @@ tokenizer
 toml
 tomlkit
 toplevel
+towncrier
 tp
 truthness
+truthey
 tryexcept
 txt
 typecheck
@@ -342,7 +362,9 @@ vcg's
 vectorisation
 virtualized
 wc
+whitespaces
 xfails
 xml
 xyz
+yml
 yoda

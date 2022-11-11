@@ -7,7 +7,7 @@ from __future__ import annotations
 import abc
 import functools
 import warnings
-from collections.abc import Iterator
+from collections.abc import Iterable, Sequence
 from inspect import cleandoc
 from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Any
@@ -54,6 +54,7 @@ class BaseChecker(_ArgumentsProvider):
                 "longer supported. Child classes should only inherit BaseChecker or any "
                 "of the other checker types from pylint.checkers.",
                 DeprecationWarning,
+                stacklevel=2,
             )
         if self.name is not None:
             self.name = self.name.lower()
@@ -105,10 +106,11 @@ class BaseChecker(_ArgumentsProvider):
     def get_full_documentation(
         self,
         msgs: dict[str, MessageDefinitionTuple],
-        options: Iterator[tuple[str, OptionDict, Any]],
-        reports: tuple[tuple[str, str, ReportsCallable], ...],
+        options: Iterable[tuple[str, OptionDict, Any]],
+        reports: Sequence[tuple[str, str, ReportsCallable]],
         doc: str | None = None,
         module: str | None = None,
+        show_options: bool = True,
     ) -> str:
         result = ""
         checker_title = f"{self.name.replace('_', ' ').title()} checker"
@@ -126,8 +128,11 @@ class BaseChecker(_ArgumentsProvider):
         # options might be an empty generator and not be False when cast to boolean
         options_list = list(options)
         if options_list:
-            result += get_rst_title(f"{checker_title} Options", "^")
-            result += f"{get_rst_section(None, options_list)}\n"
+            if show_options:
+                result += get_rst_title(f"{checker_title} Options", "^")
+                result += f"{get_rst_section(None, options_list)}\n"
+            else:
+                result += f"See also :ref:`{self.name} checker's options' documentation <{self.name}-options>`\n\n"
         if msgs:
             result += get_rst_title(f"{checker_title} Messages", "^")
             for msgid, msg in sorted(
@@ -174,6 +179,10 @@ class BaseChecker(_ArgumentsProvider):
         checker_id = None
         existing_ids = []
         for message in self.messages:
+            # Id's for shared messages such as the 'deprecated-*' messages
+            # can be inconsistent with their checker id.
+            if message.shared:
+                continue
             if checker_id is not None and checker_id != message.msgid[1:3]:
                 error_msg = "Inconsistent checker part in message id "
                 error_msg += f"'{message.msgid}' (expected 'x{checker_id}xx' "
@@ -192,8 +201,8 @@ class BaseChecker(_ArgumentsProvider):
             # TODO: 3.0: Remove deprecated if-statement
             elif implements(self, (IRawChecker, ITokenChecker)):
                 warnings.warn(  # pragma: no cover
-                    "Checkers should subclass BaseTokenChecker or BaseRawFileChecker"
-                    "instead of using the __implements__ mechanism. Use of __implements__"
+                    "Checkers should subclass BaseTokenChecker or BaseRawFileChecker "
+                    "instead of using the __implements__ mechanism. Use of __implements__ "
                     "will no longer be supported in pylint 3.0",
                     DeprecationWarning,
                 )

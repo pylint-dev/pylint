@@ -3,8 +3,12 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unit tests for utils functions in :mod:`pylint.extensions._check_docs_utils`."""
+
+from __future__ import annotations
+
 import astroid
 import pytest
+from astroid import nodes
 
 from pylint.extensions import _check_docs_utils as utils
 
@@ -134,8 +138,19 @@ def test_space_indentation(string: str, count: int) -> None:
         ),
     ],
 )
-def test_exception(raise_node, expected):
+def test_exception(raise_node: nodes.NodeNG, expected: set[str]) -> None:
     found_nodes = utils.possible_exc_types(raise_node)
     for node in found_nodes:
         assert isinstance(node, astroid.nodes.ClassDef)
     assert {node.name for node in found_nodes} == expected
+
+
+def test_possible_exc_types_raising_potential_none() -> None:
+    raise_node = astroid.extract_node(
+        """
+    def a():
+        return
+    raise a()  #@
+    """
+    )
+    assert utils.possible_exc_types(raise_node) == set()

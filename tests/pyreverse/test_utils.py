@@ -4,6 +4,8 @@
 
 """Tests for pylint.pyreverse.utils."""
 
+from __future__ import annotations
+
 from typing import Any
 from unittest.mock import patch
 
@@ -31,7 +33,7 @@ from pylint.pyreverse.utils import (
         ),
     ],
 )
-def test_get_visibility(names, expected):
+def test_get_visibility(names: list[str], expected: str) -> None:
     for name in names:
         got = get_visibility(name)
         assert got == expected, f"got {got} instead of {expected} for value {name}"
@@ -46,10 +48,12 @@ def test_get_visibility(names, expected):
         ("a: Optional[str] = None", "Optional[str]"),
     ],
 )
-def test_get_annotation_annassign(assign, label):
+def test_get_annotation_annassign(assign: str, label: str) -> None:
     """AnnAssign."""
-    node = astroid.extract_node(assign)
-    got = get_annotation(node.value).name
+    node: nodes.AnnAssign = astroid.extract_node(assign)
+    annotation = get_annotation(node.value)
+    assert annotation is not None
+    got = annotation.name
     assert isinstance(node, nodes.AnnAssign)
     assert got == label, f"got {got} instead of {label} for value {node}"
 
@@ -65,7 +69,7 @@ def test_get_annotation_annassign(assign, label):
         ("def __init__(self, x: Optional[str] = 'str'): self.x = x", "Optional[str]"),
     ],
 )
-def test_get_annotation_assignattr(init_method, label):
+def test_get_annotation_assignattr(init_method: str, label: str) -> None:
     """AssignAttr."""
     assign = rf"""
         class A:
@@ -75,7 +79,9 @@ def test_get_annotation_assignattr(init_method, label):
     instance_attrs = node.instance_attrs
     for assign_attrs in instance_attrs.values():
         for assign_attr in assign_attrs:
-            got = get_annotation(assign_attr).name
+            annotation = get_annotation(assign_attr)
+            assert annotation is not None
+            got = annotation.name
             assert isinstance(assign_attr, nodes.AssignAttr)
             assert got == label, f"got {got} instead of {label} for value {node}"
 
@@ -98,7 +104,7 @@ def test_get_annotation_label_of_return_type(
 
 
 @patch("pylint.pyreverse.utils.get_annotation")
-@patch("astroid.node_classes.NodeNG.infer", side_effect=astroid.InferenceError)
+@patch("astroid.nodes.NodeNG.infer", side_effect=astroid.InferenceError)
 def test_infer_node_1(mock_infer: Any, mock_get_annotation: Any) -> None:
     """Return set() when astroid.InferenceError is raised and an annotation has
     not been returned

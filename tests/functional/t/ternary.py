@@ -1,18 +1,23 @@
 """Test for old ternary constructs"""
-from UNINFERABLE import condition, true_value, false_value, some_callable  # pylint: disable=import-error
+from UNINFERABLE import condition, some_callable, maybe_true, maybe_false  # pylint: disable=import-error
 
-SOME_VALUE1 = true_value if condition else false_value
-SOME_VALUE2 = condition and true_value or false_value  # [consider-using-ternary]
+TRUE_VALUE = True
+FALSE_VALUE = False
+
+SOME_VALUE1 = TRUE_VALUE if condition else FALSE_VALUE
+SOME_VALUE2 = condition and TRUE_VALUE or FALSE_VALUE  # [consider-using-ternary]
+NOT_SIMPLIFIABLE_1 = maybe_true if condition else maybe_false
+NOT_SIMPLIFIABLE_2 = condition and maybe_true or maybe_false
 SOME_VALUE3 = condition
 
 def func1():
     """Ternary return value correct"""
-    return true_value if condition else false_value
+    return TRUE_VALUE if condition else FALSE_VALUE
 
 
 def func2():
     """Ternary return value incorrect"""
-    return condition and true_value or false_value  # [consider-using-ternary]
+    return condition and TRUE_VALUE or FALSE_VALUE  # [consider-using-ternary]
 
 
 SOME_VALUE4 = some_callable(condition) and 'ERROR' or 'SUCCESS'  # [consider-using-ternary]
@@ -30,10 +35,23 @@ IS_LEAP_YEAR = YEAR % 4 == 0 and YEAR % 100 != 0 or YEAR % 400 == 0
 def func4():
     """"Using a Name as a condition but still emits"""
     truth_value = 42
-    return condition and truth_value or false_value # [consider-using-ternary]
+    return condition and truth_value or FALSE_VALUE # [consider-using-ternary]
 
 
 def func5():
     """"Using a Name that infers to False as a condition does not emit"""
     falsy_value = False
-    return condition and falsy_value or false_value # [simplify-boolean-expression]
+    return condition and falsy_value or FALSE_VALUE # [simplify-boolean-expression]
+
+
+def func_control_flow():
+    """Redefining variables should invalidate simplify-boolean-expression."""
+    flag_a = False
+    flag_b = False
+    for num in range(2):
+        if num == 1:
+            flag_a = True
+        else:
+            flag_b = True
+    multiple = (flag_a and flag_b) or func5()
+    return multiple

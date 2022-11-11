@@ -1,2 +1,0 @@
-[MASTER]
-load-plugins=pylint.extensions.comparetozero,

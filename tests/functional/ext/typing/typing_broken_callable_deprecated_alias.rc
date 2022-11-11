@@ -1,4 +1,4 @@
-[master]
+[main]
 py-version=3.9
 load-plugins=pylint.extensions.typing
 

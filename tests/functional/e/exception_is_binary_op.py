@@ -1,5 +1,5 @@
 """Warn about binary operations used as exceptions."""
-from __future__ import print_function
+
 try:
     pass
 except Exception or BaseException:  # [binary-op-exception]

@@ -9,6 +9,7 @@ from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.interfaces import INFERENCE
 
 
 class RecommendationChecker(checkers.BaseChecker):
@@ -67,7 +68,7 @@ class RecommendationChecker(checkers.BaseChecker):
         self._py36_plus = py_version >= (3, 6)
 
     @staticmethod
-    def _is_builtin(node, function):
+    def _is_builtin(node: nodes.NodeNG, function: str) -> bool:
         inferred = utils.safe_infer(node)
         if not inferred:
             return False
@@ -85,6 +86,10 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if node.func.attrname != "keys":
             return
+
+        if isinstance(node.parent, nodes.BinOp) and node.parent.op in {"&", "|", "^"}:
+            return
+
         comp_ancestor = utils.get_node_first_ancestor_of_type(node, nodes.Compare)
         if (
             isinstance(node.parent, (nodes.For, nodes.Comprehension))
@@ -101,10 +106,14 @@ class RecommendationChecker(checkers.BaseChecker):
                 inferred.bound, nodes.Dict
             ):
                 return
-            self.add_message("consider-iterating-dictionary", node=node)
+            self.add_message(
+                "consider-iterating-dictionary", node=node, confidence=INFERENCE
+            )
 
     def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:
-        """Add message when accessing first or last elements of a str.split() or str.rsplit()."""
+        """Add message when accessing first or last elements of a str.split() or
+        str.rsplit().
+        """
 
         # Check if call is split() or rsplit()
         if not (
@@ -393,6 +402,12 @@ class RecommendationChecker(checkers.BaseChecker):
         elif isinstance(node.parent, nodes.BinOp) and node.parent.op == "%":
             # Backslashes can't be in f-string expressions
             if "\\" in node.parent.right.as_string():
+                return
+
+            # If % applied to another type than str, it's modulo and can't be replaced by formatting
+            if not hasattr(node.parent.left, "value") or not isinstance(
+                node.parent.left.value, str
+            ):
                 return
 
             inferred_right = utils.safe_infer(node.parent.right)

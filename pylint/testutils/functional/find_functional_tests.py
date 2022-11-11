@@ -38,9 +38,11 @@ def get_functional_test_files_from_directory(
 
     _check_functional_tests_structure(Path(input_dir))
 
-    for dirpath, _, filenames in os.walk(input_dir):
+    for dirpath, dirnames, filenames in os.walk(input_dir):
         if dirpath.endswith("__pycache__"):
             continue
+        dirnames.sort()
+        filenames.sort()
         for filename in filenames:
             if filename != "__init__.py" and filename.endswith(".py"):
                 suite.append(FunctionalTestFile(dirpath, filename))

@@ -1,0 +1,116 @@
+**************************
+  What's New In Pylint 1.3
+**************************
+
+Release date: 2014-07-26
+
+* Allow hanging continued indentation for implicitly concatenated
+  strings.
+
+  Closes #232.
+
+* Pylint works under Python 2.5 again, and its test suite passes.
+
+* Fix some false positives for the cellvar-from-loop warnings.
+
+  Closes #233.
+
+* Return new astroid class nodes when the inferencer can detect that
+  that result of a function invocation on a type (like ``type`` or
+  `abc.ABCMeta`) is requested.
+
+  Closes #205.
+
+* Emit 'undefined-variable' for undefined names when using the
+  Python 3 ``metaclass=`` argument.
+
+* Checkers respect priority now.
+
+  Closes #229
+
+* Fix a false positive regarding W0511.
+
+  Closes #149.
+
+* Fix unused-import false positive with Python 3 metaclasses
+
+  Closes #143
+
+* Don't warn with 'bad-format-character' when encountering
+  the 'a' format on Python 3.
+
+* Add multiple checks for PEP 3101 advanced string formatting:
+  'bad-format-string', 'missing-format-argument-key',
+  'unused-format-string-argument', 'format-combined-specification',
+  'missing-format-attribute' and 'invalid-format-index'.
+
+* Issue broad-except and bare-except even if the number
+  of except handlers is different than 1.
+
+  Closes #113
+
+* Issue attribute-defined-outside-init for all cases, not just
+  for the last assignment.
+
+  Closes #262
+
+* Emit 'not-callable' when calling properties.
+
+  Closes #268.
+
+* Fix a false positive with unbalanced iterable unpacking,
+  when encountering starred nodes.
+
+  Closes #273.
+
+* Add new checks, 'invalid-slice-index' and 'invalid-sequence-index'
+  for invalid sequence and slice indices.
+
+* Add 'assigning-non-slot' warning, which detects assignments to
+  attributes not defined in slots.
+
+* Don't emit 'no-name-in-module' for ignored modules.
+
+  Closes #223.
+
+* Fix an 'unused-variable' false positive, where the variable is
+  assigned through an import.
+
+  Closes #196.
+
+* Definition order is considered for classes, function arguments
+  and annotations.
+
+  Closes #257.
+
+* Don't emit 'unused-variable' when assigning to a nonlocal.
+
+  Closes #275.
+
+* Do not let ImportError propagate from the import checker, leading to crash
+  in some namespace package related cases.
+
+  Closes #203.
+
+* Don't emit 'pointless-string-statement' for attribute docstrings.
+
+  Closes #193.
+
+* Use the proper mode for pickle when opening and writing the stats file.
+
+  Closes #148.
+
+* Don't emit hidden-method message when the attribute has been
+  monkey-patched, you're on your own when you do that.
+
+* Only emit attribute-defined-outside-init for definition within the same
+  module as the offended class, avoiding to mangle the output in some cases.
+
+* Don't emit 'unnecessary-lambda' if the body of the lambda call contains
+  call chaining.
+
+  Closes #243.
+
+* Don't emit 'missing-docstring' when the actual docstring uses ``.format``.
+
+  Closes #281.

@@ -1,7 +1,7 @@
 github_url = "https://github.com/PyCQA/pylint"
 
 [version]
-current = "2.14.0-dev0"
+current = "2.16.0-dev"
 regex = '''
 ^(?P<major>0|[1-9]\d*)
 \.
@@ -37,6 +37,10 @@ name = "Upgrade the pylintrc examples"
 cmd = "pylint --rcfile=/dev/null --generate-rcfile > examples/pylintrc"
 
 [[before_commit]]
+name = "Upgrade the toml examples"
+cmd = "pylint --rcfile=/dev/null --generate-toml-config > examples/pyproject.toml"
+
+[[before_commit]]
 name = "Normalize the contributors-txt configuration"
 cmd = "contributors-txt-normalize-configuration -a script/.contributors_aliases.json -o script/.contributors_aliases.json"
 
@@ -47,6 +51,10 @@ cmd = "python3 script/create_contributor_list.py"
 [[before_commit]]
 name = "Apply pre-commit"
 cmd = "pre-commit run --all-files||echo 'Hack so this command does not fail'"
+
+[[before_commit]]
+name = "Confirm changes"
+cmd = "read -p 'Continue (y)? ' -n 1 -r; echo; [[ ! $REPLY =~ ^[Yy]$ ]] && exit 1 || exit 0"
 
 # Or run some commands after the git tag and the branch
 # have been pushed:

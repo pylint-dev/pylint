@@ -28,7 +28,7 @@ import re
 import sys
 import warnings
 from collections import defaultdict
-from collections.abc import Callable, Generator, Iterable
+from collections.abc import Callable, Generator, Iterable, Sequence
 from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain, groupby
@@ -49,7 +49,7 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, table_lines_from_stats
-from pylint.reporters.ureports.nodes import Table
+from pylint.reporters.ureports.nodes import Section, Table
 from pylint.typing import MessageDefinitionTuple, Options
 from pylint.utils import LinterStats, decoding_stream
 
@@ -85,8 +85,8 @@ STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
 
 
 class CplSuccessiveLinesLimits:
-    """Holds a SuccessiveLinesLimits object for each file compared and a
-    counter on the number of common lines between both stripped lines collections extracted from both files.
+    """Holds a SuccessiveLinesLimits object for each checked file and counts the number
+    of common lines between both stripped lines collections extracted from both files.
     """
 
     __slots__ = ("first_file", "second_file", "effective_cmn_lines_nb")
@@ -108,7 +108,9 @@ CplIndexToCplLines_T = Dict["LineSetStartCouple", CplSuccessiveLinesLimits]
 
 
 class LinesChunk:
-    """The LinesChunk object computes and stores the hash of some consecutive stripped lines of a lineset."""
+    """The LinesChunk object computes and stores the hash of some consecutive stripped
+    lines of a lineset.
+    """
 
     __slots__ = ("_fileid", "_index", "_hash")
 
@@ -117,7 +119,9 @@ class LinesChunk:
         """The name of the file from which the LinesChunk object is generated."""
 
         self._index: Index = Index(num_line)
-        """The index in the stripped lines that is the starting of consecutive lines."""
+        """The index in the stripped lines that is the starting of consecutive
+        lines.
+        """
 
         self._hash: int = sum(hash(lin) for lin in lines)
         """The hash of some consecutive lines."""
@@ -181,7 +185,7 @@ class LineSetStartCouple(NamedTuple):
             f"<LineSetStartCouple <{self.fst_lineset_index};{self.snd_lineset_index}>>"
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, LineSetStartCouple):
             return NotImplemented
         return (
@@ -225,18 +229,16 @@ def hash_lineset(
     # Need different iterators on same lines but each one is shifted 1 from the precedent
     shifted_lines = [iter(lines[i:]) for i in range(min_common_lines)]
 
-    for index_i, *succ_lines in enumerate(zip(*shifted_lines)):
-        start_linenumber = lineset.stripped_lines[index_i].line_number
+    for i, *succ_lines in enumerate(zip(*shifted_lines)):
+        start_linenumber = LineNumber(lineset.stripped_lines[i].line_number)
         try:
-            end_linenumber = lineset.stripped_lines[
-                index_i + min_common_lines
-            ].line_number
+            end_linenumber = lineset.stripped_lines[i + min_common_lines].line_number
         except IndexError:
-            end_linenumber = lineset.stripped_lines[-1].line_number + 1
+            end_linenumber = LineNumber(lineset.stripped_lines[-1].line_number + 1)
 
-        index = Index(index_i)
+        index = Index(i)
         index2lines[index] = SuccessiveLinesLimits(
-            start=LineNumber(start_linenumber), end=LineNumber(end_linenumber)
+            start=start_linenumber, end=end_linenumber
         )
 
         l_c = LinesChunk(lineset.name, index, *succ_lines)
@@ -538,7 +540,7 @@ class Similar:
             for lineset2 in self.linesets[idx + 1 :]:
                 yield from self._find_common(lineset, lineset2)
 
-    def get_map_data(self):
+    def get_map_data(self) -> list[LineSet]:
         """Returns the data we can use for a map/reduce process.
 
         In this case we are returning this instance's Linesets, that is all file
@@ -546,7 +548,7 @@ class Similar:
         """
         return self.linesets
 
-    def combine_mapreduce_data(self, linesets_collection):
+    def combine_mapreduce_data(self, linesets_collection: list[list[LineSet]]) -> None:
         """Reduces and recombines data into a format that we can report on.
 
         The partner function of get_map_data()
@@ -562,7 +564,8 @@ def stripped_lines(
     ignore_signatures: bool,
     line_enabled_callback: Callable[[str, int], bool] | None = None,
 ) -> list[LineSpecifs]:
-    """Return tuples of line/line number/line type with leading/trailing white-space and any ignored code features removed.
+    """Return tuples of line/line number/line type with leading/trailing white-space and
+    any ignored code features removed.
 
     :param lines: a collection of lines
     :param ignore_comments: if true, any comment in the lines collection is removed from the result
@@ -582,7 +585,7 @@ def stripped_lines(
         line_begins_import = {
             lineno: all(is_import for _, is_import in node_is_import_group)
             for lineno, node_is_import_group in groupby(
-                node_is_import_by_lineno, key=lambda x: x[0]
+                node_is_import_by_lineno, key=lambda x: x[0]  # type: ignore[no-any-return]
             )
         }
         current_line_is_import = False
@@ -591,7 +594,9 @@ def stripped_lines(
         def _get_functions(
             functions: list[nodes.NodeNG], tree: nodes.NodeNG
         ) -> list[nodes.NodeNG]:
-            """Recursively get all functions including nested in the classes from the tree."""
+            """Recursively get all functions including nested in the classes from the
+            tree.
+            """
 
             for node in tree.body:
                 if isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
@@ -684,32 +689,32 @@ class LineSet:
             line_enabled_callback=line_enabled_callback,
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<Lineset for {self.name}>"
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._real_lines)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> LineSpecifs:
         return self._stripped_lines[index]
 
-    def __lt__(self, other):
+    def __lt__(self, other: LineSet) -> bool:
         return self.name < other.name
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return id(self)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, LineSet):
             return False
         return self.__dict__ == other.__dict__
 
     @property
-    def stripped_lines(self):
+    def stripped_lines(self) -> list[LineSpecifs]:
         return self._stripped_lines
 
     @property
-    def real_lines(self):
+    def real_lines(self) -> list[str]:
         return self._real_lines
 
 
@@ -725,7 +730,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 
 
 def report_similarities(
-    sect,
+    sect: Section,
     stats: LinterStats,
     old_stats: LinterStats | None,
 ) -> None:
@@ -810,7 +815,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
             ignore_signatures=self.linter.config.ignore_signatures,
         )
 
-    def open(self):
+    def open(self) -> None:
         """Init the checkers: reset linesets and statistics information."""
         self.linesets = []
         self.linter.stats.reset_duplicated_lines()
@@ -833,7 +838,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         with node.stream() as stream:
             self.append_stream(self.linter.current_name, stream, node.file_encoding)  # type: ignore[arg-type]
 
-    def close(self):
+    def close(self) -> None:
         """Compute and display similarities on closing (i.e. end of parsing)."""
         total = sum(len(lineset) for lineset in self.linesets)
         duplicated = 0
@@ -854,11 +859,11 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         stats.nb_duplicated_lines += int(duplicated)
         stats.percent_duplicated_lines += float(total and duplicated * 100.0 / total)
 
-    def get_map_data(self):
+    def get_map_data(self) -> list[LineSet]:
         """Passthru override."""
         return Similar.get_map_data(self)
 
-    def reduce_map_data(self, linter, data):
+    def reduce_map_data(self, linter: PyLinter, data: list[list[LineSet]]) -> None:
         """Reduces and recombines data into a format that we can report on.
 
         The partner function of get_map_data()
@@ -870,7 +875,7 @@ def register(linter: PyLinter) -> None:
     linter.register_checker(SimilarChecker(linter))
 
 
-def usage(status=0):
+def usage(status: int = 0) -> NoReturn:
     """Display command line usage information."""
     print("finds copy pasted blocks in a set of files")
     print()
@@ -881,7 +886,7 @@ def usage(status=0):
     sys.exit(status)
 
 
-def Run(argv=None) -> NoReturn:
+def Run(argv: Sequence[str] | None = None) -> NoReturn:
     """Standalone command line access point."""
     if argv is None:
         argv = sys.argv[1:]
@@ -900,7 +905,7 @@ def Run(argv=None) -> NoReturn:
     ignore_docstrings = False
     ignore_imports = False
     ignore_signatures = False
-    opts, args = getopt(argv, s_opts, l_opts)
+    opts, args = getopt(list(argv), s_opts, l_opts)
     for opt, val in opts:
         if opt in {"-d", "--duplicates"}:
             min_lines = int(val)

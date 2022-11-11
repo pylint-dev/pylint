@@ -9,7 +9,8 @@
 from __future__ import annotations
 
 import os
-from collections.abc import Callable
+from collections.abc import Generator
+from pathlib import Path
 
 import astroid
 import pytest
@@ -17,14 +18,20 @@ from astroid import nodes
 
 from pylint.pyreverse import inspector
 from pylint.pyreverse.inspector import Project
+from pylint.testutils.utils import _test_cwd
+from pylint.typing import GetProjectCallable
+
+HERE = Path(__file__)
+TESTS = HERE.parent.parent
 
 
 @pytest.fixture
-def project(get_project: Callable) -> Project:
-    project = get_project("data", "data")
-    linker = inspector.Linker(project)
-    linker.visit(project)
-    return project
+def project(get_project: GetProjectCallable) -> Generator[Project, None, None]:
+    with _test_cwd(TESTS):
+        project = get_project("data", "data")
+        linker = inspector.Linker(project)
+        linker.visit(project)
+        yield project
 
 
 def test_class_implements(project: Project) -> None:
@@ -110,7 +117,7 @@ def test_interfaces() -> None:
         ("Concrete0", ["MyIFace"]),
         ("Concrete1", ["MyIFace", "AnotherIFace"]),
         ("Concrete2", ["MyIFace", "AnotherIFace"]),
-        ("Concrete23", ["MyIFace", "AnotherIFace"]),
+        ("Concrete23", []),
     ):
         klass = module[klass]
         assert [i.name for i in inspector.interfaces(klass)] == interfaces
@@ -130,3 +137,18 @@ def test_project_node(project: Project) -> None:
         "data.suppliermodule_test",
     ]
     assert sorted(project.keys()) == expected
+
+
+def test_interface_deprecation(project: Project) -> None:
+    linker = inspector.Linker(project)
+    cls = astroid.extract_node(
+        '''
+        class IMachin: pass
+
+        class Concrete:  #@
+            """docstring"""
+            __implements__ = (IMachin,)
+    '''
+    )
+    with pytest.warns(DeprecationWarning):
+        linker.visit_classdef(cls)

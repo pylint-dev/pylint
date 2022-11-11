@@ -4,6 +4,8 @@
 
 """Docstring checker from the basic checker."""
 
+from __future__ import annotations
+
 import re
 import sys
 
@@ -28,7 +30,9 @@ else:
 NO_REQUIRED_DOC_RGX = re.compile("^_")
 
 
-def _infer_dunder_doc_attribute(node):
+def _infer_dunder_doc_attribute(
+    node: nodes.Module | nodes.ClassDef | nodes.FunctionDef,
+) -> str | None:
     # Try to see if we have a `__doc__` attribute.
     try:
         docstring = node["__doc__"]
@@ -40,7 +44,7 @@ def _infer_dunder_doc_attribute(node):
         return None
     if not isinstance(docstring, nodes.Const):
         return None
-    return docstring.value
+    return str(docstring.value)
 
 
 class DocStringChecker(_BasicChecker):
@@ -55,21 +59,21 @@ class DocStringChecker(_BasicChecker):
         "C0114": (
             "Missing module docstring",
             "missing-module-docstring",
-            "Used when a module has no docstring."
+            "Used when a module has no docstring. "
             "Empty modules do not require a docstring.",
             {"old_names": [("C0111", "missing-docstring")]},
         ),
         "C0115": (
             "Missing class docstring",
             "missing-class-docstring",
-            "Used when a class has no docstring."
+            "Used when a class has no docstring. "
             "Even an empty class must have a docstring.",
             {"old_names": [("C0111", "missing-docstring")]},
         ),
         "C0116": (
             "Missing function or method docstring",
             "missing-function-docstring",
-            "Used when a function or method has no docstring."
+            "Used when a function or method has no docstring. "
             "Some special methods like __init__ do not require a "
             "docstring.",
             {"old_names": [("C0111", "missing-docstring")]},
@@ -101,19 +105,19 @@ class DocStringChecker(_BasicChecker):
         ),
     )
 
-    def open(self):
+    def open(self) -> None:
         self.linter.stats.reset_undocumented()
 
-    @utils.only_required_for_messages("missing-docstring", "empty-docstring")
+    @utils.only_required_for_messages("missing-module-docstring", "empty-docstring")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_docstring("module", node)
 
-    @utils.only_required_for_messages("missing-docstring", "empty-docstring")
+    @utils.only_required_for_messages("missing-class-docstring", "empty-docstring")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         if self.linter.config.no_docstring_rgx.match(node.name) is None:
             self._check_docstring("class", node)
 
-    @utils.only_required_for_messages("missing-docstring", "empty-docstring")
+    @utils.only_required_for_messages("missing-function-docstring", "empty-docstring")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if self.linter.config.no_docstring_rgx.match(node.name) is None:
             ftype = "method" if node.is_method() else "function"
@@ -153,10 +157,10 @@ class DocStringChecker(_BasicChecker):
     def _check_docstring(
         self,
         node_type: Literal["class", "function", "method", "module"],
-        node,
-        report_missing=True,
-        confidence=interfaces.HIGH,
-    ):
+        node: nodes.Module | nodes.ClassDef | nodes.FunctionDef,
+        report_missing: bool = True,
+        confidence: interfaces.Confidence = interfaces.HIGH,
+    ) -> None:
         """Check if the node has a non-empty docstring."""
         docstring = node.doc_node.value if node.doc_node else None
         if docstring is None:

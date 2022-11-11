@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import sys
 import tokenize
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from pylint import exceptions, interfaces
@@ -16,6 +17,7 @@ from pylint.constants import (
     MSG_TYPES,
     MSG_TYPES_LONG,
 )
+from pylint.interfaces import HIGH
 from pylint.message import MessageDefinition
 from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import (
@@ -36,7 +38,9 @@ if TYPE_CHECKING:
 
 
 class _MessageStateHandler:
-    """Class that handles message disabling & enabling and processing of inline pragma's."""
+    """Class that handles message disabling & enabling and processing of inline
+    pragma's.
+    """
 
     def __init__(self, linter: PyLinter) -> None:
         self.linter = linter
@@ -51,15 +55,25 @@ class _MessageStateHandler:
             "enable-msg": self._options_methods["enable"],
         }
         self._pragma_lineno: dict[str, int] = {}
+        # TODO: 3.0: Update key type to str when current_name is always str
+        self._stashed_messages: defaultdict[
+            tuple[str | None, str], list[tuple[str | None, str]]
+        ] = defaultdict(list)
+        """Some messages in the options (for --enable and --disable) are encountered
+        too early to warn about them.
+
+        i.e. before all option providers have been fully parsed. Thus, this dict stores
+        option_value and msg_id needed to (later) emit the messages keyed on module names.
+        """
 
     def _set_one_msg_status(
         self, scope: str, msg: MessageDefinition, line: int | None, enable: bool
     ) -> None:
         """Set the status of an individual message."""
-        if scope == "module":
+        if scope in {"module", "line"}:
             assert isinstance(line, int)  # should always be int inside module scope
 
-            self.linter.file_state.set_msg_status(msg, line, enable)
+            self.linter.file_state.set_msg_status(msg, line, enable, scope)
             if not enable and msg.symbol != "locally-disabled":
                 self.linter.add_message(
                     "locally-disabled", line=line, args=(msg.symbol, msg.msgid)
@@ -129,7 +143,7 @@ class _MessageStateHandler:
         ignore_unknown: bool = False,
     ) -> None:
         """Do some tests and then iterate over message definitions to set state."""
-        assert scope in {"package", "module"}
+        assert scope in {"package", "module", "line"}
 
         message_definitions = self._get_messages_to_set(msgid, enable, ignore_unknown)
 
@@ -183,7 +197,7 @@ class _MessageStateHandler:
     def disable_next(
         self,
         msgid: str,
-        scope: str = "package",
+        _: str = "package",
         line: int | None = None,
         ignore_unknown: bool = False,
     ) -> None:
@@ -193,7 +207,7 @@ class _MessageStateHandler:
         self._set_msg_status(
             msgid,
             enable=False,
-            scope=scope,
+            scope="line",
             line=line + 1,
             ignore_unknown=ignore_unknown,
         )
@@ -213,14 +227,11 @@ class _MessageStateHandler:
         self._register_by_id_managed_msg(msgid, line, is_disabled=False)
 
     def disable_noerror_messages(self) -> None:
-        for msgcat, msgids in self.linter.msgs_store._msgs_by_category.items():
-            # enable only messages with 'error' severity and above ('fatal')
+        """Disable message categories other than `error` and `fatal`."""
+        for msgcat in self.linter.msgs_store._msgs_by_category:
             if msgcat in {"E", "F"}:
-                for msgid in msgids:
-                    self.enable(msgid)
-            else:
-                for msgid in msgids:
-                    self.disable(msgid)
+                continue
+            self.disable(msgcat)
 
     def list_messages_enabled(self) -> None:
         emittable, non_emittable = self.linter.msgs_store.find_emittable_messages()
@@ -302,7 +313,8 @@ class _MessageStateHandler:
         line: int | None = None,
         confidence: interfaces.Confidence | None = None,
     ) -> bool:
-        """Return whether this message is enabled for the current file, line and confidence level.
+        """Return whether this message is enabled for the current file, line and
+        confidence level.
 
         This function can't be cached right now as the line is the line of
         the currently analysed file (self.file_state), if it changes, then the
@@ -395,11 +407,24 @@ class _MessageStateHandler:
                             l_start -= 1
                         try:
                             meth(msgid, "module", l_start)
-                        except exceptions.UnknownMessageError:
-                            msg = f"{pragma_repr.action}. Don't recognize message {msgid}."
+                        except (
+                            exceptions.DeletedMessageError,
+                            exceptions.MessageBecameExtensionError,
+                        ) as e:
                             self.linter.add_message(
-                                "bad-option-value", args=msg, line=start[0]
+                                "useless-option-value",
+                                args=(pragma_repr.action, e),
+                                line=start[0],
+                                confidence=HIGH,
                             )
+                        except exceptions.UnknownMessageError:
+                            self.linter.add_message(
+                                "unknown-option-value",
+                                args=(pragma_repr.action, msgid),
+                                line=start[0],
+                                confidence=HIGH,
+                            )
+
             except UnRecognizedOptionError as err:
                 self.linter.add_message(
                     "unrecognized-inline-option", args=err.token, line=start[0]

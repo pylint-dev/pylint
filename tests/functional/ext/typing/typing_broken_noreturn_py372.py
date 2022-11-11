@@ -6,7 +6,7 @@ If no runtime introspection is required, use string annotations instead.
 
 Don't emit errors if py-version set to >= 3.7.2.
 """
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, broad-exception-raised
 import typing
 from typing import TYPE_CHECKING, Callable, NoReturn, Union
 

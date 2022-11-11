@@ -105,7 +105,7 @@ class TestMultiNamingStyle(CheckerTestCase):
         function_rgx=MULTI_STYLE_RE,
         name_group=("function:method",),
     )
-    def test_multi_name_detection_group(self):
+    def test_multi_name_detection_group(self) -> None:
         function_defs = astroid.extract_node(
             """
         class First(object):

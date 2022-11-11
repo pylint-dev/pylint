@@ -34,7 +34,8 @@ _worker_linter: PyLinter | None = None
 def _worker_initialize(
     linter: bytes, arguments: None | str | Sequence[str] = None
 ) -> None:
-    """Function called to initialize a worker for a Process within a multiprocessing Pool.
+    """Function called to initialize a worker for a Process within a multiprocessing
+    Pool.
 
     :param linter: A linter-class (PyLinter) instance pickled with dill
     :param arguments: File or module name(s) to lint and to be added to sys.path
@@ -66,7 +67,7 @@ def _worker_check_single_file(
     defaultdict[str, list[Any]],
 ]:
     if not _worker_linter:
-        raise Exception("Worker linter not yet initialised")
+        raise RuntimeError("Worker linter not yet initialised")
     _worker_linter.open()
     _worker_linter.check_single_file_item(file_item)
     mapreduce_data = defaultdict(list)
@@ -159,6 +160,7 @@ def check_parallel(
             mapreduce_data,
         ) in pool.imap_unordered(_worker_check_single_file, files):
             linter.file_state.base_name = base_name
+            linter.file_state._is_base_filestate = False
             linter.set_current_module(module, file_path)
             for msg in messages:
                 linter.reporter.handle_message(msg)

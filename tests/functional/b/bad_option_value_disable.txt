@@ -1,0 +1,2 @@
+unknown-option-value:10:0:None:None::Unknown option value for 'disable', expected a valid pylint message and got 'a-removed-option':HIGH
+unknown-option-value:13:0:None:None::Unknown option value for 'disable', expected a valid pylint message and got 'a-removed-option':HIGH

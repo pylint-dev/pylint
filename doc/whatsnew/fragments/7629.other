@@ -1,0 +1,4 @@
+Add ``default_enabled`` option to optional message dict. Provides an option to disable a checker message by default.
+To use a disabled message, the user must enable it explicitly by adding the message to the ``enable`` option.
+
+Refs #7629

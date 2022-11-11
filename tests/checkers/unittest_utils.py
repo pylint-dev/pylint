@@ -25,7 +25,7 @@ from pylint.checkers.base_checker import BaseChecker
         ("mybuiltin", False),
     ],
 )
-def testIsBuiltin(name, expected):
+def testIsBuiltin(name: str, expected: bool) -> None:
     assert utils.is_builtin(name) == expected
 
 
@@ -150,24 +150,56 @@ def test_parse_format_method_string() -> None:
     samples = [
         ("{}", result_type([], 1, set(), {}, [(None, None)], {})),
         ("{}:{}", result_type([], 2, set(), {}, [(None, None), (None, None)], {})),
-        ("{field}", result_type([("field", [])], 0, set(), {"field": (None,None)}, [], {})),
-        ("{:5}", result_type([], 1, set(), {}, [(None,None)], {})),
-        ("{:10}", result_type([], 1, set(), {}, [(None,None)], {})),
-        ("{field:10}", result_type([("field", [])], 0, set(), {"field": (None,None)}, [], {})),
-        ("{field:10}{{}}", result_type([("field", [])], 0, set(), {"field": (None,None)}, [], {})),
+        (
+            "{field}",
+            result_type([("field", [])], 0, set(), {"field": (None, None)}, [], {}),
+        ),
+        ("{:5}", result_type([], 1, set(), {}, [(None, None)], {})),
+        ("{:10}", result_type([], 1, set(), {}, [(None, None)], {})),
+        (
+            "{field:10}",
+            result_type([("field", [])], 0, set(), {"field": (None, None)}, [], {}),
+        ),
+        (
+            "{field:10}{{}}",
+            result_type([("field", [])], 0, set(), {"field": (None, None)}, [], {}),
+        ),
         ("{:5}{!r:10}", result_type([], 2, set(), {}, [(None, None), ("r", None)], {})),
-        ("{:5}{}{{}}{}", result_type([], 3, set(), {}, [(None, None), (None, None), (None, None)], {})),
-        ("{0}{1}{0}", result_type([], 0, {'0', '1'}, {}, [], {'0': (None,None), '1': (None,None)})),
-        ("Coordinates: {latitude}, {longitude}", result_type([("latitude", []), ("longitude", [])], 0, set(), {"latitude": (None,None), "longitude": (None,None)}, [], {})),
-        ("X: {0[0]};  Y: {0[1]}", result_type([], 0, {"0"}, {}, [], {"0": (None, None)})),
-        ("{:*^30}", result_type([], 1, set(), {}, [(None,None)], {})),
-        ("{!r:}", result_type([], 1, set(), {}, [("r",None)], {})),
+        (
+            "{:5}{}{{}}{}",
+            result_type(
+                [], 3, set(), {}, [(None, None), (None, None), (None, None)], {}
+            ),
+        ),
+        (
+            "{0}{1}{0}",
+            result_type(
+                [], 0, {"0", "1"}, {}, [], {"0": (None, None), "1": (None, None)}
+            ),
+        ),
+        (
+            "Coordinates: {latitude}, {longitude}",
+            result_type(
+                [("latitude", []), ("longitude", [])],
+                0,
+                set(),
+                {"latitude": (None, None), "longitude": (None, None)},
+                [],
+                {},
+            ),
+        ),
+        (
+            "X: {0[0]};  Y: {0[1]}",
+            result_type([], 0, {"0"}, {}, [], {"0": (None, None)}),
+        ),
+        ("{:*^30}", result_type([], 1, set(), {}, [(None, None)], {})),
+        ("{!r:}", result_type([], 1, set(), {}, [("r", None)], {})),
     ]
-
 
     for fmt, result in samples:
         parse = utils.parse_format_method_string(fmt)
-        assert(parse == result)
+        assert parse == result
+
 
 def test_inherit_from_std_ex_recursive_definition() -> None:
     node = astroid.extract_node(
@@ -490,3 +522,29 @@ def test_deprecation_check_messages() -> None:
             records[0].message.args[0]
             == "utils.check_messages will be removed in favour of calling utils.only_required_for_messages in pylint 3.0"
         )
+
+
+def test_is_typing_member() -> None:
+    code = astroid.extract_node(
+        """
+    from typing import Literal as Lit, Set as Literal
+    import typing as t
+
+    Literal #@
+    Lit #@
+    t.Literal #@
+    """
+    )
+
+    assert not utils.is_typing_member(code[0], ("Literal",))
+    assert utils.is_typing_member(code[1], ("Literal",))
+    assert utils.is_typing_member(code[2], ("Literal",))
+
+    code = astroid.extract_node(
+        """
+    Literal #@
+    typing.Literal #@
+    """
+    )
+    assert not utils.is_typing_member(code[0], ("Literal",))
+    assert not utils.is_typing_member(code[1], ("Literal",))

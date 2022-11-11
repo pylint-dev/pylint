@@ -1,4 +1,4 @@
-# pylint: disable=unused-argument, missing-docstring, line-too-long, useless-object-inheritance, too-few-public-methods
+# pylint: disable=unused-argument, missing-docstring, line-too-long, too-few-public-methods
 import enum
 
 
@@ -27,7 +27,7 @@ class Banana(Fruit):
     def eat_with_condiment(self, fruit_name: str, condiment: Condiment, error: str): # [arguments-differ]
         print(f"Eating a fruit named {fruit_name} with {condiment}")
 
-class Parent(object):
+class Parent:
 
     def test(self, arg):
         return arg + 1
@@ -51,7 +51,7 @@ class Child2(Parent):
     def kwargs_test(self, *, var1, kw2): #[arguments-differ]
         print(f"keyword parameters are {var1} and {kw2}.")
 
-class ParentDefaults(object):
+class ParentDefaults:
 
     def test1(self, arg, barg):
         print(f"Argument values are {arg} and {barg}")

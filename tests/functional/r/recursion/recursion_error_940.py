@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
+# pylint: disable=missing-docstring, too-few-public-methods
 import datetime
 
 
@@ -8,6 +8,6 @@ class NewDate(datetime.date):
         return cls(2010, 1, 1)
 
 
-class Next(object):
+class Next:
     def __init__(self):
         datetime.date = NewDate

@@ -31,8 +31,7 @@ class _ConfigurationFileParser:
         self.verbose_mode = verbose
         self.linter = linter
 
-    @staticmethod
-    def _parse_ini_file(file_path: Path) -> tuple[dict[str, str], list[str]]:
+    def _parse_ini_file(self, file_path: Path) -> tuple[dict[str, str], list[str]]:
         """Parse and handle errors of a ini configuration file."""
         parser = configparser.ConfigParser(inline_comment_prefixes=("#", ";"))
 
@@ -43,7 +42,9 @@ class _ConfigurationFileParser:
         config_content: dict[str, str] = {}
         options: list[str] = []
         for section in parser.sections():
-            if "setup.cfg" in str(file_path) and not section.startswith("pylint"):
+            if self._ini_file_with_sections(file_path) and not section.startswith(
+                "pylint"
+            ):
                 if section.lower() == "master":
                     # TODO: 3.0: Remove deprecated handling of master, only allow 'pylint.' sections
                     warnings.warn(
@@ -55,10 +56,18 @@ class _ConfigurationFileParser:
                 else:
                     continue
             for opt, value in parser[section].items():
-                value = value.replace("\n", "")
                 config_content[opt] = value
                 options += [f"--{opt}", value]
         return config_content, options
+
+    @staticmethod
+    def _ini_file_with_sections(file_path: Path) -> bool:
+        """Return whether the file uses sections."""
+        if "setup.cfg" in file_path.parts:
+            return True
+        if "tox.ini" in file_path.parts:
+            return True
+        return False
 
     def _parse_toml_file(self, file_path: Path) -> tuple[dict[str, str], list[str]]:
         """Parse and handle errors of a toml configuration file."""

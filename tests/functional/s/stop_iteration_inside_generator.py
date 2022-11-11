@@ -2,6 +2,7 @@
 Test that no StopIteration is raised inside a generator
 """
 # pylint: disable=missing-docstring,invalid-name,import-error, try-except-raise, wrong-import-position,not-callable,raise-missing-from
+# pylint: disable=broad-exception-raised
 import asyncio
 
 class RebornStopIteration(StopIteration):
@@ -9,11 +10,13 @@ class RebornStopIteration(StopIteration):
     A class inheriting from StopIteration exception
     """
 
+
 # This one is ok
 def gen_ok():
     yield 1
     yield 2
     yield 3
+
 
 # pylint should warn about this one
 # because of a direct raising of StopIteration inside generator
@@ -23,6 +26,7 @@ def gen_stopiter():
     yield 3
     raise StopIteration  # [stop-iteration-return]
 
+
 # pylint should warn about this one
 # because of a direct raising of an exception inheriting from StopIteration inside generator
 def gen_stopiterchild():
@@ -31,12 +35,14 @@ def gen_stopiterchild():
     yield 3
     raise RebornStopIteration  # [stop-iteration-return]
 
+
 # pylint should warn here
 # because of the possibility that next raises a StopIteration exception
 def gen_next_raises_stopiter():
     g = gen_ok()
     while True:
         yield next(g)  # [stop-iteration-return]
+
 
 # This one is the same as gen_next_raises_stopiter
 # but is ok because the next function is inside
@@ -49,6 +55,7 @@ def gen_next_inside_try_except():
         except StopIteration:
             return
 
+
 # This one is the same as gen_next_inside_try_except
 # but is not ok because the next function is inside
 # a try/except block that don't handle StopIteration
@@ -59,6 +66,7 @@ def gen_next_inside_wrong_try_except():
             yield next(g)  # [stop-iteration-return]
         except ValueError:
             return
+
 
 # This one is the same as gen_next_inside_try_except
 # but is not ok because the next function is inside
@@ -71,10 +79,12 @@ def gen_next_inside_wrong_try_except2():
         except StopIteration:
             raise StopIteration  # [stop-iteration-return]
 
+
 # Those two last are ok
 def gen_in_for():
     for el in gen_ok():
         yield el
+
 
 def gen_yield_from():
     yield from gen_ok()
@@ -84,7 +94,7 @@ def gen_dont_crash_on_no_exception():
     g = gen_ok()
     while True:
         try:
-            yield next(g) # [stop-iteration-return]
+            yield next(g)  # [stop-iteration-return]
         except ValueError:
             raise
 
@@ -97,7 +107,7 @@ def gen_dont_crash_on_uninferable():
 
 # https://github.com/PyCQA/pylint/issues/1830
 def gen_next_with_sentinel():
-    yield next([], 42) # No bad return
+    yield next([], 42)  # No bad return
 
 
 from itertools import count
@@ -113,6 +123,7 @@ def generator_using_next():
 class SomeClassWithNext:
     def next(self):
         return iter([1, 2, 3])
+
     def some_gen(self):
         for value in self.next():
             yield value
@@ -122,8 +133,39 @@ SomeClassWithNext().some_gen()
 
 
 def something_invalid():
-    raise Exception('cannot iterate this')
+    raise Exception("cannot iterate this")
 
 
 def invalid_object_passed_to_next():
-    yield next(something_invalid()) # [stop-iteration-return]
+    yield next(something_invalid())  # [stop-iteration-return]
+
+
+# pylint: disable=redefined-builtin,too-many-function-args
+def safeiter(it):
+    """Regression test for issue #7610 when ``next`` builtin is redefined"""
+
+    def next():
+        while True:
+            try:
+                return next(it)
+            except StopIteration:
+                raise
+
+    it = iter(it)
+    while True:
+        yield next()
+
+def other_safeiter(it):
+    """Regression test for issue #7610 when ``next`` builtin is redefined"""
+
+    def next(*things):
+        print(*things)
+        while True:
+            try:
+                return next(it)
+            except StopIteration:
+                raise
+
+    it = iter(it)
+    while True:
+        yield next(1, 2)

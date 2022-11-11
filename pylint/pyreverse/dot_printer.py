@@ -10,6 +10,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from enum import Enum
 from pathlib import Path
 
 from astroid import nodes
@@ -17,19 +18,28 @@ from astroid import nodes
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 from pylint.pyreverse.utils import get_annotation_label
 
+
+class HTMLLabels(Enum):
+    LINEBREAK_LEFT = '<br ALIGN="LEFT"/>'
+
+
 ALLOWED_CHARSETS: frozenset[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
 SHAPES: dict[NodeType, str] = {
     NodeType.PACKAGE: "box",
     NodeType.INTERFACE: "record",
     NodeType.CLASS: "record",
 }
+# pylint: disable-next=consider-using-namedtuple-or-dataclass
 ARROWS: dict[EdgeType, dict[str, str]] = {
-    EdgeType.INHERITS: dict(arrowtail="none", arrowhead="empty"),
-    EdgeType.IMPLEMENTS: dict(arrowtail="node", arrowhead="empty", style="dashed"),
-    EdgeType.ASSOCIATION: dict(
-        fontcolor="green", arrowtail="none", arrowhead="diamond", style="solid"
-    ),
-    EdgeType.USES: dict(arrowtail="none", arrowhead="open"),
+    EdgeType.INHERITS: {"arrowtail": "none", "arrowhead": "empty"},
+    EdgeType.IMPLEMENTS: {"arrowtail": "node", "arrowhead": "empty", "style": "dashed"},
+    EdgeType.ASSOCIATION: {
+        "fontcolor": "green",
+        "arrowtail": "none",
+        "arrowhead": "diamond",
+        "style": "solid",
+    },
+    EdgeType.USES: {"arrowtail": "none", "arrowhead": "open"},
 }
 
 
@@ -73,7 +83,7 @@ class DotPrinter(Printer):
         color = properties.color if properties.color is not None else self.DEFAULT_COLOR
         style = "filled" if color != self.DEFAULT_COLOR else "solid"
         label = self._build_label_for_node(properties)
-        label_part = f', label="{label}"' if label else ""
+        label_part = f", label=<{label}>" if label else ""
         fontcolor_part = (
             f', fontcolor="{properties.fontcolor}"' if properties.fontcolor else ""
         )
@@ -81,33 +91,33 @@ class DotPrinter(Printer):
             f'"{name}" [color="{color}"{fontcolor_part}{label_part}, shape="{shape}", style="{style}"];'
         )
 
-    def _build_label_for_node(
-        self, properties: NodeProperties, is_interface: bool | None = False
-    ) -> str:
+    def _build_label_for_node(self, properties: NodeProperties) -> str:
         if not properties.label:
             return ""
 
         label: str = properties.label
-        if is_interface:
-            # add a stereotype
-            label = "<<interface>>\\n" + label
-
         if properties.attrs is None and properties.methods is None:
             # return a "compact" form which only displays the class name in a box
             return label
 
         # Add class attributes
         attrs: list[str] = properties.attrs or []
-        label = "{" + label + "|" + r"\l".join(attrs) + r"\l|"
+        attrs_string = rf"{HTMLLabels.LINEBREAK_LEFT.value}".join(
+            attr.replace("|", r"\|") for attr in attrs
+        )
+        label = rf"{{{label}|{attrs_string}{HTMLLabels.LINEBREAK_LEFT.value}|"
 
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
         for func in methods:
             args = self._get_method_arguments(func)
-            label += rf"{func.name}({', '.join(args)})"
+            method_name = (
+                f"<I>{func.name}</I>" if func.is_abstract() else f"{func.name}"
+            )
+            label += rf"{method_name}({', '.join(args)})"
             if func.returns:
                 label += ": " + get_annotation_label(func.returns)
-            label += r"\l"
+            label += rf"{HTMLLabels.LINEBREAK_LEFT.value}"
         label += "}"
         return label
 
