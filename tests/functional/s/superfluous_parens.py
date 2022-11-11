@@ -74,5 +74,10 @@ Z = "TestString"
 X = ("Test " + "String")  # [superfluous-parens]
 Y = ("Test " + "String") in Z  # [superfluous-parens]
 assert ("Test " + "String") in "hello"  # [superfluous-parens]
-assert "" + ("Version " + "String") in Z  # [superfluous-parens]
 assert ("Version " + "String") in ("Version " + "String")  # [superfluous-parens]
+
+hi = ("CONST")  # [superfluous-parens]
+hi = ("CONST",)
+
+#TODO: maybe get this line to report [superfluous-parens] without causing other false positives.
+assert "" + ("Version " + "String") in Z
