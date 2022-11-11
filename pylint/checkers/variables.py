@@ -1165,6 +1165,7 @@ class VariablesChecker(BaseChecker):
                     len(targets),
                     len(values),
                 ),
+                confidence=INFERENCE,
             )
 
     def leave_for(self, node: nodes.For) -> None:
@@ -2747,6 +2748,7 @@ class VariablesChecker(BaseChecker):
                         len(targets),
                         len(values),
                     ),
+                    confidence=INFERENCE,
                 )
         # attempt to check unpacking may be possible (i.e. RHS is iterable)
         elif not utils.is_iterable(inferred):
