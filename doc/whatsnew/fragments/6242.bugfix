@@ -1,0 +1,5 @@
+Maintain and reference a set of visited files while expanding the module files
+from list of module directories, package names, and standalone files to
+prevent duplicate scans.
+
+Closes #6242

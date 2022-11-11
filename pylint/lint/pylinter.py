@@ -14,7 +14,7 @@ import tokenize
 import traceback
 import warnings
 from collections import defaultdict
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterator, MutableSet, Sequence
 from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
@@ -878,8 +878,12 @@ class PyLinter(
 
         The returned generator yield one item for each Python module that should be linted.
         """
+        seen_filepaths: MutableSet[str] = set()  # For deduplication of paths.
         for descr in self._expand_files(files_or_modules):
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
+            if filepath in seen_filepaths:
+                continue
+            seen_filepaths.add(filepath)
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield FileItem(name, filepath, descr["basename"])
 
