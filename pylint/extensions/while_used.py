@@ -30,6 +30,8 @@ class WhileChecker(BaseChecker):
 
     @only_required_for_messages("while-used")
     def visit_while(self, node: nodes.While) -> None:
+        if isinstance(node.test, nodes.Const):
+            return
         self.add_message("while-used", node=node)
 
 

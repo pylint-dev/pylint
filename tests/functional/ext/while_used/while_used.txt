@@ -1,2 +1,2 @@
-while-used:3:0:4:17::Used `while` loop:UNDEFINED
-while-used:9:4:10:14:fff:Used `while` loop:UNDEFINED
+while-used:14:0:15:17::Used `while` loop:UNDEFINED
+while-used:21:4:22:14:func:Used `while` loop:UNDEFINED
