@@ -1803,7 +1803,10 @@ class VariablesChecker(BaseChecker):
             self._check_module_attrs(node, module, name.split("."))
 
     @utils.only_required_for_messages(
-        "unbalanced-tuple-unpacking", "unpacking-non-sequence", "self-cls-assignment"
+        "unbalanced-tuple-unpacking",
+        "unpacking-non-sequence",
+        "self-cls-assignment",
+        "unbalanced_dict_unpacking",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
         """Check unbalanced tuple unpacking for assignments and unpacking
