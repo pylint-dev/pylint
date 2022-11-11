@@ -2248,7 +2248,7 @@ def _ancestors_to_call(
     to_call: dict[nodes.ClassDef, bases.UnboundMethod] = {}
     for base_node in klass_node.ancestors(recurs=False):
         try:
-            init_node: bases.UnboundMethod = next(base_node.igetattr(method_name))
+            init_node = next(base_node.igetattr(method_name))
             if not isinstance(init_node, astroid.UnboundMethod):
                 continue
             if init_node.is_abstract():
