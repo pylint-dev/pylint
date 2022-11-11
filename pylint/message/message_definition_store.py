@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import collections
 import functools
-import warnings
+import sys
 from collections.abc import Sequence, ValuesView
 from typing import TYPE_CHECKING
 
@@ -111,10 +111,8 @@ class MessageDefinitionStore:
         emittable = []
         non_emittable = []
         for message in messages:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                if message.may_be_emitted():
-                    emittable.append(message)
-                else:
-                    non_emittable.append(message)
+            if message.may_be_emitted(sys.version_info):
+                emittable.append(message)
+            else:
+                non_emittable.append(message)
         return emittable, non_emittable
