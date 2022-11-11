@@ -1126,14 +1126,6 @@ class VariablesChecker(BaseChecker):
 
         targets = node.target.elts
 
-        # Check if we have any `_` nodes
-        if any([target.name == "_" for target in targets]):
-            return
-
-        # Check if we have starred nodes.
-        if any(isinstance(target, nodes.Starred) for target in targets):
-            return
-
         inferred = utils.safe_infer(node.iter)
         if inferred is None or not isinstance(inferred, DICT_TYPES):
             return
@@ -1149,6 +1141,18 @@ class VariablesChecker(BaseChecker):
             # a tuple with two items, this will unpack correctly.
             # Example: `for key, val in {1: 2, 3: 4}.items()`
             if len(targets) == 2 and all([len(x.elts) == 2 for x in values]):
+                return
+
+            # Nodes named `_` or Starred nodes indicate ambiguous unpacking
+            # if `dict.items()` is used so we won't flag them.
+            if any(
+                [
+                    isinstance(target, nodes.Starred)
+                    or isinstance(target, nodes.AssignName)
+                    and target.name == "_"
+                    for target in targets
+                ]
+            ):
                 return
 
         if len(targets) != len(values):
