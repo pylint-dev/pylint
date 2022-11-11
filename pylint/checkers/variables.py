@@ -528,7 +528,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "iterable.",
     ),
     "W0644": (
-        "Possible unbalanced tuple unpacking with "
+        "Possible unbalanced dict unpacking with "
         "sequence%s: "
         "left side has %d label(s), right side has %d value(s)",
         "unbalanced-dict-unpacking",
@@ -1140,18 +1140,16 @@ class VariablesChecker(BaseChecker):
             # So as long as there are always 2 targets and values each are
             # a tuple with two items, this will unpack correctly.
             # Example: `for key, val in {1: 2, 3: 4}.items()`
-            if len(targets) == 2 and all([len(x.elts) == 2 for x in values]):
+            if len(targets) == 2 and all(len(x.elts) == 2 for x in values):
                 return
 
             # Nodes named `_` or Starred nodes indicate ambiguous unpacking
             # if `dict.items()` is used so we won't flag them.
             if any(
-                [
-                    isinstance(target, nodes.Starred)
-                    or isinstance(target, nodes.AssignName)
-                    and target.name == "_"
-                    for target in targets
-                ]
+                isinstance(target, nodes.Starred)
+                or isinstance(target, nodes.AssignName)
+                and target.name == "_"
+                for target in targets
             ):
                 return
 

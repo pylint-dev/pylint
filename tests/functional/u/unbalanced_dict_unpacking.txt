@@ -1,16 +1,16 @@
-unbalanced-dict-unpacking:5:4:5:41:dict_vals:"Possible unbalanced tuple unpacking with sequence: left side has 7 label(s), right side has 1 value(s)":INFERENCE
-unbalanced-dict-unpacking:9:4:9:49:dict_keys:"Possible unbalanced tuple unpacking with sequence: left side has 7 label(s), right side has 2 value(s)":INFERENCE
-unbalanced-dict-unpacking:15:4:15:63:dict_items:"Possible unbalanced tuple unpacking with sequence: left side has 3 label(s), right side has 2 value(s)":INFERENCE
-unbalanced-dict-unpacking:19:4:19:38:all_dict:"Possible unbalanced tuple unpacking with sequence {1: 2, 3: 4}: left side has 7 label(s), right side has 2 value(s)":INFERENCE
-unbalanced-dict-unpacking:22:0:23:8::"Possible unbalanced tuple unpacking with sequence: left side has 7 label(s), right side has 1 value(s)":INFERENCE
-unbalanced-dict-unpacking:25:0:26:8::"Possible unbalanced tuple unpacking with sequence {1: 2}: left side has 2 label(s), right side has 1 value(s)":INFERENCE
-consider-iterating-dictionary:28:18:28:31::Consider iterating the dictionary directly instead of calling .keys():UNDEFINED
-unbalanced-dict-unpacking:28:0:29:8::"Possible unbalanced tuple unpacking with sequence: left side has 2 label(s), right side has 1 value(s)":INFERENCE
-unbalanced-dict-unpacking:31:0:32:8::"Possible unbalanced tuple unpacking with sequence: left side has 2 label(s), right side has 1 value(s)":INFERENCE
-unbalanced-dict-unpacking:48:0:48:28::"Possible unbalanced tuple unpacking with sequence: left side has 2 label(s), right side has 1 value(s)":INFERENCE
-unbalanced-dict-unpacking:53:0:53:37::"Possible unbalanced tuple unpacking with sequence: left side has 2 label(s), right side has 3 value(s)":INFERENCE
-unbalanced-dict-unpacking:55:0:55:12::"Possible unbalanced tuple unpacking with sequence {}: left side has 3 label(s), right side has 0 value(s)":INFERENCE
-unbalanced-dict-unpacking:66:0:67:14::"Possible unbalanced tuple unpacking with sequence: left side has 2 label(s), right side has 1 value(s)":INFERENCE
-unbalanced-dict-unpacking:76:0:77:14::"Possible unbalanced tuple unpacking with sequence: left side has 2 label(s), right side has 3 value(s)":INFERENCE
-unbalanced-dict-unpacking:79:0:80:14::"Possible unbalanced tuple unpacking with sequence: left side has 2 label(s), right side has 3 value(s)":INFERENCE
-unbalanced-dict-unpacking:90:0:90:39::"Possible unbalanced tuple unpacking with sequence: left side has 2 label(s), right side has 3 value(s)":INFERENCE
+unbalanced-dict-unpacking:5:4:5:41:dict_vals:"Possible unbalanced dict unpacking with sequence: left side has 7 label(s), right side has 1 value(s)":INFERENCE
+unbalanced-dict-unpacking:9:4:9:49:dict_keys:"Possible unbalanced dict unpacking with sequence: left side has 7 label(s), right side has 2 value(s)":INFERENCE
+unbalanced-dict-unpacking:15:4:15:63:dict_items:"Possible unbalanced dict unpacking with sequence: left side has 3 label(s), right side has 2 value(s)":INFERENCE
+unbalanced-dict-unpacking:19:4:19:38:all_dict:"Possible unbalanced dict unpacking with sequence {1: 2, 3: 4}: left side has 7 label(s), right side has 2 value(s)":INFERENCE
+unbalanced-dict-unpacking:22:0:23:8::"Possible unbalanced dict unpacking with sequence: left side has 7 label(s), right side has 1 value(s)":INFERENCE
+unbalanced-dict-unpacking:25:0:26:8::"Possible unbalanced dict unpacking with sequence {1: 2}: left side has 2 label(s), right side has 1 value(s)":INFERENCE
+consider-iterating-dictionary:28:18:28:31::Consider iterating the dictionary directly instead of calling .keys():INFERENCE
+unbalanced-dict-unpacking:28:0:29:8::"Possible unbalanced dict unpacking with sequence: left side has 2 label(s), right side has 1 value(s)":INFERENCE
+unbalanced-dict-unpacking:31:0:32:8::"Possible unbalanced dict unpacking with sequence: left side has 2 label(s), right side has 1 value(s)":INFERENCE
+unbalanced-dict-unpacking:48:0:48:28::"Possible unbalanced dict unpacking with sequence: left side has 2 label(s), right side has 1 value(s)":INFERENCE
+unbalanced-dict-unpacking:53:0:53:37::"Possible unbalanced dict unpacking with sequence: left side has 2 label(s), right side has 3 value(s)":INFERENCE
+unbalanced-dict-unpacking:55:0:55:12::"Possible unbalanced dict unpacking with sequence {}: left side has 3 label(s), right side has 0 value(s)":INFERENCE
+unbalanced-dict-unpacking:66:0:67:14::"Possible unbalanced dict unpacking with sequence: left side has 2 label(s), right side has 1 value(s)":INFERENCE
+unbalanced-dict-unpacking:76:0:77:14::"Possible unbalanced dict unpacking with sequence: left side has 2 label(s), right side has 3 value(s)":INFERENCE
+unbalanced-dict-unpacking:79:0:80:14::"Possible unbalanced dict unpacking with sequence: left side has 2 label(s), right side has 3 value(s)":INFERENCE
+unbalanced-dict-unpacking:90:0:90:39::"Possible unbalanced dict unpacking with sequence: left side has 2 label(s), right side has 3 value(s)":INFERENCE

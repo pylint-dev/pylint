@@ -1309,6 +1309,8 @@ Variables checker Messages
   variable is not defined in the module scope.
 :self-cls-assignment (W0642): *Invalid assignment to %s in method*
   Invalid assignment to self or cls in instance or class method respectively.
+:unbalanced-dict-unpacking (W0644): *Possible unbalanced tuple unpacking with sequence%s: left side has %d label(s), right side has %d value(s)*
+  Used when there is an unbalanced dict unpacking in assignment
 :unbalanced-tuple-unpacking (W0632): *Possible unbalanced tuple unpacking with sequence%s: left side has %d label(s), right side has %d value(s)*
   Used when there is an unbalanced tuple unpacking in assignment
 :possibly-unused-variable (W0641): *Possibly unused variable %r*
