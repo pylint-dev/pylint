@@ -1143,6 +1143,14 @@ class VariablesChecker(BaseChecker):
             # no dict items returned
             return
 
+        if isinstance(inferred, astroid.objects.DictItems):
+            # dict.items() is a bit special because values will be a tuple
+            # So as long as there are always 2 targets and values each are
+            # a tuple with two items, this will unpack correctly.
+            # Example: `for key, val in {1: 2, 3: 4}.items()`
+            if len(targets) == 2 and all([len(x.elts) == 2 for x in values]):
+                return
+
         if len(targets) != len(values):
             msg_id = "unbalanced-dict-unpacking"
             self.add_message(

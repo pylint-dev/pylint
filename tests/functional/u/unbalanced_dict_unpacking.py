@@ -17,27 +17,40 @@ def dict_items():
 
 def all_dict():
     a, b, c, d, e, f, g = {1: 2, 3: 4}  # [unbalanced-dict-unpacking]
-    good = {1: 2}
-    return good
+    return a
 
 for a, b, c, d, e, f, g in {1: 2}.items():  # [unbalanced-dict-unpacking]
     pass
 
-for a, b, c, d, e, f, g in {1: 2}:  # [unbalanced-dict-unpacking]
+for key, value in {1: 2}:  # [unbalanced-dict-unpacking]
     pass
 
-for a, b, c, d, e, f, g in {1: 2}.keys():  # [unbalanced-dict-unpacking, consider-iterating-dictionary]
+for key, value in {1: 2}.keys():  # [unbalanced-dict-unpacking, consider-iterating-dictionary]
     pass
 
-for a, b, c, d, e, f, g in {1: 2}.values():  # [unbalanced-dict-unpacking]
+for key, value in {1: 2}.values():  # [unbalanced-dict-unpacking]
     pass
 
 empty = {}
 
-# this should not raise unbalanced-dict because it is valid code
+# this should not raise unbalanced-dict because it is valid code using `items()`
 for key, value in empty.items():
     print(key)
     print(value)
+
+for key, val in {1: 2}.items():
+    print(key)
+
+populated = {2: 1}
+for key, val in populated.items():
+    print(key)
+
+key, val = populated.items()  # [unbalanced-dict-unpacking]
+
+for key, val in {1: 2, 3: 4, 5: 6}.items():
+    print(key)
+
+key, val = {1: 2, 3: 4, 5: 6}.items()  # [unbalanced-dict-unpacking]
 
 a, b, c = {}  # [unbalanced-dict-unpacking]
 
