@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class MessageDefinitionStore:
 
     """The messages store knows information about every possible message definition but
-    has no particular state during analysis other than py_version.
+    has no particular state during analysis.
     """
 
     def __init__(
