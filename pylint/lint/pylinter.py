@@ -299,18 +299,6 @@ class PyLinter(
         self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
 
-        # Attributes related to registering messages and their handling
-        self.msgs_store = MessageDefinitionStore()
-        self.msg_status = 0
-        self._by_id_managed_msgs: list[ManagedMessage] = []
-
-        # Attributes related to visiting files
-        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
-        self.current_name: str | None = None
-        self.current_file: str | None = None
-        self._ignore_file = False
-        self._ignore_paths: list[Pattern[str]] = []
-
         # Attributes related to stats
         self.stats = LinterStats()
 
@@ -338,6 +326,19 @@ class PyLinter(
             ),
             ("RP0003", "Messages", report_messages_stats),
         )
+
+        # Attributes related to registering messages and their handling
+        self.msgs_store = MessageDefinitionStore(self.config.py_version)
+        self.msg_status = 0
+        self._by_id_managed_msgs: list[ManagedMessage] = []
+
+        # Attributes related to visiting files
+        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
+        self.current_name: str | None = None
+        self.current_file: str | None = None
+        self._ignore_file = False
+        self._ignore_paths: list[Pattern[str]] = []
+
         self.register_checker(self)
 
     @property
