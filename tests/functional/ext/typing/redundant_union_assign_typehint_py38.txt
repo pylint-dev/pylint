@@ -1,0 +1,6 @@
+redundant-union-assign-typehint:6:0:6:52::Type-hint `int` is used more than once in assignment. Consider removing redundant typehints. :HIGH
+redundant-union-assign-typehint:6:0:6:52::Type-hint `str` is used more than once in assignment. Consider removing redundant typehints. :HIGH
+redundant-union-assign-typehint:9:0:9:57::Type-hint `list[int]` is used more than once in assignment. Consider removing redundant typehints. :HIGH
+redundant-union-assign-typehint:10:0:10:28::Type-hint `None` is used more than once in assignment. Consider removing redundant typehints. :HIGH
+redundant-union-assign-typehint:12:0:12:31::Type-hint `None` is used more than once in assignment. Consider removing redundant typehints. :HIGH
+redundant-union-assign-typehint:14:0:14:80::Type-hint `list[str]` is used more than once in assignment. Consider removing redundant typehints. :HIGH

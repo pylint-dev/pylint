@@ -1,0 +1,3 @@
+redundant-union-assign-typehint:3:0:3:23::Type-hint `int` is used more than once in assignment. Consider removing redundant typehints. :HIGH
+redundant-union-assign-typehint:4:0:4:43::Type-hint `int` is used more than once in assignment. Consider removing redundant typehints. :HIGH
+redundant-union-assign-typehint:7:0:7:77::Type-hint `list[str]` is used more than once in assignment. Consider removing redundant typehints. :HIGH
