@@ -120,13 +120,16 @@ def expand_modules(
             is_namespace = modutils.is_namespace(spec)
             is_directory = modutils.is_directory(spec)
         if not is_namespace:
-            result[filepath] = {
-                "path": filepath,
-                "name": modname,
-                "isarg": True,
-                "basepath": filepath,
-                "basename": modname,
-            }
+            if filepath in result:
+                result[filepath]["isarg"] = True
+            else:
+                result[filepath] = {
+                    "path": filepath,
+                    "name": modname,
+                    "isarg": True,
+                    "basepath": filepath,
+                    "basename": modname,
+                }
         has_init = (
             not (modname.endswith(".__init__") or modname == "__init__")
             and os.path.basename(filepath) == "__init__.py"
@@ -149,7 +152,7 @@ def expand_modules(
                 result[subfilepath] = {
                     "path": subfilepath,
                     "name": submodname,
-                    "isarg": False,
+                    "isarg": subfilepath in result,
                     "basepath": filepath,
                     "basename": modname,
                 }

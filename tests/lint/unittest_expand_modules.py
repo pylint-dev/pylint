@@ -45,6 +45,14 @@ this_file_from_init = {
     "path": EXPAND_MODULES,
 }
 
+this_file_from_init_deduplicated = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": True,
+    "name": "lint.unittest_expand_modules",
+    "path": EXPAND_MODULES,
+}
+
 unittest_lint = {
     "basename": "lint",
     "basepath": INIT_PATH,
@@ -123,7 +131,43 @@ class TestExpandModules(CheckerTestCase):
     def test_expand_modules(
         self, files_or_modules: list[str], expected: dict[str, ModuleDescriptionDict]
     ) -> None:
-        """Test expand_modules with the default value of ignore-paths."""
+        """Test expand_modules with deduplication and the default value of ignore-paths."""
+        ignore_list: list[str] = []
+        ignore_list_re: list[re.Pattern[str]] = []
+        modules, errors = expand_modules(
+            files_or_modules,
+            ignore_list,
+            ignore_list_re,
+            self.linter.config.ignore_paths,
+        )
+        assert modules == expected
+        assert not errors
+
+    @pytest.mark.parametrize(
+        "files_or_modules,expected",
+        [
+            ([__file__, __file__], {this_file["path"]: this_file}),
+            (
+                [EXPAND_MODULES, str(Path(__file__).parent), EXPAND_MODULES],
+                {
+                    module["path"]: module  # pylint: disable=unsubscriptable-object
+                    for module in (
+                        init_of_package,
+                        test_caching,
+                        test_pylinter,
+                        test_utils,
+                        this_file_from_init_deduplicated,
+                        unittest_lint,
+                    )
+                },
+            ),
+        ],
+    )
+    @set_config(ignore_paths="")
+    def test_expand_modules_deduplication(
+        self, files_or_modules: list[str], expected: dict[str, ModuleDescriptionDict]
+    ) -> None:
+        """Test expand_modules deduplication."""
         ignore_list: list[str] = []
         ignore_list_re: list[re.Pattern[str]] = []
         modules, errors = expand_modules(
