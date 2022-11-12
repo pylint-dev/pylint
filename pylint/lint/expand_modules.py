@@ -121,6 +121,7 @@ def expand_modules(
             is_directory = modutils.is_directory(spec)
         if not is_namespace:
             if filepath in result:
+                # Set arg flag if module is also implicitly specified.
                 result[filepath]["isarg"] = True
             else:
                 result[filepath] = {
@@ -152,7 +153,8 @@ def expand_modules(
                 result[subfilepath] = {
                     "path": subfilepath,
                     "name": submodname,
-                    "isarg": subfilepath in result,
+                    # Preserve arg flag if module is also explicitly specified.
+                    "isarg": result.get(subfilepath, {}).get("isarg", False),  # type: ignore[call-overload]
                     "basepath": filepath,
                     "basename": modname,
                 }
