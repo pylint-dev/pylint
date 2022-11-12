@@ -1,5 +1,5 @@
 class Fruit:
-    FRUITS = ["apple", "orange"]
+    FRUITS = {"apple": "red", "orange": "orange"}
 
     def __print_color(self):  # [unused-private-member]
         pass
