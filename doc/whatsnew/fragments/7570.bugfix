@@ -1,3 +1,4 @@
-Improve ``bad-thread-instantiation`` check to warn if ``target`` is not passed in as a keyword argument.
+Improve ``bad-thread-instantiation`` check to warn if ``target`` is not passed in as a keyword argument
+or as a second argument.
 
 Closes #7570

@@ -1,4 +1,4 @@
-bad-thread-instantiation:5:0:5:30::threading.Thread needs the target function passed as a kwarg:HIGH
-bad-thread-instantiation:6:0:6:36::threading.Thread needs the target function passed as a kwarg:HIGH
-bad-thread-instantiation:7:0:7:42::threading.Thread needs the target function passed as a kwarg:HIGH
-bad-thread-instantiation:8:0:8:18::threading.Thread needs the target function passed as a kwarg:HIGH
+bad-thread-instantiation:5:0:5:30::threading.Thread needs the target function:HIGH
+bad-thread-instantiation:7:0:7:42::threading.Thread needs the target function:HIGH
+bad-thread-instantiation:8:0:8:18::threading.Thread needs the target function:HIGH
+bad-thread-instantiation:18:9:18:52::threading.Thread needs the target function:HIGH

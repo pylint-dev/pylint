@@ -378,10 +378,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "should be emitted.",
         ),
         "W1506": (
-            "threading.Thread needs the target function passed as a kwarg",
+            "threading.Thread needs the target function",
             "bad-thread-instantiation",
             "The warning is emitted when a threading.Thread class "
-            "is instantiated without the target function being passed as a kwarg. "
+            "is instantiated without the target function being passed as a kwarg or as a second argument. "
             "By default, the first parameter is the group param, not the target param.",
         ),
         "W1507": (
@@ -488,7 +488,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         # synced with the config argument deprecated-modules
 
     def _check_bad_thread_instantiation(self, node: nodes.Call) -> None:
-        if not node.kwargs and "target" not in {key.arg for key in node.keywords}:
+        if (
+            len(node.args) < 2
+            and not node.kwargs
+            and "target" not in {key.arg for key in node.keywords}
+        ):
             self.add_message(
                 "bad-thread-instantiation", node=node, confidence=interfaces.HIGH
             )
