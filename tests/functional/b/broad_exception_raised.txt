@@ -1,6 +1,6 @@
-broad-exception-raised:13:4:13:41:exploding_apple:"Raising too general exception: Exception":HIGH
-broad-exception-raised:18:8:18:34:raise_and_catch:"Raising too general exception: Exception":HIGH
+broad-exception-raised:13:4:13:41:exploding_apple:"Raising too general exception: Exception":INFERENCE
+broad-exception-raised:18:8:18:34:raise_and_catch:"Raising too general exception: Exception":INFERENCE
 broad-exception-caught:19:11:19:20:raise_and_catch:Catching too general exception Exception:INFERENCE
-broad-exception-raised:22:0:22:17::"Raising too general exception: Exception":HIGH
-broad-exception-raised:23:0:23:21::"Raising too general exception: BaseException":HIGH
-broad-exception-raised:24:0:24:28::"Raising too general exception: CustomBroadException":HIGH
+broad-exception-raised:22:0:22:17::"Raising too general exception: Exception":INFERENCE
+broad-exception-raised:23:0:23:21::"Raising too general exception: BaseException":INFERENCE
+broad-exception-raised:24:0:24:28::"Raising too general exception: CustomBroadException":INFERENCE

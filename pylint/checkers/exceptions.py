@@ -221,7 +221,7 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
                     "broad-exception-raised",
                     args=exception.name,
                     node=self._node,
-                    confidence=HIGH,
+                    confidence=INFERENCE,
                 )
 
     def visit_call(self, node: nodes.Call) -> None:
