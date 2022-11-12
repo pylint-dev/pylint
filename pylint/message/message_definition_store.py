@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import collections
 import functools
+import sys
 from collections.abc import Sequence, ValuesView
 from typing import TYPE_CHECKING
 
@@ -23,7 +24,9 @@ class MessageDefinitionStore:
     has no particular state during analysis.
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self, py_version: tuple[int, ...] | sys._version_info = sys.version_info
+    ) -> None:
         self.message_id_store: MessageIdStore = MessageIdStore()
         # Primary registry for all active messages definitions.
         # It contains the 1:1 mapping from msgid to MessageDefinition.
@@ -31,6 +34,7 @@ class MessageDefinitionStore:
         self._messages_definitions: dict[str, MessageDefinition] = {}
         # MessageDefinition kept by category
         self._msgs_by_category: dict[str, list[str]] = collections.defaultdict(list)
+        self.py_version = py_version
 
     @property
     def messages(self) -> ValuesView[MessageDefinition]:
@@ -110,7 +114,7 @@ class MessageDefinitionStore:
         emittable = []
         non_emittable = []
         for message in messages:
-            if message.may_be_emitted():
+            if message.may_be_emitted(self.py_version):
                 emittable.append(message)
             else:
                 non_emittable.append(message)
