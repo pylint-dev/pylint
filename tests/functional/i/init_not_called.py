@@ -84,3 +84,14 @@ class Child(Parent):
 
     def __init__(self, num):
         super().__init__(round(num))
+
+
+# https://github.com/PyCQA/pylint/issues/7742
+# Crash when parent class has a class attribute named `__init__`
+class NoInitMethod:
+    __init__ = 42
+
+
+class ChildNoInitMethod(NoInitMethod):
+    def __init__(self):
+        ...
