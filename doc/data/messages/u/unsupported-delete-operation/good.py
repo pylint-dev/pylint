@@ -1,3 +1,3 @@
-FRUITS = ("apple", "orange", "berry")
+FRUITS = ["apple", "orange", "berry"]
 
-del list(FRUITS)[0]
+del FRUITS[0]
