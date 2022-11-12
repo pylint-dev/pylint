@@ -1,7 +1,6 @@
 class Fruit:
     FRUITS = ["apple", "orange"]
-
-    def __getitem__(self, name):
+    def __contains__(self, name):
         return name in self.FRUITS
 
 
