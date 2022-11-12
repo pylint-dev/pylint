@@ -126,7 +126,7 @@ jobs:
       - name: Copy and unzip the commit string
         run: |
           unzip primer_commitstring.zip
-          cp commit_string.txt tests/.pylint_primer_tests/commit_string.txt
+          cp commit_string_${{ matrix.python-version }}.txt tests/.pylint_primer_tests/commit_string_${{ matrix.python-version }}.txt
       - name: Unzip the output of 'main'
         run: unzip primer_output_main.zip
       - name: Get commit string

@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+FRUITS = ["apple", "orange", "berry"]
+
+del FRUITS[0]
