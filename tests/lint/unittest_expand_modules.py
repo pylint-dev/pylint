@@ -102,23 +102,26 @@ class TestExpandModules(CheckerTestCase):
     @pytest.mark.parametrize(
         "files_or_modules,expected",
         [
-            ([__file__], [this_file]),
+            ([__file__], {this_file["path"]: this_file}),
             (
                 [str(Path(__file__).parent)],
-                [
-                    init_of_package,
-                    test_caching,
-                    test_pylinter,
-                    test_utils,
-                    this_file_from_init,
-                    unittest_lint,
-                ],
+                {
+                    module["path"]: module  # pylint: disable=unsubscriptable-object
+                    for module in (
+                        init_of_package,
+                        test_caching,
+                        test_pylinter,
+                        test_utils,
+                        this_file_from_init,
+                        unittest_lint,
+                    )
+                },
             ),
         ],
     )
     @set_config(ignore_paths="")
     def test_expand_modules(
-        self, files_or_modules: list[str], expected: list[ModuleDescriptionDict]
+        self, files_or_modules: list[str], expected: dict[str, ModuleDescriptionDict]
     ) -> None:
         """Test expand_modules with the default value of ignore-paths."""
         ignore_list: list[str] = []
@@ -129,25 +132,25 @@ class TestExpandModules(CheckerTestCase):
             ignore_list_re,
             self.linter.config.ignore_paths,
         )
-        modules.sort(key=lambda d: d["name"])
         assert modules == expected
         assert not errors
 
     @pytest.mark.parametrize(
         "files_or_modules,expected",
         [
-            ([__file__], []),
+            ([__file__], {}),
             (
                 [str(Path(__file__).parent)],
-                [
-                    init_of_package,
-                ],
+                {
+                    module["path"]: module  # pylint: disable=unsubscriptable-object
+                    for module in (init_of_package,)
+                },
             ),
         ],
     )
     @set_config(ignore_paths=".*/lint/.*")
     def test_expand_modules_with_ignore(
-        self, files_or_modules: list[str], expected: list[ModuleDescriptionDict]
+        self, files_or_modules: list[str], expected: dict[str, ModuleDescriptionDict]
     ) -> None:
         """Test expand_modules with a non-default value of ignore-paths."""
         ignore_list: list[str] = []
@@ -158,6 +161,5 @@ class TestExpandModules(CheckerTestCase):
             ignore_list_re,
             self.linter.config.ignore_paths,
         )
-        modules.sort(key=lambda d: d["name"])
         assert modules == expected
         assert not errors

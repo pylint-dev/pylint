@@ -66,11 +66,11 @@ def expand_modules(
     ignore_list: list[str],
     ignore_list_re: list[Pattern[str]],
     ignore_list_paths_re: list[Pattern[str]],
-) -> tuple[list[ModuleDescriptionDict], list[ErrorDescriptionDict]]:
+) -> tuple[dict[str, ModuleDescriptionDict], list[ErrorDescriptionDict]]:
     """Take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked.
     """
-    result: list[ModuleDescriptionDict] = []
+    result: dict[str, ModuleDescriptionDict] = {}
     errors: list[ErrorDescriptionDict] = []
     path = sys.path.copy()
 
@@ -120,15 +120,13 @@ def expand_modules(
             is_namespace = modutils.is_namespace(spec)
             is_directory = modutils.is_directory(spec)
         if not is_namespace:
-            result.append(
-                {
-                    "path": filepath,
-                    "name": modname,
-                    "isarg": True,
-                    "basepath": filepath,
-                    "basename": modname,
-                }
-            )
+            result[filepath] = {
+                "path": filepath,
+                "name": modname,
+                "isarg": True,
+                "basepath": filepath,
+                "basename": modname,
+            }
         has_init = (
             not (modname.endswith(".__init__") or modname == "__init__")
             and os.path.basename(filepath) == "__init__.py"
@@ -148,13 +146,11 @@ def expand_modules(
                     subfilepath, is_namespace, path=additional_search_path
                 )
                 submodname = ".".join(modpath)
-                result.append(
-                    {
-                        "path": subfilepath,
-                        "name": submodname,
-                        "isarg": False,
-                        "basepath": filepath,
-                        "basename": modname,
-                    }
-                )
+                result[subfilepath] = {
+                    "path": subfilepath,
+                    "name": submodname,
+                    "isarg": False,
+                    "basepath": filepath,
+                    "basename": modname,
+                }
     return result, errors
