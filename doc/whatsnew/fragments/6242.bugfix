@@ -1,5 +1,5 @@
-Maintain and reference a set of visited files while expanding the module files
+Use dict to track results while expanding the module files
 from list of module directories, package names, and standalone files to
-prevent duplicate scans.
+prevent duplicate scans while preserving order.
 
 Closes #6242
