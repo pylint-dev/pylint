@@ -1,0 +1,3 @@
+Update ``reimported`` help message for clarity and ensure aliased imports are also detected.
+
+Closes #4836

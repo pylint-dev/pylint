@@ -7,3 +7,6 @@ reimported:24:0:24:21::Reimport 'email.encoders' (imported line 23):UNDEFINED
 reimported:26:0:26:10::Reimport 'sys' (imported line 18):UNDEFINED
 redefined-outer-name:36:4:36:14:reimport:Redefining name 'sys' from outer scope (line 16):UNDEFINED
 reimported:36:4:36:14:reimport:Reimport 'sys' (imported line 18):UNDEFINED
+reimported:43:0:43:45::Reimport 'CustomPath' (imported line 42):UNDEFINED
+reimported:44:0:44:24::Reimport 'Path' (imported line 42):UNDEFINED
+reimported:45:0:45:27::Reimport 'FastAPI.Path' (imported line 42):UNDEFINED

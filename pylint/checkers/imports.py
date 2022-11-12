@@ -125,6 +125,9 @@ def _get_first_import(
                     ):
                         found = True
                         break
+                    if imported_name == alias:
+                        found = True
+                        break
                 if found:
                     break
     if found and not astroid.are_exclusive(first, node):
@@ -252,7 +255,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0404": (
         "Reimport %r (imported line %s)",
         "reimported",
-        "Used when a module is reimported multiple times.",
+        "Used when a module of the same name is reimported or aliased.",
     ),
     "W0406": (
         "Module import itself",
@@ -914,7 +917,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         basename: str | None = None,
         level: int | None = None,
     ) -> None:
-        """Check if the import is necessary (i.e. not already done)."""
+        """Check if a module with the same name is already imported or aliased."""
         if not self.linter.is_message_enabled("reimported"):
             return
 
