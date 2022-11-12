@@ -1,0 +1,3 @@
+Fix false positive for ``unhashable-member`` when subclassing ``dict``.
+
+Closes #7501
