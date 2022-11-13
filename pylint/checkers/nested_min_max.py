@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import copy
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -24,7 +25,7 @@ class NestedMinMaxChecker(BaseChecker):
     name = "nested_min_max"
     msgs = {
         "W3201": (
-            "Do not use nested call of '%s'  it's possible to do '%s' instead",
+            "Do not use nested call of '%s'; it's possible to do '%s' instead",
             "nested-min-max",
             "Nested calls ``min(1, min(2, 3))`` can be rewritten as ``min(1, 2, 3)``.",
         )
@@ -37,13 +38,12 @@ class NestedMinMaxChecker(BaseChecker):
 
         inferred = safe_infer(node.func)
         return (
-            inferred is not None
-            and inferred.is_function
+            isinstance(inferred, nodes.FunctionDef)
             and inferred.qname() in cls.FUNC_NAMES
         )
 
     @classmethod
-    def get_redundant_calls(cls, node: nodes.Call) -> nodes.NodeNG:
+    def get_redundant_calls(cls, node: nodes.Call) -> list[nodes.Call]:
         return [
             arg
             for arg in node.args
@@ -56,21 +56,24 @@ class NestedMinMaxChecker(BaseChecker):
             return
 
         redundant_calls = self.get_redundant_calls(node)
-        if len(redundant_calls) == 0:
+        if not redundant_calls:
             return
 
+        fixed_node = copy(node)
         while len(redundant_calls) > 0:
-            for i, arg in enumerate(node.args):
+            for i, arg in enumerate(fixed_node.args):
                 if arg in redundant_calls:
-                    node.args = node.args[:i] + arg.args + node.args[i + 1 :]
+                    fixed_node.args = (
+                        fixed_node.args[:i] + arg.args + fixed_node.args[i + 1 :]
+                    )
                     break
 
-            redundant_calls = self.get_redundant_calls(node)
+            redundant_calls = self.get_redundant_calls(fixed_node)
 
         self.add_message(
             "nested-min-max",
             node=node,
-            args=(node.func.name, node.as_string()),
+            args=(node.func.name, fixed_node.as_string()),
             confidence=INFERENCE,
         )
 
