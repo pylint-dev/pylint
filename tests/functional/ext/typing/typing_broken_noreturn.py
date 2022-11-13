@@ -1,5 +1,5 @@
 """
-'typing.NoReturn' is broken inside compond types for Python 3.7.0
+'typing.NoReturn' is broken inside compound types for Python 3.7.0
 https://bugs.python.org/issue34921
 
 If no runtime introspection is required, use string annotations instead.
