@@ -24,7 +24,7 @@ class NestedMinMaxChecker(BaseChecker):
 
     name = "nested_min_max"
     msgs = {
-        "W3201": (
+        "W3301": (
             "Do not use nested call of '%s'; it's possible to do '%s' instead",
             "nested-min-max",
             "Nested calls ``min(1, min(2, 3))`` can be rewritten as ``min(1, 2, 3)``.",
