@@ -208,15 +208,9 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
             return
 
         for _, exception in exceptions:
-            if isinstance(exception, astroid.Instance) and utils.inherit_from_std_ex(
-                exception
-            ):
-                exception = exception._proxied
-
-            if not isinstance(exception, nodes.ClassDef):
-                continue
-
-            if self._checker._is_overgeneral_exception(exception):
+            if isinstance(
+                exception, nodes.ClassDef
+            ) and self._checker._is_overgeneral_exception(exception):
                 self._checker.add_message(
                     "broad-exception-raised",
                     args=exception.name,

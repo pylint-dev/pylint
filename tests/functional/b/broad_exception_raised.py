@@ -1,5 +1,7 @@
 # pylint: disable=missing-docstring, unreachable
 
+ExceptionAlias = Exception
+
 class CustomBroadException(Exception):
     pass
 
@@ -18,6 +20,30 @@ def raise_and_catch():
         raise Exception("Oh No!!")  # [broad-exception-raised]
     except Exception as ex:  # [broad-exception-caught]
         print(ex)
+
+
+def raise_catch_reraise():
+    try:
+        exploding_apple("apple")
+    except Exception as ex:
+        print(ex)
+        raise ex
+
+
+def raise_catch_raise():
+    try:
+        exploding_apple("apple")
+    except Exception as ex:
+        print(ex)
+        raise Exception() from None  # [broad-exception-raised]
+
+
+def raise_catch_raise_using_alias():
+    try:
+        exploding_apple("apple")
+    except Exception as ex:
+        print(ex)
+        raise ExceptionAlias() from None  # [broad-exception-raised]
 
 raise Exception()  # [broad-exception-raised]
 raise BaseException()  # [broad-exception-raised]
