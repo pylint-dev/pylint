@@ -20,6 +20,12 @@ if TYPE_CHECKING:
 
 
 class NestedMinMaxChecker(BaseChecker):
+    """Multiple nested min/max calls on the same line will raise multiple messages.
+
+    This behaviour is intended as it would slow down the checker to check
+    for nested call with minimal benefits.
+    """
+
     FUNC_NAMES = ("builtins.min", "builtins.max")
 
     name = "nested_min_max"
