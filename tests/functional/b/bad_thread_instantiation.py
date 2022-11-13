@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, redundant-keyword-arg, invalid-name
+# pylint: disable=missing-docstring, redundant-keyword-arg, invalid-name, line-too-long
 import threading
 
 
@@ -16,3 +16,9 @@ def thread_target(n):
 
 
 thread = threading.Thread(thread_target, args=(10,))  # [bad-thread-instantiation]
+
+
+kw = {'target_typo': lambda x: x}
+threading.Thread(None, **kw)  # [unexpected-keyword-arg, bad-thread-instantiation]
+
+threading.Thread(None, target_typo=lambda x: x)  # [unexpected-keyword-arg, bad-thread-instantiation]

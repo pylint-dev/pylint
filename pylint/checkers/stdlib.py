@@ -488,11 +488,11 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         # synced with the config argument deprecated-modules
 
     def _check_bad_thread_instantiation(self, node: nodes.Call) -> None:
-        if (
-            len(node.args) < 2
-            and not node.kwargs
-            and "target" not in {key.arg for key in node.keywords}
-        ):
+        func_kwargs = {key.arg for key in node.keywords}
+        if "target" in func_kwargs:
+            return
+
+        if len(node.args) < 2 and (not node.kwargs or "target" not in func_kwargs):
             self.add_message(
                 "bad-thread-instantiation", node=node, confidence=interfaces.HIGH
             )
