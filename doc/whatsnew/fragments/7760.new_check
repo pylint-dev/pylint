@@ -1,0 +1,5 @@
+Add ``named-expr-without-context`` check to emit a warning if a named
+expression is used outside a context like ``if``, ``for``, ``while``, or
+a comprehension.
+
+Refs #7760

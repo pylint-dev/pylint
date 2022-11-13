@@ -252,6 +252,12 @@ class BasicChecker(_BasicChecker):
             "duplicate-value",
             "This message is emitted when a set contains the same value two or more times.",
         ),
+        "W0131": (
+            "Named expression used without context",
+            "named-expr-without-context",
+            "Emitted if named expression is used to do a regular assignment "
+            "outside a context like if, for, while, or a comprehension.",
+        ),
     }
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
@@ -410,7 +416,10 @@ class BasicChecker(_BasicChecker):
         self.linter.stats.node_count["klass"] += 1
 
     @utils.only_required_for_messages(
-        "pointless-statement", "pointless-string-statement", "expression-not-assigned"
+        "pointless-statement",
+        "pointless-string-statement",
+        "expression-not-assigned",
+        "named-expr-without-context",
     )
     def visit_expr(self, node: nodes.Expr) -> None:
         """Check for various kind of statements without effect."""
@@ -448,7 +457,9 @@ class BasicChecker(_BasicChecker):
             or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):
             return
-        if any(expr.nodes_of_class(nodes.Call)):
+        if isinstance(expr, nodes.NamedExpr):
+            self.add_message("named-expr-without-context", node=node, confidence=HIGH)
+        elif any(expr.nodes_of_class(nodes.Call)):
             self.add_message(
                 "expression-not-assigned", node=node, args=expr.as_string()
             )
