@@ -1833,6 +1833,8 @@ accessed. Python regular expressions are accepted.",
                 isinstance(inferred, known_objects)
                 or isinstance(inferred, nodes.Const)
                 and inferred.pytype() in {"builtins.str", "builtins.bytes"}
+                or isinstance(inferred, astroid.bases.Instance)
+                and inferred.pytype() == "builtins.range"
             ):
                 # Might be an instance that knows how to handle this slice object
                 return

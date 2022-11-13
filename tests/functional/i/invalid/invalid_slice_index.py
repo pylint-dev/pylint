@@ -38,6 +38,9 @@ def invalid_step():
 
     Custom()[::0]   # no error -> custom __getitem__ method
 
+def invalid_slice_range():
+    range(5)['0':'1']  # [invalid-slice-index,invalid-slice-index]
+
 
 # Valid indices
 def function4():
