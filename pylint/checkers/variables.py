@@ -528,11 +528,10 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "iterable.",
     ),
     "W0644": (
-        "Possible unbalanced dict unpacking with "
-        "sequence%s: "
+        "Possible unbalanced dict unpacking with %s: "
         "left side has %d label(s), right side has %d value(s)",
         "unbalanced-dict-unpacking",
-        "Used when there is an unbalanced dict unpacking in assignment",
+        "Used when there is an unbalanced dict unpacking in assignment or for loop",
     ),
 }
 
@@ -1127,11 +1126,11 @@ class VariablesChecker(BaseChecker):
         targets = node.target.elts
 
         inferred = utils.safe_infer(node.iter)
-        if inferred is None or not isinstance(inferred, DICT_TYPES):
+        if not isinstance(inferred, DICT_TYPES):
             return
 
         values = self._nodes_to_unpack(inferred)
-        if values is None or len(values) == 0:
+        if not values:
             # no dict items returned
             return
 
@@ -1143,23 +1142,18 @@ class VariablesChecker(BaseChecker):
             if len(targets) == 2 and all(len(x.elts) == 2 for x in values):
                 return
 
-            # Nodes named `_` or Starred nodes indicate ambiguous unpacking
+            # Starred nodes indicate ambiguous unpacking
             # if `dict.items()` is used so we won't flag them.
-            if any(
-                isinstance(target, nodes.Starred)
-                or isinstance(target, nodes.AssignName)
-                and target.name == "_"
-                for target in targets
-            ):
+            if any(isinstance(target, nodes.Starred) for target in targets):
                 return
 
         if len(targets) != len(values):
-            msg_id = "unbalanced-dict-unpacking"
+            symbol = "unbalanced-dict-unpacking"
             self.add_message(
-                msg_id,
+                symbol,
                 node=node,
                 args=(
-                    _get_unpacking_extra_info(node, inferred),
+                    node.iter.as_string(),
                     len(targets),
                     len(values),
                 ),
@@ -2738,14 +2732,16 @@ class VariablesChecker(BaseChecker):
         if values is not None:
             if len(targets) != len(values):
                 if isinstance(inferred, DICT_TYPES):
-                    msg_id = "unbalanced-dict-unpacking"
+                    symbol = "unbalanced-dict-unpacking"
+                    obj_repr = node.value.as_string()
                 else:
-                    msg_id = "unbalanced-tuple-unpacking"
+                    symbol = "unbalanced-tuple-unpacking"
+                    obj_repr = _get_unpacking_extra_info(node, inferred)
                 self.add_message(
-                    msg_id,
+                    symbol,
                     node=node,
                     args=(
-                        _get_unpacking_extra_info(node, inferred),
+                        obj_repr,
                         len(targets),
                         len(values),
                     ),

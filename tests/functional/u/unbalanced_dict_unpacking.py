@@ -1,4 +1,5 @@
-# pylint: disable=missing-module-docstring, missing-function-docstring, invalid-name
+"""Check possible unbalanced dict unpacking """
+# pylint: disable=missing-function-docstring, invalid-name
 # pylint: disable=unused-variable, redefined-outer-name, line-too-long
 
 def dict_vals():
