@@ -21,7 +21,7 @@ from astroid.util import Uninferable
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
-from pylint.interfaces import HIGH, INFERENCE
+from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -2110,6 +2110,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # destructured, so we can't necessarily use it.
             return
 
+        has_start_arg, confidence = self._enumerate_with_start(node)
+        if has_start_arg:
+            # enumerate is being called with start arg/kwarg so resulting index lookup
+            # is not redundant, hence we should not report an error.
+            return
+
         iterating_object_name = node.iter.args[0].name
         value_variable = node.target.elts[1]
 
@@ -2191,7 +2197,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             "unnecessary-list-index-lookup",
                             node=subscript,
                             args=(node.target.elts[1].name,),
-                            confidence=HIGH,
+                            confidence=confidence,
                         )
 
         for subscript in bad_nodes:
@@ -2199,5 +2205,53 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "unnecessary-list-index-lookup",
                 node=subscript,
                 args=(node.target.elts[1].name,),
-                confidence=HIGH,
+                confidence=confidence,
             )
+
+    def _enumerate_with_start(
+        self, node: nodes.For | nodes.Comprehension
+    ) -> tuple[bool, Confidence]:
+        """Check presence of `start` kwarg or second argument to enumerate.
+
+        For example:
+
+        `enumerate([1,2,3], start=1)`
+        `enumerate([1,2,3], 1)`
+
+        If `start` is assigned to `0`, the default value, this is equivalent to
+        not calling `enumerate` with start.
+        """
+        confidence = HIGH
+
+        if len(node.iter.args) > 1:
+            # We assume the second argument to `enumerate` is the `start` int arg.
+            # It's a reasonable assumption for now as it's the only possible argument:
+            # https://docs.python.org/3/library/functions.html#enumerate
+            start_arg = node.iter.args[1]
+            start_val, confidence = self._get_start_value(start_arg)
+            if start_val is None:
+                return False, confidence
+            return not start_val == 0, confidence
+
+        for keyword in node.iter.keywords:
+            if keyword.arg == "start":
+                start_val, confidence = self._get_start_value(keyword.value)
+                if start_val is None:
+                    return False, confidence
+                return not start_val == 0, confidence
+
+        return False, confidence
+
+    def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
+        confidence = HIGH
+
+        if isinstance(node, (nodes.Name, nodes.Call)):
+            inferred = utils.safe_infer(node)
+            start_val = inferred.value if inferred else None
+            confidence = INFERENCE
+        elif isinstance(node, nodes.UnaryOp):
+            start_val = node.operand.value
+        else:
+            start_val = node.value
+
+        return start_val, confidence
