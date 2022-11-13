@@ -202,7 +202,7 @@ def function24():
     test[0] = 0 # setitem with int, no error
     del test[0] # delitem with int, no error
 
-# Teest ExtSlice usage
+# Test ExtSlice usage
 def function25():
     """Extended slice used with a list"""
     return TESTLIST[..., 0] # [invalid-sequence-index]
