@@ -65,7 +65,7 @@ Basic checker Messages
   Emitted when a name is used prior a global declaration, which results in an
   error since Python 3.6. This message can't be emitted when using Python <
   3.6.
-:name-is-parameter-and-nonlocal (E0134): *Name %r is parameter and nonlocal*
+:name-is-parameter-and-nonlocal (E0134): *Name %r is both parameter and nonlocal*
   Emitted when a nonlocal variable is also a parameter.
 :return-outside-function (E0104): *Return outside function*
   Used when a "return" statement is found outside a function or method.

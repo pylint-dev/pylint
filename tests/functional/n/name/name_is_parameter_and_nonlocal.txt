@@ -1,1 +1,1 @@
-name-is-parameter-and-nonlocal:6:4:6:21:tomato:Name 'is_tasty' is parameter and nonlocal:HIGH
+name-is-parameter-and-nonlocal:6:4:6:21:tomato:Name 'is_tasty' is both parameter and nonlocal:HIGH

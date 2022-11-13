@@ -205,7 +205,7 @@ class BasicErrorChecker(_BasicChecker):
             {"minversion": (3, 6)},
         ),
         "E0134": (
-            "Name %r is parameter and nonlocal",
+            "Name %r is both parameter and nonlocal",
             "name-is-parameter-and-nonlocal",
             "Emitted when a nonlocal variable is also a parameter.",
         ),
@@ -269,6 +269,7 @@ class BasicErrorChecker(_BasicChecker):
         "duplicate-argument-name",
         "nonlocal-and-global",
         "used-prior-global-declaration",
+        "name-is-parameter-and-nonlocal",
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         self._check_nonlocal_and_global(node)
@@ -334,7 +335,7 @@ class BasicErrorChecker(_BasicChecker):
                 )
 
     def _check_nonlocal_and_parameter(self, node: nodes.FunctionDef) -> None:
-        """Check that a name is both parameter and nonlocal."""
+        """Check if a name is both parameter and nonlocal."""
         node_arg_names = {arg.name for arg in node.args.args}
         for body_node in node.nodes_of_class(nodes.Nonlocal):
             for non_local_name in body_node.names:
