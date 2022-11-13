@@ -739,6 +739,9 @@ Refactoring checker Messages
   verbose.
 :consider-merging-isinstance (R1701): *Consider merging these isinstance calls to isinstance(%s, (%s))*
   Used when multiple consecutive isinstance calls can be merged into one.
+:use-dict-literal (R1735): *Consider using '%s' instead of a call to 'dict'.*
+  Emitted when using dict() to create a dictionary instead of a literal '{ ...
+  }'. The literal is faster as it avoids an additional function call.
 :consider-using-max-builtin (R1731): *Consider using '%s' instead of unnecessary if block*
   Using the max builtin instead of a conditional improves readability and
   conciseness.
@@ -781,9 +784,6 @@ Refactoring checker Messages
 :consider-swap-variables (R1712): *Consider using tuple unpacking for swapping variables*
   You do not have to use a temporary variable in order to swap variables. Using
   "tuple unpacking" to directly swap variables makes the intention more clear.
-:use-dict-literal (R1735): *Consider using '%s' instead.*
-  Emitted when using dict() to create a dictionary instead of a literal '{ ... }'.
-  The literal is faster as it avoids an additional function call.
 :trailing-comma-tuple (R1707): *Disallow trailing comma tuple*
   In Python, a tuple is actually created by the comma symbol, not by the
   parentheses. Unfortunately, one can actually create a tuple by misplacing a
@@ -847,7 +847,7 @@ Refactoring checker Messages
   Emitted when a single "return" or "return None" statement is found at the end
   of function or method definition. This statement can safely be removed
   because Python will implicitly return None
-:use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty sequence is falsey*
+:use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty %s is falsey*
   Used when Pylint detects that collection literal comparison is being used to
   check for emptiness; Use implicit booleaness instead of a collection classes;
   empty collections are considered as false

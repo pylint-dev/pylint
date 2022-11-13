@@ -96,7 +96,7 @@ Verbatim name of the checker is ``compare-to-empty-string``.
 
 Compare-To-Empty-String checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-empty-string (C1901): *Avoid comparisons to empty string*
+:compare-to-empty-string (C1901): *"%s" can be simplified to "%s" as an empty string is falsey*
   Used when Pylint detects comparison to an empty string constant.
 
 
