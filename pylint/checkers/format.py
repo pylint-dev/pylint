@@ -56,6 +56,7 @@ _KEYWORD_TOKENS = {
     "yield",
     "with",
     "=",
+    ":=",
 }
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
