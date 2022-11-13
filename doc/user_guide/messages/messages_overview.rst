@@ -102,6 +102,7 @@ All messages in the error category:
    error/invalid-repr-returned
    error/invalid-sequence-index
    error/invalid-slice-index
+   error/invalid-slice-step
    error/invalid-slots
    error/invalid-slots-object
    error/invalid-star-assignment-target

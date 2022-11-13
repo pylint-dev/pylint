@@ -1,6 +1,6 @@
 """Errors for invalid slice indices"""
 # pylint: disable=too-few-public-methods,missing-docstring,expression-not-assigned,unnecessary-pass
-
+# pylint: disable=pointless-statement
 
 TESTLIST = [1, 2, 3]
 
@@ -11,7 +11,10 @@ def function1():
 
 def function2():
     """strings used as indices"""
-    return TESTLIST['0':'1':]  # [invalid-slice-index,invalid-slice-index]
+    TESTLIST['0':'1':]  # [invalid-slice-index,invalid-slice-index]
+    ()['0':'1']  # [invalid-slice-index,invalid-slice-index]
+    ""["a":"z"]  # [invalid-slice-index,invalid-slice-index]
+    b""["a":"z"]  # [invalid-slice-index,invalid-slice-index]
 
 def function3():
     """class without __index__ used as index"""
@@ -22,10 +25,24 @@ def function3():
 
     return TESTLIST[NoIndexTest()::]  # [invalid-slice-index]
 
+def invalid_step():
+    """0 is an invalid value for slice step with most builtin sequences."""
+    TESTLIST[::0]  # [invalid-slice-step]
+    [][::0]  # [invalid-slice-step]
+    ""[::0]  # [invalid-slice-step]
+    b""[::0]  # [invalid-slice-step]
+
+    class Custom:
+        def __getitem__(self, indices):
+            ...
+
+    Custom()[::0]   # no error -> custom __getitem__ method
+
+
 # Valid indices
 def function4():
     """integers used as indices"""
-    return TESTLIST[0:0:0] # no error
+    return TESTLIST[0:1:1]
 
 def function5():
     """None used as indices"""

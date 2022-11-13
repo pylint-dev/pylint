@@ -1,0 +1,4 @@
+Extend ``invalid-slice-index`` to emit an warning for invalid slice indices
+used with string and byte sequences.
+
+Refs #7762
