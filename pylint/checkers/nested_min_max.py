@@ -59,7 +59,7 @@ class NestedMinMaxChecker(BaseChecker):
         if not redundant_calls:
             return
 
-        fixed_node = copy(node)
+        fixed_node = copy.copy(node)
         while len(redundant_calls) > 0:
             for i, arg in enumerate(fixed_node.args):
                 if arg in redundant_calls:
