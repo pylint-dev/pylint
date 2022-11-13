@@ -1,5 +1,4 @@
-Use dict to track results while expanding the module files
-from list of module directories, package names, and standalone files to
-prevent duplicate scans while preserving order.
+Pylint will now filter duplicates given to it before linting. The output should
+be the same whether a file is given/discovered multiple times or not.
 
-Closes #6242
+Closes #6242, #4053

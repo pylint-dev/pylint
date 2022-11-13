@@ -85,7 +85,6 @@ test_caching = {
     "path": str(TEST_DIRECTORY / "lint/test_caching.py"),
 }
 
-
 init_of_package = {
     "basename": "lint",
     "basepath": INIT_PATH,
@@ -93,6 +92,20 @@ init_of_package = {
     "name": "lint",
     "path": INIT_PATH,
 }
+
+
+def _list_expected_package_modules(
+    deduplicating: bool = False,
+) -> tuple[dict[str, object], ...]:
+    """Generates reusable list of modules for our package."""
+    return (
+        init_of_package,
+        test_caching,
+        test_pylinter,
+        test_utils,
+        this_file_from_init_deduplicated if deduplicating else this_file_from_init,
+        unittest_lint,
+    )
 
 
 class TestExpandModules(CheckerTestCase):
@@ -115,14 +128,7 @@ class TestExpandModules(CheckerTestCase):
                 [str(Path(__file__).parent)],
                 {
                     module["path"]: module  # pylint: disable=unsubscriptable-object
-                    for module in (
-                        init_of_package,
-                        test_caching,
-                        test_pylinter,
-                        test_utils,
-                        this_file_from_init,
-                        unittest_lint,
-                    )
+                    for module in _list_expected_package_modules()
                 },
             ),
         ],
@@ -131,7 +137,7 @@ class TestExpandModules(CheckerTestCase):
     def test_expand_modules(
         self, files_or_modules: list[str], expected: dict[str, ModuleDescriptionDict]
     ) -> None:
-        """Test expand_modules with deduplication and the default value of ignore-paths."""
+        """Test expand_modules with the default value of ignore-paths."""
         ignore_list: list[str] = []
         ignore_list_re: list[re.Pattern[str]] = []
         modules, errors = expand_modules(
@@ -151,14 +157,7 @@ class TestExpandModules(CheckerTestCase):
                 [EXPAND_MODULES, str(Path(__file__).parent), EXPAND_MODULES],
                 {
                     module["path"]: module  # pylint: disable=unsubscriptable-object
-                    for module in (
-                        init_of_package,
-                        test_caching,
-                        test_pylinter,
-                        test_utils,
-                        this_file_from_init_deduplicated,
-                        unittest_lint,
-                    )
+                    for module in _list_expected_package_modules(deduplicating=True)
                 },
             ),
         ],
