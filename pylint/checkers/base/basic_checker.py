@@ -671,10 +671,10 @@ class BasicChecker(_BasicChecker):
 
         try:
             for inferred in node.func.infer():
-                if inferred.qname() in qnames:
+                if hasattr(inferred, "qname") and inferred.qname() in qnames:
                     return True
-        except Exception:  # pylint: disable=broad-except
-            return False
+        except (StopIteration, astroid.InferenceError):
+            pass
 
         return False
 
