@@ -17,7 +17,7 @@ from astroid import nodes
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import HIGH, INFERENCE
+from pylint.interfaces import HIGH, INFERENCE, Confidence
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 
@@ -657,13 +657,38 @@ class BasicChecker(_BasicChecker):
             ):
                 self.add_message("misplaced-format-function", node=call_node)
 
+    @staticmethod
+    def _is_terminating_func(node: nodes.Call) -> bool:
+        """Detect call to exit(), quit(), os._exit(), or sys.exit()."""
+        if (
+            not isinstance(node.func, nodes.Attribute)
+            and not (isinstance(node.func, nodes.Name))
+            or isinstance(node.parent, nodes.Lambda)
+        ):
+            return False
+
+        qnames = {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
+
+        try:
+            for inferred in node.func.infer():
+                if hasattr(inferred, "qname") and inferred.qname() in qnames:
+                    return True
+        except (StopIteration, astroid.InferenceError):
+            pass
+
+        return False
+
     @utils.only_required_for_messages(
-        "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function"
+        "eval-used",
+        "exec-used",
+        "bad-reversed-sequence",
+        "misplaced-format-function",
+        "unreachable",
     )
     def visit_call(self, node: nodes.Call) -> None:
-        """Visit a Call node -> check if this is not a disallowed builtin
-        call and check for * or ** use.
-        """
+        """Visit a Call node."""
+        if self._is_terminating_func(node):
+            self._check_unreachable(node, confidence=INFERENCE)
         self._check_misplaced_format_function(node)
         if isinstance(node.func, nodes.Name):
             name = node.func.name
@@ -731,7 +756,9 @@ class BasicChecker(_BasicChecker):
         self._tryfinallys.pop()
 
     def _check_unreachable(
-        self, node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise
+        self,
+        node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise | nodes.Call,
+        confidence: Confidence = HIGH,
     ) -> None:
         """Check unreachable code."""
         unreachable_statement = node.next_sibling()
@@ -746,7 +773,9 @@ class BasicChecker(_BasicChecker):
                 unreachable_statement = unreachable_statement.next_sibling()
                 if unreachable_statement is None:
                     return
-            self.add_message("unreachable", node=unreachable_statement, confidence=HIGH)
+            self.add_message(
+                "unreachable", node=unreachable_statement, confidence=confidence
+            )
 
     def _check_not_in_finally(
         self,
