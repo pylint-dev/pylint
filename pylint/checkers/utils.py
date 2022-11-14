@@ -1955,7 +1955,7 @@ def is_hashable(node: nodes.NodeNG) -> bool:
     """
     try:
         for inferred in node.infer():
-            if inferred is astroid.Uninferable:
+            if inferred is astroid.Uninferable or isinstance(inferred, nodes.ClassDef):
                 return True
             if not hasattr(inferred, "igetattr"):
                 return True
