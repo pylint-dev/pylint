@@ -97,10 +97,17 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
 
         # We only care for the first assign node of the if-children. Otherwise it breaks the pattern.
         first_target = assign_children[0].targets[0]
+        target_before_loop = node_before_loop.targets[0]
+
+        if not (
+            isinstance(first_target, nodes.AssignName)
+            and isinstance(target_before_loop, nodes.AssignName)
+        ):
+            return False
+
         node_before_loop_name = node_before_loop.targets[0].name
         if (
-            isinstance(first_target, nodes.AssignName)
-            and first_target.name == node_before_loop_name
+            first_target.name == node_before_loop_name
             and isinstance(node_after_loop, nodes.Return)
             and isinstance(node_after_loop.value, nodes.Name)
             and node_after_loop.value.name == node_before_loop_name
