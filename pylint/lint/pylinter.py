@@ -403,7 +403,7 @@ class PyLinter(
                     "bad-plugin-value", args=(modname, module_or_error), line=0
                 )
             elif hasattr(module_or_error, "load_configuration"):
-                module_or_error.load_configuration(self)  # type: ignore[union-attr]
+                module_or_error.load_configuration(self)
 
         # We re-set all the dictionary values to True here to make sure the dict
         # is pickle-able. This is only a problem in multiprocessing/parallel mode.

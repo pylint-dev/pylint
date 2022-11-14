@@ -37,7 +37,7 @@ class ASTWalker:
     def _is_method_enabled(self, method: AstCallback) -> bool:
         if not hasattr(method, "checks_msgs"):
             return True
-        return any(self.linter.is_message_enabled(m) for m in method.checks_msgs)  # type: ignore[attr-defined]
+        return any(self.linter.is_message_enabled(m) for m in method.checks_msgs)
 
     def add_checker(self, checker: BaseChecker) -> None:
         """Walk to the checker's dir and collect visit and leave methods."""
