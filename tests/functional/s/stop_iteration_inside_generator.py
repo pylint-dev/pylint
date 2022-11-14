@@ -110,13 +110,19 @@ def gen_next_with_sentinel():
     yield next([], 42)  # No bad return
 
 
-from itertools import count
+from itertools import count, cycle
 
 # https://github.com/PyCQA/pylint/issues/2158
 def generator_using_next():
     counter = count()
     number = next(counter)
     yield number * 2
+
+# https://github.com/PyCQA/pylint/issues/7765
+def infinite_iterator_itertools_cycle():
+    counter = cycle('ABCD')
+    val = next(counter)
+    yield val
 
 
 # pylint: disable=too-few-public-methods
