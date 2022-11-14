@@ -382,7 +382,7 @@ class Similar:
                 self.namespace.ignore_docstrings,
                 self.namespace.ignore_imports,
                 self.namespace.ignore_signatures,
-                line_enabled_callback=self.linter._is_one_message_enabled  # type: ignore[attr-defined]
+                line_enabled_callback=self.linter._is_one_message_enabled
                 if hasattr(self, "linter")
                 else None,
             )
