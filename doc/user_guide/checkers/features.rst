@@ -1155,6 +1155,9 @@ Typecheck checker Messages
 :invalid-slice-index (E1127): *Slice index is not an int, None, or instance with __index__*
   Used when a slice index is not an integer, None, or an object with an
   __index__ method.
+:invalid-slice-step (E1144): *Slice step cannot be 0*
+  Used when a slice step is 0 and the object doesn't implement a custom
+  __getitem__ method.
 :too-many-function-args (E1121): *Too many positional arguments for %s call*
   Used when a function call passes too many positional arguments.
 :unexpected-keyword-arg (E1123): *Unexpected keyword argument %r in %s call*
