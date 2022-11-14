@@ -35,7 +35,7 @@ NodesWithNestedBlocks = Union[
     nodes.TryExcept, nodes.TryFinally, nodes.While, nodes.For, nodes.If
 ]
 
-KNOWN_INFINITE_ITERATORS = {"itertools.count"}
+KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
 CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
     (
