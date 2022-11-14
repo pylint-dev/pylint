@@ -365,9 +365,9 @@ class _ExtendArgument(_DeprecationArgument):
     ) -> None:
         # The extend action is included in the stdlib from 3.8+
         if PY38_PLUS:
-            action_class = argparse._ExtendAction  # type: ignore[attr-defined]
+            action_class = argparse._ExtendAction
         else:
-            action_class = _ExtendAction
+            action_class = _ExtendAction  # type: ignore[assignment]
 
         self.dest = dest
         """The destination of the argument."""

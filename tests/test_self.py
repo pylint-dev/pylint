@@ -98,7 +98,7 @@ class MultiReporter(BaseReporter):
     def out(self) -> TextIO:  # type: ignore[override]
         return self._reporters[0].out
 
-    @property  # type: ignore[override]
+    @property
     def linter(self) -> PyLinter:
         return self._linter
 
