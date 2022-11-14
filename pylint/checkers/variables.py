@@ -529,7 +529,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     ),
     "W0644": (
         "Possible unbalanced dict unpacking with %s: "
-        "left side has %d label(s), right side has %d value(s)",
+        "left side has %d label%s, right side has %d value%s",
         "unbalanced-dict-unpacking",
         "Used when there is an unbalanced dict unpacking in assignment or for loop",
     ),
@@ -1155,7 +1155,9 @@ class VariablesChecker(BaseChecker):
                 args=(
                     node.iter.as_string(),
                     len(targets),
+                    "s" if len(targets) > 1 else "",
                     len(values),
+                    "s" if len(values) > 1 else "",
                 ),
                 confidence=INFERENCE,
             )
@@ -2733,18 +2735,24 @@ class VariablesChecker(BaseChecker):
             if len(targets) != len(values):
                 if isinstance(inferred, DICT_TYPES):
                     symbol = "unbalanced-dict-unpacking"
-                    obj_repr = node.value.as_string()
+                    args = (
+                        node.value.as_string(),
+                        len(targets),
+                        "s" if len(targets) > 1 else "",
+                        len(values),
+                        "s" if len(values) > 1 else "",
+                    )
                 else:
                     symbol = "unbalanced-tuple-unpacking"
-                    obj_repr = _get_unpacking_extra_info(node, inferred)
+                    args = (
+                        _get_unpacking_extra_info(node, inferred),
+                        len(targets),
+                        len(values),
+                    )
                 self.add_message(
                     symbol,
                     node=node,
-                    args=(
-                        obj_repr,
-                        len(targets),
-                        len(values),
-                    ),
+                    args=args,
                     confidence=INFERENCE,
                 )
         # attempt to check unpacking may be possible (i.e. RHS is iterable)
