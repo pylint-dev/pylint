@@ -1,3 +1,3 @@
-Fix false positive for ``unhashable-member`` when subclassing ``dict``.
+Fix false positive for ``unhashable-member`` when subclassing ``dict`` and using the subclass as a dictionary key.
 
 Closes #7501
