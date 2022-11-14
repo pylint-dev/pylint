@@ -277,6 +277,7 @@ All messages in the warning category:
    warning/missing-yield-type-doc
    warning/modified-iterating-list
    warning/multiple-constructor-doc
+   warning/named-expr-without-context
    warning/nan-comparison
    warning/non-ascii-file-name
    warning/non-parent-init-called

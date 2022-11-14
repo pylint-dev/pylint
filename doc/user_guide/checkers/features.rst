@@ -135,6 +135,9 @@ Basic checker Messages
   argument list as the lambda itself; such lambda expressions are in all but a
   few cases replaceable with the function being called in the body of the
   lambda.
+:named-expr-without-context (W0131): *Named expression used without context*
+  Emitted if named expression is used to do a regular assignment outside a
+  context like if, for, while, or a comprehension.
 :redeclared-assigned-name (W0128): *Redeclared variable %r in assignment*
   Emitted when we detect that a variable was redeclared in the same assignment.
 :pointless-statement (W0104): *Statement seems to have no effect*
