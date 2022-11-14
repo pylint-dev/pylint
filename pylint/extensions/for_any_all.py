@@ -74,18 +74,38 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
     def _assigned_reassigned_returned(
         node: nodes.For, if_children: list[nodes.NodeNG], node_after_loop: nodes.NodeNG
     ) -> bool:
+        """Detect boolean-assign, for-loop, re-assign, return pattern:
+
+        Ex:
+            def check_lines(lines, max_chars):
+                long_line = False
+                for line in lines:
+                    if len(line) > max_chars:
+                        long_line = True
+                return long_line
+        """
         node_before_loop = node.previous_sibling()
-        if assigned_bool(node_before_loop):
-            assign_children = [x for x in if_children if isinstance(x, nodes.Assign)]
-            if assign_children:
-                assigned = assign_children[0]
-                if assigned.targets[0].name == node_before_loop.targets[0].name:
-                    if isinstance(node_after_loop, nodes.Return):
-                        if (
-                            node_after_loop.value.name
-                            == node_before_loop.targets[0].name
-                        ):
-                            return True
+
+        if not assigned_bool(node_before_loop):
+            # node before loop isn't assigning to boolean
+            return False
+
+        assign_children = [x for x in if_children if isinstance(x, nodes.Assign)]
+        if not assign_children:
+            # if-nodes inside loop aren't assignments
+            return False
+
+        # We only care for the first assign node of the if-children. Otherwise it breaks the pattern.
+        first_target = assign_children[0].targets[0]
+        node_before_loop_name = node_before_loop.targets[0].name
+        if (
+            isinstance(first_target, nodes.AssignName)
+            and first_target.name == node_before_loop_name
+            and isinstance(node_after_loop, nodes.Return)
+            and isinstance(node_after_loop.value, nodes.Name)
+            and node_after_loop.value.name == node_before_loop_name
+        ):
+            return True
         return False
 
     @staticmethod

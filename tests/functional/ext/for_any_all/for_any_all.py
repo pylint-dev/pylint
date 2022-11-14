@@ -1,5 +1,5 @@
 """Functional test"""
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring, invalid-name
 
 def any_even(items):
     """Return True if the list contains any even numbers"""
@@ -169,3 +169,32 @@ def print_line_without_break(split_lines, max_chars):
         if len(line) > max_chars:
             potential_line_length_warning = True
     return potential_line_length_warning
+
+def print_line_without_reassign(split_lines, max_chars):
+    potential_line_length_warning = False
+    for line in split_lines:
+        if len(line) > max_chars:
+            print(line)
+    return potential_line_length_warning
+
+def multiple_flags(split_lines, max_chars):
+    potential_line_length_warning = False
+    for line in split_lines:
+        if len(line) > max_chars:
+            num = 1
+            print(num)
+            potential_line_length_warning = True
+    return potential_line_length_warning
+
+s = ["hi", "hello", "goodbye", None]
+
+flag = True
+for i, elem in enumerate(s):
+    if elem is None:
+        continue
+    cnt_s = cnt_t = 0
+    for j in range(i, len(s)):
+        if s[j] == elem:
+            cnt_s += 1
+            s[j] = None
+            Flag = False

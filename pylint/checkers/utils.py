@@ -279,8 +279,6 @@ def is_error(node: nodes.FunctionDef) -> bool:
 builtins = builtins.__dict__.copy()  # type: ignore[assignment]
 SPECIAL_BUILTINS = ("__builtins__",)  # '__path__', '__file__')
 
-BOOL_VALUES = {True, False}
-
 
 def is_builtin_object(node: nodes.NodeNG) -> bool:
     """Returns True if the given node is an object from the __builtin__ module."""
@@ -1901,7 +1899,7 @@ def returns_bool(node: nodes.NodeNG) -> bool:
     return (
         isinstance(node, nodes.Return)
         and isinstance(node.value, nodes.Const)
-        and node.value.value in BOOL_VALUES
+        and isinstance(node.value.value, bool)
     )
 
 
@@ -1910,7 +1908,7 @@ def assigned_bool(node: nodes.NodeNG) -> bool:
     return (
         isinstance(node, nodes.Assign)
         and isinstance(node.value, nodes.Const)
-        and node.value.value in BOOL_VALUES
+        and isinstance(node.value.value, bool)
     )
 
 
