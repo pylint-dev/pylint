@@ -57,7 +57,7 @@ def run_epylint(argv: Sequence[str] | None = None) -> NoReturn:
     EpylintRun(argv)
 
 
-def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:  # type: ignore[misc]
+def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:
     """Run pyreverse.
 
     argv can be a sequence of strings normally supplied as arguments on the command line

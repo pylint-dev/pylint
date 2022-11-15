@@ -812,7 +812,7 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.exceptions]
-   overgeneral-exceptions = ["BaseException", "Exception"]
+   overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
 
 
 

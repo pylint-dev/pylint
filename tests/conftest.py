@@ -30,7 +30,7 @@ def tests_directory() -> Path:
 @pytest.fixture
 def linter(
     checker: type[BaseChecker] | None,
-    register: Callable[[PyLinter], None],
+    register: Callable[[PyLinter], None] | None,
     enable: str | None,
     disable: str | None,
     reporter: type[BaseReporter],

@@ -5,6 +5,7 @@ invalid-slots:57:0:57:15:FourthBad:Invalid __slots__ object:UNDEFINED
 invalid-slots-object:61:27:61:29:FifthBad:"Invalid object ""''"" in __slots__, must contain only non empty strings":INFERENCE
 single-string-used-for-slots:63:0:63:14:SixthBad:Class __slots__ should be a non-string iterable:UNDEFINED
 single-string-used-for-slots:66:0:66:16:SeventhBad:Class __slots__ should be a non-string iterable:UNDEFINED
+superfluous-parens:67:0:None:None::Unnecessary parens after '=' keyword:UNDEFINED
 single-string-used-for-slots:69:0:69:15:EighthBad:Class __slots__ should be a non-string iterable:UNDEFINED
 invalid-slots-object:73:17:73:20:NinthBad:Invalid object 'str' in __slots__, must contain only non empty strings:INFERENCE
 invalid-slots-object:76:17:76:26:TenthBad:Invalid object '1 + 2 + 3' in __slots__, must contain only non empty strings:INFERENCE

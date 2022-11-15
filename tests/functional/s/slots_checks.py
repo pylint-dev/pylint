@@ -64,7 +64,7 @@ class SixthBad:  # [single-string-used-for-slots]
     __slots__ = "a"
 
 class SeventhBad:  # [single-string-used-for-slots]
-    __slots__ = ('foo')
+    __slots__ = ('foo')  # [superfluous-parens]
 
 class EighthBad:  # [single-string-used-for-slots]
     __slots__ = deque.__name__
