@@ -990,8 +990,8 @@ Stdlib checker Messages
   https://docs.python.org/3/library/subprocess.html#subprocess.run
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
-  the target function being passed. By default, the first parameter is the
-  group param, not the target param.
+  the target function being passed as a kwarg or as a second argument. By
+  default, the first parameter is the group param, not the target param.
 
 
 String checker
@@ -1310,7 +1310,7 @@ Variables checker Messages
 :self-cls-assignment (W0642): *Invalid assignment to %s in method*
   Invalid assignment to self or cls in instance or class method respectively.
 :unbalanced-dict-unpacking (W0644): *Possible unbalanced dict unpacking with %s: left side has %d label%s, right side has %d value%s*
-  Used when there is an unbalanced dict unpacking in assignment
+  Used when there is an unbalanced dict unpacking in assignment or for loop
 :unbalanced-tuple-unpacking (W0632): *Possible unbalanced tuple unpacking with sequence%s: left side has %d label(s), right side has %d value(s)*
   Used when there is an unbalanced tuple unpacking in assignment
 :possibly-unused-variable (W0641): *Possibly unused variable %r*
