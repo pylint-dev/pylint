@@ -41,6 +41,11 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
             return
 
         if_children = list(node.body[0].get_children())
+        if any(isinstance(child, nodes.If) for child in if_children):
+            # an if node within the if-children indicates an elif clause,
+            # suggesting complex logic.
+            return
+
         node_after_loop = node.next_sibling()
 
         if self._assigned_reassigned_returned(node, if_children, node_after_loop):
@@ -53,14 +58,8 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
                 confidence=HIGH,
             )
             return
-        if not len(if_children) == 2:  # The If node has only a comparison and return
-            return
-        if not returns_bool(if_children[1]):
-            return
 
-        # Check for terminating boolean return right after the loop
-
-        if returns_bool(node_after_loop):
+        if self._if_statement_returns_bool(if_children, node_after_loop):
             final_return_bool = node_after_loop.value.value
             suggested_string = self._build_suggested_string(node, final_return_bool)
             self.add_message(
@@ -69,6 +68,31 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
                 args=suggested_string,
                 confidence=HIGH,
             )
+            return
+
+    @staticmethod
+    def _if_statement_returns_bool(
+        if_children: list[nodes.NodeNG], node_after_loop: nodes.NodeNG
+    ) -> bool:
+        """Detect for-loop, if-statement, return pattern:
+
+        Ex:
+            def any_uneven(items):
+                for item in items:
+                    if not item % 2 == 0:
+                        return True
+                return False
+        """
+        if not len(if_children) == 2:
+            # The If node has only a comparison and return
+            return False
+        if not returns_bool(if_children[1]):
+            return False
+
+        # Check for terminating boolean return right after the loop
+        if returns_bool(node_after_loop):
+            return True
+        return False
 
     @staticmethod
     def _assigned_reassigned_returned(
@@ -82,6 +106,7 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
                 for line in lines:
                     if len(line) > max_chars:
                         long_line = True
+                    # no elif / else statement
                 return long_line
         """
         node_before_loop = node.previous_sibling()

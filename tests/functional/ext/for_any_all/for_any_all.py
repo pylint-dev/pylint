@@ -198,3 +198,17 @@ for i, elem in enumerate(s):
             cnt_s += 1
             s[j] = None
             Flag = False
+
+def with_elif(split_lines, max_chars):
+    """
+    Do not raise consider-using-any-or-all because the intent in this code
+    is to iterate over all the lines (not short-circuit) and see what
+    the last value would be.
+    """
+    last_longest_line = False
+    for line in split_lines:
+        if len(line) > max_chars:
+            last_longest_line = True
+        elif len(line) == max_chars:
+            last_longest_line = False
+    return last_longest_line
