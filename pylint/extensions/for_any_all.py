@@ -90,9 +90,7 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
             return False
 
         # Check for terminating boolean return right after the loop
-        if returns_bool(node_after_loop):
-            return True
-        return False
+        return returns_bool(node_after_loop)
 
     @staticmethod
     def _assigned_reassigned_returned(
@@ -131,14 +129,12 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
             return False
 
         node_before_loop_name = node_before_loop.targets[0].name
-        if (
+        return (
             first_target.name == node_before_loop_name
             and isinstance(node_after_loop, nodes.Return)
             and isinstance(node_after_loop.value, nodes.Name)
             and node_after_loop.value.name == node_before_loop_name
-        ):
-            return True
-        return False
+        )
 
     @staticmethod
     def _build_suggested_string(node: nodes.For, final_return_bool: bool) -> str:

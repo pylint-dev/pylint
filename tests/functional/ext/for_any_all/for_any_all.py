@@ -212,3 +212,27 @@ def with_elif(split_lines, max_chars):
         elif len(line) == max_chars:
             last_longest_line = False
     return last_longest_line
+
+def first_even(items):
+    """Return first even number"""
+    for item in items:
+        if item % 2 == 0:
+            return item
+    return None
+
+def even(items):
+    for item in items:
+        if item % 2 == 0:
+            return True
+    return None
+
+def iterate_leaves(leaves, current_node):
+    results = []
+
+    current_node.was_checked = True
+    for leaf in leaves:
+        if isinstance(leaf, bool):
+            current_node.was_checked = False
+        else:
+            results.append(leaf)
+    return results
