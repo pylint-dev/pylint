@@ -29,6 +29,54 @@ Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
+What's new in Pylint 2.15.6?
+----------------------------
+Release date: 2022-11-17
+
+
+False Positives Fixed
+---------------------
+
+- Fix false positive for ``unhashable-member`` when subclassing ``dict`` and
+  using the subclass as a dictionary key.
+
+  Closes #7501 (`#7501 <https://github.com/PyCQA/pylint/issues/7501>`_)
+
+- ``unnecessary-list-index-lookup`` will not be wrongly emitted if
+  ``enumerate`` is called with ``start``.
+
+  Closes #7682 (`#7682 <https://github.com/PyCQA/pylint/issues/7682>`_)
+
+- Don't warn about ``stop-iteration-return`` when using ``next()`` over
+  ``itertools.cycle``.
+
+  Closes #7765 (`#7765 <https://github.com/PyCQA/pylint/issues/7765>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Message send to reporter are now copied so a reporter cannot modify the
+  message sent to other reporters.
+
+  Closes #7214 (`#7214 <https://github.com/PyCQA/pylint/issues/7214>`_)
+
+- Fixes edge case of custom method named ``next`` raised an astroid error.
+
+  Closes #7610 (`#7610 <https://github.com/PyCQA/pylint/issues/7610>`_)
+
+- Fix crash that happened when parsing files with unexpected encoding starting
+  with 'utf' like ``utf13``.
+
+  Closes #7661 (`#7661 <https://github.com/PyCQA/pylint/issues/7661>`_)
+
+- Fix a crash when a child class with an ``__init__`` method inherits from a
+  parent class with an ``__init__`` class attribute.
+
+  Closes #7742 (`#7742 <https://github.com/PyCQA/pylint/issues/7742>`_)
+
+
 What's new in Pylint 2.15.5?
 ----------------------------
 Release date: 2022-10-21

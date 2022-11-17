@@ -1,3 +1,0 @@
-Fixes edge case of custom method named ``next`` raised an astroid error.
-
-Closes #7610

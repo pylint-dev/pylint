@@ -364,6 +364,7 @@ contributors:
 - Stéphane Wirtel <stephane@wirtel.be>: nonlocal-without-binding
 - Stephen Longofono <8992396+SLongofono@users.noreply.github.com>
 - Stanislav Levin <slev@altlinux.org>
+- Smixi <sismixx@hotmail.fr>
 - Sorin Sbarnea <ssbarnea@redhat.com>
 - Slavfox <slavfoxman@gmail.com>
 - Skip Montanaro <skip@pobox.com>
