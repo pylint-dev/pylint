@@ -2146,9 +2146,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             not isinstance(node.iter, nodes.Call)
             or not isinstance(node.iter.func, nodes.Name)
             or not node.iter.func.name == "enumerate"
-            or not node.iter.args
-            or not isinstance(node.iter.args[0], nodes.Name)
         ):
+            return
+
+        try:
+            iterable_arg = utils.get_argument_from_call(
+                node.iter, position=0, keyword="iterable"
+            )
+        except utils.NoSuchArgumentError:
+            return
+
+        if not isinstance(iterable_arg, nodes.Name):
             return
 
         if not isinstance(node.target, nodes.Tuple) or len(node.target.elts) < 2:
@@ -2166,7 +2174,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # is not redundant, hence we should not report an error.
             return
 
-        iterating_object_name = node.iter.args[0].name
+        iterating_object_name = iterable_arg.name
         value_variable = node.target.elts[1]
 
         # Store potential violations. These will only be reported if we don't
