@@ -90,10 +90,11 @@ Pylint ships with three additional tools:
 .. _pyreverse: https://pylint.pycqa.org/en/latest/pyreverse.html
 .. _symilar: https://pylint.pycqa.org/en/latest/symilar.html
 
-The pylint_ Emacs package, which includes Flymake support, is now maintained
-in its own repository.
+The epylint_ Emacs package, which includes Flymake support, is now maintained
+in `its own repository`_.
 
 .. _epylint: https://pylint.pycqa.org/en/latest/user_guide/ide_integration/flymake-emacs.html
+.. _its own repository: https://github.com/emacsorphanage/pylint
 
 Projects that you might want to use alongside pylint include flake8_ (faster and simpler checks
 with very few false positives), mypy_, pyright_ or pyre_ (typing checks), bandit_ (security

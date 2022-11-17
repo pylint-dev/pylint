@@ -7,7 +7,7 @@ Using Pylint through Flymake in Emacs
    The Emacs package now has its own repository and is looking for a maintainer.
    If you're reading this doc and are interested in maintaining this package or
    are actually using flymake please open an issue at
-   https://github.com/PyCQA/pylint.el/issues/new/choose.
+   https://github.com/emacsorphanage/pylint/issues/new/choose
 
 To enable Flymake for Python, insert the following into your .emacs:
 
