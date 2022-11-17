@@ -5,8 +5,10 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import pathlib
+import shlex
 import sys
 from collections.abc import Sequence
 from io import BufferedReader
@@ -55,6 +57,25 @@ def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
         with pytest.raises(SystemExit) as err:
             runner(testargs)
         assert err.value.code == 0
+
+
+def test_pylint_argument_deduplication(tmpdir: LocalPath) -> None:
+    """Check that the Pylint runner does not overreport on duplicate arguments."""
+    filepath = os.path.abspath(__file__)
+    # Ensure that we have 3 branches in this file.
+    if filepath:
+        testargs = shlex.split("--report n --score n --max-branches 3")
+    if testargs:
+        testargs.extend([filepath] * 4)
+    if not testargs:
+        return
+    exit_stack = contextlib.ExitStack()
+    exit_stack.enter_context(tmpdir.as_cwd())
+    exit_stack.enter_context(patch.object(sys, "argv", testargs))
+    err = exit_stack.enter_context(pytest.raises(SystemExit))
+    with exit_stack:
+        run_pylint(testargs)
+    assert err.value.code == 0
 
 
 def test_pylint_run_jobs_equal_zero_dont_crash_with_cpu_fraction(
