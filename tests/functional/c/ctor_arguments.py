@@ -65,8 +65,8 @@ ClassNew(one=2)  # [no-value-for-parameter,unexpected-keyword-arg]
 
 
 class Metaclass(type):
-    def __new__(cls, name, bases, namespace):
-        return type.__new__(cls, name, bases, namespace)
+    def __new__(mcs, name, bases, namespace):
+        return type.__new__(mcs, name, bases, namespace)
 
 def with_metaclass(meta, base=object):
     """Create a new type that can be used as a metaclass."""
