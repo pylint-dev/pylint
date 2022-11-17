@@ -713,7 +713,13 @@ scope_type : {self._atomic.scope_type}
                 isinstance(else_statement, nodes.Return)
                 for else_statement in closest_try_except.orelse
             )
-            if try_block_returns or else_block_returns:
+            else_block_exits = any(
+                isinstance(else_statement, nodes.Expr)
+                and utils.is_terminating_func(else_statement.value)
+                for else_statement in closest_try_except.orelse
+            )
+
+            if try_block_returns or else_block_returns or else_block_exits:
                 # Exception: if this node is in the final block of the other_node_statement,
                 # it will execute before returning. Assume the except statements are uncertain.
                 if (
