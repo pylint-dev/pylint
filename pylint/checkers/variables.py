@@ -715,6 +715,7 @@ scope_type : {self._atomic.scope_type}
             )
             else_block_exits = any(
                 isinstance(else_statement, nodes.Expr)
+                and isinstance(else_statement.value, nodes.Call)
                 and utils.is_terminating_func(else_statement.value)
                 for else_statement in closest_try_except.orelse
             )
