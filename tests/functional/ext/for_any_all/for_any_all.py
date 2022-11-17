@@ -1,4 +1,5 @@
 """Functional test"""
+# pylint: disable=missing-function-docstring, invalid-name
 
 def any_even(items):
     """Return True if the list contains any even numbers"""
@@ -144,3 +145,94 @@ def is_from_decorator(node):
             if parent in parent.selected_annotations:
                 return False
             return False
+
+def optimized_any_with_break(split_lines, max_chars):
+    """False negative found in https://github.com/PyCQA/pylint/pull/7697"""
+    potential_line_length_warning = False
+    for line in split_lines:  # [consider-using-any-or-all]
+        if len(line) > max_chars:
+            potential_line_length_warning = True
+            break
+    return potential_line_length_warning
+
+def optimized_any_without_break(split_lines, max_chars):
+    potential_line_length_warning = False
+    for line in split_lines:  # [consider-using-any-or-all]
+        if len(line) > max_chars:
+            potential_line_length_warning = True
+    return potential_line_length_warning
+
+def print_line_without_break(split_lines, max_chars):
+    potential_line_length_warning = False
+    for line in split_lines:
+        print(line)
+        if len(line) > max_chars:
+            potential_line_length_warning = True
+    return potential_line_length_warning
+
+def print_line_without_reassign(split_lines, max_chars):
+    potential_line_length_warning = False
+    for line in split_lines:
+        if len(line) > max_chars:
+            print(line)
+    return potential_line_length_warning
+
+def multiple_flags(split_lines, max_chars):
+    potential_line_length_warning = False
+    for line in split_lines:
+        if len(line) > max_chars:
+            num = 1
+            print(num)
+            potential_line_length_warning = True
+    return potential_line_length_warning
+
+s = ["hi", "hello", "goodbye", None]
+
+flag = True
+for i, elem in enumerate(s):
+    if elem is None:
+        continue
+    cnt_s = cnt_t = 0
+    for j in range(i, len(s)):
+        if s[j] == elem:
+            cnt_s += 1
+            s[j] = None
+            Flag = False
+
+def with_elif(split_lines, max_chars):
+    """
+    Do not raise consider-using-any-or-all because the intent in this code
+    is to iterate over all the lines (not short-circuit) and see what
+    the last value would be.
+    """
+    last_longest_line = False
+    for line in split_lines:
+        if len(line) > max_chars:
+            last_longest_line = True
+        elif len(line) == max_chars:
+            last_longest_line = False
+    return last_longest_line
+
+def first_even(items):
+    """Return first even number"""
+    for item in items:
+        if item % 2 == 0:
+            return item
+    return None
+
+def even(items):
+    for item in items:
+        if item % 2 == 0:
+            return True
+    return None
+
+def iterate_leaves(leaves, current_node):
+    results = []
+
+    current_node.was_checked = True
+    for leaf in leaves:
+        if isinstance(leaf, bool):
+            current_node.was_checked = False
+        else:
+            results.append(leaf)
+    return results
