@@ -60,7 +60,9 @@ def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
 
 
 def test_pylint_argument_deduplication(tmpdir: LocalPath) -> None:
-    """Check that the Pylint runner does not overreport on duplicate arguments."""
+    """Check that the Pylint runner does not over-report on duplicate
+    arguments.
+    """
     filepath = os.path.abspath(__file__)
     # Ensure that we have 3 branches in this file.
     if filepath:
