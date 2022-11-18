@@ -4,6 +4,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import only_required_for_messages
+from pylint.interfaces import HIGH
 
 
 class DictInitMutateChecker(BaseChecker):
@@ -44,7 +45,7 @@ class DictInitMutateChecker(BaseChecker):
             return
 
         if sibling_name.name == dict_name.name:
-            self.add_message("dict-init-mutate", node=node)
+            self.add_message("dict-init-mutate", node=node, confidence=HIGH)
 
 
 def register(linter):
