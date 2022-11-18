@@ -150,6 +150,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         )
         with self.assertNoMessages():
             self.checker.visit_call(node)
+
     def test_no_message(self) -> None:
         # Tests not raising error when no deprecated functions/methods are present.
         node = astroid.extract_node(
