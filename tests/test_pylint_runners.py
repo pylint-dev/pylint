@@ -63,7 +63,7 @@ def test_pylint_argument_deduplication(tmpdir: LocalPath) -> None:
     """Check that the Pylint runner does not over-report on duplicate
     arguments.
 
-    (Github #6242, #4053).
+    (GitHub #6242, #4053).
     """
     filepath = str(
         pathlib.Path(__file__)
