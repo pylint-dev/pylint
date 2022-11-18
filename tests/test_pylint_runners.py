@@ -59,17 +59,14 @@ def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
         assert err.value.code == 0
 
 
-def test_pylint_argument_deduplication(tmpdir: LocalPath) -> None:
+def test_pylint_argument_deduplication(tmpdir: LocalPath, tests_directory: Path) -> None:
     """Check that the Pylint runner does not over-report on duplicate
     arguments.
 
-    (GitHub #6242, #4053).
+    See https://github.com/PyCQA/pylint/issues/6242 and
+    https://github.com/PyCQA/pylint/issues/4053
     """
-    filepath = str(
-        pathlib.Path(__file__)
-        .resolve()
-        .parent.joinpath("functional", "t", "too", "too_many_branches.py")
-    )
+    filepath = str(tests_directory / "functional/t/too/too_many_branches.py")
     testargs = shlex.split("--report n --score n --max-branches 13")
     testargs.extend([filepath] * 4)
     exit_stack = contextlib.ExitStack()
