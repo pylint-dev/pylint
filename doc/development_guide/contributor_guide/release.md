@@ -55,6 +55,14 @@ branch:
 - Label the PR with `backport maintenance/X.Y-1.x`. (For example
   `backport maintenance/2.3.x`)
 - Squash the PR before merging (alternatively rebase if there's a single commit)
+- (If the automated cherry-pick has conflicts)
+  - Add a `Needs backport` label and do it manually.
+  - You might alternatively also:
+    - Cherry-pick the changes that create the conflict if it's not a new feature before
+      doing the original PR cherry-pick manually.
+    - Decide to wait for the next minor to release the PR
+    - In any case upgrade the milestones in the original PR and newly cherry-picked PR
+      to match reality.
 - Release a patch version
 
 ## Releasing a patch version
