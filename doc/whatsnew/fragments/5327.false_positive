@@ -1,0 +1,3 @@
+Don't emit ``used-before-assignment`` in pattern matching with a guard
+
+Closes #5327
