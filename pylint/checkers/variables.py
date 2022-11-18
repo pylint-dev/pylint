@@ -29,8 +29,8 @@ from pylint.checkers.utils import (
     is_postponed_evaluation_enabled,
 )
 from pylint.constants import (
-    PY310_PLUS,
     PY39_PLUS,
+    PY310_PLUS,
     TYPING_NEVER,
     TYPING_NORETURN,
     TYPING_TYPE_CHECKS_GUARDS,
