@@ -417,10 +417,17 @@ class SpellingChecker(BaseTokenChecker):
                 col += word_start_at
                 if starts_with_comment:
                     col += 1
-                indicator = (" " * col) + ("^" * len(word))
                 all_suggestion = "' or '".join(suggestions)
-                args = (word, original_line, indicator, f"'{all_suggestion}'")
-                self.add_message(msgid, line=line_num, args=args)
+                self.add_message(
+                    msgid,
+                    line=line_num,
+                    args=(
+                        word,
+                        original_line,
+                        (" " * col) + ("^" * len(word)),
+                        f"'{all_suggestion}'",
+                    ),
+                )
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         if not self.initialized:

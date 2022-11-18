@@ -75,13 +75,11 @@ def expand_modules(
     path = sys.path.copy()
 
     for something in files_or_modules:
-        basename = os.path.basename(something)
         if _is_ignored_file(
             something, ignore_list, ignore_list_re, ignore_list_paths_re
         ):
             continue
-        module_path = get_python_path(something)
-        additional_search_path = [".", module_path] + path
+        additional_search_path = [".", get_python_path(something)] + path
         if os.path.exists(something):
             # this is a file or a directory
             try:
@@ -89,7 +87,7 @@ def expand_modules(
                     modutils.modpath_from_file(something, path=additional_search_path)
                 )
             except ImportError:
-                modname = os.path.splitext(basename)[0]
+                modname = os.path.splitext(os.path.basename(something))[0]
             if os.path.isdir(something):
                 filepath = os.path.join(something, "__init__.py")
             else:
@@ -107,10 +105,9 @@ def expand_modules(
                 errors.append({"key": "fatal", "mod": modname, "ex": ex})
                 continue
         filepath = os.path.normpath(filepath)
-        modparts = (modname or something).split(".")
         try:
             spec = modutils.file_info_from_modpath(
-                modparts, path=additional_search_path
+                (modname or something).split("."), path=additional_search_path
             )
         except ImportError:
             # Might not be acceptable, don't crash.
@@ -131,11 +128,14 @@ def expand_modules(
                     "basepath": filepath,
                     "basename": modname,
                 }
-        has_init = (
-            not (modname.endswith(".__init__") or modname == "__init__")
-            and os.path.basename(filepath) == "__init__.py"
-        )
-        if has_init or is_namespace or is_directory:
+        if (
+            is_namespace
+            or is_directory
+            or (
+                not (modname.endswith(".__init__") or modname == "__init__")
+                and os.path.basename(filepath) == "__init__.py"
+            )
+        ):
             for subfilepath in modutils.get_module_files(
                 os.path.dirname(filepath), ignore_list, list_all=is_namespace
             ):
@@ -146,16 +146,16 @@ def expand_modules(
                 ) or _is_in_ignore_list_re(subfilepath, ignore_list_paths_re):
                     continue
 
-                modpath = _modpath_from_file(
-                    subfilepath, is_namespace, path=additional_search_path
+                submodname = ".".join(
+                    _modpath_from_file(
+                        subfilepath, is_namespace, path=additional_search_path
+                    )
                 )
-                submodname = ".".join(modpath)
                 # Preserve arg flag if module is also explicitly given.
-                isarg = subfilepath in result and result[subfilepath]["isarg"]
                 result[subfilepath] = {
                     "path": subfilepath,
                     "name": submodname,
-                    "isarg": isarg,
+                    "isarg": subfilepath in result and result[subfilepath]["isarg"],
                     "basepath": filepath,
                     "basename": modname,
                 }

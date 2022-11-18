@@ -483,11 +483,9 @@ class Similar:
             lineset2, self.namespace.min_similarity_lines
         )
 
-        hash_1: frozenset[LinesChunk] = frozenset(hash_to_index_1.keys())
-        hash_2: frozenset[LinesChunk] = frozenset(hash_to_index_2.keys())
-
         common_hashes: Iterable[LinesChunk] = sorted(
-            hash_1 & hash_2, key=lambda m: hash_to_index_1[m][0]
+            frozenset(hash_to_index_1.keys()) & frozenset(hash_to_index_2.keys()),
+            key=lambda m: hash_to_index_1[m][0],
         )
 
         # all_couples is a dict that links the couple of indices in both linesets that mark the beginning of
@@ -511,26 +509,26 @@ class Similar:
         remove_successive(all_couples)
 
         for cml_stripped_l, cmn_l in all_couples.items():
-            start_index_1 = cml_stripped_l.fst_lineset_index
-            start_index_2 = cml_stripped_l.snd_lineset_index
             nb_common_lines = cmn_l.effective_cmn_lines_nb
 
-            com = Commonality(
-                cmn_lines_nb=nb_common_lines,
-                fst_lset=lineset1,
-                fst_file_start=cmn_l.first_file.start,
-                fst_file_end=cmn_l.first_file.end,
-                snd_lset=lineset2,
-                snd_file_start=cmn_l.second_file.start,
-                snd_file_end=cmn_l.second_file.end,
-            )
-
             eff_cmn_nb = filter_noncode_lines(
-                lineset1, start_index_1, lineset2, start_index_2, nb_common_lines
+                lineset1,
+                cml_stripped_l.fst_lineset_index,
+                lineset2,
+                cml_stripped_l.snd_lineset_index,
+                nb_common_lines,
             )
 
             if eff_cmn_nb > self.namespace.min_similarity_lines:
-                yield com
+                yield Commonality(
+                    cmn_lines_nb=nb_common_lines,
+                    fst_lset=lineset1,
+                    fst_file_start=cmn_l.first_file.start,
+                    fst_file_end=cmn_l.first_file.end,
+                    snd_lset=lineset2,
+                    snd_file_start=cmn_l.second_file.start,
+                    snd_file_end=cmn_l.second_file.end,
+                )
 
     def _iter_sims(self) -> Generator[Commonality, None, None]:
         """Iterate on similarities among all files, by making a Cartesian

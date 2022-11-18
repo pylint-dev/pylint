@@ -247,7 +247,7 @@ class StringFormatChecker(BaseChecker):
     name = "string"
     msgs = MSGS
 
-    # pylint: disable=too-many-branches
+    # pylint: disable = too-many-branches, too-many-locals
     @only_required_for_messages(
         "bad-format-character",
         "truncated-format-string",
@@ -346,8 +346,9 @@ class StringFormatChecker(BaseChecker):
                             args=(arg_type.pytype(), format_type),
                         )
             elif isinstance(args, (OTHER_NODES, nodes.Tuple)):
-                type_name = type(args).__name__
-                self.add_message("format-needs-mapping", node=node, args=type_name)
+                self.add_message(
+                    "format-needs-mapping", node=node, args=type(args).__name__
+                )
             # else:
             # The RHS of the format specifier is a name or
             # expression.  It may be a mapping object, so

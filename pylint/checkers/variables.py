@@ -2338,19 +2338,21 @@ class VariablesChecker(BaseChecker):
                 return
 
             # Consider sequences.
-            sequences = (
-                nodes.List,
-                nodes.Tuple,
-                nodes.Dict,
-                nodes.Set,
-                astroid.objects.FrozenSet,
-            )
-            if not isinstance(inferred, sequences):
+            if not isinstance(
+                inferred,
+                (
+                    nodes.List,
+                    nodes.Tuple,
+                    nodes.Dict,
+                    nodes.Set,
+                    astroid.objects.FrozenSet,
+                ),
+            ):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
                 return
 
-            elements = getattr(inferred, "elts", getattr(inferred, "items", []))
-            if not elements:
+            # Consider elements.
+            if not getattr(inferred, "elts", getattr(inferred, "items", [])):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
     def _check_is_unused(
