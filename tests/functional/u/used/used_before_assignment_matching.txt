@@ -1,2 +1,0 @@
-used-before-assignment:4:14:4:15::Using variable 'a' before assignment:HIGH
-used-before-assignment:9:19:9:20::Using variable 'x' before assignment:HIGH

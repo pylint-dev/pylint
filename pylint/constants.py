@@ -18,6 +18,7 @@ from pylint.typing import MessageTypesFullName
 
 PY38_PLUS = sys.version_info[:2] >= (3, 8)
 PY39_PLUS = sys.version_info[:2] >= (3, 9)
+PY310_PLUS = sys.version_info[:2] >= (3, 10)
 
 IS_PYPY = platform.python_implementation() == "PyPy"
 

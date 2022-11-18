@@ -29,6 +29,7 @@ from pylint.checkers.utils import (
     is_postponed_evaluation_enabled,
 )
 from pylint.constants import (
+    PY310_PLUS,
     PY39_PLUS,
     TYPING_NEVER,
     TYPING_NORETURN,
@@ -1642,7 +1643,9 @@ class VariablesChecker(BaseChecker):
                     self._postponed_evaluation_enabled
                     and isinstance(stmt, (nodes.AnnAssign, nodes.FunctionDef))
                 ) and not (
-                    isinstance(stmt, nodes.Match) and isinstance(node.parent, nodes.Compare)
+                    PY310_PLUS
+                    and isinstance(stmt, nodes.Match)
+                    and isinstance(node.parent, nodes.Compare)
                 ):
                     self.add_message(
                         "used-before-assignment",
