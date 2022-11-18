@@ -62,15 +62,16 @@ def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
 def test_pylint_argument_deduplication(tmpdir: LocalPath) -> None:
     """Check that the Pylint runner does not over-report on duplicate
     arguments.
+
+    (Github #6242, #4053).
     """
-    filepath = os.path.abspath(__file__)
-    # Ensure that we have 3 branches in this file.
-    if filepath:
-        testargs = shlex.split("--report n --score n --max-branches 3")
-    if testargs:
-        testargs.extend([filepath] * 4)
-    if not testargs:
-        return
+    filepath = str(
+        pathlib.Path(__file__)
+        .resolve()
+        .parent.joinpath("functional", "t", "too", "too_many_branches.py")
+    )
+    testargs = shlex.split("--report n --score n --max-branches 13")
+    testargs.extend([filepath] * 4)
     exit_stack = contextlib.ExitStack()
     exit_stack.enter_context(tmpdir.as_cwd())
     exit_stack.enter_context(patch.object(sys, "argv", testargs))
