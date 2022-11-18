@@ -73,6 +73,7 @@ cyclomatic
 dataclass
 datetime
 debian
+deduplication
 deepcopy
 defaultdicts
 defframe
