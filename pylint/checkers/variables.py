@@ -1641,7 +1641,7 @@ class VariablesChecker(BaseChecker):
                 if not (
                     self._postponed_evaluation_enabled
                     and isinstance(stmt, (nodes.AnnAssign, nodes.FunctionDef))
-                ): and not (
+                ) and not (
                     isinstance(stmt, nodes.Match) and isinstance(node.parent, nodes.Compare)
                 ):
                     self.add_message(
