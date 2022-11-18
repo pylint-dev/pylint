@@ -60,7 +60,7 @@ def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
 
 
 def test_pylint_argument_deduplication(
-    tmpdir: LocalPath, tests_directory: Path
+    tmpdir: LocalPath, tests_directory: pathlib.Path
 ) -> None:
     """Check that the Pylint runner does not over-report on duplicate
     arguments.
