@@ -276,7 +276,7 @@ Verbatim name of the checker is ``dict-init-mutate``.
 Dict-Init-Mutate checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :dict-init-mutate (W3301): *Dictionary mutated immediately after initialization*
-  Dictionaries can be initialized with a single statementusing dictionary
+  Dictionaries can be initialized with a single statement using dictionary
   literal syntax.
 
 

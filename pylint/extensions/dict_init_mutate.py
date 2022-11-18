@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 """Check for use of dictionary mutation after initialization."""
 
 from astroid import nodes
@@ -14,7 +18,7 @@ class DictInitMutateChecker(BaseChecker):
         "W3301": (
             "Dictionary mutated immediately after initialization",
             "dict-init-mutate",
-            "Dictionaries can be initialized with a single statement"
+            "Dictionaries can be initialized with a single statement "
             "using dictionary literal syntax.",
         )
     }
