@@ -5,7 +5,13 @@
 from __future__ import annotations
 
 import logging
+import sys
 from pathlib import Path
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 from git.cmd import Git
 from git.repo import Repo
@@ -56,7 +62,7 @@ class PackageToLint:
         self.minimum_python = minimum_python
 
     @property
-    def pylintrc(self) -> Path | None:
+    def pylintrc(self) -> Path | Literal[""]:
         if self.pylintrc_relpath is None:
             # Fall back to "" to ensure pylint's own pylintrc is not discovered
             return ""
