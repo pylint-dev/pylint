@@ -1,3 +1,0 @@
-Fix crash that happened when parsing files with unexpected encoding starting with 'utf' like ``utf13``.
-
-Closes #7661

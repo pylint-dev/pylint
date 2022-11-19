@@ -1,3 +1,0 @@
-``unnecessary-list-index-lookup`` will not be wrongly emitted if ``enumerate`` is called with ``start``.
-
-Closes #7682
