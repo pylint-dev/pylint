@@ -45,7 +45,7 @@ def test_runner(runner: _RunCallable, tmpdir: LocalPath) -> None:
 
 
 def test_epylint(tmpdir: LocalPath) -> None:
-    """TODO: 3.0 delete with eyplint."""
+    """TODO: 3.0 delete with epylint."""
     filepath = os.path.abspath(__file__)
     with tmpdir.as_cwd():
         with patch.object(sys, "argv", ["", filepath]):
@@ -67,7 +67,7 @@ def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
 
 
 def test_epylint_with_arguments(tmpdir: LocalPath) -> None:
-    """TODO: 3.0 delete with eyplint."""
+    """TODO: 3.0 delete with epylint."""
     filepath = os.path.abspath(__file__)
     testargs = [filepath]
     with tmpdir.as_cwd():
