@@ -1,0 +1,3 @@
+Fix ``deprecated-method`` false positive when alias for method is similar to name of deprecated method.
+
+Closes #5886
