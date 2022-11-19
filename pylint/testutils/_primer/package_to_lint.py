@@ -58,7 +58,8 @@ class PackageToLint:
     @property
     def pylintrc(self) -> Path | None:
         if self.pylintrc_relpath is None:
-            return None
+            # Fall back to "" to ensure pylint's own pylintrc is not discovered
+            return ""
         return self.clone_directory / self.pylintrc_relpath
 
     @property
@@ -75,9 +76,8 @@ class PackageToLint:
     @property
     def pylint_args(self) -> list[str]:
         options: list[str] = []
-        if self.pylintrc is not None:
-            # There is an error if rcfile is given but does not exist
-            options += [f"--rcfile={self.pylintrc}"]
+        # There is an error if rcfile is given but does not exist
+        options += [f"--rcfile={self.pylintrc}"]
         return self.paths_to_lint + options + self.pylint_additional_args
 
     def lazy_clone(self) -> str:  # pragma: no cover
