@@ -172,6 +172,7 @@ def py_run(
     warnings.warn(
         "'epylint' will be removed in pylint 3.0, use https://github.com/emacsorphanage/pylint instead.",
         DeprecationWarning,
+        stacklevel=2,
     )
     # Detect if we use Python as executable or not, else default to `python`
     executable = sys.executable if "python" in sys.executable else "python"
@@ -206,6 +207,7 @@ def Run(argv: Sequence[str] | None = None) -> NoReturn:
     warnings.warn(
         "'epylint' will be removed in pylint 3.0, use https://github.com/emacsorphanage/pylint instead.",
         DeprecationWarning,
+        stacklevel=2,
     )
     if not argv and len(sys.argv) == 1:
         print(f"Usage: {sys.argv[0]} <filename> [options]")
