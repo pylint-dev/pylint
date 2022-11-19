@@ -7,5 +7,5 @@ from abc import ABCMeta
 
 
 class NodeCheckMetaClass(ABCMeta):
-    def __new__(cls, name, bases, namespace, **kwargs):
-        return ABCMeta.__new__(cls, name, bases, namespace)
+    def __new__(mcs, name, bases, namespace, **kwargs):
+        return ABCMeta.__new__(mcs, name, bases, namespace)

@@ -620,7 +620,7 @@ Standard Checkers
 """""""""""""""""""""""""""""""""""""""
 *List of valid names for the first argument in a metaclass class method.*
 
-**Default:**  ``('cls',)``
+**Default:**  ``('mcs',)``
 
 
 
@@ -642,7 +642,7 @@ Standard Checkers
 
    valid-classmethod-first-arg = ["cls"]
 
-   valid-metaclass-classmethod-first-arg = ["cls"]
+   valid-metaclass-classmethod-first-arg = ["mcs"]
 
 
 

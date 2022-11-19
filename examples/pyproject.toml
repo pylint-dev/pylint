@@ -222,7 +222,7 @@ exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make"]
 valid-classmethod-first-arg = ["cls"]
 
 # List of valid names for the first argument in a metaclass class method.
-valid-metaclass-classmethod-first-arg = ["cls"]
+valid-metaclass-classmethod-first-arg = ["mcs"]
 
 [tool.pylint.design]
 # List of regular expressions of class ancestor names to ignore when counting

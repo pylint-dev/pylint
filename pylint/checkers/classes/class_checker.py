@@ -792,7 +792,7 @@ a class method.",
         (
             "valid-metaclass-classmethod-first-arg",
             {
-                "default": ("cls",),
+                "default": ("mcs",),
                 "type": "csv",
                 "metavar": "<argument names>",
                 "help": "List of valid names for the first argument in \
