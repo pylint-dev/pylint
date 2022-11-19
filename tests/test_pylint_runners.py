@@ -33,9 +33,7 @@ class _RunCallable(Protocol):  # pylint: disable=too-few-public-methods
         ...
 
 
-@pytest.mark.parametrize(
-    "runner", [run_epylint, run_pylint, run_pyreverse, run_symilar]
-)
+@pytest.mark.parametrize("runner", [run_pylint, run_pyreverse, run_symilar])
 def test_runner(runner: _RunCallable, tmpdir: LocalPath) -> None:
     filepath = os.path.abspath(__file__)
     testargs = ["", filepath]
@@ -46,9 +44,18 @@ def test_runner(runner: _RunCallable, tmpdir: LocalPath) -> None:
             assert err.value.code == 0
 
 
-@pytest.mark.parametrize(
-    "runner", [run_epylint, run_pylint, run_pyreverse, run_symilar]
-)
+def test_epylint(tmpdir: LocalPath) -> None:
+    """TODO: 3.0 delete with eyplint."""
+    filepath = os.path.abspath(__file__)
+    with tmpdir.as_cwd():
+        with patch.object(sys, "argv", ["", filepath]):
+            with pytest.raises(SystemExit) as err:
+                with pytest.warns(DeprecationWarning):
+                    run_epylint()
+            assert err.value.code == 0
+
+
+@pytest.mark.parametrize("runner", [run_pylint, run_pyreverse, run_symilar])
 def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
     """Check the runners with arguments as parameter instead of sys.argv."""
     filepath = os.path.abspath(__file__)
@@ -56,6 +63,17 @@ def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
     with tmpdir.as_cwd():
         with pytest.raises(SystemExit) as err:
             runner(testargs)
+        assert err.value.code == 0
+
+
+def test_epylint_with_arguments(tmpdir: LocalPath) -> None:
+    """TODO: 3.0 delete with eyplint."""
+    filepath = os.path.abspath(__file__)
+    testargs = [filepath]
+    with tmpdir.as_cwd():
+        with pytest.raises(SystemExit) as err:
+            with pytest.warns(DeprecationWarning):
+                run_epylint(testargs)
         assert err.value.code == 0
 
 
