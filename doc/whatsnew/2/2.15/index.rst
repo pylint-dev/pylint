@@ -31,7 +31,7 @@ Marc Byrne became a maintainer, welcome to the team !
 
 What's new in Pylint 2.15.6?
 ----------------------------
-Release date: 2022-11-17
+Release date: 2022-11-19
 
 
 False Positives Fixed
@@ -57,7 +57,7 @@ False Positives Fixed
 Other Bug Fixes
 ---------------
 
-- Message send to reporter are now copied so a reporter cannot modify the
+- Messages sent to reporter are now copied so a reporter cannot modify the
   message sent to other reporters.
 
   Closes #7214 (`#7214 <https://github.com/PyCQA/pylint/issues/7214>`_)
