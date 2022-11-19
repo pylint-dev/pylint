@@ -57,7 +57,6 @@ GLOBAL_OPTION_BOOL = Literal[
     "suggestion-mode",
     "analyse-fallback-blocks",
     "allow-global-unused-variables",
-    "clear-cache-post-run",
 ]
 GLOBAL_OPTION_INT = Literal["max-line-length", "docstring-min-length"]
 GLOBAL_OPTION_LIST = Literal["ignored-modules"]
