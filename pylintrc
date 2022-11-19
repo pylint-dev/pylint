@@ -67,6 +67,10 @@ fail-under=10.0
 # specified are enabled, while categories only check already-enabled messages.
 fail-on=
 
+# Clear in-memory caches upon conclusion of linting. Useful if running pylint in
+# a server-like mode.
+clear-cache-post-run=no
+
 
 [MESSAGES CONTROL]
 

@@ -21,7 +21,7 @@ from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
 from pylint.constants import full_version
 from pylint.lint.base_options import _make_run_options
-from pylint.lint.pylinter import PyLinter
+from pylint.lint.pylinter import MANAGER, PyLinter
 from pylint.reporters.base_reporter import BaseReporter
 
 try:
@@ -213,6 +213,9 @@ group are mutually exclusive.",
                 DeprecationWarning,
             )
             exit = do_exit
+
+        if linter.config.clear_cache_post_run:
+            MANAGER.clear_cache()
 
         if exit:
             if linter.config.exit_zero:

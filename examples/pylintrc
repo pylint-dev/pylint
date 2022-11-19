@@ -5,6 +5,10 @@
 # only in one or another interpreter, leading to false positives when analysed.
 analyse-fallback-blocks=no
 
+# Clear in-memory caches upon conclusion of linting. Useful if running pylint in
+# a server-like mode.
+clear-cache-post-run=no
+
 # Load and enable all available extensions. Use --list-extensions to see a list
 # all available extensions.
 #enable-all-extensions=
