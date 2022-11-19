@@ -2681,9 +2681,9 @@ class VariablesChecker(BaseChecker):
                     args=(
                         details,
                         len(targets),
-                        "s" if len(targets) > 1 else "",
+                        "" if len(targets) == 1 else "s",
                         len(values),
-                        "s" if len(values) > 1 else "",
+                        "" if len(values) == 1 else "s",
                     ),
                 )
         # attempt to check unpacking may be possible (i.e. RHS is iterable)
