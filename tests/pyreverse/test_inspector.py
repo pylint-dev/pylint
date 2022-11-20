@@ -34,7 +34,7 @@ def project(get_project: GetProjectCallable) -> Generator[Project, None, None]:
             with pytest.warns(DeprecationWarning):
                 # tests.data.clientmodule_test.py emits DeprecationWarning
                 # due to use of __implements__
-                # TODO after deprecation: remove __implements__
+                # TODO: 3.0 remove 'pytest.warns' once __implements__ is removed
                 linker.visit(project)
         else:
             linker.visit(project)
