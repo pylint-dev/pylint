@@ -68,6 +68,13 @@ class NestedMinMaxChecker(BaseChecker):
         fixed_node = copy.copy(node)
         while len(redundant_calls) > 0:
             for i, arg in enumerate(fixed_node.args):
+                # Exclude any calls with generator expressions as there is no
+                # clear better suggestion for them.
+                if isinstance(arg, nodes.Call) and any(
+                    isinstance(a, nodes.GeneratorExp) for a in arg.args
+                ):
+                    return
+
                 if arg in redundant_calls:
                     fixed_node.args = (
                         fixed_node.args[:i] + arg.args + fixed_node.args[i + 1 :]
