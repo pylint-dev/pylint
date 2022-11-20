@@ -1,5 +1,5 @@
 """Checks for unnecessary-dunder-call."""
-# pylint: disable=too-few-public-methods, undefined-variable, useless-object-inheritance
+# pylint: disable=too-few-public-methods, undefined-variable
 # pylint: disable=missing-class-docstring, missing-function-docstring
 from collections import OrderedDict
 from typing import Any
@@ -26,19 +26,19 @@ def is_bigger_than_two(val):
 
 # Test dunder methods don't raise lint
 # if within a dunder method definition.
-class Foo1(object):
+class Foo1:
     def __init__(self):
         object.__init__(self)
 
-class Foo2(object):
+class Foo2:
     def __init__(self):
         super().__init__(self)
 
-class Bar1(object):
+class Bar1:
     def __new__(cls):
         object.__new__(cls)
 
-class Bar2(object):
+class Bar2:
     def __new__(cls):
         super().__new__(cls)
 
@@ -77,7 +77,7 @@ class MyClass(list):
         print("do some special checks")
         return super().__contains__(item)
 
-class PluginBase(object):
+class PluginBase:
     subclasses = []
 
     def __init_subclass__(cls, **kwargs):
@@ -122,3 +122,9 @@ INSTANTIATED_SELF = int("1").__add__(1) # [unnecessary-dunder-call]
 # since we can't apply alternate operators/functions here.
 a = [1, 2, 3]
 assert super(type(a), a).__str__() == "[1, 2, 3]"
+
+class MyString(str):
+    """Custom str implementation"""
+    def rjust(self, width, fillchar= ' '):
+        """Acceptable call to __index__"""
+        width = width.__index__()

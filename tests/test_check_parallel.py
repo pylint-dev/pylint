@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import multiprocessing
 import os
+from pickle import PickleError
 
 import dill
 import pytest
@@ -109,7 +110,7 @@ class ParallelTestChecker(BaseRawFileChecker):
         for _ in self.data[1::2]:  # Work on pairs of files, see class docstring.
             self.add_message("R9999", args=("From process_module, two files seen.",))
 
-    def get_map_data(self):
+    def get_map_data(self) -> list[str]:
         return self.data
 
     def reduce_map_data(self, linter: PyLinter, data: list[list[str]]) -> None:
@@ -160,10 +161,10 @@ class ThirdParallelTestChecker(ParallelTestChecker):
 class TestCheckParallelFramework:
     """Tests the check_parallel() function's framework."""
 
-    def setup_class(self):
+    def setup_class(self) -> None:
         self._prev_global_linter = pylint.lint.parallel._worker_linter
 
-    def teardown_class(self):
+    def teardown_class(self) -> None:
         pylint.lint.parallel._worker_linter = self._prev_global_linter
 
     def test_worker_initialize(self) -> None:
@@ -189,7 +190,7 @@ class TestCheckParallelFramework:
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
         with pytest.raises(  # Objects that do not match the linter interface will fail
-            Exception, match="Worker linter not yet initialised"
+            RuntimeError, match="Worker linter not yet initialised"
         ):
             worker_check_single_file(_gen_file_data())
 
@@ -230,6 +231,28 @@ class TestCheckParallelFramework:
         assert stats.refactor == 0
         assert stats.statement == 18
         assert stats.warning == 0
+
+    def test_linter_with_unpickleable_plugins_is_pickleable(self) -> None:
+        """The linter needs to be pickle-able in order to be passed between workers"""
+        linter = PyLinter(reporter=Reporter())
+        # We load an extension that we know is not pickle-safe
+        linter.load_plugin_modules(["pylint.extensions.overlapping_exceptions"])
+        try:
+            dill.dumps(linter)
+            raise AssertionError(
+                "Plugins loaded were pickle-safe! This test needs altering"
+            )
+        except (KeyError, TypeError, PickleError, NotImplementedError):
+            pass
+
+        # And expect this call to make it pickle-able
+        linter.load_plugin_configuration()
+        try:
+            dill.dumps(linter)
+        except KeyError as exc:
+            raise AssertionError(
+                "Cannot pickle linter when using non-pickleable plugin"
+            ) from exc
 
     def test_worker_check_sequential_checker(self) -> None:
         """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker."""
@@ -411,7 +434,9 @@ class TestCheckParallel:
             (10, 2, 3),
         ],
     )
-    def test_compare_workers_to_single_proc(self, num_files, num_jobs, num_checkers):
+    def test_compare_workers_to_single_proc(
+        self, num_files: int, num_jobs: int, num_checkers: int
+    ) -> None:
         """Compares the 3 key parameters for check_parallel() produces the same results.
 
         The intent here is to ensure that the check_parallel() operates on each file,
@@ -467,8 +492,10 @@ class TestCheckParallel:
                 # establish the baseline
                 assert (
                     linter.config.jobs == 1
-                ), "jobs>1 are ignored when calling _check_files"
-                linter._check_files(linter.get_ast, file_infos)
+                ), "jobs>1 are ignored when calling _lint_files"
+                ast_mapping = linter._get_asts(iter(file_infos), None)
+                with linter._astroid_module_checker() as check_astroid_module:
+                    linter._lint_files(ast_mapping, check_astroid_module)
                 assert linter.msg_status == 0, "We should not fail the lint"
                 stats_single_proc = linter.stats
             else:
@@ -506,7 +533,7 @@ class TestCheckParallel:
             (10, 2, 3),
         ],
     )
-    def test_map_reduce(self, num_files, num_jobs, num_checkers):
+    def test_map_reduce(self, num_files: int, num_jobs: int, num_checkers: int) -> None:
         """Compares the 3 key parameters for check_parallel() produces the same results.
 
         The intent here is to validate the reduce step: no stats should be lost.
@@ -534,8 +561,10 @@ class TestCheckParallel:
                 # establish the baseline
                 assert (
                     linter.config.jobs == 1
-                ), "jobs>1 are ignored when calling _check_files"
-                linter._check_files(linter.get_ast, file_infos)
+                ), "jobs>1 are ignored when calling _lint_files"
+                ast_mapping = linter._get_asts(iter(file_infos), None)
+                with linter._astroid_module_checker() as check_astroid_module:
+                    linter._lint_files(ast_mapping, check_astroid_module)
                 stats_single_proc = linter.stats
             else:
                 check_parallel(

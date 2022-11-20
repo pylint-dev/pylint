@@ -10,17 +10,19 @@ works with your interpreter. We recommend ``pip``:
 
    pip install pylint
 
-Use the newest Python interpreter if you can.
+Or if you want to also check spelling with ``enchant`` (you might need to
+`install the enchant C library <https://pyenchant.github.io/pyenchant/install.html#installing-the-enchant-c-library>`_):
 
-It's possible to analyse code written for older interpreters by using the ``py-version``
-option and setting it to the old interpreter. For example you can check that there are
-no ``f-strings`` in Python 3.5 code using Python 3.8 with an up-to-date pylint even if
-Python 3.5 is past end of life (EOL).
+.. code-block:: sh
 
-We do not guarantee that ``py-version`` will work for all EOL python interpreters indefinitely,
-(for anything before python 3.5, it probably won't). If a newer version does not work for you,
-the best available pylint might be an old version that works with your old interpreter but
-without the bug fixes and features of later versions.
+   pip install pylint[spelling]
+
+The newest pylint supports all Python interpreters that are not past end of life.
+
+We recommend to use the latest interpreter because we rely on the ``ast`` builtin
+module that gets better with each new Python interpreter. For example a Python
+3.6 interpreter can't analyse 3.8 syntax (amongst others, because of the new walrus operator) while a 3.8
+interpreter can also deal with Python 3.6. See :ref:`using pylint with multiple interpreters <continuous-integration>` for more details.
 
 .. note::
     You can also use ``conda`` or your system package manager on debian based OS.

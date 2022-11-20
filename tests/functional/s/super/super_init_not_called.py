@@ -1,6 +1,7 @@
 """Tests for super-init-not-called."""
 # pylint: disable=too-few-public-methods, missing-class-docstring
 
+import abc
 import ctypes
 
 
@@ -53,5 +54,45 @@ class ChildThree(ParentWithoutInit):
 # Regression test as reported in
 # https://github.com/PyCQA/pylint/issues/6027
 class MyUnion(ctypes.Union):
-    def __init__(self):  # [super-init-not-called]
+    def __init__(self):
         pass
+
+
+# Should not be called on abstract __init__ methods
+# https://github.com/PyCQA/pylint/issues/3975
+class Base:
+    def __init__(self, param: int, param_two: str) -> None:
+        raise NotImplementedError()
+
+
+class Derived(Base):
+    def __init__(self, param: int, param_two: str) -> None:
+        self.param = param + 1
+        self.param_two = param_two[::-1]
+
+
+class AbstractBase(abc.ABC):
+    def __init__(self, param: int) -> None:
+        self.param = param + 1
+
+    def abstract_method(self) -> str:
+        """This needs to be implemented."""
+        raise NotImplementedError()
+
+
+class DerivedFromAbstract(AbstractBase):
+    def __init__(self, param: int) -> None:  # [super-init-not-called]
+        print("Called")
+
+    def abstract_method(self) -> str:
+        return "Implemented"
+
+
+class DerivedFrom(UnknownParent):  # [undefined-variable]
+    def __init__(self) -> None:
+        print("Called")
+
+
+class DerivedFromUnknownGrandparent(DerivedFrom):
+    def __init__(self) -> None:
+        DerivedFrom.__init__(self)

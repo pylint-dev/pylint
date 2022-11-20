@@ -5,26 +5,36 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import pathlib
+import shlex
 import sys
-from collections.abc import Callable
+from collections.abc import Sequence
 from io import BufferedReader
-from typing import Any
+from typing import Any, NoReturn
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
-from py._path.local import LocalPath  # type: ignore[import]
+from py._path.local import LocalPath
 
 from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
 from pylint.lint import Run
 from pylint.testutils import GenericTestReporter as Reporter
 
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
 
-@pytest.mark.parametrize(
-    "runner", [run_epylint, run_pylint, run_pyreverse, run_symilar]
-)
-def test_runner(runner: Callable, tmpdir: LocalPath) -> None:
+
+class _RunCallable(Protocol):  # pylint: disable=too-few-public-methods
+    def __call__(self, argv: Sequence[str] | None = None) -> NoReturn | None:
+        ...
+
+
+@pytest.mark.parametrize("runner", [run_pylint, run_pyreverse, run_symilar])
+def test_runner(runner: _RunCallable, tmpdir: LocalPath) -> None:
     filepath = os.path.abspath(__file__)
     testargs = ["", filepath]
     with tmpdir.as_cwd():
@@ -34,10 +44,19 @@ def test_runner(runner: Callable, tmpdir: LocalPath) -> None:
             assert err.value.code == 0
 
 
-@pytest.mark.parametrize(
-    "runner", [run_epylint, run_pylint, run_pyreverse, run_symilar]
-)
-def test_runner_with_arguments(runner: Callable, tmpdir: LocalPath) -> None:
+def test_epylint(tmpdir: LocalPath) -> None:
+    """TODO: 3.0 delete with epylint."""
+    filepath = os.path.abspath(__file__)
+    with tmpdir.as_cwd():
+        with patch.object(sys, "argv", ["", filepath]):
+            with pytest.raises(SystemExit) as err:
+                with pytest.warns(DeprecationWarning):
+                    run_epylint()
+            assert err.value.code == 0
+
+
+@pytest.mark.parametrize("runner", [run_pylint, run_pyreverse, run_symilar])
+def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
     """Check the runners with arguments as parameter instead of sys.argv."""
     filepath = os.path.abspath(__file__)
     testargs = [filepath]
@@ -45,6 +64,38 @@ def test_runner_with_arguments(runner: Callable, tmpdir: LocalPath) -> None:
         with pytest.raises(SystemExit) as err:
             runner(testargs)
         assert err.value.code == 0
+
+
+def test_epylint_with_arguments(tmpdir: LocalPath) -> None:
+    """TODO: 3.0 delete with epylint."""
+    filepath = os.path.abspath(__file__)
+    testargs = [filepath]
+    with tmpdir.as_cwd():
+        with pytest.raises(SystemExit) as err:
+            with pytest.warns(DeprecationWarning):
+                run_epylint(testargs)
+        assert err.value.code == 0
+
+
+def test_pylint_argument_deduplication(
+    tmpdir: LocalPath, tests_directory: pathlib.Path
+) -> None:
+    """Check that the Pylint runner does not over-report on duplicate
+    arguments.
+
+    See https://github.com/PyCQA/pylint/issues/6242 and
+    https://github.com/PyCQA/pylint/issues/4053
+    """
+    filepath = str(tests_directory / "functional/t/too/too_many_branches.py")
+    testargs = shlex.split("--report n --score n --max-branches 13")
+    testargs.extend([filepath] * 4)
+    exit_stack = contextlib.ExitStack()
+    exit_stack.enter_context(tmpdir.as_cwd())
+    exit_stack.enter_context(patch.object(sys, "argv", testargs))
+    err = exit_stack.enter_context(pytest.raises(SystemExit))
+    with exit_stack:
+        run_pylint(testargs)
+    assert err.value.code == 0
 
 
 def test_pylint_run_jobs_equal_zero_dont_crash_with_cpu_fraction(
@@ -57,14 +108,14 @@ def test_pylint_run_jobs_equal_zero_dont_crash_with_cpu_fraction(
 
     def _mock_open(*args: Any, **kwargs: Any) -> BufferedReader:
         if args[0] == "/sys/fs/cgroup/cpu/cpu.cfs_quota_us":
-            return mock_open(read_data=b"-1")(*args, **kwargs)
+            return mock_open(read_data=b"-1")(*args, **kwargs)  # type: ignore[no-any-return]
         if args[0] == "/sys/fs/cgroup/cpu/cpu.shares":
-            return mock_open(read_data=b"2")(*args, **kwargs)
-        return builtin_open(*args, **kwargs)
+            return mock_open(read_data=b"2")(*args, **kwargs)  # type: ignore[no-any-return]
+        return builtin_open(*args, **kwargs)  # type: ignore[no-any-return]
 
     pathlib_path = pathlib.Path
 
-    def _mock_path(*args: str, **kwargs) -> pathlib.Path:
+    def _mock_path(*args: str, **kwargs: Any) -> pathlib.Path:
         if args[0] == "/sys/fs/cgroup/cpu/cpu.shares":
             return MagicMock(is_file=lambda: True)
         return pathlib_path(*args, **kwargs)

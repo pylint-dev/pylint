@@ -1,0 +1,3 @@
+Code following a call to  ``quit``,  ``exit``, ``sys.exit`` or ``os._exit`` will be marked as `unreachable`.
+
+Refs #519

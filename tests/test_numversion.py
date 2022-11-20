@@ -2,6 +2,8 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import pytest
 
 from pylint.__pkginfo__ import get_numversion_from_version
@@ -23,5 +25,5 @@ from pylint.__pkginfo__ import get_numversion_from_version
         ["2.8.3.dev3+g28c093c2.d20210428", (2, 8, 3)],
     ],
 )
-def test_numversion(version, expected_numversion):
+def test_numversion(version: str, expected_numversion: tuple[int, int, int]) -> None:
     assert get_numversion_from_version(version) == expected_numversion

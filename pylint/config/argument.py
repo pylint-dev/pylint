@@ -99,11 +99,20 @@ def _py_version_transformer(value: str) -> tuple[int, ...]:
     return version
 
 
+def _regex_transformer(value: str) -> Pattern[str]:
+    """Return `re.compile(value)`."""
+    try:
+        return re.compile(value)
+    except re.error as e:
+        msg = f"Error in provided regular expression: {value} beginning at index {e.pos}: {e.msg}"
+        raise argparse.ArgumentTypeError(msg)
+
+
 def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions."""
     patterns: list[Pattern[str]] = []
     for pattern in _csv_transformer(value):
-        patterns.append(re.compile(pattern))
+        patterns.append(_regex_transformer(pattern))
     return patterns
 
 
@@ -130,7 +139,7 @@ _TYPE_TRANSFORMERS: dict[str, Callable[[str], _ArgumentTypes]] = {
     "non_empty_string": _non_empty_string_transformer,
     "path": _path_transformer,
     "py_version": _py_version_transformer,
-    "regexp": re.compile,
+    "regexp": _regex_transformer,
     "regexp_csv": _regexp_csv_transfomer,
     "regexp_paths_csv": _regexp_paths_csv_transfomer,
     "string": pylint_utils._unquote,
@@ -263,7 +272,7 @@ class _StoreTrueArgument(_BaseStoreArgument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=useless-super-delegation # We narrow down the type of action
+    # pylint: disable-next=useless-parent-delegation # We narrow down the type of action
     def __init__(
         self,
         *,
@@ -356,9 +365,9 @@ class _ExtendArgument(_DeprecationArgument):
     ) -> None:
         # The extend action is included in the stdlib from 3.8+
         if PY38_PLUS:
-            action_class = argparse._ExtendAction  # type: ignore[attr-defined]
+            action_class = argparse._ExtendAction
         else:
-            action_class = _ExtendAction
+            action_class = _ExtendAction  # type: ignore[assignment]
 
         self.dest = dest
         """The destination of the argument."""

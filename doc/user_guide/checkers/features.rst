@@ -95,7 +95,7 @@ Basic checker Messages
   Used when a break or a return statement is found inside the finally clause of
   a try...finally block: the exceptions raised in the try clause will be
   silently swallowed instead of being re-raised.
-:assert-on-tuple (W0199): *Assert called on a 2-item-tuple. Did you mean 'assert x,y'?*
+:assert-on-tuple (W0199): *Assert called on a populated tuple. Did you mean 'assert x,y'?*
   A call of assert on a tuple will always evaluate to true if the tuple is not
   empty, and will always evaluate to false if it is.
 :assert-on-string-literal (W0129): *Assert statement has a string literal as its first argument. The assert will %s fail.*
@@ -135,6 +135,9 @@ Basic checker Messages
   argument list as the lambda itself; such lambda expressions are in all but a
   few cases replaceable with the function being called in the body of the
   lambda.
+:named-expr-without-context (W0131): *Named expression used without context*
+  Emitted if named expression is used to do a regular assignment outside a
+  context like if, for, while, or a comprehension.
 :redeclared-assigned-name (W0128): *Redeclared variable %r in assignment*
   Emitted when we detect that a variable was redeclared in the same assignment.
 :pointless-statement (W0104): *Statement seems to have no effect*
@@ -168,7 +171,7 @@ Basic checker Messages
   When two literals are compared with each other the result is a constant.
   Using the constant directly is both easier to read and more performant.
   Initializing 'True' and 'False' this way is not required since Python 2.3.
-:literal-comparison (R0123): *Comparison to literal*
+:literal-comparison (R0123): *In '%s', use '%s' when comparing constant literals not '%s' ('%s')*
   Used when comparing an object to a literal, which is usually what you do not
   want to do, since you can compare to a different literal than what was
   expected altogether.
@@ -241,18 +244,18 @@ Classes checker Messages
   Used when a class has an inconsistent method resolution order.
 :inherit-non-class (E0239): *Inheriting %r, which is not a class.*
   Used when a class inherits from something which is not a class.
-:invalid-class-object (E0243): *Invalid __class__ object*
-  Used when an invalid object is assigned to a __class__ property. Only a class
-  is permitted.
 :invalid-slots (E0238): *Invalid __slots__ object*
   Used when an invalid __slots__ is found in class. Only a string, an iterable
   or a sequence is permitted.
+:invalid-class-object (E0243): *Invalid assignment to '__class__'. Should be a class definition but got a '%s'*
+  Used when an invalid object is assigned to a __class__ property. Only a class
+  is permitted.
 :invalid-slots-object (E0236): *Invalid object %r in __slots__, must contain only non empty strings*
   Used when an invalid (non-string) object occurs in __slots__.
-:no-method-argument (E0211): *Method has no argument*
+:no-method-argument (E0211): *Method %r has no argument*
   Used when a method which should have the bound instance as first argument has
   no argument defined.
-:no-self-argument (E0213): *Method should have "self" as first argument*
+:no-self-argument (E0213): *Method %r should have "self" as first argument*
   Used when a method has an attribute different the "self" as first argument.
   This is considered as an error since this is a so common convention that you
   shouldn't break it!
@@ -305,7 +308,7 @@ Classes checker Messages
   Used when an instance attribute is defined outside the __init__ method.
 :subclassed-final-class (W0240): *Class %r is a subclass of a class decorated with typing.final: %r*
   Used when a class decorated with typing.final has been subclassed.
-:abstract-method (W0223): *Method %r is abstract in class %r but is not overridden*
+:abstract-method (W0223): *Method %r is abstract in class %r but is not overridden in child class %r*
   Used when an abstract method (i.e. raise NotImplementedError) is not
   overridden in concrete class.
 :overridden-final-method (W0239): *Method %r overrides a method decorated with typing.final which is defined in class %r*
@@ -420,9 +423,9 @@ Exceptions checker Messages
 :catching-non-exception (E0712): *Catching an exception which doesn't inherit from Exception: %s*
   Used when a class which doesn't inherit from Exception is used as an
   exception in an except clause.
-:bad-exception-context (E0703): *Exception context set to something which is not an exception, nor None*
-  Used when using the syntax "raise ... from ...", where the exception context
-  is not an exception, nor None.
+:bad-exception-cause (E0705): *Exception cause set to something which is not an exception, nor None*
+  Used when using the syntax "raise ... from ...", where the exception cause is
+  not an exception, nor None.
 :notimplemented-raised (E0711): *NotImplemented raised - should raise NotImplementedError*
   Used when NotImplemented is raised instead of NotImplementedError
 :raising-bad-type (E0702): *Raising %s while only classes or instances are allowed*
@@ -440,7 +443,7 @@ Exceptions checker Messages
 :duplicate-except (W0705): *Catching previously caught exception type %s*
   Used when an except catches a type that was already caught by a previous
   handler.
-:broad-except (W0703): *Catching too general exception %s*
+:broad-exception-caught (W0718): *Catching too general exception %s*
   Used when an except catches a too general exception, possibly burying
   unrelated errors.
 :raise-missing-from (W0707): *Consider explicitly re-raising using %s'%s from %s'*
@@ -462,6 +465,8 @@ Exceptions checker Messages
   operations between exceptions in except handlers.
 :bare-except (W0702): *No exception type(s) specified*
   Used when an except clause doesn't specify exceptions type to catch.
+:broad-exception-raised (W0719): *Raising too general exception: %s*
+  Used when an except raises a too general exception.
 :try-except-raise (W0706): *The except handler raises immediately*
   Used when an except handler uses raise as its first or only operator. This is
   useless because it raises back the exception immediately. Remove the raise
@@ -737,6 +742,9 @@ Refactoring checker Messages
   verbose.
 :consider-merging-isinstance (R1701): *Consider merging these isinstance calls to isinstance(%s, (%s))*
   Used when multiple consecutive isinstance calls can be merged into one.
+:use-dict-literal (R1735): *Consider using '%s' instead of a call to 'dict'.*
+  Emitted when using dict() to create a dictionary instead of a literal '{ ...
+  }'. The literal is faster as it avoids an additional function call.
 :consider-using-max-builtin (R1731): *Consider using '%s' instead of unnecessary if block*
   Using the max builtin instead of a conditional improves readability and
   conciseness.
@@ -779,9 +787,6 @@ Refactoring checker Messages
 :consider-swap-variables (R1712): *Consider using tuple unpacking for swapping variables*
   You do not have to use a temporary variable in order to swap variables. Using
   "tuple unpacking" to directly swap variables makes the intention more clear.
-:use-dict-literal (R1735): *Consider using {} instead of dict()*
-  Emitted when using dict() to create an empty dictionary instead of the
-  literal {}. The literal is faster as it avoids an additional function call.
 :trailing-comma-tuple (R1707): *Disallow trailing comma tuple*
   In Python, a tuple is actually created by the comma symbol, not by the
   parentheses. Unfortunately, one can actually create a tuple by misplacing a
@@ -845,7 +850,7 @@ Refactoring checker Messages
   Emitted when a single "return" or "return None" statement is found at the end
   of function or method definition. This statement can safely be removed
   because Python will implicitly return None
-:use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty sequence is falsey*
+:use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty %s is falsey*
   Used when Pylint detects that collection literal comparison is being used to
   check for emptiness; Use implicit booleaness instead of a collection classes;
   empty collections are considered as false
@@ -927,6 +932,12 @@ Stdlib checker Messages
 :invalid-envvar-value (E1507): *%s does not support %s type argument*
   Env manipulation functions support only string type arguments. See
   https://docs.python.org/3/library/os.html#os.getenv.
+:singledispatch-method (E1519): *singledispatch decorator should not be used with methods, use singledispatchmethod instead.*
+  singledispatch should decorate functions and not class/instance methods. Use
+  singledispatchmethod for those cases.
+:singledispatchmethod-function (E1520): *singledispatchmethod decorator should not be used with functions, use singledispatch instead.*
+  singledispatchmethod should decorate class/instance methods and not
+  functions. Use singledispatch for those cases.
 :bad-open-mode (W1501): *"%s" is not a valid mode for open.*
   Python supports: r, w, a[, x] modes with b, +, and U (only with r) options.
   See https://docs.python.org/3/library/functions.html#open
@@ -979,8 +990,8 @@ Stdlib checker Messages
   https://docs.python.org/3/library/subprocess.html#subprocess.run
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
-  the target function being passed. By default, the first parameter is the
-  group param, not the target param.
+  the target function being passed as a kwarg or as a second argument. By
+  default, the first parameter is the group param, not the target param.
 
 
 String checker
@@ -1144,6 +1155,9 @@ Typecheck checker Messages
 :invalid-slice-index (E1127): *Slice index is not an int, None, or instance with __index__*
   Used when a slice index is not an integer, None, or an object with an
   __index__ method.
+:invalid-slice-step (E1144): *Slice step cannot be 0*
+  Used when a slice step is 0 and the object doesn't implement a custom
+  __getitem__ method.
 :too-many-function-args (E1121): *Too many positional arguments for %s call*
   Used when a function call passes too many positional arguments.
 :unexpected-keyword-arg (E1123): *Unexpected keyword argument %r in %s call*
@@ -1295,7 +1309,7 @@ Variables checker Messages
   variable is not defined in the module scope.
 :self-cls-assignment (W0642): *Invalid assignment to %s in method*
   Invalid assignment to self or cls in instance or class method respectively.
-:unbalanced-tuple-unpacking (W0632): *Possible unbalanced tuple unpacking with sequence%s: left side has %d label(s), right side has %d value(s)*
+:unbalanced-tuple-unpacking (W0632): *Possible unbalanced tuple unpacking with sequence %s: left side has %d label%s, right side has %d value%s*
   Used when there is an unbalanced tuple unpacking in assignment
 :possibly-unused-variable (W0641): *Possibly unused variable %r*
   Used when a variable is defined but might not be used. The possibility comes

@@ -2,18 +2,18 @@
 
 Based on tests/functional/a/arguments.py
 """
-# pylint: disable=missing-docstring,too-few-public-methods,super-init-not-called,useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods,super-init-not-called
 
 
-class Class1Arg(object):
+class Class1Arg:
     def __init__(self, first_argument):
         """one argument function"""
 
-class Class3Arg(object):
+class Class3Arg:
     def __init__(self, first_argument, second_argument, third_argument):
         """three arguments function"""
 
-class ClassDefaultArg(object):
+class ClassDefaultArg:
     def __init__(self, one=1, two=2):
         """function with default value"""
 
@@ -27,7 +27,7 @@ class ClassAllArgs(Class1Arg):
 class ClassMultiInheritance(Class1Arg, Class3Arg):
     pass
 
-class ClassNew(object):
+class ClassNew:
     def __new__(cls, first_argument, kwarg=None):
         return first_argument, kwarg
 
@@ -65,8 +65,8 @@ ClassNew(one=2)  # [no-value-for-parameter,unexpected-keyword-arg]
 
 
 class Metaclass(type):
-    def __new__(cls, name, bases, namespace):
-        return type.__new__(cls, name, bases, namespace)
+    def __new__(mcs, name, bases, namespace):
+        return type.__new__(mcs, name, bases, namespace)
 
 def with_metaclass(meta, base=object):
     """Create a new type that can be used as a metaclass."""
@@ -85,7 +85,7 @@ class BuiltinExc(Exception):
 BuiltinExc(42, 24, badarg=1) # [too-many-function-args,unexpected-keyword-arg]
 
 
-class Clsmethod(object):
+class Clsmethod:
     def __init__(self, first, second):
         self.first = first
         self.second = second

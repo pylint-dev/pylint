@@ -30,7 +30,7 @@ def foobar4(arg1, arg2): #[missing-param-doc, missing-type-doc]
     """
     print(arg1, arg2)
 
-def foobar5(arg1, arg2): #[missing-param-doc, missing-type-doc]
+def foobar5(arg1, arg2): #[missing-type-doc]
     """function foobar ...
     Parameters
     ----------
@@ -63,7 +63,7 @@ def foobar8(arg1): #[missing-any-param-doc]
 
     print(arg1)
 
-def foobar9(arg1, arg2, arg3): #[missing-param-doc]
+def foobar9(arg1, arg2, arg3):
     """function foobar ...
     Parameters
     ----------
@@ -73,7 +73,7 @@ def foobar9(arg1, arg2, arg3): #[missing-param-doc]
     """
     print(arg1, arg2, arg3)
 
-def foobar10(arg1, arg2, arg3): #[missing-param-doc, missing-type-doc]
+def foobar10(arg1, arg2, arg3): #[missing-type-doc]
     """function foobar ...
     Parameters
     ----------

@@ -1,7 +1,7 @@
-# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
+# pylint: disable=missing-docstring, too-few-public-methods
 
 
-class Aaaa(object): # [too-many-instance-attributes]
+class Aaaa: # [too-many-instance-attributes]
 
     def __init__(self):
         self.aaaa = 1

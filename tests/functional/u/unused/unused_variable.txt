@@ -12,18 +12,17 @@ unused-import:54:4:54:38:unused_import_from:Unused wraps imported from functools
 unused-import:55:4:55:38:unused_import_from:Unused namedtuple imported from collections:UNDEFINED
 unused-import:59:4:59:40:unused_import_in_function:Unused hexdigits imported from string:UNDEFINED
 unused-variable:64:4:64:10:hello:Unused variable 'my_var':UNDEFINED
-unused-variable:76:4:76:8:function:Unused variable 'aaaa':UNDEFINED
-global-variable-not-assigned:98:4:98:39:test_global:Using global for 'PATH' but no assignment is done:UNDEFINED
-global-variable-not-assigned:98:4:98:39:test_global:Using global for 'deque' but no assignment is done:UNDEFINED
-unused-import:104:4:104:28:test_global:Unused platform imported from sys:UNDEFINED
-unused-import:105:4:105:38:test_global:Unused version imported from sys as VERSION:UNDEFINED
-unused-import:106:4:106:15:test_global:Unused import this:UNDEFINED
-unused-import:107:4:107:19:test_global:Unused re imported as RE:UNDEFINED
-unused-variable:111:4:111:10:function2:Unused variable 'unused':UNDEFINED
-redefined-outer-name:117:8:118:42:function2:Redefining name 'error' from outer scope (line 114):UNDEFINED
-redefined-outer-name:145:8:146:28:func3:Redefining name 'error' from outer scope (line 141):UNDEFINED
-unused-variable:145:8:146:28:func3:Unused variable 'error':UNDEFINED
-unused-variable:151:4:155:26:func4:Unused variable 'error':UNDEFINED
-redefined-outer-name:154:8:155:26:func4:Redefining name 'error' from outer scope (line 151):UNDEFINED
-unused-variable:162:4:163:12:main:Unused variable 'e':UNDEFINED
-undefined-loop-variable:169:10:169:11:main:Using possibly undefined loop variable 'e':UNDEFINED
+unused-variable:75:4:75:8:function:Unused variable 'aaaa':UNDEFINED
+global-statement:97:4:97:39:test_global:Using the global statement:UNDEFINED
+unused-import:103:4:103:28:test_global:Unused platform imported from sys:UNDEFINED
+unused-import:104:4:104:38:test_global:Unused version imported from sys as VERSION:UNDEFINED
+unused-import:105:4:105:15:test_global:Unused import this:UNDEFINED
+unused-import:106:4:106:19:test_global:Unused re imported as RE:UNDEFINED
+unused-variable:110:4:110:10:function2:Unused variable 'unused':UNDEFINED
+redefined-outer-name:116:8:117:42:function2:Redefining name 'error' from outer scope (line 113):UNDEFINED
+redefined-outer-name:144:8:145:28:func3:Redefining name 'error' from outer scope (line 140):UNDEFINED
+unused-variable:144:8:145:28:func3:Unused variable 'error':UNDEFINED
+unused-variable:150:4:154:26:func4:Unused variable 'error':UNDEFINED
+redefined-outer-name:153:8:154:26:func4:Redefining name 'error' from outer scope (line 150):UNDEFINED
+unused-variable:161:4:162:12:main:Unused variable 'e':UNDEFINED
+undefined-loop-variable:168:10:168:11:main:Using possibly undefined loop variable 'e':UNDEFINED

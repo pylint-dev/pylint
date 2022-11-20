@@ -56,7 +56,7 @@ All messages in the error category:
    error/await-outside-async
    error/bad-configuration-section
    error/bad-except-order
-   error/bad-exception-context
+   error/bad-exception-cause
    error/bad-format-character
    error/bad-plugin-value
    error/bad-reversed-sequence
@@ -102,6 +102,7 @@ All messages in the error category:
    error/invalid-repr-returned
    error/invalid-sequence-index
    error/invalid-slice-index
+   error/invalid-slice-step
    error/invalid-slots
    error/invalid-slots-object
    error/invalid-star-assignment-target
@@ -145,6 +146,8 @@ All messages in the error category:
    error/return-arg-in-generator
    error/return-in-init
    error/return-outside-function
+   error/singledispatch-method
+   error/singledispatchmethod-function
    error/star-needs-assignment-target
    error/syntax-error
    error/too-few-format-args
@@ -177,6 +180,7 @@ All renamed messages in the error category:
    :titlesonly:
 
    error/bad-context-manager
+   error/bad-exception-context
    error/bad-option-value
    error/maybe-no-member
    error/old-non-iterator-returned-2
@@ -204,6 +208,7 @@ All messages in the warning category:
    warning/assert-on-tuple
    warning/attribute-defined-outside-init
    warning/bad-builtin
+   warning/bad-dunder-name
    warning/bad-format-string
    warning/bad-format-string-key
    warning/bad-indentation
@@ -213,7 +218,8 @@ All messages in the warning category:
    warning/bare-except
    warning/binary-op-exception
    warning/boolean-datetime
-   warning/broad-except
+   warning/broad-exception-caught
+   warning/broad-exception-raised
    warning/cell-var-from-loop
    warning/comparison-with-callable
    warning/confusing-with-statement
@@ -272,6 +278,7 @@ All messages in the warning category:
    warning/missing-yield-type-doc
    warning/modified-iterating-list
    warning/multiple-constructor-doc
+   warning/named-expr-without-context
    warning/nan-comparison
    warning/non-ascii-file-name
    warning/non-parent-init-called
@@ -340,6 +347,7 @@ All renamed messages in the warning category:
    :maxdepth: 1
    :titlesonly:
 
+   warning/broad-except
    warning/cache-max-size-none
    warning/implicit-str-concat-in-sequence
    warning/lru-cache-decorating-method
@@ -459,6 +467,7 @@ All messages in the refactor category:
    refactor/consider-swap-variables
    refactor/consider-using-alias
    refactor/consider-using-assignment-expr
+   refactor/consider-using-augmented-assign
    refactor/consider-using-dict-comprehension
    refactor/consider-using-from-import
    refactor/consider-using-generator
@@ -479,6 +488,7 @@ All messages in the refactor category:
    refactor/empty-comment
    refactor/inconsistent-return-statements
    refactor/literal-comparison
+   refactor/magic-value-comparison
    refactor/no-classmethod-decorator
    refactor/no-else-break
    refactor/no-else-continue

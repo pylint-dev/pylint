@@ -1,0 +1,3 @@
+Fix a crash when a child class with an ``__init__`` method inherits from a parent class with an ``__init__`` class attribute.
+
+Closes #7742

@@ -1,7 +1,7 @@
 # pylint: disable=invalid-name,unnecessary-pass,no-else-return,useless-else-on-loop
 # pylint: disable=undefined-variable,consider-using-sys-exit,unused-variable,too-many-return-statements
-# pylint: disable=redefined-outer-name,useless-object-inheritance,using-constant-test,unused-argument
-# pylint: disable=broad-except, not-context-manager, no-method-argument, unspecified-encoding
+# pylint: disable=redefined-outer-name,using-constant-test,unused-argument
+# pylint: disable=broad-except, not-context-manager, no-method-argument, unspecified-encoding, broad-exception-raised
 
 """Checks use of "too-complex" check"""
 
@@ -130,7 +130,7 @@ def f10():  # [too-complex]
     return myint
 
 
-class MyClass1(object):
+class MyClass1:
     """Class of example to test mccabe"""
 
     _name = "MyClass"  # To force a tail.node=None

@@ -1,7 +1,5 @@
 """Tests for loopvar-in-closure."""
 
-__revision__ = 0
-
 
 def bad_case():
     """Loop variable from dict comprehension."""

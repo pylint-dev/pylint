@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import collections
 import functools
+import sys
 from collections.abc import Sequence, ValuesView
 from typing import TYPE_CHECKING
 
@@ -23,7 +24,9 @@ class MessageDefinitionStore:
     has no particular state during analysis.
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self, py_version: tuple[int, ...] | sys._version_info = sys.version_info
+    ) -> None:
         self.message_id_store: MessageIdStore = MessageIdStore()
         # Primary registry for all active messages definitions.
         # It contains the 1:1 mapping from msgid to MessageDefinition.
@@ -31,6 +34,7 @@ class MessageDefinitionStore:
         self._messages_definitions: dict[str, MessageDefinition] = {}
         # MessageDefinition kept by category
         self._msgs_by_category: dict[str, list[str]] = collections.defaultdict(list)
+        self.py_version = py_version
 
     @property
     def messages(self) -> ValuesView[MessageDefinition]:
@@ -52,10 +56,12 @@ class MessageDefinitionStore:
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
 
     # Since MessageDefinitionStore is only initialized once
-    # and the arguments are relatively small in size we do not run the
+    # and the arguments are relatively small we do not run the
     # risk of creating a large memory leak.
     # See discussion in: https://github.com/PyCQA/pylint/pull/5673
-    @functools.lru_cache(maxsize=None)  # pylint: disable=method-cache-max-size-none
+    @functools.lru_cache(  # pylint: disable=method-cache-max-size-none # noqa: B019
+        maxsize=None
+    )
     def get_message_definitions(self, msgid_or_symbol: str) -> list[MessageDefinition]:
         """Returns the Message definition for either a numeric or symbolic id.
 
@@ -108,7 +114,7 @@ class MessageDefinitionStore:
         emittable = []
         non_emittable = []
         for message in messages:
-            if message.may_be_emitted():
+            if message.may_be_emitted(self.py_version):
                 emittable.append(message)
             else:
                 non_emittable.append(message)

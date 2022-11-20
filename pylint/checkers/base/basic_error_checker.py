@@ -12,6 +12,7 @@ from typing import Any
 
 import astroid
 from astroid import nodes
+from astroid.typing import InferenceResult
 
 from pylint.checkers import utils
 from pylint.checkers.base.basic_checker import _BasicChecker
@@ -68,7 +69,7 @@ def _loop_exits_early(loop: nodes.For | nodes.While) -> bool:
     )
 
 
-def _has_abstract_methods(node):
+def _has_abstract_methods(node: nodes.ClassDef) -> bool:
     """Determine if the given `node` has abstract methods.
 
     The methods should be made abstract by decorating them
@@ -432,7 +433,9 @@ class BasicErrorChecker(_BasicChecker):
         for inferred in infer_all(node.func):
             self._check_inferred_class_is_abstract(inferred, node)
 
-    def _check_inferred_class_is_abstract(self, inferred, node: nodes.Call):
+    def _check_inferred_class_is_abstract(
+        self, inferred: InferenceResult, node: nodes.Call
+    ) -> None:
         if not isinstance(inferred, nodes.ClassDef):
             return
 

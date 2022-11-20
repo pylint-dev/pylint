@@ -1,4 +1,12 @@
-# pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string, unnecessary-direct-lambda-call
+# pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string, unnecessary-direct-lambda-call, broad-exception-raised
+
+import sys
+
+if sys.version_info >= (3, 8):
+    from typing import NoReturn
+else:
+    from typing_extensions import NoReturn
+
 
 def do_stuff(some_random_list):
     for var in some_random_list:
@@ -105,6 +113,36 @@ def for_else_raises(iterable):
     else:
         raise Exception
     print(thing)
+
+
+def for_else_break(iterable):
+    while True:
+        for thing in iterable:
+            break
+        else:
+            break
+        print(thing)
+
+
+def for_else_continue(iterable):
+    while True:
+        for thing in iterable:
+            break
+        else:
+            continue
+        print(thing)
+
+
+def for_else_no_return(iterable):
+    def fail() -> NoReturn:
+        ...
+
+    while True:
+        for thing in iterable:
+            break
+        else:
+            fail()
+        print(thing)
 
 
 lst = []

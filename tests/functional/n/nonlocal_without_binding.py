@@ -1,5 +1,5 @@
 """ Checks that reversed() receive proper argument """
-# pylint: disable=missing-docstring,invalid-name,unused-variable, useless-object-inheritance
+# pylint: disable=missing-docstring,invalid-name,unused-variable
 # pylint: disable=too-few-public-methods
 
 
@@ -36,7 +36,7 @@ def func():
         c = 1
 
 
-class SomeClass(object):
+class SomeClass:
     nonlocal x  # [nonlocal-without-binding]
 
     def func(self):

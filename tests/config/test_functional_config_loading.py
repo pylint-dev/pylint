@@ -64,9 +64,9 @@ def test_functional_config_loading(
     configuration_path: str,
     default_configuration: PylintConfiguration,
     file_to_lint_path: str,
-    capsys: CaptureFixture,
+    capsys: CaptureFixture[str],
     caplog: LogCaptureFixture,
-):
+) -> None:
     """Functional tests for configurations."""
     # logging is helpful to see what's expected and why. The output of the
     # program is checked during the test so printing messes with the result.

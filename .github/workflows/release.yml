@@ -6,20 +6,27 @@ on:
       - published
 
 env:
-  DEFAULT_PYTHON: "3.10"
+  DEFAULT_PYTHON: "3.11"
+
+permissions:
+  contents: read
 
 jobs:
   release-pypi:
     name: Upload release to PyPI
     runs-on: ubuntu-latest
+    environment:
+      name: PyPI
+      url: https://pypi.org/project/pylint/
     steps:
       - name: Check out code from Github
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
       - name: Install requirements
         run: |
           # Remove dist, build, and pylint.egg-info

@@ -296,4 +296,8 @@ intersphinx_mapping = {
 # through including multiple documents
 autosectionlabel_prefix_document = True
 
+# Permit duplicated titles in the resulting document.
+# See https://github.com/PyCQA/pylint/issues/7362#issuecomment-1256932866
+autosectionlabel_maxdepth = 2
+
 linkcheck_ignore = ["https://github.com/PyCQA/pylint/blob/main/pylint/extensions/.*"]

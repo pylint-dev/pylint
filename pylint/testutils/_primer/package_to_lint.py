@@ -5,9 +5,16 @@
 from __future__ import annotations
 
 import logging
+import sys
 from pathlib import Path
 
-import git
+from git.cmd import Git
+from git.repo import Repo
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
 
@@ -33,6 +40,9 @@ class PackageToLint:
     pylintrc_relpath: str | None
     """Path relative to project's main directory to the pylintrc if it exists."""
 
+    minimum_python: str | None
+    """Minimum python version supported by the package."""
+
     def __init__(
         self,
         url: str,
@@ -41,6 +51,7 @@ class PackageToLint:
         commit: str | None = None,
         pylint_additional_args: list[str] | None = None,
         pylintrc_relpath: str | None = None,
+        minimum_python: str | None = None,
     ) -> None:
         self.url = url
         self.branch = branch
@@ -48,11 +59,13 @@ class PackageToLint:
         self.commit = commit
         self.pylint_additional_args = pylint_additional_args or []
         self.pylintrc_relpath = pylintrc_relpath
+        self.minimum_python = minimum_python
 
     @property
-    def pylintrc(self) -> Path | None:
+    def pylintrc(self) -> Path | Literal[""]:
         if self.pylintrc_relpath is None:
-            return None
+            # Fall back to "" to ensure pylint's own pylintrc is not discovered
+            return ""
         return self.clone_directory / self.pylintrc_relpath
 
     @property
@@ -69,9 +82,8 @@ class PackageToLint:
     @property
     def pylint_args(self) -> list[str]:
         options: list[str] = []
-        if self.pylintrc is not None:
-            # There is an error if rcfile is given but does not exist
-            options += [f"--rcfile={self.pylintrc}"]
+        # There is an error if rcfile is given but does not exist
+        options += [f"--rcfile={self.pylintrc}"]
         return self.paths_to_lint + options + self.pylint_additional_args
 
     def lazy_clone(self) -> str:  # pragma: no cover
@@ -92,22 +104,22 @@ class PackageToLint:
                 "depth": 1,
             }
             logging.info("Directory does not exists, cloning: %s", options)
-            repo = git.Repo.clone_from(**options)
-            return repo.head.object.hexsha
+            repo = Repo.clone_from(
+                url=self.url, to_path=self.clone_directory, branch=self.branch, depth=1
+            )
+            return str(repo.head.object.hexsha)
 
-        remote_sha1_commit = (
-            git.cmd.Git().ls_remote(self.url, self.branch).split("\t")[0]
-        )
-        local_sha1_commit = git.Repo(self.clone_directory).head.object.hexsha
+        remote_sha1_commit = Git().ls_remote(self.url, self.branch).split("\t")[0]
+        local_sha1_commit = Repo(self.clone_directory).head.object.hexsha
         if remote_sha1_commit != local_sha1_commit:
             logging.info(
                 "Remote sha is '%s' while local sha is '%s': pulling new commits",
                 remote_sha1_commit,
                 local_sha1_commit,
             )
-            repo = git.Repo(self.clone_directory)
+            repo = Repo(self.clone_directory)
             origin = repo.remotes.origin
             origin.pull()
         else:
             logging.info("Repository already up to date.")
-        return remote_sha1_commit
+        return str(remote_sha1_commit)

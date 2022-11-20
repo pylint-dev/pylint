@@ -43,6 +43,7 @@ class Message:  # pylint: disable=too-many-instance-attributes
             warn(
                 "In pylint 3.0, Messages will only accept a MessageLocationTuple as location parameter",
                 DeprecationWarning,
+                stacklevel=2,
             )
             location = MessageLocationTuple(
                 location[0],

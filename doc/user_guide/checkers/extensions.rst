@@ -16,10 +16,12 @@ Pylint provides the following optional plugins:
 - :ref:`pylint.extensions.consider_ternary_expression`
 - :ref:`pylint.extensions.docparams`
 - :ref:`pylint.extensions.docstyle`
+- :ref:`pylint.extensions.dunder`
 - :ref:`pylint.extensions.empty_comment`
 - :ref:`pylint.extensions.emptystring`
 - :ref:`pylint.extensions.eq_without_hash`
 - :ref:`pylint.extensions.for_any_all`
+- :ref:`pylint.extensions.magic_value`
 - :ref:`pylint.extensions.mccabe`
 - :ref:`pylint.extensions.no_self_use`
 - :ref:`pylint.extensions.overlapping_exceptions`
@@ -79,6 +81,9 @@ Code Style checker Messages
   Emitted when an if assignment is directly followed by an if statement and
   both can be combined by using an assignment expression ``:=``. Requires
   Python 3.8 and ``py-version >= 3.8``.
+:consider-using-augmented-assign (R6104): *Use '%s' to do an augmented assign directly*
+  Emitted when an assignment is referring to the object that it is assigning
+  to. This can be changed to be an augmented assign. Disabled by default!
 
 
 .. _pylint.extensions.emptystring:
@@ -91,7 +96,7 @@ Verbatim name of the checker is ``compare-to-empty-string``.
 
 Compare-To-Empty-String checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-empty-string (C1901): *Avoid comparisons to empty string*
+:compare-to-empty-string (C1901): *"%s" can be simplified to "%s" as an empty string is falsey*
   Used when Pylint detects comparison to an empty string constant.
 
 
@@ -105,7 +110,7 @@ Verbatim name of the checker is ``compare-to-zero``.
 
 Compare-To-Zero checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-zero (C2001): *Avoid comparisons to zero*
+:compare-to-zero (C2001): *"%s" can be simplified to "%s" as 0 is falsey*
   Used when Pylint detects comparison to a 0 constant.
 
 
@@ -275,6 +280,23 @@ Docstyle checker Messages
   Used when a blank line is found at the beginning of a docstring.
 
 
+.. _pylint.extensions.dunder:
+
+Dunder checker
+~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.dunder``.
+Verbatim name of the checker is ``dunder``.
+
+See also :ref:`dunder checker's options' documentation <dunder-options>`
+
+Dunder checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^
+:bad-dunder-name (W3201): *Bad or misspelled dunder method name %s.*
+  Used when a dunder method is misspelled or defined with a name not within the
+  predefined list of dunder names.
+
+
 .. _pylint.extensions.check_elif:
 
 Else If Used checker
@@ -333,6 +355,23 @@ Import-Private-Name checker Messages
   Used when a private module or object prefixed with _ is imported. PEP8
   guidance on Naming Conventions states that public attributes with leading
   underscores should be considered private.
+
+
+.. _pylint.extensions.magic_value:
+
+Magic-Value checker
+~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.magic_value``.
+Verbatim name of the checker is ``magic-value``.
+
+See also :ref:`magic-value checker's options' documentation <magic-value-options>`
+
+Magic-Value checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:magic-value-comparison (R2004): *Consider using a named constant or an enum instead of '%s'.*
+  Using named constants instead of magic values helps improve readability and
+  maintainability of your code, try to avoid them in comparisons.
 
 
 .. _pylint.extensions.redefined_variable_type:

@@ -135,6 +135,7 @@ def colorize_ansi(
         warnings.warn(
             "In pylint 3.0, the colorize_ansi function of Text reporters will only accept a MessageStyle parameter",
             DeprecationWarning,
+            stacklevel=2,
         )
         color = kwargs.get("color")
         style_attrs = tuple(_splitstrip(style))
@@ -225,6 +226,7 @@ class ParseableTextReporter(TextReporter):
         warnings.warn(
             f"{self.name} output format is deprecated. This is equivalent to --msg-template={self.line_format}",
             DeprecationWarning,
+            stacklevel=2,
         )
         super().__init__(output)
 
@@ -265,6 +267,7 @@ class ColorizedTextReporter(TextReporter):
             warnings.warn(
                 "In pylint 3.0, the ColorizedTextReporter will only accept ColorMappingDict as color_mapping parameter",
                 DeprecationWarning,
+                stacklevel=2,
             )
             temp_color_mapping: ColorMappingDict = {}
             for key, value in color_mapping.items():

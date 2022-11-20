@@ -218,7 +218,7 @@ def _normalize_codec_name(codec: str) -> str:
 
 def _remove_bom(encoded: bytes, encoding: str) -> bytes:
     """Remove the bom if given from a line."""
-    if not encoding.startswith("utf"):
+    if encoding not in UNICODE_BOMS:
         return encoded
     bom = UNICODE_BOMS[encoding]
     if encoded.startswith(bom):

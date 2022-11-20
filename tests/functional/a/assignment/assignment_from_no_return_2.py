@@ -1,4 +1,4 @@
-# pylint: disable=useless-return, useless-object-inheritance, condition-evals-to-constant
+# pylint: disable=useless-return, condition-evals-to-constant
 """check assignment to function call where the function doesn't return
 
     'E1111': ('Assigning to function call which doesn\'t return',
@@ -9,7 +9,6 @@
               inferred function returns nothing but None.'),
 
 """
-from __future__ import generators, print_function
 
 def func_no_return():
     """function without return"""
@@ -50,7 +49,7 @@ def generator():
 
 A = generator()
 
-class Abstract(object):
+class Abstract:
     """bla bla"""
 
     def abstract_method(self):

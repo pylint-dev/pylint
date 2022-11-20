@@ -18,7 +18,7 @@ def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> li
     def _is_package_cb(inner_path: str, parts: list[str]) -> bool:
         return modutils.check_modpath_has_init(inner_path, parts) or is_namespace
 
-    return modutils.modpath_from_file_with_callback(
+    return modutils.modpath_from_file_with_callback(  # type: ignore[no-any-return]
         filename, path=path, is_package_cb=_is_package_cb
     )
 
@@ -66,11 +66,11 @@ def expand_modules(
     ignore_list: list[str],
     ignore_list_re: list[Pattern[str]],
     ignore_list_paths_re: list[Pattern[str]],
-) -> tuple[list[ModuleDescriptionDict], list[ErrorDescriptionDict]]:
+) -> tuple[dict[str, ModuleDescriptionDict], list[ErrorDescriptionDict]]:
     """Take a list of files/modules/packages and return the list of tuple
     (file, module name) which have to be actually checked.
     """
-    result: list[ModuleDescriptionDict] = []
+    result: dict[str, ModuleDescriptionDict] = {}
     errors: list[ErrorDescriptionDict] = []
     path = sys.path.copy()
 
@@ -103,9 +103,7 @@ def expand_modules(
                 )
                 if filepath is None:
                     continue
-            except (ImportError, SyntaxError) as ex:
-                # The SyntaxError is a Python bug and should be
-                # removed once we move away from imp.find_module: https://bugs.python.org/issue10588
+            except ImportError as ex:
                 errors.append({"key": "fatal", "mod": modname, "ex": ex})
                 continue
         filepath = os.path.normpath(filepath)
@@ -122,15 +120,17 @@ def expand_modules(
             is_namespace = modutils.is_namespace(spec)
             is_directory = modutils.is_directory(spec)
         if not is_namespace:
-            result.append(
-                {
+            if filepath in result:
+                # Always set arg flag if module explicitly given.
+                result[filepath]["isarg"] = True
+            else:
+                result[filepath] = {
                     "path": filepath,
                     "name": modname,
                     "isarg": True,
                     "basepath": filepath,
                     "basename": modname,
                 }
-            )
         has_init = (
             not (modname.endswith(".__init__") or modname == "__init__")
             and os.path.basename(filepath) == "__init__.py"
@@ -150,13 +150,13 @@ def expand_modules(
                     subfilepath, is_namespace, path=additional_search_path
                 )
                 submodname = ".".join(modpath)
-                result.append(
-                    {
-                        "path": subfilepath,
-                        "name": submodname,
-                        "isarg": False,
-                        "basepath": filepath,
-                        "basename": modname,
-                    }
-                )
+                # Preserve arg flag if module is also explicitly given.
+                isarg = subfilepath in result and result[subfilepath]["isarg"]
+                result[subfilepath] = {
+                    "path": subfilepath,
+                    "name": submodname,
+                    "isarg": isarg,
+                    "basepath": filepath,
+                    "basename": modname,
+                }
     return result, errors

@@ -12,7 +12,7 @@ import pytest
 from pylint.checkers import BaseChecker
 from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
 from pylint.testutils import CheckerTestCase, set_config
-from pylint.typing import MessageDefinitionTuple
+from pylint.typing import MessageDefinitionTuple, ModuleDescriptionDict
 
 
 def test__is_in_ignore_list_re_match() -> None:
@@ -41,6 +41,14 @@ this_file_from_init = {
     "basename": "lint",
     "basepath": INIT_PATH,
     "isarg": False,
+    "name": "lint.unittest_expand_modules",
+    "path": EXPAND_MODULES,
+}
+
+this_file_from_init_deduplicated = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": True,
     "name": "lint.unittest_expand_modules",
     "path": EXPAND_MODULES,
 }
@@ -77,7 +85,6 @@ test_caching = {
     "path": str(TEST_DIRECTORY / "lint/test_caching.py"),
 }
 
-
 init_of_package = {
     "basename": "lint",
     "basepath": INIT_PATH,
@@ -85,6 +92,20 @@ init_of_package = {
     "name": "lint",
     "path": INIT_PATH,
 }
+
+
+def _list_expected_package_modules(
+    deduplicating: bool = False,
+) -> tuple[dict[str, object], ...]:
+    """Generates reusable list of modules for our package."""
+    return (
+        init_of_package,
+        test_caching,
+        test_pylinter,
+        test_utils,
+        this_file_from_init_deduplicated if deduplicating else this_file_from_init,
+        unittest_lint,
+    )
 
 
 class TestExpandModules(CheckerTestCase):
@@ -102,56 +123,86 @@ class TestExpandModules(CheckerTestCase):
     @pytest.mark.parametrize(
         "files_or_modules,expected",
         [
-            ([__file__], [this_file]),
+            ([__file__], {this_file["path"]: this_file}),
             (
                 [str(Path(__file__).parent)],
-                [
-                    init_of_package,
-                    test_caching,
-                    test_pylinter,
-                    test_utils,
-                    this_file_from_init,
-                    unittest_lint,
-                ],
+                {
+                    module["path"]: module  # pylint: disable=unsubscriptable-object
+                    for module in _list_expected_package_modules()
+                },
             ),
         ],
     )
     @set_config(ignore_paths="")
-    def test_expand_modules(self, files_or_modules, expected):
+    def test_expand_modules(
+        self, files_or_modules: list[str], expected: dict[str, ModuleDescriptionDict]
+    ) -> None:
         """Test expand_modules with the default value of ignore-paths."""
-        ignore_list, ignore_list_re = [], []
+        ignore_list: list[str] = []
+        ignore_list_re: list[re.Pattern[str]] = []
         modules, errors = expand_modules(
             files_or_modules,
             ignore_list,
             ignore_list_re,
             self.linter.config.ignore_paths,
         )
-        modules.sort(key=lambda d: d["name"])
         assert modules == expected
         assert not errors
 
     @pytest.mark.parametrize(
         "files_or_modules,expected",
         [
-            ([__file__], []),
+            ([__file__, __file__], {this_file["path"]: this_file}),
             (
-                [str(Path(__file__).parent)],
-                [
-                    init_of_package,
-                ],
+                [EXPAND_MODULES, str(Path(__file__).parent), EXPAND_MODULES],
+                {
+                    module["path"]: module  # pylint: disable=unsubscriptable-object
+                    for module in _list_expected_package_modules(deduplicating=True)
+                },
             ),
         ],
     )
-    @set_config(ignore_paths=".*/lint/.*")
-    def test_expand_modules_with_ignore(self, files_or_modules, expected):
-        """Test expand_modules with a non-default value of ignore-paths."""
-        ignore_list, ignore_list_re = [], []
+    @set_config(ignore_paths="")
+    def test_expand_modules_deduplication(
+        self, files_or_modules: list[str], expected: dict[str, ModuleDescriptionDict]
+    ) -> None:
+        """Test expand_modules deduplication."""
+        ignore_list: list[str] = []
+        ignore_list_re: list[re.Pattern[str]] = []
         modules, errors = expand_modules(
             files_or_modules,
             ignore_list,
             ignore_list_re,
             self.linter.config.ignore_paths,
         )
-        modules.sort(key=lambda d: d["name"])
+        assert modules == expected
+        assert not errors
+
+    @pytest.mark.parametrize(
+        "files_or_modules,expected",
+        [
+            ([__file__], {}),
+            (
+                [str(Path(__file__).parent)],
+                {
+                    module["path"]: module  # pylint: disable=unsubscriptable-object
+                    for module in (init_of_package,)
+                },
+            ),
+        ],
+    )
+    @set_config(ignore_paths=".*/lint/.*")
+    def test_expand_modules_with_ignore(
+        self, files_or_modules: list[str], expected: dict[str, ModuleDescriptionDict]
+    ) -> None:
+        """Test expand_modules with a non-default value of ignore-paths."""
+        ignore_list: list[str] = []
+        ignore_list_re: list[re.Pattern[str]] = []
+        modules, errors = expand_modules(
+            files_or_modules,
+            ignore_list,
+            ignore_list_re,
+            self.linter.config.ignore_paths,
+        )
         assert modules == expected
         assert not errors

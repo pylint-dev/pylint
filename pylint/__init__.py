@@ -16,6 +16,7 @@ __all__ = [
 
 import os
 import sys
+import warnings
 from collections.abc import Sequence
 from typing import NoReturn
 
@@ -54,10 +55,16 @@ def run_epylint(argv: Sequence[str] | None = None) -> NoReturn:
     """
     from pylint.epylint import Run as EpylintRun
 
+    warnings.warn(
+        "'run_epylint' will be removed in pylint 3.0, use "
+        "https://github.com/emacsorphanage/pylint instead.",
+        DeprecationWarning,
+        stacklevel=1,
+    )
     EpylintRun(argv)
 
 
-def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:  # type: ignore[misc]
+def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:
     """Run pyreverse.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
@@ -96,9 +103,10 @@ def modify_sys_path() -> None:
       if pylint is installed in an editable configuration (as the last item).
       https://github.com/PyCQA/pylint/issues/4161
     """
-    sys.path.pop(0)
-    env_pythonpath = os.environ.get("PYTHONPATH", "")
     cwd = os.getcwd()
+    if sys.path[0] in ("", ".", cwd):
+        sys.path.pop(0)
+    env_pythonpath = os.environ.get("PYTHONPATH", "")
     if env_pythonpath.startswith(":") and env_pythonpath not in (f":{cwd}", ":."):
         sys.path.pop(0)
     elif env_pythonpath.endswith(":") and env_pythonpath not in (f"{cwd}:", ".:"):

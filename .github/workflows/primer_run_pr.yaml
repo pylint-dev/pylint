@@ -24,7 +24,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  CACHE_VERSION: 20
+  # This needs to be the SAME as in the Main and comment job
+  CACHE_VERSION: 1
+  KEY_PREFIX: venv-primer
+
+permissions:
+  contents: read
 
 jobs:
   run-primer:
@@ -33,45 +38,34 @@ jobs:
     timeout-minutes: 120
     strategy:
       matrix:
-        python-version: ["3.7", "3.10"]
+        python-version: ["3.7", "3.11"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.0.0
+        uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/setup-node@v3
+          check-latest: true
+      - uses: actions/setup-node@v3.5.1
         with:
           node-version: 16
       - run: npm install @octokit/rest
 
-      - name: Get latest astroid commit
-        id: get-astroid-sha
-        run: |
-          curl https://api.github.com/repos/PyCQA/astroid/commits |
-          python -c "import json, sys; print(json.load(sys.stdin)[0]['sha'])" > astroid_sha.txt
-
       # Restore cached Python environment
-      - name: Generate partial Python venv restore key
-        id: generate-python-key
-        run: >-
-          echo "::set-output name=key::venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('setup.cfg', 'requirements_test.txt', 'requirements_test_min.txt',
-          'astroid_sha.txt') }}"
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.4
+        uses: actions/cache@v3.0.11
         with:
           path: venv
-          key: >-
+          key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            steps.generate-python-key.outputs.key }}
-          restore-keys: |
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-venv-${{ env.CACHE_VERSION }}-
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt') }}
+      # Create environment must match step in 'Primer / Main'
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
@@ -79,13 +73,11 @@ jobs:
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
-          # Use bleeding-edge astroid
-          pip install git+https://github.com/PyCQA/astroid.git
 
       # Cache primer packages
       - name: Download last 'main' run info
         id: download-main-run
-        uses: actions/github-script@v6
+        uses: actions/github-script@v6.3.3
         with:
           script: |
             // Download 'main' pylint output
@@ -134,7 +126,7 @@ jobs:
       - name: Copy and unzip the commit string
         run: |
           unzip primer_commitstring.zip
-          cp commit_string.txt tests/.pylint_primer_tests/commit_string.txt
+          cp commit_string_${{ matrix.python-version }}.txt tests/.pylint_primer_tests/commit_string_${{ matrix.python-version }}.txt
       - name: Unzip the output of 'main'
         run: unzip primer_output_main.zip
       - name: Get commit string
@@ -142,10 +134,10 @@ jobs:
         run: |
           . venv/bin/activate
           output=$(python tests/primer/__main__.py prepare --read-commit-string)
-          echo "::set-output name=commitstring::$output"
+          echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.0.4
+        uses: actions/cache@v3.0.11
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -175,14 +167,14 @@ jobs:
           then echo "::warning ::$WARNINGS"
           fi
       - name: Upload output of PR
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: primer_output_pr
           path:
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
             }}_pr.txt
       - name: Upload output of 'main'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: primer_output_main
           path: output_${{ steps.python.outputs.python-version }}_main.txt
@@ -192,7 +184,7 @@ jobs:
         run: |
           echo ${{ github.event.pull_request.number }} | tee pr_number.txt
       - name: Upload PR number
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: pr_number
           path: pr_number.txt

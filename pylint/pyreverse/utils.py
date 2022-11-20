@@ -74,12 +74,12 @@ def get_visibility(name: str) -> str:
 
 def is_interface(node: nodes.ClassDef) -> bool:
     # bw compatibility
-    return node.type == "interface"
+    return node.type == "interface"  # type: ignore[no-any-return]
 
 
 def is_exception(node: nodes.ClassDef) -> bool:
     # bw compatibility
-    return node.type == "exception"
+    return node.type == "exception"  # type: ignore[no-any-return]
 
 
 # Helpers #####################################################################
@@ -170,9 +170,9 @@ class LocalsVisitor:
 
 def get_annotation_label(ann: nodes.Name | nodes.NodeNG) -> str:
     if isinstance(ann, nodes.Name) and ann.name is not None:
-        return ann.name
+        return ann.name  # type: ignore[no-any-return]
     if isinstance(ann, nodes.NodeNG):
-        return ann.as_string()
+        return ann.as_string()  # type: ignore[no-any-return]
     return ""
 
 

@@ -17,7 +17,7 @@ from astroid import nodes
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import HIGH, INFERENCE
+from pylint.interfaces import HIGH, INFERENCE, Confidence
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 
@@ -188,7 +188,7 @@ class BasicChecker(_BasicChecker):
             "re-raised.",
         ),
         "W0199": (
-            "Assert called on a 2-item-tuple. Did you mean 'assert x,y'?",
+            "Assert called on a populated tuple. Did you mean 'assert x,y'?",
             "assert-on-tuple",
             "A call of assert on a tuple will always evaluate to true if "
             "the tuple is not empty, and will always evaluate to false if "
@@ -251,6 +251,12 @@ class BasicChecker(_BasicChecker):
             "Duplicate value %r in set",
             "duplicate-value",
             "This message is emitted when a set contains the same value two or more times.",
+        ),
+        "W0131": (
+            "Named expression used without context",
+            "named-expr-without-context",
+            "Emitted if named expression is used to do a regular assignment "
+            "outside a context like if, for, while, or a comprehension.",
         ),
     }
 
@@ -410,7 +416,10 @@ class BasicChecker(_BasicChecker):
         self.linter.stats.node_count["klass"] += 1
 
     @utils.only_required_for_messages(
-        "pointless-statement", "pointless-string-statement", "expression-not-assigned"
+        "pointless-statement",
+        "pointless-string-statement",
+        "expression-not-assigned",
+        "named-expr-without-context",
     )
     def visit_expr(self, node: nodes.Expr) -> None:
         """Check for various kind of statements without effect."""
@@ -448,7 +457,9 @@ class BasicChecker(_BasicChecker):
             or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):
             return
-        if any(expr.nodes_of_class(nodes.Call)):
+        if isinstance(expr, nodes.NamedExpr):
+            self.add_message("named-expr-without-context", node=node, confidence=HIGH)
+        elif any(expr.nodes_of_class(nodes.Call)):
             self.add_message(
                 "expression-not-assigned", node=node, args=expr.as_string()
             )
@@ -658,12 +669,16 @@ class BasicChecker(_BasicChecker):
                 self.add_message("misplaced-format-function", node=call_node)
 
     @utils.only_required_for_messages(
-        "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function"
+        "eval-used",
+        "exec-used",
+        "bad-reversed-sequence",
+        "misplaced-format-function",
+        "unreachable",
     )
     def visit_call(self, node: nodes.Call) -> None:
-        """Visit a Call node -> check if this is not a disallowed builtin
-        call and check for * or ** use.
-        """
+        """Visit a Call node."""
+        if utils.is_terminating_func(node):
+            self._check_unreachable(node, confidence=INFERENCE)
         self._check_misplaced_format_function(node)
         if isinstance(node.func, nodes.Name):
             name = node.func.name
@@ -680,12 +695,8 @@ class BasicChecker(_BasicChecker):
     @utils.only_required_for_messages("assert-on-tuple", "assert-on-string-literal")
     def visit_assert(self, node: nodes.Assert) -> None:
         """Check whether assert is used on a tuple or string literal."""
-        if (
-            node.fail is None
-            and isinstance(node.test, nodes.Tuple)
-            and len(node.test.elts) == 2
-        ):
-            self.add_message("assert-on-tuple", node=node)
+        if isinstance(node.test, nodes.Tuple) and len(node.test.elts) > 0:
+            self.add_message("assert-on-tuple", node=node, confidence=HIGH)
 
         if isinstance(node.test, nodes.Const) and isinstance(node.test.value, str):
             if node.test.value:
@@ -735,22 +746,26 @@ class BasicChecker(_BasicChecker):
         self._tryfinallys.pop()
 
     def _check_unreachable(
-        self, node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise
+        self,
+        node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise | nodes.Call,
+        confidence: Confidence = HIGH,
     ) -> None:
         """Check unreachable code."""
-        unreach_stmt = node.next_sibling()
-        if unreach_stmt is not None:
+        unreachable_statement = node.next_sibling()
+        if unreachable_statement is not None:
             if (
                 isinstance(node, nodes.Return)
-                and isinstance(unreach_stmt, nodes.Expr)
-                and isinstance(unreach_stmt.value, nodes.Yield)
+                and isinstance(unreachable_statement, nodes.Expr)
+                and isinstance(unreachable_statement.value, nodes.Yield)
             ):
                 # Don't add 'unreachable' for empty generators.
                 # Only add warning if 'yield' is followed by another node.
-                unreach_stmt = unreach_stmt.next_sibling()
-                if unreach_stmt is None:
+                unreachable_statement = unreachable_statement.next_sibling()
+                if unreachable_statement is None:
                     return
-            self.add_message("unreachable", node=unreach_stmt)
+            self.add_message(
+                "unreachable", node=unreachable_statement, confidence=confidence
+            )
 
     def _check_not_in_finally(
         self,

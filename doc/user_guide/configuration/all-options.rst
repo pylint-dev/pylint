@@ -99,7 +99,7 @@ Standard Checkers
 
 --ignore-paths
 """"""""""""""
-*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
+*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
 
 **Default:**  ``[]``
 
@@ -217,9 +217,9 @@ Standard Checkers
 
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
-   # disable =
+   disable = ["consider-using-augmented-assign"]
 
-   # enable =
+   enable = []
 
    evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
 
@@ -620,7 +620,7 @@ Standard Checkers
 """""""""""""""""""""""""""""""""""""""
 *List of valid names for the first argument in a metaclass class method.*
 
-**Default:**  ``('cls',)``
+**Default:**  ``('mcs',)``
 
 
 
@@ -642,7 +642,7 @@ Standard Checkers
 
    valid-classmethod-first-arg = ["cls"]
 
-   valid-metaclass-classmethod-first-arg = ["cls"]
+   valid-metaclass-classmethod-first-arg = ["mcs"]
 
 
 
@@ -798,7 +798,7 @@ Standard Checkers
 """"""""""""""""""""""""
 *Exceptions that will emit a warning when caught.*
 
-**Default:**  ``('BaseException', 'Exception')``
+**Default:**  ``('builtins.BaseException', 'builtins.Exception')``
 
 
 
@@ -812,7 +812,7 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.exceptions]
-   overgeneral-exceptions = ["BaseException", "Exception"]
+   overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
 
 
 
@@ -1249,7 +1249,7 @@ Standard Checkers
 
 --spelling-dict
 """""""""""""""
-*Spelling dictionary name. Available dictionaries: none. To make it work, install the 'python-enchant' package.*
+*Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell), en_CA (aspell), en_GB (aspell), en_US (aspell).*
 
 **Default:** ``""``
 
@@ -1523,7 +1523,7 @@ Standard Checkers
 
 --ignored-argument-names
 """"""""""""""""""""""""
-*Argument names that match this expression will be ignored. Default to name with leading underscore.*
+*Argument names that match this expression will be ignored.*
 
 **Default:**  ``re.compile('_.*|^ignored_|^unused_')``
 
@@ -1665,6 +1665,68 @@ Extensions
 
    [tool.pylint.deprecated_builtins]
    bad-functions = ["map", "filter"]
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _dunder-options:
+
+``Dunder`` **Checker**
+----------------------
+--good-dunder-names
+"""""""""""""""""""
+*Good dunder names which should always be accepted.*
+
+**Default:**  ``[]``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.dunder]
+   good-dunder-names = []
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _magic-value-options:
+
+``Magic-value`` **Checker**
+---------------------------
+--valid-magic-values
+""""""""""""""""""""
+* List of valid magic values that `magic-value-compare` will not detect.*
+
+**Default:**  ``(0, -1, 1, '', '__main__')``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.magic-value]
+   valid-magic-values = [0, -1, 1, "", "__main__"]
 
 
 

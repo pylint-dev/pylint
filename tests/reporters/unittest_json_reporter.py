@@ -102,7 +102,7 @@ def get_linter_result(score: bool, message: dict[str, Any]) -> list[dict[str, An
         reporter.display_reports(EvaluationSection(expected_score_message))
     reporter.display_messages(None)
     report_result = json.loads(output.getvalue())
-    return report_result
+    return report_result  # type: ignore[no-any-return]
 
 
 @pytest.mark.parametrize(
@@ -131,7 +131,7 @@ def get_linter_result(score: bool, message: dict[str, Any]) -> list[dict[str, An
         )
     ],
 )
-def test_serialize_deserialize(message):
+def test_serialize_deserialize(message: Message) -> None:
     # TODO: 3.0: Add confidence handling, add path and abs path handling or a new JSONReporter
     json_message = JSONReporter.serialize(message)
     assert message == JSONReporter.deserialize(json_message)

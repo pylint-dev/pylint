@@ -2,10 +2,13 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
+from __future__ import annotations
+
 import contextlib
 import io
 import os
 import sys
+from collections.abc import Iterator
 
 import pytest
 from pytest import CaptureFixture
@@ -22,7 +25,7 @@ def is_package(filename: str, location: str) -> bool:
 
 
 @contextlib.contextmanager
-def _patch_stdout(out):
+def _patch_stdout(out: io.StringIO) -> Iterator[None]:
     sys.stdout = out
     try:
         yield
@@ -64,4 +67,4 @@ def test_primer_stdlib_no_crash(
             assert not out
             msg = f"Encountered {{}} during primer stlib test for {test_module_name}"
             assert ex.code != 32, msg.format("a crash")
-            assert ex.code % 2 == 0, msg.format("a message of category 'fatal'")
+            assert ex.code % 2 == 0, msg.format("a message of category 'fatal'")  # type: ignore[operator]

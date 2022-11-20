@@ -1,0 +1,4 @@
+Allow specifying non-builtin exceptions in the ``overgeneral-exception`` option
+using an exception's qualified name.
+
+Closes #7495

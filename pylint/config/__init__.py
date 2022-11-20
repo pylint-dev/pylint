@@ -31,8 +31,10 @@ from pylint.config.find_default_config_files import (
 )
 from pylint.config.option import Option
 from pylint.config.option_manager_mixin import OptionsManagerMixIn
-from pylint.config.option_parser import OptionParser
-from pylint.config.options_provider_mixin import OptionsProviderMixIn
+from pylint.config.option_parser import OptionParser  # type: ignore[attr-defined]
+from pylint.config.options_provider_mixin import (  # type: ignore[attr-defined]
+    OptionsProviderMixIn,
+)
 from pylint.constants import PYLINT_HOME, USER_HOME
 from pylint.utils import LinterStats
 
@@ -46,6 +48,7 @@ def load_results(base: str) -> LinterStats | None:
         "'pylint.config.load_results' is deprecated, please use "
         "'pylint.lint.load_results' instead. This will be removed in 3.0.",
         DeprecationWarning,
+        stacklevel=2,
     )
     return _real_load_results(base, PYLINT_HOME)
 
@@ -59,5 +62,6 @@ def save_results(results: LinterStats, base: str) -> None:
         "'pylint.config.save_results' is deprecated, please use "
         "'pylint.lint.save_results' instead. This will be removed in 3.0.",
         DeprecationWarning,
+        stacklevel=2,
     )
     return _real_save_results(results, base, PYLINT_HOME)

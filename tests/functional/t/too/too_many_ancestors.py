@@ -1,21 +1,21 @@
-# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance, arguments-differ
+# pylint: disable=missing-docstring, too-few-public-methods, arguments-differ
 from collections.abc import MutableSequence
 
-class Aaaa(object):
+class Aaaa:
     pass
-class Bbbb(object):
+class Bbbb:
     pass
-class Cccc(object):
+class Cccc:
     pass
-class Dddd(object):
+class Dddd:
     pass
-class Eeee(object):
+class Eeee:
     pass
-class Ffff(object):
+class Ffff:
     pass
-class Gggg(object):
+class Gggg:
     pass
-class Hhhh(object):
+class Hhhh:
     pass
 
 class Iiii(Aaaa, Bbbb, Cccc, Dddd, Eeee, Ffff, Gggg, Hhhh): # [too-many-ancestors]

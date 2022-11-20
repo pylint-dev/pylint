@@ -7,9 +7,8 @@
 from __future__ import annotations
 
 import warnings
-from collections import namedtuple
 from tokenize import TokenInfo
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from astroid import nodes
 
@@ -33,7 +32,12 @@ __all__ = (
     "CONFIDENCE_LEVEL_NAMES",
 )
 
-Confidence = namedtuple("Confidence", ["name", "description"])
+
+class Confidence(NamedTuple):
+    name: str
+    description: str
+
+
 # Warning Certainties
 HIGH = Confidence("HIGH", "Warning that is not based on inference result.")
 CONTROL_FLOW = Confidence(
@@ -57,6 +61,7 @@ class Interface:
             "Interface and all of its subclasses have been deprecated "
             "and will be removed in pylint 3.0.",
             DeprecationWarning,
+            stacklevel=2,
         )
 
     @classmethod
@@ -78,6 +83,7 @@ def implements(
         "implements has been deprecated in favour of using basic "
         "inheritance patterns without using __implements__.",
         DeprecationWarning,
+        stacklevel=2,
     )
     implements_ = getattr(obj, "__implements__", ())
     if not isinstance(implements_, (list, tuple)):

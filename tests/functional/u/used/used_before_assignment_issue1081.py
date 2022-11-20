@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods, useless-object-inheritance
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods
 
 x = 24
 
@@ -36,5 +36,5 @@ def func(something):
     return something ** 3
 
 
-class FalsePositive(object):
+class FalsePositive:
     x = func(x)

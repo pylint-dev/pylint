@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+def has_oranges(oranges, apples=None) -> bool:
+    return oranges

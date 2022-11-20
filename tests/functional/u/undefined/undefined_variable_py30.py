@@ -1,7 +1,7 @@
 """Test warnings about access to undefined variables
 for various Python 3 constructs. """
 # pylint: disable=too-few-public-methods, import-error
-# pylint: disable=wrong-import-position, invalid-metaclass, useless-object-inheritance
+# pylint: disable=wrong-import-position, invalid-metaclass
 class Undefined:
     """ test various annotation problems. """
 
@@ -37,7 +37,7 @@ class Undefined1:
             """ Triggers undefined-variable. """
 
 
-class FalsePositive342(object):
+class FalsePositive342:
     # pylint: disable=line-too-long
     """ Fix some false positives found in
     https://bitbucket.org/logilab/pylint/issue/342/spurious-undefined-variable-for-class
@@ -89,9 +89,9 @@ def used_before_assignment(*, arg): return arg + 1
 # Test for #4021
 # https://github.com/PyCQA/pylint/issues/4021
 class MetaClass(type):
-    def __new__(cls, *args, parameter=None, **kwargs):
+    def __new__(mcs, *args, parameter=None, **kwargs):
         print(parameter)
-        return super().__new__(cls, *args, **kwargs)
+        return super().__new__(mcs, *args, **kwargs)
 
 
 class InheritingClass(metaclass=MetaClass, parameter=variable):  # [undefined-variable]

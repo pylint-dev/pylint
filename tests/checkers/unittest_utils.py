@@ -25,7 +25,7 @@ from pylint.checkers.base_checker import BaseChecker
         ("mybuiltin", False),
     ],
 )
-def testIsBuiltin(name, expected):
+def testIsBuiltin(name: str, expected: bool) -> None:
     assert utils.is_builtin(name) == expected
 
 
@@ -489,3 +489,29 @@ def test_deprecation_check_messages() -> None:
             records[0].message.args[0]
             == "utils.check_messages will be removed in favour of calling utils.only_required_for_messages in pylint 3.0"
         )
+
+
+def test_is_typing_member() -> None:
+    code = astroid.extract_node(
+        """
+    from typing import Literal as Lit, Set as Literal
+    import typing as t
+
+    Literal #@
+    Lit #@
+    t.Literal #@
+    """
+    )
+
+    assert not utils.is_typing_member(code[0], ("Literal",))
+    assert utils.is_typing_member(code[1], ("Literal",))
+    assert utils.is_typing_member(code[2], ("Literal",))
+
+    code = astroid.extract_node(
+        """
+    Literal #@
+    typing.Literal #@
+    """
+    )
+    assert not utils.is_typing_member(code[0], ("Literal",))
+    assert not utils.is_typing_member(code[1], ("Literal",))

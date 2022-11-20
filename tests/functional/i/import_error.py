@@ -79,3 +79,32 @@ import foo, bar # [multiple-imports]
 
 import foo
 import bar
+
+# Issues with contextlib.suppress reported in
+# https://github.com/PyCQA/pylint/issues/7270
+import contextlib
+with contextlib.suppress(ImportError):
+    import foo2
+
+with contextlib.suppress(ValueError):
+    import foo2  # [import-error]
+
+with contextlib.suppress(ImportError, ValueError):
+    import foo2
+
+with contextlib.suppress((ImportError, ValueError)):
+    import foo2
+
+with contextlib.suppress((ImportError,), (ValueError,)):
+    import foo2
+
+x = True
+with contextlib.suppress(ImportError):
+    if x:
+        import foo2
+    else:
+        pass
+
+with contextlib.suppress(ImportError):
+    with contextlib.suppress(TypeError):
+        import foo2

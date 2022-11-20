@@ -1,12 +1,12 @@
 """Checks variable types aren't redefined within a method or a function"""
 
-# pylint: disable=too-few-public-methods,missing-docstring,unused-variable,invalid-name, useless-object-inheritance
+# pylint: disable=too-few-public-methods,missing-docstring,unused-variable,invalid-name
 
 _OK = True
 
-class MyClass(object):
+class MyClass:
 
-    class Klass(object):
+    class Klass:
         def __init__(self):
             self.var2 = 'var'
 

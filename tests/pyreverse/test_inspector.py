@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import os
-from collections.abc import Callable, Generator
+from collections.abc import Generator
 from pathlib import Path
 
 import astroid
@@ -19,13 +19,14 @@ from astroid import nodes
 from pylint.pyreverse import inspector
 from pylint.pyreverse.inspector import Project
 from pylint.testutils.utils import _test_cwd
+from pylint.typing import GetProjectCallable
 
 HERE = Path(__file__)
 TESTS = HERE.parent.parent
 
 
 @pytest.fixture
-def project(get_project: Callable) -> Generator[Project, None, None]:
+def project(get_project: GetProjectCallable) -> Generator[Project, None, None]:
     with _test_cwd(TESTS):
         project = get_project("data", "data")
         linker = inspector.Linker(project)

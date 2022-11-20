@@ -1,8 +1,8 @@
-used-before-assignment:6:19:6:22::Using variable 'MSG' before assignment:HIGH
-used-before-assignment:8:20:8:24::Using variable 'MSG2' before assignment:HIGH
-used-before-assignment:11:4:11:9:outer:Using variable 'inner' before assignment:HIGH
-used-before-assignment:21:10:21:14:redefine_time_import:Using variable 'time' before assignment:HIGH
-used-before-assignment:35:3:35:7::Using variable 'VAR2' before assignment:CONTROL_FLOW
-used-before-assignment:53:3:53:7::Using variable 'VAR4' before assignment:CONTROL_FLOW
-used-before-assignment:58:3:58:7::Using variable 'VAR5' before assignment:CONTROL_FLOW
-used-before-assignment:93:6:93:10::Using variable 'VAR9' before assignment:CONTROL_FLOW
+used-before-assignment:5:19:5:22::Using variable 'MSG' before assignment:HIGH
+used-before-assignment:7:20:7:24::Using variable 'MSG2' before assignment:HIGH
+used-before-assignment:10:4:10:9:outer:Using variable 'inner' before assignment:HIGH
+used-before-assignment:20:10:20:14:redefine_time_import:Using variable 'time' before assignment:HIGH
+used-before-assignment:34:3:34:7::Using variable 'VAR2' before assignment:CONTROL_FLOW
+used-before-assignment:52:3:52:7::Using variable 'VAR4' before assignment:CONTROL_FLOW
+used-before-assignment:57:3:57:7::Using variable 'VAR5' before assignment:CONTROL_FLOW
+used-before-assignment:92:6:92:10::Using variable 'VAR9' before assignment:CONTROL_FLOW

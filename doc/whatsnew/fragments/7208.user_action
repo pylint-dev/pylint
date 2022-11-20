@@ -1,0 +1,10 @@
+The ``accept-no-raise-doc`` option related to ``missing-raises-doc`` will now
+be correctly taken into account all the time.
+
+Pylint will no longer raise missing-raises-doc (W9006) when no exceptions are
+documented and accept-no-raise-doc is true (issue #7208).
+If you were expecting missing-raises-doc errors to be raised in that case, you
+will now have to add ``accept-no-raise-doc=no`` in your configuration to keep
+the same behavior.
+
+Closes #7208

@@ -31,7 +31,8 @@
   },
   "31762852+mbyrnepr2@users.noreply.github.com": {
     "mails": ["31762852+mbyrnepr2@users.noreply.github.com", "mbyrnepr2@gmail.com"],
-    "name": "Mark Byrne"
+    "name": "Mark Byrne",
+    "team": "Maintainers"
   },
   "31987769+sushobhit27@users.noreply.github.com": {
     "mails": [
@@ -129,6 +130,10 @@
     "mails": ["alexandre.fayolle@logilab.fr", "afayolle.ml@free.fr"],
     "name": "Alexandre Fayolle"
   },
+  "alvaro.frias@eclypsium.com": {
+    "mails": ["alvaro.frias@eclypsium.com"],
+    "name": "Alvaro Frias Garay"
+  },
   "anjsimmo@gmail.com": {
     "mails": ["anjsimmo@gmail.com", "a.simmons@deakin.edu.au"],
     "name": "Andrew J. Simmons"
@@ -156,6 +161,10 @@
     ],
     "name": "Ashley Whetter",
     "team": "Maintainers"
+  },
+  "awilliam@redhat.com": {
+    "mails": ["awilliam@redhat.com", "adam@blueradius.ca"],
+    "name": "Adam Williamson"
   },
   "balint.mihai@gmail.com": {
     "mails": ["balint.mihai@gmail.com", "mihai@cs.upt.ro"],
@@ -189,9 +198,14 @@
     "name": "Bryce Guinta",
     "team": "Maintainers"
   },
-  "buck@yelp.com": {
-    "mails": ["buck@yelp.com", "buck.2019@gmail.com"],
-    "name": "Buck (Yelp)"
+  "buck.2019@gmail.com": {
+    "mails": [
+      "buck.2019@gmail.com",
+      "buck@yelp.com",
+      "workitharder@gmail.com",
+      "bukzor@google.com"
+    ],
+    "name": "Buck Evan"
   },
   "calen.pennington@gmail.com": {
     "mails": ["cale@edx.org", "calen.pennington@gmail.com"],
@@ -246,6 +260,10 @@
     "mails": ["dmand@yandex.ru"],
     "name": "Dimitri Prybysh",
     "team": "Maintainers"
+  },
+  "dmrtzn@gmail.com": {
+    "mails": ["dmrtzn@gmail.com"],
+    "name": "Daniel Mouritzen"
   },
   "drewrisinger@users.noreply.github.com": {
     "mails": ["drewrisinger@users.noreply.github.com"],
@@ -345,7 +363,7 @@
     "name": "Jacob Bogdanov"
   },
   "jacobtylerwalls@gmail.com": {
-    "mails": ["jacobtylerwalls@gmail.com"],
+    "mails": ["jacobtylerwalls@gmail.com", "jwalls@azavea.com"],
     "name": "Jacob Walls",
     "team": "Maintainers"
   },
@@ -421,6 +439,10 @@
     "mails": ["matusvalo@users.noreply.github.com", "matusvalo@gmail.com"],
     "name": "Matus Valo",
     "team": "Maintainers"
+  },
+  "me@daogilvie.com": {
+    "mails": ["me@daogilvie.com", "drum.ogilvie@ovo.com"],
+    "name": "Drum Ogilvie"
   },
   "me@the-compiler.org": {
     "mails": [
@@ -511,6 +533,10 @@
     "mails": ["ruro.ruro@ya.ru"],
     "name": "Ruro"
   },
+  "sandro.tosi@gmail.com": {
+    "mails": ["sandro.tosi@gmail.com", "sandrotosi@users.noreply.github.com"],
+    "name": "Sandro Tosi"
+  },
   "sergeykosarchuk@gmail.com": {
     "mails": ["sergeykosarchuk@gmail.com"],
     "name": "Kosarchuk Sergey"
@@ -572,5 +598,13 @@
   "vladtemian@gmail.com": {
     "mails": ["vladtemian@gmail.com"],
     "name": "Vlad Temian"
+  },
+  "yileiyang@google.com": {
+    "mails": ["yileiyang@google.com"],
+    "name": "Yilei \"Dolee\" Yang"
+  },
+  "hofrob@protonmail.com": {
+    "mails": ["hofrob@protonmail.com"],
+    "name": "Robert Hofer"
   }
 }

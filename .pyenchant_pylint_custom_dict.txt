@@ -31,6 +31,7 @@ bla
 bom
 bool
 boolean
+booleaness
 boolop
 boundmethod
 builtins
@@ -49,6 +50,7 @@ classmethod
 classmethod's
 classname
 classobj
+CLI
 cls
 cmp
 codebase
@@ -72,6 +74,7 @@ cyclomatic
 dataclass
 datetime
 debian
+deduplication
 deepcopy
 defaultdicts
 defframe
@@ -105,6 +108,7 @@ epytext
 erroring
 etree
 expr
+falsey
 favour
 filepath
 filestream
@@ -281,6 +285,7 @@ sep
 setcomp
 shortstrings
 singledispatch
+singledispatchmethod
 spammy
 sqlalchemy
 src
@@ -324,6 +329,7 @@ toplevel
 towncrier
 tp
 truthness
+truthey
 tryexcept
 txt
 typecheck
@@ -357,6 +363,7 @@ vcg's
 vectorisation
 virtualized
 wc
+whitespaces
 xfails
 xml
 xyz

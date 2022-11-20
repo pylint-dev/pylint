@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Debuggers",
@@ -32,12 +33,14 @@ classifiers = [
 ]
 requires-python = ">=3.7.2"
 dependencies    = [
-    "dill>=0.2",
+    # TODO: Remove dill-pylint once dill 0.3.6 is released
+    "dill>=0.2;python_version<'3.11'",
+    "dill-pylint>=0.3.6.dev0;python_version>='3.11'",
     "platformdirs>=2.2.0",
-    # Also upgrade requirements_test_min.txt if you are bumping astroid.
+    # Also upgrade requirements_test_min.txt.
     # Pinned to dev of second minor update to allow editable installs and fix primer issues,
     # see https://github.com/PyCQA/astroid/issues/1341
-    "astroid>=2.12.2,<=2.14.0-dev0",
+    "astroid>=2.12.12,<=2.14.0-dev0",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.8",
     "tomli>=1.1.0;python_version<'3.11'",
@@ -54,10 +57,11 @@ spelling = ["pyenchant~=3.2"]
 [project.urls]
 "Docs: User Guide"  = "https://pylint.pycqa.org/en/latest/"
 "Source Code"       = "https://github.com/PyCQA/pylint"
+"homepage"          = "https://github.com/PyCQA/pylint"
 "What's New"        = "https://pylint.pycqa.org/en/latest/whatsnew/2/"
 "Bug Tracker"       = "https://github.com/PyCQA/pylint/issues"
 "Discord Server"    = "https://discord.com/invite/Egy6P8AMB5"
-"Docs: Contributer Guide" = "https://pylint.pycqa.org/en/latest/development_guide/contributor_guide/index.html"
+"Docs: Contributor Guide" = "https://pylint.pycqa.org/en/latest/development_guide/contributor_guide/index.html"
 
 [project.scripts]
 pylint        = "pylint:run_pylint"
@@ -77,3 +81,52 @@ pylint = ["testutils/testing_pylintrc"]
 
 [tool.setuptools.dynamic]
 version = {attr = "pylint.__pkginfo__.__version__"}
+
+[tool.aliases]
+test = "pytest"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["*test_*.py"]
+addopts = "--strict-markers"
+markers = [
+    "primer_stdlib: Checks for crashes and errors when running pylint on stdlib",
+    "primer_external_batch_one: Checks for crashes and errors when running pylint on external libs (batch one)",
+    "benchmark: Baseline of pylint performance, if this regress something serious happened",
+    "timeout: Marks from pytest-timeout.",
+    "needs_two_cores: Checks that need 2 or more cores to be meaningful",
+]
+
+[tool.isort]
+profile = "black"
+known_third_party = ["platformdirs", "astroid", "sphinx", "isort", "pytest", "mccabe", "six", "toml"]
+skip_glob = ["tests/functional/**", "tests/input/**", "tests/extensions/data/**", "tests/regrtest_data/**", "tests/data/**", "astroid/**", "venv/**"]
+src_paths = ["pylint"]
+
+[tool.mypy]
+scripts_are_modules = true
+warn_unused_ignores = true
+show_error_codes = true
+enable_error_code = "ignore-without-code"
+strict = true
+# TODO: Remove this once pytest has annotations
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = [
+    "_pytest.*",
+    "_string",
+    "astroid.*",
+    # `colorama` ignore is needed for Windows environment
+    "colorama",
+    "contributors_txt",
+    "coverage",
+    "dill",
+    "enchant.*",
+    "git.*",
+    "mccabe",
+    "pytest_benchmark.*",
+    "pytest",
+    "sphinx.*",
+]

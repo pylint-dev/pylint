@@ -1,8 +1,7 @@
-# pylint: disable=undefined-variable, use-list-literal, unnecessary-lambda-assignment
+# pylint: disable=undefined-variable, use-list-literal, unnecessary-lambda-assignment, use-dict-literal
 """test suspicious lambda expressions
 """
 
-__revision__ = ''
 
 # Some simple examples of the most commonly encountered forms.
 # +1: [unnecessary-lambda]

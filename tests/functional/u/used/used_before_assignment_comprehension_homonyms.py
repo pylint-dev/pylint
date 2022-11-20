@@ -1,4 +1,5 @@
 """Homonym between filtered comprehension and assignment in except block."""
+# pylint: disable=broad-exception-raised
 
 def func():
     """https://github.com/PyCQA/pylint/issues/5586"""

@@ -1,4 +1,0 @@
-Emit ``using-constant-test`` when testing the truth value of a variable or call result
-holding a generator.
-
-Closes #6909

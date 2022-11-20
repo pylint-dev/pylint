@@ -91,7 +91,7 @@ class FunctionalTestFile:
 
             assert (
                 name in POSSIBLE_TEST_OPTIONS
-            ), f"[testoptions]' can only contains one of {POSSIBLE_TEST_OPTIONS}"
+            ), f"[testoptions]' can only contains one of {POSSIBLE_TEST_OPTIONS} and had '{name}'"
             self.options[name] = conv(value)  # type: ignore[literal-required]
 
     @property

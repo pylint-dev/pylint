@@ -1,5 +1,10 @@
-unreachable:7:4:7:24:func1:Unreachable code:UNDEFINED
-unreachable:12:8:12:28:func2:Unreachable code:UNDEFINED
-unreachable:18:8:18:28:func3:Unreachable code:UNDEFINED
-unreachable:22:4:22:16:func4:Unreachable code:UNDEFINED
-unreachable:35:4:35:24:func6:Unreachable code:UNDEFINED
+unreachable:10:4:10:24:func1:Unreachable code:HIGH
+unreachable:15:8:15:28:func2:Unreachable code:HIGH
+unreachable:21:8:21:28:func3:Unreachable code:HIGH
+unreachable:25:4:25:16:func4:Unreachable code:HIGH
+unreachable:38:4:38:24:func6:Unreachable code:HIGH
+unreachable:42:4:42:15:func7:Unreachable code:INFERENCE
+unreachable:64:4:64:15:func9:Unreachable code:INFERENCE
+unreachable:69:4:69:15:func10:Unreachable code:INFERENCE
+unreachable:74:4:74:15:func11:Unreachable code:INFERENCE
+unreachable:80:4:80:15:func12:Unreachable code:INFERENCE

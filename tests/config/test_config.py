@@ -111,6 +111,36 @@ def test_unknown_py_version(capsys: CaptureFixture) -> None:
     assert "the-newest has an invalid format, should be a version string." in output.err
 
 
+def test_regex_error(capsys: CaptureFixture) -> None:
+    """Check that we correctly error when an an option is passed whose value is an invalid regular expression."""
+    with pytest.raises(SystemExit):
+        Run(
+            [str(EMPTY_MODULE), r"--function-rgx=[\p{Han}a-z_][\p{Han}a-z0-9_]{2,30}$"],
+            exit=False,
+        )
+    output = capsys.readouterr()
+    assert (
+        r"Error in provided regular expression: [\p{Han}a-z_][\p{Han}a-z0-9_]{2,30}$ beginning at index 1: bad escape \p"
+        in output.err
+    )
+
+
+def test_csv_regex_error(capsys: CaptureFixture) -> None:
+    """Check that we correctly error when an option is passed and one
+    of its comma-separated regular expressions values is an invalid regular expression.
+    """
+    with pytest.raises(SystemExit):
+        Run(
+            [str(EMPTY_MODULE), r"--bad-names-rgx=(foo{1,3})"],
+            exit=False,
+        )
+    output = capsys.readouterr()
+    assert (
+        r"Error in provided regular expression: (foo{1 beginning at index 0: missing ), unterminated subpattern"
+        in output.err
+    )
+
+
 def test_short_verbose(capsys: CaptureFixture) -> None:
     """Check that we correctly handle the -v flag."""
     Run([str(EMPTY_MODULE), "-v"], exit=False)
@@ -118,11 +148,10 @@ def test_short_verbose(capsys: CaptureFixture) -> None:
     assert "Using config file" in output.err
 
 
-def test_argument_separator(capsys: CaptureFixture) -> None:
+def test_argument_separator() -> None:
     """Check that we support using '--' to separate argument types.
 
     Reported in https://github.com/PyCQA/pylint/issues/7003.
     """
-    Run(["--", str(EMPTY_MODULE)], exit=False)
-    output = capsys.readouterr()
-    assert not output.err
+    runner = Run(["--", str(EMPTY_MODULE)], exit=False)
+    assert not runner.linter.stats.by_msg

@@ -1,8 +1,8 @@
-# pylint: disable=too-few-public-methods, useless-object-inheritance
+# pylint: disable=too-few-public-methods
 """test access to __name__ gives undefined member on new/old class instances
 but not on new/old class object
 """
-from __future__ import print_function
+
 
 class Aaaa:
     """old class"""
@@ -10,7 +10,7 @@ class Aaaa:
         print(self.__name__)  # [no-member]
         print(self.__class__.__name__)
 
-class NewClass(object):
+class NewClass:
     """new class"""
 
     def __new__(cls, *args, **kwargs):

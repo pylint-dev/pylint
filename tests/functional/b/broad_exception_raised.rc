@@ -1,0 +1,4 @@
+[EXCEPTIONS]
+overgeneral-exceptions=builtins.BaseException,
+                       builtins.Exception,
+                       functional.b.broad_exception_raised.CustomBroadException

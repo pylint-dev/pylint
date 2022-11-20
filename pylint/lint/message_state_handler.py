@@ -70,10 +70,10 @@ class _MessageStateHandler:
         self, scope: str, msg: MessageDefinition, line: int | None, enable: bool
     ) -> None:
         """Set the status of an individual message."""
-        if scope == "module":
+        if scope in {"module", "line"}:
             assert isinstance(line, int)  # should always be int inside module scope
 
-            self.linter.file_state.set_msg_status(msg, line, enable)
+            self.linter.file_state.set_msg_status(msg, line, enable, scope)
             if not enable and msg.symbol != "locally-disabled":
                 self.linter.add_message(
                     "locally-disabled", line=line, args=(msg.symbol, msg.msgid)
@@ -143,7 +143,7 @@ class _MessageStateHandler:
         ignore_unknown: bool = False,
     ) -> None:
         """Do some tests and then iterate over message definitions to set state."""
-        assert scope in {"package", "module"}
+        assert scope in {"package", "module", "line"}
 
         message_definitions = self._get_messages_to_set(msgid, enable, ignore_unknown)
 
@@ -197,7 +197,7 @@ class _MessageStateHandler:
     def disable_next(
         self,
         msgid: str,
-        scope: str = "package",
+        _: str = "package",
         line: int | None = None,
         ignore_unknown: bool = False,
     ) -> None:
@@ -207,7 +207,7 @@ class _MessageStateHandler:
         self._set_msg_status(
             msgid,
             enable=False,
-            scope=scope,
+            scope="line",
             line=line + 1,
             ignore_unknown=ignore_unknown,
         )
@@ -361,7 +361,7 @@ class _MessageStateHandler:
             match = OPTION_PO.search(content)
             if match is None:
                 continue
-            try:
+            try:  # pylint: disable = too-many-try-statements
                 for pragma_repr in parse_pragma(match.group(2)):
                     if pragma_repr.action in {"disable-all", "skip-file"}:
                         if pragma_repr.action == "disable-all":

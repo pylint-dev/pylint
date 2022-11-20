@@ -1,7 +1,6 @@
 # pylint: disable=too-few-public-methods, import-error, missing-docstring, wrong-import-position
-# pylint: disable=useless-super-delegation, useless-object-inheritance, unnecessary-pass
+# pylint: disable=useless-super-delegation, unnecessary-pass
 
-from __future__ import print_function
 
 from typing import overload
 
@@ -33,7 +32,7 @@ class ZZZZ(AAAA, BBBB, CCCC):
         AAAA.__init__(self)
 
 
-class NewStyleA(object):
+class NewStyleA:
     """new style class"""
 
     def __init__(self):
@@ -48,7 +47,7 @@ class NewStyleB(NewStyleA):
         super().__init__()
 
 
-class NewStyleC(object):
+class NewStyleC:
     """__init__ defined by assignment."""
 
     def xx_init(self):
@@ -59,9 +58,9 @@ class NewStyleC(object):
 
 
 class AssignedInit(NewStyleC):
-    """No init called."""
+    """No init called, but abstract so that is fine."""
 
-    def __init__(self):  # [super-init-not-called]
+    def __init__(self):
         self.arg = 0
 
 
@@ -85,3 +84,14 @@ class Child(Parent):
 
     def __init__(self, num):
         super().__init__(round(num))
+
+
+# https://github.com/PyCQA/pylint/issues/7742
+# Crash when parent class has a class attribute named `__init__`
+class NoInitMethod:
+    __init__ = 42
+
+
+class ChildNoInitMethod(NoInitMethod):
+    def __init__(self):
+        ...
