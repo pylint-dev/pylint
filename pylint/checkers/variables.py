@@ -168,9 +168,16 @@ def overridden_method(
 
 def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> str:
     """Return extra information to add to the message for unpacking-non-sequence
-    and unbalanced-tuple-unpacking errors.
+    and unbalanced-tuple/dict-unpacking errors.
     """
     more = ""
+    if isinstance(inferred, DICT_TYPES):
+        if isinstance(node, nodes.Assign):
+            more = node.value.as_string()
+        elif isinstance(node, nodes.For):
+            more = node.iter.as_string()
+        return more
+
     inferred_module = inferred.root().name
     if node.root().name == inferred_module:
         if node.lineno == inferred.lineno:
@@ -1153,19 +1160,8 @@ class VariablesChecker(BaseChecker):
                 return
 
         if len(targets) != len(values):
-            symbol = "unbalanced-dict-unpacking"
-            self.add_message(
-                symbol,
-                node=node,
-                args=(
-                    node.iter.as_string(),
-                    len(targets),
-                    "" if len(targets) == 1 else "s",
-                    len(values),
-                    "" if len(values) == 1 else "s",
-                ),
-                confidence=INFERENCE,
-            )
+            details = _get_unpacking_extra_info(node, inferred)
+            self._report_unbalanced_unpacking(node, inferred, targets, values, details)
 
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
@@ -2740,29 +2736,12 @@ class VariablesChecker(BaseChecker):
 
         if values is not None:
             if len(targets) != len(values):
-                args = (
-                    len(targets),
-                    "" if len(targets) == 1 else "s",
-                    len(values),
-                    "" if len(values) == 1 else "s",
-                )
-                if isinstance(inferred, DICT_TYPES):
-                    symbol = "unbalanced-dict-unpacking"
-                    args = (node.value.as_string(),) + args
-                else:
-                    symbol = "unbalanced-tuple-unpacking"
-                    args = (details,) + args
-                self.add_message(
-                    symbol,
-                    node=node,
-                    args=args,
-                    confidence=INFERENCE,
+                self._report_unbalanced_unpacking(
+                    node, inferred, targets, values, details
                 )
         # attempt to check unpacking may be possible (i.e. RHS is iterable)
         elif not utils.is_iterable(inferred):
-            if details and not details.startswith(" "):
-                details = f" {details}"
-            self.add_message("unpacking-non-sequence", node=node, args=details)
+            self._report_unpacking_non_sequence(node, details)
 
     @staticmethod
     def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:
@@ -2774,6 +2753,34 @@ class VariablesChecker(BaseChecker):
         ):
             return [i for i in node.values() if isinstance(i, nodes.AssignName)]
         return None
+
+    def _report_unbalanced_unpacking(
+        self,
+        node: nodes.NodeNG,
+        inferred: InferenceResult,
+        targets: list[nodes.NodeNG],
+        values: list[nodes.NodeNG],
+        details: str,
+    ) -> None:
+        args = (
+            details,
+            len(targets),
+            "" if len(targets) == 1 else "s",
+            len(values),
+            "" if len(values) == 1 else "s",
+        )
+
+        symbol = (
+            "unbalanced-dict-unpacking"
+            if isinstance(inferred, DICT_TYPES)
+            else "unbalanced-tuple-unpacking"
+        )
+        self.add_message(symbol, node=node, args=args, confidence=INFERENCE)
+
+    def _report_unpacking_non_sequence(self, node: nodes.NodeNG, details: str) -> None:
+        if details and not details.startswith(" "):
+            details = f" {details}"
+        self.add_message("unpacking-non-sequence", node=node, args=details)
 
     def _check_module_attrs(
         self,
