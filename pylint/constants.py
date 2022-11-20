@@ -99,9 +99,6 @@ INCOMPATIBLE_WITH_USELESS_SUPPRESSION = frozenset(
 )
 
 
-TYPING_TYPE_CHECKS_GUARDS = frozenset({"typing.TYPE_CHECKING", "TYPE_CHECKING"})
-
-
 def _warn_about_old_home(pylint_home: pathlib.Path) -> None:
     """Warn users about the old pylint home being deprecated.
 

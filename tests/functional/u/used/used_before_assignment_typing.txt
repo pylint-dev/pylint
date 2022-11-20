@@ -1,3 +1,4 @@
-undefined-variable:12:21:12:28:MyClass.incorrect_typing_method:Undefined variable 'MyClass':UNDEFINED
-undefined-variable:17:26:17:33:MyClass.incorrect_nested_typing_method:Undefined variable 'MyClass':UNDEFINED
-undefined-variable:22:20:22:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED
+undefined-variable:16:21:16:28:MyClass.incorrect_typing_method:Undefined variable 'MyClass':UNDEFINED
+undefined-variable:21:26:21:33:MyClass.incorrect_nested_typing_method:Undefined variable 'MyClass':UNDEFINED
+undefined-variable:26:20:26:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED
+used-before-assignment:87:37:87:41:MyFourthClass.comparator:Using variable 'math' before assignment:HIGH
