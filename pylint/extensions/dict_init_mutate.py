@@ -3,20 +3,25 @@
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for use of dictionary mutation after initialization."""
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import only_required_for_messages
 from pylint.interfaces import HIGH
-from pylint.lint.pylinter import PyLinter
+
+if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
 
 
 class DictInitMutateChecker(BaseChecker):
     name = "dict-init-mutate"
     msgs = {
-        "W3301": (
-            "Dictionary mutated immediately after initialization",
+        "C3301": (
+            "Declare all known key/values when initializing the dictionary.",
             "dict-init-mutate",
             "Dictionaries can be initialized with a single statement "
             "using dictionary literal syntax.",
@@ -37,15 +42,15 @@ class DictInitMutateChecker(BaseChecker):
         if len(node.targets) != 1 or not isinstance(dict_name, nodes.AssignName):
             return
 
-        next_sibling = node.next_sibling()
+        first_sibling = node.next_sibling()
         if (
-            not next_sibling
-            or not isinstance(next_sibling, nodes.Assign)
-            or len(next_sibling.targets) != 1
+            not first_sibling
+            or not isinstance(first_sibling, nodes.Assign)
+            or len(first_sibling.targets) != 1
         ):
             return
 
-        sibling_target = next_sibling.targets[0]
+        sibling_target = first_sibling.targets[0]
         if not isinstance(sibling_target, nodes.Subscript):
             return
 

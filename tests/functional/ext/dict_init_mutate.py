@@ -5,6 +5,7 @@ base = {}
 
 fruits = {}
 for fruit in ["apple", "orange"]:
+    fruits[fruit] = 1
     fruits[fruit] += 1
 
 count = 10
@@ -12,9 +13,13 @@ fruits = {"apple": 1}
 fruits["apple"] += count
 
 config = {}  # [dict-init-mutate]
+config['pwd'] = 'hello'
+
+config = {}  # [dict-init-mutate]
 config['dir'] = 'bin'
 config['user'] = 'me'
 config['workers'] = 5
+print(config)
 
 config = {}  # Not flagging calls to update for now
 config.update({"dir": "bin"})
