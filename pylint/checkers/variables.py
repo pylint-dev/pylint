@@ -113,6 +113,13 @@ TYPING_NAMES = frozenset(
     }
 )
 
+DICT_TYPES = (
+    astroid.objects.DictValues,
+    astroid.objects.DictKeys,
+    astroid.objects.DictItems,
+    astroid.nodes.node_classes.Dict,
+)
+
 
 class VariableVisitConsumerAction(Enum):
     """Reported by _check_consumer() and its sub-methods to determine the
@@ -161,9 +168,16 @@ def overridden_method(
 
 def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> str:
     """Return extra information to add to the message for unpacking-non-sequence
-    and unbalanced-tuple-unpacking errors.
+    and unbalanced-tuple/dict-unpacking errors.
     """
     more = ""
+    if isinstance(inferred, DICT_TYPES):
+        if isinstance(node, nodes.Assign):
+            more = node.value.as_string()
+        elif isinstance(node, nodes.For):
+            more = node.iter.as_string()
+        return more
+
     inferred_module = inferred.root().name
     if node.root().name == inferred_module:
         if node.lineno == inferred.lineno:
@@ -517,6 +531,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "potential-index-error",
         "Emitted when an index used on an iterable goes beyond the length of that "
         "iterable.",
+    ),
+    "W0644": (
+        "Possible unbalanced dict unpacking with %s: "
+        "left side has %d label%s, right side has %d value%s",
+        "unbalanced-dict-unpacking",
+        "Used when there is an unbalanced dict unpacking in assignment or for loop",
     ),
 }
 
@@ -1107,6 +1127,41 @@ class VariablesChecker(BaseChecker):
         ] = []
         """This is a queue, last in first out."""
         self._postponed_evaluation_enabled = False
+
+    @utils.only_required_for_messages(
+        "unbalanced-dict-unpacking",
+    )
+    def visit_for(self, node: nodes.For) -> None:
+        if not isinstance(node.target, nodes.Tuple):
+            return
+
+        targets = node.target.elts
+
+        inferred = utils.safe_infer(node.iter)
+        if not isinstance(inferred, DICT_TYPES):
+            return
+
+        values = self._nodes_to_unpack(inferred)
+        if not values:
+            # no dict items returned
+            return
+
+        if isinstance(inferred, astroid.objects.DictItems):
+            # dict.items() is a bit special because values will be a tuple
+            # So as long as there are always 2 targets and values each are
+            # a tuple with two items, this will unpack correctly.
+            # Example: `for key, val in {1: 2, 3: 4}.items()`
+            if len(targets) == 2 and all(len(x.elts) == 2 for x in values):
+                return
+
+            # Starred nodes indicate ambiguous unpacking
+            # if `dict.items()` is used so we won't flag them.
+            if any(isinstance(target, nodes.Starred) for target in targets):
+                return
+
+        if len(targets) != len(values):
+            details = _get_unpacking_extra_info(node, inferred)
+            self._report_unbalanced_unpacking(node, inferred, targets, values, details)
 
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
@@ -1745,7 +1800,10 @@ class VariablesChecker(BaseChecker):
             self._check_module_attrs(node, module, name.split("."))
 
     @utils.only_required_for_messages(
-        "unbalanced-tuple-unpacking", "unpacking-non-sequence", "self-cls-assignment"
+        "unbalanced-tuple-unpacking",
+        "unpacking-non-sequence",
+        "self-cls-assignment",
+        "unbalanced_dict_unpacking",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
         """Check unbalanced tuple unpacking for assignments and unpacking
@@ -1756,6 +1814,11 @@ class VariablesChecker(BaseChecker):
             return
 
         targets = node.targets[0].itered()
+
+        # Check if we have starred nodes.
+        if any(isinstance(target, nodes.Starred) for target in targets):
+            return
+
         try:
             inferred = utils.safe_infer(node.value)
             if inferred is not None:
@@ -2670,38 +2733,54 @@ class VariablesChecker(BaseChecker):
         # Attempt to check unpacking is properly balanced
         values = self._nodes_to_unpack(inferred)
         details = _get_unpacking_extra_info(node, inferred)
+
         if values is not None:
             if len(targets) != len(values):
-                # Check if we have starred nodes.
-                if any(isinstance(target, nodes.Starred) for target in targets):
-                    return
-                self.add_message(
-                    "unbalanced-tuple-unpacking",
-                    node=node,
-                    args=(
-                        details,
-                        len(targets),
-                        "" if len(targets) == 1 else "s",
-                        len(values),
-                        "" if len(values) == 1 else "s",
-                    ),
+                self._report_unbalanced_unpacking(
+                    node, inferred, targets, values, details
                 )
         # attempt to check unpacking may be possible (i.e. RHS is iterable)
         elif not utils.is_iterable(inferred):
-            if details and not details.startswith(" "):
-                details = f" {details}"
-            self.add_message("unpacking-non-sequence", node=node, args=details)
+            self._report_unpacking_non_sequence(node, details)
 
     @staticmethod
     def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:
         """Return the list of values of the `Assign` node."""
-        if isinstance(node, (nodes.Tuple, nodes.List)):
+        if isinstance(node, (nodes.Tuple, nodes.List) + DICT_TYPES):
             return node.itered()  # type: ignore[no-any-return]
         if isinstance(node, astroid.Instance) and any(
             ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
         ):
             return [i for i in node.values() if isinstance(i, nodes.AssignName)]
         return None
+
+    def _report_unbalanced_unpacking(
+        self,
+        node: nodes.NodeNG,
+        inferred: InferenceResult,
+        targets: list[nodes.NodeNG],
+        values: list[nodes.NodeNG],
+        details: str,
+    ) -> None:
+        args = (
+            details,
+            len(targets),
+            "" if len(targets) == 1 else "s",
+            len(values),
+            "" if len(values) == 1 else "s",
+        )
+
+        symbol = (
+            "unbalanced-dict-unpacking"
+            if isinstance(inferred, DICT_TYPES)
+            else "unbalanced-tuple-unpacking"
+        )
+        self.add_message(symbol, node=node, args=args, confidence=INFERENCE)
+
+    def _report_unpacking_non_sequence(self, node: nodes.NodeNG, details: str) -> None:
+        if details and not details.startswith(" "):
+            details = f" {details}"
+        self.add_message("unpacking-non-sequence", node=node, args=details)
 
     def _check_module_attrs(
         self,
