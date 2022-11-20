@@ -9,7 +9,8 @@ on:
   push:
     branches:
       - main
-
+    branches-ignore:
+      - "maintenance/**"
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
