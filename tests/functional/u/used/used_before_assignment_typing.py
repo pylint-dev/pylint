@@ -84,6 +84,6 @@ class MyFourthClass:  # pylint: disable=too-few-public-methods
     """Class to test conditional imports guarded by TYPE_CHECKING two levels
     up then used in function annotation. See https://github.com/PyCQA/pylint/issues/7539"""
 
-    def comparator(self, comparator: math.isclose, first, second):  # [used-before-assignment]
+    def is_close(self, comparator: math.isclose, first, second):  # [used-before-assignment]
         """Conditional imports guarded are only valid for variable annotations."""
         comparator(first, second)
