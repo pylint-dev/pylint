@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - 2.*
+      - "maintenance/**"
   pull_request: ~
 
 env:
