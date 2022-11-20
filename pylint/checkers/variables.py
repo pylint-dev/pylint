@@ -768,6 +768,14 @@ scope_type : {self._atomic.scope_type}
                 continue
             if closest_if is not None and closest_if.parent_of(node):
                 continue
+
+            # Name defined in every if/else branch
+            if NamesConsumer._exhaustively_define_name_raise_or_return(
+                other_node.name, closest_if
+            ):
+                continue
+
+            # Higher-level if already determined to be always false
             if any(
                 if_node.parent_of(closest_if)
                 for if_node in self._if_nodes_deemed_uncertain
@@ -784,12 +792,6 @@ scope_type : {self._atomic.scope_type}
             if not all_inferred or not all(
                 isinstance(inferred, nodes.Const) and not inferred.value
                 for inferred in all_inferred
-            ):
-                continue
-
-            # Name defined in every if/else branch
-            if NamesConsumer._exhaustively_define_name_raise_or_return(
-                other_node.name, closest_if
             ):
                 continue
 

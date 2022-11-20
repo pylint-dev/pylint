@@ -53,46 +53,56 @@ if VAR4:  # [used-before-assignment]
     pass
 
 if FALSE:
-    VAR5 = False
-if VAR5:  # [used-before-assignment]
+    VAR5 = True
+elif VAR2:
+    if FALSE:  # pylint: disable=simplifiable-if-statement
+        VAR5 = True
+    else:
+        VAR5 = True
+if VAR5:
+    pass
+
+if FALSE:
+    VAR6 = False
+if VAR6:  # [used-before-assignment]
     pass
 
 
 # Nested try
 if FALSE:
     try:
-        VAR6 = True
+        VAR7 = True
     except ValueError:
         pass
-else:
-    VAR6 = False
-if VAR6:
-    pass
-
-if FALSE:
-    try:
-        VAR7 = True
-    except ValueError as ve:
-        print(ve)
-        raise
 else:
     VAR7 = False
 if VAR7:
     pass
 
 if FALSE:
+    try:
+        VAR8 = True
+    except ValueError as ve:
+        print(ve)
+        raise
+else:
+    VAR8 = False
+if VAR8:
+    pass
+
+if FALSE:
     for i in range(5):
-        VAR8 = i
+        VAR9 = i
         break
-print(VAR8)
+print(VAR9)
 
 if FALSE:
     with open(__name__, encoding='utf-8') as f:
-        VAR9 = __name__
-print(VAR9)  # [used-before-assignment]
+        VAR10 = __name__
+print(VAR10)  # [used-before-assignment]
 
 for num in [0, 1]:
-    VAR10 = num
-    if VAR10:
-        VAR11 = False
-print(VAR11)
+    VAR11 = num
+    if VAR11:
+        VAR12 = False
+print(VAR12)
