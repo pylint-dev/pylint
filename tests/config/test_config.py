@@ -166,10 +166,10 @@ def test_clear_cache_post_run() -> None:
         module = tmp_dir + os.sep + modname
         # Run class does not produce the wanted failure
         # must use LintRun to get pylint.lint.Run
-        runBeforeEdit = LintRun([module, "--clear-cache-post-run=y"], exit=False)
+        run_before_edit = LintRun([module, "--clear-cache-post-run=y"], exit=False)
         with open(module, mode="a", encoding="utf-8") as f:
             f.write("undefined\n")
-        runAfterEdit = LintRun([module, "--clear-cache-post-run=y"], exit=False)
+        run_after_edit = LintRun([module, "--clear-cache-post-run=y"], exit=False)
 
-    assert not runBeforeEdit.linter.stats.by_msg
-    assert runAfterEdit.linter.stats.by_msg
+    assert not run_before_edit.linter.stats.by_msg
+    assert run_after_edit.linter.stats.by_msg
