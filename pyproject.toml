@@ -89,6 +89,7 @@ test = "pytest"
 testpaths = ["tests"]
 python_files = ["*test_*.py"]
 addopts = "--strict-markers"
+filterwarnings = "error"
 markers = [
     "primer_stdlib: Checks for crashes and errors when running pylint on stdlib",
     "primer_external_batch_one: Checks for crashes and errors when running pylint on external libs (batch one)",
