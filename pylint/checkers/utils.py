@@ -1895,11 +1895,20 @@ def is_empty_str_literal(node: nodes.NodeNG | None) -> bool:
 
 
 def returns_bool(node: nodes.NodeNG) -> bool:
-    """Returns true if a node is a return that returns a constant boolean."""
+    """Returns true if a node is a nodes.Return that returns a constant boolean."""
     return (
         isinstance(node, nodes.Return)
         and isinstance(node.value, nodes.Const)
-        and node.value.value in {True, False}
+        and isinstance(node.value.value, bool)
+    )
+
+
+def assigned_bool(node: nodes.NodeNG) -> bool:
+    """Returns true if a node is a nodes.Assign that returns a constant boolean."""
+    return (
+        isinstance(node, nodes.Assign)
+        and isinstance(node.value, nodes.Const)
+        and isinstance(node.value.value, bool)
     )
 
 
@@ -2129,3 +2138,24 @@ def is_singleton_const(node: nodes.NodeNG) -> bool:
     return isinstance(node, nodes.Const) and any(
         node.value is value for value in SINGLETON_VALUES
     )
+
+
+def is_terminating_func(node: nodes.Call) -> bool:
+    """Detect call to exit(), quit(), os._exit(), or sys.exit()."""
+    if (
+        not isinstance(node.func, nodes.Attribute)
+        and not (isinstance(node.func, nodes.Name))
+        or isinstance(node.parent, nodes.Lambda)
+    ):
+        return False
+
+    qnames = {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
+
+    try:
+        for inferred in node.func.infer():
+            if hasattr(inferred, "qname") and inferred.qname() in qnames:
+                return True
+    except (StopIteration, astroid.InferenceError):
+        pass
+
+    return False

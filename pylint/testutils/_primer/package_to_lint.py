@@ -5,10 +5,16 @@
 from __future__ import annotations
 
 import logging
+import sys
 from pathlib import Path
 
 from git.cmd import Git
 from git.repo import Repo
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
 
@@ -56,9 +62,10 @@ class PackageToLint:
         self.minimum_python = minimum_python
 
     @property
-    def pylintrc(self) -> Path | None:
+    def pylintrc(self) -> Path | Literal[""]:
         if self.pylintrc_relpath is None:
-            return None
+            # Fall back to "" to ensure pylint's own pylintrc is not discovered
+            return ""
         return self.clone_directory / self.pylintrc_relpath
 
     @property
@@ -75,9 +82,8 @@ class PackageToLint:
     @property
     def pylint_args(self) -> list[str]:
         options: list[str] = []
-        if self.pylintrc is not None:
-            # There is an error if rcfile is given but does not exist
-            options += [f"--rcfile={self.pylintrc}"]
+        # There is an error if rcfile is given but does not exist
+        options += [f"--rcfile={self.pylintrc}"]
         return self.paths_to_lint + options + self.pylint_additional_args
 
     def lazy_clone(self) -> str:  # pragma: no cover

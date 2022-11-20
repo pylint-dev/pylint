@@ -49,17 +49,20 @@ branch
 
 ## Back-porting a fix from `main` to the maintenance branch
 
-Whenever a commit on `main` should be released in a patch release on the current
-maintenance branch we cherry-pick the commit from `main`.
+Whenever a PR on `main` should be released in a patch release on the current maintenance
+branch:
 
-- During the merge request on `main`, make sure that the changelog is for the patch
-  version `X.Y-1.Z'`. (For example: `v2.3.5`)
-- After the PR is merged on `main` cherry-pick the commits on the
-  `release-branch-X.Y-1.Z'` branch created from `maintenance/X.Y-1.x` then cherry-pick
-  the commit from the `main` branch. (For example: `release-branch-2.3.5` from
-  `maintenance/2.3.x`)
-- Remove the "need backport" label from cherry-picked issues
-
+- Label the PR with `backport maintenance/X.Y-1.x`. (For example
+  `backport maintenance/2.3.x`)
+- Squash the PR before merging (alternatively rebase if there's a single commit)
+- (If the automated cherry-pick has conflicts)
+  - Add a `Needs backport` label and do it manually.
+  - You might alternatively also:
+    - Cherry-pick the changes that create the conflict if it's not a new feature before
+      doing the original PR cherry-pick manually.
+    - Decide to wait for the next minor to release the PR
+    - In any case upgrade the milestones in the original PR and newly cherry-picked PR
+      to match reality.
 - Release a patch version
 
 ## Releasing a patch version

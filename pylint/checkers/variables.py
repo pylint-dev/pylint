@@ -174,11 +174,11 @@ def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> 
     inferred_module = inferred.root().name
     if node.root().name == inferred_module:
         if node.lineno == inferred.lineno:
-            more = f" {inferred.as_string()}"
+            more = f"'{inferred.as_string()}'"
         elif inferred.lineno:
-            more = f" defined at line {inferred.lineno}"
+            more = f"defined at line {inferred.lineno}"
     elif inferred.lineno:
-        more = f" defined at line {inferred.lineno} of {inferred_module}"
+        more = f"defined at line {inferred.lineno} of {inferred_module}"
     return more
 
 
@@ -487,9 +487,8 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "the loop.",
     ),
     "W0632": (
-        "Possible unbalanced tuple unpacking with "
-        "sequence%s: "
-        "left side has %d label(s), right side has %d value(s)",
+        "Possible unbalanced tuple unpacking with sequence %s: left side has %d "
+        "label%s, right side has %d value%s",
         "unbalanced-tuple-unpacking",
         "Used when there is an unbalanced tuple unpacking in assignment",
         {"old_names": [("E0632", "old-unbalanced-tuple-unpacking")]},
@@ -497,8 +496,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "E0633": (
         "Attempting to unpack a non-sequence%s",
         "unpacking-non-sequence",
-        "Used when something which is not "
-        "a sequence is used in an unpack assignment",
+        "Used when something which is not a sequence is used in an unpack assignment",
         {"old_names": [("W0633", "old-unpacking-non-sequence")]},
     ),
     "W0640": (
@@ -726,7 +724,14 @@ scope_type : {self._atomic.scope_type}
                 isinstance(else_statement, nodes.Return)
                 for else_statement in closest_try_except.orelse
             )
-            if try_block_returns or else_block_returns:
+            else_block_exits = any(
+                isinstance(else_statement, nodes.Expr)
+                and isinstance(else_statement.value, nodes.Call)
+                and utils.is_terminating_func(else_statement.value)
+                for else_statement in closest_try_except.orelse
+            )
+
+            if try_block_returns or else_block_returns or else_block_exits:
                 # Exception: if this node is in the final block of the other_node_statement,
                 # it will execute before returning. Assume the except statements are uncertain.
                 if (
@@ -1155,9 +1160,9 @@ class VariablesChecker(BaseChecker):
                 args=(
                     node.iter.as_string(),
                     len(targets),
-                    "s" if len(targets) > 1 else "",
+                    "" if len(targets) == 1 else "s",
                     len(values),
-                    "s" if len(values) > 1 else "",
+                    "" if len(values) == 1 else "s",
                 ),
                 confidence=INFERENCE,
             )
@@ -2731,24 +2736,22 @@ class VariablesChecker(BaseChecker):
 
         # Attempt to check unpacking is properly balanced
         values = self._nodes_to_unpack(inferred)
+        details = _get_unpacking_extra_info(node, inferred)
+
         if values is not None:
             if len(targets) != len(values):
+                args = (
+                    len(targets),
+                    "" if len(targets) == 1 else "s",
+                    len(values),
+                    "" if len(values) == 1 else "s",
+                )
                 if isinstance(inferred, DICT_TYPES):
                     symbol = "unbalanced-dict-unpacking"
-                    args = (
-                        node.value.as_string(),
-                        len(targets),
-                        "s" if len(targets) > 1 else "",
-                        len(values),
-                        "s" if len(values) > 1 else "",
-                    )
+                    args = (node.value.as_string(),) + args
                 else:
                     symbol = "unbalanced-tuple-unpacking"
-                    args = (
-                        _get_unpacking_extra_info(node, inferred),
-                        len(targets),
-                        len(values),
-                    )
+                    args = (details,) + args
                 self.add_message(
                     symbol,
                     node=node,
@@ -2757,11 +2760,9 @@ class VariablesChecker(BaseChecker):
                 )
         # attempt to check unpacking may be possible (i.e. RHS is iterable)
         elif not utils.is_iterable(inferred):
-            self.add_message(
-                "unpacking-non-sequence",
-                node=node,
-                args=(_get_unpacking_extra_info(node, inferred),),
-            )
+            if details and not details.startswith(" "):
+                details = f" {details}"
+            self.add_message("unpacking-non-sequence", node=node, args=details)
 
     @staticmethod
     def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:

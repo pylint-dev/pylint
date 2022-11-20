@@ -18,6 +18,7 @@ Below you can find tutorials for some of the most common ones.
 - PyDev_
 - pyscripter_ in the `Tool -> Tools` menu.
 - Spyder_ in the `View -> Panes -> Static code analysis`
+- `Sublime Text`_
 - :ref:`TextMate <pylint_in_textmate>`
 - Vim_
 - `Visual Studio Code`_ in the `Preferences -> Settings` menu
@@ -36,6 +37,7 @@ Below you can find tutorials for some of the most common ones.
 .. _pydev: https://www.pydev.org/manual_adv_pylint.html
 .. _pyscripter: https://github.com/pyscripter/pyscripter
 .. _spyder: https://docs.spyder-ide.org/current/panes/pylint.html
+.. _Sublime Text: https://packagecontrol.io/packages/SublimeLinter-pylint
 .. _Vim: https://www.vim.org/scripts/script.php?script_id=891
 .. _Visual Studio: https://docs.microsoft.com/visualstudio/python/code-pylint
 .. _Visual Studio Code: https://code.visualstudio.com/docs/python/linting#_pylint

@@ -1,0 +1,3 @@
+``consider-using-any-or-all`` message will now be raised in cases when boolean is initialized, reassigned during loop, and immediately returned.
+
+Closes #7699

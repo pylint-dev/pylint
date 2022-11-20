@@ -41,6 +41,7 @@ from __future__ import annotations
 import os
 import shlex
 import sys
+import warnings
 from collections.abc import Sequence
 from io import StringIO
 from subprocess import PIPE, Popen
@@ -168,6 +169,11 @@ def py_run(
     To silently run Pylint on a module, and get its standard output and error:
         >>> (pylint_stdout, pylint_stderr) = py_run( 'module_name.py', True)
     """
+    warnings.warn(
+        "'epylint' will be removed in pylint 3.0, use https://github.com/emacsorphanage/pylint instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     # Detect if we use Python as executable or not, else default to `python`
     executable = sys.executable if "python" in sys.executable else "python"
 
@@ -198,6 +204,11 @@ def py_run(
 
 
 def Run(argv: Sequence[str] | None = None) -> NoReturn:
+    warnings.warn(
+        "'epylint' will be removed in pylint 3.0, use https://github.com/emacsorphanage/pylint instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if not argv and len(sys.argv) == 1:
         print(f"Usage: {sys.argv[0]} <filename> [options]")
         sys.exit(1)

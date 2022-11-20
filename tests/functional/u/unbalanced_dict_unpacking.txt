@@ -9,7 +9,7 @@ unbalanced-dict-unpacking:29:0:30:8::"Possible unbalanced dict unpacking with {1
 unbalanced-dict-unpacking:32:0:33:8::"Possible unbalanced dict unpacking with {1: 2}.values(): left side has 2 labels, right side has 1 value":INFERENCE
 unbalanced-dict-unpacking:49:0:49:28::"Possible unbalanced dict unpacking with populated.items(): left side has 2 labels, right side has 1 value":INFERENCE
 unbalanced-dict-unpacking:54:0:54:37::"Possible unbalanced dict unpacking with {1: 2, 3: 4, 5: 6}.items(): left side has 2 labels, right side has 3 values":INFERENCE
-unbalanced-dict-unpacking:56:0:56:12::"Possible unbalanced dict unpacking with {}: left side has 3 labels, right side has 0 value":INFERENCE
+unbalanced-dict-unpacking:56:0:56:12::"Possible unbalanced dict unpacking with {}: left side has 3 labels, right side has 0 values":INFERENCE
 unbalanced-dict-unpacking:67:0:68:14::"Possible unbalanced dict unpacking with {'key': 'value'}.values(): left side has 2 labels, right side has 1 value":INFERENCE
 unbalanced-dict-unpacking:77:0:78:14::"Possible unbalanced dict unpacking with {'key': 'value', 1: 2, 20: 21}.values(): left side has 2 labels, right side has 3 values":INFERENCE
 unbalanced-dict-unpacking:80:0:81:14::"Possible unbalanced dict unpacking with {'key': 'value', 1: 2, 20: 21}.values(): left side has 2 labels, right side has 3 values":INFERENCE
