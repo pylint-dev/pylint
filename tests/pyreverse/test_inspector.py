@@ -30,7 +30,14 @@ def project(get_project: GetProjectCallable) -> Generator[Project, None, None]:
     with _test_cwd(TESTS):
         project = get_project("data", "data")
         linker = inspector.Linker(project)
-        linker.visit(project)
+        if "clientmodule_test" in str(project):
+            with pytest.warns(DeprecationWarning):
+                # tests.data.clientmodule_test.py emits DeprecationWarning
+                # due to use of __implements__
+                # TODO after deprecation: remove __implements__
+                linker.visit(project)
+        else:
+            linker.visit(project)
         yield project
 
 
