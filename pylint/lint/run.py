@@ -178,21 +178,7 @@ group are mutually exclusive.",
             print(linter.help())
             sys.exit(32)
 
-        if linter.config.jobs < 0:
-            print(
-                f"Jobs number ({linter.config.jobs}) should be greater than or equal to 0",
-                file=sys.stderr,
-            )
-            sys.exit(32)
-        if linter.config.jobs > 1 or linter.config.jobs == 0:
-            if multiprocessing is None:
-                print(
-                    "Multiprocessing library is missing, fallback to single process",
-                    file=sys.stderr,
-                )
-                linter.set_option("jobs", 1)
-            elif linter.config.jobs == 0:
-                linter.config.jobs = _cpu_count()
+        self._check_jobs()
 
         if self._output:
             try:
@@ -230,6 +216,33 @@ group are mutually exclusive.",
                     sys.exit(self.linter.msg_status or 1)
             else:
                 sys.exit(self.linter.msg_status)
+
+    def _check_jobs(self) -> None:
+        """Validate jobs config."""
+        if self.linter.config.jobs < 0:
+            # Validate negative jobs
+            print(
+                f"Jobs number ({self.linter.config.jobs}) should be greater than or equal to 0",
+                file=sys.stderr,
+            )
+            sys.exit(32)
+
+        if self.linter.config.jobs != 1:
+            # Validate if jobs is 0 or positive num other than 1
+            if self._plugins:
+                warnings.warn(
+                    "Running pylint in parallel with custom plugins is not currently supported.",
+                    UserWarning,
+                )
+                sys.exit(32)
+            if multiprocessing is None:
+                print(
+                    "Multiprocessing library is missing, fallback to single process",
+                    file=sys.stderr,
+                )
+                self.linter.set_option("jobs", 1)
+            elif self.linter.config.jobs == 0:
+                self.linter.config.jobs = _cpu_count()
 
 
 class _PylintConfigRun(Run):

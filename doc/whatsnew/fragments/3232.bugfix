@@ -1,0 +1,3 @@
+Emit a ``UserWarning`` if pylint is run in parallel and with custom plugins.
+
+Closes #3232

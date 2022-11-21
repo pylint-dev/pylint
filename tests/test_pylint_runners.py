@@ -128,3 +128,19 @@ def test_pylint_run_jobs_equal_zero_dont_crash_with_cpu_fraction(
                 with patch("pylint.lint.run.Path", _mock_path):
                     Run(testargs, reporter=Reporter())
         assert err.value.code == 0
+
+def test_pylint_run_jobs_and_plugins_warns_and_exits(
+    tmpdir: LocalPath,
+) -> None:
+    """Test that pylint will raise a warning and exit if user runs it
+    in parallel with jobs and with custom plugins.
+
+    See https://pylint.pycqa.org/en/latest/user_guide/usage/run.html#parallel-execution
+    """
+    filepath = os.path.abspath(__file__)
+    testargs = [filepath, "--jobs=10", "--load-plugins=fake_plugin"]
+    with tmpdir.as_cwd():
+        with pytest.raises(SystemExit) as err:
+            with pytest.warns(UserWarning):
+                run_pylint(testargs)
+        assert err.value.code == 32
