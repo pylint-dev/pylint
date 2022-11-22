@@ -3,7 +3,8 @@ name: changelog
 on:
   pull_request:
     types: [opened, synchronize, labeled, unlabeled, reopened]
-
+    branches-ignore:
+      - "maintenance/**"
 env:
   CACHE_VERSION: 1
   KEY_PREFIX: base-venv

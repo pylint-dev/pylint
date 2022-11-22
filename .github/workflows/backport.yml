@@ -6,10 +6,7 @@ on:
       - labeled
 
 permissions:
-  checks: read
-  contents: write
   pull-requests: write
-  statuses: read
 
 jobs:
   backport:
@@ -26,6 +23,6 @@ jobs:
         )
       )
     steps:
-      - uses: tibdex/backport@v2
+      - uses: tibdex/backport@2e217641d82d02ba0603f46b1aeedefb258890ac
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
