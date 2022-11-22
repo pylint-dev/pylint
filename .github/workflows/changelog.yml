@@ -3,8 +3,6 @@ name: changelog
 on:
   pull_request:
     types: [opened, synchronize, labeled, unlabeled, reopened]
-    branches:
-      - main
     branches-ignore:
       - "maintenance/**"
 env:
