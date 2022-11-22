@@ -129,7 +129,7 @@ class TestDeprecatedChecker(CheckerTestCase):
                 line=9,
                 col_offset=0,
                 end_line=9,
-                end_col_offset=21,
+                end_col_offset=12,
             )
         ):
             self.checker.visit_call(node)
