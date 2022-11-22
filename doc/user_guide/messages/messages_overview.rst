@@ -313,6 +313,7 @@ All messages in the warning category:
    warning/super-without-brackets
    warning/too-many-try-statements
    warning/try-except-raise
+   warning/unbalanced-dict-unpacking
    warning/unbalanced-tuple-unpacking
    warning/undefined-loop-variable
    warning/unknown-option-value
