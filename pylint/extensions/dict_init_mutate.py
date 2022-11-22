@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class DictInitMutateChecker(BaseChecker):
     name = "dict-init-mutate"
     msgs = {
-        "C3301": (
+        "C3401": (
             "Declare all known key/values when initializing the dictionary.",
             "dict-init-mutate",
             "Dictionaries can be initialized with a single statement "

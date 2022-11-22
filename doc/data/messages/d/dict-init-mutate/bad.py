@@ -1,3 +1,3 @@
-fruits = {}  # [dict-init-mutate]
-fruits['apple'] = 1
-fruits['banana'] = 10
+fruit_prices = {}  # [dict-init-mutate]
+fruit_prices['apple'] = 1
+fruit_prices['banana'] = 10
