@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from collections.abc import Generator
 from pathlib import Path
 
@@ -30,13 +31,8 @@ def project(get_project: GetProjectCallable) -> Generator[Project, None, None]:
     with _test_cwd(TESTS):
         project = get_project("data", "data")
         linker = inspector.Linker(project)
-        if "clientmodule_test" in str(project):
-            with pytest.warns(DeprecationWarning):
-                # tests.data.clientmodule_test.py emits DeprecationWarning
-                # due to use of __implements__
-                # TODO: 3.0 remove 'pytest.warns' once __implements__ is removed
-                linker.visit(project)
-        else:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
             linker.visit(project)
         yield project
 
