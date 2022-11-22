@@ -5,9 +5,6 @@
 name: Primer / Run
 
 on:
-  branches:
-    - main
-    - "maintenance/**"
   pull_request:
     paths:
       - "pylint/**"
