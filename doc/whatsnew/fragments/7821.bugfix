@@ -1,0 +1,3 @@
+Fixes bug that resulted in crash during ``unnecessary_list_index_lookup`` check.
+
+Closes #7821

@@ -138,3 +138,9 @@ result = [my_list[idx] for idx, val in enumerate(iterable=my_list)]  # [unnecess
 
 for idx, val in enumerate():
     print(my_list[idx])
+
+class Command:
+    def _get_extra_attrs(self, extra_columns):
+        self.extra_rows_start = 8  # pylint: disable=attribute-defined-outside-init
+        for index, column in enumerate(extra_columns, start=self.extra_rows_start):
+            pass
