@@ -16,6 +16,7 @@ __all__ = [
 
 import os
 import sys
+import warnings
 from collections.abc import Sequence
 from typing import NoReturn
 
@@ -54,6 +55,12 @@ def run_epylint(argv: Sequence[str] | None = None) -> NoReturn:
     """
     from pylint.epylint import Run as EpylintRun
 
+    warnings.warn(
+        "'run_epylint' will be removed in pylint 3.0, use "
+        "https://github.com/emacsorphanage/pylint instead.",
+        DeprecationWarning,
+        stacklevel=1,
+    )
     EpylintRun(argv)
 
 
