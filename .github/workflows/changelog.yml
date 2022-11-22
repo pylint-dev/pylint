@@ -1,13 +1,10 @@
 name: changelog
 
 on:
-  push:
-    branches:
-      - main
-    branches-ignore:
-      - "maintenance/**"
   pull_request:
     types: [opened, synchronize, labeled, unlabeled, reopened]
+    branches:
+      - main
     branches-ignore:
       - "maintenance/**"
 env:
