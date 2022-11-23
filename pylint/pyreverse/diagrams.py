@@ -219,7 +219,8 @@ class ClassDiagram(Figure, FilterMixIn):
             for name, values in list(node.aggregations_type.items()):
                 for value in values:
                     self.assign_association_relationship(
-                        value, obj, name, "aggregation")
+                        value, obj, name, "aggregation"
+                    )
 
             for name, values in list(node.associations_type.items()) + list(
                 node.locals_type.items()
@@ -227,9 +228,12 @@ class ClassDiagram(Figure, FilterMixIn):
 
                 for value in values:
                     self.assign_association_relationship(
-                        value, obj, name, "association")
+                        value, obj, name, "association"
+                    )
 
-    def assign_association_relationship(self, value: Any, obj: ClassEntity, name: str, type_relationship: str) -> None:
+    def assign_association_relationship(
+        self, value: Any, obj: ClassEntity, name: str, type_relationship: str
+    ) -> None:
         if value is astroid.Uninferable:
             return
         if isinstance(value, astroid.Instance):

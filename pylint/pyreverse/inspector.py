@@ -13,8 +13,8 @@ import collections
 import os
 import traceback
 import warnings
-from collections.abc import Generator
 from abc import ABC, abstractmethod
+from collections.abc import Generator
 from typing import Any, Callable, Optional
 
 import astroid
@@ -327,11 +327,13 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
 class AssociationHandlerInterface(ABC):
     @abstractmethod
-    def set_next(self, handler: AssociationHandlerInterface) -> AssociationHandlerInterface:
+    def set_next(
+        self, handler: AssociationHandlerInterface
+    ) -> AssociationHandlerInterface:
         pass
 
     @abstractmethod
-    def handle(self, node, parent) -> Optional[str]:
+    def handle(self, node, parent) -> str | None:
         pass
 
 
@@ -343,7 +345,9 @@ class AbstractAssociationHandler(AssociationHandlerInterface):
 
     _next_handler: AssociationHandlerInterface = None
 
-    def set_next(self, handler: AssociationHandlerInterface) -> AssociationHandlerInterface:
+    def set_next(
+        self, handler: AssociationHandlerInterface
+    ) -> AssociationHandlerInterface:
         self._next_handler = handler
         return handler
 
@@ -369,9 +373,7 @@ class AggregationsHandler(AbstractAssociationHandler):
 class OtherAssociationsHandler(AbstractAssociationHandler):
     def handle(self, node: Any, parent: Any) -> str:
         current = set(parent.associations_type[node.attrname])
-        parent.associations_type[node.attrname] = list(
-            current | utils.infer_node(node)
-        )
+        parent.associations_type[node.attrname] = list(current | utils.infer_node(node))
 
 
 def project_from_files(
