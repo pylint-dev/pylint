@@ -177,6 +177,11 @@ ARROWS: dict[EdgeType, dict[str, str | int]] = {
         "backarrowstyle": "none",
         "textcolor": "green",
     },
+    EdgeType.AGGREGATION: {
+        "arrowstyle": "solid",
+        "backarrowstyle": "none",
+        "textcolor": "green",
+    },
 }
 ORIENTATION: dict[Layout, str] = {
     Layout.LEFT_TO_RIGHT: "left_to_right",
