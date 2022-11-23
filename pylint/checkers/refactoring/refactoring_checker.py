@@ -1135,6 +1135,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # A next() method, which is now what we want.
             return
 
+        if len(node.args) == 0:
+            # handle case when builtin.next is called without args.
+            # see https://github.com/PyCQA/pylint/issues/7828
+            return
+
         inferred = utils.safe_infer(node.func)
 
         if (
