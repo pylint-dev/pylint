@@ -231,6 +231,7 @@ All messages in the warning category:
    warning/deprecated-method
    warning/deprecated-module
    warning/deprecated-typing-alias
+   warning/dict-init-mutate
    warning/differing-param-doc
    warning/differing-type-doc
    warning/duplicate-except

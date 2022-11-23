@@ -1,0 +1,4 @@
+Add new extension checker ``dict-init-mutate`` that flags mutating a dictionary immediately
+after the dictionary was created.
+
+Closes #2876
