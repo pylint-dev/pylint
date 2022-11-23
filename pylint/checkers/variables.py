@@ -558,6 +558,7 @@ class NamesConsumer:
             copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
         )
         self.node = node
+        self._if_nodes_deemed_uncertain: set[nodes.If] = set()
 
     def __repr__(self) -> str:
         _to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
@@ -655,6 +656,13 @@ scope_type : {self._atomic.scope_type}
         if VariablesChecker._comprehension_between_frame_and_node(node):
             return found_nodes
 
+        # Filter out assignments guarded by always false conditions
+        if found_nodes:
+            uncertain_nodes = self._uncertain_nodes_in_false_tests(found_nodes, node)
+            self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_set = set(uncertain_nodes)
+            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
+
         # Filter out assignments in ExceptHandlers that node is not contained in
         if found_nodes:
             found_nodes = [
@@ -699,6 +707,118 @@ scope_type : {self._atomic.scope_type}
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
         return found_nodes
+
+    @staticmethod
+    def _exhaustively_define_name_raise_or_return(
+        name: str, node: nodes.NodeNG
+    ) -> bool:
+        """Return True if there is a collectively exhaustive set of paths under
+        this `if_node` that define `name`, raise, or return.
+        """
+        # Handle try and with
+        if isinstance(node, (nodes.TryExcept, nodes.TryFinally)):
+            # Allow either a path through try/else/finally OR a path through ALL except handlers
+            return (
+                NamesConsumer._defines_name_raises_or_returns_recursive(name, node)
+                or isinstance(node, nodes.TryExcept)
+                and all(
+                    NamesConsumer._defines_name_raises_or_returns_recursive(
+                        name, handler
+                    )
+                    for handler in node.handlers
+                )
+            )
+        if isinstance(node, nodes.With):
+            return NamesConsumer._defines_name_raises_or_returns_recursive(name, node)
+
+        if not isinstance(node, nodes.If):
+            return False
+
+        # Be permissive if there is a break
+        if any(node.nodes_of_class(nodes.Break)):
+            return True
+
+        # If there is no else, then there is no collectively exhaustive set of paths
+        if not node.orelse:
+            return False
+
+        # Is there an assignment in this node itself, e.g. in named expression?
+        if NamesConsumer._defines_name_raises_or_returns(name, node):
+            return True
+
+        return NamesConsumer._branch_handles_name(
+            name, node.body
+        ) and NamesConsumer._branch_handles_name(name, node.orelse)
+
+    @staticmethod
+    def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
+        return any(
+            NamesConsumer._defines_name_raises_or_returns(name, if_body_stmt)
+            or isinstance(
+                if_body_stmt,
+                (nodes.If, nodes.TryExcept, nodes.TryFinally, nodes.With),
+            )
+            and NamesConsumer._exhaustively_define_name_raise_or_return(
+                name, if_body_stmt
+            )
+            for if_body_stmt in body
+        )
+
+    def _uncertain_nodes_in_false_tests(
+        self, found_nodes: list[nodes.NodeNG], node: nodes.NodeNG
+    ) -> list[nodes.NodeNG]:
+        """Identify nodes of uncertain execution because they are defined under
+        tests that evaluate false.
+
+        Don't identify a node if there is a collectively exhaustive set of paths
+        that define the name, raise, or return (e.g. every if/else branch).
+        """
+        uncertain_nodes = []
+        for other_node in found_nodes:
+            if in_type_checking_block(other_node):
+                continue
+
+            if not isinstance(other_node, nodes.AssignName):
+                continue
+
+            closest_if = utils.get_node_first_ancestor_of_type(other_node, nodes.If)
+            if closest_if is None:
+                continue
+            if node.frame() is not closest_if.frame():
+                continue
+            if closest_if is not None and closest_if.parent_of(node):
+                continue
+
+            # Name defined in every if/else branch
+            if NamesConsumer._exhaustively_define_name_raise_or_return(
+                other_node.name, closest_if
+            ):
+                continue
+
+            # Higher-level if already determined to be always false
+            if any(
+                if_node.parent_of(closest_if)
+                for if_node in self._if_nodes_deemed_uncertain
+            ):
+                uncertain_nodes.append(other_node)
+                continue
+
+            # All inferred values must test false
+            if isinstance(closest_if.test, nodes.NamedExpr):
+                test = closest_if.test.value
+            else:
+                test = closest_if.test
+            all_inferred = utils.infer_all(test)
+            if not all_inferred or not all(
+                isinstance(inferred, nodes.Const) and not inferred.value
+                for inferred in all_inferred
+            ):
+                continue
+
+            uncertain_nodes.append(other_node)
+            self._if_nodes_deemed_uncertain.add(closest_if)
+
+        return uncertain_nodes
 
     @staticmethod
     def _uncertain_nodes_in_except_blocks(
@@ -773,7 +893,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
-        if isinstance(node, (nodes.Raise, nodes.Return)):
+        if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return)):
             return True
         if (
             isinstance(node, nodes.AnnAssign)

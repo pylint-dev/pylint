@@ -77,7 +77,7 @@ def func_ok5(var):
 
 def func_ok6(var):
     """Define 'msg' in one handler nested under if block."""
-    err_message = False
+    err_message = "Division by 0"
     try:
         return 1 / var.some_other_func()
     except ZeroDivisionError:
