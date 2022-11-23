@@ -8,6 +8,7 @@ import contextlib
 import io
 import os
 import sys
+import warnings
 from collections.abc import Iterator
 
 import pytest
@@ -60,7 +61,9 @@ def test_primer_stdlib_no_crash(
             # Duplicate code takes too long and is relatively safe
             # We don't want to lint the test directory which are repetitive
             disables = ["--disable=duplicate-code", "--ignore=test"]
-            Run([test_module_name] + enables + disables)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=UserWarning)
+                Run([test_module_name] + enables + disables)
         except SystemExit as ex:
             out, err = capsys.readouterr()
             assert not err, err
