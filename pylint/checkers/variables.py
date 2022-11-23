@@ -2197,12 +2197,22 @@ class VariablesChecker(BaseChecker):
                     )
 
             # Look for type checking definitions inside a type checking guard.
-            if isinstance(defstmt, (nodes.Import, nodes.ImportFrom)):
+            # Relevant for function annotations only, not variable annotations (AnnAssign)
+            if (
+                isinstance(defstmt, (nodes.Import, nodes.ImportFrom))
+                and isinstance(defstmt.parent, nodes.If)
+                and defstmt.parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
+            ):
                 defstmt_parent = defstmt.parent
 
-                if (
-                    isinstance(defstmt_parent, nodes.If)
-                    and defstmt_parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
+                maybe_annotation = utils.get_node_first_ancestor_of_type(
+                    node, nodes.AnnAssign
+                )
+                if not (
+                    maybe_annotation
+                    and utils.get_node_first_ancestor_of_type(
+                        maybe_annotation, nodes.FunctionDef
+                    )
                 ):
                     # Exempt those definitions that are used inside the type checking
                     # guard or that are defined in both type checking guard branches.
