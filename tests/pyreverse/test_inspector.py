@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from collections.abc import Generator
 from pathlib import Path
 
@@ -30,7 +31,9 @@ def project(get_project: GetProjectCallable) -> Generator[Project, None, None]:
     with _test_cwd(TESTS):
         project = get_project("data", "data")
         linker = inspector.Linker(project)
-        linker.visit(project)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            linker.visit(project)
         yield project
 
 

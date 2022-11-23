@@ -137,6 +137,7 @@ def test_parseable_output_deprecated() -> None:
 def test_parseable_output_regression() -> None:
     output = StringIO()
     with warnings.catch_warnings(record=True):
+        warnings.simplefilter("ignore", category=DeprecationWarning)
         linter = PyLinter(reporter=ParseableTextReporter())
 
     checkers.initialize(linter)
