@@ -16,11 +16,11 @@ from typing import Any, NoReturn
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
-from py._path.local import LocalPath
 
 from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
 from pylint.lint import Run
 from pylint.testutils import GenericTestReporter as Reporter
+from pylint.testutils.utils import _test_cwd
 
 if sys.version_info >= (3, 8):
     from typing import Protocol
@@ -34,20 +34,20 @@ class _RunCallable(Protocol):  # pylint: disable=too-few-public-methods
 
 
 @pytest.mark.parametrize("runner", [run_pylint, run_pyreverse, run_symilar])
-def test_runner(runner: _RunCallable, tmpdir: LocalPath) -> None:
+def test_runner(runner: _RunCallable, tmp_path: pathlib.Path) -> None:
     filepath = os.path.abspath(__file__)
     testargs = ["", filepath]
-    with tmpdir.as_cwd():
+    with _test_cwd(tmp_path):
         with patch.object(sys, "argv", testargs):
             with pytest.raises(SystemExit) as err:
                 runner()
             assert err.value.code == 0
 
 
-def test_epylint(tmpdir: LocalPath) -> None:
+def test_epylint(tmp_path: pathlib.Path) -> None:
     """TODO: 3.0 delete with epylint."""
     filepath = os.path.abspath(__file__)
-    with tmpdir.as_cwd():
+    with _test_cwd(tmp_path):
         with patch.object(sys, "argv", ["", filepath]):
             with pytest.raises(SystemExit) as err:
                 with pytest.warns(DeprecationWarning):
@@ -56,21 +56,21 @@ def test_epylint(tmpdir: LocalPath) -> None:
 
 
 @pytest.mark.parametrize("runner", [run_pylint, run_pyreverse, run_symilar])
-def test_runner_with_arguments(runner: _RunCallable, tmpdir: LocalPath) -> None:
+def test_runner_with_arguments(runner: _RunCallable, tmp_path: pathlib.Path) -> None:
     """Check the runners with arguments as parameter instead of sys.argv."""
     filepath = os.path.abspath(__file__)
     testargs = [filepath]
-    with tmpdir.as_cwd():
+    with _test_cwd(tmp_path):
         with pytest.raises(SystemExit) as err:
             runner(testargs)
         assert err.value.code == 0
 
 
-def test_epylint_with_arguments(tmpdir: LocalPath) -> None:
+def test_epylint_with_arguments(tmp_path: pathlib.Path) -> None:
     """TODO: 3.0 delete with epylint."""
     filepath = os.path.abspath(__file__)
     testargs = [filepath]
-    with tmpdir.as_cwd():
+    with _test_cwd(tmp_path):
         with pytest.raises(SystemExit) as err:
             with pytest.warns(DeprecationWarning):
                 run_epylint(testargs)
@@ -78,7 +78,7 @@ def test_epylint_with_arguments(tmpdir: LocalPath) -> None:
 
 
 def test_pylint_argument_deduplication(
-    tmpdir: LocalPath, tests_directory: pathlib.Path
+    tmp_path: pathlib.Path, tests_directory: pathlib.Path
 ) -> None:
     """Check that the Pylint runner does not over-report on duplicate
     arguments.
@@ -90,7 +90,7 @@ def test_pylint_argument_deduplication(
     testargs = shlex.split("--report n --score n --max-branches 13")
     testargs.extend([filepath] * 4)
     exit_stack = contextlib.ExitStack()
-    exit_stack.enter_context(tmpdir.as_cwd())
+    exit_stack.enter_context(_test_cwd(tmp_path))
     exit_stack.enter_context(patch.object(sys, "argv", testargs))
     err = exit_stack.enter_context(pytest.raises(SystemExit))
     with exit_stack:
@@ -99,7 +99,7 @@ def test_pylint_argument_deduplication(
 
 
 def test_pylint_run_jobs_equal_zero_dont_crash_with_cpu_fraction(
-    tmpdir: LocalPath,
+    tmp_path: pathlib.Path,
 ) -> None:
     """Check that the pylint runner does not crash if `pylint.lint.run._query_cpu`
     determines only a fraction of a CPU core to be available.
@@ -122,7 +122,7 @@ def test_pylint_run_jobs_equal_zero_dont_crash_with_cpu_fraction(
 
     filepath = os.path.abspath(__file__)
     testargs = [filepath, "--jobs=0"]
-    with tmpdir.as_cwd():
+    with _test_cwd(tmp_path):
         with pytest.raises(SystemExit) as err:
             with patch("builtins.open", _mock_open):
                 with patch("pylint.lint.run.Path", _mock_path):
