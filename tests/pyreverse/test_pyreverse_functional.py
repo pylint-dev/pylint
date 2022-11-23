@@ -22,9 +22,7 @@ CLASS_DIAGRAM_TEST_IDS = [testfile.source.stem for testfile in CLASS_DIAGRAM_TES
     CLASS_DIAGRAM_TESTS,
     ids=CLASS_DIAGRAM_TEST_IDS,
 )
-def test_class_diagrams(
-    testfile: FunctionalPyreverseTestfile, tmp_path: Path
-) -> None:
+def test_class_diagrams(testfile: FunctionalPyreverseTestfile, tmp_path: Path) -> None:
     input_file = testfile.source
     for output_format in testfile.options["output_formats"]:
         with pytest.raises(SystemExit) as sys_exit:
