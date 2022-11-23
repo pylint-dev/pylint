@@ -8,6 +8,7 @@ import functools
 import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
+from concurrent.futures import ProcessPoolExecutor
 from typing import TYPE_CHECKING, Any
 
 import dill
@@ -137,9 +138,9 @@ def check_parallel(
     # is identical to the linter object here. This is required so that
     # a custom PyLinter object can be used.
     initializer = functools.partial(_worker_initialize, arguments=arguments)
-    with multiprocessing.Pool(
-        jobs, initializer=initializer, initargs=[dill.dumps(linter)]
-    ) as pool:
+    with ProcessPoolExecutor(
+        max_workers=jobs, initializer=initializer, initargs=(dill.dumps(linter))
+    ) as executor:
         linter.open()
         all_stats = []
         all_mapreduce_data: defaultdict[
@@ -158,7 +159,7 @@ def check_parallel(
             stats,
             msg_status,
             mapreduce_data,
-        ) in pool.imap_unordered(_worker_check_single_file, files):
+        ) in executor.map(_worker_check_single_file, files):
             linter.file_state.base_name = base_name
             linter.file_state._is_base_filestate = False
             linter.set_current_module(module, file_path)
@@ -167,9 +168,6 @@ def check_parallel(
             all_stats.append(stats)
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status
-
-        pool.close()
-        pool.join()
 
     _merge_mapreduce_data(linter, all_mapreduce_data)
     linter.stats = merge_stats([linter.stats] + all_stats)
