@@ -92,7 +92,8 @@ class DiagramWriter:
     def write_classes(self, diagram: ClassDiagram) -> None:
         """Write a class diagram."""
         # sorted to get predictable (hence testable) results
-        for obj in sorted(diagram.objects, key=lambda x: x.title):  # type: ignore[no-any-return]
+        # type: ignore[no-any-return]
+        for obj in sorted(diagram.objects, key=lambda x: x.title):
             obj.fig_id = obj.node.qname()
             type_ = NodeType.INTERFACE if obj.shape == "interface" else NodeType.CLASS
             self.printer.emit_node(
@@ -119,6 +120,14 @@ class DiagramWriter:
                 rel.to_object.fig_id,
                 label=rel.name,
                 type_=EdgeType.ASSOCIATION,
+            )
+        # generate aggregations
+        for rel in diagram.get_relationships("aggregation"):
+            self.printer.emit_edge(
+                rel.from_object.fig_id,
+                rel.to_object.fig_id,
+                label=rel.name,
+                type_=EdgeType.AGGREGATION,
             )
 
     def set_printer(self, file_name: str, basename: str) -> None:
