@@ -99,9 +99,9 @@ def test_default_values() -> None:
 
 class TestDefaultDiadefGenerator:
     _should_rels = [
+        ("aggregation", "DoNothing2", "Specialization"),
         ("association", "DoNothing", "Ancestor"),
         ("association", "DoNothing", "Specialization"),
-        ("association", "DoNothing2", "Specialization"),
         ("implements", "Ancestor", "Interface"),
         ("specialization", "Specialization", "Ancestor"),
     ]
