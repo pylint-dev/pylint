@@ -2,17 +2,16 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-
-from py._path.local import LocalPath
+from pathlib import Path
 
 from pylint.lint import Run
 
 
-def test_fall_back_on_base_config(tmpdir: LocalPath) -> None:
+def test_fall_back_on_base_config(tmp_path: Path) -> None:
     """Test that we correctly fall back on the base config."""
     # A file under the current dir should fall back to the highest level
     # For pylint this is ./pylintrc
-    test_file = tmpdir / "test.py"
+    test_file = tmp_path / "test.py"
     runner = Run([__name__], exit=False)
     assert id(runner.linter.config) == id(runner.linter._base_config)
 
