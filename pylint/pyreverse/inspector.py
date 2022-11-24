@@ -339,7 +339,13 @@ class AssociationHandlerInterface(ABC):
 
 class AbstractAssociationHandler(AssociationHandlerInterface):
     """
-    The default chaining behavior can be implemented inside a base handler
+    Chain of Responsability for handling types of association, useful
+    to expand in the future if we want to add more distinct associations.
+
+    Every link of the chain checks if it's a certain type of association.
+    If no association is found it's set as a generic association in `associations_type`.
+
+    The default chaining behavior is implemented inside the base handler
     class.
     """
 
