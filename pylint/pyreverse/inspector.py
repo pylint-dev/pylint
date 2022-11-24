@@ -360,7 +360,7 @@ class AbstractAssociationHandler(AssociationHandlerInterface):
 
 
 class AggregationsHandler(AbstractAssociationHandler):
-    def handle(self, node: Any, parent: Any) -> str:
+    def handle(self, node: Any, parent: Any) -> str | None:
         if isinstance(node.parent.value, astroid.node_classes.Name):
             current = set(parent.aggregations_type[node.attrname])
             parent.aggregations_type[node.attrname] = list(
@@ -368,6 +368,8 @@ class AggregationsHandler(AbstractAssociationHandler):
             )
         else:
             return super().handle(node, parent)
+
+        return None
 
 
 class OtherAssociationsHandler(AbstractAssociationHandler):
