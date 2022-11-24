@@ -33,19 +33,19 @@ classifiers = [
 ]
 requires-python = ">=3.7.2"
 dependencies    = [
-    "dill>=0.2;python_version<'3.11'",
-    "dill>=0.3.6;python_version>='3.11'",
+    "dill>=0.2,<1;python_version<'3.11'",
+    "dill>=0.3.6,<1;python_version>='3.11'",
     "platformdirs>=2.2.0",
     # Also upgrade requirements_test_min.txt.
     # Pinned to dev of second minor update to allow editable installs and fix primer issues,
     # see https://github.com/PyCQA/astroid/issues/1341
     "astroid>=2.12.13,<=2.14.0-dev0",
     "isort>=4.2.5,<6",
-    "mccabe>=0.6,<0.8",
-    "tomli>=1.1.0;python_version<'3.11'",
-    "tomlkit>=0.10.1",
-    "colorama>=0.4.5;sys_platform=='win32'",
-    "typing-extensions>=3.10.0;python_version<'3.10'",
+    "mccabe>=0.6,<1",
+    "tomli>=1.1.0,<3;python_version<'3.11'",
+    "tomlkit>=0.10.1,<1",
+    "colorama>=0.4.5,<1;sys_platform=='win32'",
+    "typing-extensions>=3.10.0,<5;python_version<'3.10'",
 ]
 dynamic = ["version"]
 

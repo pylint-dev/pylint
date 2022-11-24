@@ -1,0 +1,4 @@
+There is now an upper limit on the version accepted by pylint for all the dependencies.
+This is done in order to prevent breakage if a dependency introduce a breaking change in the future.
+
+Refs #7841
