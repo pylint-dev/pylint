@@ -333,7 +333,7 @@ class AssociationHandlerInterface(ABC):
         pass
 
     @abstractmethod
-    def handle(self, node, parent) -> str | None:
+    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
         pass
 
 
@@ -343,7 +343,7 @@ class AbstractAssociationHandler(AssociationHandlerInterface):
     class.
     """
 
-    _next_handler: AssociationHandlerInterface = None
+    _next_handler: AssociationHandlerInterface
 
     def set_next(
         self, handler: AssociationHandlerInterface
@@ -352,28 +352,24 @@ class AbstractAssociationHandler(AssociationHandlerInterface):
         return handler
 
     @abstractmethod
-    def handle(self, node: Any, parent: Any) -> str:
+    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
         if self._next_handler:
-            return self._next_handler.handle(node, parent)
-
-        return None
+            self._next_handler.handle(node, parent)
 
 
 class AggregationsHandler(AbstractAssociationHandler):
-    def handle(self, node: Any, parent: Any) -> str | None:
+    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
         if isinstance(node.parent.value, astroid.node_classes.Name):
             current = set(parent.aggregations_type[node.attrname])
             parent.aggregations_type[node.attrname] = list(
                 current | utils.infer_node(node)
             )
         else:
-            return super().handle(node, parent)
-
-        return None
+            super().handle(node, parent)
 
 
 class OtherAssociationsHandler(AbstractAssociationHandler):
-    def handle(self, node: Any, parent: Any) -> str:
+    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
         current = set(parent.associations_type[node.attrname])
         parent.associations_type[node.attrname] = list(current | utils.infer_node(node))
 
