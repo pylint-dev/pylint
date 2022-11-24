@@ -339,7 +339,7 @@ class AssociationHandlerInterface(ABC):
 
 class AbstractAssociationHandler(AssociationHandlerInterface):
     """
-    Chain of Responsability for handling types of association, useful
+    Chain of Responsibility for handling types of association, useful
     to expand in the future if we want to add more distinct associations.
 
     Every link of the chain checks if it's a certain type of association.
