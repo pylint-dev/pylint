@@ -1167,6 +1167,10 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
     """Return true if the given class node should be considered as an abstract
     class.
     """
+    # Protocol classes are considered "abstract"
+    if is_protocol_class(node):
+        return True
+
     # Only check for explicit metaclass=ABCMeta on this specific class
     meta = node.declared_metaclass()
     if meta is not None:
