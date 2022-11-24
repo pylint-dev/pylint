@@ -175,3 +175,13 @@ def other_safeiter(it):
     it = iter(it)
     while True:
         yield next(1, 2)
+
+def data(filename):
+    """
+    Ensure pylint doesn't crash if `next` is incorrectly called without args
+    See https://github.com/PyCQA/pylint/issues/7828
+    """
+    with open(filename, encoding="utf8") as file:
+        next() # attempt to skip header but this is incorrect code
+        for line in file:
+            yield line
