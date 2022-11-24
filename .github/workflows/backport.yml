@@ -7,7 +7,7 @@ on:
 
 permissions:
   pull-requests: write
-  content: write
+  contents: write
 
 jobs:
   backport:
