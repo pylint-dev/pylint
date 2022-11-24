@@ -144,3 +144,8 @@ class Command:
         self.extra_rows_start = 8  # pylint: disable=attribute-defined-outside-init
         for index, column in enumerate(extra_columns, start=self.extra_rows_start):
             pass
+
+Y_START = 2
+nums = list(range(20))
+for y, x in enumerate(nums, start=Y_START + 1):
+    pass
