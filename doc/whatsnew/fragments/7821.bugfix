@@ -1,0 +1,3 @@
+Fixes a crash in the ``unnecessary_list_index_lookup`` check when using ``enumerate`` with ``start`` and a class attribute.
+
+Closes #7821
