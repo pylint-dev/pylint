@@ -16,6 +16,8 @@ on:
       - "!.github/workflows/primer_run_main.yaml"
       - "!.github/workflows/primer_comment.yaml"
       - "!tests/primer/packages_to_prime.json"
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
