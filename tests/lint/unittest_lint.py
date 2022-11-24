@@ -20,6 +20,7 @@ from os import chdir, getcwd
 from os.path import abspath, dirname, join, sep
 from pathlib import Path
 from shutil import copy, rmtree
+from unittest.mock import patch
 
 import platformdirs
 import pytest
@@ -1078,6 +1079,16 @@ def test_custom_should_analyze_file() -> None:
         messages = reporter.messages
         assert len(messages) == 1
         assert "invalid syntax" in messages[0].msg
+
+
+def test_multiprocessing_missing() -> None:
+    with patch("pylint.lint.run.multiprocessing", None):
+        run = Run(
+            ["--jobs", "2", join(REGRTEST_DATA_DIR, "empty.py")],
+            exit=False,
+        )
+
+    assert run.linter.config.jobs == 1
 
 
 # we do the check with jobs=1 as well, so that we are sure that the duplicates
