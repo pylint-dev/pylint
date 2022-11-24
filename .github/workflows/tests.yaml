@@ -5,9 +5,9 @@ on:
     branches:
       - main
       - "maintenance/**"
-  pull_request:
     paths-ignore:
       - doc/data/messages/**
+  pull_request: ~
 
 env:
   CACHE_VERSION: 1
