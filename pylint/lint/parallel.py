@@ -139,7 +139,7 @@ def check_parallel(
     # a custom PyLinter object can be used.
     initializer = functools.partial(_worker_initialize, arguments=arguments)
     with ProcessPoolExecutor(
-        max_workers=jobs, initializer=initializer, initargs=(dill.dumps(linter))
+        max_workers=jobs, initializer=initializer, initargs=(dill.dumps(linter),)
     ) as executor:
         linter.open()
         all_stats = []
