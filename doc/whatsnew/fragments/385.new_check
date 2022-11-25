@@ -1,0 +1,3 @@
+Adds new ``missing-keyword-arg`` extension checker to detect if functions are called without keyword arguments.
+
+Closes #385
