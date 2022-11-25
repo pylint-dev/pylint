@@ -52,12 +52,12 @@ get_mid = Foo.class_str.split(',')[-2]
 
 
 # Test with accessors
-bar = Foo()
-get_first = bar.get_string().split(',')[0]  # [use-maxsplit-arg]
-get_last = bar.get_string().split(',')[-1]  # [use-maxsplit-arg]
+test = Foo()
+get_first = test.get_string().split(',')[0]  # [use-maxsplit-arg]
+get_last = test.get_string().split(',')[-1]  # [use-maxsplit-arg]
 
-get_mid = bar.get_string().split(',')[1]
-get_mid = bar.get_string().split(',')[-2]
+get_mid = test.get_string().split(',')[1]
+get_mid = test.get_string().split(',')[-2]
 
 
 # Test with iterating over strings

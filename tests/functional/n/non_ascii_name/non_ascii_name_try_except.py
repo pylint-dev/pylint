@@ -8,4 +8,4 @@ try:
     # +1: [non-ascii-name]
 except AttributeError as łol:
     # Usage should not raise a second error
-    foo = łol
+    test = łol
