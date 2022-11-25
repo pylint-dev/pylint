@@ -403,7 +403,7 @@ def _count_supplied_tokens(args: list[nodes.NodeNG]) -> int:
     return sum(1 for arg in args if not isinstance(arg, nodes.Keyword))
 
 
-def str_formatting_in_f_string(node: nodes.NodeNG) -> bool:
+def str_formatting_in_f_string(node: nodes.JoinedStr) -> bool:
     """Determine whether the node represents an f-string with string formatting.
 
     For example: `f'Hello %s'`
@@ -416,6 +416,5 @@ def str_formatting_in_f_string(node: nodes.NodeNG) -> bool:
     )
 
 
-# Detect % formatting inside an f-string, such as `f'Hello %s'`
 def register(linter: PyLinter) -> None:
     linter.register_checker(LoggingChecker(linter))
