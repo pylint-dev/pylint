@@ -105,6 +105,13 @@ CHECKED_CONVENIENCE_FUNCTIONS = {
     "warning",
 }
 
+MOST_COMMON_FORMATTING = {
+    "%s",
+    "%d",
+    "%f",
+    "%r",
+}
+
 
 def is_method_call(
     func: bases.BoundMethod, types: tuple[str, ...] = (), methods: tuple[str, ...] = ()
@@ -262,12 +269,7 @@ class LoggingChecker(checkers.BaseChecker):
         elif isinstance(format_arg, nodes.Const):
             self._check_format_string(node, format_pos)
         elif isinstance(format_arg, nodes.JoinedStr):
-            if any(
-                "%s" in val.value
-                for val in format_arg.values
-                if isinstance(val, nodes.Const)
-            ):
-                # Detect % formatting inside an f-string, such as `f'Hello %s'`
+            if str_formatting_in_f_string(format_arg):
                 return
             self.add_message(
                 "logging-fstring-interpolation",
@@ -401,5 +403,19 @@ def _count_supplied_tokens(args: list[nodes.NodeNG]) -> int:
     return sum(1 for arg in args if not isinstance(arg, nodes.Keyword))
 
 
+def str_formatting_in_f_string(node: nodes.NodeNG) -> bool:
+    """Determine whether the node represents an f-string with string formatting.
+
+    For example: `f'Hello %s'`
+    """
+    # Check "%" presence first for performance.
+    return any(
+        "%" in val.value and any(x in val.value for x in MOST_COMMON_FORMATTING)
+        for val in node.values
+        if isinstance(val, nodes.Const)
+    )
+
+
+# Detect % formatting inside an f-string, such as `f'Hello %s'`
 def register(linter: PyLinter) -> None:
     linter.register_checker(LoggingChecker(linter))
