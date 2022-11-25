@@ -232,7 +232,7 @@ class ClassDiagram(Figure, FilterMixIn):
                     )
 
     def assign_association_relationship(
-        self, value: Any, obj: ClassEntity, name: str, type_relationship: str
+        self, value: astroid.NodeNG, obj: ClassEntity, name: str, type_relationship: str
     ) -> None:
         if value is astroid.Uninferable:
             return
