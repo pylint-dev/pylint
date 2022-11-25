@@ -214,8 +214,8 @@ class ClassDiagram(Figure, FilterMixIn):
                     self.add_relationship(obj, impl_obj, "implements")
                 except KeyError:
                     continue
-            # associations & aggregations links
 
+            # associations & aggregations links
             for name, values in list(node.aggregations_type.items()):
                 for value in values:
                     self.assign_association_relationship(
