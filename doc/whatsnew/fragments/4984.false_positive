@@ -1,0 +1,3 @@
+Fix ``logging-fstring-interpolation`` false positive raised when logging and f-string with ``%s`` formatting.
+
+Closes #4984

@@ -240,8 +240,9 @@ class LoggingChecker(checkers.BaseChecker):
         else:
             return
 
-        if isinstance(node.args[format_pos], nodes.BinOp):
-            binop = node.args[format_pos]
+        format_arg = node.args[format_pos]
+        if isinstance(format_arg, nodes.BinOp):
+            binop = format_arg
             emit = binop.op == "%"
             if binop.op == "+":
                 total_number_of_strings = sum(
@@ -256,11 +257,18 @@ class LoggingChecker(checkers.BaseChecker):
                     node=node,
                     args=(self._helper_string(node),),
                 )
-        elif isinstance(node.args[format_pos], nodes.Call):
-            self._check_call_func(node.args[format_pos])
-        elif isinstance(node.args[format_pos], nodes.Const):
+        elif isinstance(format_arg, nodes.Call):
+            self._check_call_func(format_arg)
+        elif isinstance(format_arg, nodes.Const):
             self._check_format_string(node, format_pos)
-        elif isinstance(node.args[format_pos], nodes.JoinedStr):
+        elif isinstance(format_arg, nodes.JoinedStr):
+            if any(
+                "%s" in val.value
+                for val in format_arg.values
+                if isinstance(val, nodes.Const)
+            ):
+                # Detect % formatting inside an f-string, such as `f'Hello %s'`
+                return
             self.add_message(
                 "logging-fstring-interpolation",
                 node=node,
