@@ -15,7 +15,7 @@ import traceback
 import warnings
 from abc import ABC, abstractmethod
 from collections.abc import Generator
-from typing import Any, Callable, Optional, List
+from typing import Any, Callable, List, Optional
 
 import astroid
 from astroid import nodes
