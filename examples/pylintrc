@@ -260,7 +260,7 @@ exclude-protected=_asdict,
 valid-classmethod-first-arg=cls
 
 # List of valid names for the first argument in a metaclass class method.
-valid-metaclass-classmethod-first-arg=cls
+valid-metaclass-classmethod-first-arg=mcs
 
 
 [DESIGN]
@@ -307,8 +307,8 @@ min-public-methods=2
 [EXCEPTIONS]
 
 # Exceptions that will emit a warning when caught.
-overgeneral-exceptions=BaseException,
-                       Exception
+overgeneral-exceptions=builtins.BaseException,
+                       builtins.Exception
 
 
 [FORMAT]

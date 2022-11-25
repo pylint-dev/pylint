@@ -1,8 +1,8 @@
 """
 Test that no StopIteration is raised inside a generator
 """
-# pylint: disable=missing-docstring,invalid-name,import-error, try-except-raise, wrong-import-position,not-callable,raise-missing-from
-# pylint: disable=broad-exception-raised
+# pylint: disable=missing-docstring,invalid-name,import-error, try-except-raise, wrong-import-position
+# pylint: disable=not-callable,raise-missing-from,broad-exception-raised
 import asyncio
 
 class RebornStopIteration(StopIteration):
@@ -110,13 +110,19 @@ def gen_next_with_sentinel():
     yield next([], 42)  # No bad return
 
 
-from itertools import count
+from itertools import count, cycle
 
 # https://github.com/PyCQA/pylint/issues/2158
 def generator_using_next():
     counter = count()
     number = next(counter)
     yield number * 2
+
+# https://github.com/PyCQA/pylint/issues/7765
+def infinite_iterator_itertools_cycle():
+    counter = cycle('ABCD')
+    val = next(counter)
+    yield val
 
 
 # pylint: disable=too-few-public-methods
@@ -169,3 +175,13 @@ def other_safeiter(it):
     it = iter(it)
     while True:
         yield next(1, 2)
+
+def data(filename):
+    """
+    Ensure pylint doesn't crash if `next` is incorrectly called without args
+    See https://github.com/PyCQA/pylint/issues/7828
+    """
+    with open(filename, encoding="utf8") as file:
+        next() # attempt to skip header but this is incorrect code
+        for line in file:
+            yield line

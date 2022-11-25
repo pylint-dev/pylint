@@ -210,8 +210,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
     options = OPTIONS
     name = "pyreverse"
 
-    # For mypy issue, see https://github.com/python/mypy/issues/10342
-    def __init__(self, args: Sequence[str]) -> NoReturn:  # type: ignore[misc]
+    def __init__(self, args: Sequence[str]) -> NoReturn:
         _ArgumentsManager.__init__(self, prog="pyreverse", description=__doc__)
         _ArgumentsProvider.__init__(self, self)
 

@@ -17,7 +17,7 @@ from astroid import nodes
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import HIGH, INFERENCE
+from pylint.interfaces import HIGH, INFERENCE, Confidence
 from pylint.reporters.ureports import nodes as reporter_nodes
 from pylint.utils import LinterStats
 
@@ -252,6 +252,12 @@ class BasicChecker(_BasicChecker):
             "duplicate-value",
             "This message is emitted when a set contains the same value two or more times.",
         ),
+        "W0131": (
+            "Named expression used without context",
+            "named-expr-without-context",
+            "Emitted if named expression is used to do a regular assignment "
+            "outside a context like if, for, while, or a comprehension.",
+        ),
     }
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
@@ -410,7 +416,10 @@ class BasicChecker(_BasicChecker):
         self.linter.stats.node_count["klass"] += 1
 
     @utils.only_required_for_messages(
-        "pointless-statement", "pointless-string-statement", "expression-not-assigned"
+        "pointless-statement",
+        "pointless-string-statement",
+        "expression-not-assigned",
+        "named-expr-without-context",
     )
     def visit_expr(self, node: nodes.Expr) -> None:
         """Check for various kind of statements without effect."""
@@ -448,7 +457,9 @@ class BasicChecker(_BasicChecker):
             or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):
             return
-        if any(expr.nodes_of_class(nodes.Call)):
+        if isinstance(expr, nodes.NamedExpr):
+            self.add_message("named-expr-without-context", node=node, confidence=HIGH)
+        elif any(expr.nodes_of_class(nodes.Call)):
             self.add_message(
                 "expression-not-assigned", node=node, args=expr.as_string()
             )
@@ -658,12 +669,16 @@ class BasicChecker(_BasicChecker):
                 self.add_message("misplaced-format-function", node=call_node)
 
     @utils.only_required_for_messages(
-        "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function"
+        "eval-used",
+        "exec-used",
+        "bad-reversed-sequence",
+        "misplaced-format-function",
+        "unreachable",
     )
     def visit_call(self, node: nodes.Call) -> None:
-        """Visit a Call node -> check if this is not a disallowed builtin
-        call and check for * or ** use.
-        """
+        """Visit a Call node."""
+        if utils.is_terminating_func(node):
+            self._check_unreachable(node, confidence=INFERENCE)
         self._check_misplaced_format_function(node)
         if isinstance(node.func, nodes.Name):
             name = node.func.name
@@ -731,7 +746,9 @@ class BasicChecker(_BasicChecker):
         self._tryfinallys.pop()
 
     def _check_unreachable(
-        self, node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise
+        self,
+        node: nodes.Return | nodes.Continue | nodes.Break | nodes.Raise | nodes.Call,
+        confidence: Confidence = HIGH,
     ) -> None:
         """Check unreachable code."""
         unreachable_statement = node.next_sibling()
@@ -746,7 +763,9 @@ class BasicChecker(_BasicChecker):
                 unreachable_statement = unreachable_statement.next_sibling()
                 if unreachable_statement is None:
                     return
-            self.add_message("unreachable", node=unreachable_statement, confidence=HIGH)
+            self.add_message(
+                "unreachable", node=unreachable_statement, confidence=confidence
+            )
 
     def _check_not_in_finally(
         self,

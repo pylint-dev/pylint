@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import builtins
 import inspect
+import warnings
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Any
 
@@ -58,8 +59,6 @@ def _is_raising(body: list[nodes.NodeNG]) -> bool:
     """Return whether the given statement node raises an exception."""
     return any(isinstance(node, nodes.Raise) for node in body)
 
-
-OVERGENERAL_EXCEPTIONS = ("BaseException", "Exception")
 
 MSGS: dict[str, MessageDefinitionTuple] = {
     "E0701": (
@@ -201,13 +200,23 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
             self._checker.add_message(
                 "notimplemented-raised", node=self._node, confidence=HIGH
             )
-        elif node.name in OVERGENERAL_EXCEPTIONS:
-            self._checker.add_message(
-                "broad-exception-raised",
-                args=node.name,
-                node=self._node,
-                confidence=HIGH,
-            )
+            return
+
+        try:
+            exceptions = list(_annotated_unpack_infer(node))
+        except astroid.InferenceError:
+            return
+
+        for _, exception in exceptions:
+            if isinstance(
+                exception, nodes.ClassDef
+            ) and self._checker._is_overgeneral_exception(exception):
+                self._checker.add_message(
+                    "broad-exception-raised",
+                    args=exception.name,
+                    node=self._node,
+                    confidence=INFERENCE,
+                )
 
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
@@ -278,7 +287,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         (
             "overgeneral-exceptions",
             {
-                "default": OVERGENERAL_EXCEPTIONS,
+                "default": ("builtins.BaseException", "builtins.Exception"),
                 "type": "csv",
                 "metavar": "<comma-separated class names>",
                 "help": "Exceptions that will emit a warning when caught.",
@@ -288,6 +297,18 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     def open(self) -> None:
         self._builtin_exceptions = _builtin_exceptions()
+        for exc_name in self.linter.config.overgeneral_exceptions:
+            if "." not in exc_name:
+                warnings.warn_explicit(
+                    "Specifying exception names in the overgeneral-exceptions option"
+                    " without module name is deprecated and support for it"
+                    " will be removed in pylint 3.0."
+                    f" Use fully qualified name (maybe 'builtins.{exc_name}' ?) instead.",
+                    category=UserWarning,
+                    filename="pylint: Command line or configuration file",
+                    lineno=1,
+                    module="pylint",
+                )
         super().open()
 
     @utils.only_required_for_messages(
@@ -592,10 +613,8 @@ class ExceptionsChecker(checkers.BaseChecker):
                                 args=msg,
                                 confidence=INFERENCE,
                             )
-                    if (
-                        exception.name in self.linter.config.overgeneral_exceptions
-                        and exception.root().name == utils.EXCEPTIONS_MODULE
-                        and not _is_raising(handler.body)
+                    if self._is_overgeneral_exception(exception) and not _is_raising(
+                        handler.body
                     ):
                         self.add_message(
                             "broad-exception-caught",
@@ -613,6 +632,15 @@ class ExceptionsChecker(checkers.BaseChecker):
                         )
 
                 exceptions_classes += [exc for _, exc in exceptions]
+
+    def _is_overgeneral_exception(self, exception: nodes.ClassDef) -> bool:
+        return (
+            exception.qname() in self.linter.config.overgeneral_exceptions
+            # TODO: 3.0: not a qualified name, deprecated
+            or "." not in exception.name
+            and exception.name in self.linter.config.overgeneral_exceptions
+            and exception.root().name == utils.EXCEPTIONS_MODULE
+        )
 
 
 def register(linter: PyLinter) -> None:

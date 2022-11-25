@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name, missing-docstring, redundant-u-string-prefix, line-too-long
+# pylint: disable=invalid-name, missing-docstring, redundant-u-string-prefix, line-too-long, superfluous-parens
 
 # Basic test with a list
 TEST_LIST1 = ['a' 'b']  # [implicit-str-concat]

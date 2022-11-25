@@ -16,8 +16,8 @@ on:
       - "!.github/workflows/primer_run_main.yaml"
       - "!.github/workflows/primer_comment.yaml"
       - "!tests/primer/packages_to_prime.json"
-    branches-ignore:
-      - "maintenance/**"
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -38,7 +38,7 @@ jobs:
     timeout-minutes: 120
     strategy:
       matrix:
-        python-version: ["3.7", "3.10"]
+        python-version: ["3.7", "3.11"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.1.0
@@ -126,7 +126,7 @@ jobs:
       - name: Copy and unzip the commit string
         run: |
           unzip primer_commitstring.zip
-          cp commit_string.txt tests/.pylint_primer_tests/commit_string.txt
+          cp commit_string_${{ matrix.python-version }}.txt tests/.pylint_primer_tests/commit_string_${{ matrix.python-version }}.txt
       - name: Unzip the output of 'main'
         run: unzip primer_output_main.zip
       - name: Get commit string

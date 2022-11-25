@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - main
-      - 2.*
   pull_request:
     paths:
       - "pylint/**"
       - "tests/primer/**"
       - "requirements*"
       - ".github/workflows/primer-test.yaml"
-
+    branches:
+      - main
 env:
   CACHE_VERSION: 1
   KEY_PREFIX: venv

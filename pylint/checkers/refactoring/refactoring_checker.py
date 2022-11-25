@@ -12,7 +12,7 @@ import tokenize
 from collections.abc import Iterator
 from functools import reduce
 from re import Pattern
-from typing import TYPE_CHECKING, Any, NamedTuple, Union
+from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
 
 import astroid
 from astroid import bases, nodes
@@ -21,7 +21,7 @@ from astroid.util import Uninferable
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
-from pylint.interfaces import HIGH, INFERENCE
+from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -35,7 +35,7 @@ NodesWithNestedBlocks = Union[
     nodes.TryExcept, nodes.TryFinally, nodes.While, nodes.For, nodes.If
 ]
 
-KNOWN_INFINITE_ITERATORS = {"itertools.count"}
+KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
 CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
     (
@@ -1135,6 +1135,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # A next() method, which is now what we want.
             return
 
+        if len(node.args) == 0:
+            # handle case when builtin.next is called without args.
+            # see https://github.com/PyCQA/pylint/issues/7828
+            return
+
         inferred = utils.safe_infer(node.func)
 
         if (
@@ -1632,6 +1637,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         suggestion = ", ".join(elements)
         return f"{{{suggestion}{', ... '  if len(suggestion) > 64 else ''}}}"
 
+    @staticmethod
+    def _name_to_concatenate(node: nodes.NodeNG) -> str | None:
+        """Try to extract the name used in a concatenation loop."""
+        if isinstance(node, nodes.Name):
+            return cast("str | None", node.name)
+        if not isinstance(node, nodes.JoinedStr):
+            return None
+
+        values = [
+            value for value in node.values if isinstance(value, nodes.FormattedValue)
+        ]
+        if len(values) != 1 or not isinstance(values[0].value, nodes.Name):
+            return None
+        return cast("str | None", values[0].value.name)
+
     def _check_consider_using_join(self, aug_assign: nodes.AugAssign) -> None:
         """We start with the augmented assignment and work our way upwards.
 
@@ -1659,8 +1679,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and aug_assign.target.name in result_assign_names
             and isinstance(assign.value, nodes.Const)
             and isinstance(assign.value.value, str)
-            and isinstance(aug_assign.value, nodes.Name)
-            and aug_assign.value.name == for_loop.target.name
+            and self._name_to_concatenate(aug_assign.value) == for_loop.target.name
         )
         if is_concat_loop:
             self.add_message("consider-using-join", node=aug_assign)
@@ -2132,9 +2151,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             not isinstance(node.iter, nodes.Call)
             or not isinstance(node.iter.func, nodes.Name)
             or not node.iter.func.name == "enumerate"
-            or not node.iter.args
-            or not isinstance(node.iter.args[0], nodes.Name)
         ):
+            return
+
+        try:
+            iterable_arg = utils.get_argument_from_call(
+                node.iter, position=0, keyword="iterable"
+            )
+        except utils.NoSuchArgumentError:
+            return
+
+        if not isinstance(iterable_arg, nodes.Name):
             return
 
         if not isinstance(node.target, nodes.Tuple) or len(node.target.elts) < 2:
@@ -2146,7 +2173,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # destructured, so we can't necessarily use it.
             return
 
-        iterating_object_name = node.iter.args[0].name
+        has_start_arg, confidence = self._enumerate_with_start(node)
+        if has_start_arg:
+            # enumerate is being called with start arg/kwarg so resulting index lookup
+            # is not redundant, hence we should not report an error.
+            return
+
+        iterating_object_name = iterable_arg.name
         value_variable = node.target.elts[1]
 
         # Store potential violations. These will only be reported if we don't
@@ -2227,7 +2260,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             "unnecessary-list-index-lookup",
                             node=subscript,
                             args=(node.target.elts[1].name,),
-                            confidence=HIGH,
+                            confidence=confidence,
                         )
 
         for subscript in bad_nodes:
@@ -2235,5 +2268,51 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "unnecessary-list-index-lookup",
                 node=subscript,
                 args=(node.target.elts[1].name,),
-                confidence=HIGH,
+                confidence=confidence,
             )
+
+    def _enumerate_with_start(
+        self, node: nodes.For | nodes.Comprehension
+    ) -> tuple[bool, Confidence]:
+        """Check presence of `start` kwarg or second argument to enumerate.
+
+        For example:
+
+        `enumerate([1,2,3], start=1)`
+        `enumerate([1,2,3], 1)`
+
+        If `start` is assigned to `0`, the default value, this is equivalent to
+        not calling `enumerate` with start.
+        """
+        confidence = HIGH
+
+        if len(node.iter.args) > 1:
+            # We assume the second argument to `enumerate` is the `start` int arg.
+            # It's a reasonable assumption for now as it's the only possible argument:
+            # https://docs.python.org/3/library/functions.html#enumerate
+            start_arg = node.iter.args[1]
+            start_val, confidence = self._get_start_value(start_arg)
+            if start_val is None:
+                return False, confidence
+            return not start_val == 0, confidence
+
+        for keyword in node.iter.keywords:
+            if keyword.arg == "start":
+                start_val, confidence = self._get_start_value(keyword.value)
+                if start_val is None:
+                    return False, confidence
+                return not start_val == 0, confidence
+
+        return False, confidence
+
+    def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
+        if isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute)):
+            inferred = utils.safe_infer(node)
+            start_val = inferred.value if inferred else None
+            return start_val, INFERENCE
+        if isinstance(node, nodes.UnaryOp):
+            return node.operand.value, HIGH
+        if isinstance(node, nodes.Const):
+            return node.value, HIGH
+
+        return None, HIGH

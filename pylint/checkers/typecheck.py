@@ -48,7 +48,7 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
-from pylint.interfaces import INFERENCE
+from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
 if sys.version_info >= (3, 8):
@@ -373,6 +373,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Emitted when a dict key or set member is not hashable "
         "(i.e. doesn't define __hash__ method).",
         {"old_names": [("E1140", "unhashable-dict-key")]},
+    ),
+    "E1144": (
+        "Slice step cannot be 0",
+        "invalid-slice-step",
+        "Used when a slice step is 0 and the object doesn't implement "
+        "a custom __getitem__ method.",
     ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
@@ -1700,13 +1706,7 @@ accessed. Python regular expressions are accepted.",
         ):
             return None
 
-        # For ExtSlice objects coming from visit_extslice, no further
-        # inference is necessary, since if we got this far the ExtSlice
-        # is an error.
-        if isinstance(subscript.value, nodes.ExtSlice):
-            index_type = subscript.value
-        else:
-            index_type = safe_infer(subscript.slice)
+        index_type = safe_infer(subscript.slice)
         if index_type is None or index_type is astroid.Uninferable:
             return None
         # Constants must be of type int
@@ -1763,14 +1763,6 @@ accessed. Python regular expressions are accepted.",
 
         self.add_message("not-callable", node=node, args=node.func.as_string())
 
-    @only_required_for_messages("invalid-sequence-index")
-    def visit_extslice(self, node: nodes.ExtSlice) -> None:
-        if not node.parent or not hasattr(node.parent, "value"):
-            return None
-        # Check extended slice objects as if they were used as a sequence
-        # index to check if the object being sliced can support them
-        return self._check_invalid_sequence_index(node.parent)
-
     def _check_invalid_slice_index(self, node: nodes.Slice) -> None:
         # Check the type of each part of the slice
         invalid_slices_nodes: list[nodes.NodeNG] = []
@@ -1799,14 +1791,16 @@ accessed. Python regular expressions are accepted.",
                     pass
             invalid_slices_nodes.append(index)
 
-        if not invalid_slices_nodes:
+        invalid_slice_step = (
+            node.step and isinstance(node.step, nodes.Const) and node.step.value == 0
+        )
+
+        if not (invalid_slices_nodes or invalid_slice_step):
             return
 
         # Anything else is an error, unless the object that is indexed
         # is a custom object, which knows how to handle this kind of slices
         parent = node.parent
-        if isinstance(parent, nodes.ExtSlice):
-            parent = parent.parent
         if isinstance(parent, nodes.Subscript):
             inferred = safe_infer(parent.value)
             if inferred is None or inferred is astroid.Uninferable:
@@ -1819,11 +1813,19 @@ accessed. Python regular expressions are accepted.",
                 astroid.objects.FrozenSet,
                 nodes.Set,
             )
-            if not isinstance(inferred, known_objects):
+            if not (
+                isinstance(inferred, known_objects)
+                or isinstance(inferred, nodes.Const)
+                and inferred.pytype() in {"builtins.str", "builtins.bytes"}
+                or isinstance(inferred, astroid.bases.Instance)
+                and inferred.pytype() == "builtins.range"
+            ):
                 # Might be an instance that knows how to handle this slice object
                 return
         for snode in invalid_slices_nodes:
             self.add_message("invalid-slice-index", node=snode)
+        if invalid_slice_step:
+            self.add_message("invalid-slice-step", node=node.step, confidence=HIGH)
 
     @only_required_for_messages("not-context-manager")
     def visit_with(self, node: nodes.With) -> None:
@@ -2080,6 +2082,7 @@ accessed. Python regular expressions are accepted.",
         "unhashable-member",
         "invalid-sequence-index",
         "invalid-slice-index",
+        "invalid-slice-step",
     )
     def visit_subscript(self, node: nodes.Subscript) -> None:
         self._check_invalid_sequence_index(node)

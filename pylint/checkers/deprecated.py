@@ -213,16 +213,7 @@ class DeprecatedMixin(BaseChecker):
             # Not interested in other nodes.
             return
 
-        if hasattr(inferred.parent, "qname") and inferred.parent.qname():
-            # Handling the situation when deprecated function is
-            # alias to existing function.
-            qnames = {
-                inferred.qname(),
-                f"{inferred.parent.qname()}.{func_name}",
-                func_name,
-            }
-        else:
-            qnames = {inferred.qname(), func_name}
+        qnames = {inferred.qname(), func_name}
         if any(name in self.deprecated_methods() for name in qnames):
             self.add_message("deprecated-method", node=node, args=(func_name,))
             return

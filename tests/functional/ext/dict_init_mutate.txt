@@ -1,0 +1,3 @@
+dict-init-mutate:15:0:15:11::Declare all known key/values when initializing the dictionary.:HIGH
+dict-init-mutate:18:0:18:11::Declare all known key/values when initializing the dictionary.:HIGH
+dict-init-mutate:27:0:27:11::Declare all known key/values when initializing the dictionary.:HIGH

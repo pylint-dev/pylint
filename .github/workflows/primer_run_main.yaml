@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ["3.7", "3.10"]
+        python-version: ["3.7", "3.11"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.1.0
@@ -82,7 +82,8 @@ jobs:
         uses: actions/upload-artifact@v3.1.1
         with:
           name: primer_commitstring
-          path: tests/.pylint_primer_tests/commit_string.txt
+          path:
+            tests/.pylint_primer_tests/commit_string_${{ matrix.python-version }}.txt
 
       # Run primer
       - name: Run pylint primer

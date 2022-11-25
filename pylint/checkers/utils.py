@@ -233,6 +233,10 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
 
 SINGLETON_VALUES = {True, False, None}
 
+TERMINATING_FUNCS_QNAMES = frozenset(
+    {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
+)
+
 
 class NoSuchArgumentError(Exception):
     pass
@@ -287,7 +291,7 @@ def is_builtin_object(node: nodes.NodeNG) -> bool:
 
 def is_builtin(name: str) -> bool:
     """Return true if <name> could be considered as a builtin defined by python."""
-    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[attr-defined]
+    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[operator]
 
 
 def is_defined_in_scope(
@@ -1895,11 +1899,20 @@ def is_empty_str_literal(node: nodes.NodeNG | None) -> bool:
 
 
 def returns_bool(node: nodes.NodeNG) -> bool:
-    """Returns true if a node is a return that returns a constant boolean."""
+    """Returns true if a node is a nodes.Return that returns a constant boolean."""
     return (
         isinstance(node, nodes.Return)
         and isinstance(node.value, nodes.Const)
-        and node.value.value in {True, False}
+        and isinstance(node.value.value, bool)
+    )
+
+
+def assigned_bool(node: nodes.NodeNG) -> bool:
+    """Returns true if a node is a nodes.Assign that returns a constant boolean."""
+    return (
+        isinstance(node, nodes.Assign)
+        and isinstance(node.value, nodes.Const)
+        and isinstance(node.value.value, bool)
     )
 
 
@@ -2012,7 +2025,7 @@ def is_hashable(node: nodes.NodeNG) -> bool:
     """
     try:
         for inferred in node.infer():
-            if inferred is astroid.Uninferable:
+            if inferred is astroid.Uninferable or isinstance(inferred, nodes.ClassDef):
                 return True
             if not hasattr(inferred, "igetattr"):
                 return True
@@ -2129,3 +2142,25 @@ def is_singleton_const(node: nodes.NodeNG) -> bool:
     return isinstance(node, nodes.Const) and any(
         node.value is value for value in SINGLETON_VALUES
     )
+
+
+def is_terminating_func(node: nodes.Call) -> bool:
+    """Detect call to exit(), quit(), os._exit(), or sys.exit()."""
+    if (
+        not isinstance(node.func, nodes.Attribute)
+        and not (isinstance(node.func, nodes.Name))
+        or isinstance(node.parent, nodes.Lambda)
+    ):
+        return False
+
+    try:
+        for inferred in node.func.infer():
+            if (
+                hasattr(inferred, "qname")
+                and inferred.qname() in TERMINATING_FUNCS_QNAMES
+            ):
+                return True
+    except (StopIteration, astroid.InferenceError):
+        pass
+
+    return False

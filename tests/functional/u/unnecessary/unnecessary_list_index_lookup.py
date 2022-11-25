@@ -81,3 +81,71 @@ for i, part in enumerate(parts):
     if i == 3:  # more complex condition actually
         parts.insert(i, "X")
     print(part, parts[i])
+
+# regression tests for https://github.com/PyCQA/pylint/issues/7682
+series = [1, 2, 3, 4, 5]
+output_list = [
+    (item, series[index])
+    for index, item in enumerate(series, start=1)
+    if index < len(series)
+]
+
+output_list = [
+    (item, series[index])
+    for index, item in enumerate(series, 1)
+    if index < len(series)
+]
+
+for idx, val in enumerate(series, start=2):
+    print(series[idx])
+
+for idx, val in enumerate(series, 2):
+    print(series[idx])
+
+for idx, val in enumerate(series, start=-2):
+    print(series[idx])
+
+for idx, val in enumerate(series, -2):
+    print(series[idx])
+
+for idx, val in enumerate(series, start=0):
+    print(series[idx])  # [unnecessary-list-index-lookup]
+
+for idx, val in enumerate(series, 0):
+    print(series[idx])  # [unnecessary-list-index-lookup]
+
+START = 0
+for idx, val in enumerate(series, start=START):
+    print(series[idx])  # [unnecessary-list-index-lookup]
+
+for idx, val in enumerate(series, START):
+    print(series[idx])  # [unnecessary-list-index-lookup]
+
+START = [1, 2, 3]
+for i, k in enumerate(series, len(START)):
+    print(series[idx])
+
+def return_start(start):
+    return start
+
+for i, k in enumerate(series, return_start(20)):
+    print(series[idx])
+
+for idx, val in enumerate(iterable=series, start=0):
+    print(series[idx])  # [unnecessary-list-index-lookup]
+
+result = [my_list[idx] for idx, val in enumerate(iterable=my_list)]  # [unnecessary-list-index-lookup]
+
+for idx, val in enumerate():
+    print(my_list[idx])
+
+class Command:
+    def _get_extra_attrs(self, extra_columns):
+        self.extra_rows_start = 8  # pylint: disable=attribute-defined-outside-init
+        for index, column in enumerate(extra_columns, start=self.extra_rows_start):
+            pass
+
+Y_START = 2
+nums = list(range(20))
+for y, x in enumerate(nums, start=Y_START + 1):
+    pass

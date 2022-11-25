@@ -99,7 +99,7 @@ Standard Checkers
 
 --ignore-paths
 """"""""""""""
-*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
+*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
 
 **Default:**  ``[]``
 
@@ -620,7 +620,7 @@ Standard Checkers
 """""""""""""""""""""""""""""""""""""""
 *List of valid names for the first argument in a metaclass class method.*
 
-**Default:**  ``('cls',)``
+**Default:**  ``('mcs',)``
 
 
 
@@ -642,7 +642,7 @@ Standard Checkers
 
    valid-classmethod-first-arg = ["cls"]
 
-   valid-metaclass-classmethod-first-arg = ["cls"]
+   valid-metaclass-classmethod-first-arg = ["mcs"]
 
 
 
@@ -798,7 +798,7 @@ Standard Checkers
 """"""""""""""""""""""""
 *Exceptions that will emit a warning when caught.*
 
-**Default:**  ``('BaseException', 'Exception')``
+**Default:**  ``('builtins.BaseException', 'builtins.Exception')``
 
 
 
@@ -812,7 +812,7 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.exceptions]
-   overgeneral-exceptions = ["BaseException", "Exception"]
+   overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
 
 
 

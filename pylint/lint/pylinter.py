@@ -403,7 +403,7 @@ class PyLinter(
                     "bad-plugin-value", args=(modname, module_or_error), line=0
                 )
             elif hasattr(module_or_error, "load_configuration"):
-                module_or_error.load_configuration(self)  # type: ignore[union-attr]
+                module_or_error.load_configuration(self)
 
         # We re-set all the dictionary values to True here to make sure the dict
         # is pickle-able. This is only a problem in multiprocessing/parallel mode.
@@ -879,12 +879,12 @@ class PyLinter(
 
         The returned generator yield one item for each Python module that should be linted.
         """
-        for descr in self._expand_files(files_or_modules):
+        for descr in self._expand_files(files_or_modules).values():
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield FileItem(name, filepath, descr["basename"])
 
-    def _expand_files(self, modules: Sequence[str]) -> list[ModuleDescriptionDict]:
+    def _expand_files(self, modules: Sequence[str]) -> dict[str, ModuleDescriptionDict]:
         """Get modules and errors from a list of modules and handle errors."""
         result, errors = expand_modules(
             modules,

@@ -361,7 +361,7 @@ class _MessageStateHandler:
             match = OPTION_PO.search(content)
             if match is None:
                 continue
-            try:
+            try:  # pylint: disable = too-many-try-statements
                 for pragma_repr in parse_pragma(match.group(2)):
                     if pragma_repr.action in {"disable-all", "skip-file"}:
                         if pragma_repr.action == "disable-all":

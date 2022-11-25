@@ -1,0 +1,4 @@
+Fix ``valid-metaclass-classmethod-first-arg`` default config value from "cls" to "mcs"
+which would cause both a false-positive and false-negative.
+
+Closes #7782
