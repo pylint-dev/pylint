@@ -183,6 +183,6 @@ if (z := z):  # [used-before-assignment]
 
 
 if (defined := False):
-    never_defined = 1
+    NEVER_DEFINED = 1
 print(defined)
-print(never_defined)  # [used-before-assignment]
+print(NEVER_DEFINED)  # [used-before-assignment]

@@ -8,4 +8,4 @@ used-before-assignment:140:10:140:16:type_annotation_used_improperly_after_compr
 used-before-assignment:147:10:147:16:type_annotation_used_improperly_after_comprehension_2:Using variable 'my_int' before assignment:HIGH
 used-before-assignment:177:12:177:16:expression_in_ternary_operator_inside_container_wrong_position:Using variable 'val3' before assignment:HIGH
 used-before-assignment:181:9:181:10::Using variable 'z' before assignment:HIGH
-used-before-assignment:188:6:187:25::Using variable 'never_defined' before assignment:CONTROL_FLOW
+used-before-assignment:188:6:187:25::Using variable 'NEVER_DEFINED' before assignment:CONTROL_FLOW
