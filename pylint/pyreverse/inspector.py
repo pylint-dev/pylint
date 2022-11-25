@@ -186,10 +186,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             specializations.append(node)
             baseobj.specializations = specializations
         # resolve instance attributes
-        node.instance_attrs_type: collections.defaultdict[str,
-                                                          List[astroid.NodeNG]] = collections.defaultdict(list)
-        node.aggregations_type: collections.defaultdict[str,
-                                                        List[astroid.NodeNG]] = collections.defaultdict(list)
+        node.instance_attrs_type = collections.defaultdict(list)
+        node.aggregations_type = collections.defaultdict(list)
         node.associations_type = collections.defaultdict(list)
         for assignattrs in tuple(node.instance_attrs.values()):
             for assignattr in assignattrs:
