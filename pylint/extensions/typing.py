@@ -125,9 +125,9 @@ class TypingChecker(BaseChecker):
             "https://bugs.python.org/issue42965",
         ),
         "R6006": (
-            "Type-hint `%s` is used more than once in assignment. Consider removing redundant typehints. ",
-            "redundant-union-assign-typehint",
-            "Duplicated typehints will be skipped by `mypy` tool, therefore should be removed to avoid confusion.",
+            "Type `%s` is used more than once in union type annotation. Consider removing redundant typehints. ",
+            "redundant-typehint-argument",
+            "Duplicated type arguments will be skipped by `mypy` tool, therefore should be removed to avoid confusion.",
         ),
     }
     options = (
@@ -224,65 +224,78 @@ class TypingChecker(BaseChecker):
         if self._should_check_callable and node.attrname == "Callable":
             self._check_broken_callable(node)
 
-    @only_required_for_messages("redundant-union-assign-typehint")
+    @only_required_for_messages("redundant-typehint-argument")
     def visit_annassign(self, node: nodes.AnnAssign) -> None:
-        type_annotations = list(node.annotation.get_children())
-        if not type_annotations:
+        annotation = node.annotation
+        if self._is_deprecated_union_annotation(annotation, "Optional"):
+            if self._is_optional_none_annotation(annotation):
+                self.add_message(
+                    "redundant-typehint-argument",
+                    node=annotation,
+                    args="None",
+                    confidence=HIGH,
+                )
             return
-        if (
-            isinstance(type_annotations[0], nodes.Name)
-            and type_annotations[0].name in UNION_NAMES
+        if self._is_deprecated_union_annotation(annotation, "Union") and isinstance(
+            annotation.slice, nodes.Tuple
         ):
-            if isinstance(type_annotations[-1], nodes.Tuple):
-                types = list(type_annotations[-1].get_children())
-            elif type_annotations[0].name == "Optional":
-                if (
-                    isinstance(type_annotations[-1], nodes.Const)
-                    and type_annotations[-1].pytype() == "builtins.NoneType"
-                ):
-                    self.add_message(
-                        "redundant-union-assign-typehint",
-                        node=node,
-                        args="None",
-                        confidence=HIGH,
-                    )
-                return
-        elif self._should_check_alternative_union_syntax and isinstance(
-            node.annotation, nodes.BinOp
-        ):
-            types = self.parse_binops_typehints(
-                node.annotation,
-            )
+            types = annotation.slice.elts
+        elif self._is_binop_union_annotation(annotation):
+            types = self._parse_binops_typehints(annotation)
         else:
             return
-        redundant_typehints: list[str] = []
-        for idx, typehint in enumerate(types):
+
+        self._check_union_types(types, node)
+
+    @staticmethod
+    def _is_deprecated_union_annotation(
+        annotation: nodes.NodeNG, union_name: str
+    ) -> bool:
+        return (
+            isinstance(annotation, nodes.Subscript)
+            and isinstance(annotation.value, nodes.Name)
+            and annotation.value.name == union_name
+        )
+
+    def _is_binop_union_annotation(self, annotation: nodes.NodeNG) -> bool:
+        return self._should_check_alternative_union_syntax and isinstance(
+            annotation, nodes.BinOp
+        )
+
+    @staticmethod
+    def _is_optional_none_annotation(annotation: nodes.Subscript) -> bool:
+        return (
+            isinstance(annotation.slice, nodes.Const) and annotation.slice.value is None
+        )
+
+    def _parse_binops_typehints(
+        self, binop_node: nodes.BinOp, typehints_list: list[nodes.NodeNG] | None = None
+    ) -> list[nodes.NodeNG]:
+        typehints_list = typehints_list or []
+        if isinstance(binop_node.left, nodes.BinOp):
+            typehints_list.extend(
+                self._parse_binops_typehints(binop_node.left, typehints_list)
+            )
+        else:
+            typehints_list.append(binop_node.left)
+        typehints_list.append(binop_node.right)
+        return typehints_list
+
+    def _check_union_types(
+        self, types: list[nodes.NodeNG], annotation: nodes.NodeNG
+    ) -> None:
+        types_set = set()
+        for typehint in types:
             typehint_str = typehint.as_string()
-            if (
-                (idx < (len(types) - 1))
-                and (any(typehint_str == x.as_string() for x in types[idx + 1 :]))
-                and typehint_str not in redundant_typehints
-            ):
-                redundant_typehints.append(typehint_str)
+            if typehint_str in types_set:
                 self.add_message(
-                    "redundant-union-assign-typehint",
-                    node=node,
+                    "redundant-typehint-argument",
+                    node=annotation,
                     args=(typehint_str),
                     confidence=HIGH,
                 )
-
-    def parse_binops_typehints(
-        self, binop_node: nodes.BinOp, typehints_list: list[nodes] | None = None
-    ) -> list[nodes]:
-        if typehints_list is None:
-            typehints_list = []
-        ops = list(binop_node.get_children())
-        typehints_list.append(ops[1])
-        if isinstance(ops[0], nodes.BinOp):
-            self.parse_binops_typehints(ops[0], typehints_list)
-        else:
-            typehints_list.append(ops[0])
-        return typehints_list
+            else:
+                types_set.add(typehint_str)
 
     def _check_for_alternative_union_syntax(
         self,

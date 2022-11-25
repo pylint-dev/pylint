@@ -1,0 +1,3 @@
+redundant-typehint-argument:5:0:5:23::Type `int` is used more than once in union type annotation. Consider removing redundant typehints. :HIGH
+redundant-typehint-argument:6:0:6:43::Type `int` is used more than once in union type annotation. Consider removing redundant typehints. :HIGH
+redundant-typehint-argument:9:0:9:77::Type `list[str]` is used more than once in union type annotation. Consider removing redundant typehints. :HIGH
