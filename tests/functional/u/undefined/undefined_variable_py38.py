@@ -182,6 +182,7 @@ if (z := z):  # [used-before-assignment]
     z = z + 1
 
 
-if (never_defined := False):
-    pass
+if (defined := False):
+    never_defined = 1
+print(defined)
 print(never_defined)  # [used-before-assignment]

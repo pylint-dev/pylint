@@ -738,13 +738,13 @@ scope_type : {self._atomic.scope_type}
         if any(node.nodes_of_class(nodes.Break)):
             return True
 
-        # If there is no else, then there is no collectively exhaustive set of paths
-        if not node.orelse:
-            return False
-
         # Is there an assignment in this node itself, e.g. in named expression?
         if NamesConsumer._defines_name_raises_or_returns(name, node):
             return True
+
+        # If there is no else, then there is no collectively exhaustive set of paths
+        if not node.orelse:
+            return False
 
         return NamesConsumer._branch_handles_name(
             name, node.body
