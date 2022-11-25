@@ -29,6 +29,7 @@ def test_simplifiable_3(arg, arg2):
 
 
 def test_simplifiable_4(arg):
+    var = False
     if arg:
         var = True
     else:
@@ -89,6 +90,7 @@ def test_not_simplifiable_4(arg):
 
 def test_not_simplifiable_5(arg):
     # Different actions in each branch
+    var = 43
     if arg == "any":
         return True
     else:

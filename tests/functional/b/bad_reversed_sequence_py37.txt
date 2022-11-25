@@ -1,2 +1,2 @@
-bad-reversed-sequence:5:::The first reversed() argument is not a sequence
-bad-reversed-sequence:12:::The first reversed() argument is not a sequence
+bad-reversed-sequence:5:0:5:26::The first reversed() argument is not a sequence:UNDEFINED
+bad-reversed-sequence:12:0:12:39::The first reversed() argument is not a sequence:UNDEFINED

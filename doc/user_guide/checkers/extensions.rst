@@ -14,6 +14,7 @@ Pylint provides the following optional plugins:
 - :ref:`pylint.extensions.comparison_placement`
 - :ref:`pylint.extensions.confusing_elif`
 - :ref:`pylint.extensions.consider_ternary_expression`
+- :ref:`pylint.extensions.dict_init_mutate`
 - :ref:`pylint.extensions.docparams`
 - :ref:`pylint.extensions.docstyle`
 - :ref:`pylint.extensions.dunder`
@@ -262,6 +263,21 @@ Design checker Messages
 :too-complex (R1260): *%s is too complex. The McCabe rating is %d*
   Used when a method or function is too complex based on McCabe Complexity
   Cyclomatic
+
+
+.. _pylint.extensions.dict_init_mutate:
+
+Dict-Init-Mutate checker
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.dict_init_mutate``.
+Verbatim name of the checker is ``dict-init-mutate``.
+
+Dict-Init-Mutate checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:dict-init-mutate (C3401): *Dictionary mutated immediately after initialization*
+  Dictionaries can be initialized with a single statement using dictionary
+  literal syntax.
 
 
 .. _pylint.extensions.docstyle:

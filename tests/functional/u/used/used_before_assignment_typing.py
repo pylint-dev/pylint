@@ -7,7 +7,7 @@ from typing import List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     if True:  # pylint: disable=using-constant-test
         import math
-
+    import datetime
 
 class MyClass:
     """Type annotation or default values for first level methods can't refer to their own class"""
@@ -87,3 +87,17 @@ class MyFourthClass:  # pylint: disable=too-few-public-methods
     def is_close(self, comparator: math.isclose, first, second):  # [used-before-assignment]
         """Conditional imports guarded are only valid for variable annotations."""
         comparator(first, second)
+
+
+class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-public-methods
+    """Class to test conditional imports guarded by TYPE_CHECKING then used in
+    local (function) variable annotations, which are not evaluated at runtime.
+
+    See: https://github.com/PyCQA/pylint/issues/7609
+    """
+
+    still_an_error: datetime.date  # [used-before-assignment]
+
+    def print_date(self, date) -> None:
+        date: datetime.date = date
+        print(date)

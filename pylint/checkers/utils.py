@@ -233,6 +233,10 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
 
 SINGLETON_VALUES = {True, False, None}
 
+TERMINATING_FUNCS_QNAMES = frozenset(
+    {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
+)
+
 
 class NoSuchArgumentError(Exception):
     pass
@@ -2149,11 +2153,12 @@ def is_terminating_func(node: nodes.Call) -> bool:
     ):
         return False
 
-    qnames = {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
-
     try:
         for inferred in node.func.infer():
-            if hasattr(inferred, "qname") and inferred.qname() in qnames:
+            if (
+                hasattr(inferred, "qname")
+                and inferred.qname() in TERMINATING_FUNCS_QNAMES
+            ):
                 return True
     except (StopIteration, astroid.InferenceError):
         pass

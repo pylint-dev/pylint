@@ -1135,6 +1135,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # A next() method, which is now what we want.
             return
 
+        if len(node.args) == 0:
+            # handle case when builtin.next is called without args.
+            # see https://github.com/PyCQA/pylint/issues/7828
+            return
+
         inferred = utils.safe_infer(node.func)
 
         if (
@@ -2301,15 +2306,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False, confidence
 
     def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
-        confidence = HIGH
-
-        if isinstance(node, (nodes.Name, nodes.Call)):
+        if isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute)):
             inferred = utils.safe_infer(node)
             start_val = inferred.value if inferred else None
-            confidence = INFERENCE
-        elif isinstance(node, nodes.UnaryOp):
-            start_val = node.operand.value
-        else:
-            start_val = node.value
+            return start_val, INFERENCE
+        if isinstance(node, nodes.UnaryOp):
+            return node.operand.value, HIGH
+        if isinstance(node, nodes.Const):
+            return node.value, HIGH
 
-        return start_val, confidence
+        return None, HIGH

@@ -180,3 +180,8 @@ def expression_in_ternary_operator_inside_container_wrong_position():
 # Self-referencing
 if (z := z):  # [used-before-assignment]
     z = z + 1
+
+
+if (never_defined := False):
+    pass
+print(never_defined)  # [used-before-assignment]

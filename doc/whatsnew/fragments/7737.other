@@ -1,0 +1,5 @@
+epylint is now deprecated and will be removed in pylint 3.0.0. All emacs and flymake related
+files were removed and their support will now happen in an external repository :
+https://github.com/emacsorphanage/pylint.
+
+Closes #7737

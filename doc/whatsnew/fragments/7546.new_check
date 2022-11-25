@@ -1,0 +1,4 @@
+Added ``nested-min-max`` which flags ``min(1, min(2, 3))`` to simplify to
+``min(1, 2, 3)``.
+
+Closes #7546

@@ -33,7 +33,7 @@ True == x in [1, 2, 3]  # [use-set-for-membership]  # noqa: E712
 x in (1, "Hello World", False, None)  # [use-set-for-membership]
 x in (1, [])  # List is not hashable
 
-if some_var:
+if x:
     var2 = 2
 else:
     var2 = []

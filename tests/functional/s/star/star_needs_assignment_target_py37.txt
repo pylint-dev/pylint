@@ -1,1 +1,1 @@
-star-needs-assignment-target:15:37::Can use starred expression only in assignment target
+star-needs-assignment-target:15:36:15:46::Can use starred expression only in assignment target:UNDEFINED

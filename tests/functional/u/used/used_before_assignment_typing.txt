@@ -2,3 +2,4 @@ undefined-variable:16:21:16:28:MyClass.incorrect_typing_method:Undefined variabl
 undefined-variable:21:26:21:33:MyClass.incorrect_nested_typing_method:Undefined variable 'MyClass':UNDEFINED
 undefined-variable:26:20:26:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED
 used-before-assignment:87:35:87:39:MyFourthClass.is_close:Using variable 'math' before assignment:HIGH
+used-before-assignment:97:20:97:28:VariableAnnotationsGuardedByTypeChecking:Using variable 'datetime' before assignment:HIGH
