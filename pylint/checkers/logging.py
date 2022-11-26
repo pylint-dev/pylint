@@ -105,12 +105,7 @@ CHECKED_CONVENIENCE_FUNCTIONS = {
     "warning",
 }
 
-MOST_COMMON_FORMATTING = {
-    "%s",
-    "%d",
-    "%f",
-    "%r",
-}
+MOST_COMMON_FORMATTING = frozenset("%s", "%d", "%f", "%r")
 
 
 def is_method_call(
