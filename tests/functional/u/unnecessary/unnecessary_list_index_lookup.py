@@ -130,22 +130,3 @@ def return_start(start):
 
 for i, k in enumerate(series, return_start(20)):
     print(series[idx])
-
-for idx, val in enumerate(iterable=series, start=0):
-    print(series[idx])  # [unnecessary-list-index-lookup]
-
-result = [my_list[idx] for idx, val in enumerate(iterable=my_list)]  # [unnecessary-list-index-lookup]
-
-for idx, val in enumerate():
-    print(my_list[idx])
-
-class Command:
-    def _get_extra_attrs(self, extra_columns):
-        self.extra_rows_start = 8  # pylint: disable=attribute-defined-outside-init
-        for index, column in enumerate(extra_columns, start=self.extra_rows_start):
-            pass
-
-Y_START = 2
-nums = list(range(20))
-for y, x in enumerate(nums, start=Y_START + 1):
-    pass

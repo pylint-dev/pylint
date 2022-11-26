@@ -2248,13 +2248,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False, confidence
 
     def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
-        if isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute)):
+        confidence = HIGH
+
+        if isinstance(node, (nodes.Name, nodes.Call)):
             inferred = utils.safe_infer(node)
             start_val = inferred.value if inferred else None
-            return start_val, INFERENCE
-        if isinstance(node, nodes.UnaryOp):
-            return node.operand.value, HIGH
-        if isinstance(node, nodes.Const):
-            return node.value, HIGH
+            confidence = INFERENCE
+        elif isinstance(node, nodes.UnaryOp):
+            start_val = node.operand.value
+        else:
+            start_val = node.value
 
-        return None, HIGH
+        return start_val, confidence
