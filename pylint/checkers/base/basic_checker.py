@@ -572,7 +572,7 @@ class BasicChecker(_BasicChecker):
         def is_iterable(internal_node: nodes.NodeNG) -> bool:
             return isinstance(internal_node, (nodes.List, nodes.Set, nodes.Dict))
 
-        defaults = node.args.defaults or [] + node.args.kw_defaults or []
+        defaults = (node.args.defaults or []) + (node.args.kw_defaults or [])
         for default in defaults:
             if not default:
                 continue
