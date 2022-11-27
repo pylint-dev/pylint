@@ -39,6 +39,12 @@ ARROWS: dict[EdgeType, dict[str, str]] = {
         "arrowhead": "diamond",
         "style": "solid",
     },
+    EdgeType.AGGREGATION: {
+        "fontcolor": "green",
+        "arrowtail": "none",
+        "arrowhead": "odiamond",
+        "style": "solid",
+    },
     EdgeType.USES: {"arrowtail": "none", "arrowhead": "open"},
 }
 
