@@ -109,3 +109,14 @@ def function23(value=collections.UserList()):  # [dangerous-default-value]
 def function24(*, value=[]): # [dangerous-default-value]
     """dangerous default value in kwarg."""
     return value
+
+
+class Clazz:
+    # pylint: disable=too-few-public-methods
+    def __init__(  # [dangerous-default-value]
+        self,
+        arg: str = None,
+        *,
+        kk: dict = {},
+    ) -> None:
+        pass
