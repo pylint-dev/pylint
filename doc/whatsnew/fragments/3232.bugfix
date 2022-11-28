@@ -1,3 +1,3 @@
-Emit a ``UserWarning`` if pylint is run in parallel and with custom plugins.
+Exit immediately with a ``UserWarning`` if pylint is run in parallel and with custom plugins. This can lead to inconsistent behaviors, and the multiprocessing is not very efficient due to most of the parsing our internal code representation generation not being parallelized anyway. Use ``--job=1`` instead.
 
 Closes #3232
