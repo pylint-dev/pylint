@@ -229,18 +229,19 @@ group are mutually exclusive.",
 
         if self.linter.config.jobs != 1:
             # Validate if jobs is 0 or positive num other than 1
-            if self._plugins:
-                warnings.warn(
-                    "Running pylint in parallel with custom plugins is not currently supported.",
-                    UserWarning,
-                )
-                sys.exit(32)
             if multiprocessing is None:
                 print(
                     "Multiprocessing library is missing, fallback to single process",
                     file=sys.stderr,
                 )
                 self.linter.set_option("jobs", 1)
+            elif self._plugins:
+                warnings.warn(
+                    "Running pylint in parallel with custom plugins is not currently supported.",
+                    UserWarning,
+                )
+                sys.exit(32)
+
             elif self.linter.config.jobs == 0:
                 self.linter.config.jobs = _cpu_count()
 
