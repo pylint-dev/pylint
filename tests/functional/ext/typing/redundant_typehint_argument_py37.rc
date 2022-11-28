@@ -1,6 +1,0 @@
-[main]
-load-plugins=pylint.extensions.typing
-
-[testoptions]
-min_pyver=3.7
-max_pyver=3.10
