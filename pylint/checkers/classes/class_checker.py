@@ -2098,18 +2098,8 @@ a metaclass class method.",
             if node_frame_class(method) in parents_with_called_inits:
                 return
 
-            # Return if klass is protocol
-            if klass.qname() in utils.TYPING_PROTOCOLS:
+            if utils.is_protocol_class(klass):
                 return
-
-            # Return if any of the klass' first-order bases is protocol
-            for base in klass.bases:
-                try:
-                    for inf_base in base.infer():
-                        if inf_base.qname() in utils.TYPING_PROTOCOLS:
-                            return
-                except astroid.InferenceError:
-                    continue
 
             if decorated_with(node, ["typing.overload"]):
                 continue

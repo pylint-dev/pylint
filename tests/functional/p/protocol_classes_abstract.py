@@ -1,8 +1,8 @@
-"""Test that classes inheriting from protocols should not warn about abstract-method."""
+"""Test that classes inheriting directly from Protocol should not warn about abstract-method."""
 
 # pylint: disable=too-few-public-methods,disallowed-name,invalid-name
 
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 from typing import Protocol, Literal
 
 
@@ -28,9 +28,11 @@ class FooBarProtocol(FooProtocol, BarProtocol, Protocol):
     """FooBar Protocol"""
 
 
-class IndirectProtocol(FooProtocol):
+class IndirectProtocol(FooProtocol):  # [abstract-method]
     """Doesn't subclass typing.Protocol directly"""
 
+class AbcProtocol(FooProtocol, metaclass=ABCMeta):
+    """Doesn't subclass typing.Protocol but uses metaclass directly"""
 
 class FooBar(FooBarProtocol):
     """FooBar object"""
