@@ -13,6 +13,7 @@ import collections
 import os
 import traceback
 import warnings
+from abc import ABC, abstractmethod
 from collections.abc import Generator
 from typing import Any, Callable, Optional
 
@@ -123,6 +124,12 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     * instance_attrs_type
       as locals_type but for klass member attributes (only on astroid.Class)
 
+    * associations_type
+      as instance_attrs_type but for association relationships
+
+    * aggregations_type
+      as instance_attrs_type but for aggregations relationships
+
     * implements,
       list of implemented interface _objects_ (only on astroid.Class nodes)
     """
@@ -134,6 +141,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         self.tag = tag
         # visited project
         self.project = project
+        self.associations_handler = AggregationsHandler()
+        self.associations_handler.set_next(OtherAssociationsHandler())
 
     def visit_project(self, node: Project) -> None:
         """Visit a pyreverse.utils.Project node.
@@ -178,9 +187,12 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             baseobj.specializations = specializations
         # resolve instance attributes
         node.instance_attrs_type = collections.defaultdict(list)
+        node.aggregations_type = collections.defaultdict(list)
+        node.associations_type = collections.defaultdict(list)
         for assignattrs in tuple(node.instance_attrs.values()):
             for assignattr in assignattrs:
                 if not isinstance(assignattr, nodes.Unknown):
+                    self.associations_handler.handle(assignattr, node)
                     self.handle_assignattr_type(assignattr, node)
         # resolve implemented interface
         try:
@@ -311,6 +323,61 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             mod_paths = module.depends
             if mod_path not in mod_paths:
                 mod_paths.append(mod_path)
+
+
+class AssociationHandlerInterface(ABC):
+    @abstractmethod
+    def set_next(
+        self, handler: AssociationHandlerInterface
+    ) -> AssociationHandlerInterface:
+        pass
+
+    @abstractmethod
+    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+        pass
+
+
+class AbstractAssociationHandler(AssociationHandlerInterface):
+    """
+    Chain of Responsibility for handling types of association, useful
+    to expand in the future if we want to add more distinct associations.
+
+    Every link of the chain checks if it's a certain type of association.
+    If no association is found it's set as a generic association in `associations_type`.
+
+    The default chaining behavior is implemented inside the base handler
+    class.
+    """
+
+    _next_handler: AssociationHandlerInterface
+
+    def set_next(
+        self, handler: AssociationHandlerInterface
+    ) -> AssociationHandlerInterface:
+        self._next_handler = handler
+        return handler
+
+    @abstractmethod
+    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+        if self._next_handler:
+            self._next_handler.handle(node, parent)
+
+
+class AggregationsHandler(AbstractAssociationHandler):
+    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+        if isinstance(node.parent.value, astroid.node_classes.Name):
+            current = set(parent.aggregations_type[node.attrname])
+            parent.aggregations_type[node.attrname] = list(
+                current | utils.infer_node(node)
+            )
+        else:
+            super().handle(node, parent)
+
+
+class OtherAssociationsHandler(AbstractAssociationHandler):
+    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+        current = set(parent.associations_type[node.attrname])
+        parent.associations_type[node.attrname] = list(current | utils.infer_node(node))
 
 
 def project_from_files(
