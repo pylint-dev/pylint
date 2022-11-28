@@ -1,9 +1,6 @@
-missing-keyword-arg:8:0:8:25::Call to `print_hello` missing keyword argument `one`.:INFERENCE
-missing-keyword-arg:9:0:9:21::Call to `print_hello` missing keyword argument `one`.:INFERENCE
-missing-keyword-arg:9:0:9:21::Call to `print_hello` missing keyword argument `two`.:INFERENCE
-missing-keyword-arg:24:8:24:20::Call to `Fruit` missing keyword argument `color`.:INFERENCE
-missing-keyword-arg:26:0:26:20::Call to `print_color` missing keyword argument `skip_header`.:INFERENCE
-missing-keyword-arg:27:0:27:24::Call to `print_color` missing keyword argument `skip_header`.:INFERENCE
-missing-keyword-arg:35:0:35:23::Call to `keep_self_arg` missing keyword argument `one`.:INFERENCE
-missing-keyword-arg:35:0:35:23::Call to `keep_self_arg` missing keyword argument `self`.:INFERENCE
-missing-keyword-arg:38:0:38:35::Call to `join` missing keyword argument `iterable`.:INFERENCE
+missing-keyword-arg:10:0:10:25::Call to `print_hello` missing keyword argument `one`.:INFERENCE
+missing-keyword-arg:11:0:11:21::Call to `print_hello` missing keyword argument `one`.:INFERENCE
+missing-keyword-arg:11:0:11:21::Call to `print_hello` missing keyword argument `two`.:INFERENCE
+missing-keyword-arg:46:0:46:23::Call to `keep_self_arg` missing keyword argument `one`.:INFERENCE
+missing-keyword-arg:46:0:46:23::Call to `keep_self_arg` missing keyword argument `self`.:INFERENCE
+missing-keyword-arg:47:0:47:28::Call to `keep_self_arg` missing keyword argument `one`.:INFERENCE

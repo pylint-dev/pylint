@@ -34,11 +34,18 @@ class KeywordChecker(BaseChecker):
 
         if isinstance(called, nodes.ClassDef):
             needed_keywords = called.instance_attrs.keys()
+            default_kwargs = []  # todo
         elif isinstance(called, (nodes.FunctionDef, BoundMethod)):
             needed_keywords = called.argnames()
             if called.is_method():
                 needed_keywords = [x for x in needed_keywords if x != "self"]
+
+            default_kwargs = called.args.defaults
         else:
+            return
+
+        if len(needed_keywords) - len(default_kwargs) < 2:
+            # This checker will not apply if there are less than 2 positional args.
             return
 
         provided_kwarg_names = {kwarg.arg for kwarg in node.keywords}
