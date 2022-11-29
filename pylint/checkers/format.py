@@ -560,7 +560,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
 
         # Functions stubs with ``Ellipsis`` as body are exempted.
         if (
-            isinstance(node.parent, (nodes.FunctionDef, nodes.AsyncFunctionDef))
+            isinstance(node.parent, nodes.FunctionDef)
             and isinstance(node, nodes.Expr)
             and isinstance(node.value, nodes.Const)
             and node.value.value is Ellipsis
