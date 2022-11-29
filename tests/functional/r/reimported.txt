@@ -1,12 +1,10 @@
-reimported:3:0:3:29::Reimport 'sleep' (imported line 3):UNDEFINED
-reimported:4:0:4:33::Reimport 'missing' (imported line 4):UNDEFINED
-reimported:7:0:7:15::Reimport 'missing1' (imported line 6):UNDEFINED
-reimported:10:0:10:27::Reimport 'deque' (imported line 9):UNDEFINED
-reimported:21:0:21:33::Reimport 'ElementTree' (imported line 20):UNDEFINED
-reimported:24:0:24:21::Reimport 'email.encoders' (imported line 23):UNDEFINED
-reimported:26:0:26:10::Reimport 'sys' (imported line 18):UNDEFINED
-redefined-outer-name:36:4:36:14:reimport:Redefining name 'sys' from outer scope (line 16):UNDEFINED
-reimported:36:4:36:14:reimport:Reimport 'sys' (imported line 18):UNDEFINED
-reimported:43:0:43:45::Reimport 'CustomPath' (imported line 42):UNDEFINED
-reimported:44:0:44:24::Reimport 'Path' (imported line 42):UNDEFINED
-reimported:45:0:45:27::Reimport 'FastAPI.Path' (imported line 42):UNDEFINED
+reimported:5:0:5:29::Reimport 'sleep' (imported line 5):UNDEFINED
+reimported:6:0:6:33::Reimport 'missing' (imported line 6):UNDEFINED
+reimported:9:0:9:15::Reimport 'missing1' (imported line 8):UNDEFINED
+reimported:12:0:12:27::Reimport 'deque' (imported line 11):UNDEFINED
+reimported:23:0:23:33::Reimport 'ElementTree' (imported line 22):UNDEFINED
+reimported:26:0:26:21::Reimport 'email.encoders' (imported line 25):UNDEFINED
+reimported:28:0:28:10::Reimport 'sys' (imported line 20):UNDEFINED
+redefined-outer-name:38:4:38:14:reimport:Redefining name 'sys' from outer scope (line 18):UNDEFINED
+reimported:38:4:38:14:reimport:Reimport 'sys' (imported line 20):UNDEFINED
+reimported:45:0:45:34::Reimport 'pandas._libs.algos' (imported line 44):UNDEFINED

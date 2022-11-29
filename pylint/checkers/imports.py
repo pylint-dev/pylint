@@ -114,6 +114,13 @@ def _get_first_import(
             if any(fullname == iname[0] for iname in first.names):
                 found = True
                 break
+            for imported_name, imported_alias in first.names:
+                if not imported_alias and imported_name == alias:
+                    found = True
+                    msg = "shadowed-import"
+                    break
+            if found:
+                break
         elif isinstance(first, nodes.ImportFrom):
             if level == first.level:
                 for imported_name, imported_alias in first.names:
@@ -127,7 +134,7 @@ def _get_first_import(
                     ):
                         found = True
                         break
-                    if imported_name == alias:
+                    if not imported_alias and imported_name == alias:
                         found = True
                         msg = "shadowed-import"
                         break
@@ -940,11 +947,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 first, msg = _get_first_import(
                     node, known_context, name, basename, known_level, alias
                 )
-                if first is not None:
+                if first is not None and msg is not None:
                     name = name if msg == "reimported" else alias
-                    self.add_message(
-                        msg, node=node, args=(name, first.fromlineno)
-                    )
+                    self.add_message(msg, node=node, args=(name, first.fromlineno))
 
     def _report_external_dependencies(
         self, sect: Section, _: LinterStats, _dummy: LinterStats | None

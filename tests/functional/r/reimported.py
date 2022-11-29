@@ -1,4 +1,6 @@
-# pylint: disable=missing-docstring,unused-import,import-error, wildcard-import,unused-wildcard-import,redefined-builtin,no-name-in-module,ungrouped-imports,wrong-import-order,wrong-import-position,consider-using-from-import
+# pylint: disable=missing-docstring,unused-import,import-error, wildcard-import,unused-wildcard-import
+# pylint: disable=redefined-builtin,no-name-in-module,ungrouped-imports,wrong-import-order,wrong-import-position
+# pylint: disable=consider-using-from-import
 
 from time import sleep, sleep  # [reimported]
 from lala import missing, missing  # [reimported]
@@ -39,7 +41,5 @@ def reimport():
 
 del sys, ElementTree, xml.etree.ElementTree, encoders, email.encoders
 
-from pathlib import Path
-from some_other_lib import CustomPath as Path   # [reimported]
-from pathlib import Path  # [reimported]
-import FastAPI.Path as Path   # [reimported]
+from pandas._libs import algos as libalgos
+import pandas._libs.algos as algos  # [reimported]
