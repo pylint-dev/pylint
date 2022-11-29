@@ -153,6 +153,13 @@ Standard Checkers
 **Default:** ``""``
 
 
+--no-header
+"""""""""""
+*Do not print header with module name.*
+
+**Default:**  ``False``
+
+
 --output-format
 """""""""""""""
 *Set the output format. Available formats are text, parseable, colorized, json and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
@@ -259,6 +266,8 @@ Standard Checkers
    load-plugins = []
 
    msg-template = ""
+
+   no-header = false
 
    # output-format =
 

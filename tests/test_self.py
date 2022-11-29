@@ -1277,6 +1277,31 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         )
 
         self._test_output([module, "--enable=all"], expected_output=expected)
+    @pytest.mark.parametrize(
+        "output_format", ["text", "colorized"],
+    )
+    def test_output_with_header(self, output_format: str) -> None:
+        module = join(HERE, "data", "clientmodule_test.py")
+        expected = textwrap.dedent("""************* Module data.clientmodule_test""")
+
+        args = [module]
+        if output_format == "colorized":
+            args.append(f"--output-format={output_format}")
+        self._test_output(args, expected_output=expected)
+
+    @pytest.mark.parametrize(
+        "output_format", ["text", "colorized"],
+    )
+    def test_output_no_header(self, output_format: str) -> None:
+        module = join(HERE, "data", "clientmodule_test.py")
+        expected = "Unused variable 'local_variable'"
+        not_expected = textwrap.dedent("""************* Module data.clientmodule_test""")
+
+        args = [module, "--no-header"]
+        if output_format == "colorized":
+            args.append(f"--output-format={output_format}")
+        self._test_output(args, expected_output=expected, unexpected_output=not_expected)
+
 
 
 class TestCallbackOptions:

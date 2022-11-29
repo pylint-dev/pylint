@@ -150,6 +150,10 @@ def colorize_ansi(
     return msg
 
 
+def make_header(msg: Message) -> str:
+    return f"************* Module {msg.module}"
+
+
 class TextReporter(BaseReporter):
     """Reports messages and layouts in plain text."""
 
@@ -199,7 +203,8 @@ class TextReporter(BaseReporter):
     def handle_message(self, msg: Message) -> None:
         """Manage message of different type and in the context of path."""
         if msg.module not in self._modules:
-            self.writeln(f"************* Module {msg.module}")
+            if not self.linter.config.no_header:
+                self.writeln(make_header(msg))
             self._modules.add(msg.module)
         self.write_message(msg)
 
@@ -292,9 +297,10 @@ class ColorizedTextReporter(TextReporter):
         using ANSI escape codes.
         """
         if msg.module not in self._modules:
-            msg_style = self._get_decoration("S")
-            modsep = colorize_ansi(f"************* Module {msg.module}", msg_style)
-            self.writeln(modsep)
+            if not self.linter.config.no_header:
+                msg_style = self._get_decoration("S")
+                modsep = colorize_ansi(make_header(msg), msg_style)
+                self.writeln(modsep)
             self._modules.add(msg.module)
         msg_style = self._get_decoration(msg.C)
 
