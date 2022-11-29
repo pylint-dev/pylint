@@ -951,7 +951,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 )
                 if first is not None and msg is not None:
                     name = name if msg == "reimported" else alias
-                    self.add_message(msg, node=node, args=(name, first.fromlineno))
+                    self.add_message(
+                        msg, node=node, args=(name, first.fromlineno), confidence=HIGH
+                    )
 
     def _report_external_dependencies(
         self, sect: Section, _: LinterStats, _dummy: LinterStats | None
