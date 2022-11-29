@@ -1,3 +1,0 @@
-Fixes a crash in ``stop-iteration-return`` when the ``next`` builtin is called without arguments.
-
-Closes #7828
