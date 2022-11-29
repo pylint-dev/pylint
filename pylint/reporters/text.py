@@ -199,11 +199,8 @@ class TextReporter(BaseReporter):
     def handle_message(self, msg: Message) -> None:
         """Manage message of different type and in the context of path."""
         if msg.module not in self._modules:
-            if msg.module:
-                self.writeln(f"************* Module {msg.module}")
-                self._modules.add(msg.module)
-            else:
-                self.writeln("************* ")
+            self.writeln(f"************* Module {msg.module}")
+            self._modules.add(msg.module)
         self.write_message(msg)
 
     def _display(self, layout: Section) -> None:
@@ -296,10 +293,7 @@ class ColorizedTextReporter(TextReporter):
         """
         if msg.module not in self._modules:
             msg_style = self._get_decoration("S")
-            if msg.module:
-                modsep = colorize_ansi(f"************* Module {msg.module}", msg_style)
-            else:
-                modsep = colorize_ansi(f"************* {msg.module}", msg_style)
+            modsep = colorize_ansi(f"************* Module {msg.module}", msg_style)
             self.writeln(modsep)
             self._modules.add(msg.module)
         msg_style = self._get_decoration(msg.C)
