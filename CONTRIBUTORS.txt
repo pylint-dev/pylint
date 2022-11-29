@@ -483,6 +483,7 @@ contributors:
 - Fabrice Douchant <Fabrice.Douchant@logilab.fr>
 - Fabio Natali <me@fabionatali.com>
 - Fabian Damken <fdamken+github@frisp.org>
+- Eric McDonald <221418+emcd@users.noreply.github.com>
 - Eric Froemling <ericfroemling@gmail.com>
 - Emmanuel Chaudron <manu.chaud@hotmail.fr>
 - Elizabeth Bott <52465744+elizabethbott@users.noreply.github.com>
