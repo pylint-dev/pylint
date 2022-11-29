@@ -22,9 +22,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
-from pylint.checkers.utils import (
-    only_required_for_messages,
-)
+from pylint.checkers.utils import only_required_for_messages
 from pylint.constants import WarningScope
 from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
