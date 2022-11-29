@@ -125,7 +125,7 @@ class TypingChecker(BaseChecker):
             "https://bugs.python.org/issue42965",
         ),
         "R6006": (
-            "Type `%s` is used more than once in union type annotation. Consider removing redundant typehints. ",
+            "Type `%s` is used more than once in union type annotation. Remove redundant typehints.",
             "redundant-typehint-argument",
             "Duplicated type arguments will be skipped by `mypy` tool, therefore should be removed to avoid confusion.",
         ),
