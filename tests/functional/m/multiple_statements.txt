@@ -3,4 +3,3 @@ multiple-statements:9:9:9:13::More than one statement on a single line:UNDEFINED
 multiple-statements:13:26:13:30:MyError:More than one statement on a single line:UNDEFINED
 multiple-statements:15:26:15:31:MyError:More than one statement on a single line:UNDEFINED
 multiple-statements:17:26:17:31:MyError:More than one statement on a single line:UNDEFINED
-multiple-statements:30:31:30:34:concat2:More than one statement on a single line:UNDEFINED
