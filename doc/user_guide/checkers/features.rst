@@ -529,7 +529,9 @@ Imports checker Messages
 :preferred-module (W0407): *Prefer importing %r instead of %r*
   Used when a module imported has a preferred replacement module.
 :reimported (W0404): *Reimport %r (imported line %s)*
-  Used when a module is reimported multiple times.
+  Used when a module is imported more than once.
+:shadowed-import (W0416): *Shadowed %r (imported line %s)*
+  Used when a module is aliased with a name that shadowed another import.
 :wildcard-import (W0401): *Wildcard import %s*
   Used when `from module import *` is detected.
 :misplaced-future (W0410): *__future__ import is not the first non docstring statement*
