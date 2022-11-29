@@ -12,7 +12,7 @@ import os
 import sys
 from collections import defaultdict
 from collections.abc import ItemsView, Sequence
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import astroid
 from astroid import nodes
@@ -97,7 +97,7 @@ def _get_first_import(
     base: str | None,
     level: int | None,
     alias: str | None,
-) -> Tuple[nodes.Import | nodes.ImportFrom | None, str | None]:
+) -> tuple[nodes.Import | nodes.ImportFrom | None, str | None]:
     """Return the node where [base.]<name> is imported or None if not found."""
     fullname = f"{base}.{name}" if base else name
 
@@ -933,7 +933,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         level: int | None = None,
     ) -> None:
         """Check if a module with the same name is already imported or aliased."""
-        if not self.linter.is_message_enabled("reimported"):
+        if not self.linter.is_message_enabled(
+            "reimported"
+        ) and not self.linter.is_message_enabled("shadowed-import"):
             return
 
         frame = node.frame(future=True)
