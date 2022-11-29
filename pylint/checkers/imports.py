@@ -12,7 +12,7 @@ import os
 import sys
 from collections import defaultdict
 from collections.abc import ItemsView, Sequence
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
 import astroid
 from astroid import nodes
@@ -97,12 +97,14 @@ def _get_first_import(
     base: str | None,
     level: int | None,
     alias: str | None,
-) -> nodes.Import | nodes.ImportFrom | None:
+) -> Tuple[nodes.Import | nodes.ImportFrom | None, str | None]:
     """Return the node where [base.]<name> is imported or None if not found."""
     fullname = f"{base}.{name}" if base else name
 
     first = None
     found = False
+    msg = "reimported"
+
     for first in context.body:
         if first is node:
             continue
@@ -127,12 +129,13 @@ def _get_first_import(
                         break
                     if imported_name == alias:
                         found = True
+                        msg = "shadowed-import"
                         break
                 if found:
                     break
     if found and not astroid.are_exclusive(first, node):
-        return first
-    return None
+        return first, msg
+    return None, None
 
 
 def _ignore_import_failure(
@@ -255,7 +258,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0404": (
         "Reimport %r (imported line %s)",
         "reimported",
-        "Used when a module of the same name is reimported or aliased.",
+        "Used when a module is imported more than once.",
     ),
     "W0406": (
         "Module import itself",
@@ -305,6 +308,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "import-outside-toplevel",
         "Used when an import statement is used anywhere other than the module "
         "toplevel. Move this import to the top of the file.",
+    ),
+    "W0416": (
+        "Shadowed %r (imported line %s)",
+        "shadowed-import",
+        "Used when a module is aliased with a name that shadowed another import.",
     ),
 }
 
@@ -929,12 +937,13 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         for known_context, known_level in contexts:
             for name, alias in node.names:
-                first = _get_first_import(
+                first, msg = _get_first_import(
                     node, known_context, name, basename, known_level, alias
                 )
                 if first is not None:
+                    name = name if msg == "reimported" else alias
                     self.add_message(
-                        "reimported", node=node, args=(name, first.fromlineno)
+                        msg, node=node, args=(name, first.fromlineno)
                     )
 
     def _report_external_dependencies(
