@@ -29,6 +29,41 @@ Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
+What's new in Pylint 2.15.7?
+----------------------------
+Release date: 2022-11-27
+
+
+False Positives Fixed
+---------------------
+
+- Fix ``deprecated-method`` false positive when alias for method is similar to
+  name of deprecated method.
+
+  Closes #5886 (`#5886 <https://github.com/PyCQA/pylint/issues/5886>`_)
+
+- Fix a false positive for ``used-before-assignment`` for imports guarded by
+  ``typing.TYPE_CHECKING`` later used in variable annotations.
+
+  Closes #7609 (`#7609 <https://github.com/PyCQA/pylint/issues/7609>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Pylint will now filter duplicates given to it before linting. The output
+  should
+  be the same whether a file is given/discovered multiple times or not.
+
+  Closes #6242, #4053 (`#6242 <https://github.com/PyCQA/pylint/issues/6242>`_)
+
+- Fixes a crash in ``stop-iteration-return`` when the ``next`` builtin is
+  called without arguments.
+
+  Closes #7828 (`#7828 <https://github.com/PyCQA/pylint/issues/7828>`_)
+
+
 What's new in Pylint 2.15.6?
 ----------------------------
 Release date: 2022-11-19
