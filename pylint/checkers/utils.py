@@ -1167,6 +1167,10 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
     """Return true if the given class node should be considered as an abstract
     class.
     """
+    # Protocol classes are considered "abstract"
+    if is_protocol_class(node):
+        return True
+
     # Only check for explicit metaclass=ABCMeta on this specific class
     meta = node.declared_metaclass()
     if meta is not None:
@@ -1653,14 +1657,23 @@ def is_protocol_class(cls: nodes.NodeNG) -> bool:
     """Check if the given node represents a protocol class.
 
     :param cls: The node to check
-    :returns: True if the node is a typing protocol class, false otherwise.
+    :returns: True if the node is or inherits from typing.Protocol directly, false otherwise.
     """
     if not isinstance(cls, nodes.ClassDef):
         return False
 
-    # Use .ancestors() since not all protocol classes can have
-    # their mro deduced.
-    return any(parent.qname() in TYPING_PROTOCOLS for parent in cls.ancestors())
+    # Return if klass is protocol
+    if cls.qname() in TYPING_PROTOCOLS:
+        return True
+
+    for base in cls.bases:
+        try:
+            for inf_base in base.infer():
+                if inf_base.qname() in TYPING_PROTOCOLS:
+                    return True
+        except astroid.InferenceError:
+            continue
+    return False
 
 
 def is_call_of_name(node: nodes.NodeNG, name: str) -> bool:
