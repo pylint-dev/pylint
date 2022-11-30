@@ -1,0 +1,5 @@
+Extend support for ``magic-number`` plugin rcfile parsing. Now supports newline and tab characters,
+empty string and floating point numbers.
+You can use ``magic-number`` checker with ``--load-plugins=pylint.extensions.magic_value``.
+
+Closes #7858

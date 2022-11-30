@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from re import match as regex_match
+from re import sub as regex_sub
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -15,6 +17,9 @@ from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+
+DOUBLE_BACKSLASH_CORRECTION_DICT = {"\\n": "\n", "\\t": "\t"}
 
 
 class MagicValueChecker(BaseChecker):
@@ -37,10 +42,29 @@ class MagicValueChecker(BaseChecker):
                 "default": (0, -1, 1, "", "__main__"),
                 "type": "csv",
                 "metavar": "<argument names>",
-                "help": " List of valid magic values that `magic-value-compare` will not detect.",
+                "help": " List of valid magic values that `magic-value-compare` will not detect."
+                "supports integers, floats, negative numbers, for empty string enter ``''``,"
+                " for backslash values just use one backslash e.g `'\n'`",
             },
         ),
     )
+
+    def __init__(self, linter: PyLinter) -> None:
+        """Initialize checker instance."""
+        super().__init__(linter=linter)
+        self.valid_magic_vals = tuple
+
+    def open(self) -> None:
+        if self._is_default_magic_vals():
+            self.valid_magic_vals = self.linter.config.valid_magic_values
+        else:
+            self.valid_magic_vals = tuple(
+                self._parse_rcfile_magic_numbers(value)
+                for value in self.linter.config.valid_magic_values
+            )
+
+    def _is_default_magic_vals(self) -> bool:
+        return isinstance(self.linter.config.valid_magic_values, tuple)
 
     def _check_constants_comparison(self, node: nodes.Compare) -> None:
         """
@@ -74,10 +98,23 @@ class MagicValueChecker(BaseChecker):
                 confidence=HIGH,
             )
 
-    def _is_magic_value(self, node: nodes.NodeNG) -> bool:
+    def _is_magic_value(self, node: nodes.Const) -> bool:
         return (not utils.is_singleton_const(node)) and (
-            node.value not in self.linter.config.valid_magic_values
+            node.value not in (self.valid_magic_vals)
         )
+
+    @staticmethod
+    def _parse_rcfile_magic_numbers(parsed_val: str) -> float | str:
+        parsed_val = regex_sub(
+            r"\\.",
+            lambda x: DOUBLE_BACKSLASH_CORRECTION_DICT.get(x[0], x[0]),
+            parsed_val,
+        )
+        if parsed_val.startswith("'") and parsed_val.endswith("'"):
+            return parsed_val[1:-1]
+
+        is_number = regex_match(r"[-+]?\d+(\.0*)?$", parsed_val) is not None
+        return float(parsed_val) if is_number else parsed_val
 
     @utils.only_required_for_messages("magic-comparison")
     def visit_compare(self, node: nodes.Compare) -> None:
