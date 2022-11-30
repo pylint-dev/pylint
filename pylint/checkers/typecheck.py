@@ -748,15 +748,8 @@ def _no_context_variadic(
 
 
 def _is_invalid_metaclass(metaclass: nodes.ClassDef) -> bool:
-    try:
-        mro = metaclass.mro()
-    except NotImplementedError:
-        # Cannot have a metaclass which is not a newstyle class.
-        return True
-    else:
-        if not any(is_builtin_object(cls) and cls.name == "type" for cls in mro):
-            return True
-    return False
+    mro = metaclass.mro()
+    return not any(is_builtin_object(cls) and cls.name == "type" for cls in mro)
 
 
 def _infer_from_metaclass_constructor(
