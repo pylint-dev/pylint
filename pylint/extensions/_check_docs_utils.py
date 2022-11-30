@@ -644,7 +644,7 @@ class GoogleDocstring(Docstring):
         entries = self._parse_section(self.re_param_section)
         entries.extend(self._parse_section(self.re_keyword_param_section))
         for entry in entries:
-            match = self.re_param_line.match(entry)
+            match = self.re_param_line.match(entry.replace("\\", ""))
             if not match:
                 continue
 

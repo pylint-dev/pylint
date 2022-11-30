@@ -433,3 +433,15 @@ def test_finds_multiple_complex_types_google(
         named_arg_nine,
         named_arg_ten,
     )
+
+def test_escape_underscore(something: int, raise_: bool = False) -> bool:
+    """Tests param with _ is handled correctly.
+
+    Args:
+        something: the something
+        raise\\_: the other
+
+    Returns:
+        something
+    """
+    return something and raise_
