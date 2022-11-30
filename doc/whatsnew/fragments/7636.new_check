@@ -1,4 +1,4 @@
-Add ``edundant-typehint-argument`` message for `typing` plugin for duplicate assign typehints.
+Add ``redundant-typehint-argument`` message for `typing` plugin for duplicate assign typehints.
 Enable the plugin to enable the message with: ``--load-plugins=pylint.extensions.typing``.
 
 Closes #7636
