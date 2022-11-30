@@ -305,6 +305,7 @@ All messages in the warning category:
    warning/reimported
    warning/self-assigning-variable
    warning/self-cls-assignment
+   warning/shadowed-import
    warning/shallow-copy-environ
    warning/signature-differs
    warning/subclassed-final-class
