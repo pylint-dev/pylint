@@ -950,9 +950,7 @@ def unimplemented_abstract_methods(
     A method can be considered abstract if the callback *is_abstract_cb*
     returns a ``True`` value. The check defaults to verifying that
     a method is decorated with abstract methods.
-    The function will work only for new-style classes. For old-style
-    classes, it will simply return an empty dictionary.
-    For the rest of them, it will return a dictionary of abstract method
+    It will return a dictionary of abstract method
     names and their inferred objects.
     """
     if is_abstract_cb is None:
@@ -960,9 +958,6 @@ def unimplemented_abstract_methods(
     visited: dict[str, nodes.FunctionDef] = {}
     try:
         mro = reversed(node.mro())
-    except NotImplementedError:
-        # Old style class, it will not have a mro.
-        return {}
     except astroid.ResolveError:
         # Probably inconsistent hierarchy, don't try to figure this out here.
         return {}
