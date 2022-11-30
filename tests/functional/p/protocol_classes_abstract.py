@@ -27,6 +27,8 @@ class BarProtocol(Protocol):
 class FooBarProtocol(FooProtocol, BarProtocol, Protocol):
     """FooBar Protocol"""
 
+class BarParent(BarProtocol): # [abstract-method]
+    """Doesn't subclass typing.Protocol directly"""
 
 class IndirectProtocol(FooProtocol):  # [abstract-method]
     """Doesn't subclass typing.Protocol directly"""
