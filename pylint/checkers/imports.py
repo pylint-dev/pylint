@@ -319,7 +319,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0416": (
         "Shadowed %r (imported line %s)",
         "shadowed-import",
-        "Used when a module is aliased with a name that shadowed another import.",
+        "Used when a module is aliased with a name that shadows another import.",
     ),
 }
 

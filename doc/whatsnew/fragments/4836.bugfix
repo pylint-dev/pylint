@@ -1,3 +1,3 @@
-Update ``reimported`` help message for clarity and ensure aliased imports are also detected.
+Update ``reimported`` help message for clarity and add a ``shadowed-import`` message for aliased imports.
 
 Closes #4836

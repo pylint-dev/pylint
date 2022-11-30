@@ -531,7 +531,7 @@ Imports checker Messages
 :reimported (W0404): *Reimport %r (imported line %s)*
   Used when a module is imported more than once.
 :shadowed-import (W0416): *Shadowed %r (imported line %s)*
-  Used when a module is aliased with a name that shadowed another import.
+  Used when a module is aliased with a name that shadows another import.
 :wildcard-import (W0401): *Wildcard import %s*
   Used when `from module import *` is detected.
 :misplaced-future (W0410): *__future__ import is not the first non docstring statement*
