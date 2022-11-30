@@ -10,5 +10,5 @@ no-name-in-module:34:4:34:36::No name 'anything' in module 'collections':UNDEFIN
 no-name-in-module:49:4:49:37::No name 'indeed_missing' in module 'collections':UNDEFINED
 no-name-in-module:54:4:54:27::No name 'emit' in module 'collections':UNDEFINED
 no-name-in-module:71:8:71:32::No name 'emit2' in module 'collections':UNDEFINED
-no-name-in-module:76:0:76:34::No name 'lala' in module 'tests.functional.n.no.no_self_argument':UNDEFINED
-no-name-in-module:77:0:77:39::No name 'bla' in module 'tests.functional.n.no.no_self_argument':UNDEFINED
+no-name-in-module:76:0:76:34::No name 'lala' in module 'functional.n.no.no_self_argument':UNDEFINED
+no-name-in-module:77:0:77:39::No name 'bla' in module 'functional.n.no.no_self_argument':UNDEFINED
