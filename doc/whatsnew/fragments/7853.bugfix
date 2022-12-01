@@ -1,0 +1,3 @@
+Fix False Positive issue regarding a complex ``assignment-from-none``.
+
+Closes #7853.

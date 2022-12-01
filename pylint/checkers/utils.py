@@ -1371,13 +1371,29 @@ def safe_infer(
         raise AstroidError from e
 
     if value is not astroid.Uninferable:
-        inferred_types.add(_get_python_type_of_node(value))
+        if isinstance(value, nodes.FunctionDef):
+            try:
+                inferred_results = value.infer_call_result(context=context)
+                for inferred_result in inferred_results:
+                    if inferred_result is astroid.Uninferable:
+                        return None
+                    inferred_types.add(inferred_result.pytype())
+            except astroid.InferenceError:
+                return None  # There is some kind of ambiguity
+        else:
+            inferred_types.add(_get_python_type_of_node(value))
 
     try:
         for inferred in infer_gen:
-            inferred_type = _get_python_type_of_node(inferred)
-            if inferred_type not in inferred_types:
-                return None  # If there is ambiguity on the inferred node.
+            if isinstance(inferred, nodes.FunctionDef):
+                inferred_type = inferred.infer_call_result(context=context)
+                for inf_val_type in inferred_type:
+                    if inf_val_type not in inferred_types:
+                        return None
+            else:
+                inferred_type = _get_python_type_of_node(inferred)
+                if inferred_type not in inferred_types:
+                    return None  # If there is ambiguity on the inferred node.
             if (
                 compare_constants
                 and isinstance(inferred, nodes.Const)
