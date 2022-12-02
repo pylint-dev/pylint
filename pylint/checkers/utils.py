@@ -1361,61 +1361,91 @@ def safe_infer(
     If compare_constants is True and if multiple constants are inferred,
     unequal inferred values are also considered ambiguous and return None.
     """
-    inferred_types: set[str | None] = set()
+    # inferred_types: set[str | None] = set()
+    infer_gen = node.infer(context=context)
+    first_infer = _safe_infer_validate_first(infer_gen, context)
+    # if first_infer is not astroid.Uninferable:
+    #     inferred_types.add(_get_python_type_of_node(first_infer))
+
     try:
-        infer_gen = node.infer(context=context)
+        for inferred in infer_gen:
+            # try:
+            is_same_type = _safe_infer_compare_to_first(first_infer, inferred, compare_constants)
+            # except astroid.InferenceError:
+            #     return None  # Ambiguity in other than first infer
+            if not is_same_type:
+                return None
+    except astroid.InferenceError:
+        return None  # There is some kind of ambiguity
+    except StopIteration:
+        return first_infer
+    except Exception as e:  # pragma: no cover
+        raise AstroidError from e
+    # if first_infer is astroid.Uninferable:
+    #     return astroid.Uninferable
+    return first_infer # if len(set().add(_get_python_type_of_node(first_infer))) <= 1 else None
+
+
+
+@lru_cache(maxsize=1024)
+def safe_infer_multiple(
+    node: nodes.NodeNG,
+    context: InferenceContext | None = None,
+    *,
+    compare_constants: bool = False,
+) -> list[InferenceResult, None, None] | None:
+    # inferred_types: set[str | None] = set()
+    first_infer = _safe_infer_validate_first(node, context)
+    # if first_infer is not None:
+    #     inferred_types.add(_get_python_type_of_node(first_infer))
+
+    infer_gen = node.infer(context=context)
+    next(infer_gen)
+    try:
+        for inferred in infer_gen:
+            is_same_type = _safe_infer_compare_to_first(first_infer, inferred, compare_constants)
+            if not is_same_type:
+                return None
+    except astroid.InferenceError:
+        return None  # There is some kind of ambiguity
+    except StopIteration:
+        return list(infer_gen)
+    return list(infer_gen)  # if len(inferred_types) <= 1 else None
+
+
+def _safe_infer_validate_first(infer_gen: Iterable[InferenceResult, None, None], context: InferenceContext | None = None) -> InferenceResult | None:
+    try:
         value = next(infer_gen)
     except astroid.InferenceError:
         return None
     except Exception as e:  # pragma: no cover
         raise AstroidError from e
+    return value
 
-    if value is not astroid.Uninferable:
-        if isinstance(value, nodes.FunctionDef):
-            try:
-                inferred_results = value.infer_call_result(context=context)
-                for inferred_result in inferred_results:
-                    if inferred_result is astroid.Uninferable:
-                        return None
-                    inferred_types.add(inferred_result.pytype())
-            except astroid.InferenceError:
-                return None  # There is some kind of ambiguity
-        else:
-            inferred_types.add(_get_python_type_of_node(value))
 
+def _safe_infer_compare_to_first(first_node: InferenceContext | None, inferred_node: InferenceContext | None, compare_constants: bool = False) -> bool:
     try:
-        for inferred in infer_gen:
-            if isinstance(inferred, nodes.FunctionDef):
-                inferred_type = inferred.infer_call_result(context=context)
-                for inf_val_type in inferred_type:
-                    if inf_val_type not in inferred_types:
-                        return None
-            else:
-                inferred_type = _get_python_type_of_node(inferred)
-                if inferred_type not in inferred_types:
-                    return None  # If there is ambiguity on the inferred node.
-            if (
-                compare_constants
-                and isinstance(inferred, nodes.Const)
-                and isinstance(value, nodes.Const)
-                and inferred.value != value.value
-            ):
-                return None
-            if (
-                isinstance(inferred, nodes.FunctionDef)
-                and inferred.args.args is not None
-                and isinstance(value, nodes.FunctionDef)
-                and value.args.args is not None
-                and len(inferred.args.args) != len(value.args.args)
-            ):
-                return None  # Different number of arguments indicates ambiguity
-    except astroid.InferenceError:
-        return None  # There is some kind of ambiguity
-    except StopIteration:
-        return value
+        inferred_type = _get_python_type_of_node(inferred_node)
+        if first_node is not astroid.Uninferable and inferred_type != _get_python_type_of_node(first_node):
+            return False
+        if (
+            compare_constants
+            and isinstance(inferred_node, nodes.Const)
+            and isinstance(first_node, nodes.Const)
+            and inferred_node.value != first_node.value
+        ):
+            return False
+        if (
+            isinstance(inferred_node, nodes.FunctionDef)
+            and inferred_node.args.args is not None
+            and isinstance(first_node, nodes.FunctionDef)
+            and first_node.args.args is not None
+            and len(first_node.args.args) != len(inferred_node.args.args)
+        ):
+            return False  # Different number of arguments indicates ambiguity
     except Exception as e:  # pragma: no cover
         raise AstroidError from e
-    return value if len(inferred_types) <= 1 else None
+    return True
 
 
 @lru_cache(maxsize=512)
