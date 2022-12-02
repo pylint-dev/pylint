@@ -1,0 +1,2 @@
+Document an acceptable false positive for ``useless-suppression`` when disabling ``line-too-long`` in a module with only comments and no code.
+Closes #3368
