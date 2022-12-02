@@ -746,7 +746,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 args = ("elif", 'remove the leading "el" from "elif"')
             else:
                 args = ("else", 'remove the "else" and de-indent the code inside it')
-            self.add_message(msg_id, node=node, args=args)
+            self.add_message(msg_id, node=node, args=args, confidence=HIGH)
 
     def _check_superfluous_else_return(self, node: nodes.If) -> None:
         return self._check_superfluous_else(
