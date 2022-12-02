@@ -5,3 +5,8 @@ no-else-return:41:4:48:13:foo4:"Unnecessary ""else"" after ""return"", remove th
 no-else-return:53:4:62:13:foo5:"Unnecessary ""elif"" after ""return"", remove the leading ""el"" from ""elif""":UNDEFINED
 no-else-return:68:8:72:17:foo6:"Unnecessary ""else"" after ""return"", remove the ""else"" and de-indent the code inside it":UNDEFINED
 no-else-return:104:4:110:23:bar4:"Unnecessary ""else"" after ""return"", remove the ""else"" and de-indent the code inside it":UNDEFINED
+no-else-return:114:4:120:19:try_one_except:"Unnecessary ""else"" after ""return"", remove the ""else"" and de-indent the code inside it":UNDEFINED
+no-else-return:124:4:133:19:try_multiple_except:"Unnecessary ""else"" after ""return"", remove the ""else"" and de-indent the code inside it":UNDEFINED
+inconsistent-return-statements:135:0:135:29:try_not_all_except_return:Either all return statements in a function should return an expression, or none of them should.:UNDEFINED
+no-else-raise:148:4:153:19:try_except_raises:"Unnecessary ""else"" after ""raise"", remove the ""else"" and de-indent the code inside it":UNDEFINED
+no-else-raise:156:4:163:19:try_except_raises2:"Unnecessary ""else"" after ""raise"", remove the ""else"" and de-indent the code inside it":UNDEFINED

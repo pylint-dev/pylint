@@ -25,7 +25,7 @@ except ZeroDivisionError as e:
     # +1: [raise-missing-from]
     raise KeyError
 
-try:
+try:  # [no-else-raise]
     1 / 0
 except ZeroDivisionError as e:
     # +1: [raise-missing-from]
@@ -96,7 +96,7 @@ try:
 except ZeroDivisionError as e:
     raise KeyError from foo
 
-try:
+try:  # [no-else-raise]
     1 / 0
 except ZeroDivisionError as e:
     raise KeyError from foo

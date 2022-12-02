@@ -108,3 +108,56 @@ def bar4(x):
             return False
         except ValueError:
             return None
+
+# pylint: disable = bare-except
+def try_one_except() -> bool:
+    try:  # [no-else-return]
+        print('asdf')
+    except:
+        print("bad")
+        return False
+    else:
+        return True
+
+
+def try_multiple_except() -> bool:
+    try:  # [no-else-return]
+        print('asdf')
+    except TypeError:
+        print("bad")
+        return False
+    except ValueError:
+        print("bad second")
+        return False
+    else:
+        return True
+
+def try_not_all_except_return() -> bool:  # [inconsistent-return-statements]
+    try:
+        print('asdf')
+    except TypeError:
+        print("bad")
+        return False
+    except ValueError:
+        val = "something"
+    else:
+        return True
+
+# pylint: disable = raise-missing-from
+def try_except_raises() -> bool:
+    try:  # [no-else-raise]
+        print('asdf')
+    except:
+        raise ValueError
+    else:
+        return True
+
+def try_except_raises2() -> bool:
+    try:  # [no-else-raise]
+        print('asdf')
+    except TypeError:
+        raise ValueError
+    except ValueError:
+        raise TypeError
+    else:
+        return True
