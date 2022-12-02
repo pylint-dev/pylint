@@ -1247,20 +1247,10 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             [path], expected_output=expected_output, unexpected_output="(astroid-error)"
         )
 
+    @pytest.mark.xfail(reason="See https://github.com/PyCQA/pylint/issues/3368")
     def test_line_too_long_useless_suppression(self) -> None:
-        """A test that demonstrates an acceptable false positive for useless-suppression
-
-        See https://github.com/PyCQA/pylint/issues/3368
-        """
         module = join(HERE, "data", "line_too_long_no_code.py")
-        expected = textwrap.dedent(
-            f"""
-        {module}:1:0: I0011: Locally disabling line-too-long (C0301) (locally-disabled)
-        {module}:1:0: I0021: Useless suppression of 'line-too-long' (useless-suppression)
-        """
-        )
-
-        self._test_output([module, "--enable=all"], expected_output=expected)
+        self._test_output([module, "--enable=all"], expected_output="")
 
 
 class TestCallbackOptions:
