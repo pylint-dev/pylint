@@ -1,5 +1,5 @@
 # pylint:disable=missing-docstring, unreachable, using-constant-test, invalid-name, bare-except
-# pylint:disable=try-except-raise, undefined-variable, too-few-public-methods, superfluous-parens
+# pylint:disable=try-except-raise, undefined-variable, too-few-public-methods, superfluous-parens, no-else-raise
 
 try:
     1 / 0
@@ -25,7 +25,7 @@ except ZeroDivisionError as e:
     # +1: [raise-missing-from]
     raise KeyError
 
-try:  # [no-else-raise]
+try:
     1 / 0
 except ZeroDivisionError as e:
     # +1: [raise-missing-from]
@@ -96,7 +96,7 @@ try:
 except ZeroDivisionError as e:
     raise KeyError from foo
 
-try:  # [no-else-raise]
+try:
     1 / 0
 except ZeroDivisionError as e:
     raise KeyError from foo

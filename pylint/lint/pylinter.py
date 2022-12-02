@@ -454,8 +454,8 @@ class PyLinter(
             reporter_class = _load_reporter_by_class(reporter_name)
         except (ImportError, AttributeError, AssertionError) as e:
             raise exceptions.InvalidReporterError(name) from e
-        else:
-            return reporter_class()
+
+        return reporter_class()
 
     def set_reporter(
         self, reporter: reporters.BaseReporter | reporters.MultiReporter
