@@ -43,6 +43,7 @@ from pylint.checkers.utils import (
     node_ignores_exception,
     only_required_for_messages,
     safe_infer,
+    safe_infer_multiple,
     supports_delitem,
     supports_getitem,
     supports_membership_test,
@@ -1212,38 +1213,49 @@ accessed. Python regular expressions are accepted.",
         """
         if not isinstance(node.value, nodes.Call):
             return
-
-        function_node = safe_infer(node.value.func)
-        funcs = (nodes.FunctionDef, astroid.UnboundMethod, astroid.BoundMethod)
-        if not isinstance(function_node, funcs):
-            return
-
-        # Unwrap to get the actual function node object
-        if isinstance(function_node, astroid.BoundMethod) and isinstance(
-            function_node._proxied, astroid.UnboundMethod
-        ):
-            function_node = function_node._proxied._proxied
-
-        # Make sure that it's a valid function that we can analyze.
-        # Ordered from less expensive to more expensive checks.
-        if (
-            not function_node.is_function
-            or function_node.decorators
-            or self._is_ignored_function(function_node)
-        ):
-            return
-
-        # Fix a false-negative for list.sort(), see issue #5722
-        if self._is_list_sort_method(node.value):
-            self.add_message("assignment-from-none", node=node, confidence=INFERENCE)
-            return
-
-        if not function_node.root().fully_defined():
-            return
-
-        return_nodes = list(
-            function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
+        ASTROID_FUNC_TYPES = (
+            nodes.FunctionDef,
+            astroid.UnboundMethod,
+            astroid.BoundMethod,
         )
+        return_nodes = []
+        function_nodes: Any | None = safe_infer_multiple(node.value.func)
+        if not function_nodes:
+            return
+        for function_node in function_nodes:
+
+            if not isinstance(function_node, ASTROID_FUNC_TYPES):
+                return
+
+            # Unwrap to get the actual function node object
+            if isinstance(function_node, astroid.BoundMethod) and isinstance(
+                function_node._proxied, astroid.UnboundMethod
+            ):
+                function_node = function_node._proxied._proxied
+
+            # Make sure that it's a valid function that we can analyze.
+            # Ordered from less expensive to more expensive checks.
+            if (
+                not function_node.is_function
+                or function_node.decorators
+                or self._is_ignored_function(function_node)
+            ):
+                return
+
+            # Fix a false-negative for list.sort(), see issue #5722
+            if self._is_list_sort_method(node.value):
+                self.add_message(
+                    "assignment-from-none", node=node, confidence=INFERENCE
+                )
+                return
+
+            if not function_node.root().fully_defined():
+                return
+
+            return_nodes.extend(
+                function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
+            )
+
         if not return_nodes:
             self.add_message("assignment-from-no-return", node=node)
         else:

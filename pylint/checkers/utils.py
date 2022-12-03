@@ -14,10 +14,10 @@ import re
 import string
 import warnings
 from collections import deque
-from collections.abc import Iterable, Iterator
+from collections.abc import Generator, Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 import _string
 import astroid.objects
@@ -1361,18 +1361,13 @@ def safe_infer(
     If compare_constants is True and if multiple constants are inferred,
     unequal inferred values are also considered ambiguous and return None.
     """
-    # inferred_types: set[str | None] = set()
     infer_gen = node.infer(context=context)
-    first_infer = _safe_infer_validate_first(infer_gen, context)
-    # if first_infer is not astroid.Uninferable:
-    #     inferred_types.add(_get_python_type_of_node(first_infer))
-
+    first_infer = _safe_infer_validate_first(infer_gen)
     try:
         for inferred in infer_gen:
-            # try:
-            is_same_type = _safe_infer_compare_to_first(first_infer, inferred, compare_constants)
-            # except astroid.InferenceError:
-            #     return None  # Ambiguity in other than first infer
+            is_same_type = _safe_infer_compare_to_first(
+                first_infer, inferred, compare_constants
+            )
             if not is_same_type:
                 return None
     except astroid.InferenceError:
@@ -1381,10 +1376,7 @@ def safe_infer(
         return first_infer
     except Exception as e:  # pragma: no cover
         raise AstroidError from e
-    # if first_infer is astroid.Uninferable:
-    #     return astroid.Uninferable
-    return first_infer # if len(set().add(_get_python_type_of_node(first_infer))) <= 1 else None
-
+    return first_infer
 
 
 @lru_cache(maxsize=1024)
@@ -1393,27 +1385,32 @@ def safe_infer_multiple(
     context: InferenceContext | None = None,
     *,
     compare_constants: bool = False,
-) -> list[InferenceResult, None, None] | None:
-    # inferred_types: set[str | None] = set()
-    first_infer = _safe_infer_validate_first(node, context)
-    # if first_infer is not None:
-    #     inferred_types.add(_get_python_type_of_node(first_infer))
-
+) -> Any | None:
     infer_gen = node.infer(context=context)
-    next(infer_gen)
+    first_infer = _safe_infer_validate_first(infer_gen)
     try:
         for inferred in infer_gen:
-            is_same_type = _safe_infer_compare_to_first(first_infer, inferred, compare_constants)
+            is_same_type = _safe_infer_compare_to_first(
+                first_infer, inferred, compare_constants
+            )
             if not is_same_type:
                 return None
     except astroid.InferenceError:
         return None  # There is some kind of ambiguity
     except StopIteration:
-        return list(infer_gen)
-    return list(infer_gen)  # if len(inferred_types) <= 1 else None
+        if first_infer is None:
+            return None
+        return node.infer(context=context)
+    except Exception as e:  # pragma: no cover
+        raise AstroidError from e
+    if first_infer is None:
+        return None
+    return node.infer(context=context)
 
 
-def _safe_infer_validate_first(infer_gen: Iterable[InferenceResult, None, None], context: InferenceContext | None = None) -> InferenceResult | None:
+def _safe_infer_validate_first(
+    infer_gen: Generator[InferenceResult, None, None]
+) -> InferenceResult | None:
     try:
         value = next(infer_gen)
     except astroid.InferenceError:
@@ -1423,10 +1420,17 @@ def _safe_infer_validate_first(infer_gen: Iterable[InferenceResult, None, None],
     return value
 
 
-def _safe_infer_compare_to_first(first_node: InferenceContext | None, inferred_node: InferenceContext | None, compare_constants: bool = False) -> bool:
+def _safe_infer_compare_to_first(
+    first_node: InferenceContext | None,
+    inferred_node: InferenceContext | None,
+    compare_constants: bool = False,
+) -> bool:
     try:
         inferred_type = _get_python_type_of_node(inferred_node)
-        if first_node is not astroid.Uninferable and inferred_type != _get_python_type_of_node(first_node):
+        if (
+            first_node is not astroid.Uninferable
+            and inferred_type != _get_python_type_of_node(first_node)
+        ):
             return False
         if (
             compare_constants
