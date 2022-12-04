@@ -644,16 +644,13 @@ class GoogleDocstring(Docstring):
         entries = self._parse_section(self.re_param_section)
         entries.extend(self._parse_section(self.re_keyword_param_section))
         for entry in entries:
-            match = self.re_param_line.match(entry.replace("\\", ""))
+            # Remove escape characters necessary for asterisks and trailing underscores
+            entry = entry.replace("\\", "")
+            match = self.re_param_line.match(entry)
             if not match:
                 continue
 
-            param_name = match.group(1)
-            # Remove escape characters necessary for asterisks
-            param_name = param_name.replace("\\", "")
-
-            param_type = match.group(2)
-            param_desc = match.group(3)
+            param_name, param_type, param_desc = match.groups()
 
             if param_type:
                 params_with_type.add(param_name)
