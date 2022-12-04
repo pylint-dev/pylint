@@ -471,7 +471,7 @@ class GoogleDocstring(Docstring):
 
     re_param_line = re.compile(
         rf"""
-        \s*  ((?:\\?\*{{0,2}})?\w+)     # identifier potentially with asterisks
+        \s*  ((?:\\?\*{{0,2}})?[\w\\]+) # identifier potentially with asterisks or escaped `\`
         \s*  ( [(]
             {re_multiple_type}
             (?:,\s+optional)?
