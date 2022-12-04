@@ -644,7 +644,6 @@ class GoogleDocstring(Docstring):
         entries = self._parse_section(self.re_param_section)
         entries.extend(self._parse_section(self.re_keyword_param_section))
         for entry in entries:
-            # Remove escape characters necessary for asterisks and trailing underscores
             match = self.re_param_line.match(entry)
             if not match:
                 continue
