@@ -532,15 +532,15 @@ class StringFormatChecker(BaseChecker):
 
     def _validate_arg_types(
         self,
-        node,
-        fields,
-        field_types,
-        implicit_cnt,
-        implicit_types,
-        explicit_args,
-        explicit_types,
-        named_arguments,
-        positional_arguments,
+        node: nodes.Call,
+        fields: list[tuple[str, list]],
+        field_types: dict[str, tuple[str, str | None]],
+        implicit_cnt: int,
+        implicit_types: list[str],
+        explicit_args: set[str],
+        explicit_types: dict[str : tuple[str, str | None]],
+        named_arguments: dict[str:str],
+        positional_arguments: dict[str:str],
     ):
         for (key, specifiers) in fields:
             if len(specifiers) > 0 or key not in named_arguments:

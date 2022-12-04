@@ -619,8 +619,9 @@ def split_format_field_names(
     except ValueError as e:
         raise IncompleteFormatString() from e
 
+
 def collect_string_fields(
-    format_string,
+    format_string: str,
 ) -> Iterable[tuple[str | None, str | None]]:
     """Given a format string, return an iterator
     of all the valid format fields.
@@ -654,7 +655,7 @@ def collect_string_fields(
         raise IncompleteFormatString(format_string) from exc
 
 
-def parse_format_spec(format_spec, start_point):
+def parse_format_spec(format_spec: str, start_point: int):
     """Parses a PEP 3101 format specifier, returning the format character used, if any.
 
     Where 'format_spec' is the string specifier, and 'start_point' is the
@@ -672,9 +673,9 @@ def parse_format_spec(format_spec, start_point):
     raise IncompleteFormatString(format_spec)
 
 
-def parse_format_field(format_field, start_point):
+def parse_format_field(format_field: str, start_point: int) -> tuple[str, tuple[str, str]]:
     """Parses a PEP 3101 format field, parsing it into the field name, conversion,
-    and format spec
+    and format spec.
 
     It passes the format_spec to parse_format_spec for verification.
     Returns (name, format_character) where 'name' is the variable name being inserted,
@@ -732,8 +733,7 @@ def parse_format_field(format_field, start_point):
 
 
 def parse_all_fields_formatting(
-    format_string: str,
-    include_nested: bool = True
+    format_string: str, include_nested: bool = True
 ) -> dict[str | None, tuple[str, str]]:
     idx = 0
     open_brackets = []
@@ -842,7 +842,6 @@ def is_attr_protected(attrname: str) -> bool:
 
 def node_frame_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
     """Return the class that is wrapping the given node.
-
 
     The function returns a class for a method node (or a staticmethod or a
     classmethod), otherwise it returns `None`.
