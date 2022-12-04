@@ -5,7 +5,10 @@ on:
     branches:
       - main
       - "maintenance/**"
-  pull_request: ~
+  pull_request:
+    branches:
+      - main
+      - "maintenance/**"
 
 env:
   CACHE_VERSION: 1
