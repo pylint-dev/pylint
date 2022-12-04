@@ -726,6 +726,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         msg_id: str,
         returning_node_class: nodes.NodeNG,
     ) -> None:
+        if isinstance(node, nodes.TryExcept) and isinstance(
+            node.parent, nodes.TryFinally
+        ):
+            # Not interested in try/except/else/finally statements.
+            return
+
         if not node.orelse:
             # Not interested in if /try statements without else.
             return

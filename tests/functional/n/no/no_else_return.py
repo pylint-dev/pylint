@@ -161,3 +161,34 @@ def try_except_raises2() -> bool:
         raise TypeError
     else:
         return True
+
+def test() -> bool:  # [inconsistent-return-statements]
+    try:
+        print('asdf')
+    except RuntimeError:
+        return False
+    finally:
+        print("in finally")
+
+
+def try_finally_return() -> bool:  # [inconsistent-return-statements]
+    try:
+        print('asdf')
+    except RuntimeError:
+        return False
+    else:
+        print("inside else")
+    finally:
+        print("in finally")
+
+def try_finally_raise():
+    current_tags = {}
+    try:
+        yield current_tags
+    except Exception:
+        current_tags["result"] = "failure"
+        raise
+    else:
+        current_tags["result"] = "success"
+    finally:
+        print("inside finally")
