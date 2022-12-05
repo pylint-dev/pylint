@@ -9,6 +9,7 @@ Used by pre-commit.
 from __future__ import annotations
 
 import argparse
+import difflib
 import re
 import sys
 from pathlib import Path
@@ -20,6 +21,21 @@ VALID_ISSUES_KEYWORDS = [
     "Follow-up in",
     "Fixes part of",
 ]
+VALID_FILE_TYPE = frozenset(
+    [
+        "breaking",
+        "user_action",
+        "feature",
+        "new_check",
+        "removed_check",
+        "extension",
+        "false_positive",
+        "false_negative",
+        "bugfix",
+        "other",
+        "internal",
+    ]
+)
 ISSUES_KEYWORDS = "|".join(VALID_ISSUES_KEYWORDS)
 VALID_CHANGELOG_PATTERN = rf"(?P<description>(.*\n)*(.*\.\n))\n(?P<ref>({ISSUES_KEYWORDS}) (PyCQA/astroid)?#(?P<issue>\d+))"
 VALID_CHANGELOG_COMPILED_PATTERN: Pattern[str] = re.compile(
@@ -54,6 +70,18 @@ def check_file(file: Path, verbose: bool) -> bool:
             echo(
                 f"{file} must be named '{issue}.<fragmenttype>', after the issue it references."
             )
+            return False
+        if not any(file.suffix.endswith(t) for t in VALID_FILE_TYPE):
+            suggestions = difflib.get_close_matches(file.suffix, VALID_FILE_TYPE)
+            if suggestions:
+                multiple_suggestions = "', '".join(f"{issue}.{s}" for s in suggestions)
+                suggestion = f"should probably be named '{multiple_suggestions}'"
+            else:
+                multiple_suggestions = "', '".join(
+                    f"{issue}.{s}" for s in VALID_FILE_TYPE
+                )
+                suggestion = f"must be named one of '{multiple_suggestions}'"
+            echo(f"{file} {suggestion} instead.")
             return False
         if verbose:
             echo(f"Checked '{file}': LGTM 🤖👍")
