@@ -682,6 +682,17 @@ Modified Iteration checker Messages
   use a copy of the list.
 
 
+Nested Min Max checker
+~~~~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``nested_min_max``.
+
+Nested Min Max checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:nested-min-max (W3301): *Do not use nested call of '%s'; it's possible to do '%s' instead*
+  Nested calls ``min(1, min(2, 3))`` can be rewritten as ``min(1, 2, 3)``.
+
+
 Newstyle checker
 ~~~~~~~~~~~~~~~~
 
