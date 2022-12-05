@@ -1,3 +1,0 @@
-``multiple-statements`` no longer triggers for function stubs using inlined ``...``.
-
-Closes #7860
