@@ -6,12 +6,14 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
 from pytest import CaptureFixture
 
 from pylint.interfaces import CONFIDENCE_LEVEL_NAMES
 from pylint.lint import Run as LintRun
+from pylint.testutils import create_files
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.configuration_test import run_using_a_configuration_file
 
@@ -155,3 +157,19 @@ def test_argument_separator() -> None:
     """
     runner = Run(["--", str(EMPTY_MODULE)], exit=False)
     assert not runner.linter.stats.by_msg
+
+
+def test_clear_cache_post_run() -> None:
+    modname = "changing.py"
+    with TemporaryDirectory() as tmp_dir:
+        create_files([modname], tmp_dir)
+        module = tmp_dir + os.sep + modname
+        # Run class does not produce the wanted failure
+        # must use LintRun to get pylint.lint.Run
+        run_before_edit = LintRun([module, "--clear-cache-post-run=y"], exit=False)
+        with open(module, mode="a", encoding="utf-8") as f:
+            f.write("undefined\n")
+        run_after_edit = LintRun([module, "--clear-cache-post-run=y"], exit=False)
+
+    assert not run_before_edit.linter.stats.by_msg
+    assert run_after_edit.linter.stats.by_msg
