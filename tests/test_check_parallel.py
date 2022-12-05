@@ -579,7 +579,7 @@ class TestCheckParallel:
             stats_check_parallel.by_msg
         ), "Single-proc and check_parallel() should return the same thing"
 
-    @pytest.mark.timeout(1)
+    @pytest.mark.timeout(5)
     def test_no_deadlock_due_to_initializer_error(self) -> None:
         """Tests that an error in the initializer for the parallel jobs doesn't
         lead to a deadlock.
