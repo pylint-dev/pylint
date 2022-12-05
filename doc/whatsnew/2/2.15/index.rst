@@ -29,6 +29,39 @@ Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
+What's new in Pylint 2.15.8?
+----------------------------
+Release date: 2022-12-05
+
+
+False Positives Fixed
+---------------------
+
+- Document a known false positive for ``useless-suppression`` when disabling
+  ``line-too-long`` in a module with only comments and no code.
+
+  Closes #3368 (`#3368 <https://github.com/PyCQA/pylint/issues/3368>`_)
+
+- Fix ``logging-fstring-interpolation`` false positive raised when logging and
+  f-string with ``%s`` formatting.
+
+  Closes #4984 (`#4984 <https://github.com/PyCQA/pylint/issues/4984>`_)
+
+- Fixes false positive ``abstract-method`` on Protocol classes.
+
+  Closes #7209 (`#7209 <https://github.com/PyCQA/pylint/issues/7209>`_)
+
+- Fix ``missing-param-doc`` false positive when function parameter has an
+  escaped underscore.
+
+  Closes #7827 (`#7827 <https://github.com/PyCQA/pylint/issues/7827>`_)
+
+- ``multiple-statements`` no longer triggers for function stubs using inlined
+  ``...``.
+
+  Closes #7860 (`#7860 <https://github.com/PyCQA/pylint/issues/7860>`_)
+
+
 What's new in Pylint 2.15.7?
 ----------------------------
 Release date: 2022-11-27
