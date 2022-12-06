@@ -733,7 +733,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         if not node.orelse:
-            # Not interested in if /try statements without else.
+            # Not interested in if/try statements without else.
             return
 
         if self._is_actual_elif(node):
