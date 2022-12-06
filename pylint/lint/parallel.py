@@ -8,7 +8,6 @@ import functools
 import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
-from concurrent.futures import ProcessPoolExecutor
 from typing import TYPE_CHECKING, Any
 
 import dill
@@ -23,6 +22,11 @@ try:
     import multiprocessing
 except ImportError:
     multiprocessing = None  # type: ignore[assignment]
+
+try:
+    from concurrent.futures import ProcessPoolExecutor
+except ImportError:
+    ProcessPoolExecutor = None  # type: ignore[assignment,misc]
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
