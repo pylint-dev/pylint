@@ -194,6 +194,7 @@ def test_parse_format_method_string() -> None:
         ),
         ("{:*^30}", result_type([], 1, set(), {}, [(None, None)], {})),
         ("{!r:}", result_type([], 1, set(), {}, [("r", None)], {})),
+        ("{0.missing}", result_type([], 0, set("0"), {}, [], {'0': (None, None)})),
     ]
 
     for fmt, result in samples:
