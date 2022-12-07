@@ -340,9 +340,12 @@ class LoggingChecker(checkers.BaseChecker):
                         return
                 elif self._format_style == "new":
                     parse = utils.parse_format_method_string(format_string)
-
                     keyword_args_cnt = len(
-                        {k for k in parse.keyword_arguments if not isinstance(k, int)}
+                        {
+                            field[0]
+                            for field in parse.keyword_arguments
+                            if isinstance(field[0], str)
+                        }
                     )
                     required_num_args = (
                         keyword_args_cnt

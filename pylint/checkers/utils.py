@@ -17,7 +17,7 @@ from collections import deque, namedtuple
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 import _string
 import astroid.objects
@@ -655,7 +655,7 @@ def collect_string_fields(
         raise IncompleteFormatString(format_string) from exc
 
 
-def parse_format_spec(format_spec: str, start_point: int):
+def parse_format_spec(format_spec: str, start_point: int) -> Any:
     """Parses a PEP 3101 format specifier, returning the format character used, if any.
 
     Where 'format_spec' is the string specifier, and 'start_point' is the
@@ -673,7 +673,9 @@ def parse_format_spec(format_spec: str, start_point: int):
     raise IncompleteFormatString(format_spec)
 
 
-def parse_format_field(format_field: str, start_point: int) -> tuple[str, tuple[str, str]]:
+def parse_format_field(
+    format_field: str, start_point: int
+) -> tuple[str, tuple[str | None, Any | None]]:
     """Parses a PEP 3101 format field, parsing it into the field name, conversion,
     and format spec.
 
@@ -686,7 +688,8 @@ def parse_format_field(format_field: str, start_point: int) -> tuple[str, tuple[
     """
     name_end = len(format_field)
     colon_idx = -1
-    open_blocks = []
+    open_blocks: list[str] = []
+
     for (i, char) in enumerate(format_field):
         if char == "[" and (len(open_blocks) == 0 or open_blocks[-1] == "["):
             open_blocks.append(char)
@@ -734,7 +737,7 @@ def parse_format_field(format_field: str, start_point: int) -> tuple[str, tuple[
 
 def parse_all_fields_formatting(
     format_string: str, include_nested: bool = True
-) -> dict[str | None, tuple[str, str]]:
+) -> dict[str, tuple[str | None, Any | None]]:
     idx = 0
     open_brackets = []
     format_char_memo = {}
@@ -807,13 +810,19 @@ def parse_format_method_string(
             explicit_types[str(name)] = format_types
         elif name:
             keyname, fielditerator = split_format_field_names(name)
-            if len(list(fielditerator)) > 0:
+
+            try:
+                field_list = list(fielditerator)
+            except ValueError as e:
+                raise IncompleteFormatString() from e
+
+            if len(field_list) > 0:
                 format_types = (format_types[0], None)
             if isinstance(keyname, numbers.Number):
                 explicit_pos_args.add(str(keyname))
                 explicit_types[str(keyname)] = format_types
                 continue
-            keyword_arguments.append((keyname, list(fielditerator)))
+            keyword_arguments.append((keyname, field_list))
             keyword_types[keyname] = format_types
         else:
             implicit_pos_args_cnt += 1
