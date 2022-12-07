@@ -1,0 +1,3 @@
+Fixes ``method-cache-max-size-none`` false positive for methods inheriting from ``Enum``.
+
+Closes #7857
