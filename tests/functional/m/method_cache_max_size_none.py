@@ -4,7 +4,7 @@
 
 import functools
 import functools as aliased_functools
-from functools import lru_cache, cache
+from functools import lru_cache
 from functools import lru_cache as aliased_cache
 from enum import Enum
 
@@ -84,6 +84,6 @@ def my_func(param):
 class Class(Enum):
     A = 1
 
-    @cache
+    @lru_cache(maxsize=None)
     def func(self) -> None:
         pass
