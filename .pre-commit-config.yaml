@@ -132,3 +132,17 @@ repos:
         exclude: *fixtures
         args: ["--max-summary-lines=2", "--linewrap-full-docstring"]
         files: "pylint"
+  - repo: https://github.com/regebro/pyroma
+    rev: "4.1"
+    hooks:
+      - id: pyroma
+        # Must be specified because of the default value in pyroma
+        always_run: false
+        files: |
+          (?x)^(
+              README.rst|
+              pyproject.toml|
+              pylint/__init__.py|
+              pylint/__pkginfo__.py|
+              setup.cfg
+          )$
