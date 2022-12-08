@@ -164,8 +164,7 @@ class DotPrinter(Printer):
             outfile.writelines(self.lines)
         if target not in graphviz_extensions:
             subprocess.run(
-                ["dot", "-T", target, dot_sourcepath, "-o", outputfile],
-                check=True
+                ["dot", "-T", target, dot_sourcepath, "-o", outputfile], check=True
             )
             os.unlink(dot_sourcepath)
 

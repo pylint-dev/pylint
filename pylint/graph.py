@@ -125,12 +125,12 @@ class DotBackend:
                         "-o",
                         outputfile,
                     ],
-                    check=True
+                    check=True,
                 )
             else:
                 subprocess.run(
                     [self.renderer, "-T", target, dot_sourcepath, "-o", outputfile],
-                    check=True
+                    check=True,
                 )
             os.unlink(dot_sourcepath)
         return outputfile
