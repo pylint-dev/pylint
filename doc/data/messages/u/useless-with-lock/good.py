@@ -1,1 +1,5 @@
-# This is a placeholder for correct code for this message.
+import threading
+
+lock = threading.Lock()
+with lock:
+    print("This is good!")
