@@ -33,7 +33,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.0
+    rev: v3.3.1
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
@@ -132,6 +132,25 @@ repos:
         exclude: *fixtures
         args: ["--max-summary-lines=2", "--linewrap-full-docstring"]
         files: "pylint"
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.4
+    hooks:
+      - id: bandit
+        args: ["-r", "-lll"]
+  - repo: https://github.com/regebro/pyroma
+    rev: "4.1"
+    hooks:
+      - id: pyroma
+        # Must be specified because of the default value in pyroma
+        always_run: false
+        files: |
+          (?x)^(
+              README.rst|
+              pyproject.toml|
+              pylint/__init__.py|
+              pylint/__pkginfo__.py|
+              setup.cfg
+          )$
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.4
     hooks:

@@ -121,7 +121,7 @@ jobs:
       - name: Install enchant and aspell
         run: |
           sudo apt-get update
-          sudo apt-get install enchant aspell-en
+          sudo apt-get install enchant-2 aspell-en
       - name: Run pylint checks
         run: |
           . venv/bin/activate
