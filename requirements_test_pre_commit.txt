@@ -1,5 +1,6 @@
 # Everything in this file should reflect the pre-commit configuration
 # in .pre-commit-config.yaml
+bandit==1.7.4
 black==22.10.0
 flake8==6.0.0
 flake8-bugbear==22.10.27

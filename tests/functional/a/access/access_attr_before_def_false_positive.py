@@ -6,35 +6,25 @@ Initializations done there are not considered, which results in Error E0203 for
 self.cookedq."""
 
 
-import telnetlib
+class Tomato:
+    def __init__(self, juicy_index=42, deliciousness=100):
+        self.juicy_index = juicy_index
+        self.deliciousness = deliciousness
 
-class SeeTelnet(telnetlib.Telnet):
-    """
-    Extension of telnetlib.
-    """
+    def print_description(self, label="generic"):
+        print(f"{label} tomato")
 
-    def __init__(self, host=None, port=0):
-        """
-        Constructor.
-        When called without arguments, create an unconnected instance.
-        With a hostname argument, it connects the instance; a port
-        number is optional.
-        Parameter:
-        - host: IP address of the host
-        - port: Port number
-        """
-        telnetlib.Telnet.__init__(self, host, port)
 
-    def readUntilArray(self, matches, _=None):
-        """
-        Read until a given string is encountered or until timeout.
-        ...
-        """
-        self.process_rawq()
-        maxLength = 0
-        for match in matches:
-            if len(match) > maxLength:
-                maxLength = len(match)
+class GreenTomato(Tomato):
+    """Extension of Tomato"""
+
+    def __init__(self, juicy_index=0, deliciousness=0):
+        Tomato.__init__(self, juicy_index, deliciousness)
+
+    def print_me(self):
+        """print a desciption"""
+        self.print_description("green")
+
 
 class Base:
     """bla bla"""

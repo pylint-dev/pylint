@@ -132,3 +132,8 @@ repos:
         exclude: *fixtures
         args: ["--max-summary-lines=2", "--linewrap-full-docstring"]
         files: "pylint"
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.4
+    hooks:
+      - id: bandit
+        args: ["-r", "-lll"]
