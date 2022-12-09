@@ -7,6 +7,7 @@ self.cookedq."""
 
 
 class Tomato:
+    """The base Tomato class"""
     def __init__(self, juicy_index=42, deliciousness=100):
         self.juicy_index = juicy_index
         self.deliciousness = deliciousness
