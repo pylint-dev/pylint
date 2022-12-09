@@ -3,4 +3,4 @@ class Fruit:  # [eq-without-hash]
         self.name = "apple"
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, Fruit) and other.x == self.x
+        return isinstance(other, Fruit) and other.name == self.name
