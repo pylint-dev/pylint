@@ -10,11 +10,10 @@ from __future__ import annotations
 
 import os
 import pprint
-import subprocess
-from git.repo import Repo
 from pathlib import Path
 
 import pytest
+from git.repo import Repo
 
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.testutils._run import _Run as Run
