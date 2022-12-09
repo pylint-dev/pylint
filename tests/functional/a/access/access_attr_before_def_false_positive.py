@@ -13,6 +13,7 @@ class Tomato:
         self.deliciousness = deliciousness
 
     def print_description(self, label="generic"):
+        """Print important tomato-related information"""
         print(f"{label} tomato")
 
 
