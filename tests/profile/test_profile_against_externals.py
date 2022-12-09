@@ -11,6 +11,7 @@ from __future__ import annotations
 import os
 import pprint
 import subprocess
+from git.repo import Repo
 from pathlib import Path
 
 import pytest
@@ -46,7 +47,7 @@ def test_run(tmp_path: Path, name: str, git_repo: str) -> None:
     """Runs pylint against external sources."""
     checkoutdir = tmp_path / name
     checkoutdir.mkdir()
-    subprocess.run(["git", "clone", "--depth=1", git_repo, checkoutdir], check=True)
+    Repo.clone_from(url=git_repo, to_path=checkoutdir, depth=1)
     filepaths = _get_py_files(scanpath=str(checkoutdir))
     print(f"Have {len(filepaths)} files")
 
