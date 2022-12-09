@@ -2,4 +2,6 @@ import threading
 
 lock = threading.Lock()
 with lock:
-    print("This is good!")
+    print("Make your bed.")
+with lock:
+    print("Sleep in it.")
