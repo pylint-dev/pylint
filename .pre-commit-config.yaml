@@ -146,3 +146,9 @@ repos:
               pylint/__pkginfo__.py|
               setup.cfg
           )$
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.4
+    hooks:
+      - id: bandit
+        args: ["-r", "-lll"]
+        exclude: *fixtures

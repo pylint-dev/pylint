@@ -13,7 +13,6 @@ import codecs
 import os
 import shutil
 import subprocess
-import sys
 import tempfile
 from collections.abc import Sequence
 from typing import Any
@@ -113,9 +112,8 @@ class DotBackend:
                     "executable not found. Install graphviz, or specify a `.gv` "
                     "outputfile to produce the DOT source code."
                 )
-            use_shell = sys.platform == "win32"
             if mapfile:
-                subprocess.call(
+                subprocess.run(
                     [
                         self.renderer,
                         "-Tcmapx",
@@ -127,12 +125,12 @@ class DotBackend:
                         "-o",
                         outputfile,
                     ],
-                    shell=use_shell,
+                    check=True,
                 )
             else:
-                subprocess.call(
+                subprocess.run(
                     [self.renderer, "-T", target, dot_sourcepath, "-o", outputfile],
-                    shell=use_shell,
+                    check=True,
                 )
             os.unlink(dot_sourcepath)
         return outputfile
