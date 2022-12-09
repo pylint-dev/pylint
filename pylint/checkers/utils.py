@@ -1724,6 +1724,10 @@ def is_attribute_typed_annotation(
     return False
 
 
+def is_enum(node: nodes.ClassDef) -> bool:
+    return node.name == "Enum" and node.root().name == "enum"  # type: ignore[no-any-return]
+
+
 def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> bool:
     """Test if AssignName node has `typing_name` annotation.
 
