@@ -151,3 +151,4 @@ repos:
     hooks:
       - id: bandit
         args: ["-r", "-lll"]
+        exclude: *fixtures
