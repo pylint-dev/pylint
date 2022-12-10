@@ -5,6 +5,8 @@
 from typing import List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
+    if True:  # pylint: disable=using-constant-test
+        import math
     import datetime
 
 class MyClass:
@@ -76,6 +78,15 @@ class MyThirdClass:
 
     def other_function(self) -> None:
         _x: MyThirdClass = self
+
+
+class MyFourthClass:  # pylint: disable=too-few-public-methods
+    """Class to test conditional imports guarded by TYPE_CHECKING two levels
+    up then used in function annotation. See https://github.com/PyCQA/pylint/issues/7539"""
+
+    def is_close(self, comparator: math.isclose, first, second):  # [used-before-assignment]
+        """Conditional imports guarded are only valid for variable annotations."""
+        comparator(first, second)
 
 
 class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-public-methods
