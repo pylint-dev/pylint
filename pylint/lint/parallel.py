@@ -31,7 +31,7 @@ except ImportError:
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-# PyLinter object used by worker processes when checking files using multiprocessing
+# PyLinter object used by worker processes when checking files using parallel mode
 # should only be used by the worker processes
 _worker_linter: PyLinter | None = None
 
@@ -39,8 +39,7 @@ _worker_linter: PyLinter | None = None
 def _worker_initialize(
     linter: bytes, arguments: None | str | Sequence[str] = None
 ) -> None:
-    """Function called to initialize a worker for a Process within a multiprocessing
-    Pool.
+    """Function called to initialize a worker for a Process within a concurrent Pool.
 
     :param linter: A linter-class (PyLinter) instance pickled with dill
     :param arguments: File or module name(s) to lint and to be added to sys.path
