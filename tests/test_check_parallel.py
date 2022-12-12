@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import argparse
 import os
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures.process import BrokenProcessPool
 from pickle import PickleError
 
 import dill
@@ -26,9 +28,6 @@ from pylint.lint.parallel import check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.typing import FileItem
 from pylint.utils import LinterStats, ModuleStats
-
-from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures.process import BrokenProcessPool
 
 
 def _gen_file_data(idx: int = 0) -> FileItem:
