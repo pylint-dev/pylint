@@ -27,12 +27,8 @@ from pylint.testutils import GenericTestReporter as Reporter
 from pylint.typing import FileItem
 from pylint.utils import LinterStats, ModuleStats
 
-try:
-    from concurrent.futures import ProcessPoolExecutor
-    from concurrent.futures.process import BrokenProcessPool
-except ImportError:
-    ProcessPoolExecutor = None  # type: ignore[assignment,misc]
-    BrokenProcessPool = None  # type: ignore[assignment,misc]
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures.process import BrokenProcessPool
 
 
 def _gen_file_data(idx: int = 0) -> FileItem:
