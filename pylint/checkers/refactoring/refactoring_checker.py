@@ -73,6 +73,16 @@ def _if_statement_is_always_returning(
     return any(isinstance(node, returning_node_class) for node in if_node.body)
 
 
+def _except_statement_is_always_returning(
+    node: nodes.TryExcept, returning_node_class: nodes.NodeNG
+) -> bool:
+    """Detect if all except statements return."""
+    return all(
+        any(isinstance(child, returning_node_class) for child in handler.body)
+        for handler in node.handlers
+    )
+
+
 def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
     """Check if the given token is a trailing comma.
 
@@ -531,7 +541,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node.value.value, bool
         )
 
-    def _is_actual_elif(self, node: nodes.If) -> bool:
+    def _is_actual_elif(self, node: nodes.If | nodes.TryExcept) -> bool:
         """Check if the given node is an actual elif.
 
         This is a problem we're having with the builtin ast module,
@@ -642,9 +652,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         self._init()
 
-    @utils.only_required_for_messages("too-many-nested-blocks")
-    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
+    @utils.only_required_for_messages("too-many-nested-blocks", "no-else-return")
+    def visit_tryexcept(self, node: nodes.TryExcept | nodes.TryFinally) -> None:
         self._check_nested_blocks(node)
+
+        if isinstance(node, nodes.TryExcept):
+            self._check_superfluous_else_return(node)
+            self._check_superfluous_else_raise(node)
 
     visit_tryfinally = visit_tryexcept
     visit_while = visit_tryexcept
@@ -707,23 +721,38 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self._check_redefined_argument_from_local(name)
 
     def _check_superfluous_else(
-        self, node: nodes.If, msg_id: str, returning_node_class: nodes.NodeNG
+        self,
+        node: nodes.If | nodes.TryExcept,
+        msg_id: str,
+        returning_node_class: nodes.NodeNG,
     ) -> None:
+        if isinstance(node, nodes.TryExcept) and isinstance(
+            node.parent, nodes.TryFinally
+        ):
+            # Not interested in try/except/else/finally statements.
+            return
+
         if not node.orelse:
-            # Not interested in if statements without else.
+            # Not interested in if/try statements without else.
             return
 
         if self._is_actual_elif(node):
             # Not interested in elif nodes; only if
             return
 
-        if _if_statement_is_always_returning(node, returning_node_class):
+        if (
+            isinstance(node, nodes.If)
+            and _if_statement_is_always_returning(node, returning_node_class)
+        ) or (
+            isinstance(node, nodes.TryExcept)
+            and _except_statement_is_always_returning(node, returning_node_class)
+        ):
             orelse = node.orelse[0]
             if (orelse.lineno, orelse.col_offset) in self._elifs:
                 args = ("elif", 'remove the leading "el" from "elif"')
             else:
                 args = ("else", 'remove the "else" and de-indent the code inside it')
-            self.add_message(msg_id, node=node, args=args)
+            self.add_message(msg_id, node=node, args=args, confidence=HIGH)
 
     def _check_superfluous_else_return(self, node: nodes.If) -> None:
         return self._check_superfluous_else(
