@@ -106,3 +106,13 @@ for num in [0, 1]:
     if VAR11:
         VAR12 = False
 print(VAR12)
+
+def turn_on2(**kwargs):
+    """https://github.com/PyCQA/pylint/issues/7873"""
+    if "brightness" in kwargs:
+        brightness = kwargs["brightness"]
+        var, *args = (1, "set_dimmer_state", brightness)
+    else:
+        var, *args = (1, "restore_dimmer_state")
+
+    print(var, *args)

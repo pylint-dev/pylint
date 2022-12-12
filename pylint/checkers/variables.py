@@ -900,21 +900,16 @@ scope_type : {self._atomic.scope_type}
         if isinstance(node, nodes.Assign):
             for target in node.targets:
                 for elt in utils.get_all_elements(target):
+                    if isinstance(elt, nodes.Starred):
+                        elt = elt.value
                     if isinstance(elt, nodes.AssignName) and elt.name == name:
                         return True
         if isinstance(node, nodes.If):
-            # Check for assignments inside the test
-            if isinstance(node.test, nodes.NamedExpr) and node.test.target.name == name:
+            if any(
+                child_named_expr.target.name == name
+                for child_named_expr in node.nodes_of_class(nodes.NamedExpr)
+            ):
                 return True
-            if isinstance(node.test, nodes.Call):
-                for arg_or_kwarg in node.test.args + [
-                    kw.value for kw in node.test.keywords
-                ]:
-                    if (
-                        isinstance(arg_or_kwarg, nodes.NamedExpr)
-                        and arg_or_kwarg.target.name == name
-                    ):
-                        return True
         return False
 
     @staticmethod
