@@ -9,8 +9,9 @@
 from __future__ import annotations
 
 import argparse
-import multiprocessing
 import os
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures.process import BrokenProcessPool
 from pickle import PickleError
 
 import dill
@@ -182,10 +183,10 @@ class TestCheckParallelFramework:
         """
         linter = PyLinter(reporter=Reporter())
         linter.attribute = argparse.ArgumentParser()  # type: ignore[attr-defined]
-        with multiprocessing.Pool(
-            2, initializer=worker_initialize, initargs=[dill.dumps(linter)]
-        ) as pool:
-            pool.imap_unordered(print, [1, 2])
+        with ProcessPoolExecutor(
+            max_workers=2, initializer=worker_initialize, initargs=(dill.dumps(linter),)
+        ) as executor:
+            executor.map(print, [1, 2])
 
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
@@ -571,3 +572,27 @@ class TestCheckParallel:
         assert str(stats_single_proc.by_msg) == str(
             stats_check_parallel.by_msg
         ), "Single-proc and check_parallel() should return the same thing"
+
+    @pytest.mark.timeout(5)
+    def test_no_deadlock_due_to_initializer_error(self) -> None:
+        """Tests that an error in the initializer for the parallel jobs doesn't
+        lead to a deadlock.
+        """
+        linter = PyLinter(reporter=Reporter())
+
+        linter.register_checker(SequentialTestChecker(linter))
+
+        # Create a dummy file, the actual contents of which will be ignored by the
+        # register test checkers, but it will trigger at least a single-job to be run.
+        single_file_container = _gen_file_datas(count=1)
+
+        # The error in the initializer should trigger a BrokenProcessPool exception
+        with pytest.raises(BrokenProcessPool):
+            check_parallel(
+                linter,
+                jobs=1,
+                files=iter(single_file_container),
+                # This will trigger an exception in the initializer for the parallel jobs
+                # because arguments has to be an Iterable.
+                arguments=1,  # type: ignore[arg-type]
+            )
