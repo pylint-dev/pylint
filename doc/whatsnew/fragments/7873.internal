@@ -1,4 +1,0 @@
-Fix unreleased false positives with ``used-before-assignment``
-relating to definitions under "always false" conditions.
-
-Closes #7873
