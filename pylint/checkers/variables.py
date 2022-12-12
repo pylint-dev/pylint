@@ -2139,6 +2139,7 @@ class VariablesChecker(BaseChecker):
                             nodes.AugAssign,
                             nodes.Expr,
                             nodes.Return,
+                            nodes.Match,
                         ),
                     )
                     and VariablesChecker._maybe_used_and_assigned_at_once(defstmt)
@@ -2239,6 +2240,8 @@ class VariablesChecker(BaseChecker):
         """Check if `defstmt` has the potential to use and assign a name in the
         same statement.
         """
+        if isinstance(defstmt, nodes.Match):
+            return any(case.guard for case in defstmt.cases)
         if isinstance(defstmt.value, nodes.BaseContainer) and defstmt.value.elts:
             # The assignment must happen as part of the first element
             # e.g. "assert (x:= True), x"
