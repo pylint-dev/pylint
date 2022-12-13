@@ -1,1 +1,6 @@
-# This is a placeholder for correct code for this message.
+if input():
+    pass
+elif len(input()) >= 10:
+    pass
+else:
+    pass
