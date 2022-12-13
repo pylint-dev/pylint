@@ -1,1 +1,7 @@
-# This is a placeholder for correct code for this message.
+cat > foo.py <<EOF
+import bar
+EOF
+
+cat > bar.py <<EOF
+# some actions
+EOF
