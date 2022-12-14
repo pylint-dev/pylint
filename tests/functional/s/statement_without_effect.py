@@ -73,3 +73,20 @@ def ellipsis():
 class EllipsisBody:
     """Test that an Ellipsis as a body does not trigger the error"""
     ...
+
+
+def assigned_exception():
+    """Test that an assigned exception is not flagged as a pointless statement"""
+    exception = ValueError("one")
+    return exception, ValueError("two")
+
+
+def raised_exception():
+    """Test that a raised exception is not flagged as a pointless statement"""
+    raise ValueError()
+
+
+def unraised_exception():
+    """Test that instantiating but not raising an exception is flagged as a pointless statement"""
+    ValueError("pointless-statement")  # [pointless-exception-statement]
+    ValueError(to_be())  # [pointless-exception-statement]
