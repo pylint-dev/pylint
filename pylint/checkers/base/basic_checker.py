@@ -455,7 +455,9 @@ class BasicChecker(_BasicChecker):
         if isinstance(expr, nodes.Call):
             inferred = utils.safe_infer(expr)
             if isinstance(inferred, objects.ExceptionInstance):
-                self.add_message("pointless-exception-statement", node=node)
+                self.add_message(
+                    "pointless-exception-statement", node=node, confidence=INFERENCE
+                )
 
         # Ignore if this is :
         # * a direct function call
