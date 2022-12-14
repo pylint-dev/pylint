@@ -697,8 +697,8 @@ class PyLinter(
                 data = None
 
         # The contextmanager also opens all checkers and sets up the PyLinter class
-        with self._astroid_module_checker() as check_astroid_module:
-            with fix_import_path(files_or_modules):
+        with fix_import_path(files_or_modules):
+            with self._astroid_module_checker() as check_astroid_module:
                 # 4) Get the AST for each FileItem
                 ast_per_fileitem = self._get_asts(fileitems, data)
 
