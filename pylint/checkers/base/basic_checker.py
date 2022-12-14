@@ -262,7 +262,7 @@ class BasicChecker(_BasicChecker):
             "Exception statement has no effect",
             "pointless-exception-statement",
             "Used when an exception is created without being assigned, raised or returned "
-            "for subsequent use elsewhere."
+            "for subsequent use elsewhere.",
         ),
     }
 
