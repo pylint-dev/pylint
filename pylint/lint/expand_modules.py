@@ -11,7 +11,18 @@ from re import Pattern
 
 from astroid import modutils
 
+import pylint.lint
 from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
+
+
+def is_importable(filename: str, extra_paths: Sequence[str] | None = None) -> bool:
+    return False
+    try:
+        modutils.modpath_from_file(filename, extra_paths)
+    except ImportError:
+        return False
+    else:
+        return True
 
 
 def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> list[str]:
@@ -80,8 +91,11 @@ def expand_modules(
             something, ignore_list, ignore_list_re, ignore_list_paths_re
         ):
             continue
-        module_path = get_python_path(something)
-        additional_search_path = [".", module_path] + path
+        if not is_importable(something):
+            module_path = get_python_path(something)
+            additional_search_path = [".", module_path] + path
+        else:
+            additional_search_path = path
         if os.path.exists(something):
             # this is a file or a directory
             try:
@@ -146,9 +160,10 @@ def expand_modules(
                 ) or _is_in_ignore_list_re(subfilepath, ignore_list_paths_re):
                     continue
 
-                modpath = _modpath_from_file(
-                    subfilepath, is_namespace, path=additional_search_path
-                )
+                with pylint.lint.fix_import_path(subfilepath):
+                    modpath = _modpath_from_file(
+                        subfilepath, is_namespace, path=additional_search_path
+                    )
                 submodname = ".".join(modpath)
                 # Preserve arg flag if module is also explicitly given.
                 isarg = subfilepath in result and result[subfilepath]["isarg"]
