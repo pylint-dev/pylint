@@ -1,3 +1,3 @@
-cat > foo.py <<EOF
-import foo  # [import-self]
+cat > bad.py <<EOF
+import bad  # [import-self]
 EOF
