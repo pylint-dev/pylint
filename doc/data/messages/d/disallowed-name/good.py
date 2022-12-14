@@ -1,2 +1,2 @@
-def get_something():
+def something_meaningful():
     pass

@@ -1,4 +1,4 @@
-cat > bad.py <<EOF
-import bad  # [import-self]
+from bad import a_function  # [import-self]
 
-EOF
+def a_function():
+    pass
