@@ -1,2 +1,3 @@
-import sphinx
 from pathlib import Path
+
+import sphinx
