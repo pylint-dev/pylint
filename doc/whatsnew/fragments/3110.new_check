@@ -1,4 +1,4 @@
 Adds a ``pointless-exception-statement`` check that emits a warning when an
 Exception is created and not assigned, raised or returned.
 
-Closes #3110
+Refs #3110
