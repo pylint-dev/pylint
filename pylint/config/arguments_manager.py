@@ -252,9 +252,12 @@ class _ArgumentsManager:
 
     def _parse_configuration_file(self, arguments: list[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
-        self.config, parsed_args = self._arg_parser.parse_known_args(
-            arguments, self.config
-        )
+        try:
+            self.config, parsed_args = self._arg_parser.parse_known_args(
+                arguments, self.config
+            )
+        except SystemExit:
+            sys.exit(32)
         unrecognized_options: list[str] = []
         for opt in parsed_args:
             if opt.startswith("--"):
