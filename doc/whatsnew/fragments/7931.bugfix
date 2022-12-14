@@ -1,0 +1,3 @@
+Fix exit code when argparse raises SystemExit due to bad arguments.
+
+Refs #7931
