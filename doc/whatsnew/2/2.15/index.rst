@@ -29,6 +29,40 @@ Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
+What's new in Pylint 2.15.9?
+----------------------------
+Release date: 2022-12-15
+
+
+False Positives Fixed
+---------------------
+
+- Fix false-positive for ``used-before-assignment`` in pattern matching
+  with a guard.
+
+  Closes #5327 (`#5327 <https://github.com/PyCQA/pylint/issues/5327>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Pylint will no longer deadlock if a parallel job is killed but fail
+  immediately instead.
+
+  Closes #3899 (`#3899 <https://github.com/PyCQA/pylint/issues/3899>`_)
+
+- When pylint exit due to bad arguments being provided the exit code will now
+  be the expected ``32``.
+
+  Refs #7931 (`#7931 <https://github.com/PyCQA/pylint/issues/7931>`_)
+
+- Fixes a ``ModuleNotFound`` exception when running pylint on a Django project
+  with the ``pylint_django`` plugin enabled.
+
+  Closes #7938 (`#7938 <https://github.com/PyCQA/pylint/issues/7938>`_)
+
+
 What's new in Pylint 2.15.8?
 ----------------------------
 Release date: 2022-12-05
