@@ -529,7 +529,9 @@ Imports checker Messages
 :preferred-module (W0407): *Prefer importing %r instead of %r*
   Used when a module imported has a preferred replacement module.
 :reimported (W0404): *Reimport %r (imported line %s)*
-  Used when a module is reimported multiple times.
+  Used when a module is imported more than once.
+:shadowed-import (W0416): *Shadowed %r (imported line %s)*
+  Used when a module is aliased with a name that shadows another import.
 :wildcard-import (W0401): *Wildcard import %s*
   Used when `from module import *` is detected.
 :misplaced-future (W0410): *__future__ import is not the first non docstring statement*
@@ -678,6 +680,17 @@ Modified Iteration checker Messages
   Emitted when items are added or removed to a list being iterated through.
   Doing so can result in unexpected behaviour, that is why it is preferred to
   use a copy of the list.
+
+
+Nested Min Max checker
+~~~~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``nested_min_max``.
+
+Nested Min Max checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:nested-min-max (W3301): *Do not use nested call of '%s'; it's possible to do '%s' instead*
+  Nested calls ``min(1, min(2, 3))`` can be rewritten as ``min(1, 2, 3)``.
 
 
 Newstyle checker

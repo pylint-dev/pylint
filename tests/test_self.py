@@ -869,6 +869,19 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
                 modify_sys_path()
             assert sys.path == paths[1:]
 
+    @staticmethod
+    def test_plugin_that_imports_from_open() -> None:
+        """Test that a plugin that imports a source file from a checker open()
+        function (ala pylint_django) does not raise an exception."""
+        with _test_sys_path():
+            # Enable --load-plugins=importing_plugin
+            sys.path.append(join(HERE, "regrtest_data", "importing_plugin"))
+            with _test_cwd(join(HERE, "regrtest_data", "settings_project")):
+                Run(
+                    ["--load-plugins=importing_plugin", "models.py"],
+                    exit=False,
+                )
+
     @pytest.mark.parametrize(
         "args",
         [
@@ -1246,6 +1259,24 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         self._test_output(
             [path], expected_output=expected_output, unexpected_output="(astroid-error)"
         )
+
+    def test_line_too_long_useless_suppression(self) -> None:
+        """A test that demonstrates a known false positive for useless-suppression
+
+        See https://github.com/PyCQA/pylint/issues/3368
+
+        If you manage to make this test fail and remove the useless-suppression
+        warning please contact open a Pylint PR!
+        """
+        module = join(HERE, "regrtest_data", "line_too_long_no_code.py")
+        expected = textwrap.dedent(
+            f"""
+        {module}:1:0: I0011: Locally disabling line-too-long (C0301) (locally-disabled)
+        {module}:1:0: I0021: Useless suppression of 'line-too-long' (useless-suppression)
+        """
+        )
+
+        self._test_output([module, "--enable=all"], expected_output=expected)
 
 
 class TestCallbackOptions:

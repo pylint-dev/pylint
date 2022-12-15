@@ -275,7 +275,7 @@ Verbatim name of the checker is ``dict-init-mutate``.
 
 Dict-Init-Mutate checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:dict-init-mutate (C3401): *Dictionary mutated immediately after initialization*
+:dict-init-mutate (C3401): *Declare all known key/values when initializing the dictionary.*
   Dictionaries can be initialized with a single statement using dictionary
   literal syntax.
 
@@ -697,6 +697,9 @@ Typing checker Messages
 :consider-alternative-union-syntax (R6003): *Consider using alternative Union syntax instead of '%s'%s*
   Emitted when 'typing.Union' or 'typing.Optional' is used instead of the
   alternative Union syntax 'int | None'.
+:redundant-typehint-argument (R6006): *Type `%s` is used more than once in union type annotation. Remove redundant typehints.*
+  Duplicated type arguments will be skipped by `mypy` tool, therefore should be
+  removed to avoid confusion.
 
 
 .. _pylint.extensions.while_used:

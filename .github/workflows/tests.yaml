@@ -5,9 +5,12 @@ on:
     branches:
       - main
       - "maintenance/**"
-  pull_request:
     paths-ignore:
       - doc/data/messages/**
+  pull_request:
+    branches:
+      - main
+      - "maintenance/**"
 
 env:
   CACHE_VERSION: 1
@@ -32,7 +35,7 @@ jobs:
         uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v4.3.1
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -88,7 +91,7 @@ jobs:
         uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v4.3.1
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -133,7 +136,7 @@ jobs:
         uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v4.3.1
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -191,7 +194,7 @@ jobs:
         uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v4.3.1
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -237,7 +240,7 @@ jobs:
         uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v4.3.1
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -281,7 +284,7 @@ jobs:
         uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v4.3.1
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true

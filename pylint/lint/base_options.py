@@ -391,6 +391,16 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "positives when analysed.",
             },
         ),
+        (
+            "clear-cache-post-run",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Clear in-memory caches upon conclusion of linting. "
+                "Useful if running pylint in a server-like mode.",
+            },
+        ),
     )
 
 

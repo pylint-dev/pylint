@@ -1,1 +1,7 @@
-# This is a placeholder for correct code for this message.
+def print_fruit(fruit):
+    """docstring ...
+
+    Args:
+        fruit (str): A fruit.
+    """
+    print(fruit)

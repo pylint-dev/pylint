@@ -950,9 +950,7 @@ def unimplemented_abstract_methods(
     A method can be considered abstract if the callback *is_abstract_cb*
     returns a ``True`` value. The check defaults to verifying that
     a method is decorated with abstract methods.
-    The function will work only for new-style classes. For old-style
-    classes, it will simply return an empty dictionary.
-    For the rest of them, it will return a dictionary of abstract method
+    It will return a dictionary of abstract method
     names and their inferred objects.
     """
     if is_abstract_cb is None:
@@ -960,9 +958,6 @@ def unimplemented_abstract_methods(
     visited: dict[str, nodes.FunctionDef] = {}
     try:
         mro = reversed(node.mro())
-    except NotImplementedError:
-        # Old style class, it will not have a mro.
-        return {}
     except astroid.ResolveError:
         # Probably inconsistent hierarchy, don't try to figure this out here.
         return {}
@@ -1167,6 +1162,10 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
     """Return true if the given class node should be considered as an abstract
     class.
     """
+    # Protocol classes are considered "abstract"
+    if is_protocol_class(node):
+        return True
+
     # Only check for explicit metaclass=ABCMeta on this specific class
     meta = node.declared_metaclass()
     if meta is not None:
@@ -1653,14 +1652,23 @@ def is_protocol_class(cls: nodes.NodeNG) -> bool:
     """Check if the given node represents a protocol class.
 
     :param cls: The node to check
-    :returns: True if the node is a typing protocol class, false otherwise.
+    :returns: True if the node is or inherits from typing.Protocol directly, false otherwise.
     """
     if not isinstance(cls, nodes.ClassDef):
         return False
 
-    # Use .ancestors() since not all protocol classes can have
-    # their mro deduced.
-    return any(parent.qname() in TYPING_PROTOCOLS for parent in cls.ancestors())
+    # Return if klass is protocol
+    if cls.qname() in TYPING_PROTOCOLS:
+        return True
+
+    for base in cls.bases:
+        try:
+            for inf_base in base.infer():
+                if inf_base.qname() in TYPING_PROTOCOLS:
+                    return True
+        except astroid.InferenceError:
+            continue
+    return False
 
 
 def is_call_of_name(node: nodes.NodeNG, name: str) -> bool:
@@ -1714,6 +1722,10 @@ def is_attribute_typed_annotation(
         ):
             return True
     return False
+
+
+def is_enum(node: nodes.ClassDef) -> bool:
+    return node.name == "Enum" and node.root().name == "enum"  # type: ignore[no-any-return]
 
 
 def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> bool:

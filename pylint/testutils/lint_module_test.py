@@ -287,12 +287,7 @@ class LintModuleTest:
     ) -> str:
         missing = set(expected_lines) - set(received_lines)
         unexpected = set(received_lines) - set(expected_lines)
-        error_msg = (
-            f"Wrong output for '{self._test_file.base}.txt':\n"
-            "You can update the expected output automatically with: '"
-            f"python tests/test_functional.py {UPDATE_OPTION} -k "
-            f'"test_functional[{self._test_file.base}]"\'\n\n'
-        )
+        error_msg = f"Wrong output for '{self._test_file.base}.txt':"
         sort_by_line_number = operator.attrgetter("lineno")
         if missing:
             error_msg += "\n- Missing lines:\n"
@@ -302,6 +297,17 @@ class LintModuleTest:
             error_msg += "\n- Unexpected lines:\n"
             for line in sorted(unexpected, key=sort_by_line_number):
                 error_msg += f"{line}\n"
+            error_msg += (
+                "\nYou can update the expected output automatically with:\n'"
+                f"python tests/test_functional.py {UPDATE_OPTION} -k "
+                f'"test_functional[{self._test_file.base}]"\'\n\n'
+                "Here's the update text in case you can't:\n"
+            )
+            expected_csv = StringIO()
+            writer = csv.writer(expected_csv, dialect="test")
+            for line in sorted(received_lines, key=sort_by_line_number):
+                writer.writerow(line.to_csv())
+            error_msg += expected_csv.getvalue()
         return error_msg
 
     def _check_output_text(

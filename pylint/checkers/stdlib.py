@@ -592,13 +592,17 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
-            self._check_lru_cache_decorators(node.decorators)
+            self._check_lru_cache_decorators(node)
             self._check_dispatch_decorators(node)
 
-    def _check_lru_cache_decorators(self, decorators: nodes.Decorators) -> None:
+    def _check_lru_cache_decorators(self, node: nodes.FunctionDef) -> None:
         """Check if instance methods are decorated with functools.lru_cache."""
+        if any(utils.is_enum(ancestor) for ancestor in node.parent.ancestors()):
+            # method of class inheriting from Enum is exempt from this check.
+            return
+
         lru_cache_nodes: list[nodes.NodeNG] = []
-        for d_node in decorators.nodes:
+        for d_node in node.decorators.nodes:
             try:
                 for infered_node in d_node.infer():
                     q_name = infered_node.qname()

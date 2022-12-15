@@ -1,0 +1,2 @@
+abstract-method:30:0:30:15:BarParent:Method 'bar' is abstract in class 'BarProtocol' but is not overridden in child class 'BarParent':INFERENCE
+abstract-method:33:0:33:22:IndirectProtocol:Method 'foo' is abstract in class 'FooProtocol' but is not overridden in child class 'IndirectProtocol':INFERENCE

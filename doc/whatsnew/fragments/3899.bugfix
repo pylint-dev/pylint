@@ -1,0 +1,4 @@
+Pylint will no longer deadlock if a parallel job is killed but fail
+immediately instead.
+
+Closes #3899

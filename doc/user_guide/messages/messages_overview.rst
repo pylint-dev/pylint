@@ -231,7 +231,6 @@ All messages in the warning category:
    warning/deprecated-method
    warning/deprecated-module
    warning/deprecated-typing-alias
-   warning/dict-init-mutate
    warning/differing-param-doc
    warning/differing-type-doc
    warning/duplicate-except
@@ -281,6 +280,7 @@ All messages in the warning category:
    warning/multiple-constructor-doc
    warning/named-expr-without-context
    warning/nan-comparison
+   warning/nested-min-max
    warning/non-ascii-file-name
    warning/non-parent-init-called
    warning/non-str-assignment-to-dunder-name
@@ -305,6 +305,7 @@ All messages in the warning category:
    warning/reimported
    warning/self-assigning-variable
    warning/self-cls-assignment
+   warning/shadowed-import
    warning/shallow-copy-environ
    warning/signature-differs
    warning/subclassed-final-class
@@ -392,6 +393,7 @@ All messages in the convention category:
    convention/consider-using-dict-items
    convention/consider-using-enumerate
    convention/consider-using-f-string
+   convention/dict-init-mutate
    convention/disallowed-name
    convention/docstring-first-line-empty
    convention/empty-docstring
@@ -501,6 +503,7 @@ All messages in the refactor category:
    refactor/property-with-parameters
    refactor/redefined-argument-from-local
    refactor/redefined-variable-type
+   refactor/redundant-typehint-argument
    refactor/simplifiable-condition
    refactor/simplifiable-if-expression
    refactor/simplifiable-if-statement

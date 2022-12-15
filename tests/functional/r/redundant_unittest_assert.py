@@ -1,12 +1,17 @@
-# pylint: disable=missing-docstring,too-few-public-methods
 """
-https://www.logilab.org/ticket/355
-If you are using assertTrue or assertFalse and the first argument is a
-constant(like a string), then the assert will always be true. Therefore,
-it should emit a warning message.
+If you are using assertTrue or assertFalse and the first argument is a constant
+(like a string), then the assert will always be true. Therefore, it should emit
+a warning message.
 """
 
+# pylint: disable=missing-docstring,too-few-public-methods
+
+# Disabled because of a bug with pypy 3.8 see
+# https://github.com/PyCQA/pylint/pull/7918#issuecomment-1352737369
+# pylint: disable=multiple-statements
+
 import unittest
+
 
 @unittest.skip("don't run this")
 class Tests(unittest.TestCase):

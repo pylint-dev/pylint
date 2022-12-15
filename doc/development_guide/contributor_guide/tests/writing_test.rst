@@ -34,13 +34,13 @@ the unittests.
 Functional tests
 ----------------
 
-These are residing under ``/pylint/test/functional`` and they are formed of multiple
+These are located under ``/pylint/test/functional`` and they are formed of multiple
 components. First, each Python file is considered to be a test case and it
-should be accompanied by a .txt file, having the same name, with the messages
+should be accompanied by a ``.txt`` file, having the same name. The ``.txt`` file contains the ``pylint`` messages
 that are supposed to be emitted by the given test file.
 
-In the Python file, each line for which Pylint is supposed to emit a message
-has to be annotated with a comment in the form ``# [message_symbol]``, as in::
+In your ``.py`` test file, each line for which Pylint is supposed to emit a message
+has to be annotated with a comment following this pattern ``# [message_symbol]``, as in::
 
     a, b, c = 1 # [unbalanced-tuple-unpacking]
 
@@ -48,14 +48,15 @@ If multiple messages are expected on the same line, then this syntax can be used
 
     a, b, c = 1.test # [unbalanced-tuple-unpacking, no-member]
 
-You can also use ``# +n: [`` with n an integer if the above syntax would make the line too long or other reasons::
+You can also use  ``# +n: [`` where ``n`` is an integer to deal with special cases, e.g., where the above regular syntax makes the line too long::
 
-    # +1: [empty-comment]
-    #
+    A = 5
+    # +1: [singleton-comparison]
+    B = A == None  # The test will look for the `singleton-comparison` message in this line
 
-If you need special control over Pylint's configuration, you can also create a .rc file, which
-can have sections of Pylint's configuration.
-The .rc file can also contain a section ``[testoptions]`` to pass options for the functional
+If you need special control over Pylint's configuration, you can also create a ``.rc`` file, which
+can set sections of Pylint's configuration.
+The ``.rc`` file can also contain a section ``[testoptions]`` to pass options for the functional
 test runner. The following options are currently supported:
 
 - "min_pyver": Minimal python version required to run the test

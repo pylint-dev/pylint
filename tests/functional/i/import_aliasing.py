@@ -1,4 +1,4 @@
-# pylint: disable=unused-import, missing-docstring, invalid-name, reimported, import-error, wrong-import-order, no-name-in-module
+# pylint: disable=unused-import, missing-docstring, invalid-name, reimported, import-error, wrong-import-order, no-name-in-module, shadowed-import
 # Functional tests for import aliasing
 # 1. useless-import-alias
 # 2. consider-using-from-import

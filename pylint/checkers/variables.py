@@ -28,12 +28,7 @@ from pylint.checkers.utils import (
     in_type_checking_block,
     is_postponed_evaluation_enabled,
 )
-from pylint.constants import (
-    PY39_PLUS,
-    TYPING_NEVER,
-    TYPING_NORETURN,
-    TYPING_TYPE_CHECKS_GUARDS,
-)
+from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
 
@@ -905,21 +900,16 @@ scope_type : {self._atomic.scope_type}
         if isinstance(node, nodes.Assign):
             for target in node.targets:
                 for elt in utils.get_all_elements(target):
+                    if isinstance(elt, nodes.Starred):
+                        elt = elt.value
                     if isinstance(elt, nodes.AssignName) and elt.name == name:
                         return True
         if isinstance(node, nodes.If):
-            # Check for assignments inside the test
-            if isinstance(node.test, nodes.NamedExpr) and node.test.target.name == name:
+            if any(
+                child_named_expr.target.name == name
+                for child_named_expr in node.nodes_of_class(nodes.NamedExpr)
+            ):
                 return True
-            if isinstance(node.test, nodes.Call):
-                for arg_or_kwarg in node.test.args + [
-                    kw.value for kw in node.test.keywords
-                ]:
-                    if (
-                        isinstance(arg_or_kwarg, nodes.NamedExpr)
-                        and arg_or_kwarg.target.name == name
-                    ):
-                        return True
         return False
 
     @staticmethod
@@ -2144,6 +2134,7 @@ class VariablesChecker(BaseChecker):
                             nodes.AugAssign,
                             nodes.Expr,
                             nodes.Return,
+                            nodes.Match,
                         ),
                     )
                     and VariablesChecker._maybe_used_and_assigned_at_once(defstmt)
@@ -2201,7 +2192,7 @@ class VariablesChecker(BaseChecker):
             if (
                 isinstance(defstmt, (nodes.Import, nodes.ImportFrom))
                 and isinstance(defstmt.parent, nodes.If)
-                and defstmt.parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
+                and in_type_checking_block(defstmt)
             ):
                 defstmt_parent = defstmt.parent
 
@@ -2244,6 +2235,8 @@ class VariablesChecker(BaseChecker):
         """Check if `defstmt` has the potential to use and assign a name in the
         same statement.
         """
+        if isinstance(defstmt, nodes.Match):
+            return any(case.guard for case in defstmt.cases)
         if isinstance(defstmt.value, nodes.BaseContainer) and defstmt.value.elts:
             # The assignment must happen as part of the first element
             # e.g. "assert (x:= True), x"

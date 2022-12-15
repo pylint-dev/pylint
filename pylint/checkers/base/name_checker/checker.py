@@ -461,10 +461,8 @@ class NameChecker(_BasicChecker):
         elif isinstance(frame, nodes.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
                 for ancestor in frame.ancestors():
-                    if (
-                        ancestor.name == "Enum"
-                        and ancestor.root().name == "enum"
-                        or utils.is_assign_name_annotated_with(node, "Final")
+                    if utils.is_enum(ancestor) or utils.is_assign_name_annotated_with(
+                        node, "Final"
                     ):
                         self._check_name("class_const", node.name, node)
                         break

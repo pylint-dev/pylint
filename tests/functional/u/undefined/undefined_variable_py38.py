@@ -186,3 +186,7 @@ if (defined := False):
     NEVER_DEFINED = 1
 print(defined)
 print(NEVER_DEFINED)  # [used-before-assignment]
+
+if (still_defined := False) == 1:
+    NEVER_DEFINED_EITHER = 1
+print(still_defined)

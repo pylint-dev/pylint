@@ -1,10 +1,17 @@
-"""Test PEP 604 - Alternative Union syntax
-with postponed evaluation of annotations enabled.
+"""Test PEP 604 - Alternative Union syntax with postponed evaluation of
+annotations enabled.
 
 For Python 3.7 - 3.9: Most things should work.
 Testing only 3.8/3.9 to support TypedDict.
 """
-# pylint: disable=missing-function-docstring,unused-argument,invalid-name,missing-class-docstring,inherit-non-class,too-few-public-methods,line-too-long,unnecessary-direct-lambda-call
+
+# pylint: disable=missing-function-docstring,unused-argument,invalid-name,missing-class-docstring
+# pylint: disable=inherit-non-class,too-few-public-methods,line-too-long,unnecessary-direct-lambda-call
+
+# Disabled because of a bug with pypy 3.8 see
+# https://github.com/PyCQA/pylint/pull/7918#issuecomment-1352737369
+# pylint: disable=multiple-statements
+
 from __future__ import annotations
 import dataclasses
 import typing
