@@ -1,5 +1,9 @@
-"""Errors for invalid sequence indices"""
 # pylint: disable=too-few-public-methods, import-error, missing-docstring, unnecessary-pass
+
+# Disabled because of a bug with pypy 3.8 see
+# https://github.com/PyCQA/pylint/pull/7918#issuecomment-1352737369
+# pylint: disable=multiple-statements
+
 import six
 from unknown import Unknown
 

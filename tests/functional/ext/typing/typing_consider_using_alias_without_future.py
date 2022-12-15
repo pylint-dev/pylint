@@ -2,7 +2,14 @@
 
 'py-version' needs to be set to '3.7' or '3.8' and 'runtime-typing=no'.
 """
-# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long,unsubscriptable-object,unnecessary-direct-lambda-call
+
+# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long,unsubscriptable-object
+# pylint: disable=unnecessary-direct-lambda-call
+
+# Disabled because of a bug with pypy 3.8 see
+# https://github.com/PyCQA/pylint/pull/7918#issuecomment-1352737369
+# pylint: disable=multiple-statements
+
 import collections
 import collections.abc
 import typing
