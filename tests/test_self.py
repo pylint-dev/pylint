@@ -869,6 +869,19 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
                 modify_sys_path()
             assert sys.path == paths[1:]
 
+    @staticmethod
+    def test_plugin_that_imports_from_open() -> None:
+        """Test that a plugin that imports a source file from a checker open()
+        function (ala pylint_django) does not raise an exception."""
+        with _test_sys_path():
+            # Enable --load-plugins=importing_plugin
+            sys.path.append(join(HERE, "regrtest_data", "importing_plugin"))
+            with _test_cwd(join(HERE, "regrtest_data", "settings_project")):
+                Run(
+                    ["--load-plugins=importing_plugin", "models.py"],
+                    exit=False,
+                )
+
     @pytest.mark.parametrize(
         "args",
         [
