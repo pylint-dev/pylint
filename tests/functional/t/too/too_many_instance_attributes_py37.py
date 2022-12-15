@@ -1,8 +1,17 @@
+"""
+InitVars should not count as instance attributes (see issue #3754)
+Default max_instance_attributes is 7
+"""
+
 # pylint: disable=missing-docstring, too-few-public-methods
+
+# Disabled because of a bug with pypy 3.8 see
+# https://github.com/PyCQA/pylint/pull/7918#issuecomment-1352737369
+# pylint: disable=multiple-statements
+
 from dataclasses import dataclass, InitVar
 
-# InitVars should not count as instance attributes (see issue #3754)
-# Default max_instance_attributes is 7
+
 @dataclass
 class Hello:
     a_1: int
