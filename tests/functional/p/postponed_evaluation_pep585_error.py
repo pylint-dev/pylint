@@ -3,7 +3,15 @@
 This check requires Python 3.7 or Python 3.8!
 Testing with 3.8 only, to support TypedDict.
 """
-# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,unused-variable,line-too-long,unnecessary-direct-lambda-call
+
+# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods
+# pylint: disable=invalid-name,inherit-non-class,unsupported-binary-operation
+# pylint: disable=unused-variable,line-too-long,unnecessary-direct-lambda-call
+
+# Disabled because of a bug with pypy 3.8 see
+# https://github.com/PyCQA/pylint/pull/7918#issuecomment-1352737369
+# pylint: disable=multiple-statements
+
 import collections
 import dataclasses
 import typing

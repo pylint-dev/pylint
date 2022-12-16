@@ -69,6 +69,14 @@ test_utils = {
     "path": str(TEST_DIRECTORY / "lint/test_utils.py"),
 }
 
+test_run_pylint = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.test_run_pylint",
+    "path": str(TEST_DIRECTORY / "lint/test_run_pylint.py"),
+}
+
 test_pylinter = {
     "basename": "lint",
     "basepath": INIT_PATH,
@@ -102,6 +110,7 @@ def _list_expected_package_modules(
         init_of_package,
         test_caching,
         test_pylinter,
+        test_run_pylint,
         test_utils,
         this_file_from_init_deduplicated if deduplicating else this_file_from_init,
         unittest_lint,
