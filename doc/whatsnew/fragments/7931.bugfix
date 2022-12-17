@@ -1,3 +1,0 @@
-When pylint exit due to bad arguments being provided the exit code will now be the expected ``32``.
-
-Refs #7931
