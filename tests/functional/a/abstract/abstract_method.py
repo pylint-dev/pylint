@@ -44,7 +44,16 @@ class AbstractD(AbstractB, metaclass=abc.ABCMeta):
     """
 
 
-class Concrete(Abstract): # [abstract-method]
+class ConcreteA(AbstractC):
+    """
+    Concrete class.
+
+    Should trigger a warning since this class does
+    not directly inherit from abc.ABC.
+    """
+
+
+class ConcreteB(Abstract): # [abstract-method]
     """Concrete class"""
 
     def aaaa(self):
