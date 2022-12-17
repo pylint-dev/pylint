@@ -1174,7 +1174,9 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
 
     # As well as directly inherited ABC class
     for base in node.bases:
-        base_class_name = base.attrname if isinstance(base, astroid.Attribute) else base.as_string()
+        base_class_name = (
+            base.attrname if isinstance(base, astroid.Attribute) else base.as_string()
+        )
         if base_class_name == "ABC":
             # abc.ABC inheritance
             return True
