@@ -39,7 +39,7 @@ repos:
         args: [--py37-plus]
         exclude: *fixtures
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.1
+    rev: v5.11.3
     hooks:
       - id: isort
         exclude: doc/data/messages/(r/reimported|w/wrong-import-order|u/ungrouped-imports|m/misplaced-future|m/multiple-imports)/bad.py
