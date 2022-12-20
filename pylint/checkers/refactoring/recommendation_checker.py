@@ -13,7 +13,6 @@ from pylint.interfaces import INFERENCE
 
 
 class RecommendationChecker(checkers.BaseChecker):
-
     name = "refactoring"
     msgs = {
         "C0200": (

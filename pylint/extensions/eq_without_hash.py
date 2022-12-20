@@ -17,7 +17,6 @@ from pylint.lint import PyLinter
 
 
 class EqWithoutHash(checkers.BaseChecker):
-
     name = "eq-without-hash"
 
     msgs = {

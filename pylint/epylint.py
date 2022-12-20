@@ -107,7 +107,6 @@ def lint(filename: str, options: Sequence[str] = ()) -> int:
     with Popen(
         cmd, stdout=PIPE, cwd=parent_path, env=_get_env(), universal_newlines=True
     ) as process:
-
         for line in process.stdout:  # type: ignore[union-attr]
             # remove pylintrc warning
             if line.startswith("No config file found"):

@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 
 
 class WhileChecker(BaseChecker):
-
     name = "while_used"
     msgs = {
         "W0149": (

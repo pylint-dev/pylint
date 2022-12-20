@@ -347,7 +347,7 @@ class _MessageStateHandler:
         prev_line = None
         saw_newline = True
         seen_newline = True
-        for (tok_type, content, start, _, _) in tokens:
+        for tok_type, content, start, _, _ in tokens:
             if prev_line and prev_line != start[0]:
                 saw_newline = seen_newline
                 seen_newline = False
