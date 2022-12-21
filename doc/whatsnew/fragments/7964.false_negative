@@ -1,0 +1,3 @@
+``consider-using-with`` now triggers for ``pathlib.Path.open``.
+
+Closes #7964
