@@ -14,11 +14,11 @@ from pathlib import Path
 
 
 def test_pathlib_open():
-    _ = pathlib.Path('foo').open(encoding='utf8')  # [consider-using-with]
-    _ = Path('foo').open(encoding='utf8')  # [consider-using-with]
-    path = Path('foo')
-    _ = path.open(encoding='utf8')  # [consider-using-with]
-    with Path('foo').open(encoding='utf8') as file:  # must not trigger
+    _ = pathlib.Path("foo").open(encoding="utf8")  # [consider-using-with]
+    _ = Path("foo").open(encoding="utf8")  # [consider-using-with]
+    path = Path("foo")
+    _ = path.open(encoding="utf8")  # [consider-using-with]
+    with Path("foo").open(encoding="utf8") as file:  # must not trigger
         _ = file.read()
 
 
