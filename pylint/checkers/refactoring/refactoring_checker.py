@@ -49,6 +49,7 @@ CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
 CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
     (
         "_io.open",  # regular 'open()' call
+        "pathlib.Path.open",
         "codecs.open",
         "urllib.request.urlopen",
         "tempfile.NamedTemporaryFile",
