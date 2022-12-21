@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+x, y = input(), input()
+maximum = x if x >= y else y
