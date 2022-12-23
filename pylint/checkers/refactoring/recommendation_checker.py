@@ -9,7 +9,7 @@ from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers import utils
-from pylint.interfaces import INFERENCE
+from pylint.interfaces import HIGH, INFERENCE
 
 
 class RecommendationChecker(checkers.BaseChecker):
@@ -340,7 +340,9 @@ class RecommendationChecker(checkers.BaseChecker):
         if isinstance(node.iter, nodes.Set) and not any(
             isinstance(x, nodes.Starred) for x in node.iter.elts
         ):
-            self.add_message("use-sequence-for-iteration", node=node.iter)
+            self.add_message(
+                "use-sequence-for-iteration", node=node.iter, confidence=HIGH
+            )
 
     @utils.only_required_for_messages("consider-using-f-string")
     def visit_const(self, node: nodes.Const) -> None:
