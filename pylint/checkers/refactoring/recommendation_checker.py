@@ -333,8 +333,13 @@ class RecommendationChecker(checkers.BaseChecker):
     def _check_use_sequence_for_iteration(
         self, node: nodes.For | nodes.Comprehension
     ) -> None:
-        """Check if code iterates over an in-place defined set."""
-        if isinstance(node.iter, nodes.Set):
+        """Check if code iterates over an in-place defined set.
+
+        Sets using `*` are not considered in-place.
+        """
+        if isinstance(node.iter, nodes.Set) and not any(
+            isinstance(x, nodes.Starred) for x in node.iter.elts
+        ):
             self.add_message("use-sequence-for-iteration", node=node.iter)
 
     @utils.only_required_for_messages("consider-using-f-string")
