@@ -1,0 +1,3 @@
+Fixes bug when loading user-provided msg-template.
+
+Closes #5636

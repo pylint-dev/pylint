@@ -91,14 +91,14 @@ def test_template_option_non_existing(linter: PyLinter) -> None:
     output = StringIO()
     linter.reporter.out = output
     linter.config.msg_template = (
-        "{path}:{line}:{a_new_option}:({a_second_new_option:03d})"
+        "{path}:{line}:{categ}:({a_second_new_option:03d})"
     )
     linter.open()
     with pytest.warns(UserWarning) as records:
         linter.set_current_module("my_mod")
         assert len(records) == 2
         assert (
-            "Don't recognize the argument 'a_new_option'" in records[0].message.args[0]
+            "Don't recognize the argument 'categ'" in records[0].message.args[0]
         )
     assert (
         "Don't recognize the argument 'a_second_new_option'"
@@ -113,6 +113,25 @@ def test_template_option_non_existing(linter: PyLinter) -> None:
     out_lines = output.getvalue().split("\n")
     assert out_lines[1] == "my_mod:1::()"
     assert out_lines[2] == "my_mod:2::()"
+
+def test_template_option_with_header(linter: PyLinter) -> None:
+    output = StringIO()
+    linter.reporter.out = output
+    linter.config.msg_template = (
+        '{{ "Category": "{category}" }}'
+    )
+    linter.open()
+    linter.set_current_module("my_mod")
+
+    linter.add_message("C0301", line=1, args=(1, 2))
+    linter.add_message(
+        "line-too-long", line=2, end_lineno=2, end_col_offset=4, args=(3, 4)
+    )
+
+    out_lines = output.getvalue().split("\n")
+    assert out_lines[1] == '{ "Category": "convention" }'
+    assert out_lines[2] == '{ "Category": "convention" }'
+
 
 
 def test_deprecation_set_output(recwarn: WarningsRecorder) -> None:
