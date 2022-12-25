@@ -1,4 +1,4 @@
-undefined-variable:14:21:14:28:MyClass.incorrect_typing_method:Undefined variable 'MyClass':UNDEFINED
-undefined-variable:19:26:19:33:MyClass.incorrect_nested_typing_method:Undefined variable 'MyClass':UNDEFINED
-undefined-variable:24:20:24:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED
-used-before-assignment:88:20:88:28:VariableAnnotationsGuardedByTypeChecking:Using variable 'datetime' before assignment:HIGH
+undefined-variable:15:21:15:28:MyClass.incorrect_typing_method:Undefined variable 'MyClass':UNDEFINED
+undefined-variable:20:26:20:33:MyClass.incorrect_nested_typing_method:Undefined variable 'MyClass':UNDEFINED
+undefined-variable:25:20:25:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED
+used-before-assignment:89:20:89:28:VariableAnnotationsGuardedByTypeChecking:Using variable 'datetime' before assignment:HIGH

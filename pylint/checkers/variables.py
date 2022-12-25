@@ -27,12 +27,7 @@ from pylint.checkers.utils import (
     in_type_checking_block,
     is_postponed_evaluation_enabled,
 )
-from pylint.constants import (
-    PY39_PLUS,
-    TYPING_NEVER,
-    TYPING_NORETURN,
-    TYPING_TYPE_CHECKS_GUARDS,
-)
+from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
 
@@ -2003,7 +1998,8 @@ class VariablesChecker(BaseChecker):
             if (
                 isinstance(defstmt, (nodes.Import, nodes.ImportFrom))
                 and isinstance(defstmt.parent, nodes.If)
-                and defstmt.parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
+                and in_type_checking_block(defstmt)
+                and not in_type_checking_block(node)
             ):
                 defstmt_parent = defstmt.parent
 

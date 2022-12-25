@@ -6,6 +6,7 @@ from typing import List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     import datetime
+    from urllib.request import urlopen
 
 class MyClass:
     """Type annotation or default values for first level methods can't refer to their own class"""
@@ -90,3 +91,9 @@ class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-publi
     def print_date(self, date) -> None:
         date: datetime.date = date
         print(date)
+
+
+class ConditionalImportGuardedWhenUsed:  # pylint: disable=too-few-public-methods
+    """Conditional imports also guarded by TYPE_CHECKING when used."""
+    if TYPE_CHECKING:
+        print(urlopen)
