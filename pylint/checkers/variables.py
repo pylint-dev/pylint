@@ -2193,6 +2193,7 @@ class VariablesChecker(BaseChecker):
                 isinstance(defstmt, (nodes.Import, nodes.ImportFrom))
                 and isinstance(defstmt.parent, nodes.If)
                 and in_type_checking_block(defstmt)
+                and not in_type_checking_block(node)
             ):
                 defstmt_parent = defstmt.parent
 
