@@ -9,6 +9,7 @@ from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.interfaces import HIGH
 
 
 class RecommendationChecker(checkers.BaseChecker):
@@ -326,9 +327,16 @@ class RecommendationChecker(checkers.BaseChecker):
     def _check_use_sequence_for_iteration(
         self, node: nodes.For | nodes.Comprehension
     ) -> None:
-        """Check if code iterates over an in-place defined set."""
-        if isinstance(node.iter, nodes.Set):
-            self.add_message("use-sequence-for-iteration", node=node.iter)
+        """Check if code iterates over an in-place defined set.
+
+        Sets using `*` are not considered in-place.
+        """
+        if isinstance(node.iter, nodes.Set) and not any(
+            utils.has_starred_node_recursive(node)
+        ):
+            self.add_message(
+                "use-sequence-for-iteration", node=node.iter, confidence=HIGH
+            )
 
     @utils.only_required_for_messages("consider-using-f-string")
     def visit_const(self, node: nodes.Const) -> None:
