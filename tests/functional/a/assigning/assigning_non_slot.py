@@ -129,7 +129,7 @@ def dont_emit_for_descriptors():
     # This should not emit, because attr is
     # a data descriptor
     inst.data_descriptor = 'foo'
-    inst.non_data_descriptor = 'lala' # [assigning-non-slot]
+    inst.non_data_descriptor = 'lala'
 
 
 class ClassWithSlots:
@@ -147,7 +147,7 @@ class ClassReassingingInvalidLayoutClass:
     __slots__ = []
 
     def release(self):
-        self.__class__ = ClassWithSlots # [assigning-non-slot]
+        self.__class__ = ClassWithSlots
 
 
 # pylint: disable=attribute-defined-outside-init
@@ -200,3 +200,15 @@ def dont_emit_for_defined_setattr():
 
     child = ClassWithParentDefiningSetattr()
     child.non_existent = "non-existent"
+
+class ColorCls:
+    __slots__ = ()
+    COLOR = "red"
+
+
+class Repro(ColorCls):
+    __slots__ = ()
+
+
+repro = Repro()
+Repro.COLOR = "blue"

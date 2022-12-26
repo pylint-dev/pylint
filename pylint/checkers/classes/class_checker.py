@@ -1621,7 +1621,6 @@ a metaclass class method.",
             for ancestor in klass.ancestors()
         ):
             return
-
         if not any(slot.value == node.attrname for slot in slots):
             # If we have a '__dict__' in slots, then
             # assigning any name is valid.
@@ -1629,6 +1628,8 @@ a metaclass class method.",
                 if _is_attribute_property(node.attrname, klass):
                     # Properties circumvent the slots mechanism,
                     # so we should not emit a warning for them.
+                    return
+                if self._is_class_attribute(node.attrname, klass):
                     return
                 if node.attrname in klass.locals:
                     for local_name in klass.locals.get(node.attrname):
