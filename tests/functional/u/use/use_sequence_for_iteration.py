@@ -22,3 +22,7 @@ def deduplicate(list_in):
 def deduplicate_two_lists(input1, input2):
     for thing in {*input1, *input2}:
         print(thing)
+
+def deduplicate_nested_sets(input1, input2, input3, input4):
+    for thing in {{*input1, *input2}, {*input3, *input4}}:
+        print(thing)

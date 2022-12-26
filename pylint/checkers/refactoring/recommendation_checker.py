@@ -338,7 +338,7 @@ class RecommendationChecker(checkers.BaseChecker):
         Sets using `*` are not considered in-place.
         """
         if isinstance(node.iter, nodes.Set) and not any(
-            isinstance(x, nodes.Starred) for x in node.iter.elts
+            utils.has_starred_node_recursive(node)
         ):
             self.add_message(
                 "use-sequence-for-iteration", node=node.iter, confidence=HIGH

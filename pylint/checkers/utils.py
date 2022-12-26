@@ -2029,6 +2029,18 @@ def find_assigned_names_recursive(
         for elt in target.elts:
             yield from find_assigned_names_recursive(elt)
 
+def has_starred_node_recursive(
+    node: nodes.For | nodes.Comprehension | nodes.Set,
+) -> Iterator[bool]:
+    """Yield ``True`` if a Starred node is found recursively."""
+    if isinstance(node, nodes.Starred):
+        yield True
+    elif isinstance(node, nodes.Set):
+        for elt in node.elts:
+            yield from has_starred_node_recursive(elt)
+    elif isinstance(node, (nodes.For, nodes.Comprehension)):
+        for elt in node.iter.elts:
+            yield from has_starred_node_recursive(elt)
 
 def is_hashable(node: nodes.NodeNG) -> bool:
     """Return whether any inferred value of `node` is hashable.
