@@ -1767,7 +1767,6 @@ class VariablesChecker(BaseChecker):
             and not utils.is_defined_before(node)
             and not astroid.are_exclusive(stmt, defstmt, ("NameError",))
         ):
-
             # Used and defined in the same place, e.g `x += 1` and `del x`
             defined_by_stmt = defstmt is stmt and isinstance(
                 node, (nodes.DelName, nodes.AssignName)
@@ -1779,7 +1778,6 @@ class VariablesChecker(BaseChecker):
                 or isinstance(defstmt, nodes.Delete)
             ):
                 if not utils.node_ignores_exception(node, NameError):
-
                     # Handle postponed evaluation of annotations
                     if not (
                         self._postponed_evaluation_enabled
@@ -2074,7 +2072,6 @@ class VariablesChecker(BaseChecker):
             and isinstance(frame, nodes.ClassDef)
             and node.name in frame.locals
         ):
-
             # This rule verifies that if the definition node of the
             # checked name is an Arguments node and if the name
             # is used a default value in the arguments defaults

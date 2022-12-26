@@ -788,7 +788,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False
 
     def _is_dict_get_block(self, node: nodes.If) -> bool:
-
         # "if <compare node>"
         if not isinstance(node.test, nodes.Compare):
             return False
@@ -1115,7 +1114,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     def _check_quit_exit_call(self, node: nodes.Call) -> None:
-
         if isinstance(node.func, nodes.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
             # If we have `exit` imported from `sys` in the current or global scope, exempt this instance.
             local_scope = node.scope()

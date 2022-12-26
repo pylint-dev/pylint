@@ -225,7 +225,6 @@ class CodeStyleChecker(BaseChecker):
         if CodeStyleChecker._check_prev_sibling_to_if_stmt(
             prev_sibling, node_name.name
         ):
-
             # Check if match statement would be a better fit.
             # I.e. multiple ifs that test the same name.
             if CodeStyleChecker._check_ignore_assignment_expr_suggestion(

@@ -975,7 +975,6 @@ a metaclass class method.",
                         "cls",
                         node.name,
                     }:
-
                         break
 
                     # Check type(self).__attrname

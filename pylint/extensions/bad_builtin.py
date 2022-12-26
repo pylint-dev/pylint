@@ -23,7 +23,6 @@ BUILTIN_HINTS = {"map": LIST_COMP_MSG, "filter": LIST_COMP_MSG}
 
 
 class BadBuiltinChecker(BaseChecker):
-
     name = "deprecated_builtins"
     msgs = {
         "W0141": (

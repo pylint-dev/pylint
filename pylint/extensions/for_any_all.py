@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
 
 class ConsiderUsingAnyOrAllChecker(BaseChecker):
-
     name = "consider-using-any-or-all"
     msgs = {
         "C0501": (

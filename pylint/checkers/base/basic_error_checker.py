@@ -301,7 +301,6 @@ class BasicErrorChecker(_BasicChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_name_used_prior_global(self, node: nodes.FunctionDef) -> None:
-
         scope_globals = {
             name: child
             for child in node.nodes_of_class(nodes.Global)
