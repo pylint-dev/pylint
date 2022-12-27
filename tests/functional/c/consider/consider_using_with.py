@@ -2,6 +2,7 @@
 import codecs
 import contextlib
 import multiprocessing
+import pathlib
 import subprocess
 import tarfile
 import tempfile
@@ -9,6 +10,16 @@ import threading
 import urllib
 import zipfile
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from pathlib import Path
+
+
+def test_pathlib_open():
+    _ = pathlib.Path("foo").open(encoding="utf8")  # [consider-using-with]
+    _ = Path("foo").open(encoding="utf8")  # [consider-using-with]
+    path = Path("foo")
+    _ = path.open(encoding="utf8")  # [consider-using-with]
+    with Path("foo").open(encoding="utf8") as file:  # must not trigger
+        _ = file.read()
 
 
 def test_codecs_open():

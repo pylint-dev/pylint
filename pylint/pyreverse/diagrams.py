@@ -225,7 +225,6 @@ class ClassDiagram(Figure, FilterMixIn):
             for name, values in list(node.associations_type.items()) + list(
                 node.locals_type.items()
             ):
-
                 for value in values:
                     self.assign_association_relationship(
                         value, obj, name, "association"

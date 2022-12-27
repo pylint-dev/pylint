@@ -32,10 +32,10 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.2.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.1
+        uses: actions/setup-python@v4.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -47,7 +47,7 @@ jobs:
           'requirements_test_min.txt') }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.1
         with:
           path: venv
           key: >-
@@ -88,16 +88,16 @@ jobs:
       COVERAGERC_FILE: .coveragerc
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.2.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.1
+        uses: actions/setup-python@v4.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.1
         with:
           path: venv
           key:
@@ -133,16 +133,16 @@ jobs:
         python-version: ["3.11"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.2.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.1
+        uses: actions/setup-python@v4.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.1
         with:
           path: venv
           key:
@@ -191,10 +191,10 @@ jobs:
         # Workaround to set correct temp directory on Windows
         # https://github.com/actions/virtual-environments/issues/712
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.2.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.1
+        uses: actions/setup-python@v4.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -206,7 +206,7 @@ jobs:
           }}" >> $env:GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.1
         with:
           path: venv
           key: >-
@@ -237,10 +237,10 @@ jobs:
         python-version: [3.7]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.2.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.1
+        uses: actions/setup-python@v4.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -252,7 +252,7 @@ jobs:
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.1
         with:
           path: venv
           key: >-
@@ -281,10 +281,10 @@ jobs:
         python-version: ["pypy-3.7", "pypy-3.8", "pypy-3.9"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.2.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.1
+        uses: actions/setup-python@v4.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -296,7 +296,7 @@ jobs:
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.1
         with:
           path: venv
           key: >-

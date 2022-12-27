@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
 
 class NoSelfUseChecker(BaseChecker):
-
     name = "no_self_use"
     msgs = {
         "R6301": (

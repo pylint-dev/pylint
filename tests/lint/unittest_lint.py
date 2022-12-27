@@ -996,7 +996,6 @@ def test_pylintrc() -> None:
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_pylintrc_parentdir() -> None:
     with tempdir() as chroot:
-
         create_files(
             [
                 "a/pylintrc",
@@ -1134,7 +1133,6 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
 
     by_module_stats = linter.stats.by_module
     for module, module_stats in by_module_stats.items():
-
         linter2 = initialized_linter
         if module == "data":
             linter2.check([os.path.join(os.path.dirname(__file__), "data/__init__.py")])
