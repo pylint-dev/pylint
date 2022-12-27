@@ -81,19 +81,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: tests-linux
-    strategy:
-      matrix:
-        python-version: ["3.11"]
-    env:
-      COVERAGERC_FILE: .coveragerc
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.2.0
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.11
         id: python
         uses: actions/setup-python@v4.4.0
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
@@ -114,13 +109,11 @@ jobs:
         run: |
           . venv/bin/activate
           coverage combine coverage*/.coverage
-          coverage report --rcfile=${{ env.COVERAGERC_FILE }}
-      - name: Upload coverage to Coveralls
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          . venv/bin/activate
-          coveralls --rcfile=${{ env.COVERAGERC_FILE }} --service=github
+          coverage xml
+      - uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: true
+          verbose: true
 
   benchmark-linux:
     name: run benchmark / ${{ matrix.python-version }} / Linux
