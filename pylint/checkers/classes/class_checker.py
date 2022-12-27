@@ -1646,7 +1646,12 @@ a metaclass class method.",
                     slots, node.parent.value
                 ):
                     return
-                self.add_message("assigning-non-slot", args=(node.attrname,), node=node)
+                self.add_message(
+                    "assigning-non-slot",
+                    args=(node.attrname,),
+                    node=node,
+                    confidence=INFERENCE,
+                )
 
     @only_required_for_messages(
         "protected-access", "no-classmethod-decorator", "no-staticmethod-decorator"

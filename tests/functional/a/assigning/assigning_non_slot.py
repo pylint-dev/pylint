@@ -206,9 +206,33 @@ class ColorCls:
     COLOR = "red"
 
 
-class Repro(ColorCls):
+class Child(ColorCls):
+    __slots__ = ()
+
+
+repro = Child()
+Child.COLOR = "blue"
+
+class MyDescriptor:
+    """Basic descriptor."""
+
+    def __get__(self, instance, owner):
+        return 42
+
+    def __set__(self, instance, value):
+        pass
+
+
+# Regression test from https://github.com/PyCQA/pylint/issues/6001
+class Base:
+    __slots__ = ()
+
+    attr2 = MyDescriptor()
+
+
+class Repro(Base):
     __slots__ = ()
 
 
 repro = Repro()
-Repro.COLOR = "blue"
+repro.attr2 = "anything"
