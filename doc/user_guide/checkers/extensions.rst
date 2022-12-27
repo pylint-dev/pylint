@@ -7,6 +7,7 @@ Optional checkers
 Pylint provides the following optional plugins:
 
 - :ref:`pylint.extensions.bad_builtin`
+- :ref:`pylint.extensions.bad_chained_comparison`
 - :ref:`pylint.extensions.broad_try_clause`
 - :ref:`pylint.extensions.check_elif`
 - :ref:`pylint.extensions.code_style`
@@ -36,6 +37,21 @@ Pylint provides the following optional plugins:
 You can activate any or all of these extensions by adding a ``load-plugins`` line to the ``MAIN`` section of your ``.pylintrc``, for example::
 
     load-plugins=pylint.extensions.docparams,pylint.extensions.docstyle
+
+.. _pylint.extensions.bad_chained_comparison:
+
+Bad-Chained-Comparison checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.bad_chained_comparison``.
+Verbatim name of the checker is ``bad-chained-comparison``.
+
+Bad-Chained-Comparison checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:bad-chained-comparison (W2401): *Expression gets interpreted as a %s-part chained comparison which straddles comparison groups. If this is not the intent, please parenthesize.*
+  Used when there is a chained comparison where one expression is part of two
+  comparisons that belong to different groups.
+
 
 .. _pylint.extensions.broad_try_clause:
 

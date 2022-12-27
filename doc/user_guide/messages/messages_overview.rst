@@ -208,6 +208,7 @@ All messages in the warning category:
    warning/assert-on-tuple
    warning/attribute-defined-outside-init
    warning/bad-builtin
+   warning/bad-chained-comparison
    warning/bad-dunder-name
    warning/bad-format-string
    warning/bad-format-string-key
