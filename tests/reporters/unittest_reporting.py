@@ -14,6 +14,7 @@ from json import dumps
 from typing import TYPE_CHECKING
 
 import pytest
+from _pytest.recwarn import WarningsRecorder
 
 from pylint import checkers
 from pylint.interfaces import HIGH
@@ -88,16 +89,12 @@ def test_template_option_non_existing(linter) -> None:
     """
     output = StringIO()
     linter.reporter.out = output
-    linter.config.msg_template = (
-        "{path}:{line}:{a_new_option}:({a_second_new_option:03d})"
-    )
+    linter.config.msg_template = "{path}:{line}:{categ}:({a_second_new_option:03d})"
     linter.open()
     with pytest.warns(UserWarning) as records:
         linter.set_current_module("my_mod")
         assert len(records) == 2
-        assert (
-            "Don't recognize the argument 'a_new_option'" in records[0].message.args[0]
-        )
+        assert "Don't recognize the argument 'categ'" in records[0].message.args[0]
     assert (
         "Don't recognize the argument 'a_second_new_option'"
         in records[1].message.args[0]
@@ -113,7 +110,24 @@ def test_template_option_non_existing(linter) -> None:
     assert out_lines[2] == "my_mod:2::()"
 
 
-def test_deprecation_set_output(recwarn):
+def test_template_option_with_header(linter: PyLinter) -> None:
+    output = StringIO()
+    linter.reporter.out = output
+    linter.config.msg_template = '{{ "Category": "{category}" }}'
+    linter.open()
+    linter.set_current_module("my_mod")
+
+    linter.add_message("C0301", line=1, args=(1, 2))
+    linter.add_message(
+        "line-too-long", line=2, end_lineno=2, end_col_offset=4, args=(3, 4)
+    )
+
+    out_lines = output.getvalue().split("\n")
+    assert out_lines[1] == '{ "Category": "convention" }'
+    assert out_lines[2] == '{ "Category": "convention" }'
+
+
+def test_deprecation_set_output(recwarn: WarningsRecorder) -> None:
     """TODO remove in 3.0."""
     reporter = BaseReporter()
     # noinspection PyDeprecation

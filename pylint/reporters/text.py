@@ -175,7 +175,7 @@ class TextReporter(BaseReporter):
         self._template = template
 
         # Check to see if all parameters in the template are attributes of the Message
-        arguments = re.findall(r"\{(.+?)(:.*)?\}", template)
+        arguments = re.findall(r"\{(\w+?)(:.*)?\}", template)
         for argument in arguments:
             if argument[0] not in MESSAGE_FIELDS:
                 warnings.warn(
