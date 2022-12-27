@@ -14,8 +14,10 @@ COMPARISON_OP = frozenset(("<", "<=", ">", ">=", "!=", "=="))
 IDENTITY_OP = frozenset(("is", "is not"))
 MEMBERSHIP_OP = frozenset(("in", "not in"))
 
+
 class BadChainedComparisonChecker(BaseChecker):
-    """Checks for unintentional usage of chained comparison"""
+    """Checks for unintentional usage of chained comparison."""
+
     name = "bad-chained-comparison"
     msgs = {
         "W3501": (
@@ -37,6 +39,7 @@ class BadChainedComparisonChecker(BaseChecker):
         if self._has_diff_comparison_groups(node):
             num_pieces = f"{len(node.ops)}"
             self.add_message("bad-chained-comparison", node=node, args=(num_pieces), confidence=HIGH)
+
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(BadChainedComparisonChecker(linter))
