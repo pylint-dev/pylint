@@ -1,3 +1,5 @@
+# pylint: disable = invalid-name, undefined-variable, unused-variable, missing-function-docstring, missing-module-docstring, unsupported-assignment-operation, line-too-long
+
 if f():  # [consider-ternary-expression]
     x = 4
 else:
