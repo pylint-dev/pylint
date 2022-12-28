@@ -1,5 +1,5 @@
 consider-using-namedtuple-or-dataclass:11:12:14:1::Consider using namedtuple or dataclass for dictionary values:UNDEFINED
 consider-using-namedtuple-or-dataclass:15:12:18:1::Consider using namedtuple or dataclass for dictionary values:UNDEFINED
-consider-using-namedtuple-or-dataclass:38:23:41:5:func:Consider using namedtuple or dataclass for dictionary values:UNDEFINED
-consider-using-namedtuple-or-dataclass:45:12:48:1::Consider using namedtuple or dataclass for dictionary values:UNDEFINED
-consider-using-namedtuple-or-dataclass:57:12:60:1::Consider using namedtuple or dataclass for dictionary values:UNDEFINED
+consider-using-namedtuple-or-dataclass:39:23:41:5:func:Consider using namedtuple or dataclass for dictionary values:UNDEFINED
+consider-using-namedtuple-or-dataclass:46:12:48:1::Consider using namedtuple or dataclass for dictionary values:UNDEFINED
+consider-using-namedtuple-or-dataclass:58:12:60:1::Consider using namedtuple or dataclass for dictionary values:UNDEFINED
