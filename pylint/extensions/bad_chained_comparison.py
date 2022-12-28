@@ -27,13 +27,10 @@ class BadChainedComparisonChecker(BaseChecker):
     def _has_diff_comparison_groups(self, node: nodes.Compare) -> bool:
         operators = [op[0] for op in node.ops]
         # Check if comparison operators are in the same group
-        for comparison_group in [COMPARISON_OP, IDENTITY_OP, MEMBERSHIP_OP]:
+        for comparison_group in (COMPARISON_OP, IDENTITY_OP, MEMBERSHIP_OP):
             if operators[0] in comparison_group:
                 group = comparison_group
-        for operator in operators:
-            if operator not in group:
-                return True
-        return False
+        return not all(o in group for o in operators)
 
     def visit_compare(self, node: nodes.Compare) -> None:
         if self._has_diff_comparison_groups(node):
