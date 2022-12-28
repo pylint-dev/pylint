@@ -137,3 +137,6 @@ class Example:
 # Treat relative imports as internal
 from .other_file import _private
 from ..parent import _private
+
+from _private_module_x import some_name # [import-private-name]
+var = some_name

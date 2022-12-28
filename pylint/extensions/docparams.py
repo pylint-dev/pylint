@@ -332,9 +332,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_return_doc:
             return
 
-        func_node = node.frame(future=True)
-        if not isinstance(func_node, astroid.FunctionDef):
-            return
+        func_node: astroid.FunctionDef = node.frame(future=True)
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -360,9 +358,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_yields_doc:
             return
 
-        func_node = node.frame(future=True)
-        if not isinstance(func_node, astroid.FunctionDef):
-            return
+        func_node: astroid.FunctionDef = node.frame(future=True)
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
