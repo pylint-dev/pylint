@@ -399,12 +399,6 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "metavar": "<y or n>",
                 "help": "Clear in-memory caches upon conclusion of linting. "
                 "Useful if running pylint in a server-like mode.",
-            "no-header",
-            {
-                "action": "store_true",
-                "default": False,
-                "metavar": "<flag>",
-                "help": "Do not print header with module name.",
             },
         ),
     )

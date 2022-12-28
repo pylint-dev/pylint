@@ -203,8 +203,7 @@ class TextReporter(BaseReporter):
     def handle_message(self, msg: Message) -> None:
         """Manage message of different type and in the context of path."""
         if msg.module not in self._modules:
-            if not self.linter.config.no_header:
-                self.writeln(make_header(msg))
+            self.writeln(make_header(msg))
             self._modules.add(msg.module)
         self.write_message(msg)
 
@@ -212,6 +211,18 @@ class TextReporter(BaseReporter):
         """Launch layouts display."""
         print(file=self.out)
         TextWriter().format(layout, self.out)
+
+
+class NoHeaderReporter(TextReporter):
+    """Reports messages and layouts in plain text without a module header."""
+
+    name = "no-header"
+
+    def handle_message(self, msg: Message) -> None:
+        """Write message(s) without module header."""
+        if msg.module not in self._modules:
+            self._modules.add(msg.module)
+        self.write_message(msg)
 
 
 class ParseableTextReporter(TextReporter):
@@ -297,10 +308,9 @@ class ColorizedTextReporter(TextReporter):
         using ANSI escape codes.
         """
         if msg.module not in self._modules:
-            if not self.linter.config.no_header:
-                msg_style = self._get_decoration("S")
-                modsep = colorize_ansi(make_header(msg), msg_style)
-                self.writeln(modsep)
+            msg_style = self._get_decoration("S")
+            modsep = colorize_ansi(make_header(msg), msg_style)
+            self.writeln(modsep)
             self._modules.add(msg.module)
         msg_style = self._get_decoration(msg.C)
 
@@ -313,6 +323,7 @@ class ColorizedTextReporter(TextReporter):
 
 def register(linter: PyLinter) -> None:
     linter.register_reporter(TextReporter)
+    linter.register_reporter(NoHeaderReporter)
     linter.register_reporter(ParseableTextReporter)
     linter.register_reporter(VSTextReporter)
     linter.register_reporter(ColorizedTextReporter)
