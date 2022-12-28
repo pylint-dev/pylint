@@ -405,9 +405,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "It is faster and simpler.",
         ),
         "R1722": (
-            "Consider using sys.exit()",
+            "Consider using 'sys.exit' instead",
             "consider-using-sys-exit",
-            "Instead of using exit() or quit(), consider using the sys.exit().",
+            "Contrary to 'exit()' or 'quit()', 'sys.exit' does not rely on the "
+            "site module being available (as the 'sys' module is always available).",
         ),
         "R1723": (
             'Unnecessary "%s" after "break", %s',
@@ -1121,7 +1122,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 node.root()
             ):
                 return
-            self.add_message("consider-using-sys-exit", node=node)
+            self.add_message("consider-using-sys-exit", node=node, confidence=HIGH)
 
     def _check_super_with_arguments(self, node: nodes.Call) -> None:
         if not isinstance(node.func, nodes.Name) or node.func.name != "super":
