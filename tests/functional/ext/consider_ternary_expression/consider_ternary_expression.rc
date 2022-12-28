@@ -8,3 +8,4 @@ disable=
   unused-variable,
   missing-function-docstring,
   missing-module-docstring,
+  unsupported-assignment-operation,

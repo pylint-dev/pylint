@@ -15,3 +15,19 @@ def a():
         z = 4
     else:
         z = 5
+
+if f():
+    x = 4
+    print(x)
+else:
+    x = 5
+
+if f():
+    x[0] = 4
+else:
+    x = 5
+
+if f():
+    x = 4
+else:
+    y = 5
