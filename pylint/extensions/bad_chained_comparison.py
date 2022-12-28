@@ -18,7 +18,7 @@ class BadChainedComparisonChecker(BaseChecker):
     """Checks for unintentional usage of chained comparison"""
     name = "bad-chained-comparison"
     msgs = {
-        "W2401": (
+        "W3501": (
             "Expression gets interpreted as a %s-part chained comparison which straddles comparison groups. If this is not the intent, please parenthesize.",
             "bad-chained-comparison",
             "Used when there is a chained comparison where one expression is part of two comparisons that belong to different groups.",
