@@ -102,3 +102,6 @@ def params_are_documented(par1: int, *, par2: int) -> int:
     """
 
     return par1 + par2
+
+
+raise Exception()
