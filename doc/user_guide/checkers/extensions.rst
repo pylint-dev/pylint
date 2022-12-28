@@ -714,3 +714,4 @@ While Used checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :while-used (W0149): *Used `while` loop*
   Unbounded `while` loops can often be rewritten as bounded `for` loops.
+  Exceptions can be made for cases such as event loops, listeners, etc.
