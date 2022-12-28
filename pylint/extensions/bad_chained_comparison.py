@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
+from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -35,7 +36,7 @@ class BadChainedComparisonChecker(BaseChecker):
     def visit_compare(self, node: nodes.Compare) -> None:
         if self._has_diff_comparison_groups(node):
             num_pieces = f"{len(node.ops)}"
-            self.add_message("bad-chained-comparison", node=node, args=(num_pieces))
+            self.add_message("bad-chained-comparison", node=node, args=(num_pieces), confidence=HIGH)
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(BadChainedComparisonChecker(linter))
