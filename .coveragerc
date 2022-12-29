@@ -3,6 +3,7 @@ source =
    pylint
 
 [report]
+skip_covered = True
 include =
     pylint/*
 omit =
