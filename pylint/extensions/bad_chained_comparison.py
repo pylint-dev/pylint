@@ -21,24 +21,31 @@ class BadChainedComparisonChecker(BaseChecker):
     name = "bad-chained-comparison"
     msgs = {
         "W3501": (
-            "Expression gets interpreted as a %s-part chained comparison which straddles comparison groups. If this is not the intent, please parenthesize.",
+            "Suspicious %s-part chained comparison using semantically incompatible operators (%s)",
             "bad-chained-comparison",
-            "Used when there is a chained comparison where one expression is part of two comparisons that belong to different groups.",
+            "Used when there is a chained comparison where one expression is part of two comparisons that belong to different semantic groups "
+            " (\"<\" does not mean the same thing as \"is\", chaining them in \"0 < x is None\" is probably as mistake)." ,
         )
     }
 
-    def _has_diff_comparison_groups(self, node: nodes.Compare) -> bool:
+    def _get_distinct_operators(self, node: nodes.Compare) -> list:
         operators = [op[0] for op in node.ops]
-        # Check if comparison operators are in the same group
+        return list(dict.fromkeys(operators))
+
+
+    def _has_diff_semantic_groups(self, operators: list) -> bool:
+        # Check if comparison operators are in the same semantic group
         for comparison_group in (COMPARISON_OP, IDENTITY_OP, MEMBERSHIP_OP):
             if operators[0] in comparison_group:
                 group = comparison_group
         return not all(o in group for o in operators)
 
     def visit_compare(self, node: nodes.Compare) -> None:
-        if self._has_diff_comparison_groups(node):
-            num_pieces = f"{len(node.ops)}"
-            self.add_message("bad-chained-comparison", node=node, args=(num_pieces), confidence=HIGH)
+        operators = self._get_distinct_operators(node)
+        if self._has_diff_semantic_groups(operators):
+            num_parts = f"{len(node.ops)}"
+            incompatibles = ', '.join(f"'{o}'" for o in operators[:-1]) + f" and '{operators[-1]}'"
+            self.add_message("bad-chained-comparison", node=node, args=(num_parts, incompatibles), confidence=HIGH)
 
 
 def register(linter: PyLinter) -> None:
