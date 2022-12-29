@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import argparse
 import heapq
 import itertools
 import operator
@@ -130,6 +131,26 @@ def _is_owner_ignored(
     ignored_classes = set(ignored_classes)
     qname = owner.qname() if hasattr(owner, "qname") else ""
     return any(ignore in (attrname, qname) for ignore in ignored_classes)
+
+
+def _is_decorated_property(
+    owner: SuccessfulInferenceResult, config: argparse.Namespace
+) -> bool:
+    """Check if the given owner is decorated with a property decorator defined in
+    config.
+    """
+    if not hasattr(owner, "decorators") or not owner.decorators:
+        return False
+
+    property_classes, _ = utils.get_properties(config)
+    for decorator in owner.decorators.nodes:
+        inferred_decorator = safe_infer(decorator)
+        if not isinstance(inferred_decorator, (nodes.FunctionDef, nodes.ClassDef)):
+            continue
+        if inferred_decorator.qname() not in property_classes:
+            continue
+        return True
+    return False
 
 
 @singledispatch
@@ -1088,6 +1109,8 @@ accessed. Python regular expressions are accepted.",
                 self.linter.config.ignored_classes,
                 self.linter.config.ignored_modules,
             ):
+                continue
+            if _is_decorated_property(owner, self.linter.config):
                 continue
 
             qualname = f"{owner.pytype()}.{node.attrname}"

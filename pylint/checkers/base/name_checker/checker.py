@@ -43,7 +43,6 @@ DEFAULT_PATTERNS = {
     )
 }
 
-BUILTIN_PROPERTY = "builtins.property"
 TYPE_VAR_QNAME = frozenset(
     (
         "typing.TypeVar",
@@ -57,22 +56,6 @@ class TypeVarVariance(Enum):
     covariant = auto()
     contravariant = auto()
     double_variant = auto()
-
-
-def _get_properties(config: argparse.Namespace) -> tuple[set[str], set[str]]:
-    """Returns a tuple of property classes and names.
-
-    Property classes are fully qualified, such as 'abc.abstractproperty' and
-    property names are the actual names, such as 'abstract_property'.
-    """
-    property_classes = {BUILTIN_PROPERTY}
-    property_names: set[str] = set()  # Not returning 'property', it has its own check.
-    if config is not None:
-        property_classes.update(config.property_classes)
-        property_names.update(
-            prop.rsplit(".", 1)[-1] for prop in config.property_classes
-        )
-    return property_classes, property_names
 
 
 def _redefines_import(node: nodes.AssignName) -> bool:
@@ -107,7 +90,7 @@ def _determine_function_name_type(
 
     :returns: One of ('function', 'method', 'attr')
     """
-    property_classes, property_names = _get_properties(config)
+    property_classes, property_names = utils.get_properties(config)
     if not node.is_method():
         return "function"
 
@@ -252,18 +235,6 @@ class NameChecker(_BasicChecker):
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": "Include a hint for the correct naming format with invalid-name.",
-            },
-        ),
-        (
-            "property-classes",
-            {
-                "default": ("abc.abstractproperty",),
-                "type": "csv",
-                "metavar": "<decorator names>",
-                "help": "List of decorators that produce properties, such as "
-                "abc.abstractproperty. Add to this list to register "
-                "other decorators that produce valid properties. "
-                "These decorators are taken in consideration only for invalid-name.",
             },
         ),
     )

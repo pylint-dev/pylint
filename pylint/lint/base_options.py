@@ -412,6 +412,17 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "Useful if running pylint in a server-like mode.",
             },
         ),
+        (
+            "property-classes",
+            {
+                "default": ("abc.abstractproperty",),
+                "type": "csv",
+                "metavar": "<decorator names>",
+                "help": "List of decorators that produce properties, such as "
+                "abc.abstractproperty. Add to this list to register "
+                "other decorators that produce valid properties. ",
+            },
+        ),
     )
 
 

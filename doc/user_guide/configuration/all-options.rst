@@ -167,6 +167,13 @@ Standard Checkers
 **Default:**  ``True``
 
 
+--property-classes
+""""""""""""""""""
+*List of decorators that produce properties, such as abc.abstractproperty. Add to this list to register other decorators that produce valid properties. *
+
+**Default:**  ``('abc.abstractproperty',)``
+
+
 --py-version
 """"""""""""
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
@@ -270,6 +277,8 @@ Standard Checkers
    # output-format =
 
    persistent = true
+
+   property-classes = ["abc.abstractproperty"]
 
    py-version = [3, 10]
 
@@ -490,13 +499,6 @@ Standard Checkers
 **Default:**  ``re.compile('^_')``
 
 
---property-classes
-""""""""""""""""""
-*List of decorators that produce properties, such as abc.abstractproperty. Add to this list to register other decorators that produce valid properties. These decorators are taken in consideration only for invalid-name.*
-
-**Default:**  ``('abc.abstractproperty',)``
-
-
 --typevar-rgx
 """""""""""""
 *Regular expression matching correct type variable names. If left empty, type variable names will be checked with the set naming style.*
@@ -584,8 +586,6 @@ Standard Checkers
    name-group = []
 
    no-docstring-rgx = "^_"
-
-   property-classes = ["abc.abstractproperty"]
 
    # typevar-rgx =
 

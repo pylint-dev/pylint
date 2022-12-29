@@ -1,0 +1,3 @@
+[BASIC]
+property-classes=functional.n.no.no_member_property_decorator.prop,
+                 functional.n.no.no_member_property_decorator.with_value,
