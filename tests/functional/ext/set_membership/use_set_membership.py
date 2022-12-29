@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name,missing-docstring,pointless-statement,unnecessary-comprehension,undefined-variable
+# pylint: disable=invalid-name,missing-docstring,pointless-statement,unnecessary-comprehension,undefined-variable,bad-chained-comparison
 
 x = 1
 var = frozenset({1, 2, 3})

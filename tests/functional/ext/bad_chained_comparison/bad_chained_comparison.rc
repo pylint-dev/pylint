@@ -1,2 +1,0 @@
-[MAIN]
-load-plugins=pylint.extensions.bad_chained_comparison
