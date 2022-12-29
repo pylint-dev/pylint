@@ -24,14 +24,13 @@ class BadChainedComparisonChecker(BaseChecker):
             "Suspicious %s-part chained comparison using semantically incompatible operators (%s)",
             "bad-chained-comparison",
             "Used when there is a chained comparison where one expression is part of two comparisons that belong to different semantic groups "
-            " (\"<\" does not mean the same thing as \"is\", chaining them in \"0 < x is None\" is probably a mistake)." ,
+            ' ("<" does not mean the same thing as "is", chaining them in "0 < x is None" is probably a mistake).',
         )
     }
 
     def _get_distinct_operators(self, node: nodes.Compare) -> list:
         operators = [op[0] for op in node.ops]
         return list(dict.fromkeys(operators))
-
 
     def _has_diff_semantic_groups(self, operators: list) -> bool:
         # Check if comparison operators are in the same semantic group
@@ -44,8 +43,15 @@ class BadChainedComparisonChecker(BaseChecker):
         operators = self._get_distinct_operators(node)
         if self._has_diff_semantic_groups(operators):
             num_parts = f"{len(node.ops)}"
-            incompatibles = ', '.join(f"'{o}'" for o in operators[:-1]) + f" and '{operators[-1]}'"
-            self.add_message("bad-chained-comparison", node=node, args=(num_parts, incompatibles), confidence=HIGH)
+            incompatibles = (
+                ", ".join(f"'{o}'" for o in operators[:-1]) + f" and '{operators[-1]}'"
+            )
+            self.add_message(
+                "bad-chained-comparison",
+                node=node,
+                args=(num_parts, incompatibles),
+                confidence=HIGH,
+            )
 
 
 def register(linter: PyLinter) -> None:
