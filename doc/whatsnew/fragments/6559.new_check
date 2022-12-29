@@ -1,4 +1,4 @@
-Add a ``bad-chained-comparison`` extension that emits a warning when
+Add a ``bad-chained-comparison`` check that emits a warning when
 there is a chained comparison where one expression is semantically incompatible with the other.
 
 Closes #6559

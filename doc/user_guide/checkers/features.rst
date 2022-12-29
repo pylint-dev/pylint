@@ -31,6 +31,19 @@ Async checker Messages
   function. This message can't be emitted when using Python < 3.5.
 
 
+Bad-Chained-Comparison checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``bad-chained-comparison``.
+
+Bad-Chained-Comparison checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:bad-chained-comparison (W3501): *Suspicious %s-part chained comparison using semantically incompatible operators (%s)*
+  Used when there is a chained comparison where one expression is part of two
+  comparisons that belong to different semantic groups ("<" does not mean the
+  same thing as "is", chaining them in "0 < x is None" is probably a mistake).
+
+
 Basic checker
 ~~~~~~~~~~~~~
 

@@ -24,7 +24,7 @@ class BadChainedComparisonChecker(BaseChecker):
             "Suspicious %s-part chained comparison using semantically incompatible operators (%s)",
             "bad-chained-comparison",
             "Used when there is a chained comparison where one expression is part of two comparisons that belong to different semantic groups "
-            " (\"<\" does not mean the same thing as \"is\", chaining them in \"0 < x is None\" is probably as mistake)." ,
+            " (\"<\" does not mean the same thing as \"is\", chaining them in \"0 < x is None\" is probably a mistake)." ,
         )
     }
 
