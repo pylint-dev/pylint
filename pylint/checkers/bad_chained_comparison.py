@@ -1,3 +1,7 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -30,7 +34,8 @@ class BadChainedComparisonChecker(BaseChecker):
         )
     }
 
-    def _has_diff_semantic_groups(self, operators: list) -> bool:
+    def _has_diff_semantic_groups(self, operators: list[str]) -> bool:
+
         # Check if comparison operators are in the same semantic group
         for semantic_group in (COMPARISON_OP, IDENTITY_OP, MEMBERSHIP_OP):
             if operators[0] in semantic_group:
