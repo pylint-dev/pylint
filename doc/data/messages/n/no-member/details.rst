@@ -2,9 +2,10 @@ If you are getting the dreaded ``no-member`` error, there is a possibility that
 either:
 
 - pylint found a bug in your code
-- You're launching pylint without the dependencies installed in its environment
+- you're launching pylint without the dependencies installed in its environment
 - pylint would need to lint a C extension module and is refraining to do so
 - pylint does not understand dynamically generated code
+- your code uses a property decorator that pylint does not understand
 
 Linting C extension modules is not supported out of the box, especially since
 pylint has no way to get an AST object out of the extension module.
@@ -35,3 +36,22 @@ with the ``generated-members`` option. For example if ``cv2.LINE_AA`` and
 ``sphinx.generated_member`` create false positives for ``no-member``, you can do::
 
    $ pylint --generated-member=cv2.LINE_AA,sphinx.generated_member
+
+
+If your code uses property class/function decorators, you can specify these properties
+with the ``property-classes`` option as in the following example::
+
+    class custom_property:
+        def __init__(self):
+            self.value = 5
+
+    class my_class:
+        @custom_property
+        def my_property(self):
+            pass
+
+    print(my_class().my_property.value)
+
+Then run with::
+
+   pylint --property-classes='sample.custom_property' sample.py

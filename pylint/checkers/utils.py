@@ -239,8 +239,6 @@ TERMINATING_FUNCS_QNAMES = frozenset(
     {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
 )
 
-BUILTIN_PROPERTY = "builtins.property"
-
 
 class NoSuchArgumentError(Exception):
     pass
@@ -2305,7 +2303,7 @@ def get_properties(config: argparse.Namespace) -> tuple[set[str], set[str]]:
     Property classes are fully qualified, such as 'abc.abstractproperty' and
     property names are the actual names, such as 'abstract_property'.
     """
-    property_classes = {BUILTIN_PROPERTY}
+    property_classes = {"builtins.property"}
     property_names: set[str] = set()  # Not returning 'property', it has its own check.
     if config is not None:
         property_classes.update(config.property_classes)

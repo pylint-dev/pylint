@@ -1,5 +1,0 @@
-Fix ``no-name`` false positive in cases when property decorators are used.
-
- ``--property-classes=`` can now be passed in to configure property functions or classes.
-
-Closes #1127

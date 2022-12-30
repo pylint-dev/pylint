@@ -40,7 +40,7 @@ Pylint provides set of predefined naming styles. Those predefined
 naming styles may be used to adjust Pylint configuration to coding
 style used in linted project.
 
-Following predefined naming styles are available:
+The following predefined naming styles are available:
 
 * ``snake_case``
 * ``camelCase``
@@ -48,7 +48,7 @@ Following predefined naming styles are available:
 * ``UPPER_CASE``
 * ``any`` - fake style which does not enforce any limitations
 
-Following options are exposed:
+The following options are exposed:
 
 .. option:: --module-naming-style=<style>
 
@@ -71,6 +71,8 @@ Following options are exposed:
 .. option:: --class-const-naming-style=<style>
 
 .. option:: --inlinevar-naming-style=<style>
+
+.. option:: --property-classes=<property1:property2:...,...>
 
 Predefined Naming Patterns
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -181,3 +183,23 @@ Name Hints
    Include a hint (regular expression used) for the correct name format with every ``invalid-name`` warning.
 
 .. _PEP8: https://peps.python.org/pep-0008
+
+
+Property Decorators
+~~~~~~~~~~
+
+If your code triggers a false positive instance of ``invalid-name`` when a property class or function
+decorator is used, you can register the property decorator as in the following example in sample.py::
+
+   def custom_property(f):
+      return property(f)
+
+   class FooClass:
+      @custom_property
+      def QUX(self):
+          pass
+
+
+Then run with::
+
+   pylint --property-classes='sample.custom_property' sample.py

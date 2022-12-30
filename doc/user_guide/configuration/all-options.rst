@@ -169,7 +169,7 @@ Standard Checkers
 
 --property-classes
 """"""""""""""""""
-*List of decorators that produce properties, such as abc.abstractproperty. Add to this list to register other decorators that produce valid properties. *
+*List of decorators that produce properties, such as abc.abstractproperty. Add to this list to register other decorators that produce valid properties.*
 
 **Default:**  ``('abc.abstractproperty',)``
 
