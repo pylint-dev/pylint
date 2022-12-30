@@ -30,10 +30,6 @@ class BadChainedComparisonChecker(BaseChecker):
         )
     }
 
-    def _get_distinct_operators(self, node: nodes.Compare) -> list:
-        operators = [op[0] for op in node.ops]
-        return list(dict.fromkeys(operators))
-
     def _has_diff_semantic_groups(self, operators: list) -> bool:
         # Check if comparison operators are in the same semantic group
         for semantic_group in (COMPARISON_OP, IDENTITY_OP, MEMBERSHIP_OP):
@@ -42,7 +38,7 @@ class BadChainedComparisonChecker(BaseChecker):
         return not all(o in group for o in operators)
 
     def visit_compare(self, node: nodes.Compare) -> None:
-        operators = self._get_distinct_operators(node)
+        operators = sorted(set(op[0] for op in node.ops))
         if self._has_diff_semantic_groups(operators):
             num_parts = f"{len(node.ops)}"
             incompatibles = (
