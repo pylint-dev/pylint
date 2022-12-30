@@ -34,9 +34,9 @@ class BadChainedComparisonChecker(BaseChecker):
 
     def _has_diff_semantic_groups(self, operators: list) -> bool:
         # Check if comparison operators are in the same semantic group
-        for comparison_group in (COMPARISON_OP, IDENTITY_OP, MEMBERSHIP_OP):
-            if operators[0] in comparison_group:
-                group = comparison_group
+        for semantic_group in (COMPARISON_OP, IDENTITY_OP, MEMBERSHIP_OP):
+            if operators[0] in semantic_group:
+                group = semantic_group
         return not all(o in group for o in operators)
 
     def visit_compare(self, node: nodes.Compare) -> None:
