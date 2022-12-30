@@ -2028,3 +2028,39 @@ def is_module_ignored(
                 return True
 
     return False
+
+
+def is_singleton_const(node: nodes.NodeNG) -> bool:
+    return isinstance(node, nodes.Const) and any(
+        node.value is value for value in SINGLETON_VALUES
+    )
+
+
+def is_terminating_func(node: nodes.Call) -> bool:
+    """Detect call to exit(), quit(), os._exit(), or sys.exit()."""
+    if (
+        not isinstance(node.func, nodes.Attribute)
+        and not (isinstance(node.func, nodes.Name))
+        or isinstance(node.parent, nodes.Lambda)
+    ):
+        return False
+
+    try:
+        for inferred in node.func.infer():
+            if (
+                hasattr(inferred, "qname")
+                and inferred.qname() in TERMINATING_FUNCS_QNAMES
+            ):
+                return True
+    except (StopIteration, astroid.InferenceError):
+        pass
+
+    return False
+
+
+def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
+    try:
+        klass.getattr(name)
+        return True
+    except astroid.NotFoundError:
+        return False
