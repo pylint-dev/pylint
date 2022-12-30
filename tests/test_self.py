@@ -1278,6 +1278,18 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
 
         self._test_output([module, "--enable=all"], expected_output=expected)
 
+    def test_output_no_header(self) -> None:
+        module = join(HERE, "data", "clientmodule_test.py")
+        expected = "Unused variable 'local_variable'"
+        not_expected = textwrap.dedent(
+            """************* Module data.clientmodule_test"""
+        )
+
+        args = [module, "--output-format=no-header"]
+        self._test_output(
+            args, expected_output=expected, unexpected_output=not_expected
+        )
+
 
 class TestCallbackOptions:
     """Test for all callback options we support."""
