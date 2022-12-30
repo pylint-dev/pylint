@@ -345,7 +345,6 @@ class NameChecker(_BasicChecker):
                 if utils.has_known_bases(node.parent.frame(future=True))
                 else interfaces.INFERENCE_FAILURE
             )
-        breakpoint()
         self._check_name(
             _determine_function_name_type(node, config=self.linter.config),
             node.name,
