@@ -2,6 +2,8 @@
 will trigger assigning-non-slot warning.
 """
 # pylint: disable=too-few-public-methods, missing-docstring, import-error, redundant-u-string-prefix, unnecessary-dunder-call
+# pylint: disable=attribute-defined-outside-init
+
 from collections import deque
 
 from missing import Unknown
@@ -148,6 +150,7 @@ class ClassReassingingInvalidLayoutClass:
 
     def release(self):
         self.__class__ = ClassWithSlots  # [assigning-non-slot]
+        self.test = 'test'  # [assigning-non-slot]
 
 
 # pylint: disable=attribute-defined-outside-init

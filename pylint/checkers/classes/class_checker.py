@@ -1621,6 +1621,7 @@ a metaclass class method.",
             for ancestor in klass.ancestors()
         ):
             return
+
         if not any(slot.value == node.attrname for slot in slots):
             # If we have a '__dict__' in slots, then
             # assigning any name is valid.
