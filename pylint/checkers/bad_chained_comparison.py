@@ -38,7 +38,7 @@ class BadChainedComparisonChecker(BaseChecker):
         return not all(o in group for o in operators)
 
     def visit_compare(self, node: nodes.Compare) -> None:
-        operators = sorted(set(op[0] for op in node.ops))
+        operators = sorted({op[0] for op in node.ops})
         if self._has_diff_semantic_groups(operators):
             num_parts = f"{len(node.ops)}"
             incompatibles = (
