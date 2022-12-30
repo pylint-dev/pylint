@@ -2190,3 +2190,11 @@ def is_terminating_func(node: nodes.Call) -> bool:
         pass
 
     return False
+
+
+def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
+    try:
+        klass.getattr(name)
+        return True
+    except astroid.NotFoundError:
+        return False
