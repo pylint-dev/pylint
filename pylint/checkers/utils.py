@@ -1175,9 +1175,12 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
     # As well as directly inherited ABC class
     for base in node.bases:
         inferred_base = safe_infer(base)
-        if isinstance(inferred_base, nodes.ClassDef):
-            if inferred_base.name == "abc" and inferred_base.root().name == "ABC":
-                return True
+        if (
+            isinstance(inferred_base, nodes.ClassDef) and
+            inferred_base.name == "abc" and
+            inferred_base.root().name == "ABC"
+        ):
+            return True
 
     for method in node.methods():
         if method.parent.frame(future=True) is node:
