@@ -1172,7 +1172,7 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
         if meta.name == "ABCMeta" and meta.root().name in ABC_MODULES:
             return True
 
-    # As well as directly inherited ABC class
+    # As well as direct abc.ABC inheritance
     for base in node.bases:
         inferred_base = safe_infer(base)
         if (
