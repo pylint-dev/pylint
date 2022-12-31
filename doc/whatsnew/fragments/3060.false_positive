@@ -1,0 +1,3 @@
+Fix ``abstract-class-instantiated`` false positive when class defines ``__new__`` method.
+
+Closes #3060

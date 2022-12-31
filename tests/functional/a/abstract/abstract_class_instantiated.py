@@ -9,6 +9,7 @@ abstract methods.
 import abc
 import weakref
 from lala import Bala
+import pandas as pd
 
 
 class GoodClass(metaclass=abc.ABCMeta):
@@ -141,3 +142,42 @@ class BadClassTwo(abc.ABC):
 def main_two():
     """ do nothing """
     BadClassTwo() # [abstract-class-instantiated]
+
+
+# Testcase from https://github.com/PyCQA/pylint/issues/3060
+with pd.ExcelWriter("demo.xlsx") as writer:
+    print(writer)
+
+class GoodWithNew(metaclass=abc.ABCMeta):
+    def __new__(cls):
+        pass
+
+    @property
+    @abc.abstractmethod
+    def sheets(self):
+        """sheets."""
+
+    @property
+    @abc.abstractmethod
+    def book(self):
+        """book."""
+
+test = GoodWithNew()
+
+
+class BadWithNew(metaclass=abc.ABCMeta):
+    def __new__(cls):
+        print("Test.__new__")
+        return super().__new__(cls)
+
+    @property
+    @abc.abstractmethod
+    def sheets(self):
+        """sheets."""
+
+    @property
+    @abc.abstractmethod
+    def book(self):
+        """book."""
+
+test = BadWithNew()  # [abstract-class-instantiated]

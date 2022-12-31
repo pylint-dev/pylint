@@ -17,7 +17,7 @@ from astroid.typing import InferenceResult
 from pylint.checkers import utils
 from pylint.checkers.base.basic_checker import _BasicChecker
 from pylint.checkers.utils import infer_all
-from pylint.interfaces import HIGH
+from pylint.interfaces import HIGH, INFERENCE
 
 ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 # List of methods which can be redefined
@@ -76,6 +76,38 @@ def _has_abstract_methods(node: nodes.ClassDef) -> bool:
     with `abc` decorators.
     """
     return len(utils.unimplemented_abstract_methods(node)) > 0
+
+
+def _new_correctly_implemented(node: nodes.ClassDef) -> bool:
+    """Check if node implements `__new__`.
+
+    If `__new__` is implemented, check if it calls `super().__new__(cls)`.
+    """
+    if "__new__" not in node.locals:
+        return False
+
+    new = next(node.igetattr("__new__"))
+    if not isinstance(new, astroid.UnboundMethod):
+        return False
+
+    calls = new.nodes_of_class(
+        nodes.Call, skip_klass=(nodes.FunctionDef, nodes.ClassDef)
+    )
+    for call in calls:
+        if not isinstance(call.func, nodes.Attribute):
+            continue
+        if call.func.attrname != "__new__":
+            continue
+
+        super_call = utils.safe_infer(call.func.expr)
+        if not isinstance(super_call, astroid.objects.Super):
+            continue
+
+        # `__new__` calls `super().__new__(cls)`.
+        return False
+
+    # If we get to this point, it means `__new__` has no calls to `super().__new__(cls)`.
+    return True
 
 
 def redefined_by_decorator(node: nodes.FunctionDef) -> bool:
@@ -446,7 +478,6 @@ class BasicErrorChecker(_BasicChecker):
             # body, we're expecting that it knows what it is doing.
             return
 
-        # __init__ was called
         abstract_methods = _has_abstract_methods(inferred)
 
         if not abstract_methods:
@@ -467,8 +498,16 @@ class BasicErrorChecker(_BasicChecker):
             return
 
         if metaclass.qname() in ABC_METACLASSES:
+            if _new_correctly_implemented(inferred):
+                # A class that implements `__new__` without calling `super().__new__(cls)`
+                # should not emit the message.
+                return
+
             self.add_message(
-                "abstract-class-instantiated", args=(inferred.name,), node=node
+                "abstract-class-instantiated",
+                args=(inferred.name,),
+                node=node,
+                confidence=INFERENCE,
             )
 
     def _check_yield_outside_func(self, node: nodes.Yield) -> None:
