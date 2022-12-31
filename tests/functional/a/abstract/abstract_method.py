@@ -49,7 +49,7 @@ class ConcreteA(AbstractC):
     Concrete class.
 
     Should trigger a warning since this class does
-    not directly inherit from abc.ABC.
+    not directly inherit from abc.ABC and is incomplete.
     """
 
 
