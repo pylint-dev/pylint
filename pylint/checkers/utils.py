@@ -1176,9 +1176,9 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
     for base in node.bases:
         inferred_base = safe_infer(base)
         if (
-            isinstance(inferred_base, nodes.ClassDef) and
-            inferred_base.root().name == "ABC" and
-            inferred_base.name == "abc"
+            isinstance(inferred_base, nodes.ClassDef)
+            and inferred_base.root().name == "ABC"
+            and inferred_base.name == "abc"
         ):
             return True
 
