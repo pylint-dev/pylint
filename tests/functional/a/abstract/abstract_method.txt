@@ -1,16 +1,22 @@
-abstract-method:56:0:56:15:ConcreteB:Method 'bbbb' is abstract in class 'Abstract' but is not overridden:UNDEFINED
-abstract-method:79:0:79:15:Container:Method '__hash__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:79:0:79:15:Container:Method '__iter__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:79:0:79:15:Container:Method '__len__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:85:0:85:13:Sizable:Method '__contains__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:85:0:85:13:Sizable:Method '__hash__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:85:0:85:13:Sizable:Method '__iter__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:91:0:91:14:Hashable:Method '__contains__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:91:0:91:14:Hashable:Method '__iter__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:91:0:91:14:Hashable:Method '__len__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:96:0:96:14:Iterator:Method '__contains__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:96:0:96:14:Iterator:Method '__hash__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:96:0:96:14:Iterator:Method '__len__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:115:0:115:19:BadComplexMro:Method '__hash__' is abstract in class 'Structure' but is not overridden:UNDEFINED
-abstract-method:115:0:115:19:BadComplexMro:Method '__len__' is abstract in class 'AbstractSizable' but is not overridden:UNDEFINED
-abstract-method:115:0:115:19:BadComplexMro:Method 'length' is abstract in class 'AbstractSizable' but is not overridden:UNDEFINED
+abstract-method:29:0:29:15:AbstractC:Method 'aaaa' is abstract in class 'Abstract' but is not overridden in child class 'AbstractC':INFERENCE
+abstract-method:29:0:29:15:AbstractC:Method 'bbbb' is abstract in class 'Abstract' but is not overridden in child class 'AbstractC':INFERENCE
+abstract-method:29:0:29:15:AbstractC:Method 'cccc' is abstract in class 'AbstractB' but is not overridden in child class 'AbstractC':INFERENCE
+abstract-method:47:0:47:15:ConcreteA:Method 'aaaa' is abstract in class 'Abstract' but is not overridden in child class 'ConcreteA':INFERENCE
+abstract-method:47:0:47:15:ConcreteA:Method 'bbbb' is abstract in class 'Abstract' but is not overridden in child class 'ConcreteA':INFERENCE
+abstract-method:47:0:47:15:ConcreteA:Method 'cccc' is abstract in class 'AbstractB' but is not overridden in child class 'ConcreteA':INFERENCE
+abstract-method:56:0:56:15:ConcreteB:Method 'bbbb' is abstract in class 'Abstract' but is not overridden in child class 'ConcreteB':INFERENCE
+abstract-method:79:0:79:15:Container:Method '__hash__' is abstract in class 'Structure' but is not overridden in child class 'Container':INFERENCE
+abstract-method:79:0:79:15:Container:Method '__iter__' is abstract in class 'Structure' but is not overridden in child class 'Container':INFERENCE
+abstract-method:79:0:79:15:Container:Method '__len__' is abstract in class 'Structure' but is not overridden in child class 'Container':INFERENCE
+abstract-method:85:0:85:13:Sizable:Method '__contains__' is abstract in class 'Structure' but is not overridden in child class 'Sizable':INFERENCE
+abstract-method:85:0:85:13:Sizable:Method '__hash__' is abstract in class 'Structure' but is not overridden in child class 'Sizable':INFERENCE
+abstract-method:85:0:85:13:Sizable:Method '__iter__' is abstract in class 'Structure' but is not overridden in child class 'Sizable':INFERENCE
+abstract-method:91:0:91:14:Hashable:Method '__contains__' is abstract in class 'Structure' but is not overridden in child class 'Hashable':INFERENCE
+abstract-method:91:0:91:14:Hashable:Method '__iter__' is abstract in class 'Structure' but is not overridden in child class 'Hashable':INFERENCE
+abstract-method:91:0:91:14:Hashable:Method '__len__' is abstract in class 'Structure' but is not overridden in child class 'Hashable':INFERENCE
+abstract-method:96:0:96:14:Iterator:Method '__contains__' is abstract in class 'Structure' but is not overridden in child class 'Iterator':INFERENCE
+abstract-method:96:0:96:14:Iterator:Method '__hash__' is abstract in class 'Structure' but is not overridden in child class 'Iterator':INFERENCE
+abstract-method:96:0:96:14:Iterator:Method '__len__' is abstract in class 'Structure' but is not overridden in child class 'Iterator':INFERENCE
+abstract-method:115:0:115:19:BadComplexMro:Method '__hash__' is abstract in class 'Structure' but is not overridden in child class 'BadComplexMro':INFERENCE
+abstract-method:115:0:115:19:BadComplexMro:Method '__len__' is abstract in class 'AbstractSizable' but is not overridden in child class 'BadComplexMro':INFERENCE
+abstract-method:115:0:115:19:BadComplexMro:Method 'length' is abstract in class 'AbstractSizable' but is not overridden in child class 'BadComplexMro':INFERENCE
