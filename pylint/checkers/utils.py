@@ -1177,7 +1177,7 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
         inferred_base = safe_infer(base)
         if (
             isinstance(inferred_base, nodes.ClassDef)
-            and inferred_base.root().name == "abc"
+            and inferred_base.root().name in ABC_MODULES
             and inferred_base.name == "ABC"
         ):
             return True
