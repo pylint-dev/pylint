@@ -44,8 +44,6 @@ def print_good():
     "{a!r:20}".format(a="Hello")
     "{pid}".format(pid=os.getpid())
     str("{}").format(2)
-    "{0.missing.length}".format(ReturnYes())
-    "{1.missing.length}".format(ReturnYes())
     "{a.ids[3][1]}".format(a=Test())
     "{a[0][0]}".format(a=[[1]])
     "{[0][0]}".format({0: {0: 1}})
@@ -106,6 +104,8 @@ def pprint_bad():
     "{!s:x}".format([]) # [bad-string-format-type]
     f"{'s':x}" # [bad-string-format-type]
     f"{[]!s:x}" # [bad-string-format-type]
+    "{0.missing.length}".format(ReturnYes())  # [missing-format-attribute]
+    "{1.missing.length}".format(ReturnYes())  # should be too-few-format-args
 
 
 def good_issue288(*args, **kwargs):

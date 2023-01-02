@@ -403,6 +403,7 @@ class StringFormatChecker(BaseChecker):
                 # It could be a tuple of unknown size, so
                 # there's nothing we can check.
                 num_args = None
+
             if num_args is not None:
                 if num_args > required_num_args:
                     self.add_message("too-many-format-args", node=node)
@@ -537,7 +538,7 @@ class StringFormatChecker(BaseChecker):
         field_types: dict[str, tuple[str, str | None]],
         implicit_cnt: int,
         implicit_types: list[str],
-        explicit_args: set[str],
+        explicit_args: dict[str : tuple[str, str | None]],
         explicit_types: dict[str : tuple[str, str | None]],
         named_arguments: dict[str:str],
         positional_arguments: dict[str:str],
@@ -719,6 +720,7 @@ class StringFormatChecker(BaseChecker):
             if len(positional_arguments) > num_args:
                 self.add_message("too-many-format-args", node=node)
             elif len(positional_arguments) < num_args:
+                # breakpoint()
                 self.add_message("too-few-format-args", node=node)
 
         self._validate_arg_types(
@@ -735,19 +737,22 @@ class StringFormatChecker(BaseChecker):
 
         self._detect_vacuous_formatting(node, positional_arguments)
         self._check_new_format_specifiers(
-            node, parse.keyword_arguments, named_arguments
+            node, parse.keyword_arguments, parse.explicit_pos_args, named_arguments
         )
 
     def _check_new_format_specifiers(
         self,
         node: nodes.Call,
         fields: list[tuple[str, list[tuple[bool, str]]]],
+        pos_args: dict[str : tuple[str, str | None]],
         named: dict[str, SuccessfulInferenceResult],
     ) -> None:
         """Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").
         """
+
         key: Literal[0] | str
+
         for key, specifiers in fields:
             # Obtain the argument. If it can't be obtained
             # or inferred, skip this check.
@@ -839,6 +844,50 @@ class StringFormatChecker(BaseChecker):
                     # can't check further if we can't infer it
                     break
 
+        for position, specifiers in pos_args.items():
+            try:
+                argname = utils.get_argument_from_call(node, int(position))
+            except utils.NoSuchArgumentError:
+                continue
+
+            if argname in (astroid.Uninferable, None):
+                continue
+            try:
+                argument = utils.safe_infer(argname)
+            except astroid.InferenceError:
+                continue
+            if not specifiers or not argument:
+                # No need to check this key if it doesn't
+                # use attribute / item access
+                continue
+            if argument.parent and isinstance(argument.parent, nodes.Arguments):
+                # Ignore any object coming from an argument,
+                # because we can't infer its value properly.
+                continue
+            previous = argument
+            parsed: list[tuple[bool, str]] = []
+
+            for is_attribute, specifier in specifiers:
+                if previous is astroid.Uninferable:
+                    break
+                parsed.append((is_attribute, specifier))
+                if is_attribute:
+                    try:
+                        previous = previous.getattr(specifier)[0]
+                    except (AttributeError, astroid.NotFoundError):
+                        if (
+                            hasattr(previous, "has_dynamic_getattr")
+                            and previous.has_dynamic_getattr()
+                        ):
+                            # Don't warn if the object has a custom __getattr__
+                            break
+                        path = get_access_path(str(position), parsed)
+                        self.add_message(
+                            "missing-format-attribute",
+                            args=(specifier, path),
+                            node=node,
+                        )
+                        break
 
 class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     """Check string literals."""
