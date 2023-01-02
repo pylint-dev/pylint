@@ -78,7 +78,7 @@ def _has_abstract_methods(node: nodes.ClassDef) -> bool:
     return len(utils.unimplemented_abstract_methods(node)) > 0
 
 
-def _new_correctly_implemented(node: nodes.ClassDef) -> bool:
+def _new_instantiates_super(node: nodes.ClassDef) -> bool:
     """Check if node implements `__new__`.
 
     If `__new__` is implemented, check if it calls `super().__new__(cls)`.
@@ -87,8 +87,6 @@ def _new_correctly_implemented(node: nodes.ClassDef) -> bool:
         return False
 
     new = next(node.igetattr("__new__"))
-    if not isinstance(new, astroid.UnboundMethod):
-        return False
 
     calls = new.nodes_of_class(
         nodes.Call, skip_klass=(nodes.FunctionDef, nodes.ClassDef)
@@ -498,7 +496,7 @@ class BasicErrorChecker(_BasicChecker):
             return
 
         if metaclass.qname() in ABC_METACLASSES:
-            if _new_correctly_implemented(inferred):
+            if _new_instantiates_super(inferred):
                 # A class that implements `__new__` without calling `super().__new__(cls)`
                 # should not emit the message.
                 return
