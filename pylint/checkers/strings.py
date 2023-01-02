@@ -435,6 +435,7 @@ class StringFormatChecker(BaseChecker):
         format_map = {}
         try:
             format_map = utils.parse_all_fields_formatting(node_string, False)
+
         except utils.UnsupportedFormatCharacter as exc:
             formatted = node_string[exc.index]
             self.add_message(
@@ -475,8 +476,10 @@ class StringFormatChecker(BaseChecker):
                 full_spec_as_string = "".join(
                     [convert_node_to_string(x) for x in value.format_spec.values]
                 )
-
-                (conversion, format_type) = format_map[full_spec_as_string]
+                try:
+                    (conversion, format_type) = format_map[full_spec_as_string]
+                except KeyError:
+                    continue
 
                 if arg_type and not new_formatting_arg_matches_format_type(
                     arg_type, format_type, conversion
@@ -720,7 +723,6 @@ class StringFormatChecker(BaseChecker):
             if len(positional_arguments) > num_args:
                 self.add_message("too-many-format-args", node=node)
             elif len(positional_arguments) < num_args:
-                # breakpoint()
                 self.add_message("too-few-format-args", node=node)
 
         self._validate_arg_types(
@@ -750,7 +752,6 @@ class StringFormatChecker(BaseChecker):
         """Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").
         """
-
         key: Literal[0] | str
 
         for key, specifiers in fields:
@@ -888,6 +889,7 @@ class StringFormatChecker(BaseChecker):
                             node=node,
                         )
                         break
+
 
 class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     """Check string literals."""

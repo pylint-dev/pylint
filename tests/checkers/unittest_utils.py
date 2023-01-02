@@ -148,33 +148,33 @@ def test_is_subclass_of_not_classdefs() -> None:
 def test_parse_format_method_string() -> None:
     result_type = utils.parse_format_method_string_result
     samples = [
-        ("{}", result_type([], 1, set(), {}, [(None, None)], {})),
-        ("{}:{}", result_type([], 2, set(), {}, [(None, None), (None, None)], {})),
+        ("{}", result_type([], 1, {}, {}, [(None, None)], {})),
+        ("{}:{}", result_type([], 2, {}, {}, [(None, None), (None, None)], {})),
         (
             "{field}",
-            result_type([("field", [])], 0, set(), {"field": (None, None)}, [], {}),
+            result_type([("field", [])], 0, {}, {"field": (None, None)}, [], {}),
         ),
-        ("{:5}", result_type([], 1, set(), {}, [(None, None)], {})),
-        ("{:10}", result_type([], 1, set(), {}, [(None, None)], {})),
+        ("{:5}", result_type([], 1, {}, {}, [(None, None)], {})),
+        ("{:10}", result_type([], 1, {}, {}, [(None, None)], {})),
         (
             "{field:10}",
-            result_type([("field", [])], 0, set(), {"field": (None, None)}, [], {}),
+            result_type([("field", [])], 0, {}, {"field": (None, None)}, [], {}),
         ),
         (
             "{field:10}{{}}",
-            result_type([("field", [])], 0, set(), {"field": (None, None)}, [], {}),
+            result_type([("field", [])], 0, {}, {"field": (None, None)}, [], {}),
         ),
-        ("{:5}{!r:10}", result_type([], 2, set(), {}, [(None, None), ("r", None)], {})),
+        ("{:5}{!r:10}", result_type([], 2, {}, {}, [(None, None), ("r", None)], {})),
         (
             "{:5}{}{{}}{}",
             result_type(
-                [], 3, set(), {}, [(None, None), (None, None), (None, None)], {}
+                [], 3, {}, {}, [(None, None), (None, None), (None, None)], {}
             ),
         ),
         (
             "{0}{1}{0}",
             result_type(
-                [], 0, {"0", "1"}, {}, [], {"0": (None, None), "1": (None, None)}
+                [], 0, {"0": [], "1": []}, {}, [], {"0": (None, None), "1": (None, None)}
             ),
         ),
         (
@@ -182,7 +182,7 @@ def test_parse_format_method_string() -> None:
             result_type(
                 [("latitude", []), ("longitude", [])],
                 0,
-                set(),
+                {},
                 {"latitude": (None, None), "longitude": (None, None)},
                 [],
                 {},
@@ -190,11 +190,11 @@ def test_parse_format_method_string() -> None:
         ),
         (
             "X: {0[0]};  Y: {0[1]}",
-            result_type([], 0, {"0"}, {}, [], {"0": (None, None)}),
+            result_type([], 0, {"0":  [(False, 1)]}, {}, [], {"0": (None, None)}),
         ),
-        ("{:*^30}", result_type([], 1, set(), {}, [(None, None)], {})),
-        ("{!r:}", result_type([], 1, set(), {}, [("r", None)], {})),
-        ("{0.missing}", result_type([], 0, set("0"), {}, [], {'0': (None, None)})),
+        ("{:*^30}", result_type([], 1, {}, {}, [(None, None)], {})),
+        ("{!r:}", result_type([], 1, {}, {}, [("r", None)], {})),
+        ("{0.missing}", result_type([], 0,  {'0': [(True, 'missing')]}, {}, [], {"0": (None, None)})),
     ]
 
     for fmt, result in samples:

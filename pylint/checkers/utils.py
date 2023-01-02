@@ -662,9 +662,13 @@ def parse_format_spec(format_spec: str, start_point: int) -> Any:
     index in the full string where this spec appears. Raises IncompleteFormatString or
     UnsupportedFormatCharacter if a parse error occurs.
     """
+    if "%" in format_spec:
+        return ""
+
     compiled = re.compile(FORMAT_SPEC_REGEX)
     match = compiled.match(format_spec)
     types = "bcdeEfFgGnosxX%"
+
     if match:
         format_char = match.groupdict().get("format_char")
         if format_char and format_char not in types:
@@ -720,6 +724,7 @@ def parse_format_field(
     format_character = None
     format_spec = ""
     conversion = None
+
     if colon_idx != -1:
         format_spec = format_field[colon_idx + 1 :]
         format_character = parse_format_spec(format_spec, start_point + colon_idx + 1)
