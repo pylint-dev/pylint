@@ -44,7 +44,7 @@ class AbstractD(AbstractB, metaclass=abc.ABCMeta):
     """
 
 
-class ConcreteA(AbstractC):
+class ConcreteA(AbstractC): # [abstract-method] 
     """
     Concrete class.
 
