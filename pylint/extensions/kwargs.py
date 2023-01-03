@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Tuple, TYPE_CHECKING
 
 from astroid import BoundMethod, nodes
 
@@ -32,23 +32,19 @@ class KeywordChecker(BaseChecker):
         """Check that called functions/methods are provided keyword arguments."""
         called = safe_infer(node.func)
 
-        if isinstance(called, nodes.ClassDef):
-            needed_keywords = called.instance_attrs.keys()
-            default_kwargs = []  # todo
-        elif isinstance(called, (nodes.FunctionDef, BoundMethod)):
-            needed_keywords = called.argnames()
-            if called.is_method():
-                needed_keywords = [x for x in needed_keywords if x != "self"]
-
-            default_kwargs = called.args.defaults
-        else:
+        if not isinstance(called, (nodes.ClassDef, nodes.FunctionDef, BoundMethod)):
             return
 
-        if len(needed_keywords) - len(default_kwargs) < 2:
+        needed_keywords, default_kwarg_names = self._get_args(called)
+
+        if len(needed_keywords) - len(default_kwarg_names) < 2:
             # This checker will not apply if there are less than 2 positional args.
             return
 
-        provided_kwarg_names = {kwarg.arg for kwarg in node.keywords}
+        provided_kwarg_names = [
+            kwarg.arg for kwarg in node.keywords
+        ] + default_kwarg_names
+
         for arg_name in needed_keywords:
             if arg_name not in provided_kwarg_names:
                 self.add_message(
@@ -60,6 +56,27 @@ class KeywordChecker(BaseChecker):
                     ),
                     confidence=INFERENCE,
                 )
+
+    def _get_args(
+        self, node: nodes.ClassDef | nodes.FunctionDef | BoundMethod
+    ) -> Tuple[list[str], list[str]]:
+        if isinstance(node, nodes.ClassDef):
+            needed_keywords = node.instance_attrs.keys()
+            node_args = node.locals["__init__"][0].args
+            default_kwargs = [
+                x.name for x in node_args.args[-len(node_args.defaults) :]
+            ]
+        elif isinstance(node, (nodes.FunctionDef, BoundMethod)):
+            needed_keywords = node.argnames()
+            if node.is_method():
+                needed_keywords = [x for x in needed_keywords if x != "self"]
+            default_kwargs = []
+            if node.args.defaults:
+                default_kwargs = [
+                    x.name for x in node.args.args[-len(node.args.defaults) :]
+                ]
+
+        return needed_keywords, default_kwargs
 
 
 def register(linter: PyLinter) -> None:

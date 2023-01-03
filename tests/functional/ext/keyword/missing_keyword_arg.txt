@@ -4,3 +4,12 @@ missing-keyword-arg:11:0:11:21::Call to `print_hello` missing keyword argument `
 missing-keyword-arg:46:0:46:23::Call to `keep_self_arg` missing keyword argument `one`.:INFERENCE
 missing-keyword-arg:46:0:46:23::Call to `keep_self_arg` missing keyword argument `self`.:INFERENCE
 missing-keyword-arg:47:0:47:28::Call to `keep_self_arg` missing keyword argument `one`.:INFERENCE
+missing-keyword-arg:69:6:69:35::Call to `Car` missing keyword argument `name`.:INFERENCE
+missing-keyword-arg:69:6:69:35::Call to `Car` missing keyword argument `owner`.:INFERENCE
+missing-keyword-arg:69:6:69:35::Call to `Car` missing keyword argument `title`.:INFERENCE
+missing-keyword-arg:70:0:70:32::Call to `run` missing keyword argument `distance`.:INFERENCE
+missing-keyword-arg:70:0:70:32::Call to `run` missing keyword argument `location`.:INFERENCE
+missing-keyword-arg:70:0:70:32::Call to `run` missing keyword argument `speed`.:INFERENCE
+missing-keyword-arg:85:13:85:47::Call to `make_car` missing keyword argument `name`.:INFERENCE
+missing-keyword-arg:85:13:85:47::Call to `make_car` missing keyword argument `owner`.:INFERENCE
+missing-keyword-arg:85:13:85:47::Call to `make_car` missing keyword argument `title`.:INFERENCE

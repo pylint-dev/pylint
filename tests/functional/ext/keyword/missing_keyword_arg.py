@@ -77,3 +77,9 @@ class Robot:
         self.year = year
 
 robot = Robot("a robot")
+
+
+def make_car(name, owner, title, color="red", year=2022):
+    return "car"
+
+second_car = make_car("a car", "name", "title") # [missing-keyword-arg, missing-keyword-arg, missing-keyword-arg]
