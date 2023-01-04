@@ -396,9 +396,7 @@ class BasicErrorChecker(_BasicChecker):
 
     def _check_nonlocal_without_binding(self, node: nodes.Nonlocal, name: str) -> None:
         current_scope = node.scope()
-        while True:
-            if current_scope.parent is None:
-                break
+        while current_scope.parent:
 
             if not isinstance(current_scope, (nodes.ClassDef, nodes.FunctionDef)):
                 self.add_message("nonlocal-without-binding", args=(name,), node=node)
