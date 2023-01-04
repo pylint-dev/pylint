@@ -1,4 +1,4 @@
-Add ``consider-refactoring-while-condition`` check to recommend refactoring when
+Add ``consider-refactoring-into-while-condition`` check to recommend refactoring when
 a while loop is defined with a constant condition with an immediate if
 statement to check for break condition as a first statement.
 

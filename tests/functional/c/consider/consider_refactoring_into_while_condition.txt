@@ -1,0 +1,6 @@
+consider-refactoring-into-while-condition:7:8:10:18:Issue8015.bad:Consider using `while k != 10`:UNDEFINED
+consider-refactoring-into-while-condition:23:8:26:24:Issue8015.test_error_message:Consider using `while a_list`:UNDEFINED
+consider-refactoring-into-while-condition:31:8:34:28:Issue8015.test_error_message_2:Consider using `while not a_list`:UNDEFINED
+consider-refactoring-into-while-condition:39:8:42:28:Issue8015.test_error_message_3:Consider using `while not a_list`:UNDEFINED
+consider-refactoring-into-while-condition:47:8:50:28:Issue8015.test_error_message_4:Consider using `while a_list`:UNDEFINED
+consider-refactoring-into-while-condition:54:8:57:32:Issue8015.another_bad:Consider using `while current_scope`:UNDEFINED

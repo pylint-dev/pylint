@@ -4,7 +4,7 @@
 class Issue8015:
     def bad(self):
         k = 1
-        while True:  # [consider-refactoring-while-condition]
+        while True:  # [consider-refactoring-into-while-condition]
             if k == 10:
                 break
             k += 1
@@ -20,7 +20,7 @@ class Issue8015:
     def test_error_message(self):
         a_list = [1,2,3,4,5]
         # Should recommend `while a_list`
-        while True:   # [consider-refactoring-while-condition]
+        while True:   # [consider-refactoring-into-while-condition]
             if not a_list:
                 break
             a_list.pop()
@@ -28,14 +28,30 @@ class Issue8015:
     def test_error_message_2(self):
         a_list = []
         # Should recommend `while not a_list`
-        while True:   # [consider-refactoring-while-condition]
+        while True:   # [consider-refactoring-into-while-condition]
             if a_list:
+                break
+            a_list.append(1)
+
+    def test_error_message_3(self):
+        a_list = []
+        # Should recommend `while not a_list`
+        while True:   # [consider-refactoring-into-while-condition]
+            if a_list is not None:
+                break
+            a_list.append(1)
+
+    def test_error_message_4(self):
+        a_list = []
+        # Should recommend `while not a_list`
+        while True:   # [consider-refactoring-into-while-condition]
+            if a_list is None:
                 break
             a_list.append(1)
 
     def another_bad(self):
         current_scope = None
-        while True:  # [consider-refactoring-while-condition]
+        while True:  # [consider-refactoring-into-while-condition]
             if current_scope is None:
                 break
             current_scope = True

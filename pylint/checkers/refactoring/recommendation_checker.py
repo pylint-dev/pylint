@@ -62,7 +62,7 @@ class RecommendationChecker(checkers.BaseChecker):
         ),
         "C0210": (
             "Consider using `while %s`",
-            "consider-refactoring-while-condition",
+            "consider-refactoring-into-while-condition",
             "Emitted when `while <constant>:` loop is used with the first statement being a if statement "
             "with a conditional check to break out of the loop. "
             "The `if`` statement can be removed with the conditional check refactored to be "
@@ -439,7 +439,7 @@ class RecommendationChecker(checkers.BaseChecker):
                 col_offset=node.col_offset,
             )
 
-    @utils.only_required_for_messages("consider-refactoring-while-condition")
+    @utils.only_required_for_messages("consider-refactoring-into-while-condition")
     def visit_while(self, node: nodes.While) -> None:
         self._check_breaking_after_while_true(node)
 
@@ -451,7 +451,6 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if not isinstance(node.body[0].body[0], nodes.Break):
             return
-
         # Construct error/reccomendation message
         test_node = node.body[0].test
         if isinstance(test_node, nodes.UnaryOp):
@@ -463,13 +462,19 @@ class RecommendationChecker(checkers.BaseChecker):
             ops, rhs = test_node.ops[0]
 
             msg = f"not {node.body[0].test.as_string()}"
-            if ops == "is":
+            if ops == "is" and rhs.as_string() == "None":
+                msg = lhs.as_string()
+            elif ops == "is":
                 msg = f"{lhs.as_string()} is not {rhs.as_string()}"
+            elif ops == "is not" and rhs.as_string() == "None":
+                msg = f"not {lhs.as_string()}"
+            elif ops == "is not":
+                msg = f"{lhs.as_string()} is {rhs.as_string()}"
             elif ops == "==":
                 msg = f"{lhs.as_string()} != {rhs.as_string()}"
 
         self.add_message(
-            "consider-refactoring-while-condition",
+            "consider-refactoring-into-while-condition",
             node=node,
             line=node.lineno,
             args=(msg,),
