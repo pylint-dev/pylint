@@ -451,7 +451,7 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if not isinstance(node.body[0].body[0], nodes.Break):
             return
-        # Construct error/reccomendation message
+        # Construct error/recommendation message
         test_node = node.body[0].test
         if isinstance(test_node, nodes.UnaryOp):
             msg = test_node.operand.as_string()
