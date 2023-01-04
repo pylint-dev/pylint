@@ -1,5 +1,5 @@
 """Emit a message for breaking out of a while True loop immediately."""
-# pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,redefined-outer-name,use-dict-literal,modified-iterating-dict
+# pylint: disable=missing-function-docstring,missing-class-docstring,unrecognized-inline-option,invalid-name
 
 class Issue8015:
     def bad(self):
@@ -9,6 +9,12 @@ class Issue8015:
                 break
             k += 1
 
+    def another_bad(self):
+        current_scope = None
+        while True:  # [consider-refactoring-into-while-condition]
+            if current_scope is None:
+                break
+            current_scope = True
 
     def good(self):
         k = 1
@@ -49,9 +55,24 @@ class Issue8015:
                 break
             a_list.append(1)
 
-    def another_bad(self):
-        current_scope = None
-        while True:  # [consider-refactoring-into-while-condition]
-            if current_scope is None:
+    def test_error_message_5(self):
+        # while not a and b is not correct
+        # Expeccted message should be while not (a and b)
+        a = True
+        b = False
+        while True:   # [consider-refactoring-into-while-condition]
+            if a and b:
                 break
-            current_scope = True
+            a = 1
+            b = 1
+
+    def test_error_message_6(self):
+        # while not a and not b is not correct
+        # Expeccted message should be while not (a and not b)
+        a = True
+        b = False
+        while True:   # [consider-refactoring-into-while-condition]
+            if a and not b:
+                break
+            a = 1
+            b = 1

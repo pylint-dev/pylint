@@ -455,6 +455,8 @@ class RecommendationChecker(checkers.BaseChecker):
         test_node = node.body[0].test
         if isinstance(test_node, nodes.UnaryOp):
             msg = test_node.operand.as_string()
+        elif isinstance(test_node, nodes.BoolOp):
+            msg = f"not ({test_node.as_string()})"
         elif isinstance(test_node, nodes.Name):
             msg = f"not {test_node.as_string()}"
         else:
