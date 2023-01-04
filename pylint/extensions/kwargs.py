@@ -23,7 +23,7 @@ class KeywordChecker(BaseChecker):
     msgs = {
         "W3501": (
             "Call to `%s` missing keyword argument `%s`.",
-            "missing-keyword-arg",
+            "consider-using-keyword-argument",
             "Used when method is called without specifying a keyword argument. ",
         ),
     }
@@ -48,7 +48,7 @@ class KeywordChecker(BaseChecker):
         for arg_name in needed_keywords:
             if arg_name not in provided_kwarg_names:
                 self.add_message(
-                    "missing-keyword-arg",
+                    "consider-using-keyword-argument",
                     node=node,
                     args=(
                         called.name,

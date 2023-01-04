@@ -1,4 +1,4 @@
-"""Tests for missing-keyword-arg"""
+"""Tests for consider-using-keyword-argument"""
 # pylint: disable=unused-argument, missing-function-docstring, missing-class-docstring,
 # pylint: disable=invalid-name, too-few-public-methods, line-too-long, too-many-arguments
 
@@ -7,8 +7,8 @@ def print_hello(one, two):
 
 
 print_hello(one="1", two="2")
-print_hello("1", two="2")  # [missing-keyword-arg]
-print_hello("1", "2")  # [missing-keyword-arg, missing-keyword-arg]
+print_hello("1", two="2")  # [consider-using-keyword-argument]
+print_hello("1", "2")  # [consider-using-keyword-argument, consider-using-keyword-argument]
 
 def print_one_thing(one):
     return f"{one}"
@@ -43,8 +43,8 @@ def keep_self_arg(one, self):
     # Tests that an arg called `self` is not affected in module-level functions
     return f"{one}: {self}"
 
-keep_self_arg("one", 2)  # [missing-keyword-arg, missing-keyword-arg]
-keep_self_arg("one", self=2)  # [missing-keyword-arg]
+keep_self_arg("one", 2)  # [consider-using-keyword-argument, consider-using-keyword-argument]
+keep_self_arg("one", self=2)  # [consider-using-keyword-argument]
 
 
 "".join(["apple", "pear", "peach"])
@@ -66,8 +66,8 @@ class Car:
     def run(self, speed, distance, location):
         pass
 
-car = Car("a car", "name", "title") # [missing-keyword-arg, missing-keyword-arg, missing-keyword-arg]
-car.run(123, "north", "walmart")  # [missing-keyword-arg, missing-keyword-arg, missing-keyword-arg]
+car = Car("a car", "name", "title") # [consider-using-keyword-argument, consider-using-keyword-argument, consider-using-keyword-argument]
+car.run(123, "north", "walmart")  # [consider-using-keyword-argument, consider-using-keyword-argument, consider-using-keyword-argument]
 
 
 class Robot:
@@ -82,4 +82,4 @@ robot = Robot("a robot")
 def make_car(name, owner, title, color="red", year=2022):
     return "car"
 
-second_car = make_car("a car", "name", "title") # [missing-keyword-arg, missing-keyword-arg, missing-keyword-arg]
+second_car = make_car("a car", "name", "title") # [consider-using-keyword-argument, consider-using-keyword-argument, consider-using-keyword-argument]
