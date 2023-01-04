@@ -225,6 +225,7 @@ All messages in the warning category:
    warning/comparison-with-callable
    warning/confusing-with-statement
    warning/consider-ternary-expression
+   warning/consider-using-keyword-argument
    warning/dangerous-default-value
    warning/deprecated-argument
    warning/deprecated-class

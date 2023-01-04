@@ -23,6 +23,7 @@ Pylint provides the following optional plugins:
 - :ref:`pylint.extensions.emptystring`
 - :ref:`pylint.extensions.eq_without_hash`
 - :ref:`pylint.extensions.for_any_all`
+- :ref:`pylint.extensions.kwargs`
 - :ref:`pylint.extensions.magic_value`
 - :ref:`pylint.extensions.mccabe`
 - :ref:`pylint.extensions.no_self_use`
@@ -388,6 +389,20 @@ Import-Private-Name checker Messages
   Used when a private module or object prefixed with _ is imported. PEP8
   guidance on Naming Conventions states that public attributes with leading
   underscores should be considered private.
+
+
+.. _pylint.extensions.kwargs:
+
+Kwargs checker
+~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.kwargs``.
+Verbatim name of the checker is ``kwargs``.
+
+Kwargs checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^
+:consider-using-keyword-argument (W3501): *Call to `%s` missing keyword argument `%s`.*
+  Used when method is called without specifying a keyword argument.
 
 
 .. _pylint.extensions.magic_value:
