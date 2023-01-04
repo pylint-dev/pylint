@@ -1,5 +1,5 @@
 """Emit a message for breaking out of a while True loop immediately."""
-# pylint: disable=missing-function-docstring,missing-class-docstring,unrecognized-inline-option,invalid-name
+# pylint: disable=missing-function-docstring,missing-class-docstring,unrecognized-inline-option,invalid-name,literal-comparison
 
 class Issue8015:
     def bad(self):
@@ -49,13 +49,30 @@ class Issue8015:
 
     def test_error_message_4(self):
         a_list = []
+        # Should recommend `while a_list is []`
+        while True:   # [consider-refactoring-into-while-condition]
+            if a_list is not []:
+                break
+            a_list.append(1)
+
+    def test_error_message_5(self):
+        a_list = []
         # Should recommend `while not a_list`
         while True:   # [consider-refactoring-into-while-condition]
             if a_list is None:
                 break
             a_list.append(1)
 
-    def test_error_message_5(self):
+    def test_error_message_6(self):
+        a_list = []
+        # Should recommend `while a_list is not []`
+        while True:   # [consider-refactoring-into-while-condition]
+            if a_list is []:
+                break
+            a_list.append(1)
+
+
+    def test_error_message_7(self):
         # while not a and b is not correct
         # Expeccted message should be while not (a and b)
         a = True
@@ -66,7 +83,7 @@ class Issue8015:
             a = 1
             b = 1
 
-    def test_error_message_6(self):
+    def test_error_message_8(self):
         # while not a and not b is not correct
         # Expeccted message should be while not (a and not b)
         a = True

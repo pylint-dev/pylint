@@ -3,6 +3,8 @@ consider-refactoring-into-while-condition:14:8:17:32:Issue8015.another_bad:Consi
 consider-refactoring-into-while-condition:29:8:32:24:Issue8015.test_error_message:Consider using `while a_list`:UNDEFINED
 consider-refactoring-into-while-condition:37:8:40:28:Issue8015.test_error_message_2:Consider using `while not a_list`:UNDEFINED
 consider-refactoring-into-while-condition:45:8:48:28:Issue8015.test_error_message_3:Consider using `while not a_list`:UNDEFINED
-consider-refactoring-into-while-condition:53:8:56:28:Issue8015.test_error_message_4:Consider using `while a_list`:UNDEFINED
-consider-refactoring-into-while-condition:63:8:67:17:Issue8015.test_error_message_5:Consider using `while not (a and b)`:UNDEFINED
-consider-refactoring-into-while-condition:74:8:78:17:Issue8015.test_error_message_6:Consider using `while not (a and not b)`:UNDEFINED
+consider-refactoring-into-while-condition:53:8:56:28:Issue8015.test_error_message_4:Consider using `while a_list is []`:UNDEFINED
+consider-refactoring-into-while-condition:61:8:64:28:Issue8015.test_error_message_5:Consider using `while a_list`:UNDEFINED
+consider-refactoring-into-while-condition:69:8:72:28:Issue8015.test_error_message_6:Consider using `while a_list is not []`:UNDEFINED
+consider-refactoring-into-while-condition:80:8:84:17:Issue8015.test_error_message_7:Consider using `while not (a and b)`:UNDEFINED
+consider-refactoring-into-while-condition:91:8:95:17:Issue8015.test_error_message_8:Consider using `while not (a and not b)`:UNDEFINED
