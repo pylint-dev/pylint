@@ -393,7 +393,7 @@ All messages in the convention category:
    convention/consider-using-dict-items
    convention/consider-using-enumerate
    convention/consider-using-f-string
-   convention/consider-using-while-not
+   convention/consider-refactoring-while-condition
    convention/dict-init-mutate
    convention/disallowed-name
    convention/docstring-first-line-empty

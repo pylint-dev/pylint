@@ -898,10 +898,11 @@ Refactoring checker Messages
 :use-sequence-for-iteration (C0208): *Use a sequence type when iterating over values*
   When iterating over values, sequence types (e.g., ``lists``, ``tuples``,
   ``ranges``) are more efficient than ``sets``.
-:consider-using-while-not (C0210): *Consider using `while not %s`*
-  Emitted when `while true:` loop is used with the first statement being a conditional check
-  to break out of the loop.
-  This can be refactored to be `while not <condition>:` instead
+:consider-refactoring-while-condition (C0210): *Consider using `while %s`*
+  Emitted when `while <constant>:` loop is used with the first statement being a `if` statement
+  with a conditional check to break out of the loop.
+  The `if`` statement can be removed with the conditional check refactored to be
+  within the `while` statement.
 
 Similarities checker
 ~~~~~~~~~~~~~~~~~~~~

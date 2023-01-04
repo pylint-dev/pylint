@@ -1,2 +1,0 @@
-consider-using-while-not:7:8:10:18:Issue8015.bad:Consider using `while not k == 10`:UNDEFINED
-consider-using-while-not:23:8:27:22:Issue8015.complicated_bad:Consider using `while not a_var == 10 is (b_var == 10)`:UNDEFINED

@@ -61,11 +61,12 @@ class RecommendationChecker(checkers.BaseChecker):
             "Requires Python 3.6 and ``py-version >= 3.6``.",
         ),
         "C0210": (
-            "Consider using `while not %s`",
-            "consider-using-while-not",
-            "Emitted when `while true:` loop is used with the first statement being a conditional check "
-            "to break out of the loop. "
-            "This can be refactored to be `while not <condition>:` instead",
+            "Consider using `while %s`",
+            "consider-refactoring-while-condition",
+            "Emitted when `while <constant>:` loop is used with the first statement being a if statement "
+            "with a conditional check to break out of the loop. "
+            "The `if`` statement can be removed with the conditional check refactored to be "
+            "within the `while` statement",
         ),
     }
 
@@ -438,7 +439,7 @@ class RecommendationChecker(checkers.BaseChecker):
                 col_offset=node.col_offset,
             )
 
-    @utils.only_required_for_messages("consider-using-while-not")
+    @utils.only_required_for_messages("consider-refactoring-while-condition")
     def visit_while(self, node: nodes.While) -> None:
         self._check_breaking_after_while_true(node)
 
@@ -450,9 +451,26 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if not isinstance(node.body[0].body[0], nodes.Break):
             return
+
+        # Construct error/reccomendation message
+        test_node = node.body[0].test
+        if isinstance(test_node, nodes.UnaryOp):
+            msg = test_node.operand.as_string()
+        elif isinstance(test_node, nodes.Name):
+            msg = f"not {test_node.as_string()}"
+        else:
+            lhs = test_node.left
+            ops, rhs = test_node.ops[0]
+
+            msg = f"not {node.body[0].test.as_string()}"
+            if ops == "is":
+                msg = f"{lhs.as_string()} is not {rhs.as_string()}"
+            elif ops == "==":
+                msg = f"{lhs.as_string()} != {rhs.as_string()}"
+
         self.add_message(
-            "consider-using-while-not",
+            "consider-refactoring-while-condition",
             node=node,
             line=node.lineno,
-            args=(node.body[0].test.as_string(),),
+            args=(msg,),
         )
