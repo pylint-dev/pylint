@@ -60,6 +60,13 @@ class RecommendationChecker(checkers.BaseChecker):
             "which could potentially be a f-string. The use of f-strings is preferred. "
             "Requires Python 3.6 and ``py-version >= 3.6``.",
         ),
+        "C0210": (
+            "Consider using `while not %s`",
+            "consider-using-while-not",
+            "Emitted when `while true:` loop is used with the first statement being a conditional check "
+            "to break out of the loop. "
+            "This can be refactored to be `while not <condition>:` instead",
+        ),
     }
 
     def open(self) -> None:
@@ -430,3 +437,22 @@ class RecommendationChecker(checkers.BaseChecker):
                 line=node.lineno,
                 col_offset=node.col_offset,
             )
+
+    @utils.only_required_for_messages("consider-using-while-not")
+    def visit_while(self, node: nodes.While) -> None:
+        self._check_breaking_after_while_true(node)
+
+    def _check_breaking_after_while_true(self, node: nodes.While) -> None:
+        """Check that any loop with an else clause has a break statement."""
+        if not isinstance(node.test, nodes.Const):
+            return
+        if not isinstance(node.body[0], nodes.If):
+            return
+        if not isinstance(node.body[0].body[0], nodes.Break):
+            return
+        self.add_message(
+            "consider-using-while-not",
+            node=node,
+            line=node.lineno,
+            args=(node.body[0].test.as_string(),),
+        )
