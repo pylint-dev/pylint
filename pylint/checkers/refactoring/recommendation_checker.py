@@ -461,11 +461,7 @@ class RecommendationChecker(checkers.BaseChecker):
         else:
             lhs = test_node.left
             ops, rhs = test_node.ops[0]
-            msg = f"not {node.body[0].test.as_string()}"
-            try:
-                msg = f"{lhs.as_string()} {utils.get_inverse_comparator(ops)} {rhs.as_string()}"
-            except KeyError:
-                pass
+            msg = f"{lhs.as_string()} {utils.get_inverse_comparator(ops)} {rhs.as_string()}"
 
         self.add_message(
             "consider-refactoring-into-while-condition",
