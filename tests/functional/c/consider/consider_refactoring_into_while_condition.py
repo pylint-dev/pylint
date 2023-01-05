@@ -94,3 +94,10 @@ class Issue8015:
                 break
             a = 1
             b = 1
+
+    def test_error_message_9(self):
+        k = 1
+        while True:  # [consider-refactoring-into-while-condition]
+            if k != 1:
+                break
+            k += 1

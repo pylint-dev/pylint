@@ -8,3 +8,4 @@ consider-refactoring-into-while-condition:62:8:65:29:Issue8015.test_error_messag
 consider-refactoring-into-while-condition:70:8:73:28:Issue8015.test_error_message_6:Consider using `while a_list is not []`:UNDEFINED
 consider-refactoring-into-while-condition:81:8:85:17:Issue8015.test_error_message_7:Consider using `while not (a and b)`:UNDEFINED
 consider-refactoring-into-while-condition:92:8:96:17:Issue8015.test_error_message_8:Consider using `while not (a and not b)`:UNDEFINED
+consider-refactoring-into-while-condition:100:8:103:18:Issue8015.test_error_message_9:Consider using `while k == 1`:UNDEFINED
