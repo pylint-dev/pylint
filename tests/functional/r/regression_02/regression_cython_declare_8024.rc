@@ -1,2 +1,5 @@
+[BASIC]
+ignored-modules: non_existant_module
+
 [testoptions]
 requires: cython
