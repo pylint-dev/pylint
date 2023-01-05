@@ -101,3 +101,47 @@ class Issue8015:
             if k != 1:
                 break
             k += 1
+
+    def test_error_message_10(self):
+        a = [1,2,3,4,5]
+        while True:  # [consider-refactoring-into-while-condition]
+            if 5 not in a:
+                break
+            a.pop()
+
+    def test_error_message_11(self):
+        a = []
+        k = 1
+        while True:  # [consider-refactoring-into-while-condition]
+            if 5 in a:
+                break
+            a.append(k)
+            k += 1
+
+    def test_error_message_12(self):
+        k = 1
+        while True:  # [consider-refactoring-into-while-condition]
+            if k > 10:
+                break
+            k += 1
+
+    def test_error_message_13(self):
+        k = 1
+        while True:  # [consider-refactoring-into-while-condition]
+            if k >= 10:
+                break
+            k += 1
+
+    def test_error_message_14(self):
+        k = 10
+        while True:  # [consider-refactoring-into-while-condition]
+            if k < 1:
+                break
+            k -= 1
+
+    def test_error_message_15(self):
+        k = 1
+        while True:  # [consider-refactoring-into-while-condition]
+            if k <= 1:
+                break
+            k -= 1

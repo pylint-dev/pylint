@@ -9,3 +9,9 @@ consider-refactoring-into-while-condition:70:8:73:28:Issue8015.test_error_messag
 consider-refactoring-into-while-condition:81:8:85:17:Issue8015.test_error_message_7:"Consider using 'while not (a and b)' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:92:8:96:17:Issue8015.test_error_message_8:"Consider using 'while not (a and not b)' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:100:8:103:18:Issue8015.test_error_message_9:"Consider using 'while k == 1' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:107:8:110:19:Issue8015.test_error_message_10:"Consider using 'while 5 in a' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:115:8:119:18:Issue8015.test_error_message_11:"Consider using 'while 5 not in a' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:123:8:126:18:Issue8015.test_error_message_12:"Consider using 'while k <= 10' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:130:8:133:18:Issue8015.test_error_message_13:"Consider using 'while k < 10' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:137:8:140:18:Issue8015.test_error_message_14:"Consider using 'while k >= 1' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:144:8:147:18:Issue8015.test_error_message_15:"Consider using 'while k > 1' instead of 'while True:' an 'if', and a 'break'":HIGH
