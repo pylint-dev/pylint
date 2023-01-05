@@ -1,0 +1,1 @@
+Added test for pure python cython.declare usage, which should be valid no matter what is imported from the cython module
