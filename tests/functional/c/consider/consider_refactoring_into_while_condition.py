@@ -40,12 +40,12 @@ class Issue8015:
             a_list.append(1)
 
     def test_error_message_3(self):
-        a_list = []
-        # Should recommend `while not a_list`
+        a_var = "defined"
+        # Should recommend `while not a_var`
         while True:   # [consider-refactoring-into-while-condition]
-            if a_list is not None:
+            if a_var is not None:
                 break
-            a_list.append(1)
+            a_var = None
 
     def test_error_message_4(self):
         a_list = []
@@ -56,12 +56,13 @@ class Issue8015:
             a_list.append(1)
 
     def test_error_message_5(self):
-        a_list = []
-        # Should recommend `while not a_list`
+        a_dict = {}
+        a_var = a_dict.get("undefined_key")
+        # Should recommend `while a_var`
         while True:   # [consider-refactoring-into-while-condition]
-            if a_list is None:
+            if a_var is None:
                 break
-            a_list.append(1)
+            a_var = "defined"
 
     def test_error_message_6(self):
         a_list = []
@@ -74,7 +75,7 @@ class Issue8015:
 
     def test_error_message_7(self):
         # while not a and b is not correct
-        # Expeccted message should be while not (a and b)
+        # Expeccted message should be `while not (a and b)``
         a = True
         b = False
         while True:   # [consider-refactoring-into-while-condition]
@@ -85,7 +86,7 @@ class Issue8015:
 
     def test_error_message_8(self):
         # while not a and not b is not correct
-        # Expeccted message should be while not (a and not b)
+        # Expeccted message should be `while not (a and not b)``
         a = True
         b = False
         while True:   # [consider-refactoring-into-while-condition]
