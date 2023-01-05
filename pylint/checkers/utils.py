@@ -2208,7 +2208,7 @@ def get_inverse_comparator(op: str) -> str:
     :param str op: the comparator to look up.
 
     :returns: The inverse of the comparator in string format
-    :raises KeyError: if input is not recognised as a comparator
+    :raises KeyError: if input is not recognized as a comparator
     """
     return {
         "==": "!=",
