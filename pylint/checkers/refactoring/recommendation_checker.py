@@ -61,12 +61,11 @@ class RecommendationChecker(checkers.BaseChecker):
             "Requires Python 3.6 and ``py-version >= 3.6``.",
         ),
         "C0210": (
-            "Consider using `while %s`",
+            "Consider using 'while %s' instead of 'while True:' an 'if', and a 'break'",
             "consider-refactoring-into-while-condition",
-            "Emitted when `while <constant>:` loop is used with the first statement being a if statement "
-            "with a conditional check to break out of the loop. "
-            "The `if`` statement can be removed with the conditional check refactored to be "
-            "within the `while` statement",
+            "Emitted when `while True:` loop is used and the first statement is a break condition."
+            "The `if / break`` construct can be removed if the check is inverted and moved to "
+            "the `while` statement",
         ),
     }
 
@@ -478,4 +477,5 @@ class RecommendationChecker(checkers.BaseChecker):
             node=node,
             line=node.lineno,
             args=(msg,),
+            confidence=HIGH,
         )

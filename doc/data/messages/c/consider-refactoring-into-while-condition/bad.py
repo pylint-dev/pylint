@@ -1,6 +1,8 @@
-a = [1,2,3,4,5]
+fruit_basket = ["apple", "orange", "banana", "cherry", "guava"]
 
 while True:  # [consider-refactoring-into-while-condition]
-  if len(a) == 0:
+  if len(fruit_basket ) == 0:
     break
-  a.pop()
+    
+  fruit = fruit_basket.pop()
+  print(f"We removed {fruit} from the basket")

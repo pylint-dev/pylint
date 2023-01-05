@@ -1,4 +1,5 @@
-a = [1,2,3,4,5]
+fruit_basket = ["apple", "orange", "banana", "cherry", "guava"]
 
-while len(a) != 0:
-  a.pop()
+while len(fruit_basket ) != 0:
+  fruit = fruit_basket.pop()
+  print(f"We removed {fruit} from the basket")
