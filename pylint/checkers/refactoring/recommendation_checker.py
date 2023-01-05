@@ -464,16 +464,14 @@ class RecommendationChecker(checkers.BaseChecker):
             ops, rhs = test_node.ops[0]
 
             msg = f"not {node.body[0].test.as_string()}"
-            if ops == "is" and rhs.as_string() == "None":
-                msg = lhs.as_string()
-            elif ops == "is":
+            if ops == "is":
                 msg = f"{lhs.as_string()} is not {rhs.as_string()}"
-            elif ops == "is not" and rhs.as_string() == "None":
-                msg = f"not {lhs.as_string()}"
             elif ops == "is not":
                 msg = f"{lhs.as_string()} is {rhs.as_string()}"
             elif ops == "==":
                 msg = f"{lhs.as_string()} != {rhs.as_string()}"
+            elif ops == "!=":
+                msg = f"{lhs.as_string()} == {rhs.as_string()}"
 
         self.add_message(
             "consider-refactoring-into-while-condition",
