@@ -389,11 +389,11 @@ All messages in the convention category:
    convention/compare-to-empty-string
    convention/compare-to-zero
    convention/consider-iterating-dictionary
+   convention/consider-refactoring-into-while-condition
    convention/consider-using-any-or-all
    convention/consider-using-dict-items
    convention/consider-using-enumerate
    convention/consider-using-f-string
-   convention/consider-refactoring-into-while-condition
    convention/dict-init-mutate
    convention/disallowed-name
    convention/docstring-first-line-empty

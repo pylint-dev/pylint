@@ -879,6 +879,11 @@ Refactoring checker Messages
   Emitted when iterating over the keys of a dictionary and accessing the value
   by index lookup. Both the key and value can be accessed by iterating using
   the .items() method of the dictionary instead.
+:consider-refactoring-into-while-condition (C0210): *Consider using `while %s`*
+  Emitted when `while <constant>:` loop is used with the first statement being
+  a if statement with a conditional check to break out of the loop. The `if``
+  statement can be removed with the conditional check refactored to be within
+  the `while` statement
 :consider-using-enumerate (C0200): *Consider using enumerate instead of iterating with range and len*
   Emitted when code that iterates with range and len is encountered. Such code
   can be simplified by using the enumerate builtin.
@@ -898,11 +903,7 @@ Refactoring checker Messages
 :use-sequence-for-iteration (C0208): *Use a sequence type when iterating over values*
   When iterating over values, sequence types (e.g., ``lists``, ``tuples``,
   ``ranges``) are more efficient than ``sets``.
-:consider-refactoring-into-while-condition (C0210): *Consider using `while %s`*
-  Emitted when `while <constant>:` loop is used with the first statement being a `if` statement
-  with a conditional check to break out of the loop.
-  The `if`` statement can be removed with the conditional check refactored to be
-  within the `while` statement.
+
 
 Similarities checker
 ~~~~~~~~~~~~~~~~~~~~
