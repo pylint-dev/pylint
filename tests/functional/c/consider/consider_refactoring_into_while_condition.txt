@@ -1,11 +1,11 @@
-consider-refactoring-into-while-condition:7:8:10:18:Issue8015.bad:Consider using `while k != 10`:UNDEFINED
-consider-refactoring-into-while-condition:14:8:17:32:Issue8015.another_bad:Consider using `while current_scope is not None`:UNDEFINED
-consider-refactoring-into-while-condition:29:8:32:24:Issue8015.test_error_message:Consider using `while a_list`:UNDEFINED
-consider-refactoring-into-while-condition:37:8:40:28:Issue8015.test_error_message_2:Consider using `while not a_list`:UNDEFINED
-consider-refactoring-into-while-condition:45:8:48:24:Issue8015.test_error_message_3:Consider using `while a_var is None`:UNDEFINED
-consider-refactoring-into-while-condition:53:8:56:28:Issue8015.test_error_message_4:Consider using `while a_list is []`:UNDEFINED
-consider-refactoring-into-while-condition:62:8:65:29:Issue8015.test_error_message_5:Consider using `while a_var is not None`:UNDEFINED
-consider-refactoring-into-while-condition:70:8:73:28:Issue8015.test_error_message_6:Consider using `while a_list is not []`:UNDEFINED
-consider-refactoring-into-while-condition:81:8:85:17:Issue8015.test_error_message_7:Consider using `while not (a and b)`:UNDEFINED
-consider-refactoring-into-while-condition:92:8:96:17:Issue8015.test_error_message_8:Consider using `while not (a and not b)`:UNDEFINED
-consider-refactoring-into-while-condition:100:8:103:18:Issue8015.test_error_message_9:Consider using `while k == 1`:UNDEFINED
+consider-refactoring-into-while-condition:7:8:10:18:Issue8015.bad:"Consider using 'while k != 10' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:14:8:17:32:Issue8015.another_bad:"Consider using 'while current_scope is not None' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:29:8:32:24:Issue8015.test_error_message:"Consider using 'while a_list' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:37:8:40:28:Issue8015.test_error_message_2:"Consider using 'while not a_list' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:45:8:48:24:Issue8015.test_error_message_3:"Consider using 'while a_var is None' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:53:8:56:28:Issue8015.test_error_message_4:"Consider using 'while a_list is []' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:62:8:65:29:Issue8015.test_error_message_5:"Consider using 'while a_var is not None' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:70:8:73:28:Issue8015.test_error_message_6:"Consider using 'while a_list is not []' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:81:8:85:17:Issue8015.test_error_message_7:"Consider using 'while not (a and b)' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:92:8:96:17:Issue8015.test_error_message_8:"Consider using 'while not (a and not b)' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:100:8:103:18:Issue8015.test_error_message_9:"Consider using 'while k == 1' instead of 'while True:' an 'if', and a 'break'":HIGH
