@@ -461,7 +461,24 @@ class RecommendationChecker(checkers.BaseChecker):
         else:
             lhs = test_node.left
             ops, rhs = test_node.ops[0]
-            msg = f"{lhs.as_string()} {utils.get_inverse_comparator(ops)} {rhs.as_string()}"
+            lower_priority_expressions = (
+                nodes.Lambda,
+                nodes.UnaryOp,
+                nodes.BoolOp,
+                nodes.IfExp,
+                nodes.NamedExpr,
+            )
+            lhs = (
+                f"({lhs.as_string()})"
+                if any(lhs.nodes_of_class(lower_priority_expressions))
+                else lhs.as_string()
+            )
+            rhs = (
+                f"({rhs.as_string()})"
+                if any(rhs.nodes_of_class(lower_priority_expressions))
+                else rhs.as_string()
+            )
+            msg = f"{lhs} {utils.get_inverse_comparator(ops)} {rhs}"
 
         self.add_message(
             "consider-refactoring-into-while-condition",

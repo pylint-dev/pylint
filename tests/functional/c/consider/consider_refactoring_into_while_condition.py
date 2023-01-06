@@ -1,5 +1,5 @@
 """Emit a message for breaking out of a while True loop immediately."""
-# pylint: disable=missing-function-docstring,missing-class-docstring,unrecognized-inline-option,invalid-name,literal-comparison
+# pylint: disable=missing-function-docstring,missing-class-docstring,unrecognized-inline-option,invalid-name,literal-comparison, undefined-variable, too-many-public-methods
 
 class Issue8015:
     def bad(self):
@@ -145,3 +145,43 @@ class Issue8015:
             if k <= 1:
                 break
             k -= 1
+
+    def test_error_message_16(self):
+        # Silly example but needed for coverage
+        k = None
+        while True:  # [consider-refactoring-into-while-condition]
+            if (lambda x: x) == k:
+                break
+            break
+        while True:  # [consider-refactoring-into-while-condition]
+            if k == (lambda x: x):
+                break
+            break
+
+    def test_error_message_17(self):
+        a = True
+        b = False
+        c = True
+        d = False
+        while True:  # [consider-refactoring-into-while-condition]
+            if (a or b) == (c and d):
+                break
+            a = not a if random.randint(0,1) == 1 else a
+            b = not b if random.randint(0,1) == 1 else b
+            c = not c if random.randint(0,1) == 1 else c
+            d = not d if random.randint(0,1) == 1 else d
+
+        while True:  # [consider-refactoring-into-while-condition]
+            if (not a) == (not d):
+                break
+            a = not a if random.randint(0,1) == 1 else a
+            d = not d if random.randint(0,1) == 1 else d
+
+    def test_error_message_18(self):
+        b = 10
+        while True:  # [consider-refactoring-into-while-condition]
+            if (a := 10) == (a := 10):
+                break
+        while True:  # [consider-refactoring-into-while-condition]
+            if (a if a == 10 else 0) == (b if b == 10 else 0):
+                break
