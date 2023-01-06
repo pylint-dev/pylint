@@ -23,6 +23,14 @@ class Issue8015:
             if k == 10:
                 break
 
+    def test_error_message_multiple_break(self, k: int) -> None:
+        while True:  # [consider-refactoring-into-while-condition]
+            if k <= 1:
+                break
+            if k > 10:
+                break
+            k -= 1
+
     def test_error_message(self):
         a_list = [1,2,3,4,5]
         # Should recommend `while a_list`
