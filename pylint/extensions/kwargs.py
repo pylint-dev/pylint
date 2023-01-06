@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from astroid import BoundMethod, nodes
 
@@ -24,7 +24,7 @@ class KeywordChecker(BaseChecker):
         "W3501": (
             "Call to `%s` missing keyword argument `%s`.",
             "consider-using-keyword-argument",
-            "Used when method is called without specifying a keyword argument. ",
+            "Used when method is called without specifying a keyword argument.",
         ),
     }
 
@@ -59,18 +59,24 @@ class KeywordChecker(BaseChecker):
 
     def _get_args(
         self, node: nodes.ClassDef | nodes.FunctionDef | BoundMethod
-    ) -> Tuple[list[str], list[str]]:
+    ) -> tuple[list[str], list[str]]:
+        default_kwargs = []
+
         if isinstance(node, nodes.ClassDef):
             needed_keywords = node.instance_attrs.keys()
-            node_args = node.locals["__init__"][0].args
-            default_kwargs = [
-                x.name for x in node_args.args[-len(node_args.defaults) :]
-            ]
+            if "__init__" in node.locals:
+                init_func = node.locals["__init__"][0]
+                if isinstance(init_func, nodes.FunctionDef):
+                    node_args = init_func.args
+                    if node_args:
+                        default_kwargs = [
+                            x.name for x in node_args.args[-len(node_args.defaults) :]
+                        ]
         elif isinstance(node, (nodes.FunctionDef, BoundMethod)):
             needed_keywords = node.argnames()
             if node.is_method():
                 needed_keywords = [x for x in needed_keywords if x != "self"]
-            default_kwargs = []
+
             if node.args.defaults:
                 default_kwargs = [
                     x.name for x in node.args.args[-len(node.args.defaults) :]
