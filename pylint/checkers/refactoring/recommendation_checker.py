@@ -64,8 +64,8 @@ class RecommendationChecker(checkers.BaseChecker):
             "Consider using 'while %s' instead of 'while True:' an 'if', and a 'break'",
             "consider-refactoring-into-while-condition",
             "Emitted when `while True:` loop is used and the first statement is a break condition."
-            "The `if / break`` construct can be removed if the check is inverted and moved to "
-            "the `while` statement",
+            "The ``if / break`` construct can be removed if the check is inverted and moved to "
+            "the ``while`` statement",
         ),
     }
 
@@ -443,7 +443,7 @@ class RecommendationChecker(checkers.BaseChecker):
         self._check_breaking_after_while_true(node)
 
     def _check_breaking_after_while_true(self, node: nodes.While) -> None:
-        """Check that any loop with an else clause has a break statement."""
+        """Check that any loop with an ``if`` clause has a break statement."""
         if not isinstance(node.test, nodes.Const):
             return
         if not isinstance(node.body[0], nodes.If):
