@@ -39,7 +39,7 @@ repos:
         args: [--py37-plus]
         exclude: *fixtures
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.1
+    rev: 5.11.4
     hooks:
       - id: isort
         exclude: doc/data/messages/(r/reimported|w/wrong-import-order|u/ungrouped-imports|m/misplaced-future|m/multiple-imports)/bad.py
@@ -126,7 +126,7 @@ repos:
         args: [--prose-wrap=always, --print-width=88]
         exclude: tests(/\w*)*data/
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.7.2
+    rev: v0.7.3
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures

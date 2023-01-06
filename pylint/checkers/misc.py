@@ -42,7 +42,7 @@ class ByIdManagedMessagesChecker(BaseRawFileChecker):
     def process_module(self, node: nodes.Module) -> None:
         """Inspect the source file to find messages activated or deactivated by id."""
         managed_msgs = self._get_by_id_managed_msgs()
-        for (mod_name, msgid, symbol, lineno, is_disabled) in managed_msgs:
+        for mod_name, msgid, symbol, lineno, is_disabled in managed_msgs:
             if mod_name == node.name:
                 verb = "disable" if is_disabled else "enable"
                 txt = f"'{msgid}' is cryptic: use '# pylint: {verb}={symbol}' instead"

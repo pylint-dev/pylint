@@ -47,7 +47,6 @@ def test_reporter_implements() -> None:
     """Test that __implements__ on BaseReporter has been deprecated correctly."""
 
     class MyReporter(BaseReporter):
-
         __implements__ = IReporter
 
         def _display(self, layout: Section) -> None:
@@ -61,7 +60,6 @@ def test_checker_implements() -> None:
     """Test that __implements__ on BaseChecker has been deprecated correctly."""
 
     class MyChecker(BaseChecker):
-
         __implements__ = IAstroidChecker
 
     with pytest.warns(DeprecationWarning):

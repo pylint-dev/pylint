@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 
 class ConsiderTernaryExpressionChecker(BaseChecker):
-
     name = "consider_ternary_expression"
     msgs = {
         "W0160": (
@@ -41,7 +40,7 @@ class ConsiderTernaryExpressionChecker(BaseChecker):
         if not isinstance(bst, nodes.Assign) or not isinstance(ost, nodes.Assign):
             return
 
-        for (bname, oname) in zip(bst.targets, ost.targets):
+        for bname, oname in zip(bst.targets, ost.targets):
             if not isinstance(bname, nodes.AssignName) or not isinstance(
                 oname, nodes.AssignName
             ):

@@ -767,6 +767,9 @@ Refactoring checker Messages
 :consider-using-min-builtin (R1730): *Consider using '%s' instead of unnecessary if block*
   Using the min builtin instead of a conditional improves readability and
   conciseness.
+:consider-using-sys-exit (R1722): *Consider using 'sys.exit' instead*
+  Contrary to 'exit()' or 'quit()', 'sys.exit' does not rely on the site module
+  being available (as the 'sys' module is always available).
 :consider-using-with (R1732): *Consider using 'with' for resource-allocating operations*
   Emitted if a resource-allocating assignment or call may be replaced by a
   'with' block. By using 'with' the release of the allocated resources is
@@ -796,8 +799,6 @@ Refactoring checker Messages
 :consider-using-join (R1713): *Consider using str.join(sequence) for concatenating strings from an iterable*
   Using str.join(sequence) is faster, uses less memory and increases
   readability compared to for-loop iteration.
-:consider-using-sys-exit (R1722): *Consider using sys.exit()*
-  Instead of using exit() or quit(), consider using the sys.exit().
 :consider-using-ternary (R1706): *Consider using ternary (%s)*
   Used when one of known pre-python 2.5 ternary syntax is used.
 :consider-swap-variables (R1712): *Consider using tuple unpacking for swapping variables*

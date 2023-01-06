@@ -427,7 +427,7 @@ class SpellingChecker(BaseTokenChecker):
             return
 
         # Process tokens and look for comments.
-        for (tok_type, token, (start_row, _), _, _) in tokens:
+        for tok_type, token, (start_row, _), _, _ in tokens:
             if tok_type == tokenize.COMMENT:
                 if start_row == 1 and token.startswith("#!/"):
                     # Skip shebang lines

@@ -34,7 +34,6 @@ if TYPE_CHECKING:
 
 @functools.total_ordering
 class BaseChecker(_ArgumentsProvider):
-
     # checker name (you may reuse an existing one)
     name: str = ""
     # ordered list of options to control the checker behaviour
