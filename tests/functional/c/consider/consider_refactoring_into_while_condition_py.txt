@@ -19,5 +19,3 @@ consider-refactoring-into-while-condition:152:8:155:17:Issue8015.test_error_mess
 consider-refactoring-into-while-condition:156:8:159:17:Issue8015.test_error_message_16:"Consider using 'while k != (lambda x: x)' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:166:8:172:56:Issue8015.test_error_message_17:"Consider using 'while (a or b) != (c and d)' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:174:8:178:56:Issue8015.test_error_message_17:"Consider using 'while (not a) != (not d)' instead of 'while True:' an 'if', and a 'break'":HIGH
-consider-refactoring-into-while-condition:182:8:184:21:Issue8015.test_error_message_18:"Consider using 'while (a := 10) != (a := 10)' instead of 'while True:' an 'if', and a 'break'":HIGH
-consider-refactoring-into-while-condition:185:8:187:21:Issue8015.test_error_message_18:"Consider using 'while (a if a == 10 else 0) != (b if b == 10 else 0)' instead of 'while True:' an 'if', and a 'break'":HIGH

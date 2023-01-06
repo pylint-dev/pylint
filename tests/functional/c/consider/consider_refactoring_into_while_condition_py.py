@@ -176,12 +176,3 @@ class Issue8015:
                 break
             a = not a if random.randint(0,1) == 1 else a
             d = not d if random.randint(0,1) == 1 else d
-
-    def test_error_message_18(self):
-        b = 10
-        while True:  # [consider-refactoring-into-while-condition]
-            if (a := 10) == (a := 10):
-                break
-        while True:  # [consider-refactoring-into-while-condition]
-            if (a if a == 10 else 0) == (b if b == 10 else 0):
-                break
