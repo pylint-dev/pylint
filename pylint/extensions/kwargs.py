@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from astroid import BoundMethod, nodes
+from astroid import BoundMethod, nodes, UnboundMethod
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import safe_infer
@@ -32,7 +32,7 @@ class KeywordChecker(BaseChecker):
         """Check that called functions/methods are provided keyword arguments."""
         called = safe_infer(node.func)
 
-        if not isinstance(called, (nodes.ClassDef, nodes.FunctionDef, BoundMethod)):
+        if not called:
             return
 
         needed_keywords, default_kwarg_names = self._get_args(called)
@@ -58,9 +58,10 @@ class KeywordChecker(BaseChecker):
                 )
 
     def _get_args(
-        self, node: nodes.ClassDef | nodes.FunctionDef | BoundMethod
+        self, node: nodes.ClassDef | nodes.FunctionDef | BoundMethod | UnboundMethod
     ) -> tuple[list[str], list[str]]:
         default_kwargs = []
+        needed_keywords = []
 
         if isinstance(node, nodes.ClassDef):
             needed_keywords = node.instance_attrs.keys()
@@ -68,11 +69,11 @@ class KeywordChecker(BaseChecker):
                 init_func = node.locals["__init__"][0]
                 if isinstance(init_func, nodes.FunctionDef):
                     node_args = init_func.args
-                    if node_args:
+                    if node_args and node_args.args:
                         default_kwargs = [
                             x.name for x in node_args.args[-len(node_args.defaults) :]
                         ]
-        elif isinstance(node, (nodes.FunctionDef, BoundMethod)):
+        elif isinstance(node, (nodes.FunctionDef, BoundMethod, UnboundMethod)):
             needed_keywords = node.argnames()
             if node.is_method():
                 needed_keywords = [x for x in needed_keywords if x != "self"]
