@@ -2198,10 +2198,3 @@ def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
         return True
     except astroid.NotFoundError:
         return False
-
-def get_all_calls(node: nodes.NodeNG) -> list[nodes.Call]:
-    """Depth first search to get all call nodes under a node"""
-    calls = [node] if isinstance(node, nodes.Call) else []
-    for child in node.get_children():
-        calls.extend(get_all_calls(child))
-    return calls

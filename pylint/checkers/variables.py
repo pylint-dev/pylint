@@ -2247,7 +2247,7 @@ class VariablesChecker(BaseChecker):
         if isinstance(value, nodes.Lambda) and isinstance(value.body, nodes.IfExp):
             return True
         if isinstance(value, nodes.Call):
-            for call in utils.get_all_calls(value):
+            for call in value.nodes_of_class(klass=nodes.Call):
                 if (any(isinstance(kwarg.value, nodes.IfExp) for kwarg in call.keywords)
                     or any(isinstance(arg, nodes.IfExp) for arg in call.args)
                     or (isinstance(call.func, nodes.Attribute) and isinstance(call.func.expr, nodes.IfExp))
