@@ -2246,14 +2246,17 @@ class VariablesChecker(BaseChecker):
             return True
         if isinstance(value, nodes.Lambda) and isinstance(value.body, nodes.IfExp):
             return True
-        if isinstance(value, nodes.Call):
-            for call in value.nodes_of_class(klass=nodes.Call):
-                if (any(isinstance(kwarg.value, nodes.IfExp) for kwarg in call.keywords)
-                    or any(isinstance(arg, nodes.IfExp) for arg in call.args)
-                    or (isinstance(call.func, nodes.Attribute) and isinstance(call.func.expr, nodes.IfExp))
-                ):
-                    return True
-        return False
+        if not isinstance(value, nodes.Call):
+            return False
+        return any(
+            any(isinstance(kwarg.value, nodes.IfExp) for kwarg in call.keywords)
+            or any(isinstance(arg, nodes.IfExp) for arg in call.args)
+            or (
+                isinstance(call.func, nodes.Attribute)
+                and isinstance(call.func.expr, nodes.IfExp)
+            )
+            for call in value.nodes_of_class(klass=nodes.Call)
+        )
 
     def _is_only_type_assignment(
         self, node: nodes.Name, defstmt: nodes.Statement
