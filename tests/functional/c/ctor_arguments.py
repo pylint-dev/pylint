@@ -82,7 +82,7 @@ class BuiltinExc(Exception):
     def __init__(self, val=True):
         self.val = val
 
-BuiltinExc(42, 24, badarg=1) # [too-many-function-args,unexpected-keyword-arg]
+BuiltinExc(42, 24, badarg=1) # [line-too-long,pointless-exception-statement,too-many-function-args,unexpected-keyword-arg]
 
 
 class Clsmethod:

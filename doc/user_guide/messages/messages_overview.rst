@@ -287,6 +287,7 @@ All messages in the warning category:
    warning/overlapping-except
    warning/overridden-final-method
    warning/pointless-statement
+   warning/pointless-exception-statement
    warning/pointless-string-statement
    warning/possibly-unused-variable
    warning/preferred-module

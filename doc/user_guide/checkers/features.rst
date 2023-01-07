@@ -147,6 +147,9 @@ Basic checker Messages
   This is a particular case of W0104 with its own message so you can easily
   disable it if you're using those strings as documentation, instead of
   comments.
+:pointless-exception-statement (W0132): *Exception statement has no effect*
+  Used when an exception is created without being assigned, raised or returned
+  for subsequent use elsewhere.
 :unnecessary-pass (W0107): *Unnecessary pass statement*
   Used when a "pass" statement that can be avoided is encountered.
 :unreachable (W0101): *Unreachable code*
