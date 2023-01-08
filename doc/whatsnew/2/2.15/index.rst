@@ -29,6 +29,44 @@ Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
+What's new in Pylint 2.15.10?
+-----------------------------
+Release date: 2023-01-08
+
+
+False Positives Fixed
+---------------------
+
+- Fix ``use-sequence-for-iteration`` when unpacking a set with ``*``.
+
+  Closes #5788 (`#5788 <https://github.com/PyCQA/pylint/issues/5788>`_)
+
+- Fix false positive ``assigning-non-slot`` when a class attribute is
+  re-assigned.
+
+  Closes #6001 (`#6001 <https://github.com/PyCQA/pylint/issues/6001>`_)
+
+- Fixes ``used-before-assignment`` false positive when the walrus operator
+  is used in a ternary operator.
+
+  Closes #7779 (`#7779 <https://github.com/PyCQA/pylint/issues/7779>`_)
+
+- Prevent ``used-before-assignment`` when imports guarded by ``if
+  TYPE_CHECKING``
+  are guarded again when used.
+
+  Closes #7979 (`#7979 <https://github.com/PyCQA/pylint/issues/7979>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Using custom braces in ``msg-template`` will now work properly.
+
+  Closes #5636 (`#5636 <https://github.com/PyCQA/pylint/issues/5636>`_)
+
+
 What's new in Pylint 2.15.9?
 ----------------------------
 Release date: 2022-12-17

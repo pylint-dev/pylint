@@ -1,4 +1,0 @@
-Fixes ``used-before-assignment`` false positive when the walrus operator
-is used in a ternary operator.
-
-Closes #7779
