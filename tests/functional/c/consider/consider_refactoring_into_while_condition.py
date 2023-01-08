@@ -1,5 +1,5 @@
 """Emit a message for breaking out of a while True loop immediately."""
-# pylint: disable=missing-function-docstring,missing-class-docstring,unrecognized-inline-option,invalid-name,literal-comparison, undefined-variable, too-many-public-methods
+# pylint: disable=missing-function-docstring,missing-class-docstring,unrecognized-inline-option,invalid-name,literal-comparison, undefined-variable, too-many-public-methods, no-else-break
 
 class Issue8015:
     def bad(self):
@@ -184,3 +184,70 @@ class Issue8015:
                 break
             a = not a if random.randint(0,1) == 1 else a
             d = not d if random.randint(0,1) == 1 else d
+
+    def test_error_message_18(self):
+        x = 0
+        while True:  # [consider-refactoring-into-while-condition]
+            if x ** 2:
+                break
+            x += 1
+
+    def test_multi_break_condition_1(self):
+        x = 0
+        # This should chain conditions into
+        # While (x == 0) and (x >= 0) and (x != 0):
+        while True:  # [consider-refactoring-into-while-condition]
+            if x != 0:
+                break
+            elif x > 0:
+                x -= 1
+            elif x < 0:
+                break
+            elif x == 0:
+                break
+            x -= 10
+
+    def test_multi_break_condition_2(self):
+        x = 0
+        # This should chain both conditions
+        while True:  # [consider-refactoring-into-while-condition]
+            if x != 0:
+                break
+            if x == 0:
+                break
+            x -= 10
+
+    def test_multi_break_condition_3(self):
+        x = 0
+        # This should chain all conditions
+        while True:  # [consider-refactoring-into-while-condition]
+            if x != 0:
+                break
+            elif x < 0:
+                break
+            elif x == 0:
+                break
+            if x != 100:
+                break
+            if x == 1000:
+                break
+            x -= 10
+
+    def test_multi_break_condition_4(self):
+        x = 0
+        # This should chain all conditions except last 2.
+        # The else clause taints the first if-elif-else block by introducing mutation
+        while True:  # [consider-refactoring-into-while-condition]
+            if x != 0:
+                break
+            elif x < 0:
+                break
+            elif x == 0:
+                break
+            else:
+                x += 1
+            if x != 100:
+                break
+            if x == 1000:
+                break
+            x -= 10

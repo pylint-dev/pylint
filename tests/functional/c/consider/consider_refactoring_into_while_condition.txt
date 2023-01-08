@@ -1,6 +1,6 @@
 consider-refactoring-into-while-condition:7:8:10:18:Issue8015.bad:"Consider using 'while k != 10' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:14:8:17:32:Issue8015.another_bad:"Consider using 'while current_scope is not None' instead of 'while True:' an 'if', and a 'break'":HIGH
-consider-refactoring-into-while-condition:27:8:32:18:Issue8015.test_error_message_multiple_break:"Consider using 'while k > 1' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:27:8:32:18:Issue8015.test_error_message_multiple_break:"Consider using 'while (k > 1) and (k <= 10)' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:37:8:40:24:Issue8015.test_error_message:"Consider using 'while a_list' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:45:8:48:28:Issue8015.test_error_message_2:"Consider using 'while not a_list' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:53:8:56:24:Issue8015.test_error_message_3:"Consider using 'while a_var is None' instead of 'while True:' an 'if', and a 'break'":HIGH
@@ -20,3 +20,8 @@ consider-refactoring-into-while-condition:160:8:163:17:Issue8015.test_error_mess
 consider-refactoring-into-while-condition:164:8:167:17:Issue8015.test_error_message_16:"Consider using 'while k != (lambda x: x)' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:174:8:180:56:Issue8015.test_error_message_17:"Consider using 'while (a or b) != (c and d)' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:182:8:186:56:Issue8015.test_error_message_17:"Consider using 'while (not a) != (not d)' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:190:8:193:18:Issue8015.test_error_message_18:"Consider using 'while not x**2' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:199:8:208:19:Issue8015.test_multi_break_condition_1:"Consider using 'while (x == 0) and (x >= 0) and (x != 0)' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:213:8:218:19:Issue8015.test_multi_break_condition_2:"Consider using 'while (x == 0) and (x != 0)' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:223:8:234:19:Issue8015.test_multi_break_condition_3:"Consider using 'while (x == 0) and (x >= 0) and (x != 0) and (x == 100) and (x != 1000)' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:240:8:253:19:Issue8015.test_multi_break_condition_4:"Consider using 'while (x == 0) and (x >= 0) and (x != 0)' instead of 'while True:' an 'if', and a 'break'":HIGH

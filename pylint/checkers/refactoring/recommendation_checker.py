@@ -446,39 +446,38 @@ class RecommendationChecker(checkers.BaseChecker):
         """Check that any loop with an ``if`` clause has a break statement."""
         if not isinstance(node.test, nodes.Const):
             return
-        if not isinstance(node.body[0], nodes.If):
+        pri_candidates = []
+        for n in node.body:
+            if not isinstance(n, nodes.If):
+                break
+            pri_candidates.append(n)
+        candidates = []
+        tainted = False
+        for c in pri_candidates:
+            if tainted:
+                break
+            candidates.append(c)
+            orelse = c.orelse
+            while orelse:
+                orelse_node = orelse[0]
+                if not isinstance(orelse_node, nodes.If) or not isinstance(
+                    orelse_node.body[0], nodes.Break
+                ):
+                    tainted = True
+                else:
+                    candidates.append(orelse_node)
+                if not isinstance(orelse_node, nodes.If):
+                    break
+                orelse = orelse_node.orelse
+
+        candidates = [n for n in candidates if isinstance(n.body[0], nodes.Break)]
+        if len(candidates) == 0:
             return
-        if not isinstance(node.body[0].body[0], nodes.Break):
-            return
-        # Construct error/recommendation message
-        test_node = node.body[0].test
-        if isinstance(test_node, nodes.UnaryOp):
-            msg = test_node.operand.as_string()
-        elif isinstance(test_node, nodes.BoolOp):
-            msg = f"not ({test_node.as_string()})"
-        elif isinstance(test_node, nodes.Name):
-            msg = f"not {test_node.as_string()}"
-        else:
-            lhs = test_node.left
-            ops, rhs = test_node.ops[0]
-            lower_priority_expressions = (
-                nodes.Lambda,
-                nodes.UnaryOp,
-                nodes.BoolOp,
-                nodes.IfExp,
-                nodes.NamedExpr,
-            )
-            lhs = (
-                f"({lhs.as_string()})"
-                if isinstance(lhs, lower_priority_expressions)
-                else lhs.as_string()
-            )
-            rhs = (
-                f"({rhs.as_string()})"
-                if isinstance(rhs, lower_priority_expressions)
-                else rhs.as_string()
-            )
-            msg = f"{lhs} {utils.get_inverse_comparator(ops)} {rhs}"
+        msg = " and ".join(
+            [f"({utils.not_condition_as_string(c.test)})" for c in candidates]
+        )
+        if len(candidates) == 1:
+            msg = utils.not_condition_as_string(candidates[0].test)
 
         self.add_message(
             "consider-refactoring-into-while-condition",
