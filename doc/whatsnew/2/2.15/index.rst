@@ -31,7 +31,7 @@ Marc Byrne became a maintainer, welcome to the team !
 
 What's new in Pylint 2.15.10?
 -----------------------------
-Release date: 2023-01-08
+Release date: 2023-01-09
 
 
 False Positives Fixed
