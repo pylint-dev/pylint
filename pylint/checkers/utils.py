@@ -2122,9 +2122,9 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
     if _is_target_name_in_binop_side(target, binop.left):
         return True, binop.op
     if (
-        _is_target_name_in_binop_side(target, binop.right)
         # Unless an operator is commutative, we should not raise (i.e. x = 3/x)
-        and binop.op in COMMUTATIVE_OPERATORS
+        binop.op in COMMUTATIVE_OPERATORS
+        and _is_target_name_in_binop_side(target, binop.right)
     ):
         inferred_left = safe_infer(binop.left)
         if isinstance(inferred_left, nodes.Const) and isinstance(
