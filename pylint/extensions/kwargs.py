@@ -24,7 +24,10 @@ class KeywordChecker(BaseChecker):
         "W3501": (
             "Call to `%s` missing keyword argument `%s`.",
             "consider-using-keyword-argument",
-            "Used when method is called without specifying a keyword argument.",
+            "When using a literal directly in a function call, it's very hard to know what the argument is"
+            " if a positional argument is used because there's no variable name or attribute name to "
+            "rely on when reading. Using a keyword argument there's at least the attribute name to "
+            "help the reader understanding the call."
         ),
     }
 
