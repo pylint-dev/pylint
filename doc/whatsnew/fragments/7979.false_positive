@@ -1,4 +1,0 @@
-Prevent ``used-before-assignment`` when imports guarded by ``if TYPE_CHECKING``
-are guarded again when used.
-
-Closes #7979

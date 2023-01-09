@@ -1,3 +1,0 @@
-Fix ``use-sequence-for-iteration`` when unpacking a set with ``*``.
-
-Closes #5788
