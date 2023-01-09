@@ -79,7 +79,7 @@ jobs:
           . venv/bin/activate
           python tests/primer/__main__.py prepare --clone
       - name: Upload output diff
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: primer_commitstring
           path:
@@ -96,7 +96,7 @@ jobs:
           then echo "::warning ::$WARNINGS"
           fi
       - name: Upload output
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: primer_output
           path: >-

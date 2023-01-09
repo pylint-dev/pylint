@@ -71,7 +71,7 @@ jobs:
           pip list | grep 'astroid\|pylint'
           pytest -vv --minimal-messages-config tests/test_functional.py
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: coverage-${{ matrix.python-version }}
           path: .coverage
@@ -162,7 +162,7 @@ jobs:
         run: >-
           echo "datetime="$(date "+%Y%m%d_%H%M") >> $GITHUB_OUTPUT
       - name: Upload benchmark artifact
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name:
             benchmark-${{ runner.os }}-${{ matrix.python-version }}_${{
