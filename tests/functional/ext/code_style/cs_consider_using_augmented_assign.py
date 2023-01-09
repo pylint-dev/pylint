@@ -72,27 +72,27 @@ x = 3 - x
 x = x * 3  # [consider-using-augmented-assign]
 x = 3 * x  # [consider-using-augmented-assign]
 
-# division is anti-commutative
+# division is not commutative
 x = x / 3  # [consider-using-augmented-assign]
 x = 3 / x
 
-# integer division is anti-commutative
+# integer division is not commutative
 x = x // 3  # [consider-using-augmented-assign]
 x = 3 // x
 
-# Left shift operator is anti-commutative
+# Left shift operator is not commutative
 x = x << 3  # [consider-using-augmented-assign]
 x = 3 << x
 
-# Right shift operator is anti-commutative
+# Right shift operator is not commutative
 x = x >> 3  # [consider-using-augmented-assign]
 x = 3 >> x
 
-# modulo is anti-commutative
+# modulo is not commutative
 x = x % 3  # [consider-using-augmented-assign]
 x = 3 % x
 
-# exponential is anti-commutative
+# exponential is not commutative
 x = x**3  # [consider-using-augmented-assign]
 x = 3**x
 
