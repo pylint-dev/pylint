@@ -1,7 +1,7 @@
-abstract-class-instantiated:109:4:109:27:main:Abstract class 'BadMroAbstractMethods' with abstract methods instantiated:INFERENCE
-abstract-class-instantiated:110:4:110:14:main:Abstract class 'BadClass' with abstract methods instantiated:INFERENCE
-abstract-class-instantiated:111:4:111:20:main:Abstract class 'SecondBadClass' with abstract methods instantiated:INFERENCE
-abstract-class-instantiated:112:4:112:19:main:Abstract class 'ThirdBadClass' with abstract methods instantiated:INFERENCE
-abstract-class-instantiated:129:4:129:20:main2:Abstract class 'FourthBadClass' with abstract methods instantiated:INFERENCE
-abstract-class-instantiated:144:4:144:17:main_two:Abstract class 'BadClassTwo' with abstract methods instantiated:INFERENCE
-abstract-class-instantiated:183:7:183:19::Abstract class 'BadWithNew' with abstract methods instantiated:INFERENCE
+abstract-class-instantiated:110:4:110:27:main:Abstract class 'BadMroAbstractMethods' with abstract methods instantiated:INFERENCE
+abstract-class-instantiated:111:4:111:14:main:Abstract class 'BadClass' with abstract methods instantiated:INFERENCE
+abstract-class-instantiated:112:4:112:20:main:Abstract class 'SecondBadClass' with abstract methods instantiated:INFERENCE
+abstract-class-instantiated:113:4:113:19:main:Abstract class 'ThirdBadClass' with abstract methods instantiated:INFERENCE
+abstract-class-instantiated:130:4:130:20:main2:Abstract class 'FourthBadClass' with abstract methods instantiated:INFERENCE
+abstract-class-instantiated:145:4:145:17:main_two:Abstract class 'BadClassTwo' with abstract methods instantiated:INFERENCE
+abstract-class-instantiated:184:7:184:19::Abstract class 'BadWithNew' with abstract methods instantiated:INFERENCE

@@ -7,6 +7,7 @@ abstract methods.
 # pylint: disable=abstract-method, import-error
 
 import abc
+import warnings
 import weakref
 from lala import Bala
 import pandas as pd
@@ -181,3 +182,22 @@ class BadWithNew(metaclass=abc.ABCMeta):
         """book."""
 
 test = BadWithNew()  # [abstract-class-instantiated]
+
+
+class GoodithComplexNew(metaclass=abc.ABCMeta):
+    def __new__(cls):
+        warnings.warn("You are calling super on an abstract class.")
+        return object.__new__(cls)
+
+    @property
+    @abc.abstractmethod
+    def sheets(self):
+        """sheets."""
+
+    @property
+    @abc.abstractmethod
+    def book(self):
+        """book."""
+
+
+bad = GoodithComplexNew()
