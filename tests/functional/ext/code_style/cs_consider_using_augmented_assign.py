@@ -5,12 +5,16 @@
 from unknown import Unknown
 
 x = 1
-x = x + 1  # [consider-using-augmented-assign]
-x = 1 + x  # [consider-using-augmented-assign]
+
+# summation is commutative (for integer and float, but not for string)
+x = x + 3  # [consider-using-augmented-assign]
+x = 3 + x  # [consider-using-augmented-assign]
+x = x + "3"  # [consider-using-augmented-assign]
+x = "3" + x
+
+# We don't warn on intricate expressions as we lack knowledge of simplifying such
+# expressions which is necessary to see if they can become augmented
 x, y = 1 + x, 2 + x
-# We don't warn on intricate expressions as we lack knowledge
-# of simplifying such expressions which is necessary to see
-# if they can become augmented
 x = 1 + x - 2
 x = 1 + x + 2
 
@@ -52,7 +56,6 @@ def return_str() -> str:
 
 # Currently we disregard all calls
 my_str = return_str() + my_str
-
 my_str = my_str % return_str()
 my_str = my_str % 1  # [consider-using-augmented-assign]
 my_str = my_str % (1, 2)  # [consider-using-augmented-assign]
@@ -61,17 +64,58 @@ my_str = return_str() % my_str
 my_str = Unknown % my_str
 my_str = my_str % Unknown  # [consider-using-augmented-assign]
 
+# subtraction is anti-commutative
 x = x - 3  # [consider-using-augmented-assign]
+x = 3 - x
+
+# multiplication is commutative
 x = x * 3  # [consider-using-augmented-assign]
+x = 3 * x  # [consider-using-augmented-assign]
+
+# division is anti-commutative
 x = x / 3  # [consider-using-augmented-assign]
+x = 3 / x
+
+# integer division is anti-commutative
 x = x // 3  # [consider-using-augmented-assign]
+x = 3 // x
+
+# Left shift operator is anti-commutative
 x = x << 3  # [consider-using-augmented-assign]
+x = 3 << x
+
+# Right shift operator is anti-commutative
 x = x >> 3  # [consider-using-augmented-assign]
+x = 3 >> x
+
+# modulo is anti-commutative
 x = x % 3  # [consider-using-augmented-assign]
+x = 3 % x
+
+# exponential is anti-commutative
 x = x**3  # [consider-using-augmented-assign]
+x = 3**x
+
+# XOR is commutative
 x = x ^ 3  # [consider-using-augmented-assign]
+x = 3 ^ x  # [consider-using-augmented-assign]
+
+# Bitwise AND operator is commutative
 x = x & 3  # [consider-using-augmented-assign]
+x = 3 & x  # [consider-using-augmented-assign]
+
+# Bitwise OR operator is commutative
+x = x | 3  # [consider-using-augmented-assign]
+x = 3 | x  # [consider-using-augmented-assign]
+
 x = x > 3
+x = 3 > x
+
 x = x < 3
+x = 3 < x
+
 x = x >= 3
+x = 3 >= x
+
 x = x <= 3
+x = 3 <= x
