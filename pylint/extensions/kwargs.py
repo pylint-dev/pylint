@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from astroid import BoundMethod, nodes, UnboundMethod
+from astroid import BoundMethod, UnboundMethod, nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import safe_infer
