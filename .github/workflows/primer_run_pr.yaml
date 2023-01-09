@@ -167,14 +167,14 @@ jobs:
           then echo "::warning ::$WARNINGS"
           fi
       - name: Upload output of PR
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: primer_output_pr
           path:
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
             }}_pr.txt
       - name: Upload output of 'main'
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: primer_output_main
           path: output_${{ steps.python.outputs.python-version }}_main.txt
@@ -184,7 +184,7 @@ jobs:
         run: |
           echo ${{ github.event.pull_request.number }} | tee pr_number.txt
       - name: Upload PR number
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: pr_number
           path: pr_number.txt
