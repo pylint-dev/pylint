@@ -102,6 +102,7 @@ All messages in the error category:
    error/invalid-repr-returned
    error/invalid-sequence-index
    error/invalid-slice-index
+   error/invalid-slice-step
    error/invalid-slots
    error/invalid-slots-object
    error/invalid-star-assignment-target
@@ -277,13 +278,16 @@ All messages in the warning category:
    warning/missing-yield-type-doc
    warning/modified-iterating-list
    warning/multiple-constructor-doc
+   warning/named-expr-without-context
    warning/nan-comparison
+   warning/nested-min-max
    warning/non-ascii-file-name
    warning/non-parent-init-called
    warning/non-str-assignment-to-dunder-name
    warning/overlapping-except
    warning/overridden-final-method
    warning/pointless-statement
+   warning/pointless-exception-statement
    warning/pointless-string-statement
    warning/possibly-unused-variable
    warning/preferred-module
@@ -302,6 +306,7 @@ All messages in the warning category:
    warning/reimported
    warning/self-assigning-variable
    warning/self-cls-assignment
+   warning/shadowed-import
    warning/shallow-copy-environ
    warning/signature-differs
    warning/subclassed-final-class
@@ -311,6 +316,7 @@ All messages in the warning category:
    warning/super-without-brackets
    warning/too-many-try-statements
    warning/try-except-raise
+   warning/unbalanced-dict-unpacking
    warning/unbalanced-tuple-unpacking
    warning/undefined-loop-variable
    warning/unknown-option-value
@@ -388,6 +394,7 @@ All messages in the convention category:
    convention/consider-using-dict-items
    convention/consider-using-enumerate
    convention/consider-using-f-string
+   convention/dict-init-mutate
    convention/disallowed-name
    convention/docstring-first-line-empty
    convention/empty-docstring
@@ -497,6 +504,7 @@ All messages in the refactor category:
    refactor/property-with-parameters
    refactor/redefined-argument-from-local
    refactor/redefined-variable-type
+   refactor/redundant-typehint-argument
    refactor/simplifiable-condition
    refactor/simplifiable-if-expression
    refactor/simplifiable-if-statement

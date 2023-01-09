@@ -1,0 +1,4 @@
+Add new check called ``unbalanced-dict-unpacking`` to check for unbalanced dict unpacking
+in assignment and for loops.
+
+Closes #5797

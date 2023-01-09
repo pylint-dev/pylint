@@ -18,12 +18,11 @@ if TYPE_CHECKING:
 
 BAD_FUNCTIONS = ["map", "filter"]
 # Some hints regarding the use of bad builtins.
-BUILTIN_HINTS = {"map": "Using a list comprehension can be clearer."}
-BUILTIN_HINTS["filter"] = BUILTIN_HINTS["map"]
+LIST_COMP_MSG = "Using a list comprehension can be clearer."
+BUILTIN_HINTS = {"map": LIST_COMP_MSG, "filter": LIST_COMP_MSG}
 
 
 class BadBuiltinChecker(BaseChecker):
-
     name = "deprecated_builtins"
     msgs = {
         "W0141": (

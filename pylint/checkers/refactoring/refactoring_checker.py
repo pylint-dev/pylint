@@ -12,7 +12,7 @@ import tokenize
 from collections.abc import Iterator
 from functools import reduce
 from re import Pattern
-from typing import TYPE_CHECKING, Any, NamedTuple, Union
+from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
 
 import astroid
 from astroid import bases, nodes
@@ -21,7 +21,7 @@ from astroid.util import Uninferable
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
-from pylint.interfaces import HIGH, INFERENCE
+from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -35,7 +35,7 @@ NodesWithNestedBlocks = Union[
     nodes.TryExcept, nodes.TryFinally, nodes.While, nodes.For, nodes.If
 ]
 
-KNOWN_INFINITE_ITERATORS = {"itertools.count"}
+KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
 CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
     (
@@ -49,6 +49,7 @@ CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
 CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
     (
         "_io.open",  # regular 'open()' call
+        "pathlib.Path.open",
         "codecs.open",
         "urllib.request.urlopen",
         "tempfile.NamedTemporaryFile",
@@ -71,6 +72,16 @@ def _if_statement_is_always_returning(
     if_node: nodes.If, returning_node_class: nodes.NodeNG
 ) -> bool:
     return any(isinstance(node, returning_node_class) for node in if_node.body)
+
+
+def _except_statement_is_always_returning(
+    node: nodes.TryExcept, returning_node_class: nodes.NodeNG
+) -> bool:
+    """Detect if all except statements return."""
+    return all(
+        any(isinstance(child, returning_node_class) for child in handler.body)
+        for handler in node.handlers
+    )
 
 
 def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
@@ -394,9 +405,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "It is faster and simpler.",
         ),
         "R1722": (
-            "Consider using sys.exit()",
+            "Consider using 'sys.exit' instead",
             "consider-using-sys-exit",
-            "Instead of using exit() or quit(), consider using the sys.exit().",
+            "Contrary to 'exit()' or 'quit()', 'sys.exit' does not rely on the "
+            "site module being available (as the 'sys' module is always available).",
         ),
         "R1723": (
             'Unnecessary "%s" after "break", %s',
@@ -464,9 +476,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "The literal is faster as it avoids an additional function call.",
         ),
         "R1735": (
-            "Consider using {} instead of dict()",
+            "Consider using '%s' instead of a call to 'dict'.",
             "use-dict-literal",
-            "Emitted when using dict() to create an empty dictionary instead of the literal {}. "
+            "Emitted when using dict() to create a dictionary instead of a literal '{ ... }'. "
             "The literal is faster as it avoids an additional function call.",
         ),
         "R1736": (
@@ -531,7 +543,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node.value.value, bool
         )
 
-    def _is_actual_elif(self, node: nodes.If) -> bool:
+    def _is_actual_elif(self, node: nodes.If | nodes.TryExcept) -> bool:
         """Check if the given node is an actual elif.
 
         This is a problem we're having with the builtin ast module,
@@ -642,9 +654,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         self._init()
 
-    @utils.only_required_for_messages("too-many-nested-blocks")
-    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
+    @utils.only_required_for_messages("too-many-nested-blocks", "no-else-return")
+    def visit_tryexcept(self, node: nodes.TryExcept | nodes.TryFinally) -> None:
         self._check_nested_blocks(node)
+
+        if isinstance(node, nodes.TryExcept):
+            self._check_superfluous_else_return(node)
+            self._check_superfluous_else_raise(node)
 
     visit_tryfinally = visit_tryexcept
     visit_while = visit_tryexcept
@@ -707,23 +723,38 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self._check_redefined_argument_from_local(name)
 
     def _check_superfluous_else(
-        self, node: nodes.If, msg_id: str, returning_node_class: nodes.NodeNG
+        self,
+        node: nodes.If | nodes.TryExcept,
+        msg_id: str,
+        returning_node_class: nodes.NodeNG,
     ) -> None:
+        if isinstance(node, nodes.TryExcept) and isinstance(
+            node.parent, nodes.TryFinally
+        ):
+            # Not interested in try/except/else/finally statements.
+            return
+
         if not node.orelse:
-            # Not interested in if statements without else.
+            # Not interested in if/try statements without else.
             return
 
         if self._is_actual_elif(node):
             # Not interested in elif nodes; only if
             return
 
-        if _if_statement_is_always_returning(node, returning_node_class):
+        if (
+            isinstance(node, nodes.If)
+            and _if_statement_is_always_returning(node, returning_node_class)
+        ) or (
+            isinstance(node, nodes.TryExcept)
+            and _except_statement_is_always_returning(node, returning_node_class)
+        ):
             orelse = node.orelse[0]
             if (orelse.lineno, orelse.col_offset) in self._elifs:
                 args = ("elif", 'remove the leading "el" from "elif"')
             else:
                 args = ("else", 'remove the "else" and de-indent the code inside it')
-            self.add_message(msg_id, node=node, args=args)
+            self.add_message(msg_id, node=node, args=args, confidence=HIGH)
 
     def _check_superfluous_else_return(self, node: nodes.If) -> None:
         return self._check_superfluous_else(
@@ -758,7 +789,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False
 
     def _is_dict_get_block(self, node: nodes.If) -> bool:
-
         # "if <compare node>"
         if not isinstance(node.test, nodes.Compare):
             return False
@@ -1074,7 +1104,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_super_with_arguments(node)
         self._check_consider_using_generator(node)
         self._check_consider_using_with(node)
-        self._check_use_list_or_dict_literal(node)
+        self._check_use_list_literal(node)
+        self._check_use_dict_literal(node)
 
     @staticmethod
     def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
@@ -1084,7 +1115,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     def _check_quit_exit_call(self, node: nodes.Call) -> None:
-
         if isinstance(node.func, nodes.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
             # If we have `exit` imported from `sys` in the current or global scope, exempt this instance.
             local_scope = node.scope()
@@ -1092,7 +1122,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 node.root()
             ):
                 return
-            self.add_message("consider-using-sys-exit", node=node)
+            self.add_message("consider-using-sys-exit", node=node, confidence=HIGH)
 
     def _check_super_with_arguments(self, node: nodes.Call) -> None:
         if not isinstance(node.func, nodes.Name) or node.func.name != "super":
@@ -1132,6 +1162,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         if isinstance(node.func, nodes.Attribute):
             # A next() method, which is now what we want.
+            return
+
+        if len(node.args) == 0:
+            # handle case when builtin.next is called without args.
+            # see https://github.com/PyCQA/pylint/issues/7828
             return
 
         inferred = utils.safe_infer(node.func)
@@ -1590,15 +1625,61 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if could_be_used_in_with and not _will_be_released_automatically(node):
             self.add_message("consider-using-with", node=node)
 
-    def _check_use_list_or_dict_literal(self, node: nodes.Call) -> None:
-        """Check if empty list or dict is created by using the literal [] or {}."""
-        if node.as_string() in {"list()", "dict()"}:
+    def _check_use_list_literal(self, node: nodes.Call) -> None:
+        """Check if empty list is created by using the literal []."""
+        if node.as_string() == "list()":
             inferred = utils.safe_infer(node.func)
             if isinstance(inferred, nodes.ClassDef) and not node.args:
                 if inferred.qname() == "builtins.list":
                     self.add_message("use-list-literal", node=node)
-                elif inferred.qname() == "builtins.dict" and not node.keywords:
-                    self.add_message("use-dict-literal", node=node)
+
+    def _check_use_dict_literal(self, node: nodes.Call) -> None:
+        """Check if dict is created by using the literal {}."""
+        if not isinstance(node.func, astroid.Name) or node.func.name != "dict":
+            return
+        inferred = utils.safe_infer(node.func)
+        if (
+            isinstance(inferred, nodes.ClassDef)
+            and inferred.qname() == "builtins.dict"
+            and not node.args
+        ):
+            self.add_message(
+                "use-dict-literal",
+                args=(self._dict_literal_suggestion(node),),
+                node=node,
+                confidence=INFERENCE,
+            )
+
+    @staticmethod
+    def _dict_literal_suggestion(node: nodes.Call) -> str:
+        """Return a suggestion of reasonable length."""
+        elements: list[str] = []
+        for keyword in node.keywords:
+            if len(", ".join(elements)) >= 64:
+                break
+            if keyword not in node.kwargs:
+                elements.append(f'"{keyword.arg}": {keyword.value.as_string()}')
+        for keyword in node.kwargs:
+            if len(", ".join(elements)) >= 64:
+                break
+            elements.append(f"**{keyword.value.as_string()}")
+        suggestion = ", ".join(elements)
+        return f"{{{suggestion}{', ... '  if len(suggestion) > 64 else ''}}}"
+
+    @staticmethod
+    def _name_to_concatenate(node: nodes.NodeNG) -> str | None:
+        """Try to extract the name used in a concatenation loop."""
+        if isinstance(node, nodes.Name):
+            return cast("str | None", node.name)
+        if not isinstance(node, nodes.JoinedStr):
+            return None
+
+        values = [
+            value for value in node.values if isinstance(value, nodes.FormattedValue)
+        ]
+        if len(values) != 1 or not isinstance(values[0].value, nodes.Name):
+            return None
+        return cast("str | None", values[0].value.name)
 
     def _check_consider_using_join(self, aug_assign: nodes.AugAssign) -> None:
         """We start with the augmented assignment and work our way upwards.
@@ -1627,8 +1708,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and aug_assign.target.name in result_assign_names
             and isinstance(assign.value, nodes.Const)
             and isinstance(assign.value.value, str)
-            and isinstance(aug_assign.value, nodes.Name)
-            and aug_assign.value.name == for_loop.target.name
+            and self._name_to_concatenate(aug_assign.value) == for_loop.target.name
         )
         if is_concat_loop:
             self.add_message("consider-using-join", node=aug_assign)
@@ -2100,9 +2180,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             not isinstance(node.iter, nodes.Call)
             or not isinstance(node.iter.func, nodes.Name)
             or not node.iter.func.name == "enumerate"
-            or not node.iter.args
-            or not isinstance(node.iter.args[0], nodes.Name)
         ):
+            return
+
+        try:
+            iterable_arg = utils.get_argument_from_call(
+                node.iter, position=0, keyword="iterable"
+            )
+        except utils.NoSuchArgumentError:
+            return
+
+        if not isinstance(iterable_arg, nodes.Name):
             return
 
         if not isinstance(node.target, nodes.Tuple) or len(node.target.elts) < 2:
@@ -2114,7 +2202,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # destructured, so we can't necessarily use it.
             return
 
-        iterating_object_name = node.iter.args[0].name
+        has_start_arg, confidence = self._enumerate_with_start(node)
+        if has_start_arg:
+            # enumerate is being called with start arg/kwarg so resulting index lookup
+            # is not redundant, hence we should not report an error.
+            return
+
+        iterating_object_name = iterable_arg.name
         value_variable = node.target.elts[1]
 
         # Store potential violations. These will only be reported if we don't
@@ -2195,7 +2289,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             "unnecessary-list-index-lookup",
                             node=subscript,
                             args=(node.target.elts[1].name,),
-                            confidence=HIGH,
+                            confidence=confidence,
                         )
 
         for subscript in bad_nodes:
@@ -2203,5 +2297,51 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "unnecessary-list-index-lookup",
                 node=subscript,
                 args=(node.target.elts[1].name,),
-                confidence=HIGH,
+                confidence=confidence,
             )
+
+    def _enumerate_with_start(
+        self, node: nodes.For | nodes.Comprehension
+    ) -> tuple[bool, Confidence]:
+        """Check presence of `start` kwarg or second argument to enumerate.
+
+        For example:
+
+        `enumerate([1,2,3], start=1)`
+        `enumerate([1,2,3], 1)`
+
+        If `start` is assigned to `0`, the default value, this is equivalent to
+        not calling `enumerate` with start.
+        """
+        confidence = HIGH
+
+        if len(node.iter.args) > 1:
+            # We assume the second argument to `enumerate` is the `start` int arg.
+            # It's a reasonable assumption for now as it's the only possible argument:
+            # https://docs.python.org/3/library/functions.html#enumerate
+            start_arg = node.iter.args[1]
+            start_val, confidence = self._get_start_value(start_arg)
+            if start_val is None:
+                return False, confidence
+            return not start_val == 0, confidence
+
+        for keyword in node.iter.keywords:
+            if keyword.arg == "start":
+                start_val, confidence = self._get_start_value(keyword.value)
+                if start_val is None:
+                    return False, confidence
+                return not start_val == 0, confidence
+
+        return False, confidence
+
+    def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
+        if isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute)):
+            inferred = utils.safe_infer(node)
+            start_val = inferred.value if inferred else None
+            return start_val, INFERENCE
+        if isinstance(node, nodes.UnaryOp):
+            return node.operand.value, HIGH
+        if isinstance(node, nodes.Const):
+            return node.value, HIGH
+
+        return None, HIGH

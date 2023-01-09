@@ -347,7 +347,7 @@ class _MessageStateHandler:
         prev_line = None
         saw_newline = True
         seen_newline = True
-        for (tok_type, content, start, _, _) in tokens:
+        for tok_type, content, start, _, _ in tokens:
             if prev_line and prev_line != start[0]:
                 saw_newline = seen_newline
                 seen_newline = False
@@ -361,7 +361,7 @@ class _MessageStateHandler:
             match = OPTION_PO.search(content)
             if match is None:
                 continue
-            try:
+            try:  # pylint: disable = too-many-try-statements
                 for pragma_repr in parse_pragma(match.group(2)):
                     if pragma_repr.action in {"disable-all", "skip-file"}:
                         if pragma_repr.action == "disable-all":

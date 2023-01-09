@@ -13,5 +13,5 @@ charset="utf-8"
 "data.clientmodule_test.Ancestor" -> "data.suppliermodule_test.Interface" [arrowhead="empty", arrowtail="node", style="dashed"];
 "data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Ancestor" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="cls_member", style="solid"];
 "data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Specialization" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="relation", style="solid"];
-"data.suppliermodule_test.DoNothing2" -> "data.clientmodule_test.Specialization" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="relation2", style="solid"];
+"data.suppliermodule_test.DoNothing2" -> "data.clientmodule_test.Specialization" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="relation2", style="solid"];
 }

@@ -1,1 +1,3 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+This can happen if you're importing a package that is not installed in your environment, or if you made a typo.
+
+The solution is to install the package via pip/setup.py/wheel or fix the typo.

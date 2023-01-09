@@ -44,7 +44,6 @@ class ThreadingChecker(BaseChecker):
 
     @only_required_for_messages("useless-with-lock")
     def visit_with(self, node: nodes.With) -> None:
-
         context_managers = (c for c, _ in node.items if isinstance(c, nodes.Call))
         for context_manager in context_managers:
             if isinstance(context_manager, nodes.Call):

@@ -18,7 +18,6 @@ REGR_DATA_DIR = str(Path(__file__).parent / ".." / "regrtest_data")
 
 
 class TestVariablesChecker(CheckerTestCase):
-
     CHECKER_CLASS = variables.VariablesChecker
 
     def test_all_elements_without_parent(self) -> None:
@@ -31,7 +30,6 @@ class TestVariablesChecker(CheckerTestCase):
 
 
 class TestVariablesCheckerWithTearDown(CheckerTestCase):
-
     CHECKER_CLASS = variables.VariablesChecker
 
     def setup_method(self) -> None:
@@ -209,7 +207,6 @@ class TestMissingSubmodule(CheckerTestCase):
 
     @staticmethod
     def test_package_all() -> None:
-
         sys.path.insert(0, REGR_DATA_DIR)
         try:
             linter.check([os.path.join(REGR_DATA_DIR, "package_all")])

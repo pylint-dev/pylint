@@ -135,6 +135,9 @@ Basic checker Messages
   argument list as the lambda itself; such lambda expressions are in all but a
   few cases replaceable with the function being called in the body of the
   lambda.
+:named-expr-without-context (W0131): *Named expression used without context*
+  Emitted if named expression is used to do a regular assignment outside a
+  context like if, for, while, or a comprehension.
 :redeclared-assigned-name (W0128): *Redeclared variable %r in assignment*
   Emitted when we detect that a variable was redeclared in the same assignment.
 :pointless-statement (W0104): *Statement seems to have no effect*
@@ -144,6 +147,9 @@ Basic checker Messages
   This is a particular case of W0104 with its own message so you can easily
   disable it if you're using those strings as documentation, instead of
   comments.
+:pointless-exception-statement (W0132): *Exception statement has no effect*
+  Used when an exception is created without being assigned, raised or returned
+  for subsequent use elsewhere.
 :unnecessary-pass (W0107): *Unnecessary pass statement*
   Used when a "pass" statement that can be avoided is encountered.
 :unreachable (W0101): *Unreachable code*
@@ -526,7 +532,9 @@ Imports checker Messages
 :preferred-module (W0407): *Prefer importing %r instead of %r*
   Used when a module imported has a preferred replacement module.
 :reimported (W0404): *Reimport %r (imported line %s)*
-  Used when a module is reimported multiple times.
+  Used when a module is imported more than once.
+:shadowed-import (W0416): *Shadowed %r (imported line %s)*
+  Used when a module is aliased with a name that shadows another import.
 :wildcard-import (W0401): *Wildcard import %s*
   Used when `from module import *` is detected.
 :misplaced-future (W0410): *__future__ import is not the first non docstring statement*
@@ -677,6 +685,17 @@ Modified Iteration checker Messages
   use a copy of the list.
 
 
+Nested Min Max checker
+~~~~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``nested_min_max``.
+
+Nested Min Max checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:nested-min-max (W3301): *Do not use nested call of '%s'; it's possible to do '%s' instead*
+  Nested calls ``min(1, min(2, 3))`` can be rewritten as ``min(1, 2, 3)``.
+
+
 Newstyle checker
 ~~~~~~~~~~~~~~~~
 
@@ -739,12 +758,18 @@ Refactoring checker Messages
   verbose.
 :consider-merging-isinstance (R1701): *Consider merging these isinstance calls to isinstance(%s, (%s))*
   Used when multiple consecutive isinstance calls can be merged into one.
+:use-dict-literal (R1735): *Consider using '%s' instead of a call to 'dict'.*
+  Emitted when using dict() to create a dictionary instead of a literal '{ ...
+  }'. The literal is faster as it avoids an additional function call.
 :consider-using-max-builtin (R1731): *Consider using '%s' instead of unnecessary if block*
   Using the max builtin instead of a conditional improves readability and
   conciseness.
 :consider-using-min-builtin (R1730): *Consider using '%s' instead of unnecessary if block*
   Using the min builtin instead of a conditional improves readability and
   conciseness.
+:consider-using-sys-exit (R1722): *Consider using 'sys.exit' instead*
+  Contrary to 'exit()' or 'quit()', 'sys.exit' does not rely on the site module
+  being available (as the 'sys' module is always available).
 :consider-using-with (R1732): *Consider using 'with' for resource-allocating operations*
   Emitted if a resource-allocating assignment or call may be replaced by a
   'with' block. By using 'with' the release of the allocated resources is
@@ -774,16 +799,11 @@ Refactoring checker Messages
 :consider-using-join (R1713): *Consider using str.join(sequence) for concatenating strings from an iterable*
   Using str.join(sequence) is faster, uses less memory and increases
   readability compared to for-loop iteration.
-:consider-using-sys-exit (R1722): *Consider using sys.exit()*
-  Instead of using exit() or quit(), consider using the sys.exit().
 :consider-using-ternary (R1706): *Consider using ternary (%s)*
   Used when one of known pre-python 2.5 ternary syntax is used.
 :consider-swap-variables (R1712): *Consider using tuple unpacking for swapping variables*
   You do not have to use a temporary variable in order to swap variables. Using
   "tuple unpacking" to directly swap variables makes the intention more clear.
-:use-dict-literal (R1735): *Consider using {} instead of dict()*
-  Emitted when using dict() to create an empty dictionary instead of the
-  literal {}. The literal is faster as it avoids an additional function call.
 :trailing-comma-tuple (R1707): *Disallow trailing comma tuple*
   In Python, a tuple is actually created by the comma symbol, not by the
   parentheses. Unfortunately, one can actually create a tuple by misplacing a
@@ -847,7 +867,7 @@ Refactoring checker Messages
   Emitted when a single "return" or "return None" statement is found at the end
   of function or method definition. This statement can safely be removed
   because Python will implicitly return None
-:use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty sequence is falsey*
+:use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty %s is falsey*
   Used when Pylint detects that collection literal comparison is being used to
   check for emptiness; Use implicit booleaness instead of a collection classes;
   empty collections are considered as false
@@ -987,8 +1007,8 @@ Stdlib checker Messages
   https://docs.python.org/3/library/subprocess.html#subprocess.run
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
-  the target function being passed. By default, the first parameter is the
-  group param, not the target param.
+  the target function being passed as a kwarg or as a second argument. By
+  default, the first parameter is the group param, not the target param.
 
 
 String checker
@@ -1152,6 +1172,9 @@ Typecheck checker Messages
 :invalid-slice-index (E1127): *Slice index is not an int, None, or instance with __index__*
   Used when a slice index is not an integer, None, or an object with an
   __index__ method.
+:invalid-slice-step (E1144): *Slice step cannot be 0*
+  Used when a slice step is 0 and the object doesn't implement a custom
+  __getitem__ method.
 :too-many-function-args (E1121): *Too many positional arguments for %s call*
   Used when a function call passes too many positional arguments.
 :unexpected-keyword-arg (E1123): *Unexpected keyword argument %r in %s call*
@@ -1303,7 +1326,9 @@ Variables checker Messages
   variable is not defined in the module scope.
 :self-cls-assignment (W0642): *Invalid assignment to %s in method*
   Invalid assignment to self or cls in instance or class method respectively.
-:unbalanced-tuple-unpacking (W0632): *Possible unbalanced tuple unpacking with sequence%s: left side has %d label(s), right side has %d value(s)*
+:unbalanced-dict-unpacking (W0644): *Possible unbalanced dict unpacking with %s: left side has %d label%s, right side has %d value%s*
+  Used when there is an unbalanced dict unpacking in assignment or for loop
+:unbalanced-tuple-unpacking (W0632): *Possible unbalanced tuple unpacking with sequence %s: left side has %d label%s, right side has %d value%s*
   Used when there is an unbalanced tuple unpacking in assignment
 :possibly-unused-variable (W0641): *Possibly unused variable %r*
   Used when a variable is defined but might not be used. The possibility comes

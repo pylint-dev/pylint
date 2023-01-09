@@ -18,7 +18,6 @@ REGR_DATA = os.path.join(os.path.dirname(__file__), "..", "regrtest_data", "")
 
 
 class TestImportsChecker(CheckerTestCase):
-
     CHECKER_CLASS = imports.ImportsChecker
 
     def test_relative_beyond_top_level(self) -> None:

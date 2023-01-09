@@ -233,6 +233,10 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
 
 SINGLETON_VALUES = {True, False, None}
 
+TERMINATING_FUNCS_QNAMES = frozenset(
+    {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
+)
+
 
 class NoSuchArgumentError(Exception):
     pass
@@ -287,7 +291,7 @@ def is_builtin_object(node: nodes.NodeNG) -> bool:
 
 def is_builtin(name: str) -> bool:
     """Return true if <name> could be considered as a builtin defined by python."""
-    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[attr-defined]
+    return name in builtins or name in SPECIAL_BUILTINS  # type: ignore[operator]
 
 
 def is_defined_in_scope(
@@ -946,9 +950,7 @@ def unimplemented_abstract_methods(
     A method can be considered abstract if the callback *is_abstract_cb*
     returns a ``True`` value. The check defaults to verifying that
     a method is decorated with abstract methods.
-    The function will work only for new-style classes. For old-style
-    classes, it will simply return an empty dictionary.
-    For the rest of them, it will return a dictionary of abstract method
+    It will return a dictionary of abstract method
     names and their inferred objects.
     """
     if is_abstract_cb is None:
@@ -956,9 +958,6 @@ def unimplemented_abstract_methods(
     visited: dict[str, nodes.FunctionDef] = {}
     try:
         mro = reversed(node.mro())
-    except NotImplementedError:
-        # Old style class, it will not have a mro.
-        return {}
     except astroid.ResolveError:
         # Probably inconsistent hierarchy, don't try to figure this out here.
         return {}
@@ -1163,6 +1162,10 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
     """Return true if the given class node should be considered as an abstract
     class.
     """
+    # Protocol classes are considered "abstract"
+    if is_protocol_class(node):
+        return True
+
     # Only check for explicit metaclass=ABCMeta on this specific class
     meta = node.declared_metaclass()
     if meta is not None:
@@ -1649,14 +1652,23 @@ def is_protocol_class(cls: nodes.NodeNG) -> bool:
     """Check if the given node represents a protocol class.
 
     :param cls: The node to check
-    :returns: True if the node is a typing protocol class, false otherwise.
+    :returns: True if the node is or inherits from typing.Protocol directly, false otherwise.
     """
     if not isinstance(cls, nodes.ClassDef):
         return False
 
-    # Use .ancestors() since not all protocol classes can have
-    # their mro deduced.
-    return any(parent.qname() in TYPING_PROTOCOLS for parent in cls.ancestors())
+    # Return if klass is protocol
+    if cls.qname() in TYPING_PROTOCOLS:
+        return True
+
+    for base in cls.bases:
+        try:
+            for inf_base in base.infer():
+                if inf_base.qname() in TYPING_PROTOCOLS:
+                    return True
+        except astroid.InferenceError:
+            continue
+    return False
 
 
 def is_call_of_name(node: nodes.NodeNG, name: str) -> bool:
@@ -1710,6 +1722,10 @@ def is_attribute_typed_annotation(
         ):
             return True
     return False
+
+
+def is_enum(node: nodes.ClassDef) -> bool:
+    return node.name == "Enum" and node.root().name == "enum"  # type: ignore[no-any-return]
 
 
 def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> bool:
@@ -1895,11 +1911,20 @@ def is_empty_str_literal(node: nodes.NodeNG | None) -> bool:
 
 
 def returns_bool(node: nodes.NodeNG) -> bool:
-    """Returns true if a node is a return that returns a constant boolean."""
+    """Returns true if a node is a nodes.Return that returns a constant boolean."""
     return (
         isinstance(node, nodes.Return)
         and isinstance(node.value, nodes.Const)
-        and node.value.value in {True, False}
+        and isinstance(node.value.value, bool)
+    )
+
+
+def assigned_bool(node: nodes.NodeNG) -> bool:
+    """Returns true if a node is a nodes.Assign that returns a constant boolean."""
+    return (
+        isinstance(node, nodes.Assign)
+        and isinstance(node.value, nodes.Const)
+        and isinstance(node.value.value, bool)
     )
 
 
@@ -1960,24 +1985,27 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
     return False
 
 
-def is_typing_literal(node: nodes.NodeNG) -> bool:
-    """Check if a node refers to typing.Literal."""
+def is_typing_member(node: nodes.NodeNG, names_to_check: tuple[str, ...]) -> bool:
+    """Check if `node` is a member of the `typing` module and has one of the names from
+    `names_to_check`.
+    """
     if isinstance(node, nodes.Name):
         try:
             import_from = node.lookup(node.name)[1][0]
         except IndexError:
             return False
+
         if isinstance(import_from, nodes.ImportFrom):
-            return (  # type: ignore[no-any-return]
+            return (
                 import_from.modname == "typing"
-                and import_from.real_name(node.name) == "Literal"
+                and import_from.real_name(node.name) in names_to_check
             )
     elif isinstance(node, nodes.Attribute):
         inferred_module = safe_infer(node.expr)
         return (
             isinstance(inferred_module, nodes.Module)
             and inferred_module.name == "typing"
-            and node.attrname == "Literal"
+            and node.attrname in names_to_check
         )
     return False
 
@@ -2002,6 +2030,20 @@ def find_assigned_names_recursive(
             yield from find_assigned_names_recursive(elt)
 
 
+def has_starred_node_recursive(
+    node: nodes.For | nodes.Comprehension | nodes.Set,
+) -> Iterator[bool]:
+    """Yield ``True`` if a Starred node is found recursively."""
+    if isinstance(node, nodes.Starred):
+        yield True
+    elif isinstance(node, nodes.Set):
+        for elt in node.elts:
+            yield from has_starred_node_recursive(elt)
+    elif isinstance(node, (nodes.For, nodes.Comprehension)):
+        for elt in node.iter.elts:
+            yield from has_starred_node_recursive(elt)
+
+
 def is_hashable(node: nodes.NodeNG) -> bool:
     """Return whether any inferred value of `node` is hashable.
 
@@ -2009,7 +2051,7 @@ def is_hashable(node: nodes.NodeNG) -> bool:
     """
     try:
         for inferred in node.infer():
-            if inferred is astroid.Uninferable:
+            if inferred is astroid.Uninferable or isinstance(inferred, nodes.ClassDef):
                 return True
             if not hasattr(inferred, "igetattr"):
                 return True
@@ -2126,3 +2168,33 @@ def is_singleton_const(node: nodes.NodeNG) -> bool:
     return isinstance(node, nodes.Const) and any(
         node.value is value for value in SINGLETON_VALUES
     )
+
+
+def is_terminating_func(node: nodes.Call) -> bool:
+    """Detect call to exit(), quit(), os._exit(), or sys.exit()."""
+    if (
+        not isinstance(node.func, nodes.Attribute)
+        and not (isinstance(node.func, nodes.Name))
+        or isinstance(node.parent, nodes.Lambda)
+    ):
+        return False
+
+    try:
+        for inferred in node.func.infer():
+            if (
+                hasattr(inferred, "qname")
+                and inferred.qname() in TERMINATING_FUNCS_QNAMES
+            ):
+                return True
+    except (StopIteration, astroid.InferenceError):
+        pass
+
+    return False
+
+
+def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
+    try:
+        klass.getattr(name)
+        return True
+    except astroid.NotFoundError:
+        return False

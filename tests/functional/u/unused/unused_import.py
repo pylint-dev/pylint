@@ -80,7 +80,7 @@ if TYPE_CHECKING:
 # Pathological cases
 from io import TYPE_CHECKING  # pylint: disable=no-name-in-module
 import trace as t
-import astroid as typing
+import astroid as typing  # pylint: disable=shadowed-import
 
 TYPE_CHECKING = "red herring"
 

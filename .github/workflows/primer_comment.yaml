@@ -16,7 +16,7 @@ env:
   # This needs to be the SAME as in the Main and PR job
   CACHE_VERSION: 1
   KEY_PREFIX: venv-primer
-  DEFAULT_PYTHON: "3.10"
+  DEFAULT_PYTHON: "3.11"
 
 permissions:
   contents: read
@@ -34,10 +34,10 @@ jobs:
           node-version: 16
       - run: npm install @octokit/rest
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.2.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v4.4.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -45,7 +45,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.2
         with:
           path: venv
           key:

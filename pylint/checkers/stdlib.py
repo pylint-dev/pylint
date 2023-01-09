@@ -381,7 +381,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "threading.Thread needs the target function",
             "bad-thread-instantiation",
             "The warning is emitted when a threading.Thread class "
-            "is instantiated without the target function being passed. "
+            "is instantiated without the target function being passed as a kwarg or as a second argument. "
             "By default, the first parameter is the group param, not the target param.",
         ),
         "W1507": (
@@ -495,8 +495,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         # synced with the config argument deprecated-modules
 
     def _check_bad_thread_instantiation(self, node: nodes.Call) -> None:
-        if not node.kwargs and not node.keywords and len(node.args) <= 1:
-            self.add_message("bad-thread-instantiation", node=node)
+        func_kwargs = {key.arg for key in node.keywords}
+        if "target" in func_kwargs:
+            return
+
+        if len(node.args) < 2 and (not node.kwargs or "target" not in func_kwargs):
+            self.add_message(
+                "bad-thread-instantiation", node=node, confidence=interfaces.HIGH
+            )
 
     def _check_for_preexec_fn_in_popen(self, node: nodes.Call) -> None:
         if node.keywords:
@@ -595,13 +601,17 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
-            self._check_lru_cache_decorators(node.decorators)
+            self._check_lru_cache_decorators(node)
             self._check_dispatch_decorators(node)
 
-    def _check_lru_cache_decorators(self, decorators: nodes.Decorators) -> None:
+    def _check_lru_cache_decorators(self, node: nodes.FunctionDef) -> None:
         """Check if instance methods are decorated with functools.lru_cache."""
+        if any(utils.is_enum(ancestor) for ancestor in node.parent.ancestors()):
+            # method of class inheriting from Enum is exempt from this check.
+            return
+
         lru_cache_nodes: list[nodes.NodeNG] = []
-        for d_node in decorators.nodes:
+        for d_node in node.decorators.nodes:
             try:
                 for infered_node in d_node.infer():
                     q_name = infered_node.qname()

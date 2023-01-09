@@ -524,7 +524,7 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
             stream.seek(0)
 
             # Check for invalid content (controls/chars)
-            for (lineno, line) in enumerate(
+            for lineno, line in enumerate(
                 _fix_utf16_32_line_stream(stream, codec), start=1
             ):
                 if lineno == 1:

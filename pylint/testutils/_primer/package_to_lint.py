@@ -5,10 +5,16 @@
 from __future__ import annotations
 
 import logging
+import sys
 from pathlib import Path
 
 from git.cmd import Git
 from git.repo import Repo
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
 
@@ -34,6 +40,9 @@ class PackageToLint:
     pylintrc_relpath: str | None
     """Path relative to project's main directory to the pylintrc if it exists."""
 
+    minimum_python: str | None
+    """Minimum python version supported by the package."""
+
     def __init__(
         self,
         url: str,
@@ -42,6 +51,7 @@ class PackageToLint:
         commit: str | None = None,
         pylint_additional_args: list[str] | None = None,
         pylintrc_relpath: str | None = None,
+        minimum_python: str | None = None,
     ) -> None:
         self.url = url
         self.branch = branch
@@ -49,11 +59,13 @@ class PackageToLint:
         self.commit = commit
         self.pylint_additional_args = pylint_additional_args or []
         self.pylintrc_relpath = pylintrc_relpath
+        self.minimum_python = minimum_python
 
     @property
-    def pylintrc(self) -> Path | None:
+    def pylintrc(self) -> Path | Literal[""]:
         if self.pylintrc_relpath is None:
-            return None
+            # Fall back to "" to ensure pylint's own pylintrc is not discovered
+            return ""
         return self.clone_directory / self.pylintrc_relpath
 
     @property
@@ -70,9 +82,8 @@ class PackageToLint:
     @property
     def pylint_args(self) -> list[str]:
         options: list[str] = []
-        if self.pylintrc is not None:
-            # There is an error if rcfile is given but does not exist
-            options += [f"--rcfile={self.pylintrc}"]
+        # There is an error if rcfile is given but does not exist
+        options += [f"--rcfile={self.pylintrc}"]
         return self.paths_to_lint + options + self.pylint_additional_args
 
     def lazy_clone(self) -> str:  # pragma: no cover

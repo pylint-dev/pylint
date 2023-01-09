@@ -1,5 +1,5 @@
 """invalid ascii char in a for loop"""
-
+# pylint: disable=consider-using-join
 import os
 
 

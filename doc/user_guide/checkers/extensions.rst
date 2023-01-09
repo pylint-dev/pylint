@@ -14,6 +14,7 @@ Pylint provides the following optional plugins:
 - :ref:`pylint.extensions.comparison_placement`
 - :ref:`pylint.extensions.confusing_elif`
 - :ref:`pylint.extensions.consider_ternary_expression`
+- :ref:`pylint.extensions.dict_init_mutate`
 - :ref:`pylint.extensions.docparams`
 - :ref:`pylint.extensions.docstyle`
 - :ref:`pylint.extensions.dunder`
@@ -96,7 +97,7 @@ Verbatim name of the checker is ``compare-to-empty-string``.
 
 Compare-To-Empty-String checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-empty-string (C1901): *Avoid comparisons to empty string*
+:compare-to-empty-string (C1901): *"%s" can be simplified to "%s" as an empty string is falsey*
   Used when Pylint detects comparison to an empty string constant.
 
 
@@ -262,6 +263,21 @@ Design checker Messages
 :too-complex (R1260): *%s is too complex. The McCabe rating is %d*
   Used when a method or function is too complex based on McCabe Complexity
   Cyclomatic
+
+
+.. _pylint.extensions.dict_init_mutate:
+
+Dict-Init-Mutate checker
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.dict_init_mutate``.
+Verbatim name of the checker is ``dict-init-mutate``.
+
+Dict-Init-Mutate checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:dict-init-mutate (C3401): *Declare all known key/values when initializing the dictionary.*
+  Dictionaries can be initialized with a single statement using dictionary
+  literal syntax.
 
 
 .. _pylint.extensions.docstyle:
@@ -681,6 +697,9 @@ Typing checker Messages
 :consider-alternative-union-syntax (R6003): *Consider using alternative Union syntax instead of '%s'%s*
   Emitted when 'typing.Union' or 'typing.Optional' is used instead of the
   alternative Union syntax 'int | None'.
+:redundant-typehint-argument (R6006): *Type `%s` is used more than once in union type annotation. Remove redundant typehints.*
+  Duplicated type arguments will be skipped by `mypy` tool, therefore should be
+  removed to avoid confusion.
 
 
 .. _pylint.extensions.while_used:
@@ -695,3 +714,4 @@ While Used checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :while-used (W0149): *Used `while` loop*
   Unbounded `while` loops can often be rewritten as bounded `for` loops.
+  Exceptions can be made for cases such as event loops, listeners, etc.

@@ -8,8 +8,8 @@
 .. image:: https://github.com/PyCQA/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
     :target: https://github.com/PyCQA/pylint/actions
 
-.. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=main
-    :target: https://coveralls.io/github/PyCQA/pylint?branch=main
+.. image:: https://codecov.io/gh/PyCQA/pylint/branch/main/graph/badge.svg?token=ZETEzayrfk
+    :target: https://codecov.io/gh/PyCQA/pylint
 
 .. image:: https://img.shields.io/pypi/v/pylint.svg
     :alt: Pypi Package version
@@ -69,8 +69,9 @@ ecosystem of existing plugins for popular frameworks and third party libraries.
     to start is ``PyPI`` which often returns a plugin by searching for
     ``pylint <library>``. `pylint-pydantic`_, `pylint-django`_ and
     `pylint-sonarjson`_ are examples of such plugins. More information about plugins
-    and how to load them can be found at :ref:`plugins <plugins>`.
+    and how to load them can be found at `plugins`_.
 
+.. _`plugins`: https://pylint.pycqa.org/en/latest/development_guide/how_tos/plugins.html#plugins
 .. _`pylint-pydantic`: https://pypi.org/project/pylint-pydantic
 .. _`pylint-django`: https://github.com/PyCQA/pylint-django
 .. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
@@ -86,11 +87,15 @@ Pylint ships with three additional tools:
 
 - pyreverse_ (standalone tool that generates package and class diagrams.)
 - symilar_  (duplicate code finder that is also integrated in pylint)
-- epylint_ (Emacs and Flymake compatible Pylint)
 
 .. _pyreverse: https://pylint.pycqa.org/en/latest/pyreverse.html
 .. _symilar: https://pylint.pycqa.org/en/latest/symilar.html
+
+The epylint_ Emacs package, which includes Flymake support, is now maintained
+in `its own repository`_.
+
 .. _epylint: https://pylint.pycqa.org/en/latest/user_guide/ide_integration/flymake-emacs.html
+.. _its own repository: https://github.com/emacsorphanage/pylint
 
 Projects that you might want to use alongside pylint include flake8_ (faster and simpler checks
 with very few false positives), mypy_, pyright_ or pyre_ (typing checks), bandit_ (security

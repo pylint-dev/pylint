@@ -1,4 +1,6 @@
-compare-to-empty-string:6:3:6:10::Avoid comparisons to empty string:HIGH
-compare-to-empty-string:9:3:9:14::Avoid comparisons to empty string:HIGH
-compare-to-empty-string:12:3:12:10::Avoid comparisons to empty string:HIGH
-compare-to-empty-string:15:3:15:10::Avoid comparisons to empty string:HIGH
+compare-to-empty-string:6:3:6:10::"""X is ''"" can be simplified to ""not X"" as an empty string is falsey":HIGH
+compare-to-empty-string:9:3:9:14::"""Y is not ''"" can be simplified to ""Y"" as an empty string is falsey":HIGH
+compare-to-empty-string:12:3:12:10::"""X == ''"" can be simplified to ""not X"" as an empty string is falsey":HIGH
+compare-to-empty-string:15:3:15:10::"""Y != ''"" can be simplified to ""Y"" as an empty string is falsey":HIGH
+compare-to-empty-string:18:3:18:10::"""'' == Y"" can be simplified to ""not Y"" as an empty string is falsey":HIGH
+compare-to-empty-string:21:3:21:10::"""'' != X"" can be simplified to ""X"" as an empty string is falsey":HIGH

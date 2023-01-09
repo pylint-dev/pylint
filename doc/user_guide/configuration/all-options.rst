@@ -20,6 +20,13 @@ Standard Checkers
 **Default:**  ``False``
 
 
+--clear-cache-post-run
+""""""""""""""""""""""
+*Clear in-memory caches upon conclusion of linting. Useful if running pylint in a server-like mode.*
+
+**Default:**  ``False``
+
+
 --confidence
 """"""""""""
 *Only show warnings with the listed confidence levels. Leave empty to show all. Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED.*
@@ -99,7 +106,7 @@ Standard Checkers
 
 --ignore-paths
 """"""""""""""
-*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
+*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
 
 **Default:**  ``[]``
 
@@ -214,6 +221,8 @@ Standard Checkers
 
    [tool.pylint.main]
    analyse-fallback-blocks = false
+
+   clear-cache-post-run = false
 
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
@@ -620,7 +629,7 @@ Standard Checkers
 """""""""""""""""""""""""""""""""""""""
 *List of valid names for the first argument in a metaclass class method.*
 
-**Default:**  ``('cls',)``
+**Default:**  ``('mcs',)``
 
 
 
@@ -642,7 +651,7 @@ Standard Checkers
 
    valid-classmethod-first-arg = ["cls"]
 
-   valid-metaclass-classmethod-first-arg = ["cls"]
+   valid-metaclass-classmethod-first-arg = ["mcs"]
 
 
 
@@ -798,7 +807,7 @@ Standard Checkers
 """"""""""""""""""""""""
 *Exceptions that will emit a warning when caught.*
 
-**Default:**  ``('BaseException', 'Exception')``
+**Default:**  ``('builtins.BaseException', 'builtins.Exception')``
 
 
 
@@ -812,7 +821,7 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.exceptions]
-   overgeneral-exceptions = ["BaseException", "Exception"]
+   overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
 
 
 

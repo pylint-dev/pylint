@@ -42,8 +42,8 @@ def test_package_to_lint_default_value() -> None:
         branch="main",
         directories=["src/flask"],  # Must work on Windows (src\\flask)
     )
-    assert package_to_lint.pylintrc is None
+    assert package_to_lint.pylintrc == ""
     expected_path_to_lint = (
         PRIMER_DIRECTORY_PATH / "pallets" / "flask" / "src" / "flask"
     )
-    assert package_to_lint.pylint_args == [str(expected_path_to_lint)]
+    assert package_to_lint.pylint_args == [str(expected_path_to_lint), "--rcfile="]

@@ -24,6 +24,7 @@ class MermaidJSPrinter(Printer):
         EdgeType.INHERITS: "--|>",
         EdgeType.IMPLEMENTS: "..|>",
         EdgeType.ASSOCIATION: "--*",
+        EdgeType.AGGREGATION: "--o",
         EdgeType.USES: "-->",
     }
 

@@ -4,14 +4,14 @@ on:
   push:
     branches:
       - main
-      - 2.*
   pull_request:
     paths:
       - "pylint/**"
       - "tests/primer/**"
       - "requirements*"
       - ".github/workflows/primer-test.yaml"
-
+    branches:
+      - main
 env:
   CACHE_VERSION: 1
   KEY_PREFIX: venv
@@ -35,10 +35,10 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.2.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v4.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -50,7 +50,7 @@ jobs:
           'requirements_test_min.txt') }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.2
         with:
           path: venv
           key: >-
@@ -74,16 +74,16 @@ jobs:
         python-version: [3.8, 3.9, "3.10", "3.11"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.2.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v4.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.2
         with:
           path: venv
           key:
@@ -110,16 +110,16 @@ jobs:
         python-version: [3.8, 3.9, "3.10", "3.11"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.2.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v4.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.2
         with:
           path: venv
           key:

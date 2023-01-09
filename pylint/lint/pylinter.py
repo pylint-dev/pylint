@@ -299,18 +299,6 @@ class PyLinter(
         self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
 
-        # Attributes related to registering messages and their handling
-        self.msgs_store = MessageDefinitionStore()
-        self.msg_status = 0
-        self._by_id_managed_msgs: list[ManagedMessage] = []
-
-        # Attributes related to visiting files
-        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
-        self.current_name: str | None = None
-        self.current_file: str | None = None
-        self._ignore_file = False
-        self._ignore_paths: list[Pattern[str]] = []
-
         # Attributes related to stats
         self.stats = LinterStats()
 
@@ -338,6 +326,19 @@ class PyLinter(
             ),
             ("RP0003", "Messages", report_messages_stats),
         )
+
+        # Attributes related to registering messages and their handling
+        self.msgs_store = MessageDefinitionStore(self.config.py_version)
+        self.msg_status = 0
+        self._by_id_managed_msgs: list[ManagedMessage] = []
+
+        # Attributes related to visiting files
+        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
+        self.current_name: str | None = None
+        self.current_file: str | None = None
+        self._ignore_file = False
+        self._ignore_paths: list[Pattern[str]] = []
+
         self.register_checker(self)
 
     @property
@@ -402,7 +403,7 @@ class PyLinter(
                     "bad-plugin-value", args=(modname, module_or_error), line=0
                 )
             elif hasattr(module_or_error, "load_configuration"):
-                module_or_error.load_configuration(self)  # type: ignore[union-attr]
+                module_or_error.load_configuration(self)
 
         # We re-set all the dictionary values to True here to make sure the dict
         # is pickle-able. This is only a problem in multiprocessing/parallel mode.
@@ -453,8 +454,8 @@ class PyLinter(
             reporter_class = _load_reporter_by_class(reporter_name)
         except (ImportError, AttributeError, AssertionError) as e:
             raise exceptions.InvalidReporterError(name) from e
-        else:
-            return reporter_class()
+
+        return reporter_class()
 
     def set_reporter(
         self, reporter: reporters.BaseReporter | reporters.MultiReporter
@@ -696,8 +697,8 @@ class PyLinter(
                 data = None
 
         # The contextmanager also opens all checkers and sets up the PyLinter class
-        with self._astroid_module_checker() as check_astroid_module:
-            with fix_import_path(files_or_modules):
+        with fix_import_path(files_or_modules):
+            with self._astroid_module_checker() as check_astroid_module:
                 # 4) Get the AST for each FileItem
                 ast_per_fileitem = self._get_asts(fileitems, data)
 
@@ -878,12 +879,12 @@ class PyLinter(
 
         The returned generator yield one item for each Python module that should be linted.
         """
-        for descr in self._expand_files(files_or_modules):
+        for descr in self._expand_files(files_or_modules).values():
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield FileItem(name, filepath, descr["basename"])
 
-    def _expand_files(self, modules: Sequence[str]) -> list[ModuleDescriptionDict]:
+    def _expand_files(self, modules: Sequence[str]) -> dict[str, ModuleDescriptionDict]:
         """Get modules and errors from a list of modules and handle errors."""
         result, errors = expand_modules(
             modules,
