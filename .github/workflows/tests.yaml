@@ -104,7 +104,7 @@ jobs:
           echo "Failed to restore Python venv from cache"
           exit 1
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v3.0.1
+        uses: actions/download-artifact@v3.0.2
       - name: Combine coverage results
         run: |
           . venv/bin/activate
