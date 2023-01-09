@@ -83,3 +83,14 @@ def make_car(name, owner, title, color="red", year=2022):
     return "car"
 
 second_car = make_car("a car", "name", "title") # [consider-using-keyword-argument, consider-using-keyword-argument, consider-using-keyword-argument]
+
+
+class _SharedFile:
+    def __init__(self, writing=None):
+        self._writing = writing
+
+    def seek(self):
+        if self._writing():
+            pass
+
+test = _SharedFile()
