@@ -296,10 +296,6 @@ What's new in Pylint 2.15.3?
 ----------------------------
 Release date: 2022-09-19
 
-* Added ``unguarded-next-without-default`` checker which warns about calls to ``next()``
-  without a default value or handling of possible ``StopIteration`` in the same scope.
-
-  Closes #4725
 
 - Fixed a crash in the ``unhashable-member`` checker when using a ``lambda`` as a dict key.
 
