@@ -18,9 +18,6 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-DOUBLE_BACKSLASH_CORRECTION_DICT = {"\\n": "\n", "\\t": "\t"}
-
-
 class MagicValueChecker(BaseChecker):
     """Checks for constants in comparisons."""
 
