@@ -1,0 +1,3 @@
+Fixes a ``ModuleNotFound`` exception when running pylint on a Django project with the ``pylint_django`` plugin enabled.
+
+Closes #7938

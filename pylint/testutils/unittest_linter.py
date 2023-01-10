@@ -24,8 +24,6 @@ else:
 class UnittestLinter(PyLinter):
     """A fake linter class to capture checker messages."""
 
-    # pylint: disable=unused-argument
-
     def __init__(self) -> None:
         self._messages: list[MessageTest] = []
         super().__init__()

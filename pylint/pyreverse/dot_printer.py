@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import os
 import subprocess
-import sys
 import tempfile
 from enum import Enum
 from pathlib import Path
@@ -164,10 +163,8 @@ class DotPrinter(Printer):
         with open(dot_sourcepath, "w", encoding="utf8") as outfile:
             outfile.writelines(self.lines)
         if target not in graphviz_extensions:
-            use_shell = sys.platform == "win32"
-            subprocess.call(
-                ["dot", "-T", target, dot_sourcepath, "-o", outputfile],
-                shell=use_shell,
+            subprocess.run(
+                ["dot", "-T", target, dot_sourcepath, "-o", outputfile], check=True
             )
             os.unlink(dot_sourcepath)
 

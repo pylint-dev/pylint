@@ -87,7 +87,10 @@ def _config_initialization(
             unrecognized_options.append(opt[1:])
     if unrecognized_options:
         msg = ", ".join(unrecognized_options)
-        linter._arg_parser.error(f"Unrecognized option found: {msg}")
+        try:
+            linter._arg_parser.error(f"Unrecognized option found: {msg}")
+        except SystemExit:
+            sys.exit(32)
 
     # Now that config file and command line options have been loaded
     # with all disables, it is safe to emit messages

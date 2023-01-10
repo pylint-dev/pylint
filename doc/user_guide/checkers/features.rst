@@ -147,6 +147,9 @@ Basic checker Messages
   This is a particular case of W0104 with its own message so you can easily
   disable it if you're using those strings as documentation, instead of
   comments.
+:pointless-exception-statement (W0132): *Exception statement has no effect*
+  Used when an exception is created without being assigned, raised or returned
+  for subsequent use elsewhere.
 :unnecessary-pass (W0107): *Unnecessary pass statement*
   Used when a "pass" statement that can be avoided is encountered.
 :unreachable (W0101): *Unreachable code*
@@ -682,6 +685,17 @@ Modified Iteration checker Messages
   use a copy of the list.
 
 
+Nested Min Max checker
+~~~~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``nested_min_max``.
+
+Nested Min Max checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:nested-min-max (W3301): *Do not use nested call of '%s'; it's possible to do '%s' instead*
+  Nested calls ``min(1, min(2, 3))`` can be rewritten as ``min(1, 2, 3)``.
+
+
 Newstyle checker
 ~~~~~~~~~~~~~~~~
 
@@ -753,6 +767,9 @@ Refactoring checker Messages
 :consider-using-min-builtin (R1730): *Consider using '%s' instead of unnecessary if block*
   Using the min builtin instead of a conditional improves readability and
   conciseness.
+:consider-using-sys-exit (R1722): *Consider using 'sys.exit' instead*
+  Contrary to 'exit()' or 'quit()', 'sys.exit' does not rely on the site module
+  being available (as the 'sys' module is always available).
 :consider-using-with (R1732): *Consider using 'with' for resource-allocating operations*
   Emitted if a resource-allocating assignment or call may be replaced by a
   'with' block. By using 'with' the release of the allocated resources is
@@ -782,8 +799,6 @@ Refactoring checker Messages
 :consider-using-join (R1713): *Consider using str.join(sequence) for concatenating strings from an iterable*
   Using str.join(sequence) is faster, uses less memory and increases
   readability compared to for-loop iteration.
-:consider-using-sys-exit (R1722): *Consider using sys.exit()*
-  Instead of using exit() or quit(), consider using the sys.exit().
 :consider-using-ternary (R1706): *Consider using ternary (%s)*
   Used when one of known pre-python 2.5 ternary syntax is used.
 :consider-swap-variables (R1712): *Consider using tuple unpacking for swapping variables*

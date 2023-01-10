@@ -6,6 +6,7 @@ import functools
 import functools as aliased_functools
 from functools import lru_cache
 from functools import lru_cache as aliased_cache
+from enum import Enum
 
 
 @lru_cache
@@ -78,3 +79,11 @@ class MyClassWithMethodsAndMaxSize:
 @lru_cache(maxsize=None)
 def my_func(param):
     return param + 1
+
+
+class Class(Enum):
+    A = 1
+
+    @lru_cache(maxsize=None)
+    def func(self) -> None:
+        pass

@@ -975,7 +975,6 @@ a metaclass class method.",
                         "cls",
                         node.name,
                     }:
-
                         break
 
                     # Check type(self).__attrname
@@ -1631,6 +1630,10 @@ a metaclass class method.",
                     # Properties circumvent the slots mechanism,
                     # so we should not emit a warning for them.
                     return
+                if node.attrname != "__class__" and utils.is_class_attr(
+                    node.attrname, klass
+                ):
+                    return
                 if node.attrname in klass.locals:
                     for local_name in klass.locals.get(node.attrname):
                         statement = local_name.statement(future=True)
@@ -1646,7 +1649,12 @@ a metaclass class method.",
                     slots, node.parent.value
                 ):
                     return
-                self.add_message("assigning-non-slot", args=(node.attrname,), node=node)
+                self.add_message(
+                    "assigning-non-slot",
+                    args=(node.attrname,),
+                    node=node,
+                    confidence=INFERENCE,
+                )
 
     @only_required_for_messages(
         "protected-access", "no-classmethod-decorator", "no-staticmethod-decorator"
@@ -1781,7 +1789,7 @@ a metaclass class method.",
                 if (
                     self._is_classmethod(node.frame(future=True))
                     and self._is_inferred_instance(node.expr, klass)
-                    and self._is_class_attribute(attrname, klass)
+                    and self._is_class_or_instance_attribute(attrname, klass)
                 ):
                     return
 
@@ -1828,7 +1836,7 @@ a metaclass class method.",
         return inferred._proxied is klass
 
     @staticmethod
-    def _is_class_attribute(name: str, klass: nodes.ClassDef) -> bool:
+    def _is_class_or_instance_attribute(name: str, klass: nodes.ClassDef) -> bool:
         """Check if the given attribute *name* is a class or instance member of the
         given *klass*.
 
@@ -1836,11 +1844,8 @@ a metaclass class method.",
         ``False`` otherwise.
         """
 
-        try:
-            klass.getattr(name)
+        if utils.is_class_attr(name, klass):
             return True
-        except astroid.NotFoundError:
-            pass
 
         try:
             klass.instance_attr(name)

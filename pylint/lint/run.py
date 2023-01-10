@@ -21,7 +21,7 @@ from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
 from pylint.constants import full_version
 from pylint.lint.base_options import _make_run_options
-from pylint.lint.pylinter import PyLinter
+from pylint.lint.pylinter import MANAGER, PyLinter
 from pylint.reporters.base_reporter import BaseReporter
 
 try:
@@ -29,6 +29,11 @@ try:
     from multiprocessing import synchronize  # noqa pylint: disable=unused-import
 except ImportError:
     multiprocessing = None  # type: ignore[assignment]
+
+try:
+    from concurrent.futures import ProcessPoolExecutor
+except ImportError:
+    ProcessPoolExecutor = None  # type: ignore[assignment,misc]
 
 
 def _query_cpu() -> int | None:
@@ -185,9 +190,9 @@ group are mutually exclusive.",
             )
             sys.exit(32)
         if linter.config.jobs > 1 or linter.config.jobs == 0:
-            if multiprocessing is None:
+            if ProcessPoolExecutor is None:
                 print(
-                    "Multiprocessing library is missing, fallback to single process",
+                    "concurrent.futures module is missing, fallback to single process",
                     file=sys.stderr,
                 )
                 linter.set_option("jobs", 1)
@@ -213,6 +218,9 @@ group are mutually exclusive.",
                 DeprecationWarning,
             )
             exit = do_exit
+
+        if linter.config.clear_cache_post_run:
+            MANAGER.clear_cache()
 
         if exit:
             if linter.config.exit_zero:

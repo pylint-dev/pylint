@@ -51,6 +51,7 @@ ABC_METHODS = {
 TYPING_PROTOCOLS = frozenset(
     {"typing.Protocol", "typing_extensions.Protocol", ".Protocol"}
 )
+COMMUTATIVE_OPERATORS = frozenset({"*", "+", "^", "&", "|"})
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
@@ -1724,6 +1725,10 @@ def is_attribute_typed_annotation(
     return False
 
 
+def is_enum(node: nodes.ClassDef) -> bool:
+    return node.name == "Enum" and node.root().name == "enum"  # type: ignore[no-any-return]
+
+
 def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> bool:
     """Test if AssignName node has `typing_name` annotation.
 
@@ -2026,6 +2031,20 @@ def find_assigned_names_recursive(
             yield from find_assigned_names_recursive(elt)
 
 
+def has_starred_node_recursive(
+    node: nodes.For | nodes.Comprehension | nodes.Set,
+) -> Iterator[bool]:
+    """Yield ``True`` if a Starred node is found recursively."""
+    if isinstance(node, nodes.Starred):
+        yield True
+    elif isinstance(node, nodes.Set):
+        for elt in node.elts:
+            yield from has_starred_node_recursive(elt)
+    elif isinstance(node, (nodes.For, nodes.Comprehension)):
+        for elt in node.iter.elts:
+            yield from has_starred_node_recursive(elt)
+
+
 def is_hashable(node: nodes.NodeNG) -> bool:
     """Return whether any inferred value of `node` is hashable.
 
@@ -2102,7 +2121,11 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
 
     if _is_target_name_in_binop_side(target, binop.left):
         return True, binop.op
-    if _is_target_name_in_binop_side(target, binop.right):
+    if (
+        # Unless an operator is commutative, we should not raise (i.e. x = 3/x)
+        binop.op in COMMUTATIVE_OPERATORS
+        and _is_target_name_in_binop_side(target, binop.right)
+    ):
         inferred_left = safe_infer(binop.left)
         if isinstance(inferred_left, nodes.Const) and isinstance(
             inferred_left.value, int
@@ -2172,3 +2195,11 @@ def is_terminating_func(node: nodes.Call) -> bool:
         pass
 
     return False
+
+
+def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
+    try:
+        klass.getattr(name)
+        return True
+    except astroid.NotFoundError:
+        return False

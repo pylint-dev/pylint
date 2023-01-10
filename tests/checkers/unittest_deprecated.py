@@ -25,7 +25,7 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
 
     def deprecated_arguments(
         self, method: str
-    ) -> (tuple[tuple[int | None, str], ...] | tuple[tuple[int, str], tuple[int, str]]):
+    ) -> tuple[tuple[int | None, str], ...] | tuple[tuple[int, str], tuple[int, str]]:
         if method == "myfunction1":
             # def myfunction1(arg1, deprecated_arg1='spam')
             return ((1, "deprecated_arg1"),)
@@ -485,7 +485,6 @@ class TestDeprecatedChecker(CheckerTestCase):
             self.checker.visit_call(node)
 
     def test_class_deprecated_arguments(self) -> None:
-
         node = astroid.extract_node(
             """
         class MyClass:

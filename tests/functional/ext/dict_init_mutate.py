@@ -36,3 +36,6 @@ def update_dict(di):
     di["one"] = 1
 
 update_dict(config)
+
+config = {}
+globals()["config"]["dir"] = "bin"

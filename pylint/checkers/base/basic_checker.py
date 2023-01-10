@@ -13,7 +13,7 @@ from collections.abc import Iterator
 from typing import TYPE_CHECKING, cast
 
 import astroid
-from astroid import nodes
+from astroid import nodes, objects
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
@@ -258,6 +258,12 @@ class BasicChecker(_BasicChecker):
             "Emitted if named expression is used to do a regular assignment "
             "outside a context like if, for, while, or a comprehension.",
         ),
+        "W0133": (
+            "Exception statement has no effect",
+            "pointless-exception-statement",
+            "Used when an exception is created without being assigned, raised or returned "
+            "for subsequent use elsewhere.",
+        ),
     }
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
@@ -417,6 +423,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.only_required_for_messages(
         "pointless-statement",
+        "pointless-exception-statement",
         "pointless-string-statement",
         "expression-not-assigned",
         "named-expr-without-context",
@@ -443,6 +450,14 @@ class BasicChecker(_BasicChecker):
                         return
             self.add_message("pointless-string-statement", node=node)
             return
+
+        # Warn W0133 for exceptions that are used as statements
+        if isinstance(expr, nodes.Call):
+            inferred = utils.safe_infer(expr)
+            if isinstance(inferred, objects.ExceptionInstance):
+                self.add_message(
+                    "pointless-exception-statement", node=node, confidence=INFERENCE
+                )
 
         # Ignore if this is :
         # * a direct function call
