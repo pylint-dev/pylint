@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 from re import match as regex_match
-from re import sub as regex_sub
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -43,7 +42,7 @@ class MagicValueChecker(BaseChecker):
                 "type": "csv",
                 "metavar": "<argument names>",
                 "help": " List of valid magic values that `magic-value-compare` will not detect."
-                "supports integers, floats, negative numbers, for empty string enter ``''``,"
+                "Supports integers, floats, negative numbers, for empty string enter ``''``,"
                 " for backslash values just use one backslash e.g `'\n'`",
             },
         ),
@@ -52,7 +51,7 @@ class MagicValueChecker(BaseChecker):
     def __init__(self, linter: PyLinter) -> None:
         """Initialize checker instance."""
         super().__init__(linter=linter)
-        self.valid_magic_vals = tuple
+        self.valid_magic_vals: tuple[(float | str), ...] = ()
 
     def open(self) -> None:
         if self._is_default_magic_vals():
@@ -105,11 +104,8 @@ class MagicValueChecker(BaseChecker):
 
     @staticmethod
     def _parse_rcfile_magic_numbers(parsed_val: str) -> float | str:
-        parsed_val = regex_sub(
-            r"\\.",
-            lambda x: DOUBLE_BACKSLASH_CORRECTION_DICT.get(x[0], x[0]),
-            parsed_val,
-        )
+        parsed_val = parsed_val.encode().decode("unicode_escape")
+
         if parsed_val.startswith("'") and parsed_val.endswith("'"):
             return parsed_val[1:-1]
 
