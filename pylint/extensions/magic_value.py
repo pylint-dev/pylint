@@ -41,9 +41,9 @@ class MagicValueChecker(BaseChecker):
                 "default": (0, -1, 1, "", "__main__"),
                 "type": "csv",
                 "metavar": "<argument names>",
-                "help": " List of valid magic values that `magic-value-compare` will not detect."
+                "help": " List of valid magic values that `magic-value-compare` will not detect,"
                 "Supports integers, floats, negative numbers, for empty string enter ``''``,"
-                " for backslash values just use one backslash e.g `'\n'`",
+                " for backslash values just use one backslash e.g \\n.",
             },
         ),
     )
