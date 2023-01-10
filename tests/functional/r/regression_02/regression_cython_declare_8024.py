@@ -1,9 +1,9 @@
-"""Test for cython pure python false positives"""
+"""Test for cython pure Python false positives"""
 import cython
 
-# cython allows any import in pure python mode. It can only
+# cython allows any import in pure Python mode. It can only
 # be determined correct at compile time
-# Check that it doesn't raise neither an import-error nor a
+# Check that it raises neither an import-error nor a
 # no-name-in-module error
 from cython.cimports.libc.math import sin
 
