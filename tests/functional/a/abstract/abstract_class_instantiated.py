@@ -10,8 +10,6 @@ import abc
 import warnings
 import weakref
 from lala import Bala
-import pandas as pd
-
 
 class GoodClass(metaclass=abc.ABCMeta):
     pass
@@ -145,10 +143,6 @@ def main_two():
     BadClassTwo() # [abstract-class-instantiated]
 
 
-# Testcase from https://github.com/PyCQA/pylint/issues/3060
-with pd.ExcelWriter("demo.xlsx") as writer:
-    print(writer)
-
 class GoodWithNew(metaclass=abc.ABCMeta):
     def __new__(cls):
         pass
@@ -184,6 +178,31 @@ class BadWithNew(metaclass=abc.ABCMeta):
 test = BadWithNew()  # [abstract-class-instantiated]
 
 
+class BadWithNewTwo(metaclass=abc.ABCMeta):
+    def __new__(cls):
+        cls = super().__new__(cls)  # [self-cls-assignment]
+        return cls
+
+    @property
+    @abc.abstractmethod
+    def sheets(self):
+        """sheets."""
+
+BadWithNewTwo()  # [abstract-class-instantiated]
+
+
+class BadWithNewThree(metaclass=abc.ABCMeta):
+    def __new__(cls):
+        cls = super().__new__(cls)  # [self-cls-assignment]
+        return "1"
+
+    @property
+    @abc.abstractmethod
+    def sheets(self):
+        """sheets."""
+
+BadWithNewThree()  # [abstract-class-instantiated]
+
 class GoodithComplexNew(metaclass=abc.ABCMeta):
     def __new__(cls):
         warnings.warn("You are calling super on an abstract class.")
@@ -200,4 +219,12 @@ class GoodithComplexNew(metaclass=abc.ABCMeta):
         """book."""
 
 
-bad = GoodithComplexNew()
+GoodithComplexNew()
+
+
+class GoodNoAbsMethods(metaclass=abc.ABCMeta):
+    def __new__(cls):
+        cls = super().__new__(cls)  # [self-cls-assignment]
+        return cls
+
+GoodNoAbsMethods()

@@ -78,15 +78,18 @@ def _has_abstract_methods(node: nodes.ClassDef) -> bool:
     return len(utils.unimplemented_abstract_methods(node)) > 0
 
 
-def _new_instantiates_super(node: nodes.ClassDef) -> bool:
-    """Check if node implements `__new__`.
+def _new_without_super(node: nodes.ClassDef) -> bool:
+    """Check if node implements `__new__` but does not call `super()` on `__new__`.
 
     If `__new__` is implemented, check if it calls `super().__new__(cls)`.
     """
     if "__new__" not in node.locals:
         return False
 
-    new = next(node.igetattr("__new__"))
+    try:
+        new = next(node.igetattr("__new__"))
+    except astroid.InferenceError:
+        return False
 
     calls = new.nodes_of_class(
         nodes.Call, skip_klass=(nodes.FunctionDef, nodes.ClassDef)
@@ -495,18 +498,20 @@ class BasicErrorChecker(_BasicChecker):
 
             return
 
-        if metaclass.qname() in ABC_METACLASSES:
-            if _new_instantiates_super(inferred):
-                # A class that implements `__new__` without calling `super().__new__(cls)`
-                # should not emit the message.
-                return
+        if metaclass.qname() not in ABC_METACLASSES:
+            return
 
-            self.add_message(
-                "abstract-class-instantiated",
-                args=(inferred.name,),
-                node=node,
-                confidence=INFERENCE,
-            )
+        if _new_without_super(inferred):
+            # A class that implements `__new__` without calling `super().__new__(cls)`
+            # should not emit the message.
+            return
+
+        self.add_message(
+            "abstract-class-instantiated",
+            args=(inferred.name,),
+            node=node,
+            confidence=INFERENCE,
+        )
 
     def _check_yield_outside_func(self, node: nodes.Yield) -> None:
         if not isinstance(node.frame(future=True), (nodes.FunctionDef, nodes.Lambda)):
