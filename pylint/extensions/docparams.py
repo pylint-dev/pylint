@@ -467,7 +467,7 @@ class DocstringParameterChecker(BaseChecker):
                 confidence=HIGH,
             )
 
-    def _compare_ignored_args(
+    def _compare_ignored_args(  # pylint: disable=useless-param-doc
         self,
         found_argument_names: set[str],
         message_id: str,
@@ -478,11 +478,8 @@ class DocstringParameterChecker(BaseChecker):
         generate a message if there are ignored arguments found.
 
         :param found_argument_names: argument names found in the docstring
-
         :param message_id: pylint message id
-
         :param ignored_argument_names: Expected argument names
-
         :param warning_node: The node to be analyzed
         """
         existing_ignored_argument_names = ignored_argument_names & found_argument_names

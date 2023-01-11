@@ -51,6 +51,7 @@ ABC_METHODS = {
 TYPING_PROTOCOLS = frozenset(
     {"typing.Protocol", "typing_extensions.Protocol", ".Protocol"}
 )
+COMMUTATIVE_OPERATORS = frozenset({"*", "+", "^", "&", "|"})
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
@@ -2125,7 +2126,11 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
 
     if _is_target_name_in_binop_side(target, binop.left):
         return True, binop.op
-    if _is_target_name_in_binop_side(target, binop.right):
+    if (
+        # Unless an operator is commutative, we should not raise (i.e. x = 3/x)
+        binop.op in COMMUTATIVE_OPERATORS
+        and _is_target_name_in_binop_side(target, binop.right)
+    ):
         inferred_left = safe_infer(binop.left)
         if isinstance(inferred_left, nodes.Const) and isinstance(
             inferred_left.value, int
