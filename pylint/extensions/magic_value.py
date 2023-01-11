@@ -38,7 +38,7 @@ class MagicValueChecker(BaseChecker):
                 "default": (0, -1, 1, "", "__main__"),
                 "type": "csv",
                 "metavar": "<argument names>",
-                "help": " List of valid magic values that `magic-value-compare` will not detect,"
+                "help": " List of valid magic values that `magic-value-compare` will not detect."
                 "Supports integers, floats, negative numbers, for empty string enter ``''``,"
                 " for backslash values just use one backslash e.g \\n.",
             },
@@ -48,19 +48,19 @@ class MagicValueChecker(BaseChecker):
     def __init__(self, linter: PyLinter) -> None:
         """Initialize checker instance."""
         super().__init__(linter=linter)
-        self.valid_magic_vals: tuple[(float | str), ...] = ()
+        self.valid_magic_vals: tuple[float | str, ...] = ()
 
     def open(self) -> None:
-        if self._is_default_magic_vals():
-            self.valid_magic_vals = self.linter.config.valid_magic_values
-        else:
+        if self._magic_vals_ext_configured():
             self.valid_magic_vals = tuple(
                 self._parse_rcfile_magic_numbers(value)
                 for value in self.linter.config.valid_magic_values
             )
+        else:
+            self.valid_magic_vals = self.linter.config.valid_magic_values
 
-    def _is_default_magic_vals(self) -> bool:
-        return isinstance(self.linter.config.valid_magic_values, tuple)
+    def _magic_vals_ext_configured(self) -> bool:
+        return not isinstance(self.linter.config.valid_magic_values, tuple)
 
     def _check_constants_comparison(self, node: nodes.Compare) -> None:
         """
@@ -106,7 +106,7 @@ class MagicValueChecker(BaseChecker):
         if parsed_val.startswith("'") and parsed_val.endswith("'"):
             return parsed_val[1:-1]
 
-        is_number = regex_match(r"[-+]?\d+(\.0*)?$", parsed_val) is not None
+        is_number = regex_match(r"[-+]?\d+(\.0*)?$", parsed_val)
         return float(parsed_val) if is_number else parsed_val
 
     @utils.only_required_for_messages("magic-comparison")
