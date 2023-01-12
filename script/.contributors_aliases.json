@@ -71,6 +71,10 @@
     "mails": ["46202743+lorena-b@users.noreply.github.com"],
     "name": "Lorena Buciu"
   },
+  "53538590+zenlyj@users.noreply.github.com": {
+    "mails": ["53538590+zenlyj@users.noreply.github.com"],
+    "name": "Zen Lee"
+  },
   "53625739+dbrookman@users.noreply.github.com": {
     "mails": ["53625739+dbrookman@users.noreply.github.com"],
     "name": "Daniel Brookman"
@@ -347,6 +351,10 @@
     "mails": ["hg@stevenmyint.com", "git@stevenmyint.com"],
     "name": "Steven Myint"
   },
+  "hofrob@protonmail.com": {
+    "mails": ["hofrob@protonmail.com"],
+    "name": "Robert Hofer"
+  },
   "hugovk@users.noreply.github.com": {
     "mails": ["hugovk@users.noreply.github.com"],
     "name": "Hugo van Kemenade"
@@ -603,9 +611,5 @@
   "yileiyang@google.com": {
     "mails": ["yileiyang@google.com"],
     "name": "Yilei \"Dolee\" Yang"
-  },
-  "hofrob@protonmail.com": {
-    "mails": ["hofrob@protonmail.com"],
-    "name": "Robert Hofer"
   }
 }
