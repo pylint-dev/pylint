@@ -314,7 +314,7 @@ Other Bug Fixes
 
   Closes #7528 (`#7528 <https://github.com/PyCQA/pylint/issues/7528>`_)
 
-- Fix bug in scanning of names inside arguments to `typing.Literal`.
+- Fix bug in scanning of names inside arguments to ``typing.Literal``.
   See https://peps.python.org/pep-0586/#literals-enums-and-forward-references
   for details.
 
