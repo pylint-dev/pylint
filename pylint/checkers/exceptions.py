@@ -488,7 +488,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                         {
                             exception
                             for exception in exceptions_in_handler.elts
-                            if isinstance(exception, nodes.Name)
+                            if isinstance(exception, (nodes.Name, nodes.Attribute))
                         }
                     )
                 elif exceptions_in_handler:
