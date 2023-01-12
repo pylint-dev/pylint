@@ -38,7 +38,7 @@ class MagicValueChecker(BaseChecker):
                 "default": (0, -1, 1, "", "__main__"),
                 "type": "csv",
                 "metavar": "<argument names>",
-                "help": " List of valid magic values that `magic-value-compare` will not detect."
+                "help": "List of valid magic values that `magic-value-compare` will not detect. "
                 "Supports integers, floats, negative numbers, for empty string enter ``''``,"
                 " for backslash values just use one backslash e.g \\n.",
             },
@@ -51,6 +51,7 @@ class MagicValueChecker(BaseChecker):
         self.valid_magic_vals: tuple[float | str, ...] = ()
 
     def open(self) -> None:
+        # Extra manipulation is needed in case of using external configuration like an rcfile
         if self._magic_vals_ext_configured():
             self.valid_magic_vals = tuple(
                 self._parse_rcfile_magic_numbers(value)
