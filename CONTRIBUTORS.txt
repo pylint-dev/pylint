@@ -555,6 +555,20 @@ contributors:
   * Added ignore_signatures to duplicate checker
 - Adam Dangoor <adamdangoor@gmail.com>
 - 243f6a88 85a308d3 <33170174+243f6a8885a308d313198a2e037@users.noreply.github.com>
+- Zen Lee <53538590+zenlyj@users.noreply.github.com>
+- sur.la.route <17788706+christopherpickering@users.noreply.github.com>
+- kriek <sylvain.ackermann@gmail.com>
+- Robert Hofer <hofrob@protonmail.com>
+- Ramon Saraiva <ramonsaraiva@gmail.com>
+- Osher De Paz <odepaz@redhat.com>
+- Lumír 'Frenzy' Balhar <frenzy.madness@gmail.com>
+- James Addison <55152140+jayaddison@users.noreply.github.com>
+- Eddie Darling <eddie.darling@genapsys.com>
+- David Lawson <dmrlawson@gmail.com>
+- Cubicpath <Cubicpath@protonmail.com>
+- Cosmo <cosmo@cosmo.red>
+- Brice Chardin <brice.chardin@gmail.com>
+- Alvaro Frias Garay <alvaro.frias@eclypsium.com>
 
 
 Co-Author

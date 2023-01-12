@@ -1719,7 +1719,7 @@ Extensions
 ---------------------------
 --valid-magic-values
 """"""""""""""""""""
-* List of valid magic values that `magic-value-compare` will not detect.*
+*List of valid magic values that `magic-value-compare` will not detect. Supports integers, floats, negative numbers, for empty string enter ``''``, for backslash values just use one backslash e.g \n.*
 
 **Default:**  ``(0, -1, 1, '', '__main__')``
 

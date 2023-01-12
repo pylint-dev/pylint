@@ -121,6 +121,9 @@ Basic checker Messages
   Loops should only have an else clause if they can exit early with a break
   statement, otherwise the statements under else should be on the same scope as
   the loop itself.
+:pointless-exception-statement (W0133): *Exception statement has no effect*
+  Used when an exception is created without being assigned, raised or returned
+  for subsequent use elsewhere.
 :expression-not-assigned (W0106): *Expression "%s" is assigned to nothing*
   Used when an expression that is not a function call is assigned to nothing.
   Probably something else was intended.
@@ -147,9 +150,6 @@ Basic checker Messages
   This is a particular case of W0104 with its own message so you can easily
   disable it if you're using those strings as documentation, instead of
   comments.
-:pointless-exception-statement (W0132): *Exception statement has no effect*
-  Used when an exception is created without being assigned, raised or returned
-  for subsequent use elsewhere.
 :unnecessary-pass (W0107): *Unnecessary pass statement*
   Used when a "pass" statement that can be avoided is encountered.
 :unreachable (W0101): *Unreachable code*
