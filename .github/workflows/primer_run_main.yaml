@@ -32,7 +32,7 @@ jobs:
         python-version: ["3.7", "3.11"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.3.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v4.4.0
@@ -43,7 +43,7 @@ jobs:
       # Create a re-usable virtual environment
       - name: Create Python virtual environment cache
         id: cache-venv
-        uses: actions/cache@v3.2.2
+        uses: actions/cache@v3.2.3
         with:
           path: venv
           key:
@@ -68,7 +68,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.2.2
+        uses: actions/cache@v3.2.3
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -79,7 +79,7 @@ jobs:
           . venv/bin/activate
           python tests/primer/__main__.py prepare --clone
       - name: Upload output diff
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: primer_commitstring
           path:
@@ -96,7 +96,7 @@ jobs:
           then echo "::warning ::$WARNINGS"
           fi
       - name: Upload output
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: primer_output
           path: >-

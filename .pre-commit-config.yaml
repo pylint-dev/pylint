@@ -50,7 +50,7 @@ repos:
         args: [--safe, --quiet]
         exclude: *fixtures
   - repo: https://github.com/Pierre-Sassoulas/black-disable-checker
-    rev: v1.1.1
+    rev: v1.1.3
     hooks:
       - id: black-disable-checker
   - repo: https://github.com/PyCQA/flake8
