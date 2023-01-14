@@ -3,7 +3,7 @@
 coverage~=7.0
 pre-commit~=2.21
 tbump~=6.9.0
-contributors-txt>=0.9.0
+contributors-txt>=1.0.0
 pytest-cov~=4.0
 pytest-profiling~=1.7
 pytest-xdist~=3.1
