@@ -21,10 +21,12 @@ Maintainers
 - Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 - Matus Valo <matusvalo@users.noreply.github.com>
 - Andreas Finkler <3929834+DudeNr33@users.noreply.github.com>
+- Dani Alcala <112832187+clavedeluna@users.noreply.github.com>
 - Łukasz Rogalski <rogalski.91@gmail.com>
 - Ashley Whetter <ashley@awhetter.co.uk>
 - Bryce Guinta <bryce.paul.guinta@gmail.com>
 - Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
+- Nick Drozd <nicholasdrozd@gmail.com>: performance improvements to astroid
 - Dimitri Prybysh <dmand@yandex.ru>
   * multiple-imports, not-iterable, not-a-mapping, various patches.
 - Roy Williams <roy.williams.iii@gmail.com> (Lyft)
@@ -51,7 +53,6 @@ contributors:
   * wrong-spelling-in-comment
   * wrong-spelling-in-docstring
   * parallel execution on multiple CPUs
-- Dani Alcala <112832187+clavedeluna@users.noreply.github.com>
 - Julthep Nandakwang <julthep@nandakwang.com>
 - Bruno Daniel <bruno.daniel@blue-yonder.com>: check_docs extension.
 - Sushobhit <31987769+sushobhit27@users.noreply.github.com> (sushobhit27)
@@ -76,7 +77,6 @@ contributors:
   * ungrouped-imports,
   * wrong-import-position
   * redefined-variable-type
-- Nick Drozd <nicholasdrozd@gmail.com>: performance improvements to astroid
 - Harutaka Kawamura <hkawamura0130@gmail.com>
 - Alexandre Fayolle <alexandre.fayolle@logilab.fr> (Logilab): TkInter gui, documentation, debian support
 - Ville Skyttä <ville.skytta@iki.fi>
