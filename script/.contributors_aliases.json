@@ -4,7 +4,8 @@
       "112832187+clavedeluna@users.noreply.github.com",
       "danalitovsky+git@gmail.com"
     ],
-    "name": "Dani Alcala"
+    "name": "Dani Alcala",
+    "team": "Maintainers"
   },
   "13665637+DanielNoord@users.noreply.github.com": {
     "mails": ["13665637+DanielNoord@users.noreply.github.com"],
@@ -726,7 +727,8 @@
   "nicholasdrozd@gmail.com": {
     "comment": ": performance improvements to astroid",
     "mails": ["nicholasdrozd@gmail.com"],
-    "name": "Nick Drozd"
+    "name": "Nick Drozd",
+    "team": "Maintainers"
   },
   "nickpesce22@gmail.com": {
     "mails": ["nickpesce22@gmail.com", "npesce@terpmail.umd.edu"],
