@@ -230,11 +230,9 @@ contributors:
 - Aurelien Campeas <aurelien.campeas@logilab.fr>
 - Alexander Pervakov <frost.nzcr4@jagmort.com>
 - Alain Leufroy <alain.leufroy@logilab.fr>
-- Adam Williamson <<awilliam@redhat.com>>
+- Adam Williamson <awilliam@redhat.com>
 - xmo-odoo <xmo-odoo@users.noreply.github.com>
-- root@clnstor.am.local <root@clnstor.am.local>
 - omarandlorraine <64254276+omarandlorraine@users.noreply.github.com>
-- grizzly.nyo@gmail.com <grizzly.nyo@gmail.com>
 - craig-sh <craig-sh@users.noreply.github.com>
 - bernie gray <bfgray3@users.noreply.github.com>
 - Wes Turner <westurner@google.com> (Google): added new check 'inconsistent-quotes'
@@ -276,6 +274,7 @@ contributors:
 - Hugues Bruant <hugues.bruant@affirm.com>
 - Harut <yes@harutune.name>
 - Grygorii Iermolenko <gyermolenko@gmail.com>
+- Grizzly Nyo <grizzly.nyo@gmail.com>
 - Gabriel R. Sezefredo <g@briel.dev>: Fixed "exception-escape" false positive with generators
 - Filipe Brandenburger <filbranden@google.com>
 - Fantix King <fantix@uchicago.edu> (UChicago)
@@ -308,13 +307,11 @@ contributors:
 - tbennett0 <tbennett0@users.noreply.github.com>
 - syutbai <syutbai@gmail.com>
 - sdet_liang <liangway@users.noreply.github.com>
-- pyves@crater.logilab.fr <pyves@crater.logilab.fr>
 - paschich <millen@gridium.com>
 - oittaa <8972248+oittaa@users.noreply.github.com>
 - nyabkun <75878387+nyabkun@users.noreply.github.com>
 - moxian <aleftmail@inbox.ru>
 - mar-chi-pan <mar.polatoglou@gmail.com>
-- ludal@logilab.fr <ludal@logilab.fr>
 - lrjball <50599110+lrjball@users.noreply.github.com>
 - laike9m <laike9m@users.noreply.github.com>
 - jaydesl <35102795+jaydesl@users.noreply.github.com>
@@ -331,7 +328,6 @@ contributors:
 - cordis-dev <darius@adroiti.com>
 - bluesheeptoken <louis.fruleux1@gmail.com>
 - anatoly techtonik <techtonik@gmail.com>
-- amdev@AMDEV-WS01.cisco.com <amdev@AMDEV-WS01.cisco.com>
 - agutole <toldo_carp@hotmail.com>
 - Zeckie <49095968+Zeckie@users.noreply.github.com>
 - Zeb Nicholls <zebedee.nicholls@climate-energy-college.org>
@@ -562,6 +558,7 @@ contributors:
 - Ramon Saraiva <ramonsaraiva@gmail.com>
 - Osher De Paz <odepaz@redhat.com>
 - Lumír 'Frenzy' Balhar <frenzy.madness@gmail.com>
+- Ludovic Aubry <ludal@logilab.fr>
 - James Addison <55152140+jayaddison@users.noreply.github.com>
 - Eddie Darling <eddie.darling@genapsys.com>
 - David Lawson <dmrlawson@gmail.com>

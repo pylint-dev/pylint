@@ -338,6 +338,10 @@
     "mails": ["glenn@e-dad.net", "glmatthe@cisco.com"],
     "name": "Glenn Matthews"
   },
+  "grizzly.nyo@gmail.com": {
+    "mails": ["grizzly.nyo@gmail.com"],
+    "name": "Grizzly Nyo"
+  },
   "guillaume.peillex@gmail.com": {
     "mails": ["guillaume.peillex@gmail.com", "guillaume.peillex@gmail.col"],
     "name": "Hippo91",
@@ -428,6 +432,10 @@
     "mails": ["luigi.cristofolini@q-ctrl.com", "lucristofolini@gmail.com"],
     "name": "Luigi Bertaco Cristofolini"
   },
+  "ludal@logilab.fr": {
+    "mails": ["ludal@logilab.fr"],
+    "name": "Ludovic Aubry"
+  },
   "m.fesenko@corp.vk.com": {
     "mails": ["m.fesenko@corp.vk.com", "proggga@gmail.com"],
     "name": "Mikhail Fesenko"
@@ -502,6 +510,10 @@
   "peter.kolbus@gmail.com": {
     "mails": ["peter.kolbus@gmail.com", "peter.kolbus@garmin.com"],
     "name": "Peter Kolbus"
+  },
+  "pierre-yves.david@logilab.fr": {
+    "mails": ["pyves@crater.logilab.fr", "pierre-yves.david@logilab.fr"],
+    "name": "Pierre-Yves David"
   },
   "pierre.sassoulas@gmail.com": {
     "mails": [
