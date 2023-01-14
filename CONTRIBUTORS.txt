@@ -237,7 +237,6 @@ contributors:
 - tbennett0 <tbennett0@users.noreply.github.com>
 - omarandlorraine <64254276+omarandlorraine@users.noreply.github.com>
 - craig-sh <craig-sh@users.noreply.github.com>
-- clavedeluna <danalitovsky+git@gmail.com>
 - bernie gray <bfgray3@users.noreply.github.com>
 - Wes Turner <westurner@google.com> (Google): added new check 'inconsistent-quotes'
 - Tyler Thieding <tyler@thieding.com>
@@ -301,6 +300,7 @@ contributors:
 - Ben James <benjames1999@hotmail.co.uk>
 - Ben Green <benhgreen@icloud.com>
 - Batuhan Taskaya <batuhanosmantaskaya@gmail.com>
+- Alvaro Frias <alvarofriasgaray@gmail.com>
 - Alexander Kapshuna <kapsh@kap.sh>
 - Adam Parkin <pzelnip@users.noreply.github.com>
 - 谭九鼎 <109224573@qq.com>
@@ -509,11 +509,11 @@ contributors:
 - Danny Hermes <daniel.j.hermes@gmail.com>
 - Daniele Procida <daniele@vurt.org>
 - Daniela Plascencia <daplascen@gmail.com>
+- Daniel Werner <daniel.werner@scalableminds.com>
 - Daniel R. Neal <dan.r.neal@gmail.com> (danrneal)
 - Daniel Draper <Germandrummer92@users.noreply.github.com>
 - Daniel Dorani <ddandd@gmail.com> (doranid)
 - Daniel Brookman <53625739+dbrookman@users.noreply.github.com>
-- Daniel <daniel.werner@scalableminds.com>
 - Dan Garrette <dhgarrette@gmail.com>
 - Damien Nozay <damien.nozay@gmail.com>
 - Cubicpath <Cubicpath@protonmail.com>
@@ -550,7 +550,6 @@ contributors:
 - Andrzej Klajnert <github@aklajnert.pl>
 - Andrew Howe <howeaj@users.noreply.github.com>
 - Andres Perez Hortal <andresperezcba@gmail.com>
-- Alvaro Frias <alvarofriasgaray@gmail.com>
 - Alok Singh <8325708+alok@users.noreply.github.com>
 - Allan Chandler <95424144+allanc65@users.noreply.github.com> (allanc65)
   * Fixed issue 5452, false positive missing-param-doc for multi-line Google-style params

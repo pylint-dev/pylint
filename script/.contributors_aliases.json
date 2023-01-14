@@ -1,4 +1,11 @@
 {
+  "112832187+clavedeluna@users.noreply.github.com": {
+    "mails": [
+      "112832187+clavedeluna@users.noreply.github.com",
+      "danalitovsky+git@gmail.com"
+    ],
+    "name": "Dani Alcala"
+  },
   "13665637+DanielNoord@users.noreply.github.com": {
     "mails": ["13665637+DanielNoord@users.noreply.github.com"],
     "name": "Daniël van Noord",
@@ -164,6 +171,10 @@
     "mails": ["alexandre.fayolle@logilab.fr", "afayolle.ml@free.fr"],
     "name": "Alexandre Fayolle"
   },
+  "alvarofriasgaray@gmail.com": {
+    "mails": ["alvaro.frias@eclypsium.com", "alvarofriasgaray@gmail.com"],
+    "name": "Alvaro Frias"
+  },
   "andreas.freimuth@united-bits.de": {
     "comment": ": fix indentation checking with tabs",
     "mails": ["andreas.freimuth@united-bits.de"],
@@ -324,6 +335,10 @@
     "comment": " (danrneal)",
     "mails": ["dan.r.neal@gmail.com"],
     "name": "Daniel R. Neal"
+  },
+  "daniel.werner@scalableminds.com": {
+    "mails": ["daniel.werner@scalableminds.com"],
+    "name": "Daniel Werner"
   },
   "david.douard@sdfa3.org": {
     "mails": ["david.douard@sdfa3.org", "david.douard@logilab.fr"],
