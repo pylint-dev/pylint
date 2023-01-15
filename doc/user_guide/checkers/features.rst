@@ -881,8 +881,8 @@ Refactoring checker Messages
   the .items() method of the dictionary instead.
 :consider-refactoring-into-while-condition (C0210): *Consider using 'while %s' instead of 'while True:' an 'if', and a 'break'*
   Emitted when `while True:` loop is used and the first statement is a break
-  condition.The `if / break`` construct can be removed if the check is inverted
-  and moved to the `while` statement
+  condition. The `if / break`` construct can be removed if the check is inverted
+  and moved to the `while` statement.
 :consider-using-enumerate (C0200): *Consider using enumerate instead of iterating with range and len*
   Emitted when code that iterates with range and len is encountered. Such code
   can be simplified by using the enumerate builtin.

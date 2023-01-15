@@ -63,9 +63,9 @@ class RecommendationChecker(checkers.BaseChecker):
         "C0210": (
             "Consider using 'while %s' instead of 'while True:' an 'if', and a 'break'",
             "consider-refactoring-into-while-condition",
-            "Emitted when `while True:` loop is used and the first statement is a break condition."
+            "Emitted when `while True:` loop is used and the first statement is a break condition. "
             "The ``if / break`` construct can be removed if the check is inverted and moved to "
-            "the ``while`` statement",
+            "the ``while`` statement.",
         ),
     }
 
