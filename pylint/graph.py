@@ -360,7 +360,7 @@ def count_nodes(
 
 
 def strip_path(path: list[node_types]) -> list[node_types]:
-    """Removes redundant constant comparisons at the ends of a path, e.g. simplies {a,
+    """Removes redundant constant comparisons at the ends of a path, e.g. simplifies {a,
     3, 0} to {a, 3}.
     """
     low = 0
