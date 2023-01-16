@@ -2204,28 +2204,36 @@ class VariablesChecker(BaseChecker):
                     )
                 ):
                     # Exempt those definitions that are used inside the type checking
-                    # guard or that are defined in both type checking guard branches.
+                    # guard or that are defined in all type checking guard branches.
                     used_in_branch = defstmt_parent.parent_of(node)
                     defined_in_or_else = False
 
-                    for definition in defstmt_parent.orelse:
-                        if isinstance(definition, nodes.Assign):
+                    branch_nodes = []
+                    branch = defstmt_parent
+                    while branch.has_elif_block():
+                        branch_nodes.extend(branch.orelse[0].body)
+                        branch = branch.orelse[0]
+                    branch_nodes.extend(branch.orelse)
+                    for branch_node in branch_nodes:
+                        if isinstance(branch_node, nodes.Assign):
                             defined_in_or_else = any(
                                 target.name == node.name
-                                for target in definition.targets
+                                for target in branch_node.targets
                                 if isinstance(target, nodes.AssignName)
                             )
                         elif isinstance(
-                            definition, (nodes.ClassDef, nodes.FunctionDef)
+                            branch_node, (nodes.ClassDef, nodes.FunctionDef)
                         ):
-                            defined_in_or_else = definition.name == node.name
-
+                            defined_in_or_else = branch_node.name == node.name
+                        elif isinstance(
+                            branch_node, (nodes.Import, nodes.ImportFrom)
+                        ):
+                            defined_in_or_else = any(node.name == name[0] for name in branch_node.names)
                         if defined_in_or_else:
                             break
 
                     if not used_in_branch and not defined_in_or_else:
                         maybe_before_assign = True
-
         return maybe_before_assign, annotation_return, use_outer_definition
 
     @staticmethod
@@ -2341,6 +2349,7 @@ class VariablesChecker(BaseChecker):
                 node.parent.parent, nodes.Arguments
             ):
                 return (VariableVisitConsumerAction.CONTINUE, None)
+
         return (VariableVisitConsumerAction.RETURN, found_nodes)
 
     @staticmethod
