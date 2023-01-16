@@ -3,7 +3,7 @@
 bandit==1.7.4
 black==23.1a1
 flake8>=5.0.0
-flake8-bugbear==22.12.6
+flake8-bugbear==23.1.14
 flake8-typing-imports==1.14.0
 isort==5.10.1
 mypy==0.991
