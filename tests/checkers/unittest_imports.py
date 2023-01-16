@@ -55,8 +55,7 @@ class TestImportsChecker(CheckerTestCase):
             REGR_DATA, "beyond_top_two/namespace_package/top_level_function.py"
         )
         Run(
-            [top_level_function, "-d all", "-e relative-beyond-top-level"],
-            exit=False,
+            [top_level_function, "-d all", "-e relative-beyond-top-level"], exit=False,
         )
         output2, errors2 = capsys.readouterr()
 
@@ -114,3 +113,26 @@ class TestImportsChecker(CheckerTestCase):
         )
         with self.assertAddsMessages(msg):
             self.checker.visit_importfrom(import_from)
+
+    @staticmethod
+    def test_preferred_module(capsys: CaptureFixture[str]) -> None:
+        """
+        Tests preferred-module configuration option
+        """
+
+        # test preferred-modules case with base module import
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'preferred_module')}",
+                "-d all",
+                "-e preferred-module",
+                # prefer sys instead of os (for triggering test)
+                "--preferred-modules=os:sys",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+
+        # assert that we saw an error occur due to os being imported
+        assert len(output.split("\n")) == 9
+        assert len(errors) == 0
