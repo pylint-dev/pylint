@@ -40,7 +40,8 @@ class PlantUmlPrinter(Printer):
                 self.emit("top to bottom direction")
             else:
                 raise ValueError(
-                    f"Unsupported layout {self.layout}. PlantUmlPrinter only supports left to right and top to bottom layout."
+                    f"Unsupported layout {self.layout}. PlantUmlPrinter only "
+                    "supports left to right and top to bottom layout."
                 )
 
     def emit_node(

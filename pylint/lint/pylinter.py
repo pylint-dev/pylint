@@ -1252,8 +1252,9 @@ class PyLinter(
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
         self.stats.increase_single_message_count(msg_cat, 1)
+        # TODO: 3.0 Should be removable after https://github.com/PyCQA/pylint/pull/5580
         self.stats.increase_single_module_message_count(
-            self.current_name,  # type: ignore[arg-type] # Should be removable after https://github.com/PyCQA/pylint/pull/5580
+            self.current_name,  # type: ignore[arg-type]
             msg_cat,
             1,
         )
