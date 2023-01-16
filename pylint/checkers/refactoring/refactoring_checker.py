@@ -1615,11 +1615,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
         could_be_used_in_with = (
             # things like ``lock.acquire()``
-            inferred.qname() in CALLS_THAT_COULD_BE_REPLACED_BY_WITH
-            or (
-                # things like ``open("foo")`` which are not already inside a ``with`` statement
-                inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS
-                and not _is_part_of_with_items(node)
+            hasattr(inferred, "qname")
+            and (
+                inferred.qname() in CALLS_THAT_COULD_BE_REPLACED_BY_WITH
+                or (
+                    # things like ``open("foo")`` which are not already inside a ``with`` statement
+                    inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS
+                    and not _is_part_of_with_items(node)
+                )
             )
         )
         if could_be_used_in_with and not _will_be_released_automatically(node):

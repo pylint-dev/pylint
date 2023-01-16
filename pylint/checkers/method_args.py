@@ -69,6 +69,7 @@ class MethodArgsChecker(BaseChecker):
         if (
             inferred
             and not call_site.has_invalid_keywords()
+            and hasattr(inferred, "qname")
             and inferred.qname() in self.linter.config.timeout_methods
         ):
             keyword_arguments = [keyword.arg for keyword in node.keywords]
