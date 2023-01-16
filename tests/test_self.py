@@ -27,7 +27,6 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
-from py._path.local import LocalPath
 
 from pylint import extensions, modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
@@ -98,7 +97,7 @@ class MultiReporter(BaseReporter):
     def out(self) -> TextIO:  # type: ignore[override]
         return self._reporters[0].out
 
-    @property  # type: ignore[override]
+    @property
     def linter(self) -> PyLinter:
         return self._linter
 
@@ -148,7 +147,9 @@ class TestRunTC:
         output = re.sub(CLEAN_PATH, "", output, flags=re.MULTILINE)
         return output.replace("\\", "/")
 
-    def _test_output(self, args: list[str], expected_output: str) -> None:
+    def _test_output(
+        self, args: list[str], expected_output: str, unexpected_output: str = ""
+    ) -> None:
         out = StringIO()
         args = _add_rcfile_default_pylintrc(args)
         self._run_pylint(args, out=out)
@@ -156,8 +157,11 @@ class TestRunTC:
         expected_output = self._clean_paths(expected_output)
         assert expected_output.strip() in actual_output.strip()
 
+        if unexpected_output:
+            assert unexpected_output.strip() not in actual_output.strip()
+
     def _test_output_file(
-        self, args: list[str], filename: LocalPath, expected_output: str
+        self, args: list[str], filename: Path, expected_output: str
     ) -> None:
         """Run Pylint with the ``output`` option set (must be included in
         the ``args`` passed to this method!) and check the file content afterwards.
@@ -291,6 +295,39 @@ class TestRunTC:
             # Using config file...  line
             actual_output = actual_output[actual_output.find("\n") :]
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
+
+    def test_type_annotation_names(self) -> None:
+        """Test resetting the `_type_annotation_names` list to `[]` when leaving a module.
+
+        An import inside `module_a`, which is used as a type annotation in `module_a`, should not prevent
+        emitting the `unused-import` message when the same import occurs in `module_b` & is unused.
+        See: https://github.com/PyCQA/pylint/issues/4150
+        """
+        module1 = join(
+            HERE, "regrtest_data", "imported_module_in_typehint", "module_a.py"
+        )
+
+        module2 = join(
+            HERE, "regrtest_data", "imported_module_in_typehint", "module_b.py"
+        )
+        expected_output = textwrap.dedent(
+            f"""
+        ************* Module module_b
+        {module2}:1:0: W0611: Unused import uuid (unused-import)
+        """
+        )
+        args = [
+            module1,
+            module2,
+            "--disable=all",
+            "--enable=unused-import",
+            "-rn",
+            "-sn",
+        ]
+        out = StringIO()
+        self._run_pylint(args, out=out)
+        actual_output = self._clean_paths(out.getvalue().strip())
+        assert self._clean_paths(expected_output.strip()) in actual_output.strip()
 
     def test_import_itself_not_accounted_for_relative_imports(self) -> None:
         expected = "Your code has been rated at 10.00/10"
@@ -517,8 +554,8 @@ class TestRunTC:
         self._runtest(["--from-stdin"], code=32)
 
     @pytest.mark.parametrize("write_bpy_to_disk", [False, True])
-    def test_relative_imports(self, write_bpy_to_disk: bool, tmpdir: LocalPath) -> None:
-        a = tmpdir.join("a")  # type: ignore[no-untyped-call]
+    def test_relative_imports(self, write_bpy_to_disk: bool, tmp_path: Path) -> None:
+        a = tmp_path / "a"
 
         b_code = textwrap.dedent(
             """
@@ -538,12 +575,12 @@ class TestRunTC:
         )
 
         a.mkdir()
-        a.join("__init__.py").write("")
+        (a / "__init__.py").write_text("")
         if write_bpy_to_disk:
-            a.join("b.py").write(b_code)
-        a.join("c.py").write(c_code)
+            (a / "b.py").write_text(b_code)
+        (a / "c.py").write_text(c_code)
 
-        with tmpdir.as_cwd():
+        with _test_cwd(tmp_path):
             # why don't we start pylint in a sub-process?
             expected = (
                 "************* Module a.b\n"
@@ -691,14 +728,14 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (-9, "missing-function-docstring", "fail_under_minus10.py", 22),
             (-5, "missing-function-docstring", "fail_under_minus10.py", 22),
             # --fail-under should guide whether error code as missing-function-docstring is not hit
-            (-10, "broad-except", "fail_under_plus7_5.py", 0),
-            (6, "broad-except", "fail_under_plus7_5.py", 0),
-            (7.5, "broad-except", "fail_under_plus7_5.py", 0),
-            (7.6, "broad-except", "fail_under_plus7_5.py", 16),
-            (-11, "broad-except", "fail_under_minus10.py", 0),
-            (-10, "broad-except", "fail_under_minus10.py", 0),
-            (-9, "broad-except", "fail_under_minus10.py", 22),
-            (-5, "broad-except", "fail_under_minus10.py", 22),
+            (-10, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (6, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (7.5, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (7.6, "broad-exception-caught", "fail_under_plus7_5.py", 16),
+            (-11, "broad-exception-caught", "fail_under_minus10.py", 0),
+            (-10, "broad-exception-caught", "fail_under_minus10.py", 0),
+            (-9, "broad-exception-caught", "fail_under_minus10.py", 22),
+            (-5, "broad-exception-caught", "fail_under_minus10.py", 22),
             # Enable by message id
             (-10, "C0116", "fail_under_plus7_5.py", 16),
             # Enable by category
@@ -832,6 +869,19 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
                 modify_sys_path()
             assert sys.path == paths[1:]
 
+    @staticmethod
+    def test_plugin_that_imports_from_open() -> None:
+        """Test that a plugin that imports a source file from a checker open()
+        function (ala pylint_django) does not raise an exception."""
+        with _test_sys_path():
+            # Enable --load-plugins=importing_plugin
+            sys.path.append(join(HERE, "regrtest_data", "importing_plugin"))
+            with _test_cwd(join(HERE, "regrtest_data", "settings_project")):
+                Run(
+                    ["--load-plugins=importing_plugin", "models.py"],
+                    exit=False,
+                )
+
     @pytest.mark.parametrize(
         "args",
         [
@@ -842,34 +892,34 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         ],
     )
     def test_do_not_import_files_from_local_directory(
-        self, tmpdir: LocalPath, args: list[str]
+        self, tmp_path: Path, args: list[str]
     ) -> None:
         for path in ("astroid.py", "hmac.py"):
-            file_path = tmpdir / path
-            file_path.write("'Docstring'\nimport completely_unknown\n")
+            file_path = tmp_path / path
+            file_path.write_text("'Docstring'\nimport completely_unknown\n")
             pylint_call = [sys.executable, "-m", "pylint"] + args + [path]
-            with tmpdir.as_cwd():
-                subprocess.check_output(pylint_call, cwd=str(tmpdir))
+            with _test_cwd(tmp_path):
+                subprocess.check_output(pylint_call, cwd=str(tmp_path))
             new_python_path = os.environ.get("PYTHONPATH", "").strip(":")
-            with tmpdir.as_cwd(), _test_environ_pythonpath(f"{new_python_path}:"):
+            with _test_cwd(tmp_path), _test_environ_pythonpath(f"{new_python_path}:"):
                 # Appending a colon to PYTHONPATH should not break path stripping
                 # https://github.com/PyCQA/pylint/issues/3636
-                subprocess.check_output(pylint_call, cwd=str(tmpdir))
+                subprocess.check_output(pylint_call, cwd=str(tmp_path))
 
     @staticmethod
     def test_import_plugin_from_local_directory_if_pythonpath_cwd(
-        tmpdir: LocalPath,
+        tmp_path: Path,
     ) -> None:
-        p_plugin = tmpdir / "plugin.py"
-        p_plugin.write("# Some plugin content")
+        p_plugin = tmp_path / "plugin.py"
+        p_plugin.write_text("# Some plugin content")
         if sys.platform == "win32":
             python_path = "."
         else:
             python_path = f"{os.environ.get('PYTHONPATH', '').strip(':')}:."
-        with tmpdir.as_cwd(), _test_environ_pythonpath(python_path):
+        with _test_cwd(tmp_path), _test_environ_pythonpath(python_path):
             args = [sys.executable, "-m", "pylint", "--load-plugins", "plugin"]
             process = subprocess.run(
-                args, cwd=str(tmpdir), stderr=subprocess.PIPE, check=False
+                args, cwd=str(tmp_path), stderr=subprocess.PIPE, check=False
             )
             assert (
                 "AttributeError: module 'plugin' has no attribute 'register'"
@@ -877,18 +927,18 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             )
 
     def test_allow_import_of_files_found_in_modules_during_parallel_check(
-        self, tmpdir: LocalPath
+        self, tmp_path: Path
     ) -> None:
-        test_directory = tmpdir / "test_directory"
+        test_directory = tmp_path / "test_directory"
         test_directory.mkdir()
         spam_module = test_directory / "spam.py"
-        spam_module.write("'Empty'")
+        spam_module.write_text("'Empty'")
 
         init_module = test_directory / "__init__.py"
-        init_module.write("'Empty'")
+        init_module.write_text("'Empty'")
 
         # For multiple jobs we could not find the `spam.py` file.
-        with tmpdir.as_cwd():
+        with _test_cwd(tmp_path):
             args = [
                 "-j2",
                 "--disable=missing-docstring, missing-final-newline",
@@ -897,7 +947,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             self._runtest(args, code=0)
 
         # A single job should be fine as well
-        with tmpdir.as_cwd():
+        with _test_cwd(tmp_path):
             args = [
                 "-j1",
                 "--disable=missing-docstring, missing-final-newline",
@@ -906,11 +956,11 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             self._runtest(args, code=0)
 
     @staticmethod
-    def test_can_list_directories_without_dunder_init(tmpdir: LocalPath) -> None:
-        test_directory = tmpdir / "test_directory"
+    def test_can_list_directories_without_dunder_init(tmp_path: Path) -> None:
+        test_directory = tmp_path / "test_directory"
         test_directory.mkdir()
         spam_module = test_directory / "spam.py"
-        spam_module.write("'Empty'")
+        spam_module.write_text("'Empty'")
 
         subprocess.check_output(
             [
@@ -920,7 +970,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
                 "--disable=missing-docstring, missing-final-newline",
                 "test_directory",
             ],
-            cwd=str(tmpdir),
+            cwd=str(tmp_path),
             stderr=subprocess.PIPE,
         )
 
@@ -938,9 +988,9 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         )
         self._test_output([path, "-j2"], expected_output="")
 
-    def test_output_file_valid_path(self, tmpdir: LocalPath) -> None:
+    def test_output_file_valid_path(self, tmp_path: Path) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
-        output_file = tmpdir / "output.txt"
+        output_file = tmp_path / "output.txt"
         expected = "Your code has been rated at 7.50/10"
         self._test_output_file(
             [path, f"--output={output_file}"],
@@ -1020,10 +1070,10 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         ],
     )
     def test_output_file_can_be_combined_with_output_format_option(
-        self, tmpdir: LocalPath, output_format: str, expected_output: str
+        self, tmp_path: Path, output_format: str, expected_output: str
     ) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
-        output_file = tmpdir / "output.txt"
+        output_file = tmp_path / "output.txt"
         self._test_output_file(
             [path, f"--output={output_file}", f"--output-format={output_format}"],
             output_file,
@@ -1031,10 +1081,10 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         )
 
     def test_output_file_can_be_combined_with_custom_reporter(
-        self, tmpdir: LocalPath
+        self, tmp_path: Path
     ) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
-        output_file = tmpdir / "output.txt"
+        output_file = tmp_path / "output.txt"
         # It does not really have to be a truly custom reporter.
         # It is only important that it is being passed explicitly to ``Run``.
         myreporter = TextReporter()
@@ -1045,9 +1095,9 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         )
         assert output_file.exists()
 
-    def test_output_file_specified_in_rcfile(self, tmpdir: LocalPath) -> None:
-        output_file = tmpdir / "output.txt"
-        rcfile = tmpdir / "pylintrc"
+    def test_output_file_specified_in_rcfile(self, tmp_path: Path) -> None:
+        output_file = tmp_path / "output.txt"
+        rcfile = tmp_path / "pylintrc"
         rcfile_contents = textwrap.dedent(
             f"""
         [MAIN]
@@ -1195,6 +1245,50 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         module = join(HERE, "regrtest_data", "invalid_encoding.py")
         expected_output = "unknown encoding"
         self._test_output([module, "-E"], expected_output=expected_output)
+
+    @pytest.mark.parametrize(
+        "module_name,expected_output",
+        [
+            ("good.py", ""),
+            ("bad_wrong_num.py", "(syntax-error)"),
+            ("bad_missing_num.py", "(bad-file-encoding)"),
+        ],
+    )
+    def test_encoding(self, module_name: str, expected_output: str) -> None:
+        path = join(HERE, "regrtest_data", "encoding", module_name)
+        self._test_output(
+            [path], expected_output=expected_output, unexpected_output="(astroid-error)"
+        )
+
+    def test_line_too_long_useless_suppression(self) -> None:
+        """A test that demonstrates a known false positive for useless-suppression
+
+        See https://github.com/PyCQA/pylint/issues/3368
+
+        If you manage to make this test fail and remove the useless-suppression
+        warning please contact open a Pylint PR!
+        """
+        module = join(HERE, "regrtest_data", "line_too_long_no_code.py")
+        expected = textwrap.dedent(
+            f"""
+        {module}:1:0: I0011: Locally disabling line-too-long (C0301) (locally-disabled)
+        {module}:1:0: I0021: Useless suppression of 'line-too-long' (useless-suppression)
+        """
+        )
+
+        self._test_output([module, "--enable=all"], expected_output=expected)
+
+    def test_output_no_header(self) -> None:
+        module = join(HERE, "data", "clientmodule_test.py")
+        expected = "Unused variable 'local_variable'"
+        not_expected = textwrap.dedent(
+            """************* Module data.clientmodule_test"""
+        )
+
+        args = [module, "--output-format=no-header"]
+        self._test_output(
+            args, expected_output=expected, unexpected_output=not_expected
+        )
 
 
 class TestCallbackOptions:

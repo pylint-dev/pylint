@@ -32,6 +32,8 @@ load-plugins=
     pylint.extensions.typing,
     pylint.extensions.redefined_variable_type,
     pylint.extensions.comparison_placement,
+    pylint.extensions.broad_try_clause,
+    pylint.extensions.dict_init_mutate,
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
@@ -65,6 +67,10 @@ fail-under=10.0
 # even if score is above --fail-under value. Syntax same as enable. Messages
 # specified are enabled, while categories only check already-enabled messages.
 fail-on=
+
+# Clear in-memory caches upon conclusion of linting. Useful if running pylint in
+# a server-like mode.
+clear-cache-post-run=no
 
 
 [MESSAGES CONTROL]
@@ -171,10 +177,6 @@ ignore-signatures=yes
 # Tells whether we should check for unused import in __init__ files.
 init-import=no
 
-# A regular expression matching the name of dummy variables (i.e. expectedly
-# not used).
-dummy-variables-rgx=_$|dummy
-
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid defining new builtins when possible.
 additional-builtins=
@@ -188,10 +190,6 @@ allow-global-unused-variables=yes
 
 # List of names allowed to shadow builtins
 allowed-redefined-builtins=
-
-# Argument names that match this expression will be ignored. Default to name
-# with leading underscore.
-ignored-argument-names=_.*
 
 # List of qualified module names which can have objects that can redefine
 # builtins.
@@ -444,6 +442,9 @@ max-public-methods=25
 # Maximum number of boolean expressions in an if statement (see R0916).
 max-bool-expr=5
 
+# Maximum number of statements in a try-block
+max-try-statements = 14
+
 # List of regular expressions of class ancestor names to
 # ignore when counting public methods (see R0903).
 exclude-too-few-public-methods=
@@ -510,7 +511,7 @@ preferred-modules=
 
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception"
-overgeneral-exceptions=Exception
+overgeneral-exceptions=builtins.Exception
 
 
 [TYPING]

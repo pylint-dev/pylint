@@ -20,6 +20,13 @@
     "directories": ["src/flask"],
     "url": "https://github.com/pallets/flask"
   },
+  "music21": {
+    "branch": "master",
+    "directories": ["music21"],
+    "pylintrc_relpath": ".pylintrc",
+    "minimum_python": "3.10",
+    "url": "https://github.com/cuthbertLab/music21"
+  },
   "pandas": {
     "branch": "main",
     "directories": ["pandas"],
@@ -45,5 +52,11 @@
     "branch": "master",
     "directories": ["src/sentry"],
     "url": "https://github.com/getsentry/sentry"
+  },
+  "coverage": {
+    "branch": "master",
+    "directories": ["coverage"],
+    "url": "https://github.com/nedbat/coveragepy",
+    "pylintrc_relpath": "pylintrc"
   }
 }

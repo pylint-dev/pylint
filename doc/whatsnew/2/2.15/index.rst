@@ -29,6 +29,242 @@ Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
+What's new in Pylint 2.15.10?
+-----------------------------
+Release date: 2023-01-09
+
+
+False Positives Fixed
+---------------------
+
+- Fix ``use-sequence-for-iteration`` when unpacking a set with ``*``.
+
+  Closes #5788 (`#5788 <https://github.com/PyCQA/pylint/issues/5788>`_)
+
+- Fix false positive ``assigning-non-slot`` when a class attribute is
+  re-assigned.
+
+  Closes #6001 (`#6001 <https://github.com/PyCQA/pylint/issues/6001>`_)
+
+- Fixes ``used-before-assignment`` false positive when the walrus operator
+  is used in a ternary operator.
+
+  Closes #7779 (`#7779 <https://github.com/PyCQA/pylint/issues/7779>`_)
+
+- Prevent ``used-before-assignment`` when imports guarded by ``if
+  TYPE_CHECKING``
+  are guarded again when used.
+
+  Closes #7979 (`#7979 <https://github.com/PyCQA/pylint/issues/7979>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Using custom braces in ``msg-template`` will now work properly.
+
+  Closes #5636 (`#5636 <https://github.com/PyCQA/pylint/issues/5636>`_)
+
+
+What's new in Pylint 2.15.9?
+----------------------------
+Release date: 2022-12-17
+
+
+False Positives Fixed
+---------------------
+
+- Fix false-positive for ``used-before-assignment`` in pattern matching
+  with a guard.
+
+  Closes #5327 (`#5327 <https://github.com/PyCQA/pylint/issues/5327>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Pylint will no longer deadlock if a parallel job is killed but fail
+  immediately instead.
+
+  Closes #3899 (`#3899 <https://github.com/PyCQA/pylint/issues/3899>`_)
+
+- When pylint exit due to bad arguments being provided the exit code will now
+  be the expected ``32``.
+
+  Refs #7931 (`#7931 <https://github.com/PyCQA/pylint/issues/7931>`_)
+
+- Fixes a ``ModuleNotFound`` exception when running pylint on a Django project
+  with the ``pylint_django`` plugin enabled.
+
+  Closes #7938 (`#7938 <https://github.com/PyCQA/pylint/issues/7938>`_)
+
+
+What's new in Pylint 2.15.8?
+----------------------------
+Release date: 2022-12-05
+
+
+False Positives Fixed
+---------------------
+
+- Document a known false positive for ``useless-suppression`` when disabling
+  ``line-too-long`` in a module with only comments and no code.
+
+  Closes #3368 (`#3368 <https://github.com/PyCQA/pylint/issues/3368>`_)
+
+- Fix ``logging-fstring-interpolation`` false positive raised when logging and
+  f-string with ``%s`` formatting.
+
+  Closes #4984 (`#4984 <https://github.com/PyCQA/pylint/issues/4984>`_)
+
+- Fixes false positive ``abstract-method`` on Protocol classes.
+
+  Closes #7209 (`#7209 <https://github.com/PyCQA/pylint/issues/7209>`_)
+
+- Fix ``missing-param-doc`` false positive when function parameter has an
+  escaped underscore.
+
+  Closes #7827 (`#7827 <https://github.com/PyCQA/pylint/issues/7827>`_)
+
+- ``multiple-statements`` no longer triggers for function stubs using inlined
+  ``...``.
+
+  Closes #7860 (`#7860 <https://github.com/PyCQA/pylint/issues/7860>`_)
+
+
+What's new in Pylint 2.15.7?
+----------------------------
+Release date: 2022-11-27
+
+
+False Positives Fixed
+---------------------
+
+- Fix ``deprecated-method`` false positive when alias for method is similar to
+  name of deprecated method.
+
+  Closes #5886 (`#5886 <https://github.com/PyCQA/pylint/issues/5886>`_)
+
+- Fix a false positive for ``used-before-assignment`` for imports guarded by
+  ``typing.TYPE_CHECKING`` later used in variable annotations.
+
+  Closes #7609 (`#7609 <https://github.com/PyCQA/pylint/issues/7609>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Pylint will now filter duplicates given to it before linting. The output
+  should
+  be the same whether a file is given/discovered multiple times or not.
+
+  Closes #6242, #4053 (`#6242 <https://github.com/PyCQA/pylint/issues/6242>`_)
+
+- Fixes a crash in ``stop-iteration-return`` when the ``next`` builtin is
+  called without arguments.
+
+  Closes #7828 (`#7828 <https://github.com/PyCQA/pylint/issues/7828>`_)
+
+
+What's new in Pylint 2.15.6?
+----------------------------
+Release date: 2022-11-19
+
+
+False Positives Fixed
+---------------------
+
+- Fix false positive for ``unhashable-member`` when subclassing ``dict`` and
+  using the subclass as a dictionary key.
+
+  Closes #7501 (`#7501 <https://github.com/PyCQA/pylint/issues/7501>`_)
+
+- ``unnecessary-list-index-lookup`` will not be wrongly emitted if
+  ``enumerate`` is called with ``start``.
+
+  Closes #7682 (`#7682 <https://github.com/PyCQA/pylint/issues/7682>`_)
+
+- Don't warn about ``stop-iteration-return`` when using ``next()`` over
+  ``itertools.cycle``.
+
+  Closes #7765 (`#7765 <https://github.com/PyCQA/pylint/issues/7765>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Messages sent to reporter are now copied so a reporter cannot modify the
+  message sent to other reporters.
+
+  Closes #7214 (`#7214 <https://github.com/PyCQA/pylint/issues/7214>`_)
+
+- Fixes edge case of custom method named ``next`` raised an astroid error.
+
+  Closes #7610 (`#7610 <https://github.com/PyCQA/pylint/issues/7610>`_)
+
+- Fix crash that happened when parsing files with unexpected encoding starting
+  with 'utf' like ``utf13``.
+
+  Closes #7661 (`#7661 <https://github.com/PyCQA/pylint/issues/7661>`_)
+
+- Fix a crash when a child class with an ``__init__`` method inherits from a
+  parent class with an ``__init__`` class attribute.
+
+  Closes #7742 (`#7742 <https://github.com/PyCQA/pylint/issues/7742>`_)
+
+
+What's new in Pylint 2.15.5?
+----------------------------
+Release date: 2022-10-21
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for ``simplify-boolean-expression`` when multiple values
+  are inferred for a constant.
+
+  Closes #7626 (`#7626 <https://github.com/PyCQA/pylint/issues/7626>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Remove ``__index__`` dunder method call from ``unnecessary-dunder-call``
+  check.
+
+  Closes #6795 (`#6795 <https://github.com/PyCQA/pylint/issues/6795>`_)
+
+- Fixed a multi-processing crash that prevents using any more than 1 thread on
+  MacOS.
+
+  The returned module objects and errors that were cached by the linter plugin
+  loader
+  cannot be reliably pickled. This means that ``dill`` would throw an error
+  when
+  attempting to serialise the linter object for multi-processing use.
+
+  Closes #7635. (`#7635 <https://github.com/PyCQA/pylint/issues/7635>`_)
+
+
+
+Other Changes
+-------------
+
+- Add a keyword-only ``compare_constants`` argument to ``safe_infer``.
+
+  Refs #7626 (`#7626 <https://github.com/PyCQA/pylint/issues/7626>`_)
+
+- Sort ``--generated-rcfile`` output.
+
+  Refs #7655 (`#7655 <https://github.com/PyCQA/pylint/issues/7655>`_)
+
+
 What's new in Pylint 2.15.4?
 ----------------------------
 Release date: 2022-10-10
@@ -38,7 +274,7 @@ False Positives Fixed
 ---------------------
 
 - Fix the message for ``unnecessary-dunder-call`` for ``__aiter__`` and
-  ``__aneext__``. Also
+  ``__anext__``. Also
   only emit the warning when ``py-version`` >= 3.10.
 
   Closes #7529 (`#7529 <https://github.com/PyCQA/pylint/issues/7529>`_)
@@ -78,7 +314,7 @@ Other Bug Fixes
 
   Closes #7528 (`#7528 <https://github.com/PyCQA/pylint/issues/7528>`_)
 
-- Fix bug in scanning of names inside arguments to `typing.Literal`.
+- Fix bug in scanning of names inside arguments to ``typing.Literal``.
   See https://peps.python.org/pep-0586/#literals-enums-and-forward-references
   for details.
 

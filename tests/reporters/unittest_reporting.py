@@ -18,10 +18,12 @@ import pytest
 from _pytest.recwarn import WarningsRecorder
 
 from pylint import checkers
+from pylint.interfaces import HIGH
 from pylint.lint import PyLinter
+from pylint.message.message import Message
 from pylint.reporters import BaseReporter, MultiReporter
 from pylint.reporters.text import ParseableTextReporter, TextReporter
-from pylint.typing import FileItem
+from pylint.typing import FileItem, MessageLocationTuple
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import Section
@@ -88,16 +90,12 @@ def test_template_option_non_existing(linter: PyLinter) -> None:
     """
     output = StringIO()
     linter.reporter.out = output
-    linter.config.msg_template = (
-        "{path}:{line}:{a_new_option}:({a_second_new_option:03d})"
-    )
+    linter.config.msg_template = "{path}:{line}:{categ}:({a_second_new_option:03d})"
     linter.open()
     with pytest.warns(UserWarning) as records:
         linter.set_current_module("my_mod")
         assert len(records) == 2
-        assert (
-            "Don't recognize the argument 'a_new_option'" in records[0].message.args[0]
-        )
+        assert "Don't recognize the argument 'categ'" in records[0].message.args[0]
     assert (
         "Don't recognize the argument 'a_second_new_option'"
         in records[1].message.args[0]
@@ -111,6 +109,23 @@ def test_template_option_non_existing(linter: PyLinter) -> None:
     out_lines = output.getvalue().split("\n")
     assert out_lines[1] == "my_mod:1::()"
     assert out_lines[2] == "my_mod:2::()"
+
+
+def test_template_option_with_header(linter: PyLinter) -> None:
+    output = StringIO()
+    linter.reporter.out = output
+    linter.config.msg_template = '{{ "Category": "{category}" }}'
+    linter.open()
+    linter.set_current_module("my_mod")
+
+    linter.add_message("C0301", line=1, args=(1, 2))
+    linter.add_message(
+        "line-too-long", line=2, end_lineno=2, end_col_offset=4, args=(3, 4)
+    )
+
+    out_lines = output.getvalue().split("\n")
+    assert out_lines[1] == '{ "Category": "convention" }'
+    assert out_lines[2] == '{ "Category": "convention" }'
 
 
 def test_deprecation_set_output(recwarn: WarningsRecorder) -> None:
@@ -135,6 +150,7 @@ def test_parseable_output_deprecated() -> None:
 def test_parseable_output_regression() -> None:
     output = StringIO()
     with warnings.catch_warnings(record=True):
+        warnings.simplefilter("ignore", category=DeprecationWarning)
         linter = PyLinter(reporter=ParseableTextReporter())
 
     checkers.initialize(linter)
@@ -332,6 +348,50 @@ def test_multi_format_output(tmp_path: Path) -> None:
         "\n"
         "direct output\n"
     )
+
+
+def test_multi_reporter_independant_messages() -> None:
+    """Messages should not be modified by multiple reporters"""
+
+    check_message = "Not modified"
+
+    class ReporterModify(BaseReporter):
+        def handle_message(self, msg: Message) -> None:
+            msg.msg = "Modified message"
+
+        def writeln(self, string: str = "") -> None:
+            pass
+
+        def _display(self, layout: Section) -> None:
+            pass
+
+    class ReporterCheck(BaseReporter):
+        def handle_message(self, msg: Message) -> None:
+            assert (
+                msg.msg == check_message
+            ), "Message object should not be changed by other reporters."
+
+        def writeln(self, string: str = "") -> None:
+            pass
+
+        def _display(self, layout: Section) -> None:
+            pass
+
+    multi_reporter = MultiReporter([ReporterModify(), ReporterCheck()], lambda: None)
+
+    message = Message(
+        symbol="missing-docstring",
+        msg_id="C0123",
+        location=MessageLocationTuple("abspath", "path", "module", "obj", 1, 2, 1, 3),
+        msg=check_message,
+        confidence=HIGH,
+    )
+
+    multi_reporter.handle_message(message)
+
+    assert (
+        message.msg == check_message
+    ), "Message object should not be changed by reporters."
 
 
 def test_display_results_is_renamed() -> None:

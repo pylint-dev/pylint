@@ -63,15 +63,14 @@ class CompareCommand(PrimerCommand):
             comment += self._create_comment_for_package(
                 package, new_messages, missing_messages
             )
-        if comment == "":
-            comment = (
+        comment = (
+            f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
+            if comment
+            else (
                 "🤖 According to the primer, this change has **no effect** on the"
                 " checked open source code. 🤖🎉\n\n"
             )
-        else:
-            comment = (
-                f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
-            )
+        )
         return self._truncate_comment(comment)
 
     def _create_comment_for_package(

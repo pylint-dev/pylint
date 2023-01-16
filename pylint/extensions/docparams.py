@@ -298,10 +298,14 @@ class DocstringParameterChecker(BaseChecker):
         doc = utils.docstringify(
             func_node.doc_node, self.linter.config.default_docstring_type
         )
+
+        if self.linter.config.accept_no_raise_doc and not doc.exceptions():
+            return
+
         if not doc.matching_sections():
             if doc.doc:
                 missing = {exc.name for exc in expected_excs}
-                self._handle_no_raise_doc(missing, func_node)
+                self._add_raise_message(missing, func_node)
             return
 
         found_excs_full_names = doc.exceptions()
@@ -328,9 +332,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_return_doc:
             return
 
-        func_node = node.frame(future=True)
-        if not isinstance(func_node, astroid.FunctionDef):
-            return
+        func_node: astroid.FunctionDef = node.frame(future=True)
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -356,9 +358,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_yields_doc:
             return
 
-        func_node = node.frame(future=True)
-        if not isinstance(func_node, astroid.FunctionDef):
-            return
+        func_node: astroid.FunctionDef = node.frame(future=True)
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -467,7 +467,7 @@ class DocstringParameterChecker(BaseChecker):
                 confidence=HIGH,
             )
 
-    def _compare_ignored_args(
+    def _compare_ignored_args(  # pylint: disable=useless-param-doc
         self,
         found_argument_names: set[str],
         message_id: str,
@@ -478,11 +478,8 @@ class DocstringParameterChecker(BaseChecker):
         generate a message if there are ignored arguments found.
 
         :param found_argument_names: argument names found in the docstring
-
         :param message_id: pylint message id
-
         :param ignored_argument_names: Expected argument names
-
         :param warning_node: The node to be analyzed
         """
         existing_ignored_argument_names = ignored_argument_names & found_argument_names
@@ -651,12 +648,6 @@ class DocstringParameterChecker(BaseChecker):
                 node=class_node,
                 confidence=HIGH,
             )
-
-    def _handle_no_raise_doc(self, excs: set[str], node: nodes.FunctionDef) -> None:
-        if self.linter.config.accept_no_raise_doc:
-            return
-
-        self._add_raise_message(excs, node)
 
     def _add_raise_message(
         self, missing_exceptions: set[str], node: nodes.FunctionDef

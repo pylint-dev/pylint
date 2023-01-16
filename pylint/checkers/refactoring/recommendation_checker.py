@@ -9,11 +9,10 @@ from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers import utils
-from pylint.interfaces import INFERENCE
+from pylint.interfaces import HIGH, INFERENCE
 
 
 class RecommendationChecker(checkers.BaseChecker):
-
     name = "refactoring"
     msgs = {
         "C0200": (
@@ -61,12 +60,6 @@ class RecommendationChecker(checkers.BaseChecker):
             "which could potentially be a f-string. The use of f-strings is preferred. "
             "Requires Python 3.6 and ``py-version >= 3.6``.",
         ),
-        "C0210": (
-            "Use '%s' to do an augmented assign directly",
-            "consider-using-augmented-assign",
-            "Emitted when an assignment is referring to the object that it is assigning "
-            "to. This can be changed to be an augmented assign.",
-        ),
     }
 
     def open(self) -> None:
@@ -92,6 +85,10 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if node.func.attrname != "keys":
             return
+
+        if isinstance(node.parent, nodes.BinOp) and node.parent.op in {"&", "|", "^"}:
+            return
+
         comp_ancestor = utils.get_node_first_ancestor_of_type(node, nodes.Compare)
         if (
             isinstance(node.parent, (nodes.For, nodes.Comprehension))
@@ -108,7 +105,9 @@ class RecommendationChecker(checkers.BaseChecker):
                 inferred.bound, nodes.Dict
             ):
                 return
-            self.add_message("consider-iterating-dictionary", node=node)
+            self.add_message(
+                "consider-iterating-dictionary", node=node, confidence=INFERENCE
+            )
 
     def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:
         """Add message when accessing first or last elements of a str.split() or
@@ -333,9 +332,16 @@ class RecommendationChecker(checkers.BaseChecker):
     def _check_use_sequence_for_iteration(
         self, node: nodes.For | nodes.Comprehension
     ) -> None:
-        """Check if code iterates over an in-place defined set."""
-        if isinstance(node.iter, nodes.Set):
-            self.add_message("use-sequence-for-iteration", node=node.iter)
+        """Check if code iterates over an in-place defined set.
+
+        Sets using `*` are not considered in-place.
+        """
+        if isinstance(node.iter, nodes.Set) and not any(
+            utils.has_starred_node_recursive(node)
+        ):
+            self.add_message(
+                "use-sequence-for-iteration", node=node.iter, confidence=HIGH
+            )
 
     @utils.only_required_for_messages("consider-using-f-string")
     def visit_const(self, node: nodes.Const) -> None:
@@ -423,17 +429,4 @@ class RecommendationChecker(checkers.BaseChecker):
                 node=node,
                 line=node.lineno,
                 col_offset=node.col_offset,
-            )
-
-    @utils.only_required_for_messages("consider-using-augmented-assign")
-    def visit_assign(self, node: nodes.Assign) -> None:
-        is_aug, op = utils.is_augmented_assign(node)
-        if is_aug:
-            self.add_message(
-                "consider-using-augmented-assign",
-                args=f"{op}=",
-                node=node,
-                line=node.lineno,
-                col_offset=node.col_offset,
-                confidence=INFERENCE,
             )

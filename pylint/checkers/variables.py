@@ -28,12 +28,7 @@ from pylint.checkers.utils import (
     in_type_checking_block,
     is_postponed_evaluation_enabled,
 )
-from pylint.constants import (
-    PY39_PLUS,
-    TYPING_NEVER,
-    TYPING_NORETURN,
-    TYPING_TYPE_CHECKS_GUARDS,
-)
+from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
 
@@ -113,6 +108,13 @@ TYPING_NAMES = frozenset(
     }
 )
 
+DICT_TYPES = (
+    astroid.objects.DictValues,
+    astroid.objects.DictKeys,
+    astroid.objects.DictItems,
+    astroid.nodes.node_classes.Dict,
+)
+
 
 class VariableVisitConsumerAction(Enum):
     """Reported by _check_consumer() and its sub-methods to determine the
@@ -161,17 +163,24 @@ def overridden_method(
 
 def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> str:
     """Return extra information to add to the message for unpacking-non-sequence
-    and unbalanced-tuple-unpacking errors.
+    and unbalanced-tuple/dict-unpacking errors.
     """
     more = ""
+    if isinstance(inferred, DICT_TYPES):
+        if isinstance(node, nodes.Assign):
+            more = node.value.as_string()
+        elif isinstance(node, nodes.For):
+            more = node.iter.as_string()
+        return more
+
     inferred_module = inferred.root().name
     if node.root().name == inferred_module:
         if node.lineno == inferred.lineno:
-            more = f" {inferred.as_string()}"
+            more = f"'{inferred.as_string()}'"
         elif inferred.lineno:
-            more = f" defined at line {inferred.lineno}"
+            more = f"defined at line {inferred.lineno}"
     elif inferred.lineno:
-        more = f" defined at line {inferred.lineno} of {inferred_module}"
+        more = f"defined at line {inferred.lineno} of {inferred_module}"
     return more
 
 
@@ -480,9 +489,8 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "the loop.",
     ),
     "W0632": (
-        "Possible unbalanced tuple unpacking with "
-        "sequence%s: "
-        "left side has %d label(s), right side has %d value(s)",
+        "Possible unbalanced tuple unpacking with sequence %s: left side has %d "
+        "label%s, right side has %d value%s",
         "unbalanced-tuple-unpacking",
         "Used when there is an unbalanced tuple unpacking in assignment",
         {"old_names": [("E0632", "old-unbalanced-tuple-unpacking")]},
@@ -490,8 +498,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "E0633": (
         "Attempting to unpack a non-sequence%s",
         "unpacking-non-sequence",
-        "Used when something which is not "
-        "a sequence is used in an unpack assignment",
+        "Used when something which is not a sequence is used in an unpack assignment",
         {"old_names": [("W0633", "old-unpacking-non-sequence")]},
     ),
     "W0640": (
@@ -520,6 +527,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Emitted when an index used on an iterable goes beyond the length of that "
         "iterable.",
     ),
+    "W0644": (
+        "Possible unbalanced dict unpacking with %s: "
+        "left side has %d label%s, right side has %d value%s",
+        "unbalanced-dict-unpacking",
+        "Used when there is an unbalanced dict unpacking in assignment or for loop",
+    ),
 }
 
 
@@ -540,6 +553,7 @@ class NamesConsumer:
             copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
         )
         self.node = node
+        self._if_nodes_deemed_uncertain: set[nodes.If] = set()
 
     def __repr__(self) -> str:
         _to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
@@ -637,6 +651,13 @@ scope_type : {self._atomic.scope_type}
         if VariablesChecker._comprehension_between_frame_and_node(node):
             return found_nodes
 
+        # Filter out assignments guarded by always false conditions
+        if found_nodes:
+            uncertain_nodes = self._uncertain_nodes_in_false_tests(found_nodes, node)
+            self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_set = set(uncertain_nodes)
+            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
+
         # Filter out assignments in ExceptHandlers that node is not contained in
         if found_nodes:
             found_nodes = [
@@ -683,6 +704,118 @@ scope_type : {self._atomic.scope_type}
         return found_nodes
 
     @staticmethod
+    def _exhaustively_define_name_raise_or_return(
+        name: str, node: nodes.NodeNG
+    ) -> bool:
+        """Return True if there is a collectively exhaustive set of paths under
+        this `if_node` that define `name`, raise, or return.
+        """
+        # Handle try and with
+        if isinstance(node, (nodes.TryExcept, nodes.TryFinally)):
+            # Allow either a path through try/else/finally OR a path through ALL except handlers
+            return (
+                NamesConsumer._defines_name_raises_or_returns_recursive(name, node)
+                or isinstance(node, nodes.TryExcept)
+                and all(
+                    NamesConsumer._defines_name_raises_or_returns_recursive(
+                        name, handler
+                    )
+                    for handler in node.handlers
+                )
+            )
+        if isinstance(node, nodes.With):
+            return NamesConsumer._defines_name_raises_or_returns_recursive(name, node)
+
+        if not isinstance(node, nodes.If):
+            return False
+
+        # Be permissive if there is a break
+        if any(node.nodes_of_class(nodes.Break)):
+            return True
+
+        # Is there an assignment in this node itself, e.g. in named expression?
+        if NamesConsumer._defines_name_raises_or_returns(name, node):
+            return True
+
+        # If there is no else, then there is no collectively exhaustive set of paths
+        if not node.orelse:
+            return False
+
+        return NamesConsumer._branch_handles_name(
+            name, node.body
+        ) and NamesConsumer._branch_handles_name(name, node.orelse)
+
+    @staticmethod
+    def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
+        return any(
+            NamesConsumer._defines_name_raises_or_returns(name, if_body_stmt)
+            or isinstance(
+                if_body_stmt,
+                (nodes.If, nodes.TryExcept, nodes.TryFinally, nodes.With),
+            )
+            and NamesConsumer._exhaustively_define_name_raise_or_return(
+                name, if_body_stmt
+            )
+            for if_body_stmt in body
+        )
+
+    def _uncertain_nodes_in_false_tests(
+        self, found_nodes: list[nodes.NodeNG], node: nodes.NodeNG
+    ) -> list[nodes.NodeNG]:
+        """Identify nodes of uncertain execution because they are defined under
+        tests that evaluate false.
+
+        Don't identify a node if there is a collectively exhaustive set of paths
+        that define the name, raise, or return (e.g. every if/else branch).
+        """
+        uncertain_nodes = []
+        for other_node in found_nodes:
+            if in_type_checking_block(other_node):
+                continue
+
+            if not isinstance(other_node, nodes.AssignName):
+                continue
+
+            closest_if = utils.get_node_first_ancestor_of_type(other_node, nodes.If)
+            if closest_if is None:
+                continue
+            if node.frame() is not closest_if.frame():
+                continue
+            if closest_if is not None and closest_if.parent_of(node):
+                continue
+
+            # Name defined in every if/else branch
+            if NamesConsumer._exhaustively_define_name_raise_or_return(
+                other_node.name, closest_if
+            ):
+                continue
+
+            # Higher-level if already determined to be always false
+            if any(
+                if_node.parent_of(closest_if)
+                for if_node in self._if_nodes_deemed_uncertain
+            ):
+                uncertain_nodes.append(other_node)
+                continue
+
+            # All inferred values must test false
+            if isinstance(closest_if.test, nodes.NamedExpr):
+                test = closest_if.test.value
+            else:
+                test = closest_if.test
+            all_inferred = utils.infer_all(test)
+            if not all_inferred or not all(
+                isinstance(inferred, nodes.Const) and not inferred.value
+                for inferred in all_inferred
+            ):
+                continue
+
+            uncertain_nodes.append(other_node)
+            self._if_nodes_deemed_uncertain.add(closest_if)
+
+        return uncertain_nodes
+
+    @staticmethod
     def _uncertain_nodes_in_except_blocks(
         found_nodes: list[nodes.NodeNG],
         node: nodes.NodeNG,
@@ -713,7 +846,14 @@ scope_type : {self._atomic.scope_type}
                 isinstance(else_statement, nodes.Return)
                 for else_statement in closest_try_except.orelse
             )
-            if try_block_returns or else_block_returns:
+            else_block_exits = any(
+                isinstance(else_statement, nodes.Expr)
+                and isinstance(else_statement.value, nodes.Call)
+                and utils.is_terminating_func(else_statement.value)
+                for else_statement in closest_try_except.orelse
+            )
+
+            if try_block_returns or else_block_returns or else_block_exits:
                 # Exception: if this node is in the final block of the other_node_statement,
                 # it will execute before returning. Assume the except statements are uncertain.
                 if (
@@ -748,7 +888,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
-        if isinstance(node, (nodes.Raise, nodes.Return)):
+        if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return)):
             return True
         if (
             isinstance(node, nodes.AnnAssign)
@@ -760,21 +900,16 @@ scope_type : {self._atomic.scope_type}
         if isinstance(node, nodes.Assign):
             for target in node.targets:
                 for elt in utils.get_all_elements(target):
+                    if isinstance(elt, nodes.Starred):
+                        elt = elt.value
                     if isinstance(elt, nodes.AssignName) and elt.name == name:
                         return True
         if isinstance(node, nodes.If):
-            # Check for assignments inside the test
-            if isinstance(node.test, nodes.NamedExpr) and node.test.target.name == name:
+            if any(
+                child_named_expr.target.name == name
+                for child_named_expr in node.nodes_of_class(nodes.NamedExpr)
+            ):
                 return True
-            if isinstance(node.test, nodes.Call):
-                for arg_or_kwarg in node.test.args + [
-                    kw.value for kw in node.test.keywords
-                ]:
-                    if (
-                        isinstance(arg_or_kwarg, nodes.NamedExpr)
-                        and arg_or_kwarg.target.name == name
-                    ):
-                        return True
         return False
 
     @staticmethod
@@ -1103,6 +1238,41 @@ class VariablesChecker(BaseChecker):
         """This is a queue, last in first out."""
         self._postponed_evaluation_enabled = False
 
+    @utils.only_required_for_messages(
+        "unbalanced-dict-unpacking",
+    )
+    def visit_for(self, node: nodes.For) -> None:
+        if not isinstance(node.target, nodes.Tuple):
+            return
+
+        targets = node.target.elts
+
+        inferred = utils.safe_infer(node.iter)
+        if not isinstance(inferred, DICT_TYPES):
+            return
+
+        values = self._nodes_to_unpack(inferred)
+        if not values:
+            # no dict items returned
+            return
+
+        if isinstance(inferred, astroid.objects.DictItems):
+            # dict.items() is a bit special because values will be a tuple
+            # So as long as there are always 2 targets and values each are
+            # a tuple with two items, this will unpack correctly.
+            # Example: `for key, val in {1: 2, 3: 4}.items()`
+            if len(targets) == 2 and all(len(x.elts) == 2 for x in values):
+                return
+
+            # Starred nodes indicate ambiguous unpacking
+            # if `dict.items()` is used so we won't flag them.
+            if any(isinstance(target, nodes.Starred) for target in targets):
+                return
+
+        if len(targets) != len(values):
+            details = _get_unpacking_extra_info(node, inferred)
+            self._report_unbalanced_unpacking(node, inferred, targets, values, details)
+
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
 
@@ -1147,6 +1317,7 @@ class VariablesChecker(BaseChecker):
             return
 
         self._check_imports(not_consumed)
+        self._type_annotation_names = []
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Visit class: update consumption analysis variable."""
@@ -1596,7 +1767,6 @@ class VariablesChecker(BaseChecker):
             and not utils.is_defined_before(node)
             and not astroid.are_exclusive(stmt, defstmt, ("NameError",))
         ):
-
             # Used and defined in the same place, e.g `x += 1` and `del x`
             defined_by_stmt = defstmt is stmt and isinstance(
                 node, (nodes.DelName, nodes.AssignName)
@@ -1608,7 +1778,6 @@ class VariablesChecker(BaseChecker):
                 or isinstance(defstmt, nodes.Delete)
             ):
                 if not utils.node_ignores_exception(node, NameError):
-
                     # Handle postponed evaluation of annotations
                     if not (
                         self._postponed_evaluation_enabled
@@ -1739,7 +1908,10 @@ class VariablesChecker(BaseChecker):
             self._check_module_attrs(node, module, name.split("."))
 
     @utils.only_required_for_messages(
-        "unbalanced-tuple-unpacking", "unpacking-non-sequence", "self-cls-assignment"
+        "unbalanced-tuple-unpacking",
+        "unpacking-non-sequence",
+        "self-cls-assignment",
+        "unbalanced_dict_unpacking",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
         """Check unbalanced tuple unpacking for assignments and unpacking
@@ -1750,6 +1922,11 @@ class VariablesChecker(BaseChecker):
             return
 
         targets = node.targets[0].itered()
+
+        # Check if we have starred nodes.
+        if any(isinstance(target, nodes.Starred) for target in targets):
+            return
+
         try:
             inferred = utils.safe_infer(node.value)
             if inferred is not None:
@@ -1895,7 +2072,6 @@ class VariablesChecker(BaseChecker):
             and isinstance(frame, nodes.ClassDef)
             and node.name in frame.locals
         ):
-
             # This rule verifies that if the definition node of the
             # checked name is an Arguments node and if the name
             # is used a default value in the arguments defaults
@@ -1955,6 +2131,7 @@ class VariablesChecker(BaseChecker):
                             nodes.AugAssign,
                             nodes.Expr,
                             nodes.Return,
+                            nodes.Match,
                         ),
                     )
                     and VariablesChecker._maybe_used_and_assigned_at_once(defstmt)
@@ -2008,12 +2185,23 @@ class VariablesChecker(BaseChecker):
                     )
 
             # Look for type checking definitions inside a type checking guard.
-            if isinstance(defstmt, (nodes.Import, nodes.ImportFrom)):
+            # Relevant for function annotations only, not variable annotations (AnnAssign)
+            if (
+                isinstance(defstmt, (nodes.Import, nodes.ImportFrom))
+                and isinstance(defstmt.parent, nodes.If)
+                and in_type_checking_block(defstmt)
+                and not in_type_checking_block(node)
+            ):
                 defstmt_parent = defstmt.parent
 
-                if (
-                    isinstance(defstmt_parent, nodes.If)
-                    and defstmt_parent.test.as_string() in TYPING_TYPE_CHECKS_GUARDS
+                maybe_annotation = utils.get_node_first_ancestor_of_type(
+                    node, nodes.AnnAssign
+                )
+                if not (
+                    maybe_annotation
+                    and utils.get_node_first_ancestor_of_type(
+                        maybe_annotation, nodes.FunctionDef
+                    )
                 ):
                     # Exempt those definitions that are used inside the type checking
                     # guard or that are defined in both type checking guard branches.
@@ -2045,6 +2233,8 @@ class VariablesChecker(BaseChecker):
         """Check if `defstmt` has the potential to use and assign a name in the
         same statement.
         """
+        if isinstance(defstmt, nodes.Match):
+            return any(case.guard for case in defstmt.cases)
         if isinstance(defstmt.value, nodes.BaseContainer) and defstmt.value.elts:
             # The assignment must happen as part of the first element
             # e.g. "assert (x:= True), x"
@@ -2056,9 +2246,16 @@ class VariablesChecker(BaseChecker):
             return True
         if isinstance(value, nodes.Lambda) and isinstance(value.body, nodes.IfExp):
             return True
-        return isinstance(value, nodes.Call) and (
-            any(isinstance(kwarg.value, nodes.IfExp) for kwarg in value.keywords)
-            or any(isinstance(arg, nodes.IfExp) for arg in value.args)
+        if not isinstance(value, nodes.Call):
+            return False
+        return any(
+            any(isinstance(kwarg.value, nodes.IfExp) for kwarg in call.keywords)
+            or any(isinstance(arg, nodes.IfExp) for arg in call.args)
+            or (
+                isinstance(call.func, nodes.Attribute)
+                and isinstance(call.func.expr, nodes.IfExp)
+            )
+            for call in value.nodes_of_class(klass=nodes.Call)
         )
 
     def _is_only_type_assignment(
@@ -2663,38 +2860,55 @@ class VariablesChecker(BaseChecker):
 
         # Attempt to check unpacking is properly balanced
         values = self._nodes_to_unpack(inferred)
+        details = _get_unpacking_extra_info(node, inferred)
+
         if values is not None:
             if len(targets) != len(values):
-                # Check if we have starred nodes.
-                if any(isinstance(target, nodes.Starred) for target in targets):
-                    return
-                self.add_message(
-                    "unbalanced-tuple-unpacking",
-                    node=node,
-                    args=(
-                        _get_unpacking_extra_info(node, inferred),
-                        len(targets),
-                        len(values),
-                    ),
+                self._report_unbalanced_unpacking(
+                    node, inferred, targets, values, details
                 )
         # attempt to check unpacking may be possible (i.e. RHS is iterable)
         elif not utils.is_iterable(inferred):
-            self.add_message(
-                "unpacking-non-sequence",
-                node=node,
-                args=(_get_unpacking_extra_info(node, inferred),),
-            )
+            self._report_unpacking_non_sequence(node, details)
 
     @staticmethod
     def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:
         """Return the list of values of the `Assign` node."""
-        if isinstance(node, (nodes.Tuple, nodes.List)):
+        if isinstance(node, (nodes.Tuple, nodes.List) + DICT_TYPES):
             return node.itered()  # type: ignore[no-any-return]
         if isinstance(node, astroid.Instance) and any(
             ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
         ):
             return [i for i in node.values() if isinstance(i, nodes.AssignName)]
         return None
+
+    def _report_unbalanced_unpacking(
+        self,
+        node: nodes.NodeNG,
+        inferred: InferenceResult,
+        targets: list[nodes.NodeNG],
+        values: list[nodes.NodeNG],
+        details: str,
+    ) -> None:
+        args = (
+            details,
+            len(targets),
+            "" if len(targets) == 1 else "s",
+            len(values),
+            "" if len(values) == 1 else "s",
+        )
+
+        symbol = (
+            "unbalanced-dict-unpacking"
+            if isinstance(inferred, DICT_TYPES)
+            else "unbalanced-tuple-unpacking"
+        )
+        self.add_message(symbol, node=node, args=args, confidence=INFERENCE)
+
+    def _report_unpacking_non_sequence(self, node: nodes.NodeNG, details: str) -> None:
+        if details and not details.startswith(" "):
+            details = f" {details}"
+        self.add_message("unpacking-non-sequence", node=node, args=details)
 
     def _check_module_attrs(
         self,
@@ -2972,7 +3186,7 @@ class VariablesChecker(BaseChecker):
     )
     def visit_const(self, node: nodes.Const) -> None:
         """Take note of names that appear inside string literal type annotations
-        unless the string is a parameter to typing.Literal.
+        unless the string is a parameter to `typing.Literal` or `typing.Annotation`.
         """
         if node.pytype() != "builtins.str":
             return
@@ -2985,7 +3199,9 @@ class VariablesChecker(BaseChecker):
             parent = parent.parent
         if isinstance(parent, nodes.Subscript):
             origin = next(parent.get_children(), None)
-            if origin is not None and utils.is_typing_literal(origin):
+            if origin is not None and utils.is_typing_member(
+                origin, ("Annotated", "Literal")
+            ):
                 return
 
         try:

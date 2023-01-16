@@ -154,20 +154,34 @@ SHAPES: dict[NodeType, str] = {
     NodeType.CLASS: "box",
     NodeType.INTERFACE: "ellipse",
 }
+# pylint: disable-next=consider-using-namedtuple-or-dataclass
 ARROWS: dict[EdgeType, dict[str, str | int]] = {
-    EdgeType.USES: dict(arrowstyle="solid", backarrowstyle="none", backarrowsize=0),
-    EdgeType.INHERITS: dict(
-        arrowstyle="solid", backarrowstyle="none", backarrowsize=10
-    ),
-    EdgeType.IMPLEMENTS: dict(
-        arrowstyle="solid",
-        backarrowstyle="none",
-        linestyle="dotted",
-        backarrowsize=10,
-    ),
-    EdgeType.ASSOCIATION: dict(
-        arrowstyle="solid", backarrowstyle="none", textcolor="green"
-    ),
+    EdgeType.USES: {
+        "arrowstyle": "solid",
+        "backarrowstyle": "none",
+        "backarrowsize": 0,
+    },
+    EdgeType.INHERITS: {
+        "arrowstyle": "solid",
+        "backarrowstyle": "none",
+        "backarrowsize": 10,
+    },
+    EdgeType.IMPLEMENTS: {
+        "arrowstyle": "solid",
+        "backarrowstyle": "none",
+        "linestyle": "dotted",
+        "backarrowsize": 10,
+    },
+    EdgeType.ASSOCIATION: {
+        "arrowstyle": "solid",
+        "backarrowstyle": "none",
+        "textcolor": "green",
+    },
+    EdgeType.AGGREGATION: {
+        "arrowstyle": "solid",
+        "backarrowstyle": "none",
+        "textcolor": "green",
+    },
 }
 ORIENTATION: dict[Layout, str] = {
     Layout.LEFT_TO_RIGHT: "left_to_right",
@@ -273,7 +287,7 @@ class VCGPrinter(Printer):
             try:
                 _type = attributes_dict[key]
             except KeyError as e:
-                raise Exception(
+                raise AttributeError(
                     f"no such attribute {key}\npossible attributes are {attributes_dict.keys()}"
                 ) from e
 
@@ -284,6 +298,6 @@ class VCGPrinter(Printer):
             elif value in _type:
                 self.emit(f"{key}:{value}\n")
             else:
-                raise Exception(
+                raise ValueError(
                     f"value {value} isn't correct for attribute {key} correct values are {type}"
                 )

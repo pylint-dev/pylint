@@ -57,8 +57,9 @@ Creating a pull request
 Got a change for Pylint?  Below are a few steps you should take to make sure
 your patch gets accepted:
 
-- We recommend using Python 3.8 or higher for development of Pylint as it gives
-  you access to the latest ``ast`` parser.
+- You must use at least Python 3.8 for development of Pylint as it gives
+  you access to the latest ``ast`` parser and some pre-commit hooks do not
+  support python 3.7.
 
 - Install the dev dependencies, see :ref:`contributor_install`.
 
@@ -67,9 +68,9 @@ your patch gets accepted:
 .. keep this in sync with the description of PULL_REQUEST_TEMPLATE.md!
 
 - Create a news fragment with `towncrier create <IssueNumber>.<type>` which will be
-  included in the changelog. `<type>` can be one of: breaking, user_action, new_check, removed_check, extension,
-  false_positive, false_negative, bugfix, other, internal. If necessary you can write
-  details or offer examples on how the new change is supposed to work.
+  included in the changelog. `<type>` can be one of: breaking, user_action, feature,
+  new_check, removed_check, extension, false_positive, false_negative, bugfix, other, internal.
+  If necessary you can write details or offer examples on how the new change is supposed to work.
 
 - Document your change, if it is a non-trivial one.
 

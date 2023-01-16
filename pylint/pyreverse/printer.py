@@ -25,6 +25,7 @@ class EdgeType(Enum):
     INHERITS = "inherits"
     IMPLEMENTS = "implements"
     ASSOCIATION = "association"
+    AGGREGATION = "aggregation"
     USES = "uses"
 
 

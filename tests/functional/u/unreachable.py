@@ -1,5 +1,9 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, broad-exception-raised, too-few-public-methods, redefined-outer-name
+# pylint: disable=consider-using-sys-exit, protected-access
 
+import os
+import signal
+import sys
 
 def func1():
     return 1
@@ -32,3 +36,46 @@ def func6():
     return
     yield
     print("unreachable")  # [unreachable]
+
+def func7():
+    sys.exit(1)
+    var = 2 + 2  # [unreachable]
+    print(var)
+
+def func8():
+    signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
+    try:
+        print(1)
+    except KeyboardInterrupt:
+        pass
+
+class FalseExit:
+    def exit(self, number):
+        print(f"False positive this is not sys.exit({number})")
+
+def func_false_exit():
+    sys  = FalseExit()
+    sys.exit(1)
+    var = 2 + 2
+    print(var)
+
+def func9():
+    os._exit()
+    var = 2 + 2  # [unreachable]
+    print(var)
+
+def func10():
+    exit()
+    var = 2 + 2  # [unreachable]
+    print(var)
+
+def func11():
+    quit()
+    var = 2 + 2  # [unreachable]
+    print(var)
+
+incognito_function = sys.exit
+def func12():
+    incognito_function()
+    var = 2 + 2  # [unreachable]
+    print(var)

@@ -85,7 +85,7 @@ class RunCommand(PrimerCommand):
         try:
             Run(arguments, reporter=reporter)
         except SystemExit as e:
-            pylint_exit_code = int(e.code)
+            pylint_exit_code = int(e.code)  # type: ignore[arg-type]
         readable_messages: str = output.getvalue()
         messages: list[OldJsonExport] = json.loads(readable_messages)
         fatal_msgs: list[Message] = []

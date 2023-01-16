@@ -57,16 +57,25 @@ Primer tests
 
 Pylint also uses what we refer to as ``primer`` tests. These are tests that are run automatically
 in our Continuous Integration and check whether any changes in Pylint lead to crashes or fatal errors
-on the ``stdlib`` and a selection of external repositories.
+on the ``stdlib``, and also assess a pull request's impact on the linting of a selection of external
+repositories by posting the diff against ``pylint``'s current output as a comment.
 
-To run the ``primer`` tests you can add either ``--primer-stdlib`` or ``--primer-external`` to the
-pytest_ command. If you want to only run the ``primer`` you can add either of their marks, for example::
+To run the primer test for the ``stdlib``, which only checks for crashes and fatal errors, you can add
+``--primer-stdlib`` to the pytest_ command. For example::
 
     pytest -m primer_stdlib --primer-stdlib
 
-The external ``primer`` can be run with::
+To produce the output generated on Continuous Integration for the linting of external repositories,
+run these commands::
 
-    pytest -m primer_external_batch_one --primer-external # Runs batch one
+    python tests/primer/__main__.py prepare --clone
+    python tests/primer/__main__.py run --type=pr
+
+To fully simulate the process on Continuous Integration, you should then checkout ``main``, and
+then run these commands::
+
+    python tests/primer/__main__.py run --type=main
+    python tests/primer/__main__.py compare
 
 The list of repositories is created on the basis of three criteria: 1) projects need to use a diverse
 range of language features, 2) projects need to be well maintained and 3) projects should not have a codebase

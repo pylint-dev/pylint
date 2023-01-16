@@ -136,7 +136,7 @@ VALIDATORS: dict[str, Callable[[Any, str, Any], Any] | Callable[[Any], Any]] = {
 
 def _call_validator(opttype: str, optdict: Any, option: str, value: Any) -> Any:
     if opttype not in VALIDATORS:
-        raise Exception(f'Unsupported type "{opttype}"')
+        raise TypeError(f'Unsupported type "{opttype}"')
     try:
         return VALIDATORS[opttype](optdict, option, value)  # type: ignore[call-arg]
     except TypeError:
@@ -193,7 +193,7 @@ class Option(optparse.Option):
             stacklevel=2,
         )
         super().__init__(*opts, **attrs)
-        if hasattr(self, "hide") and self.hide:  # type: ignore[attr-defined]
+        if hasattr(self, "hide") and self.hide:
             self.help = optparse.SUPPRESS_HELP
 
     def _check_choice(self) -> None:

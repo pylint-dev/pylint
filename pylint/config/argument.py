@@ -272,7 +272,7 @@ class _StoreTrueArgument(_BaseStoreArgument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=useless-super-delegation # We narrow down the type of action
+    # pylint: disable-next=useless-parent-delegation # We narrow down the type of action
     def __init__(
         self,
         *,
@@ -365,9 +365,9 @@ class _ExtendArgument(_DeprecationArgument):
     ) -> None:
         # The extend action is included in the stdlib from 3.8+
         if PY38_PLUS:
-            action_class = argparse._ExtendAction  # type: ignore[attr-defined]
+            action_class = argparse._ExtendAction
         else:
-            action_class = _ExtendAction
+            action_class = _ExtendAction  # type: ignore[assignment]
 
         self.dest = dest
         """The destination of the argument."""

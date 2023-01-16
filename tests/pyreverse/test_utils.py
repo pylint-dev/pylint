@@ -117,7 +117,7 @@ def test_infer_node_1(mock_infer: Any, mock_get_annotation: Any) -> None:
 
 
 @patch("pylint.pyreverse.utils.get_annotation")
-@patch("astroid.node_classes.NodeNG.infer")
+@patch("astroid.nodes.NodeNG.infer")
 def test_infer_node_2(mock_infer: Any, mock_get_annotation: Any) -> None:
     """Return set(node.infer()) when InferenceError is not raised and an
     annotation has not been returned

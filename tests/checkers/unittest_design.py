@@ -9,7 +9,6 @@ from pylint.testutils import CheckerTestCase, set_config
 
 
 class TestDesignChecker(CheckerTestCase):
-
     CHECKER_CLASS = design_analysis.MisdesignChecker
 
     @set_config(

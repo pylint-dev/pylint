@@ -31,6 +31,7 @@ bla
 bom
 bool
 boolean
+booleaness
 boolop
 boundmethod
 builtins
@@ -73,6 +74,7 @@ cyclomatic
 dataclass
 datetime
 debian
+deduplication
 deepcopy
 defaultdicts
 defframe
@@ -106,6 +108,7 @@ epytext
 erroring
 etree
 expr
+falsey
 favour
 filepath
 filestream
@@ -282,6 +285,7 @@ sep
 setcomp
 shortstrings
 singledispatch
+singledispatchmethod
 spammy
 sqlalchemy
 src
@@ -325,6 +329,7 @@ toplevel
 towncrier
 tp
 truthness
+truthey
 tryexcept
 txt
 typecheck

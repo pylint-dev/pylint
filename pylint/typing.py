@@ -125,14 +125,14 @@ class ExtraMessageOptions(TypedDict, total=False):
     maxversion: tuple[int, int]
     minversion: tuple[int, int]
     shared: bool
+    default_enabled: bool
 
 
 MessageDefinitionTuple = Union[
     Tuple[str, str, str],
     Tuple[str, str, str, ExtraMessageOptions],
 ]
-# Mypy doesn't support recursive types (yet), see https://github.com/python/mypy/issues/731
-DirectoryNamespaceDict = Dict[Path, Tuple[argparse.Namespace, "DirectoryNamespaceDict"]]  # type: ignore[misc]
+DirectoryNamespaceDict = Dict[Path, Tuple[argparse.Namespace, "DirectoryNamespaceDict"]]
 
 
 class GetProjectCallable(Protocol):

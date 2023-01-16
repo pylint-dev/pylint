@@ -1,0 +1,7 @@
+Emit ``used-before-assignment`` for further imports guarded by ``TYPE_CHECKING``
+
+Previously, this message was only emitted for imports guarded directly under
+``TYPE_CHECKING``, not guarded two if-branches deep, nor when ``TYPE_CHECKING``
+was imported from ``typing`` under an alias.
+
+Closes #7539

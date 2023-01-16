@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import sys
+import warnings
 from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
@@ -31,6 +32,7 @@ class MessageDefinition:
         maxversion: tuple[int, int] | None = None,
         old_names: list[tuple[str, str]] | None = None,
         shared: bool = False,
+        default_enabled: bool = True,
     ) -> None:
         self.checker_name = checker.name
         self.check_msgid(msgid)
@@ -42,6 +44,7 @@ class MessageDefinition:
         self.minversion = minversion
         self.maxversion = maxversion
         self.shared = shared
+        self.default_enabled = default_enabled
         self.old_names: list[tuple[str, str]] = []
         if old_names:
             for old_msgid, old_symbol in old_names:
@@ -70,11 +73,24 @@ class MessageDefinition:
     def __str__(self) -> str:
         return f"{repr(self)}:\n{self.msg} {self.description}"
 
-    def may_be_emitted(self) -> bool:
-        """Return True if message may be emitted using the current interpreter."""
-        if self.minversion is not None and self.minversion > sys.version_info:
+    def may_be_emitted(
+        self,
+        py_version: tuple[int, ...] | sys._version_info | None = None,
+    ) -> bool:
+        """Return True if message may be emitted using the configured py_version."""
+        if py_version is None:
+            py_version = sys.version_info
+            warnings.warn(
+                "'py_version' will be a required parameter of "
+                "'MessageDefinition.may_be_emitted' in pylint 3.0. The most likely "
+                "solution is to use 'linter.config.py_version' if you need to keep "
+                "using this function, or to use 'MessageDefinition.is_message_enabled'"
+                " instead.",
+                DeprecationWarning,
+            )
+        if self.minversion is not None and self.minversion > py_version:
             return False
-        if self.maxversion is not None and self.maxversion <= sys.version_info:
+        if self.maxversion is not None and self.maxversion <= py_version:
             return False
         return True
 

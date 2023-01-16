@@ -1,0 +1,3 @@
+Fix ``dangerous-default-value`` false negative when ``*`` is used.
+
+Closes #7818

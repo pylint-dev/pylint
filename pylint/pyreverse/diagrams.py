@@ -214,20 +214,34 @@ class ClassDiagram(Figure, FilterMixIn):
                     self.add_relationship(obj, impl_obj, "implements")
                 except KeyError:
                     continue
-            # associations link
-            for name, values in list(node.instance_attrs_type.items()) + list(
+
+            # associations & aggregations links
+            for name, values in list(node.aggregations_type.items()):
+                for value in values:
+                    self.assign_association_relationship(
+                        value, obj, name, "aggregation"
+                    )
+
+            for name, values in list(node.associations_type.items()) + list(
                 node.locals_type.items()
             ):
                 for value in values:
-                    if value is astroid.Uninferable:
-                        continue
-                    if isinstance(value, astroid.Instance):
-                        value = value._proxied
-                    try:
-                        associated_obj = self.object_from_node(value)
-                        self.add_relationship(associated_obj, obj, "association", name)
-                    except KeyError:
-                        continue
+                    self.assign_association_relationship(
+                        value, obj, name, "association"
+                    )
+
+    def assign_association_relationship(
+        self, value: astroid.NodeNG, obj: ClassEntity, name: str, type_relationship: str
+    ) -> None:
+        if value is astroid.Uninferable:
+            return
+        if isinstance(value, astroid.Instance):
+            value = value._proxied
+        try:
+            associated_obj = self.object_from_node(value)
+            self.add_relationship(associated_obj, obj, type_relationship, name)
+        except KeyError:
+            return
 
 
 class PackageDiagram(ClassDiagram):

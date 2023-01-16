@@ -256,9 +256,12 @@ class _ArgumentsManager:
 
     def _parse_configuration_file(self, arguments: list[str]) -> None:
         """Parse the arguments found in a configuration file into the namespace."""
-        self.config, parsed_args = self._arg_parser.parse_known_args(
-            arguments, self.config
-        )
+        try:
+            self.config, parsed_args = self._arg_parser.parse_known_args(
+                arguments, self.config
+            )
+        except SystemExit:
+            sys.exit(32)
         unrecognized_options: list[str] = []
         for opt in parsed_args:
             if opt.startswith("--"):
@@ -447,7 +450,10 @@ class _ArgumentsManager:
         )
         options_by_section = {}
         sections = []
-        for group in self._arg_parser._action_groups:
+        for group in sorted(
+            self._arg_parser._action_groups,
+            key=lambda x: (x.title != "Main", x.title),
+        ):
             group_name = group.title
             assert group_name
             if group_name in skipsections:
@@ -459,7 +465,7 @@ class _ArgumentsManager:
                 for i in group._group_actions
                 if not isinstance(i, argparse._SubParsersAction)
             ]
-            for opt in option_actions:
+            for opt in sorted(option_actions, key=lambda x: x.option_strings[0][2:]):
                 if "--help" in opt.option_strings:
                     continue
 

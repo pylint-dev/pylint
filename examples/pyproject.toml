@@ -4,6 +4,10 @@
 # one or another interpreter, leading to false positives when analysed.
 # analyse-fallback-blocks =
 
+# Clear in-memory caches upon conclusion of linting. Useful if running pylint in
+# a server-like mode.
+# clear-cache-post-run =
+
 # Always return a 0 (non-error) status code, even if lint errors are found. This
 # is primarily useful in continuous integration scripts.
 # exit-zero =
@@ -36,7 +40,7 @@ ignore = ["CVS"]
 
 # Add files or directories matching the regular expressions patterns to the
 # ignore-list. The regex matches against paths and can be in Posix or Windows
-# format. Because '\' represents the directory delimiter on Windows systems, it
+# format. Because '\\' represents the directory delimiter on Windows systems, it
 # can't be used as an escape character.
 # ignore-paths =
 
@@ -222,7 +226,7 @@ exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make"]
 valid-classmethod-first-arg = ["cls"]
 
 # List of valid names for the first argument in a metaclass class method.
-valid-metaclass-classmethod-first-arg = ["cls"]
+valid-metaclass-classmethod-first-arg = ["mcs"]
 
 [tool.pylint.design]
 # List of regular expressions of class ancestor names to ignore when counting
@@ -264,7 +268,7 @@ min-public-methods = 2
 
 [tool.pylint.exceptions]
 # Exceptions that will emit a warning when caught.
-overgeneral-exceptions = ["BaseException", "Exception"]
+overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
 
 [tool.pylint.format]
 # Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
@@ -437,15 +441,6 @@ spelling-ignore-comment-directives = "fmt: on,fmt: off,noqa:,noqa,nosec,isort:sk
 # Tells whether to store unknown words to the private dictionary (see the
 # --spelling-private-dict-file option) instead of raising a message.
 # spelling-store-unknown-words =
-
-[tool.pylint.string]
-# This flag controls whether inconsistent-quotes generates a warning when the
-# character used as a quote delimiter is used inconsistently within a module.
-# check-quote-consistency =
-
-# This flag controls whether the implicit-str-concat should generate a warning on
-# implicit string concatenation in sequences defined over several lines.
-# check-str-concat-over-line-jumps =
 
 [tool.pylint.typecheck]
 # List of decorators that produce context managers, such as

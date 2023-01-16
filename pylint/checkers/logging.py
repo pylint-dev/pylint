@@ -105,6 +105,8 @@ CHECKED_CONVENIENCE_FUNCTIONS = {
     "warning",
 }
 
+MOST_COMMON_FORMATTING = frozenset(["%s", "%d", "%f", "%r"])
+
 
 def is_method_call(
     func: bases.BoundMethod, types: tuple[str, ...] = (), methods: tuple[str, ...] = ()
@@ -240,8 +242,9 @@ class LoggingChecker(checkers.BaseChecker):
         else:
             return
 
-        if isinstance(node.args[format_pos], nodes.BinOp):
-            binop = node.args[format_pos]
+        format_arg = node.args[format_pos]
+        if isinstance(format_arg, nodes.BinOp):
+            binop = format_arg
             emit = binop.op == "%"
             if binop.op == "+":
                 total_number_of_strings = sum(
@@ -256,11 +259,13 @@ class LoggingChecker(checkers.BaseChecker):
                     node=node,
                     args=(self._helper_string(node),),
                 )
-        elif isinstance(node.args[format_pos], nodes.Call):
-            self._check_call_func(node.args[format_pos])
-        elif isinstance(node.args[format_pos], nodes.Const):
+        elif isinstance(format_arg, nodes.Call):
+            self._check_call_func(format_arg)
+        elif isinstance(format_arg, nodes.Const):
             self._check_format_string(node, format_pos)
-        elif isinstance(node.args[format_pos], nodes.JoinedStr):
+        elif isinstance(format_arg, nodes.JoinedStr):
+            if str_formatting_in_f_string(format_arg):
+                return
             self.add_message(
                 "logging-fstring-interpolation",
                 node=node,
@@ -391,6 +396,19 @@ def _count_supplied_tokens(args: list[nodes.NodeNG]) -> int:
       Number of AST nodes that aren't keywords.
     """
     return sum(1 for arg in args if not isinstance(arg, nodes.Keyword))
+
+
+def str_formatting_in_f_string(node: nodes.JoinedStr) -> bool:
+    """Determine whether the node represents an f-string with string formatting.
+
+    For example: `f'Hello %s'`
+    """
+    # Check "%" presence first for performance.
+    return any(
+        "%" in val.value and any(x in val.value for x in MOST_COMMON_FORMATTING)
+        for val in node.values
+        if isinstance(val, nodes.Const)
+    )
 
 
 def register(linter: PyLinter) -> None:

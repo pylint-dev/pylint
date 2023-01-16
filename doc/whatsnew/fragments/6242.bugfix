@@ -1,0 +1,4 @@
+Pylint will now filter duplicates given to it before linting. The output should
+be the same whether a file is given/discovered multiple times or not.
+
+Closes #6242, #4053

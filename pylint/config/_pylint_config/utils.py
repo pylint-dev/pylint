@@ -83,7 +83,7 @@ def validate_yes_no(question: str, default: Literal["yes", "no"] | None) -> bool
     # pylint: disable-next=bad-builtin
     answer = input(question).lower()
 
-    if answer == "" and default:
+    if not answer and default:
         answer = default
 
     if answer not in YES_NO_ANSWERS:

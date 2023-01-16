@@ -15,7 +15,6 @@ from pylint.lint import PyLinter
 
 
 class RedefinedLoopNameChecker(checkers.BaseChecker):
-
     name = "redefined-loop-name"
 
     msgs = {

@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 
 
 class SetMembershipChecker(BaseChecker):
-
     name = "set_membership"
     msgs = {
         "R6201": (

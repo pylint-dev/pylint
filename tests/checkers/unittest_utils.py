@@ -491,7 +491,7 @@ def test_deprecation_check_messages() -> None:
         )
 
 
-def test_is_typing_literal() -> None:
+def test_is_typing_member() -> None:
     code = astroid.extract_node(
         """
     from typing import Literal as Lit, Set as Literal
@@ -503,9 +503,9 @@ def test_is_typing_literal() -> None:
     """
     )
 
-    assert not utils.is_typing_literal(code[0])
-    assert utils.is_typing_literal(code[1])
-    assert utils.is_typing_literal(code[2])
+    assert not utils.is_typing_member(code[0], ("Literal",))
+    assert utils.is_typing_member(code[1], ("Literal",))
+    assert utils.is_typing_member(code[2], ("Literal",))
 
     code = astroid.extract_node(
         """
@@ -513,5 +513,5 @@ def test_is_typing_literal() -> None:
     typing.Literal #@
     """
     )
-    assert not utils.is_typing_literal(code[0])
-    assert not utils.is_typing_literal(code[1])
+    assert not utils.is_typing_member(code[0], ("Literal",))
+    assert not utils.is_typing_member(code[1], ("Literal",))

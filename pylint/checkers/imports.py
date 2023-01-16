@@ -50,7 +50,7 @@ DEPRECATED_MODULES = {
     (3, 6, 0): {"asynchat", "asyncore", "smtpd"},
     (3, 7, 0): {"macpath"},
     (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
-    (3, 10, 0): {"distutils"},
+    (3, 10, 0): {"distutils", "typing.io", "typing.re"},
     (3, 11, 0): {
         "aifc",
         "audioop",
@@ -97,12 +97,14 @@ def _get_first_import(
     base: str | None,
     level: int | None,
     alias: str | None,
-) -> nodes.Import | nodes.ImportFrom | None:
+) -> tuple[nodes.Import | nodes.ImportFrom | None, str | None]:
     """Return the node where [base.]<name> is imported or None if not found."""
     fullname = f"{base}.{name}" if base else name
 
     first = None
     found = False
+    msg = "reimported"
+
     for first in context.body:
         if first is node:
             continue
@@ -111,6 +113,13 @@ def _get_first_import(
         if isinstance(first, nodes.Import):
             if any(fullname == iname[0] for iname in first.names):
                 found = True
+                break
+            for imported_name, imported_alias in first.names:
+                if not imported_alias and imported_name == alias:
+                    found = True
+                    msg = "shadowed-import"
+                    break
+            if found:
                 break
         elif isinstance(first, nodes.ImportFrom):
             if level == first.level:
@@ -125,11 +134,15 @@ def _get_first_import(
                     ):
                         found = True
                         break
+                    if not imported_alias and imported_name == alias:
+                        found = True
+                        msg = "shadowed-import"
+                        break
                 if found:
                     break
     if found and not astroid.are_exclusive(first, node):
-        return first
-    return None
+        return first, msg
+    return None, None
 
 
 def _ignore_import_failure(
@@ -252,7 +265,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0404": (
         "Reimport %r (imported line %s)",
         "reimported",
-        "Used when a module is reimported multiple times.",
+        "Used when a module is imported more than once.",
     ),
     "W0406": (
         "Module import itself",
@@ -302,6 +315,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "import-outside-toplevel",
         "Used when an import statement is used anywhere other than the module "
         "toplevel. Move this import to the top of the file.",
+    ),
+    "W0416": (
+        "Shadowed %r (imported line %s)",
+        "shadowed-import",
+        "Used when a module is aliased with a name that shadows another import.",
     ),
 }
 
@@ -914,8 +932,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         basename: str | None = None,
         level: int | None = None,
     ) -> None:
-        """Check if the import is necessary (i.e. not already done)."""
-        if not self.linter.is_message_enabled("reimported"):
+        """Check if a module with the same name is already imported or aliased."""
+        if not self.linter.is_message_enabled(
+            "reimported"
+        ) and not self.linter.is_message_enabled("shadowed-import"):
             return
 
         frame = node.frame(future=True)
@@ -926,12 +946,13 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         for known_context, known_level in contexts:
             for name, alias in node.names:
-                first = _get_first_import(
+                first, msg = _get_first_import(
                     node, known_context, name, basename, known_level, alias
                 )
-                if first is not None:
+                if first is not None and msg is not None:
+                    name = name if msg == "reimported" else alias
                     self.add_message(
-                        "reimported", node=node, args=(name, first.fromlineno)
+                        msg, node=node, args=(name, first.fromlineno), confidence=HIGH
                     )
 
     def _report_external_dependencies(

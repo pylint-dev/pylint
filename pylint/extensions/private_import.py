@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
 
 class PrivateImportChecker(BaseChecker):
-
     name = "import-private-name"
     msgs = {
         "C2701": (

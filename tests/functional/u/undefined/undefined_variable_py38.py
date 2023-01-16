@@ -1,5 +1,5 @@
 """Tests for undefined variable with assignment expressions"""
-# pylint: disable=using-constant-test, expression-not-assigned, consider-using-augmented-assign
+# pylint: disable=using-constant-test, expression-not-assigned
 
 # Tests for annotation of variables and potentially undefinition
 
@@ -180,3 +180,13 @@ def expression_in_ternary_operator_inside_container_wrong_position():
 # Self-referencing
 if (z := z):  # [used-before-assignment]
     z = z + 1
+
+
+if (defined := False):
+    NEVER_DEFINED = 1
+print(defined)
+print(NEVER_DEFINED)  # [used-before-assignment]
+
+if (still_defined := False) == 1:
+    NEVER_DEFINED_EITHER = 1
+print(still_defined)

@@ -7,10 +7,9 @@ Python program thanks to their APIs:
 
 .. sourcecode:: python
 
-    from pylint import run_pylint, run_epylint, run_pyreverse, run_symilar
+    from pylint import run_pylint, run_pyreverse, run_symilar
 
     run_pylint("--disable=C", "myfile.py")
-    run_epylint(...)
     run_pyreverse(...)
     run_symilar(...)
 

@@ -243,7 +243,12 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
         },
         (3, 11, 0): {
             "locale.getdefaultlocale",
-            "unittest.TestLoader.findTestCases",
+            "locale.resetlocale",
+            "re.template",
+            "unittest.findTestCases",
+            "unittest.makeSuite",
+            "unittest.getTestCaseNames",
+            "unittest.TestLoader.loadTestsFromModule",
             "unittest.TestLoader.loadTestsFromTestCase",
             "unittest.TestLoader.getTestCaseNames",
         },
@@ -300,6 +305,9 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
         }
     },
     (3, 11, 0): {
+        "typing": {
+            "Text",
+        },
         "webbrowser": {
             "MacOSX",
         },
@@ -373,7 +381,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "threading.Thread needs the target function",
             "bad-thread-instantiation",
             "The warning is emitted when a threading.Thread class "
-            "is instantiated without the target function being passed. "
+            "is instantiated without the target function being passed as a kwarg or as a second argument. "
             "By default, the first parameter is the group param, not the target param.",
         ),
         "W1507": (
@@ -388,6 +396,20 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "invalid-envvar-value",
             "Env manipulation functions support only string type arguments. "
             "See https://docs.python.org/3/library/os.html#os.getenv.",
+        ),
+        "E1519": (
+            "singledispatch decorator should not be used with methods, "
+            "use singledispatchmethod instead.",
+            "singledispatch-method",
+            "singledispatch should decorate functions and not class/instance methods. "
+            "Use singledispatchmethod for those cases.",
+        ),
+        "E1520": (
+            "singledispatchmethod decorator should not be used with functions, "
+            "use singledispatch instead.",
+            "singledispatchmethod-function",
+            "singledispatchmethod should decorate class/instance methods and not functions. "
+            "Use singledispatch for those cases.",
         ),
         "W1508": (
             "%s default type is %s. Expected str or None.",
@@ -466,8 +488,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         # synced with the config argument deprecated-modules
 
     def _check_bad_thread_instantiation(self, node: nodes.Call) -> None:
-        if not node.kwargs and not node.keywords and len(node.args) <= 1:
-            self.add_message("bad-thread-instantiation", node=node)
+        func_kwargs = {key.arg for key in node.keywords}
+        if "target" in func_kwargs:
+            return
+
+        if len(node.args) < 2 and (not node.kwargs or "target" not in func_kwargs):
+            self.add_message(
+                "bad-thread-instantiation", node=node, confidence=interfaces.HIGH
+            )
 
     def _check_for_preexec_fn_in_popen(self, node: nodes.Call) -> None:
         if node.keywords:
@@ -557,15 +585,24 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for value in node.values:
             self._check_datetime(value)
 
-    @utils.only_required_for_messages("method-cache-max-size-none")
+    @utils.only_required_for_messages(
+        "method-cache-max-size-none",
+        "singledispatch-method",
+        "singledispatchmethod-function",
+    )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         if node.decorators and isinstance(node.parent, nodes.ClassDef):
-            self._check_lru_cache_decorators(node.decorators)
+            self._check_lru_cache_decorators(node)
+            self._check_dispatch_decorators(node)
 
-    def _check_lru_cache_decorators(self, decorators: nodes.Decorators) -> None:
+    def _check_lru_cache_decorators(self, node: nodes.FunctionDef) -> None:
         """Check if instance methods are decorated with functools.lru_cache."""
+        if any(utils.is_enum(ancestor) for ancestor in node.parent.ancestors()):
+            # method of class inheriting from Enum is exempt from this check.
+            return
+
         lru_cache_nodes: list[nodes.NodeNG] = []
-        for d_node in decorators.nodes:
+        for d_node in node.decorators.nodes:
             try:
                 for infered_node in d_node.infer():
                     q_name = infered_node.qname()
@@ -597,6 +634,36 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 "method-cache-max-size-none",
                 node=lru_cache_node,
                 confidence=interfaces.INFERENCE,
+            )
+
+    def _check_dispatch_decorators(self, node: nodes.FunctionDef) -> None:
+        decorators_map: dict[str, tuple[nodes.NodeNG, interfaces.Confidence]] = {}
+
+        for decorator in node.decorators.nodes:
+            if isinstance(decorator, nodes.Name) and decorator.name:
+                decorators_map[decorator.name] = (decorator, interfaces.HIGH)
+            elif utils.is_registered_in_singledispatch_function(node):
+                decorators_map["singledispatch"] = (decorator, interfaces.INFERENCE)
+            elif utils.is_registered_in_singledispatchmethod_function(node):
+                decorators_map["singledispatchmethod"] = (
+                    decorator,
+                    interfaces.INFERENCE,
+                )
+
+        if "singledispatch" in decorators_map and "classmethod" in decorators_map:
+            self.add_message(
+                "singledispatch-method",
+                node=decorators_map["singledispatch"][0],
+                confidence=decorators_map["singledispatch"][1],
+            )
+        elif (
+            "singledispatchmethod" in decorators_map
+            and "staticmethod" in decorators_map
+        ):
+            self.add_message(
+                "singledispatchmethod-function",
+                node=decorators_map["singledispatchmethod"][0],
+                confidence=decorators_map["singledispatchmethod"][1],
             )
 
     def _check_redundant_assert(self, node: nodes.Call, infer: InferenceResult) -> None:

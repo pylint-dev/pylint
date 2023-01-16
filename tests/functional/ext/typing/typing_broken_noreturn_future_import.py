@@ -7,7 +7,7 @@ If no runtime introspection is required, use string annotations instead.
 With 'from __future__ import annotations', only emit errors for nodes
 not in a type annotation context.
 """
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring, broad-exception-raised
 from __future__ import annotations
 
 import typing

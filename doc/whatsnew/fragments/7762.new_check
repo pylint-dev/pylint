@@ -1,0 +1,4 @@
+Add ``invalid-slice-step`` check to warn about a slice step value of ``0``
+for common builtin sequences.
+
+Refs #7762

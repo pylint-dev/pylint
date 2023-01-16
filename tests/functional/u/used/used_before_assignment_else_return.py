@@ -1,5 +1,6 @@
 """If the else block returns, it is generally safe to rely on assignments in the except."""
-
+# pylint: disable=missing-function-docstring, invalid-name
+import sys
 
 def valid():
     """https://github.com/PyCQA/pylint/issues/6790"""
@@ -59,3 +60,15 @@ def invalid_4():
     else:
         print(error)  # [used-before-assignment]
         return
+
+def valid_exit():
+    try:
+        pass
+    except SystemExit as e:
+        lint_result = e.code
+    else:
+        sys.exit("Bad")
+    if lint_result != 0:
+        sys.exit("Error is 0.")
+
+    print(lint_result)

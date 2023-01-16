@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+fruits = ["apple", "orange", "mango"]
+for fruit in fruits.copy():
+    fruits.append("pineapple")

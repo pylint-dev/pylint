@@ -296,20 +296,8 @@ class PyLinter(
             str, list[checkers.BaseChecker]
         ] = collections.defaultdict(list)
         """Dictionary of registered and initialized checkers."""
-        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError] = {}
+        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
-
-        # Attributes related to registering messages and their handling
-        self.msgs_store = MessageDefinitionStore()
-        self.msg_status = 0
-        self._by_id_managed_msgs: list[ManagedMessage] = []
-
-        # Attributes related to visiting files
-        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
-        self.current_name: str | None = None
-        self.current_file: str | None = None
-        self._ignore_file = False
-        self._ignore_paths: list[Pattern[str]] = []
 
         # Attributes related to stats
         self.stats = LinterStats()
@@ -338,6 +326,19 @@ class PyLinter(
             ),
             ("RP0003", "Messages", report_messages_stats),
         )
+
+        # Attributes related to registering messages and their handling
+        self.msgs_store = MessageDefinitionStore(self.config.py_version)
+        self.msg_status = 0
+        self._by_id_managed_msgs: list[ManagedMessage] = []
+
+        # Attributes related to visiting files
+        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
+        self.current_name: str | None = None
+        self.current_file: str | None = None
+        self._ignore_file = False
+        self._ignore_paths: list[Pattern[str]] = []
+
         self.register_checker(self)
 
     @property
@@ -404,6 +405,14 @@ class PyLinter(
             elif hasattr(module_or_error, "load_configuration"):
                 module_or_error.load_configuration(self)
 
+        # We re-set all the dictionary values to True here to make sure the dict
+        # is pickle-able. This is only a problem in multiprocessing/parallel mode.
+        # (e.g. invoking pylint -j 2)
+        self._dynamic_plugins = {
+            modname: not isinstance(val, ModuleNotFoundError)
+            for modname, val in self._dynamic_plugins.items()
+        }
+
     def _load_reporters(self, reporter_names: str) -> None:
         """Load the reporters if they are available on _reporters."""
         if not self._reporters:
@@ -445,8 +454,8 @@ class PyLinter(
             reporter_class = _load_reporter_by_class(reporter_name)
         except (ImportError, AttributeError, AssertionError) as e:
             raise exceptions.InvalidReporterError(name) from e
-        else:
-            return reporter_class()
+
+        return reporter_class()
 
     def set_reporter(
         self, reporter: reporters.BaseReporter | reporters.MultiReporter
@@ -480,6 +489,9 @@ class PyLinter(
             self.register_report(r_id, r_title, r_cb, checker)
         if hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
+            for message in checker.messages:
+                if not message.default_enabled:
+                    self.disable(message.msgid)
         # Register the checker, but disable all of its messages.
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)
@@ -599,7 +611,7 @@ class PyLinter(
         # initialize msgs_state now that all messages have been registered into
         # the store
         for msg in self.msgs_store.messages:
-            if not msg.may_be_emitted():
+            if not msg.may_be_emitted(self.config.py_version):
                 self._msgs_state[msg.msgid] = False
 
     def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
@@ -685,8 +697,8 @@ class PyLinter(
                 data = None
 
         # The contextmanager also opens all checkers and sets up the PyLinter class
-        with self._astroid_module_checker() as check_astroid_module:
-            with fix_import_path(files_or_modules):
+        with fix_import_path(files_or_modules):
+            with self._astroid_module_checker() as check_astroid_module:
                 # 4) Get the AST for each FileItem
                 ast_per_fileitem = self._get_asts(fileitems, data)
 
@@ -867,12 +879,12 @@ class PyLinter(
 
         The returned generator yield one item for each Python module that should be linted.
         """
-        for descr in self._expand_files(files_or_modules):
+        for descr in self._expand_files(files_or_modules).values():
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield FileItem(name, filepath, descr["basename"])
 
-    def _expand_files(self, modules: Sequence[str]) -> list[ModuleDescriptionDict]:
+    def _expand_files(self, modules: Sequence[str]) -> dict[str, ModuleDescriptionDict]:
         """Get modules and errors from a list of modules and handle errors."""
         result, errors = expand_modules(
             modules,

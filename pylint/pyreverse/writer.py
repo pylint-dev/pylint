@@ -120,6 +120,14 @@ class DiagramWriter:
                 label=rel.name,
                 type_=EdgeType.ASSOCIATION,
             )
+        # generate aggregations
+        for rel in diagram.get_relationships("aggregation"):
+            self.printer.emit_edge(
+                rel.from_object.fig_id,
+                rel.to_object.fig_id,
+                label=rel.name,
+                type_=EdgeType.AGGREGATION,
+            )
 
     def set_printer(self, file_name: str, basename: str) -> None:
         """Set printer."""

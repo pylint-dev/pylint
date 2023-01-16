@@ -792,7 +792,7 @@ a class method.",
         (
             "valid-metaclass-classmethod-first-arg",
             {
-                "default": ("cls",),
+                "default": ("mcs",),
                 "type": "csv",
                 "metavar": "<argument names>",
                 "help": "List of valid names for the first argument in \
@@ -873,9 +873,6 @@ a metaclass class method.",
             self.add_message("inconsistent-mro", args=node.name, node=node)
         except astroid.DuplicateBasesError:
             self.add_message("duplicate-bases", args=node.name, node=node)
-        except NotImplementedError:
-            # Old style class, there's no mro so don't do anything.
-            pass
 
     def _check_proper_bases(self, node: nodes.ClassDef) -> None:
         """Detect that a class inherits something which is not
@@ -978,7 +975,6 @@ a metaclass class method.",
                         "cls",
                         node.name,
                     }:
-
                         break
 
                     # Check type(self).__attrname
@@ -1634,6 +1630,10 @@ a metaclass class method.",
                     # Properties circumvent the slots mechanism,
                     # so we should not emit a warning for them.
                     return
+                if node.attrname != "__class__" and utils.is_class_attr(
+                    node.attrname, klass
+                ):
+                    return
                 if node.attrname in klass.locals:
                     for local_name in klass.locals.get(node.attrname):
                         statement = local_name.statement(future=True)
@@ -1649,7 +1649,12 @@ a metaclass class method.",
                     slots, node.parent.value
                 ):
                     return
-                self.add_message("assigning-non-slot", args=(node.attrname,), node=node)
+                self.add_message(
+                    "assigning-non-slot",
+                    args=(node.attrname,),
+                    node=node,
+                    confidence=INFERENCE,
+                )
 
     @only_required_for_messages(
         "protected-access", "no-classmethod-decorator", "no-staticmethod-decorator"
@@ -1784,7 +1789,7 @@ a metaclass class method.",
                 if (
                     self._is_classmethod(node.frame(future=True))
                     and self._is_inferred_instance(node.expr, klass)
-                    and self._is_class_attribute(attrname, klass)
+                    and self._is_class_or_instance_attribute(attrname, klass)
                 ):
                     return
 
@@ -1831,7 +1836,7 @@ a metaclass class method.",
         return inferred._proxied is klass
 
     @staticmethod
-    def _is_class_attribute(name: str, klass: nodes.ClassDef) -> bool:
+    def _is_class_or_instance_attribute(name: str, klass: nodes.ClassDef) -> bool:
         """Check if the given attribute *name* is a class or instance member of the
         given *klass*.
 
@@ -1839,11 +1844,8 @@ a metaclass class method.",
         ``False`` otherwise.
         """
 
-        try:
-            klass.getattr(name)
+        if utils.is_class_attr(name, klass):
             return True
-        except astroid.NotFoundError:
-            pass
 
         try:
             klass.instance_attr(name)
@@ -2098,18 +2100,8 @@ a metaclass class method.",
             if node_frame_class(method) in parents_with_called_inits:
                 return
 
-            # Return if klass is protocol
-            if klass.qname() in utils.TYPING_PROTOCOLS:
+            if utils.is_protocol_class(klass):
                 return
-
-            # Return if any of the klass' first-order bases is protocol
-            for base in klass.bases:
-                try:
-                    for inf_base in base.infer():
-                        if inf_base.qname() in utils.TYPING_PROTOCOLS:
-                            return
-                except astroid.InferenceError:
-                    continue
 
             if decorated_with(node, ["typing.overload"]):
                 continue
@@ -2240,7 +2232,7 @@ a metaclass class method.",
 
 
 def _ancestors_to_call(
-    klass_node: nodes.ClassDef, method: str = "__init__"
+    klass_node: nodes.ClassDef, method_name: str = "__init__"
 ) -> dict[nodes.ClassDef, bases.UnboundMethod]:
     """Return a dictionary where keys are the list of base classes providing
     the queried method, and so that should/may be called from the method node.
@@ -2248,7 +2240,9 @@ def _ancestors_to_call(
     to_call: dict[nodes.ClassDef, bases.UnboundMethod] = {}
     for base_node in klass_node.ancestors(recurs=False):
         try:
-            init_node: bases.UnboundMethod = next(base_node.igetattr(method))
+            init_node = next(base_node.igetattr(method_name))
+            if not isinstance(init_node, astroid.UnboundMethod):
+                continue
             if init_node.is_abstract():
                 continue
             to_call[base_node] = init_node
