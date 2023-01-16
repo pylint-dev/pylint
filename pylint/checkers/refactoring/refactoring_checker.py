@@ -491,7 +491,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ),
         "R1737": (
             "Simplify cycle to ==",
-            "comparison-all-equal",
+            "chained-comparison-all-equal",
             "Emitted when items in a boolean condition are all <= or >="
             "This is equivalent to asking if they all equal.",
         ),
@@ -1439,7 +1439,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 indegree_dict[right] += 1
                 frequency_dict[(left, right)] += 1
 
-                # advance onto the next comprison if it exists
+                # advance onto the next comparison if it exists
                 left_statement = right_statement
 
         # Nothing was added and we have no recommendations
@@ -1470,9 +1470,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return (graph_dict, symbol_dict, indegree_dict, frequency_dict)
 
     def _get_compare_operand_value(
-        self, node: nodes.Compare, const_values: list[int | float]
+        self, node: nodes.Compare, const_values: list[int | float |None]
     ) -> str | int | float | None:
-        value = None
+        value: str | int | float | None = None
         if isinstance(node, nodes.Name) and isinstance(node.name, str):
             value = node.name
         elif isinstance(node, nodes.Const) and isinstance(node.value, (int, float)):
