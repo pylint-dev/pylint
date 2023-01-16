@@ -1470,7 +1470,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return (graph_dict, symbol_dict, indegree_dict, frequency_dict)
 
     def _get_compare_operand_value(
-        self, node: nodes.Compare, const_values: list[int | float |None]
+        self, node: nodes.Compare, const_values: list[int | float | None]
     ) -> str | int | float | None:
         value: str | int | float | None = None
         if isinstance(node, nodes.Name) and isinstance(node.name, str):
