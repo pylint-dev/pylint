@@ -1,5 +1,5 @@
 """Tests for used-before-assignment for typing related issues"""
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring,ungrouped-imports
 
 
 from typing import List, Optional, TYPE_CHECKING
@@ -8,6 +8,11 @@ if TYPE_CHECKING:
     if True:  # pylint: disable=using-constant-test
         import math
     import datetime
+    import calendar
+    from urllib.request import urlopen
+elif input():
+    import calendar
+else:
     from urllib.request import urlopen
 
 class MyClass:
@@ -108,3 +113,20 @@ class ConditionalImportGuardedWhenUsed:  # pylint: disable=too-few-public-method
     """Conditional imports also guarded by TYPE_CHECKING when used."""
     if TYPE_CHECKING:
         print(urlopen)
+
+
+class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-variable
+    """Test imports in TYPE_CHECKING if/elif/else branching"""
+    def elif_branch_body(self):
+        cal = calendar.Calendar()
+        print(calendar.Calendar())
+
+    def elif_branch_return(self) -> calendar.Calendar:
+        pass
+
+    def else_branch_body(self):
+        url_open = urlopen
+        print(urlopen)
+
+    def else_branch_return(self) -> urlopen:
+        pass
