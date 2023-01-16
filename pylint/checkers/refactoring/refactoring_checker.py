@@ -249,7 +249,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when redundant pre-python 2.5 ternary syntax is used.",
         ),
         "R1726": (
-            "Boolean condition '%s' may be simplified to '%s'",
+            'Boolean condition "%s" may be simplified to "%s"',
             "simplifiable-condition",
             "Emitted when a boolean condition is able to be simplified.",
         ),
