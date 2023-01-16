@@ -389,7 +389,6 @@ All messages in the convention category:
    convention/compare-to-empty-string
    convention/compare-to-zero
    convention/consider-iterating-dictionary
-   convention/consider-refactoring-into-while-condition
    convention/consider-using-any-or-all
    convention/consider-using-dict-items
    convention/consider-using-enumerate
@@ -469,6 +468,7 @@ All messages in the refactor category:
    refactor/confusing-consecutive-elif
    refactor/consider-alternative-union-syntax
    refactor/consider-merging-isinstance
+   refactor/consider-refactoring-into-while-condition
    refactor/consider-swap-variables
    refactor/consider-using-alias
    refactor/consider-using-assignment-expr

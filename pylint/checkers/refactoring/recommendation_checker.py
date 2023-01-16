@@ -60,13 +60,6 @@ class RecommendationChecker(checkers.BaseChecker):
             "which could potentially be a f-string. The use of f-strings is preferred. "
             "Requires Python 3.6 and ``py-version >= 3.6``.",
         ),
-        "C0210": (
-            "Consider using 'while %s' instead of 'while True:' an 'if', and a 'break'",
-            "consider-refactoring-into-while-condition",
-            "Emitted when `while True:` loop is used and the first statement is a break condition. "
-            "The ``if / break`` construct can be removed if the check is inverted and moved to "
-            "the ``while`` statement.",
-        ),
     }
 
     def open(self) -> None:
@@ -437,52 +430,3 @@ class RecommendationChecker(checkers.BaseChecker):
                 line=node.lineno,
                 col_offset=node.col_offset,
             )
-
-    @utils.only_required_for_messages("consider-refactoring-into-while-condition")
-    def visit_while(self, node: nodes.While) -> None:
-        self._check_breaking_after_while_true(node)
-
-    def _check_breaking_after_while_true(self, node: nodes.While) -> None:
-        """Check that any loop with an ``if`` clause has a break statement."""
-        if not isinstance(node.test, nodes.Const):
-            return
-        pri_candidates = []
-        for n in node.body:
-            if not isinstance(n, nodes.If):
-                break
-            pri_candidates.append(n)
-        candidates = []
-        tainted = False
-        for c in pri_candidates:
-            if tainted:
-                break
-            candidates.append(c)
-            orelse = c.orelse
-            while orelse:
-                orelse_node = orelse[0]
-                if not isinstance(orelse_node, nodes.If) or not isinstance(
-                    orelse_node.body[0], nodes.Break
-                ):
-                    tainted = True
-                else:
-                    candidates.append(orelse_node)
-                if not isinstance(orelse_node, nodes.If):
-                    break
-                orelse = orelse_node.orelse
-
-        candidates = [n for n in candidates if isinstance(n.body[0], nodes.Break)]
-        if len(candidates) == 0:
-            return
-        msg = " and ".join(
-            [f"({utils.not_condition_as_string(c.test)})" for c in candidates]
-        )
-        if len(candidates) == 1:
-            msg = utils.not_condition_as_string(candidates[0].test)
-
-        self.add_message(
-            "consider-refactoring-into-while-condition",
-            node=node,
-            line=node.lineno,
-            args=(msg,),
-            confidence=HIGH,
-        )

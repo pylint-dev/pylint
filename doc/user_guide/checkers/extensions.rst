@@ -715,3 +715,19 @@ While Used checker Messages
 :while-used (W0149): *Used `while` loop*
   Unbounded `while` loops can often be rewritten as bounded `for` loops.
   Exceptions can be made for cases such as event loops, listeners, etc.
+
+
+.. _pylint.extensions.consider_refactoring_into_while_condition:
+
+Consider refactoring into while condition checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.consider_refactoring_into_while_condition``.
+Verbatim name of the checker is ``consider_refactoring_into_while_condition``.
+
+Consider refactoring into while checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:consider-refactoring-into-while-condition (R2005): *Consider using 'while %s' instead of 'while True:' an 'if', and a 'break'*
+  Emitted when `while True:` loop is used and the first statement is a break
+  condition. The `if / break`` construct can be removed if the check is inverted
+  and moved to the `while` statement.

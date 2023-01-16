@@ -1,0 +1,2 @@
+[MAIN]
+load-plugins=pylint.extensions.consider_refactoring_into_while_condition,
