@@ -2229,11 +2229,13 @@ class VariablesChecker(BaseChecker):
                             branch_node, (nodes.Import, nodes.ImportFrom)
                         ):
                             defined_in_or_else = any(node.name == name[0] for name in branch_node.names)
+
                         if defined_in_or_else:
                             break
 
                     if not used_in_branch and not defined_in_or_else:
                         maybe_before_assign = True
+
         return maybe_before_assign, annotation_return, use_outer_definition
 
     @staticmethod
@@ -2349,7 +2351,6 @@ class VariablesChecker(BaseChecker):
                 node.parent.parent, nodes.Arguments
             ):
                 return (VariableVisitConsumerAction.CONTINUE, None)
-
         return (VariableVisitConsumerAction.RETURN, found_nodes)
 
     @staticmethod
