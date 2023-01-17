@@ -2225,10 +2225,10 @@ class VariablesChecker(BaseChecker):
                             branch_node, (nodes.ClassDef, nodes.FunctionDef)
                         ):
                             defined_in_or_else = branch_node.name == node.name
-                        elif isinstance(
-                            branch_node, (nodes.Import, nodes.ImportFrom)
-                        ):
-                            defined_in_or_else = any(node.name == name[0] for name in branch_node.names)
+                        elif isinstance(branch_node, (nodes.Import, nodes.ImportFrom)):
+                            defined_in_or_else = any(
+                                node.name == name[0] for name in branch_node.names
+                            )
 
                         if defined_in_or_else:
                             break

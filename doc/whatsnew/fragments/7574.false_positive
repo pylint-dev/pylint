@@ -1,4 +1,4 @@
 Fix false positive for ``used-before-assignment`` when
-``typing.TYPE_CHECKING`` is used with if/elif/else blocks. 
+``typing.TYPE_CHECKING`` is used with if/elif/else blocks.
 
 Closes #7574
