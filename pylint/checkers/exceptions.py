@@ -544,7 +544,10 @@ class ExceptionsChecker(checkers.BaseChecker):
     def visit_compare(self, node: nodes.Compare) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V < A)
-            suggestion = f"Did you mean '({node.left.as_string()}, {', '.join(operand.as_string() for _, operand in node.ops)})' instead?"
+            suggestion = (
+                f"Did you mean '({node.left.as_string()}, "
+                f"{', '.join(o.as_string() for _, o in node.ops)})' instead?"
+            )
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
     @utils.only_required_for_messages(

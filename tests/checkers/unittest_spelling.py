@@ -286,44 +286,29 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     @pytest.mark.parametrize(
-        ",".join(
-            (
-                "misspelled_portion_of_directive",
-                "second_portion_of_directive",
-                "description",
-            )
-        ),
+        "prefix,suffix",
         (
-            ("fmt", ": on", "black directive to turn on formatting"),
-            ("fmt", ": off", "black directive to turn off formatting"),
-            ("noqa", "", "pycharm directive"),
-            ("noqa", ":", "flake8 / zimports directive"),
-            ("nosec", "", "bandit directive"),
-            ("isort", ":skip", "isort directive"),
-            ("mypy", ":", "mypy top of file directive"),
+            pytest.param("fmt", ": on", id="black directive to turn on formatting"),
+            pytest.param("fmt", ": off", id="black directive to turn off formatting"),
+            pytest.param("noqa", "", id="pycharm directive"),
+            pytest.param("noqa", ":", id="flake8 / zimports directive"),
+            pytest.param("nosec", "", id="bandit directive"),
+            pytest.param("isort", ":skip", id="isort directive"),
+            pytest.param("mypy", ":", id="mypy top of file directive"),
         ),
     )
-    def test_skip_tool_directives_at_beginning_of_comments_but_still_raise_error_if_directive_appears_later_in_comment(  # pylint:disable=unused-argument
-        # Having the extra description parameter allows the description
-        #   to show up in the pytest output as part of the test name
-        #   when running parameterized tests.
-        self,
-        misspelled_portion_of_directive: str,
-        second_portion_of_directive: str,
-        description: str,
-    ) -> None:
-        full_comment = f"# {misspelled_portion_of_directive}{second_portion_of_directive} {misspelled_portion_of_directive}"
+    def test_tool_directives_handling(self, prefix: str, suffix: str) -> None:
+        """We're not raising when the directive is at the beginning of comments,
+        but we raise if a directive appears later in comment."""
+        full_comment = f"# {prefix}{suffix} {prefix}"
+        args = (
+            prefix,
+            full_comment,
+            f"  {'^' * len(prefix)}",
+            self._get_msg_suggestions(prefix),
+        )
         with self.assertAddsMessages(
-            MessageTest(
-                "wrong-spelling-in-comment",
-                line=1,
-                args=(
-                    misspelled_portion_of_directive,
-                    full_comment,
-                    f"  {'^'*len(misspelled_portion_of_directive)}",
-                    self._get_msg_suggestions(misspelled_portion_of_directive),
-                ),
-            )
+            MessageTest("wrong-spelling-in-comment", line=1, args=args)
         ):
             self.checker.process_tokens(_tokenize_str(full_comment))
 
