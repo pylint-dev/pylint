@@ -452,7 +452,7 @@ class BasicChecker(_BasicChecker):
             return
 
         # Warn W0133 for exceptions that are used as statements
-        if isinstance(expr, nodes.Call):
+        if isinstance(expr, nodes.Call) and isinstance(expr.func, nodes.Name):
             inferred = utils.safe_infer(expr)
             if isinstance(inferred, objects.ExceptionInstance):
                 self.add_message(
