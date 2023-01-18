@@ -13,3 +13,4 @@ pointless-string-statement:69:8:69:55:ClassLevelAttributeTest.test:String statem
 pointless-exception-statement:95:4:95:37:unraised_exception:Exception statement has no effect:UNDEFINED
 pointless-exception-statement:96:4:96:23:unraised_exception:Exception statement has no effect:UNDEFINED
 pointless-exception-statement:97:4:97:56:unraised_exception:Exception statement has no effect:UNDEFINED
+pointless-exception-statement:98:4:98:48:unraised_exception:Exception statement has no effect:UNDEFINED
