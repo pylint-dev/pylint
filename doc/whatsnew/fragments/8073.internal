@@ -1,0 +1,3 @@
+Use string-pattern-matching instead of ``astroid`` inference to implement ``pointless-exception-statement``.
+
+Refs #8073
