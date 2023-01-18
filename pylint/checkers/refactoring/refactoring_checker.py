@@ -1611,7 +1611,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # the result of this call was already assigned to a variable and will be checked when leaving the scope.
             return
         inferred = utils.safe_infer(node.func)
-        if not inferred:
+        if not inferred or not isinstance(
+            inferred, (nodes.FunctionDef, nodes.ClassDef, bases.UnboundMethod)
+        ):
             return
         could_be_used_in_with = (
             # things like ``lock.acquire()``
@@ -1998,7 +2000,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
         try:
             return node.qname() in self._never_returning_functions
-        except TypeError:
+        except (TypeError, AttributeError):
             return False
 
     def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:
