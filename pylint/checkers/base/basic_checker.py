@@ -13,7 +13,7 @@ from collections.abc import Iterator
 from typing import TYPE_CHECKING, cast
 
 import astroid
-from astroid import nodes
+from astroid import nodes, objects
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
@@ -456,7 +456,11 @@ class BasicChecker(_BasicChecker):
             name, _, _ = expr.as_string().partition("(")
             exc_suffixes = ("Error", "Exc", "Exception", "Warning")
             if any(name.endswith(suffix) for suffix in exc_suffixes):
-                self.add_message("pointless-exception-statement", node=node)
+                inferred = utils.safe_infer(expr)
+                if isinstance(inferred, objects.ExceptionInstance):
+                    self.add_message(
+                        "pointless-exception-statement", node=node, confidence=INFERENCE
+                    )
 
         # Ignore if this is :
         # * a direct function call
