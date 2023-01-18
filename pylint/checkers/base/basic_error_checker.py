@@ -88,7 +88,7 @@ def _new_without_super(node: nodes.ClassDef) -> bool:
 
     try:
         new = next(node.igetattr("__new__"))
-    except astroid.InferenceError:
+    except astroid.InferenceError:  # pragma: no cover
         return False
 
     calls = new.nodes_of_class(
