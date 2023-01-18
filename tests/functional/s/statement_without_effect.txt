@@ -10,6 +10,6 @@ expression-not-assigned:32:0:32:22::"Expression ""to_be() or not to_be()"" is as
 expression-not-assigned:33:0:33:13::"Expression ""to_be().title"" is assigned to nothing":UNDEFINED
 pointless-string-statement:62:8:62:43:ClassLevelAttributeTest.__init__:String statement has no effect:UNDEFINED
 pointless-string-statement:69:8:69:55:ClassLevelAttributeTest.test:String statement has no effect:UNDEFINED
-pointless-exception-statement:95:4:95:37:unraised_exception:Exception statement has no effect:INFERENCE
-pointless-exception-statement:96:4:96:23:unraised_exception:Exception statement has no effect:INFERENCE
-pointless-exception-statement:97:4:97:56:unraised_exception:Exception statement has no effect:INFERENCE
+pointless-exception-statement:95:4:95:37:unraised_exception:Exception statement has no effect:UNDEFINED
+pointless-exception-statement:96:4:96:23:unraised_exception:Exception statement has no effect:UNDEFINED
+pointless-exception-statement:97:4:97:56:unraised_exception:Exception statement has no effect:UNDEFINED

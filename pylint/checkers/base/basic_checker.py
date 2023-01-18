@@ -453,11 +453,10 @@ class BasicChecker(_BasicChecker):
 
         # Warn W0133 for exceptions that are used as statements
         if isinstance(expr, nodes.Call):
-            inferred = utils.safe_infer(expr)
-            if isinstance(inferred, objects.ExceptionInstance):
-                self.add_message(
-                    "pointless-exception-statement", node=node, confidence=INFERENCE
-                )
+            name, _, _ = expr.as_string().partition("(")
+            exc_suffixes = ("Error", "Exc", "Exception", "Warning")
+            if any(name.endswith(suffix) for suffix in exc_suffixes):
+                self.add_message("pointless-exception-statement", node=node)
 
         # Ignore if this is :
         # * a direct function call
