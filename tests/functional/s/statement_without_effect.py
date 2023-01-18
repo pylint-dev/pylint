@@ -38,6 +38,10 @@ GOOD_ATTRIBUTE_DOCSTRING = 42
 class ClassLevelAttributeTest:
     """ test attribute docstrings. """
 
+    class ClassLevelException(Exception):
+        """ exception defined for access as a class attribute """
+        ...
+
     good_attribute_docstring = 24
     """ class level attribute docstring is fine either. """
     second_good_attribute_docstring = 42
@@ -90,3 +94,4 @@ def unraised_exception():
     """Test that instantiating but not raising an exception is flagged as a pointless statement"""
     ValueError("pointless-statement")  # [pointless-exception-statement]
     ValueError(to_be())  # [pointless-exception-statement]
+    ClassLevelAttributeTest.ClassLevelException(to_be())  # [pointless-exception-statement]
