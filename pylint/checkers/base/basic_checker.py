@@ -9,7 +9,6 @@ from __future__ import annotations
 import collections
 import itertools
 import sys
-import warnings
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, cast
 
@@ -469,12 +468,6 @@ class BasicChecker(_BasicChecker):
                 exc_suffixes = ("Error", "Exc", "Exception", "Warning")
                 if any(name.endswith(suffix) for suffix in exc_suffixes):
                     inferred = utils.safe_infer(expr)
-                else:
-                    skipped = expr.as_string()
-                    warnings.warn(
-                        f"Skipped W0133 check for {skipped!r} because heuristic exception detection is enabled",
-                        RuntimeWarning,
-                    )
             else:
                 inferred = utils.safe_infer(expr)
             if isinstance(inferred, objects.ExceptionInstance):

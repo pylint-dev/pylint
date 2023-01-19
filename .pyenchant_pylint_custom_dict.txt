@@ -227,7 +227,6 @@ nonlocals
 num
 numpy
 ok
-onwards
 optdict
 optik
 optionals

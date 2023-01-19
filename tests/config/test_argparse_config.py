@@ -5,7 +5,6 @@
 """Test for the (new) implementation of option parsing with argparse"""
 
 import re
-import warnings
 from os.path import abspath, dirname, join
 
 import pytest
@@ -18,7 +17,6 @@ HERE = abspath(dirname(__file__))
 REGRTEST_DATA_DIR = join(HERE, "..", "regrtest_data")
 EMPTY_MODULE = join(REGRTEST_DATA_DIR, "empty.py")
 LOGGING_TEST = join(HERE, "data", "logging_format_interpolation_style.py")
-HEURISTIC_EXCEPTIONS_TEST = join(HERE, "data", "heuristic_exception_detection.py")
 
 
 class TestArgparseOptionsProviderMixin:
@@ -39,17 +37,6 @@ class TestArgparseOptionsProviderMixin:
         """Check that we parse command-line options for the logging checker correctly."""
         with pytest.raises(SystemExit) as ex:
             Run([LOGGING_TEST, "--logging-format-style=new"])
-        assert ex.value.code == 0
-
-    @staticmethod
-    def test_heuristic_exceptions_commandline() -> None:
-        """Check that we parse command-line options for heuristic exception detection correctly."""
-        with pytest.raises(SystemExit) as ex:
-            with warnings.catch_warnings(record=True) as cm:
-                # TODO: py311 onwards: 'action' is available as a catch_warnings kwarg
-                warnings.simplefilter(action="always")
-                Run([HEURISTIC_EXCEPTIONS_TEST, "--heuristic-exception-detection=y"])
-        assert "Skipped W0133 check for 'NotClearlyAProblem()'" in str(cm[0])
         assert ex.value.code == 0
 
     @staticmethod
