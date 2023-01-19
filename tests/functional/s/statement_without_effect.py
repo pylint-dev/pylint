@@ -94,7 +94,7 @@ class ASomethingCustom(Exception):
 
 
 class BSomethingCustom:
-    """Custom class name.
+    """Custom class name but NOT inheriting from Exception.
 
     Instantiating should NOT raise 'pointless-exception-statement'.
     """
