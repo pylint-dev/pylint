@@ -26,11 +26,6 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
-
-if sys.version_info >= (3, 8):
     from typing import Literal
 else:
     from typing_extensions import Literal
@@ -292,12 +287,14 @@ class BasicChecker(_BasicChecker):
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._tryfinallys: list[nodes.TryFinally] | None = None
+        self._heuristic_exception_detection: bool = False
 
     def open(self) -> None:
         """Initialize visit variables and statistics."""
         py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
         self._tryfinallys = []
+        self._heuristic_exception_detection = self.linter.config.heuristic_exception_detection
         self.linter.stats.reset_node_count()
 
     @utils.only_required_for_messages(
@@ -441,10 +438,6 @@ class BasicChecker(_BasicChecker):
         increment branch counter.
         """
         self.linter.stats.node_count["klass"] += 1
-
-    @cached_property
-    def _heuristic_exception_detection(self) -> bool:
-        return bool(self.linter.config.heuristic_exception_detection)
 
     @utils.only_required_for_messages(
         "pointless-statement",
