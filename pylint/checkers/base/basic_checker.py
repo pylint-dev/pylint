@@ -9,9 +9,9 @@ from __future__ import annotations
 import collections
 import itertools
 import sys
+import warnings
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, cast
-import warnings
 
 import astroid
 from astroid import nodes, objects

@@ -5,8 +5,8 @@
 """Test for the (new) implementation of option parsing with argparse"""
 
 import re
-from os.path import abspath, dirname, join
 import warnings
+from os.path import abspath, dirname, join
 
 import pytest
 
