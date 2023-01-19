@@ -19,6 +19,7 @@ from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 from pylint.reporters.ureports import nodes as reporter_nodes
+from pylint.typing import Options
 from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
@@ -121,6 +122,21 @@ class BasicChecker(_BasicChecker):
     * redefinition of function / method / class
     * uses of the global statement
     """
+
+    options: Options = (
+        (
+            "heuristic-exception-detection",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Use faster (but less accurate) heuristic checks as a "
+                "precondition for analysis of code that may contain Python "
+                "exceptions.  Disabling this may be useful to improve linting "
+                "performance on large codebases.",
+            },
+        ),
+    )
 
     name = "basic"
     msgs = {

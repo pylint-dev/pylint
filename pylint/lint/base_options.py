@@ -392,18 +392,6 @@ def _make_linter_options(linter: PyLinter) -> Options:
             },
         ),
         (
-            "heuristic-exception-detection",
-            {
-                "default": False,
-                "type": "yn",
-                "metavar": "<y or n>",
-                "help": "Use faster (but less accurate) heuristic checks as a "
-                "precondition for analysis of code that may contain Python "
-                "exceptions.  Disabling this may be useful to improve linting "
-                "performance on large codebases.",
-            },
-        ),
-        (
             "clear-cache-post-run",
             {
                 "default": False,
