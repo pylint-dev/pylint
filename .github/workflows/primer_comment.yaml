@@ -29,10 +29,6 @@ jobs:
     name: Run
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v3.6.0
-        with:
-          node-version: 16
-      - run: npm install @octokit/rest
       - name: Check out code from GitHub
         uses: actions/checkout@v3.3.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
