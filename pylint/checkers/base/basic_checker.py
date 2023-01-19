@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import collections
 import itertools
+import re
 import sys
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, cast
@@ -60,6 +61,16 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
             "collections.UserList",
         )
     },
+)
+
+ADDITIONAL_EXCEPTION_NAMES: frozenset[str] = frozenset(
+    (
+        "GeneratorExit",
+        "KeyboardInterrupt",
+        "SystemExit",
+        "StopIteration",
+        "StopAsyncIteration",
+    )
 )
 
 
@@ -265,6 +276,18 @@ class BasicChecker(_BasicChecker):
             "for subsequent use elsewhere.",
         ),
     }
+    options = (
+        (
+            "additional-exception-classes",
+            {
+                "default": [],
+                "type": "regexp_csv",
+                "metavar": "<pattern>[,<pattern>...]",
+                "help": "List of regular expressions of additional "
+                "exception names to check for 'pointless-exception-statement",
+            },
+        ),
+    )
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
 
@@ -278,6 +301,9 @@ class BasicChecker(_BasicChecker):
         self._py38_plus = py_version >= (3, 8)
         self._tryfinallys = []
         self.linter.stats.reset_node_count()
+        self._additional_exception_classes: list[
+            re.Pattern[str]
+        ] = self.linter.config.additional_exception_classes
 
     @utils.only_required_for_messages(
         "using-constant-test", "missing-parentheses-for-call-in-test"
@@ -453,7 +479,17 @@ class BasicChecker(_BasicChecker):
 
         # Warn W0133 for exceptions that are used as statements
         if isinstance(expr, nodes.Call):
-            inferred = utils.safe_infer(expr)
+            call_name = expr.func.as_string()
+            inferred = None
+            if (
+                any(name in call_name for name in ("Exception", "Error", "Warning"))
+                or call_name in ADDITIONAL_EXCEPTION_NAMES
+                or any(
+                    pattern.search(call_name)
+                    for pattern in self._additional_exception_classes
+                )
+            ):
+                inferred = utils.safe_infer(expr)
             if isinstance(inferred, objects.ExceptionInstance):
                 self.add_message(
                     "pointless-exception-statement", node=node, confidence=INFERENCE

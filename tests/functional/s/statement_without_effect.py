@@ -38,6 +38,9 @@ GOOD_ATTRIBUTE_DOCSTRING = 42
 class ClassLevelAttributeTest:
     """ test attribute docstrings. """
 
+    class ClassLevelException(Exception):
+        """Exception defined for access as a class attribute."""
+
     good_attribute_docstring = 24
     """ class level attribute docstring is fine either. """
     second_good_attribute_docstring = 42
@@ -86,7 +89,31 @@ def raised_exception():
     raise ValueError()
 
 
+class ASomethingCustom(Exception):
+    """Custom class name inheriting from Exception."""
+
+
+class BSomethingCustom:
+    """Custom class name.
+
+    Instantiating should NOT raise 'pointless-exception-statement'.
+    """
+
+
+class SomethingElse(Exception):
+    """Custom exception not matching regex."""
+
+
 def unraised_exception():
     """Test that instantiating but not raising an exception is flagged as a pointless statement"""
     ValueError("pointless-statement")  # [pointless-exception-statement]
     ValueError(to_be())  # [pointless-exception-statement]
+    ClassLevelAttributeTest.ClassLevelException(to_be())  # [pointless-exception-statement]
+    ValueError("another-pointless-statement")  # [pointless-exception-statement]
+    ASomethingCustom()  # [pointless-exception-statement]
+
+    # Not inheriting from Exception
+    BSomethingCustom()
+
+    # Not matching regex
+    SomethingElse()

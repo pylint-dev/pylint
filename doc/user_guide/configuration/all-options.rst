@@ -287,6 +287,13 @@ Standard Checkers
 
 ``Basic`` **Checker**
 ---------------------
+--additional-exception-classes
+""""""""""""""""""""""""""""""
+*List of regular expressions of additional exception names to check for 'pointless-exception-statement*
+
+**Default:**  ``[]``
+
+
 --argument-naming-style
 """""""""""""""""""""""
 *Naming style matching correct argument names.*
@@ -522,6 +529,8 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.basic]
+   additional-exception-classes = []
+
    argument-naming-style = "snake_case"
 
    # argument-rgx =

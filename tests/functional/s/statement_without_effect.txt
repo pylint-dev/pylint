@@ -8,7 +8,10 @@ expression-not-assigned:23:0:23:18::"Expression ""list() and tuple()"" is assign
 expression-not-assigned:30:0:30:17::"Expression ""ANSWER == to_be()"" is assigned to nothing":UNDEFINED
 expression-not-assigned:32:0:32:22::"Expression ""to_be() or not to_be()"" is assigned to nothing":UNDEFINED
 expression-not-assigned:33:0:33:13::"Expression ""to_be().title"" is assigned to nothing":UNDEFINED
-pointless-string-statement:58:8:58:43:ClassLevelAttributeTest.__init__:String statement has no effect:UNDEFINED
-pointless-string-statement:65:8:65:55:ClassLevelAttributeTest.test:String statement has no effect:UNDEFINED
-pointless-exception-statement:91:4:91:37:unraised_exception:Exception statement has no effect:INFERENCE
-pointless-exception-statement:92:4:92:23:unraised_exception:Exception statement has no effect:INFERENCE
+pointless-string-statement:61:8:61:43:ClassLevelAttributeTest.__init__:String statement has no effect:UNDEFINED
+pointless-string-statement:68:8:68:55:ClassLevelAttributeTest.test:String statement has no effect:UNDEFINED
+pointless-exception-statement:109:4:109:37:unraised_exception:Exception statement has no effect:INFERENCE
+pointless-exception-statement:110:4:110:23:unraised_exception:Exception statement has no effect:INFERENCE
+pointless-exception-statement:111:4:111:56:unraised_exception:Exception statement has no effect:INFERENCE
+pointless-exception-statement:112:4:112:45:unraised_exception:Exception statement has no effect:INFERENCE
+pointless-exception-statement:113:4:113:22:unraised_exception:Exception statement has no effect:INFERENCE
