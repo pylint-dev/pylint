@@ -1,3 +1,0 @@
-Use string-pattern-matching as a precondition for ``astroid`` inference in ``pointless-exception-statement``.
-
-Refs #8073
