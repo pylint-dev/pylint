@@ -2193,7 +2193,6 @@ def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
     except astroid.NotFoundError:
         return False
 
-
 def is_defined(name: str, node: nodes.NodeNG) -> bool:
     """Searches for a tree node that defines the given variable name."""
     is_defined_so_far = False
@@ -2303,11 +2302,9 @@ def get_properties(config: argparse.Namespace) -> tuple[set[str], set[str]]:
     Property classes are fully qualified, such as 'abc.abstractproperty' and
     property names are the actual names, such as 'abstract_property'.
     """
-    property_classes = {"builtins.property"}
+    property_classes = {"builtins.property", "abc.abstractproperty"}
     property_names: set[str] = set()  # Not returning 'property', it has its own check.
-    if config is not None:
-        property_classes.update(config.property_classes)
-        property_names.update(
-            prop.rsplit(".", 1)[-1] for prop in config.property_classes
-        )
+    property_classes.update(config.property_classes)
+    property_names.update(prop.rsplit(".", 1)[-1] for prop in config.property_classes)
+
     return property_classes, property_names

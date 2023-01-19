@@ -19,17 +19,17 @@ class my_class:
 print(my_class().my_property.value)
 
 
-def with_value(Cls):
-    Cls_setUp = Cls.setUp
+def with_value(klass):
+    klass_setup = klass.setup
 
-    def _setUp(self):
+    def _setup(self):
         self.value = 5
-        self.addCleanup(delattr, self, 'value')
-        Cls_setUp(self)
+        self.addcleanup(delattr, self, 'value')
+        klass_setup(self)
 
-    Cls.setUp = _setUp
+    klass.setup = _setup
 
-    return Cls
+    return klass
 
 @with_value
 class TestValue(TestCase):

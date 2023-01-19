@@ -171,7 +171,7 @@ Standard Checkers
 """"""""""""""""""
 *List of decorators that produce properties, such as abc.abstractproperty. Add to this list to register other decorators that produce valid properties.*
 
-**Default:**  ``('abc.abstractproperty',)``
+**Default:**  ``()``
 
 
 --py-version
@@ -278,7 +278,7 @@ Standard Checkers
 
    persistent = true
 
-   property-classes = ["abc.abstractproperty"]
+   property-classes = []
 
    py-version = [3, 10]
 

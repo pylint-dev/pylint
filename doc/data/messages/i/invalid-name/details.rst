@@ -186,7 +186,7 @@ Name Hints
 
 
 Property Decorators
-~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 If your code triggers a false positive instance of ``invalid-name`` when a property class or function
 decorator is used, you can register the property decorator as in the following example in sample.py::
