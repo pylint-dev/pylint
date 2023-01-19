@@ -82,9 +82,7 @@ jobs:
           script: |
             // Download 'main' pylint output
             const fs = require('fs');
-            const { Octokit } = require("@octokit/rest");
-            const octokit = new Octokit({});
-            const runs = await octokit.rest.actions.listWorkflowRuns({
+            const runs = await github.rest.actions.listWorkflowRuns({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: ".github/workflows/primer_run_main.yaml",
