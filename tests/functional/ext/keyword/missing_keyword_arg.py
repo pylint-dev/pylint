@@ -1,6 +1,6 @@
 """Tests for consider-using-keyword-argument"""
 # pylint: disable=unused-argument, missing-function-docstring, missing-class-docstring,
-# pylint: disable=invalid-name, too-few-public-methods, line-too-long, too-many-arguments
+# pylint: disable=too-few-public-methods, line-too-long, too-many-arguments
 
 def print_hello(one, two):
     return f"{one}:{two}"
@@ -16,11 +16,11 @@ def print_one_thing(one):
 print_one_thing("1")
 print_one_thing(one="1")
 
-def print_two_kwarg(one, two="2", ok=True):
+def print_two_kwarg(one, two="2", works=True):
     return f"{one}:{two}"
 
 print_two_kwarg("1")
-print_two_kwarg("1", ok=False)
+print_two_kwarg("1", works=False)
 
 
 class Fruit:
@@ -82,7 +82,7 @@ robot = Robot("a robot")
 def make_car(name, owner, title, color="red", year=2022):
     return "car"
 
-second_car = make_car("a car", "name", "title") # [consider-using-keyword-argument, consider-using-keyword-argument, consider-using-keyword-argument]
+SECOND_CAR = make_car("a car", "name", "title") # [consider-using-keyword-argument, consider-using-keyword-argument, consider-using-keyword-argument]
 
 
 class _SharedFile:
@@ -94,3 +94,39 @@ class _SharedFile:
             pass
 
 test = _SharedFile()
+
+
+class TestWithSlots:
+    __slots__ = (
+        "path",
+        "lookupname",
+        "callcontext",
+        "boundnode",
+        "extra_context",
+        "constraints",
+        "_nodes_inferred",
+    )
+
+    def __init__(self, path=None, nodes_inferred=None):
+        if nodes_inferred is None:
+            self._nodes_inferred = [0]
+        else:
+            self._nodes_inferred = nodes_inferred
+
+        self.path = path or set()
+        self.lookupname = None
+        self.callcontext = None
+        self.boundnode = None
+        self.extra_context = {}
+        self.constraints = {}
+
+
+context = TestWithSlots()
+
+
+class Basic:
+    def __init__(self, *args, **kwargs):
+        self.one = 1
+        self.two = 2
+
+Basic()

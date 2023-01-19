@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from astroid import BoundMethod, UnboundMethod, nodes
+from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import safe_infer
@@ -22,12 +22,12 @@ class KeywordChecker(BaseChecker):
     name = "kwargs"
     msgs = {
         "W3501": (
-            "Call to `%s` missing keyword argument `%s`.",
+            "Call to `%s` misses keyword argument `%s`.",
             "consider-using-keyword-argument",
-            "When using a literal directly in a function call, it's very hard to know what the argument is"
-            " if a positional argument is used because there's no variable name or attribute name to "
-            "rely on when reading. Using a keyword argument there's at least the attribute name to "
-            "help the reader understanding the call."
+            "When using a literal directly in a function call, it can be very hard to know which argument it is "
+            "if a positional argument is used. In that case there's no variable name or attribute name to "
+            "rely on when reading. By using a keyword argument there's at least the attribute name to "
+            "help the reader understand the call.",
         ),
     }
 
@@ -61,22 +61,29 @@ class KeywordChecker(BaseChecker):
                 )
 
     def _get_args(
-        self, node: nodes.ClassDef | nodes.FunctionDef | BoundMethod | UnboundMethod
+        self,
+        node: nodes.ClassDef
+        | nodes.FunctionDef
+        | bases.BoundMethod
+        | bases.UnboundMethod,
     ) -> tuple[list[str], list[str]]:
         default_kwargs = []
         needed_keywords = []
 
-        if isinstance(node, nodes.ClassDef):
-            needed_keywords = node.instance_attrs.keys()
-            if "__init__" in node.locals:
-                init_func = node.locals["__init__"][0]
-                if isinstance(init_func, nodes.FunctionDef):
-                    node_args = init_func.args
-                    if node_args and node_args.args:
-                        default_kwargs = [
-                            x.name for x in node_args.args[-len(node_args.defaults) :]
-                        ]
-        elif isinstance(node, (nodes.FunctionDef, BoundMethod, UnboundMethod)):
+        if isinstance(node, nodes.ClassDef) and "__init__" in node.locals:
+            init_func = node.locals["__init__"][0]
+            if isinstance(init_func, nodes.FunctionDef):
+                node_args = init_func.args
+                if node_args and node_args.args:
+                    needed_keywords = [
+                        x.name for x in node_args.args if x.name != "self"
+                    ]
+                    default_kwargs = [
+                        x.name for x in node_args.args[-len(node_args.defaults) :]
+                    ]
+        elif isinstance(
+            node, (nodes.FunctionDef, bases.BoundMethod, bases.UnboundMethod)
+        ):
             needed_keywords = node.argnames()
             if node.is_method():
                 needed_keywords = [x for x in needed_keywords if x != "self"]

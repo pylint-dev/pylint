@@ -401,8 +401,12 @@ Verbatim name of the checker is ``kwargs``.
 
 Kwargs checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
-:consider-using-keyword-argument (W3501): *Call to `%s` missing keyword argument `%s`.*
-  Used when method is called without specifying a keyword argument.
+:consider-using-keyword-argument (W3501): *Call to `%s` misses keyword argument `%s`.*
+  When using a literal directly in a function call, it can be very hard to know
+  which argument it is if a positional argument is used. In that case there's
+  no variable name or attribute name to rely on when reading. By using a
+  keyword argument there's at least the attribute name to help the reader
+  understand the call.
 
 
 .. _pylint.extensions.magic_value:
