@@ -11,6 +11,7 @@ import itertools
 import sys
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, cast
+import warnings
 
 import astroid
 from astroid import nodes, objects
@@ -23,6 +24,11 @@ from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
+
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from astroid.decorators import cachedproperty as cached_property
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -421,6 +427,10 @@ class BasicChecker(_BasicChecker):
         """
         self.linter.stats.node_count["klass"] += 1
 
+    @cached_property
+    def _heuristic_exception_detection(self) -> bool:
+        return bool(self.linter.config.heuristic_exception_detection)
+
     @utils.only_required_for_messages(
         "pointless-statement",
         "pointless-exception-statement",
@@ -453,14 +463,24 @@ class BasicChecker(_BasicChecker):
 
         # Warn W0133 for exceptions that are used as statements
         if isinstance(expr, nodes.Call):
-            name, _, _ = expr.as_string().partition("(")
-            exc_suffixes = ("Error", "Exc", "Exception", "Warning")
-            if any(name.endswith(suffix) for suffix in exc_suffixes):
-                inferred = utils.safe_infer(expr)
-                if isinstance(inferred, objects.ExceptionInstance):
-                    self.add_message(
-                        "pointless-exception-statement", node=node, confidence=INFERENCE
+            inferred = None
+            if self._heuristic_exception_detection is True:
+                name, _, _ = expr.as_string().partition("(")
+                exc_suffixes = ("Error", "Exc", "Exception", "Warning")
+                if any(name.endswith(suffix) for suffix in exc_suffixes):
+                    inferred = utils.safe_infer(expr)
+                else:
+                    skipped = expr.as_string()
+                    warnings.warn(
+                        f"Skipped W0133 check for {skipped!r} because heuristic exception detection is enabled",
+                        RuntimeWarning,
                     )
+            else:
+                inferred = utils.safe_infer(expr)
+            if isinstance(inferred, objects.ExceptionInstance):
+                self.add_message(
+                    "pointless-exception-statement", node=node, confidence=INFERENCE
+                )
 
         # Ignore if this is :
         # * a direct function call
