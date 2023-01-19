@@ -78,11 +78,11 @@ class ClassWithMeta(with_metaclass(Metaclass)):
 ClassWithMeta()
 
 
-class BuiltinExc(Exception):
+class BuiltinError(Exception):
     def __init__(self, val=True):
         self.val = val
 
-BuiltinExc(42, 24, badarg=1) # [line-too-long,pointless-exception-statement,too-many-function-args,unexpected-keyword-arg]
+BuiltinError(42, 24, badarg=1) # [line-too-long,pointless-exception-statement,too-many-function-args,unexpected-keyword-arg]
 
 
 class Clsmethod:
