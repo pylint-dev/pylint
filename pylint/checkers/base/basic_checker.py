@@ -19,7 +19,6 @@ from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 from pylint.reporters.ureports import nodes as reporter_nodes
-from pylint.typing import Options
 from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
