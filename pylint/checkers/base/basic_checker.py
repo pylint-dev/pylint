@@ -118,21 +118,6 @@ class BasicChecker(_BasicChecker):
     * uses of the global statement
     """
 
-    options: Options = (
-        (
-            "heuristic-exception-detection",
-            {
-                "default": False,
-                "type": "yn",
-                "metavar": "<y or n>",
-                "help": "Use faster (but less accurate) heuristic checks as a "
-                "precondition for analysis of code that may contain Python "
-                "exceptions.  Disabling this may be useful to improve linting "
-                "performance on large codebases.",
-            },
-        ),
-    )
-
     name = "basic"
     msgs = {
         "W0101": (
@@ -287,14 +272,12 @@ class BasicChecker(_BasicChecker):
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._tryfinallys: list[nodes.TryFinally] | None = None
-        self._heuristic_exception_detection: bool = False
 
     def open(self) -> None:
         """Initialize visit variables and statistics."""
         py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
         self._tryfinallys = []
-        self._heuristic_exception_detection = self.linter.config.heuristic_exception_detection
         self.linter.stats.reset_node_count()
 
     @utils.only_required_for_messages(
@@ -471,14 +454,14 @@ class BasicChecker(_BasicChecker):
 
         # Warn W0133 for exceptions that are used as statements
         if isinstance(expr, nodes.Call):
-            inferred = None
-            if self._heuristic_exception_detection is True:
-                name, _, _ = expr.as_string().partition("(")
-                exc_suffixes = ("Error", "Exc", "Exception", "Warning")
-                if any(name.endswith(suffix) for suffix in exc_suffixes):
-                    inferred = utils.safe_infer(expr)
-            else:
-                inferred = utils.safe_infer(expr)
+            name = ""
+            if isinstance(expr.func, nodes.Name):
+                name = expr.func.name
+            elif isinstance(expr.func, nodes.Attribute):
+                name = expr.func.attrname
+
+            # Heuristic: only run inference for names that begin with an uppercase char
+            inferred = utils.safe_infer(expr) if name[:1].isupper() else None
             if isinstance(inferred, objects.ExceptionInstance):
                 self.add_message(
                     "pointless-exception-statement", node=node, confidence=INFERENCE

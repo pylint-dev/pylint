@@ -14,3 +14,4 @@ pointless-exception-statement:95:4:95:37:unraised_exception:Exception statement 
 pointless-exception-statement:96:4:96:23:unraised_exception:Exception statement has no effect:INFERENCE
 pointless-exception-statement:97:4:97:56:unraised_exception:Exception statement has no effect:INFERENCE
 pointless-exception-statement:98:4:98:48:unraised_exception:Exception statement has no effect:INFERENCE
+pointless-exception-statement:100:4:100:41:unraised_exception:Exception statement has no effect:INFERENCE

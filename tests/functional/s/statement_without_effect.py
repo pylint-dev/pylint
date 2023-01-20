@@ -96,3 +96,5 @@ def unraised_exception():
     ValueError(to_be())  # [pointless-exception-statement]
     ClassLevelAttributeTest.ClassLevelException(to_be())  # [pointless-exception-statement]
     ValueError ( "another-pointless-statement" ) # [pointless-exception-statement]
+    instance = ClassLevelAttributeTest()
+    instance.ClassLevelException(to_be())  # [pointless-exception-statement]
