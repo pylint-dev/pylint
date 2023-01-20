@@ -467,16 +467,16 @@ class BasicChecker(_BasicChecker):
                 self.add_message(
                     "pointless-exception-statement", node=node, confidence=INFERENCE
                 )
+            return
 
         # Ignore if this is :
-        # * a direct function call
         # * the unique child of a try/except body
         # * a yield statement
         # * an ellipsis (which can be used on Python 3 instead of pass)
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
         if (
-            isinstance(expr, (nodes.Yield, nodes.Await, nodes.Call))
+            isinstance(expr, (nodes.Yield, nodes.Await))
             or (isinstance(node.parent, nodes.TryExcept) and node.parent.body == [node])
             or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):
