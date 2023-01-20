@@ -453,21 +453,30 @@ class BasicChecker(_BasicChecker):
 
         # Warn W0133 for exceptions that are used as statements
         if isinstance(expr, nodes.Call):
-            inferred = utils.safe_infer(expr)
+            name = ""
+            if isinstance(expr.func, nodes.Name):
+                name = expr.func.name
+            elif isinstance(expr.func, nodes.Attribute):
+                name = expr.func.attrname
+
+            # Heuristic: only run inference for names that begin with an uppercase char
+            # This reduces W0133's coverage, but retains acceptable runtime performance
+            # For more details, see: https://github.com/PyCQA/pylint/issues/8073
+            inferred = utils.safe_infer(expr) if name[:1].isupper() else None
             if isinstance(inferred, objects.ExceptionInstance):
                 self.add_message(
                     "pointless-exception-statement", node=node, confidence=INFERENCE
                 )
+            return
 
         # Ignore if this is :
-        # * a direct function call
         # * the unique child of a try/except body
         # * a yield statement
         # * an ellipsis (which can be used on Python 3 instead of pass)
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
         if (
-            isinstance(expr, (nodes.Yield, nodes.Await, nodes.Call))
+            isinstance(expr, (nodes.Yield, nodes.Await))
             or (isinstance(node.parent, nodes.TryExcept) and node.parent.body == [node])
             or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):
