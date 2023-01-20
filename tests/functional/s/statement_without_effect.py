@@ -39,8 +39,7 @@ class ClassLevelAttributeTest:
     """ test attribute docstrings. """
 
     class ClassLevelException(Exception):
-        """ exception defined for access as a class attribute """
-        ...
+        """Exception defined for access as a class attribute."""
 
     good_attribute_docstring = 24
     """ class level attribute docstring is fine either. """
