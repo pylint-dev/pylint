@@ -112,13 +112,18 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0702": (
         "No exception type(s) specified",
         "bare-except",
-        "Used when an except clause doesn't specify exceptions type to catch.",
+        "A bare ``except:`` clause will catch ``SystemExit`` and ``KeyboardInterrupt``"
+        " exceptions, making it harder to interrupt a program with ``Control-C``, and "
+        "can disguise other problems. If you want to catch all exceptions that signal "
+        "program errors, use ``except Exception:`` (bare except is equivalent to"
+        " ``except BaseException:``).",
     ),
     "W0718": (
         "Catching too general exception %s",
         "broad-exception-caught",
-        "Used when an except catches a too general exception, "
-        "possibly burying unrelated errors.",
+        "If you use a naked ``except Exception:`` clause, you might end up catching "
+        "exceptions other than the ones you expect to catch. This can hide bugs or "
+        "make it harder to debug programs when unrelated errors are hidden.",
         {"old_names": [("W0703", "broad-except")]},
     ),
     "W0705": (
@@ -168,7 +173,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0719": (
         "Raising too general exception: %s",
         "broad-exception-raised",
-        "Used when an except raises a too general exception.",
+        "Raising exceptions that are too generic force you to catch exception "
+        "generically too. It will force you to use a naked ``except Exception:``"
+        " clause. You might then end up catching exceptions other than the ones "
+        "you expect to catch. This can hide bugs or make it harder to debug programs"
+        " when unrelated errors are hidden.",
     ),
 }
 

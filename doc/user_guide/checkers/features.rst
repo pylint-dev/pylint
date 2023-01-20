@@ -447,8 +447,9 @@ Exceptions checker Messages
   Used when an except catches a type that was already caught by a previous
   handler.
 :broad-exception-caught (W0718): *Catching too general exception %s*
-  Used when an except catches a too general exception, possibly burying
-  unrelated errors.
+  If you use a naked ``except Exception:`` clause, you might end up catching
+  exceptions other than the ones you expect to catch. This can hide bugs or
+  make it harder to debug programs when unrelated errors are hidden.
 :raise-missing-from (W0707): *Consider explicitly re-raising using %s'%s from %s'*
   Python's exception chaining shows the traceback of the current exception, but
   also of the original exception. When you raise a new exception after another
@@ -467,9 +468,17 @@ Exceptions checker Messages
   valid for the exception in question. Usually emitted when having binary
   operations between exceptions in except handlers.
 :bare-except (W0702): *No exception type(s) specified*
-  Used when an except clause doesn't specify exceptions type to catch.
+  A bare ``except:`` clause will catch ``SystemExit`` and ``KeyboardInterrupt``
+  exceptions, making it harder to interrupt a program with ``Control-C``, and
+  can disguise other problems. If you want to catch all exceptions that signal
+  program errors, use ``except Exception:`` (bare except is equivalent to
+  ``except BaseException:``).
 :broad-exception-raised (W0719): *Raising too general exception: %s*
-  Used when an except raises a too general exception.
+  Raising exceptions that are too generic force you to catch exception
+  generically too. It will force you to use a naked ``except Exception:``
+  clause. You might then end up catching exceptions other than the ones you
+  expect to catch. This can hide bugs or make it harder to debug programs when
+  unrelated errors are hidden.
 :try-except-raise (W0706): *The except handler raises immediately*
   Used when an except handler uses raise as its first or only operator. This is
   useless because it raises back the exception immediately. Remove the raise
