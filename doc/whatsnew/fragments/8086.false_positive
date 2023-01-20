@@ -1,3 +1,0 @@
-Fix ``consider-using-augmented-assign`` checker for nested attribute access.
-
-Closes #8086
