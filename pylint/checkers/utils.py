@@ -2066,22 +2066,6 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         return True
 
 
-def get_full_name_of_attribute(node: nodes.Attribute | nodes.AssignAttr) -> str:
-    """Return the full name of an attribute and the classes it belongs to.
-
-    For example: "Class1.Class2.attr"
-    """
-    parent = node.parent
-    ret = node.attrname or ""
-    while isinstance(parent, (nodes.Attribute, nodes.Name)):
-        if isinstance(parent, nodes.Attribute):
-            ret = f"{parent.attrname}.{ret}"
-        else:
-            ret = f"{parent.name}.{ret}"
-        parent = parent.parent
-    return ret
-
-
 def _is_target_name_in_binop_side(
     target: nodes.AssignName | nodes.AssignAttr, side: nodes.NodeNG | None
 ) -> bool:
@@ -2091,7 +2075,7 @@ def _is_target_name_in_binop_side(
             return target.name == side.name  # type: ignore[no-any-return]
         return False
     if isinstance(side, nodes.Attribute) and isinstance(target, nodes.AssignAttr):
-        return get_full_name_of_attribute(target) == get_full_name_of_attribute(side)
+        return target.as_string() == side.as_string()  # type: ignore[no-any-return]
     return False
 
 
