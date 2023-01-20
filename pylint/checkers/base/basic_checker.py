@@ -460,6 +460,8 @@ class BasicChecker(_BasicChecker):
                 name = expr.func.attrname
 
             # Heuristic: only run inference for names that begin with an uppercase char
+            # This reduces W0133's coverage, but retains acceptable runtime performance
+            # For more details, see: https://github.com/PyCQA/pylint/issues/8073
             inferred = utils.safe_infer(expr) if name[:1].isupper() else None
             if isinstance(inferred, objects.ExceptionInstance):
                 self.add_message(
