@@ -13,5 +13,5 @@ pointless-string-statement:68:8:68:55:ClassLevelAttributeTest.test:String statem
 pointless-exception-statement:94:4:94:37:unraised_exception:Exception statement has no effect:INFERENCE
 pointless-exception-statement:95:4:95:23:unraised_exception:Exception statement has no effect:INFERENCE
 pointless-exception-statement:96:4:96:56:unraised_exception:Exception statement has no effect:INFERENCE
-pointless-exception-statement:97:4:97:48:unraised_exception:Exception statement has no effect:INFERENCE
+pointless-exception-statement:97:4:97:45:unraised_exception:Exception statement has no effect:INFERENCE
 pointless-exception-statement:99:4:99:41:unraised_exception:Exception statement has no effect:INFERENCE
