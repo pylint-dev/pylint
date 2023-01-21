@@ -134,6 +134,6 @@ class TestImportsChecker(CheckerTestCase):
         )
         output, errors = capsys.readouterr()
 
-        # assert that we saw an error occur due to os being imported
-        assert len(output.split("\n")) == 9
+        # assert that we saw preferred-modules triggered
+        assert len(output.split("\n")) == 7
         assert len(errors) == 0
