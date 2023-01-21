@@ -128,7 +128,7 @@ which is called with an ``.astroid.nodes.Return`` node.
 .. TODO We can shorten/remove this bit once astroid has API docs.
 
 We'll need to be able to figure out what attributes an
-``.astroid.nodes.Return` node has available.
+``.astroid.nodes.Return`` node has available.
 We can use ``astroid.extract_node`` for this::
 
   >>> node = astroid.extract_node("return 5")
