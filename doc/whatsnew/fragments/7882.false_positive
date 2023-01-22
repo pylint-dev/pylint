@@ -1,4 +1,3 @@
-Fix a false positive for ``used-before-assignment`` after a variable
-annotated with a name guarded by ``if TYPE_CHECKING:``.
+Fix a false positive for ``used-before-assignment`` when a name guarded by ``if TYPE_CHECKING:`` is used as a type annotation in a function body and later re-imported in the same scope.
 
 Closes #7882
