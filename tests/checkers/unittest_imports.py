@@ -120,7 +120,6 @@ class TestImportsChecker(CheckerTestCase):
         """
         Tests preferred-module configuration option
         """
-
         # test preferred-modules case with base module import
         Run(
             [
