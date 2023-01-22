@@ -1798,10 +1798,14 @@ class VariablesChecker(BaseChecker):
             elif base_scope_type != "lambda":
                 # E0601 may *not* occurs in lambda scope.
 
-                # Handle postponed evaluation of annotations
+                # Skip postponed evaluation of annotations
+                # and unevaluated annotations inside a function body
                 if not (
                     self._postponed_evaluation_enabled
                     and isinstance(stmt, (nodes.AnnAssign, nodes.FunctionDef))
+                ) and not (
+                    isinstance(stmt, nodes.AnnAssign)
+                    and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
                 ):
                     self.add_message(
                         "used-before-assignment",

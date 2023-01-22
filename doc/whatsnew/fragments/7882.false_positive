@@ -1,0 +1,4 @@
+Fix a false positive for ``used-before-assignment`` after a variable
+annotated with a name guarded by ``if TYPE_CHECKING:``.
+
+Closes #7882
