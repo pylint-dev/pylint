@@ -4,10 +4,12 @@
 
 """Unittest for the BaseChecker class."""
 
+import pytest
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.imports import ImportsChecker
 from pylint.checkers.typecheck import TypeChecker
+from pylint.exceptions import InvalidMessageError
 from pylint.extensions.while_used import WhileChecker
 from pylint.lint.pylinter import PyLinter
 
@@ -24,6 +26,11 @@ class OtherBasicChecker(BaseChecker):
             "Used nowhere and serves no purpose.",
         )
     }
+
+
+class MissingFieldsChecker(BaseChecker):
+    name = "basic"
+    msgs = {"W0001": ("msg-name",)}  # type: ignore[dict-item]
 
 
 class LessBasicChecker(OtherBasicChecker):
@@ -121,3 +128,10 @@ def test_base_checker_ordering() -> None:
     assert fake_checker_1 > fake_checker_3
     assert fake_checker_2 > fake_checker_3
     assert fake_checker_1 == fake_checker_2
+
+
+def test_base_checker_invalid_message() -> None:
+    linter = PyLinter()
+
+    with pytest.raises(InvalidMessageError):
+        linter.register_checker(MissingFieldsChecker(linter))

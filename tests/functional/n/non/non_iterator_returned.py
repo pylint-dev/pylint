@@ -1,7 +1,7 @@
 """Check non-iterators returned by __iter__ """
 
-# pylint: disable=too-few-public-methods, missing-docstring, consider-using-with
-
+# pylint: disable=too-few-public-methods, missing-docstring, consider-using-with, import-error
+from uninferable import UNINFERABLE
 
 class FirstGoodIterator:
     """ yields in iterator. """
@@ -99,3 +99,9 @@ class FourthBadIterator:
 
     def __iter__(self):  # [non-iterator-returned]
         return ThirdBadIterator
+
+class SixthGoodIterator:
+    """__iter__ returns Uninferable."""
+
+    def __iter__(self):
+        return UNINFERABLE
