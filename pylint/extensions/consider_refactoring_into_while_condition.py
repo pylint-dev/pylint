@@ -32,7 +32,7 @@ class ConsiderRefactorIntoWhileConditionChecker(checkers.BaseChecker):
 
     name = "consider_refactoring_into_while"
     msgs = {
-        "R2005": (
+        "R3501": (
             "Consider using 'while %s' instead of 'while True:' an 'if', and a 'break'",
             "consider-refactoring-into-while-condition",
             "Emitted when `while True:` loop is used and the first statement is a break condition. "

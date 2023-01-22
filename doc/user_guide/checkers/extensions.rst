@@ -727,7 +727,7 @@ Verbatim name of the checker is ``consider_refactoring_into_while_condition``.
 
 Consider refactoring into while checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:consider-refactoring-into-while-condition (R2005): *Consider using 'while %s' instead of 'while True:' an 'if', and a 'break'*
+:consider-refactoring-into-while-condition (R3501): *Consider using 'while %s' instead of 'while True:' an 'if', and a 'break'*
   Emitted when `while True:` loop is used and the first statement is a break
   condition. The `if / break`` construct can be removed if the check is inverted
   and moved to the `while` statement.
