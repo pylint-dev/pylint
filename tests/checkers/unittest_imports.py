@@ -134,5 +134,6 @@ class TestImportsChecker(CheckerTestCase):
         output, errors = capsys.readouterr()
 
         # assert that we saw preferred-modules triggered
-        assert len(output.split("\n")) == 7
+        assert "Prefer importing 'sys' instead of 'os'" in output
+        # assert there were no errors
         assert len(errors) == 0
