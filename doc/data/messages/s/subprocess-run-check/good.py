@@ -1,3 +1,3 @@
 import subprocess
 
-proc = subprocess.run(["ls"], check=True)
+proc = subprocess.run(["ls"], check=False)
