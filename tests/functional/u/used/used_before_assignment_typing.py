@@ -95,6 +95,7 @@ class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-publi
     local (function) variable annotations, which are not evaluated at runtime.
 
     See: https://github.com/PyCQA/pylint/issues/7609
+    and https://github.com/PyCQA/pylint/issues/7882
     """
 
     still_an_error: datetime.date  # [used-before-assignment]
@@ -102,6 +103,8 @@ class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-publi
     def print_date(self, date) -> None:
         date: datetime.date = date
         print(date)
+
+        import datetime  # pylint: disable=import-outside-toplevel
 
 
 class ConditionalImportGuardedWhenUsed:  # pylint: disable=too-few-public-methods
