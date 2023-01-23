@@ -16,6 +16,7 @@ from astroid.typing import InferenceResult
 
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
+from pylint.interfaces import INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -507,7 +508,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def _check_for_check_kw_in_run(self, node: nodes.Call) -> None:
         kwargs = {keyword.arg for keyword in (node.keywords or ())}
         if "check" not in kwargs:
-            self.add_message("subprocess-run-check", node=node)
+            self.add_message("subprocess-run-check", node=node, confidence=INFERENCE)
 
     def _check_shallow_copy_environ(self, node: nodes.Call) -> None:
         arg = utils.get_argument_from_call(node, position=0)
