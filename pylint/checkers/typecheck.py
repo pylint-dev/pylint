@@ -687,7 +687,12 @@ def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool
     ):
         call = statement.value
         variadics = list(call.keywords or []) + call.kwargs
-
+    elif isinstance(statement, nodes.With):
+        calls = statement.items
+        if calls:
+            # only handle one call for now...
+            call = statement.items[0][0]
+            variadics = list(call.keywords or []) + call.kwargs
     return _no_context_variadic(node, scope.args.kwarg, nodes.Keyword, variadics)
 
 
