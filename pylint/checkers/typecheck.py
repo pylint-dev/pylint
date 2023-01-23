@@ -499,16 +499,7 @@ def _emit_no_member(
                 return False
         except astroid.NotFoundError:
             return True
-    if (
-        owner.parent
-        and isinstance(owner.parent, nodes.ClassDef)
-        and owner.parent.name == "EnumMeta"
-        and owner_name == "__members__"
-        and node.attrname in {"items", "values", "keys"}
-    ):
-        # Avoid false positive on Enum.__members__.{items(), values, keys}
-        # See https://github.com/PyCQA/pylint/issues/4123
-        return False
+
     # Don't emit no-member if guarded behind `IF` or `IFExp`
     #   * Walk up recursively until if statement is found.
     #   * Check if condition can be inferred as `Const`,
