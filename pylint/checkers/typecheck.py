@@ -1697,6 +1697,7 @@ accessed. Python regular expressions are accepted.",
             return None
 
         index_type = safe_infer(subscript.slice)
+
         if index_type is None or index_type is astroid.Uninferable:
             return None
         # Constants must be of type int
@@ -1707,6 +1708,11 @@ accessed. Python regular expressions are accepted.",
         elif isinstance(index_type, astroid.Instance):
             if index_type.pytype() in {"builtins.int", "builtins.slice"}:
                 return None
+            if index_type.pytype() == "builtins.tuple":
+                for elt in index_type.elts:
+                    self._check_invalid_slice_index(elt)
+                return None
+
             try:
                 index_type.getattr("__index__")
                 return None
