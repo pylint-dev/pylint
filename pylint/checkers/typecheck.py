@@ -680,19 +680,24 @@ def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool
     statement = node.statement(future=True)
     variadics = []
 
-    if isinstance(scope, nodes.Lambda) and not isinstance(scope, nodes.FunctionDef):
+    if (
+        isinstance(scope, nodes.Lambda)
+        and not isinstance(scope, nodes.FunctionDef)
+        or isinstance(statement, nodes.With)
+    ):
         variadics = list(node.keywords or []) + node.kwargs
     elif isinstance(statement, (nodes.Return, nodes.Expr, nodes.Assign)) and isinstance(
         statement.value, nodes.Call
     ):
         call = statement.value
         variadics = list(call.keywords or []) + call.kwargs
-    elif isinstance(statement, nodes.With):
-        calls = statement.items
-        if calls:
-            # only handle one call for now...
-            call = statement.items[0][0]
-            variadics = list(call.keywords or []) + call.kwargs
+    # elif isinstance(statement, nodes.With):
+    #     breakpoint()
+    #     calls = statement.items
+    #     if calls:
+    #         # only handle one call for now...
+    #         call = statement.items[0][0]
+    #         variadics = list(call.keywords or []) + call.kwargs
     return _no_context_variadic(node, scope.args.kwarg, nodes.Keyword, variadics)
 
 

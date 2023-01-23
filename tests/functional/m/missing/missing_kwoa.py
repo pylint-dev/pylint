@@ -86,5 +86,7 @@ def test_context_managers(**kw):
     with run(**kw), run(**kw):
         pass
 
+    with run(**kw), run():  # [missing-kwoa]
+        pass
 
 test_context_managers(a=1)
