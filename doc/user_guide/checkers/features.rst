@@ -968,6 +968,11 @@ Stdlib checker Messages
   instance will never need to be garbage collected (singleton) it is
   recommended to refactor code to avoid this pattern or add a maxsize to the
   cache. The default value for maxsize is 128.
+:subprocess-run-check (W1510): *'subprocess.run' used without explicitly defining the value for 'check'.*
+  The ``check`` keyword is set to False by default. It means the process
+  launched by ``subprocess.run`` can exit with a non-zero exit code and fail
+  silently. It's better to set it explicitly to make clear what the error-
+  handling behavior is.
 :forgotten-debug-statement (W1515): *Leaving functions creating breakpoints in production code is not recommended*
   Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be
   removed from code that is not actively being debugged.
@@ -1001,10 +1006,6 @@ Stdlib checker Messages
   your application. The child process could deadlock before exec is called. If
   you must use it, keep it trivial! Minimize the number of libraries you call
   into. See https://docs.python.org/3/library/subprocess.html#popen-constructor
-:subprocess-run-check (W1510): *Using subprocess.run without explicitly set `check` is not recommended.*
-  The check parameter should always be used with explicitly set `check` keyword
-  to make clear what the error-handling behavior is. See
-  https://docs.python.org/3/library/subprocess.html#subprocess.run
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
   the target function being passed as a kwarg or as a second argument. By

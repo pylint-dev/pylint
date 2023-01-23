@@ -429,11 +429,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "See https://docs.python.org/3/library/subprocess.html#popen-constructor",
         ),
         "W1510": (
-            "Using subprocess.run without explicitly set `check` is not recommended.",
+            "'subprocess.run' used without explicitly defining the value for 'check'.",
             "subprocess-run-check",
-            "The check parameter should always be used with explicitly set "
-            "`check` keyword to make clear what the error-handling behavior is. "
-            "See https://docs.python.org/3/library/subprocess.html#subprocess.run",
+            "The ``check`` keyword  is set to False by default. It means the process "
+            "launched by ``subprocess.run`` can exit with a non-zero exit code and "
+            "fail silently. It's better to set it explicitly to make clear what the "
+            "error-handling behavior is.",
         ),
         "W1514": (
             "Using open without explicitly specifying an encoding",
