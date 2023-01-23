@@ -691,13 +691,7 @@ def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool
     ):
         call = statement.value
         variadics = list(call.keywords or []) + call.kwargs
-    # elif isinstance(statement, nodes.With):
-    #     breakpoint()
-    #     calls = statement.items
-    #     if calls:
-    #         # only handle one call for now...
-    #         call = statement.items[0][0]
-    #         variadics = list(call.keywords or []) + call.kwargs
+
     return _no_context_variadic(node, scope.args.kwarg, nodes.Keyword, variadics)
 
 
@@ -1622,7 +1616,12 @@ accessed. Python regular expressions are accepted.",
                 and not has_no_context_keywords_variadic
                 and not overload_function
             ):
-                self.add_message("missing-kwoa", node=node, args=(name, callable_name))
+                self.add_message(
+                    "missing-kwoa",
+                    node=node,
+                    args=(name, callable_name),
+                    confidence=INFERENCE,
+                )
 
     @staticmethod
     def _keyword_argument_is_in_all_decorator_returns(
