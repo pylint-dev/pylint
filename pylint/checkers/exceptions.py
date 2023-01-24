@@ -174,10 +174,10 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Raising too general exception: %s",
         "broad-exception-raised",
         "Raising exceptions that are too generic force you to catch exceptions "
-        "generically too. It will force you to use a naked ``except Exception:``"
-        " clause. You might then end up catching exceptions other than the ones "
-        "you expect to catch. This can hide bugs or make it harder to debug programs"
-        " when unrelated errors are hidden.",
+        "generically too. It will force you to use a naked ``except Exception:`` "
+        "clause. You might then end up catching exceptions other than the ones "
+        "you expect to catch. This can hide bugs or make it harder to debug programs "
+        "when unrelated errors are hidden.",
     ),
 }
 
