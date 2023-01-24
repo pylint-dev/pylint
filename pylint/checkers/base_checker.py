@@ -234,7 +234,15 @@ class BaseChecker(_ArgumentsProvider):
             for msgid, msg_tuple in sorted(self.msgs.items())
         ]
 
-    def get_message_definition(self, msgid: str) -> MessageDefinition:
+    def get_message_definition(
+        self, msgid: str
+    ) -> MessageDefinition:  # pragma: no cover
+        # TODO: 3.0: Remove deprecated method
+        warnings.warn(
+            "'get_message_definition' is deprecated and will be removed in 3.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         for message_definition in self.messages:
             if message_definition.msgid == msgid:
                 return message_definition
