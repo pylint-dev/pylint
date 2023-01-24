@@ -406,7 +406,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     ),
 }
 
-# builtin sequence types in Python 2 and 3.
+# recognized sequence types in Python 3.
 SEQUENCE_TYPES = {
     "str",
     "unicode",
@@ -417,6 +417,7 @@ SEQUENCE_TYPES = {
     "range",
     "bytes",
     "memoryview",
+    "ndarray",
 }
 
 
@@ -1690,7 +1691,6 @@ accessed. Python regular expressions are accepted.",
             return None
         if (
             not isinstance(itemmethod, nodes.FunctionDef)
-            or itemmethod.root().name != "builtins"
             or not itemmethod.parent
             or itemmethod.parent.frame().name not in SEQUENCE_TYPES
         ):
@@ -1701,16 +1701,14 @@ accessed. Python regular expressions are accepted.",
         if index_type is None or index_type is astroid.Uninferable:
             return None
         # Constants must be of type int
-        if isinstance(index_type, nodes.Const):
-            if isinstance(index_type.value, int):
-                return None
+        if isinstance(index_type, nodes.Const) and isinstance(index_type.value, int):
+            return None
         # Instance values must be int, slice, or have an __index__ method
-        elif isinstance(index_type, astroid.Instance):
+        if isinstance(index_type, astroid.Instance):
             if index_type.pytype() in {"builtins.int", "builtins.slice"}:
                 return None
-            if index_type.pytype() == "builtins.tuple":
-                for elt in index_type.elts:
-                    self._check_invalid_slice_index(elt)
+            if self.is_indexing_numpy(index_type, parent_type):
+                self.check_numpy_slices(index_type)
                 return None
 
             try:
@@ -1725,8 +1723,35 @@ accessed. Python regular expressions are accepted.",
             return self._check_invalid_slice_index(index_type)
 
         # Anything else is an error
-        self.add_message("invalid-sequence-index", node=subscript)
+        self.add_message("invalid-sequence-index", node=subscript, confidence=INFERENCE)
         return None
+
+    @staticmethod
+    def is_indexing_numpy(
+        index_type: astroid.Instance, parent_type: nodes.NodeNG
+    ) -> bool:
+        return index_type.pytype() == "builtins.tuple" and parent_type.pytype() in {
+            "builtins.tuple",
+            ".ndarray",
+        }
+
+    def check_numpy_slices(self, index_type: astroid.Instance) -> None:
+        for elt in index_type.elts:
+            slice_type = safe_infer(elt)
+            if slice_type is None or slice_type is astroid.Uninferable:
+                continue
+
+            if isinstance(slice_type, nodes.Const):
+                if isinstance(slice_type.value, int) or slice_type.value in (
+                    None,
+                    Ellipsis,
+                ):
+                    continue
+                # slice is a str
+                self.add_message("invalid-slice-index", node=elt, confidence=INFERENCE)
+
+            elif isinstance(slice_type, nodes.Slice):
+                self._check_invalid_slice_index(elt)
 
     def _check_not_callable(
         self, node: nodes.Call, inferred_call: nodes.NodeNG | None
@@ -1819,7 +1844,7 @@ accessed. Python regular expressions are accepted.",
                 # Might be an instance that knows how to handle this slice object
                 return
         for snode in invalid_slices_nodes:
-            self.add_message("invalid-slice-index", node=snode)
+            self.add_message("invalid-slice-index", node=snode, confidence=INFERENCE)
         if invalid_slice_step:
             self.add_message("invalid-slice-step", node=node.step, confidence=HIGH)
 

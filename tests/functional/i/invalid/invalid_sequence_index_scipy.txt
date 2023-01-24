@@ -1,2 +1,5 @@
-invalid-slice-index:15:13:15:16::Slice index is not an int, None, or instance with __index__:UNDEFINED
-invalid-slice-index:15:17:15:20::Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-slice-index:12:7:12:10::Slice index is not an int, None, or instance with __index__:INFERENCE
+invalid-slice-index:25:13:25:16::Slice index is not an int, None, or instance with __index__:INFERENCE
+invalid-slice-index:26:13:26:16::Slice index is not an int, None, or instance with __index__:INFERENCE
+invalid-slice-index:27:13:27:16::Slice index is not an int, None, or instance with __index__:INFERENCE
+invalid-slice-index:27:17:27:20::Slice index is not an int, None, or instance with __index__:INFERENCE

@@ -244,3 +244,8 @@ def function28():
         pass
 
     return Works['hello'] + Error['hello']
+
+
+res = TESTLIST[..., True]  # [invalid-sequence-index]
+res = TESTLIST[..., None]  # [invalid-sequence-index]
+res = TESTLIST[..., "1": 2]  # [invalid-sequence-index]
