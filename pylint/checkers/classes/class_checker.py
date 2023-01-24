@@ -892,7 +892,7 @@ a metaclass class method.",
             )
 
         if ancestor.is_subtype_of("enum.IntFlag"):
-            previous_values, total, union, overlaps = set(), None, None, []
+            previous_values, total, union, overlaps = set(), 0, 0, []
             for assign_name in node.nodes_of_class(nodes.AssignName):
                 if not isinstance(assign_name.parent, nodes.Assign):
                     continue  # Ignore non-assignment expressions
@@ -907,8 +907,8 @@ a metaclass class method.",
                 previous_values.add(assigned.value)
 
                 # Detect divergence between the sum-of-values and union-of-values
-                total = assigned.value if total is None else total + assigned.value
-                union = assigned.value if union is None else union | assigned.value
+                total += assigned.value
+                union |= assigned.value
                 if total != union:
                     overlaps.append(assign_name)
                     total = union  # reset divergence detection after each iteration
