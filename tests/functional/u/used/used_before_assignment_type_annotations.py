@@ -1,5 +1,5 @@
 """Tests for annotation of variables and potential use before assignment"""
-# pylint: disable=too-few-public-methods, global-variable-not-assigned
+# pylint: disable=too-few-public-methods, unnecessary-global-use
 from collections import namedtuple
 from typing import List
 

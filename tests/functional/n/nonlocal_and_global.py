@@ -1,5 +1,5 @@
 """Test that a name is both nonlocal and global in the same scope."""
-# pylint: disable=missing-docstring,global-variable-not-assigned,invalid-name,nonlocal-without-binding
+# pylint: disable=missing-docstring,unnecessary-global-use,invalid-name,nonlocal-without-binding
 
 def bad(): # [nonlocal-and-global]
     nonlocal missing

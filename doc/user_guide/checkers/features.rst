@@ -1349,6 +1349,9 @@ Variables checker Messages
 :redefined-outer-name (W0621): *Redefining name %r from outer scope (line %s)*
   Used when a variable's name hides a name defined in an outer scope or except
   handler.
+:unnecessary-global-use (W0645): *Unnecessary use of global for %r*
+  Used when a variable defined as a global is then invoked with the `global`
+  keyword but no assignment to this variable is done.
 :unused-import (W0611): *Unused %s*
   Used when an imported module or variable is not used.
 :unused-argument (W0613): *Unused argument %r*
@@ -1358,9 +1361,6 @@ Variables checker Messages
   *'` style import.
 :unused-variable (W0612): *Unused variable %r*
   Used when a variable is defined but not used.
-:global-variable-not-assigned (W0602): *Using global for %r but no assignment is done*
-  Used when a variable is defined through the "global" statement but no
-  assignment to this variable is done.
 :undefined-loop-variable (W0631): *Using possibly undefined loop variable %r*
   Used when a loop variable (i.e. defined by a for loop or a list comprehension
   or a generator expression) is used outside the loop.

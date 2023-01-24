@@ -431,11 +431,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         'Used when a variable is defined through the "global" statement '
         "but the variable is not defined in the module scope.",
     ),
-    "W0602": (
-        "Using global for %r but no assignment is done",
-        "global-variable-not-assigned",
-        'Used when a variable is defined through the "global" statement '
-        "but no assignment to this variable is done.",
+    "W0645": (
+        "Unnecessary use of global for %r",
+        "unnecessary-global-use",
+        "Used when a variable defined as a global is then invoked "
+        "with the `global` keyword but no assignment to this variable is done.",
+        {"old_names": [("W0602", "global-variable-not-assigned")]},
     ),
     "W0603": (
         "Using the global statement",  # W0121
@@ -1470,7 +1471,7 @@ class VariablesChecker(BaseChecker):
 
     @utils.only_required_for_messages(
         "global-variable-undefined",
-        "global-variable-not-assigned",
+        "unnecessary-global-use",
         "global-statement",
         "global-at-module-level",
         "redefined-builtin",
@@ -1501,7 +1502,9 @@ class VariablesChecker(BaseChecker):
                 and not utils.is_deleted_after_current(node, name)
                 and not_defined_locally_by_import
             ):
-                self.add_message("global-variable-not-assigned", args=name, node=node)
+                self.add_message(
+                    "unnecessary-global-use", args=name, node=node, confidence=HIGH
+                )
                 default_message = False
                 continue
 

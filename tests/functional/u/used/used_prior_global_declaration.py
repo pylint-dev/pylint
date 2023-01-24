@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, pointless-statement, global-variable-not-assigned, global-statement
+# pylint: disable=missing-docstring, pointless-statement, unnecessary-global-use, global-statement
 
 
 CONST = 1

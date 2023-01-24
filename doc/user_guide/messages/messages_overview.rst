@@ -248,7 +248,6 @@ All messages in the warning category:
    warning/format-string-without-interpolation
    warning/global-at-module-level
    warning/global-statement
-   warning/global-variable-not-assigned
    warning/global-variable-undefined
    warning/implicit-str-concat
    warning/import-self
@@ -321,6 +320,7 @@ All messages in the warning category:
    warning/undefined-loop-variable
    warning/unknown-option-value
    warning/unnecessary-ellipsis
+   warning/unnecessary-global-use
    warning/unnecessary-lambda
    warning/unnecessary-pass
    warning/unnecessary-semicolon
@@ -353,6 +353,7 @@ All renamed messages in the warning category:
 
    warning/broad-except
    warning/cache-max-size-none
+   warning/global-variable-not-assigned
    warning/implicit-str-concat-in-sequence
    warning/lru-cache-decorating-method
    warning/old-assignment-from-none
