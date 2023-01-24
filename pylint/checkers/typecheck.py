@@ -680,7 +680,11 @@ def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool
     statement = node.statement(future=True)
     variadics = []
 
-    if isinstance(scope, nodes.Lambda) and not isinstance(scope, nodes.FunctionDef):
+    if (
+        isinstance(scope, nodes.Lambda)
+        and not isinstance(scope, nodes.FunctionDef)
+        or isinstance(statement, nodes.With)
+    ):
         variadics = list(node.keywords or []) + node.kwargs
     elif isinstance(statement, (nodes.Return, nodes.Expr, nodes.Assign)) and isinstance(
         statement.value, nodes.Call
@@ -1612,7 +1616,12 @@ accessed. Python regular expressions are accepted.",
                 and not has_no_context_keywords_variadic
                 and not overload_function
             ):
-                self.add_message("missing-kwoa", node=node, args=(name, callable_name))
+                self.add_message(
+                    "missing-kwoa",
+                    node=node,
+                    args=(name, callable_name),
+                    confidence=INFERENCE,
+                )
 
     @staticmethod
     def _keyword_argument_is_in_all_decorator_returns(

@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring,unused-argument,too-few-public-methods
+import contextlib
 import typing
-
 
 def target(pos, *, keyword):
     return pos + keyword
@@ -71,3 +71,22 @@ class Child(Parent):
             second):
         super().__init__(first=first, second=second)
         self._first = first + second
+
+
+@contextlib.contextmanager
+def run(*, a):
+    yield
+
+def test_context_managers(**kw):
+    run(**kw)
+
+    with run(**kw):
+        pass
+
+    with run(**kw), run(**kw):
+        pass
+
+    with run(**kw), run():  # [missing-kwoa]
+        pass
+
+test_context_managers(a=1)
