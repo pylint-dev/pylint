@@ -1,4 +1,4 @@
 try:
-    1 / 0
+    import platform_specific_module
 except Exception:  # [broad-exception-caught]
-    pass
+    platform_specific_module = None
