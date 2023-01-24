@@ -528,7 +528,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0213": (
         "Value of flag member overlaps with another",
         "implicit-flag-overlap",
-        "Used when a value declared on a class derived from enum.Flag partially "
+        "Used when a value declared on a class derived from enum.IntFlag partially "
         "overlaps with another member value.",
     ),
     "E0211": (
@@ -912,7 +912,7 @@ a metaclass class method.",
                     )
 
             if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
-                "enum.Flag"
+                "enum.IntFlag"
             ):
                 previous_values, total, union, overlaps = set(), None, None, []
                 for assign_name in node.nodes_of_class(nodes.AssignName):
