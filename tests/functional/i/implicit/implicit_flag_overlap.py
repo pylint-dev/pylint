@@ -12,6 +12,7 @@ class ExplicitUnionFlags(IntFlag):
     X = 1
     W = 2
     R = 4
+    RO = 4
     RW = R | W
 
 class SubclassUnionFlags(ExplicitUnionFlags):  # [invalid-enum-extension]
