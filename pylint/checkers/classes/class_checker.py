@@ -881,6 +881,45 @@ a metaclass class method.",
         except astroid.DuplicateBasesError:
             self.add_message("duplicate-bases", args=node.name, node=node)
 
+    def _check_enum_base(self, node: nodes.ClassDef, ancestor: nodes.ClassDef) -> None:
+        members = ancestor.getattr("__members__")
+        if members and isinstance(members[0], nodes.Dict) and members[0].items:
+            self.add_message(
+                "invalid-enum-extension",
+                args=ancestor.name,
+                node=node,
+                confidence=INFERENCE,
+            )
+
+        if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
+            "enum.IntFlag"
+        ):
+            previous_values, total, union, overlaps = set(), None, None, []
+            for assign_name in node.nodes_of_class(nodes.AssignName):
+                if not isinstance(assign_name.parent, nodes.Assign):
+                    continue  # Ignore non-assignment expressions
+
+                assigned = assign_name.parent.value
+                if not isinstance(assigned, nodes.Const):
+                    continue  # Ignore non-literal assignments
+
+                assert assigned.value is not None
+                if assigned.value in previous_values:
+                    continue  # Ignore aliases
+                previous_values.add(assigned.value)
+
+                # Detect divergence between the sum-of-values and union-of-values
+                total = assigned.value if total is None else total + assigned.value
+                union = assigned.value if union is None else union | assigned.value
+                if total != union:
+                    overlaps.append(assign_name)
+                    total = union  # reset divergence detection after each iteration
+
+            for overlap in overlaps:
+                self.add_message(
+                    "implicit-flag-overlap", node=overlap, confidence=INFERENCE
+                )
+
     def _check_proper_bases(self, node: nodes.ClassDef) -> None:
         """Detect that a class inherits something which is not
         a class or a type.
@@ -894,51 +933,15 @@ a metaclass class method.",
             ):
                 continue
 
+            if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
+                "enum.Enum"
+            ):
+                self._check_enum_base(node, ancestor)
+
             if not isinstance(ancestor, nodes.ClassDef) or _is_invalid_base_class(
                 ancestor
             ):
                 self.add_message("inherit-non-class", args=base.as_string(), node=node)
-
-            if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
-                "enum.Enum"
-            ):
-                members = ancestor.getattr("__members__")
-                if members and isinstance(members[0], nodes.Dict) and members[0].items:
-                    self.add_message(
-                        "invalid-enum-extension",
-                        args=ancestor.name,
-                        node=node,
-                        confidence=INFERENCE,
-                    )
-
-            if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
-                "enum.IntFlag"
-            ):
-                previous_values, total, union, overlaps = set(), None, None, []
-                for assign_name in node.nodes_of_class(nodes.AssignName):
-                    if not isinstance(assign_name.parent, nodes.Assign):
-                        continue  # Ignore non-assignment expressions
-
-                    assigned = assign_name.parent.value
-                    if not isinstance(assigned, nodes.Const):
-                        continue  # Ignore non-literal assignments
-
-                    assert assigned.value is not None
-                    if assigned.value in previous_values:
-                        continue  # Ignore aliases
-                    previous_values.add(assigned.value)
-
-                    # Detect divergence between the sum-of-values and union-of-values
-                    total = assigned.value if total is None else total + assigned.value
-                    union = assigned.value if union is None else union | assigned.value
-                    if total != union:
-                        overlaps.append(assign_name)
-                        total = union  # reset divergence detection after each iteration
-
-                for overlap in overlaps:
-                    self.add_message(
-                        "implicit-flag-overlap", node=overlap, confidence=INFERENCE
-                    )
 
             if ancestor.name == object.__name__:
                 self.add_message(
