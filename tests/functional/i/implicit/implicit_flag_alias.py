@@ -1,11 +1,12 @@
 """Test check for classes extending an Enum class."""
-from enum import IntFlag
+from enum import IntFlag, auto
 
 class DisjointFlags(IntFlag):
     """Class with flags that do not overlap"""
     X = 1
     W = 2
     R = 4
+    S = auto()
 
 class ExplicitUnionFlags(IntFlag):
     """Class with flags that overlap using explicit union syntax"""

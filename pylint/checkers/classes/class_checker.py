@@ -898,10 +898,9 @@ a metaclass class method.",
                     continue  # Ignore non-assignment expressions
 
                 assigned = assign_name.parent.value
-                if not isinstance(assigned, nodes.Const):
-                    continue  # Ignore non-literal assignments
+                if not isinstance(getattr(assigned, "value", None), int):
+                    continue  # Ignore non-integer assignments
 
-                assert assigned.value is not None
                 if assigned.value in previous_values:
                     continue  # Ignore aliases
                 previous_values.add(assigned.value)
