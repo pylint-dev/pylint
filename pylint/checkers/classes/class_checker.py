@@ -930,15 +930,15 @@ a metaclass class method.",
             ):
                 continue
 
-            if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
-                "enum.Enum"
-            ):
-                self._check_enum_base(node, ancestor)
-
             if not isinstance(ancestor, nodes.ClassDef) or _is_invalid_base_class(
                 ancestor
             ):
                 self.add_message("inherit-non-class", args=base.as_string(), node=node)
+
+            if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
+                "enum.Enum"
+            ):
+                self._check_enum_base(node, ancestor)
 
             if ancestor.name == object.__name__:
                 self.add_message(
