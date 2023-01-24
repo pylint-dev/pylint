@@ -19,7 +19,6 @@ from pylint.checkers.base.basic_checker import _BasicChecker
 from pylint.checkers.utils import infer_all
 from pylint.interfaces import HIGH, INFERENCE
 
-ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 # List of methods which can be redefined
 REDEFINABLE_METHODS = frozenset(("__module__",))
 TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
@@ -496,9 +495,6 @@ class BasicErrorChecker(_BasicChecker):
                     )
                     break
 
-            return
-
-        if metaclass.qname() not in ABC_METACLASSES:
             return
 
         if _new_without_super(inferred):
