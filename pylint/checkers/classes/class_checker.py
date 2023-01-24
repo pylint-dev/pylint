@@ -525,6 +525,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "beginning with an underscore) is access outside the class or a "
         "descendant of the class where it's defined.",
     ),
+    "W0213": (
+        "Value of flag member overlaps with another",
+        "implicit-flag-overlap",
+        "Used when a value declared on a class derived from enum.Flag partially "
+        "overlaps with another member value.",
+    ),
     "E0211": (
         "Method %r has no argument",
         "no-method-argument",
@@ -856,6 +862,7 @@ a metaclass class method.",
         "redefined-slots-in-subclass",
         "invalid-enum-extension",
         "subclassed-final-class",
+        "implicit-flag-overlap",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
@@ -903,6 +910,33 @@ a metaclass class method.",
                         node=node,
                         confidence=INFERENCE,
                     )
+
+            if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
+                "enum.Flag"
+            ):
+                previous_values, total, union, overlaps = set(), None, None, []
+                for assign_name in node.nodes_of_class(nodes.AssignName):
+                    if isinstance(assign_name.parent, nodes.Arguments):
+                        continue  # Ignore function arguments
+
+                    assigned = assign_name.parent.value
+                    if not isinstance(assigned, nodes.Const):
+                        continue  # Ignore non-literal assignments
+
+                    assert assigned.value is not None
+                    if assigned.value in previous_values:
+                        continue  # Ignore aliases
+                    previous_values.add(assigned.value)
+
+                    # Detect divergence between the sum-of-values and union-of-values
+                    total = assigned.value if total is None else total + assigned.value
+                    union = assigned.value if union is None else union | assigned.value
+                    if total != union:
+                        overlaps.append(assign_name)
+                        total = union  # reset divergence detection after each iteration
+
+                for overlap in overlaps:
+                    self.add_message("implicit-flag-overlap", node=overlap)
 
             if ancestor.name == object.__name__:
                 self.add_message(

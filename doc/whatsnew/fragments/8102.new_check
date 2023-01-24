@@ -1,0 +1,4 @@
+Adds an ``implicit-flag-overlap`` check that emits a warning when a class
+derived from ``enum.Flag`` declares member values that partially overlap.
+
+Refs #8102

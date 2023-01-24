@@ -1,0 +1,3 @@
+invalid-enum-extension:17:0:17:24:SubclassUnionFlags:"Extending inherited Enum class ""ExplicitUnionFlags""":INFERENCE
+implicit-flag-overlap:25:4:25:5:ImplicitUnionFlags:Value of flag member overlaps with another:UNDEFINED
+implicit-flag-overlap:26:4:26:5:ImplicitUnionFlags:Value of flag member overlaps with another:UNDEFINED
