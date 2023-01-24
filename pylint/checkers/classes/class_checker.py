@@ -891,9 +891,7 @@ a metaclass class method.",
                 confidence=INFERENCE,
             )
 
-        if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
-            "enum.IntFlag"
-        ):
+        if ancestor.is_subtype_of("enum.IntFlag"):
             previous_values, total, union, overlaps = set(), None, None, []
             for assign_name in node.nodes_of_class(nodes.AssignName):
                 if not isinstance(assign_name.parent, nodes.Assign):
