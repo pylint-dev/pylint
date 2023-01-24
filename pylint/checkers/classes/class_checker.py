@@ -936,7 +936,9 @@ a metaclass class method.",
                         total = union  # reset divergence detection after each iteration
 
                 for overlap in overlaps:
-                    self.add_message("implicit-flag-overlap", node=overlap)
+                    self.add_message(
+                        "implicit-flag-overlap", node=overlap, confidence=INFERENCE
+                    )
 
             if ancestor.name == object.__name__:
                 self.add_message(
