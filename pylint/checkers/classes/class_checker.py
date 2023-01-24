@@ -527,7 +527,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     ),
     "W0213": (
         "Value of flag member overlaps with another",
-        "implicit-flag-overlap",
+        "implicit-flag-alias",
         "Used when a value declared on a class derived from enum.IntFlag partially "
         "overlaps with another member value.",
     ),
@@ -862,7 +862,7 @@ a metaclass class method.",
         "redefined-slots-in-subclass",
         "invalid-enum-extension",
         "subclassed-final-class",
-        "implicit-flag-overlap",
+        "implicit-flag-alias",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
@@ -911,7 +911,7 @@ a metaclass class method.",
                 union |= assigned.value
                 if total != union:
                     self.add_message(
-                        "implicit-flag-overlap",
+                        "implicit-flag-alias",
                         node=assign_name,
                         confidence=INFERENCE,
                     )

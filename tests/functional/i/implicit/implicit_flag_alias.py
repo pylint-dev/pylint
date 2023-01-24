@@ -23,8 +23,8 @@ class ImplicitUnionFlags(IntFlag):
     """Class with flags that overlap implicitly"""
     A = 1
     B = 2
-    C = 3  # [implicit-flag-overlap]
-    D = 5  # [implicit-flag-overlap]
+    C = 3  # [implicit-flag-alias]
+    D = 5  # [implicit-flag-alias]
     E = 8
 
     def irrelevant(self):
