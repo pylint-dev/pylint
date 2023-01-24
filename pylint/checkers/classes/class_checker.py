@@ -526,7 +526,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "descendant of the class where it's defined.",
     ),
     "W0213": (
-        "Value of flag member overlaps with another",
+        "Flag member <%s.%s: %d> overlaps with another",
         "implicit-flag-alias",
         "Used when a value declared on a class derived from enum.IntFlag partially "
         "overlaps with another member value.",
@@ -912,6 +912,7 @@ a metaclass class method.",
                     self.add_message(
                         "implicit-flag-alias",
                         node=assign_name,
+                        args=(node.name, assign_name.name, assigned.value),
                         confidence=INFERENCE,
                     )
                     total = union  # reset divergence detection after each iteration
