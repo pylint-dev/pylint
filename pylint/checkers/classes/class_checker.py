@@ -916,8 +916,8 @@ a metaclass class method.",
             ):
                 previous_values, total, union, overlaps = set(), None, None, []
                 for assign_name in node.nodes_of_class(nodes.AssignName):
-                    if isinstance(assign_name.parent, nodes.Arguments):
-                        continue  # Ignore function arguments
+                    if not isinstance(assign_name.parent, nodes.Assign):
+                        continue  # Ignore non-assignment expressions
 
                     assigned = assign_name.parent.value
                     if not isinstance(assigned, nodes.Const):
