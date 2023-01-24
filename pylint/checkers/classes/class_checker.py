@@ -892,7 +892,7 @@ a metaclass class method.",
             )
 
         if ancestor.is_subtype_of("enum.IntFlag"):
-            previous_values, total, union, overlaps = set(), 0, 0, []
+            previous_values, total, union = set(), 0, 0
             for assign_name in node.nodes_of_class(nodes.AssignName):
                 if not isinstance(assign_name.parent, nodes.Assign):
                     continue  # Ignore non-assignment expressions
@@ -910,13 +910,12 @@ a metaclass class method.",
                 total += assigned.value
                 union |= assigned.value
                 if total != union:
-                    overlaps.append(assign_name)
+                    self.add_message(
+                        "implicit-flag-overlap",
+                        node=assign_name,
+                        confidence=INFERENCE,
+                    )
                     total = union  # reset divergence detection after each iteration
-
-            for overlap in overlaps:
-                self.add_message(
-                    "implicit-flag-overlap", node=overlap, confidence=INFERENCE
-                )
 
     def _check_proper_bases(self, node: nodes.ClassDef) -> None:
         """Detect that a class inherits something which is not
