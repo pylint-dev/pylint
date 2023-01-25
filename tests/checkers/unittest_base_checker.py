@@ -135,3 +135,13 @@ def test_base_checker_invalid_message() -> None:
 
     with pytest.raises(InvalidMessageError):
         linter.register_checker(MissingFieldsChecker(linter))
+
+
+def test_get_message_definition() -> None:
+    checker = LessBasicChecker()
+    with pytest.warns(DeprecationWarning):
+        with pytest.raises(InvalidMessageError):
+            checker.get_message_definition("W123")
+
+    with pytest.warns(DeprecationWarning):
+        assert checker.get_message_definition("W0001")
