@@ -902,21 +902,21 @@ a metaclass class method.",
                 and isinstance(getattr(assign_name.parent.value, "value", None), int)
             }
 
+            # For each bit position, collect all the flags that set the bit
             bit_values = defaultdict(set)
             for value in assignments.keys():
-                # Create a mapping from bit-index to value(s)
                 for bit, char in enumerate(reversed(f"{value:b}")):
                     if char == "1":
                         bit_values[bit].add(value)
 
-            # For each set of overlapping flags, pair min-and-max overlaps
+            # When multiple flags overlap on a bit position, pair the min-and-max
             overlaps = {
                 min(*flag_values): max(*flag_values)
                 for flag_values in bit_values.values()
                 if len(flag_values) > 1
             }
 
-            # Report the paired overlaps
+            # Report the overlapping value pairs
             for source_value, overlap_value in overlaps.items():
                 overlap_node = assignments[overlap_value]
                 source_node = assignments[source_value]
