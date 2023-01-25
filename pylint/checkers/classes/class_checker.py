@@ -914,15 +914,14 @@ a metaclass class method.",
                         bit_set[idx].add(assigned.value)
 
             # For each set of overlapping flags, pair min-and-max overlaps
-            overlaps = {}
-            for flag_values in bit_set.values():
-                if len(flag_values) >= 2:
-                    overlap_value = max(*flag_values)
-                    source_value = min(*flag_values)
-                    overlaps[overlap_value] = source_value
+            overlaps = {
+                min(*flag_values): max(*flag_values)
+                for flag_values in bit_set.values()
+                if len(flag_values) >= 2
+            }
 
             # Report the paired overlaps
-            for overlap_value, source_value in overlaps.items():
+            for source_value, overlap_value in overlaps.items():
                 overlap_node = previous_values[overlap_value]
                 source_node = previous_values[source_value]
                 self.add_message(
