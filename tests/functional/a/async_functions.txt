@@ -6,5 +6,5 @@ too-many-branches:26:0:26:26:complex_function:Too many branches (13/12):UNDEFINE
 too-many-return-statements:26:0:26:26:complex_function:Too many return statements (10/6):UNDEFINED
 dangerous-default-value:57:0:57:14:func:Dangerous default value [] as argument:UNDEFINED
 duplicate-argument-name:57:18:57:19:func:Duplicate argument name a in function definition:HIGH
-disallowed-name:62:0:62:13:foo:"Disallowed name ""foo""":UNDEFINED
+disallowed-name:62:0:62:13:foo:"Disallowed name ""foo""":HIGH
 empty-docstring:62:0:62:13:foo:Empty function docstring:HIGH

@@ -63,7 +63,7 @@ def test_lint_module_output_update_effective(
     assert (expected_output_file).exists()
     assert (
         expected_output_file.read_text(encoding="utf8")
-        == 'disallowed-name:1:0:None:None::"Disallowed name ""foo""":UNDEFINED\n'
+        == 'disallowed-name:1:0:None:None::"Disallowed name ""foo""":HIGH\n'
     )
 
 

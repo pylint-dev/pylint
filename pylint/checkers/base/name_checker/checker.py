@@ -540,7 +540,9 @@ class NameChecker(_BasicChecker):
             return
         if self._name_disallowed_by_regex(name=name):
             self.linter.stats.increase_bad_name(node_type, 1)
-            self.add_message("disallowed-name", node=node, args=name)
+            self.add_message(
+                "disallowed-name", node=node, args=name, confidence=interfaces.HIGH
+            )
             return
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)
