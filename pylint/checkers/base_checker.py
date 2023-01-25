@@ -234,9 +234,7 @@ class BaseChecker(_ArgumentsProvider):
             for msgid, msg_tuple in sorted(self.msgs.items())
         ]
 
-    def get_message_definition(
-        self, msgid: str
-    ) -> MessageDefinition:
+    def get_message_definition(self, msgid: str) -> MessageDefinition:
         # TODO: 3.0: Remove deprecated method
         warnings.warn(
             "'get_message_definition' is deprecated and will be removed in 3.0.",
