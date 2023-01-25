@@ -895,7 +895,7 @@ a metaclass class method.",
             )
 
         if ancestor.is_subtype_of("enum.IntFlag"):
-            previous_values, bit_set = {}, defaultdict(set)
+            value_nodes, bit_set = {}, defaultdict(set)
             for assign_name in node.nodes_of_class(nodes.AssignName):
                 if not isinstance(assign_name.parent, nodes.Assign):
                     continue  # Ignore non-assignment expressions
@@ -904,9 +904,9 @@ a metaclass class method.",
                 if not isinstance(getattr(assigned, "value", None), int):
                     continue  # Ignore non-integer assignments
 
-                if assigned.value in previous_values:
+                if assigned.value in value_nodes:
                     continue  # Ignore aliases
-                previous_values[assigned.value] = assign_name
+                value_nodes[assigned.value] = assign_name
 
                 # Create a mapping from bit-index to value(s)
                 for idx, char in enumerate(reversed(f"{assigned.value:b}")):
@@ -922,8 +922,8 @@ a metaclass class method.",
 
             # Report the paired overlaps
             for source_value, overlap_value in overlaps.items():
-                overlap_node = previous_values[overlap_value]
-                source_node = previous_values[source_value]
+                overlap_node = value_nodes[overlap_value]
+                source_node = value_nodes[source_value]
                 self.add_message(
                     "implicit-flag-alias",
                     node=overlap_node,
