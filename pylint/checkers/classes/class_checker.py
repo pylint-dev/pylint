@@ -904,8 +904,6 @@ a metaclass class method.",
                 if not isinstance(getattr(assigned, "value", None), int):
                     continue  # Ignore non-integer assignments
 
-                if assigned.value in value_nodes:
-                    continue  # Ignore aliases
                 value_nodes[assigned.value] = assign_name
 
                 # Create a mapping from bit-index to value(s)
