@@ -918,16 +918,14 @@ a metaclass class method.",
 
             # Report the overlapping value pairs
             for source_value, overlap_value in overlaps.items():
-                overlap_node = assignments[overlap_value]
-                source_node = assignments[source_value]
                 self.add_message(
                     "implicit-flag-alias",
-                    node=overlap_node,
+                    node=assignments[overlap_value],
                     args={
                         "class": node.name,
-                        "overlap": overlap_node.name,
+                        "overlap": assignments[overlap_value].name,
                         "overlap_value": overlap_value,
-                        "source": source_node.name,
+                        "source": assignments[source_value].name,
                         "source_value": source_value,
                         "intersection_value": overlap_value & source_value,
                     },
