@@ -526,7 +526,10 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "descendant of the class where it's defined.",
     ),
     "W0213": (
-        "Flag member <%s.%s: %d> overlaps with another",
+        "Flag member "
+        "<%(class)s.%(overlap)s: %(overlap_value)d> overlaps with "
+        "<%(class)s.%(source)s: %(source_value)d> as "
+        "(%(overlap_value)d & %(source_value)d = %(intersection_value)d)",
         "implicit-flag-alias",
         "Used when a value declared on a class derived from enum.IntFlag partially "
         "overlaps with another member value.",
@@ -921,10 +924,18 @@ a metaclass class method.",
             # Report the paired overlaps
             for overlap_value, source_value in overlaps.items():
                 overlap_node = previous_values[overlap_value]
+                source_node = previous_values[source_value]
                 self.add_message(
                     "implicit-flag-alias",
                     node=overlap_node,
-                    args=(node.name, overlap_node.name, overlap_value),
+                    args={
+                        "class": node.name,
+                        "overlap": overlap_node.name,
+                        "overlap_value": overlap_value,
+                        "source": source_node.name,
+                        "source_value": source_value,
+                        "intersection_value": overlap_value & source_value,
+                    },
                     confidence=INFERENCE,
                 )
 
