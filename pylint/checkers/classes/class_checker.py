@@ -911,14 +911,14 @@ a metaclass class method.",
                         bit_flags[position].add(flag_value)
 
             # When multiple flags overlap on a bit position, pair the min-and-max
-            overlaps = {
-                min(*flag_values): max(*flag_values)
+            overlaps = (
+                (min(*flag_values), max(*flag_values))
                 for flag_values in bit_flags.values()
                 if len(flag_values) > 1
-            }
+            )
 
             # Report the overlapping value pairs
-            for source_value, overlap_value in overlaps.items():
+            for source_value, overlap_value in overlaps:
                 self.add_message(
                     "implicit-flag-alias",
                     node=assignments[overlap_value],
