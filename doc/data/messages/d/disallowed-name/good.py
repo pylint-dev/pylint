@@ -1,2 +1,2 @@
-def something_meaningful():
-    pass
+def print_fruit():
+    print("apples")
