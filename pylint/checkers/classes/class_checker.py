@@ -895,21 +895,19 @@ a metaclass class method.",
             )
 
         if ancestor.is_subtype_of("enum.IntFlag"):
-            value_nodes, bit_values = {}, defaultdict(set)
-            for assign_name in node.nodes_of_class(nodes.AssignName):
-                if not isinstance(assign_name.parent, nodes.Assign):
-                    continue  # Ignore non-assignment expressions
+            value_nodes = {
+                assign_name.parent.value.value: assign_name
+                for assign_name in node.nodes_of_class(nodes.AssignName)
+                if isinstance(assign_name.parent, nodes.Assign)
+                and isinstance(getattr(assign_name.parent.value, "value", None), int)
+            }
 
-                assigned = assign_name.parent.value
-                if not isinstance(getattr(assigned, "value", None), int):
-                    continue  # Ignore non-integer assignments
-
-                value_nodes[assigned.value] = assign_name
-
+            bit_values = defaultdict(set)
+            for value in value_nodes.keys():
                 # Create a mapping from bit-index to value(s)
-                for bit, char in enumerate(reversed(f"{assigned.value:b}")):
+                for bit, char in enumerate(reversed(f"{value:b}")):
                     if char == "1":
-                        bit_values[bit].add(assigned.value)
+                        bit_values[bit].add(value)
 
             # For each set of overlapping flags, pair min-and-max overlaps
             overlaps = {
