@@ -236,7 +236,7 @@ class BaseChecker(_ArgumentsProvider):
 
     def get_message_definition(
         self, msgid: str
-    ) -> MessageDefinition:  # pragma: no cover
+    ) -> MessageDefinition:
         # TODO: 3.0: Remove deprecated method
         warnings.warn(
             "'get_message_definition' is deprecated and will be removed in 3.0.",
