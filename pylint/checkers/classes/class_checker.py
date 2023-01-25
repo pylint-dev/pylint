@@ -917,7 +917,7 @@ a metaclass class method.",
             overlaps = {
                 min(*flag_values): max(*flag_values)
                 for flag_values in bit_set.values()
-                if len(flag_values) >= 2
+                if len(flag_values) > 1
             }
 
             # Report the paired overlaps
