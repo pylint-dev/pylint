@@ -892,7 +892,7 @@ a metaclass class method.",
             )
 
         if ancestor.is_subtype_of("enum.IntFlag"):
-            previous_values, total, union = set(), 0, 0
+            previous_values, bit_set = {}, defaultdict(set)
             for assign_name in node.nodes_of_class(nodes.AssignName):
                 if not isinstance(assign_name.parent, nodes.Assign):
                     continue  # Ignore non-assignment expressions
@@ -903,19 +903,30 @@ a metaclass class method.",
 
                 if assigned.value in previous_values:
                     continue  # Ignore aliases
-                previous_values.add(assigned.value)
+                previous_values[assigned.value] = assign_name
 
-                # Detect divergence between the sum-of-values and union-of-values
-                total += assigned.value
-                union |= assigned.value
-                if total != union:
-                    self.add_message(
-                        "implicit-flag-alias",
-                        node=assign_name,
-                        args=(node.name, assign_name.name, assigned.value),
-                        confidence=INFERENCE,
-                    )
-                    total = union  # reset divergence detection after each iteration
+                # Create a mapping from bit-index to value(s)
+                for idx, char in enumerate(reversed(f"{assigned.value:b}")):
+                    if char == "1":
+                        bit_set[idx].add(assigned.value)
+
+            # For each set of overlapping flags, pair min-and-max overlaps
+            overlaps = {}
+            for flag_values in bit_set.values():
+                if len(flag_values) >= 2:
+                    overlap_value = max(*flag_values)
+                    source_value = min(*flag_values)
+                    overlaps[overlap_value] = source_value
+
+            # Report the paired overlaps
+            for overlap_value, source_value in overlaps.items():
+                overlap_node = previous_values[overlap_value]
+                self.add_message(
+                    "implicit-flag-alias",
+                    node=overlap_node,
+                    args=(node.name, overlap_node.name, overlap_value),
+                    confidence=INFERENCE,
+                )
 
     def _check_proper_bases(self, node: nodes.ClassDef) -> None:
         """Detect that a class inherits something which is not
