@@ -895,7 +895,7 @@ a metaclass class method.",
             )
 
         if ancestor.is_subtype_of("enum.IntFlag"):
-            # Collect integer name assignments present on the class
+            # Collect integer flag assignments present on the class
             assignments = {
                 assign_name.parent.value.value: assign_name
                 for assign_name in node.nodes_of_class(nodes.AssignName)
