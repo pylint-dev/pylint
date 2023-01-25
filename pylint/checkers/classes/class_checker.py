@@ -527,12 +527,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     ),
     "W0213": (
         "Flag member "
-        "<%(class)s.%(overlap)s: %(overlap_value)d> overlaps with "
-        "<%(class)s.%(source)s: %(source_value)d> as "
+        "<%(class)s.%(overlap)s: %(overlap_value)d> shares bit positions with "
+        "<%(class)s.%(source)s: %(source_value)d> "
         "(%(overlap_value)d & %(source_value)d = %(intersection_value)d)",
         "implicit-flag-alias",
-        "Used when a value declared on a class derived from enum.IntFlag partially "
-        "overlaps with another member value.",
+        "Used when multiple integer values declared within an enum.IntFlag "
+        "class share a common bit position.",
     ),
     "E0211": (
         "Method %r has no argument",
