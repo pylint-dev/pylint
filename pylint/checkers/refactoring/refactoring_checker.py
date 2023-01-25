@@ -49,6 +49,7 @@ CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
 CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
     (
         "_io.open",  # regular 'open()' call
+        "pathlib.Path.open",
         "codecs.open",
         "urllib.request.urlopen",
         "tempfile.NamedTemporaryFile",
@@ -404,9 +405,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "It is faster and simpler.",
         ),
         "R1722": (
-            "Consider using sys.exit()",
+            "Consider using 'sys.exit' instead",
             "consider-using-sys-exit",
-            "Instead of using exit() or quit(), consider using the sys.exit().",
+            "Contrary to 'exit()' or 'quit()', 'sys.exit' does not rely on the "
+            "site module being available (as the 'sys' module is always available).",
         ),
         "R1723": (
             'Unnecessary "%s" after "break", %s',
@@ -787,7 +789,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False
 
     def _is_dict_get_block(self, node: nodes.If) -> bool:
-
         # "if <compare node>"
         if not isinstance(node.test, nodes.Compare):
             return False
@@ -1114,7 +1115,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     def _check_quit_exit_call(self, node: nodes.Call) -> None:
-
         if isinstance(node.func, nodes.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
             # If we have `exit` imported from `sys` in the current or global scope, exempt this instance.
             local_scope = node.scope()
@@ -1122,7 +1122,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 node.root()
             ):
                 return
-            self.add_message("consider-using-sys-exit", node=node)
+            self.add_message("consider-using-sys-exit", node=node, confidence=HIGH)
 
     def _check_super_with_arguments(self, node: nodes.Call) -> None:
         if not isinstance(node.func, nodes.Name) or node.func.name != "super":
@@ -1611,7 +1611,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # the result of this call was already assigned to a variable and will be checked when leaving the scope.
             return
         inferred = utils.safe_infer(node.func)
-        if not inferred:
+        if not inferred or not isinstance(
+            inferred, (nodes.FunctionDef, nodes.ClassDef, bases.UnboundMethod)
+        ):
             return
         could_be_used_in_with = (
             # things like ``lock.acquire()``
@@ -1998,7 +2000,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
         try:
             return node.qname() in self._never_returning_functions
-        except TypeError:
+        except (TypeError, AttributeError):
             return False
 
     def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:

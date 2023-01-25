@@ -8,8 +8,8 @@
 .. image:: https://github.com/PyCQA/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
     :target: https://github.com/PyCQA/pylint/actions
 
-.. image:: https://coveralls.io/repos/github/PyCQA/pylint/badge.svg?branch=main
-    :target: https://coveralls.io/github/PyCQA/pylint?branch=main
+.. image:: https://codecov.io/gh/PyCQA/pylint/branch/main/graph/badge.svg?token=ZETEzayrfk
+    :target: https://codecov.io/gh/PyCQA/pylint
 
 .. image:: https://img.shields.io/pypi/v/pylint.svg
     :alt: Pypi Package version

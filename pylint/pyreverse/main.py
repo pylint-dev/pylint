@@ -145,8 +145,10 @@ OPTIONS: Options = (
             "metavar": "<format>",
             "type": "string",
             "help": (
-                f"create a *.<format> output file if format is available. Available formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. "
-                f"Any other format will be tried to create by means of the 'dot' command line tool, which requires a graphviz installation."
+                "create a *.<format> output file if format is available. Available "
+                f"formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. Any other "
+                f"format will be tried to create by means of the 'dot' command line "
+                f"tool, which requires a graphviz installation."
             ),
         },
     ),
@@ -221,7 +223,8 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
         if self.config.output_format not in DIRECTLY_SUPPORTED_FORMATS:
             check_graphviz_availability()
             print(
-                f"Format {self.config.output_format} is not supported natively. Pyreverse will try to generate it using Graphviz..."
+                f"Format {self.config.output_format} is not supported natively."
+                " Pyreverse will try to generate it using Graphviz..."
             )
             check_if_graphviz_supports_format(self.config.output_format)
 

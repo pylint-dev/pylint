@@ -16,6 +16,7 @@ from astroid.typing import InferenceResult
 
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
+from pylint.interfaces import INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -429,11 +430,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "See https://docs.python.org/3/library/subprocess.html#popen-constructor",
         ),
         "W1510": (
-            "Using subprocess.run without explicitly set `check` is not recommended.",
+            "'subprocess.run' used without explicitly defining the value for 'check'.",
             "subprocess-run-check",
-            "The check parameter should always be used with explicitly set "
-            "`check` keyword to make clear what the error-handling behavior is. "
-            "See https://docs.python.org/3/library/subprocess.html#subprocess.run",
+            "The ``check`` keyword  is set to False by default. It means the process "
+            "launched by ``subprocess.run`` can exit with a non-zero exit code and "
+            "fail silently. It's better to set it explicitly to make clear what the "
+            "error-handling behavior is.",
         ),
         "W1514": (
             "Using open without explicitly specifying an encoding",
@@ -506,7 +508,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def _check_for_check_kw_in_run(self, node: nodes.Call) -> None:
         kwargs = {keyword.arg for keyword in (node.keywords or ())}
         if "check" not in kwargs:
-            self.add_message("subprocess-run-check", node=node)
+            self.add_message("subprocess-run-check", node=node, confidence=INFERENCE)
 
     def _check_shallow_copy_environ(self, node: nodes.Call) -> None:
         arg = utils.get_argument_from_call(node, position=0)

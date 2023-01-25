@@ -2,6 +2,8 @@
 will trigger assigning-non-slot warning.
 """
 # pylint: disable=too-few-public-methods, missing-docstring, import-error, redundant-u-string-prefix, unnecessary-dunder-call
+# pylint: disable=attribute-defined-outside-init
+
 from collections import deque
 
 from missing import Unknown
@@ -129,7 +131,7 @@ def dont_emit_for_descriptors():
     # This should not emit, because attr is
     # a data descriptor
     inst.data_descriptor = 'foo'
-    inst.non_data_descriptor = 'lala' # [assigning-non-slot]
+    inst.non_data_descriptor = 'lala'
 
 
 class ClassWithSlots:
@@ -147,7 +149,8 @@ class ClassReassingingInvalidLayoutClass:
     __slots__ = []
 
     def release(self):
-        self.__class__ = ClassWithSlots # [assigning-non-slot]
+        self.__class__ = ClassWithSlots  # [assigning-non-slot]
+        self.test = 'test'  # [assigning-non-slot]
 
 
 # pylint: disable=attribute-defined-outside-init
@@ -200,3 +203,39 @@ def dont_emit_for_defined_setattr():
 
     child = ClassWithParentDefiningSetattr()
     child.non_existent = "non-existent"
+
+class ColorCls:
+    __slots__ = ()
+    COLOR = "red"
+
+
+class Child(ColorCls):
+    __slots__ = ()
+
+
+repro = Child()
+Child.COLOR = "blue"
+
+class MyDescriptor:
+    """Basic descriptor."""
+
+    def __get__(self, instance, owner):
+        return 42
+
+    def __set__(self, instance, value):
+        pass
+
+
+# Regression test from https://github.com/PyCQA/pylint/issues/6001
+class Base:
+    __slots__ = ()
+
+    attr2 = MyDescriptor()
+
+
+class Repro(Base):
+    __slots__ = ()
+
+
+repro = Repro()
+repro.attr2 = "anything"

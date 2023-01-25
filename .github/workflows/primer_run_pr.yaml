@@ -41,24 +41,20 @@ jobs:
         python-version: ["3.7", "3.11"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v3.3.0
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.3.1
+        uses: actions/setup-python@v4.5.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
-      - uses: actions/setup-node@v3.5.1
-        with:
-          node-version: 16
-      - run: npm install @octokit/rest
 
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.3
         with:
           path: venv
           key:
@@ -82,9 +78,7 @@ jobs:
           script: |
             // Download 'main' pylint output
             const fs = require('fs');
-            const { Octokit } = require("@octokit/rest");
-            const octokit = new Octokit({});
-            const runs = await octokit.rest.actions.listWorkflowRuns({
+            const runs = await github.rest.actions.listWorkflowRuns({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: ".github/workflows/primer_run_main.yaml",
@@ -137,7 +131,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v3.2.3
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -167,14 +161,14 @@ jobs:
           then echo "::warning ::$WARNINGS"
           fi
       - name: Upload output of PR
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: primer_output_pr
           path:
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
             }}_pr.txt
       - name: Upload output of 'main'
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: primer_output_main
           path: output_${{ steps.python.outputs.python-version }}_main.txt
@@ -184,7 +178,7 @@ jobs:
         run: |
           echo ${{ github.event.pull_request.number }} | tee pr_number.txt
       - name: Upload PR number
-        uses: actions/upload-artifact@v3.1.1
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: pr_number
           path: pr_number.txt

@@ -1,16 +1,20 @@
 """Tests for consider-using-augmented-assign."""
 
-# pylint: disable=invalid-name,too-few-public-methods,import-error,consider-using-f-string
+# pylint: disable=invalid-name,too-few-public-methods,import-error,consider-using-f-string,missing-docstring
 
 from unknown import Unknown
 
 x = 1
-x = x + 1  # [consider-using-augmented-assign]
-x = 1 + x  # [consider-using-augmented-assign]
+
+# summation is commutative (for integer and float, but not for string)
+x = x + 3  # [consider-using-augmented-assign]
+x = 3 + x  # [consider-using-augmented-assign]
+x = x + "3"  # [consider-using-augmented-assign]
+x = "3" + x
+
+# We don't warn on intricate expressions as we lack knowledge of simplifying such
+# expressions which is necessary to see if they can become augmented
 x, y = 1 + x, 2 + x
-# We don't warn on intricate expressions as we lack knowledge
-# of simplifying such expressions which is necessary to see
-# if they can become augmented
 x = 1 + x - 2
 x = 1 + x + 2
 
@@ -52,7 +56,6 @@ def return_str() -> str:
 
 # Currently we disregard all calls
 my_str = return_str() + my_str
-
 my_str = my_str % return_str()
 my_str = my_str % 1  # [consider-using-augmented-assign]
 my_str = my_str % (1, 2)  # [consider-using-augmented-assign]
@@ -61,17 +64,72 @@ my_str = return_str() % my_str
 my_str = Unknown % my_str
 my_str = my_str % Unknown  # [consider-using-augmented-assign]
 
+# subtraction is anti-commutative
 x = x - 3  # [consider-using-augmented-assign]
+x = 3 - x
+
+# multiplication is commutative
 x = x * 3  # [consider-using-augmented-assign]
+x = 3 * x  # [consider-using-augmented-assign]
+
+# division is not commutative
 x = x / 3  # [consider-using-augmented-assign]
+x = 3 / x
+
+# integer division is not commutative
 x = x // 3  # [consider-using-augmented-assign]
+x = 3 // x
+
+# Left shift operator is not commutative
 x = x << 3  # [consider-using-augmented-assign]
+x = 3 << x
+
+# Right shift operator is not commutative
 x = x >> 3  # [consider-using-augmented-assign]
+x = 3 >> x
+
+# modulo is not commutative
 x = x % 3  # [consider-using-augmented-assign]
+x = 3 % x
+
+# exponential is not commutative
 x = x**3  # [consider-using-augmented-assign]
+x = 3**x
+
+# XOR is commutative
 x = x ^ 3  # [consider-using-augmented-assign]
+x = 3 ^ x  # [consider-using-augmented-assign]
+
+# Bitwise AND operator is commutative
 x = x & 3  # [consider-using-augmented-assign]
+x = 3 & x  # [consider-using-augmented-assign]
+
+# Bitwise OR operator is commutative
+x = x | 3  # [consider-using-augmented-assign]
+x = 3 | x  # [consider-using-augmented-assign]
+
 x = x > 3
+x = 3 > x
+
 x = x < 3
+x = 3 < x
+
 x = x >= 3
+x = 3 >= x
+
 x = x <= 3
+x = 3 <= x
+
+
+# https://github.com/PyCQA/pylint/issues/8086
+# consider-using-augmented-assign should only be flagged
+# if names attribute names match exactly.
+
+class A:
+    def __init__(self) -> None:
+        self.a = 1
+        self.b = A()
+
+    def test(self) -> None:
+        self.a = self.a + 1  # [consider-using-augmented-assign]
+        self.b.a = self.a + 1  # Names don't match!

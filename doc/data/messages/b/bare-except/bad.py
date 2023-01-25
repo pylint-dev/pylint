@@ -1,4 +1,4 @@
 try:
-    1 / 0
+    import platform_specific_module
 except:  # [bare-except]
-    pass
+    platform_specific_module = None

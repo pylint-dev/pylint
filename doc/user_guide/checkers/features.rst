@@ -121,6 +121,9 @@ Basic checker Messages
   Loops should only have an else clause if they can exit early with a break
   statement, otherwise the statements under else should be on the same scope as
   the loop itself.
+:pointless-exception-statement (W0133): *Exception statement has no effect*
+  Used when an exception is created without being assigned, raised or returned
+  for subsequent use elsewhere.
 :expression-not-assigned (W0106): *Expression "%s" is assigned to nothing*
   Used when an expression that is not a function call is assigned to nothing.
   Probably something else was intended.
@@ -444,8 +447,9 @@ Exceptions checker Messages
   Used when an except catches a type that was already caught by a previous
   handler.
 :broad-exception-caught (W0718): *Catching too general exception %s*
-  Used when an except catches a too general exception, possibly burying
-  unrelated errors.
+  If you use a naked ``except Exception:`` clause, you might end up catching
+  exceptions other than the ones you expect to catch. This can hide bugs or
+  make it harder to debug programs when unrelated errors are hidden.
 :raise-missing-from (W0707): *Consider explicitly re-raising using %s'%s from %s'*
   Python's exception chaining shows the traceback of the current exception, but
   also of the original exception. When you raise a new exception after another
@@ -464,9 +468,17 @@ Exceptions checker Messages
   valid for the exception in question. Usually emitted when having binary
   operations between exceptions in except handlers.
 :bare-except (W0702): *No exception type(s) specified*
-  Used when an except clause doesn't specify exceptions type to catch.
+  A bare ``except:`` clause will catch ``SystemExit`` and ``KeyboardInterrupt``
+  exceptions, making it harder to interrupt a program with ``Control-C``, and
+  can disguise other problems. If you want to catch all exceptions that signal
+  program errors, use ``except Exception:`` (bare except is equivalent to
+  ``except BaseException:``).
 :broad-exception-raised (W0719): *Raising too general exception: %s*
-  Used when an except raises a too general exception.
+  Raising exceptions that are too generic force you to catch exception
+  generically too. It will force you to use a naked ``except Exception:``
+  clause. You might then end up catching exceptions other than the ones you
+  expect to catch. This can hide bugs or make it harder to debug programs when
+  unrelated errors are hidden.
 :try-except-raise (W0706): *The except handler raises immediately*
   Used when an except handler uses raise as its first or only operator. This is
   useless because it raises back the exception immediately. Remove the raise
@@ -764,6 +776,9 @@ Refactoring checker Messages
 :consider-using-min-builtin (R1730): *Consider using '%s' instead of unnecessary if block*
   Using the min builtin instead of a conditional improves readability and
   conciseness.
+:consider-using-sys-exit (R1722): *Consider using 'sys.exit' instead*
+  Contrary to 'exit()' or 'quit()', 'sys.exit' does not rely on the site module
+  being available (as the 'sys' module is always available).
 :consider-using-with (R1732): *Consider using 'with' for resource-allocating operations*
   Emitted if a resource-allocating assignment or call may be replaced by a
   'with' block. By using 'with' the release of the allocated resources is
@@ -793,8 +808,6 @@ Refactoring checker Messages
 :consider-using-join (R1713): *Consider using str.join(sequence) for concatenating strings from an iterable*
   Using str.join(sequence) is faster, uses less memory and increases
   readability compared to for-loop iteration.
-:consider-using-sys-exit (R1722): *Consider using sys.exit()*
-  Instead of using exit() or quit(), consider using the sys.exit().
 :consider-using-ternary (R1706): *Consider using ternary (%s)*
   Used when one of known pre-python 2.5 ternary syntax is used.
 :consider-swap-variables (R1712): *Consider using tuple unpacking for swapping variables*
@@ -964,6 +977,11 @@ Stdlib checker Messages
   instance will never need to be garbage collected (singleton) it is
   recommended to refactor code to avoid this pattern or add a maxsize to the
   cache. The default value for maxsize is 128.
+:subprocess-run-check (W1510): *'subprocess.run' used without explicitly defining the value for 'check'.*
+  The ``check`` keyword is set to False by default. It means the process
+  launched by ``subprocess.run`` can exit with a non-zero exit code and fail
+  silently. It's better to set it explicitly to make clear what the error-
+  handling behavior is.
 :forgotten-debug-statement (W1515): *Leaving functions creating breakpoints in production code is not recommended*
   Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be
   removed from code that is not actively being debugged.
@@ -997,10 +1015,6 @@ Stdlib checker Messages
   your application. The child process could deadlock before exec is called. If
   you must use it, keep it trivial! Minimize the number of libraries you call
   into. See https://docs.python.org/3/library/subprocess.html#popen-constructor
-:subprocess-run-check (W1510): *Using subprocess.run without explicitly set `check` is not recommended.*
-  The check parameter should always be used with explicitly set `check` keyword
-  to make clear what the error-handling behavior is. See
-  https://docs.python.org/3/library/subprocess.html#subprocess.run
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
   the target function being passed as a kwarg or as a second argument. By

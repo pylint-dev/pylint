@@ -13,7 +13,7 @@ from collections.abc import Iterator
 from typing import TYPE_CHECKING, cast
 
 import astroid
-from astroid import nodes
+from astroid import nodes, objects
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
@@ -258,6 +258,12 @@ class BasicChecker(_BasicChecker):
             "Emitted if named expression is used to do a regular assignment "
             "outside a context like if, for, while, or a comprehension.",
         ),
+        "W0133": (
+            "Exception statement has no effect",
+            "pointless-exception-statement",
+            "Used when an exception is created without being assigned, raised or returned "
+            "for subsequent use elsewhere.",
+        ),
     }
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
@@ -417,6 +423,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.only_required_for_messages(
         "pointless-statement",
+        "pointless-exception-statement",
         "pointless-string-statement",
         "expression-not-assigned",
         "named-expr-without-context",
@@ -444,15 +451,32 @@ class BasicChecker(_BasicChecker):
             self.add_message("pointless-string-statement", node=node)
             return
 
+        # Warn W0133 for exceptions that are used as statements
+        if isinstance(expr, nodes.Call):
+            name = ""
+            if isinstance(expr.func, nodes.Name):
+                name = expr.func.name
+            elif isinstance(expr.func, nodes.Attribute):
+                name = expr.func.attrname
+
+            # Heuristic: only run inference for names that begin with an uppercase char
+            # This reduces W0133's coverage, but retains acceptable runtime performance
+            # For more details, see: https://github.com/PyCQA/pylint/issues/8073
+            inferred = utils.safe_infer(expr) if name[:1].isupper() else None
+            if isinstance(inferred, objects.ExceptionInstance):
+                self.add_message(
+                    "pointless-exception-statement", node=node, confidence=INFERENCE
+                )
+            return
+
         # Ignore if this is :
-        # * a direct function call
         # * the unique child of a try/except body
         # * a yield statement
         # * an ellipsis (which can be used on Python 3 instead of pass)
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
         if (
-            isinstance(expr, (nodes.Yield, nodes.Await, nodes.Call))
+            isinstance(expr, (nodes.Yield, nodes.Await))
             or (isinstance(node.parent, nodes.TryExcept) and node.parent.body == [node])
             or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):

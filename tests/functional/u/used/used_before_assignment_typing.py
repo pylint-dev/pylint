@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     if True:  # pylint: disable=using-constant-test
         import math
     import datetime
+    from urllib.request import urlopen
 
 class MyClass:
     """Type annotation or default values for first level methods can't refer to their own class"""
@@ -94,6 +95,7 @@ class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-publi
     local (function) variable annotations, which are not evaluated at runtime.
 
     See: https://github.com/PyCQA/pylint/issues/7609
+    and https://github.com/PyCQA/pylint/issues/7882
     """
 
     still_an_error: datetime.date  # [used-before-assignment]
@@ -101,3 +103,11 @@ class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-publi
     def print_date(self, date) -> None:
         date: datetime.date = date
         print(date)
+
+        import datetime  # pylint: disable=import-outside-toplevel
+
+
+class ConditionalImportGuardedWhenUsed:  # pylint: disable=too-few-public-methods
+    """Conditional imports also guarded by TYPE_CHECKING when used."""
+    if TYPE_CHECKING:
+        print(urlopen)

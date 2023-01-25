@@ -51,6 +51,7 @@ ABC_METHODS = {
 TYPING_PROTOCOLS = frozenset(
     {"typing.Protocol", "typing_extensions.Protocol", ".Protocol"}
 )
+COMMUTATIVE_OPERATORS = frozenset({"*", "+", "^", "&", "|"})
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
@@ -728,7 +729,7 @@ def is_attr_private(attrname: str) -> Match[str] | None:
     """Check that attribute name is private (at least two leading underscores,
     at most one trailing underscore).
     """
-    regex = re.compile("^_{2,}.*[^_]+_?$")
+    regex = re.compile("^_{2,10}.*[^_]+_?$")
     return regex.match(attrname)
 
 
@@ -2030,6 +2031,20 @@ def find_assigned_names_recursive(
             yield from find_assigned_names_recursive(elt)
 
 
+def has_starred_node_recursive(
+    node: nodes.For | nodes.Comprehension | nodes.Set,
+) -> Iterator[bool]:
+    """Yield ``True`` if a Starred node is found recursively."""
+    if isinstance(node, nodes.Starred):
+        yield True
+    elif isinstance(node, nodes.Set):
+        for elt in node.elts:
+            yield from has_starred_node_recursive(elt)
+    elif isinstance(node, (nodes.For, nodes.Comprehension)):
+        for elt in node.iter.elts:
+            yield from has_starred_node_recursive(elt)
+
+
 def is_hashable(node: nodes.NodeNG) -> bool:
     """Return whether any inferred value of `node` is hashable.
 
@@ -2051,22 +2066,6 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         return True
 
 
-def get_full_name_of_attribute(node: nodes.Attribute | nodes.AssignAttr) -> str:
-    """Return the full name of an attribute and the classes it belongs to.
-
-    For example: "Class1.Class2.attr"
-    """
-    parent = node.parent
-    ret = node.attrname or ""
-    while isinstance(parent, (nodes.Attribute, nodes.Name)):
-        if isinstance(parent, nodes.Attribute):
-            ret = f"{parent.attrname}.{ret}"
-        else:
-            ret = f"{parent.name}.{ret}"
-        parent = parent.parent
-    return ret
-
-
 def _is_target_name_in_binop_side(
     target: nodes.AssignName | nodes.AssignAttr, side: nodes.NodeNG | None
 ) -> bool:
@@ -2076,7 +2075,7 @@ def _is_target_name_in_binop_side(
             return target.name == side.name  # type: ignore[no-any-return]
         return False
     if isinstance(side, nodes.Attribute) and isinstance(target, nodes.AssignAttr):
-        return get_full_name_of_attribute(target) == get_full_name_of_attribute(side)
+        return target.as_string() == side.as_string()  # type: ignore[no-any-return]
     return False
 
 
@@ -2106,7 +2105,11 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
 
     if _is_target_name_in_binop_side(target, binop.left):
         return True, binop.op
-    if _is_target_name_in_binop_side(target, binop.right):
+    if (
+        # Unless an operator is commutative, we should not raise (i.e. x = 3/x)
+        binop.op in COMMUTATIVE_OPERATORS
+        and _is_target_name_in_binop_side(target, binop.right)
+    ):
         inferred_left = safe_infer(binop.left)
         if isinstance(inferred_left, nodes.Const) and isinstance(
             inferred_left.value, int
@@ -2176,3 +2179,11 @@ def is_terminating_func(node: nodes.Call) -> bool:
         pass
 
     return False
+
+
+def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
+    try:
+        klass.getattr(name)
+        return True
+    except astroid.NotFoundError:
+        return False

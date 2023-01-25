@@ -29,6 +29,78 @@ Marc Byrne became a maintainer, welcome to the team !
 
 .. towncrier release notes start
 
+What's new in Pylint 2.15.10?
+-----------------------------
+Release date: 2023-01-09
+
+
+False Positives Fixed
+---------------------
+
+- Fix ``use-sequence-for-iteration`` when unpacking a set with ``*``.
+
+  Closes #5788 (`#5788 <https://github.com/PyCQA/pylint/issues/5788>`_)
+
+- Fix false positive ``assigning-non-slot`` when a class attribute is
+  re-assigned.
+
+  Closes #6001 (`#6001 <https://github.com/PyCQA/pylint/issues/6001>`_)
+
+- Fixes ``used-before-assignment`` false positive when the walrus operator
+  is used in a ternary operator.
+
+  Closes #7779 (`#7779 <https://github.com/PyCQA/pylint/issues/7779>`_)
+
+- Prevent ``used-before-assignment`` when imports guarded by ``if
+  TYPE_CHECKING``
+  are guarded again when used.
+
+  Closes #7979 (`#7979 <https://github.com/PyCQA/pylint/issues/7979>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Using custom braces in ``msg-template`` will now work properly.
+
+  Closes #5636 (`#5636 <https://github.com/PyCQA/pylint/issues/5636>`_)
+
+
+What's new in Pylint 2.15.9?
+----------------------------
+Release date: 2022-12-17
+
+
+False Positives Fixed
+---------------------
+
+- Fix false-positive for ``used-before-assignment`` in pattern matching
+  with a guard.
+
+  Closes #5327 (`#5327 <https://github.com/PyCQA/pylint/issues/5327>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Pylint will no longer deadlock if a parallel job is killed but fail
+  immediately instead.
+
+  Closes #3899 (`#3899 <https://github.com/PyCQA/pylint/issues/3899>`_)
+
+- When pylint exit due to bad arguments being provided the exit code will now
+  be the expected ``32``.
+
+  Refs #7931 (`#7931 <https://github.com/PyCQA/pylint/issues/7931>`_)
+
+- Fixes a ``ModuleNotFound`` exception when running pylint on a Django project
+  with the ``pylint_django`` plugin enabled.
+
+  Closes #7938 (`#7938 <https://github.com/PyCQA/pylint/issues/7938>`_)
+
+
 What's new in Pylint 2.15.8?
 ----------------------------
 Release date: 2022-12-05
@@ -242,7 +314,7 @@ Other Bug Fixes
 
   Closes #7528 (`#7528 <https://github.com/PyCQA/pylint/issues/7528>`_)
 
-- Fix bug in scanning of names inside arguments to `typing.Literal`.
+- Fix bug in scanning of names inside arguments to ``typing.Literal``.
   See https://peps.python.org/pep-0586/#literals-enums-and-forward-references
   for details.
 

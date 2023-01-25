@@ -44,7 +44,12 @@ DEFAULT_PATTERNS = {
 }
 
 BUILTIN_PROPERTY = "builtins.property"
-TYPING_TYPE_VAR_QNAME = "typing.TypeVar"
+TYPE_VAR_QNAME = frozenset(
+    (
+        "typing.TypeVar",
+        "typing_extensions.TypeVar",
+    )
+)
 
 
 class TypeVarVariance(Enum):
@@ -565,7 +570,7 @@ class NameChecker(_BasicChecker):
             inferred = utils.safe_infer(node.func)
             if (
                 isinstance(inferred, astroid.ClassDef)
-                and inferred.qname() == TYPING_TYPE_VAR_QNAME
+                and inferred.qname() in TYPE_VAR_QNAME
             ):
                 return True
         return False

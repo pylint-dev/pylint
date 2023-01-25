@@ -1,7 +1,7 @@
 """Test case for typevar-name-incorrect-variance with default settings"""
 # pylint: disable=too-few-public-methods,line-too-long
-
 from typing import TypeVar
+import typing_extensions as te
 
 # PascalCase names with prefix
 GoodNameT = TypeVar("GoodNameT")
@@ -55,3 +55,10 @@ GoodName_co, a_BadName_contra = TypeVar(  # [invalid-name]
     "GoodName_co", covariant=True
 ), TypeVar("a_BadName_contra", contravariant=True)
 GoodName_co, VAR = TypeVar("GoodName_co", covariant=True), "a string"
+
+
+# -- typing_extensions.TypeVar --
+GoodNameT = te.TypeVar("GoodNameT")
+GoodNameT_co = te.TypeVar("GoodNameT_co", covariant=True)
+badName = te.TypeVar("badName")  # [invalid-name]
+T_co = te.TypeVar("T_co", covariant=True, contravariant=True)  # [typevar-double-variance,typevar-name-incorrect-variance]

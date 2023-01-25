@@ -20,6 +20,13 @@ Standard Checkers
 **Default:**  ``False``
 
 
+--clear-cache-post-run
+""""""""""""""""""""""
+*Clear in-memory caches upon conclusion of linting. Useful if running pylint in a server-like mode.*
+
+**Default:**  ``False``
+
+
 --confidence
 """"""""""""
 *Only show warnings with the listed confidence levels. Leave empty to show all. Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED.*
@@ -214,6 +221,8 @@ Standard Checkers
 
    [tool.pylint.main]
    analyse-fallback-blocks = false
+
+   clear-cache-post-run = false
 
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
@@ -1710,7 +1719,7 @@ Extensions
 ---------------------------
 --valid-magic-values
 """"""""""""""""""""
-* List of valid magic values that `magic-value-compare` will not detect.*
+*List of valid magic values that `magic-value-compare` will not detect. Supports integers, floats, negative numbers, for empty string enter ``''``, for backslash values just use one backslash e.g \n.*
 
 **Default:**  ``(0, -1, 1, '', '__main__')``
 

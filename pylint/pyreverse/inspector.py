@@ -202,9 +202,10 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 if node.implements:
                     # TODO: 3.0: Remove support for __implements__
                     warnings.warn(
-                        "pyreverse will drop support for resolving and displaying implemented interfaces in pylint 3.0. "
-                        "The implementation relies on the '__implements__'  attribute proposed in PEP 245, which was rejected "
-                        "in 2006.",
+                        "pyreverse will drop support for resolving and displaying "
+                        "implemented interfaces in pylint 3.0. The implementation "
+                        "relies on the '__implements__'  attribute proposed in PEP 245"
+                        ", which was rejected in 2006.",
                         DeprecationWarning,
                     )
             else:
@@ -365,7 +366,9 @@ class AbstractAssociationHandler(AssociationHandlerInterface):
 
 class AggregationsHandler(AbstractAssociationHandler):
     def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
-        if isinstance(node.parent.value, astroid.node_classes.Name):
+        if isinstance(node.parent, (nodes.AnnAssign, nodes.Assign)) and isinstance(
+            node.parent.value, astroid.node_classes.Name
+        ):
             current = set(parent.aggregations_type[node.attrname])
             parent.aggregations_type[node.attrname] = list(
                 current | utils.infer_node(node)

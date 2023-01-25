@@ -332,9 +332,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_return_doc:
             return
 
-        func_node = node.frame(future=True)
-        if not isinstance(func_node, astroid.FunctionDef):
-            return
+        func_node: astroid.FunctionDef = node.frame(future=True)
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -360,9 +358,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_yields_doc:
             return
 
-        func_node = node.frame(future=True)
-        if not isinstance(func_node, astroid.FunctionDef):
-            return
+        func_node: astroid.FunctionDef = node.frame(future=True)
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -471,7 +467,7 @@ class DocstringParameterChecker(BaseChecker):
                 confidence=HIGH,
             )
 
-    def _compare_ignored_args(
+    def _compare_ignored_args(  # pylint: disable=useless-param-doc
         self,
         found_argument_names: set[str],
         message_id: str,
@@ -482,11 +478,8 @@ class DocstringParameterChecker(BaseChecker):
         generate a message if there are ignored arguments found.
 
         :param found_argument_names: argument names found in the docstring
-
         :param message_id: pylint message id
-
         :param ignored_argument_names: Expected argument names
-
         :param warning_node: The node to be analyzed
         """
         existing_ignored_argument_names = ignored_argument_names & found_argument_names

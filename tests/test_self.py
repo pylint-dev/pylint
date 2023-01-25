@@ -1052,19 +1052,21 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         [
             (
                 "text",
-                "tests/regrtest_data/unused_variable.py:4:4: W0612: Unused variable 'variable' (unused-variable)",
+                "{path}:4:4: W0612: Unused variable 'variable' (unused-variable)",
             ),
             (
                 "parseable",
-                "tests/regrtest_data/unused_variable.py:4: [W0612(unused-variable), test] Unused variable 'variable'",
+                "{path}:4: [W0612(unused-variable), test] Unused variable 'variable'",
             ),
             (
                 "msvs",
-                "tests/regrtest_data/unused_variable.py(4): [W0612(unused-variable)test] Unused variable 'variable'",
+                "{path}(4): [W0612(unused-variable)test] Unused variable 'variable'",
             ),
             (
                 "colorized",
-                "tests/regrtest_data/unused_variable.py:4:4: W0612: \x1B[35mUnused variable 'variable'\x1B[0m (\x1B[35munused-variable\x1B[0m)",
+                (
+                    "{path}:4:4: W0612: \x1B[35mUnused variable 'variable'\x1B[0m (\x1B[35munused-variable\x1B[0m)"
+                ),
             ),
             ("json", '"message": "Unused variable \'variable\'",'),
         ],
@@ -1077,7 +1079,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         self._test_output_file(
             [path, f"--output={output_file}", f"--output-format={output_format}"],
             output_file,
-            expected_output,
+            expected_output.format(path="tests/regrtest_data/unused_variable.py"),
         )
 
     def test_output_file_can_be_combined_with_custom_reporter(
@@ -1277,6 +1279,18 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         )
 
         self._test_output([module, "--enable=all"], expected_output=expected)
+
+    def test_output_no_header(self) -> None:
+        module = join(HERE, "data", "clientmodule_test.py")
+        expected = "Unused variable 'local_variable'"
+        not_expected = textwrap.dedent(
+            """************* Module data.clientmodule_test"""
+        )
+
+        args = [module, "--output-format=no-header"]
+        self._test_output(
+            args, expected_output=expected, unexpected_output=not_expected
+        )
 
 
 class TestCallbackOptions:

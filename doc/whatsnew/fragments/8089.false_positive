@@ -1,0 +1,3 @@
+Fix ``invalid-name`` errors for ``typing_extension.TypeVar``.
+
+Refs #8089

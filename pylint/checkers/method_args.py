@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from astroid import arguments, nodes
+from astroid import arguments, bases, nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import INFERENCE
@@ -69,6 +69,9 @@ class MethodArgsChecker(BaseChecker):
         if (
             inferred
             and not call_site.has_invalid_keywords()
+            and isinstance(
+                inferred, (nodes.FunctionDef, nodes.ClassDef, bases.UnboundMethod)
+            )
             and inferred.qname() in self.linter.config.timeout_methods
         ):
             keyword_arguments = [keyword.arg for keyword in node.keywords]

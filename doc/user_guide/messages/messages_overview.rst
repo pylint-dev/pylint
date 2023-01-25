@@ -286,6 +286,7 @@ All messages in the warning category:
    warning/non-str-assignment-to-dunder-name
    warning/overlapping-except
    warning/overridden-final-method
+   warning/pointless-exception-statement
    warning/pointless-statement
    warning/pointless-string-statement
    warning/possibly-unused-variable
