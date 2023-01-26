@@ -979,6 +979,7 @@ def test_pylintrc() -> None:
     with fake_home():
         current_dir = getcwd()
         chdir(os.path.dirname(os.path.abspath(sys.executable)))
+        # pylint: disable = too-many-try-statements
         try:
             with pytest.warns(DeprecationWarning):
                 assert config.find_pylintrc() is None
