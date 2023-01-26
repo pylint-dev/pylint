@@ -2025,6 +2025,7 @@ class VariablesChecker(BaseChecker):
             parent = parent.parent
         return False
 
+    # pylint: disable = too-many-statements
     @staticmethod
     def _is_variable_violation(
         node: nodes.Name,

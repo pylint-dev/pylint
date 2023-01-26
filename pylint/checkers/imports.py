@@ -722,6 +722,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         imports = [import_node for (import_node, _) in imports]
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
+    # pylint: disable = too-many-statements
     def _check_imports_order(
         self, _module_node: nodes.Module
     ) -> tuple[

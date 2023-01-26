@@ -61,7 +61,7 @@ def _is_ignored_file(
     )
 
 
-# pylint: disable = too-many-locals
+# pylint: disable = too-many-locals, too-many-statements
 def expand_modules(
     files_or_modules: Sequence[str],
     ignore_list: list[str],
