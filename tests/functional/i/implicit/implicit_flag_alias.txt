@@ -3,3 +3,4 @@ implicit-flag-alias:28:4:28:5:ImplicitUnionFlags:"Flag member <ImplicitUnionFlag
 implicit-flag-alias:29:4:29:5:ImplicitUnionFlags:"Flag member <ImplicitUnionFlags.D: 5> shares bit positions with <ImplicitUnionFlags.A: 1> (5 & 1 = 1)":INFERENCE
 implicit-flag-alias:31:4:31:5:ImplicitUnionFlags:"Flag member <ImplicitUnionFlags.F: 17> shares bit positions with <ImplicitUnionFlags.A: 1> (17 & 1 = 1)":INFERENCE
 implicit-flag-alias:32:4:32:5:ImplicitUnionFlags:"Flag member <ImplicitUnionFlags.G: 17> shares bit positions with <ImplicitUnionFlags.A: 1> (17 & 1 = 1)":INFERENCE
+implicit-flag-alias:41:4:41:5:ReverseOrderFlags:"Flag member <ReverseOrderFlags.A: 5> shares bit positions with <ReverseOrderFlags.B: 1> (5 & 1 = 1)":INFERENCE

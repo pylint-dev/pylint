@@ -35,3 +35,8 @@ class ImplicitUnionFlags(IntFlag):
     def irrelevant(self):
         """Irrelevant method definition"""
         return
+
+class ReverseOrderFlags(IntFlag):
+    """Class with flags that overlap and are declared in descending order"""
+    A = 5  # [implicit-flag-alias]
+    B = 1
