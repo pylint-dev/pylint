@@ -24,7 +24,7 @@ class ImplicitUnionFlags(IntFlag):
     """Class with flags that overlap implicitly"""
     A = 1
     B = 2
-    C = 3  # [implicit-flag-alias, implicit-flag-alias]
+    C = 3  # [implicit-flag-alias]
     D = 5  # [implicit-flag-alias]
     E = 8
     F = 17  # [implicit-flag-alias]

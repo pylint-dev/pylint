@@ -910,29 +910,29 @@ a metaclass class method.",
                     if bit == "1":
                         bit_flags[position].append(flag_value)
 
-            # When multiple flags overlap on a bit position, pair the min-and-max
-            overlap_groups = (
-                sorted(flag_values)
-                for flag_values in bit_flags.values()
-                if len(flag_values) > 1
-            )
+            # When multiple flags overlap on a bit position, store the minimum as source
+            overlap_sources = {}
+            for flag_values in bit_flags.values():
+                if len(flag_values) > 1:
+                    source_value, *overlap_values = sorted(flag_values)
+                    for overlap_value in overlap_values:
+                        overlap_sources[overlap_value] = source_value
 
             # Report the overlapping value pairs
-            for source_value, *overlap_values in overlap_groups:
-                for overlap_value in overlap_values:
-                    self.add_message(
-                        "implicit-flag-alias",
-                        node=assignments[overlap_value],
-                        args={
-                            "class": node.name,
-                            "overlap": assignments[overlap_value].name,
-                            "overlap_value": overlap_value,
-                            "source": assignments[source_value].name,
-                            "source_value": source_value,
-                            "intersection_value": overlap_value & source_value,
-                        },
-                        confidence=INFERENCE,
-                    )
+            for overlap_value, source_value in overlap_sources.items():
+                self.add_message(
+                    "implicit-flag-alias",
+                    node=assignments[overlap_value],
+                    args={
+                        "class": node.name,
+                        "overlap": assignments[overlap_value].name,
+                        "overlap_value": overlap_value,
+                        "source": assignments[source_value].name,
+                        "source_value": source_value,
+                        "intersection_value": overlap_value & source_value,
+                    },
+                    confidence=INFERENCE,
+                )
 
     def _check_proper_bases(self, node: nodes.ClassDef) -> None:
         """Detect that a class inherits something which is not
