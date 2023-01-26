@@ -916,19 +916,14 @@ a metaclass class method.",
                         overlap_sources[overlap_value].append(source_value)
 
             def _flag_value_repr(value):
-                return "<%s.%s: %d>" % (node.name, assignments[value].name, value)
+                return f"<{node.name}.{assignments[value].name}: {value}>"
 
             # Report the overlapping values
             for overlap_value, source_values in overlap_sources.items():
                 overlap_text = _flag_value_repr(overlap_value)
                 sources_text = ", ".join(
-                    "%s (%d & %d = %d)"
-                    % (
-                        _flag_value_repr(source_value),
-                        overlap_value,
-                        source_value,
-                        overlap_value & source_value,
-                    )
+                    f"{_flag_value_repr(source_value)} "
+                    f"({overlap_value} & {source_value} = {overlap_value & source_value})"
                     for source_value in source_values
                 )
                 self.add_message(
