@@ -23,12 +23,14 @@ class SubclassUnionFlags(ExplicitUnionFlags):  # [invalid-enum-extension]
 class ImplicitUnionFlags(IntFlag):
     """Class with flags that overlap implicitly"""
     A = 1
+    DUPLICATE = 1
     B = 2
     C = 3  # [implicit-flag-alias]
     D = 5  # [implicit-flag-alias]
     E = 8
     F = 17  # [implicit-flag-alias]
     G = 17  # [implicit-flag-alias]
+    TRIPLICATE = 1
 
     def irrelevant(self):
         """Irrelevant method definition"""
