@@ -90,6 +90,7 @@ class OutputLine(NamedTuple):
         if isinstance(row, str):
             row = row.split(",")
         # noinspection PyBroadException
+        # pylint: disable = too-many-try-statements
         try:
             column = cls._get_column(row[2])
             if len(row) == 5:

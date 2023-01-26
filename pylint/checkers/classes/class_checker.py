@@ -1218,6 +1218,7 @@ a metaclass class method.",
                     pass
 
         # check if the method is hidden by an attribute
+        # pylint: disable = too-many-try-statements
         try:
             overridden = klass.instance_attr(node.name)[0]
             overridden_frame = overridden.frame(future=True)
@@ -2063,6 +2064,7 @@ a metaclass class method.",
                 and expr.expr.func.name == "super"
             ):
                 return
+            # pylint: disable = too-many-try-statements
             try:
                 for klass in expr.expr.infer():
                     if klass is astroid.Uninferable:

@@ -605,6 +605,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
         lru_cache_nodes: list[nodes.NodeNG] = []
         for d_node in node.decorators.nodes:
+            # pylint: disable = too-many-try-statements
             try:
                 for infered_node in d_node.infer():
                     q_name = infered_node.qname()
