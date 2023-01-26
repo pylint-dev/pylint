@@ -9,7 +9,7 @@ from __future__ import annotations
 import collections
 import sys
 from collections import defaultdict
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Sequence
 from itertools import chain, zip_longest
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Union
@@ -892,24 +892,17 @@ a metaclass class method.",
             )
 
         if ancestor.is_subtype_of("enum.IntFlag"):
-
-            # Yield integer flag assignments present on the class
-            def _flag_assignments() -> Iterator[tuple[nodes.AssignName, int]]:
-                for assign_name in node.nodes_of_class(nodes.AssignName):
-                    if isinstance(assign_name.parent, nodes.Assign):
-                        value = getattr(assign_name.parent.value, "value", None)
-                        if isinstance(value, int):
-                            yield assign_name, value
-
-            # Collect the first occurrence of each flag value
-            unique_assignments = {}
-            for assign_name, value in _flag_assignments():
-                if value not in unique_assignments:
-                    unique_assignments[value] = assign_name
+            # Collect integer flag assignments present on the class
+            assignments = defaultdict(list)
+            for assign_name in node.nodes_of_class(nodes.AssignName):
+                if isinstance(assign_name.parent, nodes.Assign):
+                    value = getattr(assign_name.parent.value, "value", None)
+                    if isinstance(value, int):
+                        assignments[value].append(assign_name)
 
             # For each bit position, collect all the flags that set the bit
             bit_flags = defaultdict(set)
-            for flag_value in unique_assignments:
+            for flag_value in assignments:
                 for position, bit in enumerate(reversed(bin(flag_value))):
                     if bit == "1":
                         bit_flags[position].add(flag_value)
@@ -924,24 +917,21 @@ a metaclass class method.",
             def _flag_value_repr(assign_name: nodes.AssignName, value: int) -> str:
                 return f"<{node.name}.{assign_name.name}: {value}>"
 
-            # Report any overlapping values
-            for overlap_node, overlap_value in _flag_assignments():
-                source_values = overlap_sources[overlap_value]
-                if not source_values:
-                    continue
-
-                overlap_text = _flag_value_repr(overlap_node, overlap_value)
+            # Report the overlapping values
+            for overlap_value, source_values in overlap_sources.items():
                 sources_text = ", ".join(
-                    f"{_flag_value_repr(unique_assignments[source_value], source_value)} "
+                    f"{_flag_value_repr(assignments[source_value][0], source_value)} "
                     f"({overlap_value} & {source_value} = {overlap_value & source_value})"
                     for source_value in source_values
                 )
-                self.add_message(
-                    "implicit-flag-alias",
-                    node=overlap_node,
-                    args=(overlap_text, sources_text),
-                    confidence=INFERENCE,
-                )
+                for overlap_node in assignments[overlap_value]:
+                    overlap_text = _flag_value_repr(overlap_node, overlap_value)
+                    self.add_message(
+                        "implicit-flag-alias",
+                        node=overlap_node,
+                        args=(overlap_text, sources_text),
+                        confidence=INFERENCE,
+                    )
 
     def _check_proper_bases(self, node: nodes.ClassDef) -> None:
         """Detect that a class inherits something which is not
