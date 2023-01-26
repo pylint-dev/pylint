@@ -4,14 +4,14 @@
 class Issue8015:
     def bad(self):
         k = 1
-        while True:  # [consider-refactoring-into-while-condition]
+        while 1:  # [consider-refactoring-into-while-condition]
             if k == 10:
                 break
             k += 1
 
     def another_bad(self):
         current_scope = None
-        while True:  # [consider-refactoring-into-while-condition]
+        while 2:  # [consider-refactoring-into-while-condition]
             if current_scope is None:
                 break
             current_scope = True

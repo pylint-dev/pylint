@@ -1,5 +1,5 @@
-consider-refactoring-into-while-condition:7:8:10:18:Issue8015.bad:"Consider using 'while k != 10' instead of 'while True:' an 'if', and a 'break'":HIGH
-consider-refactoring-into-while-condition:14:8:17:32:Issue8015.another_bad:"Consider using 'while current_scope is not None' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:7:8:10:18:Issue8015.bad:"Consider using 'while k != 10' instead of 'while 1:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:14:8:17:32:Issue8015.another_bad:"Consider using 'while current_scope is not None' instead of 'while 2:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:32:8:37:18:Issue8015.test_error_message_multiple_break:"Consider using 'while (k > 1) and (k <= 10)' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:42:8:45:24:Issue8015.test_error_message:"Consider using 'while a_list' instead of 'while True:' an 'if', and a 'break'":HIGH
 consider-refactoring-into-while-condition:50:8:53:28:Issue8015.test_error_message_2:"Consider using 'while not a_list' instead of 'while True:' an 'if', and a 'break'":HIGH

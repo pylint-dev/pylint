@@ -33,7 +33,7 @@ class ConsiderRefactorIntoWhileConditionChecker(checkers.BaseChecker):
     name = "consider_refactoring_into_while"
     msgs = {
         "R3501": (
-            "Consider using 'while %s' instead of 'while True:' an 'if', and a 'break'",
+            "Consider using 'while %s' instead of 'while %s:' an 'if', and a 'break'",
             "consider-refactoring-into-while-condition",
             "Emitted when `while True:` loop is used and the first statement is a break condition. "
             "The ``if / break`` construct can be removed if the check is inverted and moved to "
@@ -84,7 +84,7 @@ class ConsiderRefactorIntoWhileConditionChecker(checkers.BaseChecker):
             "consider-refactoring-into-while-condition",
             node=node,
             line=node.lineno,
-            args=(msg,),
+            args=(msg, node.test.as_string()),
             confidence=HIGH,
         )
 
