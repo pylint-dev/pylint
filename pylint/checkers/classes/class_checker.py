@@ -914,7 +914,7 @@ a metaclass class method.",
                 for overlap_value in overlap_values:
                     overlap_sources[overlap_value].append(source_value)
 
-            def _flag_value_repr(value):
+            def _flag_value_repr(value: int) -> str:
                 return f"<{node.name}.{assignments[value].name}: {value}>"
 
             # Report the overlapping values
