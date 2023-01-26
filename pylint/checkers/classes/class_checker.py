@@ -904,11 +904,11 @@ a metaclass class method.",
             }
 
             # For each bit position, collect all the flags that set the bit
-            bit_flags = defaultdict(set)
+            bit_flags = defaultdict(list)
             for flag_value in assignments.keys():
                 for position, bit in enumerate(reversed(bin(flag_value))):
                     if bit == "1":
-                        bit_flags[position].add(flag_value)
+                        bit_flags[position].append(flag_value)
 
             # When multiple flags overlap on a bit position, pair the min-and-max
             overlaps = (
