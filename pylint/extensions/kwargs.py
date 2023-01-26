@@ -35,7 +35,10 @@ class KeywordChecker(BaseChecker):
         """Check that called functions/methods are provided keyword arguments."""
         called = safe_infer(node.func)
 
-        if not called:
+        if not called or not isinstance(
+            called,
+            (nodes.ClassDef, nodes.FunctionDef, bases.BoundMethod, bases.UnboundMethod),
+        ):
             return
 
         needed_keywords, default_kwarg_names = self._get_args(called)
