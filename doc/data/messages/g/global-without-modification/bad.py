@@ -2,5 +2,5 @@ TOMATO = "black cherry"
 
 
 def update_tomato():
-    global TOMATO  # [unnecessary-global-use]
+    global TOMATO  # [global-without-modification]
     print(TOMATO)

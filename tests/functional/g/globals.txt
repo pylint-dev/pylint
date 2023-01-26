@@ -1,12 +1,12 @@
 global-at-module-level:4:0:4:11::Using the global statement at the module level:UNDEFINED
 undefined-variable:5:6:5:10::Undefined variable 'CSTE':UNDEFINED
 global-statement:16:4:16:19:fix_contant:Using the global statement:UNDEFINED
-unnecessary-global-use:23:4:23:14:other:Unnecessary use of global for 'HOP':HIGH
+global-without-modification:23:4:23:14:other:Unnecessary use of global for 'HOP':HIGH
 undefined-variable:24:10:24:13:other:Undefined variable 'HOP':UNDEFINED
 global-variable-undefined:29:4:29:18:define_constant:Global variable 'SOMEVAR' undefined at the module level:UNDEFINED
 global-statement:35:4:35:14:global_with_import:Using the global statement:UNDEFINED
 global-statement:41:4:41:21:global_with_import_from:Using the global statement:UNDEFINED
-unnecessary-global-use:47:4:47:19:global_no_assign:Unnecessary use of global for 'CONSTANT':HIGH
+global-without-modification:47:4:47:19:global_no_assign:Unnecessary use of global for 'CONSTANT':HIGH
 global-statement:53:4:53:19:global_del:Using the global statement:UNDEFINED
 global-statement:60:4:60:19:global_operator_assign:Using the global statement:UNDEFINED
 global-statement:67:4:67:19:global_function_assign:Using the global statement:UNDEFINED

@@ -20,7 +20,7 @@ def fix_contant(value):
 
 def other():
     """global behaviour test"""
-    global HOP  # [unnecessary-global-use]
+    global HOP  # [global-without-modification]
     print(HOP)  # [undefined-variable]
 
 
@@ -44,12 +44,12 @@ def global_with_import_from():
 
 def global_no_assign():
     """Not assigning anything to the global makes 'global' superfluous"""
-    global CONSTANT  # [unnecessary-global-use]
+    global CONSTANT  # [global-without-modification]
     print(CONSTANT)
 
 
 def global_del():
-    """Deleting the global name prevents `unnecessary-global-use`"""
+    """Deleting the global name prevents `global-without-modification`"""
     global CONSTANT  # [global-statement]
     print(CONSTANT)
     del CONSTANT

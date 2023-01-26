@@ -249,6 +249,7 @@ All messages in the warning category:
    warning/global-at-module-level
    warning/global-statement
    warning/global-variable-undefined
+   warning/global-without-modification
    warning/implicit-str-concat
    warning/import-self
    warning/inconsistent-quotes
@@ -320,7 +321,6 @@ All messages in the warning category:
    warning/undefined-loop-variable
    warning/unknown-option-value
    warning/unnecessary-ellipsis
-   warning/unnecessary-global-use
    warning/unnecessary-lambda
    warning/unnecessary-pass
    warning/unnecessary-semicolon

@@ -1349,7 +1349,7 @@ Variables checker Messages
 :redefined-outer-name (W0621): *Redefining name %r from outer scope (line %s)*
   Used when a variable's name hides a name defined in an outer scope or except
   handler.
-:unnecessary-global-use (W0645): *Unnecessary use of global for %r*
+:global-without-modification (W0645): *Unnecessary use of global for %r*
   Used when a variable defined as a global is then invoked with the `global`
   keyword but no assignment to this variable is done.
 :unused-import (W0611): *Unused %s*

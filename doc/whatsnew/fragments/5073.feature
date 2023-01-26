@@ -1,3 +1,3 @@
-Rename ``global-variable-not-assigned`` check to ``unnecessary-global-use`` for clarity.
+Rename ``global-variable-not-assigned`` check to ``global-without-modification`` for clarity.
 
 Closes #5073
