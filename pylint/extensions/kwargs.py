@@ -85,8 +85,10 @@ class KeywordChecker(BaseChecker):
             node, (nodes.FunctionDef, bases.BoundMethod, bases.UnboundMethod)
         ):
             needed_keywords = node.argnames()
+            to_ignore = {"self", "args", "kwargs"}
+
             if node.is_method():
-                needed_keywords = [x for x in needed_keywords if x != "self"]
+                needed_keywords = [x for x in needed_keywords if x not in to_ignore]
 
             if node.args.defaults:
                 default_kwargs = [

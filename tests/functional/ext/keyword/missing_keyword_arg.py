@@ -130,3 +130,7 @@ class Basic:
         self.two = 2
 
 Basic()
+
+def format_msg(operand, operand_type):
+    msg = "bad operand type for unary {}: {}"
+    return msg.format(operand, operand_type)
