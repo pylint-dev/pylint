@@ -28,6 +28,7 @@ class ImplicitUnionFlags(IntFlag):
     D = 5  # [implicit-flag-alias]
     E = 8
     F = 17  # [implicit-flag-alias]
+    G = 17  # [implicit-flag-alias]
 
     def irrelevant(self):
         """Irrelevant method definition"""
