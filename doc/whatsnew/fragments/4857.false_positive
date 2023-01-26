@@ -1,0 +1,3 @@
+Fix false positive for ``use-maxsplit-arg`` with custom split method.
+
+Closes #4857
