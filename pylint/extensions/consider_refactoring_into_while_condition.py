@@ -57,15 +57,13 @@ class ConsiderRefactorIntoWhileConditionChecker(checkers.BaseChecker):
         candidates = []
         tainted = False
         for c in pri_candidates:
-            if tainted:
+            if tainted or not isinstance(c.body[0], nodes.Break):
                 break
             candidates.append(c)
             orelse = c.orelse
             while orelse:
                 orelse_node = orelse[0]
-                if not isinstance(orelse_node, nodes.If) or not isinstance(
-                    orelse_node.body[0], nodes.Break
-                ):
+                if not isinstance(orelse_node, nodes.If):
                     tainted = True
                 else:
                     candidates.append(orelse_node)
