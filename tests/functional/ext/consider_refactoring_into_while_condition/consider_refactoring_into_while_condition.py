@@ -256,3 +256,80 @@ class Issue8015:
             if x == 1000:
                 break
             x -= 10
+
+    def falsy_1(self):
+        x = 0
+        while []:
+            if x > 10:
+                break
+            x += 1
+
+    def falsy_2(self):
+        x = 0
+        while ():
+            if x > 10:
+                break
+            x += 1
+
+    def falsy_3(self):
+        x = 0
+        while {}:
+            if x > 10:
+                break
+            x += 1
+
+    def falsy_4(self):
+        x = 0
+        while set():
+            if x > 10:
+                break
+            x += 1
+
+    def falsy_5(self):
+        x = 0
+        while "":
+            if x > 10:
+                break
+            x += 1
+
+    def falsy_6(self):
+        x = 0
+        while range(0):
+            if x > 10:
+                break
+            x += 1
+
+    def falsy_7(self):
+        x = 0
+        while 0:
+            if x > 10:
+                break
+            x += 1
+
+    def falsy_8(self):
+        x = 0
+        while 0.0:
+            if x > 10:
+                break
+            x += 1
+
+    def falsy_9(self):
+        x = 0
+        while 0j:
+            if x > 10:
+                break
+            x += 1
+
+    def falsy_10(self):
+        x = 0
+        while None:
+            if x > 10:
+                break
+            x += 1
+
+    def falsy_11(self):
+        x = 0
+        while False:
+            if x > 10:
+                break
+            x += 1
