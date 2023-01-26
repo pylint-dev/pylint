@@ -247,7 +247,7 @@ class StringFormatChecker(BaseChecker):
     name = "string"
     msgs = MSGS
 
-    # pylint: disable=too-many-branches
+    # pylint: disable = too-many-branches, too-many-locals
     @only_required_for_messages(
         "bad-format-character",
         "truncated-format-string",
