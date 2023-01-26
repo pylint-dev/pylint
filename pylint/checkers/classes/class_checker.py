@@ -526,7 +526,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "descendant of the class where it's defined.",
     ),
     "W0213": (
-        "Flag member <%(class)s.%(overlap)s: %(overlap_value)d> shares bit positions with %(source_text)s",
+        "Flag member %s shares bit positions with %s",
         "implicit-flag-alias",
         "Used when multiple integer values declared within an enum.IntFlag "
         "class share a common bit position.",
@@ -915,15 +915,22 @@ a metaclass class method.",
                     for overlap_value in overlap_values:
                         overlap_sources[overlap_value].append(source_value)
 
+            def _flag_value_repr(value):
+                return "<%(class)s.%(name)s: %(value)d>" % {
+                    "class": node.name,
+                    "name": assignments[value].name,
+                    "value": value,
+                }
+
             # Report the overlapping values
             for overlap_value, source_values in overlap_sources.items():
-                source_text = ", ".join(
-                    "<%(class)s.%(name)s: %(source_value)d> (%(overlap_value)d & %(source_value)d = %(intersection_value)d)"
+                overlap_text = _flag_value_repr(overlap_value)
+                sources_text = ", ".join(
+                    "%(source_text)s (%(overlap_value)d & %(source_value)d = %(intersection_value)d)"
                     % {
-                        "class": node.name,
-                        "name": assignments[source_value].name,
-                        "source_value": source_value,
+                        "source_text": _flag_value_repr(source_value),
                         "overlap_value": overlap_value,
+                        "source_value": source_value,
                         "intersection_value": overlap_value & source_value,
                     }
                     for source_value in source_values
@@ -931,12 +938,7 @@ a metaclass class method.",
                 self.add_message(
                     "implicit-flag-alias",
                     node=assignments[overlap_value],
-                    args={
-                        "class": node.name,
-                        "overlap": assignments[overlap_value].name,
-                        "overlap_value": overlap_value,
-                        "source_text": source_text,
-                    },
+                    args=(overlap_text, sources_text),
                     confidence=INFERENCE,
                 )
 
