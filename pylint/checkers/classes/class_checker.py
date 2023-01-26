@@ -893,12 +893,12 @@ a metaclass class method.",
 
         if ancestor.is_subtype_of("enum.IntFlag"):
             # Collect integer flag assignments present on the class
-            assignments = {
-                assign_name.parent.value.value: assign_name
-                for assign_name in node.nodes_of_class(nodes.AssignName)
-                if isinstance(assign_name.parent, nodes.Assign)
-                and isinstance(getattr(assign_name.parent.value, "value", None), int)
-            }
+            assignments = {}
+            for assign_name in node.nodes_of_class(nodes.AssignName):
+                if isinstance(assign_name.parent, nodes.Assign):
+                    value = getattr(assign_name.parent.value, "value", None)
+                    if isinstance(value, int) and value not in assignments:
+                        assignments[value] = assign_name
 
             # For each bit position, collect all the flags that set the bit
             bit_flags = defaultdict(set)
