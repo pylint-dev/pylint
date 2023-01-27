@@ -910,7 +910,7 @@ a metaclass class method.",
             # Collect the minimum, unique values that each flag overlaps with
             overlap_sources = defaultdict(list)
             for flag_values in bit_flags.values():
-                source_value, *overlap_values = sorted(flag_values)
+                source_value, *overlap_values = flag_values
                 for overlap_value in overlap_values:
                     overlap_sources[overlap_value].append(source_value)
 
