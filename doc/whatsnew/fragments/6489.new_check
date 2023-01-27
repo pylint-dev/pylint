@@ -1,0 +1,4 @@
+Add new checker ``positional-only-arguments-expected`` to check for cases when
+positional-only arguments have been passed as keyword arguments.
+
+Closes #6489

@@ -137,6 +137,7 @@ All messages in the error category:
    error/not-context-manager
    error/not-in-loop
    error/notimplemented-raised
+   error/positional-only-arguments-expected
    error/potential-index-error
    error/raising-bad-type
    error/raising-non-exception
