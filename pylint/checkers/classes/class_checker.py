@@ -919,12 +919,12 @@ a metaclass class method.",
 
             # Report the overlapping values
             for overlap in overlaps:
-                for overlap_node in assignments[overlap]:
+                for overlap_assignment in assignments[overlap]:
                     self.add_message(
                         "implicit-flag-alias",
-                        node=overlap_node,
+                        node=overlap_assignment,
                         args={
-                            "overlap": _flag_value_repr(overlap_node, overlap),
+                            "overlap": _flag_value_repr(overlap_assignment, overlap),
                             "sources": ", ".join(
                                 f"{_flag_value_repr(assignments[source][0], source)} "
                                 f"({overlap} & {source} = {overlap & source})"
