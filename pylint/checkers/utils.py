@@ -2187,3 +2187,59 @@ def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
         return True
     except astroid.NotFoundError:
         return False
+
+
+def get_inverse_comparator(op: str) -> str:
+    """Returns the inverse comparator given a comparator.
+
+    E.g. when given "==", returns "!="
+
+    :param str op: the comparator to look up.
+
+    :returns: The inverse of the comparator in string format
+    :raises KeyError: if input is not recognized as a comparator
+    """
+    return {
+        "==": "!=",
+        "!=": "==",
+        "<": ">=",
+        ">": "<=",
+        "<=": ">",
+        ">=": "<",
+        "in": "not in",
+        "not in": "in",
+        "is": "is not",
+        "is not": "is",
+    }[op]
+
+
+def not_condition_as_string(
+    test_node: nodes.Compare | nodes.Name | nodes.UnaryOp | nodes.BoolOp | nodes.BinOp,
+) -> str:
+    msg = f"not {test_node.as_string()}"
+    if isinstance(test_node, nodes.UnaryOp):
+        msg = test_node.operand.as_string()
+    elif isinstance(test_node, nodes.BoolOp):
+        msg = f"not ({test_node.as_string()})"
+    elif isinstance(test_node, nodes.Compare):
+        lhs = test_node.left
+        ops, rhs = test_node.ops[0]
+        lower_priority_expressions = (
+            nodes.Lambda,
+            nodes.UnaryOp,
+            nodes.BoolOp,
+            nodes.IfExp,
+            nodes.NamedExpr,
+        )
+        lhs = (
+            f"({lhs.as_string()})"
+            if isinstance(lhs, lower_priority_expressions)
+            else lhs.as_string()
+        )
+        rhs = (
+            f"({rhs.as_string()})"
+            if isinstance(rhs, lower_priority_expressions)
+            else rhs.as_string()
+        )
+        msg = f"{lhs} {get_inverse_comparator(ops)} {rhs}"
+    return msg

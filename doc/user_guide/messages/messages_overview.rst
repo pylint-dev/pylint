@@ -469,6 +469,7 @@ All messages in the refactor category:
    refactor/confusing-consecutive-elif
    refactor/consider-alternative-union-syntax
    refactor/consider-merging-isinstance
+   refactor/consider-refactoring-into-while-condition
    refactor/consider-swap-variables
    refactor/consider-using-alias
    refactor/consider-using-assignment-expr

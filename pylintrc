@@ -34,6 +34,7 @@ load-plugins=
     pylint.extensions.comparison_placement,
     pylint.extensions.broad_try_clause,
     pylint.extensions.dict_init_mutate,
+    pylint.extensions.consider_refactoring_into_while_condition,
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
