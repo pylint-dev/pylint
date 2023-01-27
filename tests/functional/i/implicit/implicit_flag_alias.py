@@ -40,3 +40,8 @@ class ReverseOrderFlags(IntFlag):
     """Class with flags that overlap and are declared in descending order"""
     A = 5  # [implicit-flag-alias]
     B = 1
+
+class SharedBitsWithoutDeclaration(IntFlag):
+    """Class with flags that share a bit, but no value is defined using that bit"""
+    A = 3
+    B = 5  # [implicit-flag-alias]
