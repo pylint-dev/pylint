@@ -439,6 +439,15 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 "help": "Allow wildcard imports from modules that define __all__.",
             },
         ),
+        (
+            "allow-reexport-from-package",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Allow explicit reexports by alias from a package __init__.",
+            },
+        ),
     )
 
     def __init__(self, linter: PyLinter) -> None:
@@ -461,6 +470,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self.linter.stats = self.linter.stats
         self.import_graph = defaultdict(set)
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
+        self._current_module_package = False
         self._excluded_edges: defaultdict[str, set[str]] = defaultdict(set)
         self._ignored_modules: Sequence[str] = self.linter.config.ignored_modules
         # Build a mapping {'module': 'preferred-module'}
@@ -470,6 +480,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if ":" in module
         )
         self._allow_any_import_level = set(self.linter.config.allow_any_import_level)
+        self._allow_reexport_package = self.linter.config.allow_reexport_from_package
 
     def _import_graph_without_ignored_edges(self) -> defaultdict[str, set[str]]:
         filtered_graph = copy.deepcopy(self.import_graph)
@@ -494,6 +505,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if since_vers <= sys.version_info:
                 all_deprecated_modules = all_deprecated_modules.union(mod_set)
         return all_deprecated_modules
+
+    def visit_module(self, node: nodes.Module) -> None:
+        """Store if current module is a package, i.e. an __init__ file."""
+        self._current_module_package = node.package
 
     def visit_import(self, node: nodes.Import) -> None:
         """Triggered when an import statement is seen."""
@@ -917,7 +932,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if import_name != aliased_name:
                 continue
 
-            if len(splitted_packages) == 1:
+            if len(splitted_packages) == 1 and (
+                self._allow_reexport_package is False
+                or self._current_module_package is False
+            ):
                 self.add_message("useless-import-alias", node=node)
             elif len(splitted_packages) == 2:
                 self.add_message(
