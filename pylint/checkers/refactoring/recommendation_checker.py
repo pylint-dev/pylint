@@ -123,7 +123,7 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         inferred_expr = utils.safe_infer(node.func.expr)
         if not isinstance(inferred_expr, nodes.Const) and (
-            isinstance(inferred_expr, astroid.Instance) 
+            isinstance(inferred_expr, astroid.Instance)
             and set(inferred_expr.nodes_of_class(nodes.ClassDef))
         ):
             return
