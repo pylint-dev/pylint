@@ -49,7 +49,7 @@ class ConsiderRefactorIntoWhileConditionChecker(checkers.BaseChecker):
         """Check that any loop with an ``if`` clause has a break statement."""
         if not isinstance(node.test, nodes.Const) or not node.test.bool_value():
             return
-        pri_candidates = []
+        pri_candidates: list[nodes.If] = []
         for n in node.body:
             if not isinstance(n, nodes.If):
                 break
@@ -72,13 +72,13 @@ class ConsiderRefactorIntoWhileConditionChecker(checkers.BaseChecker):
                 orelse = orelse_node.orelse
 
         candidates = [n for n in candidates if isinstance(n.body[0], nodes.Break)]
-        if len(candidates) == 0:
-            return
         msg = " and ".join(
             [f"({utils.not_condition_as_string(c.test)})" for c in candidates]
         )
         if len(candidates) == 1:
             msg = utils.not_condition_as_string(candidates[0].test)
+        if not msg:
+            return
 
         self.add_message(
             "consider-refactoring-into-while-condition",
