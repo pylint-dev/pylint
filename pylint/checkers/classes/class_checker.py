@@ -902,17 +902,17 @@ a metaclass class method.",
 
             # For each bit position, collect all the flags that set the bit
             bit_flags = defaultdict(set)
-            for flag_value in assignments:
-                for position, bit in enumerate(reversed(bin(flag_value))):
+            for flag in assignments:
+                for position, bit in enumerate(reversed(bin(flag))):
                     if bit == "1":
-                        bit_flags[position].add(flag_value)
+                        bit_flags[position].add(flag)
 
             # Collect the minimum, unique values that each flag overlaps with
             overlaps = defaultdict(list)
-            for flag_values in bit_flags.values():
-                source_value, *overlap_values = sorted(flag_values)
-                for overlap_value in overlap_values:
-                    overlaps[overlap_value].append(source_value)
+            for flags in bit_flags.values():
+                source, *conflicts = sorted(flags)
+                for conflict in conflicts:
+                    overlaps[conflict].append(source)
 
             def _flag_value_repr(assign_name: nodes.AssignName, value: int) -> str:
                 return f"<{node.name}.{assign_name.name}: {value}>"
