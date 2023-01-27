@@ -1,0 +1,3 @@
+Fix a false positive for ``redefined-variable-type`` when ``async`` methods are present.
+
+Closes #8120
