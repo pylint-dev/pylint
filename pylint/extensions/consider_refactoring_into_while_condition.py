@@ -22,7 +22,7 @@ class ConsiderRefactorIntoWhileConditionChecker(checkers.BaseChecker):
     """Checks for instances where while loops are implemented with a constant condition
     which.
 
-    always evaluates to true and the first statement(s) is/are if statements which, when
+    always evaluates to truthy and the first statement(s) is/are if statements which, when
     evaluated.
 
     to True, breaks out of the loop.
