@@ -908,27 +908,27 @@ a metaclass class method.",
                         bit_flags[position].add(flag_value)
 
             # Collect the minimum, unique values that each flag overlaps with
-            overlap_sources = defaultdict(list)
+            overlaps = defaultdict(list)
             for flag_values in bit_flags.values():
                 source_value, *overlap_values = flag_values
                 for overlap_value in overlap_values:
-                    overlap_sources[overlap_value].append(source_value)
+                    overlaps[overlap_value].append(source_value)
 
             def _flag_value_repr(assign_name: nodes.AssignName, value: int) -> str:
                 return f"<{node.name}.{assign_name.name}: {value}>"
 
             # Report the overlapping values
-            for overlap_value, source_values in overlap_sources.items():
-                for overlap_node in assignments[overlap_value]:
+            for overlap in overlaps:
+                for overlap_node in assignments[overlap]:
                     self.add_message(
                         "implicit-flag-alias",
                         node=overlap_node,
                         args={
-                            "overlap": _flag_value_repr(overlap_node, overlap_value),
+                            "overlap": _flag_value_repr(overlap_node, overlap),
                             "sources": ", ".join(
-                                f"{_flag_value_repr(assignments[source_value][0], source_value)} "
-                                f"({overlap_value} & {source_value} = {overlap_value & source_value})"
-                                for source_value in source_values
+                                f"{_flag_value_repr(assignments[source][0], source)} "
+                                f"({overlap} & {source} = {overlap & source})"
+                                for source in overlaps[overlap]
                             ),
                         },
                         confidence=INFERENCE,
