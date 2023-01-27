@@ -526,7 +526,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "descendant of the class where it's defined.",
     ),
     "W0213": (
-        "Flag member %s shares bit positions with %s",
+        "Flag member %(overlap)s shares bit positions with %(sources)s",
         "implicit-flag-alias",
         "Used when multiple integer values declared within an enum.IntFlag "
         "class share a common bit position.",
@@ -919,17 +919,18 @@ a metaclass class method.",
 
             # Report the overlapping values
             for overlap_value, source_values in overlap_sources.items():
-                sources_text = ", ".join(
-                    f"{_flag_value_repr(assignments[source_value][0], source_value)} "
-                    f"({overlap_value} & {source_value} = {overlap_value & source_value})"
-                    for source_value in source_values
-                )
                 for overlap_node in assignments[overlap_value]:
-                    overlap_text = _flag_value_repr(overlap_node, overlap_value)
                     self.add_message(
                         "implicit-flag-alias",
                         node=overlap_node,
-                        args=(overlap_text, sources_text),
+                        args={
+                            "overlap": _flag_value_repr(overlap_node, overlap_value),
+                            "sources": ", ".join(
+                                f"{_flag_value_repr(assignments[source_value][0], source_value)} "
+                                f"({overlap_value} & {source_value} = {overlap_value & source_value})"
+                                for source_value in source_values
+                            ),
+                        },
                         confidence=INFERENCE,
                     )
 
