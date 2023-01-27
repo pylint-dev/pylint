@@ -914,19 +914,16 @@ a metaclass class method.",
                 for conflict in conflicts:
                     overlaps[conflict].append(source)
 
-            def _flag_value_repr(assign_name: nodes.AssignName, value: int) -> str:
-                return f"<{node.name}.{assign_name.name}: {value}>"
-
             # Report the overlapping values
             for overlap in overlaps:
-                for overlap_assignment in assignments[overlap]:
+                for assignment_node in assignments[overlap]:
                     self.add_message(
                         "implicit-flag-alias",
-                        node=overlap_assignment,
+                        node=assignment_node,
                         args={
-                            "overlap": _flag_value_repr(overlap_assignment, overlap),
+                            "overlap": f"<{node.name}.{assignment_node.name}: {overlap}>",
                             "sources": ", ".join(
-                                f"{_flag_value_repr(assignments[source][0], source)} "
+                                f"<{node.name}.{assignments[source][0].name}: {source}> "
                                 f"({overlap} & {source} = {overlap & source})"
                                 for source in overlaps[overlap]
                             ),
