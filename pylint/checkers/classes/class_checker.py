@@ -903,9 +903,9 @@ a metaclass class method.",
             # For each bit position, collect all the flags that set the bit
             bit_flags = defaultdict(set)
             for flag in assignments:
-                for position, bit in enumerate(reversed(bin(flag))):
-                    if bit == "1":
-                        bit_flags[position].add(flag)
+                flag_bits = (i for i, c in enumerate(reversed(bin(flag))) if c == "1")
+                for bit in flag_bits:
+                    bit_flags[bit].add(flag)
 
             # Collect the minimum, unique values that each flag overlaps with
             overlaps = defaultdict(list)
