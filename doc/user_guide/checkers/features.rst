@@ -474,7 +474,7 @@ Exceptions checker Messages
   program errors, use ``except Exception:`` (bare except is equivalent to
   ``except BaseException:``).
 :broad-exception-raised (W0719): *Raising too general exception: %s*
-  Raising exceptions that are too generic force you to catch exception
+  Raising exceptions that are too generic force you to catch exceptions
   generically too. It will force you to use a naked ``except Exception:``
   clause. You might then end up catching exceptions other than the ones you
   expect to catch. This can hide bugs or make it harder to debug programs when
@@ -643,6 +643,10 @@ See also :ref:`method_args checker's options' documentation <method_args-options
 
 Method Args checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:positional-only-arguments-expected (E3102): *%s() got some positional-only arguments passed as keyword arguments: %s*
+  Emitted when positional-only arguments have been passed as keyword arguments.
+  Remove the keywords for the affected arguments in the function call. This
+  message can't be emitted when using Python < 3.8.
 :missing-timeout (W3101): *Missing timeout argument for method '%s' can cause your program to hang indefinitely*
   Used when a method needs a 'timeout' parameter in order to avoid waiting for
   a long time. If no timeout is specified explicitly the default value is used.
