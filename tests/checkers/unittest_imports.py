@@ -137,3 +137,49 @@ class TestImportsChecker(CheckerTestCase):
         assert "Prefer importing 'sys' instead of 'os'" in output
         # assert there were no errors
         assert len(errors) == 0
+
+    @staticmethod
+    def test_allow_reexport_package(capsys: CaptureFixture[str]) -> None:
+        """Test --allow-reexport-from-package option."""
+
+        # Option disabled - useless-import-alias should always be emitted
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'allow_reexport')}",
+                "--allow-reexport-from-package=no",
+                "-sn",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+        assert len(output.split("\n")) == 5
+        assert (
+            "tests/regrtest_data/allow_reexport/__init__.py:1:0: C0414: "
+            "Import alias does not rename original package (useless-import-alias)"
+            in output
+        )
+        assert (
+            "tests/regrtest_data/allow_reexport/file.py:2:0: C0414: "
+            "Import alias does not rename original package (useless-import-alias)"
+            in output
+        )
+        assert len(errors) == 0
+
+        # Option enabled - useless-import-alias should only be emitted for 'file.py'
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'allow_reexport')}",
+                "--allow-reexport-from-package=yes",
+                "-sn",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+        assert len(output.split("\n")) == 3
+        assert "tests/regrtest_data/allow_reexport/__init__.py" not in output
+        assert (
+            "tests/regrtest_data/allow_reexport/file.py:2:0: C0414: "
+            "Import alias does not rename original package (useless-import-alias)"
+            in output
+        )
+        assert len(errors) == 0
