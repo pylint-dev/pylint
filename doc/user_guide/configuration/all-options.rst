@@ -935,6 +935,13 @@ Standard Checkers
 **Default:**  ``()``
 
 
+--allow-reexport-from-package
+"""""""""""""""""""""""""""""
+*Allow explicit reexports by alias from a package __init__.*
+
+**Default:**  ``False``
+
+
 --allow-wildcard-with-all
 """""""""""""""""""""""""
 *Allow wildcard imports from modules that define __all__.*
@@ -1003,6 +1010,8 @@ Standard Checkers
 
    [tool.pylint.imports]
    allow-any-import-level = []
+
+   allow-reexport-from-package = false
 
    allow-wildcard-with-all = false
 

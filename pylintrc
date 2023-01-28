@@ -477,6 +477,9 @@ allow-any-import-level=
 # Allow wildcard imports from modules that define __all__.
 allow-wildcard-with-all=no
 
+# Allow explicit reexports by alias from a package __init__.
+allow-reexport-from-package=no
+
 # Analyse import fallback blocks. This can be used to support both Python 2 and
 # 3 compatible code, which means that the block might have code that exists
 # only in one or another interpreter, leading to false positives when analysed.
