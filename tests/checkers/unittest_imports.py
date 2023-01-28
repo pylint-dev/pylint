@@ -154,13 +154,11 @@ class TestImportsChecker(CheckerTestCase):
         output, errors = capsys.readouterr()
         assert len(output.split("\n")) == 5
         assert (
-            "tests/regrtest_data/allow_reexport/__init__.py:1:0: C0414: "
-            "Import alias does not rename original package (useless-import-alias)"
+            "__init__.py:1:0: C0414: Import alias does not rename original package (useless-import-alias)"
             in output
         )
         assert (
-            "tests/regrtest_data/allow_reexport/file.py:2:0: C0414: "
-            "Import alias does not rename original package (useless-import-alias)"
+            "file.py:2:0: C0414: Import alias does not rename original package (useless-import-alias)"
             in output
         )
         assert len(errors) == 0
@@ -176,10 +174,9 @@ class TestImportsChecker(CheckerTestCase):
         )
         output, errors = capsys.readouterr()
         assert len(output.split("\n")) == 3
-        assert "tests/regrtest_data/allow_reexport/__init__.py" not in output
+        assert "__init__.py" not in output
         assert (
-            "tests/regrtest_data/allow_reexport/file.py:2:0: C0414: "
-            "Import alias does not rename original package (useless-import-alias)"
+            "file.py:2:0: C0414: Import alias does not rename original package (useless-import-alias)"
             in output
         )
         assert len(errors) == 0
