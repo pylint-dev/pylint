@@ -936,7 +936,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._allow_reexport_package is False
                 or self._current_module_package is False
             ):
-                self.add_message("useless-import-alias", node=node)
+                self.add_message("useless-import-alias", node=node, confidence=HIGH)
             elif len(splitted_packages) == 2:
                 self.add_message(
                     "consider-using-from-import",
