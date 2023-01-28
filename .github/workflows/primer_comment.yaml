@@ -98,7 +98,6 @@ jobs:
                archive_format: "zip",
             });
             fs.writeFileSync("primer_pr_number.zip", Buffer.from(downloadThree.data));
-      - run: sudo apt install -y jq
       - run: unzip primer_main_output.zip
       - run:
           jq -n 'reduce inputs as $item ({}; . *= $item)' output_${{
