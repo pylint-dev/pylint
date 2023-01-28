@@ -46,8 +46,8 @@ class MultipleTypesChecker(BaseChecker):
     def leave_classdef(self, _: nodes.ClassDef) -> None:
         self._check_and_add_messages()
 
-    visit_functiondef = visit_classdef
-    leave_functiondef = leave_module = leave_classdef
+    visit_functiondef = visit_asyncfunctiondef = visit_classdef
+    leave_functiondef = leave_asyncfunctiondef = leave_module = leave_classdef
 
     def visit_module(self, _: nodes.Module) -> None:
         self._assigns: list[dict[str, list[tuple[nodes.Assign, str]]]] = [{}]
