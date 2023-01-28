@@ -104,6 +104,7 @@ def report_by_type_stats(
     sect.append(reporter_nodes.Table(children=lines, cols=6, rheaders=1))
 
 
+# pylint: disable-next = too-many-public-methods
 class BasicChecker(_BasicChecker):
     """Basic checker.
 

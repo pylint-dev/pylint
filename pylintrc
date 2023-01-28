@@ -425,30 +425,11 @@ max-branches = 20
 # Maximum number of statements in function / method body
 max-statements = 50
 
-# Maximum number of parents for a class (see R0901).
-max-parents=7
-
-# List of qualified class names to ignore when counting class parents (see R0901).
-ignored-parents=
-
 # Maximum number of attributes for a class (see R0902).
 max-attributes=11
 
-# Minimum number of public methods for a class (see R0903).
-min-public-methods=2
-
-# Maximum number of public methods for a class (see R0904).
-max-public-methods=25
-
-# Maximum number of boolean expressions in an if statement (see R0916).
-max-bool-expr=5
-
 # Maximum number of statements in a try-block
 max-try-statements = 7
-
-# List of regular expressions of class ancestor names to
-# ignore when counting public methods (see R0903).
-exclude-too-few-public-methods=
 
 [CLASSES]
 
