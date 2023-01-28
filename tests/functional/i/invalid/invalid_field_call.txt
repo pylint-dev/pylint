@@ -1,0 +1,14 @@
+invalid-field-call:18:12:18:29::Invalid usage of field(), it should be used within a dataclass or the make_dataclass() function.:INFERENCE
+invalid-field-call:20:11:20:18::Invalid usage of field(), it should be used within a dataclass or the make_dataclass() function.:INFERENCE
+invalid-field-call:23:4:23:11:NotADataClass:Invalid usage of field(), it should be used within a dataclass or the make_dataclass() function.:INFERENCE
+invalid-field-call:24:15:24:32:NotADataClass:Invalid usage of field(), it should be used within a dataclass or the make_dataclass() function.:INFERENCE
+invalid-field-call:25:4:25:14:NotADataClass:Invalid usage of field(), it should be used within a dataclass or the make_dataclass() function.:INFERENCE
+invalid-field-call:26:15:26:35:NotADataClass:Invalid usage of field(), it should be used within a dataclass or the make_dataclass() function.:INFERENCE
+invalid-field-call:30:4:30:11:DC:Invalid usage of field(), it should be the value of an assignment within a dataclass.:INFERENCE
+invalid-field-call:31:4:31:14:DC:Invalid usage of field(), it should be the value of an assignment within a dataclass.:INFERENCE
+invalid-field-call:35:22:35:29:DC:Invalid usage of field(), it should be the value of an assignment within a dataclass.:INFERENCE
+invalid-field-call:35:31:35:38:DC:Invalid usage of field(), it should be the value of an assignment within a dataclass.:INFERENCE
+invalid-field-call:39:4:39:11:IsAlsoDC:Invalid usage of field(), it should be the value of an assignment within a dataclass.:INFERENCE
+invalid-field-call:42:22:42:29:IsAlsoDC:Invalid usage of field(), it should be the value of an assignment within a dataclass.:INFERENCE
+invalid-field-call:42:31:42:38:IsAlsoDC:Invalid usage of field(), it should be the value of an assignment within a dataclass.:INFERENCE
+invalid-field-call:57:15:57:32:AlsoNotADataClass:Invalid usage of field(), it should be used within a dataclass or the make_dataclass() function.:INFERENCE

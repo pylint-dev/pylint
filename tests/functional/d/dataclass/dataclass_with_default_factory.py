@@ -1,3 +1,4 @@
+# pylint: disable=invalid-field-call
 """Various regression tests for dataclasses."""
 # See issues:
 # - https://github.com/PyCQA/pylint/issues/2605
