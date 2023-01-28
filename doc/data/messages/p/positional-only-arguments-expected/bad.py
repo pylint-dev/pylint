@@ -1,8 +1,5 @@
-import random
+def cube(n, /):
+    """Takes in a number n, returns the cube of n"""
+    return n**3
 
-
-def pick_one(item1, item2, item3, /):
-    chosen_one = random.choice((item1, item2, item3))
-    print(f"The chosen item is: {chosen_one}")
-
-pick_one(item1="apple", item2="banana", item3="orange")  # [positional-only-arguments-expected]
+cube(n=2) # [positional-only-arguments-expected]
