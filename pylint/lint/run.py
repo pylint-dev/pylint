@@ -115,6 +115,7 @@ group are mutually exclusive.",
     Used by _PylintConfigRun to make the 'pylint-config' command work.
     """
 
+    # pylint: disable = too-many-statements, too-many-branches
     def __init__(
         self,
         args: Sequence[str],

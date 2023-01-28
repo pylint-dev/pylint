@@ -303,6 +303,7 @@ def is_defined_in_scope(
     return defnode_in_scope(var_node, varname, scope) is not None
 
 
+# pylint: disable = too-many-branches
 def defnode_in_scope(
     var_node: nodes.NodeNG,
     varname: str,
@@ -627,6 +628,7 @@ def collect_string_fields(format_string: str) -> Iterable[str | None]:
     It handles nested fields as well.
     """
     formatter = string.Formatter()
+    # pylint: disable = too-many-try-statements
     try:
         parseiterator = formatter.parse(format_string)
         for result in parseiterator:
@@ -1374,6 +1376,7 @@ def safe_infer(
     if value is not astroid.Uninferable:
         inferred_types.add(_get_python_type_of_node(value))
 
+    # pylint: disable = too-many-try-statements
     try:
         for inferred in infer_gen:
             inferred_type = _get_python_type_of_node(inferred)
@@ -2050,6 +2053,7 @@ def is_hashable(node: nodes.NodeNG) -> bool:
 
     When finding ambiguity, return True.
     """
+    # pylint: disable = too-many-try-statements
     try:
         for inferred in node.infer():
             if inferred is astroid.Uninferable or isinstance(inferred, nodes.ClassDef):

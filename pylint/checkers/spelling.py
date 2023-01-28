@@ -340,6 +340,7 @@ class SpellingChecker(BaseTokenChecker):
         )
         self.initialized = True
 
+    # pylint: disable = too-many-statements
     def _check_spelling(self, msgid: str, line: str, line_num: int) -> None:
         original_line = line
         try:

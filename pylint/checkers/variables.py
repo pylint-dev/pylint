@@ -1661,7 +1661,7 @@ class VariablesChecker(BaseChecker):
 
         return False
 
-    # pylint: disable=too-many-return-statements
+    # pylint: disable = too-many-return-statements, too-many-branches
     def _check_consumer(
         self,
         node: nodes.Name,
@@ -2025,6 +2025,7 @@ class VariablesChecker(BaseChecker):
             parent = parent.parent
         return False
 
+    # pylint: disable = too-many-statements, too-many-branches
     @staticmethod
     def _is_variable_violation(
         node: nodes.Name,
@@ -2402,6 +2403,7 @@ class VariablesChecker(BaseChecker):
             and name in frame_locals
         )
 
+    # pylint: disable = too-many-branches
     def _loopvar_name(self, node: astroid.Name) -> None:
         # filter variables according to node's scope
         astmts = [s for s in node.lookup(node.name)[1] if hasattr(s, "assign_type")]
@@ -2546,6 +2548,7 @@ class VariablesChecker(BaseChecker):
             if not elements:
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
+    # pylint: disable = too-many-branches
     def _check_is_unused(
         self,
         name: str,
@@ -3011,6 +3014,7 @@ class VariablesChecker(BaseChecker):
             for node in node_lst:
                 self.add_message("unused-variable", args=(name,), node=node)
 
+    # pylint: disable = too-many-branches
     def _check_imports(self, not_consumed: dict[str, list[nodes.NodeNG]]) -> None:
         local_names = _fix_dot_imports(not_consumed)
         checked = set()

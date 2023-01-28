@@ -440,7 +440,7 @@ def _emit_no_member(
           AttributeError, Exception or bare except.
         * The node is guarded behind and `IF` or `IFExp` node
     """
-    # pylint: disable=too-many-return-statements
+    # pylint: disable = too-many-return-statements, too-many-branches
     if node_ignores_exception(node, AttributeError):
         return False
     if ignored_none and isinstance(owner, nodes.Const) and owner.value is None:
@@ -1035,6 +1035,7 @@ accessed. Python regular expressions are accepted.",
     def visit_delattr(self, node: nodes.DelAttr) -> None:
         self.visit_attribute(node)
 
+    # pylint: disable = too-many-branches
     @only_required_for_messages("no-member", "c-extension-no-member")
     def visit_attribute(
         self, node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr
@@ -1399,7 +1400,7 @@ accessed. Python regular expressions are accepted.",
         if _is_invalid_isinstance_type(second_arg):
             self.add_message("isinstance-second-argument-not-valid-type", node=node)
 
-    # pylint: disable=too-many-branches,too-many-locals
+    # pylint: disable = too-many-branches, too-many-locals, too-many-statements
     def visit_call(self, node: nodes.Call) -> None:
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.

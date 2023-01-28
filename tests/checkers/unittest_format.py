@@ -165,6 +165,7 @@ def test_disable_global_option_end_of_line() -> None:
 1
     """
         )
+    # pylint: disable = too-many-try-statements
     try:
         linter = lint.PyLinter()
         checker = BasicChecker(linter)

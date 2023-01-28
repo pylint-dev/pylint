@@ -53,6 +53,7 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
         return {".deprecated_decorator"}
 
 
+# pylint: disable-next = too-many-public-methods
 class TestDeprecatedChecker(CheckerTestCase):
     CHECKER_CLASS = _DeprecatedChecker
 
