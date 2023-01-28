@@ -35,9 +35,12 @@ class RunCommand(PrimerCommand):
             fatal_msgs += p_fatal_msgs
             local_commit = Repo(data.clone_directory).head.object.hexsha
             packages[package] = PackageData(commit=local_commit, messages=messages)
+        ext_path = ""
+        if self.config.package:
+            ext_path = f"_{self.config.package}"
         path = (
             self.primer_directory
-            / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt"
+            / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}{ext_path}.txt"
         )
         print(f"Writing result in {path}")
         with open(path, "w", encoding="utf-8") as f:

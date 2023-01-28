@@ -23,13 +23,32 @@ permissions:
   contents: read
 
 jobs:
-  run-primer:
-    name: Run / ${{ matrix.python-version }}
+  matrix-prep-packages:
+    name: Generate matrix of packages to prime
     runs-on: ubuntu-latest
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v3.3.0
+        with:
+          fetch-depth: 0
+      - run: sudo apt install -y jq
+      - name: Generate matrix
+        id: set-matrix
+        run:
+          echo "matrix=$(jq 'keys' tests/primer/packages_to_prime.json -c)" >>
+          $GITHUB_OUTPUT
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+  run-primer:
+    name: Run / ${{ matrix.python-version }} / ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    needs: matrix-prep-packages
     timeout-minutes: 60
     strategy:
       matrix:
         python-version: ["3.7", "3.11"]
+        package: ${{ fromJson(needs.matrix-prep-packages.outputs.matrix) }}
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.3.0
@@ -90,7 +109,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          python tests/primer/__main__.py run --type=main 2>warnings.txt
+          python tests/primer/__main__.py run --type=main --package=${{ matrix.package }} 2>warnings.txt
           WARNINGS=$(head -c 65000 < warnings.txt)
           if [[ $WARNINGS ]]
           then echo "::warning ::$WARNINGS"
@@ -101,4 +120,4 @@ jobs:
           name: primer_output
           path: >-
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
-            }}_main.txt
+            }}_main_${{ matrix.package }}.txt
