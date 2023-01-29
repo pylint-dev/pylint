@@ -123,7 +123,7 @@ class TestImportsChecker(CheckerTestCase):
         # test preferred-modules case with base module import
         Run(
             [
-                f"{os.path.join(REGR_DATA, 'preferred_module')}",
+                f"{os.path.join(REGR_DATA, 'preferred_module/unpreferred_module.py')}",
                 "-d all",
                 "-e preferred-module",
                 # prefer sys instead of os (for triggering test)
@@ -135,6 +135,24 @@ class TestImportsChecker(CheckerTestCase):
 
         # assert that we saw preferred-modules triggered
         assert "Prefer importing 'sys' instead of 'os'" in output
+        # assert there were no errors
+        assert len(errors) == 0
+
+        # test preferred-modules case with submodules
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'preferred_module/unpreferred_submodule.py')}",
+                "-d all",
+                "-e preferred-module",
+                # prefer sys instead of os (for triggering test)
+                "--preferred-modules=os.path:pathlib",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+
+        # assert that we saw preferred-modules triggered
+        assert "Prefer importing 'pathlib' instead of 'os.path'" in output
         # assert there were no errors
         assert len(errors) == 0
 
