@@ -82,7 +82,7 @@ class DataclassChecker(BaseChecker):
             inferred_func = utils.safe_infer(parent_node.func)
         if not (
             (  # Usage outside dataclass annotated classes
-                isinstance(parent_node, nodes.ClassDef) and parent_node.is_dataclass()
+                isinstance(parent_node, nodes.ClassDef) and parent_node.is_dataclass
             )
             or (  # Usage outside make_dataclass
                 isinstance(parent_node, nodes.Call)
