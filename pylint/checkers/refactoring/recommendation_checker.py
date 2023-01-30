@@ -121,6 +121,11 @@ class RecommendationChecker(checkers.BaseChecker):
             and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
             return
+        inferred_expr = utils.safe_infer(node.func.expr)
+        if isinstance(inferred_expr, astroid.Instance) and any(
+            inferred_expr.nodes_of_class(nodes.ClassDef)
+        ):
+            return
 
         try:
             sep = utils.get_argument_from_call(node, 0, "sep")
