@@ -1,5 +1,6 @@
 # Everything in this file should reflect the pre-commit configuration
 # in .pre-commit-config.yaml
+pre-commit~=3.0
 bandit==1.7.4
 black==23.1a1
 flake8==6.0.0;python_version>='3.8'
