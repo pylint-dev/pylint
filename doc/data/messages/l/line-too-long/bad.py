@@ -1,1 +1,2 @@
-FRUIT = ["apricot", "blackcurrant", "cantaloupe", "dragon fruit", "elderberry", "fig", "grapefruit"]  # [line-too-long]
+# +1: [line-too-long]
+FRUIT = ["apricot", "blackcurrant", "cantaloupe", "dragon fruit", "elderberry", "fig", "grapefruit", ]
