@@ -55,7 +55,7 @@ jobs:
           exit 1
 
       - name: Download outputs
-        uses: actions/github-script@v6.3.3
+        uses: actions/github-script@v6.4.0
         with:
           script: |
             // Download workflow pylint output
@@ -110,7 +110,7 @@ jobs:
           --new-file=output_${{ steps.python.outputs.python-version }}_pr.txt
       - name: Post comment
         id: post-comment
-        uses: actions/github-script@v6.3.3
+        uses: actions/github-script@v6.4.0
         with:
           script: |
             const fs = require('fs')
