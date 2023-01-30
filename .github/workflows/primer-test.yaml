@@ -86,14 +86,10 @@ jobs:
         uses: actions/cache@v3.2.4
         with:
           path: venv
+          fail-on-cache-miss: true
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-tests-linux.outputs.python-key }}
-      - name: Fail job if Python cache restore failed
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: |
-          echo "Failed to restore Python venv from cache"
-          exit 1
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -122,14 +118,10 @@ jobs:
         uses: actions/cache@v3.2.4
         with:
           path: venv
+          fail-on-cache-miss: true
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-tests-linux.outputs.python-key }}
-      - name: Fail job if Python cache restore failed
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: |
-          echo "Failed to restore Python venv from cache"
-          exit 1
       - name: Run pytest
         run: |
           . venv/bin/activate
