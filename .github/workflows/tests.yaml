@@ -13,7 +13,7 @@ on:
       - "maintenance/**"
 
 env:
-  CACHE_VERSION: 1
+  CACHE_VERSION: 2
   KEY_PREFIX: venv
 
 permissions:
@@ -44,7 +44,8 @@ jobs:
         run: >-
           echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
             hashFiles('pyproject.toml', 'requirements_test.txt',
-          'requirements_test_min.txt') }}" >> $GITHUB_OUTPUT
+          'requirements_test_min.txt', 'requirements_test_pre_commit.txt') }}" >>
+          $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v3.2.4
@@ -250,7 +251,7 @@ jobs:
           python -m venv venv
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test.txt
+          pip install -U -r requirements_test_min.txt
       - name: Run pytest
         run: |
           . venv/bin/activate
