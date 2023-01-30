@@ -9,10 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
-from astroid.brain.brain_dataclasses import (
-    DATACLASS_MODULES,
-    is_decorated_with_dataclass,
-)
+from astroid.brain.brain_dataclasses import DATACLASS_MODULES
 
 from pylint.checkers import BaseChecker, utils
 from pylint.interfaces import INFERENCE
@@ -51,7 +48,6 @@ class DataclassChecker(BaseChecker):
             "invalid-field-call",
             "The dataclasses.field() specifier should only be used as the value of "
             "an assignment within a dataclass, or within the make_dataclass() function.",
-            {"minversion": (3, 7)},
         ),
     }
 
@@ -87,7 +83,7 @@ class DataclassChecker(BaseChecker):
         if not (
             (  # Usage outside dataclass annotated classes
                 isinstance(parent_node, nodes.ClassDef)
-                and is_decorated_with_dataclass(parent_node)
+                and parent_node.is_dataclass()
             )
             or (  # Usage outside make_dataclass
                 isinstance(parent_node, nodes.Call)
