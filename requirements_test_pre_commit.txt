@@ -1,9 +1,10 @@
 # Everything in this file should reflect the pre-commit configuration
 # in .pre-commit-config.yaml
+pre-commit~=3.0;python_version>='3.8'
 bandit==1.7.4
 black==23.1a1
-flake8>=5.0.0
-flake8-bugbear==23.1.20
-flake8-typing-imports==1.14.0
-isort==5.12.0
+flake8==6.0.0;python_version>='3.8'
+flake8-bugbear==23.1.20;python_version>='3.8'
+flake8-typing-imports==1.14.0;python_version>='3.8'
+isort==5.12.0;python_version>='3.8'
 mypy==0.991

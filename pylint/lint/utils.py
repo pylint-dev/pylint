@@ -58,7 +58,8 @@ pylint crashed with a ``{ex.__class__.__name__}`` and with the following stacktr
     except Exception as exc:  # pylint: disable=broad-except
         print(
             f"Can't write the issue template for the crash in {issue_template_path} "
-            f"because of: '{exc}'\nHere's the content anyway:\n{template}."
+            f"because of: '{exc}'\nHere's the content anyway:\n{template}.",
+            file=sys.stderr,
         )
     return issue_template_path
 
