@@ -1350,8 +1350,8 @@ Variables checker Messages
   Used when a variable's name hides a name defined in an outer scope or except
   handler.
 :global-without-modification (W0645): *Unnecessary use of global for %r*
-  Used when a variable defined as a global is then invoked with the `global`
-  keyword but no assignment to this variable is done.
+  Used when a name listed in a global statement has nothing assigned to it in the current
+  code block.
 :unused-import (W0611): *Unused %s*
   Used when an imported module or variable is not used.
 :unused-argument (W0613): *Unused argument %r*
