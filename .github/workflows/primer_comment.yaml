@@ -48,7 +48,8 @@ jobs:
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
-            'requirements_test.txt', 'requirements_test_min.txt') }}
+            'requirements_test.txt', 'requirements_test_min.txt',
+            'requirements_test_pre_commit.txt') }}
 
       - name: Download outputs
         uses: actions/github-script@v6.4.0
