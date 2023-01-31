@@ -24,6 +24,12 @@ ANSWER_11: list[int] | dict[int] | dict[list[int]] | list[str] | list[str] = ['s
 #  +1: [redundant-typehint-argument, redundant-typehint-argument, redundant-typehint-argument]
 x: int | int | int | int
 
+# No warning for type alias
+Q = int | int
+QQ = Q | Q
+
+q: Q | Q  # [redundant-typehint-argument]
+
 # No warning for redundant types in compound type
 z: dict[int | int, str | str]
 
