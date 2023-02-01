@@ -434,8 +434,9 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0602": (
         "Using global for %r but no assignment is done",
         "global-variable-not-assigned",
-        'Used when a variable is defined through the "global" statement '
-        "but no assignment to this variable is done.",
+        'Used when a name that is previously defined with a "global" statement '
+        "is being invoked with the `global` keyword but is not reassigned in"
+        "the current code block. For example, modifying a global dict.",
     ),
     "W0603": (
         "Using the global statement",  # W0121

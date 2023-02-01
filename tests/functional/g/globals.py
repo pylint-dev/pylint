@@ -4,6 +4,10 @@
 global CSTE  # [global-at-module-level]
 print(CSTE)  # [undefined-variable]
 
+
+RAN_DB_SET = set()
+RAN_DB_DICT = {}
+
 CONSTANT = 1
 def FUNC():
     pass
@@ -90,3 +94,11 @@ def override_class():
         pass
 
     CLASS()
+
+
+def init_connection_state(alias):
+    """Demonstrate that non-assignment modifications to global objects should emit message."""
+    global RAN_DB_SET  # [global-variable-not-assigned]
+    global RAN_DB_DICT  # [global-variable-not-assigned]
+    RAN_DB_SET.add(alias)
+    return RAN_DB_DICT.setdefault("color", "Palomino")
