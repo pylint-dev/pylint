@@ -1,4 +1,3 @@
-
 ***************************
  What's New in Pylint 2.16
 ***************************
@@ -6,8 +5,8 @@
 .. toctree::
    :maxdepth: 2
 
-:Release:2.16
-:Date: TBA
+:Release: 2.16
+:Date: 2023-02-01
 
 Summary -- Release highlights
 =============================
