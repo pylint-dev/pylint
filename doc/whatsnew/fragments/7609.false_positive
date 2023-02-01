@@ -1,4 +1,0 @@
-Fix a false positive for ``used-before-assignment`` for imports guarded by
-``typing.TYPE_CHECKING`` later used in variable annotations.
-
-Closes #7609

@@ -1,3 +1,0 @@
-Update ``disallowed-name`` check to flag module-level variables.
-
-Closes #3701

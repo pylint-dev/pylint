@@ -1,4 +1,0 @@
-Fixes false positive for ``try-except-raise`` with multiple exceptions in one
-except statement if exception are in different namespace.
-
-Closes #8051

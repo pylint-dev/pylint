@@ -1,3 +1,0 @@
-Fixes false positive ``abstract-method`` on Protocol classes.
-
-Closes #7209

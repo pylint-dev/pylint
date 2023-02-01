@@ -643,7 +643,7 @@ See also :ref:`method_args checker's options' documentation <method_args-options
 
 Method Args checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:positional-only-arguments-expected (E3102): *%s() got some positional-only arguments passed as keyword arguments: %s*
+:positional-only-arguments-expected (E3102): *`%s()` got some positional-only arguments passed as keyword arguments: %s*
   Emitted when positional-only arguments have been passed as keyword arguments.
   Remove the keywords for the affected arguments in the function call. This
   message can't be emitted when using Python < 3.8.

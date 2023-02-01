@@ -1,7 +1,0 @@
-Fixed a multi-processing crash that prevents using any more than 1 thread on MacOS.
-
-The returned module objects and errors that were cached by the linter plugin loader
-cannot be reliably pickled. This means that ``dill`` would throw an error when
-attempting to serialise the linter object for multi-processing use.
-
-Closes #7635.

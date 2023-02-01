@@ -1,3 +1,0 @@
-Fixed a crash when inferring a value and using its qname on a slice that was being incorrectly called.
-
-Closes #8067
