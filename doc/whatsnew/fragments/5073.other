@@ -1,0 +1,3 @@
+Update explanation for ``global-variable-not-assigned`` and add inference.
+
+Closes #5073

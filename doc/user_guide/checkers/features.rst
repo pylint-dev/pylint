@@ -1363,8 +1363,9 @@ Variables checker Messages
 :unused-variable (W0612): *Unused variable %r*
   Used when a variable is defined but not used.
 :global-variable-not-assigned (W0602): *Using global for %r but no assignment is done*
-  Used when a variable is defined through the "global" statement but no
-  assignment to this variable is done.
+  Used when a name that is previously defined with a "global" statement is
+  being invoked with the `global` keyword but is not reassigned inthe current
+  code block. For example, modifying a global dict.
 :undefined-loop-variable (W0631): *Using possibly undefined loop variable %r*
   Used when a loop variable (i.e. defined by a for loop or a list comprehension
   or a generator expression) is used outside the loop.
