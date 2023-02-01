@@ -1,0 +1,3 @@
+Fix issue with new typing Union syntax in runtime context for Python 3.10+.
+
+Closes #8119
