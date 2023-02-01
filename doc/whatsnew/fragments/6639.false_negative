@@ -1,3 +1,0 @@
-``consider-using-join`` can now be emitted for non-empty string separators.
-
-Closes #6639

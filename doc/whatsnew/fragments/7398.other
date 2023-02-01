@@ -1,4 +1,0 @@
-The ``docparams`` extension now considers typing in Numpy style docstrings
-as "documentation" for the ``missing-param-doc`` message.
-
-Refs #7398

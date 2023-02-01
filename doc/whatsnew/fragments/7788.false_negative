@@ -1,3 +1,0 @@
-``no-else-return`` or ``no-else-raise`` will be emitted if ``except`` block always returns or raises.
-
-Closes #7788

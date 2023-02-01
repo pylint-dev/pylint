@@ -301,6 +301,9 @@ max-module-lines = 1000
 # List of modules that can be imported at any level, not just the top level one.
 # allow-any-import-level =
 
+# Allow explicit reexports by alias from a package __init__.
+# allow-reexport-from-package =
+
 # Allow wildcard imports from modules that define __all__.
 # allow-wildcard-with-all =
 

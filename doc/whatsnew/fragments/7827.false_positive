@@ -1,3 +1,0 @@
-Fix ``missing-param-doc`` false positive when function parameter has an escaped underscore.
-
-Closes #7827

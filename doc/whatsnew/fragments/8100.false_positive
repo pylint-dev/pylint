@@ -1,3 +1,0 @@
-Fix ``no-kwoa`` false positive for context managers.
-
-Closes #8100
