@@ -56,7 +56,6 @@ Changes requiring user actions
 
 - The ``accept-no-raise-doc`` option related to ``missing-raises-doc`` will now
   be correctly taken into account all the time.
-
   Pylint will no longer raise missing-raises-doc (W9006) when no exceptions are
   documented and accept-no-raise-doc is true (issue #7208).
   If you were expecting missing-raises-doc errors to be raised in that case,
