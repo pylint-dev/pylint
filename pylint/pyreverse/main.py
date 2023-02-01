@@ -13,7 +13,8 @@ from typing import NoReturn
 from pylint import constants
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.arguments_provider import _ArgumentsProvider
-from pylint.lint.utils import fix_import_path
+from pylint.lint import discover_package_path
+from pylint.lint.utils import augmented_sys_path
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
@@ -203,6 +204,17 @@ OPTIONS: Options = (
             "help": "set the output directory path.",
         },
     ),
+    (
+        "source-roots",
+        {
+            "type": "paths_csv",
+            "metavar": "<path>[,<path>...]",
+            "default": (),
+            "help": "Add paths to the list of the source roots. The source root is an absolute "
+            "path or a path relative to the current working directory used to "
+            "determine a package namespace for modules located under the source root.",
+        },
+    ),
 )
 
 
@@ -235,7 +247,10 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
         if not args:
             print(self.help())
             return 1
-        with fix_import_path(args):
+        extra_packages_paths = list(
+            {discover_package_path(arg, self.config.source_roots) for arg in args}
+        )
+        with augmented_sys_path(extra_packages_paths):
             project = project_from_files(
                 args,
                 project_name=self.config.project,

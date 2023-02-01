@@ -11,6 +11,7 @@ from typing import Any
 import pytest
 from astroid import nodes
 
+from pylint import lint
 from pylint.checkers import BaseChecker
 from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.config import load_results, save_results
@@ -106,3 +107,16 @@ def test_collectblocklines() -> None:
     state = FileState("foo", MessageDefinitionStore())
     with pytest.warns(DeprecationWarning):
         state.collect_block_lines(MessageDefinitionStore(), nodes.Module("foo"))
+
+
+def test_patch_sys_path() -> None:
+    """Test that _patch_sys_path() is deprecated"""
+    with pytest.deprecated_call():
+        lint._patch_sys_path([])
+
+
+def test_fix_import_path() -> None:
+    """Test that fix_import_path() is deprecated"""
+    with pytest.deprecated_call():
+        with lint.fix_import_path([]):
+            pass

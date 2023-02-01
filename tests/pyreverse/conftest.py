@@ -9,7 +9,7 @@ from collections.abc import Callable
 import pytest
 from astroid.nodes.scoped_nodes import Module
 
-from pylint.lint import fix_import_path
+from pylint.lint import augmented_sys_path, discover_package_path
 from pylint.pyreverse.inspector import Project, project_from_files
 from pylint.testutils.pyreverse import PyreverseConfig
 from pylint.typing import GetProjectCallable
@@ -74,7 +74,7 @@ def get_project() -> GetProjectCallable:
         def _astroid_wrapper(func: Callable[[str], Module], modname: str) -> Module:
             return func(modname)
 
-        with fix_import_path([module]):
+        with augmented_sys_path([discover_package_path(module, [])]):
             project = project_from_files([module], _astroid_wrapper, project_name=name)
         return project
 

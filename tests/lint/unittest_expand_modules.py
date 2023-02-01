@@ -151,6 +151,7 @@ class TestExpandModules(CheckerTestCase):
         ignore_list_re: list[re.Pattern[str]] = []
         modules, errors = expand_modules(
             files_or_modules,
+            [],
             ignore_list,
             ignore_list_re,
             self.linter.config.ignore_paths,
@@ -180,6 +181,7 @@ class TestExpandModules(CheckerTestCase):
         ignore_list_re: list[re.Pattern[str]] = []
         modules, errors = expand_modules(
             files_or_modules,
+            [],
             ignore_list,
             ignore_list_re,
             self.linter.config.ignore_paths,
@@ -209,6 +211,7 @@ class TestExpandModules(CheckerTestCase):
         ignore_list_re: list[re.Pattern[str]] = []
         modules, errors = expand_modules(
             files_or_modules,
+            [],
             ignore_list,
             ignore_list_re,
             self.linter.config.ignore_paths,

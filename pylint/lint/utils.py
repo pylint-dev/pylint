@@ -7,12 +7,13 @@ from __future__ import annotations
 import contextlib
 import sys
 import traceback
+import warnings
 from collections.abc import Iterator, Sequence
 from datetime import datetime
 from pathlib import Path
 
 from pylint.config import PYLINT_HOME
-from pylint.lint.expand_modules import get_python_path
+from pylint.lint.expand_modules import discover_package_path
 
 
 def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> Path:
@@ -73,14 +74,26 @@ def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
 
 
 def _patch_sys_path(args: Sequence[str]) -> list[str]:
+    # TODO: Remove deprecated function
+    warnings.warn(
+        "_patch_sys_path has been deprecated because it relies on auto-magic package path "
+        "discovery which is implemented by get_python_path that is deprecated. "
+        "Use _augment_sys_path and pass additional sys.path entries as an argument obtained from "
+        "discover_package_path.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return _augment_sys_path([discover_package_path(arg, []) for arg in args])
+
+
+def _augment_sys_path(additional_paths: Sequence[str]) -> list[str]:
     original = list(sys.path)
     changes = []
     seen = set()
-    for arg in args:
-        path = get_python_path(arg)
-        if path not in seen:
-            changes.append(path)
-            seen.add(path)
+    for additional_path in additional_paths:
+        if additional_path not in seen:
+            changes.append(additional_path)
+            seen.add(additional_path)
 
     sys.path[:] = changes + sys.path
     return original
@@ -95,7 +108,23 @@ def fix_import_path(args: Sequence[str]) -> Iterator[None]:
     We avoid adding duplicate directories to sys.path.
     `sys.path` is reset to its original value upon exiting this context.
     """
-    original = _patch_sys_path(args)
+    # TODO: Remove deprecated function
+    warnings.warn(
+        "fix_import_path has been deprecated because it relies on auto-magic package path "
+        "discovery which is implemented by get_python_path that is deprecated. "
+        "Use augmented_sys_path and pass additional sys.path entries as an argument obtained from "
+        "discover_package_path.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    with augmented_sys_path([discover_package_path(arg, []) for arg in args]):
+        yield
+
+
+@contextlib.contextmanager
+def augmented_sys_path(additional_paths: Sequence[str]) -> Iterator[None]:
+    """Augment 'sys.path' by adding non-existent entries from additional_paths."""
+    original = _augment_sys_path(additional_paths)
     try:
         yield
     finally:

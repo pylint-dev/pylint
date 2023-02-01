@@ -36,7 +36,11 @@ from pylint.constants import (
 from pylint.interfaces import HIGH
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
-from pylint.lint.expand_modules import _is_ignored_file, expand_modules
+from pylint.lint.expand_modules import (
+    _is_ignored_file,
+    discover_package_path,
+    expand_modules,
+)
 from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
@@ -46,7 +50,7 @@ from pylint.lint.report_functions import (
 )
 from pylint.lint.utils import (
     _is_relative_to,
-    fix_import_path,
+    augmented_sys_path,
     get_fatal_error_message,
     prepare_crash_report,
 )
@@ -675,6 +679,13 @@ class PyLinter(
                     "Missing filename required for --from-stdin"
                 )
 
+        extra_packages_paths = list(
+            {
+                discover_package_path(file_or_module, self.config.source_roots)
+                for file_or_module in files_or_modules
+            }
+        )
+
         # TODO: Move the parallel invocation into step 5 of the checking process
         if not self.config.from_stdin and self.config.jobs > 1:
             original_sys_path = sys.path[:]
@@ -682,13 +693,13 @@ class PyLinter(
                 self,
                 self.config.jobs,
                 self._iterate_file_descrs(files_or_modules),
-                files_or_modules,  # this argument patches sys.path
+                extra_packages_paths,
             )
             sys.path = original_sys_path
             return
 
         # 3) Get all FileItems
-        with fix_import_path(files_or_modules):
+        with augmented_sys_path(extra_packages_paths):
             if self.config.from_stdin:
                 fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
                 data: str | None = _read_stdin()
@@ -697,7 +708,7 @@ class PyLinter(
                 data = None
 
         # The contextmanager also opens all checkers and sets up the PyLinter class
-        with fix_import_path(files_or_modules):
+        with augmented_sys_path(extra_packages_paths):
             with self._astroid_module_checker() as check_astroid_module:
                 # 4) Get the AST for each FileItem
                 ast_per_fileitem = self._get_asts(fileitems, data)
@@ -884,10 +895,13 @@ class PyLinter(
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield FileItem(name, filepath, descr["basename"])
 
-    def _expand_files(self, modules: Sequence[str]) -> dict[str, ModuleDescriptionDict]:
+    def _expand_files(
+        self, files_or_modules: Sequence[str]
+    ) -> dict[str, ModuleDescriptionDict]:
         """Get modules and errors from a list of modules and handle errors."""
         result, errors = expand_modules(
-            modules,
+            files_or_modules,
+            self.config.source_roots,
             self.config.ignore,
             self.config.ignore_patterns,
             self._ignore_paths,

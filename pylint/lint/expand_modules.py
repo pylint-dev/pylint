@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 import sys
+import warnings
 from collections.abc import Sequence
 from re import Pattern
 
@@ -24,14 +25,31 @@ def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> li
 
 
 def get_python_path(filepath: str) -> str:
-    """TODO This get the python path with the (bad) assumption that there is always
-    an __init__.py.
+    # TODO: Remove deprecated function
+    warnings.warn(
+        "get_python_path has been deprecated because assumption that there's always an __init__.py "
+        "is not true since python 3.3 and is causing problems, particularly with PEP 420."
+        "Use discover_package_path and pass source root(s).",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return discover_package_path(filepath, [])
 
-    This is not true since python 3.3 and is causing problem.
-    """
-    dirname = os.path.realpath(os.path.expanduser(filepath))
+
+def discover_package_path(modulepath: str, source_roots: Sequence[str]) -> str:
+    """Discover package path from one its modules and source roots."""
+    dirname = os.path.realpath(os.path.expanduser(modulepath))
     if not os.path.isdir(dirname):
         dirname = os.path.dirname(dirname)
+
+    # Look for a source root that contains the module directory
+    for source_root in source_roots:
+        source_root = os.path.realpath(os.path.expanduser(source_root))
+        if os.path.commonpath([source_root, dirname]) == source_root:
+            return source_root
+
+    # Fall back to legacy discovery by looking for __init__.py upwards as
+    # it's the only way given that source root was not found or was not provided
     while True:
         if not os.path.exists(os.path.join(dirname, "__init__.py")):
             return dirname
@@ -64,6 +82,7 @@ def _is_ignored_file(
 # pylint: disable = too-many-locals, too-many-statements
 def expand_modules(
     files_or_modules: Sequence[str],
+    source_roots: Sequence[str],
     ignore_list: list[str],
     ignore_list_re: list[Pattern[str]],
     ignore_list_paths_re: list[Pattern[str]],
@@ -81,8 +100,8 @@ def expand_modules(
             something, ignore_list, ignore_list_re, ignore_list_paths_re
         ):
             continue
-        module_path = get_python_path(something)
-        additional_search_path = [".", module_path] + path
+        module_package_path = discover_package_path(something, source_roots)
+        additional_search_path = [".", module_package_path] + path
         if os.path.exists(something):
             # this is a file or a directory
             try:

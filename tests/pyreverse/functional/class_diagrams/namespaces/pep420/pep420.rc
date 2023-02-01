@@ -1,0 +1,3 @@
+[testoptions]
+source_roots=../..
+output_formats=mmd,dot,puml

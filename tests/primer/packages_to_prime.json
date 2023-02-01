@@ -61,7 +61,8 @@
   },
   "poetry-core": {
     "branch": "main",
-    "directories": ["src/poetry/core"],
-    "url": "https://github.com/python-poetry/poetry-core"
+    "directories": ["src"],
+    "url": "https://github.com/python-poetry/poetry-core",
+    "pylint_additional_args": ["--recursive=y", "--source-roots=src"]
   }
 }
