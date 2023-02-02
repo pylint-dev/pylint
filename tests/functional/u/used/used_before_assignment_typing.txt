@@ -1,5 +1,5 @@
-undefined-variable:22:21:22:28:MyClass.incorrect_typing_method:Undefined variable 'MyClass':UNDEFINED
-undefined-variable:27:26:27:33:MyClass.incorrect_nested_typing_method:Undefined variable 'MyClass':UNDEFINED
-undefined-variable:32:20:32:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED
-used-before-assignment:93:35:93:39:MyFourthClass.is_close:Using variable 'math' before assignment:HIGH
-used-before-assignment:105:20:105:28:VariableAnnotationsGuardedByTypeChecking:Using variable 'datetime' before assignment:HIGH
+undefined-variable:72:21:72:28:MyClass.incorrect_typing_method:Undefined variable 'MyClass':UNDEFINED
+undefined-variable:77:26:77:33:MyClass.incorrect_nested_typing_method:Undefined variable 'MyClass':UNDEFINED
+undefined-variable:82:20:82:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED
+used-before-assignment:143:35:143:39:MyFourthClass.is_close:Using variable 'math' before assignment:HIGH
+used-before-assignment:155:20:155:28:VariableAnnotationsGuardedByTypeChecking:Using variable 'datetime' before assignment:HIGH

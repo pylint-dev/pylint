@@ -1,5 +1,5 @@
 """Tests for used-before-assignment for typing related issues"""
-# pylint: disable=missing-function-docstring,ungrouped-imports
+# pylint: disable=missing-function-docstring,ungrouped-imports,invalid-name
 
 
 from typing import List, Optional, TYPE_CHECKING
@@ -9,11 +9,61 @@ if TYPE_CHECKING:
         import math
     import datetime
     import calendar
+    import zoneinfo
+    import array
+    import types
+    import enum
+    import collections
+    import copy
+    import pprint
+    import heapq
+    import bisect
+    import weakref
+    import numbers
+    import email
+    import json
+    import mailbox
+    import mimetypes
+    import base64
+    import binascii
     from urllib.request import urlopen
 elif input():
-    import calendar
+    import calendar, bisect  # pylint: disable=multiple-imports
+    if input() + 1:
+        import heapq
+    elif (enum:=None):
+        pass
+    else:
+        print(None if (weakref:='') else True)
+elif input():
+    try:
+        numbers = None if input() else 1
+        import array
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        import types
+    finally:
+        copy = None
+elif input():
+    for i in range(1,2):
+        email = None
+    else:  # pylint: disable=useless-else-on-loop
+        json = None
+    while input():
+        import mailbox
+    else:  # pylint: disable=useless-else-on-loop
+        mimetypes = None
+elif input():
+    with input() as base64:
+        pass
+    with input() as temp:
+        import binascii
 else:
     from urllib.request import urlopen
+    zoneinfo: str = ''
+    def pprint():
+        pass
+    class collections:  # pylint: disable=too-few-public-methods,missing-class-docstring
+        pass
 
 class MyClass:
     """Type annotation or default values for first level methods can't refer to their own class"""
@@ -117,16 +167,33 @@ class ConditionalImportGuardedWhenUsed:  # pylint: disable=too-few-public-method
 
 class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-variable
     """Test imports in TYPE_CHECKING if/elif/else branching"""
-    def elif_branch_body(self):
-        cal = calendar.Calendar()
-        print(calendar.Calendar())
+    def elif_branch(self) -> calendar.Calendar:
+        print(bisect)
+        return calendar.Calendar()
 
-    def elif_branch_return(self) -> calendar.Calendar:
-        pass
+    def else_branch(self) -> urlopen:
+        print(zoneinfo)
+        print(pprint())
+        print(collections())
+        return urlopen
 
-    def else_branch_body(self):
-        url_open = urlopen
-        print(urlopen)
+    def nested_if_else(self) -> enum:
+        print(heapq)
+        print(weakref)
+        return enum
 
-    def else_branch_return(self) -> urlopen:
-        pass
+    def used_in_try_except(self) -> array:
+        print(types)
+        print(copy)
+        print(numbers)
+        return array
+
+    def used_in_loops(self) -> json:
+        print(email)
+        print(mailbox)
+        print(mimetypes)
+        return json
+
+    def used_in_with(self) -> base64:
+        print(binascii)
+        return base64
