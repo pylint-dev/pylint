@@ -91,6 +91,14 @@ def test_unknown_keyword_with_messages() -> None:
         list(parse_pragma(match.group(2)))
 
 
+def test_unknown_keyword_with_missing_messages() -> None:
+    comment = "#pylint: unknown-keyword = "
+    match = OPTION_PO.search(comment)
+    assert match
+    with pytest.raises(UnRecognizedOptionError):
+        list(parse_pragma(match.group(2)))
+
+
 def test_unknown_keyword_without_messages() -> None:
     comment = "#pylint: unknown-keyword"
     match = OPTION_PO.search(comment)
