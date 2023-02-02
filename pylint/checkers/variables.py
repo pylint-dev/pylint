@@ -2036,7 +2036,7 @@ class VariablesChecker(BaseChecker):
             parent = parent.parent
         return False
 
-    # pylint: disable = too-many-statements, too-many-branches
+    # pylint: disable = too-many-branches
     @staticmethod
     def _is_variable_violation(
         node: nodes.Name,
