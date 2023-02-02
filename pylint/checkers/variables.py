@@ -2223,10 +2223,12 @@ class VariablesChecker(BaseChecker):
                     # guard or that are defined in all type checking guard branches.
                     used_in_branch = defstmt_parent.parent_of(node)
                     if defstmt_parent.has_elif_block():
-                        defined_in_or_else = utils.is_defined(node.name, defstmt_parent.orelse[0])
+                        defined_in_or_else = utils.is_defined(
+                            node.name, defstmt_parent.orelse[0]
+                        )
                     else:
                         defined_in_or_else = any(
-                            utils.is_defined(node.name, content) 
+                            utils.is_defined(node.name, content)
                             for content in defstmt_parent.orelse
                         )
 
