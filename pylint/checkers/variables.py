@@ -442,14 +442,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Using the global statement",  # W0121
         "global-statement",
         'Used when you use the "global" statement to update a global '
-        "variable. Pylint just try to discourage this "
-        "usage. That doesn't mean you cannot use it !",
+        "variable. Pylint discourages its usage. That doesn't mean you cannot "
+        "use it!",
     ),
     "W0604": (
         "Using the global statement at the module level",  # W0103
         "global-at-module-level",
         'Used when you use the "global" statement at the module level '
-        "since it has no effect",
+        "since it has no effect.",
     ),
     "W0611": (
         "Unused %s",
