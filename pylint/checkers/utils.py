@@ -2212,7 +2212,9 @@ def is_defined(name: str, node: nodes.NodeNG) -> bool:
         )
 
     if isinstance(node, nodes.ExceptHandler):
-        is_defined_so_far = isinstance(node.name, nodes.AssignName) and node.name.name == name
+        is_defined_so_far = (
+            isinstance(node.name, nodes.AssignName) and node.name.name == name
+        )
 
     if isinstance(node, (nodes.ClassDef, nodes.FunctionDef)):
         is_defined_so_far = node.name == name
