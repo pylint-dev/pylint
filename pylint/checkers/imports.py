@@ -176,7 +176,7 @@ def _make_tree_defs(mod_files_list: ItemsView[str, set[str]]) -> _ImportTree:
             assert isinstance(node[0], dict)
             node = node[0].setdefault(prefix, ({}, []))  # type: ignore[arg-type,assignment]
         assert isinstance(node[1], list)
-        node[1] += files
+        node[1].extend(files)
     return tree_defs
 
 
