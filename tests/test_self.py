@@ -1293,6 +1293,15 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             args, expected_output=expected, unexpected_output=not_expected
         )
 
+    def test_no_name_in_module(self) -> None:
+        """Test that a package with both a variable name `errors` and a module `errors`
+        does not emit a no-name-in-module msg."""
+        module = join(HERE, "regrtest_data", "test_no_name_in_module.py")
+        unexpected = "No name 'errors' in module 'list' (no-name-in-module)"
+        self._test_output(
+            [module, "-E"], expected_output="", unexpected_output=unexpected
+        )
+
 
 class TestCallbackOptions:
     """Test for all callback options we support."""
