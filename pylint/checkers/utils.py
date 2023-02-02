@@ -2197,13 +2197,11 @@ def is_defined(name: str, node: nodes.NodeNG) -> bool:
     """Checks whether a node defines the given variable name."""
     is_defined_so_far = False
 
-    if (isinstance(node, nodes.NamedExpr) 
-        and node.target.name == name
-    ):
+    if isinstance(node, nodes.NamedExpr) and node.target.name == name:
         return True
 
-    if (isinstance(node, (nodes.Import, nodes.ImportFrom))
-        and any(node_name[0] == name for node_name in node.names)
+    if isinstance(node, (nodes.Import, nodes.ImportFrom)) and any(
+        node_name[0] == name for node_name in node.names
     ):
         return True
 
