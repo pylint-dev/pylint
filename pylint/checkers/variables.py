@@ -2220,7 +2220,7 @@ class VariablesChecker(BaseChecker):
                     )
                 ):
                     # Exempt those definitions that are used inside the type checking
-                    # guard or that are defined in all type checking guard branches.
+                    # guard or that are defined in any elif/else type checking guard branches.
                     used_in_branch = defstmt_parent.parent_of(node)
                     if defstmt_parent.has_elif_block():
                         defined_in_or_else = utils.is_defined(
