@@ -303,6 +303,7 @@ def is_defined_in_scope(
     return defnode_in_scope(var_node, varname, scope) is not None
 
 
+# pylint: disable = too-many-branches
 def defnode_in_scope(
     var_node: nodes.NodeNG,
     varname: str,
@@ -627,6 +628,7 @@ def collect_string_fields(format_string: str) -> Iterable[str | None]:
     It handles nested fields as well.
     """
     formatter = string.Formatter()
+    # pylint: disable = too-many-try-statements
     try:
         parseiterator = formatter.parse(format_string)
         for result in parseiterator:
@@ -729,7 +731,7 @@ def is_attr_private(attrname: str) -> Match[str] | None:
     """Check that attribute name is private (at least two leading underscores,
     at most one trailing underscore).
     """
-    regex = re.compile("^_{2,}.*[^_]+_?$")
+    regex = re.compile("^_{2,10}.*[^_]+_?$")
     return regex.match(attrname)
 
 
@@ -1374,6 +1376,7 @@ def safe_infer(
     if value is not astroid.Uninferable:
         inferred_types.add(_get_python_type_of_node(value))
 
+    # pylint: disable = too-many-try-statements
     try:
         for inferred in infer_gen:
             inferred_type = _get_python_type_of_node(inferred)
@@ -2050,6 +2053,7 @@ def is_hashable(node: nodes.NodeNG) -> bool:
 
     When finding ambiguity, return True.
     """
+    # pylint: disable = too-many-try-statements
     try:
         for inferred in node.infer():
             if inferred is astroid.Uninferable or isinstance(inferred, nodes.ClassDef):
@@ -2066,22 +2070,6 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         return True
 
 
-def get_full_name_of_attribute(node: nodes.Attribute | nodes.AssignAttr) -> str:
-    """Return the full name of an attribute and the classes it belongs to.
-
-    For example: "Class1.Class2.attr"
-    """
-    parent = node.parent
-    ret = node.attrname or ""
-    while isinstance(parent, (nodes.Attribute, nodes.Name)):
-        if isinstance(parent, nodes.Attribute):
-            ret = f"{parent.attrname}.{ret}"
-        else:
-            ret = f"{parent.name}.{ret}"
-        parent = parent.parent
-    return ret
-
-
 def _is_target_name_in_binop_side(
     target: nodes.AssignName | nodes.AssignAttr, side: nodes.NodeNG | None
 ) -> bool:
@@ -2091,7 +2079,7 @@ def _is_target_name_in_binop_side(
             return target.name == side.name  # type: ignore[no-any-return]
         return False
     if isinstance(side, nodes.Attribute) and isinstance(target, nodes.AssignAttr):
-        return get_full_name_of_attribute(target) == get_full_name_of_attribute(side)
+        return target.as_string() == side.as_string()  # type: ignore[no-any-return]
     return False
 
 
@@ -2207,7 +2195,6 @@ def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
 
 def is_defined(name: str, node: nodes.NodeNG) -> bool:
     """Checks whether a node defines the given variable name"""
-    print(node)
     is_defined_so_far = False
 
     if isinstance(node, nodes.NamedExpr):
@@ -2245,3 +2232,59 @@ def is_defined(name: str, node: nodes.NodeNG) -> bool:
         )
 
     return is_defined_so_far or any(is_defined(name, child) for child in node.get_children())
+
+
+def get_inverse_comparator(op: str) -> str:
+    """Returns the inverse comparator given a comparator.
+
+    E.g. when given "==", returns "!="
+
+    :param str op: the comparator to look up.
+
+    :returns: The inverse of the comparator in string format
+    :raises KeyError: if input is not recognized as a comparator
+    """
+    return {
+        "==": "!=",
+        "!=": "==",
+        "<": ">=",
+        ">": "<=",
+        "<=": ">",
+        ">=": "<",
+        "in": "not in",
+        "not in": "in",
+        "is": "is not",
+        "is not": "is",
+    }[op]
+
+
+def not_condition_as_string(
+    test_node: nodes.Compare | nodes.Name | nodes.UnaryOp | nodes.BoolOp | nodes.BinOp,
+) -> str:
+    msg = f"not {test_node.as_string()}"
+    if isinstance(test_node, nodes.UnaryOp):
+        msg = test_node.operand.as_string()
+    elif isinstance(test_node, nodes.BoolOp):
+        msg = f"not ({test_node.as_string()})"
+    elif isinstance(test_node, nodes.Compare):
+        lhs = test_node.left
+        ops, rhs = test_node.ops[0]
+        lower_priority_expressions = (
+            nodes.Lambda,
+            nodes.UnaryOp,
+            nodes.BoolOp,
+            nodes.IfExp,
+            nodes.NamedExpr,
+        )
+        lhs = (
+            f"({lhs.as_string()})"
+            if isinstance(lhs, lower_priority_expressions)
+            else lhs.as_string()
+        )
+        rhs = (
+            f"({rhs.as_string()})"
+            if isinstance(rhs, lower_priority_expressions)
+            else rhs.as_string()
+        )
+        msg = f"{lhs} {get_inverse_comparator(ops)} {rhs}"
+    return msg

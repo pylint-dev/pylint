@@ -447,8 +447,9 @@ Exceptions checker Messages
   Used when an except catches a type that was already caught by a previous
   handler.
 :broad-exception-caught (W0718): *Catching too general exception %s*
-  Used when an except catches a too general exception, possibly burying
-  unrelated errors.
+  If you use a naked ``except Exception:`` clause, you might end up catching
+  exceptions other than the ones you expect to catch. This can hide bugs or
+  make it harder to debug programs when unrelated errors are hidden.
 :raise-missing-from (W0707): *Consider explicitly re-raising using %s'%s from %s'*
   Python's exception chaining shows the traceback of the current exception, but
   also of the original exception. When you raise a new exception after another
@@ -467,9 +468,17 @@ Exceptions checker Messages
   valid for the exception in question. Usually emitted when having binary
   operations between exceptions in except handlers.
 :bare-except (W0702): *No exception type(s) specified*
-  Used when an except clause doesn't specify exceptions type to catch.
+  A bare ``except:`` clause will catch ``SystemExit`` and ``KeyboardInterrupt``
+  exceptions, making it harder to interrupt a program with ``Control-C``, and
+  can disguise other problems. If you want to catch all exceptions that signal
+  program errors, use ``except Exception:`` (bare except is equivalent to
+  ``except BaseException:``).
 :broad-exception-raised (W0719): *Raising too general exception: %s*
-  Used when an except raises a too general exception.
+  Raising exceptions that are too generic force you to catch exceptions
+  generically too. It will force you to use a naked ``except Exception:``
+  clause. You might then end up catching exceptions other than the ones you
+  expect to catch. This can hide bugs or make it harder to debug programs when
+  unrelated errors are hidden.
 :try-except-raise (W0706): *The except handler raises immediately*
   Used when an except handler uses raise as its first or only operator. This is
   useless because it raises back the exception immediately. Remove the raise
@@ -634,6 +643,10 @@ See also :ref:`method_args checker's options' documentation <method_args-options
 
 Method Args checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:positional-only-arguments-expected (E3102): *`%s()` got some positional-only arguments passed as keyword arguments: %s*
+  Emitted when positional-only arguments have been passed as keyword arguments.
+  Remove the keywords for the affected arguments in the function call. This
+  message can't be emitted when using Python < 3.8.
 :missing-timeout (W3101): *Missing timeout argument for method '%s' can cause your program to hang indefinitely*
   Used when a method needs a 'timeout' parameter in order to avoid waiting for
   a long time. If no timeout is specified explicitly the default value is used.
@@ -968,6 +981,11 @@ Stdlib checker Messages
   instance will never need to be garbage collected (singleton) it is
   recommended to refactor code to avoid this pattern or add a maxsize to the
   cache. The default value for maxsize is 128.
+:subprocess-run-check (W1510): *'subprocess.run' used without explicitly defining the value for 'check'.*
+  The ``check`` keyword is set to False by default. It means the process
+  launched by ``subprocess.run`` can exit with a non-zero exit code and fail
+  silently. It's better to set it explicitly to make clear what the error-
+  handling behavior is.
 :forgotten-debug-statement (W1515): *Leaving functions creating breakpoints in production code is not recommended*
   Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be
   removed from code that is not actively being debugged.
@@ -1001,10 +1019,6 @@ Stdlib checker Messages
   your application. The child process could deadlock before exec is called. If
   you must use it, keep it trivial! Minimize the number of libraries you call
   into. See https://docs.python.org/3/library/subprocess.html#popen-constructor
-:subprocess-run-check (W1510): *Using subprocess.run without explicitly set `check` is not recommended.*
-  The check parameter should always be used with explicitly set `check` keyword
-  to make clear what the error-handling behavior is. See
-  https://docs.python.org/3/library/subprocess.html#subprocess.run
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
   the target function being passed as a kwarg or as a second argument. By
@@ -1349,14 +1363,15 @@ Variables checker Messages
 :unused-variable (W0612): *Unused variable %r*
   Used when a variable is defined but not used.
 :global-variable-not-assigned (W0602): *Using global for %r but no assignment is done*
-  Used when a variable is defined through the "global" statement but no
-  assignment to this variable is done.
+  When a variable defined in the global scope is modified in an inner scope, the
+  'global' keyword is required in the inner scope only if there is an
+  assignment operation done in the inner scope.
 :undefined-loop-variable (W0631): *Using possibly undefined loop variable %r*
   Used when a loop variable (i.e. defined by a for loop or a list comprehension
   or a generator expression) is used outside the loop.
 :global-statement (W0603): *Using the global statement*
   Used when you use the "global" statement to update a global variable. Pylint
-  just try to discourage this usage. That doesn't mean you cannot use it !
+  discourages its usage. That doesn't mean you cannot use it!
 :global-at-module-level (W0604): *Using the global statement at the module level*
   Used when you use the "global" statement at the module level since it has no
-  effect
+  effect.

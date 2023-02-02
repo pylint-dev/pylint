@@ -13,6 +13,7 @@ Pylint provides the following optional plugins:
 - :ref:`pylint.extensions.comparetozero`
 - :ref:`pylint.extensions.comparison_placement`
 - :ref:`pylint.extensions.confusing_elif`
+- :ref:`pylint.extensions.consider_refactoring_into_while_condition`
 - :ref:`pylint.extensions.consider_ternary_expression`
 - :ref:`pylint.extensions.dict_init_mutate`
 - :ref:`pylint.extensions.docparams`
@@ -161,6 +162,22 @@ Consider-Using-Any-Or-All checker Messages
 :consider-using-any-or-all (C0501): *`for` loop could be `%s`*
   A for loop that checks for a condition and return a bool can be replaced with
   any or all.
+
+
+.. _pylint.extensions.consider_refactoring_into_while_condition:
+
+Consider Refactoring Into While checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.consider_refactoring_into_while_condition``.
+Verbatim name of the checker is ``consider_refactoring_into_while``.
+
+Consider Refactoring Into While checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:consider-refactoring-into-while-condition (R3501): *Consider using 'while %s' instead of 'while %s:' an 'if', and a 'break'*
+  Emitted when `while True:` loop is used and the first statement is a break
+  condition. The ``if / break`` construct can be removed if the check is
+  inverted and moved to the ``while`` statement.
 
 
 .. _pylint.extensions.consider_ternary_expression:

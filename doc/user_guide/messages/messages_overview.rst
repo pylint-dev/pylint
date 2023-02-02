@@ -137,6 +137,7 @@ All messages in the error category:
    error/not-context-manager
    error/not-in-loop
    error/notimplemented-raised
+   error/positional-only-arguments-expected
    error/potential-index-error
    error/raising-bad-type
    error/raising-non-exception
@@ -469,6 +470,7 @@ All messages in the refactor category:
    refactor/confusing-consecutive-elif
    refactor/consider-alternative-union-syntax
    refactor/consider-merging-isinstance
+   refactor/consider-refactoring-into-while-condition
    refactor/consider-swap-variables
    refactor/consider-using-alias
    refactor/consider-using-assignment-expr

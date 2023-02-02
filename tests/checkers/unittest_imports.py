@@ -114,3 +114,69 @@ class TestImportsChecker(CheckerTestCase):
         )
         with self.assertAddsMessages(msg):
             self.checker.visit_importfrom(import_from)
+
+    @staticmethod
+    def test_preferred_module(capsys: CaptureFixture[str]) -> None:
+        """
+        Tests preferred-module configuration option
+        """
+        # test preferred-modules case with base module import
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'preferred_module')}",
+                "-d all",
+                "-e preferred-module",
+                # prefer sys instead of os (for triggering test)
+                "--preferred-modules=os:sys",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+
+        # assert that we saw preferred-modules triggered
+        assert "Prefer importing 'sys' instead of 'os'" in output
+        # assert there were no errors
+        assert len(errors) == 0
+
+    @staticmethod
+    def test_allow_reexport_package(capsys: CaptureFixture[str]) -> None:
+        """Test --allow-reexport-from-package option."""
+
+        # Option disabled - useless-import-alias should always be emitted
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'allow_reexport')}",
+                "--allow-reexport-from-package=no",
+                "-sn",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+        assert len(output.split("\n")) == 5
+        assert (
+            "__init__.py:1:0: C0414: Import alias does not rename original package (useless-import-alias)"
+            in output
+        )
+        assert (
+            "file.py:2:0: C0414: Import alias does not rename original package (useless-import-alias)"
+            in output
+        )
+        assert len(errors) == 0
+
+        # Option enabled - useless-import-alias should only be emitted for 'file.py'
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'allow_reexport')}",
+                "--allow-reexport-from-package=yes",
+                "-sn",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+        assert len(output.split("\n")) == 3
+        assert "__init__.py" not in output
+        assert (
+            "file.py:2:0: C0414: Import alias does not rename original package (useless-import-alias)"
+            in output
+        )
+        assert len(errors) == 0

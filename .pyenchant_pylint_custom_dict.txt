@@ -329,6 +329,7 @@ toplevel
 towncrier
 tp
 truthness
+truthy
 truthey
 tryexcept
 txt

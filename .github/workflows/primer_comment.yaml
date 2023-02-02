@@ -29,10 +29,6 @@ jobs:
     name: Run
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v3.6.0
-        with:
-          node-version: 16
-      - run: npm install @octokit/rest
       - name: Check out code from GitHub
         uses: actions/checkout@v3.3.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
@@ -45,21 +41,18 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.2.3
+        uses: actions/cache@v3.2.4
         with:
           path: venv
+          fail-on-cache-miss: true
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
-            'requirements_test.txt', 'requirements_test_min.txt') }}
-      - name: Fail job if Python cache restore failed
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: |
-          echo "Failed to restore Python venv from cache"
-          exit 1
+            'requirements_test.txt', 'requirements_test_min.txt',
+            'requirements_test_pre_commit.txt') }}
 
       - name: Download outputs
-        uses: actions/github-script@v6.3.3
+        uses: actions/github-script@v6.4.0
         with:
           script: |
             // Download workflow pylint output
@@ -114,7 +107,7 @@ jobs:
           --new-file=output_${{ steps.python.outputs.python-version }}_pr.txt
       - name: Post comment
         id: post-comment
-        uses: actions/github-script@v6.3.3
+        uses: actions/github-script@v6.4.0
         with:
           script: |
             const fs = require('fs')

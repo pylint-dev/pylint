@@ -50,21 +50,18 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
-      - uses: actions/setup-node@v3.6.0
-        with:
-          node-version: 16
-      - run: npm install @octokit/rest
 
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.2.3
+        uses: actions/cache@v3.2.4
         with:
           path: venv
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
-            'requirements_test.txt', 'requirements_test_min.txt') }}
+            'requirements_test.txt', 'requirements_test_min.txt',
+            'requirements_test_pre_commit.txt') }}
       # Create environment must match step in 'Primer / Main'
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
@@ -77,14 +74,12 @@ jobs:
       # Cache primer packages
       - name: Download last 'main' run info
         id: download-main-run
-        uses: actions/github-script@v6.3.3
+        uses: actions/github-script@v6.4.0
         with:
           script: |
             // Download 'main' pylint output
             const fs = require('fs');
-            const { Octokit } = require("@octokit/rest");
-            const octokit = new Octokit({});
-            const runs = await octokit.rest.actions.listWorkflowRuns({
+            const runs = await github.rest.actions.listWorkflowRuns({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: ".github/workflows/primer_run_main.yaml",
@@ -137,7 +132,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.2.3
+        uses: actions/cache@v3.2.4
         with:
           path: tests/.pylint_primer_tests/
           key: >-

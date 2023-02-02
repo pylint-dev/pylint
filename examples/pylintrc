@@ -350,6 +350,9 @@ single-line-if-stmt=no
 # one.
 allow-any-import-level=
 
+# Allow explicit reexports by alias from a package __init__.
+allow-reexport-from-package=no
+
 # Allow wildcard imports from modules that define __all__.
 allow-wildcard-with-all=no
 

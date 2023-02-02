@@ -52,12 +52,12 @@ get_mid = Foo.class_str.split(',')[-2]
 
 
 # Test with accessors
-bar = Foo()
-get_first = bar.get_string().split(',')[0]  # [use-maxsplit-arg]
-get_last = bar.get_string().split(',')[-1]  # [use-maxsplit-arg]
+test = Foo()
+get_first = test.get_string().split(',')[0]  # [use-maxsplit-arg]
+get_last = test.get_string().split(',')[-1]  # [use-maxsplit-arg]
 
-get_mid = bar.get_string().split(',')[1]
-get_mid = bar.get_string().split(',')[-2]
+get_mid = test.get_string().split(',')[1]
+get_mid = test.get_string().split(',')[-2]
 
 
 # Test with iterating over strings
@@ -94,3 +94,11 @@ for j in range(5):
 # Test for crash when sep is given by keyword
 # https://github.com/PyCQA/pylint/issues/5737
 get_last = SEQ.split(sep=None)[-1]  # [use-maxsplit-arg]
+
+
+class FalsePositive4857:
+    def split(self, point):
+        return point
+
+obj = FalsePositive4857()
+obj = obj.split((0, 0))[0]

@@ -474,6 +474,7 @@ class Similar:
         )
         return report
 
+    # pylint: disable = too-many-locals
     def _find_common(
         self, lineset1: LineSet, lineset2: LineSet
     ) -> Generator[Commonality, None, None]:

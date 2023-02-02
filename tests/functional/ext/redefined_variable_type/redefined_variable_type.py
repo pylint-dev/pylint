@@ -83,3 +83,28 @@ def func2(x):
     else:
         var4 = 2.
         var4 = 'baz'  # [redefined-variable-type]
+
+
+# Test that ``redefined-variable-type`` is not emitted
+# https://github.com/PyCQA/pylint/issues/8120
+
+async def test_a():
+    data = [
+        {'test': 1},
+        {'test': 2},
+    ]
+    return data
+
+async def test_b():
+    data = {'test': 1}
+    return data
+
+
+class AsyncFunctions:
+    async def funtion1(self):
+        potato = 1
+        print(potato)
+
+    async def funtion2(self):
+        potato = {}
+        print(potato)

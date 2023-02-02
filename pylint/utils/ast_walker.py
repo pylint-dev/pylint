@@ -82,6 +82,7 @@ class ASTWalker:
         visit_events: Sequence[AstCallback] = self.visit_events.get(cid, ())
         leave_events: Sequence[AstCallback] = self.leave_events.get(cid, ())
 
+        # pylint: disable = too-many-try-statements
         try:
             if astroid.is_statement:
                 self.nbstatements += 1

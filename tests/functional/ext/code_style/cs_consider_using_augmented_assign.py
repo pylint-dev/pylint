@@ -1,6 +1,6 @@
 """Tests for consider-using-augmented-assign."""
 
-# pylint: disable=invalid-name,too-few-public-methods,import-error,consider-using-f-string
+# pylint: disable=invalid-name,too-few-public-methods,import-error,consider-using-f-string,missing-docstring
 
 from unknown import Unknown
 
@@ -119,3 +119,17 @@ x = 3 >= x
 
 x = x <= 3
 x = 3 <= x
+
+
+# https://github.com/PyCQA/pylint/issues/8086
+# consider-using-augmented-assign should only be flagged
+# if names attribute names match exactly.
+
+class A:
+    def __init__(self) -> None:
+        self.a = 1
+        self.b = A()
+
+    def test(self) -> None:
+        self.a = self.a + 1  # [consider-using-augmented-assign]
+        self.b.a = self.a + 1  # Names don't match!

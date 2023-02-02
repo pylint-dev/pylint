@@ -24,3 +24,4 @@ consider-using-augmented-assign:104:0:104:9::Use '&=' to do an augmented assign 
 consider-using-augmented-assign:105:0:105:9::Use '&=' to do an augmented assign directly:INFERENCE
 consider-using-augmented-assign:108:0:108:9::Use '|=' to do an augmented assign directly:INFERENCE
 consider-using-augmented-assign:109:0:109:9::Use '|=' to do an augmented assign directly:INFERENCE
+consider-using-augmented-assign:134:8:134:27:A.test:Use '+=' to do an augmented assign directly:INFERENCE

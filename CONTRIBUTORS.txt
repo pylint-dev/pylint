@@ -21,10 +21,12 @@ Maintainers
 - Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
 - Matus Valo <matusvalo@users.noreply.github.com>
 - Andreas Finkler <3929834+DudeNr33@users.noreply.github.com>
+- Dani Alcala <112832187+clavedeluna@users.noreply.github.com>
 - Łukasz Rogalski <rogalski.91@gmail.com>
 - Ashley Whetter <ashley@awhetter.co.uk>
 - Bryce Guinta <bryce.paul.guinta@gmail.com>
 - Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
+- Nick Drozd <nicholasdrozd@gmail.com>: performance improvements to astroid
 - Dimitri Prybysh <dmand@yandex.ru>
   * multiple-imports, not-iterable, not-a-mapping, various patches.
 - Roy Williams <roy.williams.iii@gmail.com> (Lyft)
@@ -51,7 +53,6 @@ contributors:
   * wrong-spelling-in-comment
   * wrong-spelling-in-docstring
   * parallel execution on multiple CPUs
-- Dani Alcala <112832187+clavedeluna@users.noreply.github.com>
 - Julthep Nandakwang <julthep@nandakwang.com>
 - Bruno Daniel <bruno.daniel@blue-yonder.com>: check_docs extension.
 - Sushobhit <31987769+sushobhit27@users.noreply.github.com> (sushobhit27)
@@ -76,7 +77,6 @@ contributors:
   * ungrouped-imports,
   * wrong-import-position
   * redefined-variable-type
-- Nick Drozd <nicholasdrozd@gmail.com>: performance improvements to astroid
 - Harutaka Kawamura <hkawamura0130@gmail.com>
 - Alexandre Fayolle <alexandre.fayolle@logilab.fr> (Logilab): TkInter gui, documentation, debian support
 - Ville Skyttä <ville.skytta@iki.fi>
@@ -130,6 +130,7 @@ contributors:
 - Pavel Roskin <proski@gnu.org>
 - David Gilman <davidgilman1@gmail.com>
 - へーさん <hira9603859504@gmail.com>
+- Yilei "Dolee" Yang <yileiyang@google.com>
 - Thomas Hisch <t.hisch@gmail.com>
 - Marianna Polatoglou <mpolatoglou@bloomberg.net>: minor contribution for wildcard import check
 - Manuel Vázquez Acosta <mva.led@gmail.com>
@@ -151,7 +152,6 @@ contributors:
   * Added new extension which detects comparing integers to zero,
   * Added new useless-return checker,
   * Added new try-except-raise checker
-- Yilei "Dolee" Yang <yileiyang@google.com>
 - Téo Bouvard <teobouvard@gmail.com>
 - Mihai Balint <balint.mihai@gmail.com>
 - Mark Bell <mark00bell@googlemail.com>
@@ -176,6 +176,7 @@ contributors:
 - Paul Lichtenberger <paul.lichtenberger.rgbg@gmail.com>
 - Or Bahari <or.ba402@gmail.com>
 - Mr. Senko <atodorov@mrsenko.com>
+- Mike Frysinger <vapier@gmail.com>
 - Martin von Gagern <gagern@google.com> (Google): Added 'raising-format-tuple' warning.
 - Martin Vielsmaier <martin@vielsmaier.net>
 - Martin Pool <mbp@google.com> (Google):
@@ -207,7 +208,6 @@ contributors:
 - Nicolas Dickreuter <dickreuter@gmail.com>
 - Nick Bastin <nick.bastin@gmail.com>
 - Nathaniel Manista <nathaniel@google.com>: suspicious lambda checking
-- Mike Frysinger <vapier@gmail.com>
 - Maksym Humetskyi <Humetsky@gmail.com> (mhumetskyi)
   * Fixed ignored empty functions by similarities checker with "ignore-signatures" option enabled
   * Ignore function decorators signatures as well by similarities checker with "ignore-signatures" option enabled
@@ -272,6 +272,7 @@ contributors:
 - Justin Li <justinnhli@gmail.com>
 - John Kirkham <jakirkham@gmail.com>
 - Jens H. Nielsen <Jens.Nielsen@microsoft.com>
+- James Addison <55152140+jayaddison@users.noreply.github.com>
 - Ioana Tagirta <ioana.tagirta@gmail.com>: fix bad thread instantiation check
 - Ikraduya Edian <ikraduya@gmail.com>: Added new checks 'consider-using-generator' and 'use-a-generator'.
 - Hugues Bruant <hugues.bruant@affirm.com>
@@ -471,7 +472,6 @@ contributors:
 - James M. Allen <james.m.allen@gmail.com>
 - James Lingard <jchl@aristanetworks.com>
 - James Broadhead <jamesbroadhead@gmail.com>
-- James Addison <55152140+jayaddison@users.noreply.github.com>
 - Jakub Kulík <Kulikjak@gmail.com>
 - Jakob Normark <jakobnormark@gmail.com>
 - Jake Lishman <jake@binhbar.com>
@@ -506,6 +506,7 @@ contributors:
 - Denis Laxalde <denis.laxalde@logilab.fr>
 - David Lawson <dmrlawson@gmail.com>
 - David Cain <davidjosephcain@gmail.com>
+- Dave Bunten <ekgto445@gmail.com>
 - Danny Hermes <daniel.j.hermes@gmail.com>
 - Daniele Procida <daniele@vurt.org>
 - Daniela Plascencia <daplascen@gmail.com>

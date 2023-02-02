@@ -1,3 +1,0 @@
-``trailing-whitespaces`` is no longer reported within strings.
-
-Closes #3822

@@ -781,6 +781,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
 
     @staticmethod
     def test_modify_sys_path() -> None:
+        # pylint: disable = too-many-statements
         cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
         default_paths = [
             "/usr/local/lib/python39.zip",

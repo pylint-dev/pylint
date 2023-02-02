@@ -44,7 +44,12 @@ DEFAULT_PATTERNS = {
 }
 
 BUILTIN_PROPERTY = "builtins.property"
-TYPING_TYPE_VAR_QNAME = "typing.TypeVar"
+TYPE_VAR_QNAME = frozenset(
+    (
+        "typing.TypeVar",
+        "typing_extensions.TypeVar",
+    )
+)
 
 
 class TypeVarVariance(Enum):
@@ -439,6 +444,11 @@ class NameChecker(_BasicChecker):
                     inferred_assign_type, nodes.Const
                 ):
                     self._check_name("const", node.name, node)
+                else:
+                    self._check_name(
+                        "variable", node.name, node, disallowed_check_only=True
+                    )
+
             # Check names defined in AnnAssign nodes
             elif isinstance(
                 assign_type, nodes.AnnAssign
@@ -515,6 +525,7 @@ class NameChecker(_BasicChecker):
         name: str,
         node: nodes.NodeNG,
         confidence: interfaces.Confidence = interfaces.HIGH,
+        disallowed_check_only: bool = False,
     ) -> None:
         """Check for a name using the type's regexp."""
 
@@ -529,7 +540,9 @@ class NameChecker(_BasicChecker):
             return
         if self._name_disallowed_by_regex(name=name):
             self.linter.stats.increase_bad_name(node_type, 1)
-            self.add_message("disallowed-name", node=node, args=name)
+            self.add_message(
+                "disallowed-name", node=node, args=name, confidence=interfaces.HIGH
+            )
             return
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)
@@ -541,7 +554,11 @@ class NameChecker(_BasicChecker):
             warnings = bad_name_group.setdefault(match.lastgroup, [])  # type: ignore[union-attr, arg-type]
             warnings.append((node, node_type, name, confidence))
 
-        if match is None and not _should_exempt_from_invalid_name(node):
+        if (
+            match is None
+            and not disallowed_check_only
+            and not _should_exempt_from_invalid_name(node)
+        ):
             self._raise_name_warning(None, node, node_type, name, confidence)
 
         # Check TypeVar names for variance suffixes
@@ -555,7 +572,7 @@ class NameChecker(_BasicChecker):
             inferred = utils.safe_infer(node.func)
             if (
                 isinstance(inferred, astroid.ClassDef)
-                and inferred.qname() == TYPING_TYPE_VAR_QNAME
+                and inferred.qname() in TYPE_VAR_QNAME
             ):
                 return True
         return False

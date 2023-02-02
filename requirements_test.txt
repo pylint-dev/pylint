@@ -1,7 +1,6 @@
 -r requirements_test_pre_commit.txt
 -r requirements_test_min.txt
-coverage~=7.0
-pre-commit~=2.21
+coverage~=7.1
 tbump~=6.9.0
 contributors-txt>=1.0.0
 pytest-cov~=4.0

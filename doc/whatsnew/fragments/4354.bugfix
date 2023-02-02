@@ -1,3 +1,0 @@
-Fix ignored files being linted when passed on stdin.
-
-Closes #4354

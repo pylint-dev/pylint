@@ -275,7 +275,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def process_module(self, node: nodes.Module) -> None:
         pass
 
-    # pylint: disable-next=too-many-return-statements
+    # pylint: disable-next = too-many-return-statements, too-many-branches
     def _check_keyword_parentheses(
         self, tokens: list[tokenize.TokenInfo], start: int
     ) -> None:

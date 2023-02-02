@@ -440,7 +440,7 @@ def _emit_no_member(
           AttributeError, Exception or bare except.
         * The node is guarded behind and `IF` or `IFExp` node
     """
-    # pylint: disable=too-many-return-statements
+    # pylint: disable = too-many-return-statements, too-many-branches
     if node_ignores_exception(node, AttributeError):
         return False
     if ignored_none and isinstance(owner, nodes.Const) and owner.value is None:
@@ -499,16 +499,7 @@ def _emit_no_member(
                 return False
         except astroid.NotFoundError:
             return True
-    if (
-        owner.parent
-        and isinstance(owner.parent, nodes.ClassDef)
-        and owner.parent.name == "EnumMeta"
-        and owner_name == "__members__"
-        and node.attrname in {"items", "values", "keys"}
-    ):
-        # Avoid false positive on Enum.__members__.{items(), values, keys}
-        # See https://github.com/PyCQA/pylint/issues/4123
-        return False
+
     # Don't emit no-member if guarded behind `IF` or `IFExp`
     #   * Walk up recursively until if statement is found.
     #   * Check if condition can be inferred as `Const`,
@@ -680,7 +671,11 @@ def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool
     statement = node.statement(future=True)
     variadics = []
 
-    if isinstance(scope, nodes.Lambda) and not isinstance(scope, nodes.FunctionDef):
+    if (
+        isinstance(scope, nodes.Lambda)
+        and not isinstance(scope, nodes.FunctionDef)
+        or isinstance(statement, nodes.With)
+    ):
         variadics = list(node.keywords or []) + node.kwargs
     elif isinstance(statement, (nodes.Return, nodes.Expr, nodes.Assign)) and isinstance(
         statement.value, nodes.Call
@@ -1040,6 +1035,7 @@ accessed. Python regular expressions are accepted.",
     def visit_delattr(self, node: nodes.DelAttr) -> None:
         self.visit_attribute(node)
 
+    # pylint: disable = too-many-branches
     @only_required_for_messages("no-member", "c-extension-no-member")
     def visit_attribute(
         self, node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr
@@ -1404,7 +1400,7 @@ accessed. Python regular expressions are accepted.",
         if _is_invalid_isinstance_type(second_arg):
             self.add_message("isinstance-second-argument-not-valid-type", node=node)
 
-    # pylint: disable=too-many-branches,too-many-locals
+    # pylint: disable = too-many-branches, too-many-locals, too-many-statements
     def visit_call(self, node: nodes.Call) -> None:
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.
@@ -1612,7 +1608,12 @@ accessed. Python regular expressions are accepted.",
                 and not has_no_context_keywords_variadic
                 and not overload_function
             ):
-                self.add_message("missing-kwoa", node=node, args=(name, callable_name))
+                self.add_message(
+                    "missing-kwoa",
+                    node=node,
+                    args=(name, callable_name),
+                    confidence=INFERENCE,
+                )
 
     @staticmethod
     def _keyword_argument_is_in_all_decorator_returns(

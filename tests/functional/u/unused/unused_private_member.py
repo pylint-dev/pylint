@@ -320,8 +320,8 @@ class FalsePositive4756a:
     def __bar(self, x):
         print(x)
     fizz = partialmethod(__bar, 'fizz')
-foo = FalsePositive4756a()
-foo.fizz()
+test = FalsePositive4756a()
+test.fizz()
 
 class FalsePositive4756b:
     def __get_prop(self):

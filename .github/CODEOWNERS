@@ -26,15 +26,6 @@ tests/pyreverse/*    @DudeNr33
 
 ### Extensions
 
-# For any all
-pylint/extensions/for_any_all.py @areveny
-tests/functional/ext/for_any_all/* @areveny
-
-# Private import
-pylint/extensions/private_import.py @areveny
-tests/extensions/test_private_import.py @areveny
-tests/functional/ext/private_import/* @areveny
-
 # CodeStyle
 pylint/extensions/code_style.* @cdce8p
 tests/functional/ext/code_style/* @cdce8p

@@ -434,21 +434,22 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0602": (
         "Using global for %r but no assignment is done",
         "global-variable-not-assigned",
-        'Used when a variable is defined through the "global" statement '
-        "but no assignment to this variable is done.",
+        "When a variable defined in the global scope is modified in an inner scope, "
+        "the 'global' keyword is required in the inner scope only if there is an "
+        "assignment operation done in the inner scope.",
     ),
     "W0603": (
         "Using the global statement",  # W0121
         "global-statement",
         'Used when you use the "global" statement to update a global '
-        "variable. Pylint just try to discourage this "
-        "usage. That doesn't mean you cannot use it !",
+        "variable. Pylint discourages its usage. That doesn't mean you cannot "
+        "use it!",
     ),
     "W0604": (
         "Using the global statement at the module level",  # W0103
         "global-at-module-level",
         'Used when you use the "global" statement at the module level '
-        "since it has no effect",
+        "since it has no effect.",
     ),
     "W0611": (
         "Unused %s",
@@ -1479,7 +1480,7 @@ class VariablesChecker(BaseChecker):
         """Check names imported exists in the global scope."""
         frame = node.frame(future=True)
         if isinstance(frame, nodes.Module):
-            self.add_message("global-at-module-level", node=node)
+            self.add_message("global-at-module-level", node=node, confidence=HIGH)
             return
 
         module = frame.root()
@@ -1501,7 +1502,12 @@ class VariablesChecker(BaseChecker):
                 and not utils.is_deleted_after_current(node, name)
                 and not_defined_locally_by_import
             ):
-                self.add_message("global-variable-not-assigned", args=name, node=node)
+                self.add_message(
+                    "global-variable-not-assigned",
+                    args=name,
+                    node=node,
+                    confidence=HIGH,
+                )
                 default_message = False
                 continue
 
@@ -1524,11 +1530,16 @@ class VariablesChecker(BaseChecker):
             else:
                 if not_defined_locally_by_import:
                     # global undefined at the module scope
-                    self.add_message("global-variable-undefined", args=name, node=node)
+                    self.add_message(
+                        "global-variable-undefined",
+                        args=name,
+                        node=node,
+                        confidence=HIGH,
+                    )
                     default_message = False
 
         if default_message:
-            self.add_message("global-statement", node=node)
+            self.add_message("global-statement", node=node, confidence=HIGH)
 
     def visit_assignname(self, node: nodes.AssignName) -> None:
         if isinstance(node.assign_type(), nodes.AugAssign):
@@ -1661,7 +1672,7 @@ class VariablesChecker(BaseChecker):
 
         return False
 
-    # pylint: disable=too-many-return-statements
+    # pylint: disable = too-many-return-statements, too-many-branches
     def _check_consumer(
         self,
         node: nodes.Name,
@@ -1798,10 +1809,14 @@ class VariablesChecker(BaseChecker):
             elif base_scope_type != "lambda":
                 # E0601 may *not* occurs in lambda scope.
 
-                # Handle postponed evaluation of annotations
+                # Skip postponed evaluation of annotations
+                # and unevaluated annotations inside a function body
                 if not (
                     self._postponed_evaluation_enabled
                     and isinstance(stmt, (nodes.AnnAssign, nodes.FunctionDef))
+                ) and not (
+                    isinstance(stmt, nodes.AnnAssign)
+                    and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
                 ):
                     self.add_message(
                         "used-before-assignment",
@@ -2021,6 +2036,7 @@ class VariablesChecker(BaseChecker):
             parent = parent.parent
         return False
 
+    # pylint: disable = too-many-statements, too-many-branches
     @staticmethod
     def _is_variable_violation(
         node: nodes.Name,
@@ -2389,6 +2405,7 @@ class VariablesChecker(BaseChecker):
             and name in frame_locals
         )
 
+    # pylint: disable = too-many-branches
     def _loopvar_name(self, node: astroid.Name) -> None:
         # filter variables according to node's scope
         astmts = [s for s in node.lookup(node.name)[1] if hasattr(s, "assign_type")]
@@ -2533,6 +2550,7 @@ class VariablesChecker(BaseChecker):
             if not elements:
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
+    # pylint: disable = too-many-branches
     def _check_is_unused(
         self,
         name: str,
@@ -2998,6 +3016,7 @@ class VariablesChecker(BaseChecker):
             for node in node_lst:
                 self.add_message("unused-variable", args=(name,), node=node)
 
+    # pylint: disable = too-many-branches
     def _check_imports(self, not_consumed: dict[str, list[nodes.NodeNG]]) -> None:
         local_names = _fix_dot_imports(not_consumed)
         checked = set()

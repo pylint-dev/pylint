@@ -3,3 +3,4 @@ py-version=3.8
 
 [testoptions]
 min_pyver=3.8
+max_pyver=3.10

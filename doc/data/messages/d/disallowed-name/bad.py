@@ -1,2 +1,2 @@
 def foo():  # [disallowed-name]
-    pass
+    print("apples")

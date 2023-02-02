@@ -247,7 +247,7 @@ class StringFormatChecker(BaseChecker):
     name = "string"
     msgs = MSGS
 
-    # pylint: disable=too-many-branches
+    # pylint: disable = too-many-branches, too-many-locals, too-many-statements
     @only_required_for_messages(
         "bad-format-character",
         "truncated-format-string",
@@ -533,6 +533,7 @@ class StringFormatChecker(BaseChecker):
         self._detect_vacuous_formatting(node, positional_arguments)
         self._check_new_format_specifiers(node, fields, named_arguments)
 
+    # pylint: disable = too-many-statements
     def _check_new_format_specifiers(
         self,
         node: nodes.Call,
