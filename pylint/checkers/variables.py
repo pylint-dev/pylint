@@ -2206,32 +2206,13 @@ class VariablesChecker(BaseChecker):
                     # Exempt those definitions that are used inside the type checking
                     # guard or that are defined in all type checking guard branches.
                     used_in_branch = defstmt_parent.parent_of(node)
-                    defined_in_or_else = False
-
-                    branch_nodes = []
-                    branch = defstmt_parent
-                    while branch.has_elif_block():
-                        branch_nodes.extend(branch.orelse[0].body)
-                        branch = branch.orelse[0]
-                    branch_nodes.extend(branch.orelse)
-                    for branch_node in branch_nodes:
-                        if isinstance(branch_node, nodes.Assign):
-                            defined_in_or_else = any(
-                                target.name == node.name
-                                for target in branch_node.targets
-                                if isinstance(target, nodes.AssignName)
-                            )
-                        elif isinstance(
-                            branch_node, (nodes.ClassDef, nodes.FunctionDef)
-                        ):
-                            defined_in_or_else = branch_node.name == node.name
-                        elif isinstance(branch_node, (nodes.Import, nodes.ImportFrom)):
-                            defined_in_or_else = any(
-                                node.name == name[0] for name in branch_node.names
-                            )
-
-                        if defined_in_or_else:
-                            break
+                    if defstmt_parent.has_elif_block():
+                        defined_in_or_else = utils.is_defined(node.name, defstmt_parent.orelse[0])
+                    else:
+                        defined_in_or_else = any(
+                            utils.is_defined(node.name, content) 
+                            for content in defstmt_parent.orelse
+                        )
 
                     if not used_in_branch and not defined_in_or_else:
                         maybe_before_assign = True
