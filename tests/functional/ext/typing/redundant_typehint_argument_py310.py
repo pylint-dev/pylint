@@ -24,17 +24,17 @@ ANSWER_11: list[int] | dict[int] | dict[list[int]] | list[str] | list[str] = ['s
 #  +1: [redundant-typehint-argument, redundant-typehint-argument, redundant-typehint-argument]
 x: int | int | int | int
 
-# No warning for type alias
+# No warning for type alias (yet !)
 Q = int | int
 QQ = Q | Q
 
 q: Q | Q  # [redundant-typehint-argument]
 
-# No warning for redundant types in compound type
+# No warning for redundant types in compound type (yet !)
 z: dict[int | int, str | str]
 
 #  +1: [redundant-typehint-argument]
 zz: dict[int | int, str | str] | dict[int | int, str | str]
 
-# No warnings for redundant types in function signature
+# No warnings for redundant types in function signature (yet !)
 def f(p: int | int) -> str | str: ...
