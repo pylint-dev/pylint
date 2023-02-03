@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+class Meta(type):
+    def __new__(mcs):
+        pass
