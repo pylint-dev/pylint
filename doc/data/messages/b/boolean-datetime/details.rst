@@ -1,1 +1,1 @@
-This behaviour was fixed in Python 3.5. It can't be emitted when using Python >= 3.5.
+You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
