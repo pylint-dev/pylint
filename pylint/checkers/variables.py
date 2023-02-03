@@ -2262,7 +2262,10 @@ class VariablesChecker(BaseChecker):
             return True
         if isinstance(value, nodes.Lambda) and isinstance(value.body, nodes.IfExp):
             return True
-        if isinstance(value, nodes.Dict) and any(isinstance(item[0], nodes.IfExp) or isinstance(item[1], nodes.IfExp) for item in value.items):
+        if isinstance(value, nodes.Dict) and any(
+            isinstance(item[0], nodes.IfExp) or isinstance(item[1], nodes.IfExp)
+            for item in value.items
+        ):
             return True
         if not isinstance(value, nodes.Call):
             return False
