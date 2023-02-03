@@ -1,6 +1,4 @@
-# split up to smaller functions
-
-fruit = {
+fruit_prices = {
     "apple": 1.1,
     "pear": 0.8,
     "banana": 1.2,
@@ -15,19 +13,24 @@ fruit = {
 }
 
 
-def fifty_percent_off(whole):
-    return (float(whole)) * 50 / 100
-
-
-discounted_fruit = ("banana", "mango", "orange", "watermelon")
-shopping_list = []
-
-for f, v in fruit.items():
-    if f in discounted_fruit:
-        PRICE = fifty_percent_off(v)
+def get_price(fruit):
+    full_price = fruit_prices.get(fruit)
+    if fruit in fruits_to_buy:
+        return (float(full_price)) * 50 / 100
     else:
-        PRICE = v
-    shopping_list.append(PRICE)
-    print(f"{f} ${PRICE:.2f}")
+        return full_price
 
-print(f"Total price is ${sum(shopping_list):.2f}")
+
+def display_fruit_and_price(fruits):
+    for fruit in fruits:
+        price = get_price(fruit)
+        print(f"{fruit} ${price :.2f}")
+
+
+def get_total(fruits):
+    return sum(get_price(f) for f in fruits)
+
+
+fruits_to_buy = ["apple", "orange"]
+display_fruit_and_price(fruits_to_buy)
+print(f"Total price is ${get_total(fruits_to_buy):.2f}")
