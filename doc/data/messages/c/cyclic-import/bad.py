@@ -1,9 +1,7 @@
-cat > a.py <<EOF
-import b
+import neutral as n
 
-EOF
+def newFunction(text):
+    text += n.func("String")
+    print(text)
 
-cat > b.py <<EOF
-import a
-
-EOF
+    return text
