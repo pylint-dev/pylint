@@ -1363,8 +1363,8 @@ Variables checker Messages
 :unused-variable (W0612): *Unused variable %r*
   Used when a variable is defined but not used.
 :global-variable-not-assigned (W0602): *Using global for %r but no assignment is done*
-  When a variable defined in the global scope is modified in an inner scope, the
-  'global' keyword is required in the inner scope only if there is an
+  When a variable defined in the global scope is modified in an inner scope,
+  the 'global' keyword is required in the inner scope only if there is an
   assignment operation done in the inner scope.
 :undefined-loop-variable (W0631): *Using possibly undefined loop variable %r*
   Used when a loop variable (i.e. defined by a for loop or a list comprehension
