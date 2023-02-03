@@ -1,4 +1,4 @@
-fruit_prices = {
+FRUIT_PRICES = {
     "apple": 1.1,
     "pear": 0.8,
     "banana": 1.2,
@@ -11,7 +11,7 @@ fruit_prices = {
     "plum": 0.5,
     "watermelon": 6.4,
 }
-discounted_fruits = ["apple", "watermelon"]
+DISCOUNTED_FRUITS = ["apple", "watermelon"]
 
 
 def fifty_percent_off(whole):
@@ -19,8 +19,8 @@ def fifty_percent_off(whole):
 
 
 def get_price(fruit):
-    full_price = fruit_prices.get(fruit)
-    if fruit in discounted_fruits:
+    full_price = FRUIT_PRICES.get(fruit)
+    if fruit in DISCOUNTED_FRUITS:
         return fifty_percent_off(full_price)
     else:
         return full_price
@@ -28,8 +28,7 @@ def get_price(fruit):
 
 def display_fruit_and_price(fruits):
     for fruit in fruits:
-        price = get_price(fruit)
-        print(f"{fruit} ${price :.2f}")
+        print(f"{fruit} ${get_price(fruit) :.2f}")
 
 
 def get_total(fruits):

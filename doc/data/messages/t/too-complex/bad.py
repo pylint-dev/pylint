@@ -40,5 +40,5 @@ def calculate_sum_and_display_price_of_fruits(*fruits_to_buy):  # [too-complex]
     print(f"Total price is ${total:.2f}")
 
 
-fruits_to_buy = ["apple", "orange", "watermelon"]
-calculate_sum_and_display_price_of_fruits(*fruits_to_buy)
+fruits = ["apple", "orange", "watermelon"]
+calculate_sum_and_display_price_of_fruits(*fruits)
