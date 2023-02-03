@@ -1,4 +1,4 @@
 class Meta(type):
     @classmethod
-    def foo(some):
+    def foo(some): #[bad-mcs-classmethod-argument]
         pass
