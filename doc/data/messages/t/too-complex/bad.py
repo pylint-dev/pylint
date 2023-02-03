@@ -20,8 +20,7 @@ def calculate_sum_and_display_price_of_fruits(*fruits_to_buy):  # [too-complex]
     if "melon" in fruits_to_buy:
         shopping_list.append(4.9)
     if "orange" in fruits_to_buy:
-        v = fifty_percent_off(2.0)
-        shopping_list.append(v)
+        shopping_list.append(2.0)
     if "strawberry" in fruits_to_buy:
         shopping_list.append(2.5)
     if "mandarin" in fruits_to_buy:
@@ -29,7 +28,8 @@ def calculate_sum_and_display_price_of_fruits(*fruits_to_buy):  # [too-complex]
     if "plum" in fruits_to_buy:
         shopping_list.append(0.5)
     if "watermelon" in fruits_to_buy:
-        shopping_list.append(6.4)
+        v = fifty_percent_off(6.4)
+        shopping_list.append(v)
 
     combine = zip(fruits_to_buy, shopping_list)
 
@@ -40,5 +40,5 @@ def calculate_sum_and_display_price_of_fruits(*fruits_to_buy):  # [too-complex]
     print(f"Total price is ${total:.2f}")
 
 
-fruits_to_buy = ["apple", "orange"]
+fruits_to_buy = ["apple", "orange", "watermelon"]
 calculate_sum_and_display_price_of_fruits(*fruits_to_buy)
