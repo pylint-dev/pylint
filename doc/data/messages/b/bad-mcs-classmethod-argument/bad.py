@@ -1,4 +1,4 @@
 class Meta(type):
     @classmethod
-    def foo(mcs):
+    def foo(some):
         pass
