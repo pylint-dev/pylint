@@ -55,7 +55,8 @@ class TestImportsChecker(CheckerTestCase):
             REGR_DATA, "beyond_top_two/namespace_package/top_level_function.py"
         )
         Run(
-            [top_level_function, "-d all", "-e relative-beyond-top-level"], exit=False,
+            [top_level_function, "-d all", "-e relative-beyond-top-level"],
+            exit=False,
         )
         output2, errors2 = capsys.readouterr()
 
