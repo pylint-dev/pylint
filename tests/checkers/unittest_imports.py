@@ -55,8 +55,7 @@ class TestImportsChecker(CheckerTestCase):
             REGR_DATA, "beyond_top_two/namespace_package/top_level_function.py"
         )
         Run(
-            [top_level_function, "-d all", "-e relative-beyond-top-level"],
-            exit=False,
+            [top_level_function, "-d all", "-e relative-beyond-top-level"], exit=False,
         )
         output2, errors2 = capsys.readouterr()
 
@@ -153,6 +152,24 @@ class TestImportsChecker(CheckerTestCase):
 
         # assert that we saw preferred-modules triggered
         assert "Prefer importing 'pathlib' instead of 'os.path'" in output
+        # assert there were no errors
+        assert len(errors) == 0
+
+        # test preferred-modules case for no trigger with submodule
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'preferred_module/unpreferred_submodule.py')}",
+                "-d all",
+                "-e preferred-module",
+                # prefer sys instead of os (for triggering test)
+                "--preferred-modules=os:pathlib",
+            ],
+            exit=False,
+        )
+        output, errors = capsys.readouterr()
+
+        # assert that we did not see preferred-modules triggered
+        assert "Your code has been rated at 10.00/10" in output
         # assert there were no errors
         assert len(errors) == 0
 

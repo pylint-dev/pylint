@@ -915,19 +915,28 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
         """Check if the module has a preferred replacement."""
 
+        mod_compare = [mod_path]
+        # build a comparison list of possible names using importfrom's
         if isinstance(node, astroid.nodes.node_classes.ImportFrom):
             mod_compare = [f"{node.modname}.{name[0]}" for name in node.names]
-        else:
-            mod_compare = [mod_path]
 
-        if len(set(mod_compare).intersection(self.preferred_modules)) > 0:
-            mod_path_intersect = list(
-                set(mod_compare).intersection(self.preferred_modules)
-            )[0]
+        # find whether there are matches with the import vs preferred_modules keys
+        matches = [
+            key
+            for key in list(self.preferred_modules.keys())
+            for compare_val in mod_compare
+            # determine if key is in compare_val only if key is smaller
+            if (len(compare_val) < len(key) and key in compare_val)
+            # if key and compare_val are exact matches
+            or key == compare_val
+        ]
+
+        # if we have matches, add message
+        if len(matches) > 0:
             self.add_message(
                 "preferred-module",
                 node=node,
-                args=(self.preferred_modules[mod_path_intersect], mod_path_intersect),
+                args=(self.preferred_modules[matches[0]], matches[0]),
             )
 
     def _check_import_as_rename(self, node: ImportNode) -> None:
