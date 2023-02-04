@@ -138,6 +138,7 @@ def test_graphviz_unsupported_image_format(capsys: CaptureFixture) -> None:
         ("show_associated", None),
         ("all_associated", None),
         ("show_builtin", 0),
+        ("show_stdlib", 0),
         ("module_names", None),
         ("output_format", "dot"),
         ("colorized", 0),
