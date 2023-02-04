@@ -993,7 +993,7 @@ Standard Checkers
 
 --preferred-modules
 """""""""""""""""""
-*Couples of modules and preferred modules, separated by a comma.*
+*Couples of modules and preferred modules, separated by a comma. Submodules may also be specified using '.' syntax (for ex. 'os.path').*
 
 **Default:**  ``()``
 
