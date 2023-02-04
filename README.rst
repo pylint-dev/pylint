@@ -41,9 +41,8 @@
    :target: https://discord.gg/qYxpadCgkx
    :alt: Discord
 
-
 What is Pylint?
-================
+---------------
 
 Pylint is a `static code analyser`_ for Python 2 or 3. The latest version supports Python
 3.7.2 and above.
@@ -52,11 +51,60 @@ Pylint is a `static code analyser`_ for Python 2 or 3. The latest version suppor
 
 Pylint analyses your code without actually running it. It checks for errors, enforces a
 coding standard, looks for `code smells`_, and can make suggestions about how the code
-could be refactored. Pylint can infer actual values from your code using its internal
-code representation (astroid). If your code is ``import logging as argparse``, Pylint
-will know that ``argparse.error(...)`` is in fact a logging call and not an argparse call.
+could be refactored.
 
 .. _`code smells`: https://martinfowler.com/bliki/CodeSmell.html
+
+Install
+-------
+
+.. This is used inside the doc to recover the start of the short text for installation
+
+For command line use, pylint is installed with::
+
+    pip install pylint
+
+Or if you want to also check spelling with ``enchant`` (you might need to
+`install the enchant C library <https://pyenchant.github.io/pyenchant/install.html#installing-the-enchant-c-library>`_):
+
+.. code-block:: sh
+
+   pip install pylint[spelling]
+
+It can also be integrated in most editors or IDEs. More information can be found
+`in the documentation`_.
+
+.. _in the documentation: https://pylint.pycqa.org/en/latest/user_guide/installation/index.html
+
+.. This is used inside the doc to recover the end of the short text for installation
+
+What differentiate Pylint?
+--------------------------
+
+Pylint is not trusting your typing and is inferring the actual value of nodes (for a
+start because there was no typing when pylint started off) using its internal code
+representation (astroid). If your code is ``import logging as argparse``, Pylint
+can check and know that ``argparse.error(...)`` is in fact a logging call and not an
+argparse call. This  makes pylint slower, but it also let pylint find more issues if
+your code is not fully typed.
+
+    [inference] is the killer feature that keeps us using [pylint] in our project despite how painfully slow it is.
+    - `Realist pylint user`_, 2022
+
+.. _`Realist pylint user`: https://github.com/charliermarsh/ruff/issues/970#issuecomment-1381067064
+
+pylint, not afraid of being a little slower than it already is, is also a lot more thorough than other linters.
+There is more checks, some opinionated one that are deactivated by default, but can be enabled using configuration.
+
+How to use pylint
+-----------------
+
+Pylint isn't smarter than you: it may warn you about things that you have
+conscientiously done or check for some things that you don't care about.
+During adoption, especially in a legacy project where pylint was never enforced,
+it's best to start with the ``--errors-only`` flag, then disable
+convention and refactor message with ``--disable=C,R`` and progressively
+re-evaluate and re-enable messages as your priorities evolve.
 
 Pylint is highly configurable and permits to write plugins in order to add your
 own checks (for example, for internal libraries or an internal rule). Pylint also has an
@@ -76,33 +124,17 @@ ecosystem of existing plugins for popular frameworks and third party libraries.
 .. _`pylint-django`: https://github.com/PyCQA/pylint-django
 .. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
 
-Pylint isn't smarter than you: it may warn you about things that you have
-conscientiously done or check for some things that you don't care about.
-During adoption, especially in a legacy project where pylint was never enforced,
-it's best to start with the ``--errors-only`` flag, then disable
-convention and refactor message with ``--disable=C,R`` and progressively
-re-evaluate and re-enable messages as your priorities evolve.
+Advised linters alongside pylint
+--------------------------------
 
-Pylint ships with three additional tools:
+Projects that you might want to use alongside pylint include ruff_ (**really** fast,
+with builtin auto-fix, and a growing number of checks taken from popular
+linters but implemented in ``rust``) or flake8_ (faster and simpler checks with very few false positives),
+mypy_, pyright_ or pyre_ (typing checks), bandit_ (security oriented checks), black_ and
+isort_ (auto-formatting), autoflake_ (automated removal of unused imports or variables),
+pyupgrade_ (automated upgrade to newer python syntax) and pydocstringformatter_ (automated pep257).
 
-- pyreverse_ (standalone tool that generates package and class diagrams.)
-- symilar_  (duplicate code finder that is also integrated in pylint)
-
-.. _pyreverse: https://pylint.pycqa.org/en/latest/pyreverse.html
-.. _symilar: https://pylint.pycqa.org/en/latest/symilar.html
-
-The epylint_ Emacs package, which includes Flymake support, is now maintained
-in `its own repository`_.
-
-.. _epylint: https://pylint.pycqa.org/en/latest/user_guide/ide_integration/flymake-emacs.html
-.. _its own repository: https://github.com/emacsorphanage/pylint
-
-Projects that you might want to use alongside pylint include flake8_ (faster and simpler checks
-with very few false positives), mypy_, pyright_ or pyre_ (typing checks), bandit_ (security
-oriented checks), black_ and isort_ (auto-formatting), autoflake_ (automated removal of
-unused imports or variables), pyupgrade_ (automated upgrade to newer python syntax) and
-pydocstringformatter_ (automated pep257).
-
+.. _ruff: https://github.com/charliermarsh/ruff
 .. _flake8: https://github.com/PyCQA/flake8
 .. _bandit: https://github.com/PyCQA/bandit
 .. _mypy: https://github.com/python/mypy
@@ -114,23 +146,19 @@ pydocstringformatter_ (automated pep257).
 .. _pydocstringformatter: https://github.com/DanielNoord/pydocstringformatter
 .. _isort: https://pycqa.github.io/isort/
 
+Additional tools included in pylint
+-----------------------------------
+
+Pylint ships with three additional tools:
+
+- pyreverse_ (standalone tool that generates package and class diagrams.)
+- symilar_  (duplicate code finder that is also integrated in pylint)
+
+.. _pyreverse: https://pylint.pycqa.org/en/latest/pyreverse.html
+.. _symilar: https://pylint.pycqa.org/en/latest/symilar.html
+
+
 .. This is used inside the doc to recover the end of the introduction
-
-Install
--------
-
-.. This is used inside the doc to recover the start of the short text for installation
-
-For command line use, pylint is installed with::
-
-    pip install pylint
-
-It can also be integrated in most editors or IDEs. More information can be found
-`in the documentation`_.
-
-.. _in the documentation: https://pylint.pycqa.org/en/latest/user_guide/installation/index.html
-
-.. This is used inside the doc to recover the end of the short text for installation
 
 Contributing
 ------------
