@@ -18,6 +18,17 @@ def test_decoding_stream_unknown_encoding() -> None:
     assert ret == ["foo\n", "bar"]
 
 
+def test_decoding_stream_empty_encoding() -> None:
+    """Decoding_stream should fall back to *some* decoding when given an
+    empty encoding.
+    """
+    binary_io = io.BytesIO(b"foo\nbar")
+    stream = utils.decoding_stream(binary_io, "")
+    # should still act like a StreamReader
+    ret = stream.readlines()
+    assert ret == ["foo\n", "bar"]
+
+
 def test_decoding_stream_known_encoding() -> None:
     binary_io = io.BytesIO("€".encode("cp1252"))
     stream = utils.decoding_stream(binary_io, "cp1252")
