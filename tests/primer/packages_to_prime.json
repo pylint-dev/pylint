@@ -58,5 +58,10 @@
     "directories": ["coverage"],
     "url": "https://github.com/nedbat/coveragepy",
     "pylintrc_relpath": "pylintrc"
+  },
+  "poetry-core": {
+    "branch": "main",
+    "directories": ["src/poetry/core"],
+    "url": "https://github.com/python-poetry/poetry-core"
   }
 }
