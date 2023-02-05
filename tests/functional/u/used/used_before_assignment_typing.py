@@ -7,34 +7,34 @@ from typing import List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     if True:  # pylint: disable=using-constant-test
         import math
-    import datetime
-    import calendar
-    import zoneinfo
     import array
-    import types
-    import enum
+    import base64
+    import binascii
+    import bisect
+    import calendar
     import collections
     import copy
-    import pprint
-    import heapq
-    import bisect
-    import weakref
-    import numbers
+    import datetime
     import email
+    import enum
+    import heapq
     import json
     import mailbox
     import mimetypes
-    import base64
-    import binascii
+    import numbers
+    import pprint
+    import types
+    import weakref
+    import zoneinfo
     from urllib.request import urlopen
 elif input():
     import calendar, bisect  # pylint: disable=multiple-imports
     if input() + 1:
         import heapq
-    elif (enum:=None):
+    elif (enum := None):
         pass
     else:
-        print(None if (weakref:='') else True)
+        print(None if (weakref := '') else True)
 elif input():
     try:
         numbers = None if input() else 1
