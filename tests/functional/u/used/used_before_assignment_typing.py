@@ -165,33 +165,33 @@ class ConditionalImportGuardedWhenUsed:  # pylint: disable=too-few-public-method
 
 
 class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-variable
-    """Test imports in TYPE_CHECKING if/elif/else branching"""
-    def elif_branch(self) -> calendar.Calendar:
+    """Test for defines in TYPE_CHECKING if/elif/else branching"""
+    def defined_in_elif_branch(self) -> calendar.Calendar:
         print(bisect)
         return calendar.Calendar()
 
-    def else_branch(self) -> urlopen:
+    def defined_in_else_branch(self) -> urlopen:
         print(zoneinfo)
         print(pprint())
         print(collections())
         return urlopen
 
-    def nested_if_else(self) -> heapq:
+    def defined_in_nested_if_else(self) -> heapq:
         print(heapq)
         return heapq
 
-    def used_in_try_except(self) -> array:
+    def defined_in_try_except(self) -> array:
         print(types)
         print(copy)
         print(numbers)
         return array
 
-    def used_in_loops(self) -> json:
+    def defined_in_loops(self) -> json:
         print(email)
         print(mailbox)
         print(mimetypes)
         return json
 
-    def used_in_with(self) -> base64:
+    def defined_in_with(self) -> base64:
         print(binascii)
         return base64
