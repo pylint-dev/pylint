@@ -32,6 +32,20 @@ Last but not least @clavedeluna and @nickdrozd became triagers, welcome to the t
 
 .. towncrier release notes start
 
+What's new in Pylint 2.16.1?
+----------------------------
+Release date: 2023-02-02
+
+
+Other Bug Fixes
+---------------
+
+- Fix a crash happening for python interpreter < 3.9 following a failed typing
+  update.
+
+  Closes #8161 (`#8161 <https://github.com/PyCQA/pylint/issues/8161>`_)
+
+
 What's new in Pylint 2.16.0?
 ----------------------------
 Release date: 2023-02-01
