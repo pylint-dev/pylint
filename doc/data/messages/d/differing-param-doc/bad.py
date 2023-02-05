@@ -1,14 +1,10 @@
-def leap_year(year):
-    """ Function used to determine if a given year is a leap year
-        :param int year: a year to check is a leap year.
-        :param int day: the day of the current month.
-        :returns: a result.
-        :rtype: boolean """ # [differing-param-doc]
-    if year % 400 == 0:
-        return True
-    if year % 100 == 0:
-        return False
-    if year % 4 == 0:
-        return True
-    else:
-        return False
+def add_two_numbers(x, y):
+    """Function used to add two integers together.
+
+    :param int x: x value.
+    :param int z: z value.
+    :returns: a result.
+    :rtype: int
+    """
+
+    return x + y
