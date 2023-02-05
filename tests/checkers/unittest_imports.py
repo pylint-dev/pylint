@@ -156,7 +156,7 @@ class TestImportsChecker(CheckerTestCase):
         # assert there were no errors
         assert len(errors) == 0
 
-        # test preferred-modules case for no trigger with submodule
+        # test preferred-modules base module for implemented submodule (from ... import)
         Run(
             [
                 f"{os.path.join(REGR_DATA, 'preferred_module/unpreferred_submodule.py')}",
@@ -169,8 +169,8 @@ class TestImportsChecker(CheckerTestCase):
         )
         output, errors = capsys.readouterr()
 
-        # assert that we did not see preferred-modules triggered
-        assert "Your code has been rated at 10.00/10" in output
+        # assert that we saw preferred-modules triggered with base module
+        assert "Prefer importing 'pathlib' instead of 'os'" in output
         # assert there were no errors
         assert len(errors) == 0
 

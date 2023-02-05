@@ -925,10 +925,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             key
             for key in list(self.preferred_modules.keys())
             for compare_val in mod_compare
-            # determine if key is in compare_val only if key is smaller
-            if (len(compare_val) < len(key) and key in compare_val)
-            # if key and compare_val are exact matches
-            or key == compare_val
+            # determine if key is in compare_val
+            if key in compare_val
         ]
 
         # if we have matches, add message
