@@ -1,1 +1,1 @@
-Used when a cyclic import between two or more modules is detected.
+You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
