@@ -7,6 +7,7 @@ from typing import List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     if True:  # pylint: disable=using-constant-test
         import math
+    from urllib.request import urlopen
     import array
     import base64
     import binascii
@@ -16,7 +17,6 @@ if TYPE_CHECKING:
     import copy
     import datetime
     import email
-    import enum
     import heapq
     import json
     import mailbox
@@ -24,17 +24,13 @@ if TYPE_CHECKING:
     import numbers
     import pprint
     import types
-    import weakref
     import zoneinfo
-    from urllib.request import urlopen
 elif input():
     import calendar, bisect  # pylint: disable=multiple-imports
     if input() + 1:
         import heapq
-    elif (enum := None):
-        pass
     else:
-        print(None if (weakref := '') else True)
+        import heapq
 elif input():
     try:
         numbers = None if input() else 1
@@ -180,10 +176,9 @@ class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-
         print(collections())
         return urlopen
 
-    def nested_if_else(self) -> enum:
+    def nested_if_else(self) -> heapq:
         print(heapq)
-        print(weakref)
-        return enum
+        return heapq
 
     def used_in_try_except(self) -> array:
         print(types)
