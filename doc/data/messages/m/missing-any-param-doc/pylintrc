@@ -1,2 +1,2 @@
 [MAIN]
-load-plugins = pylint.extensions.param
+load-plugins = pylint.extensions.parameter-documentation
