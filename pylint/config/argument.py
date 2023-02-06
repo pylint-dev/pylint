@@ -105,7 +105,7 @@ def _regex_transformer(value: str) -> Pattern[str]:
         return re.compile(value)
     except re.error as e:
         msg = f"Error in provided regular expression: {value} beginning at index {e.pos}: {e.msg}"
-        raise argparse.ArgumentTypeError(msg)
+        raise argparse.ArgumentTypeError(msg) from e
 
 
 def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
