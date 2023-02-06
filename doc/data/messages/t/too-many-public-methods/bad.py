@@ -1,4 +1,4 @@
-class Foo:
+class Foo: # [too-many-public-methods]
     def a(self):
         pass
     def b(self):
@@ -7,7 +7,7 @@ class Foo:
         pass
     def d(self):
         pass
-    def e(self): # [too-many-public-methods]
+    def e(self):
         pass
     def f(self):
         pass

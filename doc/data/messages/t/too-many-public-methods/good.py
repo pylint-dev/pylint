@@ -7,7 +7,3 @@ class Foo:
         pass
     def d(self):
         pass
-    def e(self):
-        pass
-    def f(self):
-        pass
