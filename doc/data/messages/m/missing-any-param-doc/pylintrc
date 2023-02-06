@@ -1,3 +1,0 @@
-[DESIGN]
-missing-any-param-doc = yes
-load-plugins = pylint.extensions.docparams
