@@ -1,10 +1,10 @@
-def foo(x, y):
+def foo(x: int, y: int):  # [differing-type-doc]
     """A dummy string.
 
-    :param int x: x value.
+    :param int xy: x value.
     :param str y: y value.
     :returns: a result.
     :rtype: int
-    """ #[differing-type-doc]
+    """
 
     return x + y
