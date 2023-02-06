@@ -1,1 +1,2 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+The POSIX standard defines a line as:
+    "A sequence of zero or more non- <newline> characters plus a terminating <newline> character."
