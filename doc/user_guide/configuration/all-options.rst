@@ -171,7 +171,7 @@ Standard Checkers
 """"""""""""
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
-**Default:**  ``(3, 11)``
+**Default:**  ``(3, 10)``
 
 
 --recursive
