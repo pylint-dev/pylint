@@ -410,7 +410,7 @@ def test_set_option_2(initialized_linter: PyLinter) -> None:
 
 def test_enable_checkers(linter: PyLinter) -> None:
     linter.disable("design")
-    assert not ("design" in [c.name for c in linter.prepare_checkers()])
+    assert "design" not in [c.name for c in linter.prepare_checkers()]
     linter.enable("design")
     assert "design" in [c.name for c in linter.prepare_checkers()]
 
@@ -429,7 +429,7 @@ def test_disable_similar(initialized_linter: PyLinter) -> None:
     linter = initialized_linter
     linter.set_option("disable", "RP0801")
     linter.set_option("disable", "R0801")
-    assert not ("similarities" in [c.name for c in linter.prepare_checkers()])
+    assert "similarities" not in [c.name for c in linter.prepare_checkers()]
 
 
 def test_disable_alot(linter: PyLinter) -> None:
@@ -438,7 +438,7 @@ def test_disable_alot(linter: PyLinter) -> None:
     linter.set_option("disable", "R,C,W")
     checker_names = [c.name for c in linter.prepare_checkers()]
     for cname in ("design", "metrics", "similarities"):
-        assert not (cname in checker_names), cname
+        assert cname not in checker_names, cname
 
 
 def test_addmessage(linter: PyLinter) -> None:

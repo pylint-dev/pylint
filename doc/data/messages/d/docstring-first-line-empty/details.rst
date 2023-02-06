@@ -1,1 +1,0 @@
-Used when a blank line is found at the beginning of a docstring.

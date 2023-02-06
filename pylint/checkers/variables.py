@@ -2971,7 +2971,7 @@ class VariablesChecker(BaseChecker):
         assigned = next(node.igetattr("__all__"))
         if assigned is astroid.Uninferable:
             return
-        if not assigned.pytype() in {"builtins.list", "builtins.tuple"}:
+        if assigned.pytype() not in {"builtins.list", "builtins.tuple"}:
             line, col = assigned.tolineno, assigned.col_offset
             self.add_message("invalid-all-format", line=line, col_offset=col, node=node)
             return

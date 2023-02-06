@@ -362,24 +362,21 @@ class BasicChecker(_BasicChecker):
             # it may be an illicit function call due to missing parentheses
             call_inferred = None
             try:
+                # Just forcing the generator to infer all elements.
+                # astroid.exceptions.InferenceError are false positives
+                # see https://github.com/PyCQA/pylint/pull/8185
                 if isinstance(inferred, nodes.FunctionDef):
-                    call_inferred = inferred.infer_call_result()
+                    call_inferred = list(inferred.infer_call_result())
                 elif isinstance(inferred, nodes.Lambda):
-                    call_inferred = inferred.infer_call_result(node)
+                    call_inferred = list(inferred.infer_call_result(node))
             except astroid.InferenceError:
                 call_inferred = None
             if call_inferred:
-                try:
-                    for inf_call in call_inferred:
-                        if inf_call != astroid.Uninferable:
-                            self.add_message(
-                                "missing-parentheses-for-call-in-test",
-                                node=test,
-                                confidence=INFERENCE,
-                            )
-                            break
-                except astroid.InferenceError:
-                    pass
+                self.add_message(
+                    "missing-parentheses-for-call-in-test",
+                    node=test,
+                    confidence=INFERENCE,
+                )
             self.add_message("using-constant-test", node=test, confidence=INFERENCE)
 
     @staticmethod

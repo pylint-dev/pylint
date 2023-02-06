@@ -13,6 +13,7 @@ repos:
             tests(/\w*)*/functional/m/missing/missing_final_newline.py|
             tests/functional/t/trailing_newlines.py|
             doc/data/messages/t/trailing-newlines/bad.py|
+            doc/data/messages/m/missing-final-newline/bad.py|
           )$
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.0.0
@@ -25,6 +26,12 @@ repos:
           - --expand-star-imports
           - --remove-duplicate-keys
           - --remove-unused-variables
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: "v0.0.241"
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+        exclude: *fixtures
   - repo: https://github.com/Pierre-Sassoulas/copyright_notice_precommit
     rev: 0.1.2
     hooks:

@@ -164,7 +164,7 @@ def test_parse_format_method_string() -> None:
     ]
     for fmt, count in samples:
         keys, num_args, pos_args = utils.parse_format_method_string(fmt)
-        keyword_args = len({k for k, l in keys if not isinstance(k, int)})
+        keyword_args = len({k for k, _ in keys if not isinstance(k, int)})
         assert keyword_args + num_args + pos_args == count
 
 

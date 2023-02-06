@@ -27,7 +27,7 @@ class OptionParser(optparse.OptionParser):
             DeprecationWarning,
             stacklevel=2,
         )
-        super().__init__(option_class=Option, *args, **kwargs)
+        super().__init__(option_class=Option, *args, **kwargs)  # noqa: B026
 
     def format_option_help(self, formatter=None):
         if formatter is None:

@@ -414,8 +414,8 @@ def _write_redirect_old_page(
     )
     content = f""".. _{old_name[0]}:
 
-{get_rst_title("/".join(old_name), "=")}
-"{old_name[0]} has been renamed. The new message can be found at:
+{get_rst_title(" / ".join(old_name), "=")}
+'{old_name[0]}' has been renamed. The new message can be found at:
 
 .. toctree::
    :maxdepth: 2
