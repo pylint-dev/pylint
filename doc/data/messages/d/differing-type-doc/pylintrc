@@ -1,2 +1,3 @@
 [DESIGN]
+differing-param-doc = yes
 load-plugins = pylint.extensions.docstring
