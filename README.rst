@@ -1,7 +1,7 @@
 `Pylint`_
 =========
 
-.. _`Pylint`: https://pylint.pycqa.org/
+.. _`Pylint`: https://pylint.readthedocs.io/
 
 .. This is used inside the doc to recover the start of the introduction
 
@@ -74,7 +74,7 @@ Or if you want to also check spelling with ``enchant`` (you might need to
 It can also be integrated in most editors or IDEs. More information can be found
 `in the documentation`_.
 
-.. _in the documentation: https://pylint.pycqa.org/en/latest/user_guide/installation/index.html
+.. _in the documentation: https://pylint.readthedocs.io/en/latest/user_guide/installation/index.html
 
 .. This is used inside the doc to recover the end of the short text for installation
 
@@ -119,7 +119,7 @@ ecosystem of existing plugins for popular frameworks and third party libraries.
     `pylint-sonarjson`_ are examples of such plugins. More information about plugins
     and how to load them can be found at `plugins`_.
 
-.. _`plugins`: https://pylint.pycqa.org/en/latest/development_guide/how_tos/plugins.html#plugins
+.. _`plugins`: https://pylint.readthedocs.io/en/latest/development_guide/how_tos/plugins.html#plugins
 .. _`pylint-pydantic`: https://pypi.org/project/pylint-pydantic
 .. _`pylint-django`: https://github.com/PyCQA/pylint-django
 .. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
@@ -154,8 +154,8 @@ Pylint ships with three additional tools:
 - pyreverse_ (standalone tool that generates package and class diagrams.)
 - symilar_  (duplicate code finder that is also integrated in pylint)
 
-.. _pyreverse: https://pylint.pycqa.org/en/latest/pyreverse.html
-.. _symilar: https://pylint.pycqa.org/en/latest/symilar.html
+.. _pyreverse: https://pylint.readthedocs.io/en/latest/pyreverse.html
+.. _symilar: https://pylint.readthedocs.io/en/latest/symilar.html
 
 
 .. This is used inside the doc to recover the end of the introduction
@@ -172,9 +172,9 @@ you found a bug or want a feature`_, etc. Everything is much appreciated!
 Please follow the `code of conduct`_ and check `the Contributor Guides`_ if you want to
 make a code contribution.
 
-.. _creating issues because you found a bug or want a feature: https://pylint.pycqa.org/en/latest/contact.html#bug-reports-feedback
+.. _creating issues because you found a bug or want a feature: https://pylint.readthedocs.io/en/latest/contact.html#bug-reports-feedback
 .. _code of conduct: https://github.com/PyCQA/pylint/blob/main/CODE_OF_CONDUCT.md
-.. _the Contributor Guides: https://pylint.pycqa.org/en/latest/development_guide/contribute.html
+.. _the Contributor Guides: https://pylint.readthedocs.io/en/latest/development_guide/contribute.html
 
 .. This is used inside the doc to recover the end of the short text for contribution
 
@@ -188,7 +188,7 @@ You can place this badge in your README to let others know your project uses pyl
 
 Learn how to add a badge to your documentation in the `the badge documentation`_.
 
-.. _the badge documentation: https://pylint.pycqa.org/en/latest/user_guide/installation/badge.html
+.. _the badge documentation: https://pylint.readthedocs.io/en/latest/user_guide/installation/badge.html
 
 License
 -------
@@ -205,7 +205,7 @@ Support
 
 Please check `the contact information`_.
 
-.. _`the contact information`: https://pylint.pycqa.org/en/latest/contact.html
+.. _`the contact information`: https://pylint.readthedocs.io/en/latest/contact.html
 
 .. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/main/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
    :width: 200
