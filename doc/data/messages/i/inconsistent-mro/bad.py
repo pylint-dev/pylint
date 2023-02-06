@@ -6,5 +6,5 @@ class B(A):
     pass
 
 
-class C(B):  # or B, A or A but not A, B
+class C(A, B):  # [inconsistent-mro]
     pass
