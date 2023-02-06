@@ -1,2 +1,2 @@
 [main]
-load-extension: pylint.extensions.docstyle,docparams
+load-extension: pylint.extensions.docstyle
