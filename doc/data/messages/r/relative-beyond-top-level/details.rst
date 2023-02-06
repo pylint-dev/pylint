@@ -1,2 +1,1 @@
-Used when a relative import tries to access too many levels in the current
-package.
+You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !

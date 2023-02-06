@@ -1,2 +1,1 @@
-# forms.py available in a current directory
-from . import forms
+# This is a placeholder for correct code for this message.

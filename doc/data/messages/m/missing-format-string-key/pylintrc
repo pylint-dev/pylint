@@ -1,3 +1,0 @@
-[DESIGN]
-missing-format-string-key=yes
-load-plugins = pylint.extensions.format

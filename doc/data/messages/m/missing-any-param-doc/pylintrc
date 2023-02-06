@@ -1,3 +1,0 @@
-[MAIN]
-load-plugins=pylint.extensions.docparams
-accept-no-param-doc: no

@@ -1,2 +1,1 @@
-Used when class has too many public methods, try to reduce this to get a
-simpler (and so easier to use) class.
+You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !

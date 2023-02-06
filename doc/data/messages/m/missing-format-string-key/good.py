@@ -1,1 +1,1 @@
-print('{one} {}'.format('world', one='hello'))
+# This is a placeholder for correct code for this message.

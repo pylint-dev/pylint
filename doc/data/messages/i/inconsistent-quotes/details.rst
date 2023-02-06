@@ -1,1 +1,1 @@
-Quote delimiters are not used consistently throughout a module (with allowances made for avoiding unnecessary escaping).
+You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
