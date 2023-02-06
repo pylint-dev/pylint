@@ -1,2 +1,2 @@
 [DESIGN]
-docstring-first-line-empty:yes
+docstring-first-line-empty=yes

@@ -1,2 +1,2 @@
 [DESIGN]
-missing-format-string-key:yes
+missing-format-string-key=yes
