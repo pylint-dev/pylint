@@ -1,2 +1,2 @@
 [main]
-too-many-public-methods: 4
+too-many-public-methods = 4
