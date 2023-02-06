@@ -303,6 +303,8 @@ subcommands
 subdicts
 subgraphs
 sublists
+submodule
+submodules
 subparsers
 subparts
 subprocess

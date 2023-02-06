@@ -916,7 +916,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         """Check if the module has a preferred replacement."""
 
         mod_compare = [mod_path]
-        # build a comparison list of possible names using importfrom's
+        # build a comparison list of possible names using importfrom
         if isinstance(node, astroid.nodes.node_classes.ImportFrom):
             mod_compare = [f"{node.modname}.{name[0]}" for name in node.names]
 
