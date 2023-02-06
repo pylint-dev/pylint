@@ -5,6 +5,6 @@ def add_two_numbers(x, y):
     :param int z: z value.
     :returns: a result.
     :rtype: int
-    """
+    """ # [differing-param-doc]
 
     return x + y
