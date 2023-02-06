@@ -25,6 +25,12 @@ repos:
           - --expand-star-imports
           - --remove-duplicate-keys
           - --remove-unused-variables
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: "v0.0.241"
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+        exclude: *fixtures
   - repo: https://github.com/Pierre-Sassoulas/copyright_notice_precommit
     rev: 0.1.2
     hooks:
