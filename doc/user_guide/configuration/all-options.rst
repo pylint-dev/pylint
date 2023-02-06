@@ -171,7 +171,7 @@ Standard Checkers
 """"""""""""
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
-**Default:**  ``(3, 11)``
+**Default:**  ``(3, 10)``
 
 
 --recursive
@@ -264,7 +264,7 @@ Standard Checkers
 
    persistent = true
 
-   py-version = [3, 11]
+   py-version = [3, 10]
 
    recursive = false
 
@@ -1267,7 +1267,7 @@ Standard Checkers
 
 --spelling-dict
 """""""""""""""
-*Spelling dictionary name. Available dictionaries: none. To make it work, install the 'python-enchant' package.*
+*Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell), en_CA (aspell), en_GB (aspell), en_US (aspell).*
 
 **Default:** ``""``
 
