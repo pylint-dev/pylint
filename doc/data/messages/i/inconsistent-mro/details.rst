@@ -1,1 +1,0 @@
-Used when a class has an inconsistent method resolution order.
