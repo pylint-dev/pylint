@@ -7,7 +7,15 @@ class Foo:
         pass
     def d(self):
         pass
-    def e(self):
+    def e(self): # [too-many-public-methods]
         pass
     def f(self):
+        pass
+    def g(self):
+        pass
+    def h(self):
+        pass
+    def i(self):
+        pass
+    def j(self):
         pass
