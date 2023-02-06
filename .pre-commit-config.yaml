@@ -13,6 +13,7 @@ repos:
             tests(/\w*)*/functional/m/missing/missing_final_newline.py|
             tests/functional/t/trailing_newlines.py|
             doc/data/messages/t/trailing-newlines/bad.py|
+            doc/data/messages/m/missing-final-newline/bad.py|
           )$
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.0.0
