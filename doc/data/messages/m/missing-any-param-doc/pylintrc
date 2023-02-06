@@ -1,2 +1,3 @@
 [MASTER]
+accept-no-param-doc: no
 load-plugins=pylint.extensions.docparams

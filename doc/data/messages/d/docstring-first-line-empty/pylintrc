@@ -1,2 +1,2 @@
-[DESIGN]
-docstring-first-line-empty=yes
+[MASTER]
+load-plugins=pylint.extensions.docparams
