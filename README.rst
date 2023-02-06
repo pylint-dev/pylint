@@ -149,7 +149,7 @@ pyupgrade_ (automated upgrade to newer python syntax) and pydocstringformatter_ 
 Additional tools included in pylint
 -----------------------------------
 
-Pylint ships with three additional tools:
+Pylint ships with two additional tools:
 
 - pyreverse_ (standalone tool that generates package and class diagrams.)
 - symilar_  (duplicate code finder that is also integrated in pylint)
