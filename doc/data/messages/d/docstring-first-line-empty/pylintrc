@@ -1,2 +1,2 @@
-[main]
-load-plugins: pylint.extensions.docstyle
+[MAIN]
+load-plugins = pylint.extensions.docstyle
