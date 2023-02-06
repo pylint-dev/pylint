@@ -1,1 +1,1 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+Used when a blank line is found at the beginning of a docstring.
