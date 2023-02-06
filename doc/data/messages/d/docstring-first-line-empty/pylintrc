@@ -1,2 +1,2 @@
 [MASTER]
-load-plugins=pylint.extensions.docparams
+load-plugins = pylint.extensions.docstyle
