@@ -345,7 +345,7 @@ class LoggingChecker(checkers.BaseChecker):
                     ) = utils.parse_format_method_string(format_string)
 
                     keyword_args_cnt = len(
-                        {k for k, l in keyword_arguments if not isinstance(k, int)}
+                        {k for k, _ in keyword_arguments if not isinstance(k, int)}
                     )
                     required_num_args = (
                         keyword_args_cnt + implicit_pos_args + explicit_pos_args
