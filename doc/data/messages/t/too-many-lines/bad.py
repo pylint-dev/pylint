@@ -11,7 +11,6 @@ def leap_year(year): # [too-many-lines]
 
 for year in range(1990, 2000):
     print(leap_year(year))
-    print(year)
 
     if leap_year(year):
         print(str(year) + " was a leap year")
