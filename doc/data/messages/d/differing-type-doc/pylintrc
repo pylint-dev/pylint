@@ -1,0 +1,2 @@
+[DESIGN]
+load-plugins = pylint.extensions.docstring

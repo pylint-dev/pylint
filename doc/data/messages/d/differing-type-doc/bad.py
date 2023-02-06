@@ -2,7 +2,7 @@ def leap_year(year):
     """ Function used to determine if a given year is a leap year
         :param str year: a year to check is a leap year [differing-type-doc]
         :returns: a result.
-        :rtype: boolean """
+        :rtype: boolean """ # [differing-type-doc]
     if year % 400 == 0:
         return True
     if year % 100 == 0:
