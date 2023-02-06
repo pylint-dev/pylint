@@ -5,6 +5,6 @@ def foo(x, y):
     :param str y: y value.
     :returns: a result.
     :rtype: int
-    """
+    """ #[differing-type-doc]
 
     return x + y
