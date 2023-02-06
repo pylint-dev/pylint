@@ -1,1 +1,1 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+Used when a function or method has too many local variables.
