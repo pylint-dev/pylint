@@ -8,6 +8,7 @@ import logging
 import sys
 from pathlib import Path
 
+from git import GitCommandError
 from git.cmd import Git
 from git.repo import Repo
 
@@ -117,9 +118,17 @@ class PackageToLint:
                 remote_sha1_commit,
                 local_sha1_commit,
             )
-            repo = Repo(self.clone_directory)
-            origin = repo.remotes.origin
-            origin.pull()
+            self._clone_repository()
         else:
             logging.info("Repository already up to date.")
         return str(remote_sha1_commit)
+
+    def _clone_repository(self) -> None:
+        try:
+            repo = Repo(self.clone_directory)
+            origin = repo.remotes.origin
+            origin.pull()
+        except GitCommandError as e:
+            raise SystemError(
+                f"Failed to clone repository for {self.clone_directory}"
+            ) from e
