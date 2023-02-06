@@ -25,7 +25,6 @@ load-plugins=
     pylint.extensions.check_elif,
     pylint.extensions.bad_builtin,
     pylint.extensions.docparams,
-    pylint.extensions.docstyle,
     pylint.extensions.for_any_all,
     pylint.extensions.set_membership,
     pylint.extensions.code_style,
@@ -36,7 +35,6 @@ load-plugins=
     pylint.extensions.broad_try_clause,
     pylint.extensions.dict_init_mutate,
     pylint.extensions.consider_refactoring_into_while_condition,
-    pylint.extensions.docstring,
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
