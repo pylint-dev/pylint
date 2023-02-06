@@ -242,6 +242,7 @@ params
 paren
 parens
 passthru
+pathlib
 positionals
 png
 pragma
@@ -350,6 +351,7 @@ unicode
 Uninferable
 uninferable
 unittest
+untriggered
 # prefix for string
 ur
 ureport
