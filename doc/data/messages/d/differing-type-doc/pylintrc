@@ -1,2 +1,0 @@
-[main]
-load-extension: pylint.extensions.docparams
