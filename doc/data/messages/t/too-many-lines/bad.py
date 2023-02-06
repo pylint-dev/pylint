@@ -9,25 +9,11 @@ def leap_year(year): # [too-many-lines]
     else:
         return False
 
-print(leap_year(1900))
-print(leap_year(1901))
-print(leap_year(1902))
-print(leap_year(1903))
-print(leap_year(1904))
-print(leap_year(1905))
-print(leap_year(1906))
-print(leap_year(1907))
-print(leap_year(1908))
-print(leap_year(1909))
-print(leap_year(1910))
-print(leap_year(1911))
-print(leap_year(1912))
-print(leap_year(1913))
-print(leap_year(1914))
-print(leap_year(1915))
-print(leap_year(1916))
-print(leap_year(1917))
-print(leap_year(1918))
-print(leap_year(1919))
-print(leap_year(1920))
-print(leap_year(2004))
+for year in range(1990, 2000):
+    print(leap_year(year))
+    print(year)
+
+    if leap_year(year):
+        print(str(year) + " was a leap year")
+    else:
+        print(str(year) + " was not a leap year")

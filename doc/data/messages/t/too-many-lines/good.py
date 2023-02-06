@@ -9,11 +9,5 @@ def leap_year(year):
     else:
         return False
 
-print(leap_year(1900))
-print(leap_year(1901))
-print(leap_year(1902))
-print(leap_year(1903))
-print(leap_year(1904))
-print(leap_year(1905))
-print(leap_year(1906))
-print(leap_year(1907))
+for year in range(1900, 1910):
+    print(leap_year(year))
