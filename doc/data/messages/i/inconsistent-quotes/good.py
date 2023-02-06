@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+print('Here\'s a single-quote escape')
