@@ -320,6 +320,7 @@ We can use the example code that we used for debugging as our test cases.
 
 .. code-block:: python
 
+  import astroid
   import my_plugin
   import pylint.testutils
 
