@@ -1,4 +1,4 @@
-Having too much public methods is an indication that you might not be respecting
+Having too many public methods is an indication that you might not be respecting
 the Single-responsibility principle (S of SOLID).
 
 The class should have only one reason to change, but in the example the
