@@ -806,6 +806,10 @@ def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
         return False
     if isinstance(inferred, astroid.Instance) and inferred.qname() == BUILTIN_TUPLE:
         return False
+    if isinstance(arg, nodes.BinOp) and arg.op == "|":
+        return _is_invalid_isinstance_type(arg.left) and _is_invalid_isinstance_type(
+            arg.right
+        )
     return True
 
 
