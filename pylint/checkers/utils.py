@@ -2193,6 +2193,55 @@ def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
         return False
 
 
+def is_defined(name: str, node: nodes.NodeNG) -> bool:
+    """Checks whether a node defines the given variable name."""
+    is_defined_so_far = False
+
+    if isinstance(node, nodes.NamedExpr) and node.target.name == name:
+        return True
+
+    if isinstance(node, (nodes.Import, nodes.ImportFrom)) and any(
+        node_name[0] == name for node_name in node.names
+    ):
+        return True
+
+    if isinstance(node, nodes.With):
+        is_defined_so_far = any(
+            isinstance(item[1], nodes.AssignName) and item[1].name == name
+            for item in node.items
+        )
+
+    if isinstance(node, (nodes.ClassDef, nodes.FunctionDef)):
+        is_defined_so_far = node.name == name
+
+    if isinstance(node, nodes.AnnAssign):
+        is_defined_so_far = (
+            node.value
+            and isinstance(node.target, nodes.AssignName)
+            and node.target.name == name
+        )
+
+    if isinstance(node, nodes.Assign):
+        is_defined_so_far = any(
+            any(
+                (
+                    (
+                        isinstance(elt, nodes.Starred)
+                        and isinstance(elt.value, nodes.AssignName)
+                        and elt.value.name == name
+                    )
+                    or (isinstance(elt, nodes.AssignName) and elt.name == name)
+                )
+                for elt in get_all_elements(target)
+            )
+            for target in node.targets
+        )
+
+    return is_defined_so_far or any(
+        is_defined(name, child) for child in node.get_children()
+    )
+
+
 def get_inverse_comparator(op: str) -> str:
     """Returns the inverse comparator given a comparator.
 
