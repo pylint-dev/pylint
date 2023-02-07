@@ -9,10 +9,8 @@ def leap_year(year): # [too-many-lines]
     else:
         return False
 
-for year in range(1990, 2000):
-    print(leap_year(year))
+if leap_year(2020):
+        print(str(2020) + " was a leap year")
+else:
+    print(str(2020) + " was not a leap year")
 
-    if leap_year(year):
-        print(str(year) + " was a leap year")
-    else:
-        print(str(year) + " was not a leap year")

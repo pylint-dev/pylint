@@ -1,4 +1,4 @@
-class Foo: # [too-many-public-methods]
+class Regular_Class: # [too-many-public-methods]
     def a(self):
         pass
     def b(self):
