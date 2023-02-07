@@ -810,6 +810,10 @@ def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
         return False
     if isinstance(inferred, astroid.Instance) and inferred.qname() == BUILTIN_TUPLE:
         return False
+    if isinstance(inferred, bases.UnionType):
+        return _is_invalid_isinstance_type(
+            inferred.left
+        ) or _is_invalid_isinstance_type(inferred.right)
     return True
 
 

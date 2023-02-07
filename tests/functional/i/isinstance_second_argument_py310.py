@@ -1,4 +1,4 @@
-'''Tests for isinstance with compound types'''
+'''Tests for invalid isinstance with compound types'''
 
 # True negatives
 isinstance(0, int | str)
@@ -6,18 +6,16 @@ isinstance(0, int | int | int)
 isinstance(0, int | str | list | float)
 isinstance(0, (int | str) | (list | float))
 
+IntOrStr = int | str
+isinstance(0, IntOrStr)
+ListOrDict = list | dict
+isinstance(0, (float | ListOrDict) | IntOrStr)
+
 # True positives
 isinstance(0, int | 5)  # [isinstance-second-argument-not-valid-type]
 isinstance(0, str | 5 | int)  # [isinstance-second-argument-not-valid-type]
-
-
-# FALSE POSITIVES
-
-# Type aliases cannot be inferred
-IntOrStr = int | str
-isinstance(0, IntOrStr)  # [isinstance-second-argument-not-valid-type]
-ListOrDict = list | dict
-isinstance(0, (float | ListOrDict) | IntOrStr)  # [isinstance-second-argument-not-valid-type]
+INT = 5
+isinstance(0, INT | int)  # [isinstance-second-argument-not-valid-type]
 
 
 # FALSE NEGATIVES
