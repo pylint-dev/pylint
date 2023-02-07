@@ -796,6 +796,10 @@ def _is_c_extension(module_node: InferenceResult) -> bool:
 
 def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
     # Return True if we are sure that arg is not a type
+    if isinstance(arg, nodes.BinOp) and arg.op == "|":
+        return _is_invalid_isinstance_type(arg.left) or _is_invalid_isinstance_type(
+            arg.right
+        )
     inferred = utils.safe_infer(arg)
     if not inferred:
         # Cannot infer it so skip it.
@@ -806,10 +810,6 @@ def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
         return False
     if isinstance(inferred, astroid.Instance) and inferred.qname() == BUILTIN_TUPLE:
         return False
-    if isinstance(arg, nodes.BinOp) and arg.op == "|":
-        return _is_invalid_isinstance_type(arg.left) or _is_invalid_isinstance_type(
-            arg.right
-        )
     return True
 
 
