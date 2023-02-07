@@ -48,9 +48,9 @@ or if ``directory`` is in the python path.
 With implicit namespace packages
 --------------------------------
 
-If the analyzed sources use the Implicit Namespace Packages (PEP 420), the source root(s) should
-be specified to Pylint using the ``--source-roots`` option. Otherwise, the package names are
-detected incorrectly, since the Implicit Namespace Packages don't contain the ``__init__.py``.
+If the analyzed sources use implicit namespace packages (PEP 420), the source root(s) should
+be specified using the ``--source-roots`` option. Otherwise, the package names are
+detected incorrectly, since implicit namespace packages don't contain an ``__init__.py``.
 
 Command line options
 --------------------
