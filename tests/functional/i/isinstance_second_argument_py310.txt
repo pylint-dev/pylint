@@ -1,0 +1,4 @@
+isinstance-second-argument-not-valid-type:10:0:10:22::Second argument of isinstance is not a type:UNDEFINED
+isinstance-second-argument-not-valid-type:11:0:11:28::Second argument of isinstance is not a type:UNDEFINED
+isinstance-second-argument-not-valid-type:18:0:18:23::Second argument of isinstance is not a type:UNDEFINED
+isinstance-second-argument-not-valid-type:20:0:20:46::Second argument of isinstance is not a type:UNDEFINED
