@@ -34,27 +34,8 @@ class DiagramWriter:
         self.printer: Printer  # defined in set_printer
         self.file_name = ""  # defined in set_printer
         self.depth = self.config.max_color_depth
-        self.available_colors = itertools.cycle(
-            [
-                "aliceblue",
-                "antiquewhite",
-                "aquamarine",
-                "burlywood",
-                "cadetblue",
-                "chartreuse",
-                "chocolate",
-                "coral",
-                "cornflowerblue",
-                "cyan",
-                "darkgoldenrod",
-                "darkseagreen",
-                "dodgerblue",
-                "forestgreen",
-                "gold",
-                "hotpink",
-                "mediumspringgreen",
-            ]
-        )
+        # default colors are an adaption of the seaborn colorblind palette
+        self.available_colors = itertools.cycle(self.config.color_palette)
         self.used_colors: dict[str, str] = {}
 
     def write(self, diadefs: Iterable[ClassDiagram | PackageDiagram]) -> None:
