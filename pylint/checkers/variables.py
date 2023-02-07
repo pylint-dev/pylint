@@ -2933,7 +2933,7 @@ class VariablesChecker(BaseChecker):
                 break
             try:
                 module = next(module.getattr(name)[0].infer())
-                if module is astroid.Uninferable:
+                if not isinstance(module, nodes.Module):
                     return None
             except astroid.NotFoundError:
                 if module.name in self._ignored_modules:
