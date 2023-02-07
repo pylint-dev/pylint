@@ -1,3 +1,2 @@
 [main]
-max-line-length = 160
 max-module-lines = 10
