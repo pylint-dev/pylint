@@ -2350,5 +2350,4 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return node.operand.value, HIGH
         if isinstance(node, nodes.Const):
             return node.value, HIGH
-        print(node.operand.__dict__, node.operand.as_string(), type(node.operand))
         return None, HIGH
