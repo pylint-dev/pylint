@@ -1,0 +1,2 @@
+[main] # [bad-plugin-value]
+input-plugins = pylint.extensions.codeStyle
