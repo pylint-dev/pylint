@@ -401,7 +401,7 @@ Verbatim name of the checker is ``kwargs``.
 
 Kwargs checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^
-:consider-using-keyword-argument (W3501): *Call to `%s` misses keyword argument `%s`.*
+:consider-using-keyword-argument (W3501): *Call to `%s` misses keyword argument%s `%s`.*
   When using a literal directly in a function call, it can be very hard to know
   which argument it is if a positional argument is used. In that case there's
   no variable name or attribute name to rely on when reading. By using a

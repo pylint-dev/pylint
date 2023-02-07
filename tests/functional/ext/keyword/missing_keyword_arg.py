@@ -8,7 +8,7 @@ def print_hello(one, two):
 
 print_hello(one="1", two="2")
 print_hello("1", two="2")  # [consider-using-keyword-argument]
-print_hello("1", "2")  # [consider-using-keyword-argument, consider-using-keyword-argument]
+print_hello("1", "2")  # [consider-using-keyword-argument]
 
 def print_one_thing(one):
     return f"{one}"
@@ -43,7 +43,7 @@ def keep_self_arg(one, self):
     # Tests that an arg called `self` is not affected in module-level functions
     return f"{one}: {self}"
 
-keep_self_arg("one", 2)  # [consider-using-keyword-argument, consider-using-keyword-argument]
+keep_self_arg("one", 2)  # [consider-using-keyword-argument]
 keep_self_arg("one", self=2)  # [consider-using-keyword-argument]
 
 
@@ -66,8 +66,8 @@ class Car:
     def run(self, speed, distance, location):
         pass
 
-car = Car("a car", "name", "title") # [consider-using-keyword-argument, consider-using-keyword-argument, consider-using-keyword-argument]
-car.run(123, "north", "walmart")  # [consider-using-keyword-argument, consider-using-keyword-argument, consider-using-keyword-argument]
+car = Car("a car", "name", "title") # [consider-using-keyword-argument]
+car.run(123, "north", "walmart")  # [consider-using-keyword-argument]
 
 
 class Robot:
@@ -82,7 +82,7 @@ robot = Robot("a robot")
 def make_car(name, owner, title, color="red", year=2022):
     return "car"
 
-SECOND_CAR = make_car("a car", "name", "title") # [consider-using-keyword-argument, consider-using-keyword-argument, consider-using-keyword-argument]
+SECOND_CAR = make_car("a car", "name", "title") # [consider-using-keyword-argument]
 
 
 class _SharedFile:

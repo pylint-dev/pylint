@@ -22,7 +22,7 @@ class KeywordChecker(BaseChecker):
     name = "kwargs"
     msgs = {
         "W3501": (
-            "Call to `%s` misses keyword argument `%s`.",
+            "Call to `%s` misses keyword argument%s `%s`.",
             "consider-using-keyword-argument",
             "When using a literal directly in a function call, it can be very hard to know which argument it is "
             "if a positional argument is used. In that case there's no variable name or attribute name to "
@@ -51,17 +51,23 @@ class KeywordChecker(BaseChecker):
             kwarg.arg for kwarg in node.keywords
         ] + default_kwarg_names
 
-        for arg_name in needed_keywords:
-            if arg_name not in provided_kwarg_names:
-                self.add_message(
-                    "consider-using-keyword-argument",
-                    node=node,
-                    args=(
-                        called.name,
-                        arg_name,
-                    ),
-                    confidence=INFERENCE,
-                )
+        without_keywords = [
+            arg_name
+            for arg_name in needed_keywords
+            if arg_name not in provided_kwarg_names
+        ]
+        if without_keywords:
+            args = (
+                called.name,
+                "" if len(without_keywords) == 1 else "s",
+                ", ".join(without_keywords),
+            )
+            self.add_message(
+                "consider-using-keyword-argument",
+                node=node,
+                args=args,
+                confidence=INFERENCE,
+            )
 
     def _get_args(
         self,
