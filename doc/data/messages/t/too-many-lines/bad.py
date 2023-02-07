@@ -14,9 +14,4 @@ if leap_year(2020):
 else:
     print(str(2020) + " was not a leap year")
 
-if leap_year(2021):
-    print(str(2021) + " was a leap year")
-else:
-    print(str(2021) + " was not a leap year")
-
 
