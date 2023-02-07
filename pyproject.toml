@@ -133,7 +133,6 @@ module = [
 [tool.ruff]
 select = ["E", "F", "B"]
 ignore = [
-    "F841", # False positive for typing
     "B905", # Not enforced previousely
 ]
 fixable = ["E", "F", "B"]
