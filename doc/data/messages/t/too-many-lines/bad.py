@@ -13,4 +13,3 @@ if leap_year(2020):
         print(str(2020) + " was a leap year")
 else:
     print(str(2020) + " was not a leap year")
-
