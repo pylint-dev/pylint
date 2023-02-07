@@ -1,32 +1,18 @@
-class LaserBeam:
+class SpaceInvaders:  # [too-many-public-methods]
     def __init__(self):
         pass
 
-    def fire(self):
+    def fire_laser_beam(self):
         pass
 
-    def activate_super(self):
+    def deploy_shield(self):
         pass
 
-    def destroy_planet(self):
+    def launch_missile(self):
         pass
 
-
-class Shield:
-    def deploy(self):
+    def activate_super_laser(self):
         pass
-
-
-class Missile:
-    def launch(self):
-        pass
-
-
-class SpaceInvaders:
-    def __init__(self):
-        self.laser = LaserBeam()
-        self.shield = Shield()
-        self.missile = Missile()
 
     def summon_mothership(self):
         pass
