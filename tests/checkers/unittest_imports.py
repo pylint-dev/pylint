@@ -151,6 +151,11 @@ class TestImportsChecker(CheckerTestCase):
         )
         output, errors = capsys.readouterr()
 
+        # assert that we saw preferred-modules triggered
+        assert "Prefer importing 'pathlib' instead of 'os.path'" in output
+        # assert there were no errors
+        assert len(errors) == 0
+
         # test preferred-modules ignore case with submodules
         Run(
             [
