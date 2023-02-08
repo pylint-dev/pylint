@@ -2194,16 +2194,14 @@ def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
 
 
 def is_defined(name: str, node: nodes.NodeNG) -> bool:
-    """Checks whether a node defines the given variable name."""
+    """Searches for a tree node that defines the given variable name."""
     is_defined_so_far = False
 
-    if isinstance(node, nodes.NamedExpr) and node.target.name == name:
-        return True
+    if isinstance(node, nodes.NamedExpr):
+        is_defined_so_far = node.target.name == name
 
-    if isinstance(node, (nodes.Import, nodes.ImportFrom)) and any(
-        node_name[0] == name for node_name in node.names
-    ):
-        return True
+    if isinstance(node, (nodes.Import, nodes.ImportFrom)):
+        is_defined_so_far = any(node_name[0] == name for node_name in node.names)
 
     if isinstance(node, nodes.With):
         is_defined_so_far = any(
