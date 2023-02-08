@@ -238,13 +238,6 @@ TERMINATING_FUNCS_QNAMES = frozenset(
     {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
 )
 
-DICT_TYPES = (
-    astroid.objects.DictValues,
-    astroid.objects.DictKeys,
-    astroid.objects.DictItems,
-    astroid.nodes.node_classes.Dict,
-)
-
 
 class NoSuchArgumentError(Exception):
     pass

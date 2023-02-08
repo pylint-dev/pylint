@@ -108,6 +108,13 @@ TYPING_NAMES = frozenset(
     }
 )
 
+DICT_TYPES = (
+    astroid.objects.DictValues,
+    astroid.objects.DictKeys,
+    astroid.objects.DictItems,
+    astroid.nodes.node_classes.Dict,
+)
+
 
 class VariableVisitConsumerAction(Enum):
     """Reported by _check_consumer() and its sub-methods to determine the
@@ -159,7 +166,7 @@ def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> 
     and unbalanced-tuple/dict-unpacking errors.
     """
     more = ""
-    if isinstance(inferred, utils.DICT_TYPES):
+    if isinstance(inferred, DICT_TYPES):
         if isinstance(node, nodes.Assign):
             more = node.value.as_string()
         elif isinstance(node, nodes.For):
@@ -1242,7 +1249,7 @@ class VariablesChecker(BaseChecker):
         targets = node.target.elts
 
         inferred = utils.safe_infer(node.iter)
-        if not isinstance(inferred, utils.DICT_TYPES):
+        if not isinstance(inferred, DICT_TYPES):
             return
 
         values = self._nodes_to_unpack(inferred)
@@ -2879,7 +2886,7 @@ class VariablesChecker(BaseChecker):
     @staticmethod
     def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:
         """Return the list of values of the `Assign` node."""
-        if isinstance(node, (nodes.Tuple, nodes.List) + utils.DICT_TYPES):
+        if isinstance(node, (nodes.Tuple, nodes.List) + DICT_TYPES):
             return node.itered()  # type: ignore[no-any-return]
         if isinstance(node, astroid.Instance) and any(
             ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
@@ -2905,7 +2912,7 @@ class VariablesChecker(BaseChecker):
 
         symbol = (
             "unbalanced-dict-unpacking"
-            if isinstance(inferred, utils.DICT_TYPES)
+            if isinstance(inferred, DICT_TYPES)
             else "unbalanced-tuple-unpacking"
         )
         self.add_message(symbol, node=node, args=args, confidence=INFERENCE)

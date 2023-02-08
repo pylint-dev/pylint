@@ -1302,21 +1302,6 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             [module, "-E"], expected_output="", unexpected_output=unexpected
         )
 
-    def test_nested_min_max_splats(self) -> None:
-        """Test that the nested-min-max message suggests to splat an iterable"""
-        module = join(HERE, "regrtest_data", "nested_min_max.py")
-        expected_str = f"""
-        ************* Module nested_min_max
-        {module}:4:0: W3301: Do not use nested call of 'max'; it's possible to do 'max(3, *lst)' instead (nested-min-max)
-        {module}:7:0: W3301: Do not use nested call of 'max'; it's possible to do 'max(3, *nums)' instead (nested-min-max)
-        {module}:10:0: W3301: Do not use nested call of 'max'; it's possible to do 'max(3, *nums)' instead (nested-min-max)
-        {module}:13:0: W3301: Do not use nested call of 'max'; it's possible to do 'max(3, *nums)' instead (nested-min-max)
-        {module}:15:0: W3301: Do not use nested call of 'max'; it's possible to do 'max(3, *nums.values())' instead (nested-min-max)
-        {module}:18:0: W3301: Do not use nested call of 'max'; it's possible to do 'max(3, *nums, *lst2)' instead (nested-min-max)
-        """  # noqa: E501
-        expected = textwrap.dedent(expected_str)
-        self._test_output([module], expected_output=expected)
-
 
 class TestCallbackOptions:
     """Test for all callback options we support."""

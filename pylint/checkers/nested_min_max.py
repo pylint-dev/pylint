@@ -9,14 +9,21 @@ from __future__ import annotations
 import copy
 from typing import TYPE_CHECKING
 
-from astroid import nodes
+from astroid import nodes, objects
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import DICT_TYPES, only_required_for_messages, safe_infer
+from pylint.checkers.utils import only_required_for_messages, safe_infer
 from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+DICT_TYPES = (
+    objects.DictValues,
+    objects.DictKeys,
+    objects.DictItems,
+    nodes.node_classes.Dict,
+)
 
 
 class NestedMinMaxChecker(BaseChecker):
