@@ -1,4 +1,4 @@
-def leap_year(year): # [too-many-ines]
+def leap_year(year): # [too-many-lines]
     """ Function used to determine whether a given year is a leap year """
     if year % 400 == 0:
         return True
