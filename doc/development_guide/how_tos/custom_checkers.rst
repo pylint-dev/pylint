@@ -167,7 +167,7 @@ Now we know how to use the astroid node, we can implement our check.
           return
       for other_return in self._function_stack[-1]:
           if node.value.value == other_return.value.value and not (
-              self.config.ignore_ints and node.value.pytype() == int
+              self.linter.config.ignore_ints and node.value.pytype() == int
           ):
               self.add_message("non-unique-returns", node=node)
 
