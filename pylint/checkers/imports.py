@@ -922,15 +922,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         # find whether there are matches with the import vs preferred_modules keys
         matches = [
-            key
-            for key in list(self.preferred_modules.keys())
-            for compare_val in mod_compare
-            # determine if key is in compare_val
-            if key in compare_val
+            k
+            for k in self.preferred_modules
+            for mod in mod_compare
+            if k in mod
         ]
 
         # if we have matches, add message
-        if len(matches) > 0:
+        if matches:
             self.add_message(
                 "preferred-module",
                 node=node,
