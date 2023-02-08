@@ -1,4 +1,4 @@
-def leap_year(year):
+def leap_year(year): # [too-many-ines]
     """ Function used to determine whether a given year is a leap year """
     if year % 400 == 0:
         return True
@@ -9,5 +9,8 @@ def leap_year(year):
     else:
         return False
 
-for year in range(1990, 1994):
-    print(leap_year(year))
+print(leap_year(1990))
+print(leap_year(1991))
+print(leap_year(1992))
+print(leap_year(1993))
+print(leap_year(1994))
