@@ -1,4 +1,4 @@
-from copy import deepcopy # [deprecated-module]
+from copy import deepcopy  # [deprecated-module]
 
 #Create an empty tuple
 x = ()
