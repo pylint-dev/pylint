@@ -34,16 +34,35 @@ DIRECTLY_SUPPORTED_FORMATS = (
 )
 
 DEFAULT_COLOR_PALETTE = (
+    "aliceblue",
+    "antiquewhite",
+    "aquamarine",
+    "burlywood",
+    "cadetblue",
+    "chartreuse",
+    "chocolate",
+    "coral",
+    "cornflowerblue",
+    "cyan",
+    "darkgoldenrod",
+    "darkseagreen",
     "dodgerblue",
-    "orange",
-    "teal",
-    "sienna",
-    "orchid",
-    "lightsalmon",
-    "plum",
-    "gray",
-    "yellow",
-    "steelblue",
+    "forestgreen",
+    "gold",
+    "hotpink",
+    "mediumspringgreen",
+    # TODO for 3.0: replace the colors above with the ones below
+    # Those are more colorblind friendly
+    # "dodgerblue",
+    # "orange",
+    # "teal",
+    # "sienna",
+    # "orchid",
+    # "lightsalmon",
+    # "plum",
+    # "gray",
+    # "yellow",
+    # "steelblue",
 )
 
 OPTIONS: Options = (
