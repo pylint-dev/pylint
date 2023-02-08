@@ -9,7 +9,7 @@ from __future__ import annotations
 import copy
 from typing import TYPE_CHECKING
 
-from astroid import nodes
+from astroid import nodes, objects
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import only_required_for_messages, safe_infer
@@ -17,6 +17,13 @@ from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+DICT_TYPES = (
+    objects.DictValues,
+    objects.DictKeys,
+    objects.DictItems,
+    nodes.node_classes.Dict,
+)
 
 
 class NestedMinMaxChecker(BaseChecker):
@@ -82,6 +89,20 @@ class NestedMinMaxChecker(BaseChecker):
                     break
 
             redundant_calls = self.get_redundant_calls(fixed_node)
+
+        for idx, arg in enumerate(fixed_node.args):
+            if not isinstance(arg, nodes.Const):
+                inferred = safe_infer(arg)
+                if isinstance(
+                    inferred, (nodes.List, nodes.Tuple, nodes.Set, *DICT_TYPES)
+                ):
+                    splat_node = nodes.Starred(lineno=inferred.lineno)
+                    splat_node.value = arg
+                    fixed_node.args = (
+                        fixed_node.args[:idx]
+                        + [splat_node]
+                        + fixed_node.args[idx + 1 : idx]
+                    )
 
         self.add_message(
             "nested-min-max",

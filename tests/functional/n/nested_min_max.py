@@ -19,3 +19,26 @@ orig_min(1, orig_min(2, 3))  # [nested-min-max]
 # This is too complicated (for now) as there is no clear better way to write it
 max(max(i for i in range(10)), 0)
 max(max(max(i for i in range(10)), 0), 1)
+
+# These examples can be improved by splicing
+lst = [1, 2]
+max(3, max(lst))  # [nested-min-max]
+max(3, *lst)
+
+nums = (1, 2,)
+max(3, max(nums))  # [nested-min-max]
+max(3, *nums)
+
+nums = {1, 2}
+max(3, max(nums))  # [nested-min-max]
+max(3, *nums)
+
+nums = {1: 2, 7: 10}
+max(3, max(nums))  # [nested-min-max]
+max(3, *nums)
+
+max(3, max(nums.values()))  # [nested-min-max]
+max(3, *nums.values())
+
+lst2 = [3, 7, 10]
+max(3, max(nums), max(lst2))  # [nested-min-max]
