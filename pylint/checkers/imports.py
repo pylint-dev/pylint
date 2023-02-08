@@ -914,11 +914,21 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
         """Check if the module has a preferred replacement."""
-        if mod_path in self.preferred_modules:
+
+        mod_compare = [mod_path]
+        # build a comparison list of possible names using importfrom
+        if isinstance(node, astroid.nodes.node_classes.ImportFrom):
+            mod_compare = [f"{node.modname}.{name[0]}" for name in node.names]
+
+        # find whether there are matches with the import vs preferred_modules keys
+        matches = [k for k in self.preferred_modules for mod in mod_compare if k in mod]
+
+        # if we have matches, add message
+        if matches:
             self.add_message(
                 "preferred-module",
                 node=node,
-                args=(self.preferred_modules[mod_path], mod_path),
+                args=(self.preferred_modules[matches[0]], matches[0]),
             )
 
     def _check_import_as_rename(self, node: ImportNode) -> None:
