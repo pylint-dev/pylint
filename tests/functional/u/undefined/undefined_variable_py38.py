@@ -3,6 +3,7 @@
 
 # Tests for annotation of variables and potentially undefinition
 
+from typing import TYPE_CHECKING
 
 def typing_and_assignment_expression():
     """The variable gets assigned in an assignment expression"""
@@ -190,3 +191,22 @@ print(NEVER_DEFINED)  # [used-before-assignment]
 if (still_defined := False) == 1:
     NEVER_DEFINED_EITHER = 1
 print(still_defined)
+
+
+if TYPE_CHECKING:
+    import enum
+    import weakref
+elif input():
+    if input() + 1:
+        pass
+    elif (enum := None):
+        pass
+    else:
+        print(None if (weakref := '') else True)
+else:
+    pass
+
+def defined_by_walrus_in_type_checking() -> weakref:
+    """Usage of variables defined in TYPE_CHECKING blocks"""
+    print(enum)
+    return weakref
