@@ -921,12 +921,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             mod_compare = [f"{node.modname}.{name[0]}" for name in node.names]
 
         # find whether there are matches with the import vs preferred_modules keys
-        matches = [
-            k
-            for k in self.preferred_modules
-            for mod in mod_compare
-            if k in mod
-        ]
+        matches = [k for k in self.preferred_modules for mod in mod_compare if k in mod]
 
         # if we have matches, add message
         if matches:
