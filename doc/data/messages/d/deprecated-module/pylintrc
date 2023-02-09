@@ -1,2 +1,2 @@
-[FORMAT]
-deprecated-module = copy
+[main]
+py-version=3.7
