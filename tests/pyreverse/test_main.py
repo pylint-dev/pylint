@@ -16,7 +16,7 @@ import pytest
 from _pytest.capture import CaptureFixture
 from _pytest.fixtures import SubRequest
 
-from pylint.lint import fix_import_path
+from pylint.lint import augmented_sys_path, discover_package_path
 from pylint.pyreverse import main
 
 TEST_DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
@@ -61,7 +61,7 @@ def test_project_root_in_sys_path() -> None:
     """Test the context manager adds the project root directory to sys.path.
     This should happen when pyreverse is run from any directory
     """
-    with fix_import_path([TEST_DATA_DIR]):
+    with augmented_sys_path([discover_package_path(TEST_DATA_DIR, [])]):
         assert sys.path == [PROJECT_ROOT_DIR]
 
 

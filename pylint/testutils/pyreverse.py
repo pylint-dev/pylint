@@ -67,6 +67,7 @@ class PyreverseConfig(
 
 
 class TestFileOptions(TypedDict):
+    source_roots: list[str]
     output_formats: list[str]
     command_line_args: list[str]
 
@@ -97,7 +98,11 @@ def get_functional_test_files(
             test_files.append(
                 FunctionalPyreverseTestfile(
                     source=path,
-                    options={"output_formats": ["mmd"], "command_line_args": []},
+                    options={
+                        "source_roots": [],
+                        "output_formats": ["mmd"],
+                        "command_line_args": [],
+                    },
                 )
             )
     return test_files
@@ -106,7 +111,9 @@ def get_functional_test_files(
 def _read_config(config_file: Path) -> TestFileOptions:
     config = configparser.ConfigParser()
     config.read(str(config_file))
+    source_roots = config.get("testoptions", "source_roots", fallback=None)
     return {
+        "source_roots": source_roots.split(",") if source_roots else [],
         "output_formats": config.get(
             "testoptions", "output_formats", fallback="mmd"
         ).split(","),
