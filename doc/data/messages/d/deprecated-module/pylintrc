@@ -1,2 +1,3 @@
 [main]
 py-version=3.7
+deprecated-modules=regsub,TERMIOS,Bastion,rexec
