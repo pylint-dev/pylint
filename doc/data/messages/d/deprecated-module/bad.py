@@ -1,1 +1,1 @@
-import distutils # [deprecated-module]
+import distutils  # [deprecated-module]
