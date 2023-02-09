@@ -282,6 +282,7 @@ rstrip
 rtype
 runtime
 se
+seaborn
 sep
 setcomp
 shortstrings

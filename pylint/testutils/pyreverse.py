@@ -11,6 +11,8 @@ import sys
 from pathlib import Path
 from typing import NamedTuple
 
+from pylint.pyreverse.main import DEFAULT_COLOR_PALETTE
+
 if sys.version_info >= (3, 8):
     from typing import TypedDict
 else:
@@ -41,6 +43,7 @@ class PyreverseConfig(
         output_format: str = "dot",
         colorized: bool = False,
         max_color_depth: int = 2,
+        color_palette: tuple[str, ...] = DEFAULT_COLOR_PALETTE,
         ignore_list: tuple[str, ...] = tuple(),
         project: str = "",
         output_directory: str = "",
@@ -61,6 +64,7 @@ class PyreverseConfig(
         self.output_format = output_format
         self.colorized = colorized
         self.max_color_depth = max_color_depth
+        self.color_palette = color_palette
         self.ignore_list = ignore_list
         self.project = project
         self.output_directory = output_directory

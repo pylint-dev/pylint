@@ -34,6 +34,26 @@ DIRECTLY_SUPPORTED_FORMATS = (
     "html",
 )
 
+DEFAULT_COLOR_PALETTE = (
+    "aliceblue",
+    "antiquewhite",
+    "aquamarine",
+    "burlywood",
+    "cadetblue",
+    "chartreuse",
+    "chocolate",
+    "coral",
+    "cornflowerblue",
+    "cyan",
+    "darkgoldenrod",
+    "darkseagreen",
+    "dodgerblue",
+    "forestgreen",
+    "gold",
+    "hotpink",
+    "mediumspringgreen",
+)
+
 OPTIONS: Options = (
     (
         "filter-mode",
@@ -171,6 +191,17 @@ OPTIONS: Options = (
             "metavar": "<depth>",
             "type": "int",
             "help": "Use separate colors up to package depth of <depth>",
+        },
+    ),
+    (
+        "color-palette",
+        {
+            "dest": "color_palette",
+            "action": "store",
+            "default": DEFAULT_COLOR_PALETTE,
+            "metavar": "<color1,color2,...>",
+            "type": "csv",
+            "help": "Comma separated list of colors to use",
         },
     ),
     (
