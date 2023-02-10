@@ -189,3 +189,16 @@ def test_class_command(
     )
     assert "data.clientmodule_test.Ancestor" in runner.config.classes
     assert "data.property_pattern.PropertyPatterns" in runner.config.classes
+
+
+def test_version_info(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+    """Test that it is possible to display the version information."""
+    test_full_version = "1.2.3.4"
+    monkeypatch.setattr(main.constants, "full_version", test_full_version)  # type: ignore[attr-defined]
+    with pytest.raises(SystemExit):
+        main.Run(["--version"])
+    out, _ = capsys.readouterr()
+    assert "pyreverse is included in pylint" in out
+    assert test_full_version in out
