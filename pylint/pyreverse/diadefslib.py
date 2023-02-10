@@ -7,21 +7,16 @@
 from __future__ import annotations
 
 import argparse
-import sys
 from collections.abc import Generator
 from typing import Any
 
 import astroid
 from astroid import nodes
+from astroid.modutils import is_standard_module
 
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.utils import LocalsVisitor
-
-if sys.version_info >= (3, 10):
-    from sys import stdlib_module_names
-else:
-    from pylint.pyreverse.stdlib import stdlib_module_names
 
 # diagram generators ##########################################################
 
@@ -77,7 +72,7 @@ class DiaDefGenerator:
         if node.root().name == "builtins":
             return self.config.show_builtin  # type: ignore[no-any-return]
 
-        if node.root().name.split(".")[0] in stdlib_module_names:
+        if is_standard_module(node.root().name):
             return self.config.show_stdlib  # type: ignore[no-any-return]
 
         return True
