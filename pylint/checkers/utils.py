@@ -2193,6 +2193,7 @@ def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
     except astroid.NotFoundError:
         return False
 
+
 def is_defined(name: str, node: nodes.NodeNG) -> bool:
     """Searches for a tree node that defines the given variable name."""
     is_defined_so_far = False
