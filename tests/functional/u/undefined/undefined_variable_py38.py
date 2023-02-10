@@ -173,9 +173,9 @@ def expression_in_ternary_operator_inside_container_tuple():
     return [(val3, val3) if (val3 := 'something') else 'anything']
 
 
-def expression_in_ternary_operator_inside_container_wrong_position():
-    """2-element list where named expression comes too late"""
-    return [val3, val3 if (val3 := 'something') else 'anything']  # [used-before-assignment]
+def expression_in_ternary_operator_inside_container_later_position():
+    """Named expression follows unrelated item in container"""
+    return [23, val3 if (val3 := 'something') else 'anything']
 
 
 # Self-referencing
