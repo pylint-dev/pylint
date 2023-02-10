@@ -29,6 +29,19 @@ def function_call_keyword_valid():
     var = foo(x=a if (a:='1') else '', y='', z='')
     var = foo(x='', y=foo(x='', y='', z=b if (b:='1') else ''), z='')
 
+def dictionary_items_valid():
+    """assignment as dictionary keys/values"""
+    var = {
+        0: w if (w:=input()) else "",
+    }
+    var = {
+        x if (x:=input()) else "": 0,
+    }
+    var = {
+        0: y if (y:=input()) else "",
+        z if (z:=input()) else "": 0,
+    }
+
 def complex_valid():
     """assignment within complex call expression"""
     var = str(bar(bar(a if (a:=1) else 0))).lower().upper()
