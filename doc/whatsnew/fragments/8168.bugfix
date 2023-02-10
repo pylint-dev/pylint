@@ -1,0 +1,3 @@
+Fix ``nested-min-max`` suggestion message to indicate it's possible to splat iterable objects.
+
+Closes #8168

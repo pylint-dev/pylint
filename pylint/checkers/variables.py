@@ -2036,7 +2036,7 @@ class VariablesChecker(BaseChecker):
             parent = parent.parent
         return False
 
-    # pylint: disable = too-many-statements, too-many-branches
+    # pylint: disable = too-many-branches
     @staticmethod
     def _is_variable_violation(
         node: nodes.Name,
@@ -2220,27 +2220,21 @@ class VariablesChecker(BaseChecker):
                     )
                 ):
                     # Exempt those definitions that are used inside the type checking
-                    # guard or that are defined in both type checking guard branches.
+                    # guard or that are defined in any elif/else type checking guard branches.
                     used_in_branch = defstmt_parent.parent_of(node)
-                    defined_in_or_else = False
-
-                    for definition in defstmt_parent.orelse:
-                        if isinstance(definition, nodes.Assign):
-                            defined_in_or_else = any(
-                                target.name == node.name
-                                for target in definition.targets
-                                if isinstance(target, nodes.AssignName)
+                    if not used_in_branch:
+                        if defstmt_parent.has_elif_block():
+                            defined_in_or_else = utils.is_defined(
+                                node.name, defstmt_parent.orelse[0]
                             )
-                        elif isinstance(
-                            definition, (nodes.ClassDef, nodes.FunctionDef)
-                        ):
-                            defined_in_or_else = definition.name == node.name
+                        else:
+                            defined_in_or_else = any(
+                                utils.is_defined(node.name, content)
+                                for content in defstmt_parent.orelse
+                            )
 
-                        if defined_in_or_else:
-                            break
-
-                    if not used_in_branch and not defined_in_or_else:
-                        maybe_before_assign = True
+                        if not defined_in_or_else:
+                            maybe_before_assign = True
 
         return maybe_before_assign, annotation_return, use_outer_definition
 
@@ -2261,6 +2255,11 @@ class VariablesChecker(BaseChecker):
         if isinstance(value, nodes.IfExp):
             return True
         if isinstance(value, nodes.Lambda) and isinstance(value.body, nodes.IfExp):
+            return True
+        if isinstance(value, nodes.Dict) and any(
+            isinstance(item[0], nodes.IfExp) or isinstance(item[1], nodes.IfExp)
+            for item in value.items
+        ):
             return True
         if not isinstance(value, nodes.Call):
             return False
@@ -2944,7 +2943,7 @@ class VariablesChecker(BaseChecker):
                 break
             try:
                 module = next(module.getattr(name)[0].infer())
-                if module is astroid.Uninferable:
+                if not isinstance(module, nodes.Module):
                     return None
             except astroid.NotFoundError:
                 if module.name in self._ignored_modules:

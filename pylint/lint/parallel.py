@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 import dill
 
 from pylint import reporters
-from pylint.lint.utils import _patch_sys_path
+from pylint.lint.utils import _augment_sys_path
 from pylint.message import Message
 from pylint.typing import FileItem
 from pylint.utils import LinterStats, merge_stats
@@ -37,12 +37,12 @@ _worker_linter: PyLinter | None = None
 
 
 def _worker_initialize(
-    linter: bytes, arguments: None | str | Sequence[str] = None
+    linter: bytes, extra_packages_paths: Sequence[str] | None = None
 ) -> None:
     """Function called to initialize a worker for a Process within a concurrent Pool.
 
     :param linter: A linter-class (PyLinter) instance pickled with dill
-    :param arguments: File or module name(s) to lint and to be added to sys.path
+    :param extra_packages_paths: Extra entries to be added to sys.path
     """
     global _worker_linter  # pylint: disable=global-statement
     _worker_linter = dill.loads(linter)
@@ -53,8 +53,8 @@ def _worker_initialize(
     _worker_linter.set_reporter(reporters.CollectingReporter())
     _worker_linter.open()
 
-    # Patch sys.path so that each argument is importable just like in single job mode
-    _patch_sys_path(arguments or ())
+    if extra_packages_paths:
+        _augment_sys_path(extra_packages_paths)
 
 
 def _worker_check_single_file(
@@ -130,7 +130,7 @@ def check_parallel(
     linter: PyLinter,
     jobs: int,
     files: Iterable[FileItem],
-    arguments: None | str | Sequence[str] = None,
+    extra_packages_paths: Sequence[str] | None = None,
 ) -> None:
     """Use the given linter to lint the files with given amount of workers (jobs).
 
@@ -140,7 +140,9 @@ def check_parallel(
     # The linter is inherited by all the pool's workers, i.e. the linter
     # is identical to the linter object here. This is required so that
     # a custom PyLinter object can be used.
-    initializer = functools.partial(_worker_initialize, arguments=arguments)
+    initializer = functools.partial(
+        _worker_initialize, extra_packages_paths=extra_packages_paths
+    )
     with ProcessPoolExecutor(
         max_workers=jobs, initializer=initializer, initargs=(dill.dumps(linter),)
     ) as executor:

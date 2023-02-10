@@ -13,7 +13,8 @@ from typing import NoReturn
 from pylint import constants
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.arguments_provider import _ArgumentsProvider
-from pylint.lint.utils import fix_import_path
+from pylint.lint import discover_package_path
+from pylint.lint.utils import augmented_sys_path
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
@@ -31,6 +32,26 @@ DIRECTLY_SUPPORTED_FORMATS = (
     "plantuml",
     "mmd",
     "html",
+)
+
+DEFAULT_COLOR_PALETTE = (
+    "aliceblue",
+    "antiquewhite",
+    "aquamarine",
+    "burlywood",
+    "cadetblue",
+    "chartreuse",
+    "chocolate",
+    "coral",
+    "cornflowerblue",
+    "cyan",
+    "darkgoldenrod",
+    "darkseagreen",
+    "dodgerblue",
+    "forestgreen",
+    "gold",
+    "hotpink",
+    "mediumspringgreen",
 )
 
 OPTIONS: Options = (
@@ -173,6 +194,17 @@ OPTIONS: Options = (
         },
     ),
     (
+        "color-palette",
+        {
+            "dest": "color_palette",
+            "action": "store",
+            "default": DEFAULT_COLOR_PALETTE,
+            "metavar": "<color1,color2,...>",
+            "type": "csv",
+            "help": "Comma separated list of colors to use",
+        },
+    ),
+    (
         "ignore",
         {
             "type": "csv",
@@ -203,6 +235,17 @@ OPTIONS: Options = (
             "help": "set the output directory path.",
         },
     ),
+    (
+        "source-roots",
+        {
+            "type": "paths_csv",
+            "metavar": "<path>[,<path>...]",
+            "default": (),
+            "help": "Add paths to the list of the source roots. The source root is an absolute "
+            "path or a path relative to the current working directory used to "
+            "determine a package namespace for modules located under the source root.",
+        },
+    ),
 )
 
 
@@ -213,6 +256,12 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
     name = "pyreverse"
 
     def __init__(self, args: Sequence[str]) -> NoReturn:
+        # Immediately exit if user asks for version
+        if "--version" in args:
+            print("pyreverse is included in pylint:")
+            print(constants.full_version)
+            sys.exit(0)
+
         _ArgumentsManager.__init__(self, prog="pyreverse", description=__doc__)
         _ArgumentsProvider.__init__(self, self)
 
@@ -235,7 +284,10 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
         if not args:
             print(self.help())
             return 1
-        with fix_import_path(args):
+        extra_packages_paths = list(
+            {discover_package_path(arg, self.config.source_roots) for arg in args}
+        )
+        with augmented_sys_path(extra_packages_paths):
             project = project_from_files(
                 args,
                 project_name=self.config.project,

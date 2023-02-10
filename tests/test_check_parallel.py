@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures.process import BrokenProcessPool
 from pickle import PickleError
@@ -21,7 +22,7 @@ from astroid import nodes
 import pylint.interfaces
 import pylint.lint.parallel
 from pylint.checkers import BaseRawFileChecker
-from pylint.lint import PyLinter
+from pylint.lint import PyLinter, augmented_sys_path
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
@@ -172,6 +173,14 @@ class TestCheckParallelFramework:
         linter = PyLinter(reporter=Reporter())
         worker_initialize(linter=dill.dumps(linter))
         assert isinstance(pylint.lint.parallel._worker_linter, type(linter))
+
+    def test_worker_initialize_with_package_paths(self) -> None:
+        linter = PyLinter(reporter=Reporter())
+        with augmented_sys_path([]):
+            worker_initialize(
+                linter=dill.dumps(linter), extra_packages_paths=["fake-path"]
+            )
+            assert "fake-path" in sys.path
 
     @pytest.mark.needs_two_cores
     def test_worker_initialize_pickling(self) -> None:
@@ -324,7 +333,6 @@ class TestCheckParallel:
             linter,
             jobs=1,
             files=iter(single_file_container),
-            arguments=["--enable", "R9999"],
         )
         assert len(linter.get_checkers()) == 2, (
             "We should only have the 'main' and 'sequential-checker' "
@@ -390,7 +398,9 @@ class TestCheckParallel:
         # Invoke the lint process in a multi-process way, although we only specify one
         # job.
         check_parallel(
-            linter, jobs=1, files=iter(single_file_container), arguments=None
+            linter,
+            jobs=1,
+            files=iter(single_file_container),
         )
 
         assert {
@@ -504,7 +514,6 @@ class TestCheckParallel:
                     linter,
                     jobs=num_jobs,
                     files=file_infos,
-                    arguments=None,
                 )
                 stats_check_parallel = linter.stats
                 assert linter.msg_status == 0, "We should not fail the lint"
@@ -572,7 +581,6 @@ class TestCheckParallel:
                     linter,
                     jobs=num_jobs,
                     files=file_infos,
-                    arguments=None,
                 )
                 stats_check_parallel = linter.stats
         assert str(stats_single_proc.by_msg) == str(
@@ -600,5 +608,5 @@ class TestCheckParallel:
                 files=iter(single_file_container),
                 # This will trigger an exception in the initializer for the parallel jobs
                 # because arguments has to be an Iterable.
-                arguments=1,  # type: ignore[arg-type]
+                extra_packages_paths=1,  # type: ignore[arg-type]
             )

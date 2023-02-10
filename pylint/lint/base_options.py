@@ -344,6 +344,17 @@ def _make_linter_options(linter: PyLinter) -> Options:
             },
         ),
         (
+            "source-roots",
+            {
+                "type": "paths_csv",
+                "metavar": "<path>[,<path>...]",
+                "default": (),
+                "help": "Add paths to the list of the source roots. The source root is an absolute "
+                "path or a path relative to the current working directory used to "
+                "determine a package namespace for modules located under the source root.",
+            },
+        ),
+        (
             "recursive",
             {
                 "type": "yn",

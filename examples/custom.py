@@ -50,7 +50,7 @@ class MyAstroidChecker(BaseChecker):
         if not (
             isinstance(node.func, nodes.Attribute)
             and isinstance(node.func.expr, nodes.Name)
-            and node.func.expr.name == self.config.store_locals_indicator
+            and node.func.expr.name == self.linter.config.store_locals_indicator
             and node.func.attrname == "create"
         ):
             return

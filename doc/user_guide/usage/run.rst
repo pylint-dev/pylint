@@ -45,6 +45,13 @@ directory is automatically added on top of the python path
 package (i.e. has an ``__init__.py`` file), an implicit namespace package
 or if ``directory`` is in the python path.
 
+With implicit namespace packages
+--------------------------------
+
+If the analyzed sources use implicit namespace packages (PEP 420), the source root(s) should
+be specified using the ``--source-roots`` option. Otherwise, the package names are
+detected incorrectly, since implicit namespace packages don't contain an ``__init__.py``.
+
 Command line options
 --------------------
 

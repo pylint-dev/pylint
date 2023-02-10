@@ -112,7 +112,7 @@ DELETED_MESSAGES_IDS = {
     "https://github.com/PyCQA/pylint/pull/3571": [
         DeletedMessage("C0330", "bad-continuation")
     ],
-    "https://pylint.pycqa.org/en/latest/whatsnew/1/1.4.html#what-s-new-in-pylint-1-4-3": [
+    "https://pylint.readthedocs.io/en/latest/whatsnew/1/1.4.html#what-s-new-in-pylint-1-4-3": [
         DeletedMessage("R0921", "abstract-class-not-used"),
         DeletedMessage("R0922", "abstract-class-little-used"),
         DeletedMessage("W0142", "star-args"),
@@ -125,7 +125,7 @@ DELETED_MESSAGES_IDS = {
     ],
 }
 MOVED_TO_EXTENSIONS = {
-    "https://pylint.pycqa.org/en/latest/whatsnew/2/2.14/summary.html#removed-checkers": [
+    "https://pylint.readthedocs.io/en/latest/whatsnew/2/2.14/summary.html#removed-checkers": [
         DeletedMessage("R0201", "no-self-use")
     ],
 }

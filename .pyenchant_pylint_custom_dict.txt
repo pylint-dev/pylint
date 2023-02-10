@@ -242,6 +242,7 @@ params
 paren
 parens
 passthru
+pathlib
 positionals
 png
 pragma
@@ -281,6 +282,7 @@ rstrip
 rtype
 runtime
 se
+seaborn
 sep
 setcomp
 shortstrings
@@ -303,6 +305,8 @@ subcommands
 subdicts
 subgraphs
 sublists
+submodule
+submodules
 subparsers
 subparts
 subprocess
@@ -348,6 +352,7 @@ unicode
 Uninferable
 uninferable
 unittest
+untriggered
 # prefix for string
 ur
 ureport

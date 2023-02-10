@@ -39,8 +39,7 @@ from pylint.constants import (
     _warn_about_old_home,
 )
 from pylint.exceptions import InvalidMessageError
-from pylint.lint import PyLinter
-from pylint.lint.utils import fix_import_path
+from pylint.lint import PyLinter, expand_modules
 from pylint.message import Message
 from pylint.reporters import text
 from pylint.testutils import create_files
@@ -117,8 +116,17 @@ def fake_path() -> Iterator[list[str]]:
     sys.path[:] = orig
 
 
+def test_deprecated() -> None:
+    """Test that fix_import_path() and get_python_path() are deprecated"""
+    with tempdir():
+        create_files(["__init__.py"])
+        with pytest.deprecated_call():
+            with lint.fix_import_path([""]):
+                expand_modules.get_python_path("__init__.py")
+
+
 def test_no_args(fake_path: list[str]) -> None:
-    with lint.fix_import_path([]):
+    with lint.augmented_sys_path([]):
         assert sys.path == fake_path
     assert sys.path == fake_path
 
@@ -131,8 +139,12 @@ def test_one_arg(fake_path: list[str], case: list[str]) -> None:
         create_files(["a/b/__init__.py"])
         expected = [join(chroot, "a")] + fake_path
 
+        extra_sys_paths = [
+            expand_modules.discover_package_path(arg, []) for arg in case
+        ]
+
         assert sys.path == fake_path
-        with lint.fix_import_path(case):
+        with lint.augmented_sys_path(extra_sys_paths):
             assert sys.path == expected
         assert sys.path == fake_path
 
@@ -151,8 +163,12 @@ def test_two_similar_args(fake_path: list[str], case: list[str]) -> None:
         create_files(["a/b/__init__.py", "a/c/__init__.py"])
         expected = [join(chroot, "a")] + fake_path
 
+        extra_sys_paths = [
+            expand_modules.discover_package_path(arg, []) for arg in case
+        ]
+
         assert sys.path == fake_path
-        with lint.fix_import_path(case):
+        with lint.augmented_sys_path(extra_sys_paths):
             assert sys.path == expected
         assert sys.path == fake_path
 
@@ -173,8 +189,12 @@ def test_more_args(fake_path: list[str], case: list[str]) -> None:
             for suffix in (sep.join(("a", "b")), "a", sep.join(("a", "e")))
         ] + fake_path
 
+        extra_sys_paths = [
+            expand_modules.discover_package_path(arg, []) for arg in case
+        ]
+
         assert sys.path == fake_path
-        with lint.fix_import_path(case):
+        with lint.augmented_sys_path(extra_sys_paths):
             assert sys.path == expected
         assert sys.path == fake_path
 
@@ -1188,6 +1208,39 @@ def test_recursive_ignore(ignore_parameter: str, ignore_parameter_value: str) ->
     assert module in linted_file_paths
 
 
+def test_recursive_implicit_namespace() -> None:
+    run = Run(
+        [
+            "--verbose",
+            "--recursive",
+            "y",
+            "--source-roots",
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "project"),
+            join(REGRTEST_DATA_DIR, "pep420", "basic"),
+        ],
+        exit=False,
+    )
+    run.linter.set_reporter(testutils.GenericTestReporter())
+    run.linter.check([join(REGRTEST_DATA_DIR, "pep420", "basic")])
+    assert run.linter.file_state.base_name == "namespace.package"
+
+
+def test_recursive_implicit_namespace_wrapper() -> None:
+    run = Run(
+        [
+            "--recursive",
+            "y",
+            "--source-roots",
+            join(REGRTEST_DATA_DIR, "pep420", "wrapper", "project"),
+            join(REGRTEST_DATA_DIR, "pep420", "wrapper"),
+        ],
+        exit=False,
+    )
+    run.linter.set_reporter(testutils.GenericTestReporter())
+    run.linter.check([join(REGRTEST_DATA_DIR, "pep420", "wrapper")])
+    assert run.linter.reporter.messages == []
+
+
 def test_relative_imports(initialized_linter: PyLinter) -> None:
     """Regression test for https://github.com/PyCQA/pylint/issues/3651"""
     linter = initialized_linter
@@ -1235,8 +1288,10 @@ print(submodule1)
 """
             )
         os.chdir("namespace")
+        extra_sys_paths = [expand_modules.discover_package_path(tmpdir, [])]
+
         # Add the parent directory to sys.path
-        with fix_import_path([tmpdir]):
+        with lint.augmented_sys_path(extra_sys_paths):
             linter.check(["submodule2.py"])
     assert not linter.stats.by_msg
 
@@ -1257,6 +1312,7 @@ def test_lint_namespace_package_under_dir_on_path(initialized_linter: PyLinter) 
     with tempdir() as tmpdir:
         create_files(["namespace_on_path/submodule1.py"])
         os.chdir(tmpdir)
-        with fix_import_path([tmpdir]):
+        extra_sys_paths = [expand_modules.discover_package_path(tmpdir, [])]
+        with lint.augmented_sys_path(extra_sys_paths):
             linter.check(["namespace_on_path"])
     assert linter.file_state.base_name == "namespace_on_path"
