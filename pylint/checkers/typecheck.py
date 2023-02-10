@@ -88,6 +88,9 @@ class VERSION_COMPATIBLE_OVERLOAD:
 VERSION_COMPATIBLE_OVERLOAD_SENTINEL = VERSION_COMPATIBLE_OVERLOAD()
 
 
+PY310_PLUS = sys.version_info >= (3, 10)
+
+
 def _unflatten(iterable: Iterable[_T]) -> Iterator[_T]:
     for index, elem in enumerate(iterable):
         if isinstance(elem, Sequence) and not isinstance(elem, str):
@@ -796,7 +799,7 @@ def _is_c_extension(module_node: InferenceResult) -> bool:
 
 def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
     # Return True if we are sure that arg is not a type
-    if isinstance(arg, nodes.BinOp) and arg.op == "|":
+    if PY310_PLUS and isinstance(arg, nodes.BinOp) and arg.op == "|":
         return _is_invalid_isinstance_type(arg.left) or _is_invalid_isinstance_type(
             arg.right
         )
@@ -810,7 +813,7 @@ def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
         return False
     if isinstance(inferred, astroid.Instance) and inferred.qname() == BUILTIN_TUPLE:
         return False
-    if isinstance(inferred, bases.UnionType):
+    if PY310_PLUS and isinstance(inferred, bases.UnionType):
         return _is_invalid_isinstance_type(
             inferred.left
         ) or _is_invalid_isinstance_type(inferred.right)
