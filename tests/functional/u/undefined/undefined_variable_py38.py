@@ -174,7 +174,11 @@ def expression_in_ternary_operator_inside_container_tuple():
 
 
 def expression_in_ternary_operator_inside_container_later_position():
-    """Named expression follows unrelated item in container"""
+    """
+    Named expression follows unrelated item in container.
+
+    If 23 is replaced with `val3`, there is currently a false negative,
+    but the false positive here is more important and likely to occur."""
     return [23, val3 if (val3 := 'something') else 'anything']
 
 
