@@ -4,12 +4,14 @@
 
 """Script used to generate the messages files."""
 
+from __future__ import annotations
+
 import os
 from collections import defaultdict
 from inspect import getmodule
 from itertools import chain, groupby
 from pathlib import Path
-from typing import DefaultDict, Dict, List, NamedTuple, Optional, Tuple
+from typing import DefaultDict, Dict, List, NamedTuple, Tuple
 
 from sphinx.application import Sphinx
 
@@ -60,7 +62,7 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
     initialize_extensions(linter)
 
 
-def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
+def _get_message_data(data_path: Path) -> tuple[str, str, str, str]:
     """Get the message data from the specified path."""
     good_py_path = data_path / "good.py"
     bad_py_path = data_path / "bad.py"
@@ -145,7 +147,7 @@ You can help us make the doc better `by contributing <https://github.com/PyCQA/p
 
 def _get_all_messages(
     linter: PyLinter,
-) -> Tuple[MessagesDict, OldMessagesDict]:
+) -> tuple[MessagesDict, OldMessagesDict]:
     """Get all messages registered to a linter and return a dictionary indexed by
     message type.
 
@@ -305,7 +307,7 @@ def _generate_checker_url(message: MessageData) -> str:
 
 
 def _write_single_shared_message_page(
-    category_dir: Path, messages: List[MessageData]
+    category_dir: Path, messages: list[MessageData]
 ) -> None:
     message = messages[0]
     with open(category_dir / f"{message.name}.rst", "w", encoding="utf-8") as stream:
@@ -405,8 +407,8 @@ def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
 
 def _write_redirect_old_page(
     category_dir: Path,
-    old_name: Tuple[str, str],
-    new_names: List[Tuple[str, str]],
+    old_name: tuple[str, str],
+    new_names: list[tuple[str, str]],
 ) -> None:
     old_name_file = os.path.join(category_dir, f"{old_name[0]}.rst")
     new_names_string = "".join(
@@ -428,7 +430,7 @@ def _write_redirect_old_page(
 
 
 # pylint: disable-next=unused-argument
-def build_messages_pages(app: Optional[Sphinx]) -> None:
+def build_messages_pages(app: Sphinx | None) -> None:
     """Overwrite messages files by printing the documentation to a stream.
 
     Documentation is written in ReST format.

@@ -4,6 +4,8 @@
 
 """Functional tests for the code examples in the messages' documentation."""
 
+from __future__ import annotations
+
 import sys
 
 if sys.version_info[:2] > (3, 9):
@@ -18,7 +20,7 @@ else:
 
 from pathlib import Path
 from typing import Counter as CounterType
-from typing import List, Optional, TextIO, Tuple
+from typing import TextIO, Tuple
 
 import pytest
 
@@ -32,12 +34,12 @@ from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 MessageCounter = CounterType[Tuple[int, str]]
 
 
-def get_functional_test_files_from_directory(input_dir: Path) -> List[Tuple[str, Path]]:
+def get_functional_test_files_from_directory(input_dir: Path) -> list[tuple[str, Path]]:
     """Get all functional tests in the input_dir.
 
     This also checks the formatting of related.rst files.
     """
-    suite: List[Tuple[str, Path]] = []
+    suite: list[tuple[str, Path]] = []
 
     for subdirectory in input_dir.iterdir():
         for message_dir in subdirectory.iterdir():
@@ -69,7 +71,7 @@ TESTS_NAMES = [f"{t[0]}-{t[1].stem}" for t in TESTS]
 
 
 class LintModuleTest:
-    def __init__(self, test_file: Tuple[str, Path]) -> None:
+    def __init__(self, test_file: tuple[str, Path]) -> None:
         self._test_file = test_file
 
         _test_reporter = FunctionalTestReporter()
@@ -80,7 +82,7 @@ class LintModuleTest:
 
         # Check if this message has a custom configuration file (e.g. for enabling optional checkers).
         # If not, use the default configuration.
-        config_file: Optional[Path]
+        config_file: Path | None
         msgid, full_path = test_file
         pylintrc = full_path.parent / "pylintrc"
         config_file = pylintrc if pylintrc.exists() else None
@@ -136,7 +138,7 @@ class LintModuleTest:
 
     def _get_actual(self) -> MessageCounter:
         """Get the actual messages after a run."""
-        messages: List[Message] = self._linter.reporter.messages
+        messages: list[Message] = self._linter.reporter.messages
         messages.sort(key=lambda m: (m.line, m.symbol, m.msg))
         received_msgs: MessageCounter = Counter()
         for msg in messages:
@@ -176,6 +178,6 @@ See:
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
-def test_code_examples(test_file: Tuple[str, Path]) -> None:
+def test_code_examples(test_file: tuple[str, Path]) -> None:
     lint_test = LintModuleTest(test_file)
     lint_test.runTest()
