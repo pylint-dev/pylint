@@ -173,9 +173,13 @@ def expression_in_ternary_operator_inside_container_tuple():
     return [(val3, val3) if (val3 := 'something') else 'anything']
 
 
-def expression_in_ternary_operator_inside_container_wrong_position():
-    """2-element list where named expression comes too late"""
-    return [val3, val3 if (val3 := 'something') else 'anything']  # [used-before-assignment]
+def expression_in_ternary_operator_inside_container_later_position():
+    """
+    Named expression follows unrelated item in container.
+
+    If 23 is replaced with `val3`, there is currently a false negative,
+    but the false positive here is more important and likely to occur."""
+    return [23, val3 if (val3 := 'something') else 'anything']
 
 
 # Self-referencing
