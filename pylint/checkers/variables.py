@@ -115,6 +115,15 @@ DICT_TYPES = (
     astroid.nodes.node_classes.Dict,
 )
 
+NODES_WITH_VALUE_ATTR = (
+    nodes.Assign,
+    nodes.AnnAssign,
+    nodes.AugAssign,
+    nodes.Expr,
+    nodes.Return,
+    nodes.Match,
+)
+
 
 class VariableVisitConsumerAction(Enum):
     """Reported by _check_consumer() and its sub-methods to determine the
@@ -2139,17 +2148,7 @@ class VariablesChecker(BaseChecker):
                     # same line as the function definition
                     maybe_before_assign = False
                 elif (
-                    isinstance(
-                        defstmt,
-                        (
-                            nodes.Assign,
-                            nodes.AnnAssign,
-                            nodes.AugAssign,
-                            nodes.Expr,
-                            nodes.Return,
-                            nodes.Match,
-                        ),
-                    )
+                    isinstance(defstmt, NODES_WITH_VALUE_ATTR)
                     and VariablesChecker._maybe_used_and_assigned_at_once(defstmt)
                     and frame is defframe
                     and defframe.parent_of(node)
@@ -2245,16 +2244,23 @@ class VariablesChecker(BaseChecker):
         """
         if isinstance(defstmt, nodes.Match):
             return any(case.guard for case in defstmt.cases)
-        if isinstance(defstmt.value, nodes.BaseContainer) and defstmt.value.elts:
-            # The assignment must happen as part of the first element
-            # e.g. "assert (x:= True), x"
-            # NOT "assert x, (x:= True)"
-            value = defstmt.value.elts[0]
-        else:
-            value = defstmt.value
+        if isinstance(defstmt, nodes.IfExp):
+            return True
+        if isinstance(defstmt.value, nodes.BaseContainer):
+            return any(
+                VariablesChecker._maybe_used_and_assigned_at_once(elt)
+                for elt in defstmt.value.elts
+                if isinstance(elt, NODES_WITH_VALUE_ATTR + (nodes.IfExp, nodes.Match))
+            )
+        value = defstmt.value
         if isinstance(value, nodes.IfExp):
             return True
         if isinstance(value, nodes.Lambda) and isinstance(value.body, nodes.IfExp):
+            return True
+        if isinstance(value, nodes.Dict) and any(
+            isinstance(item[0], nodes.IfExp) or isinstance(item[1], nodes.IfExp)
+            for item in value.items
+        ):
             return True
         if not isinstance(value, nodes.Call):
             return False

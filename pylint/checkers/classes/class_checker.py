@@ -1161,7 +1161,7 @@ a metaclass class method.",
         self._check_property_with_parameters(node)
 
         # 'is_method()' is called and makes sure that this is a 'nodes.ClassDef'
-        klass = node.parent.frame(future=True)  # type: nodes.ClassDef
+        klass: nodes.ClassDef = node.parent.frame(future=True)
         # check first argument is self if this is actually a method
         self._check_first_arg_for_type(node, klass.type == "metaclass")
         if node.name == "__init__":
