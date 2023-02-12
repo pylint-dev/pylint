@@ -1,1 +1,4 @@
-# This is a placeholder for correct code for this message.
+import typing
+from typing import Dict
+
+var1: typing.cast(Dict[str, int], "string")
