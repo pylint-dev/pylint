@@ -24,6 +24,7 @@ import astroid.helpers
 from astroid import arguments, bases, nodes
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
+from pylint.constants import PY310_PLUS
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     decorated_with,
@@ -86,9 +87,6 @@ class VERSION_COMPATIBLE_OVERLOAD:
 
 
 VERSION_COMPATIBLE_OVERLOAD_SENTINEL = VERSION_COMPATIBLE_OVERLOAD()
-
-
-PY310_PLUS = sys.version_info >= (3, 10)
 
 
 def _unflatten(iterable: Iterable[_T]) -> Iterator[_T]:
