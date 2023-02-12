@@ -3,3 +3,4 @@ tests/**/functional/** -text
 tests/input/** -text
 tests/**/data/** -text
 tests/regrtest_data/** -text
+doc/data/messages/u/unexpected-line-ending-format/bad.py -text
