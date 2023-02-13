@@ -1,4 +1,0 @@
-[main]
-load-plugins = pylint.extensions.typing
-py-version = 3.7
-runtime-typing=no
