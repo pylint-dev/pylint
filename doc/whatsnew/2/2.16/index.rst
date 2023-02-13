@@ -32,6 +32,60 @@ Last but not least @clavedeluna and @nickdrozd became triagers, welcome to the t
 
 .. towncrier release notes start
 
+What's new in Pylint 2.16.2?
+----------------------------
+Release date: 2023-02-13
+
+
+New Features
+------------
+
+- Add `--version` option to `pyreverse`.
+
+  Refs #7851 (`#7851 <https://github.com/PyCQA/pylint/issues/7851>`_)
+
+
+
+False Positives Fixed
+---------------------
+
+- Fix false positive for ``used-before-assignment`` when
+  ``typing.TYPE_CHECKING`` is used with if/elif/else blocks.
+
+  Closes #7574 (`#7574 <https://github.com/PyCQA/pylint/issues/7574>`_)
+
+- Fix false positive for ``used-before-assignment`` for named expressions
+  appearing after the first element in a list, tuple, or set.
+
+  Closes #8252 (`#8252 <https://github.com/PyCQA/pylint/issues/8252>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix ``used-before-assignment`` false positive when the walrus operator
+  is used with a ternary operator in dictionary key/value initialization.
+
+  Closes #8125 (`#8125 <https://github.com/PyCQA/pylint/issues/8125>`_)
+
+- Fix ``no-name-in-module`` false positive raised when a package defines a
+  variable with the
+  same name as one of its submodules.
+
+  Closes #8148 (`#8148 <https://github.com/PyCQA/pylint/issues/8148>`_)
+
+- Fix ``nested-min-max`` suggestion message to indicate it's possible to splat
+  iterable objects.
+
+  Closes #8168 (`#8168 <https://github.com/PyCQA/pylint/issues/8168>`_)
+
+- Fix a crash happening when a class attribute was negated in the start
+  argument of an enumerate.
+
+  Closes #8207 (`#8207 <https://github.com/PyCQA/pylint/issues/8207>`_)
+
+
 What's new in Pylint 2.16.1?
 ----------------------------
 Release date: 2023-02-02
