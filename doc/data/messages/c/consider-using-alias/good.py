@@ -1,4 +1,3 @@
 import typing
-from typing import Dict
 
-var1: typing.cast(Dict[str, int], "string")
+var1: typing.cast(dict[str, int], "string")
