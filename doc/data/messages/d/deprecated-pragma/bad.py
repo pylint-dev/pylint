@@ -1,4 +1,4 @@
-# pylint: disable-msg=too-few-public-methods,using-constant-test # [deprecated-pragma]
+# pylint: disable-msg=eval-used # [deprecated-pragma]
 
 class Class:
     @property
