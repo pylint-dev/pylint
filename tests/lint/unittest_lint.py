@@ -1208,6 +1208,20 @@ def test_recursive_ignore(ignore_parameter: str, ignore_parameter_value: str) ->
     assert module in linted_file_paths
 
 
+def test_source_roots_globbing() -> None:
+    run = Run(
+        [
+            "--source-roots",
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "*"),
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "project"),
+        ],
+        exit=False,
+    )
+    assert run.linter.config.source_roots == [
+        join(REGRTEST_DATA_DIR, "pep420", "basic", "project")
+    ]
+
+
 def test_recursive_implicit_namespace() -> None:
     run = Run(
         [

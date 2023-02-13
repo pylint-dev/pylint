@@ -15,6 +15,7 @@ import pathlib
 import re
 import sys
 from collections.abc import Callable
+from glob import glob
 from typing import Any, Pattern, Sequence, Tuple, Union
 
 from pylint import interfaces
@@ -88,13 +89,13 @@ def _path_transformer(value: str) -> str:
     return os.path.expandvars(os.path.expanduser(value))
 
 
-def _paths_csv_transformer(value: str) -> Sequence[str]:
+def _glob_paths_csv_transformer(value: str) -> Sequence[str]:
     """Transforms a comma separated list of paths while expanding user and
-    variables.
+    variables and glob patterns.
     """
     paths: list[str] = []
     for path in _csv_transformer(value):
-        paths.append(os.path.expandvars(os.path.expanduser(path)))
+        paths.extend(glob(_path_transformer(path), recursive=True))
     return paths
 
 
@@ -148,7 +149,7 @@ _TYPE_TRANSFORMERS: dict[str, Callable[[str], _ArgumentTypes]] = {
     "confidence": _confidence_transformer,
     "non_empty_string": _non_empty_string_transformer,
     "path": _path_transformer,
-    "paths_csv": _paths_csv_transformer,
+    "glob_paths_csv": _glob_paths_csv_transformer,
     "py_version": _py_version_transformer,
     "regexp": _regex_transformer,
     "regexp_csv": _regexp_csv_transfomer,
