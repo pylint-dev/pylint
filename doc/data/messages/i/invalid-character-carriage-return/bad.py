@@ -1,7 +1,1 @@
-# pylint: disable = syntax-error
-
-# +2: [invalid-character-carriage-return]
-CARRIAGE_RETURN = "
--->
-<---
-"
+CARRIAGE_RETURN = "Invalid Character Carriage Return ^M" # [invalid-character-carriage-return]
