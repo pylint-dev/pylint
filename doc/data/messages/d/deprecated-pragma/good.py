@@ -1,1 +1,9 @@
-# This is a placeholder for correct code for this message.
+class Class:
+    @property
+    @classmethod
+    def func(cls):
+        pass
+
+
+if Class.func:
+    pass
