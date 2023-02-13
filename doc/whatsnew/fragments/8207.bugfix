@@ -1,3 +1,0 @@
-Fix a crash happening when a class attribute was negated in the start argument of an enumerate.
-
-Closes #8207
