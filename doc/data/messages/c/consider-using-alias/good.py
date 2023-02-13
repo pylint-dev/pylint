@@ -1,3 +1,3 @@
 import typing
 
-var1: typing.cast(dict[str, int], "string")
+cats: typing.cast(dict[str, int], "string")

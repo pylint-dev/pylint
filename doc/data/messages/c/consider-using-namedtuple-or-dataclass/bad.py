@@ -1,5 +1,14 @@
-# Subdicts have at least 1 common key
-MAPPING_1 = {  # [consider-using-namedtuple-or-dataclass]
-    "cat": {"tail": 1,"paws": 4, "eyes": 2, },
-    "entry_2": {"tail": 1, "paws": 4, "legs": 4},
+FELIDAES = {  # [consider-using-namedtuple-or-dataclass]
+    "The queen's cymric, fragile furry friend": {
+        "tail_length_cm": 1,
+        "paws": 4,
+        "eyes": 2,
+        "Elizabethan collar": 1,
+    },
+    "Rackat the red, terror of the sea": {
+        "tail_length_cm": 13,
+        "paws": 3,
+        "eyes": 1,
+        "Red Hat": 1,
+    },
 }
