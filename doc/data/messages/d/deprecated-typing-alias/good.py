@@ -1,1 +1,5 @@
-# This is a placeholder for correct code for this message.
+import typing
+import collections
+from collections import OrderedDict
+
+var1: collections.OrderedDict[str, int]
