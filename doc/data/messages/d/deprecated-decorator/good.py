@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+class MyClass:
+    def my_method(cls):
+        pass
