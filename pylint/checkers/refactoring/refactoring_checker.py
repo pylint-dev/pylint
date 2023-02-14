@@ -1945,10 +1945,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     return True
             except astroid.InferenceError:
                 pass
-        # Avoid the check inside while loop as we don't know
-        # if they will be completed
         if isinstance(node, nodes.While):
-            return True
+            # A while-loop is considered return-ended if it has a
+            # truthy test and no break statements
+            return node.test.bool_value() and not any(node.nodes_of_class(nodes.Break))
         if isinstance(node, nodes.Raise):
             return self._is_raise_node_return_ended(node)
         if isinstance(node, nodes.If):
