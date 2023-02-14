@@ -1,11 +1,11 @@
 # pylint: disable-msg=eval-used # [deprecated-pragma]
 
-class Class:
+class CatClass:
     @property
     @classmethod
     def func(cls):
         pass
 
 
-if Class.func:
+if CatClass.func:
     pass
