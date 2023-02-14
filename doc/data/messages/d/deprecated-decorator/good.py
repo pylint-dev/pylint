@@ -1,4 +1,8 @@
-class FishClass:
-    @classmethod
-    def my_method(cls):
+import abc
+
+
+class Animal:
+    @abc.classmethod
+    @abc.abstractmethod
+    def breath(cls):
         pass

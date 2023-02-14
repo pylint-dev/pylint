@@ -1,7 +1,7 @@
 import abc
 
 
-class FishClass:
+class Animal:
     @abc.abstractclassmethod  # [deprecated-decorator]
-    def my_method(cls):
+    def breath(cls):
         pass
