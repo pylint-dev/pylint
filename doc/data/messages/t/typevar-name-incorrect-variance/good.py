@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+from typing import TypeVar
+
+T = TypeVar("T")
