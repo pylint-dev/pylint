@@ -1,4 +1,4 @@
-""""Checks for redundant Union typehints in assignments"""
+"""Checks for redundant Union typehints in assignments"""
 # pylint: disable=deprecated-typing-alias,consider-alternative-union-syntax,consider-using-alias
 
 from __future__ import annotations
