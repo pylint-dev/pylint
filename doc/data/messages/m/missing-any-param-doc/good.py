@@ -1,5 +1,6 @@
 def puppies(head: str, tail: str):
-    """ Puppy function
+    """Print puppy's details.
+
         :param head: description of the head of the dog
         :param tail: description of the tail of the dog
     """
