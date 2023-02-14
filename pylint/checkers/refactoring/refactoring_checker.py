@@ -20,9 +20,9 @@ from astroid.util import Uninferable
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.checkers.base.basic_error_checker import loop_exits_early
 from pylint.checkers.utils import node_frame_class
 from pylint.interfaces import HIGH, INFERENCE, Confidence
-from pylint.checkers.base.basic_error_checker import loop_exits_early
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
