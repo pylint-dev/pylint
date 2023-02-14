@@ -46,7 +46,7 @@ def _get_break_loop_node(break_node: nodes.Break) -> nodes.For | nodes.While | N
     return parent
 
 
-def _loop_exits_early(loop: nodes.For | nodes.While) -> bool:
+def loop_exits_early(loop: nodes.For | nodes.While) -> bool:
     """Returns true if a loop may end with a break statement.
 
     Args:
@@ -474,7 +474,7 @@ class BasicErrorChecker(_BasicChecker):
 
     def _check_else_on_loop(self, node: nodes.For | nodes.While) -> None:
         """Check that any loop with an else clause has a break statement."""
-        if node.orelse and not _loop_exits_early(node):
+        if node.orelse and not loop_exits_early(node):
             self.add_message(
                 "useless-else-on-loop",
                 node=node,

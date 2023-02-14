@@ -1,5 +1,5 @@
 #pylint: disable=missing-docstring, no-else-return, no-else-break, invalid-name, unused-variable, superfluous-parens, try-except-raise
-#pylint: disable=disallowed-name,too-few-public-methods,no-member,undefined-variable
+#pylint: disable=disallowed-name,too-few-public-methods,no-member,undefined-variable,useless-else-on-loop
 """Testing inconsistent returns"""
 import math
 import sys
@@ -372,3 +372,33 @@ def bug_1772_break():  # [inconsistent-return-statements]
             return 7
         if counter is None:
             break
+
+
+def while_break_in_for():
+    counter = 1
+    while True:
+        counter += 1
+        if counter == 100:
+            return 7
+        for i in range(10):
+            if i == 5:
+                break
+
+
+def while_break_in_while():
+    counter = 1
+    while True:
+        counter += 1
+        if counter == 100:
+            return 7
+        while True:
+            if counter == 5:
+                break
+
+
+def wait_for_apps_ready(event, main_thread):
+    while main_thread.is_alive():
+        if event.wait(timeout=0.1):
+            return True
+    else:
+        return False

@@ -22,6 +22,7 @@ from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import node_frame_class
 from pylint.interfaces import HIGH, INFERENCE, Confidence
+from pylint.checkers.base.basic_error_checker import loop_exits_early
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -1948,7 +1949,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if isinstance(node, nodes.While):
             # A while-loop is considered return-ended if it has a
             # truthy test and no break statements
-            return node.test.bool_value() and not any(node.nodes_of_class(nodes.Break))
+            return (node.test.bool_value() and not loop_exits_early(node)) or any(
+                self._is_node_return_ended(child) for child in node.orelse
+            )
         if isinstance(node, nodes.Raise):
             return self._is_raise_node_return_ended(node)
         if isinstance(node, nodes.If):
