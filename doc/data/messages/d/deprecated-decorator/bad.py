@@ -2,7 +2,6 @@ import abc
 
 
 class Animal:
-    @abc.classmethod
-    @abc.abstractmethod
+    @abc.abstractclassmethod  # [deprecated-decorator]
     def breath(cls):
         pass
