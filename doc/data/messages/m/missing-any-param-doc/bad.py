@@ -1,4 +1,3 @@
 def puppies(head, tail): #[missing-any-param-doc]
-    """Puppy function ...
-    """
+    """Print puppy's details."""
     print(head, tail)
