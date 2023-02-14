@@ -1407,7 +1407,11 @@ accessed. Python regular expressions are accepted.",
 
         second_arg = node.args[1]
         if _is_invalid_isinstance_type(second_arg):
-            self.add_message("isinstance-second-argument-not-valid-type", node=node)
+            self.add_message(
+                "isinstance-second-argument-not-valid-type",
+                node=node,
+                confidence=INFERENCE,
+            )
 
     # pylint: disable = too-many-branches, too-many-locals, too-many-statements
     def visit_call(self, node: nodes.Call) -> None:
