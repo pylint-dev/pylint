@@ -1,1 +1,6 @@
-# This is a placeholder for correct code for this message.
+import logging
+
+logging.info('%s%')
+logging.info('%s', '')
+logging.info('%s%%', '')
+logging.info('%s%s', '', '')
