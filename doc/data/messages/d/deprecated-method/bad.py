@@ -1,4 +1,3 @@
-import unittest
-from importlib.machinery import SourceFileLoader, SourcelessFileLoader
+import logging
 
-SourceFileLoader('unittest', unittest.__file__).load_module() # [deprecated-method]
+logging.warn("I'm coming, world !") # [deprecated-method]

@@ -1,3 +1,3 @@
 import typing
 
-var1: typing.Dict[str, int]  # [deprecated-typing-alias]
+item_to_number_of_item: typing.Dict[str, int]  # [deprecated-typing-alias]
