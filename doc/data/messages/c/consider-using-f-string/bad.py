@@ -2,7 +2,6 @@ from string import Template
 
 menu = ("eggs", "spam", 42.4)
 
-old_order = "%s and %s: %.2f ¤" % menu  # [consider-using-f-string]
 beginner_order = menu[0] + " and " + menu[1] + ": " + str(menu[2]) + " ¤"
 joined_order = " and ".join(menu[:2])
 # +1: [consider-using-f-string]
