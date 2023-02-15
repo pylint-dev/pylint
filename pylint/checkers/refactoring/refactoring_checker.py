@@ -20,7 +20,7 @@ from astroid.util import Uninferable
 
 from pylint import checkers
 from pylint.checkers import utils
-from pylint.checkers.base.basic_error_checker import loop_exits_early
+from pylint.checkers.base.basic_error_checker import _loop_exits_early
 from pylint.checkers.utils import node_frame_class
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 
@@ -1949,7 +1949,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if isinstance(node, nodes.While):
             # A while-loop is considered return-ended if it has a
             # truthy test and no break statements
-            return (node.test.bool_value() and not loop_exits_early(node)) or any(
+            return (node.test.bool_value() and not _loop_exits_early(node)) or any(
                 self._is_node_return_ended(child) for child in node.orelse
             )
         if isinstance(node, nodes.Raise):
