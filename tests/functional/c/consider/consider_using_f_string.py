@@ -127,3 +127,15 @@ def regression_tests():
         print(value)
 
     wrap_print(value="{}".format)
+
+
+DATE = (2020,1,2,3,4,5)
+print("%4d-%02d-%02d %02d:%02d:%02d" % DATE)
+
+
+def test_fn(pa_l):
+    return [
+        #  +1: [consider-using-f-string]
+        "Alpha: {alpha:.0%}, Power: {power:.0%}, Nobs={nobs:.1f}".format(**pa)
+        for pa in pa_l
+    ]
