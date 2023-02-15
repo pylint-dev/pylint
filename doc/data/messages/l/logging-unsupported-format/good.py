@@ -1,6 +1,3 @@
 import logging
 
-logging.info('%s%')
-logging.info('%s', '')
-logging.info('%s%%', '')
-logging.info('%s%s', '', '')
+logging.info("%s %s !", "Hello", "World")
