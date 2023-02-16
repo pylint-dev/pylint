@@ -1,1 +1,1 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+People can cause pylint to ignore all files by adding the code "# pylint: skip-file" to the beginning of the module
