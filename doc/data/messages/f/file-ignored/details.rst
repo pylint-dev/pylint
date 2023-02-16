@@ -1,1 +1,1 @@
-People can cause pylint to ignore all files by adding the code "# pylint: skip-file" to the beginning of the module
+There's no checks at all for a file if it starts by "# pylint: skip-file".
