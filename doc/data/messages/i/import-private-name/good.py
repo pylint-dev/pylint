@@ -1,4 +1,7 @@
-# No error since imports are used as type annotations
-from classes import _PrivateClassA, safe_get_A
+"""Private import can be used as type annotations."""
 
-a_var: _PrivateClassA = safe_get_A()
+from argparse import _SubParsersAction
+
+def add_sub_parser(sub_parsers: _SubParsersAction):
+    sub_parsers.add_parser('my_subparser')
+    # ... 
