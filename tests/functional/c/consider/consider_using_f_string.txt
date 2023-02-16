@@ -29,3 +29,4 @@ consider-using-f-string:119:8:119:19:assignment_bad:Formatting a regular string 
 consider-using-f-string:120:8:120:22:assignment_bad:Formatting a regular string which could be a f-string:UNDEFINED
 consider-using-f-string:121:8:121:19:assignment_bad:Formatting a regular string which could be a f-string:UNDEFINED
 consider-using-f-string:139:8:139:65:test_fn:Formatting a regular string which could be a f-string:UNDEFINED
+consider-using-f-string:145:4:145:11::Formatting a regular string which could be a f-string:UNDEFINED

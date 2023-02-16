@@ -139,3 +139,8 @@ def test_fn(pa_l):
         "Alpha: {alpha:.0%}, Power: {power:.0%}, Nobs={nobs:.1f}".format(**pa)
         for pa in pa_l
     ]
+
+
+# https://github.com/PyCQA/pylint/issues/8224
+map("{:,d}".format, [1,10,100,1000,10000])  # [consider-using-f-string]
+(f"{x:,d}" for x in [1,10,100,1000,10000])
