@@ -48,6 +48,7 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
+from pylint.constants import PY310_PLUS
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
@@ -796,6 +797,10 @@ def _is_c_extension(module_node: InferenceResult) -> bool:
 
 def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
     # Return True if we are sure that arg is not a type
+    if PY310_PLUS and isinstance(arg, nodes.BinOp) and arg.op == "|":
+        return _is_invalid_isinstance_type(arg.left) or _is_invalid_isinstance_type(
+            arg.right
+        )
     inferred = utils.safe_infer(arg)
     if not inferred:
         # Cannot infer it so skip it.
@@ -806,6 +811,10 @@ def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
         return False
     if isinstance(inferred, astroid.Instance) and inferred.qname() == BUILTIN_TUPLE:
         return False
+    if PY310_PLUS and isinstance(inferred, bases.UnionType):
+        return _is_invalid_isinstance_type(
+            inferred.left
+        ) or _is_invalid_isinstance_type(inferred.right)
     return True
 
 
@@ -1398,7 +1407,11 @@ accessed. Python regular expressions are accepted.",
 
         second_arg = node.args[1]
         if _is_invalid_isinstance_type(second_arg):
-            self.add_message("isinstance-second-argument-not-valid-type", node=node)
+            self.add_message(
+                "isinstance-second-argument-not-valid-type",
+                node=node,
+                confidence=INFERENCE,
+            )
 
     # pylint: disable = too-many-branches, too-many-locals, too-many-statements
     def visit_call(self, node: nodes.Call) -> None:

@@ -1,0 +1,3 @@
+Fix false positive for isinstance-second-argument-not-valid-type with union types.
+
+Closes #8205

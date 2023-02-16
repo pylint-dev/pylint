@@ -96,6 +96,8 @@ configuration file in the following order and uses the first one it finds:
    in on the command line.
 #. ``setup.cfg`` in the current working directory,
    providing it has at least one ``pylint.`` section
+#. ``tox.ini`` in the current working directory,
+   providing it has at least one ``pylint.`` section
 #. If the current working directory is in a Python package, Pylint searches \
    up the hierarchy of Python packages until it finds a ``pylintrc`` file. \
    This allows you to specify coding standards on a module-by-module \
