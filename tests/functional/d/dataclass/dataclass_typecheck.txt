@@ -1,5 +1,5 @@
-invalid-sequence-index:38:6:38:20::Sequence index is not an int, slice, or instance with __index__:UNDEFINED
-invalid-slice-index:42:10:42:19::Slice index is not an int, None, or instance with __index__:UNDEFINED
+invalid-sequence-index:38:6:38:20::Sequence index is not an int, slice, or instance with __index__:INFERENCE
+invalid-slice-index:42:10:42:19::Slice index is not an int, None, or instance with __index__:INFERENCE
 not-callable:45:0:45:14::obj.attr1 is not callable:UNDEFINED
 invalid-unary-operand-type:50:6:50:16::"bad operand type for unary -: str":UNDEFINED
 unsupported-membership-test:57:11:57:20::Value 'obj.attr1' doesn't support membership test:UNDEFINED

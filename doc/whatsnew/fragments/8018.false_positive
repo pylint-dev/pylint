@@ -1,0 +1,3 @@
+Fix ``invalid-sequence-index`` for call to ``scipy.fft.rfft``.
+
+Closes #8018
