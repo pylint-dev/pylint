@@ -5,6 +5,8 @@
 from __future__ import annotations
 
 import sys
+from glob import glob
+from itertools import chain
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -118,6 +120,13 @@ def _config_initialization(
     # Link the base Namespace object on the current directory
     linter._directory_namespaces[Path(".").resolve()] = (linter.config, {})
 
-    # parsed_args_list should now only be a list of files/directories to lint.
+    # parsed_args_list should now only be a list of inputs to lint.
     # All other options have been removed from the list.
-    return parsed_args_list
+    return list(
+        chain.from_iterable(
+            # NOTE: 'or [arg]' is needed to maintain backwards compatibility
+            # TODO: remove 'or [arg]' in 3.0
+            glob(arg, recursive=True) or [arg]
+            for arg in parsed_args_list
+        )
+    )

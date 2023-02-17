@@ -1220,8 +1220,6 @@ def test_recursive_implicit_namespace() -> None:
         ],
         exit=False,
     )
-    run.linter.set_reporter(testutils.GenericTestReporter())
-    run.linter.check([join(REGRTEST_DATA_DIR, "pep420", "basic")])
     assert run.linter.file_state.base_name == "namespace.package"
 
 
@@ -1239,6 +1237,19 @@ def test_recursive_implicit_namespace_wrapper() -> None:
     run.linter.set_reporter(testutils.GenericTestReporter())
     run.linter.check([join(REGRTEST_DATA_DIR, "pep420", "wrapper")])
     assert run.linter.reporter.messages == []
+
+
+def test_globbing() -> None:
+    run = Run(
+        [
+            "--verbose",
+            "--source-roots",
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "project"),
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "project", "**", "__init__.py"),
+        ],
+        exit=False,
+    )
+    assert run.linter.file_state.base_name == "namespace.package.__init__"
 
 
 def test_relative_imports(initialized_linter: PyLinter) -> None:

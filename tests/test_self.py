@@ -1158,6 +1158,13 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             code=0,
         )
 
+    def test_recursive_globbing(self) -> None:
+        """Tests if running linter over directory using --recursive=y and globbing"""
+        self._runtest(
+            [join(HERE, "regrtest_data", "d?rectory", "subd*"), "--recursive=y"],
+            code=0,
+        )
+
     @pytest.mark.parametrize("ignore_value", ["ignored_subdirectory", "failing.py"])
     def test_ignore_recursive(self, ignore_value: str) -> None:
         """Tests recursive run of linter ignoring directory using --ignore parameter.

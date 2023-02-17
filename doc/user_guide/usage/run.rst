@@ -52,6 +52,13 @@ If the analyzed sources use implicit namespace packages (PEP 420), the source ro
 be specified using the ``--source-roots`` option. Otherwise, the package names are
 detected incorrectly, since implicit namespace packages don't contain an ``__init__.py``.
 
+With globbing pattern
+---------------------
+
+It is also possible to specify both directories and files using globbing patterns::
+
+   pylint [options] packages/*/src
+
 Command line options
 --------------------
 
