@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 from astroid.brain.brain_dataclasses import DATACLASS_MODULES
@@ -25,13 +25,13 @@ def _is_dataclasses_module(node: nodes.NodeNG) -> bool:
 
 def _check_name_or_attrname_eq_to(
     node: nodes.Name | nodes.Attribute, check_with: str
-) -> Any:
+) -> bool:
     """Utility function to check either a Name/Attribute node's name/attrname with a
     given string.
     """
     if isinstance(node, nodes.Name):
-        return node.name == check_with
-    return node.attrname == check_with
+        return str(node.name) == check_with
+    return str(node.attrname) == check_with
 
 
 class DataclassChecker(BaseChecker):
@@ -74,22 +74,15 @@ class DataclassChecker(BaseChecker):
             and _is_dataclasses_module(inferred_func.parent)
         ):
             return
-        parent_node = node.parent
-        while parent_node and not isinstance(parent_node, (nodes.ClassDef, nodes.Call)):
-            parent_node = parent_node.parent
+        scope_node = node.parent
+        while scope_node and not isinstance(scope_node, (nodes.ClassDef, nodes.Call)):
+            scope_node = scope_node.parent
 
-        if isinstance(parent_node, nodes.Call):
-            inferred_func = utils.safe_infer(parent_node.func)
-        if not (
-            (  # Usage outside dataclass annotated classes
-                isinstance(parent_node, nodes.ClassDef) and parent_node.is_dataclass
-            )
-            or (  # Usage outside make_dataclass
-                isinstance(parent_node, nodes.Call)
-                and parent_node.func.name == "make_dataclass"
-                and _is_dataclasses_module(inferred_func.parent)
-            )
-        ):
+        if isinstance(scope_node, nodes.Call):
+            self._check_invalid_field_call_within_call(node, scope_node)
+            return
+
+        if not scope_node or not scope_node.is_dataclass:
             self.add_message(
                 "invalid-field-call",
                 node=node,
@@ -99,8 +92,7 @@ class DataclassChecker(BaseChecker):
                 confidence=INFERENCE,
             )
             return
-        if isinstance(parent_node, nodes.Call):
-            return
+
         if not (isinstance(node.parent, nodes.AnnAssign) and node == node.parent.value):
             self.add_message(
                 "invalid-field-call",
@@ -108,6 +100,28 @@ class DataclassChecker(BaseChecker):
                 args=("it should be the value of an assignment within a dataclass.",),
                 confidence=INFERENCE,
             )
+
+    def _check_invalid_field_call_within_call(
+        self, node: nodes.Call, scope_node: nodes.Call
+    ) -> None:
+        """Checks for special case where calling field is valid as an argument of the
+        make_dataclass() function.
+        """
+        inferred_func = utils.safe_infer(scope_node.func)
+        if (
+            scope_node.func.name == "make_dataclass"
+            and isinstance(inferred_func, nodes.FunctionDef)
+            and _is_dataclasses_module(inferred_func.parent)
+        ):
+            return
+        self.add_message(
+            "invalid-field-call",
+            node=node,
+            args=(
+                "it should be used within a dataclass or the make_dataclass() function.",
+            ),
+            confidence=INFERENCE,
+        )
 
 
 def register(linter: PyLinter) -> None:
