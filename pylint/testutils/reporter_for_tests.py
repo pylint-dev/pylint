@@ -72,9 +72,6 @@ class MinimalTestReporter(BaseReporter):
 
 
 class FunctionalTestReporter(BaseReporter):
-    def on_set_current_module(self, module: str, filepath: str | None) -> None:
-        self.messages = []
-
     def display_reports(self, layout: Section) -> None:
         """Ignore layouts and don't call self._display()."""
 
