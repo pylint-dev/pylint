@@ -48,14 +48,8 @@ def get_functional_test_files_from_directory(input_dir: Path) -> list[tuple[str,
                 f"directory: it does not start with '{subdirectory.name}'"
             )
             assert message_dir.name.startswith(subdirectory.name), assert_msg
-            if (message_dir / "good.py").exists():
-                suite.append(
-                    (message_dir.stem, message_dir / "good.py"),
-                )
-            if (message_dir / "bad.py").exists():
-                suite.append(
-                    (message_dir.stem, message_dir / "bad.py"),
-                )
+            _add_code_example_to_suite(message_dir, suite, "good")
+            _add_code_example_to_suite(message_dir, suite, "bad")
             if (message_dir / "related.rst").exists():
                 with open(message_dir / "related.rst", encoding="utf-8") as file:
                     text = file.read()
@@ -63,6 +57,28 @@ def get_functional_test_files_from_directory(input_dir: Path) -> list[tuple[str,
                         "-"
                     ), f"{message_dir / 'related.rst'} should be a list using '-'."
     return suite
+
+
+def _add_code_example_to_suite(
+    message_dir: Path, suite: list[tuple[str, Path]], example_type: str
+) -> None:
+    """Code example files can either consist of a single file or a directory."""
+    file = f"{example_type}.py"
+    directory = f"{example_type}"
+    if (message_dir / file).exists():
+        suite.append(
+            (message_dir.stem, message_dir / file),
+        )
+    elif (message_dir / directory).is_dir():
+        dir_to_add = message_dir / directory
+        len_to_add = len(list(dir_to_add.iterdir()))
+        assert len_to_add > 1, (
+            f"A directory of {example_type} files needs at least two files, "
+            f"but only found one in {dir_to_add}."
+        )
+        suite.append(
+            (message_dir.stem, dir_to_add),
+        )
 
 
 TESTS_DIR = Path(__file__).parent.resolve() / "data" / "messages"
@@ -103,11 +119,11 @@ class LintModuleTest:
     def runTest(self) -> None:
         self._runTest()
 
-    def is_good_test_file(self) -> bool:
-        return self._test_file[1].name == "good.py"
+    def is_good_test(self) -> bool:
+        return self._test_file[1].stem == "good"
 
-    def is_bad_test_file(self) -> bool:
-        return self._test_file[1].name == "bad.py"
+    def is_bad_test(self) -> bool:
+        return self._test_file[1].stem == "bad"
 
     @staticmethod
     def get_expected_messages(stream: TextIO) -> MessageCounter:
@@ -131,9 +147,15 @@ class LintModuleTest:
         return messages
 
     def _get_expected(self) -> MessageCounter:
-        """Get the expected messages for a file."""
-        with open(self._test_file[1], encoding="utf8") as f:
-            expected_msgs = self.get_expected_messages(f)
+        """Get the expected messages for a file or directory."""
+        expected_msgs: MessageCounter = Counter()
+        if self._test_file[1].is_dir():
+            for test_file in self._test_file[1].iterdir():
+                with open(test_file, encoding="utf8") as f:
+                    expected_msgs += self.get_expected_messages(f)
+        else:
+            with open(self._test_file[1], encoding="utf8") as f:
+                expected_msgs += self.get_expected_messages(f)
         return expected_msgs
 
     def _get_actual(self) -> MessageCounter:
@@ -147,15 +169,15 @@ class LintModuleTest:
 
     def _runTest(self) -> None:
         """Run the test and assert message differences."""
-        self._linter.check([str(self._test_file[1]), "--rcfile="])
+        self._linter.check([str(self._test_file[1])])
         expected_messages = self._get_expected()
         actual_messages = self._get_actual()
-        if self.is_good_test_file():
+        if self.is_good_test():
             assert actual_messages.total() == 0, self.assert_message_good(
                 actual_messages
             )
-        if self.is_bad_test_file():
-            msg = "There should be at least one warning raised for 'bad.py'"
+        if self.is_bad_test():
+            msg = "There should be at least one warning raised for 'bad' examples."
             assert actual_messages.total() > 0, msg
         assert expected_messages == actual_messages
 
