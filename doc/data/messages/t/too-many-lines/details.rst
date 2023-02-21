@@ -4,6 +4,6 @@ to navigate the file properly (go to a particular line when debugging, or search
 
 This measure is a proxy for higher cyclomatic complexity that you might not be calculating if you're not using ``load-plugins=pylint.extensions.mccabe,``. Cyclomatic complexity is slower to compute, but also a more fine grained measure than raw SLOC. In particular, you can't make the code less readable by making a very complex one liner if you're using cyclomatic complexity.
 
-The example simplify the code, but it's not always possible. Most of the time bursting the file 
+The example simplify the code, but it's not always possible. Most of the time bursting the file
 by creating a package with the same API is the only solution. Anticipating and creating the file
 from the get go will permit to have the same end result with a better version control history.
