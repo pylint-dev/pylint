@@ -8,7 +8,3 @@ def isPalindrome(string):
 		left_pos += 1
 		right_pos -= 1
 	return True
-
-listOfStrings = ['aza', 'racecar', 'trigger', 'ogre']
-for string in listOfStrings:
-    print(isPalindrome(string))

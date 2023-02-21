@@ -10,7 +10,8 @@ def isPalindrome(string): # [too-many-lines]
 	return True
 
 
-print(isPalindrome('aza'))
-print(isPalindrome('racecar'))
-print(isPalindrome('trigger'))
-print(isPalindrome('ogre'))
+def main():
+	print(isPalindrome('aza'))
+	print(isPalindrome('racecar'))
+	print(isPalindrome('trigger'))
+	print(isPalindrome('ogre'))
