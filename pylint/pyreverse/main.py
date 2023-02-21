@@ -238,12 +238,12 @@ OPTIONS: Options = (
     (
         "source-roots",
         {
-            "type": "paths_csv",
+            "type": "glob_paths_csv",
             "metavar": "<path>[,<path>...]",
             "default": (),
-            "help": "Add paths to the list of the source roots. The source root is an absolute "
-            "path or a path relative to the current working directory used to "
-            "determine a package namespace for modules located under the source root.",
+            "help": "Add paths to the list of the source roots. Supports globbing patterns. The "
+            "source root is an absolute path or a path relative to the current working directory "
+            "used to determine a package namespace for modules located under the source root.",
         },
     ),
 )

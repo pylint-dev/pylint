@@ -117,7 +117,7 @@ VALIDATORS: dict[str, Callable[[Any, str, Any], Any] | Callable[[Any], Any]] = {
     "string": utils._unquote,
     "int": int,
     "float": float,
-    "paths_csv": _csv_validator,
+    "glob_paths_csv": _csv_validator,
     "regexp": lambda pattern: re.compile(pattern or ""),
     "regexp_csv": _regexp_csv_validator,
     "regexp_paths_csv": _regexp_paths_csv_validator,
@@ -164,7 +164,7 @@ def _validate(value: Any, optdict: Any, name: str = "") -> Any:
 # pylint: disable=no-member
 class Option(optparse.Option):
     TYPES = optparse.Option.TYPES + (
-        "paths_csv",
+        "glob_paths_csv",
         "regexp",
         "regexp_csv",
         "regexp_paths_csv",
@@ -177,7 +177,7 @@ class Option(optparse.Option):
     )
     ATTRS = optparse.Option.ATTRS + ["hide", "level"]
     TYPE_CHECKER = copy.copy(optparse.Option.TYPE_CHECKER)
-    TYPE_CHECKER["paths_csv"] = _csv_validator
+    TYPE_CHECKER["glob_paths_csv"] = _csv_validator
     TYPE_CHECKER["regexp"] = _regexp_validator
     TYPE_CHECKER["regexp_csv"] = _regexp_csv_validator
     TYPE_CHECKER["regexp_paths_csv"] = _regexp_paths_csv_validator
