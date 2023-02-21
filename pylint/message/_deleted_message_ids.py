@@ -94,6 +94,7 @@ DELETED_MESSAGES_IDS = {
         DeletedMessage("W1660", "deprecated-sys-function"),
         DeletedMessage("W1661", "exception-escape"),
         DeletedMessage("W1662", "comprehension-escape"),
+        DeletedMessage("W2402", "non-ascii-file-name"),
     ],
     "https://github.com/PyCQA/pylint/pull/3578": [
         DeletedMessage("W0312", "mixed-indentation"),
