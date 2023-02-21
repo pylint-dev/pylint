@@ -71,7 +71,7 @@ class DataclassChecker(BaseChecker):
         inferred_func = utils.safe_infer(node.func)
         if not (
             isinstance(inferred_func, nodes.FunctionDef)
-            and _is_dataclasses_module(inferred_func.root)
+            and _is_dataclasses_module(inferred_func.root())
         ):
             return
         scope_node = node.parent
@@ -111,7 +111,7 @@ class DataclassChecker(BaseChecker):
         if (
             scope_node.func.name == "make_dataclass"
             and isinstance(inferred_func, nodes.FunctionDef)
-            and _is_dataclasses_module(inferred_func.parent)
+            and _is_dataclasses_module(inferred_func.root())
         ):
             return
         self.add_message(
