@@ -1,0 +1,3 @@
+Remove 'non-ascii-file-name' as it has not been an issue since Python 3.5
+
+Closes #8324
