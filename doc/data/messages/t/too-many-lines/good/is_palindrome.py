@@ -1,4 +1,4 @@
-def isPalindrome(string):
+def is_palindrome(string):
 	left_pos = 0
 	right_pos = len(string) - 1
 

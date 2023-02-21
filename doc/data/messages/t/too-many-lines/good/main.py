@@ -1,4 +1,4 @@
 def main():
-	listOfStrings = ['aza', 'racecar', 'trigger', 'ogre']
-	for string in listOfStrings:
-		print(isPalindrome(string))
+	strings = ['aza', 'racecar', 'trigger', 'ogre']
+	for string in strings:
+		print(is_palindrome(string))
