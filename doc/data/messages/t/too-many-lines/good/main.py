@@ -2,6 +2,5 @@ from is_palindrome import is_palindrome
 
 
 def main():
-    strings = ["aza", "racecar", "trigger", "ogre"]
-    for string in strings:
+    for string in ["aza", "racecar", "trigger", "ogre"]:
         print(is_palindrome(string))
