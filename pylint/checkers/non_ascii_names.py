@@ -59,6 +59,8 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
                 "- https://peps.python.org/pep-0489/#export-hook-name\n"
                 "- https://peps.python.org/pep-0672/#confusing-features\n"
                 "- https://bugs.python.org/issue20485"
+                "- https://github.com/python/cpython/issues/64684#issuecomment-1093644763"
+                "- https://terpconnect.umd.edu/~zben/Web/CharSet/htmlchars.html"
             ),
         ),
         # First %s will always be "module"
