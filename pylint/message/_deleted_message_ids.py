@@ -123,9 +123,6 @@ DELETED_MESSAGES_IDS = {
     "https://github.com/PyCQA/pylint/pull/6421": [
         DeletedMessage("W0111", "assign-to-new-keyword"),
     ],
-    "https://github.com/PyCQA/pylint/pull/8324": [
-        DeletedMessage("W2402", "non-ascii-file-name"),
-    ],
 }
 MOVED_TO_EXTENSIONS = {
     "https://pylint.readthedocs.io/en/latest/whatsnew/2/2.14/summary.html#removed-checkers": [
