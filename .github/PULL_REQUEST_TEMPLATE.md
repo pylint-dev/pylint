@@ -11,10 +11,10 @@ To ease the process of reviewing your PR, do make sure to complete the following
     If necessary you can write details or offer examples on how the new change is supposed to work.
   - Generating the doc is done with ``tox -e docs``
 - [ ] Relate your change to an issue in the tracker if such an issue exists (Refs #1234, Closes #1234)
-- [ ] Write comprehensive commit messages and/or a good description on what the PR does.
+- [ ] Write comprehensive commit messages and/or a good description of what the PR does.
 - [ ] Keep the change small, separate the consensual changes from the opinionated one.
-  Don't hesitate to open multiple PR if the change requires it. If your review is so
-  big it require to actually plan and allocate time to review, it's very likely
+  Don't hesitate to open multiple PRs if the change requires it. If your review is so
+  big it requires to actually plan and allocate time to review, it's more likely
   that it's going to go stale.
 - [ ] If you used multiple emails or multiple names when contributing, add your mails
       and preferred name in ``script/.contributors_aliases.json``

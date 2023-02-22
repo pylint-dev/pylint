@@ -78,15 +78,15 @@ your patch gets accepted:
 
 - Send a pull request from GitHub (see `About pull requests`_ for more insight about this topic).
 
-- Write comprehensive commit messages and/or a good description on what the PR does.
+- Write comprehensive commit messages and/or a good description of what the PR does.
   Relate your change to an issue in the tracker if such an issue exists (see
   `Closing issues via commit messages`_ of the GitHub documentation for more
   information on this)
 
 - Keep the change small, separate the consensual changes from the opinionated one.
 
-  * Don't hesitate to open multiple PR if the change requires it. If your review is so
-    big it require to actually plan and allocate time to review, it's very likely
+  * Don't hesitate to open multiple PRs if the change requires it. If your review is so
+    big it requires to actually plan and allocate time to review, it's more likely
     that it's going to go stale.
   * Maintainers might have multiple 5 to 10 minutes review windows per day, Say while waiting
     for their teapot to boil, or for their partner to recover from their hilarious nerdy joke,
