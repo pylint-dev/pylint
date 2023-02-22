@@ -282,6 +282,7 @@ All messages in the warning category:
    warning/named-expr-without-context
    warning/nan-comparison
    warning/nested-min-max
+   warning/non-ascii-file-name
    warning/non-parent-init-called
    warning/non-str-assignment-to-dunder-name
    warning/overlapping-except
