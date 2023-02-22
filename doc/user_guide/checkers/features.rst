@@ -728,13 +728,6 @@ Verbatim name of the checker is ``nonascii-checker``.
 
 Nonascii-Checker checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:non-ascii-file-name (W2402): *%s name "%s" contains a non-ASCII character. PEP 3131 only allows non-ascii identifiers, not file names.*
-  Some editors don't support non-ASCII file names properly. Even though Python
-  supports UTF-8 files since Python 3.5 this isn't recommended for
-  interoperability. Further reading: -
-  https://peps.python.org/pep-0489/#export-hook-name -
-  https://peps.python.org/pep-0672/#confusing-features -
-  https://bugs.python.org/issue20485
 :non-ascii-name (C2401): *%s name "%s" contains a non-ASCII character, consider renaming it.*
   Used when the name contains at least one non-ASCII unicode character. See
   https://peps.python.org/pep-0672/#confusing-features for a background why

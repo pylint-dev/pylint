@@ -41,26 +41,6 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             NON_ASCII_HELP,
             {"old_names": [("C0144", "old-non-ascii-name")]},
         ),
-        # First %s will always be "file"
-        "W2402": (
-            (
-                '%s name "%s" contains a non-ASCII character. PEP 3131 only allows '
-                "non-ascii identifiers, not file names."
-            ),
-            "non-ascii-file-name",
-            (
-                # Some = PyCharm at the time of writing didn't display the non_ascii_name_loł
-                # files and had big troubles with git.
-                # Probably only a bug shows the problem quite good.
-                # That's also why this is a warning and not only a convention!
-                "Some editors don't support non-ASCII file names properly. "
-                "Even though Python supports UTF-8 files since Python 3.5 this isn't "
-                "recommended for interoperability. Further reading:\n"
-                "- https://peps.python.org/pep-0489/#export-hook-name\n"
-                "- https://peps.python.org/pep-0672/#confusing-features\n"
-                "- https://bugs.python.org/issue20485"
-            ),
-        ),
         # First %s will always be "module"
         "C2403": (
             '%s name "%s" contains a non-ASCII character, use an ASCII-only alias for import.',
@@ -85,14 +65,12 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             msg = "non-ascii-name"
 
             # Some node types have customized messages
-            if node_type == "file":
-                msg = "non-ascii-file-name"
-            elif node_type == "module":
+            if node_type == "module":
                 msg = "non-ascii-module-import"
 
             self.add_message(msg, node=node, args=args, confidence=interfaces.HIGH)
 
-    @utils.only_required_for_messages("non-ascii-name", "non-ascii-file-name")
+    @utils.only_required_for_messages("non-ascii-name")
     def visit_module(self, node: nodes.Module) -> None:
         self._check_name("file", node.name.split(".")[-1], node)
 
