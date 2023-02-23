@@ -381,6 +381,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a slice step is 0 and the object doesn't implement "
         "a custom __getitem__ method.",
     ),
+    "E1145": (
+        "",
+        "decorator-preserves-signature",
+        "Ignore invalid argument errors on calls to this function",
+    ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
         "in the definition of %s function",
@@ -1454,10 +1459,18 @@ accessed. Python regular expressions are accepted.",
             return
 
         # Has the function signature changed in ways we cannot reliably detect?
-        if hasattr(called, "decorators") and decorated_with(
-            called, self.linter.config.signature_mutators
-        ):
-            return
+        if getattr(called, "decorators", None):
+            if decorated_with(called, self.linter.config.signature_mutators):
+                return
+
+            called_decorator: astroid.NodeNG
+            for called_decorator in filter(
+                None, map(safe_infer, called.decorators.nodes)
+            ):
+                if not self.linter.file_state._module_msgs_state.get("E1145", {}).get(
+                    called_decorator.lineno, True
+                ):
+                    return
 
         num_positional_args = len(call_site.positional_arguments)
         keyword_args = list(call_site.keyword_arguments.keys())
