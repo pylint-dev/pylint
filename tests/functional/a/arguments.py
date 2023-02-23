@@ -240,7 +240,7 @@ def other_mutation_decorator(fun):
     return wrapper
 
 
-def yet_another_mutation_decorator(fun):  # pylint: disable=decorator-preserves-signature
+def yet_another_mutation_decorator(fun):  # pylint: disable=signature-mutator
     """Yet another decorator that changes a function's signature"""
     def wrapper(*args, do_something=True, **kwargs):
         if do_something:

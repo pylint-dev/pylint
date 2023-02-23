@@ -382,9 +382,10 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "a custom __getitem__ method.",
     ),
     "E1145": (
-        "",
-        "decorator-preserves-signature",
-        "Ignore invalid argument errors on calls to this function",
+        "Decorator does not preserve function signature",
+        "signature-mutator",
+        "Emitted when a decorator does not preserve the signature "
+        "of the functions is takes as inputs.",
     ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
