@@ -1,5 +1,5 @@
 #pylint: disable=missing-docstring, no-else-return, no-else-break, invalid-name, unused-variable, superfluous-parens, try-except-raise
-#pylint: disable=disallowed-name,too-few-public-methods,no-member,undefined-variable,useless-else-on-loop
+#pylint: disable=disallowed-name,too-few-public-methods,no-member,useless-else-on-loop
 """Testing inconsistent returns"""
 import math
 import sys
@@ -359,8 +359,8 @@ def bug_pylint_4019_wrong(x):  # [inconsistent-return-statements]
 class A:
     def get_the_answer(self):  # [inconsistent-return-statements]
         while self.is_running:
-            read_message()
-            if comunication_finished():
+            self.read_message()
+            if self.comunication_finished():
                 return "done"
 
 
