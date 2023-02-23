@@ -67,24 +67,32 @@ your patch gets accepted:
 
 .. keep this in sync with the description of PULL_REQUEST_TEMPLATE.md!
 
-- Create a news fragment with `towncrier create <IssueNumber>.<type>` which will be
-  included in the changelog. `<type>` can be one of: breaking, user_action, feature,
-  new_check, removed_check, extension, false_positive, false_negative, bugfix, other, internal.
-  If necessary you can write details or offer examples on how the new change is supposed to work.
+- Document your change, if it is a non-trivial one:
 
-- Document your change, if it is a non-trivial one.
+  * A maintainer might label the issue ``skip-news`` if the change does not need to be in the changelog.
+  * Otherwise, create a news fragment with ``towncrier create <IssueNumber>.<type>`` which will be
+    included in the changelog. ``<type>`` can be one of the types defined in `./towncrier.toml`.
+    If necessary you can write details or offer examples on how the new change is supposed to work.
+  * Generating the doc is done with ``tox -e docs``
 
-- If you used multiple emails or multiple names when contributing, add your mails
-  and preferred name in the ``script/.contributors_aliases.json`` file.
+- Send a pull request from GitHub (see `About pull requests`_ for more insight about this topic).
 
-- Write a comprehensive commit message
-
-- Relate your change to an issue in the tracker if such an issue exists (see
+- Write comprehensive commit messages and/or a good description of what the PR does.
+  Relate your change to an issue in the tracker if such an issue exists (see
   `Closing issues via commit messages`_ of the GitHub documentation for more
   information on this)
 
-- Send a pull request from GitHub (see `About pull requests`_ for more insight
-  about this topic)
+- Keep the change small, separate the consensual changes from the opinionated one.
+
+  * Don't hesitate to open multiple PRs if the change requires it. If your review is so
+    big it requires to actually plan and allocate time to review, it's more likely
+    that it's going to go stale.
+  * Maintainers might have multiple 5 to 10 minutes review windows per day, Say while waiting
+    for their teapot to boil, or for their partner to recover from their hilarious nerdy joke,
+    but only one full hour review time per week, if at all.
+
+- If you used multiple emails or multiple names when contributing, add your mails
+  and preferred name in the ``script/.contributors_aliases.json`` file.
 
 .. _`Closing issues via commit messages`: https://github.blog/2013-01-22-closing-issues-via-commit-messages/
 .. _`About pull requests`: https://support.github.com/features/pull-requests
