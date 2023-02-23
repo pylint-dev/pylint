@@ -63,7 +63,7 @@ you're not going to do the future maintenance work, your valid opinions might no
 taken into account by those that will be affected by it.
 
 What are the fundamental tenets of pylint development?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 General:
 
@@ -82,11 +82,11 @@ Where to add a new checker or message:
 - Error messages (things that will result in an error if run) should be builtin
   checks, activated by default
 
-- Messages that are opinionated, even slightly, should be opt-in (added as an extension)
+- Messages that are opinionated, even slightly, should be opt-in (added as :ref:`an extension<plugins>`)
 
 - We don't shy away from opinionated checks (like the while checker), but there's such a
-  thing as too opinionated, if something is too opinionated it should be an external pylint
-  plugin.
+  thing as too opinionated, if something is too opinionated it should be an external
+  :ref:`pylint plugin<plugins>`.
 
 How are disagreements handled ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -102,8 +102,7 @@ a decision can be taken:
 - By asking discussion participants for their opinions with an emoji survey in the
   issue and then using the majority if no maintainers feel strongly about the issue.
 
-- By majority of admins if no admins feel
-  strongly about the issue.
+- By majority of admins if no admins feel strongly about the issue.
 
 - By asking all users for their opinions in a new issue that will be pinned for
   multiple months before taking the decision if two admins feel strongly on an
