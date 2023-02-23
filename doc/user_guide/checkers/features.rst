@@ -734,9 +734,7 @@ Nonascii-Checker checker Messages
   interoperability. Further reading: -
   https://peps.python.org/pep-0489/#export-hook-name -
   https://peps.python.org/pep-0672/#confusing-features -
-  https://bugs.python.org/issue20485 -
-  https://github.com/python/cpython/issues/64684#issuecomment-1093644763 -
-  https://terpconnect.umd.edu/~zben/Web/CharSet/htmlchars.html
+  https://bugs.python.org/issue20485
 :non-ascii-name (C2401): *%s name "%s" contains a non-ASCII character, consider renaming it.*
   Used when the name contains at least one non-ASCII unicode character. See
   https://peps.python.org/pep-0672/#confusing-features for a background why
