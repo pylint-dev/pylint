@@ -6,8 +6,7 @@ To ease the process of reviewing your PR, do make sure to complete the following
 - [ ] Document your change, if it is a non-trivial one.
   - A maintainer might label the issue ``skip-news`` if the change does not need to be in the changelog.
   - Otherwise, create a news fragment with ``towncrier create <IssueNumber>.<type>`` which will be
-    included in the changelog. ``<type>`` can be one of: breaking, user_action, feature,
-    new_check, removed_check, extension, false_positive, false_negative, bugfix, other, internal.
+    included in the changelog. ``<type>`` can be one of the types defined in `./towncrier.toml`.
     If necessary you can write details or offer examples on how the new change is supposed to work.
   - Generating the doc is done with ``tox -e docs``
 - [ ] Relate your change to an issue in the tracker if such an issue exists (Refs #1234, Closes #1234)
