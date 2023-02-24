@@ -386,7 +386,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "By default, the first parameter is the group param, not the target param.",
         ),
         "W1507": (
-            "Using copy.copy(os.environ). Use os.environ.copy() instead. ",
+            "Using copy.copy(os.environ). Use os.environ.copy() instead.",
             "shallow-copy-environ",
             "os.environ is not a dict object but proxy object, so "
             "shallow copy has still effects on original object. "

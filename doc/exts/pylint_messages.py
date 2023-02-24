@@ -84,7 +84,7 @@ def _get_example_code(data_path: Path) -> str:
     )
 
     _check_placeholders(data_path, bad_code, details, related)
-    return "\n".join((good_code, bad_code, pylintrc, details, related)) + "\n"
+    return "\n".join((bad_code, good_code, pylintrc, details, related)) + "\n"
 
 
 def _get_pylintrc_code(data_path: Path) -> str:
@@ -307,7 +307,7 @@ def _generate_single_message_body(message: MessageData) -> str:
 {get_rst_title(f"{message.name} / {message.id}", "=")}
 **Message emitted:**
 
-{message.definition.msg}
+``{message.definition.msg}``
 
 **Description:**
 

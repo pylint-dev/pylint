@@ -20,6 +20,7 @@ from astroid.util import Uninferable
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.checkers.base.basic_error_checker import _loop_exits_early
 from pylint.checkers.utils import node_frame_class
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 
@@ -1945,10 +1946,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     return True
             except astroid.InferenceError:
                 pass
-        # Avoid the check inside while loop as we don't know
-        # if they will be completed
         if isinstance(node, nodes.While):
-            return True
+            # A while-loop is considered return-ended if it has a
+            # truthy test and no break statements
+            return (node.test.bool_value() and not _loop_exits_early(node)) or any(
+                self._is_node_return_ended(child) for child in node.orelse
+            )
         if isinstance(node, nodes.Raise):
             return self._is_raise_node_return_ended(node)
         if isinstance(node, nodes.If):
