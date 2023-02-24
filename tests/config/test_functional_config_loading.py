@@ -6,15 +6,15 @@
 files by providing a file with the appropriate extension in the ``tests/config/functional``
 directory.
 
-Let's say you have a regression_list_crash.toml file to test. Then, if there is an error in the conf,
-add ``regression_list_crash.out`` alongside your file with the expected output of pylint in it. Use
-``{relpath}`` and ``{abspath}`` for the path of the file. The exit code will have to be 2 (error)
-if this file exists.
+Let's say you have a regression_list_crash.toml file to test. Then, if there is an error in the
+conf, add ``regression_list_crash.out`` alongside your file with the expected output of pylint in
+it. Use ``{relpath}`` and ``{abspath}`` for the path of the file. The exit code will have to be 2
+ (error) if this file exists.
 
-You must also define a ``regression_list_crash.result.json`` if you want to check the parsed configuration.
-This file will be loaded as a dict and will override the default value of the default pylint
-configuration. If you need to append or remove a value use the special key ``"functional_append"``
-and ``"functional_remove":``. Check the existing code for examples.
+You must also define a ``regression_list_crash.result.json`` if you want to check the parsed
+configuration. This file will be loaded as a dict and will override the default value of the
+default pylint configuration. If you need to append or remove a value use the special key
+``"functional_append"`` and ``"functional_remove":``. Check the existing code for examples.
 """
 
 # pylint: disable=redefined-outer-name

@@ -716,8 +716,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     @pytest.mark.parametrize(
         "fu_score,fo_msgs,fname,out",
         [
-            # Essentially same test cases as --fail-under, but run with/without a detected issue code
-            # missing-function-docstring (C0116) is issue in both files
+            # Essentially same test cases as --fail-under, but run with/without a detected
+            # issue code missing-function-docstring (C0116) is issue in both files
             # --fail-under should be irrelevant as missing-function-docstring is hit
             (-10, "missing-function-docstring", "fail_under_plus7_5.py", 16),
             (6, "missing-function-docstring", "fail_under_plus7_5.py", 16),
