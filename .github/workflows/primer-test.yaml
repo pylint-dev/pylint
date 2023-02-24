@@ -10,6 +10,7 @@ on:
       - "tests/primer/**"
       - "requirements*"
       - ".github/workflows/primer-test.yaml"
+      - "fixingCode" # TODO: Remove before commit
     branches:
       - main
 env:

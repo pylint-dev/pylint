@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "maintenance/**"
+      - "fixingCode" # TODO: Remove before commit
     paths-ignore:
       - doc/data/messages/**
   pull_request:
