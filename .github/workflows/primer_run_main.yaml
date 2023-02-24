@@ -9,7 +9,6 @@ on:
   push:
     branches:
       - main
-      - "fixingCode" # TODO: Remove before commit
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
