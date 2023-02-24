@@ -64,7 +64,8 @@ class PrivateImportChecker(BaseChecker):
 
         names = [n[0] for n in node.names]
 
-        # Check the imported objects first. If they are all valid type annotations, the package can be private
+        # Check the imported objects first. If they are all valid type annotations,
+        # the package can be private
         private_names = self._get_type_annotation_names(node, names)
         if not private_names:
             return
@@ -139,7 +140,8 @@ class PrivateImportChecker(BaseChecker):
         for name in node.locals:
             # If we find a private type annotation, make sure we do not mask illegal usages
             private_name = None
-            # All the assignments using this variable that we might have to check for illegal usages later
+            # All the assignments using this variable that we might have to check for
+            # illegal usages later
             name_assignments = []
             for usage_node in node.locals[name]:
                 if isinstance(usage_node, nodes.AssignName) and isinstance(
@@ -205,7 +207,8 @@ class PrivateImportChecker(BaseChecker):
                 node.value, all_used_type_annotations
             )
         if isinstance(node, nodes.Attribute):
-            # An attribute is a type like `pylint.lint.pylinter`. node.expr is the next level up, could be another attribute
+            # An attribute is a type like `pylint.lint.pylinter`. node.expr is the next level
+            # up, could be another attribute
             return self._populate_type_annotations_annotation(
                 node.expr, all_used_type_annotations
             )
