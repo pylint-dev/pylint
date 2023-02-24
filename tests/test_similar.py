@@ -207,8 +207,8 @@ class TestSimilarCodeChecker:
         )
 
     def test_duplicate_code_raw_strings_disable_scope_function(self) -> None:
-        """ Tests disabling duplicate-code at an inner scope level with another scope with
-            similarity."""
+        """Tests disabling duplicate-code at an inner scope level with another scope with
+        similarity."""
         path = join(DATA, "raw_strings_disable_scope_second_function")
         expected_output = "Similar lines in 2 files"
         self._test_output(
