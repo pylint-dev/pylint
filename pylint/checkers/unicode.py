@@ -330,7 +330,8 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
                 "For compatibility use UTF-8 instead of UTF-16/UTF-32. "
                 "See also https://bugs.python.org/issue1503789 for a history "
                 "of this issue. And "
-                "https://softwareengineering.stackexchange.com/questions/102205/should-utf-16-be-considered-harmful "
+                "https://softwareengineering.stackexchange.com/questions/"
+                "102205/should-utf-16-be-considered-harmful "
                 "for some possible problems when using UTF-16 for instance."
             ),
         ),
@@ -347,7 +348,8 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
                 "So can you trust this code? "
                 "Are you sure it displayed correctly in all editors? "
                 "If you did not write it or your language is not RTL,"
-                " remove the special characters, as they could be used to trick you into executing code, "
+                " remove the special characters, as they could be used to trick you into "
+                "executing code, "
                 "that does something else than what it looks like.\n"
                 "More Information:\n"
                 "https://en.wikipedia.org/wiki/Bidirectional_text\n"
