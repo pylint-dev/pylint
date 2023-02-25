@@ -75,13 +75,9 @@ def check_file(file: Path, verbose: bool) -> bool:
             )
             return False
         if not any(file.suffix.endswith(t) for t in VALID_FILE_TYPE):
-            suggestions = difflib.get_close_matches(
-                file.suffix, VALID_FILE_TYPE
-            )
+            suggestions = difflib.get_close_matches(file.suffix, VALID_FILE_TYPE)
             if suggestions:
-                multiple_suggestions = "', '".join(
-                    f"{issue}.{s}" for s in suggestions
-                )
+                multiple_suggestions = "', '".join(f"{issue}.{s}" for s in suggestions)
                 suggestion: str = f"should probably be named '{multiple_suggestions}'"
             else:
                 multiple_suggestions = "', '".join(
