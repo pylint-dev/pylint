@@ -174,13 +174,6 @@ Standard Checkers
 **Default:**  ``(3, 10)``
 
 
---source-roots
-""""""""""""""
-*Add paths to the list of the source roots. The source root is an absolute path or a path relative to the current working directory used to determine a package namespace for modules located under the source root.*
-
-**Default:**  ``()``
-
-
 --recursive
 """""""""""
 *Discover python modules and packages in the file system subtree.*
@@ -200,6 +193,13 @@ Standard Checkers
 *Activate the evaluation score.*
 
 **Default:**  ``True``
+
+
+--source-roots
+""""""""""""""
+*Add paths to the list of the source roots. Supports globbing patterns. The source root is an absolute path or a path relative to the current working directory used to determine a package namespace for modules located under the source root.*
+
+**Default:**  ``()``
 
 
 --suggestion-mode
@@ -278,6 +278,8 @@ Standard Checkers
    reports = false
 
    score = true
+
+   source-roots = []
 
    suggestion-mode = true
 
@@ -1000,7 +1002,7 @@ Standard Checkers
 
 --preferred-modules
 """""""""""""""""""
-*Couples of modules and preferred modules, separated by a comma. Submodules may also be specified using '.' syntax (for ex. 'os.path').*
+*Couples of modules and preferred modules, separated by a comma.*
 
 **Default:**  ``()``
 
