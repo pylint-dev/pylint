@@ -377,7 +377,8 @@ class Similar:
                 raise ValueError
             readlines = decoding_stream(stream, encoding).readlines
         else:
-            readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
+            # hint parameter is incorrectly typed as non-optional
+            readlines = stream.readlines  # type: ignore[assignment]
 
         try:
             lines = readlines()
@@ -590,7 +591,8 @@ def stripped_lines(
     :param ignore_docstrings: if true, any line that is a docstring is removed from the result
     :param ignore_imports: if true, any line that is an import is removed from the result
     :param ignore_signatures: if true, any line that is part of a function signature is removed from the result
-    :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard the line
+    :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard
+           the line
     :return: the collection of line/line number/line type tuples
     """
     if ignore_imports or ignore_signatures:

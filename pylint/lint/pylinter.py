@@ -227,7 +227,8 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "E0014": (
         "Out-of-place setting encountered in top level configuration-section '%s' : '%s'",
         "bad-configuration-section",
-        "Used when we detect a setting in the top level of a toml configuration that shouldn't be there.",
+        "Used when we detect a setting in the top level of a toml configuration that"
+        " shouldn't be there.",
         {"scope": WarningScope.LINE},
     ),
     "E0015": (
@@ -794,7 +795,8 @@ class PyLinter(
 
         :param FileItem file: data about the file
         :param nodes.Module module: the ast module to lint
-        :param Callable check_astroid_module: callable checking an AST taking the following arguments
+        :param Callable check_astroid_module: callable checking an AST taking the following
+               arguments
         - ast: AST of the module
         :raises AstroidError: for any failures stemming from astroid
         """
@@ -826,10 +828,12 @@ class PyLinter(
         """Check a file using the passed utility functions (get_ast and
         check_astroid_module).
 
-        :param callable get_ast: callable returning AST from defined file taking the following arguments
+        :param callable get_ast: callable returning AST from defined file taking the
+                                 following arguments
         - filepath: path to the file to check
         - name: Python module name
-        :param callable check_astroid_module: callable checking an AST taking the following arguments
+        :param callable check_astroid_module: callable checking an AST taking the following
+               arguments
         - ast: AST of the module
         :param FileItem file: data about the file
         :raises AstroidError: for any failures stemming from astroid

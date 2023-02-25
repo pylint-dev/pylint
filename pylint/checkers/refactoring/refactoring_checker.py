@@ -460,8 +460,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1732": (
             "Consider using 'with' for resource-allocating operations",
             "consider-using-with",
-            "Emitted if a resource-allocating assignment or call may be replaced by a 'with' block. "
-            "By using 'with' the release of the allocated resources is ensured even in the case of an exception.",
+            "Emitted if a resource-allocating assignment or call may be replaced by a 'with' block."
+            "By using 'with' the release of the allocated resources is ensured even in the case "
+            "of an exception.",
         ),
         "R1733": (
             "Unnecessary dictionary index lookup, use '%s' instead",
@@ -713,8 +714,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for var, names in node.items:
             if isinstance(var, nodes.Name):
                 for stack in self._consider_using_with_stack:
-                    # We don't need to restrict the stacks we search to the current scope and outer scopes,
-                    # as e.g. the function_scope stack will be empty when we check a ``with`` on the class level.
+                    # We don't need to restrict the stacks we search to the current scope and
+                    # outer scopes, as e.g. the function_scope stack will be empty when we
+                    # check a ``with`` on the class level.
                     if var.name in stack:
                         del stack[var.name]
                         break
@@ -1118,7 +1120,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_quit_exit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
-            # If we have `exit` imported from `sys` in the current or global scope, exempt this instance.
+            # If we have `exit` imported from `sys` in the current or global scope,
+            # exempt this instance.
             local_scope = node.scope()
             if self._has_exit_in_scope(local_scope) or self._has_exit_in_scope(
                 node.root()
@@ -1553,7 +1556,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _append_context_managers_to_stack(self, node: nodes.Assign) -> None:
         if _is_inside_context_manager(node):
-            # if we are inside a context manager itself, we assume that it will handle the resource management itself.
+            # if we are inside a context manager itself, we assume that it will handle
+            # the resource management itself.
             return
         if isinstance(node.targets[0], (nodes.Tuple, nodes.List, nodes.Set)):
             assignees = node.targets[0].elts
@@ -1600,9 +1604,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_consider_using_with(self, node: nodes.Call) -> None:
         if _is_inside_context_manager(node) or _is_a_return_statement(node):
-            # If we are inside a context manager itself, we assume that it will handle the resource management itself.
-            # If the node is a child of a return, we assume that the caller knows he is getting a context manager
-            # he should use properly (i.e. in a ``with``).
+            # If we are inside a context manager itself, we assume that it will handle the
+            # resource management itself.
+            # If the node is a child of a return, we assume that the caller knows he is getting
+            # a context manager he should use properly (i.e. in a ``with``).
             return
         if (
             node
@@ -1610,7 +1615,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 node.frame(future=True)
             ).values()
         ):
-            # the result of this call was already assigned to a variable and will be checked when leaving the scope.
+            # the result of this call was already assigned to a variable and will be
+            # checked when leaving the scope.
             return
         inferred = utils.safe_infer(node.func)
         if not inferred or not isinstance(

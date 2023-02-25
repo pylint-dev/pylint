@@ -273,7 +273,8 @@ class ColorizedTextReporter(TextReporter):
         ) = None,
     ) -> None:
         super().__init__(output)
-        # TODO: 3.0: Remove deprecated typing and only accept ColorMappingDict as color_mapping parameter
+        # TODO: 3.0: Remove deprecated typing and only accept ColorMappingDict as
+        #  color_mapping parameter
         if color_mapping and not isinstance(
             list(color_mapping.values())[0], MessageStyle
         ):

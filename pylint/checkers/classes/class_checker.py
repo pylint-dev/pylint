@@ -958,7 +958,8 @@ a metaclass class method.",
                 ):
                     continue
             for child in node.nodes_of_class((nodes.Name, nodes.Attribute)):
-                # Check for cases where the functions are used as a variable instead of as a method call
+                # Check for cases where the functions are used as a variable instead of as a
+                # method call
                 if isinstance(child, nodes.Name) and child.name == function_def.name:
                     break
                 if isinstance(child, nodes.Attribute):
@@ -1951,7 +1952,8 @@ a metaclass class method.",
                 return
             self._first_attrs[-1] = None
         elif "builtins.staticmethod" in node.decoratornames():
-            # Check if there is a decorator which is not named `staticmethod` but is assigned to one.
+            # Check if there is a decorator which is not named `staticmethod`
+            # but is assigned to one.
             return
         # class / regular method with no args
         elif not (
