@@ -485,13 +485,12 @@ def test_deprecation_check_messages() -> None:
                 pass
 
         deprecationMessage: str = "utils.check_messages will be removed in "
-        deprecationMessage += "favour of calling utils.only_required_for_messages in pylint 3.0"
+        deprecationMessage += (
+            "favour of calling utils.only_required_for_messages in pylint 3.0"
+        )
 
         assert len(records) == 1
-        assert (
-            records[0].message.args[0]
-            == deprecationMessage
-        )
+        assert records[0].message.args[0] == deprecationMessage
 
 
 def test_is_typing_member() -> None:

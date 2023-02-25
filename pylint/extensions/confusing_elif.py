@@ -20,7 +20,7 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
     "elif" itself.
     """
 
-    name: Literal['confusing_elif'] = "confusing_elif"
+    name: Literal["confusing_elif"] = "confusing_elif"
     msgs = {
         "R5601": (
             "Consecutive elif with differing indentation level, consider creating a function to separate the inner"
