@@ -109,7 +109,7 @@ class CplSuccessiveLinesLimits:
     ) -> None:
         self.first_file = first_file
         self.second_file = second_file
-        self.effective_cmn_lines_nb = effective_cmn_lines_nb
+        self.effective_cmn_lines_nb: int = effective_cmn_lines_nb
 
 
 # Links the indices to the starting line in both lineset's stripped lines to
@@ -232,10 +232,10 @@ def hash_lineset(
              index to the start and end lines in the file
     """
     hash2index = defaultdict(list)
-    index2lines = {}
+    index2lines: dict = {}
     # Comments, docstring and other specific patterns maybe excluded -> call to stripped_lines
     # to get only what is desired
-    lines = tuple(x.text for x in lineset.stripped_lines)
+    lines: tuple[str, ...] = tuple(x.text for x in lineset.stripped_lines)
     # Need different iterators on same lines but each one is shifted 1 from the precedent
     shifted_lines = [iter(lines[i:]) for i in range(min_common_lines)]
 
@@ -246,7 +246,7 @@ def hash_lineset(
         except IndexError:
             end_linenumber = LineNumber(lineset.stripped_lines[-1].line_number + 1)
 
-        index = Index(i)
+        index: Index = Index(i)
         index2lines[index] = SuccessiveLinesLimits(
             start=start_linenumber, end=end_linenumber
         )
@@ -284,7 +284,7 @@ def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
     """
     couple: LineSetStartCouple
     for couple in tuple(all_couples.keys()):
-        to_remove = []
+        to_remove: list = []
         test = couple.increment(Index(1))
         while test in all_couples:
             all_couples[couple].first_file.end = all_couples[test].first_file.end
@@ -321,12 +321,12 @@ def filter_noncode_lines(
     :param common_lines_nb: number of common successive stripped lines before being filtered from non code lines
     :return: the number of common successive stripped lines that contain code
     """
-    stripped_l1 = [
+    stripped_l1: list[str] = [
         lspecif.text
         for lspecif in ls_1.stripped_lines[stindex_1 : stindex_1 + common_lines_nb]
         if REGEX_FOR_LINES_WITH_CONTENT.match(lspecif.text)
     ]
-    stripped_l2 = [
+    stripped_l2: list[str] = [
         lspecif.text
         for lspecif in ls_2.stripped_lines[stindex_2 : stindex_2 + common_lines_nb]
         if REGEX_FOR_LINES_WITH_CONTENT.match(lspecif.text)
@@ -377,7 +377,8 @@ class Similar:
                 raise ValueError
             readlines = decoding_stream(stream, encoding).readlines
         else:
-            readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
+            # hint parameter is incorrectly typed as non-optional
+            readlines = stream.readlines  # type: ignore[assignment]
 
         try:
             lines = readlines()
@@ -409,7 +410,7 @@ class Similar:
         no_duplicates: dict[int, list[set[LinesChunkLimits_T]]] = defaultdict(list)
 
         for commonality in self._iter_sims():
-            num = commonality.cmn_lines_nb
+            num: int = commonality.cmn_lines_nb
             lineset1 = commonality.fst_lset
             start_line_1 = commonality.fst_file_start
             end_line_1 = commonality.fst_file_end
@@ -531,7 +532,7 @@ class Similar:
         for cml_stripped_l, cmn_l in all_couples.items():
             start_index_1 = cml_stripped_l.fst_lineset_index
             start_index_2 = cml_stripped_l.snd_lineset_index
-            nb_common_lines = cmn_l.effective_cmn_lines_nb
+            nb_common_lines: int = cmn_l.effective_cmn_lines_nb
 
             com = Commonality(
                 cmn_lines_nb=nb_common_lines,
@@ -543,7 +544,7 @@ class Similar:
                 snd_file_end=cmn_l.second_file.end,
             )
 
-            eff_cmn_nb = filter_noncode_lines(
+            eff_cmn_nb: int = filter_noncode_lines(
                 lineset1, start_index_1, lineset2, start_index_2, nb_common_lines
             )
 
@@ -590,7 +591,8 @@ def stripped_lines(
     :param ignore_docstrings: if true, any line that is a docstring is removed from the result
     :param ignore_imports: if true, any line that is an import is removed from the result
     :param ignore_signatures: if true, any line that is part of a function signature is removed from the result
-    :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard the line
+    :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard
+           the line
     :return: the collection of line/line number/line type tuples
     """
     if ignore_imports or ignore_signatures:
@@ -600,7 +602,7 @@ def stripped_lines(
             (node.lineno, isinstance(node, (nodes.Import, nodes.ImportFrom)))
             for node in tree.body
         )
-        line_begins_import = {
+        line_begins_import: dict[int | None, bool] = {
             lineno: all(is_import for _, is_import in node_is_import_group)
             for lineno, node_is_import_group in groupby(
                 node_is_import_by_lineno, key=lambda x: x[0]  # type: ignore[no-any-return]
@@ -641,8 +643,8 @@ def stripped_lines(
             )
         )
 
-    strippedlines = []
-    docstring = None
+    strippedlines: list = []
+    docstring: None = None
     for lineno, line in enumerate(lines, start=1):
         if line_enabled_callback is not None and not line_enabled_callback(
             "R0801", lineno
@@ -653,7 +655,7 @@ def stripped_lines(
             if not docstring:
                 if line.startswith('"""') or line.startswith("'''"):
                     docstring = line[:3]
-                    line = line[3:]
+                    line: str = line[3:]
                 elif line.startswith('r"""') or line.startswith("r'''"):
                     docstring = line[1:4]
                     line = line[4:]
@@ -662,7 +664,7 @@ def stripped_lines(
                     docstring = None
                 line = ""
         if ignore_imports:
-            current_line_is_import = line_begins_import.get(
+            current_line_is_import: bool = line_begins_import.get(
                 lineno, current_line_is_import
             )
             if current_line_is_import:
@@ -696,8 +698,8 @@ class LineSet:
         ignore_signatures: bool = False,
         line_enabled_callback: Callable[[str, int], bool] | None = None,
     ) -> None:
-        self.name = name
-        self._real_lines = lines
+        self.name: str = name
+        self._real_lines: list[str] = lines
         self._stripped_lines = stripped_lines(
             lines,
             ignore_comments,
@@ -858,7 +860,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
 
     def close(self) -> None:
         """Compute and display similarities on closing (i.e. end of parsing)."""
-        total = sum(len(lineset) for lineset in self.linesets)
+        total: int = sum(len(lineset) for lineset in self.linesets)
         duplicated = 0
         stats = self.linter.stats
         for num, couples in self._compute_sims():
@@ -907,10 +909,10 @@ def usage(status: int = 0) -> NoReturn:
 def Run(argv: Sequence[str] | None = None) -> NoReturn:
     """Standalone command line access point."""
     if argv is None:
-        argv = sys.argv[1:]
+        argv: list[str] = sys.argv[1:]
 
     s_opts = "hdi"
-    l_opts = [
+    l_opts: list[str] = [
         "help",
         "duplicates=",
         "ignore-comments",
@@ -926,7 +928,7 @@ def Run(argv: Sequence[str] | None = None) -> NoReturn:
     opts, args = getopt(list(argv), s_opts, l_opts)
     for opt, val in opts:
         if opt in {"-d", "--duplicates"}:
-            min_lines = int(val)
+            min_lines: int = int(val)
         elif opt in {"-h", "--help"}:
             usage()
         elif opt in {"-i", "--ignore-comments"}:

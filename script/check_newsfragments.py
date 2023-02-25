@@ -15,13 +15,13 @@ import sys
 from pathlib import Path
 from re import Pattern
 
-VALID_ISSUES_KEYWORDS = [
+VALID_ISSUES_KEYWORDS: list[str] = [
     "Refs",
     "Closes",
     "Follow-up in",
     "Fixes part of",
 ]
-VALID_FILE_TYPE = frozenset(
+VALID_FILE_TYPE: frozenset[str] = frozenset(
     [
         "breaking",
         "user_action",
@@ -36,8 +36,9 @@ VALID_FILE_TYPE = frozenset(
         "internal",
     ]
 )
-ISSUES_KEYWORDS = "|".join(VALID_ISSUES_KEYWORDS)
-VALID_CHANGELOG_PATTERN = rf"(?P<description>(.*\n)*(.*\.\n))\n(?P<ref>({ISSUES_KEYWORDS}) (PyCQA/astroid)?#(?P<issue>\d+))"
+ISSUES_KEYWORDS: str = "|".join(VALID_ISSUES_KEYWORDS)
+VALID_CHANGELOG_PATTERN: str = rf"(?P<description>(.*\n)*(.*\.\n))\n(?P<ref>({ISSUES_KEYWORDS})"
+VALID_CHANGELOG_PATTERN += " (PyCQA/astroid)?#(?P<issue>\d+))"
 VALID_CHANGELOG_COMPILED_PATTERN: Pattern[str] = re.compile(
     VALID_CHANGELOG_PATTERN, flags=re.MULTILINE
 )
@@ -62,7 +63,7 @@ def main(argv: list[str] | None = None) -> int:
 def check_file(file: Path, verbose: bool) -> bool:
     """Check that a file contains a valid changelog entry."""
     with open(file, encoding="utf8") as f:
-        content = f.read()
+        content: str = f.read()
     match = VALID_CHANGELOG_COMPILED_PATTERN.match(content)
     if match:
         issue = match.group("issue")
@@ -72,10 +73,10 @@ def check_file(file: Path, verbose: bool) -> bool:
             )
             return False
         if not any(file.suffix.endswith(t) for t in VALID_FILE_TYPE):
-            suggestions = difflib.get_close_matches(file.suffix, VALID_FILE_TYPE)
+            suggestions: list[str] = difflib.get_close_matches(file.suffix, VALID_FILE_TYPE)
             if suggestions:
-                multiple_suggestions = "', '".join(f"{issue}.{s}" for s in suggestions)
-                suggestion = f"should probably be named '{multiple_suggestions}'"
+                multiple_suggestions: str = "', '".join(f"{issue}.{s}" for s in suggestions)
+                suggestion: str = f"should probably be named '{multiple_suggestions}'"
             else:
                 multiple_suggestions = "', '".join(
                     f"{issue}.{s}" for s in VALID_FILE_TYPE

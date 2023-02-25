@@ -121,8 +121,11 @@ def test_regex_error(capsys: CaptureFixture) -> None:
             exit=False,
         )
     output = capsys.readouterr()
+
+    assertString = r"Error in provided regular expression: [\p{Han}a-z_][\p{Han}a-z0-9_]{2,30}$ "
+    assertString += "beginning at index 1: bad escape \p"
     assert (
-        r"Error in provided regular expression: [\p{Han}a-z_][\p{Han}a-z0-9_]{2,30}$ beginning at index 1: bad escape \p"
+        assertString
         in output.err
     )
 

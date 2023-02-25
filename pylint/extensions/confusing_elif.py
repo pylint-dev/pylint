@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from astroid import nodes
 
@@ -20,10 +20,11 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
     "elif" itself.
     """
 
-    name = "confusing_elif"
+    name: Literal['confusing_elif'] = "confusing_elif"
     msgs = {
         "R5601": (
-            "Consecutive elif with differing indentation level, consider creating a function to separate the inner elif",
+            "Consecutive elif with differing indentation level, consider creating a function to separate the inner"
+            " elif",
             "confusing-consecutive-elif",
             "Used when an elif statement follows right after an indented block which itself ends with if or elif. "
             "It may not be ovious if the elif statement was willingly or mistakenly unindented. "
@@ -33,7 +34,7 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
 
     @only_required_for_messages("confusing-consecutive-elif")
     def visit_if(self, node: nodes.If) -> None:
-        body_ends_with_if = isinstance(
+        body_ends_with_if: bool = isinstance(
             node.body[-1], nodes.If
         ) and self._has_no_else_clause(node.body[-1])
         if node.has_elif_block() and body_ends_with_if:
