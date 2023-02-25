@@ -484,7 +484,7 @@ def test_deprecation_check_messages() -> None:
             def visit_assname(self, node: nodes.NodeNG) -> None:
                 pass
 
-        deprecationMessage: str = "utils.check_messages will be removed in "
+        deprecationMessage = "utils.check_messages will be removed in "
         deprecationMessage += (
             "favour of calling utils.only_required_for_messages in pylint 3.0"
         )

@@ -15,13 +15,13 @@ import sys
 from pathlib import Path
 from re import Pattern
 
-VALID_ISSUES_KEYWORDS: list[str] = [
+VALID_ISSUES_KEYWORDS = [
     "Refs",
     "Closes",
     "Follow-up in",
     "Fixes part of",
 ]
-VALID_FILE_TYPE: frozenset[str] = frozenset(
+VALID_FILE_TYPE = frozenset(
     [
         "breaking",
         "user_action",
@@ -65,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
 def check_file(file: Path, verbose: bool) -> bool:
     """Check that a file contains a valid changelog entry."""
     with open(file, encoding="utf8") as f:
-        content: str = f.read()
+        content = f.read()
     match = VALID_CHANGELOG_COMPILED_PATTERN.match(content)
     if match:
         issue = match.group("issue")
@@ -75,11 +75,11 @@ def check_file(file: Path, verbose: bool) -> bool:
             )
             return False
         if not any(file.suffix.endswith(t) for t in VALID_FILE_TYPE):
-            suggestions: list[str] = difflib.get_close_matches(
+            suggestions = difflib.get_close_matches(
                 file.suffix, VALID_FILE_TYPE
             )
             if suggestions:
-                multiple_suggestions: str = "', '".join(
+                multiple_suggestions = "', '".join(
                     f"{issue}.{s}" for s in suggestions
                 )
                 suggestion: str = f"should probably be named '{multiple_suggestions}'"

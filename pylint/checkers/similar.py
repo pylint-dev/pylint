@@ -109,7 +109,7 @@ class CplSuccessiveLinesLimits:
     ) -> None:
         self.first_file = first_file
         self.second_file = second_file
-        self.effective_cmn_lines_nb: int = effective_cmn_lines_nb
+        self.effective_cmn_lines_nb = effective_cmn_lines_nb
 
 
 # Links the indices to the starting line in both lineset's stripped lines to
@@ -235,7 +235,7 @@ def hash_lineset(
     index2lines = {}
     # Comments, docstring and other specific patterns maybe excluded -> call to stripped_lines
     # to get only what is desired
-    lines: tuple[str, ...] = tuple(x.text for x in lineset.stripped_lines)
+    lines = tuple(x.text for x in lineset.stripped_lines)
     # Need different iterators on same lines but each one is shifted 1 from the precedent
     shifted_lines = [iter(lines[i:]) for i in range(min_common_lines)]
 
@@ -246,7 +246,7 @@ def hash_lineset(
         except IndexError:
             end_linenumber = LineNumber(lineset.stripped_lines[-1].line_number + 1)
 
-        index: Index = Index(i)
+        index = Index(i)
         index2lines[index] = SuccessiveLinesLimits(
             start=start_linenumber, end=end_linenumber
         )
@@ -321,12 +321,12 @@ def filter_noncode_lines(
     :param common_lines_nb: number of common successive stripped lines before being filtered from non code lines
     :return: the number of common successive stripped lines that contain code
     """
-    stripped_l1: list[str] = [
+    stripped_l1 = [
         lspecif.text
         for lspecif in ls_1.stripped_lines[stindex_1 : stindex_1 + common_lines_nb]
         if REGEX_FOR_LINES_WITH_CONTENT.match(lspecif.text)
     ]
-    stripped_l2: list[str] = [
+    stripped_l2 = [
         lspecif.text
         for lspecif in ls_2.stripped_lines[stindex_2 : stindex_2 + common_lines_nb]
         if REGEX_FOR_LINES_WITH_CONTENT.match(lspecif.text)
@@ -410,7 +410,7 @@ class Similar:
         no_duplicates: dict[int, list[set[LinesChunkLimits_T]]] = defaultdict(list)
 
         for commonality in self._iter_sims():
-            num: int = commonality.cmn_lines_nb
+            num = commonality.cmn_lines_nb
             lineset1 = commonality.fst_lset
             start_line_1 = commonality.fst_file_start
             end_line_1 = commonality.fst_file_end
@@ -532,7 +532,7 @@ class Similar:
         for cml_stripped_l, cmn_l in all_couples.items():
             start_index_1 = cml_stripped_l.fst_lineset_index
             start_index_2 = cml_stripped_l.snd_lineset_index
-            nb_common_lines: int = cmn_l.effective_cmn_lines_nb
+            nb_common_lines = cmn_l.effective_cmn_lines_nb
 
             com = Commonality(
                 cmn_lines_nb=nb_common_lines,
@@ -544,7 +544,7 @@ class Similar:
                 snd_file_end=cmn_l.second_file.end,
             )
 
-            eff_cmn_nb: int = filter_noncode_lines(
+            eff_cmn_nb = filter_noncode_lines(
                 lineset1, start_index_1, lineset2, start_index_2, nb_common_lines
             )
 
@@ -602,7 +602,7 @@ def stripped_lines(
             (node.lineno, isinstance(node, (nodes.Import, nodes.ImportFrom)))
             for node in tree.body
         )
-        line_begins_import: dict[int | None, bool] = {
+        line_begins_import = {
             lineno: all(is_import for _, is_import in node_is_import_group)
             for lineno, node_is_import_group in groupby(
                 node_is_import_by_lineno, key=lambda x: x[0]  # type: ignore[no-any-return]
@@ -698,8 +698,8 @@ class LineSet:
         ignore_signatures: bool = False,
         line_enabled_callback: Callable[[str, int], bool] | None = None,
     ) -> None:
-        self.name: str = name
-        self._real_lines: list[str] = lines
+        self.name = name
+        self._real_lines = lines
         self._stripped_lines = stripped_lines(
             lines,
             ignore_comments,
@@ -860,7 +860,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
 
     def close(self) -> None:
         """Compute and display similarities on closing (i.e. end of parsing)."""
-        total: int = sum(len(lineset) for lineset in self.linesets)
+        total = sum(len(lineset) for lineset in self.linesets)
         duplicated = 0
         stats = self.linter.stats
         for num, couples in self._compute_sims():
