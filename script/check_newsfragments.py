@@ -36,11 +36,11 @@ VALID_FILE_TYPE = frozenset(
         "internal",
     ]
 )
-ISSUES_KEYWORDS: str = "|".join(VALID_ISSUES_KEYWORDS)
-VALID_CHANGELOG_PATTERN: str = (
+ISSUES_KEYWORDS = "|".join(VALID_ISSUES_KEYWORDS)
+VALID_CHANGELOG_PATTERN = (
     rf"(?P<description>(.*\n)*(.*\.\n))\n(?P<ref>({ISSUES_KEYWORDS})"
+    r" (PyCQA/astroid)?#(?P<issue>\d+))"
 )
-VALID_CHANGELOG_PATTERN += r" (PyCQA/astroid)?#(?P<issue>\d+))"
 VALID_CHANGELOG_COMPILED_PATTERN: Pattern[str] = re.compile(
     VALID_CHANGELOG_PATTERN, flags=re.MULTILINE
 )
@@ -78,7 +78,7 @@ def check_file(file: Path, verbose: bool) -> bool:
             suggestions = difflib.get_close_matches(file.suffix, VALID_FILE_TYPE)
             if suggestions:
                 multiple_suggestions = "', '".join(f"{issue}.{s}" for s in suggestions)
-                suggestion: str = f"should probably be named '{multiple_suggestions}'"
+                suggestion = f"should probably be named '{multiple_suggestions}'"
             else:
                 multiple_suggestions = "', '".join(
                     f"{issue}.{s}" for s in VALID_FILE_TYPE
