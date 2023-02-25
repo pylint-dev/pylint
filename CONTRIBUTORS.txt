@@ -272,7 +272,7 @@ contributors:
 - Justin Li <justinnhli@gmail.com>
 - John Kirkham <jakirkham@gmail.com>
 - Jens H. Nielsen <Jens.Nielsen@microsoft.com>
-- James Addison <55152140+jayaddison@users.noreply.github.com>
+- James Addison <jay@jp-hosting.net>
 - Ioana Tagirta <ioana.tagirta@gmail.com>: fix bad thread instantiation check
 - Ikraduya Edian <ikraduya@gmail.com>: Added new checks 'consider-using-generator' and 'use-a-generator'.
 - Hugues Bruant <hugues.bruant@affirm.com>
