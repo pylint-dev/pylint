@@ -330,8 +330,7 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
                 "For compatibility use UTF-8 instead of UTF-16/UTF-32. "
                 "See also https://bugs.python.org/issue1503789 for a history "
                 "of this issue. And "
-                "https://softwareengineering.stackexchange.com/questions/"
-                "102205/should-utf-16-be-considered-harmful "
+                "https://softwareengineering.stackexchange.com/questions/102205/"
                 "for some possible problems when using UTF-16 for instance."
             ),
         ),
