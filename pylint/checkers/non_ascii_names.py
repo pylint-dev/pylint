@@ -51,7 +51,7 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
                 # quite good. That's also why this is a warning and not only a convention!
                 "Under python 3.5, PEP 3131 only allows non-ascii identifiers, not file names."
                 "Since Python 3.5, even though Python supports UTF-8 files, some editors or tools "
-                "don't. "
+                "don't."
             ),
         ),
         # First %s will always be "module"
