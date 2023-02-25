@@ -232,7 +232,7 @@ def hash_lineset(
              index to the start and end lines in the file
     """
     hash2index = defaultdict(list)
-    index2lines: dict = {}
+    index2lines = {}
     # Comments, docstring and other specific patterns maybe excluded -> call to stripped_lines
     # to get only what is desired
     lines: tuple[str, ...] = tuple(x.text for x in lineset.stripped_lines)
@@ -284,7 +284,7 @@ def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
     """
     couple: LineSetStartCouple
     for couple in tuple(all_couples.keys()):
-        to_remove: list = []
+        to_remove = []
         test = couple.increment(Index(1))
         while test in all_couples:
             all_couples[couple].first_file.end = all_couples[test].first_file.end
@@ -643,8 +643,8 @@ def stripped_lines(
             )
         )
 
-    strippedlines: list = []
-    docstring: None = None
+    strippedlines = []
+    docstring = None
     for lineno, line in enumerate(lines, start=1):
         if line_enabled_callback is not None and not line_enabled_callback(
             "R0801", lineno
@@ -655,7 +655,7 @@ def stripped_lines(
             if not docstring:
                 if line.startswith('"""') or line.startswith("'''"):
                     docstring = line[:3]
-                    line: str = line[3:]
+                    line = line[3:]
                 elif line.startswith('r"""') or line.startswith("r'''"):
                     docstring = line[1:4]
                     line = line[4:]
@@ -664,7 +664,7 @@ def stripped_lines(
                     docstring = None
                 line = ""
         if ignore_imports:
-            current_line_is_import: bool = line_begins_import.get(
+            current_line_is_import = line_begins_import.get(
                 lineno, current_line_is_import
             )
             if current_line_is_import:
@@ -909,10 +909,10 @@ def usage(status: int = 0) -> NoReturn:
 def Run(argv: Sequence[str] | None = None) -> NoReturn:
     """Standalone command line access point."""
     if argv is None:
-        argv: list[str] = sys.argv[1:]
+        argv = sys.argv[1:]
 
     s_opts = "hdi"
-    l_opts: list[str] = [
+    l_opts = [
         "help",
         "duplicates=",
         "ignore-comments",
@@ -928,7 +928,7 @@ def Run(argv: Sequence[str] | None = None) -> NoReturn:
     opts, args = getopt(list(argv), s_opts, l_opts)
     for opt, val in opts:
         if opt in {"-d", "--duplicates"}:
-            min_lines: int = int(val)
+            min_lines = int(val)
         elif opt in {"-h", "--help"}:
             usage()
         elif opt in {"-i", "--ignore-comments"}:
