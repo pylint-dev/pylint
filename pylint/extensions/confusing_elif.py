@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -20,7 +20,7 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
     "elif" itself.
     """
 
-    name: Literal["confusing_elif"] = "confusing_elif"
+    name = "confusing_elif"
     msgs = {
         "R5601": (
             "Consecutive elif with differing indentation level, consider creating a function to separate the inner"
