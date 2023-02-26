@@ -24,7 +24,7 @@ class BadChainedComparisonChecker(BaseChecker):
 
     name = "bad-chained-comparison"
     msgs = {
-        "W3501": (
+        "W3601": (
             "Suspicious %s-part chained comparison using semantically incompatible operators (%s)",
             "bad-chained-comparison",
             "Used when there is a chained comparison where one expression is part "
