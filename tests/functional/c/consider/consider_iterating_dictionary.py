@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, expression-not-assigned, too-few-public-methods
+# pylint: disable=missing-docstring, expression-not-assigned, too-few-public-methods, bad-chained-comparison
 # pylint: disable=no-member, import-error, line-too-long
 # pylint: disable=unnecessary-comprehension, use-dict-literal, use-implicit-booleaness-not-comparison
 
