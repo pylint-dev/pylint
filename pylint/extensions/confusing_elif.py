@@ -23,12 +23,13 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
     name = "confusing_elif"
     msgs = {
         "R5601": (
-            "Consecutive elif with differing indentation level, consider creating a function to separate the inner"
-            " elif",
+            "Consecutive elif with differing indentation level, consider creating a function to "
+            "separate the inner elif",
             "confusing-consecutive-elif",
-            "Used when an elif statement follows right after an indented block which itself ends with if or elif. "
-            "It may not be ovious if the elif statement was willingly or mistakenly unindented. "
-            "Extracting the indented if statement into a separate function might avoid confusion and prevent errors.",
+            "Used when an elif statement follows right after an indented block which itself ends "
+            "with if or elif. It may not be ovious if the elif statement was willingly or "
+            "mistakenly unindented. Extracting the indented if statement into a separate function "
+            "might avoid confusion and prevent errors.",
         )
     }
 
