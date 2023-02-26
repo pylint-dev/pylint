@@ -80,6 +80,7 @@ HUMAN_READABLE_TYPES = {
     "class_const": "class constant",
     "inlinevar": "inline iteration",
     "typevar": "type variable",
+    "typealias": "type alias",
 }
 
 # ignore some messages when emitting useless-suppression:
