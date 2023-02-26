@@ -525,6 +525,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "beginning with an underscore) is access outside the class or a "
         "descendant of the class where it's defined.",
     ),
+    "W0213": (
+        "Flag member %(overlap)s shares bit positions with %(sources)s",
+        "implicit-flag-alias",
+        "Used when multiple integer values declared within an enum.IntFlag "
+        "class share a common bit position.",
+    ),
     "E0211": (
         "Method %r has no argument",
         "no-method-argument",
@@ -856,6 +862,7 @@ a metaclass class method.",
         "redefined-slots-in-subclass",
         "invalid-enum-extension",
         "subclassed-final-class",
+        "implicit-flag-alias",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
@@ -873,6 +880,56 @@ a metaclass class method.",
             self.add_message("inconsistent-mro", args=node.name, node=node)
         except astroid.DuplicateBasesError:
             self.add_message("duplicate-bases", args=node.name, node=node)
+
+    def _check_enum_base(self, node: nodes.ClassDef, ancestor: nodes.ClassDef) -> None:
+        members = ancestor.getattr("__members__")
+        if members and isinstance(members[0], nodes.Dict) and members[0].items:
+            self.add_message(
+                "invalid-enum-extension",
+                args=ancestor.name,
+                node=node,
+                confidence=INFERENCE,
+            )
+
+        if ancestor.is_subtype_of("enum.IntFlag"):
+            # Collect integer flag assignments present on the class
+            assignments = defaultdict(list)
+            for assign_name in node.nodes_of_class(nodes.AssignName):
+                if isinstance(assign_name.parent, nodes.Assign):
+                    value = getattr(assign_name.parent.value, "value", None)
+                    if isinstance(value, int):
+                        assignments[value].append(assign_name)
+
+            # For each bit position, collect all the flags that set the bit
+            bit_flags = defaultdict(set)
+            for flag in assignments:
+                flag_bits = (i for i, c in enumerate(reversed(bin(flag))) if c == "1")
+                for bit in flag_bits:
+                    bit_flags[bit].add(flag)
+
+            # Collect the minimum, unique values that each flag overlaps with
+            overlaps = defaultdict(list)
+            for flags in bit_flags.values():
+                source, *conflicts = sorted(flags)
+                for conflict in conflicts:
+                    overlaps[conflict].append(source)
+
+            # Report the overlapping values
+            for overlap in overlaps:
+                for assignment_node in assignments[overlap]:
+                    self.add_message(
+                        "implicit-flag-alias",
+                        node=assignment_node,
+                        args={
+                            "overlap": f"<{node.name}.{assignment_node.name}: {overlap}>",
+                            "sources": ", ".join(
+                                f"<{node.name}.{assignments[source][0].name}: {source}> "
+                                f"({overlap} & {source} = {overlap & source})"
+                                for source in overlaps[overlap]
+                            ),
+                        },
+                        confidence=INFERENCE,
+                    )
 
     def _check_proper_bases(self, node: nodes.ClassDef) -> None:
         """Detect that a class inherits something which is not
@@ -895,14 +952,7 @@ a metaclass class method.",
             if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
                 "enum.Enum"
             ):
-                members = ancestor.getattr("__members__")
-                if members and isinstance(members[0], nodes.Dict) and members[0].items:
-                    self.add_message(
-                        "invalid-enum-extension",
-                        args=ancestor.name,
-                        node=node,
-                        confidence=INFERENCE,
-                    )
+                self._check_enum_base(node, ancestor)
 
             if ancestor.name == object.__name__:
                 self.add_message(

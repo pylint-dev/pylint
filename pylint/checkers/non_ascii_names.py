@@ -43,22 +43,14 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
         ),
         # First %s will always be "file"
         "W2402": (
-            (
-                '%s name "%s" contains a non-ASCII character. PEP 3131 only allows '
-                "non-ascii identifiers, not file names."
-            ),
+            '%s name "%s" contains a non-ASCII character.',
             "non-ascii-file-name",
             (
                 # Some = PyCharm at the time of writing didn't display the non_ascii_name_loł
-                # files and had big troubles with git.
-                # Probably only a bug shows the problem quite good.
-                # That's also why this is a warning and not only a convention!
-                "Some editors don't support non-ASCII file names properly. "
-                "Even though Python supports UTF-8 files since Python 3.5 this isn't "
-                "recommended for interoperability. Further reading:\n"
-                "- https://peps.python.org/pep-0489/#export-hook-name\n"
-                "- https://peps.python.org/pep-0672/#confusing-features\n"
-                "- https://bugs.python.org/issue20485"
+                # files. That's also why this is a warning and not only a convention!
+                "Under python 3.5, PEP 3131 allows non-ascii identifiers, but not non-ascii file names."
+                "Since Python 3.5, even though Python supports UTF-8 files, some editors or tools "
+                "don't."
             ),
         ),
         # First %s will always be "module"

@@ -728,13 +728,10 @@ Verbatim name of the checker is ``nonascii-checker``.
 
 Nonascii-Checker checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:non-ascii-file-name (W2402): *%s name "%s" contains a non-ASCII character. PEP 3131 only allows non-ascii identifiers, not file names.*
-  Some editors don't support non-ASCII file names properly. Even though Python
-  supports UTF-8 files since Python 3.5 this isn't recommended for
-  interoperability. Further reading: -
-  https://peps.python.org/pep-0489/#export-hook-name -
-  https://peps.python.org/pep-0672/#confusing-features -
-  https://bugs.python.org/issue20485
+:non-ascii-file-name (W2402): *%s name "%s" contains a non-ASCII character.*
+  Under python 3.5, PEP 3131 only allows non-ascii identifiers, not file
+  names.Since Python 3.5, even though Python supports UTF-8 files, some editors
+  or tools don't.
 :non-ascii-name (C2401): *%s name "%s" contains a non-ASCII character, consider renaming it.*
   Used when the name contains at least one non-ASCII unicode character. See
   https://peps.python.org/pep-0672/#confusing-features for a background why
@@ -1363,8 +1360,8 @@ Variables checker Messages
 :unused-variable (W0612): *Unused variable %r*
   Used when a variable is defined but not used.
 :global-variable-not-assigned (W0602): *Using global for %r but no assignment is done*
-  When a variable defined in the global scope is modified in an inner scope, the
-  'global' keyword is required in the inner scope only if there is an
+  When a variable defined in the global scope is modified in an inner scope,
+  the 'global' keyword is required in the inner scope only if there is an
   assignment operation done in the inner scope.
 :undefined-loop-variable (W0631): *Using possibly undefined loop variable %r*
   Used when a loop variable (i.e. defined by a for loop or a list comprehension
