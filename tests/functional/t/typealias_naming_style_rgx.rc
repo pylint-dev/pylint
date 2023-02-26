@@ -1,0 +1,5 @@
+[BASIC]
+typealias-rgx=_{0,2}TypeAliasShouldBeLikeThis
+
+[testoptions]
+min_pyver=3.10

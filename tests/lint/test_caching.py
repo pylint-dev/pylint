@@ -98,6 +98,7 @@ def linter_stats() -> LinterStats:
             module=10,
             variable=11,
             typevar=12,
+            typealias=13,
         )
     )
 
