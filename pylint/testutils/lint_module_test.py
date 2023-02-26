@@ -23,6 +23,7 @@ from pylint.constants import IS_PYPY
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
+
 # NOTE: need to import from functional.test_file to avoid cyclic import
 from pylint.testutils.functional.test_file import (
     FunctionalTestFile,

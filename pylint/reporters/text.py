@@ -132,7 +132,9 @@ def colorize_ansi(
     """
     # TODO: 3.0: Remove deprecated typing and only accept MessageStyle as parameter
     if not isinstance(msg_style, MessageStyle):
-        WARNING_MESSAGE = "In pylint 3.0, the colorize_ansi function of Text reporters will only "
+        WARNING_MESSAGE = (
+            "In pylint 3.0, the colorize_ansi function of Text reporters will only "
+        )
         WARNING_MESSAGE += "accept a MessageStyle parameter"
 
         warnings.warn(
