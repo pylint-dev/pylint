@@ -18,8 +18,8 @@ from unittest.mock import MagicMock, mock_open, patch
 import pytest
 
 from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
-from pylint.lint import Run
 from pylint.testutils import GenericTestReporter as Reporter
+from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import _test_cwd
 
 if sys.version_info >= (3, 8):
