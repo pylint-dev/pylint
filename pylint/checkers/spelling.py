@@ -37,7 +37,7 @@ try:
     )
 
     PYENCHANT_AVAILABLE = True
-except ImportError:
+except ImportError:  # pragma: no cover
     enchant = None
     PYENCHANT_AVAILABLE = False
 
