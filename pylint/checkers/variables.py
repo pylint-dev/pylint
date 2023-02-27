@@ -2038,8 +2038,9 @@ class VariablesChecker(BaseChecker):
             if isinstance(parent, nodes.ComprehensionScope) and not (
                 parent.generators and child is parent.generators[0]
             ):
-                # Body of list/set/dict/generator comprehension should not have access to class attributes.
-                # Furthermore, only the first generator (if multiple) in comprehension should have access.
+                # Body of list/set/dict/generator comprehension should not have access to class
+                # attributes. Furthermore, only the first generator (if multiple) in
+                # comprehension should have access.
                 return True
             child = parent
             parent = parent.parent

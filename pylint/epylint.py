@@ -169,7 +169,8 @@ def py_run(
         >>> (pylint_stdout, pylint_stderr) = py_run( 'module_name.py', True)
     """
     warnings.warn(
-        "'epylint' will be removed in pylint 3.0, use https://github.com/emacsorphanage/pylint instead.",
+        "'epylint' will be removed in pylint 3.0, use "
+        "https://github.com/emacsorphanage/pylint instead.",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -204,7 +205,8 @@ def py_run(
 
 def Run(argv: Sequence[str] | None = None) -> NoReturn:
     warnings.warn(
-        "'epylint' will be removed in pylint 3.0, use https://github.com/emacsorphanage/pylint instead.",
+        "'epylint' will be removed in pylint 3.0, use "
+        "https://github.com/emacsorphanage/pylint instead.",
         DeprecationWarning,
         stacklevel=2,
     )

@@ -263,7 +263,10 @@ class _MessageStateHandler:
         if confidence is None:
             confidence = interfaces.UNDEFINED
         if confidence.name not in self.linter.config.confidence:
-            return MSG_STATE_CONFIDENCE  # type: ignore[return-value] # mypy does not infer Literal correctly
+            # mypy does not infer Literal correctly
+            # TODO: Remove the comment when
+            # https://github.com/python/mypy/issues/9230 is closed
+            return MSG_STATE_CONFIDENCE  # type: ignore[return-value]
         try:
             if line in self.linter.file_state._module_msgs_state[msgid]:
                 return MSG_STATE_SCOPE_MODULE  # type: ignore[return-value]

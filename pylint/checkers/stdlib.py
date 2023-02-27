@@ -382,8 +382,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "threading.Thread needs the target function",
             "bad-thread-instantiation",
             "The warning is emitted when a threading.Thread class "
-            "is instantiated without the target function being passed as a kwarg or as a second argument. "
-            "By default, the first parameter is the group param, not the target param.",
+            "is instantiated without the target function being passed as a kwarg or as a "
+            "second argument. By default, the first parameter is the group param, not the"
+            " target param.",
         ),
         "W1507": (
             "Using copy.copy(os.environ). Use os.environ.copy() instead.",
@@ -819,7 +820,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if emit:
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
-            self.add_message(message, node=node, args=(name, call_arg.pytype()))  # type: ignore[union-attr]
+            self.add_message(message, node=node,
+                             args=(name, call_arg.pytype()))  # type: ignore[union-attr]
 
     def deprecated_methods(self) -> set[str]:
         return self._deprecated_methods

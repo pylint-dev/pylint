@@ -90,7 +90,8 @@ HashToIndex_T = Dict["LinesChunk", List[Index]]
 # Links index in the lineset's stripped lines to the real lines in the file
 IndexToLines_T = Dict[Index, "SuccessiveLinesLimits"]
 
-# The types the streams read by pylint can take. Originating from astroid.nodes.Module.stream() and open()
+# The types the streams read by pylint can take. Originating from astroid.nodes.Module.stream()
+# and open()
 STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
 
 
@@ -261,10 +262,11 @@ def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
     """Removes all successive entries in the dictionary in argument.
 
     :param all_couples: collection that has to be cleaned up from successive entries.
-                        The keys are couples of indices that mark the beginning of common entries
-                        in both linesets. The values have two parts. The first one is the couple
-                        of starting and ending line numbers of common successive lines in the first file.
-                        The second part is the same for the second file.
+                        The keys are couples of indices that mark the beginning of common
+                        entries in both linesets. The values have two parts. The first
+                        one is the couple of starting and ending line numbers of common
+                        successive lines in the first file. The second part is the same
+                        for the second file.
 
     For example consider the following dict:
 
@@ -318,8 +320,8 @@ def filter_noncode_lines(
     :param stindex_1: first lineset starting index
     :param ls_2: second lineset
     :param stindex_2: second lineset starting index
-    :param common_lines_nb: number of common successive stripped lines before being filtered from
-           non code lines
+    :param common_lines_nb: number of common successive stripped lines before being filtered
+           from non code lines
     :return: the number of common successive stripped lines that contain code
     """
     stripped_l1 = [
@@ -510,8 +512,9 @@ class Similar:
             hash_1 & hash_2, key=lambda m: hash_to_index_1[m][0]
         )
 
-        # all_couples is a dict that links the couple of indices in both linesets that mark the beginning of
-        # successive common lines, to the corresponding starting and ending number lines in both files
+        # all_couples is a dict that links the couple of indices in both linesets that mark
+        # the beginning of successive common lines, to the corresponding starting and ending
+        # number lines in both files
         all_couples: CplIndexToCplLines_T = {}
 
         for c_hash in sorted(common_hashes, key=operator.attrgetter("_index")):
@@ -853,13 +856,14 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         if self.linter.current_name is None:
             warnings.warn(
                 (
-                    "In pylint 3.0 the current_name attribute of the linter object should be a string. "
-                    "If unknown it should be initialized as an empty string."
+                    "In pylint 3.0 the current_name attribute of the linter object should be "
+                    "a string. If unknown it should be initialized as an empty string."
                 ),
                 DeprecationWarning,
             )
         with node.stream() as stream:
-            self.append_stream(self.linter.current_name, stream, node.file_encoding)  # type: ignore[arg-type]
+            self.append_stream(self.linter.current_name, stream,
+                               node.file_encoding)  # type: ignore[arg-type]
 
     def close(self) -> None:
         """Compute and display similarities on closing (i.e. end of parsing)."""
