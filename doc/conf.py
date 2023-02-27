@@ -109,8 +109,8 @@ master_doc = "index"
 # General information about the project.
 project = "Pylint"
 current_year = datetime.utcnow().year
-copyright = f"2003-{current_year}, Logilab, PyCQA \
-             and contributors"  # pylint: disable=redefined-builtin
+# pylint: disable-next=redefined-builtin
+copyright = f"2003-{current_year}, Logilab, PyCQA and contributors"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
