@@ -128,8 +128,8 @@ def table_lines_from_stats(
         new_str = f"{new_value:.3f}" if isinstance(new_value, float) else str(new_value)
         old_str = f"{old_value:.3f}" if isinstance(old_value, float) else str(old_value)
         lines.extend(
-            (value[0].replace("_", " "), new_str,
-             old_str, diff_str))  # type: ignore[arg-type]
+            (value[0].replace("_", " "), new_str, old_str, diff_str)
+        )  # type: ignore[arg-type]
     return lines
 
 
