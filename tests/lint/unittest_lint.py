@@ -596,7 +596,7 @@ def test_load_plugin_path_manipulation_case_6() -> None:
             msg_id="E0013",
             symbol="bad-plugin-value",
             msg="Plugin 'copy_dummy' is impossible to load, is it installed ? ('No module named "
-                "'copy_dummy'')",
+            "'copy_dummy'')",
             confidence=interfaces.Confidence(
                 name="UNDEFINED",
                 description="Warning without any associated confidence level.",
@@ -667,7 +667,7 @@ def test_load_plugin_path_manipulation_case_3() -> None:
             msg_id="E0013",
             symbol="bad-plugin-value",
             msg="Plugin 'copy_dummy' is impossible to load, is it installed ? ('No module named "
-                "'copy_dummy'')",
+            "'copy_dummy'')",
             confidence=interfaces.Confidence(
                 name="UNDEFINED",
                 description="Warning without any associated confidence level.",
