@@ -10,7 +10,6 @@ invalid-name:53:4:53:38:CorrectClassName.__DunDER_IS_not_free_for_all__:"Method 
 invalid-name:83:0:83:18::"Class name ""BAD_NAME_FOR_CLASS"" doesn't conform to PascalCase naming style":HIGH
 invalid-name:84:0:84:23::"Class name ""NEXT_BAD_NAME_FOR_CLASS"" doesn't conform to PascalCase naming style":HIGH
 invalid-name:91:0:91:11::"Class name ""NOT_CORRECT"" doesn't conform to PascalCase naming style":HIGH
-invalid-name:97:4:97:22:test_globals:"Constant name ""AlsoCorrect"" doesn't conform to UPPER_CASE naming style":HIGH
 invalid-name:110:4:110:21:FooClass.PROPERTY_NAME:"Attribute name ""PROPERTY_NAME"" doesn't conform to snake_case naming style":INFERENCE
 invalid-name:116:4:116:30:FooClass.ABSTRACT_PROPERTY_NAME:"Attribute name ""ABSTRACT_PROPERTY_NAME"" doesn't conform to snake_case naming style":INFERENCE
 invalid-name:121:4:121:28:FooClass.PROPERTY_NAME_SETTER:"Attribute name ""PROPERTY_NAME_SETTER"" doesn't conform to snake_case naming style":INFERENCE

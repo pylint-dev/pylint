@@ -90,3 +90,12 @@ def override_class():
         pass
 
     CLASS()
+
+
+# Prevent emitting `invalid-name` for the line on which `global` is declared
+# https://github.com/PyCQA/pylint/issues/8307
+
+_foo: str = "tomato"
+def setup_shared_foo():
+    global _foo  # [global-statement]
+    _foo = "potato"
