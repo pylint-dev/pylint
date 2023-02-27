@@ -318,7 +318,8 @@ def filter_noncode_lines(
     :param stindex_1: first lineset starting index
     :param ls_2: second lineset
     :param stindex_2: second lineset starting index
-    :param common_lines_nb: number of common successive stripped lines before being filtered from non code lines
+    :param common_lines_nb: number of common successive stripped lines before being filtered from
+           non code lines
     :return: the number of common successive stripped lines that contain code
     """
     stripped_l1 = [
@@ -590,8 +591,10 @@ def stripped_lines(
     :param ignore_comments: if true, any comment in the lines collection is removed from the result
     :param ignore_docstrings: if true, any line that is a docstring is removed from the result
     :param ignore_imports: if true, any line that is an import is removed from the result
-    :param ignore_signatures: if true, any line that is part of a function signature is removed from the result
-    :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard
+    :param ignore_signatures: if true, any line that is part of a function signature is removed
+           from the result
+    :param line_enabled_callback: If called with "R0801" and a line number, a return value of
+           False will disregard
            the line
     :return: the collection of line/line number/line type tuples
     """
