@@ -212,7 +212,8 @@ class BasicChecker(_BasicChecker):
             "the user intended to do.",
         ),
         "W0126": (
-            "Using a conditional statement with potentially wrong function or method call due to missing parentheses",
+            "Using a conditional statement with potentially wrong function or method call due to "
+            "missing parentheses",
             "missing-parentheses-for-call-in-test",
             "Emitted when a conditional statement (If or ternary if) "
             "seems to wrongly call a function due to missing parentheses",

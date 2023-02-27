@@ -2225,7 +2225,8 @@ a metaclass class method.",
                     error_type = "arguments-differ"
                     msg_args = (
                         msg
-                        + f"was {total_args_refmethod} in '{refmethod.parent.frame().name}.{refmethod.name}' and "
+                        + f"was {total_args_refmethod} in \
+                        '{refmethod.parent.frame().name}.{refmethod.name}' and "
                         f"is now {total_args_method1} in",
                         class_type,
                         f"{method1.parent.frame().name}.{method1.name}",
