@@ -57,7 +57,8 @@ def _get_all_options(linter: PyLinter) -> OptionsDataDict:
                     option[1],
                     checker,
                     getmodule(checker).__name__.startswith(  # type: ignore[union-attr]
-                        "pylint.extensions.")
+                        "pylint.extensions."
+                    ),
                 )
             )
 

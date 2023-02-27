@@ -71,4 +71,5 @@ def test_primer_stdlib_no_crash(
             msg = f"Encountered {{}} during primer stlib test for {test_module_name}"
             assert ex.code != 32, msg.format("a crash")
             assert ex.code % 2 == 0, msg.format(
-                "a message of category 'fatal'")  # type: ignore[operator]
+                "a message of category 'fatal'"
+            )  # type: ignore[operator]
