@@ -12,3 +12,4 @@ global-statement:60:4:60:19:global_operator_assign:Using the global statement:UN
 global-statement:67:4:67:19:global_function_assign:Using the global statement:UNDEFINED
 global-statement:77:4:77:15:override_func:Using the global statement:UNDEFINED
 global-statement:87:4:87:16:override_class:Using the global statement:UNDEFINED
+global-statement:100:4:100:15:setup_shared_foo:Using the global statement:UNDEFINED

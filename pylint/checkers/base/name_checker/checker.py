@@ -388,11 +388,6 @@ class NameChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @utils.only_required_for_messages("disallowed-name", "invalid-name")
-    def visit_global(self, node: nodes.Global) -> None:
-        for name in node.names:
-            self._check_name("const", name, node)
-
     @utils.only_required_for_messages(
         "disallowed-name",
         "invalid-name",
