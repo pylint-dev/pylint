@@ -21,7 +21,7 @@ class GenericTestReporter(BaseReporter):
     out: StringIO
 
     def __init__(  # pylint: disable=super-init-not-called
-                   # See https://github.com/PyCQA/pylint/issues/4941
+        # See https://github.com/PyCQA/pylint/issues/4941
         self,
     ) -> None:
         self.path_strip_prefix: str = getcwd() + sep
