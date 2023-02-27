@@ -31,8 +31,8 @@ def exception_str(
     """Function used to replace default __str__ method of exception instances
     This function is not typed because it is legacy code
     """
-    return f"in {ex.file}\n:: \
-        {', '.join(ex.args)}"  # type: ignore[attr-defined] # Defined in the caller
+    # Defined in the caller
+    return f"in {ex.file}\n:: {', '.join(ex.args)}"  # type: ignore[attr-defined]
 
 
 class LintTestUsingModule:
