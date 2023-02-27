@@ -864,7 +864,9 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         with node.stream() as stream:
             self.append_stream(
                 self.linter.current_name,  # type: ignore[arg-type]
-                stream, node.file_encoding)
+                stream,
+                node.file_encoding,
+            )
 
     def close(self) -> None:
         """Compute and display similarities on closing (i.e. end of parsing)."""
