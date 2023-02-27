@@ -133,7 +133,8 @@ def colorize_ansi(
     # TODO: 3.0: Remove deprecated typing and only accept MessageStyle as parameter
     if not isinstance(msg_style, MessageStyle):
         warnings.warn(
-            "In pylint 3.0, the colorize_ansi function of Text reporters will only accept a MessageStyle parameter",
+            "In pylint 3.0, the colorize_ansi function of Text reporters will only accept a "
+            "MessageStyle parameter",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -237,7 +238,8 @@ class ParseableTextReporter(TextReporter):
 
     def __init__(self, output: TextIO | None = None) -> None:
         warnings.warn(
-            f"{self.name} output format is deprecated. This is equivalent to --msg-template={self.line_format}",
+            f"{self.name} output format is deprecated. This is equivalent to " \
+            "--msg-template={self.line_format}",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -279,7 +281,8 @@ class ColorizedTextReporter(TextReporter):
             list(color_mapping.values())[0], MessageStyle
         ):
             warnings.warn(
-                "In pylint 3.0, the ColorizedTextReporter will only accept ColorMappingDict as color_mapping parameter",
+                "In pylint 3.0, the ColorizedTextReporter will only accept ColorMappingDict as "
+                "color_mapping parameter",
                 DeprecationWarning,
                 stacklevel=2,
             )
