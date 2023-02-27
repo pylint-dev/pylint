@@ -19,7 +19,6 @@ from typing import TYPE_CHECKING, Any
 from pylint import exceptions, extensions, interfaces, utils
 
 if TYPE_CHECKING:
-    from pylint.config.help_formatter import _HelpFormatter
     from pylint.lint import PyLinter
     from pylint.lint.run import Run
 
