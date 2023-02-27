@@ -8,6 +8,7 @@ import astroid
 import pytest
 
 from pylint.checkers import spelling
+from pylint.checkers.spelling import _get_enchant_dict_help
 from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str, set_config
 
 # try to create enchant dictionary
@@ -38,6 +39,20 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     def _get_msg_suggestions(self, word: str, count: int = 4) -> str:
         suggestions = "' or '".join(self.checker.spelling_dict.suggest(word)[:count])
         return f"'{suggestions}'"
+
+    def test_spelling_dict_help_no_enchant(self) -> None:
+        assert "both the python package and the system dep" in _get_enchant_dict_help(
+            [], pyenchant_available=False
+        )
+        assert "need to install the system dep" in _get_enchant_dict_help(
+            [], pyenchant_available=True
+        )
+
+    @skip_on_missing_package_or_dict
+    def test_spelling_dict_help_enchant(self) -> None:
+        assert "Available dictionaries: " in _get_enchant_dict_help(
+            enchant.Broker().list_dicts(), pyenchant_available=True
+        )
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
