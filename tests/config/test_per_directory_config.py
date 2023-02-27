@@ -4,7 +4,7 @@
 
 from pathlib import Path
 
-from pylint.lint import Run
+from pylint.testutils._run import _Run as Run
 
 
 def test_fall_back_on_base_config(tmp_path: Path) -> None:

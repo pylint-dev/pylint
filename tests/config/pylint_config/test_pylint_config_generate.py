@@ -186,7 +186,15 @@ def test_writing_minimal_file(
         assert any(line.startswith("#") for line in captured.out.splitlines())
 
         # Check minimal doesn't have comments and no default values
-        Run(["--accept-no-return-doc=y", "generate", "--interactive"], exit=False)
+        Run(
+            [
+                "--load-plugins=pylint.extensions.docparams",
+                "--accept-no-return-doc=y",
+                "generate",
+                "--interactive",
+            ],
+            exit=False,
+        )
         captured = capsys.readouterr()
         assert not any(i.startswith("#") for i in captured.out.split("\n"))
         assert "accept-no-return-doc" not in captured.out
