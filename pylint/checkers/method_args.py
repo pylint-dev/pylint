@@ -60,8 +60,8 @@ class MethodArgsChecker(BaseChecker):
                 ),
                 "type": "csv",
                 "metavar": "<comma separated list>",
-                "help": "List of qualified names (i.e., library.method) which require a timeout parameter "
-                "e.g. 'requests.api.get,requests.api.post'",
+                "help": "List of qualified names (i.e., library.method) which require a timeout "
+                "parameter (i.e., 'requests.api.get,requests.api.post')",
             },
         ),
     )

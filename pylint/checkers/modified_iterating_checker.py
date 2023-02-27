@@ -44,7 +44,8 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             "Doing so raises a RuntimeError.",
         ),
         "E4703": (
-            "Iterated set '%s' is being modified inside for loop body, iterate through a copy of it instead.",
+            "Iterated set '%s' is being modified inside for loop body, iterate through a copy of "
+            "it instead.",
             "modified-iterating-set",
             "Emitted when items are added or removed to a set being iterated through. "
             "Doing so raises a RuntimeError.",
