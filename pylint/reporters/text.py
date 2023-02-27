@@ -238,8 +238,8 @@ class ParseableTextReporter(TextReporter):
 
     def __init__(self, output: TextIO | None = None) -> None:
         warnings.warn(
-            f"{self.name} output format is deprecated. This is equivalent to " \
-            "--msg-template={self.line_format}",
+            f"{self.name} output format is deprecated. This is equivalent to \
+            --msg-template={self.line_format}",
             DeprecationWarning,
             stacklevel=2,
         )

@@ -96,7 +96,8 @@ class CompareCommand(PrimerCommand):
             else:
                 new_non_astroid_messages += (
                     f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                    f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
+                    (f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L"
+                        "{message['line']}\n")
                 )
                 print(message)
                 count += 1
@@ -128,7 +129,8 @@ class CompareCommand(PrimerCommand):
             assert not self.packages[package].url.endswith(
                 ".git"
             ), "You don't need the .git at the end of the github url."
-            comment += f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
+            comment += (f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L"
+                        "{message['line']}\n")
             count += 1
             print(message)
         if missing_messages:
