@@ -94,7 +94,8 @@ class CompareCommand(PrimerCommand):
             if message["symbol"] == "astroid-error":
                 astroid_errors += 1
             else:
-                new_non_astroid_messages += (f"{count}) {message['symbol']}:\n*{message['message']}*\n"
+                new_non_astroid_messages += (
+                    f"{count}) {message['symbol']}:\n*{message['message']}*\n"
                     f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L \
                     {message['line']}\n"
                 )
