@@ -11,8 +11,8 @@ from pytest import CaptureFixture
 
 from pylint.checkers import imports
 from pylint.interfaces import UNDEFINED
-from pylint.lint import Run
 from pylint.testutils import CheckerTestCase, MessageTest
+from pylint.testutils._run import _Run as Run
 
 REGR_DATA = os.path.join(os.path.dirname(__file__), "..", "regrtest_data", "")
 
@@ -206,7 +206,7 @@ class TestImportsChecker(CheckerTestCase):
             exit=False,
         )
         output, errors = capsys.readouterr()
-        assert len(output.split("\n")) == 5, f"Expected 5 line breaks in:{output}"
+        assert len(output.split("\n")) == 7, f"Expected 7 line breaks in:{output}"
         assert (
             "__init__.py:1:0: C0414: Import alias does not rename original package (useless-import-alias)"
             in output
@@ -222,6 +222,7 @@ class TestImportsChecker(CheckerTestCase):
             [
                 f"{os.path.join(REGR_DATA, 'allow_reexport')}",
                 "--allow-reexport-from-package=yes",
+                "--disable=missing-module-docstring",
                 "-sn",
             ],
             exit=False,

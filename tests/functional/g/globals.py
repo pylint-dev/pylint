@@ -102,3 +102,12 @@ def init_connection_state(alias):
     global RAN_DB_DICT  # [global-variable-not-assigned]
     RAN_DB_SET.add(alias)
     return RAN_DB_DICT.setdefault("color", "Palomino")
+
+
+# Prevent emitting `invalid-name` for the line on which `global` is declared
+# https://github.com/PyCQA/pylint/issues/8307
+
+_foo: str = "tomato"
+def setup_shared_foo():
+    global _foo  # [global-statement]
+    _foo = "potato"
