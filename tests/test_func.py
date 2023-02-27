@@ -31,7 +31,8 @@ def exception_str(
     """Function used to replace default __str__ method of exception instances
     This function is not typed because it is legacy code
     """
-    return f"in {ex.file}\n:: {', '.join(ex.args)}"  # type: ignore[attr-defined] # Defined in the caller
+    return f"in {ex.file}\n:: \
+        {', '.join(ex.args)}"  # type: ignore[attr-defined] # Defined in the caller
 
 
 class LintTestUsingModule:
@@ -115,7 +116,8 @@ def gen_tests(
         is_to_run = re.compile(filter_rgx).search
     else:
         is_to_run = (  # noqa: E731, We're going to throw all this anyway
-            lambda x: 1  # type: ignore[assignment,misc] # pylint: disable=unnecessary-lambda-assignment
+            lambda x: 1  # type: ignore[assignment,misc]
+            # pylint -1: disable=unnecessary-lambda-assignment
         )
     tests: list[tuple[str, str, list[tuple[str, str]]]] = []
     for module_file, messages_file in _get_tests_info(INPUT_DIR, MSG_DIR, "func_", ""):

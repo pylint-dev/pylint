@@ -26,7 +26,8 @@ from pylint.typing import MessageDefinitionTuple
                 "W1234": ("message one", "msg-symbol-one", "msg description"),
                 "W4321": ("message two", "msg-symbol-two", "msg description"),
             },
-            r"Inconsistent checker part in message id 'W4321' (expected 'x12xx' because we already had ['W1234']).",
+            r"Inconsistent checker part in message id 'W4321' (expected 'x12xx' because we \
+                already had ['W1234']).",
         ),
         (
             {
@@ -67,7 +68,8 @@ from pylint.typing import MessageDefinitionTuple
                     {"old_names": [("W1201", "old-symbol-two")]},
                 ),
             },
-            "Message id 'W1201' cannot have both 'old-symbol-one' and 'old-symbol-two' as symbolic name.",
+            "Message id 'W1201' cannot have both 'old-symbol-one' and 'old-symbol-two' as symbolic "
+            "name.",
         ),
         (
             {

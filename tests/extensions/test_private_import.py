@@ -14,7 +14,8 @@ from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class TestPrivateImport(CheckerTestCase):
-    """The mocked dirname is the directory of the file being linted, the node is code inside that file"""
+    """The mocked dirname is the directory of the file being linted, the node is code inside that
+       file"""
 
     CHECKER_CLASS = private_import.PrivateImportChecker
 

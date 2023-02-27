@@ -120,7 +120,8 @@ def test_graphviz_unsupported_image_format(capsys: CaptureFixture) -> None:
     # Check that the right info messages are shown to the user
     stdout = capsys.readouterr().out
     assert (
-        "Format somethingElse is not supported natively. Pyreverse will try to generate it using Graphviz..."
+        "Format somethingElse is not supported natively. Pyreverse will try to generate it using \
+            Graphviz..."
         in stdout
     )
     assert "Format somethingElse is not supported by Graphviz. It supports:" in stdout
@@ -196,7 +197,8 @@ def test_version_info(
 ) -> None:
     """Test that it is possible to display the version information."""
     test_full_version = "1.2.3.4"
-    monkeypatch.setattr(main.constants, "full_version", test_full_version)  # type: ignore[attr-defined]
+    monkeypatch.setattr(main.constants, "full_version",
+                        test_full_version)  # type: ignore[attr-defined]
     with pytest.raises(SystemExit):
         main.Run(["--version"])
     out, _ = capsys.readouterr()

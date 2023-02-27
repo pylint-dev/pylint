@@ -272,7 +272,8 @@ class TestRunTC:
         expected_output = textwrap.dedent(
             f"""
         ************* Module wrong_import_position
-        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
+        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module
+                               (wrong-import-position)
         """
         )
         args = [
@@ -299,9 +300,9 @@ class TestRunTC:
     def test_type_annotation_names(self) -> None:
         """Test resetting the `_type_annotation_names` list to `[]` when leaving a module.
 
-        An import inside `module_a`, which is used as a type annotation in `module_a`, should not prevent
-        emitting the `unused-import` message when the same import occurs in `module_b` & is unused.
-        See: https://github.com/PyCQA/pylint/issues/4150
+        An import inside `module_a`, which is used as a type annotation in `module_a`, should not
+        prevent emitting the `unused-import` message when the same import occurs in `module_b` &
+        is unused. See: https://github.com/PyCQA/pylint/issues/4150
         """
         module1 = join(
             HERE, "regrtest_data", "imported_module_in_typehint", "module_a.py"
@@ -696,7 +697,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
                 "-9",
                 "--enable=all",
                 "--evaluation",
-                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / "
+                "statement) * 10)",
                 join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
             code=22,
@@ -707,7 +709,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
                 "-5",
                 "--enable=all",
                 "--evaluation",
-                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / "
+                "statement) * 10)",
                 join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
             code=22,
@@ -755,7 +758,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
                 join(HERE, "regrtest_data", fname),
                 # Use the old form of the evaluation that can go negative
                 "--evaluation",
-                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
+                "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / "
+                "statement) * 10)",
             ],
             code=out,
         )
@@ -1066,7 +1070,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (
                 "colorized",
                 (
-                    "{path}:4:4: W0612: \x1B[35mUnused variable 'variable'\x1B[0m (\x1B[35munused-variable\x1B[0m)"
+                    "{path}:4:4: W0612: \x1B[35mUnused variable 'variable'\x1B[0m \
+                        (\x1B[35munused-variable\x1B[0m)"
                 ),
             ),
             ("json", '"message": "Unused variable \'variable\'",'),

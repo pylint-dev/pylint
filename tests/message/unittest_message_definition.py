@@ -114,7 +114,8 @@ class TestMessagesDefinition:
         repr_str = str([msg, msg])
         assert "W1234" in repr_str
         assert "msg-symbol" in repr_str
-        expected = "[MessageDefinition:msg-symbol-one (W1234), MessageDefinition:msg-symbol-two (W1235)]"
+        expected = "[MessageDefinition:msg-symbol-one (W1234), "
+        expected += "MessageDefinition:msg-symbol-two (W1235)]"
         assert str(FalseChecker().messages) == expected
 
     def test_str(self) -> None:

@@ -208,7 +208,8 @@ class TestImportsChecker(CheckerTestCase):
         output, errors = capsys.readouterr()
         assert len(output.split("\n")) == 7, f"Expected 7 line breaks in:{output}"
         assert (
-            "__init__.py:1:0: C0414: Import alias does not rename original package (useless-import-alias)"
+            "__init__.py:1:0: C0414: Import alias does not rename original package \
+                (useless-import-alias)"
             in output
         )
         assert (

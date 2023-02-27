@@ -114,7 +114,8 @@ def test_unknown_py_version(capsys: CaptureFixture) -> None:
 
 
 def test_regex_error(capsys: CaptureFixture) -> None:
-    """Check that we correctly error when an an option is passed whose value is an invalid regular expression."""
+    """Check that we correctly error when an an option is passed whose value is an invalid
+       regular expression."""
     with pytest.raises(SystemExit):
         Run(
             [str(EMPTY_MODULE), r"--function-rgx=[\p{Han}a-z_][\p{Han}a-z0-9_]{2,30}$"],
@@ -140,7 +141,8 @@ def test_csv_regex_error(capsys: CaptureFixture) -> None:
         )
     output = capsys.readouterr()
     assert (
-        r"Error in provided regular expression: (foo{1 beginning at index 0: missing ), unterminated subpattern"
+        r"Error in provided regular expression: (foo{1 beginning at index 0: missing ), \
+              unterminated subpattern"
         in output.err
     )
 
