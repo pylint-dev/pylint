@@ -566,8 +566,8 @@ class NameChecker(_BasicChecker):
             bad_name_group = self._bad_names.setdefault(name_group, {})
             # Ignored because this is checked by the if statement
             warnings = bad_name_group.setdefault(
-                match.lastgroup, []
-            )  # type: ignore[union-attr, arg-type]
+                match.lastgroup,  # type: ignore[union-attr, arg-type]
+                [])
             warnings.append((node, node_type, name, confidence))
 
         if (
