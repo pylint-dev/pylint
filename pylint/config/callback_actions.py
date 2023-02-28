@@ -317,10 +317,11 @@ class _LongHelpAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--long-help",
     ) -> None:
-        formatter = self.run.linter._arg_parser._get_formatter()  # type: ignore[assignment]
+        formatter = self.run.linter._arg_parser._get_formatter()
 
         # Add extra info as epilog to the help message
-        self.run.linter._arg_parser.epilog = formatter.get_long_description()
+        longdesc = formatter.get_long_description()  # type: ignore[attr-defined]
+        self.run.linter._arg_parser.epilog = longdesc
         print(self.run.linter.help())
 
         sys.exit(0)
