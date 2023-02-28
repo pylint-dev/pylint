@@ -375,7 +375,7 @@ def test_no_args() -> None:
             pytest.fail("not system exit")
 
 
-def test_get_map_data() -> None:
+def test_get_map_data():
     """Tests that a SimilarChecker can return and reduce mapped data."""
     linter = PyLinter(reporter=Reporter())
     # Add a parallel checker to ensure it can map and reduce
