@@ -11,7 +11,7 @@ class ClassLevelAttributeTest:
     some_other_variable: int = 42
     """Data docstring"""
 
-    def func(self):
+    def func(self) -> None:
         """Some Empty Docstring"""
 
     # +1: [pointless-string-statement]

@@ -3,31 +3,31 @@ class Foo:
 
 
 class Bar(Foo):
-    def __init__(self):
+    def __init__(self) -> None:
         super(Bar, self).__init__()  # [super-with-arguments]
 
 
 class Baz(Foo):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
 
 class Qux(Foo):
-    def __init__(self):
+    def __init__(self) -> None:
         super(Bar, self).__init__()
 
 
 class NotSuperCall(Foo):
-    def __init__(self):
+    def __init__(self) -> None:
         super.test(Bar, self).__init__()
 
 
 class InvalidSuperCall(Foo):
-    def __init__(self):
+    def __init__(self) -> None:
         super(InvalidSuperCall.__class__, self).__init__()
 
 
-def method_accepting_cls(cls, self):
+def method_accepting_cls(cls, self) -> None:
     # Using plain `super()` is not valid here, since there's no `__class__` cell found
     # (Exact exception would be 'RuntimeError: super(): __class__ cell not found')
     # Instead, we expect to *not* see a warning about `super-with-arguments`.

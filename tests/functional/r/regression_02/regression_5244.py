@@ -8,5 +8,5 @@ class MyClass:
     def some_func(self):
         return lambda: 42
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.some_func())

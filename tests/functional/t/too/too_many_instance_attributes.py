@@ -7,7 +7,7 @@
 
 class Aaaa: # [too-many-instance-attributes]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.aaaa = 1
         self.bbbb = 2
         self.cccc = 3
@@ -28,4 +28,4 @@ class Aaaa: # [too-many-instance-attributes]
         self._hhhh = 8
         self._iiii = 9
         self._jjjj = 10
-        self.tomuch = None
+        self.tomuch: None = None

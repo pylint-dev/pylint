@@ -6,13 +6,13 @@ from enum import Enum
 
 class Aaaa: # [too-few-public-methods]
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def meth1(self):
+    def meth1(self) -> None:
         print(self)
 
-    def _dontcount(self):
+    def _dontcount(self) -> None:
         print(self)
 
 
@@ -20,10 +20,10 @@ class Aaaa: # [too-few-public-methods]
 class Klass:
     """docstring"""
 
-    def meth1(self):
+    def meth1(self) -> None:
         """first"""
 
-    def meth2(self):
+    def meth2(self) -> None:
         """second"""
 
 

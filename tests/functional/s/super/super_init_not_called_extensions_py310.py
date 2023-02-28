@@ -11,12 +11,12 @@ class TestProto(ExtensionProtocol):
 class TestParent(TestProto):
     """An implementation."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         ...
 
 
 class TestChild(TestParent):
     """An implementation which should call the init of TestParent."""
 
-    def __init__(self):  # [super-init-not-called]
+    def __init__(self) -> None:  # [super-init-not-called]
         ...

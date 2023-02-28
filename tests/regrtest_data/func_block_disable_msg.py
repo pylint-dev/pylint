@@ -5,10 +5,10 @@ from __future__ import print_function
 class Foo:
     """block-disable test"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._test = "42"
 
-    def meth1(self, arg):
+    def meth1(self, arg) -> None:
         """this issues a message"""
         print(self)
 
@@ -18,14 +18,14 @@ class Foo:
         print(self._test\
               + "foo")
 
-    def meth3(self):
+    def meth3(self) -> None:
         """test one line disabling"""
         # no error
         print(self.bla) # pylint: disable=E1101
         # error
         print(self.blop)
 
-    def meth4(self):
+    def meth4(self) -> None:
         """test re-enabling"""
         # pylint: disable=E1101
         # no error
@@ -35,7 +35,7 @@ class Foo:
         # error
         print(self.blip)
 
-    def meth5(self):
+    def meth5(self) -> None:
         """test IF sub-block re-enabling"""
         # pylint: disable=E1101
         # no error
@@ -50,7 +50,7 @@ class Foo:
         # no error
         print(self.blip)
 
-    def meth6(self):
+    def meth6(self) -> None:
         """test TRY/EXCEPT sub-block re-enabling"""
         # pylint: disable=E1101
         # no error
@@ -65,7 +65,7 @@ class Foo:
         # no error
         print(self.blip)
 
-    def meth7(self):
+    def meth7(self) -> None:
         """test one line block opening disabling"""
         if self.blop: # pylint: disable=E1101
             # error
@@ -77,7 +77,7 @@ class Foo:
         print(self.blip)
 
 
-    def meth8(self):
+    def meth8(self) -> None:
         """test late disabling"""
         # error
         print(self.blip)
@@ -86,7 +86,7 @@ class Foo:
         print(self.bla)
         print(self.blop)
 
-    def meth9(self):
+    def meth9(self) -> None:
         """test re-enabling right after a block with whitespace"""
         eris = 5
 
@@ -101,7 +101,7 @@ class Foo:
         # error
         print(self.blip)
 
-    def meth10(self):
+    def meth10(self) -> None:
         """Test double disable"""
         # pylint: disable=E1101
         # no error
@@ -115,7 +115,7 @@ class ClassLevelMessage:
     """
     # pylint: disable=R0902,R0903
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.attr1 = 1
         self.attr2 = 1
         self.attr3 = 1

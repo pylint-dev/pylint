@@ -8,7 +8,7 @@ class Base:
         """ A generator. """
         yield self.val
 
-    def fun(self):
+    def fun(self) -> None:
         """ With statement using a generator. """
         with self.gen():  # [not-context-manager]
             pass

@@ -162,12 +162,12 @@ def issue338():
         """ Looking for attributes in __str__ will crash,
         because EmptyNodes can't be inferred.
         """
-        def __str__(self):
+        def __str__(self) -> str:
             return "{0.foo}: {0.bar}".format(self)
     return Crash
 
 
-def issue351():
+def issue351() -> None:
     """
     Check that the format method can be assigned to a variable, ie:
     """
@@ -183,14 +183,14 @@ def issue373():
     """
     class SomeClass:
         """ empty docstring. """
-        def __init__(self, opts=None):
+        def __init__(self, opts=None) -> None:
             self.opts = opts
 
-        def dunc(self, arg):
+        def dunc(self, arg) -> str:
             """Don't try to analyze this."""
             return "A{0}{1}".format(arg, self.opts)
 
-        def func(self):
+        def func(self) -> str:
             """Don't try to analyze the following string."""
             return 'AAA{0[iface]}BBB{0[port]}'.format(self.opts)
 

@@ -4,7 +4,7 @@ from pylint.extensions.check_elif import ElseifUsedChecker
 
 
 class CheckerCollector:
-    def __init__(self):
+    def __init__(self) -> None:
         self.checker1 = ExceptionsChecker(None)
         self.checker2 = ElseifUsedChecker(None)
         self.checker3 = StdlibChecker(None)

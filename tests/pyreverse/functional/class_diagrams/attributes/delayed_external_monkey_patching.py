@@ -2,7 +2,7 @@ from _monkey import Monkey
 
 
 class Tree:
-    def __init__(self):
+    def __init__(self) -> None:
         self.number_of_bananas = 5
         self.inhabitant = Monkey(
             "Steve"

@@ -5,35 +5,35 @@ from unknown import Missing
 
 class Aaaa:
     """old style"""
-    def hop(self):
+    def hop(self) -> None:
         """hop"""
         super(Aaaa, self).hop() # >=3.0:[no-member]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(Aaaa, self).__init__()
 
 class NewAaaa:
     """old style"""
-    def hop(self):
+    def hop(self) -> None:
         """hop"""
         super(NewAaaa, self).hop() # [no-member]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super(Aaaa, self).__init__()  # [bad-super-call]
 
 class Py3kAaaa(NewAaaa):
     """new style"""
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()  # <3.0:[missing-super-argument]
 
 class Py3kWrongSuper(Py3kAaaa):
     """new style"""
-    def __init__(self):
+    def __init__(self) -> None:
         super(NewAaaa, self).__init__()
 
 class WrongNameRegression(Py3kAaaa):
     """ test a regression with the message """
-    def __init__(self):
+    def __init__(self) -> None:
         super(Missing, self).__init__()  # [bad-super-call]
 
 class Getattr:
@@ -42,7 +42,7 @@ class Getattr:
 
 class CrashSuper:
     """ test a crash with this checker """
-    def __init__(self):
+    def __init__(self) -> None:
         super(Getattr.name, self).__init__()  # [bad-super-call]
 
 class Empty:
@@ -53,18 +53,18 @@ class SuperDifferentScope:
     For reference, see https://bitbucket.org/logilab/pylint/issue/403.
     """
     @staticmethod
-    def test():
+    def test() -> None:
         """Test that a bad-super-call is not emitted for this case."""
         class FalsePositive(Empty):
             """The following super is in another scope than `test`."""
-            def __init__(self, arg):
+            def __init__(self, arg) -> None:
                 super(FalsePositive, self).__init__(arg)
         super(object, 1).__init__()
 
 
 class UnknownBases(Missing):
     """Don't emit if we don't know all the bases."""
-    def __init__(self):
+    def __init__(self) -> None:
         super(UnknownBases, self).__init__()
         super(UnknownBases, self).test()
         super(Missing, self).test() # [bad-super-call]
@@ -108,7 +108,7 @@ try:
     TimeoutExpired = subprocess.TimeoutExpired
 except AttributeError:
     class TimeoutExpired(subprocess.CalledProcessError):
-        def __init__(self):
+        def __init__(self) -> None:
             returncode = -1
             self.timeout = -1
             super(TimeoutExpired, self).__init__("", returncode)
@@ -116,7 +116,7 @@ except AttributeError:
 
 class SuperWithType:
     """type(self) may lead to recursion loop in derived classes"""
-    def __init__(self):
+    def __init__(self) -> None:
         super(type(self), self).__init__() # [bad-super-call]
 
 class SuperWithSelfClass:
@@ -127,22 +127,22 @@ class SuperWithSelfClass:
 
 # Reported in https://github.com/PyCQA/pylint/issues/2903
 class Parent:
-    def method(self):
+    def method(self) -> None:
         print()
 
 
 class Child(Parent):
-    def method(self):
+    def method(self) -> None:
         print("Child")
         super().method()
 
 class Niece(Parent):
-    def method(self):
+    def method(self) -> None:
         print("Niece")
         super().method()
 
 class GrandChild(Child):
-    def method(self):
+    def method(self) -> None:
         print("Grandchild")
         super(GrandChild, self).method()
         super(Child, self).method()
@@ -151,6 +151,6 @@ class GrandChild(Child):
 
 # Reported in https://github.com/PyCQA/pylint/issues/4922
 class AlabamaCousin(Child, Niece):
-    def method(self):
+    def method(self) -> None:
         print("AlabamaCousin")
         super(Child, self).method()

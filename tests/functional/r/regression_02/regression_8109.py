@@ -10,6 +10,6 @@ class Number:
     amount: int | float
     round: int = 2
 
-    def __str__(self):
+    def __str__(self) -> str:
         number_format = "{:,.%sf}" % self.round  # [consider-using-f-string]
         return number_format.format(self.amount).rstrip("0").rstrip(".")
