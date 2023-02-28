@@ -1812,7 +1812,9 @@ def get_import_name(importnode: ImportNode, modname: str | None) -> str | None:
         root = importnode.root()
         if isinstance(root, nodes.Module):
             try:
-                return root.relative_to_absolute_name(modname, level=importnode.level)  # type: ignore[no-any-return]
+                return root.relative_to_absolute_name(  # type: ignore[no-any-return]
+                    modname, level=importnode.level
+                )
             except TooManyLevelsError:
                 return modname
     return modname
