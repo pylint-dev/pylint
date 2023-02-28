@@ -141,7 +141,7 @@ class LintModuleTest:
         ):
             pytest.skip("Test excluded from --minimal-messages-config")
 
-    def runTest(self):
+    def runTest(self) -> None:
         self._runTest()
 
     def _should_be_skipped_due_to_version(self) -> bool:

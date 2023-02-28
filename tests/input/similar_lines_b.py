@@ -5,10 +5,10 @@ As with the sister file, we use lorm-ipsum to generate 'random' code. """
 
 
 class Nulla:
-    tortor: str = "ultrices quis porta in"
-    sagittis: str = "ut tellus"
+    tortor = "ultrices quis porta in"
+    sagittis = "ut tellus"
 
-    def pulvinar(self, blandit, metus):
+    def pulvinar(self, blandit, metus) -> None:
         egestas = [mauris for mauris in zip(blandit, metus)]
         neque = (egestas, blandit)
 
