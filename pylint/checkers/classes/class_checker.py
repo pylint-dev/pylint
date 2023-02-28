@@ -815,6 +815,7 @@ a metaclass class method.",
                     "_replace",
                     "_source",
                     "_make",
+                    "os._exit",
                 ),
                 "type": "csv",
                 "metavar": "<protected access exclusions>",
@@ -1776,10 +1777,13 @@ a metaclass class method.",
             Klass.
         """
         attrname = node.attrname
-        if (
-            is_attr_protected(attrname)
-            and attrname not in self.linter.config.exclude_protected
-        ):
+        if is_attr_protected(attrname):
+            if attrname in self.linter.config.exclude_protected:
+                return
+            inferred = safe_infer(node.expr)
+            if inferred and isinstance(inferred, (nodes.ClassDef, nodes.Module)):
+                if f"{inferred.name}.{attrname}" in self.linter.config.exclude_protected:
+                    return
             klass = node_frame_class(node)
 
             # In classes, check we are not getting a parent method
