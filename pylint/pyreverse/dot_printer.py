@@ -93,8 +93,8 @@ class DotPrinter(Printer):
             f', fontcolor="{properties.fontcolor}"' if properties.fontcolor else ""
         )
         self.emit(
-            f'"{name}" [color="{color}"{fontcolor_part}{label_part}, shape="{shape}", \
-                style="{style}"];'
+            f'"{name}" [color="{color}"{fontcolor_part}{label_part}, shape="{shape}",'
+            f' "style="{style}"];'
         )
 
     def _build_label_for_node(self, properties: NodeProperties) -> str:
