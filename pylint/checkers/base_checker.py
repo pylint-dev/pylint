@@ -132,7 +132,10 @@ class BaseChecker(_ArgumentsProvider):
                 result += f"{get_rst_section(None, options_list)}\n"
             else:
                 result += "See also :ref:"
-                result += f"`{self.name} checker's options' documentation <{self.name}-options>`\n\n"
+                result += (
+                    "See also :ref:"
+                    f"`{self.name} checker's options' documentation <{self.name}-options>`\n\n"
+                )
         if msgs:
             result += get_rst_title(f"{checker_title} Messages", "^")
             for msgid, msg in sorted(
@@ -216,7 +219,7 @@ class BaseChecker(_ArgumentsProvider):
             (msg, symbol, descr) = msg_tuple  # type: ignore[misc]
         else:
             error_msg = """Messages should have a msgid, a symbol and a description. Something like
-                           this :
+this :
 
 "W1234": (
     "message",

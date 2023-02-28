@@ -1045,8 +1045,10 @@ a metaclass class method.",
                     curr = curr.parent.scope()
 
                 outer_level_names = f"{'.'.join(reversed(name_stack))}"
-                function_repr = f"{outer_level_names}.{function_def.name} \
-                                ({function_def.args.as_string()})"
+                function_repr = (
+                    f"{outer_level_names}.{function_def.name}"
+                    f"({function_def.args.as_string()})"
+                )
                 self.add_message(
                     "unused-private-member",
                     node=function_def,
@@ -2226,9 +2228,8 @@ a metaclass class method.",
                         total_args_refmethod += len(refmethod.args.kwonlyargs)
                     error_type = "arguments-differ"
                     msg_args = (
-                        msg
-                        + f"was {total_args_refmethod} in \
-                        '{refmethod.parent.frame().name}.{refmethod.name}' and "
+                        f"{msg} was {total_args_refmethod} in "
+                        f"'{refmethod.parent.frame().name}.{refmethod.name}' and "
                         f"is now {total_args_method1} in",
                         class_type,
                         f"{method1.parent.frame().name}.{method1.name}",
