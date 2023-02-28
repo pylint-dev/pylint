@@ -27,7 +27,7 @@ repos:
           - --remove-duplicate-keys
           - --remove-unused-variables
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.249"
+    rev: "v0.0.253"
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -147,7 +147,7 @@ repos:
         args: ["--max-summary-lines=2", "--linewrap-full-docstring"]
         files: "pylint"
   - repo: https://github.com/regebro/pyroma
-    rev: "4.1"
+    rev: "4.2"
     hooks:
       - id: pyroma
         # Must be specified because of the default value in pyroma
