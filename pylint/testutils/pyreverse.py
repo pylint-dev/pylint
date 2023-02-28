@@ -20,7 +20,7 @@ else:
 
 
 # This class could and should be replaced with a simple dataclass when support for Python < 3.7
-# is dropped. NOTE: Python 3.7 EOL is 6/27/2023.
+# is dropped. NOTE: Python 3.7 will stop having security support on 6/27/2023.
 # A NamedTuple is not possible as some tests need to modify attributes during the test.
 class PyreverseConfig(
     argparse.Namespace
