@@ -1782,7 +1782,10 @@ a metaclass class method.",
                 return
             inferred = safe_infer(node.expr)
             if inferred and isinstance(inferred, (nodes.ClassDef, nodes.Module)):
-                if f"{inferred.name}.{attrname}" in self.linter.config.exclude_protected:
+                if (
+                    f"{inferred.name}.{attrname}"
+                    in self.linter.config.exclude_protected
+                ):
                     return
             klass = node_frame_class(node)
 
