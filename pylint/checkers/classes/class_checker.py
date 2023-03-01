@@ -1776,85 +1776,87 @@ a metaclass class method.",
             Klass.
         """
         attrname = node.attrname
+
         if (
-            is_attr_protected(attrname)
-            and attrname not in self.linter.config.exclude_protected
+            not is_attr_protected(attrname)
+            or attrname in self.linter.config.exclude_protected
         ):
-            klass = node_frame_class(node)
+            return
+        klass = node_frame_class(node)
 
-            # In classes, check we are not getting a parent method
-            # through the class object or through super
-            callee = node.expr.as_string()
+        # In classes, check we are not getting a parent method
+        # through the class object or through super
+        callee = node.expr.as_string()
 
-            # Typing annotations in function definitions can include protected members
-            if utils.is_node_in_type_annotation_context(node):
-                return
+        # Typing annotations in function definitions can include protected members
+        if utils.is_node_in_type_annotation_context(node):
+            return
 
-            # We are not in a class, no remaining valid case
-            if klass is None:
-                self.add_message("protected-access", node=node, args=attrname)
-                return
+        # We are not in a class, no remaining valid case
+        if klass is None:
+            self.add_message("protected-access", node=node, args=attrname)
+            return
 
-            # If the expression begins with a call to super, that's ok.
+        # If the expression begins with a call to super, that's ok.
+        if (
+            isinstance(node.expr, nodes.Call)
+            and isinstance(node.expr.func, nodes.Name)
+            and node.expr.func.name == "super"
+        ):
+            return
+
+        # If the expression begins with a call to type(self), that's ok.
+        if self._is_type_self_call(node.expr):
+            return
+
+        # Check if we are inside the scope of a class or nested inner class
+        inside_klass = True
+        outer_klass = klass
+        parents_callee = callee.split(".")
+        parents_callee.reverse()
+        for callee in parents_callee:
+            if not outer_klass or callee != outer_klass.name:
+                inside_klass = False
+                break
+
+            # Move up one level within the nested classes
+            outer_klass = get_outer_class(outer_klass)
+
+        # We are in a class, one remaining valid cases, Klass._attr inside
+        # Klass
+        if not (inside_klass or callee in klass.basenames):
+            # Detect property assignments in the body of the class.
+            # This is acceptable:
+            #
+            # class A:
+            #     b = property(lambda: self._b)
+
+            stmt = node.parent.statement(future=True)
             if (
-                isinstance(node.expr, nodes.Call)
-                and isinstance(node.expr.func, nodes.Name)
-                and node.expr.func.name == "super"
+                isinstance(stmt, nodes.Assign)
+                and len(stmt.targets) == 1
+                and isinstance(stmt.targets[0], nodes.AssignName)
+            ):
+                name = stmt.targets[0].name
+                if _is_attribute_property(name, klass):
+                    return
+
+            if (
+                self._is_classmethod(node.frame(future=True))
+                and self._is_inferred_instance(node.expr, klass)
+                and self._is_class_or_instance_attribute(attrname, klass)
             ):
                 return
 
-            # If the expression begins with a call to type(self), that's ok.
-            if self._is_type_self_call(node.expr):
+            licit_protected_member = not attrname.startswith("__")
+            if (
+                not self.linter.config.check_protected_access_in_special_methods
+                and licit_protected_member
+                and self._is_called_inside_special_method(node)
+            ):
                 return
 
-            # Check if we are inside the scope of a class or nested inner class
-            inside_klass = True
-            outer_klass = klass
-            parents_callee = callee.split(".")
-            parents_callee.reverse()
-            for callee in parents_callee:
-                if not outer_klass or callee != outer_klass.name:
-                    inside_klass = False
-                    break
-
-                # Move up one level within the nested classes
-                outer_klass = get_outer_class(outer_klass)
-
-            # We are in a class, one remaining valid cases, Klass._attr inside
-            # Klass
-            if not (inside_klass or callee in klass.basenames):
-                # Detect property assignments in the body of the class.
-                # This is acceptable:
-                #
-                # class A:
-                #     b = property(lambda: self._b)
-
-                stmt = node.parent.statement(future=True)
-                if (
-                    isinstance(stmt, nodes.Assign)
-                    and len(stmt.targets) == 1
-                    and isinstance(stmt.targets[0], nodes.AssignName)
-                ):
-                    name = stmt.targets[0].name
-                    if _is_attribute_property(name, klass):
-                        return
-
-                if (
-                    self._is_classmethod(node.frame(future=True))
-                    and self._is_inferred_instance(node.expr, klass)
-                    and self._is_class_or_instance_attribute(attrname, klass)
-                ):
-                    return
-
-                licit_protected_member = not attrname.startswith("__")
-                if (
-                    not self.linter.config.check_protected_access_in_special_methods
-                    and licit_protected_member
-                    and self._is_called_inside_special_method(node)
-                ):
-                    return
-
-                self.add_message("protected-access", node=node, args=attrname)
+            self.add_message("protected-access", node=node, args=attrname)
 
     @staticmethod
     def _is_called_inside_special_method(node: nodes.NodeNG) -> bool:
