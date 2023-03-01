@@ -1104,10 +1104,14 @@ a metaclass class method.",
                 if not isinstance(attribute.expr, nodes.Name):
                     continue
 
-                if assign_attr.expr.name in {
-                    "cls",
-                    node.name,
-                } and attribute.expr.name in {"cls", "self", node.name}:
+                if (
+                    assign_attr.expr.name
+                    in {
+                        "cls",
+                        node.name,
+                    }
+                    and attribute.expr.name in {"cls", "self", node.name}
+                ):
                     # If assigned to cls or class name, can be accessed by cls/self/class name
                     break
 
@@ -1782,11 +1786,16 @@ a metaclass class method.",
             or attrname in self.linter.config.exclude_protected
         ):
             return
-        klass = node_frame_class(node)
+
         inferred = safe_infer(node.expr)
-        if inferred and isinstance(inferred, (nodes.ClassDef, nodes.Module)):
-            if f"{inferred.name}.{attrname}" in self.linter.config.exclude_protected:
-                return
+        if (
+            inferred
+            and isinstance(inferred, (nodes.ClassDef, nodes.Module))
+            and f"{inferred.name}.{attrname}" in self.linter.config.exclude_protected
+        ):
+            return
+
+        klass = node_frame_class(node)
 
         # In classes, check we are not getting a parent method
         # through the class object or through super
