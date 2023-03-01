@@ -1785,10 +1785,7 @@ a metaclass class method.",
         klass = node_frame_class(node)
         inferred = safe_infer(node.expr)
         if inferred and isinstance(inferred, (nodes.ClassDef, nodes.Module)):
-            if (
-               f"{inferred.name}.{attrname}"
-               in self.linter.config.exclude_protected
-            ):
+            if f"{inferred.name}.{attrname}" in self.linter.config.exclude_protected:
                 return
 
         # In classes, check we are not getting a parent method
