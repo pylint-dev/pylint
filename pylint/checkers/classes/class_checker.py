@@ -1777,7 +1777,8 @@ a metaclass class method.",
             Klass.
         """
         attrname = node.attrname
-        if (
+
+         if (
             not is_attr_protected(attrname)
             or attrname in self.linter.config.exclude_protected
         ):
