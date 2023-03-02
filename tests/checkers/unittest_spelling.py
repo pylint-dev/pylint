@@ -245,6 +245,27 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
+    @pytest.mark.parametrize(
+        "type_comment",
+        [
+            "# type: (NotAWord) -> NotAWord",
+            "# type: List[NotAWord] -> List[NotAWord]",
+            "# type: Dict[NotAWord] -> Dict[NotAWord]",
+            "# type: NotAWord",
+            "# type: List[NotAWord]",
+            "# type: Dict[NotAWord]",
+            "# type: ImmutableList[Manager]",
+            # will result in error: Invalid "type: ignore" comment  [syntax]
+            # when analyzed with mypy 1.02
+            "# type: ignore[attr-defined] NotAWord",
+        ],
+    )
+    def test_skip_type_comments(self, type_comment: str) -> None:
+        self.checker.process_tokens(_tokenize_str(type_comment))
+        assert not self.linter.release_messages()
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
     def test_skip_sphinx_directives(self) -> None:
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """This is :class:`ComentAbc` with a bad coment"""\n   pass'
@@ -343,24 +364,6 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
                     full_comment,
                     "                 ^^^^^",
                     self._get_msg_suggestions("qsize"),
-                ),
-            )
-        ):
-            self.checker.process_tokens(_tokenize_str(full_comment))
-
-    @skip_on_missing_package_or_dict
-    @set_config(spelling_dict=spell_dict)
-    def test_skip_mypy_ignore_directives(self) -> None:
-        full_comment = "# type: ignore[attr-defined] attr"
-        with self.assertAddsMessages(
-            MessageTest(
-                "wrong-spelling-in-comment",
-                line=1,
-                args=(
-                    "attr",
-                    full_comment,
-                    "   ^^^^",
-                    self._get_msg_suggestions("attr"),
                 ),
             )
         ):
