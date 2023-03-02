@@ -112,7 +112,8 @@ def _config_initialization(
     # load plugin specific configuration.
     linter.load_plugin_configuration()
 
-    # Now that plugins are loaded, get list of all fail_on messages, and enable them
+    # Now that plugins are loaded, get list of all fail_on messages, and
+    # enable them
     linter.enable_fail_on_messages()
 
     linter._parse_error_mode()

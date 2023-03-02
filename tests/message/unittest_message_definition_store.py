@@ -26,7 +26,8 @@ from pylint.typing import MessageDefinitionTuple
                 "W1234": ("message one", "msg-symbol-one", "msg description"),
                 "W4321": ("message two", "msg-symbol-two", "msg description"),
             },
-            r"Inconsistent checker part in message id 'W4321' (expected 'x12xx' because we already had ['W1234']).",
+            r"Inconsistent checker part in message id 'W4321' (expected 'x12xx' because we"
+            r" already had ['W1234']).",
         ),
         (
             {
