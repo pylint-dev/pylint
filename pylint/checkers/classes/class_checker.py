@@ -1784,6 +1784,12 @@ a metaclass class method.",
         ):
             return
 
+        # Typing annotations in function definitions can include protected members
+        if utils.is_node_in_type_annotation_context(node):
+            return
+
+        # Return if `attrname` is defined at the module-level or as a class attribute
+        # and is listed in `exclude-protected`.
         inferred = safe_infer(node.expr)
         if (
             inferred
@@ -1793,19 +1799,14 @@ a metaclass class method.",
             return
 
         klass = node_frame_class(node)
+        if klass is None:
+            # We are not in a class, no remaining valid case
+            self.add_message("protected-access", node=node, args=attrname)
+            return
 
         # In classes, check we are not getting a parent method
         # through the class object or through super
         callee = node.expr.as_string()
-
-        # Typing annotations in function definitions can include protected members
-        if utils.is_node_in_type_annotation_context(node):
-            return
-
-        # We are not in a class, no remaining valid case
-        if klass is None:
-            self.add_message("protected-access", node=node, args=attrname)
-            return
 
         # If the expression begins with a call to super, that's ok.
         if (
