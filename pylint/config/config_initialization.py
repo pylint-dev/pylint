@@ -125,9 +125,9 @@ def _config_initialization(
     # All other options have been removed from the list.
     return list(
         chain.from_iterable(
-            # NOTE: 'or [arg]' is needed in the case the input file or directory does not exist and 'glob(arg)' cannot
-            # find anything. Without this we would not be able to output the fatal import error for this module later
-            # on, as it would get silently ignored.
+            # NOTE: 'or [arg]' is needed in the case the input file or directory does not exist
+            # and 'glob(arg)' cannot find anything. Without this we would not be able to output
+            # the fatal import error for this module later on, as it would get silently ignored.
             glob(arg, recursive=True) or [arg]
             for arg in parsed_args_list
         )
