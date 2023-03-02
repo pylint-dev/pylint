@@ -1,6 +1,5 @@
-[flake8]
-select =
-    E501,
+ignore = []
 # Reading ease is drastically reduced on read the doc after 103 chars
 # (Because of horizontal scrolling)
-max-line-length=103
+line-length = 103
+select = ["E501"]
