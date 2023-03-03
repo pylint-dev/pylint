@@ -815,6 +815,7 @@ a metaclass class method.",
                     "_replace",
                     "_source",
                     "_make",
+                    "os._exit",
                 ),
                 "type": "csv",
                 "metavar": "<protected access exclusions>",
@@ -1782,20 +1783,29 @@ a metaclass class method.",
             or attrname in self.linter.config.exclude_protected
         ):
             return
-        klass = node_frame_class(node)
-
-        # In classes, check we are not getting a parent method
-        # through the class object or through super
-        callee = node.expr.as_string()
 
         # Typing annotations in function definitions can include protected members
         if utils.is_node_in_type_annotation_context(node):
             return
 
-        # We are not in a class, no remaining valid case
+        # Return if `attrname` is defined at the module-level or as a class attribute
+        # and is listed in `exclude-protected`.
+        inferred = safe_infer(node.expr)
+        if (
+            inferred
+            and isinstance(inferred, (nodes.ClassDef, nodes.Module))
+            and f"{inferred.name}.{attrname}" in self.linter.config.exclude_protected
+        ):
+            return
+
+        klass = node_frame_class(node)
         if klass is None:
+            # We are not in a class, no remaining valid case
             self.add_message("protected-access", node=node, args=attrname)
             return
+
+        # In classes, check we are not getting a parent method
+        # through the class object or through super
 
         # If the expression begins with a call to super, that's ok.
         if (
@@ -1812,6 +1822,7 @@ a metaclass class method.",
         # Check if we are inside the scope of a class or nested inner class
         inside_klass = True
         outer_klass = klass
+        callee = node.expr.as_string()
         parents_callee = callee.split(".")
         parents_callee.reverse()
         for callee in parents_callee:
