@@ -32,6 +32,30 @@ Last but not least @clavedeluna and @nickdrozd became triagers, welcome to the t
 
 .. towncrier release notes start
 
+What's new in Pylint 2.16.3?
+----------------------------
+Release date: 2023-03-02
+
+
+False Positives Fixed
+---------------------
+
+- Fix false positive for ``wrong-spelling-in-comment`` with class names in a
+  python 2 type comment.
+
+  Closes #8370 (`#8370 <https://github.com/PyCQA/pylint/issues/8370>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Prevent emitting ``invalid-name`` for the line on which a ``global``
+  statement is declared.
+
+  Closes #8307 (`#8307 <https://github.com/PyCQA/pylint/issues/8307>`_)
+
+
 What's new in Pylint 2.16.2?
 ----------------------------
 Release date: 2023-02-13
