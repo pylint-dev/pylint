@@ -1806,7 +1806,6 @@ a metaclass class method.",
 
         # In classes, check we are not getting a parent method
         # through the class object or through super
-        callee = node.expr.as_string()
 
         # If the expression begins with a call to super, that's ok.
         if (
@@ -1823,6 +1822,7 @@ a metaclass class method.",
         # Check if we are inside the scope of a class or nested inner class
         inside_klass = True
         outer_klass = klass
+        callee = node.expr.as_string()
         parents_callee = callee.split(".")
         parents_callee.reverse()
         for callee in parents_callee:
