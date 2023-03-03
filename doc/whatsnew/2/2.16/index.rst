@@ -34,7 +34,7 @@ Last but not least @clavedeluna and @nickdrozd became triagers, welcome to the t
 
 What's new in Pylint 2.16.3?
 ----------------------------
-Release date: 2023-03-02
+Release date: 2023-03-03
 
 
 False Positives Fixed
