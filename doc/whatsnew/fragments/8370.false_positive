@@ -1,3 +1,0 @@
-Fix false positive for ``wrong-spelling-in-comment`` with class names in a python 2 type comment.
-
-Closes #8370

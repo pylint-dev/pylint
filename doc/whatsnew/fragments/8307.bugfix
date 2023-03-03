@@ -1,3 +1,0 @@
-Prevent emitting ``invalid-name`` for the line on which a ``global`` statement is declared.
-
-Closes #8307
