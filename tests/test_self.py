@@ -299,8 +299,9 @@ class TestRunTC:
     def test_type_annotation_names(self) -> None:
         """Test resetting the `_type_annotation_names` list to `[]` when leaving a module.
 
-        An import inside `module_a`, which is used as a type annotation in `module_a`, should not prevent
-        emitting the `unused-import` message when the same import occurs in `module_b` & is unused.
+        An import inside `module_a`, which is used as a type annotation in `module_a`, should not
+        prevent emitting the `unused-import` message when the same import occurs in `module_b` &
+        is unused.
         See: https://github.com/PyCQA/pylint/issues/4150
         """
         module1 = join(

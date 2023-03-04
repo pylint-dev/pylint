@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "maintenance/**"
+      - "flake8100" # TODO: Remove this before submitting a PR
     paths-ignore:
       - doc/data/messages/**
   pull_request:
