@@ -1046,7 +1046,8 @@ a metaclass class method.",
                     curr = curr.parent.scope()
 
                 outer_level_names = f"{'.'.join(reversed(name_stack))}"
-                function_repr = f"{outer_level_names}.{function_def.name}({function_def.args.as_string()})"
+                function_repr = f"{outer_level_names}.{function_def.name}"
+                function_repr += f"({function_def.args.as_string()})"
                 self.add_message(
                     "unused-private-member",
                     node=function_def,
@@ -1353,7 +1354,8 @@ a metaclass class method.",
         args = _signature_from_call(call)
 
         if meth_node is not None:
-            # Detect if the super method uses varargs and the function doesn't or makes some of those explicit
+            # Detect if the super method uses varargs and the function doesn't or makes some of
+            # those explicit
             if meth_node.args.vararg and (
                 not function.args.vararg
                 or len(function.args.args) > len(meth_node.args.args)

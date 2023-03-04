@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - "flake8100" # TODO: Remove flake8100 when it is time to make a PR
   pull_request:
     paths:
       - "pylint/**"

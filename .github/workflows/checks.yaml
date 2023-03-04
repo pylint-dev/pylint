@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "maintenance/**"
+      - "flake8100" # TODO: Remove flake8100 when it is time to make a PR
   pull_request:
     branches:
       - main

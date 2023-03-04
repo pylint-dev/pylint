@@ -139,4 +139,4 @@ ignore = [
 fixable = ["E", "F", "W", "B"]
 # ruff is less lenient than pylint and does not make any exceptions
 # (for docstrings, strings and comments in particular).
-line-length = 115
+line-length = 103
