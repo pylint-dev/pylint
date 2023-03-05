@@ -9,7 +9,6 @@ on:
   push:
     branches:
       - main
-      - "flake8100" # TODO: Remove this before submitting a PR
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

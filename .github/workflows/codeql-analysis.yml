@@ -13,7 +13,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [main, "flake8100"] # TODO: Remove flake8100 before submitting a PR
+    branches: [main]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [main]
