@@ -26,8 +26,8 @@ class MagicValueChecker(BaseChecker):
         "R2004": (
             "Consider using a named constant or an enum instead of '%s'.",
             "magic-value-comparison",
-            "Using named constants instead of magic values helps improve readability and maintainability of your"
-            " code, try to avoid them in comparisons.",
+            "Using named constants instead of magic values helps improve readability and "
+            "maintainability of your code, try to avoid them in comparisons.",
         )
     }
 
