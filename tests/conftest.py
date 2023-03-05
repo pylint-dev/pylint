@@ -96,9 +96,10 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         default=False,
         help=(
             "Disable all messages that are not explicitly expected when running functional tests. "
-            "This is useful for finding problems with the @only_required_for_messages / @check_messages "
-            "decorator, but can also produce false negatives if a functional test file only tests for "
-            "false positive of messages and thus does not declare which messages are expected."
+            "This is useful for finding problems with the @only_required_for_messages / "
+            "@check_messages decorator, but can also produce false negatives if a functional test "
+            "file only tests for false positive of messages and thus does not declare which"
+            "messages are expected."
         ),
     )
 

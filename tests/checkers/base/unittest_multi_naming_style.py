@@ -160,7 +160,10 @@ class TestMultiNamingStyle(CheckerTestCase):
             args=(
                 "Function",
                 "UPPER",
-                "the `down` group in the '(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$' pattern",
+                (
+                    "the `down` group in the '(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$'"
+                    " pattern"
+                ),
             ),
             confidence=HIGH,
             line=8,

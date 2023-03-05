@@ -303,7 +303,8 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @set_config(spelling_dict=spell_dict)
     def test_skip_sphinx_directives_2(self) -> None:
         stmt = astroid.extract_node(
-            'class ComentAbc(object):\n   """This is :py:attr:`ComentAbc` with a bad coment"""\n   pass'
+            'class ComentAbc(object):\n   """This is :py:attr:`ComentAbc` with a bad '
+            'coment"""\n   pass'
         )
         with self.assertAddsMessages(
             MessageTest(

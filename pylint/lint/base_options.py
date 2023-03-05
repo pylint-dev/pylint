@@ -177,8 +177,8 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "metavar": "<levels>",
                 "default": interfaces.CONFIDENCE_LEVEL_NAMES,
                 "group": "Messages control",
-                "help": "Only show warnings with the listed confidence levels."
-                f" Leave empty to show all. Valid levels: {', '.join(interfaces.CONFIDENCE_LEVEL_NAMES)}.",
+                "help": "Only show warnings with the listed confidence levels. Leave"
+                f" empty to show all. Valid levels: {', '.join(interfaces.CONFIDENCE_LEVEL_NAMES)}.",
             },
         ),
         (

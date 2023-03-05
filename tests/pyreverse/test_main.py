@@ -120,9 +120,9 @@ def test_graphviz_unsupported_image_format(capsys: CaptureFixture) -> None:
     # Check that the right info messages are shown to the user
     stdout = capsys.readouterr().out
     assert (
-        "Format somethingElse is not supported natively. Pyreverse will try to generate it using Graphviz..."
-        in stdout
-    )
+        "Format somethingElse is not supported natively. Pyreverse will try to "
+        "generate it using Graphviz..."
+    ) in stdout
     assert "Format somethingElse is not supported by Graphviz. It supports:" in stdout
     # Check that we exited with the expected error code
     assert wrapped_sysexit.value.code == 32
