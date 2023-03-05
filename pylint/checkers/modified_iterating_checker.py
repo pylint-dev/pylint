@@ -33,10 +33,12 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             "a copy of it instead.",
             "modified-iterating-list",
             "Emitted when items are added or removed to a list being iterated through. "
-            "Doing so can result in unexpected behaviour, that is why it is preferred to use a copy of the list.",
+            "Doing so can result in unexpected behaviour, that is why it is preferred to use a "
+            "copy of the list.",
         ),
         "E4702": (
-            "Iterated dict '%s' is being modified inside for loop body, iterate through a copy of it instead.",
+            "Iterated dict '%s' is being modified inside for loop body, iterate through a copy "
+            "of it instead.",
             "modified-iterating-dict",
             "Emitted when items are added or removed to a dict being iterated through. "
             "Doing so raises a RuntimeError.",
