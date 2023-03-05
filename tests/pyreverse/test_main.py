@@ -196,8 +196,9 @@ def test_version_info(
 ) -> None:
     """Test that it is possible to display the version information."""
     test_full_version = "1.2.3.4"
-    monkeypatch.setattr(main.constants, "full_version",  # type: ignore[attr-defined]
-                        test_full_version)
+    monkeypatch.setattr(
+        main.constants, "full_version", test_full_version  # type: ignore[attr-defined]
+    )
     with pytest.raises(SystemExit):
         main.Run(["--version"])
     out, _ = capsys.readouterr()

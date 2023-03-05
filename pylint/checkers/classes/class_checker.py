@@ -2237,8 +2237,8 @@ a metaclass class method.",
                         total_args_refmethod += len(refmethod.args.kwonlyargs)
                     error_type = "arguments-differ"
                     msg_args = (
-                        msg
-                        + f"was {total_args_refmethod} in '{refmethod.parent.frame().name}.{refmethod.name}' and "
+                        msg + f"was {total_args_refmethod} in "
+                        f"'{refmethod.parent.frame().name}.{refmethod.name}' and "
                         f"is now {total_args_method1} in",
                         class_type,
                         f"{method1.parent.frame().name}.{method1.name}",

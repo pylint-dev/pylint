@@ -115,7 +115,7 @@ def test_unknown_py_version(capsys: CaptureFixture) -> None:
 
 def test_regex_error(capsys: CaptureFixture) -> None:
     """Check that we correctly error when an an option is passed whose value is an invalid
-       regular expression."""
+    regular expression."""
     with pytest.raises(SystemExit):
         Run(
             [str(EMPTY_MODULE), r"--function-rgx=[\p{Han}a-z_][\p{Han}a-z0-9_]{2,30}$"],
