@@ -1551,7 +1551,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             suggestion = false_value.as_string()
         else:
             message = "consider-using-ternary"
-            if {cond.as_string()}:
+            if cond.as_string():
                 suggestion = f"{truth_value.as_string()}"
             else:
                 suggestion = f"{false_value.as_string()}"
