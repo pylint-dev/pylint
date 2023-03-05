@@ -29,8 +29,8 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     msgs = {
         "W4701": (
-            "Iterated list '%s' is being modified inside for loop body, consider iterating through a copy of it "
-            "instead.",
+            "Iterated list '%s' is being modified inside for loop body, consider iterating through "
+            "a copy of it instead.",
             "modified-iterating-list",
             "Emitted when items are added or removed to a list being iterated through. "
             "Doing so can result in unexpected behaviour, that is why it is preferred to use a copy of the list.",
