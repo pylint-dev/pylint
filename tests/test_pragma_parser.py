@@ -49,7 +49,8 @@ def test_simple_pragma_multiple_messages() -> None:
 
 
 def test_multiple_pragma_multiple_messages() -> None:
-    comment = "#pylint: disable = missing-docstring, invalid-name, enable = R0202, no-staticmethod-decorator"
+    comment = "#pylint: disable = missing-docstring, invalid-name, enable = R0202, "
+    comment += "no-staticmethod-decorator"
     match = OPTION_PO.search(comment)
     assert match
     res = list(parse_pragma(match.group(2)))

@@ -166,7 +166,8 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "metavar": "<msg ids>",
                 "help": "Return non-zero exit code if any of these messages/categories are detected,"
                 " even if score is above --fail-under value. Syntax same as enable."
-                " Messages specified are enabled, while categories only check already-enabled messages.",
+                " Messages specified are enabled, while categories only check already-enabled "
+                "messages.",
             },
         ),
         (
