@@ -141,9 +141,9 @@ def test_csv_regex_error(capsys: CaptureFixture) -> None:
         )
     output = capsys.readouterr()
     assert (
-        r"Error in provided regular expression: (foo{1 beginning at index 0: missing ), unterminated subpattern"
-        in output.err
-    )
+        r"Error in provided regular expression: (foo{1 beginning at index 0: missing ), "
+        r"unterminated subpattern"
+    ) in output.err
 
 
 def test_short_verbose(capsys: CaptureFixture) -> None:

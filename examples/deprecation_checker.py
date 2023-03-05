@@ -28,11 +28,15 @@ from module mymodule:
     $ pylint --load-plugins=deprecation_checker mymain.py
     ************* Module mymain
     mymain.py:3:0: W1505: Using deprecated method deprecated_function() (deprecated-method)
-    mymain.py:4:0: W1511: Using deprecated argument deprecated_arg1 of method myfunction() (deprecated-argument)
-    mymain.py:4:0: W1511: Using deprecated argument deprecated_arg2 of method myfunction() (deprecated-argument)
+    mymain.py:4:0: W1511: Using deprecated argument deprecated_arg1 of method myfunction()
+    (deprecated-argument)
+    mymain.py:4:0: W1511: Using deprecated argument deprecated_arg2 of method myfunction()
+    (deprecated-argument)
     mymain.py:5:0: W1505: Using deprecated method deprecated_method() (deprecated-method)
-    mymain.py:6:0: W1511: Using deprecated argument deprecated1 of method mymethod() (deprecated-argument)
-    mymain.py:6:0: W1511: Using deprecated argument deprecated2 of method mymethod() (deprecated-argument)
+    mymain.py:6:0: W1511: Using deprecated argument deprecated1 of method mymethod()
+    (deprecated-argument)
+    mymain.py:6:0: W1511: Using deprecated argument deprecated2 of method mymethod()
+    (deprecated-argument)
 
     ------------------------------------------------------------------
     Your code has been rated at 2.00/10 (previous run: 2.00/10, +0.00)
