@@ -28,7 +28,10 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
         "C0501": (
             "`for` loop could be `%s`",
             "consider-using-any-or-all",
-            "A for loop that checks for a condition and return a bool can be replaced with any or all.",
+            (
+                "A for loop that checks for a condition and return a bool can be replaced "
+                "with any or all."
+            ),
         )
     }
 

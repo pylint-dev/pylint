@@ -624,7 +624,10 @@ class _ArgumentsManager:
         self, config: dict[str, Any]
     ) -> None:  # pragma: no cover
         warnings.warn(
-            "DEPRECATED: load_configuration_from_config has been deprecated. It will be removed in pylint 3.0.",
+            (
+                "DEPRECATED: load_configuration_from_config has been deprecated. It will be removed "
+                "in pylint 3.0."
+            ),
             DeprecationWarning,
             stacklevel=2,
         )
