@@ -48,9 +48,9 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             (
                 # Some = PyCharm at the time of writing didn't display the non_ascii_name_loł
                 # files. That's also why this is a warning and not only a convention!
-                "Under python 3.5, PEP 3131 allows non-ascii identifiers, but not non-ascii file names."
-                "Since Python 3.5, even though Python supports UTF-8 files, some editors or tools "
-                "don't."
+                "Under python 3.5, PEP 3131 allows non-ascii identifiers, but not non-ascii file "
+                "names. Since Python 3.5, even though Python supports UTF-8 files, some editors "
+                "or tools don't."
             ),
         ),
         # First %s will always be "module"

@@ -382,8 +382,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "threading.Thread needs the target function",
             "bad-thread-instantiation",
             "The warning is emitted when a threading.Thread class "
-            "is instantiated without the target function being passed as a kwarg or as a second argument. "
-            "By default, the first parameter is the group param, not the target param.",
+            "is instantiated without the target function being passed as a kwarg or as a second "
+            "argument. By default, the first parameter is the group param, not the target param.",
         ),
         "W1507": (
             "Using copy.copy(os.environ). Use os.environ.copy() instead.",
