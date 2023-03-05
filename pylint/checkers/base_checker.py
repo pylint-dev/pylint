@@ -215,7 +215,8 @@ class BaseChecker(_ArgumentsProvider):
         elif len(msg_tuple) == 3:
             (msg, symbol, descr) = msg_tuple  # type: ignore[misc]
         else:
-            error_msg = """Messages should have a msgid, a symbol and a description. Something like this :
+            error_msg = """Messages should have a msgid, a symbol and a description. Something like
+            this :
 
 "W1234": (
     "message",
