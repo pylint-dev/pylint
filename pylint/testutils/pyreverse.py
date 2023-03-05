@@ -19,8 +19,8 @@ else:
     from typing_extensions import TypedDict
 
 
-# This class could and should be replaced with a simple dataclass when support for Python < 3.7 is dropped.
-# A NamedTuple is not possible as some tests need to modify attributes during the test.
+# This class could and should be replaced with a simple dataclass when support for Python < 3.7 is
+# dropped. A NamedTuple is not possible as some tests need to modify attributes during the test.
 class PyreverseConfig(
     argparse.Namespace
 ):  # pylint: disable=too-many-instance-attributes, too-many-arguments

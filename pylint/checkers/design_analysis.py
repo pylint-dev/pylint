@@ -343,7 +343,10 @@ class MisdesignChecker(BaseChecker):
                 "default": (),
                 "type": "csv",
                 "metavar": "<comma separated list of class names>",
-                "help": "List of qualified class names to ignore when counting class parents (see R0901)",
+                "help": (
+                    "List of qualified class names to ignore when counting class parents "
+                    "(see R0901)"
+                ),
             },
         ),
         (

@@ -222,7 +222,9 @@ class SpecialMethodsChecker(BaseChecker):
             emit = mandatory not in expected_params
             # mypy thinks that expected_params has type tuple[int, int] | int | None
             # But at this point it must be 'tuple[int, int]' because of the type check
-            expected_params = f"between {expected_params[0]} or {expected_params[1]}"  # type: ignore[assignment]
+            expected_params = (
+                f"between {expected_params[0]} " f"or {expected_params[1]}"  # type: ignore[assignment]
+            )
         else:
             # If the number of mandatory parameters doesn't
             # suffice, the expected parameters for this
