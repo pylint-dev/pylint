@@ -81,7 +81,8 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
                         self.add_message(
                             "overlapping-except",
                             node=handler.type,
-                            args=f"{ancestor.as_string()} is an ancestor class of {descendant.as_string()}",
+                            args=f"{ancestor.as_string()} is an ancestor class of "
+                            f"{descendant.as_string()}",
                         )
                 handled_in_clause += [(part, exc)]
 
