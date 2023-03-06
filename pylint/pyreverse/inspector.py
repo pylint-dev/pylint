@@ -304,7 +304,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """Should the module be added to dependencies ?"""
         package_dir = os.path.dirname(self.project.path)
         if context_name == mod_path:
-            return True
+            return False
         # astroid does return a boolean but is not typed correctly yet
 
         return astroid.modutils.module_in_path(mod_path, (package_dir,))  # type: ignore[no-any-return]
