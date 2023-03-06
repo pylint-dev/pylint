@@ -136,7 +136,7 @@ class DiagramWriter:
     def get_shape_color(self, obj: DiagramEntity) -> str:
         """Get shape color."""
         qualified_name = obj.node.qname()
-        if modutils.is_standard_module(qualified_name.split(".", maxsplit=1)[0]):
+        if modutils.is_stdlib_module(qualified_name.split(".", maxsplit=1)[0]):
             return "grey"
         if isinstance(obj.node, nodes.ClassDef):
             package = qualified_name.rsplit(".", maxsplit=2)[0]

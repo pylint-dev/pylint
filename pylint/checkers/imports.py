@@ -891,7 +891,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         if context_name == importedmodname:
             self.add_message("import-self", node=node)
 
-        elif not astroid.modutils.is_standard_module(importedmodname):
+        elif not astroid.modutils.is_stdlib_module(importedmodname):
             # if this is not a package __init__ module
             if base != "__init__" and context_name not in self._module_pkg:
                 # record the module's parent, or the module itself if this is
