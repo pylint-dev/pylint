@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
 
 import astroid
 from astroid import bases, nodes
-from astroid.util import Uninferable
+from astroid.util import UninferableBase
 
 from pylint import checkers
 from pylint.checkers import utils
@@ -1542,7 +1542,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         inferred_truth_value = utils.safe_infer(truth_value, compare_constants=True)
-        if inferred_truth_value is None or inferred_truth_value == astroid.Uninferable:
+        if inferred_truth_value is None or isinstance(
+            inferred_truth_value, UninferableBase
+        ):
             return
         truth_boolean_value = inferred_truth_value.bool_value()
 
@@ -1569,7 +1571,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             assignees = [node.targets[0]]
             values = [node.value]
-        if Uninferable in (assignees, values):
+        if any(isinstance(n, UninferableBase) for n in (assignees, values)):
             return
         for assignee, value in zip(assignees, values):
             if not isinstance(value, nodes.Call):
@@ -1921,7 +1923,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # to infer it.
             return True
         exc = utils.safe_infer(node.exc)
-        if exc is None or exc is astroid.Uninferable or not hasattr(exc, "pytype"):
+        if (
+            exc is None
+            or isinstance(exc, UninferableBase)
+            or not hasattr(exc, "pytype")
+        ):
             return False
         exc_name = exc.pytype().split(".")[-1]
         handlers = utils.get_exception_handlers(node, exc_name)

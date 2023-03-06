@@ -18,7 +18,7 @@ from collections.abc import Generator
 from typing import Any, Callable, Optional
 
 import astroid
-from astroid import nodes
+from astroid import nodes, util
 
 from pylint import constants
 from pylint.pyreverse import utils
@@ -50,7 +50,7 @@ def interfaces(node: nodes.ClassDef) -> Generator[Any, None, None]:
     found = set()
     missing = False
     for iface in nodes.unpack_infer(implements):
-        if iface is astroid.Uninferable:
+        if isinstance(iface, util.UninferableBase):
             missing = True
             continue
         if iface not in found:

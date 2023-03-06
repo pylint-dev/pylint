@@ -15,7 +15,7 @@ from re import Pattern
 from typing import TYPE_CHECKING, Any, Union
 
 import astroid
-from astroid import bases, nodes
+from astroid import bases, nodes, util
 from astroid.nodes import LocalsDictNodeNG
 from astroid.typing import SuccessfulInferenceResult
 
@@ -459,7 +459,7 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
         return False
     property_name = "builtins.property"
     for attr in attributes:
-        if attr is astroid.Uninferable:
+        if isinstance(attr, util.UninferableBase):
             continue
         try:
             inferred = next(attr.infer())
@@ -1453,7 +1453,7 @@ a metaclass class method.",
 
         for slots in node.ilookup("__slots__"):
             # check if __slots__ is a valid type
-            if slots is astroid.Uninferable:
+            if isinstance(slots, util.UninferableBase):
                 continue
             if not is_iterable(slots) and not is_comprehension(slots):
                 self.add_message("invalid-slots", node=node)
@@ -1471,7 +1471,7 @@ a metaclass class method.",
                 values = [item[0] for item in slots.items]
             else:
                 values = slots.itered()
-            if values is astroid.Uninferable:
+            if isinstance(values, util.UninferableBase):
                 continue
             for elt in values:
                 try:
@@ -1518,7 +1518,7 @@ a metaclass class method.",
         self, elt: SuccessfulInferenceResult, node: nodes.ClassDef
     ) -> None:
         for inferred in elt.infer():
-            if inferred is astroid.Uninferable:
+            if isinstance(inferred, util.UninferableBase):
                 continue
             if not isinstance(inferred, nodes.Const) or not isinstance(
                 inferred.value, str
@@ -1623,8 +1623,7 @@ a metaclass class method.",
         else:
             inferred = safe_infer(node.parent.value)
         if (
-            isinstance(inferred, nodes.ClassDef)
-            or inferred is astroid.Uninferable
+            isinstance(inferred, (nodes.ClassDef, util.UninferableBase))
             or inferred is None
         ):
             # If is uninferable, we allow it to prevent false positives
@@ -2133,7 +2132,7 @@ a metaclass class method.",
             # pylint: disable = too-many-try-statements
             try:
                 for klass in expr.expr.infer():
-                    if klass is astroid.Uninferable:
+                    if isinstance(klass, util.UninferableBase):
                         continue
                     # The inferred klass can be super(), which was
                     # assigned to a variable and the `__init__`

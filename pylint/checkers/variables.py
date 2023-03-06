@@ -19,7 +19,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
-from astroid import bases, extract_node, nodes
+from astroid import bases, extract_node, nodes, util
 from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult
 
@@ -2866,7 +2866,7 @@ class VariablesChecker(BaseChecker):
             return
         if utils.is_comprehension(node):
             return
-        if inferred is astroid.Uninferable:
+        if isinstance(inferred, util.UninferableBase):
             return
         if (
             isinstance(inferred.parent, nodes.Arguments)
@@ -2969,7 +2969,7 @@ class VariablesChecker(BaseChecker):
         self, node: nodes.Module, not_consumed: dict[str, list[nodes.NodeNG]]
     ) -> None:
         assigned = next(node.igetattr("__all__"))
-        if assigned is astroid.Uninferable:
+        if isinstance(assigned, util.UninferableBase):
             return
         if assigned.pytype() not in {"builtins.list", "builtins.tuple"}:
             line, col = assigned.tolineno, assigned.col_offset
@@ -2980,7 +2980,7 @@ class VariablesChecker(BaseChecker):
                 elt_name = next(elt.infer())
             except astroid.InferenceError:
                 continue
-            if elt_name is astroid.Uninferable:
+            if isinstance(elt_name, util.UninferableBase):
                 continue
             if not elt_name.parent:
                 continue

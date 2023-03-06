@@ -13,7 +13,7 @@ from collections.abc import Generator
 from typing import TYPE_CHECKING, Any
 
 import astroid
-from astroid import nodes, objects
+from astroid import nodes, objects, util
 from astroid.context import InferenceContext
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
@@ -46,11 +46,11 @@ def _annotated_unpack_infer(
     if isinstance(stmt, (nodes.List, nodes.Tuple)):
         for elt in stmt.elts:
             inferred = utils.safe_infer(elt)
-            if inferred and inferred is not astroid.Uninferable:
+            if inferred and not isinstance(inferred, util.UninferableBase):
                 yield elt, inferred
         return
     for inferred in stmt.infer(context):
-        if inferred is astroid.Uninferable:
+        if isinstance(inferred, util.UninferableBase):
             continue
         yield stmt, inferred
 
@@ -344,7 +344,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         ExceptionRaiseRefVisitor(self, node).visit(expr)
 
         inferred = utils.safe_infer(expr)
-        if inferred is None or inferred is astroid.Uninferable:
+        if inferred is None or isinstance(inferred, util.UninferableBase):
             return
         ExceptionRaiseLeafVisitor(self, node).visit(inferred)
 
@@ -375,7 +375,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         An exception cause can be only `None` or an exception.
         """
         cause = utils.safe_infer(node.cause)
-        if cause in (astroid.Uninferable, None):
+        if cause is None or isinstance(cause, util.UninferableBase):
             return
 
         if isinstance(cause, nodes.Const):
@@ -441,7 +441,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         if isinstance(exc, nodes.Tuple):
             # Check if it is a tuple of exceptions.
             inferred = [utils.safe_infer(elt) for elt in exc.elts]
-            if any(node is astroid.Uninferable for node in inferred):
+            if any(isinstance(node, util.UninferableBase) for node in inferred):
                 # Don't emit if we don't know every component.
                 return
             if all(

@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from astroid import Instance, Uninferable, nodes
+from astroid import Instance, nodes
+from astroid.util import UninferableBase
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import safe_infer
@@ -77,7 +78,9 @@ class DunderCallChecker(BaseChecker):
             )
         ):
             inf_expr = safe_infer(node.func.expr)
-            if not (inf_expr in {None, Uninferable} or isinstance(inf_expr, Instance)):
+            if not (
+                inf_expr is None or isinstance(inf_expr, (Instance, UninferableBase))
+            ):
                 # Skip dunder calls to non instantiated classes.
                 return
 

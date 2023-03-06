@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import astroid
-from astroid import bases, nodes
+from astroid import bases, nodes, util
 from astroid.context import InferenceContext
 from astroid.typing import InferenceResult
 
@@ -394,7 +394,7 @@ class SpecialMethodsChecker(BaseChecker):
                 if isinstance(arg, nodes.Call):
                     arg = safe_infer(arg)
 
-                if arg and arg is not astroid.Uninferable:
+                if arg and not isinstance(arg, util.UninferableBase):
                     if not check(arg):
                         found_error = True
                         break
