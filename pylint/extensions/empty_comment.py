@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseRawFileChecker
-from pylint.typing import MessageTypesFullName
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
