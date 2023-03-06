@@ -272,8 +272,7 @@ class TestRunTC:
         expected_output = textwrap.dedent(
             f"""
         ************* Module wrong_import_position
-        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module \
-(wrong-import-position)
+        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
         """
         )
         args = [
