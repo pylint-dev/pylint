@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union
 import astroid
 import astroid.exceptions
 import astroid.helpers
-from astroid import arguments, bases, nodes
+from astroid import arguments, bases, nodes, util
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, utils
@@ -1079,7 +1079,7 @@ accessed. Python regular expressions are accepted.",
         non_opaque_inference_results: list[SuccessfulInferenceResult] = [
             owner
             for owner in inferred
-            if owner is not astroid.Uninferable and not isinstance(owner, nodes.Unknown)
+            if not isinstance(owner, (nodes.Unknown, util.UninferableBase))
         ]
         if (
             len(non_opaque_inference_results) != len(inferred)
@@ -1316,11 +1316,7 @@ accessed. Python regular expressions are accepted.",
 
         expr = node.func.expr
         klass = safe_infer(expr)
-        if (
-            klass is None
-            or klass is astroid.Uninferable
-            or not isinstance(klass, astroid.Instance)
-        ):
+        if not isinstance(klass, astroid.Instance):
             return
 
         try:
@@ -1329,8 +1325,6 @@ accessed. Python regular expressions are accepted.",
             return
 
         for attr in attrs:
-            if attr is astroid.Uninferable:
-                continue
             if not isinstance(attr, nodes.FunctionDef):
                 continue
 
@@ -1343,7 +1337,8 @@ accessed. Python regular expressions are accepted.",
                     continue
 
                 if all(
-                    return_node is astroid.Uninferable for return_node in call_results
+                    isinstance(return_node, util.UninferableBase)
+                    for return_node in call_results
                 ):
                     # We were unable to infer return values of the call, skipping
                     continue
@@ -1694,7 +1689,7 @@ accessed. Python regular expressions are accepted.",
         # that override __getitem__ and which may allow non-integer indices.
         try:
             methods = astroid.interpreter.dunder_lookup.lookup(parent_type, methodname)
-            if methods is astroid.Uninferable:
+            if isinstance(methods, util.UninferableBase):
                 return None
             itemmethod = methods[0]
         except (
@@ -1711,7 +1706,7 @@ accessed. Python regular expressions are accepted.",
             return None
 
         index_type = safe_infer(subscript.slice)
-        if index_type is None or index_type is astroid.Uninferable:
+        if index_type is None or isinstance(index_type, util.UninferableBase):
             return None
         # Constants must be of type int
         if isinstance(index_type, nodes.Const):
@@ -1775,7 +1770,7 @@ accessed. Python regular expressions are accepted.",
                 continue
 
             index_type = safe_infer(index)
-            if index_type is None or index_type is astroid.Uninferable:
+            if index_type is None or isinstance(index_type, util.UninferableBase):
                 continue
 
             # Constants must be of type int or None
@@ -1807,7 +1802,7 @@ accessed. Python regular expressions are accepted.",
         parent = node.parent
         if isinstance(parent, nodes.Subscript):
             inferred = safe_infer(parent.value)
-            if inferred is None or inferred is astroid.Uninferable:
+            if inferred is None or isinstance(inferred, util.UninferableBase):
                 # Don't know what this is
                 return
             known_objects = (
@@ -1836,7 +1831,7 @@ accessed. Python regular expressions are accepted.",
         for ctx_mgr, _ in node.items:
             context = astroid.context.InferenceContext()
             inferred = safe_infer(ctx_mgr, context=context)
-            if inferred is None or inferred is astroid.Uninferable:
+            if inferred is None or isinstance(inferred, util.UninferableBase):
                 continue
 
             if isinstance(inferred, astroid.bases.Generator):
@@ -2041,7 +2036,7 @@ accessed. Python regular expressions are accepted.",
         if is_comprehension(node):
             return
         inferred = safe_infer(node)
-        if inferred is None or inferred is astroid.Uninferable:
+        if inferred is None or isinstance(inferred, util.UninferableBase):
             return
         if not supports_membership_test(inferred):
             self.add_message(
@@ -2124,7 +2119,7 @@ accessed. Python regular expressions are accepted.",
 
         inferred = safe_infer(node.value)
 
-        if inferred is None or inferred is astroid.Uninferable:
+        if inferred is None or isinstance(inferred, util.UninferableBase):
             return
 
         if getattr(inferred, "decorators", None):
@@ -2247,7 +2242,7 @@ class IterableChecker(BaseChecker):
         if isinstance(node, nodes.DictComp):
             return
         inferred = safe_infer(node)
-        if inferred is None or inferred is astroid.Uninferable:
+        if inferred is None or isinstance(inferred, util.UninferableBase):
             return
         if not is_mapping(inferred):
             self.add_message("not-a-mapping", args=node.as_string(), node=node)

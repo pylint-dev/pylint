@@ -15,7 +15,7 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING
 
 import astroid
-from astroid import bases, nodes
+from astroid import bases, nodes, util
 from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
@@ -337,7 +337,7 @@ class StringFormatChecker(BaseChecker):
                     if (
                         format_type is not None
                         and arg_type
-                        and arg_type != astroid.Uninferable
+                        and not isinstance(arg_type, util.UninferableBase)
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -395,7 +395,7 @@ class StringFormatChecker(BaseChecker):
                     arg_type = utils.safe_infer(arg)
                     if (
                         arg_type
-                        and arg_type != astroid.Uninferable
+                        and not isinstance(arg_type, util.UninferableBase)
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -561,7 +561,7 @@ class StringFormatChecker(BaseChecker):
                 if key not in named:
                     continue
                 argname = named[key]
-            if argname in (astroid.Uninferable, None):
+            if argname is None or isinstance(argname, util.UninferableBase):
                 continue
             try:
                 argument = utils.safe_infer(argname)
@@ -578,7 +578,7 @@ class StringFormatChecker(BaseChecker):
             previous = argument
             parsed: list[tuple[bool, str]] = []
             for is_attribute, specifier in specifiers:
-                if previous is astroid.Uninferable:
+                if isinstance(previous, util.UninferableBase):
                     break
                 parsed.append((is_attribute, specifier))
                 if is_attribute:
@@ -611,7 +611,7 @@ class StringFormatChecker(BaseChecker):
                             warn_error = True
                         except astroid.InferenceError:
                             break
-                        if previous is astroid.Uninferable:
+                        if isinstance(previous, util.UninferableBase):
                             break
                     else:
                         try:

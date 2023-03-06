@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Callable, TypeVar
 
 import _string
 import astroid.objects
-from astroid import TooManyLevelsError, nodes
+from astroid import TooManyLevelsError, nodes, util
 from astroid.context import InferenceContext
 from astroid.exceptions import AstroidError
 from astroid.nodes._base_nodes import ImportNode
@@ -885,7 +885,7 @@ def decorated_with(
             if any(
                 i.name in qnames or i.qname() in qnames
                 for i in decorator_node.infer()
-                if i is not None and i != astroid.Uninferable
+                if i is not None and not isinstance(i, util.UninferableBase)
             ):
                 return True
         except astroid.InferenceError:
@@ -936,11 +936,10 @@ def uninferable_final_decorators(
             decorator, "attrname", None
         ) == "final"
 
-        if (is_from_import or is_import) and safe_infer(decorator) in [
-            astroid.Uninferable,
-            None,
-        ]:
-            decorators.append(decorator)
+        if is_from_import or is_import:
+            inferred = safe_infer(decorator)
+            if inferred is None or isinstance(inferred, util.UninferableBase):
+                decorators.append(decorator)
     return decorators
 
 
@@ -1373,7 +1372,7 @@ def safe_infer(
     except Exception as e:  # pragma: no cover
         raise AstroidError from e
 
-    if value is not astroid.Uninferable:
+    if not isinstance(value, util.UninferableBase):
         inferred_types.add(_get_python_type_of_node(value))
 
     # pylint: disable = too-many-try-statements
@@ -1458,7 +1457,7 @@ def node_type(node: nodes.NodeNG) -> SuccessfulInferenceResult | None:
     types: set[SuccessfulInferenceResult] = set()
     try:
         for var_type in node.infer():
-            if var_type == astroid.Uninferable or is_none(var_type):
+            if isinstance(var_type, util.UninferableBase) or is_none(var_type):
                 continue
             types.add(var_type)
             if len(types) > 1:
@@ -2058,7 +2057,7 @@ def is_hashable(node: nodes.NodeNG) -> bool:
     # pylint: disable = too-many-try-statements
     try:
         for inferred in node.infer():
-            if inferred is astroid.Uninferable or isinstance(inferred, nodes.ClassDef):
+            if isinstance(inferred, (nodes.ClassDef, util.UninferableBase)):
                 return True
             if not hasattr(inferred, "igetattr"):
                 return True

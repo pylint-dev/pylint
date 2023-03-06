@@ -13,7 +13,7 @@ from collections.abc import Iterator
 from typing import TYPE_CHECKING, cast
 
 import astroid
-from astroid import nodes, objects
+from astroid import nodes, objects, util
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
@@ -333,7 +333,9 @@ class BasicChecker(_BasicChecker):
         maybe_generator_call = None
         if not isinstance(test, except_nodes):
             inferred = utils.safe_infer(test)
-            if inferred is astroid.Uninferable and isinstance(test, nodes.Name):
+            if isinstance(inferred, util.UninferableBase) and isinstance(
+                test, nodes.Name
+            ):
                 emit, maybe_generator_call = BasicChecker._name_holds_generator(test)
 
         # Emit if calling a function that only returns GeneratorExp (always tests True)
@@ -677,7 +679,7 @@ class BasicChecker(_BasicChecker):
             return
 
         expr = utils.safe_infer(call_node.func.expr)
-        if expr is astroid.Uninferable:
+        if isinstance(expr, util.UninferableBase):
             return
         if not expr:
             # we are doubtful on inferred type of node, so here just check if format
@@ -822,7 +824,7 @@ class BasicChecker(_BasicChecker):
         except utils.NoSuchArgumentError:
             pass
         else:
-            if argument is astroid.Uninferable:
+            if isinstance(argument, util.UninferableBase):
                 return
             if argument is None:
                 # Nothing was inferred.

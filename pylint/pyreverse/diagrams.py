@@ -10,7 +10,7 @@ from collections.abc import Iterable
 from typing import Any
 
 import astroid
-from astroid import nodes
+from astroid import nodes, util
 
 from pylint.checkers.utils import decorated_with_property
 from pylint.pyreverse.utils import FilterMixIn, is_interface
@@ -233,7 +233,7 @@ class ClassDiagram(Figure, FilterMixIn):
     def assign_association_relationship(
         self, value: astroid.NodeNG, obj: ClassEntity, name: str, type_relationship: str
     ) -> None:
-        if value is astroid.Uninferable:
+        if isinstance(value, util.UninferableBase):
             return
         if isinstance(value, astroid.Instance):
             value = value._proxied

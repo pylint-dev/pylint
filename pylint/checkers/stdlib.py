@@ -11,7 +11,7 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Dict, Set, Tuple
 
 import astroid
-from astroid import nodes
+from astroid import nodes, util
 from astroid.typing import InferenceResult
 
 from pylint import interfaces
@@ -540,7 +540,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         """Visit a Call node."""
         self.check_deprecated_class_in_call(node)
         for inferred in utils.infer_all(node.func):
-            if inferred is astroid.Uninferable:
+            if isinstance(inferred, util.UninferableBase):
                 continue
             if inferred.root().name in OPEN_MODULE:
                 open_func_name: str | None = None
@@ -805,7 +805,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         call_arg: InferenceResult | None,
         allow_none: bool,
     ) -> None:
-        if call_arg in (astroid.Uninferable, None):
+        if call_arg is None or isinstance(call_arg, util.UninferableBase):
             return
 
         name = infer.qname()
@@ -818,7 +818,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if emit:
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
-            self.add_message(message, node=node, args=(name, call_arg.pytype()))  # type: ignore[union-attr]
+            self.add_message(message, node=node, args=(name, call_arg.pytype()))
 
     def deprecated_methods(self) -> set[str]:
         return self._deprecated_methods

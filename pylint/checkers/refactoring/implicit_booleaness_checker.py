@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import astroid
-from astroid import bases, nodes
+from astroid import bases, nodes, util
 
 from pylint import checkers
 from pylint.checkers import utils
@@ -224,7 +224,9 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         return original_comparison, suggestion, description
 
     @staticmethod
-    def base_names_of_instance(node: bases.Uninferable | bases.Instance) -> list[str]:
+    def base_names_of_instance(
+        node: util.UninferableBase | bases.Instance,
+    ) -> list[str]:
         """Return all names inherited by a class instance or those returned by a
         function.
 
