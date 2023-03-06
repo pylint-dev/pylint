@@ -9,4 +9,4 @@ unsupported-delete-operation:72:4:72:13::'obj.attr1' does not support item delet
 not-context-manager:97:0:98:8::Context manager 'str' doesn't implement __enter__ and __exit__.:UNDEFINED
 invalid-metaclass:105:0:105:11:Test2:Invalid metaclass 'Instance of builtins.int' used:UNDEFINED
 unhashable-member:111:0:111:2::'obj.attr5' is unhashable and can't be used as a key in a dict:INFERENCE
-isinstance-second-argument-not-valid-type:121:6:121:30::Second argument of isinstance is not a type:UNDEFINED
+isinstance-second-argument-not-valid-type:121:6:121:30::Second argument of isinstance is not a type:INFERENCE
