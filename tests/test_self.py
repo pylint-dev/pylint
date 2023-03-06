@@ -246,6 +246,7 @@ class TestRunTC:
         self._runtest(["-j 2", "not_here", "not_here_too"], code=1)
 
     # TODO: PY3.7: Turn off abbreviations in ArgumentsManager after 3.7 support has been dropped
+    # NOTE: Python 3.7 is dropped on 6/27/23
     # argparse changed behaviour with abbreviations on/off in 3.8+ so we can't
     @pytest.mark.xfail
     def test_abbreviations_are_not_supported(self) -> None:
