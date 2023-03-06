@@ -32,6 +32,20 @@ Last but not least @clavedeluna and @nickdrozd became triagers, welcome to the t
 
 .. towncrier release notes start
 
+What's new in Pylint 2.16.4?
+----------------------------
+Release date: 2023-03-06
+
+
+False Positives Fixed
+---------------------
+
+- Fix false positive for isinstance-second-argument-not-valid-type with union
+  types.
+
+  Closes #8205 (`#8205 <https://github.com/PyCQA/pylint/issues/8205>`_)
+
+
 What's new in Pylint 2.16.3?
 ----------------------------
 Release date: 2023-03-03
