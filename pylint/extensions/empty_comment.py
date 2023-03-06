@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseRawFileChecker
+from pylint.typing import MessageTypesFullName
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -17,7 +18,7 @@ if TYPE_CHECKING:
 def is_line_commented(line: bytes) -> bool:
     """Checks if a `# symbol that is not part of a string was found in line."""
 
-    comment_idx = line.find(b"#")
+    comment_idx: int = line.find(b"#")
     if comment_idx == -1:
         return False
     if comment_part_of_string(line, comment_idx):
@@ -40,7 +41,7 @@ def comment_part_of_string(line: bytes, comment_idx: int) -> bool:
 
 
 class CommentChecker(BaseRawFileChecker):
-    name = "empty-comment"
+    name: str = "empty-comment"
     msgs = {
         "R2044": (
             "Line with empty comment",
@@ -50,7 +51,7 @@ class CommentChecker(BaseRawFileChecker):
             ),
         )
     }
-    options = ()
+    options: tuple[()] = ()
 
     def process_module(self, node: nodes.Module) -> None:
         with node.stream() as stream:
