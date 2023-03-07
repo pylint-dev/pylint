@@ -1267,7 +1267,7 @@ Unicode Checker checker Messages
 :invalid-unicode-codec (E2501): *UTF-16 and UTF-32 aren't backward compatible. Use UTF-8 instead*
   For compatibility use UTF-8 instead of UTF-16/UTF-32. See also
   https://bugs.python.org/issue1503789 for a history of this issue. And
-  https://softwareengineering.stackexchange.com/questions/102205/for some
+  https://softwareengineering.stackexchange.com/questions/102205/ for some
   possible problems when using UTF-16 for instance.
 :bad-file-encoding (C2503): *PEP8 recommends UTF-8 as encoding for Python files*
   PEP8 recommends UTF-8 default encoding for Python files. See
