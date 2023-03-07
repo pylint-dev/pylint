@@ -345,6 +345,10 @@
     "mails": ["daniel.werner@scalableminds.com"],
     "name": "Daniel Werner"
   },
+  "dave.bunten@cuanschutz.edu": {
+    "mails": ["dave.bunten@cuanschutz.edu", "ekgto445@gmail.com"],
+    "name": "Dave Bunten"
+  },
   "david.douard@sdfa3.org": {
     "mails": ["david.douard@sdfa3.org", "david.douard@logilab.fr"],
     "name": "David Douard"
@@ -506,7 +510,7 @@
     "name": "Steven Myint"
   },
   "hofrob@protonmail.com": {
-    "mails": ["hofrob@protonmail.com"],
+    "mails": ["hofrob@protonmail.com", "1058012+hofrob@users.noreply.github.com"],
     "name": "Robert Hofer"
   },
   "hugovk@users.noreply.github.com": {

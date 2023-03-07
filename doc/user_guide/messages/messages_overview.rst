@@ -252,6 +252,7 @@ All messages in the warning category:
    warning/global-statement
    warning/global-variable-not-assigned
    warning/global-variable-undefined
+   warning/implicit-flag-alias
    warning/implicit-str-concat
    warning/import-self
    warning/inconsistent-quotes

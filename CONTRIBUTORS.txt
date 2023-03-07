@@ -19,8 +19,8 @@ Maintainers
 - Jacob Walls <jacobtylerwalls@gmail.com>
 - Hippo91 <guillaume.peillex@gmail.com>
 - Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-- Matus Valo <matusvalo@users.noreply.github.com>
 - Andreas Finkler <3929834+DudeNr33@users.noreply.github.com>
+- Matus Valo <matusvalo@users.noreply.github.com>
 - Dani Alcala <112832187+clavedeluna@users.noreply.github.com>
 - Łukasz Rogalski <rogalski.91@gmail.com>
 - Ashley Whetter <ashley@awhetter.co.uk>
@@ -99,6 +99,7 @@ contributors:
 - Cezar Elnazli <cezar.elnazli2@gmail.com>: deprecated-method
 - Joseph Young <80432516+jpy-git@users.noreply.github.com> (jpy-git)
 - Tim Martin <tim@asymptotic.co.uk>
+- Ollie <46904826+ollie-iterators@users.noreply.github.com>
 - Tushar Sadhwani <tushar.sadhwani000@gmail.com> (tusharsadhwani)
 - Nicolas Chauvat <nicolas.chauvat@logilab.fr>
 - orSolocate <38433858+orSolocate@users.noreply.github.com>
@@ -120,6 +121,8 @@ contributors:
 - David Liu <david@cs.toronto.edu> (david-yz-liu)
 - Dan Goldsmith <djgoldsmith@googlemail.com>: support for msg-template in HTML reporter.
 - Buck Evan <buck.2019@gmail.com>
+- Zen Lee <53538590+zenlyj@users.noreply.github.com>
+- Robert Hofer <hofrob@protonmail.com>
 - Mariatta Wijaya <Mariatta@users.noreply.github.com>
   * Added new check `logging-fstring-interpolation`
   * Documentation typo fixes
@@ -166,9 +169,9 @@ contributors:
 - Andreas Freimuth <andreas.freimuth@united-bits.de>: fix indentation checking with tabs
 - Alexandru Coman <fcoman@bitdefender.com>
 - jpkotta <jpkotta@gmail.com>
-- Zen Lee <53538590+zenlyj@users.noreply.github.com>
 - Takahide Nojima <nozzy123nozzy@gmail.com>
 - Taewon D. Kim <kimt33@mcmaster.ca>
+- Stavros Ntentos <133706+stdedos@users.noreply.github.com>
 - Sneaky Pete <sneakypete81@gmail.com>
 - Sergey B Kirpichev <skirpichev@gmail.com>
 - Sandro Tosi <sandro.tosi@gmail.com>: Debian packaging
@@ -189,6 +192,7 @@ contributors:
 - Marcus Näslund <naslundx@gmail.com> (naslundx)
 - Marco Pernigotti <7657251+mpernigo@users.noreply.github.com>
 - Marco Forte <fortemarco.irl@gmail.com>
+- James Addison <55152140+jayaddison@users.noreply.github.com>
 - Ionel Maries Cristian <contact@ionelmc.ro>
 - Gergely Kalmár <gergely.kalmar@logikal.jp>
 - Damien Baty <damien.baty@polyconseil.fr>
@@ -196,7 +200,9 @@ contributors:
 - Anubhav <35621759+anubh-v@users.noreply.github.com>
 - Antonio Quarta <sgheppy88@gmail.com>
 - Andrew J. Simmons <anjsimmo@gmail.com>
+- Alexey Pelykh <alexey.pelykh@gmail.com>
 - wtracy <afishionado@gmail.com>
+- jessebrennan <jesse@jesse.computer>
 - chohner <mail@chohner.com>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
@@ -242,7 +248,6 @@ contributors:
 - Tyler Thieding <tyler@thieding.com>
 - Tobias Hernstig <30827238+thernstig@users.noreply.github.com>
 - Thomas Grainger <tagrain@gmail.com>
-- Stavros Ntentos <133706+stdedos@users.noreply.github.com>
 - Smixi <sismixx@hotmail.fr>
 - Simu Toni <simutoni@gmail.com>
 - Sergei Lebedev <185856+superbobry@users.noreply.github.com>
@@ -272,7 +277,6 @@ contributors:
 - Justin Li <justinnhli@gmail.com>
 - John Kirkham <jakirkham@gmail.com>
 - Jens H. Nielsen <Jens.Nielsen@microsoft.com>
-- James Addison <55152140+jayaddison@users.noreply.github.com>
 - Ioana Tagirta <ioana.tagirta@gmail.com>: fix bad thread instantiation check
 - Ikraduya Edian <ikraduya@gmail.com>: Added new checks 'consider-using-generator' and 'use-a-generator'.
 - Hugues Bruant <hugues.bruant@affirm.com>
@@ -286,6 +290,7 @@ contributors:
 - Elias Dorneles <eliasdorneles@gmail.com>: minor adjust to config defaults and docs
 - Derek Harland <derek.harland@finq.co.nz>
 - David Pursehouse <david.pursehouse@gmail.com>
+- Dave Bunten <dave.bunten@cuanschutz.edu>
 - Daniel Mouritzen <dmrtzn@gmail.com>
 - Daniel Miller <millerdev@gmail.com>
 - Christoph Blessing <33834216+cblessing24@users.noreply.github.com>
@@ -359,6 +364,7 @@ contributors:
   * Added --list-msgs-enabled command
 - Tomer Chachamu <tomer.chachamu@gmail.com>: simplifiable-if-expression
 - Tomasz Magulski <tomasz@magullab.io>
+- Tom <tsarantis@proton.me>
 - Tim Hatch <tim@timhatch.com>
 - Tim Gates <tim.gates@iress.com>
 - Thomas Benhamou <thomas@lightricks.com>
@@ -385,13 +391,13 @@ contributors:
 - Ruro <ruro.ruro@ya.ru>
 - Roman Ivanov <me@roivanov.com>
 - Robert Schweizer <robert_schweizer@gmx.de>
-- Robert Hofer <hofrob@protonmail.com>
 - Reverb Chu <reverbc@users.noreply.github.com>
 - Renat Galimov <renat2017@gmail.com>
 - Rebecca Turner <rbt@sent.as> (9999years)
 - Randall Leeds <randall@bleeds.info>
 - Ramon Saraiva <ramonsaraiva@gmail.com>
 - Ramiro Leal-Cavazos <ramiroleal050@gmail.com> (ramiro050): Fixed bug preventing pylint from working with Emacs tramp
+- R. N. West <98110034+rnwst@users.noreply.github.com>
 - Qwiddle13 <32040075+Qwiddle13@users.noreply.github.com>
 - Quentin Young <qlyoung@users.noreply.github.com>
 - Prajwal Borkar <sunnyborkar7777@gmail.com>
@@ -506,7 +512,6 @@ contributors:
 - Denis Laxalde <denis.laxalde@logilab.fr>
 - David Lawson <dmrlawson@gmail.com>
 - David Cain <davidjosephcain@gmail.com>
-- Dave Bunten <ekgto445@gmail.com>
 - Danny Hermes <daniel.j.hermes@gmail.com>
 - Daniele Procida <daniele@vurt.org>
 - Daniela Plascencia <daplascen@gmail.com>
@@ -551,6 +556,7 @@ contributors:
 - Andrzej Klajnert <github@aklajnert.pl>
 - Andrew Howe <howeaj@users.noreply.github.com>
 - Andres Perez Hortal <andresperezcba@gmail.com>
+- Andre Hora <andrehora@users.noreply.github.com>
 - Alok Singh <8325708+alok@users.noreply.github.com>
 - Allan Chandler <95424144+allanc65@users.noreply.github.com> (allanc65)
   * Fixed issue 5452, false positive missing-param-doc for multi-line Google-style params

@@ -499,6 +499,13 @@ Standard Checkers
 **Default:**  ``('abc.abstractproperty',)``
 
 
+--typealias-rgx
+"""""""""""""""
+*Regular expression matching correct type alias names. If left empty, type alias names will be checked with the set naming style.*
+
+**Default:**  ``None``
+
+
 --typevar-rgx
 """""""""""""
 *Regular expression matching correct type variable names. If left empty, type variable names will be checked with the set naming style.*
@@ -589,6 +596,8 @@ Standard Checkers
 
    property-classes = ["abc.abstractproperty"]
 
+   # typealias-rgx =
+
    # typevar-rgx =
 
    variable-naming-style = "snake_case"
@@ -624,7 +633,7 @@ Standard Checkers
 """""""""""""""""""
 *List of member names, which should be excluded from the protected access warning.*
 
-**Default:**  ``('_asdict', '_fields', '_replace', '_source', '_make')``
+**Default:**  ``('_asdict', '_fields', '_replace', '_source', '_make', 'os._exit')``
 
 
 --valid-classmethod-first-arg
@@ -656,7 +665,7 @@ Standard Checkers
 
    defining-attr-methods = ["__init__", "__new__", "setUp", "__post_init__"]
 
-   exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make"]
+   exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make", "os._exit"]
 
    valid-classmethod-first-arg = ["cls"]
 
