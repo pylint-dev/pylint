@@ -300,14 +300,14 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             if fullname != basename:
                 self._imported_module(node, fullname, relative)
 
-    def compute_module(self, context_name: str, mod_path: str) -> int:
-        """Return true if the module should be added to dependencies."""
+    def compute_module(self, context_name: str, mod_path: str) -> bool:
+        """Should the module be added to dependencies ?"""
         package_dir = os.path.dirname(self.project.path)
         if context_name == mod_path:
-            return 0
-        if astroid.modutils.is_standard_module(mod_path, (package_dir,)):
-            return 1
-        return 0
+            return False
+        # astroid does return a boolean but is not typed correctly yet
+
+        return astroid.modutils.module_in_path(mod_path, (package_dir,))  # type: ignore[no-any-return]
 
     def _imported_module(
         self, node: nodes.Import | nodes.ImportFrom, mod_path: str, relative: bool
