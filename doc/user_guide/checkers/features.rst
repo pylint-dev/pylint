@@ -324,6 +324,9 @@ Classes checker Messages
   Used when an instance attribute is defined outside the __init__ method.
 :subclassed-final-class (W0240): *Class %r is a subclass of a class decorated with typing.final: %r*
   Used when a class decorated with typing.final has been subclassed.
+:implicit-flag-alias (W0213): *Flag member %(overlap)s shares bit positions with %(sources)s*
+  Used when multiple integer values declared within an enum.IntFlag class share
+  a common bit position.
 :abstract-method (W0223): *Method %r is abstract in class %r but is not overridden in child class %r*
   Used when an abstract method (i.e. raise NotImplementedError) is not
   overridden in concrete class.
@@ -742,9 +745,9 @@ Verbatim name of the checker is ``nonascii-checker``.
 Nonascii-Checker checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :non-ascii-file-name (W2402): *%s name "%s" contains a non-ASCII character.*
-  Under python 3.5, PEP 3131 only allows non-ascii identifiers, not file
-  names.Since Python 3.5, even though Python supports UTF-8 files, some editors
-  or tools don't.
+  Under python 3.5, PEP 3131 allows non-ascii identifiers, but not non-ascii
+  file names.Since Python 3.5, even though Python supports UTF-8 files, some
+  editors or tools don't.
 :non-ascii-name (C2401): *%s name "%s" contains a non-ASCII character, consider renaming it.*
   Used when the name contains at least one non-ASCII unicode character. See
   https://peps.python.org/pep-0672/#confusing-features for a background why
@@ -1264,9 +1267,8 @@ Unicode Checker checker Messages
 :invalid-unicode-codec (E2501): *UTF-16 and UTF-32 aren't backward compatible. Use UTF-8 instead*
   For compatibility use UTF-8 instead of UTF-16/UTF-32. See also
   https://bugs.python.org/issue1503789 for a history of this issue. And
-  https://softwareengineering.stackexchange.com/questions/102205/should-
-  utf-16-be-considered-harmful for some possible problems when using UTF-16 for
-  instance.
+  https://softwareengineering.stackexchange.com/questions/102205/ for some
+  possible problems when using UTF-16 for instance.
 :bad-file-encoding (C2503): *PEP8 recommends UTF-8 as encoding for Python files*
   PEP8 recommends UTF-8 default encoding for Python files. See
   https://peps.python.org/pep-0008/#source-file-encoding

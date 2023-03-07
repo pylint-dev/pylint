@@ -1,5 +1,0 @@
-Adds an ``implicit-flag-alias`` check that emits a warning when a class
-derived from ``enum.IntFlag`` assigns distinct integer values that share
-common bit positions.
-
-Refs #8102

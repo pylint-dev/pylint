@@ -83,6 +83,12 @@ py-version = "3.10"
 # Discover python modules and packages in the file system subtree.
 # recursive =
 
+# Add paths to the list of the source roots. Supports globbing patterns. The
+# source root is an absolute path or a path relative to the current working
+# directory used to determine a package namespace for modules located under the
+# source root.
+# source-roots =
+
 # When enabled, pylint would attempt to guess common misconfiguration and emit
 # user-friendly hints instead of false-positive error messages.
 suggestion-mode = true
@@ -200,6 +206,10 @@ no-docstring-rgx = "^_"
 # decorators are taken in consideration only for invalid-name.
 property-classes = ["abc.abstractproperty"]
 
+# Regular expression matching correct type alias names. If left empty, type alias
+# names will be checked with the set naming style.
+# typealias-rgx =
+
 # Regular expression matching correct type variable names. If left empty, type
 # variable names will be checked with the set naming style.
 # typevar-rgx =
@@ -220,7 +230,7 @@ defining-attr-methods = ["__init__", "__new__", "setUp", "__post_init__"]
 
 # List of member names, which should be excluded from the protected access
 # warning.
-exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make"]
+exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make", "os._exit"]
 
 # List of valid names for the first argument in a class method.
 valid-classmethod-first-arg = ["cls"]

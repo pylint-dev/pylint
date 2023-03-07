@@ -1,3 +1,0 @@
-Fix false negative for inconsistent-returns with while-loops.
-
-Closes #8280

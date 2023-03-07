@@ -1,4 +1,0 @@
-Fix various false positives for functions that return directly from
-structural pattern matching cases.
-
-Closes #5288

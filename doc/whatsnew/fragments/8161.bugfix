@@ -1,3 +1,0 @@
-Fix a crash happening for python interpreter < 3.9 following a failed typing update.
-
-Closes #8161
