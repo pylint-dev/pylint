@@ -798,7 +798,7 @@ Refactoring checker Messages
   being available (as the 'sys' module is always available).
 :consider-using-with (R1732): *Consider using 'with' for resource-allocating operations*
   Emitted if a resource-allocating assignment or call may be replaced by a
-  'with' block.By using 'with' the release of the allocated resources is
+  'with' block. By using 'with' the release of the allocated resources is
   ensured even in the case of an exception.
 :super-with-arguments (R1725): *Consider using Python 3 style super() without arguments*
   Emitted when calling the super() builtin with the current class and instance.
