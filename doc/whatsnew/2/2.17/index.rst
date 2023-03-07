@@ -6,16 +6,32 @@
    :maxdepth: 2
 
 :Release: 2.17
-:Date: TBD
+:Date: 2023-03-08
 
 Summary -- Release highlights
 =============================
+
+2.17 is a small release that is the first to support python 3.11
+officially with the addition of TryStar nodes.
+
+There's still two new default checks: ``bad-chained-comparison`` and
+``implicit-flag-alias``, one of them already fixed a previously
+undetected bug in sentry.
+
+Thanks to the community effort our documentation is almost complete,
+and every messages should have a proper documentation now. A big thank
+you to everyone who participated !
+
+The next release is going to be ``3.0.0``, bring breaking changes and enact long
+announced deprecations. There's going to be frequent beta releases,
+before the official releases, everyone is welcome to try the betas
+so we find problems before the actual release.
 
 .. towncrier release notes start
 
 What's new in Pylint 2.17.0?
 ----------------------------
-Release date: 2023-03-07
+Release date: 2023-03-08
 
 
 New Features
