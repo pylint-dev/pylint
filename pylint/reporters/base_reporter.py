@@ -7,7 +7,6 @@ from __future__ import annotations
 import os
 import sys
 from typing import TYPE_CHECKING, TextIO
-from warnings import warn
 
 from pylint.message import Message
 from pylint.reporters.ureports.nodes import Text
@@ -40,16 +39,6 @@ class BaseReporter:
     def handle_message(self, msg: Message) -> None:
         """Handle a new message triggered on the current file."""
         self.messages.append(msg)
-
-    def set_output(self, output: TextIO | None = None) -> None:
-        """Set output stream."""
-        # TODO: 3.0: Remove deprecated method
-        warn(
-            "'set_output' will be removed in 3.0, please use 'reporter.out = stream' instead",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.out = output or sys.stdout
 
     def writeln(self, string: str = "") -> None:
         """Write a line in the output buffer."""
