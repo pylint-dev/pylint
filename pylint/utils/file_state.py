@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import collections
 import sys
-import warnings
 from collections import defaultdict
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Dict
@@ -59,25 +58,6 @@ class FileState:
         """If this FileState is the base state made during initialization of
         PyLinter.
         """
-
-    def collect_block_lines(
-        self, msgs_store: MessageDefinitionStore, module_node: nodes.Module
-    ) -> None:
-        """Walk the AST to collect block level options line numbers."""
-        warnings.warn(
-            "'collect_block_lines' has been deprecated and will be removed in pylint 3.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        for msg, lines in self._module_msgs_state.items():
-            self._raw_module_msgs_state[msg] = lines.copy()
-        orig_state = self._module_msgs_state.copy()
-        self._module_msgs_state = {}
-        self._suppression_mapping = {}
-        self._effective_max_line_number = module_node.tolineno
-        for msgid, lines in orig_state.items():
-            for msgdef in msgs_store.get_message_definitions(msgid):
-                self._set_state_on_block_lines(msgs_store, module_node, msgdef, lines)
 
     def _set_state_on_block_lines(
         self,
