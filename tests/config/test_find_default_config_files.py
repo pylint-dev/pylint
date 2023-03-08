@@ -138,8 +138,6 @@ def test_pylintrc_parentdir_no_package() -> None:
             testutils.create_files(
                 ["a/pylintrc", "a/b/pylintrc", "a/b/c/d/__init__.py"]
             )
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
             results = {
                 "a": chroot_path / "a" / "pylintrc",
                 "a/b": chroot_path / "a" / "b" / "pylintrc",

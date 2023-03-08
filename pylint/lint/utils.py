@@ -12,7 +12,7 @@ from collections.abc import Iterator, Sequence
 from datetime import datetime
 from pathlib import Path
 
-from pylint.config import PYLINT_HOME
+from pylint.constants import PYLINT_HOME
 from pylint.lint.expand_modules import discover_package_path
 
 

@@ -7,7 +7,6 @@ from __future__ import annotations
 import configparser
 import os
 import sys
-import warnings
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -110,21 +109,3 @@ def find_default_config_files() -> Iterator[Path]:
             yield Path("/etc/pylintrc").resolve()
     except OSError:
         pass
-
-
-def find_pylintrc() -> str | None:
-    """Search the pylint rc file and return its path if it finds it, else return
-    None.
-    """
-    # TODO: 3.0: Remove deprecated function
-    warnings.warn(
-        "find_pylintrc and the PYLINTRC constant have been deprecated. "
-        "Use find_default_config_files if you want access to pylint's configuration file "
-        "finding logic.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    for config_file in find_default_config_files():
-        if str(config_file).endswith("pylintrc"):
-            return str(config_file)
-    return None

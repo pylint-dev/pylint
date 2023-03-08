@@ -7,7 +7,6 @@
 
 from __future__ import annotations
 
-import warnings
 from io import StringIO
 from typing import TYPE_CHECKING
 
@@ -29,10 +28,8 @@ def generate_interactive_config(linter: PyLinter) -> None:
         config_string = linter._generate_config_file(minimal=minimal)
     else:
         output_stream = StringIO()
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            linter.generate_config(stream=output_stream, skipsections=("Commands",))
-            config_string = output_stream.getvalue()
+        linter._generate_config(stream=output_stream, skipsections=("Commands",))
+        config_string = output_stream.getvalue()
 
     if to_file:
         with open(output_file_name, "w", encoding="utf-8") as f:

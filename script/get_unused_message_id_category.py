@@ -13,7 +13,6 @@ from pylint.message._deleted_message_ids import DELETED_MSGID_PREFIXES
 
 def register_all_checkers_and_plugins(linter: PyLinter) -> None:
     """Registers all checkers and plugins."""
-    linter.cmdline_parser.set_conflict_handler("resolve")
     initialize_checkers(linter)
     initialize_extensions(linter)
 

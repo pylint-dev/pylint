@@ -11,7 +11,6 @@ from __future__ import annotations
 import os
 import re
 import sys
-import warnings
 from typing import Any
 
 import sphinx
@@ -134,24 +133,20 @@ def get_plugins_info(
                 doc = f.read()
         try:
             by_checker[checker]["checker"] = checker
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                by_checker[checker]["options"] += checker.options_and_values()
+            by_checker[checker]["options"] += checker._options_and_values()
             by_checker[checker]["msgs"].update(checker.msgs)
             by_checker[checker]["reports"] += checker.reports
             by_checker[checker]["doc"] += doc
             by_checker[checker]["module"] += module
         except KeyError:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                by_checker[checker] = _CheckerInfo(
-                    checker=checker,
-                    options=list(checker.options_and_values()),
-                    msgs=dict(checker.msgs),
-                    reports=list(checker.reports),
-                    doc=doc,
-                    module=module,
-                )
+            by_checker[checker] = _CheckerInfo(
+                checker=checker,
+                options=list(checker._options_and_values()),
+                msgs=dict(checker.msgs),
+                reports=list(checker.reports),
+                doc=doc,
+                module=module,
+            )
     return by_checker
 
 
