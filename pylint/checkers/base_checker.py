@@ -234,20 +234,6 @@ class BaseChecker(_ArgumentsProvider):
             for msgid, msg_tuple in sorted(self.msgs.items())
         ]
 
-    def get_message_definition(self, msgid: str) -> MessageDefinition:
-        # TODO: 3.0: Remove deprecated method
-        warnings.warn(
-            "'get_message_definition' is deprecated and will be removed in 3.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        for message_definition in self.messages:
-            if message_definition.msgid == msgid:
-                return message_definition
-        error_msg = f"MessageDefinition for '{msgid}' does not exists. "
-        error_msg += f"Choose from {[m.msgid for m in self.messages]}."
-        raise InvalidMessageError(error_msg)
-
     def open(self) -> None:
         """Called before visiting project (i.e. set of modules)."""
 
