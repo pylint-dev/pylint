@@ -102,14 +102,12 @@ class TestDefaultDiadefGenerator:
         ("aggregation", "DoNothing2", "Specialization"),
         ("association", "DoNothing", "Ancestor"),
         ("association", "DoNothing", "Specialization"),
-        ("implements", "Ancestor", "Interface"),
         ("specialization", "Specialization", "Ancestor"),
     ]
 
     def test_extract_relations(self, HANDLER: DiadefsHandler, PROJECT: Project) -> None:
         """Test extract_relations between classes."""
-        with pytest.warns(DeprecationWarning):
-            cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
+        cd = DefaultDiadefGenerator(Linker(PROJECT), HANDLER).visit(PROJECT)[1]
         cd.extract_relationships()
         relations = _process_relations(cd.relationships)
         assert relations == self._should_rels

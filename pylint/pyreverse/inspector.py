@@ -171,7 +171,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 if not isinstance(assignattr, nodes.Unknown):
                     self.associations_handler.handle(assignattr, node)
                     self.handle_assignattr_type(assignattr, node)
-        node.implements = []
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Visit an astroid.Function node.

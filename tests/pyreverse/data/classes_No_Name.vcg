@@ -32,11 +32,6 @@ graph:{
   backarrowstyle:none
   backarrowsize:10
 }
-  edge: {sourcename:"data.clientmodule_test.Ancestor" targetname:"data.suppliermodule_test.Interface"  arrowstyle:solid
-  backarrowstyle:none
-  linestyle:dotted
-  backarrowsize:10
-}
   edge: {sourcename:"data.suppliermodule_test.DoNothing" targetname:"data.clientmodule_test.Ancestor"  arrowstyle:solid
   backarrowstyle:none
   textcolor:green
