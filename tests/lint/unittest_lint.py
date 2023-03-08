@@ -14,7 +14,6 @@ import sys
 import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
-from importlib import reload
 from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, dirname, join, sep
@@ -26,7 +25,7 @@ import pytest
 from astroid import nodes
 from pytest import CaptureFixture
 
-from pylint import checkers, config, exceptions, interfaces, lint, testutils
+from pylint import checkers, constants, exceptions, interfaces, lint, testutils
 from pylint.checkers.utils import only_required_for_messages
 from pylint.constants import (
     MSG_STATE_CONFIDENCE,
@@ -945,7 +944,7 @@ def test_pylint_home() -> None:
         expected = OLD_DEFAULT_PYLINT_HOME
     else:
         expected = platformdirs.user_cache_dir("pylint")
-    assert config.PYLINT_HOME == expected
+    assert constants.PYLINT_HOME == expected
     assert PYLINT_HOME == expected
 
 
@@ -992,74 +991,6 @@ def test_warn_about_old_home(capsys: CaptureFixture[str]) -> None:
 
     out = capsys.readouterr()
     assert "PYLINTHOME is now" in out.err
-
-
-@pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc() -> None:
-    with fake_home():
-        current_dir = getcwd()
-        chdir(os.path.dirname(os.path.abspath(sys.executable)))
-        # pylint: disable = too-many-try-statements
-        try:
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-            os.environ["PYLINTRC"] = join(tempfile.gettempdir(), ".pylintrc")
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-            os.environ["PYLINTRC"] = "."
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-        finally:
-            chdir(current_dir)
-            reload(config)
-
-
-@pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc_parentdir() -> None:
-    with tempdir() as chroot:
-        create_files(
-            [
-                "a/pylintrc",
-                "a/b/__init__.py",
-                "a/b/pylintrc",
-                "a/b/c/__init__.py",
-                "a/b/c/d/__init__.py",
-                "a/b/c/d/e/.pylintrc",
-            ]
-        )
-        with fake_home():
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-        results = {
-            "a": join(chroot, "a", "pylintrc"),
-            "a/b": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c/d": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c/d/e": join(chroot, "a", "b", "c", "d", "e", ".pylintrc"),
-        }
-        for basedir, expected in results.items():
-            os.chdir(join(chroot, basedir))
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() == expected
-
-
-@pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc_parentdir_no_package() -> None:
-    with tempdir() as chroot:
-        with fake_home():
-            create_files(["a/pylintrc", "a/b/pylintrc", "a/b/c/d/__init__.py"])
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-            results = {
-                "a": join(chroot, "a", "pylintrc"),
-                "a/b": join(chroot, "a", "b", "pylintrc"),
-                "a/b/c": None,
-                "a/b/c/d": None,
-            }
-            for basedir, expected in results.items():
-                os.chdir(join(chroot, basedir))
-                with pytest.warns(DeprecationWarning):
-                    assert config.find_pylintrc() == expected
 
 
 class _CustomPyLinter(PyLinter):

@@ -11,7 +11,6 @@ from __future__ import annotations
 import abc
 import argparse
 import sys
-import warnings
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -265,11 +264,9 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--generate-rcfile",
     ) -> None:
-        # TODO: 2.x: Deprecate this after the auto-upgrade functionality of
+        # TODO: 3.x: Deprecate this after the auto-upgrade functionality of
         # pylint-config is sufficient.
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            self.run.linter.generate_config(skipsections=("Commands",))
+        self.run.linter._generate_config(skipsections=("Commands",))
         sys.exit(0)
 
 
