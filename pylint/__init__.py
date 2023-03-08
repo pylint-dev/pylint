@@ -9,14 +9,12 @@ __all__ = [
     "version",
     "modify_sys_path",
     "run_pylint",
-    "run_epylint",
     "run_symilar",
     "run_pyreverse",
 ]
 
 import os
 import sys
-import warnings
 from collections.abc import Sequence
 from typing import NoReturn
 
@@ -46,22 +44,6 @@ def _run_pylint_config(argv: Sequence[str] | None = None) -> None:
     from pylint.lint.run import _PylintConfigRun
 
     _PylintConfigRun(argv or sys.argv[1:])
-
-
-def run_epylint(argv: Sequence[str] | None = None) -> NoReturn:
-    """Run epylint.
-
-    argv can be a list of strings normally supplied as arguments on the command line
-    """
-    from pylint.epylint import Run as EpylintRun
-
-    warnings.warn(
-        "'run_epylint' will be removed in pylint 3.0, use "
-        "https://github.com/emacsorphanage/pylint instead.",
-        DeprecationWarning,
-        stacklevel=1,
-    )
-    EpylintRun(argv)
 
 
 def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:

@@ -17,7 +17,7 @@ from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
-from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
+from pylint import run_pylint, run_pyreverse, run_symilar
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import _test_cwd
@@ -44,17 +44,6 @@ def test_runner(runner: _RunCallable, tmp_path: pathlib.Path) -> None:
             assert err.value.code == 0
 
 
-def test_epylint(tmp_path: pathlib.Path) -> None:
-    """TODO: 3.0 delete with epylint."""
-    filepath = os.path.abspath(__file__)
-    with _test_cwd(tmp_path):
-        with patch.object(sys, "argv", ["", filepath]):
-            with pytest.raises(SystemExit) as err:
-                with pytest.warns(DeprecationWarning):
-                    run_epylint()
-            assert err.value.code == 0
-
-
 @pytest.mark.parametrize("runner", [run_pylint, run_pyreverse, run_symilar])
 def test_runner_with_arguments(runner: _RunCallable, tmp_path: pathlib.Path) -> None:
     """Check the runners with arguments as parameter instead of sys.argv."""
@@ -63,17 +52,6 @@ def test_runner_with_arguments(runner: _RunCallable, tmp_path: pathlib.Path) -> 
     with _test_cwd(tmp_path):
         with pytest.raises(SystemExit) as err:
             runner(testargs)
-        assert err.value.code == 0
-
-
-def test_epylint_with_arguments(tmp_path: pathlib.Path) -> None:
-    """TODO: 3.0 delete with epylint."""
-    filepath = os.path.abspath(__file__)
-    testargs = [filepath]
-    with _test_cwd(tmp_path):
-        with pytest.raises(SystemExit) as err:
-            with pytest.warns(DeprecationWarning):
-                run_epylint(testargs)
         assert err.value.code == 0
 
 
