@@ -226,7 +226,7 @@ variable-naming-style = "snake_case"
 # check-protected-access-in-special-methods =
 
 # List of method names used to declare (i.e. assign) instance attributes.
-defining-attr-methods = ["__init__", "__new__", "setUp", "__post_init__"]
+defining-attr-methods = ["__init__", "__new__", "setUp", "asyncSetUp", "__post_init__"]
 
 # List of member names, which should be excluded from the protected access
 # warning.

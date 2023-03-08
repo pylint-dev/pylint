@@ -260,6 +260,7 @@ check-protected-access-in-special-methods=no
 defining-attr-methods=__init__,
                       __new__,
                       setUp,
+                      asyncSetUp,
                       __post_init__
 
 # List of member names, which should be excluded from the protected access
