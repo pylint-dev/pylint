@@ -30,6 +30,7 @@ classifiers = [
     "Topic :: Software Development :: Debuggers",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
+    "Typing :: Typed"
 ]
 requires-python = ">=3.7.2"
 dependencies    = [
@@ -75,7 +76,7 @@ license-files = ["LICENSE", "CONTRIBUTORS.txt"]  # Keep in sync with setup.cfg
 include = ["pylint*"]
 
 [tool.setuptools.package-data]
-pylint = ["testutils/testing_pylintrc"]
+pylint = ["testutils/testing_pylintrc", "py.typed"]
 
 [tool.setuptools.dynamic]
 version = {attr = "pylint.__pkginfo__.__version__"}
