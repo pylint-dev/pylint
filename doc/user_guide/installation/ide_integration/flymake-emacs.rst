@@ -4,7 +4,6 @@ Using Pylint through Flymake in Emacs
 =====================================
 
 .. warning::
-   The Emacs package now has its own repository and is looking for a maintainer.
-   If you're reading this doc and are interested in maintaining this package or
-   are actually using flymake please open an issue at
-   https://github.com/emacsorphanage/pylint/issues/new/choose
+    epylint was deprecated in 2.16.0 and targeted for deletion in 3.0.0.
+    All emacs and flymake related files were removed and their support will
+    now happen in an external repository : https://github.com/emacsorphanage/pylint.
