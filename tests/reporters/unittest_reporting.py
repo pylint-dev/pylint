@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import sys
 import warnings
 from contextlib import redirect_stdout
 from io import StringIO
@@ -15,7 +14,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, TextIO
 
 import pytest
-from _pytest.recwarn import WarningsRecorder
 
 from pylint import checkers
 from pylint.interfaces import HIGH
@@ -126,16 +124,6 @@ def test_template_option_with_header(linter: PyLinter) -> None:
     out_lines = output.getvalue().split("\n")
     assert out_lines[1] == '{ "Category": "convention" }'
     assert out_lines[2] == '{ "Category": "convention" }'
-
-
-def test_deprecation_set_output(recwarn: WarningsRecorder) -> None:
-    """TODO remove in 3.0."""
-    reporter = BaseReporter()
-    # noinspection PyDeprecation
-    reporter.set_output(sys.stdout)
-    warning = recwarn.pop()
-    assert "set_output' will be removed in 3.0" in str(warning)
-    assert reporter.out == sys.stdout
 
 
 def test_parseable_output_deprecated() -> None:
