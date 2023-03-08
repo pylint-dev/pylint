@@ -1,0 +1,7 @@
+A number of old utility functions and classes have been removed.
+These are ``MapReduceMixin``, ``is_inside_lambda``, ``check_messages``,
+``is_class_subscriptable_pep585_with_postponed_evaluation_enabled``,
+``get_python_paht``, ``fix_import_path`` and ``get_global_option``.
+Related private objects have been removed as well.
+
+Refs #8409

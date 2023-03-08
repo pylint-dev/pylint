@@ -115,15 +115,6 @@ def fake_path() -> Iterator[list[str]]:
     sys.path[:] = orig
 
 
-def test_deprecated() -> None:
-    """Test that fix_import_path() and get_python_path() are deprecated"""
-    with tempdir():
-        create_files(["__init__.py"])
-        with pytest.deprecated_call():
-            with lint.fix_import_path([""]):
-                expand_modules.get_python_path("__init__.py")
-
-
 def test_no_args(fake_path: list[str]) -> None:
     with lint.augmented_sys_path([]):
         assert sys.path == fake_path

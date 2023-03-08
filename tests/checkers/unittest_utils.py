@@ -11,7 +11,6 @@ import pytest
 from astroid import nodes
 
 from pylint.checkers import utils
-from pylint.checkers.base_checker import BaseChecker
 
 
 @pytest.mark.parametrize(
@@ -467,30 +466,6 @@ def test_is_empty_literal() -> None:
     assert utils.is_empty_str_literal(string_node.value)
     not_empty_string_node = astroid.extract_node("a = 'hello'")
     assert not utils.is_empty_str_literal(not_empty_string_node.value)
-
-
-def test_deprecation_is_inside_lambda() -> None:
-    """Test that is_inside_lambda is throwing a DeprecationWarning."""
-    with pytest.warns(DeprecationWarning) as records:
-        utils.is_inside_lambda(nodes.NodeNG())
-        assert len(records) == 1
-
-
-def test_deprecation_check_messages() -> None:
-    with pytest.warns(DeprecationWarning) as records:
-
-        class Checker(BaseChecker):  # pylint: disable=unused-variable
-            @utils.check_messages("my-message")
-            def visit_assname(self, node: nodes.NodeNG) -> None:
-                pass
-
-        deprecationMessage = (
-            "utils.check_messages will be removed in "
-            "favour of calling utils.only_required_for_messages in pylint 3.0"
-        )
-
-        assert len(records) == 1
-        assert records[0].message.args[0] == deprecationMessage
 
 
 def test_is_typing_member() -> None:
