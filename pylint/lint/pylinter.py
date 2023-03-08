@@ -976,41 +976,9 @@ class PyLinter(
         tokencheckers = [
             c for c in _checkers if isinstance(c, checkers.BaseTokenChecker)
         ]
-        # TODO: 3.0: Remove deprecated for-loop
-        for c in _checkers:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                if (
-                    interfaces.implements(c, interfaces.ITokenChecker)
-                    and c not in tokencheckers
-                    and c is not self
-                ):
-                    tokencheckers.append(c)  # type: ignore[arg-type]  # pragma: no cover
-                    warnings.warn(  # pragma: no cover
-                        "Checkers should subclass BaseTokenChecker "
-                        "instead of using the __implements__ mechanism. Use of __implements__ "
-                        "will no longer be supported in pylint 3.0",
-                        DeprecationWarning,
-                    )
         rawcheckers = [
             c for c in _checkers if isinstance(c, checkers.BaseRawFileChecker)
         ]
-        # TODO: 3.0: Remove deprecated if-statement
-        for c in _checkers:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                if (
-                    interfaces.implements(c, interfaces.IRawChecker)
-                    and c not in rawcheckers
-                ):
-                    rawcheckers.append(c)  # type: ignore[arg-type] # pragma: no cover
-                    warnings.warn(  # pragma: no cover
-                        "Checkers should subclass BaseRawFileChecker "
-                        "instead of using the __implements__ mechanism. Use of __implements__ "
-                        "will no longer be supported in pylint 3.0",
-                        DeprecationWarning,
-                    )
-        # notify global begin
         for checker in _checkers:
             checker.open()
             walker.add_checker(checker)
