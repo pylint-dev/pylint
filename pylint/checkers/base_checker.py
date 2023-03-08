@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import abc
 import functools
-import warnings
 from collections.abc import Iterable, Sequence
 from inspect import cleandoc
 from tokenize import TokenInfo
