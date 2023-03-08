@@ -99,7 +99,6 @@ def test_default_values() -> None:
 
 class TestShowOptions:
     def test_show_stdlib(self) -> None:
-
         example = extract_node(
             '''
             import collections
@@ -122,7 +121,6 @@ class TestShowOptions:
         assert ancestors[0].name == "OrderedDict"
 
     def test_show_builtin(self) -> None:
-
         example = extract_node(
             '''
             class CustomError(Exception):

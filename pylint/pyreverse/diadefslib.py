@@ -12,7 +12,7 @@ from typing import Any
 
 import astroid
 from astroid import nodes
-from astroid.modutils import is_standard_module
+from astroid.modutils import is_stdlib_module
 
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
 from pylint.pyreverse.inspector import Linker, Project
@@ -72,7 +72,7 @@ class DiaDefGenerator:
         if node.root().name == "builtins":
             return self.config.show_builtin  # type: ignore[no-any-return]
 
-        if is_standard_module(node.root().name):
+        if is_stdlib_module(node.root().name):
             return self.config.show_stdlib  # type: ignore[no-any-return]
 
         return True
