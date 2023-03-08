@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import abc
 import functools
-import warnings
 from collections.abc import Iterable, Sequence
 from inspect import cleandoc
 from tokenize import TokenInfo
@@ -17,7 +16,7 @@ from astroid import nodes
 from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
-from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
+from pylint.interfaces import Confidence
 from pylint.message.message_definition import MessageDefinition
 from pylint.typing import (
     ExtraMessageOptions,
@@ -47,18 +46,9 @@ class BaseChecker(_ArgumentsProvider):
 
     def __init__(self, linter: PyLinter) -> None:
         """Checker instances should have the linter as argument."""
-        if getattr(self, "__implements__", None):
-            warnings.warn(
-                "Using the __implements__ inheritance pattern for BaseChecker is no "
-                "longer supported. Child classes should only inherit BaseChecker or any "
-                "of the other checker types from pylint.checkers.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
         if self.name is not None:
             self.name = self.name.lower()
         self.linter = linter
-
         _ArgumentsProvider.__init__(self, linter)
 
     def __gt__(self, other: Any) -> bool:
@@ -191,21 +181,10 @@ class BaseChecker(_ArgumentsProvider):
     def create_message_definition_from_tuple(
         self, msgid: str, msg_tuple: MessageDefinitionTuple
     ) -> MessageDefinition:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
-                default_scope = WarningScope.LINE
-            # TODO: 3.0: Remove deprecated if-statement
-            elif implements(self, (IRawChecker, ITokenChecker)):
-                warnings.warn(  # pragma: no cover
-                    "Checkers should subclass BaseTokenChecker or BaseRawFileChecker "
-                    "instead of using the __implements__ mechanism. Use of __implements__ "
-                    "will no longer be supported in pylint 3.0",
-                    DeprecationWarning,
-                )
-                default_scope = WarningScope.LINE  # pragma: no cover
-            else:
-                default_scope = WarningScope.NODE
+        if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
+            default_scope = WarningScope.LINE
+        else:
+            default_scope = WarningScope.NODE
         options: ExtraMessageOptions = {}
         if len(msg_tuple) == 4:
             (msg, symbol, descr, options) = msg_tuple  # type: ignore[misc]

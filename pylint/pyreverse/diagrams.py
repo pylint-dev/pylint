@@ -207,13 +207,6 @@ class ClassDiagram(Figure, FilterMixIn):
                     self.add_relationship(obj, par_obj, "specialization")
                 except KeyError:
                     continue
-            # implements link
-            for impl_node in node.implements:
-                try:
-                    impl_obj = self.object_from_node(impl_node)
-                    self.add_relationship(obj, impl_obj, "implements")
-                except KeyError:
-                    continue
 
             # associations & aggregations links
             for name, values in list(node.aggregations_type.items()):

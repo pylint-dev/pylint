@@ -12,13 +12,11 @@ from __future__ import annotations
 import collections
 import os
 import traceback
-import warnings
 from abc import ABC, abstractmethod
-from collections.abc import Generator
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 
 import astroid
-from astroid import nodes, util
+from astroid import nodes
 
 from pylint import constants
 from pylint.pyreverse import utils
@@ -37,27 +35,6 @@ def _astroid_wrapper(
     except Exception:  # pylint: disable=broad-except
         traceback.print_exc()
     return None
-
-
-def interfaces(node: nodes.ClassDef) -> Generator[Any, None, None]:
-    """Return an iterator on interfaces implemented by the given class node."""
-    try:
-        implements = astroid.bases.Instance(node).getattr("__implements__")[0]
-    except astroid.exceptions.NotFoundError:
-        return
-    if implements.frame(future=True) is not node:
-        return
-    found = set()
-    missing = False
-    for iface in nodes.unpack_infer(implements):
-        if isinstance(iface, util.UninferableBase):
-            missing = True
-            continue
-        if iface not in found:
-            found.add(iface)
-            yield iface
-    if missing:
-        raise astroid.exceptions.InferenceError()
 
 
 class IdGeneratorMixIn:
@@ -194,24 +171,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 if not isinstance(assignattr, nodes.Unknown):
                     self.associations_handler.handle(assignattr, node)
                     self.handle_assignattr_type(assignattr, node)
-        # resolve implemented interface
-        try:
-            ifaces = interfaces(node)
-            if ifaces is not None:
-                node.implements = list(ifaces)
-                if node.implements:
-                    # TODO: 3.0: Remove support for __implements__
-                    warnings.warn(
-                        "pyreverse will drop support for resolving and displaying "
-                        "implemented interfaces in pylint 3.0. The implementation "
-                        "relies on the '__implements__'  attribute proposed in PEP 245"
-                        ", which was rejected in 2006.",
-                        DeprecationWarning,
-                    )
-            else:
-                node.implements = []
-        except astroid.InferenceError:
-            node.implements = []
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Visit an astroid.Function node.

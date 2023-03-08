@@ -257,9 +257,9 @@ class TestRunTC:
         expected = textwrap.dedent(
             f"""
         ************* Module data.clientmodule_test
-        {module}:10:8: W0612: Unused variable 'local_variable' (unused-variable)
-        {module}:18:4: C0116: Missing function or method docstring (missing-function-docstring)
-        {module}:22:0: C0115: Missing class docstring (missing-class-docstring)
+        {module}:9:8: W0612: Unused variable 'local_variable' (unused-variable)
+        {module}:17:4: C0116: Missing function or method docstring (missing-function-docstring)
+        {module}:21:0: C0115: Missing class docstring (missing-class-docstring)
         """
         )
         self._test_output(

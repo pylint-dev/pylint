@@ -36,7 +36,6 @@ class "Specialization" as data.clientmodule_test.Specialization #aliceblue {
   transform_value(value: int) -> int
 }
 data.clientmodule_test.Specialization --|> data.clientmodule_test.Ancestor
-data.clientmodule_test.Ancestor ..|> data.suppliermodule_test.Interface
 data.suppliermodule_test.DoNothing --* data.clientmodule_test.Ancestor : cls_member
 data.suppliermodule_test.DoNothing --* data.clientmodule_test.Specialization : relation
 data.suppliermodule_test.DoNothing2 --o data.clientmodule_test.Specialization : relation2
