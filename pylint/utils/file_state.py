@@ -36,26 +36,12 @@ class FileState:
 
     def __init__(
         self,
-        modname: str | None = None,
-        msg_store: MessageDefinitionStore | None = None,
+        modname: str,
+        msg_store: MessageDefinitionStore,
         node: nodes.Module | None = None,
         *,
         is_base_filestate: bool = False,
     ) -> None:
-        if modname is None:
-            warnings.warn(
-                "FileState needs a string as modname argument. "
-                "This argument will be required in pylint 3.0",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        if msg_store is None:
-            warnings.warn(
-                "FileState needs a 'MessageDefinitionStore' as msg_store argument. "
-                "This argument will be required in pylint 3.0",
-                DeprecationWarning,
-                stacklevel=2,
-            )
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
         self._raw_module_msgs_state: MessageStateDict = {}
@@ -230,10 +216,6 @@ class FileState:
     ) -> None:
         """Set status (enabled/disable) for a given message at a given line."""
         assert line > 0
-        assert self._module
-        # TODO: 3.0: Remove unnecessary assertion
-        assert self._msgs_store
-
         if scope != "line":
             # Expand the status to cover all relevant block lines
             self._set_state_on_block_lines(

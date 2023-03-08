@@ -856,7 +856,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
                 DeprecationWarning,
             )
         with node.stream() as stream:
-            self.append_stream(self.linter.current_name, stream, node.file_encoding)  # type: ignore[arg-type]
+            self.append_stream(self.linter.current_name, stream, node.file_encoding)
 
     def close(self) -> None:
         """Compute and display similarities on closing (i.e. end of parsing)."""

@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import functools
-import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any
@@ -42,7 +41,7 @@ def _worker_initialize(
     """Function called to initialize a worker for a Process within a concurrent Pool.
 
     :param linter: A linter-class (PyLinter) instance pickled with dill
-    :param extra_packages_paths: Extra entries to be added to sys.path
+    :param extra_packages_paths: Extra entries to be added to `sys.path`
     """
     global _worker_linter  # pylint: disable=global-statement
     _worker_linter = dill.loads(linter)
@@ -61,10 +60,9 @@ def _worker_check_single_file(
     file_item: FileItem,
 ) -> tuple[
     int,
-    # TODO: 3.0: Make this only str after deprecation has been removed
-    str | None,
     str,
-    str | None,
+    str,
+    str,
     list[Message],
     LinterStats,
     int,
@@ -82,14 +80,6 @@ def _worker_check_single_file(
     msgs = _worker_linter.reporter.messages
     assert isinstance(_worker_linter.reporter, reporters.CollectingReporter)
     _worker_linter.reporter.reset()
-    if _worker_linter.current_name is None:
-        warnings.warn(
-            (
-                "In pylint 3.0 the current_name attribute of the linter object should be a string. "
-                "If unknown it should be initialized as an empty string."
-            ),
-            DeprecationWarning,
-        )
     return (
         id(multiprocessing.current_process()),
         _worker_linter.current_name,
