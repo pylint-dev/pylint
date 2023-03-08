@@ -2,25 +2,11 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Interfaces for Pylint objects."""
-
 from __future__ import annotations
 
-from tokenize import TokenInfo
-from typing import TYPE_CHECKING, NamedTuple
-
-from astroid import nodes
-
-if TYPE_CHECKING:
-    from pylint.message import Message
-    from pylint.reporters.ureports.nodes import Section
+from typing import NamedTuple
 
 __all__ = (
-    "IRawChecker",
-    "IAstroidChecker",
-    "ITokenChecker",
-    "IReporter",
-    "IChecker",
     "HIGH",
     "CONTROL_FLOW",
     "INFERENCE",
@@ -49,49 +35,3 @@ UNDEFINED = Confidence("UNDEFINED", "Warning without any associated confidence l
 
 CONFIDENCE_LEVELS = [HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
 CONFIDENCE_LEVEL_NAMES = [i.name for i in CONFIDENCE_LEVELS]
-
-
-class IChecker:
-    """Base interface, to be used only for sub interfaces definition."""
-
-    def open(self) -> None:
-        """Called before visiting project (i.e. set of modules)."""
-
-    def close(self) -> None:
-        """Called after visiting project (i.e. set of modules)."""
-
-
-class IRawChecker(IChecker):
-    """Interface for checker which need to parse the raw file."""
-
-    def process_module(self, node: nodes.Module) -> None:
-        """Process a module.
-
-        The module's content is accessible via ``astroid.stream``
-        """
-
-
-class ITokenChecker(IChecker):
-    """Interface for checkers that need access to the token list."""
-
-    def process_tokens(self, tokens: list[TokenInfo]) -> None:
-        """Process a module.
-
-        Tokens is a list of all source code tokens in the file.
-        """
-
-
-class IAstroidChecker(IChecker):
-    """Interface for checker which prefers receive events according to
-    statement type.
-    """
-
-
-class IReporter:
-    """Reporter collect messages and display results encapsulated in a layout."""
-
-    def handle_message(self, msg: Message) -> None:
-        """Handle the given message object."""
-
-    def display_reports(self, layout: Section) -> None:
-        """Display results encapsulated in the layout tree."""
