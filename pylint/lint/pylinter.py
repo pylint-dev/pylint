@@ -339,7 +339,7 @@ class PyLinter(
 
         # Attributes related to visiting files
         self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
-        self.current_name: str | None = None
+        self.current_name: str = ""
         self.current_file: str | None = None
         self._ignore_file = False
         self._ignore_paths: list[Pattern[str]] = []
@@ -900,26 +900,13 @@ class PyLinter(
             self.add_message(key, args=message)
         return result
 
-    def set_current_module(
-        self, modname: str | None, filepath: str | None = None
-    ) -> None:
+    def set_current_module(self, modname: str, filepath: str | None = None) -> None:
         """Set the name of the currently analyzed module and
         init statistics for it.
         """
         if not modname and filepath is None:
             return
         self.reporter.on_set_current_module(modname or "", filepath)
-        if modname is None:
-            # TODO: 3.0: Remove all modname or ""'s in this method
-            warnings.warn(
-                (
-                    "In pylint 3.0 modname should be a string so that it can be used to "
-                    "correctly set the current_name attribute of the linter instance. "
-                    "If unknown it should be initialized as an empty string."
-                ),
-                DeprecationWarning,
-                stacklevel=2,
-            )
         self.current_name = modname
         self.current_file = filepath or modname
         self.stats.init_single_module(modname or "")
@@ -1219,12 +1206,7 @@ class PyLinter(
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
         self.stats.increase_single_message_count(msg_cat, 1)
-        # TODO: 3.0 Should be removable after https://github.com/PyCQA/pylint/pull/5580
-        self.stats.increase_single_module_message_count(
-            self.current_name,  # type: ignore[arg-type]
-            msg_cat,
-            1,
-        )
+        self.stats.increase_single_module_message_count(self.current_name, msg_cat, 1)
         try:
             self.stats.by_msg[message_definition.symbol] += 1
         except KeyError:

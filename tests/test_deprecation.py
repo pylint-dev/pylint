@@ -9,13 +9,10 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from astroid import nodes
 
 from pylint import lint
 from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.lint import PyLinter
-from pylint.message import MessageDefinitionStore
-from pylint.utils import FileState
 
 
 def test_mapreducemixin() -> None:
@@ -30,24 +27,6 @@ def test_mapreducemixin() -> None:
 
     with pytest.warns(DeprecationWarning):
         MyChecker()
-
-
-def test_filestate() -> None:
-    """Test that FileState needs its arguments."""
-    with pytest.warns(DeprecationWarning):
-        FileState()
-    with pytest.warns(DeprecationWarning):
-        FileState("foo")
-    with pytest.warns(DeprecationWarning):
-        FileState(msg_store=MessageDefinitionStore())
-    FileState("foo", MessageDefinitionStore())
-
-
-def test_collectblocklines() -> None:
-    """Test FileState.collect_block_lines."""
-    state = FileState("foo", MessageDefinitionStore())
-    with pytest.warns(DeprecationWarning):
-        state.collect_block_lines(MessageDefinitionStore(), nodes.Module("foo"))
 
 
 def test_patch_sys_path() -> None:

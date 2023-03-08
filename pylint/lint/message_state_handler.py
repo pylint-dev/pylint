@@ -55,9 +55,8 @@ class _MessageStateHandler:
             "enable-msg": self._options_methods["enable"],
         }
         self._pragma_lineno: dict[str, int] = {}
-        # TODO: 3.0: Update key type to str when current_name is always str
         self._stashed_messages: defaultdict[
-            tuple[str | None, str], list[tuple[str | None, str]]
+            tuple[str, str], list[tuple[str | None, str]]
         ] = defaultdict(list)
         """Some messages in the options (for --enable and --disable) are encountered
         too early to warn about them.
