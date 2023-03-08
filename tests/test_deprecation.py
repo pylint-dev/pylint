@@ -13,7 +13,6 @@ from astroid import nodes
 
 from pylint import lint
 from pylint.checkers.mapreduce_checker import MapReduceMixin
-from pylint.config import load_results, save_results
 from pylint.lint import PyLinter
 from pylint.message import MessageDefinitionStore
 from pylint.utils import FileState
@@ -31,14 +30,6 @@ def test_mapreducemixin() -> None:
 
     with pytest.warns(DeprecationWarning):
         MyChecker()
-
-
-def test_load_and_save_results() -> None:
-    """Test that load_results and save_results are deprecated."""
-    with pytest.warns(DeprecationWarning):
-        save_results(object(), "")  # type: ignore[arg-type]
-    with pytest.warns(DeprecationWarning):
-        load_results("")
 
 
 def test_filestate() -> None:

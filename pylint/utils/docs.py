@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import sys
-import warnings
 from typing import TYPE_CHECKING, Any, TextIO
 
 from pylint.constants import MAIN_CHECKER_NAME
@@ -25,20 +24,16 @@ def _get_checkers_infos(linter: PyLinter) -> dict[str, dict[str, Any]]:
         if name != MAIN_CHECKER_NAME:
             try:
                 by_checker[name]["checker"] = checker
-                with warnings.catch_warnings():
-                    warnings.filterwarnings("ignore", category=DeprecationWarning)
-                    by_checker[name]["options"] += checker.options_and_values()
+                by_checker[name]["options"] += checker._options_and_values()
                 by_checker[name]["msgs"].update(checker.msgs)
                 by_checker[name]["reports"] += checker.reports
             except KeyError:
-                with warnings.catch_warnings():
-                    warnings.filterwarnings("ignore", category=DeprecationWarning)
-                    by_checker[name] = {
-                        "checker": checker,
-                        "options": list(checker.options_and_values()),
-                        "msgs": dict(checker.msgs),
-                        "reports": list(checker.reports),
-                    }
+                by_checker[name] = {
+                    "checker": checker,
+                    "options": list(checker._options_and_values()),
+                    "msgs": dict(checker.msgs),
+                    "reports": list(checker.reports),
+                }
     return by_checker
 
 
@@ -51,16 +46,14 @@ Pylint provides global options and switches.
 """
     for checker in linter.get_checkers():
         if checker.name == MAIN_CHECKER_NAME and checker.options:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                for section, options in checker.options_by_section():
-                    if section is None:
-                        title = "General options"
-                    else:
-                        title = f"{section.capitalize()} options"
-                    result += get_rst_title(title, "~")
-                    assert isinstance(options, list)
-                    result += f"{get_rst_section(None, options)}\n"
+            for section, options in checker._options_by_section():
+                if section is None:
+                    title = "General options"
+                else:
+                    title = f"{section.capitalize()} options"
+                result += get_rst_title(title, "~")
+                assert isinstance(options, list)
+                result += f"{get_rst_section(None, options)}\n"
     return result
 
 

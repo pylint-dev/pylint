@@ -346,25 +346,6 @@ class PyLinter(
 
         self.register_checker(self)
 
-    @property
-    def option_groups(self) -> tuple[tuple[str, str], ...]:
-        # TODO: 3.0: Remove deprecated attribute
-        warnings.warn(
-            "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self._option_groups
-
-    @option_groups.setter
-    def option_groups(self, value: tuple[tuple[str, str], ...]) -> None:
-        warnings.warn(
-            "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self._option_groups = value
-
     def load_default_plugins(self) -> None:
         checkers.initialize(self)
         reporters.initialize(self)

@@ -87,11 +87,9 @@ class BaseChecker(_ArgumentsProvider):
 
         See: MessageHandlerMixIn.get_full_documentation()
         """
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            return self.get_full_documentation(
-                msgs=self.msgs, options=self.options_and_values(), reports=self.reports
-            )
+        return self.get_full_documentation(
+            msgs=self.msgs, options=self._options_and_values(), reports=self.reports
+        )
 
     def get_full_documentation(
         self,

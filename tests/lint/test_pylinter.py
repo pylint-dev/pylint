@@ -8,7 +8,6 @@ from typing import Any, NoReturn
 from unittest import mock
 from unittest.mock import patch
 
-import pytest
 from _pytest.recwarn import WarningsRecorder
 from pytest import CaptureFixture
 
@@ -24,10 +23,8 @@ def raise_exception(*args: Any, **kwargs: Any) -> NoReturn:
 def test_crash_in_file(
     linter: PyLinter, capsys: CaptureFixture[str], tmp_path: Path
 ) -> None:
-    with pytest.warns(DeprecationWarning):
-        args = linter.load_command_line_configuration([__file__])
     linter.crash_file_path = str(tmp_path / "pylint-crash-%Y")
-    linter.check(args)
+    linter.check([__file__])
     out, err = capsys.readouterr()
     assert not out
     assert not err
