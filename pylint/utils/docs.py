@@ -10,7 +10,7 @@ import sys
 from typing import TYPE_CHECKING, Any, TextIO
 
 from pylint.constants import MAIN_CHECKER_NAME
-from pylint.utils.utils import get_rst_section, get_rst_title
+from pylint.utils.utils import get_rst_title
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -53,7 +53,6 @@ Pylint provides global options and switches.
                     title = f"{section.capitalize()} options"
                 result += get_rst_title(title, "~")
                 assert isinstance(options, list)
-                result += f"{get_rst_section(None, options)}\n"
     return result
 
 

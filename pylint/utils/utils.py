@@ -17,19 +17,16 @@ except ImportError:  # isort < 5
 import argparse
 import codecs
 import os
-import re
 import sys
 import textwrap
 import tokenize
-import warnings
 from collections.abc import Sequence
 from io import BufferedReader, BytesIO
-from typing import TYPE_CHECKING, Any, List, Pattern, TextIO, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, List, Pattern, Tuple, TypeVar, Union
 
 from astroid import Module, modutils, nodes
 
 from pylint.constants import PY_EXTS
-from pylint.typing import OptionDict
 
 if sys.version_info >= (3, 8):
     from typing import Literal
@@ -126,31 +123,6 @@ def get_rst_title(title: str, character: str) -> str:
     chosen character).
     """
     return f"{title}\n{character * len(title)}\n"
-
-
-def get_rst_section(
-    section: str | None,
-    options: list[tuple[str, OptionDict, Any]],
-    doc: str | None = None,
-) -> str:
-    """Format an option's section using as a ReStructuredText formatted output."""
-    result = ""
-    if section:
-        result += get_rst_title(section, "'")
-    if doc:
-        formatted_doc = normalize_text(doc)
-        result += f"{formatted_doc}\n\n"
-    for optname, optdict, value in options:
-        help_opt = optdict.get("help")
-        result += f":{optname}:\n"
-        if help_opt:
-            assert isinstance(help_opt, str)
-            formatted_help = normalize_text(help_opt, indent="  ")
-            result += f"{formatted_help}\n"
-        if value and optname != "py-version":
-            value = str(_format_option_value(optdict, value))
-            result += f"\n  Default: ``{value.replace('`` ', '```` ``')}``\n"
-    return result
 
 
 def decoding_stream(
@@ -253,81 +225,6 @@ def _comment(string: str) -> str:
     lines = [line.strip() for line in string.splitlines()]
     sep = "\n"
     return "# " + f"{sep}# ".join(lines)
-
-
-def _format_option_value(optdict: OptionDict, value: Any) -> str:
-    """Return the user input's value from a 'compiled' value.
-
-    TODO: 3.0: Remove deprecated function
-    """
-    if optdict.get("type", None) == "py_version":
-        value = ".".join(str(item) for item in value)
-    elif isinstance(value, (list, tuple)):
-        value = ",".join(_format_option_value(optdict, item) for item in value)
-    elif isinstance(value, dict):
-        value = ",".join(f"{k}:{v}" for k, v in value.items())
-    elif hasattr(value, "match"):  # optdict.get('type') == 'regexp'
-        # compiled regexp
-        value = value.pattern
-    elif optdict.get("type") == "yn":
-        value = "yes" if value else "no"
-    elif isinstance(value, str) and value.isspace():
-        value = f"'{value}'"
-    return str(value)
-
-
-def format_section(
-    stream: TextIO,
-    section: str,
-    options: list[tuple[str, OptionDict, Any]],
-    doc: str | None = None,
-) -> None:
-    """Format an option's section using the INI format."""
-    warnings.warn(
-        "format_section has been deprecated. It will be removed in pylint 3.0.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    if doc:
-        print(_comment(doc), file=stream)
-    print(f"[{section}]", file=stream)
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=DeprecationWarning)
-        _ini_format(stream, options)
-
-
-def _ini_format(stream: TextIO, options: list[tuple[str, OptionDict, Any]]) -> None:
-    """Format options using the INI format."""
-    warnings.warn(
-        "_ini_format has been deprecated. It will be removed in pylint 3.0.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    for optname, optdict, value in options:
-        # Skip deprecated option
-        if "kwargs" in optdict:
-            assert isinstance(optdict["kwargs"], dict)
-            if "new_names" in optdict["kwargs"]:
-                continue
-        value = _format_option_value(optdict, value)
-        help_opt = optdict.get("help")
-        if help_opt:
-            assert isinstance(help_opt, str)
-            help_opt = normalize_text(help_opt, indent="# ")
-            print(file=stream)
-            print(help_opt, file=stream)
-        else:
-            print(file=stream)
-        if value in {"None", "False"}:
-            print(f"#{optname}=", file=stream)
-        else:
-            value = str(value).strip()
-            if re.match(r"^([\w-]+,)+[\w-]+$", str(value)):
-                separator = "\n " + " " * len(optname)
-                value = separator.join(x + "," for x in str(value).split(","))
-                # remove trailing ',' from last element of the list
-                value = value[:-1]
-            print(f"{optname}={value}", file=stream)
 
 
 class IsortDriver:
