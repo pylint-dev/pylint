@@ -210,16 +210,17 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
                 "notimplemented-raised", node=self._node, confidence=HIGH
             )
             return
-
         try:
-            exceptions = list(_annotated_unpack_infer(node))
+            exceptions = [
+                c
+                for _, c in _annotated_unpack_infer(node)
+                if isinstance(c, nodes.ClassDef)
+            ]
         except astroid.InferenceError:
             return
 
-        for _, exception in exceptions:
-            if isinstance(
-                exception, nodes.ClassDef
-            ) and self._checker._is_overgeneral_exception(exception):
+        for exception in exceptions:
+            if self._checker._is_overgeneral_exception(exception):
                 self._checker.add_message(
                     "broad-exception-raised",
                     args=exception.name,
@@ -306,13 +307,13 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     def open(self) -> None:
         self._builtin_exceptions = _builtin_exceptions()
+        # TODO 3.1: Remove this check and put it elsewhere
         for exc_name in self.linter.config.overgeneral_exceptions:
             if "." not in exc_name:
                 warnings.warn_explicit(
-                    "Specifying exception names in the overgeneral-exceptions option"
-                    " without module name is deprecated and support for it"
-                    " will be removed in pylint 3.0."
-                    f" Use fully qualified name (maybe 'builtins.{exc_name}' ?) instead.",
+                    f"'{exc_name}' is not a proper value for the 'overgeneral-exceptions' option. "
+                    f"Use fully qualified name (maybe 'builtins.{exc_name}' ?) instead. "
+                    "This will cease to be checked at runtime in 3.1.0.",
                     category=UserWarning,
                     filename="pylint: Command line or configuration file",
                     lineno=1,
@@ -646,13 +647,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 exceptions_classes += [exc for _, exc in exceptions]
 
     def _is_overgeneral_exception(self, exception: nodes.ClassDef) -> bool:
-        return (
-            exception.qname() in self.linter.config.overgeneral_exceptions
-            # TODO: 3.0: not a qualified name, deprecated
-            or "." not in exception.name
-            and exception.name in self.linter.config.overgeneral_exceptions
-            and exception.root().name == utils.EXCEPTIONS_MODULE
-        )
+        return exception.qname() in self.linter.config.overgeneral_exceptions
 
 
 def register(linter: PyLinter) -> None:
