@@ -35,23 +35,16 @@ DIRECTLY_SUPPORTED_FORMATS = (
 )
 
 DEFAULT_COLOR_PALETTE = (
-    "aliceblue",
-    "antiquewhite",
-    "aquamarine",
-    "burlywood",
-    "cadetblue",
-    "chartreuse",
-    "chocolate",
-    "coral",
-    "cornflowerblue",
-    "cyan",
-    "darkgoldenrod",
-    "darkseagreen",
     "dodgerblue",
-    "forestgreen",
-    "gold",
-    "hotpink",
-    "mediumspringgreen",
+    "orange",
+    "teal",
+    "sienna",
+    "orchid",
+    "lightsalmon",
+    "plum",
+    "gray",
+    "yellow",
+    "steelblue",
 )
 
 OPTIONS: Options = (

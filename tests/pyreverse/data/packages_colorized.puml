@@ -1,15 +1,15 @@
 @startuml packages_colorized
 set namespaceSeparator none
-package "data" as data #aliceblue {
+package "data" as data #dodgerblue {
 
 }
-package "data.clientmodule_test" as data.clientmodule_test #aliceblue {
+package "data.clientmodule_test" as data.clientmodule_test #dodgerblue {
 
 }
-package "data.property_pattern" as data.property_pattern #aliceblue {
+package "data.property_pattern" as data.property_pattern #dodgerblue {
 
 }
-package "data.suppliermodule_test" as data.suppliermodule_test #aliceblue {
+package "data.suppliermodule_test" as data.suppliermodule_test #dodgerblue {
 
 }
 data.clientmodule_test --> data.suppliermodule_test
