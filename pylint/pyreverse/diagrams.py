@@ -13,7 +13,7 @@ import astroid
 from astroid import nodes, util
 
 from pylint.checkers.utils import decorated_with_property
-from pylint.pyreverse.utils import FilterMixIn, is_interface
+from pylint.pyreverse.utils import FilterMixIn
 
 
 class Figure:
@@ -195,11 +195,7 @@ class ClassDiagram(Figure, FilterMixIn):
             node = obj.node
             obj.attrs = self.get_attrs(node)
             obj.methods = self.get_methods(node)
-            # shape
-            if is_interface(node):
-                obj.shape = "interface"
-            else:
-                obj.shape = "class"
+            obj.shape = "class"
             # inheritance link
             for par_node in node.ancestors(recurs=False):
                 try:

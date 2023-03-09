@@ -25,13 +25,11 @@ class HTMLLabels(Enum):
 ALLOWED_CHARSETS: frozenset[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
 SHAPES: dict[NodeType, str] = {
     NodeType.PACKAGE: "box",
-    NodeType.INTERFACE: "record",
     NodeType.CLASS: "record",
 }
 # pylint: disable-next=consider-using-namedtuple-or-dataclass
 ARROWS: dict[EdgeType, dict[str, str]] = {
     EdgeType.INHERITS: {"arrowtail": "none", "arrowhead": "empty"},
-    EdgeType.IMPLEMENTS: {"arrowtail": "node", "arrowhead": "empty", "style": "dashed"},
     EdgeType.ASSOCIATION: {
         "fontcolor": "green",
         "arrowtail": "none",

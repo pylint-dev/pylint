@@ -17,12 +17,10 @@ class MermaidJSPrinter(Printer):
 
     NODES: dict[NodeType, str] = {
         NodeType.CLASS: "class",
-        NodeType.INTERFACE: "class",
         NodeType.PACKAGE: "class",
     }
     ARROWS: dict[EdgeType, str] = {
         EdgeType.INHERITS: "--|>",
-        EdgeType.IMPLEMENTS: "..|>",
         EdgeType.ASSOCIATION: "--*",
         EdgeType.AGGREGATION: "--o",
         EdgeType.USES: "-->",
@@ -46,7 +44,6 @@ class MermaidJSPrinter(Printer):
         # pylint: disable=duplicate-code
         if properties is None:
             properties = NodeProperties(label=name)
-        stereotype = "~~Interface~~" if type_ is NodeType.INTERFACE else ""
         nodetype = self.NODES[type_]
         body = []
         if properties.attrs:
@@ -60,7 +57,7 @@ class MermaidJSPrinter(Printer):
                     line += f" {get_annotation_label(func.returns)}"
                 body.append(line)
         name = name.split(".")[-1]
-        self.emit(f"{nodetype} {name}{stereotype} {{")
+        self.emit(f"{nodetype} {name} {{")
         self._inc_indent()
         for line in body:
             self.emit(line)

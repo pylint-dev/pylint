@@ -75,9 +75,10 @@ class DiagramWriter:
         # sorted to get predictable (hence testable) results
         for obj in sorted(diagram.objects, key=lambda x: x.title):  # type: ignore[no-any-return]
             obj.fig_id = obj.node.qname()
-            type_ = NodeType.INTERFACE if obj.shape == "interface" else NodeType.CLASS
             self.printer.emit_node(
-                obj.fig_id, type_=type_, properties=self.get_class_properties(obj)
+                obj.fig_id,
+                type_=NodeType.CLASS,
+                properties=self.get_class_properties(obj),
             )
         # inheritance links
         for rel in diagram.get_relationships("specialization"):
@@ -85,13 +86,6 @@ class DiagramWriter:
                 rel.from_object.fig_id,
                 rel.to_object.fig_id,
                 type_=EdgeType.INHERITS,
-            )
-        # implementation links
-        for rel in diagram.get_relationships("implements"):
-            self.printer.emit_edge(
-                rel.from_object.fig_id,
-                rel.to_object.fig_id,
-                type_=EdgeType.IMPLEMENTS,
             )
         # generate associations
         for rel in diagram.get_relationships("association"):
