@@ -1,7 +1,16 @@
-A number of old utility functions and classes have been removed.
-These are ``MapReduceMixin``, ``is_inside_lambda``, ``check_messages``,
-``is_class_subscriptable_pep585_with_postponed_evaluation_enabled``,
-``get_python_paht``, ``fix_import_path`` and ``get_global_option``.
+A number of old utility functions and classes have been removed:
+
+- ``MapReduceMixin``: To make a checker reduce map data simply implement get_map_data and reduce_map_data.
+- ``is_inside_lambda``: Use ``utils.get_node_first_ancestor_of_type(x, nodes.Lambda)``
+- ``check_messages``: Use ``utils.only_required_for_messages``
+- ``is_class_subscriptable_pep585_with_postponed_evaluation_enabled``: Use
+  ``is_postponed_evaluation_enabled(node)`` and ``is_node_in_type_annotation_context(node)``
+- ``get_python_path``: assumption that there's always an __init__.py is not true since python 3.3 and
+  is causing problems, particularly with PEP 420. Use ``discover_package_path`` and pass source root(s).
+- ``fix_import_path``: Use ``augmented_sys_path`` and pass additional ``sys.path`` entries as an
+   argument obtained from ``discover_package_path``.
+- ``get_global_option``: Use ``checker.linter.config`` to get all global options.
+
 Related private objects have been removed as well.
 
 Refs #8409
