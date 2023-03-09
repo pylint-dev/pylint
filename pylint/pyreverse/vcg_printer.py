@@ -152,7 +152,6 @@ EDGE_ATTRS = {
 SHAPES: dict[NodeType, str] = {
     NodeType.PACKAGE: "box",
     NodeType.CLASS: "box",
-    NodeType.INTERFACE: "ellipse",
 }
 # pylint: disable-next=consider-using-namedtuple-or-dataclass
 ARROWS: dict[EdgeType, dict[str, str | int]] = {
@@ -164,12 +163,6 @@ ARROWS: dict[EdgeType, dict[str, str | int]] = {
     EdgeType.INHERITS: {
         "arrowstyle": "solid",
         "backarrowstyle": "none",
-        "backarrowsize": 10,
-    },
-    EdgeType.IMPLEMENTS: {
-        "arrowstyle": "solid",
-        "backarrowstyle": "none",
-        "linestyle": "dotted",
         "backarrowsize": 10,
     },
     EdgeType.ASSOCIATION: {
