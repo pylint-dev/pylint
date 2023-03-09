@@ -106,9 +106,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
     * aggregations_type
       as instance_attrs_type but for aggregations relationships
-
-    * implements,
-      list of implemented interface _objects_ (only on astroid.Class nodes)
     """
 
     def __init__(self, project: Project, tag: bool = False) -> None:
@@ -149,7 +146,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """Visit an astroid.Class node.
 
         * set the locals_type and instance_attrs_type mappings
-        * set the implements list and build it
         * optionally tag the node with a unique id
         """
         if hasattr(node, "locals_type"):

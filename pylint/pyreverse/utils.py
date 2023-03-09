@@ -72,11 +72,6 @@ def get_visibility(name: str) -> str:
     return visibility
 
 
-def is_interface(node: nodes.ClassDef) -> bool:
-    # bw compatibility
-    return node.type == "interface"  # type: ignore[no-any-return]
-
-
 def is_exception(node: nodes.ClassDef) -> bool:
     # bw compatibility
     return node.type == "exception"  # type: ignore[no-any-return]

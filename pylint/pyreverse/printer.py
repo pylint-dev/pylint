@@ -17,13 +17,11 @@ from pylint.pyreverse.utils import get_annotation_label
 
 class NodeType(Enum):
     CLASS = "class"
-    INTERFACE = "interface"
     PACKAGE = "package"
 
 
 class EdgeType(Enum):
     INHERITS = "inherits"
-    IMPLEMENTS = "implements"
     ASSOCIATION = "association"
     AGGREGATION = "aggregation"
     USES = "uses"

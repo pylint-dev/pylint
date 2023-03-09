@@ -17,12 +17,10 @@ class PlantUmlPrinter(Printer):
 
     NODES: dict[NodeType, str] = {
         NodeType.CLASS: "class",
-        NodeType.INTERFACE: "class",
         NodeType.PACKAGE: "package",
     }
     ARROWS: dict[EdgeType, str] = {
         EdgeType.INHERITS: "--|>",
-        EdgeType.IMPLEMENTS: "..|>",
         EdgeType.ASSOCIATION: "--*",
         EdgeType.AGGREGATION: "--o",
         EdgeType.USES: "-->",
@@ -56,7 +54,6 @@ class PlantUmlPrinter(Printer):
         """
         if properties is None:
             properties = NodeProperties(label=name)
-        stereotype = " << interface >>" if type_ is NodeType.INTERFACE else ""
         nodetype = self.NODES[type_]
         if properties.color and properties.color != self.DEFAULT_COLOR:
             color = f" #{properties.color}"
@@ -76,7 +73,7 @@ class PlantUmlPrinter(Printer):
         label = properties.label if properties.label is not None else name
         if properties.fontcolor and properties.fontcolor != self.DEFAULT_COLOR:
             label = f"<color:{properties.fontcolor}>{label}</color>"
-        self.emit(f'{nodetype} "{label}" as {name}{stereotype}{color} {{')
+        self.emit(f'{nodetype} "{label}" as {name}{color} {{')
         self._inc_indent()
         for line in body:
             self.emit(line)
