@@ -37,7 +37,7 @@ class MessageStyle(NamedTuple):
     style: tuple[str, ...] = ()
     """Tuple of style strings (see `ANSI_COLORS` for available values)."""
 
-    def get_ansi_code(self) -> str:
+    def _get_ansi_code(self) -> str:
         """Return ANSI escape code corresponding to color and style.
 
         :raise KeyError: if a nonexistent color or style identifier is given
@@ -93,7 +93,7 @@ def colorize_ansi(msg: str, msg_style: MessageStyle) -> str:
     if msg_style.color is None and len(msg_style.style) == 0:
         # If both color and style are not defined, then leave the text as is.
         return msg
-    escape_code = msg_style.get_ansi_code()
+    escape_code = msg_style._get_ansi_code()
     # If invalid (or unknown) color, don't wrap msg with ANSI codes
     if escape_code:
         return f"{escape_code}{msg}{ANSI_RESET}"
