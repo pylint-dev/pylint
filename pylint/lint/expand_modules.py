@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import os
 import sys
-import warnings
 from collections.abc import Sequence
 from re import Pattern
 
@@ -22,18 +21,6 @@ def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> li
     return modutils.modpath_from_file_with_callback(  # type: ignore[no-any-return]
         filename, path=path, is_package_cb=_is_package_cb
     )
-
-
-def get_python_path(filepath: str) -> str:
-    # TODO: Remove deprecated function
-    warnings.warn(
-        "get_python_path has been deprecated because assumption that there's always an __init__.py "
-        "is not true since python 3.3 and is causing problems, particularly with PEP 420."
-        "Use discover_package_path and pass source root(s).",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return discover_package_path(filepath, [])
 
 
 def discover_package_path(modulepath: str, source_roots: Sequence[str]) -> str:

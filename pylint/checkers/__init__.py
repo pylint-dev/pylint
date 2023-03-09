@@ -51,7 +51,6 @@ from pylint.checkers.base_checker import (
     BaseTokenChecker,
 )
 from pylint.checkers.deprecated import DeprecatedMixin
-from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.utils import LinterStats, diff_string, register_plugins
 
 if sys.version_info >= (3, 8):
@@ -141,7 +140,6 @@ __all__ = [
     "BaseTokenChecker",
     "BaseRawFileChecker",
     "initialize",
-    "MapReduceMixin",
     "DeprecatedMixin",
     "register_plugins",
 ]

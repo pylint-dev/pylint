@@ -12,7 +12,6 @@ import itertools
 import numbers
 import re
 import string
-import warnings
 from collections import deque
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
@@ -245,17 +244,6 @@ class NoSuchArgumentError(Exception):
 
 class InferredTypeError(Exception):
     pass
-
-
-def is_inside_lambda(node: nodes.NodeNG) -> bool:
-    """Return whether the given node is inside a lambda."""
-    warnings.warn(
-        "utils.is_inside_lambda will be removed in favour of calling "
-        "utils.get_node_first_ancestor_of_type(x, nodes.Lambda) in pylint 3.0",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
 
 
 def get_all_elements(
@@ -501,25 +489,6 @@ def only_required_for_messages(
         return func
 
     return store_messages
-
-
-def check_messages(
-    *messages: str,
-) -> Callable[
-    [AstCallbackMethod[_CheckerT, _NodeT]], AstCallbackMethod[_CheckerT, _NodeT]
-]:
-    """Kept for backwards compatibility, deprecated.
-
-    Use only_required_for_messages instead, which conveys the intent of the decorator much clearer.
-    """
-    warnings.warn(
-        "utils.check_messages will be removed in favour of calling "
-        "utils.only_required_for_messages in pylint 3.0",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-
-    return only_required_for_messages(*messages)
 
 
 class IncompleteFormatString(Exception):
@@ -1568,27 +1537,6 @@ def is_postponed_evaluation_enabled(node: nodes.NodeNG) -> bool:
     """Check if the postponed evaluation of annotations is enabled."""
     module = node.root()
     return "annotations" in module.future_imports
-
-
-def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
-    value: nodes.ClassDef, node: nodes.NodeNG
-) -> bool:
-    """Check if class is subscriptable with PEP 585 and
-    postponed evaluation enabled.
-    """
-    warnings.warn(
-        "'is_class_subscriptable_pep585_with_postponed_evaluation_enabled' has been "
-        "deprecated and will be removed in pylint 3.0. "
-        "Use 'is_postponed_evaluation_enabled(node) and "
-        "is_node_in_type_annotation_context(node)' instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return (
-        is_postponed_evaluation_enabled(node)
-        and value.qname() in SUBSCRIPTABLE_CLASSES_PEP585
-        and is_node_in_type_annotation_context(node)
-    )
 
 
 def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:

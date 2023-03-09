@@ -7,13 +7,11 @@ from __future__ import annotations
 import contextlib
 import sys
 import traceback
-import warnings
 from collections.abc import Iterator, Sequence
 from datetime import datetime
 from pathlib import Path
 
 from pylint.constants import PYLINT_HOME
-from pylint.lint.expand_modules import discover_package_path
 
 
 def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> Path:
@@ -73,19 +71,6 @@ def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
     )
 
 
-def _patch_sys_path(args: Sequence[str]) -> list[str]:
-    # TODO: Remove deprecated function
-    warnings.warn(
-        "_patch_sys_path has been deprecated because it relies on auto-magic package path "
-        "discovery which is implemented by get_python_path that is deprecated. "
-        "Use _augment_sys_path and pass additional sys.path entries as an argument obtained from "
-        "discover_package_path.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return _augment_sys_path([discover_package_path(arg, []) for arg in args])
-
-
 def _augment_sys_path(additional_paths: Sequence[str]) -> list[str]:
     original = list(sys.path)
     changes = []
@@ -97,28 +82,6 @@ def _augment_sys_path(additional_paths: Sequence[str]) -> list[str]:
 
     sys.path[:] = changes + sys.path
     return original
-
-
-@contextlib.contextmanager
-def fix_import_path(args: Sequence[str]) -> Iterator[None]:
-    """Prepare 'sys.path' for running the linter checks.
-
-    Within this context, each of the given arguments is importable.
-    Paths are added to 'sys.path' in corresponding order to the arguments.
-    We avoid adding duplicate directories to sys.path.
-    `sys.path` is reset to its original value upon exiting this context.
-    """
-    # TODO: Remove deprecated function
-    warnings.warn(
-        "fix_import_path has been deprecated because it relies on auto-magic package path "
-        "discovery which is implemented by get_python_path that is deprecated. "
-        "Use augmented_sys_path and pass additional sys.path entries as an argument obtained from "
-        "discover_package_path.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    with augmented_sys_path([discover_package_path(arg, []) for arg in args]):
-        yield
 
 
 @contextlib.contextmanager

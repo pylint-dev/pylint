@@ -24,17 +24,7 @@ import tokenize
 import warnings
 from collections.abc import Sequence
 from io import BufferedReader, BytesIO
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    List,
-    Pattern,
-    TextIO,
-    Tuple,
-    TypeVar,
-    Union,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, List, Pattern, TextIO, Tuple, TypeVar, Union
 
 from astroid import Module, modutils, nodes
 
@@ -47,7 +37,6 @@ else:
     from typing_extensions import Literal
 
 if TYPE_CHECKING:
-    from pylint.checkers.base_checker import BaseChecker
     from pylint.lint import PyLinter
 
 DEFAULT_LINE_LENGTH = 79
@@ -213,77 +202,6 @@ def register_plugins(linter: PyLinter, directory: str) -> None:
                 if hasattr(module, "register"):
                     module.register(linter)
                     imported[base] = 1
-
-
-@overload
-def get_global_option(
-    checker: BaseChecker, option: GLOBAL_OPTION_BOOL, default: bool | None = ...
-) -> bool:
-    ...
-
-
-@overload
-def get_global_option(
-    checker: BaseChecker, option: GLOBAL_OPTION_INT, default: int | None = ...
-) -> int:
-    ...
-
-
-@overload
-def get_global_option(
-    checker: BaseChecker,
-    option: GLOBAL_OPTION_LIST,
-    default: list[str] | None = ...,
-) -> list[str]:
-    ...
-
-
-@overload
-def get_global_option(
-    checker: BaseChecker,
-    option: GLOBAL_OPTION_PATTERN,
-    default: Pattern[str] | None = ...,
-) -> Pattern[str]:
-    ...
-
-
-@overload
-def get_global_option(
-    checker: BaseChecker,
-    option: GLOBAL_OPTION_PATTERN_LIST,
-    default: list[Pattern[str]] | None = ...,
-) -> list[Pattern[str]]:
-    ...
-
-
-@overload
-def get_global_option(
-    checker: BaseChecker,
-    option: GLOBAL_OPTION_TUPLE_INT,
-    default: tuple[int, ...] | None = ...,
-) -> tuple[int, ...]:
-    ...
-
-
-def get_global_option(
-    checker: BaseChecker,
-    option: GLOBAL_OPTION_NAMES,
-    default: T_GlobalOptionReturnTypes | None = None,  # pylint: disable=unused-argument
-) -> T_GlobalOptionReturnTypes | None | Any:
-    """DEPRECATED: Retrieve an option defined by the given *checker* or
-    by all known option providers.
-
-    It will look in the list of all options providers
-    until the given *option* will be found.
-    If the option wasn't found, the *default* value will be returned.
-    """
-    warnings.warn(
-        "get_global_option has been deprecated. You can use "
-        "checker.linter.config to get all global options instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return getattr(checker.linter.config, option.replace("-", "_"))
 
 
 def _splitstrip(string: str, sep: str = ",") -> list[str]:
