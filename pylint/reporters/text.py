@@ -15,7 +15,7 @@ import re
 import sys
 import warnings
 from dataclasses import asdict, fields
-from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, TextIO, cast, overload
+from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, TextIO, cast
 
 from pylint.message import Message
 from pylint.reporters import BaseReporter
@@ -36,6 +36,34 @@ class MessageStyle(NamedTuple):
     """
     style: tuple[str, ...] = ()
     """Tuple of style strings (see `ANSI_COLORS` for available values)."""
+
+    def __get_ansi_code(self) -> str:
+        """Return ANSI escape code corresponding to color and style.
+
+        :raise KeyError: if a nonexistent color or style identifier is given
+
+        :return: the built escape code
+        """
+        ansi_code = [ANSI_STYLES[effect] for effect in self.style]
+        if self.color:
+            if self.color.isdigit():
+                ansi_code.extend(["38", "5"])
+                ansi_code.append(self.color)
+            else:
+                ansi_code.append(ANSI_COLORS[self.color])
+        if ansi_code:
+            return ANSI_PREFIX + ";".join(ansi_code) + ANSI_END
+        return ""
+
+    def _colorize_ansi(self, msg: str) -> str:
+        if self.color is None and len(self.style) == 0:
+            # If both color and style are not defined, then leave the text as is.
+            return msg
+        escape_code = self.__get_ansi_code()
+        # If invalid (or unknown) color, don't wrap msg with ANSI codes
+        if escape_code:
+            return f"{escape_code}{msg}{ANSI_RESET}"
+        return msg
 
 
 ColorMappingDict = Dict[str, MessageStyle]
@@ -70,85 +98,9 @@ MESSAGE_FIELDS = {i.name for i in fields(Message)}
 """All fields of the Message class."""
 
 
-def _get_ansi_code(msg_style: MessageStyle) -> str:
-    """Return ANSI escape code corresponding to color and style.
-
-    :param msg_style: the message style
-
-    :raise KeyError: if a nonexistent color or style identifier is given
-
-    :return: the built escape code
-    """
-    ansi_code = [ANSI_STYLES[effect] for effect in msg_style.style]
-    if msg_style.color:
-        if msg_style.color.isdigit():
-            ansi_code.extend(["38", "5"])
-            ansi_code.append(msg_style.color)
-        else:
-            ansi_code.append(ANSI_COLORS[msg_style.color])
-    if ansi_code:
-        return ANSI_PREFIX + ";".join(ansi_code) + ANSI_END
-    return ""
-
-
-@overload
-def colorize_ansi(
-    msg: str,
-    msg_style: MessageStyle | None = ...,
-) -> str:
-    ...
-
-
-@overload
-def colorize_ansi(
-    msg: str,
-    msg_style: str | None = ...,
-    style: str = ...,
-    *,
-    color: str | None = ...,
-) -> str:
-    # Remove for pylint 3.0
-    ...
-
-
-def colorize_ansi(
-    msg: str,
-    msg_style: MessageStyle | str | None = None,
-    style: str = "",
-    **kwargs: str | None,
-) -> str:
-    r"""colorize message by wrapping it with ANSI escape codes
-
-    :param msg: the message string to colorize
-
-    :param msg_style: the message style
-        or color (for backwards compatibility): the color of the message style
-
-    :param style: the message's style elements, this will be deprecated
-
-    :param \**kwargs: used to accept `color` parameter while it is being deprecated
-
-    :return: the ANSI escaped string
-    """
-    # TODO: 3.0: Remove deprecated typing and only accept MessageStyle as parameter
-    if not isinstance(msg_style, MessageStyle):
-        warnings.warn(
-            "In pylint 3.0, the colorize_ansi function of Text reporters will only accept a "
-            "MessageStyle parameter",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        color = kwargs.get("color")
-        style_attrs = tuple(_splitstrip(style))
-        msg_style = MessageStyle(color or msg_style, style_attrs)
-    # If both color and style are not defined, then leave the text as is
-    if msg_style.color is None and len(msg_style.style) == 0:
-        return msg
-    escape_code = _get_ansi_code(msg_style)
-    # If invalid (or unknown) color, don't wrap msg with ANSI codes
-    if escape_code:
-        return f"{escape_code}{msg}{ANSI_RESET}"
-    return msg
+def colorize_ansi(msg: str, msg_style: MessageStyle) -> str:
+    """Colorize message by wrapping it with ANSI escape codes."""
+    return msg_style._colorize_ansi(msg)
 
 
 def make_header(msg: Message) -> str:
