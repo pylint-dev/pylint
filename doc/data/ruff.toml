@@ -2,4 +2,12 @@ ignore = []
 # Reading ease is drastically reduced on read the doc after 103 chars
 # (Because of horizontal scrolling)
 line-length = 103
-select = ["E501"]
+select = ["E501", "I"]
+
+
+[per-file-ignores]
+"doc/data/messages/r/reimported/bad.py" = ["I"]
+"doc/data/messages/w/wrong-import-order/bad.py" = ["I"]
+"doc/data/messages/u/ungrouped-imports/bad.py" = ["I"]
+"doc/data/messages/m/misplaced-future/bad.py" = ["I"]
+"doc/data/messages/m/multiple-imports/bad.py" = ["I"]
