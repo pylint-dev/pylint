@@ -2,7 +2,7 @@
 # For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Utilities for creating VCG and Dot diagrams."""
+"""Utilities for creating diagrams."""
 
 from __future__ import annotations
 

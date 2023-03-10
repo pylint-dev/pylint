@@ -41,7 +41,6 @@ TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 
 DOT_FILES = ["packages_No_Name.dot", "classes_No_Name.dot"]
 COLORIZED_DOT_FILES = ["packages_colorized.dot", "classes_colorized.dot"]
-VCG_FILES = ["packages_No_Name.vcg", "classes_No_Name.vcg"]
 PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
 COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
 MMD_FILES = ["packages_No_Name.mmd", "classes_No_Name.mmd"]
@@ -86,15 +85,6 @@ def setup_colorized_dot(
     writer = DiagramWriter(colorized_dot_config)
     project = get_project(TEST_DATA_DIR, name="colorized")
     yield from _setup(project, colorized_dot_config, writer)
-
-
-@pytest.fixture()
-def setup_vcg(
-    vcg_config: PyreverseConfig, get_project: GetProjectCallable
-) -> Iterator[None]:
-    writer = DiagramWriter(vcg_config)
-    project = get_project(TEST_DATA_DIR)
-    yield from _setup(project, vcg_config, writer)
 
 
 @pytest.fixture()
@@ -148,7 +138,6 @@ def _setup(
     for fname in (
         DOT_FILES
         + COLORIZED_DOT_FILES
-        + VCG_FILES
         + PUML_FILES
         + COLORIZED_PUML_FILES
         + MMD_FILES
@@ -169,12 +158,6 @@ def test_dot_files(generated_file: str) -> None:
 @pytest.mark.usefixtures("setup_colorized_dot")
 @pytest.mark.parametrize("generated_file", COLORIZED_DOT_FILES)
 def test_colorized_dot_files(generated_file: str) -> None:
-    _assert_files_are_equal(generated_file)
-
-
-@pytest.mark.usefixtures("setup_vcg")
-@pytest.mark.parametrize("generated_file", VCG_FILES)
-def test_vcg_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 

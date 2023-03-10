@@ -8,10 +8,8 @@ from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.mermaidjs_printer import HTMLMermaidJSPrinter, MermaidJSPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
 from pylint.pyreverse.printer import Printer
-from pylint.pyreverse.vcg_printer import VCGPrinter
 
 filetype_to_printer: dict[str, type[Printer]] = {
-    "vcg": VCGPrinter,
     "plantuml": PlantUmlPrinter,
     "puml": PlantUmlPrinter,
     "mmd": MermaidJSPrinter,

@@ -29,13 +29,6 @@ def colorized_dot_config() -> PyreverseConfig:
 
 
 @pytest.fixture()
-def vcg_config() -> PyreverseConfig:
-    return PyreverseConfig(
-        output_format="vcg",
-    )
-
-
-@pytest.fixture()
 def puml_config() -> PyreverseConfig:
     return PyreverseConfig(
         output_format="puml",
