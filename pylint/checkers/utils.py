@@ -14,7 +14,7 @@ import re
 import string
 from collections import deque
 from collections.abc import Iterable, Iterator
-from functools import _lru_cache_wrapper, lru_cache, partial
+from functools import lru_cache, partial
 from re import Match
 from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
@@ -27,6 +27,8 @@ from astroid.nodes._base_nodes import ImportNode
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 if TYPE_CHECKING:
+    from functools import _lru_cache_wrapper
+
     from pylint.checkers import BaseChecker
 
 _NodeT = TypeVar("_NodeT", bound=nodes.NodeNG)
