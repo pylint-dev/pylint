@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 from pylint import config
+from pylint.checkers.utils import clear_lru_caches
 from pylint.config._pylint_config import (
     _handle_pylint_config_commands,
     _register_generate_config_options,
@@ -222,6 +223,7 @@ group are mutually exclusive.",
             exit = do_exit
 
         if linter.config.clear_cache_post_run:
+            clear_lru_caches()
             MANAGER.clear_cache()
 
         if exit:
