@@ -14,9 +14,9 @@ import re
 import string
 from collections import deque
 from collections.abc import Iterable, Iterator
-from functools import lru_cache, partial
+from functools import _lru_cache_wrapper, lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 import _string
 import astroid.objects
@@ -2243,3 +2243,20 @@ def not_condition_as_string(
         )
         msg = f"{lhs} {get_inverse_comparator(ops)} {rhs}"
     return msg
+
+
+def clear_lru_caches() -> None:
+    """Clear LRU caches holding references to AST nodes."""
+    # pylint: disable-next=import-outside-toplevel
+    from pylint.checkers.variables import overridden_method
+
+    caches_holding_node_references: list[_lru_cache_wrapper[Any]] = [
+        in_for_else_branch,
+        infer_all,
+        is_overload_stub,
+        overridden_method,
+        unimplemented_abstract_methods,
+        safe_infer,
+    ]
+    for lru in caches_holding_node_references:
+        lru.cache_clear()
