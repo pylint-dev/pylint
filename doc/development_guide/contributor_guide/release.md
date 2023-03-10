@@ -45,7 +45,7 @@ branch
   `maintenance/2.3*`.). There's a lot of configuration done in these settings, do NOT
   recreate it from scratch.
 - Delete the `maintenance/X.Y-1.x` branch. (For example: `maintenance/2.3.x`)
-- Select all the issue labelled `backport maintenance/X.Y-1.x` and label them
+- Select all the issues labelled `backport maintenance/X.Y-1.x` and label them
   `backported`, then rename the `backport maintenance/X.Y-1.x` label to
   `backport maintenance/X.Y.x` (for example rename `backport maintenance/2.3.x` to
   `backport maintenance/2.4.x`)
