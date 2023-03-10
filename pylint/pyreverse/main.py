@@ -27,7 +27,6 @@ from pylint.typing import Options
 
 DIRECTLY_SUPPORTED_FORMATS = (
     "dot",
-    "vcg",
     "puml",
     "plantuml",
     "mmd",

@@ -1,0 +1,3 @@
+``pyreverse``: Support for the ``.vcg`` output format (Visualaization of Compiler Graphs) has been dropped.
+
+Closes #8416

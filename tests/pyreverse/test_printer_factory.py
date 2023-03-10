@@ -12,13 +12,11 @@ from pylint.pyreverse import printer_factory
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
 from pylint.pyreverse.printer import Printer
-from pylint.pyreverse.vcg_printer import VCGPrinter
 
 
 @pytest.mark.parametrize(
     "filetype, expected_printer_class",
     [
-        ("vcg", VCGPrinter),
         ("dot", DotPrinter),
         ("puml", PlantUmlPrinter),
         ("plantuml", PlantUmlPrinter),
