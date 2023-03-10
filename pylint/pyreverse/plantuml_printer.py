@@ -59,7 +59,7 @@ class PlantUmlPrinter(Printer):
         stereotype = " << interface >>" if type_ is NodeType.INTERFACE else ""
         nodetype = self.NODES[type_]
         if properties.color and properties.color != self.DEFAULT_COLOR:
-            color = f" #{properties.color}"
+            color = f" #{properties.color.lstrip('#')}"
         else:
             color = ""
         body = []

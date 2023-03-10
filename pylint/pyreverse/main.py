@@ -35,16 +35,15 @@ DIRECTLY_SUPPORTED_FORMATS = (
 )
 
 DEFAULT_COLOR_PALETTE = (
-    "dodgerblue",
-    "orange",
-    "teal",
-    "sienna",
-    "orchid",
-    "lightsalmon",
-    "plum",
-    "gray",
-    "yellow",
-    "steelblue",
+    "#77AADD",  # light blue
+    "#99DDFF",  # light cyan
+    "#44BB99",  # mint
+    "#BBCC33",  # pear
+    "#AAAA00",  # olive
+    "#EEDD88",  # light yellow
+    "#EE8866",  # orange
+    "#FFAABB",  # pink
+    "#DDDDDD",  # pale greay
 )
 
 OPTIONS: Options = (
