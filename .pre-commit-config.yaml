@@ -25,7 +25,7 @@ repos:
     rev: "v0.0.254"
     hooks:
       - id: ruff
-        name: line-length-doc
+        name: ruff-doc
         files: doc/data/messages
         args: ["--config", "doc/data/ruff.toml"]
   - repo: https://github.com/Pierre-Sassoulas/copyright_notice_precommit
@@ -45,7 +45,7 @@ repos:
     rev: 5.12.0
     hooks:
       - id: isort
-        exclude: doc/data/messages/(r/reimported|w/wrong-import-order|u/ungrouped-imports|m/misplaced-future|m/multiple-imports)/bad.py
+        exclude: doc/data/messages/
   - repo: https://github.com/psf/black
     rev: 23.1.0
     hooks:
