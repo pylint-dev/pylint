@@ -2248,7 +2248,7 @@ def not_condition_as_string(
 
 
 def clear_lru_caches() -> None:
-    """Clear LRU caches holding references to AST nodes."""
+    """Clear caches holding references to AST nodes."""
     # pylint: disable-next=import-outside-toplevel
     from pylint.checkers.variables import overridden_method
 
