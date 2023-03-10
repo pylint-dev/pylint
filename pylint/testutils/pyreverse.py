@@ -38,6 +38,7 @@ class PyreverseConfig(
         show_associated: int | None = None,
         all_associated: bool | None = None,
         show_builtin: bool = False,
+        show_stdlib: bool = False,
         module_names: bool | None = None,
         only_classnames: bool = False,
         output_format: str = "dot",
@@ -59,6 +60,7 @@ class PyreverseConfig(
         self.show_associated = show_associated
         self.all_associated = all_associated
         self.show_builtin = show_builtin
+        self.show_stdlib = show_stdlib
         self.module_names = module_names
         self.only_classnames = only_classnames
         self.output_format = output_format

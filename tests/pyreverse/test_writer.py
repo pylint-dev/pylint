@@ -32,6 +32,7 @@ _DEFAULTS = {
     "all_associated": None,
     "mode": "PUB_ONLY",
     "show_builtin": False,
+    "show_stdlib": False,
     "only_classnames": False,
     "output_directory": "",
 }

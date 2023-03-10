@@ -13,7 +13,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
-from astroid import nodes
+from astroid import extract_node, nodes
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
@@ -95,6 +95,50 @@ def test_option_values(
 def test_default_values() -> None:
     """Test default values for package or class diagrams."""
     # TODO : should test difference between default values for package or class diagrams
+
+
+class TestShowOptions:
+    def test_show_stdlib(self) -> None:
+        example = extract_node(
+            '''
+            import collections
+
+            class CustomDict(collections.OrderedDict):
+                """docstring"""
+            '''
+        )
+
+        config = PyreverseConfig()
+        dd_gen = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config))
+
+        # Default behavior
+        assert not list(dd_gen.get_ancestors(example, 1))
+
+        # Show standard library enabled
+        config.show_stdlib = True
+        ancestors = list(dd_gen.get_ancestors(example, 1))
+        assert len(ancestors) == 1
+        assert ancestors[0].name == "OrderedDict"
+
+    def test_show_builtin(self) -> None:
+        example = extract_node(
+            '''
+            class CustomError(Exception):
+                """docstring"""
+            '''
+        )
+
+        config = PyreverseConfig()
+        dd_gen = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config))
+
+        # Default behavior
+        assert not list(dd_gen.get_ancestors(example, 1))
+
+        # Show builtin enabled
+        config.show_builtin = True
+        ancestors = list(dd_gen.get_ancestors(example, 1))
+        assert len(ancestors) == 1
+        assert ancestors[0].name == "Exception"
 
 
 class TestDefaultDiadefGenerator:

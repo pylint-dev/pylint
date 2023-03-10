@@ -138,6 +138,15 @@ OPTIONS: Options = (
         },
     ),
     (
+        "show-stdlib",
+        {
+            "short": "L",
+            "action": "store_true",
+            "default": False,
+            "help": "include standard library objects in representation of classes",
+        },
+    ),
+    (
         "module-names",
         {
             "short": "m",
