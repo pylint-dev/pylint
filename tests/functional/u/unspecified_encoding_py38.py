@@ -15,6 +15,7 @@ open(FILENAME, "wt")  # [unspecified-encoding]
 open(FILENAME, "w+")  # [unspecified-encoding]
 open(FILENAME, "w", encoding=None)  # [unspecified-encoding]
 open(FILENAME, "r")  # [unspecified-encoding]
+open(FILENAME / "b.txt", "r")  # [unspecified-encoding]
 
 with open(FILENAME, encoding="utf8", errors="surrogateescape") as f:
     pass
@@ -39,6 +40,7 @@ io.open(FILENAME)  # [unspecified-encoding]
 io.open(FILENAME, "wt")  # [unspecified-encoding]
 io.open(FILENAME, "w+")  # [unspecified-encoding]
 io.open(FILENAME, "w", encoding=None)  # [unspecified-encoding]
+io.open(FILENAME / 'b.txt', "w", encoding=None)  # [unspecified-encoding]
 
 with io.open(FILENAME, encoding="utf8", errors="surrogateescape") as f:
     pass
@@ -57,19 +59,25 @@ LOCALE_ENCODING = None
 with io.open(FILENAME, encoding=LOCALE_ENCODING) as f:  # [unspecified-encoding]
     pass
 
+with io.open(FILENAME / 'b.txt', encoding=LOCALE_ENCODING) as f:  # [unspecified-encoding]
+    pass
+
 LOCALE_ENCODING = locale.getlocale()[1]
 Path(FILENAME).read_text(encoding=LOCALE_ENCODING)
 Path(FILENAME).read_text(encoding="utf8")
 Path(FILENAME).read_text("utf8")
+(FILENAME / 'b.txt').read_text("utf8")
 
 LOCALE_ENCODING = None
 Path(FILENAME).read_text()  # [unspecified-encoding]
 Path(FILENAME).read_text(encoding=None)  # [unspecified-encoding]
 Path(FILENAME).read_text(encoding=LOCALE_ENCODING)  # [unspecified-encoding]
+(FILENAME / 'b.txt').read_text()  # [unspecified-encoding]
 
 LOCALE_ENCODING = locale.getlocale()[1]
 Path(FILENAME).write_text("string", encoding=LOCALE_ENCODING)
 Path(FILENAME).write_text("string", encoding="utf8")
+(FILENAME / 'b.txt').write_text("string", encoding="utf8")
 
 LOCALE_ENCODING = None
 Path(FILENAME).write_text("string")  # [unspecified-encoding]
@@ -82,6 +90,7 @@ Path(FILENAME).open()  # [unspecified-encoding]
 Path(FILENAME).open("wt")  # [unspecified-encoding]
 Path(FILENAME).open("w+")  # [unspecified-encoding]
 Path(FILENAME).open("w", encoding=None)  # [unspecified-encoding]
+Path(FILENAME / 'b.txt').open("w", encoding=None)  # [unspecified-encoding]
 Path(FILENAME).open("w", encoding=LOCALE_ENCODING)
 
 
