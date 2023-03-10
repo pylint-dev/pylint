@@ -132,6 +132,7 @@ globbing
 GPL
 graphname
 graphviz
+grey
 guido's
 gv
 hashable

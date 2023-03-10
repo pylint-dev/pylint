@@ -34,23 +34,16 @@ DIRECTLY_SUPPORTED_FORMATS = (
 )
 
 DEFAULT_COLOR_PALETTE = (
-    "aliceblue",
-    "antiquewhite",
-    "aquamarine",
-    "burlywood",
-    "cadetblue",
-    "chartreuse",
-    "chocolate",
-    "coral",
-    "cornflowerblue",
-    "cyan",
-    "darkgoldenrod",
-    "darkseagreen",
-    "dodgerblue",
-    "forestgreen",
-    "gold",
-    "hotpink",
-    "mediumspringgreen",
+    # colorblind scheme taken from https://personal.sron.nl/~pault/
+    "#77AADD",  # light blue
+    "#99DDFF",  # light cyan
+    "#44BB99",  # mint
+    "#BBCC33",  # pear
+    "#AAAA00",  # olive
+    "#EEDD88",  # light yellow
+    "#EE8866",  # orange
+    "#FFAABB",  # pink
+    "#DDDDDD",  # pale grey
 )
 
 OPTIONS: Options = (

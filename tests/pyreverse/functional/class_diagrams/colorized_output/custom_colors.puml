@@ -5,7 +5,7 @@ class "CheckerCollector" as custom_colors.CheckerCollector #red {
   checker2
   checker3
 }
-class "ElseifUsedChecker" as pylint.extensions.check_elif.ElseifUsedChecker #green {
+class "ElseifUsedChecker" as pylint.extensions.check_elif.ElseifUsedChecker #44BB88 {
   msgs : dict
   name : str
   leave_module(_: nodes.Module) -> None

@@ -1,32 +1,32 @@
 @startuml classes_colorized
 set namespaceSeparator none
-class "Ancestor" as data.clientmodule_test.Ancestor #aliceblue {
+class "Ancestor" as data.clientmodule_test.Ancestor #77AADD {
   attr : str
   cls_member
   get_value()
   set_value(value)
 }
-class "<color:red>CustomException</color>" as data.suppliermodule_test.CustomException #aliceblue {
+class "<color:red>CustomException</color>" as data.suppliermodule_test.CustomException #77AADD {
 }
-class "DoNothing" as data.suppliermodule_test.DoNothing #aliceblue {
+class "DoNothing" as data.suppliermodule_test.DoNothing #77AADD {
 }
-class "DoNothing2" as data.suppliermodule_test.DoNothing2 #aliceblue {
+class "DoNothing2" as data.suppliermodule_test.DoNothing2 #77AADD {
 }
-class "DoSomething" as data.suppliermodule_test.DoSomething #aliceblue {
+class "DoSomething" as data.suppliermodule_test.DoSomething #77AADD {
   my_int : Optional[int]
   my_int_2 : Optional[int]
   my_string : str
   do_it(new_int: int) -> int
 }
-class "Interface" as data.suppliermodule_test.Interface #aliceblue {
+class "Interface" as data.suppliermodule_test.Interface #77AADD {
   {abstract}get_value()
   {abstract}set_value(value)
 }
-class "PropertyPatterns" as data.property_pattern.PropertyPatterns #aliceblue {
+class "PropertyPatterns" as data.property_pattern.PropertyPatterns #77AADD {
   prop1
   prop2
 }
-class "Specialization" as data.clientmodule_test.Specialization #aliceblue {
+class "Specialization" as data.clientmodule_test.Specialization #77AADD {
   TYPE : str
   relation
   relation2
