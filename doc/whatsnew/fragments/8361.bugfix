@@ -1,0 +1,4 @@
+``--clear-cache-post-run`` now also clears LRU caches for pylint utilities
+holding references to AST nodes.
+
+Closes #8361
