@@ -1,0 +1,5 @@
+Adds ``asyncSetUp`` to the default ``defining-attr-methods`` list to silence
+``attribute-defined-outside-init`` warning when using
+``unittest.IsolatedAsyncioTestCase``.
+
+Refs #8403
