@@ -626,7 +626,7 @@ Standard Checkers
 """""""""""""""""""""""
 *List of method names used to declare (i.e. assign) instance attributes.*
 
-**Default:**  ``('__init__', '__new__', 'setUp', '__post_init__')``
+**Default:**  ``('__init__', '__new__', 'setUp', 'asyncSetUp', '__post_init__')``
 
 
 --exclude-protected
@@ -663,7 +663,7 @@ Standard Checkers
    [tool.pylint.classes]
    check-protected-access-in-special-methods = false
 
-   defining-attr-methods = ["__init__", "__new__", "setUp", "__post_init__"]
+   defining-attr-methods = ["__init__", "__new__", "setUp", "asyncSetUp", "__post_init__"]
 
    exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make", "os._exit"]
 
