@@ -12,6 +12,7 @@ import itertools
 import numbers
 import re
 import string
+import warnings
 from collections import deque
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
@@ -1798,6 +1799,11 @@ def is_typing_guard(node: nodes.If) -> bool:
     >>> if TYPE_CHECKING:
     >>>     from xyz import a
     """
+    warnings.warn(
+        "This method will be removed in pylint 3.0; use in_type_checking_block() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return isinstance(
         node.test, (nodes.Name, nodes.Attribute)
     ) and node.test.as_string().endswith("TYPE_CHECKING")
@@ -1805,6 +1811,11 @@ def is_typing_guard(node: nodes.If) -> bool:
 
 def is_node_in_typing_guarded_import_block(node: nodes.NodeNG) -> bool:
     """Return True if node is part for guarded `typing.TYPE_CHECKING` if block."""
+    warnings.warn(
+        "This method will be removed in pylint 3.0; use in_type_checking_block() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return isinstance(node.parent, nodes.If) and is_typing_guard(node.parent)
 
 
@@ -1813,6 +1824,11 @@ def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
 
     I.e. `sys.version_info` or `typing.TYPE_CHECKING`
     """
+    warnings.warn(
+        "This method will be removed in pylint 3.0; use in_type_checking_block() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return isinstance(node.parent, nodes.If) and (
         is_sys_guard(node.parent) or is_typing_guard(node.parent)
     )
