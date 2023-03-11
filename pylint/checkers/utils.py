@@ -1918,7 +1918,10 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
         if isinstance(ancestor.test, nodes.Name):
             if ancestor.test.name != "TYPE_CHECKING":
                 continue
-            maybe_import_from = ancestor.test.lookup(ancestor.test.name)[1][0]
+            lookup_result = ancestor.test.lookup(ancestor.test.name)[1]
+            if not lookup_result:
+                return False
+            maybe_import_from = lookup_result[0]
             if (
                 isinstance(maybe_import_from, nodes.ImportFrom)
                 and maybe_import_from.modname == "typing"
