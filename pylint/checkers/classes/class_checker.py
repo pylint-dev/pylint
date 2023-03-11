@@ -778,7 +778,13 @@ class ClassChecker(BaseChecker):
         (
             "defining-attr-methods",
             {
-                "default": ("__init__", "__new__", "setUp", "__post_init__"),
+                "default": (
+                    "__init__",
+                    "__new__",
+                    "setUp",
+                    "asyncSetUp",
+                    "__post_init__",
+                ),
                 "type": "csv",
                 "metavar": "<method names>",
                 "help": "List of method names used to declare (i.e. assign) \
