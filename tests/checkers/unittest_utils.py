@@ -446,6 +446,16 @@ def test_if_typing_guard() -> None:
     assert utils.is_typing_guard(code[3]) is False
 
 
+def test_in_type_checking_block() -> None:
+    code = astroid.extract_node(
+        """
+    if TYPE_CHECKING:  # don't import this!
+        import math  #@
+    """
+    )
+    assert utils.in_type_checking_block(code) is False
+
+
 def test_is_empty_literal() -> None:
     list_node = astroid.extract_node("a = []")
     assert utils.is_base_container(list_node.value)
