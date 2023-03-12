@@ -39,7 +39,7 @@ class PrivateImportChecker(BaseChecker):
 
     @utils.only_required_for_messages("import-private-name")
     def visit_import(self, node: nodes.Import) -> None:
-        if utils.is_node_in_typing_guarded_import_block(node):
+        if utils.in_type_checking_block(node):
             return
         names = [name[0] for name in node.names]
         private_names = self._get_private_imports(names)
@@ -56,7 +56,7 @@ class PrivateImportChecker(BaseChecker):
 
     @utils.only_required_for_messages("import-private-name")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        if utils.is_node_in_typing_guarded_import_block(node):
+        if utils.in_type_checking_block(node):
             return
         # Only check imported names if the module is external
         if self.same_root_dir(node, node.modname):
