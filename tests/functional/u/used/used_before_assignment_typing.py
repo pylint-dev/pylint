@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     import types
     import zoneinfo
 elif input():
-    import calendar, bisect  # pylint: disable=multiple-imports
+    import calendar, bisect, dbm  # pylint: disable=multiple-imports
     if input() + 1:
         import heapq
     else:
@@ -168,6 +168,7 @@ class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-
     """Test for defines in TYPE_CHECKING if/elif/else branching"""
     def defined_in_elif_branch(self) -> calendar.Calendar:
         print(bisect)
+        print(dbm)
         return calendar.Calendar()
 
     def defined_in_else_branch(self) -> urlopen:
