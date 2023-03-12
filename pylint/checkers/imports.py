@@ -21,9 +21,9 @@ from astroid.nodes._base_nodes import ImportNode
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
     get_import_name,
+    in_type_checking_block,
     is_from_fallback_block,
-    is_node_in_guarded_import_block,
-    is_typing_guard,
+    is_sys_guard,
     node_ignores_exception,
 )
 from pylint.exceptions import EmptyReportError
@@ -154,9 +154,11 @@ def _ignore_import_failure(
         if submodule in ignored_modules:
             return True
 
-    if is_node_in_guarded_import_block(node):
-        # Ignore import failure if part of guarded import block
-        # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
+    # Ignore import failure if part of guarded import block
+    # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
+    if in_type_checking_block(node):
+        return True
+    if isinstance(node.parent, nodes.If) and is_sys_guard(node.parent):
         return True
 
     return node_ignores_exception(node, ImportError)
@@ -578,7 +580,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 current_package
                 and current_package != package
                 and package in met
-                and is_node_in_guarded_import_block(import_node) is False
+                and not in_type_checking_block(import_node)
+                and not (
+                    isinstance(import_node.parent, nodes.If)
+                    and is_sys_guard(import_node.parent)
+                )
             ):
                 self.add_message("ungrouped-imports", node=import_node, args=package)
             current_package = package
@@ -884,10 +890,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         except ImportError:
             pass
 
-        in_type_checking_block = isinstance(node.parent, nodes.If) and is_typing_guard(
-            node.parent
-        )
-
         if context_name == importedmodname:
             self.add_message("import-self", node=node)
 
@@ -906,10 +908,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
             # update import graph
             self.import_graph[context_name].add(importedmodname)
-            if (
-                not self.linter.is_message_enabled("cyclic-import", line=node.lineno)
-                or in_type_checking_block
-            ):
+            if not self.linter.is_message_enabled(
+                "cyclic-import", line=node.lineno
+            ) or in_type_checking_block(node):
                 self._excluded_edges[context_name].add(importedmodname)
 
     def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
