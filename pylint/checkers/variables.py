@@ -2216,10 +2216,16 @@ class VariablesChecker(BaseChecker):
                 # Exempt those definitions that are used inside the type checking
                 # guard or that are defined in any elif/else type checking guard branches.
                 outermost_type_checking_guard = defstmt.parent
-                defstmt_ancestors_in_type_checking = [n for n in defstmt.node_ancestors() if in_type_checking_block(n)]
+                defstmt_ancestors_in_type_checking = [
+                    n for n in defstmt.node_ancestors() if in_type_checking_block(n)
+                ]
                 if defstmt_ancestors_in_type_checking:
-                    guard = utils.get_node_first_ancestor_of_type(defstmt_ancestors_in_type_checking[-1], nodes.If)
-                    outermost_type_checking_guard = guard if guard else outermost_type_checking_guard
+                    guard = utils.get_node_first_ancestor_of_type(
+                        defstmt_ancestors_in_type_checking[-1], nodes.If
+                    )
+                    outermost_type_checking_guard = (
+                        guard if guard else outermost_type_checking_guard
+                    )
                 if outermost_type_checking_guard.has_elif_block():
                     maybe_before_assign = not utils.is_defined(
                         node.name, outermost_type_checking_guard.orelse[0]
