@@ -2210,34 +2210,25 @@ class VariablesChecker(BaseChecker):
                 and isinstance(defstmt.parent, nodes.If)
                 and in_type_checking_block(defstmt)
                 and not in_type_checking_block(node)
+                and not VariablesChecker._is_variable_annotation_in_function(node)
+                and not defstmt.parent.parent_of(node)
             ):
-                defstmt_parent = defstmt.parent
-
-                maybe_annotation = utils.get_node_first_ancestor_of_type(
-                    node, nodes.AnnAssign
-                )
-                if not (
-                    maybe_annotation
-                    and utils.get_node_first_ancestor_of_type(
-                        maybe_annotation, nodes.FunctionDef
+                # Exempt those definitions that are used inside the type checking
+                # guard or that are defined in any elif/else type checking guard branches.
+                outermost_type_checking_guard = defstmt.parent
+                defstmt_ancestors_in_type_checking = [n for n in defstmt.node_ancestors() if in_type_checking_block(n)]
+                if defstmt_ancestors_in_type_checking:
+                    guard = utils.get_node_first_ancestor_of_type(defstmt_ancestors_in_type_checking[-1], nodes.If)
+                    outermost_type_checking_guard = guard if guard else outermost_type_checking_guard
+                if outermost_type_checking_guard.has_elif_block():
+                    maybe_before_assign = not utils.is_defined(
+                        node.name, outermost_type_checking_guard.orelse[0]
                     )
-                ):
-                    # Exempt those definitions that are used inside the type checking
-                    # guard or that are defined in any elif/else type checking guard branches.
-                    used_in_branch = defstmt_parent.parent_of(node)
-                    if not used_in_branch:
-                        if defstmt_parent.has_elif_block():
-                            defined_in_or_else = utils.is_defined(
-                                node.name, defstmt_parent.orelse[0]
-                            )
-                        else:
-                            defined_in_or_else = any(
-                                utils.is_defined(node.name, content)
-                                for content in defstmt_parent.orelse
-                            )
-
-                        if not defined_in_or_else:
-                            maybe_before_assign = True
+                else:
+                    maybe_before_assign = not any(
+                        utils.is_defined(node.name, content)
+                        for content in outermost_type_checking_guard.orelse
+                    )
 
         return maybe_before_assign, annotation_return, use_outer_definition
 
@@ -2377,6 +2368,13 @@ class VariablesChecker(BaseChecker):
             if inferred_test.value is False and defnode == defnode_parent.body:
                 return True
         return False
+
+    @staticmethod
+    def _is_variable_annotation_in_function(node: nodes.NodeNG) -> bool:
+        is_annotation = utils.get_node_first_ancestor_of_type(node, nodes.AnnAssign)
+        return is_annotation and utils.get_node_first_ancestor_of_type(
+            is_annotation, nodes.FunctionDef
+        )
 
     def _ignore_class_scope(self, node: nodes.NodeNG) -> bool:
         """Return True if the node is in a local class scope, as an assignment.
