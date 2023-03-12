@@ -2378,7 +2378,7 @@ class VariablesChecker(BaseChecker):
     @staticmethod
     def _is_variable_annotation_in_function(node: nodes.NodeNG) -> bool:
         is_annotation = utils.get_node_first_ancestor_of_type(node, nodes.AnnAssign)
-        return is_annotation and utils.get_node_first_ancestor_of_type(
+        return is_annotation and utils.get_node_first_ancestor_of_type( # type: ignore[return-value]
             is_annotation, nodes.FunctionDef
         )
 
