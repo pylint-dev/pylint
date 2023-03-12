@@ -413,6 +413,7 @@ def test_if_sys_guard() -> None:
     assert utils.is_sys_guard(code[2]) is False
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_if_typing_guard() -> None:
     code = astroid.extract_node(
         """

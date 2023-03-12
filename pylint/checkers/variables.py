@@ -27,6 +27,7 @@ from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     in_type_checking_block,
     is_postponed_evaluation_enabled,
+    is_sys_guard,
 )
 from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
@@ -1891,9 +1892,10 @@ class VariablesChecker(BaseChecker):
             # No need to verify this, since ImportError is already
             # handled by the client code.
             return
-        if utils.is_node_in_guarded_import_block(node) is True:
-            # Don't verify import if part of guarded import block
-            # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
+        # Don't verify import if part of guarded import block
+        if in_type_checking_block(node):
+            return
+        if isinstance(node.parent, nodes.If) and is_sys_guard(node.parent):
             return
 
         for name, _ in node.names:
@@ -1913,9 +1915,11 @@ class VariablesChecker(BaseChecker):
             # No need to verify this, since ImportError is already
             # handled by the client code.
             return
-        if utils.is_node_in_guarded_import_block(node) is True:
-            # Don't verify import if part of guarded import block
-            # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
+        # Don't verify import if part of guarded import block
+        # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
+        if in_type_checking_block(node):
+            return
+        if isinstance(node.parent, nodes.If) and is_sys_guard(node.parent):
             return
 
         name_parts = node.modname.split(".")
