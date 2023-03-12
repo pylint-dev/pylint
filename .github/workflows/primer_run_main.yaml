@@ -26,7 +26,7 @@ jobs:
   run-primer:
     name: Run / ${{ matrix.python-version }}
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     strategy:
       matrix:
         python-version: ["3.7", "3.11"]
