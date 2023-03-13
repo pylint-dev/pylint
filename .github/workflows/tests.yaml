@@ -52,7 +52,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.2.5
+        uses: actions/cache@v3.3.1
         with:
           path: venv
           key: >-
@@ -97,7 +97,7 @@ jobs:
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.2.5
+        uses: actions/cache@v3.3.1
         with:
           path: venv
           fail-on-cache-miss: true
@@ -137,7 +137,7 @@ jobs:
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.2.5
+        uses: actions/cache@v3.3.1
         with:
           path: venv
           fail-on-cache-miss: true
@@ -197,7 +197,7 @@ jobs:
           }}" >> $env:GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.2.5
+        uses: actions/cache@v3.3.1
         with:
           path: venv
           key: >-
@@ -243,7 +243,7 @@ jobs:
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.2.5
+        uses: actions/cache@v3.3.1
         with:
           path: venv
           key: >-
@@ -287,7 +287,7 @@ jobs:
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.2.5
+        uses: actions/cache@v3.3.1
         with:
           path: venv
           key: >-
