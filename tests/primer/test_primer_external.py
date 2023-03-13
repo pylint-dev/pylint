@@ -64,7 +64,7 @@ class TestPrimer:
             enables = ["--enable-all-extensions", "--enable=all"]
             # Duplicate code takes too long and is relatively safe
             disables = ["--disable=duplicate-code"]
-            command = ["pylint"] + enables + disables + package.pylint_args
+            command = ["pylint", *enables, *disables, *package.pylint_args]
             logging.info("Launching primer:\n%s", " ".join(command))
             subprocess.run(command, check=True)
         except subprocess.CalledProcessError as ex:

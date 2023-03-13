@@ -88,7 +88,7 @@ def expand_modules(
         ):
             continue
         module_package_path = discover_package_path(something, source_roots)
-        additional_search_path = [".", module_package_path] + path
+        additional_search_path = [".", module_package_path, *path]
         if os.path.exists(something):
             # this is a file or a directory
             try:

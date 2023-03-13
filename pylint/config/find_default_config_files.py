@@ -16,7 +16,7 @@ else:
     import tomli as tomllib
 
 RC_NAMES = (Path("pylintrc"), Path(".pylintrc"))
-CONFIG_NAMES = RC_NAMES + (Path("pyproject.toml"), Path("setup.cfg"))
+CONFIG_NAMES = (*RC_NAMES, Path("pyproject.toml"), Path("setup.cfg"))
 
 
 def _toml_has_config(path: Path | str) -> bool:

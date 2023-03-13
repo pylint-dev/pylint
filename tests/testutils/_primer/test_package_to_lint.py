@@ -31,7 +31,8 @@ def test_package_to_lint() -> None:
     expected_args = [
         str(expected_path_to_lint),
         f"--rcfile={expected_pylintrc_path}",
-    ] + args
+        *args,
+    ]
     assert package_to_lint.pylint_args == expected_args
 
 

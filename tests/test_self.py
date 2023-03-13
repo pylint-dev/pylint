@@ -133,7 +133,7 @@ class TestRunTC:
 
     @staticmethod
     def _run_pylint(args: list[str], out: TextIO, reporter: Any = None) -> int:
-        args = _add_rcfile_default_pylintrc(args + ["--persistent=no"])
+        args = _add_rcfile_default_pylintrc([*args, "--persistent=no"])
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
                 with warnings.catch_warnings():
@@ -775,7 +775,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     )
     def test_fail_on_edge_case(self, opts: list[str], out: int) -> None:
         self._runtest(
-            opts + [join(HERE, "regrtest_data", "fail_under_plus7_5.py")],
+            [*opts, join(HERE, "regrtest_data", "fail_under_plus7_5.py")],
             code=out,
         )
 
@@ -898,7 +898,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         for path in ("astroid.py", "hmac.py"):
             file_path = tmp_path / path
             file_path.write_text("'Docstring'\nimport completely_unknown\n")
-            pylint_call = [sys.executable, "-m", "pylint"] + args + [path]
+            pylint_call = [sys.executable, "-m", "pylint", *args, path]
             with _test_cwd(tmp_path):
                 subprocess.check_output(pylint_call, cwd=str(tmp_path))
             new_python_path = os.environ.get("PYTHONPATH", "").strip(":")
@@ -1022,7 +1022,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         path = join(HERE, "regrtest_data", "fail_on.py")
         # We set fail-under to be something very low so that even with the warnings
         # and errors that are generated they don't affect the exit code.
-        self._runtest([path, "--fail-under=-10", "--disable=C"] + args, code=expected)
+        self._runtest([path, "--fail-under=-10", "--disable=C", *args], code=expected)
 
     def test_one_module_fatal_error(self) -> None:
         """Fatal errors in one of several modules linted still exits non-zero."""
@@ -1046,7 +1046,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     )
     def test_fail_on_info_only_exit_code(self, args: list[str], expected: int) -> None:
         path = join(HERE, "regrtest_data", "fail_on_info_only.py")
-        self._runtest([path] + args, code=expected)
+        self._runtest([path, *args], code=expected)
 
     @pytest.mark.parametrize(
         "output_format, expected_output",
@@ -1332,7 +1332,7 @@ class TestCallbackOptions:
         """Test whether certain strings are in the output of a callback command."""
         command = _add_rcfile_default_pylintrc(command)
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + command,
+            [sys.executable, "-m", "pylint", *command],
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1356,7 +1356,7 @@ class TestCallbackOptions:
         """Test the --help-msg flag."""
         args = _add_rcfile_default_pylintrc(args)
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1373,7 +1373,7 @@ class TestCallbackOptions:
         """Test the --generate-rcfile flag."""
         args = _add_rcfile_default_pylintrc(["--generate-rcfile"])
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1384,7 +1384,7 @@ class TestCallbackOptions:
         assert "profile" not in process.stdout
         args = _add_rcfile_default_pylintrc(["--generate-rcfile"])
         process_two = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1436,7 +1436,7 @@ class TestCallbackOptions:
             ]
         )
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1449,7 +1449,7 @@ class TestCallbackOptions:
         assert 'preferred-modules = ["a:b"]' in process.stdout
 
         process_two = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,

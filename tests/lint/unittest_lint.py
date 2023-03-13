@@ -127,7 +127,7 @@ def test_no_args(fake_path: list[str]) -> None:
 def test_one_arg(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py"])
-        expected = [join(chroot, "a")] + fake_path
+        expected = [join(chroot, "a"), *fake_path]
 
         extra_sys_paths = [
             expand_modules.discover_package_path(arg, []) for arg in case
@@ -151,7 +151,7 @@ def test_one_arg(fake_path: list[str], case: list[str]) -> None:
 def test_two_similar_args(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py", "a/c/__init__.py"])
-        expected = [join(chroot, "a")] + fake_path
+        expected = [join(chroot, "a"), *fake_path]
 
         extra_sys_paths = [
             expand_modules.discover_package_path(arg, []) for arg in case

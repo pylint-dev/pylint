@@ -72,7 +72,7 @@ class LintTestUsingModule:
         try:
             self.linter.check(tocheck)
         except Exception as ex:
-            print(f"Exception: {ex} in {tocheck}:: {'‚ '.join(ex.args)}")
+            print(f"Exception: {ex} in {tocheck}:: {', '.join(ex.args)}")
             # This is legacy code we're trying to remove, not worth it to type correctly
             ex.file = tocheck  # type: ignore[attr-defined]
             print(ex)
