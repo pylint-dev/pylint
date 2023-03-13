@@ -1,4 +1,4 @@
-# coding: utf-8
+# coding: latin_1 # [bad-file-encoding]
 
 
 def my_function():
