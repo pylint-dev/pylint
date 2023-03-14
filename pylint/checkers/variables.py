@@ -2234,7 +2234,7 @@ class VariablesChecker(BaseChecker):
             return any(
                 VariablesChecker._maybe_used_and_assigned_at_once(elt)
                 for elt in defstmt.value.elts
-                if isinstance(elt, NODES_WITH_VALUE_ATTR + (nodes.IfExp, nodes.Match))
+                if isinstance(elt, (*NODES_WITH_VALUE_ATTR, nodes.IfExp, nodes.Match))
             )
         value = defstmt.value
         if isinstance(value, nodes.IfExp):
@@ -2876,7 +2876,7 @@ class VariablesChecker(BaseChecker):
     @staticmethod
     def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:
         """Return the list of values of the `Assign` node."""
-        if isinstance(node, (nodes.Tuple, nodes.List) + DICT_TYPES):
+        if isinstance(node, (nodes.Tuple, nodes.List, *DICT_TYPES)):
             return node.itered()  # type: ignore[no-any-return]
         if isinstance(node, astroid.Instance) and any(
             ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()

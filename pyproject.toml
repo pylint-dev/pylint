@@ -143,6 +143,7 @@ select = [
     "W",  # pycodestyle
     "B",  # bugbear
     "I",  # isort
+    "RUF", # ruff
 ]
 
 ignore = [
@@ -155,4 +156,5 @@ fixable = [
     "W",  # pycodestyle
     "B",  # bugbear
     "I",  # isort
+    "RUF", # ruff
 ]

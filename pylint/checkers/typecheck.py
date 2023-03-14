@@ -157,7 +157,7 @@ def _(node: nodes.ClassDef | bases.Instance) -> Iterable[str]:
 def _string_distance(seq1: str, seq2: str) -> int:
     seq2_length = len(seq2)
 
-    row = list(range(1, seq2_length + 1)) + [0]
+    row = [*list(range(1, seq2_length + 1)), 0]
     for seq1_index, seq1_char in enumerate(seq1):
         last_row = row
         row = [0] * seq2_length + [seq1_index + 1]

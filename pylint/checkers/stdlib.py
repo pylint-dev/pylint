@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 DeprecationDict = Dict[Tuple[int, int, int], Set[str]]
 
 OPEN_FILES_MODE = ("open", "file")
-OPEN_FILES_FUNCS = OPEN_FILES_MODE + ("read_text", "write_text")
+OPEN_FILES_FUNCS = (*OPEN_FILES_MODE, "read_text", "write_text")
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
 COPY_COPY = "copy.copy"

@@ -72,7 +72,7 @@ class BaseLayout(VNode):
         assert self.parent is not self
         if self.parent is None:
             return []
-        return [self.parent] + self.parent.parents()
+        return [self.parent, *self.parent.parents()]
 
     def add_text(self, text: str) -> None:
         """Shortcut to add text data."""
