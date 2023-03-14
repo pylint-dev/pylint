@@ -2277,13 +2277,13 @@ def overridden_method(
         return None
     try:
         meth_node = parent[name]
-    except KeyError:
+    except KeyError:  # pragma: no-cover
         # We have found an ancestor defining <name> but it's not in the local
         # dictionary. This may happen with astroid built from living objects.
         return None
     if isinstance(meth_node, nodes.FunctionDef):
         return meth_node
-    return None
+    return None  # pragma: no-cover
 
 
 def clear_lru_caches() -> None:
