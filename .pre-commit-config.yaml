@@ -16,13 +16,13 @@ repos:
             doc/data/messages/m/missing-final-newline/bad.py|
           )$
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.254"
+    rev: "v0.0.255"
     hooks:
       - id: ruff
         args: ["--fix"]
         exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.254"
+    rev: "v0.0.255"
     hooks:
       - id: ruff
         name: ruff-doc
@@ -90,14 +90,14 @@ repos:
         files: ^(doc/whatsnew/fragments)
         exclude: doc/whatsnew/fragments/_.*.rst
   - repo: https://github.com/rstcheck/rstcheck
-    rev: "v6.1.1"
+    rev: "v6.1.2"
     hooks:
       - id: rstcheck
         args: ["--report-level=warning"]
         files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: [Sphinx==5.0.1]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.0.1
+    rev: v1.1.1
     hooks:
       - id: mypy
         name: mypy
@@ -143,7 +143,7 @@ repos:
               setup.cfg
           )$
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.4
+    rev: 1.7.5
     hooks:
       - id: bandit
         args: ["-r", "-lll"]
