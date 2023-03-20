@@ -258,7 +258,7 @@ def _comment(string: str) -> str:
 def _format_option_value(optdict: OptionDict, value: Any) -> str:
     """Return the user input's value from a 'compiled' value.
 
-    TODO: 3.0: Remove deprecated function
+    TODO: Refactor the code to not use this deprecated function
     """
     if optdict.get("type", None) == "py_version":
         value = ".".join(str(item) for item in value)
