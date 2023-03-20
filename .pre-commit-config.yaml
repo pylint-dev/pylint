@@ -76,12 +76,6 @@ repos:
         args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I", "--spelling-dict=en"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/\w*)*data/|doc/
         stages: [manual]
-      - id: fix-documentation
-        name: Fix documentation
-        entry: python3 -m script.fix_documentation
-        language: system
-        types: [text]
-        files: ^(doc/whatsnew/\d+\.\d+\.rst)
       - id: check-newsfragments
         name: Check newsfragments
         entry: python3 -m script.check_newsfragments
