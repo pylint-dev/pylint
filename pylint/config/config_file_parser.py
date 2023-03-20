@@ -9,7 +9,6 @@ from __future__ import annotations
 import configparser
 import os
 import sys
-import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -41,23 +40,13 @@ class _ConfigurationFileParser:
 
         config_content: dict[str, str] = {}
         options: list[str] = []
+        ini_file_with_sections = self._ini_file_with_sections(file_path)
         for section in parser.sections():
-            if self._ini_file_with_sections(file_path) and not section.startswith(
-                "pylint"
-            ):
-                if section.lower() == "master":
-                    # TODO: 3.0: Remove deprecated handling of master, only allow 'pylint.' sections
-                    warnings.warn(
-                        "The use of 'MASTER' or 'master' as configuration section for pylint "
-                        "has been deprecated, as it's bad practice to not start sections titles "
-                        "with the tool name. Please use 'pylint.main' instead.",
-                        UserWarning,
-                    )
-                else:
-                    continue
-            for opt, value in parser[section].items():
-                config_content[opt] = value
-                options += [f"--{opt}", value]
+            if ini_file_with_sections and not section.startswith("pylint"):
+                continue
+            for option, value in parser[section].items():
+                config_content[option] = value
+                options += [f"--{option}", value]
         return config_content, options
 
     @staticmethod
