@@ -1,0 +1,5 @@
+Following a deprecation period, ``MessageTest``'s ``end_line`` and ``end_col_offset``
+must be accurate in functional tests (for python 3.8 or above on cpython, and for
+python 3.9 or superior on pypy).
+
+Refs #8466
