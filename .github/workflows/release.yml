@@ -20,7 +20,7 @@ jobs:
       url: https://pypi.org/project/pylint/
     steps:
       - name: Check out code from Github
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v3.4.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v4.5.0
