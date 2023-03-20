@@ -637,23 +637,12 @@ class PyLinter(
             else:
                 yield something
 
-    def check(self, files_or_modules: Sequence[str] | str) -> None:
+    def check(self, files_or_modules: Sequence[str]) -> None:
         """Main checking entry: check a list of files or modules from their name.
 
         files_or_modules is either a string or list of strings presenting modules to check.
         """
-        # 1) Initialize
         self.initialize()
-
-        # 2) Gather all files
-        if not isinstance(files_or_modules, (list, tuple)):
-            # TODO: 3.0: Remove deprecated typing and update docstring
-            warnings.warn(
-                "In pylint 3.0, the checkers check function will only accept sequence of string",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            files_or_modules = (files_or_modules,)  # type: ignore[assignment]
         if self.config.recursive:
             files_or_modules = tuple(self._discover_files(files_or_modules))
         if self.config.from_stdin:
@@ -669,7 +658,7 @@ class PyLinter(
             }
         )
 
-        # TODO: Move the parallel invocation into step 5 of the checking process
+        # TODO: Move the parallel invocation into step 3 of the checking process
         if not self.config.from_stdin and self.config.jobs > 1:
             original_sys_path = sys.path[:]
             check_parallel(
@@ -681,7 +670,7 @@ class PyLinter(
             sys.path = original_sys_path
             return
 
-        # 3) Get all FileItems
+        # 1) Get all FileItems
         with augmented_sys_path(extra_packages_paths):
             if self.config.from_stdin:
                 fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
@@ -693,10 +682,10 @@ class PyLinter(
         # The contextmanager also opens all checkers and sets up the PyLinter class
         with augmented_sys_path(extra_packages_paths):
             with self._astroid_module_checker() as check_astroid_module:
-                # 4) Get the AST for each FileItem
+                # 2) Get the AST for each FileItem
                 ast_per_fileitem = self._get_asts(fileitems, data)
 
-                # 5) Lint each ast
+                # 3) Lint each ast
                 self._lint_files(ast_per_fileitem, check_astroid_module)
 
     def _get_asts(
