@@ -1,0 +1,3 @@
+Following a deprecation period, ``ColorizedTextReporter`` only accept ``ColorMappingDict``.
+
+Refs #8464
