@@ -8,7 +8,6 @@ from typing import Any, NoReturn
 from unittest import mock
 from unittest.mock import patch
 
-from _pytest.recwarn import WarningsRecorder
 from pytest import CaptureFixture
 
 from pylint.lint.pylinter import PyLinter
@@ -32,12 +31,6 @@ def test_crash_in_file(
     assert len(files) == 1
     assert "pylint-crash-20" in str(files[0])
     assert any(m.symbol == "fatal" for m in linter.reporter.messages)
-
-
-def test_check_deprecation(linter: PyLinter, recwarn: WarningsRecorder) -> None:
-    linter.check("myfile.py")
-    msg = recwarn.pop()
-    assert "check function will only accept sequence" in str(msg)
 
 
 def test_crash_during_linting(
