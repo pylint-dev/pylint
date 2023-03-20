@@ -1011,10 +1011,6 @@ class PyLinter(
         retval = self._check_astroid_module(
             ast_node, walker, rawcheckers, tokencheckers
         )
-
-        # TODO: 3.0: Remove unnecessary assertion
-        assert self.current_name
-
         self.stats.by_module[self.current_name]["statement"] = (
             walker.nbstatements - before_check_statements
         )
@@ -1080,12 +1076,7 @@ class PyLinter(
         """
         # Display whatever messages are left on the reporter.
         self.reporter.display_messages(report_nodes.Section())
-
-        # TODO: 3.0: Remove second half of if-statement
-        if (
-            not self.file_state._is_base_filestate
-            and self.file_state.base_name is not None
-        ):
+        if not self.file_state._is_base_filestate:
             # load previous results if any
             previous_stats = load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
@@ -1107,11 +1098,9 @@ class PyLinter(
 
     def _report_evaluation(self) -> int | None:
         """Make the global evaluation report."""
-        # check with at least check 1 statements (usually 0 when there is a
+        # check with at least a statement (usually 0 when there is a
         # syntax error preventing pylint from further processing)
         note = None
-        # TODO: 3.0: Remove assertion
-        assert self.file_state.base_name is not None
         previous_stats = load_results(self.file_state.base_name)
         if self.stats.statement == 0:
             return note
