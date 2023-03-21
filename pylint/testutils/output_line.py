@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import warnings
 from collections.abc import Sequence
 from typing import Any, NamedTuple, TypeVar
 
@@ -88,55 +87,20 @@ class OutputLine(NamedTuple):
         """
         if isinstance(row, str):
             row = row.split(",")
-        # noinspection PyBroadException
-        # pylint: disable = too-many-try-statements
         try:
+            line = int(row[1])
             column = cls._get_column(row[2])
-            if len(row) == 5:
-                # TODO: 3.0
-                warnings.warn(
-                    "In pylint 3.0 functional tests expected output should always include the "
-                    "expected confidence level, expected end_line and expected end_column. "
-                    "An OutputLine should thus have a length of 8.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return cls(
-                    row[0],
-                    int(row[1]),
-                    column,
-                    None,
-                    None,
-                    row[3],
-                    row[4],
-                    UNDEFINED.name,
-                )
-            if len(row) == 6:
-                # TODO: 3.0
-                warnings.warn(
-                    "In pylint 3.0 functional tests expected output should always include the "
-                    "expected end_line and expected end_column. An OutputLine should thus have "
-                    "a length of 8.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return cls(
-                    row[0], int(row[1]), column, None, None, row[3], row[4], row[5]
-                )
-            if len(row) == 8:
-                end_line = cls._get_py38_none_value(row[3], check_endline)
-                end_column = cls._get_py38_none_value(row[4], check_endline)
-                return cls(
-                    row[0],
-                    int(row[1]),
-                    column,
-                    cls._value_to_optional_int(end_line),
-                    cls._value_to_optional_int(end_column),
-                    row[5],
-                    row[6],
-                    row[7],
-                )
-            raise IndexError
+            end_line = cls._value_to_optional_int(
+                cls._get_py38_none_value(row[3], check_endline)
+            )
+            end_column = cls._value_to_optional_int(
+                cls._get_py38_none_value(row[4], check_endline)
+            )
+            # symbol, line, column, end_line, end_column, node, msg, confidences
+            assert len(row) == 8
+            return cls(
+                row[0], line, column, end_line, end_column, row[5], row[6], row[7]
+            )
         except Exception:  # pylint: disable=broad-except
             # We need this to not fail for the update script to work.
             return cls("", 0, 0, None, None, "", "", "")
