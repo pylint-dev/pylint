@@ -192,6 +192,23 @@ class TestImportsChecker(CheckerTestCase):
         # assert there were no errors
         assert len(errors) == 0
 
+        # Test for challenges with preferred modules indefinite matches
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'preferred_module/unpreferred_submodule.py')}",
+                "-d all",
+                "-e preferred-module",
+                # prefer pathlib instead of random (testing to avoid regression)
+                # pathlib shouldn't match with path, which is in the test file
+                "--preferred-modules=random:pathlib",
+            ],
+            exit=False,
+        )
+        _, errors = capsys.readouterr()
+
+        # Assert there were no errors
+        assert len(errors) == 0
+
     @staticmethod
     def test_allow_reexport_package(capsys: CaptureFixture[str]) -> None:
         """Test --allow-reexport-from-package option."""
