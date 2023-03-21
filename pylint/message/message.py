@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from warnings import warn
 
 from pylint.constants import MSG_TYPES
 from pylint.interfaces import UNDEFINED, Confidence
@@ -35,27 +34,10 @@ class Message:  # pylint: disable=too-many-instance-attributes
         self,
         msg_id: str,
         symbol: str,
-        location: tuple[str, str, str, str, int, int] | MessageLocationTuple,
+        location: MessageLocationTuple,
         msg: str,
         confidence: Confidence | None,
     ) -> None:
-        if not isinstance(location, MessageLocationTuple):
-            warn(
-                "In pylint 3.0, Messages will only accept a MessageLocationTuple as location parameter",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            location = MessageLocationTuple(
-                location[0],
-                location[1],
-                location[2],
-                location[3],
-                location[4],
-                location[5],
-                None,
-                None,
-            )
-
         self.msg_id = msg_id
         self.symbol = symbol
         self.msg = msg
