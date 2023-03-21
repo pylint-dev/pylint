@@ -97,9 +97,6 @@ def _cpu_count() -> int:
     return cpu_count
 
 
-UNUSED_PARAM_SENTINEL = object()
-
-
 class Run:
     """Helper class to use as main for pylint with 'run(*sys.argv[1:])'."""
 
