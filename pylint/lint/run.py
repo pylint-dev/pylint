@@ -175,6 +175,7 @@ group are mutually exclusive.",
             warnings.warn(
                 "NOTE: The 'pylint-config' command is experimental and usage can change",
                 UserWarning,
+                stacklevel=2,
             )
             code = _handle_pylint_config_commands(linter)
             if exit:
@@ -216,9 +217,11 @@ group are mutually exclusive.",
             score_value = linter.generate_reports()
 
         if do_exit is not UNUSED_PARAM_SENTINEL:
+            # TODO: 3.0
             warnings.warn(
                 "do_exit is deprecated and it is going to be removed in a future version.",
                 DeprecationWarning,
+                stacklevel=2,
             )
             exit = do_exit
 
