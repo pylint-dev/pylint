@@ -12,7 +12,6 @@ import os
 import sys
 import tokenize
 import traceback
-import warnings
 from collections import defaultdict
 from collections.abc import Callable, Iterator, Sequence
 from io import TextIOWrapper
@@ -713,15 +712,6 @@ class PyLinter(
                 )
 
         return ast_per_fileitem
-
-    def check_single_file(self, name: str, filepath: str, modname: str) -> None:
-        warnings.warn(
-            "In pylint 3.0, the checkers check_single_file function will be removed. "
-            "Use check_single_file_item instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.check_single_file_item(FileItem(name, filepath, modname))
 
     def check_single_file_item(self, file: FileItem) -> None:
         """Check single file item.
