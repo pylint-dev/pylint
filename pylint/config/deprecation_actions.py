@@ -104,4 +104,5 @@ class _NewNamesAction(argparse._StoreAction):
             f"{self.option_strings[0]} has been deprecated. Please look into "
             f"using any of the following options: {', '.join(self.new_names)}.",
             DeprecationWarning,
+            stacklevel=2,
         )

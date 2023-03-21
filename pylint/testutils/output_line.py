@@ -94,6 +94,7 @@ class OutputLine(NamedTuple):
         try:
             column = cls._get_column(row[2])
             if len(row) == 5:
+                # TODO: 3.0
                 warnings.warn(
                     "In pylint 3.0 functional tests expected output should always include the "
                     "expected confidence level, expected end_line and expected end_column. "
@@ -112,6 +113,7 @@ class OutputLine(NamedTuple):
                     UNDEFINED.name,
                 )
             if len(row) == 6:
+                # TODO: 3.0
                 warnings.warn(
                     "In pylint 3.0 functional tests expected output should always include the "
                     "expected end_line and expected end_column. An OutputLine should thus have "
@@ -142,6 +144,7 @@ class OutputLine(NamedTuple):
                 f"CONFIDENCE' but we got '{':'.join(row)}'. Try updating the expected"
                 f" output with:\npython tests/test_functional.py {UPDATE_OPTION}",
                 UserWarning,
+                stacklevel=2,
             )
             return cls("", 0, 0, None, None, "", "", "")
 

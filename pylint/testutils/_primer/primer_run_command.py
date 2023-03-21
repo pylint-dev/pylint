@@ -96,6 +96,7 @@ class RunCommand(PrimerCommand):
             if fatal_msgs:
                 warnings.warn(
                     f"Encountered fatal errors while priming {package_name} !\n"
-                    f"{self._print_msgs(fatal_msgs)}\n\n"
+                    f"{self._print_msgs(fatal_msgs)}\n\n",
+                    stacklevel=2,
                 )
         return messages, fatal_msgs

@@ -80,6 +80,7 @@ class MessageDefinition:
         """Return True if message may be emitted using the configured py_version."""
         if py_version is None:
             py_version = sys.version_info
+            # TODO: 3.0
             warnings.warn(
                 "'py_version' will be a required parameter of "
                 "'MessageDefinition.may_be_emitted' in pylint 3.0. The most likely "
@@ -87,6 +88,7 @@ class MessageDefinition:
                 "using this function, or to use 'MessageDefinition.is_message_enabled'"
                 " instead.",
                 DeprecationWarning,
+                stacklevel=2,
             )
         if self.minversion is not None and self.minversion > py_version:
             return False
