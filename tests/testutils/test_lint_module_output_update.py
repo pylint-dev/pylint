@@ -6,14 +6,19 @@
 
 from __future__ import annotations
 
+import shutil
 from collections.abc import Callable
 from pathlib import Path
 
 import pytest
 
-from pylint.constants import PY38_PLUS
-from pylint.testutils import FunctionalTestFile
+from pylint.constants import IS_PYPY, PY38_PLUS, PY39_PLUS
+from pylint.testutils import FunctionalTestFile, LintModuleTest
 from pylint.testutils.functional import LintModuleOutputUpdate
+
+FIXTURE_DIRECTORY = Path(__file__).parent / "data/functional"
+DIRECTORIES = list(FIXTURE_DIRECTORY.iterdir())
+DIRECTORIES_NAMES = [d.name for d in DIRECTORIES]
 
 
 @pytest.fixture()
@@ -76,4 +81,65 @@ def test_lint_module_output_update_remove_useless_txt(
     expected_output_file.write_text("", encoding="utf8")
     filename.write_text("", encoding="utf8")
     lmou.runTest()
-    assert not (expected_output_file).exists()
+    assert not expected_output_file.exists()
+
+
+@pytest.mark.skipif(
+    not PY38_PLUS or (IS_PYPY and not PY39_PLUS),
+    reason="Requires accurate 'end_col' value to update output",
+)
+@pytest.mark.parametrize("directory_path", DIRECTORIES, ids=DIRECTORIES_NAMES)
+def test_update_of_functional_output(directory_path: Path, tmp_path: Path) -> None:
+    """Functional test for the functional tests helper."""
+
+    def _check_expected_output(ftf: FunctionalTestFile) -> None:
+        new_output_path = ftf.expected_output
+        assert Path(
+            new_output_path
+        ).exists(), "The expected output file does not exists"
+        with open(new_output_path, encoding="utf8") as f:
+            new_output = f.read()
+        assert (
+            new_output == "exec-used:7:0:7:14::Use of exec:UNDEFINED\n"
+        ), f"The content was wrongly updated in {new_output_path}"
+
+    new_path = tmp_path / directory_path.name
+    shutil.copytree(directory_path, new_path)
+    for filename in new_path.iterdir():
+        if filename.suffix != ".py":
+            continue
+        new_path_str = str(new_path)
+        ftf = FunctionalTestFile(directory=new_path_str, filename=filename.name)
+        # Standard functional test helper
+        lint_module = LintModuleTest(ftf)
+        # Functional test helper that automatically update the output
+        lint_module_output_update = LintModuleOutputUpdate(ftf)
+        if "wrong_test" in new_path_str:
+            expected = r'Wrong message\(s\) raised for "exec_used.py"'
+            with pytest.raises(AssertionError, match=expected):
+                lint_module.runTest()
+            # When the tests are wrong we do not update the output at all
+            # and the test should fail
+            with pytest.raises(AssertionError, match=expected):
+                lint_module_output_update.runTest()
+        elif "ok_test" in new_path_str:
+            if any(f"{x}_output" in new_path_str for x in ("wrong", "no", "broken")):
+                with pytest.raises(
+                    AssertionError, match='Wrong output for "exec_used.txt"'
+                ):
+                    lint_module.runTest()
+            elif "ok_output" in new_path_str:
+                lint_module.runTest()
+                _check_expected_output(ftf)
+            else:
+                raise AssertionError(f"Unhandled test case: {new_path_str}")
+
+            # When the tests are ok we update the output whatever it's state
+            # was originally
+            lint_module_output_update.runTest()
+            _check_expected_output(ftf)
+        else:
+            raise AssertionError(
+                f"Do not pollute '{FIXTURE_DIRECTORY}' with unrelated "
+                f"or badly named test files."
+            )

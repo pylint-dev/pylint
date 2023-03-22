@@ -13,7 +13,6 @@ from astroid import nodes
 from pylint.constants import PY38_PLUS
 from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
-from pylint.testutils.constants import UPDATE_OPTION
 
 _T = TypeVar("_T")
 
@@ -139,13 +138,7 @@ class OutputLine(NamedTuple):
                 )
             raise IndexError
         except Exception:  # pylint: disable=broad-except
-            warnings.warn(
-                "Expected 'msg-symbolic-name:42:27:MyClass.my_function:The message:"
-                f"CONFIDENCE' but we got '{':'.join(row)}'. Try updating the expected"
-                f" output with:\npython tests/test_functional.py {UPDATE_OPTION}",
-                UserWarning,
-                stacklevel=2,
-            )
+            # We need this to not fail for the update script to work.
             return cls("", 0, 0, None, None, "", "", "")
 
     def to_csv(self) -> tuple[str, str, str, str, str, str, str, str]:
