@@ -724,17 +724,18 @@ scope_type : {self._atomic.scope_type}
         # Handle try and with
         if isinstance(node, (nodes.TryExcept, nodes.TryFinally)):
             # Allow either a path through try/else/finally OR a path through ALL except handlers
+            handlers = node.handlers if isinstance(node, nodes.TryExcept) else node.body[0].handlers
             return (
                 NamesConsumer._defines_name_raises_or_returns_recursive(name, node)
-                or isinstance(node, nodes.TryExcept)
-                and all(
+                or all(
                     NamesConsumer._defines_name_raises_or_returns_recursive(
                         name, handler
                     )
-                    for handler in node.handlers
+                    for handler in handlers
                 )
             )
-        if isinstance(node, nodes.With):
+
+        if isinstance(node, (nodes.With, nodes.For, nodes.While)):
             return NamesConsumer._defines_name_raises_or_returns_recursive(name, node)
 
         if not isinstance(node, nodes.If):
@@ -748,13 +749,15 @@ scope_type : {self._atomic.scope_type}
         if NamesConsumer._defines_name_raises_or_returns(name, node):
             return True
 
-        # If there is no else, then there is no collectively exhaustive set of paths
-        if not node.orelse:
-            return False
-
-        return NamesConsumer._branch_handles_name(
-            name, node.body
-        ) and NamesConsumer._branch_handles_name(name, node.orelse)
+        test = node.test.value if isinstance(node.test, nodes.NamedExpr) else node.test
+        all_inferred = utils.infer_all(test)
+        if all_inferred and all(
+            isinstance(inferred, nodes.Const) and not inferred.value
+            for inferred in all_inferred
+        ):
+            return NamesConsumer._branch_handles_name(name, node.orelse)
+        else:
+            return NamesConsumer._branch_handles_name(name, node.body)
 
     @staticmethod
     def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
@@ -762,7 +765,7 @@ scope_type : {self._atomic.scope_type}
             NamesConsumer._defines_name_raises_or_returns(name, if_body_stmt)
             or isinstance(
                 if_body_stmt,
-                (nodes.If, nodes.TryExcept, nodes.TryFinally, nodes.With),
+                (nodes.If, nodes.TryExcept, nodes.TryFinally, nodes.With, nodes.For, nodes.While),
             )
             and NamesConsumer._exhaustively_define_name_raise_or_return(
                 name, if_body_stmt
@@ -781,48 +784,44 @@ scope_type : {self._atomic.scope_type}
         """
         uncertain_nodes = []
         for other_node in found_nodes:
-            if in_type_checking_block(other_node):
-                continue
-
-            if not isinstance(other_node, nodes.AssignName):
-                continue
-
-            closest_if = utils.get_node_first_ancestor_of_type(other_node, nodes.If)
-            if closest_if is None:
-                continue
-            if node.frame() is not closest_if.frame():
-                continue
-            if closest_if is not None and closest_if.parent_of(node):
-                continue
-
-            # Name defined in every if/else branch
-            if NamesConsumer._exhaustively_define_name_raise_or_return(
-                other_node.name, closest_if
+            if (
+                VariablesChecker._is_only_type_assignment(node, other_node.statement(future=True))
+                or VariablesChecker._is_variable_annotation_in_function(node)
             ):
                 continue
+            if isinstance(other_node, nodes.AssignName):
+                name = other_node.name
+            elif (isinstance(other_node, (nodes.Import, nodes.ImportFrom))):
+                name = node.name
+            else:
+                continue
 
+            all_if = [n for n in other_node.node_ancestors() if isinstance(n, nodes.If)]
+            if not all_if:
+                continue
+
+            closest_if = all_if[0]
+            if isinstance(node, nodes.AssignName) and node.frame() is not closest_if.frame():
+                continue
+            if closest_if.parent_of(node):
+                continue
+
+            outer_if = all_if[-1]
             # Higher-level if already determined to be always false
             if any(
-                if_node.parent_of(closest_if)
+                if_node.parent_of(outer_if)
                 for if_node in self._if_nodes_deemed_uncertain
             ):
                 uncertain_nodes.append(other_node)
                 continue
-
-            # All inferred values must test false
-            if isinstance(closest_if.test, nodes.NamedExpr):
-                test = closest_if.test.value
-            else:
-                test = closest_if.test
-            all_inferred = utils.infer_all(test)
-            if not all_inferred or not all(
-                isinstance(inferred, nodes.Const) and not inferred.value
-                for inferred in all_inferred
+            # Name defined in every if/else branch
+            if NamesConsumer._exhaustively_define_name_raise_or_return(
+                name, outer_if
             ):
                 continue
 
             uncertain_nodes.append(other_node)
-            self._if_nodes_deemed_uncertain.add(closest_if)
+            self._if_nodes_deemed_uncertain.add(outer_if)
 
         return uncertain_nodes
 
@@ -921,6 +920,24 @@ scope_type : {self._atomic.scope_type}
                 for child_named_expr in node.nodes_of_class(nodes.NamedExpr)
             ):
                 return True
+        if (
+            isinstance(node, (nodes.Import, nodes.ImportFrom))
+            and any(node_name[0] == name for node_name in node.names)
+        ):
+            return True
+        if (
+            isinstance(node, nodes.With)
+            and any(
+                isinstance(item[1], nodes.AssignName) and item[1].name == name
+                for item in node.items
+            )
+        ):
+            return True
+        if (
+            isinstance(node, (nodes.ClassDef, nodes.FunctionDef))
+            and node.name == name
+        ):
+            return True
         return False
 
     @staticmethod
@@ -939,6 +956,8 @@ scope_type : {self._atomic.scope_type}
                     for nested_stmt in stmt.get_children()
                 ):
                     return True
+            if isinstance(stmt, nodes.TryExcept) and NamesConsumer._defines_name_raises_or_returns_recursive(name, stmt):
+                return True
         return False
 
     @staticmethod
@@ -1707,16 +1726,17 @@ class VariablesChecker(BaseChecker):
         if found_nodes is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
-            if node.name in current_consumer.consumed_uncertain:
-                confidence = CONTROL_FLOW
-            else:
-                confidence = HIGH
-            self.add_message(
-                "used-before-assignment",
-                args=node.name,
-                node=node,
-                confidence=confidence,
-            )
+            if (
+                not self._postponed_evaluation_enabled
+                and not self._is_builtin(node.name)
+            ):
+                confidence = CONTROL_FLOW if node.name in current_consumer.consumed_uncertain else HIGH
+                self.add_message(
+                    "used-before-assignment",
+                    args=node.name,
+                    node=node,
+                    confidence=confidence,
+                )
             # Mark for consumption any nodes added to consumed_uncertain by
             # get_next_to_consume() because they might not have executed.
             return (
@@ -1858,7 +1878,7 @@ class VariablesChecker(BaseChecker):
                         confidence=HIGH,
                     )
 
-        elif self._is_only_type_assignment(node, defstmt):
+        elif not self._is_builtin(node.name) and self._is_only_type_assignment(node, defstmt):
             if node.scope().locals.get(node.name):
                 self.add_message(
                     "used-before-assignment", args=node.name, node=node, confidence=HIGH
@@ -2203,33 +2223,6 @@ class VariablesChecker(BaseChecker):
                         anc is defnode.value for anc in node.node_ancestors()
                     )
 
-            # Look for type checking definitions inside a type checking guard.
-            # Relevant for function annotations only, not variable annotations (AnnAssign)
-            if (
-                isinstance(defstmt, (nodes.Import, nodes.ImportFrom))
-                and isinstance(defstmt.parent, nodes.If)
-                and in_type_checking_block(defstmt)
-                and not in_type_checking_block(node)
-                and not VariablesChecker._is_variable_annotation_in_function(node)
-                and not defstmt.parent.parent_of(node)
-            ):
-                # Exempt those definitions that are used inside the type checking
-                # guard or that are defined in any elif/else type checking guard branches.
-                outermost_type_checking_guard = defstmt.parent
-                defstmt_ancestors_in_type_checking = [n for n in defstmt.node_ancestors() if in_type_checking_block(n)]
-                if defstmt_ancestors_in_type_checking:
-                    guard = utils.get_node_first_ancestor_of_type(defstmt_ancestors_in_type_checking[-1], nodes.If)
-                    outermost_type_checking_guard = guard if guard else outermost_type_checking_guard
-                if outermost_type_checking_guard.has_elif_block():
-                    maybe_before_assign = not utils.is_defined(
-                        node.name, outermost_type_checking_guard.orelse[0]
-                    )
-                else:
-                    maybe_before_assign = not any(
-                        utils.is_defined(node.name, content)
-                        for content in outermost_type_checking_guard.orelse
-                    )
-
         return maybe_before_assign, annotation_return, use_outer_definition
 
     @staticmethod
@@ -2269,16 +2262,18 @@ class VariablesChecker(BaseChecker):
             for call in value.nodes_of_class(klass=nodes.Call)
         )
 
+    def _is_builtin(self, name: str):
+        return (
+            name in self.linter.config.additional_builtins
+            or utils.is_builtin(name)
+        )
+
+    @staticmethod
     def _is_only_type_assignment(
-        self, node: nodes.Name, defstmt: nodes.Statement
+        node: nodes.Name, defstmt: nodes.Statement
     ) -> bool:
         """Check if variable only gets assigned a type and never a value."""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
-            return False
-
-        if node.name in self.linter.config.additional_builtins or utils.is_builtin(
-            node.name
-        ):
             return False
 
         defstmt_frame = defstmt.frame(future=True)
