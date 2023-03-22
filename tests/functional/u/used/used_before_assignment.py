@@ -59,6 +59,8 @@ elif VAR2:
         VAR5 = True
     else:
         VAR5 = True
+else:
+    VAR5 = False
 if VAR5:
     pass
 

@@ -1,5 +1,5 @@
 """Tests for used-before-assignment for typing related issues"""
-# pylint: disable=missing-function-docstring,ungrouped-imports,invalid-name
+# pylint: disable=missing-function-docstring,ungrouped-imports,invalid-name,too-few-public-methods
 
 
 from typing import List, Optional, TYPE_CHECKING
@@ -8,58 +8,9 @@ if TYPE_CHECKING:
     if True:  # pylint: disable=using-constant-test
         import math
     from urllib.request import urlopen
-    import array
-    import base64
-    import binascii
-    import bisect
-    import calendar
-    import collections
-    import copy
     import datetime
-    import email
-    import heapq
-    import json
-    import mailbox
-    import mimetypes
-    import numbers
-    import pprint
-    import types
-    import zoneinfo
-elif input():
-    import calendar, bisect, dbm  # pylint: disable=multiple-imports
-    if input() + 1:
-        import heapq
-    else:
-        import heapq
-elif input():
-    try:
-        numbers = None if input() else 1
-        import array
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        import types
-    finally:
-        copy = None
-elif input():
-    for i in range(1,2):
-        email = None
-    else:  # pylint: disable=useless-else-on-loop
-        json = None
-    while input():
-        import mailbox
-    else:  # pylint: disable=useless-else-on-loop
-        mimetypes = None
-elif input():
-    with input() as base64:
-        pass
-    with input() as temp:
-        import binascii
 else:
     from urllib.request import urlopen
-    zoneinfo: str = ''
-    def pprint():
-        pass
-    class collections:  # pylint: disable=too-few-public-methods,missing-class-docstring
-        pass
 
 class MyClass:
     """Type annotation or default values for first level methods can't refer to their own class"""
@@ -132,7 +83,7 @@ class MyThirdClass:
         _x: MyThirdClass = self
 
 
-class MyFourthClass:  # pylint: disable=too-few-public-methods
+class MyFourthClass:
     """Class to test conditional imports guarded by TYPE_CHECKING two levels
     up then used in function annotation. See https://github.com/PyCQA/pylint/issues/7539"""
 
@@ -141,7 +92,7 @@ class MyFourthClass:  # pylint: disable=too-few-public-methods
         comparator(first, second)
 
 
-class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-public-methods
+class VariableAnnotationsGuardedByTypeChecking:
     """Class to test conditional imports guarded by TYPE_CHECKING then used in
     local (function) variable annotations, which are not evaluated at runtime.
 
@@ -158,41 +109,101 @@ class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-publi
         import datetime  # pylint: disable=import-outside-toplevel
 
 
-class ConditionalImportGuardedWhenUsed:  # pylint: disable=too-few-public-methods
+class ConditionalImportGuardedWhenUsed:
     """Conditional imports also guarded by TYPE_CHECKING when used."""
     if TYPE_CHECKING:
         print(urlopen)
 
 
-class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-variable
-    """Test for defines in TYPE_CHECKING if/elif/else branching"""
-    def defined_in_elif_branch(self) -> calendar.Calendar:
-        print(bisect)
-        print(dbm)
-        return calendar.Calendar()
+if TYPE_CHECKING:
+    import calendar
+    import dbm
+    import heapq
+    print(dbm)
+elif input():
+    import calendar, bisect  # pylint: disable=multiple-imports
+    if input() + 1:
+        import heapq
+    else:
+        import heapq
+else:
+    bisect: str = None
+    def calendar():
+        pass
+    class heapq:  # pylint: disable=missing-class-docstring
+        pass
 
-    def defined_in_else_branch(self) -> urlopen:
-        print(zoneinfo)
-        print(pprint())
-        print(collections())
-        return urlopen
-
-    def defined_in_nested_if_else(self) -> heapq:
+class IfElifElseBranching:
+    """Test for TYPE_CHECKING if, elif, else usage"""
+    def defined_in_all_branches(self) -> calendar:
         print(heapq)
-        return heapq
+        return calendar
 
-    def defined_in_try_except(self) -> array:
+    def excluded_from_if(self) -> bisect:
+        return bisect
+
+    def defined_and_used_in_branch(self) -> dbm:
+        return dbm
+
+
+if TYPE_CHECKING:
+    import array
+    import copy
+    import numbers
+    import types
+else:
+    try:
+        numbers = None if input() else 1
+        import array
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        import types
+    finally:
+        copy = None
+
+class TryExceptFinallyDefinitions:
+    """Test for definitions in Try, Except, Finally blocks"""
+    def function(self) -> array:
         print(types)
         print(copy)
         print(numbers)
         return array
 
-    def defined_in_loops(self) -> json:
+
+if TYPE_CHECKING:
+    import email
+    import json
+    import mailbox
+    import mimetypes
+else:
+    for i in range(1,2):
+        email = None
+    else:  # pylint: disable=useless-else-on-loop
+        json = None
+    while input():
+        import mailbox
+    else:  # pylint: disable=useless-else-on-loop
+        mimetypes = None
+
+class LoopDefinitions:
+    """Test for definitions in For and While blocks"""
+    def function(self) -> json:
         print(email)
         print(mailbox)
         print(mimetypes)
         return json
 
-    def defined_in_with(self) -> base64:
+
+if TYPE_CHECKING:
+    import base64
+    import binascii
+else:
+    with input() as base64:
+        pass
+    with input() as temp:
+        import binascii
+
+class WithDefinitions:
+    """Test for definitions in With usage"""
+    def function(self) -> base64:
         print(binascii)
         return base64
