@@ -785,7 +785,11 @@ scope_type : {self._atomic.scope_type}
             else:
                 continue
 
-            all_if = [n for n in other_node.node_ancestors() if isinstance(n, nodes.If) and not n.parent_of(node)]
+            all_if = [
+                n
+                for n in other_node.node_ancestors()
+                if isinstance(n, nodes.If) and not n.parent_of(node)
+            ]
             if not all_if:
                 continue
 
