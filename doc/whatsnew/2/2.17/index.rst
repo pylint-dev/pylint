@@ -29,6 +29,58 @@ so we find problems before the actual release.
 
 .. towncrier release notes start
 
+What's new in Pylint 2.17.1?
+----------------------------
+Release date: 2023-03-22
+
+
+False Positives Fixed
+---------------------
+
+- Adds ``asyncSetUp`` to the default ``defining-attr-methods`` list to silence
+  ``attribute-defined-outside-init`` warning when using
+  ``unittest.IsolatedAsyncioTestCase``.
+
+  Refs #8403 (`#8403 <https://github.com/PyCQA/pylint/issues/8403>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- ``--clear-cache-post-run`` now also clears LRU caches for pylint utilities
+  holding references to AST nodes.
+
+  Closes #8361 (`#8361 <https://github.com/PyCQA/pylint/issues/8361>`_)
+
+- Fix a crash when ``TYPE_CHECKING`` is used without importing it.
+
+  Closes #8434 (`#8434 <https://github.com/PyCQA/pylint/issues/8434>`_)
+
+- Fix a regression of ``preferred-modules`` where a partial match was used
+  instead of the required full match.
+
+  Closes #8453 (`#8453 <https://github.com/PyCQA/pylint/issues/8453>`_)
+
+
+
+Internal Changes
+----------------
+
+- The following utilities are deprecated in favor of the more robust
+  ``in_type_checking_block``
+  and will be removed in pylint 3.0:
+
+    - ``is_node_in_guarded_import_block``
+    - ``is_node_in_typing_guarded_import_block``
+    - ``is_typing_guard``
+
+  ``is_sys_guard`` is still available, which was part of
+  ``is_node_in_guarded_import_block``.
+
+  Refs #8433 (`#8433 <https://github.com/PyCQA/pylint/issues/8433>`_)
+
+
 What's new in Pylint 2.17.0?
 ----------------------------
 Release date: 2023-03-08
