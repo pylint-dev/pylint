@@ -1909,6 +1909,16 @@ def get_node_first_ancestor_of_type(
     return None
 
 
+def get_node_first_descendant_of_type(
+    node: nodes.NodeNG, descendant_type: type[_NodeT] | tuple[type[_NodeT], ...]
+) -> _NodeT | None:
+    """Return the first child node that is any of the provided types (or None)."""
+    for child in node.get_children():
+        if isinstance(child, descendant_type):
+            return child  # type: ignore[no-any-return]
+    return None
+
+
 def get_node_first_ancestor_of_type_and_its_child(
     node: nodes.NodeNG, ancestor_type: type[_NodeT] | tuple[type[_NodeT], ...]
 ) -> tuple[None, None] | tuple[_NodeT, nodes.NodeNG]:
