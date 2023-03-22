@@ -42,7 +42,7 @@ def test_parsing_of_pylintrc_init_hook() -> None:
 def test_get_functional_test_files_from_directory() -> None:
     """Test that we correctly check the functional test directory structures."""
     with pytest.raises(AssertionError, match="using_dir.py should not go in"):
-        get_functional_test_files_from_directory(DATA_DIRECTORY)
+        get_functional_test_files_from_directory(DATA_DIRECTORY / "u")
 
 
 def test_minimal_messages_config_enabled(pytest_config: MagicMock) -> None:

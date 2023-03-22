@@ -266,7 +266,7 @@ class LintModuleTest:
         expected_messages: MessageCounter,
         actual_output: list[OutputLine],
     ) -> str:
-        msg = [f'Wrong results for file "{self._test_file.base}":']
+        msg = [f'Wrong message(s) raised for "{Path(self._test_file.source).name}":']
         missing, unexpected = self.multiset_difference(
             expected_messages, actual_messages
         )
@@ -289,7 +289,7 @@ class LintModuleTest:
     ) -> str:
         missing = set(expected_lines) - set(received_lines)
         unexpected = set(received_lines) - set(expected_lines)
-        error_msg = f"Wrong output for '{self._test_file.base}.txt':"
+        error_msg = f'Wrong output for "{Path(self._test_file.expected_output).name}":'
         sort_by_line_number = operator.attrgetter("lineno")
         if missing:
             error_msg += "\n- Missing lines:\n"
