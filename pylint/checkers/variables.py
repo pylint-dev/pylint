@@ -704,15 +704,16 @@ scope_type : {self._atomic.scope_type}
         # Handle try and with
         if isinstance(node, (nodes.TryExcept, nodes.TryFinally)):
             # Allow either a path through try/else/finally OR a path through ALL except handlers
-            handlers = node.handlers if isinstance(node, nodes.TryExcept) else node.body[0].handlers
-            return (
-                NamesConsumer._defines_name_raises_or_returns_recursive(name, node)
-                or all(
-                    NamesConsumer._defines_name_raises_or_returns_recursive(
-                        name, handler
-                    )
-                    for handler in handlers
-                )
+            handlers = (
+                node.handlers
+                if isinstance(node, nodes.TryExcept)
+                else node.body[0].handlers
+            )
+            return NamesConsumer._defines_name_raises_or_returns_recursive(
+                name, node
+            ) or all(
+                NamesConsumer._defines_name_raises_or_returns_recursive(name, handler)
+                for handler in handlers
             )
 
         if isinstance(node, (nodes.With, nodes.For, nodes.While)):
@@ -745,7 +746,14 @@ scope_type : {self._atomic.scope_type}
             NamesConsumer._defines_name_raises_or_returns(name, if_body_stmt)
             or isinstance(
                 if_body_stmt,
-                (nodes.If, nodes.TryExcept, nodes.TryFinally, nodes.With, nodes.For, nodes.While),
+                (
+                    nodes.If,
+                    nodes.TryExcept,
+                    nodes.TryFinally,
+                    nodes.With,
+                    nodes.For,
+                    nodes.While,
+                ),
             )
             and NamesConsumer._exhaustively_define_name_raise_or_return(
                 name, if_body_stmt
@@ -764,14 +772,13 @@ scope_type : {self._atomic.scope_type}
         """
         uncertain_nodes = []
         for other_node in found_nodes:
-            if (
-                VariablesChecker._is_only_type_assignment(node, other_node.statement(future=True))
-                or VariablesChecker._is_variable_annotation_in_function(node)
-            ):
+            if VariablesChecker._is_only_type_assignment(
+                node, other_node.statement(future=True)
+            ) or VariablesChecker._is_variable_annotation_in_function(node):
                 continue
             if isinstance(other_node, nodes.AssignName):
                 name = other_node.name
-            elif (isinstance(other_node, (nodes.Import, nodes.ImportFrom))):
+            elif isinstance(other_node, (nodes.Import, nodes.ImportFrom)):
                 name = node.name
             else:
                 continue
@@ -781,7 +788,10 @@ scope_type : {self._atomic.scope_type}
                 continue
 
             closest_if = all_if[0]
-            if isinstance(node, nodes.AssignName) and node.frame() is not closest_if.frame():
+            if (
+                isinstance(node, nodes.AssignName)
+                and node.frame() is not closest_if.frame()
+            ):
                 continue
             if closest_if.parent_of(node):
                 continue
@@ -795,9 +805,7 @@ scope_type : {self._atomic.scope_type}
                 uncertain_nodes.append(other_node)
                 continue
             # Name defined in every if/else branch
-            if NamesConsumer._exhaustively_define_name_raise_or_return(
-                name, outer_if
-            ):
+            if NamesConsumer._exhaustively_define_name_raise_or_return(name, outer_if):
                 continue
 
             uncertain_nodes.append(other_node)
@@ -900,23 +908,16 @@ scope_type : {self._atomic.scope_type}
                 for child_named_expr in node.nodes_of_class(nodes.NamedExpr)
             ):
                 return True
-        if (
-            isinstance(node, (nodes.Import, nodes.ImportFrom))
-            and any(node_name[0] == name for node_name in node.names)
+        if isinstance(node, (nodes.Import, nodes.ImportFrom)) and any(
+            node_name[0] == name for node_name in node.names
         ):
             return True
-        if (
-            isinstance(node, nodes.With)
-            and any(
-                isinstance(item[1], nodes.AssignName) and item[1].name == name
-                for item in node.items
-            )
+        if isinstance(node, nodes.With) and any(
+            isinstance(item[1], nodes.AssignName) and item[1].name == name
+            for item in node.items
         ):
             return True
-        if (
-            isinstance(node, (nodes.ClassDef, nodes.FunctionDef))
-            and node.name == name
-        ):
+        if isinstance(node, (nodes.ClassDef, nodes.FunctionDef)) and node.name == name:
             return True
         return False
 
@@ -936,7 +937,9 @@ scope_type : {self._atomic.scope_type}
                     for nested_stmt in stmt.get_children()
                 ):
                     return True
-            if isinstance(stmt, nodes.TryExcept) and NamesConsumer._defines_name_raises_or_returns_recursive(name, stmt):
+            if isinstance(
+                stmt, nodes.TryExcept
+            ) and NamesConsumer._defines_name_raises_or_returns_recursive(name, stmt):
                 return True
         return False
 
@@ -1706,11 +1709,14 @@ class VariablesChecker(BaseChecker):
         if found_nodes is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
-            if (
-                not self._postponed_evaluation_enabled
-                and not self._is_builtin(node.name)
+            if not self._postponed_evaluation_enabled and not self._is_builtin(
+                node.name
             ):
-                confidence = CONTROL_FLOW if node.name in current_consumer.consumed_uncertain else HIGH
+                confidence = (
+                    CONTROL_FLOW
+                    if node.name in current_consumer.consumed_uncertain
+                    else HIGH
+                )
                 self.add_message(
                     "used-before-assignment",
                     args=node.name,
@@ -1858,7 +1864,9 @@ class VariablesChecker(BaseChecker):
                         confidence=HIGH,
                     )
 
-        elif not self._is_builtin(node.name) and self._is_only_type_assignment(node, defstmt):
+        elif not self._is_builtin(node.name) and self._is_only_type_assignment(
+            node, defstmt
+        ):
             if node.scope().locals.get(node.name):
                 self.add_message(
                     "used-before-assignment", args=node.name, node=node, confidence=HIGH
@@ -2243,15 +2251,10 @@ class VariablesChecker(BaseChecker):
         )
 
     def _is_builtin(self, name: str):
-        return (
-            name in self.linter.config.additional_builtins
-            or utils.is_builtin(name)
-        )
+        return name in self.linter.config.additional_builtins or utils.is_builtin(name)
 
     @staticmethod
-    def _is_only_type_assignment(
-        node: nodes.Name, defstmt: nodes.Statement
-    ) -> bool:
+    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
         """Check if variable only gets assigned a type and never a value."""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
