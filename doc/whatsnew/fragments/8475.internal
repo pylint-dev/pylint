@@ -1,0 +1,5 @@
+Following a deprecation period, ``is_typing_guard``, ``is_node_in_typing_guarded_import_block`` and
+``is_node_in_guarded_import_block``: from ``pylint.utils`` were removed: use a combination of
+``is_sys_guard`` and ``in_type_checking_block`` instead.
+
+Refs #8475
