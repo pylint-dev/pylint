@@ -737,8 +737,7 @@ scope_type : {self._atomic.scope_type}
             for inferred in all_inferred
         ):
             return NamesConsumer._branch_handles_name(name, node.orelse)
-        else:
-            return NamesConsumer._branch_handles_name(name, node.body)
+        return NamesConsumer._branch_handles_name(name, node.body)
 
     @staticmethod
     def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
@@ -2057,7 +2056,6 @@ class VariablesChecker(BaseChecker):
             parent = parent.parent
         return False
 
-    # pylint: disable = too-many-branches
     @staticmethod
     def _is_variable_violation(
         node: nodes.Name,
@@ -2250,7 +2248,7 @@ class VariablesChecker(BaseChecker):
             for call in value.nodes_of_class(klass=nodes.Call)
         )
 
-    def _is_builtin(self, name: str):
+    def _is_builtin(self, name: str) -> bool:
         return name in self.linter.config.additional_builtins or utils.is_builtin(name)
 
     @staticmethod
