@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import argparse
-import datetime
 import os
 import re
 import sys
@@ -19,6 +18,7 @@ from os import chdir, getcwd
 from os.path import abspath, dirname, join, sep
 from pathlib import Path
 from shutil import copy, rmtree
+from unittest import mock
 
 import platformdirs
 import pytest
@@ -31,11 +31,8 @@ from pylint.constants import (
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
-    OLD_DEFAULT_PYLINT_HOME,
     PYLINT_HOME,
-    USER_HOME,
     _get_pylint_home,
-    _warn_about_old_home,
 )
 from pylint.exceptions import InvalidMessageError
 from pylint.lint import PyLinter, expand_modules
@@ -127,7 +124,7 @@ def test_no_args(fake_path: list[str]) -> None:
 def test_one_arg(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py"])
-        expected = [join(chroot, "a")] + fake_path
+        expected = [join(chroot, "a"), *fake_path]
 
         extra_sys_paths = [
             expand_modules.discover_package_path(arg, []) for arg in case
@@ -151,7 +148,7 @@ def test_one_arg(fake_path: list[str], case: list[str]) -> None:
 def test_two_similar_args(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py", "a/c/__init__.py"])
-        expected = [join(chroot, "a")] + fake_path
+        expected = [join(chroot, "a"), *fake_path]
 
         extra_sys_paths = [
             expand_modules.discover_package_path(arg, []) for arg in case
@@ -930,58 +927,14 @@ def pop_pylintrc() -> None:
 
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_pylint_home() -> None:
-    uhome = os.path.expanduser("~")
-    if uhome == "~":
-        expected = OLD_DEFAULT_PYLINT_HOME
-    else:
-        expected = platformdirs.user_cache_dir("pylint")
+    expected = platformdirs.user_cache_dir("pylint")
     assert constants.PYLINT_HOME == expected
     assert PYLINT_HOME == expected
 
 
+@mock.patch.dict(os.environ, {"PYLINTHOME": "whatever.d"})
 def test_pylint_home_from_environ() -> None:
-    try:
-        pylintd = join(tempfile.gettempdir(), OLD_DEFAULT_PYLINT_HOME)
-        os.environ["PYLINTHOME"] = pylintd
-        try:
-            assert _get_pylint_home() == pylintd
-        finally:
-            try:
-                rmtree(pylintd)
-            except FileNotFoundError:
-                pass
-    finally:
-        del os.environ["PYLINTHOME"]
-
-
-def test_warn_about_old_home(capsys: CaptureFixture[str]) -> None:
-    """Test that we correctly warn about old_home."""
-    # Create old home
-    old_home = Path(USER_HOME) / OLD_DEFAULT_PYLINT_HOME
-    old_home.mkdir(parents=True, exist_ok=True)
-
-    # Create spam prevention file
-    ten_years_ago = datetime.datetime.now() - datetime.timedelta(weeks=520)
-    new_prevention_file = Path(PYLINT_HOME) / ten_years_ago.strftime(
-        "pylint_warned_about_old_cache_already_%Y-%m-%d.temp"
-    )
-    with open(new_prevention_file, "w", encoding="utf8") as f:
-        f.write("")
-
-    # Remove current prevention file
-    cur_prevention_file = Path(PYLINT_HOME) / datetime.datetime.now().strftime(
-        "pylint_warned_about_old_cache_already_%Y-%m-%d.temp"
-    )
-    if cur_prevention_file.exists():
-        os.remove(cur_prevention_file)
-
-    _warn_about_old_home(Path(PYLINT_HOME))
-
-    assert not new_prevention_file.exists()
-    assert cur_prevention_file.exists()
-
-    out = capsys.readouterr()
-    assert "PYLINTHOME is now" in out.err
+    assert _get_pylint_home() == "whatever.d"
 
 
 class _CustomPyLinter(PyLinter):

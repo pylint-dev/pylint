@@ -329,7 +329,7 @@ class BasicChecker(_BasicChecker):
             nodes.Subscript,
         )
         inferred = None
-        emit = isinstance(test, (nodes.Const,) + structs + const_nodes)
+        emit = isinstance(test, (nodes.Const, *structs, *const_nodes))
         maybe_generator_call = None
         if not isinstance(test, except_nodes):
             inferred = utils.safe_infer(test)

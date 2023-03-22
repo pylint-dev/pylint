@@ -148,9 +148,10 @@ class TestCheckSpace(CheckerTestCase):
             encoding_token = tokenize.TokenInfo(
                 tokenize.ENCODING, "utf-8", (0, 0), (0, 0), ""
             )
-            tokens = [encoding_token] + _tokenize_str(
-                "if (\n        None):\n    pass\n"
-            )
+            tokens = [
+                encoding_token,
+                *_tokenize_str("if (\n        None):\n    pass\n"),
+            ]
             self.checker.process_tokens(tokens)
 
 

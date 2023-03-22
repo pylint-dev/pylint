@@ -15,12 +15,11 @@ import re
 import sys
 import warnings
 from dataclasses import asdict, fields
-from typing import TYPE_CHECKING, Dict, NamedTuple, Optional, TextIO, cast
+from typing import TYPE_CHECKING, Dict, NamedTuple, TextIO
 
 from pylint.message import Message
 from pylint.reporters import BaseReporter
 from pylint.reporters.ureports.text_writer import TextWriter
-from pylint.utils import _splitstrip
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -138,7 +137,8 @@ class TextReporter(BaseReporter):
             if argument[0] not in MESSAGE_FIELDS:
                 warnings.warn(
                     f"Don't recognize the argument '{argument[0]}' in the --msg-template. "
-                    "Are you sure it is supported on the current version of pylint?"
+                    "Are you sure it is supported on the current version of pylint?",
+                    stacklevel=2,
                 )
                 template = re.sub(r"\{" + argument[0] + r"(:.*?)?\}", "", template)
         self._fixed_template = template
@@ -221,30 +221,9 @@ class ColorizedTextReporter(TextReporter):
     def __init__(
         self,
         output: TextIO | None = None,
-        color_mapping: (
-            ColorMappingDict | dict[str, tuple[str | None, str]] | None
-        ) = None,
+        color_mapping: ColorMappingDict | None = None,
     ) -> None:
         super().__init__(output)
-        # TODO: 3.0: Remove deprecated typing and only accept ColorMappingDict as
-        #  color_mapping parameter
-        if color_mapping and not isinstance(
-            list(color_mapping.values())[0], MessageStyle
-        ):
-            warnings.warn(
-                "In pylint 3.0, the ColorizedTextReporter will only accept ColorMappingDict as "
-                "color_mapping parameter",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            temp_color_mapping: ColorMappingDict = {}
-            for key, value in color_mapping.items():
-                color = value[0]
-                style_attrs = tuple(_splitstrip(value[1]))  # type: ignore[arg-type]
-                temp_color_mapping[key] = MessageStyle(color, style_attrs)
-            color_mapping = temp_color_mapping
-        else:
-            color_mapping = cast(Optional[ColorMappingDict], color_mapping)
         self.color_mapping = color_mapping or ColorizedTextReporter.COLOR_MAPPING
         ansi_terms = ["xterm-16color", "xterm-256color"]
         if os.environ.get("TERM") not in ansi_terms:

@@ -72,7 +72,7 @@ class LintTestUsingModule:
         try:
             self.linter.check(tocheck)
         except Exception as ex:
-            print(f"Exception: {ex} in {tocheck}:: {'‚ '.join(ex.args)}")
+            print(f"Exception: {ex} in {tocheck}:: {', '.join(ex.args)}")
             # This is legacy code we're trying to remove, not worth it to type correctly
             ex.file = tocheck  # type: ignore[attr-defined]
             print(ex)
@@ -115,7 +115,7 @@ def gen_tests(
         is_to_run = re.compile(filter_rgx).search
     else:
         is_to_run = (  # noqa: E731, We're going to throw all this anyway
-            lambda x: 1  # type: ignore[assignment,misc] # pylint: disable=unnecessary-lambda-assignment
+            lambda x: 1  # type: ignore[assignment] # pylint: disable=unnecessary-lambda-assignment
         )
     tests: list[tuple[str, str, list[tuple[str, str]]]] = []
     for module_file, messages_file in _get_tests_info(INPUT_DIR, MSG_DIR, "func_", ""):

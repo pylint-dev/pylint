@@ -1,0 +1,3 @@
+Following a deprecation period, ``Pylinter.check`` now only work with sequences of strings, not strings.
+
+Refs #8463

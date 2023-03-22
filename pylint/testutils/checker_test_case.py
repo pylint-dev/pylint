@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import contextlib
-import warnings
 from collections.abc import Generator, Iterator
 from typing import Any
 
@@ -78,23 +77,8 @@ class CheckerTestCase:
             assert expected_msg.line == gotten_msg.line, msg
             assert expected_msg.col_offset == gotten_msg.col_offset, msg
             if PY38_PLUS and not IS_PYPY or PY39_PLUS:
-                # TODO: 3.0: Remove deprecated missing arguments and remove the warning
-                if not expected_msg.end_line == gotten_msg.end_line:
-                    warnings.warn(  # pragma: no cover
-                        f"The end_line attribute of {gotten_msg} does not match "
-                        f"the expected value in {expected_msg}. In pylint 3.0 correct end_line "
-                        "attributes will be required for MessageTest.",
-                        DeprecationWarning,
-                        stacklevel=2,
-                    )
-                if not expected_msg.end_col_offset == gotten_msg.end_col_offset:
-                    warnings.warn(  # pragma: no cover
-                        f"The end_col_offset attribute of {gotten_msg} does not match "
-                        f"the expected value in {expected_msg}. In pylint 3.0 correct end_col_offset "
-                        "attributes will be required for MessageTest.",
-                        DeprecationWarning,
-                        stacklevel=2,
-                    )
+                assert expected_msg.end_line == gotten_msg.end_line, msg
+                assert expected_msg.end_col_offset == gotten_msg.end_col_offset, msg
 
     def walk(self, node: nodes.NodeNG) -> None:
         """Recursive walk on the given node."""

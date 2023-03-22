@@ -41,7 +41,7 @@ jobs:
         python-version: ["3.7", "3.11"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v3.4.0
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
@@ -54,7 +54,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.2.5
+        uses: actions/cache@v3.3.1
         with:
           path: venv
           key:
@@ -132,7 +132,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.2.5
+        uses: actions/cache@v3.3.1
         with:
           path: tests/.pylint_primer_tests/
           key: >-

@@ -165,4 +165,4 @@ def check_parallel(
             linter.msg_status |= msg_status
 
     _merge_mapreduce_data(linter, all_mapreduce_data)
-    linter.stats = merge_stats([linter.stats] + all_stats)
+    linter.stats = merge_stats([linter.stats, *all_stats])

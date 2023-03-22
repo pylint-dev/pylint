@@ -358,7 +358,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         if defnode is None:
             continue
         defnode_scope = defnode.scope()
-        if isinstance(defnode_scope, COMP_NODE_TYPES + (nodes.Lambda,)):
+        if isinstance(defnode_scope, (*COMP_NODE_TYPES, nodes.Lambda)):
             # Avoid the case where var_node_scope is a nested function
             # FunctionDef is a Lambda until https://github.com/PyCQA/astroid/issues/291
             if isinstance(defnode_scope, nodes.FunctionDef):
@@ -2219,11 +2219,28 @@ def not_condition_as_string(
     return msg
 
 
+@lru_cache(maxsize=1000)
+def overridden_method(
+    klass: nodes.LocalsDictNodeNG, name: str | None
+) -> nodes.FunctionDef | None:
+    """Get overridden method if any."""
+    try:
+        parent = next(klass.local_attr_ancestors(name))
+    except (StopIteration, KeyError):
+        return None
+    try:
+        meth_node = parent[name]
+    except KeyError:  # pragma: no cover
+        # We have found an ancestor defining <name> but it's not in the local
+        # dictionary. This may happen with astroid built from living objects.
+        return None
+    if isinstance(meth_node, nodes.FunctionDef):
+        return meth_node
+    return None  # pragma: no cover
+
+
 def clear_lru_caches() -> None:
     """Clear caches holding references to AST nodes."""
-    # pylint: disable-next=import-outside-toplevel
-    from pylint.checkers.variables import overridden_method
-
     caches_holding_node_references: list[_lru_cache_wrapper[Any]] = [
         in_for_else_branch,
         infer_all,

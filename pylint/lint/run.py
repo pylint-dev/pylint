@@ -9,7 +9,7 @@ import sys
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from pylint import config
 from pylint.checkers.utils import clear_lru_caches
@@ -97,9 +97,6 @@ def _cpu_count() -> int:
     return cpu_count
 
 
-UNUSED_PARAM_SENTINEL = object()
-
-
 class Run:
     """Helper class to use as main for pylint with 'run(*sys.argv[1:])'."""
 
@@ -123,7 +120,6 @@ group are mutually exclusive.",
         args: Sequence[str],
         reporter: BaseReporter | None = None,
         exit: bool = True,  # pylint: disable=redefined-builtin
-        do_exit: Any = UNUSED_PARAM_SENTINEL,
     ) -> None:
         # Immediately exit if user asks for version
         if "--version" in args:
@@ -175,6 +171,7 @@ group are mutually exclusive.",
             warnings.warn(
                 "NOTE: The 'pylint-config' command is experimental and usage can change",
                 UserWarning,
+                stacklevel=2,
             )
             code = _handle_pylint_config_commands(linter)
             if exit:
@@ -214,14 +211,6 @@ group are mutually exclusive.",
         else:
             linter.check(args)
             score_value = linter.generate_reports()
-
-        if do_exit is not UNUSED_PARAM_SENTINEL:
-            warnings.warn(
-                "do_exit is deprecated and it is going to be removed in a future version.",
-                DeprecationWarning,
-            )
-            exit = do_exit
-
         if linter.config.clear_cache_post_run:
             clear_lru_caches()
             MANAGER.clear_cache()

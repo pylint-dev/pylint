@@ -45,6 +45,7 @@ def load_results(
                     "You're using an old pylint cache with invalid data following "
                     f"an upgrade, please delete '{data_file}'.",
                     UserWarning,
+                    stacklevel=2,
                 )
                 raise TypeError
             return data

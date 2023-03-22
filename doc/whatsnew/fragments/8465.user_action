@@ -1,0 +1,5 @@
+Following a deprecation period, it's no longer possible to use ``MASTER``
+or ``master`` as configuration section in ``setup.cfg`` or ``tox.ini``. It's bad practice
+to not start sections titles with the tool name. Please use ``pylint.main`` instead.
+
+Refs #8465

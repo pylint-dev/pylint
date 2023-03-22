@@ -1,0 +1,5 @@
+The warning when the now useless old pylint cache directory (pylint.d) was
+found was removed. The cache dir is documented in
+[the FAQ](https://pylint.readthedocs.io/en/latest/faq.html#where-is-the-persistent-data-stored-to-compare-between-successive-runs).
+
+Refs #8462
