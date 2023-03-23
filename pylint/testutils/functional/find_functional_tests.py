@@ -71,17 +71,27 @@ def _check_functional_tests_structure(directory: Path) -> None:
         f"{directory} contains too many functional tests files "
         + f"({len(files)} > {REASONABLY_DISPLAYABLE_VERTICALLY})."
     )
-
+    directory_does_not_exists: list[tuple[Path, Path]] = []
+    misplaced_file: list[Path] = []
     for file in files:
         possible_dir = file.parent / file.stem.split("_")[0]
-        assert not possible_dir.exists(), f"{file} should go in {possible_dir}."
-
+        if possible_dir.exists():
+            directory_does_not_exists.append((file, possible_dir))
         # Exclude some directories as they follow a different structure
         if (
             not len(file.parent.stem) == 1  # First letter sub-directories
             and file.parent.stem not in IGNORED_PARENT_DIRS
             and file.parent.parent.stem not in IGNORED_PARENT_PARENT_DIRS
         ):
-            assert file.stem.startswith(
-                file.parent.stem
-            ), f"{file} should not go in {file.parent}"
+            if not file.stem.startswith(file.parent.stem):
+                misplaced_file.append(file)
+    if directory_does_not_exists or misplaced_file:
+        msg = "The following functional tests are disorganized:\n"
+        for file, possible_dir in directory_does_not_exists:
+            msg += f"- {file} should go in {possible_dir}\n"
+        for file in misplaced_file:
+            msg += (
+                f"- {file} should go in a directory that starts with the first letters"
+                f" of '{file.stem}' (not '{file.parent.stem}')\n"
+            )
+        raise AssertionError(msg)
