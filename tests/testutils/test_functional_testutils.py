@@ -41,7 +41,11 @@ def test_parsing_of_pylintrc_init_hook() -> None:
 
 def test_get_functional_test_files_from_directory() -> None:
     """Test that we correctly check the functional test directory structures."""
-    with pytest.raises(AssertionError, match="using_dir.py should not go in"):
+    match = (
+        "using_dir.py should go in a directory that starts with the "
+        "first letters of 'using_dir'"
+    )
+    with pytest.raises(AssertionError, match=match):
         get_functional_test_files_from_directory(DATA_DIRECTORY / "u")
 
 
