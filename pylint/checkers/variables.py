@@ -739,7 +739,12 @@ scope_type : {self._atomic.scope_type}
             for inferred in all_inferred
         ):
             return NamesConsumer._branch_handles_name(name, node.orelse)
-        return NamesConsumer._branch_handles_name(name, node.body)
+        if all_inferred and any(
+            isinstance(inferred, nodes.Const) and inferred.value
+            for inferred in all_inferred
+        ):
+            return NamesConsumer._branch_handles_name(name, node.body)
+        return NamesConsumer._branch_handles_name(name, node.body) and NamesConsumer._branch_handles_name(name, node.orelse)
 
     @staticmethod
     def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
