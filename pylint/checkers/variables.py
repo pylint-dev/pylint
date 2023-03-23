@@ -906,7 +906,7 @@ scope_type : {self._atomic.scope_type}
             ):
                 return True
         if isinstance(node, (nodes.Import, nodes.ImportFrom)) and any(
-            node_name[0] == name for node_name in node.names
+            (node_name[1] and node_name[1] == name) or (node_name[0] == name) for node_name in node.names
         ):
             return True
         if isinstance(node, nodes.With) and any(
