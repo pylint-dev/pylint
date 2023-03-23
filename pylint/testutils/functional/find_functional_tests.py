@@ -33,11 +33,12 @@ IGNORED_PARENT_PARENT_DIRS = {
 
 def get_functional_test_files_from_directory(
     input_dir: Path | str,
+    max_file_per_directory: int = REASONABLY_DISPLAYABLE_VERTICALLY,
 ) -> list[FunctionalTestFile]:
     """Get all functional tests in the input_dir."""
     suite = []
 
-    _check_functional_tests_structure(Path(input_dir))
+    _check_functional_tests_structure(Path(input_dir), max_file_per_directory)
 
     for dirpath, dirnames, filenames in os.walk(input_dir):
         if dirpath.endswith("__pycache__"):
@@ -50,7 +51,9 @@ def get_functional_test_files_from_directory(
     return suite
 
 
-def _check_functional_tests_structure(directory: Path) -> None:
+def _check_functional_tests_structure(
+    directory: Path, max_file_per_directory: int
+) -> None:
     """Check if test directories follow correct file/folder structure.
 
     Ignore underscored directories or files.
@@ -63,19 +66,31 @@ def _check_functional_tests_structure(directory: Path) -> None:
 
     def walk(path: Path) -> Iterator[Path]:
         violations: list[tuple[Path, int]] = []
-        for _file_or_dir in path.iterdir():
+        violations_msgs: set[str] = set()
+        parent_dir_files = list(path.iterdir())
+        if len(parent_dir_files) > max_file_per_directory:
+            violations.append((path, len(parent_dir_files)))
+        error_msg = (
+            "The following directory contains too many functional tests files:\n"
+        )
+        for _file_or_dir in parent_dir_files:
             if _file_or_dir.is_dir():
                 _files = list(_file_or_dir.iterdir())
-                if len(_files) > REASONABLY_DISPLAYABLE_VERTICALLY:
+                if len(_files) > max_file_per_directory:
                     violations.append((_file_or_dir, len(_files)))
-                yield _file_or_dir
-                yield from walk(_file_or_dir)
+                yield _file_or_dir.resolve()
+                try:
+                    yield from walk(_file_or_dir)
+                except AssertionError as e:
+                    violations_msgs.add(str(e).replace(error_msg, ""))
             else:
                 yield _file_or_dir.resolve()
         if violations:
-            _msg = "The following directory contains too many functional tests files:\n"
+            _msg = error_msg
             for offending_file, number in violations:
-                _msg += f"- {offending_file}: ({number}) > {REASONABLY_DISPLAYABLE_VERTICALLY}\n"
+                _msg += f"- {offending_file}: {number} when the max is {max_file_per_directory}\n"
+            for error_msg in violations_msgs:
+                _msg += error_msg
             raise AssertionError(_msg)
 
     # Collect all sub-directories and files in directory
