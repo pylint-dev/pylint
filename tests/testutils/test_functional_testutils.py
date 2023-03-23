@@ -41,12 +41,17 @@ def test_parsing_of_pylintrc_init_hook() -> None:
 
 def test_get_functional_test_files_from_directory() -> None:
     """Test that we correctly check the functional test directory structures."""
-    match = (
+    with pytest.raises(AssertionError) as exc_info:
+        get_functional_test_files_from_directory(DATA_DIRECTORY / "u")
+    assert exc_info.match("'use_dir.py' should go in 'use'")
+    assert exc_info.match(
         "using_dir.py should go in a directory that starts with the "
         "first letters of 'using_dir'"
     )
-    with pytest.raises(AssertionError, match=match):
-        get_functional_test_files_from_directory(DATA_DIRECTORY / "u")
+    with pytest.raises(AssertionError):
+        exc_info.match("incredibly_bold_mischief.py")
+    # Leading underscore mean that this should not fail the assertion
+    get_functional_test_files_from_directory(DATA_DIRECTORY / "u/_no_issue_here")
 
 
 def test_minimal_messages_config_enabled(pytest_config: MagicMock) -> None:
