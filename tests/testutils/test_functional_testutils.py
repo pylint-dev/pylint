@@ -54,6 +54,22 @@ def test_get_functional_test_files_from_directory() -> None:
     get_functional_test_files_from_directory(DATA_DIRECTORY / "u/_no_issue_here")
 
 
+def test_get_functional_test_files_from_crowded_directory() -> None:
+    """Test that we correctly check the functional test directory structures."""
+    with pytest.raises(AssertionError) as exc_info:
+        get_functional_test_files_from_directory(
+            DATA_DIRECTORY / "m", max_file_per_directory=1
+        )
+    assert exc_info.match("m: 4 when the max is 1")
+    assert exc_info.match("max_overflow: 3 when the max is 1")
+    with pytest.raises(AssertionError) as exc_info:
+        get_functional_test_files_from_directory(
+            DATA_DIRECTORY / "m", max_file_per_directory=2
+        )
+    assert exc_info.match("m: 4 when the max is 2")
+    assert exc_info.match("max_overflow: 3 when the max is 2")
+
+
 def test_minimal_messages_config_enabled(pytest_config: MagicMock) -> None:
     """Test that all messages not targeted in the functional test are disabled
     when running with --minimal-messages-config.
