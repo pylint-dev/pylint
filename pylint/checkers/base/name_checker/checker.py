@@ -600,12 +600,10 @@ class NameChecker(_BasicChecker):
                 # Union is a special case because it can be used as a type alias
                 # or as a type annotation. We only want to check the former.
                 assert node is not None
-                if (
+                return not (
                     isinstance(node.parent, nodes.AnnAssign)
                     and node.parent.value is not None
-                ):
-                    return False
-                return True
+                )
         elif isinstance(inferred, nodes.FunctionDef):
             if inferred.qname() == "typing.TypeAlias":
                 return True
