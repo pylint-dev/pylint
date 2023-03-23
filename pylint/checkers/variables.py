@@ -742,7 +742,9 @@ scope_type : {self._atomic.scope_type}
             for inferred in all_inferred
         ):
             return NamesConsumer._branch_handles_name(name, node.body)
-        return NamesConsumer._branch_handles_name(name, node.body) and NamesConsumer._branch_handles_name(name, node.orelse)
+        return NamesConsumer._branch_handles_name(
+            name, node.body
+        ) and NamesConsumer._branch_handles_name(name, node.orelse)
 
     @staticmethod
     def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
@@ -909,7 +911,8 @@ scope_type : {self._atomic.scope_type}
             ):
                 return True
         if isinstance(node, (nodes.Import, nodes.ImportFrom)) and any(
-            (node_name[1] and node_name[1] == name) or (node_name[0] == name) for node_name in node.names
+            (node_name[1] and node_name[1] == name) or (node_name[0] == name)
+            for node_name in node.names
         ):
             return True
         if isinstance(node, nodes.With) and any(
