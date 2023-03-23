@@ -2461,7 +2461,7 @@ class VariablesChecker(BaseChecker):
                 else_stmt, (nodes.Return, nodes.Raise, nodes.Break, nodes.Continue)
             ):
                 return
-            # TODO: 2.16: Consider using RefactoringChecker._is_function_def_never_returning
+            # TODO: 3.0: Consider using RefactoringChecker._is_function_def_never_returning
             if isinstance(else_stmt, nodes.Expr) and isinstance(
                 else_stmt.value, nodes.Call
             ):

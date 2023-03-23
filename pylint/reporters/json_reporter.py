@@ -75,7 +75,7 @@ class JSONReporter(BaseJSONReporter):
     TODO: 3.0: Remove this JSONReporter in favor of the new one handling abs-path
     and confidence.
 
-    TODO: 2.16: Add a new JSONReporter handling abs-path, confidence and scores.
+    TODO: 3.0: Add a new JSONReporter handling abs-path, confidence and scores.
     (Ultimately all other breaking change related to json for 3.0).
     """
 

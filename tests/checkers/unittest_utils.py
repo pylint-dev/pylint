@@ -413,7 +413,6 @@ def test_if_sys_guard() -> None:
     assert utils.is_sys_guard(code[2]) is False
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_if_typing_guard() -> None:
     code = astroid.extract_node(
         """
@@ -421,30 +420,30 @@ def test_if_typing_guard() -> None:
     import typing as t
     from typing import TYPE_CHECKING
 
-    if typing.TYPE_CHECKING:  #@
-        pass
+    if typing.TYPE_CHECKING:
+        pass  #@
 
-    if t.TYPE_CHECKING:  #@
-        pass
+    if t.TYPE_CHECKING:
+        pass #@
 
-    if TYPE_CHECKING:  #@
-        pass
+    if TYPE_CHECKING:
+        pass #@
 
-    if typing.SOME_OTHER_CONST:  #@
-        pass
+    if typing.SOME_OTHER_CONST:
+        pass  #@
     """
     )
     assert isinstance(code, list) and len(code) == 4
 
-    assert isinstance(code[0], nodes.If)
-    assert utils.is_typing_guard(code[0]) is True
-    assert isinstance(code[1], nodes.If)
-    assert utils.is_typing_guard(code[1]) is True
-    assert isinstance(code[2], nodes.If)
-    assert utils.is_typing_guard(code[2]) is True
+    assert isinstance(code[0], nodes.Pass)
+    assert utils.in_type_checking_block(code[0]) is True
+    assert isinstance(code[1], nodes.Pass)
+    assert utils.in_type_checking_block(code[1]) is True
+    assert isinstance(code[2], nodes.Pass)
+    assert utils.in_type_checking_block(code[2]) is True
 
-    assert isinstance(code[3], nodes.If)
-    assert utils.is_typing_guard(code[3]) is False
+    assert isinstance(code[3], nodes.Pass)
+    assert utils.in_type_checking_block(code[3]) is False
 
 
 def test_in_type_checking_block() -> None:
