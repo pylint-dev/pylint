@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 from pathlib import Path
 
 from pylint.testutils.functional.test_file import FunctionalTestFile
@@ -50,27 +51,38 @@ def get_functional_test_files_from_directory(
 
 
 def _check_functional_tests_structure(directory: Path) -> None:
-    """Check if test directories follow correct file/folder structure."""
-    # Ignore underscored directories
+    """Check if test directories follow correct file/folder structure.
+
+    Ignore underscored directories or files.
+    """
     if Path(directory).stem.startswith("_"):
         return
 
     files: set[Path] = set()
     dirs: set[Path] = set()
 
-    # Collect all sub-directories and files in directory
-    for file_or_dir in directory.iterdir():
-        if file_or_dir.is_file():
-            if file_or_dir.suffix == ".py" and not file_or_dir.stem.startswith("_"):
-                files.add(file_or_dir)
-        elif file_or_dir.is_dir():
-            dirs.add(file_or_dir)
-            _check_functional_tests_structure(file_or_dir)
+    def walk(path: Path) -> Iterator[Path]:
+        for _file_or_dir in path.iterdir():
+            if _file_or_dir.is_dir():
+                _files = list(_file_or_dir.iterdir())
+                assert len(_files) <= REASONABLY_DISPLAYABLE_VERTICALLY, (
+                    f"{_file_or_dir} contains too many functional tests files "
+                    + f"({len(_files)} > {REASONABLY_DISPLAYABLE_VERTICALLY})."
+                )
+                yield _file_or_dir
+                yield from walk(_file_or_dir)
+            else:
+                yield _file_or_dir.resolve()
 
-    assert len(files) <= REASONABLY_DISPLAYABLE_VERTICALLY, (
-        f"{directory} contains too many functional tests files "
-        + f"({len(files)} > {REASONABLY_DISPLAYABLE_VERTICALLY})."
-    )
+    # Collect all sub-directories and files in directory
+    for file_or_dir in walk(directory):
+        if file_or_dir.stem.startswith("_"):
+            continue
+        if file_or_dir.is_dir():
+            dirs.add(file_or_dir)
+        elif file_or_dir.suffix == ".py":
+            files.add(file_or_dir)
+
     directory_does_not_exists: list[tuple[Path, Path]] = []
     misplaced_file: list[Path] = []
     for file in files:
@@ -88,10 +100,14 @@ def _check_functional_tests_structure(directory: Path) -> None:
     if directory_does_not_exists or misplaced_file:
         msg = "The following functional tests are disorganized:\n"
         for file, possible_dir in directory_does_not_exists:
-            msg += f"- {file} should go in {possible_dir}\n"
+            msg += (
+                f"- In '{directory}', '{file.relative_to(directory)}' "
+                f"should go in '{possible_dir.relative_to(directory)}'\n"
+            )
         for file in misplaced_file:
             msg += (
-                f"- {file} should go in a directory that starts with the first letters"
+                f"- In '{directory}', {file.relative_to(directory)} should go in a directory"
+                f" that starts with the first letters"
                 f" of '{file.stem}' (not '{file.parent.stem}')\n"
             )
         raise AssertionError(msg)
