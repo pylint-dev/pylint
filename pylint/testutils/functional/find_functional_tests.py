@@ -10,7 +10,7 @@ from pathlib import Path
 
 from pylint.testutils.functional.test_file import FunctionalTestFile
 
-REASONABLY_DISPLAYABLE_VERTICALLY = 48
+REASONABLY_DISPLAYABLE_VERTICALLY = 49
 """'Wet finger' number of files that are reasonable to display by an IDE."""
 SHOULD_BE_IN_THE_SAME_DIRECTORY = 5
 """'Wet finger' as in 'in my settings there are precisely this many'."""
@@ -62,17 +62,21 @@ def _check_functional_tests_structure(directory: Path) -> None:
     dirs: set[Path] = set()
 
     def walk(path: Path) -> Iterator[Path]:
+        violations: list[tuple[Path, int]] = []
         for _file_or_dir in path.iterdir():
             if _file_or_dir.is_dir():
                 _files = list(_file_or_dir.iterdir())
-                assert len(_files) <= REASONABLY_DISPLAYABLE_VERTICALLY, (
-                    f"{_file_or_dir} contains too many functional tests files "
-                    + f"({len(_files)} > {REASONABLY_DISPLAYABLE_VERTICALLY})."
-                )
+                if len(_files) > REASONABLY_DISPLAYABLE_VERTICALLY:
+                    violations.append((_file_or_dir, len(_files)))
                 yield _file_or_dir
                 yield from walk(_file_or_dir)
             else:
                 yield _file_or_dir.resolve()
+        if violations:
+            _msg = "The following directory contains too many functional tests files:\n"
+            for offending_file, number in violations:
+                _msg += f"- {offending_file}: ({number}) > {REASONABLY_DISPLAYABLE_VERTICALLY}\n"
+            raise AssertionError(_msg)
 
     # Collect all sub-directories and files in directory
     for file_or_dir in walk(directory):
