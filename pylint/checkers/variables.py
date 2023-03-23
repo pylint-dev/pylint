@@ -544,7 +544,6 @@ class NamesConsumer:
             copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
         )
         self.node = node
-        self._if_nodes_deemed_uncertain: set[nodes.If] = set()
 
     def __repr__(self) -> str:
         _to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
@@ -803,19 +802,11 @@ scope_type : {self._atomic.scope_type}
                 continue
 
             outer_if = all_if[-1]
-            # Higher-level if already determined to be always false
-            if any(
-                if_node.parent_of(outer_if)
-                for if_node in self._if_nodes_deemed_uncertain
-            ):
-                uncertain_nodes.append(other_node)
-                continue
             # Name defined in every if/else branch
             if NamesConsumer._exhaustively_define_name_raise_or_return(name, outer_if):
                 continue
 
             uncertain_nodes.append(other_node)
-            self._if_nodes_deemed_uncertain.add(outer_if)
 
         return uncertain_nodes
 
