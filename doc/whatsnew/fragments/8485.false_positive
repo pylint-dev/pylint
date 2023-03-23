@@ -1,0 +1,4 @@
+``invalid-name`` now allows for integers in ``typealias`` names:
+``Good2Name``, ``GoodName2``, ``_1BadName``.
+
+Closes #8485
