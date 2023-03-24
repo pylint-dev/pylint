@@ -18,7 +18,6 @@ from pylint.testutils.functional import LintModuleOutputUpdate
 
 FIXTURE_DIRECTORY = Path(__file__).parent / "data/functional"
 DIRECTORIES = list(FIXTURE_DIRECTORY.iterdir())
-DIRECTORIES_NAMES = [d.name for d in DIRECTORIES]
 
 
 @pytest.fixture()
@@ -88,7 +87,9 @@ def test_lint_module_output_update_remove_useless_txt(
     not PY38_PLUS or (IS_PYPY and not PY39_PLUS),
     reason="Requires accurate 'end_col' value to update output",
 )
-@pytest.mark.parametrize("directory_path", DIRECTORIES, ids=DIRECTORIES_NAMES)
+@pytest.mark.parametrize(
+    "directory_path", DIRECTORIES, ids=[str(p) for p in DIRECTORIES]
+)
 def test_update_of_functional_output(directory_path: Path, tmp_path: Path) -> None:
     """Functional test for the functional tests' helper."""
 
