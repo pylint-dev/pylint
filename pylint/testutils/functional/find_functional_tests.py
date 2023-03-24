@@ -64,20 +64,27 @@ def _check_functional_tests_structure(
     files: set[Path] = set()
     dirs: set[Path] = set()
 
+    def _get_files_from_dir(
+        path: Path, violations: list[tuple[Path, int]]
+    ) -> list[Path]:
+        """Return directories and files from a directory and handles violations."""
+        files_without_leading_underscore = list(
+            p for p in path.iterdir() if not p.stem.startswith("_")
+        )
+        if len(files_without_leading_underscore) > max_file_per_directory:
+            violations.append((path, len(files_without_leading_underscore)))
+        return files_without_leading_underscore
+
     def walk(path: Path) -> Iterator[Path]:
         violations: list[tuple[Path, int]] = []
         violations_msgs: set[str] = set()
-        parent_dir_files = list(path.iterdir())
-        if len(parent_dir_files) > max_file_per_directory:
-            violations.append((path, len(parent_dir_files)))
+        parent_dir_files = _get_files_from_dir(path, violations)
         error_msg = (
             "The following directory contains too many functional tests files:\n"
         )
         for _file_or_dir in parent_dir_files:
             if _file_or_dir.is_dir():
-                _files = list(_file_or_dir.iterdir())
-                if len(_files) > max_file_per_directory:
-                    violations.append((_file_or_dir, len(_files)))
+                _files = _get_files_from_dir(_file_or_dir, violations)
                 yield _file_or_dir.resolve()
                 try:
                     yield from walk(_file_or_dir)
@@ -85,7 +92,7 @@ def _check_functional_tests_structure(
                     violations_msgs.add(str(e).replace(error_msg, ""))
             else:
                 yield _file_or_dir.resolve()
-        if violations:
+        if violations or violations_msgs:
             _msg = error_msg
             for offending_file, number in violations:
                 _msg += f"- {offending_file}: {number} when the max is {max_file_per_directory}\n"
@@ -95,8 +102,6 @@ def _check_functional_tests_structure(
 
     # Collect all sub-directories and files in directory
     for file_or_dir in walk(directory):
-        if file_or_dir.stem.startswith("_"):
-            continue
         if file_or_dir.is_dir():
             dirs.add(file_or_dir)
         elif file_or_dir.suffix == ".py":
@@ -116,6 +121,7 @@ def _check_functional_tests_structure(
         ):
             if not file.stem.startswith(file.parent.stem):
                 misplaced_file.append(file)
+
     if directory_does_not_exists or misplaced_file:
         msg = "The following functional tests are disorganized:\n"
         for file, possible_dir in directory_does_not_exists:
