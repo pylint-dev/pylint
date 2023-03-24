@@ -744,7 +744,7 @@ scope_type : {self._atomic.scope_type}
             return NamesConsumer._branch_handles_name(name, node.body)
         return NamesConsumer._branch_handles_name(
             name, node.body
-        ) and NamesConsumer._branch_handles_name(name, node.orelse)
+        ) or NamesConsumer._branch_handles_name(name, node.orelse)
 
     @staticmethod
     def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
