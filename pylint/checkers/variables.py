@@ -705,7 +705,14 @@ scope_type : {self._atomic.scope_type}
             # Allow either a path through try/else/finally OR a path through ALL except handlers
             try_except_node = node
             if isinstance(node, nodes.TryFinally):
-                try_except_node = next((child for child in node.get_children() if isinstance(child, nodes.TryExcept)), None)
+                try_except_node = next(
+                    (
+                        child
+                        for child in node.get_children()
+                        if isinstance(child, nodes.TryExcept)
+                    ),
+                    None,
+                )
             handlers = try_except_node.handlers if try_except_node else []
             return NamesConsumer._defines_name_raises_or_returns_recursive(
                 name, node
