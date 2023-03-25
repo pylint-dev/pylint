@@ -47,7 +47,7 @@ class LintTestUsingModule:
         if self.module:
             tocheck = [self.package + "." + self.module]
         if self.depends:
-            tocheck += [  # pylint: disable=undefined-variable
+            tocheck += [
                 self.package + f".{name.replace('.py', '')}" for name, _ in self.depends
             ]
         # given that TESTS_DIR could be treated as a namespace package
