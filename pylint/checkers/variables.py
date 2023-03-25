@@ -694,9 +694,7 @@ scope_type : {self._atomic.scope_type}
         return found_nodes
 
     @staticmethod
-    def _inferred_to_define_name_raise_or_return(
-        name: str, node: nodes.NodeNG
-    ) -> bool:
+    def _inferred_to_define_name_raise_or_return(name: str, node: nodes.NodeNG) -> bool:
         """Return True if there is a collectively exhaustive set of paths under
         this `if_node` that define `name`, raise, or return.
         """
