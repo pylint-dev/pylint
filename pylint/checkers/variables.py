@@ -694,7 +694,7 @@ scope_type : {self._atomic.scope_type}
         return found_nodes
 
     @staticmethod
-    def _exhaustively_define_name_raise_or_return(
+    def _inferred_to_define_name_raise_or_return(
         name: str, node: nodes.NodeNG
     ) -> bool:
         """Return True if there is a collectively exhaustive set of paths under
@@ -737,11 +737,13 @@ scope_type : {self._atomic.scope_type}
 
         test = node.test.value if isinstance(node.test, nodes.NamedExpr) else node.test
         all_inferred = utils.infer_all(test)
+        # Only search else branch when test condition is inferred to be false
         if all_inferred and all(
             isinstance(inferred, nodes.Const) and not inferred.value
             for inferred in all_inferred
         ):
             return NamesConsumer._branch_handles_name(name, node.orelse)
+        # Only search if branch when test condition is inferred to be true
         if all_inferred and any(
             isinstance(inferred, nodes.Const)
             and inferred.value != NotImplemented
@@ -749,6 +751,7 @@ scope_type : {self._atomic.scope_type}
             for inferred in all_inferred
         ):
             return NamesConsumer._branch_handles_name(name, node.body)
+        # Search both if and else branches
         return NamesConsumer._branch_handles_name(
             name, node.body
         ) or NamesConsumer._branch_handles_name(name, node.orelse)
@@ -768,7 +771,7 @@ scope_type : {self._atomic.scope_type}
                     nodes.While,
                 ),
             )
-            and NamesConsumer._exhaustively_define_name_raise_or_return(
+            and NamesConsumer._inferred_to_define_name_raise_or_return(
                 name, if_body_stmt
             )
             for if_body_stmt in body
@@ -785,10 +788,6 @@ scope_type : {self._atomic.scope_type}
         """
         uncertain_nodes = []
         for other_node in found_nodes:
-            if VariablesChecker._is_only_type_assignment(
-                node, other_node.statement(future=True)
-            ) or VariablesChecker._is_variable_annotation_in_function(node):
-                continue
             if isinstance(other_node, nodes.AssignName):
                 name = other_node.name
             elif isinstance(other_node, (nodes.Import, nodes.ImportFrom)):
@@ -814,8 +813,8 @@ scope_type : {self._atomic.scope_type}
                 continue
 
             outer_if = all_if[-1]
-            # Name defined in every if/else branch
-            if NamesConsumer._exhaustively_define_name_raise_or_return(name, outer_if):
+            # Name defined in the if/else control flow
+            if NamesConsumer._inferred_to_define_name_raise_or_return(name, outer_if):
                 continue
 
             uncertain_nodes.append(other_node)
@@ -1719,8 +1718,10 @@ class VariablesChecker(BaseChecker):
         if found_nodes is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
-            if not self._postponed_evaluation_enabled and not self._is_builtin(
-                node.name
+            if (
+                not self._postponed_evaluation_enabled
+                and not self._is_builtin(node.name)
+                and not self._is_variable_annotation_in_function(node)
             ):
                 confidence = (
                     CONTROL_FLOW
