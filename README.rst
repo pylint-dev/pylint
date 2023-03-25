@@ -78,14 +78,14 @@ It can also be integrated in most editors or IDEs. More information can be found
 
 .. This is used inside the doc to recover the end of the short text for installation
 
-What differentiate Pylint?
---------------------------
+What differentiates Pylint?
+---------------------------
 
 Pylint is not trusting your typing and is inferring the actual value of nodes (for a
 start because there was no typing when pylint started off) using its internal code
 representation (astroid). If your code is ``import logging as argparse``, Pylint
 can check and know that ``argparse.error(...)`` is in fact a logging call and not an
-argparse call. This  makes pylint slower, but it also let pylint find more issues if
+argparse call. This makes pylint slower, but it also lets pylint find more issues if
 your code is not fully typed.
 
     [inference] is the killer feature that keeps us using [pylint] in our project despite how painfully slow it is.
@@ -94,7 +94,8 @@ your code is not fully typed.
 .. _`Realist pylint user`: https://github.com/charliermarsh/ruff/issues/970#issuecomment-1381067064
 
 pylint, not afraid of being a little slower than it already is, is also a lot more thorough than other linters.
-There is more checks, some opinionated one that are deactivated by default, but can be enabled using configuration.
+There are more checks, including some opinionated ones that are deactivated by default
+but can be enabled using configuration.
 
 How to use pylint
 -----------------
@@ -103,12 +104,12 @@ Pylint isn't smarter than you: it may warn you about things that you have
 conscientiously done or check for some things that you don't care about.
 During adoption, especially in a legacy project where pylint was never enforced,
 it's best to start with the ``--errors-only`` flag, then disable
-convention and refactor message with ``--disable=C,R`` and progressively
+convention and refactor messages with ``--disable=C,R`` and progressively
 re-evaluate and re-enable messages as your priorities evolve.
 
 Pylint is highly configurable and permits to write plugins in order to add your
 own checks (for example, for internal libraries or an internal rule). Pylint also has an
-ecosystem of existing plugins for popular frameworks and third party libraries.
+ecosystem of existing plugins for popular frameworks and third-party libraries.
 
 .. note::
 
@@ -128,7 +129,7 @@ Advised linters alongside pylint
 --------------------------------
 
 Projects that you might want to use alongside pylint include ruff_ (**really** fast,
-with builtin auto-fix, and a growing number of checks taken from popular
+with builtin auto-fix and a growing number of checks taken from popular
 linters but implemented in ``rust``) or flake8_ (faster and simpler checks with very few false positives),
 mypy_, pyright_ or pyre_ (typing checks), bandit_ (security oriented checks), black_ and
 isort_ (auto-formatting), autoflake_ (automated removal of unused imports or variables),
