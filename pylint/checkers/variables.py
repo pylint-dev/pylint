@@ -230,20 +230,21 @@ def _detect_global_scope(
         return False
 
     break_scopes = []
-    for current_scope in (scope, def_scope):
+    for current_scope in (scope or frame, def_scope):
         # Look for parent scopes. If there is anything different
         # than a module or a class scope, then the frames don't
         # share a global scope.
         parent_scope = current_scope
         while parent_scope:
-            if not isinstance(parent_scope, (nodes.ClassDef, nodes.Module)):
-                break_scopes.append(parent_scope)
+            if isinstance(parent_scope, (nodes.ClassDef, nodes.Module)):
                 break
             if parent_scope.parent:
                 parent_scope = parent_scope.parent.scope()
             else:
                 break
-    if break_scopes and len(set(break_scopes)) != 1:
+        break_scopes.append(parent_scope)
+
+    if len(set(break_scopes)) != 1:
         # Store different scopes than expected.
         # If the stored scopes are, in fact, the very same, then it means
         # that the two frames (frame and defframe) share the same scope,
