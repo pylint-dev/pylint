@@ -14,6 +14,11 @@ def outer():
 outer()
 
 
+class ClassWithProperty:  # pylint: disable=too-few-public-methods
+    """This test depends on a later-defined module-level function."""
+    prop = property(calculate)
+
+
 calculate(1.01, 2)  # [used-before-assignment]
 def calculate(value1: int, value2: float) -> int:
     return value1 + value2
