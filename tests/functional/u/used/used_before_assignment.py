@@ -14,6 +14,11 @@ def outer():
 outer()
 
 
+calculate(1.01, 2)  # [used-before-assignment]
+def calculate(value1: int, value2: float) -> int:
+    return value1 + value2
+
+
 # pylint: disable=unused-import, wrong-import-position, import-outside-toplevel, reimported, redefined-outer-name, global-statement
 import time
 def redefine_time_import():
