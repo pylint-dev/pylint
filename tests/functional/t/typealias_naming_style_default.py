@@ -24,3 +24,7 @@ _BAD_NAME = Union[int, str]  # [invalid-name]
 __BAD_NAME = Union[int, str]  # [invalid-name]
 _1BadName = Union[int, str]  # [invalid-name]
 ANOTHERBADNAME = Union[int, str]  # [invalid-name]
+
+# Regression tests
+# This is not a TypeAlias, and thus shouldn't flag the message
+x: Union[str, int] = 42
