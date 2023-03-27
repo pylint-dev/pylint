@@ -1,0 +1,5 @@
+``unnecessary-lambda`` no longer warns on lambdas which use its parameters in
+their body (other than the final arguments), e.g.
+``lambda foo: (bar if foo else baz)(foo)``.
+
+Closes #8496
