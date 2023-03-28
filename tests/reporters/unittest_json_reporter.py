@@ -8,15 +8,17 @@ from __future__ import annotations
 
 import json
 from io import StringIO
+from pathlib import Path
 from typing import Any
 
 import pytest
 
 from pylint import checkers
-from pylint.interfaces import UNDEFINED
+from pylint.interfaces import HIGH, UNDEFINED
 from pylint.lint import PyLinter
 from pylint.message import Message
 from pylint.reporters import JSONReporter
+from pylint.reporters.json_reporter import NewJSONReporter
 from pylint.reporters.ureports.nodes import EvaluationSection
 from pylint.typing import MessageLocationTuple
 
@@ -133,5 +135,36 @@ def get_linter_result(score: bool, message: dict[str, Any]) -> list[dict[str, An
 )
 def test_serialize_deserialize(message: Message) -> None:
     # TODO: 3.0: Add confidence handling, add path and abs path handling or a new JSONReporter
-    json_message = JSONReporter.serialize(message)
-    assert message == JSONReporter.deserialize(json_message)
+    for reporter in (JSONReporter, NewJSONReporter):
+        json_message = reporter.serialize(message)
+        assert message == reporter.deserialize(json_message)
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        pytest.param(
+            Message(
+                msg_id="C0111",
+                symbol="missing-docstring",
+                location=MessageLocationTuple(
+                    abspath=str(Path(__file__).resolve()),
+                    path=__file__,
+                    module="unittest_json_reporter",
+                    obj="obj",
+                    line=1,
+                    column=3,
+                    end_line=3,
+                    end_column=5,
+                ),
+                msg="This is the actual message",
+                confidence=HIGH,
+            ),
+            id="everything-defined",
+        )
+    ],
+)
+def test_serialize_deserialize_new_json(message: Message) -> None:
+    json_message = NewJSONReporter.serialize(message)
+    print(json_message)
+    assert message == NewJSONReporter.deserialize(json_message)

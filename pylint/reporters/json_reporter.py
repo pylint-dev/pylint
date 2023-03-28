@@ -10,7 +10,7 @@ import json
 import sys
 from typing import TYPE_CHECKING, Optional
 
-from pylint.interfaces import UNDEFINED
+from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.typing import MessageLocationTuple
@@ -43,6 +43,11 @@ OldJsonExport = TypedDict(
 )
 
 
+class JSONExport(OldJsonExport):
+    confidence: Confidence
+    abspath: str
+
+
 class BaseJSONReporter(BaseReporter):
     """Report messages and layouts in JSON."""
 
@@ -69,15 +74,9 @@ class BaseJSONReporter(BaseReporter):
         raise NotImplementedError
 
 
-class JSONReporter(BaseJSONReporter):
+class OldJSONReporter(BaseJSONReporter):
 
-    """
-    TODO: 3.0: Remove this JSONReporter in favor of the new one handling abs-path
-    and confidence.
-
-    TODO: 3.0: Add a new JSONReporter handling abs-path, confidence and scores.
-    (Ultimately all other breaking change related to json for 3.0).
-    """
+    """TODO: Remove in 4.0."""
 
     @staticmethod
     def serialize(message: Message) -> OldJsonExport:
@@ -102,7 +101,6 @@ class JSONReporter(BaseJSONReporter):
             symbol=message_as_json["symbol"],
             msg=message_as_json["message"],
             location=MessageLocationTuple(
-                # TODO: 3.0: Add abs-path and confidence in a new JSONReporter
                 abspath=message_as_json["path"],
                 path=message_as_json["path"],
                 module=message_as_json["module"],
@@ -112,10 +110,49 @@ class JSONReporter(BaseJSONReporter):
                 end_line=message_as_json["endLine"],
                 end_column=message_as_json["endColumn"],
             ),
-            # TODO: 3.0: Make confidence available in a new JSONReporter
             confidence=UNDEFINED,
         )
 
 
+class JSONReporter(BaseJSONReporter):
+    @staticmethod
+    def serialize(message: Message) -> JSONExport:
+        return {
+            "type": message.category,
+            "module": message.module,
+            "obj": message.obj,
+            "line": message.line,
+            "column": message.column,
+            "endLine": message.end_line,
+            "endColumn": message.end_column,
+            "path": message.path,
+            "symbol": message.symbol,
+            "message": message.msg or "",
+            "message-id": message.msg_id,
+            "confidence": message.confidence,
+            "abspath": message.abspath,
+        }
+
+    @staticmethod
+    def deserialize(message_as_json: JSONExport) -> Message:
+        return Message(
+            msg_id=message_as_json["message-id"],
+            symbol=message_as_json["symbol"],
+            msg=message_as_json["message"],
+            location=MessageLocationTuple(
+                abspath=message_as_json["abspath"],
+                path=message_as_json["path"],
+                module=message_as_json["module"],
+                obj=message_as_json["obj"],
+                line=message_as_json["line"],
+                column=message_as_json["column"],
+                end_line=message_as_json["endLine"],
+                end_column=message_as_json["endColumn"],
+            ),
+            confidence=message_as_json["confidence"],
+        )
+
+
 def register(linter: PyLinter) -> None:
+    linter.register_reporter(OldJSONReporter)
     linter.register_reporter(JSONReporter)
