@@ -9,6 +9,8 @@ AnotherGoodName = Union[int, str]
 GOODName: TypeAlias = int
 GOODNAMEType: TypeAlias = int
 TodoType: TypeAlias = int
+Good2Name: TypeAlias = int
+GoodName2: TypeAlias = int
 
 # Non-PascalCase names
 BadNAME: TypeAlias = int  # [invalid-name]
@@ -20,6 +22,7 @@ BadNameT: TypeAlias = int  # [invalid-name]
 BAD_NAME = Union[int, str]  # [invalid-name]
 _BAD_NAME = Union[int, str]  # [invalid-name]
 __BAD_NAME = Union[int, str]  # [invalid-name]
+_1BadName = Union[int, str]  # [invalid-name]
 ANOTHERBADNAME = Union[int, str]  # [invalid-name]
 
 # Regression tests
