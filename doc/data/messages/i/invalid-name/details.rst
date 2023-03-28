@@ -88,11 +88,11 @@ The following type of names are checked with a predefined pattern:
 | ``typevar``        | ``T``, ``_CallableT``, ``_T_co``, ``AnyStr``,         | ``DICT_T``, ``CALLABLE_T``, ``ENUM_T``, ``DeviceType``,    |
 |                    | ``DeviceTypeT``, ``IPAddressT``                       | ``_StrType``                                               |
 +--------------------+-------------------------------------------------------+------------------------------------------------------------+
-| ``typealias``      | ``GoodName``, ``_GoodName``, ``IPAddressType`` and    | ``BadNameT``, ``badName``, ``TBadName``, ``TypeBadName``   |
-|                    |  other PascalCase variants that don't start with ``T``|                                                            |
-|                    |  or ``Type``. This is to distinguish them from        |                                                            |
-|                    |  ``typevars``. Note that ``TopName`` is allowed but   |                                                            |
-|                    |  ``TTopName`` isn't.                                  |                                                            |
+| ``typealias``      | ``GoodName``, ``_GoodName``, ``IPAddressType``,       | ``BadNameT``, ``badName``, ``TBadName``, ``TypeBadName``,  |
+|                    |  ``GoodName2`` and other PascalCase variants that     |  ``_1BadName``                                             |
+|                    |  don't start with ``T`` or ``Type``. This is to       |                                                            |
+|                    |  distinguish them from ``typevars``. Note that        |                                                            |
+|                    |  ``TopName`` is allowed but ``TTopName`` isn't.       |                                                            |
 +--------------------+-------------------------------------------------------+------------------------------------------------------------+
 
 Custom regular expressions
