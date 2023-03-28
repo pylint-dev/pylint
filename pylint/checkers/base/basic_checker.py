@@ -519,6 +519,7 @@ class BasicChecker(_BasicChecker):
         )
 
     @utils.only_required_for_messages("unnecessary-lambda")
+    # pylint: disable-next=too-many-return-statements
     def visit_lambda(self, node: nodes.Lambda) -> None:
         """Check whether the lambda is suspicious."""
         # if the body of the lambda is a call expression with the same
