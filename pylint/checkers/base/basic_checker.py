@@ -519,6 +519,7 @@ class BasicChecker(_BasicChecker):
         )
 
     @utils.only_required_for_messages("unnecessary-lambda")
+    # pylint: disable-next=too-many-return-statements
     def visit_lambda(self, node: nodes.Lambda) -> None:
         """Check whether the lambda is suspicious."""
         # if the body of the lambda is a call expression with the same
@@ -574,6 +575,13 @@ class BasicChecker(_BasicChecker):
             if not isinstance(passed_arg, nodes.Name):
                 return
             if arg.name != passed_arg.name:
+                return
+
+        # The lambda is necessary if it uses its parameter in the function it is
+        # calling in the lambda's body
+        # e.g. lambda foo: (func1 if foo else func2)(foo)
+        for name in call.func.nodes_of_class(nodes.Name):
+            if name.lookup(name.name)[0] is node:
                 return
 
         self.add_message("unnecessary-lambda", line=node.fromlineno, node=node)

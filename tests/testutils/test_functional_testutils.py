@@ -41,8 +41,32 @@ def test_parsing_of_pylintrc_init_hook() -> None:
 
 def test_get_functional_test_files_from_directory() -> None:
     """Test that we correctly check the functional test directory structures."""
-    with pytest.raises(AssertionError, match="using_dir.py should not go in"):
-        get_functional_test_files_from_directory(DATA_DIRECTORY)
+    with pytest.raises(AssertionError) as exc_info:
+        get_functional_test_files_from_directory(DATA_DIRECTORY / "u")
+    assert exc_info.match("'use_dir.py' should go in 'use'")
+    assert exc_info.match(
+        "using_dir.py should go in a directory that starts with the "
+        "first letters of 'using_dir'"
+    )
+    assert "incredibly_bold_mischief.py" not in str(exc_info.value)
+    # Leading underscore mean that this should not fail the assertion
+    get_functional_test_files_from_directory(DATA_DIRECTORY / "u/_no_issue_here")
+
+
+def test_get_functional_test_files_from_crowded_directory() -> None:
+    """Test that we correctly check the functional test directory structures."""
+    with pytest.raises(AssertionError) as exc_info:
+        get_functional_test_files_from_directory(
+            DATA_DIRECTORY / "m", max_file_per_directory=1
+        )
+    assert exc_info.match("m: 4 when the max is 1")
+    assert exc_info.match("max_overflow: 3 when the max is 1")
+    with pytest.raises(AssertionError) as exc_info:
+        get_functional_test_files_from_directory(
+            DATA_DIRECTORY / "m", max_file_per_directory=3
+        )
+    assert exc_info.match("m: 4 when the max is 3")
+    assert "max_overflow" not in str(exc_info.value)
 
 
 def test_minimal_messages_config_enabled(pytest_config: MagicMock) -> None:
