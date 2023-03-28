@@ -11,9 +11,10 @@ from pathlib import Path
 from pylint.testutils.functional.test_file import FunctionalTestFile
 
 REASONABLY_DISPLAYABLE_VERTICALLY = 49
-"""'Wet finger' number of files that are reasonable to display by an IDE."""
-SHOULD_BE_IN_THE_SAME_DIRECTORY = 5
-"""'Wet finger' as in 'in my settings there are precisely this many'."""
+"""'Wet finger' number of files that are reasonable to display by an IDE.
+
+'Wet finger' as in 'in my settings there are precisely this many'.
+"""
 
 IGNORED_PARENT_DIRS = {
     "deprecated_relative_import",
