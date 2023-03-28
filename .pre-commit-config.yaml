@@ -16,13 +16,13 @@ repos:
             doc/data/messages/m/missing-final-newline/bad.py|
           )$
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.257"
+    rev: "v0.0.259"
     hooks:
       - id: ruff
         args: ["--fix"]
         exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.257"
+    rev: "v0.0.259"
     hooks:
       - id: ruff
         name: ruff-doc
