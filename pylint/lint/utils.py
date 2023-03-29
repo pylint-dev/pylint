@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -26,10 +26,11 @@ def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> 
     if not issue_template_path.exists():
         template = """\
 First, please verify that the bug is not already filled:
-https://github.com/PyCQA/pylint/issues/
+https://github.com/pylint-dev/pylint/issues/
 
-Then create a new crash issue:
-https://github.com/PyCQA/pylint/issues/new?assignees=&labels=crash%2Cneeds+triage&template=BUG-REPORT.yml
+Then create a new issue:
+https://github.com/pylint-dev/pylint/issues/new?labels=Crash 💥%2CNeeds triage 📥
+
 
 """
     template += f"""\

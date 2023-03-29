@@ -1,6 +1,6 @@
 """Tests for used-before-assignment with assignments in except handlers after
 try blocks with return statements.
-See: https://github.com/PyCQA/pylint/issues/5500.
+See: https://github.com/pylint-dev/pylint/issues/5500.
 """
 # pylint: disable=inconsistent-return-statements,broad-exception-raised
 

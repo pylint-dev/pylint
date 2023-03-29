@@ -105,7 +105,7 @@ def init_connection_state(alias):
 
 
 # Prevent emitting `invalid-name` for the line on which `global` is declared
-# https://github.com/PyCQA/pylint/issues/8307
+# https://github.com/pylint-dev/pylint/issues/8307
 
 _foo: str = "tomato"
 def setup_shared_foo():

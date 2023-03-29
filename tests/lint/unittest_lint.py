@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
 
@@ -1267,7 +1267,7 @@ def test_globbing() -> None:
 
 
 def test_relative_imports(initialized_linter: PyLinter) -> None:
-    """Regression test for https://github.com/PyCQA/pylint/issues/3651"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/3651"""
     linter = initialized_linter
     with tempdir() as tmpdir:
         create_files(["x/y/__init__.py", "x/y/one.py", "x/y/two.py"], tmpdir)
@@ -1322,7 +1322,7 @@ print(submodule1)
 
 
 def test_lint_namespace_package_under_dir(initialized_linter: PyLinter) -> None:
-    """Regression test for https://github.com/PyCQA/pylint/issues/1667"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/1667"""
     linter = initialized_linter
     with tempdir():
         create_files(["outer/namespace/__init__.py", "outer/namespace/module.py"])

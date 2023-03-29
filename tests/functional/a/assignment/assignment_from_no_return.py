@@ -55,7 +55,7 @@ class Child(Parent):
         return 42
 
 
-# Regression test for https://github.com/PyCQA/pylint/issues/4220
+# Regression test for https://github.com/pylint-dev/pylint/issues/4220
 class A:
     """Parent class"""
     def f(self):

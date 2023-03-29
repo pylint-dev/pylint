@@ -4,7 +4,7 @@ subclassed."""
 # pylint: disable=missing-docstring, too-few-public-methods
 
 # Disabled because of a bug with pypy 3.8 see
-# https://github.com/PyCQA/pylint/pull/7918#issuecomment-1352737369
+# https://github.com/pylint-dev/pylint/pull/7918#issuecomment-1352737369
 # pylint: disable=multiple-statements
 
 from typing import final

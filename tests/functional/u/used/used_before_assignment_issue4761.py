@@ -13,7 +13,7 @@ def function():
 
 
 def uses_nonlocal():
-    """https://github.com/PyCQA/pylint/issues/5965"""
+    """https://github.com/pylint-dev/pylint/issues/5965"""
     count = 0
     def inner():
         nonlocal count
@@ -46,7 +46,7 @@ def uses_unrelated_nonlocal():
 # only non-break exit branch.
 
 def valid_only_non_break_exit_from_loop_is_except_handler():
-    """https://github.com/PyCQA/pylint/issues/5683"""
+    """https://github.com/pylint-dev/pylint/issues/5683"""
     for _ in range(3):
         try:
             function()  # not an exit branch because of `else` below

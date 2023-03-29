@@ -394,7 +394,7 @@ def test_ignores_optional_specifier_numpy(param, param2="all"):
 
 
 def test_with_list_of_default_values(arg, option, option2):
-    """Reported in https://github.com/PyCQA/pylint/issues/4035.
+    """Reported in https://github.com/pylint-dev/pylint/issues/4035.
 
     Parameters
     ----------
@@ -412,7 +412,7 @@ def test_with_list_of_default_values(arg, option, option2):
 def test_with_descriptions_instead_of_typing(arg, axis, option):
     """We choose to accept description in place of typing as well.
 
-    See: https://github.com/PyCQA/pylint/pull/7398.
+    See: https://github.com/pylint-dev/pylint/pull/7398.
 
     Parameters
     ----------

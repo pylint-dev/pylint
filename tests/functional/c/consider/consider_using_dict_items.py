@@ -86,7 +86,7 @@ val = any(True for k8 in Foo.c_dict if c_dict[k8])
 val = any(True for k8 in Foo.c_dict.keys() if Foo.c_dict[k8])  # [consider-iterating-dictionary,consider-using-dict-items]
 
 # Test false positive described in #4630
-# (https://github.com/PyCQA/pylint/issues/4630)
+# (https://github.com/pylint-dev/pylint/issues/4630)
 
 d = {'key': 'value'}
 

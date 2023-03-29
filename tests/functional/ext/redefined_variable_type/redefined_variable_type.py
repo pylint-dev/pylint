@@ -86,7 +86,7 @@ def func2(x):
 
 
 # Test that ``redefined-variable-type`` is not emitted
-# https://github.com/PyCQA/pylint/issues/8120
+# https://github.com/pylint-dev/pylint/issues/8120
 
 async def test_a():
     data = [

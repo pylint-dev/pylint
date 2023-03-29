@@ -1,6 +1,6 @@
 """This example is based on sqlalchemy.
 
-See https://github.com/PyCQA/pylint/issues/5679
+See https://github.com/pylint-dev/pylint/issues/5679
 """
 from other_funcs import FromClause
 

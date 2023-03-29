@@ -3,11 +3,11 @@
 How to Write a Checker
 ======================
 You can find some simple examples in the distribution
-(`custom.py <https://github.com/PyCQA/pylint/blob/main/examples/custom.py>`_
+(`custom.py <https://github.com/pylint-dev/pylint/blob/main/examples/custom.py>`_
 ,
-`custom_raw.py <https://github.com/PyCQA/pylint/blob/main/examples/custom_raw.py>`_
+`custom_raw.py <https://github.com/pylint-dev/pylint/blob/main/examples/custom_raw.py>`_
 and
-`deprecation_checker.py <https://github.com/PyCQA/pylint/blob/main/examples/deprecation_checker.py>`_).
+`deprecation_checker.py <https://github.com/pylint-dev/pylint/blob/main/examples/deprecation_checker.py>`_).
 
 .. TODO Create custom_token.py
 

@@ -1,5 +1,5 @@
 """
-https://github.com/PyCQA/pylint/issues/3507
+https://github.com/pylint-dev/pylint/issues/3507
 False-positive 'isinstance-second-argument-not-valid-type'
 for typing aliases in 'isinstance' calls.
 """

@@ -9,7 +9,7 @@ You think you have found a bug in Pylint? Well, this may be the case
 since Pylint and Python are under heavy development!
 
 Please take the time to check if it is already in the issue tracker at
-https://github.com/PyCQA/pylint
+https://github.com/pylint-dev/pylint
 
 Note that the issue might also be reported in one of Pylint's major dependencies,
 astroid:

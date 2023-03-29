@@ -3,7 +3,7 @@
 # pylint: disable=unnecessary-comprehension
 
 # Test that class attributes are in scope for listcomp in decorator.
-# Regression reported in https://github.com/PyCQA/pylint/issues/511
+# Regression reported in https://github.com/pylint-dev/pylint/issues/511
 
 def dec(inp):
     def inner(func):

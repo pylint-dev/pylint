@@ -128,7 +128,7 @@ class ThirdGoodContextManager:
 
 
 # unexpected-special-method-signature
-# https://github.com/PyCQA/pylint/issues/6644
+# https://github.com/pylint-dev/pylint/issues/6644
 class Philosopher:
     def __init_subclass__(cls, default_name, **kwargs):
         super().__init_subclass__(**kwargs)

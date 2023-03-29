@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -297,7 +297,9 @@ intersphinx_mapping = {
 autosectionlabel_prefix_document = True
 
 # Permit duplicated titles in the resulting document.
-# See https://github.com/PyCQA/pylint/issues/7362#issuecomment-1256932866
+# See https://github.com/pylint-dev/pylint/issues/7362#issuecomment-1256932866
 autosectionlabel_maxdepth = 2
 
-linkcheck_ignore = ["https://github.com/PyCQA/pylint/blob/main/pylint/extensions/.*"]
+linkcheck_ignore = [
+    "https://github.com/pylint-dev/pylint/blob/main/pylint/extensions/.*"
+]
