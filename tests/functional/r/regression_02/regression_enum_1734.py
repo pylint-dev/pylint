@@ -1,6 +1,6 @@
-# Regression test for https://github.com/PyCQA/astroid/pull/1734
+# Regression test for https://github.com/pylint-dev/astroid/pull/1734
 # The following should lint just fine
-# Fixed in https://github.com/PyCQA/astroid/pull/1743
+# Fixed in https://github.com/pylint-dev/astroid/pull/1743
 
 # pylint: disable=missing-docstring,invalid-name
 

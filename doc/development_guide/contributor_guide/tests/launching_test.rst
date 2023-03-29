@@ -85,4 +85,4 @@ You can find the latest list of repositories and any relevant code for these tes
 directory.
 
 .. _pytest-cov: https://pypi.org/project/pytest-cov/
-.. _astroid: https://github.com/pycqa/astroid
+.. _astroid: https://github.com/pylint-dev/astroid

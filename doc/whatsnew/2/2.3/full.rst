@@ -13,7 +13,7 @@ Release date: 2019-02-27
   Doesn't make that much sense for ``pylint`` itself, which is why we're handling the
   exception here, rather than in ``astroid``
 
-  Closes PyCQA/astroid#644
+  Closes pylint-dev/astroid#644
 
 * Added a new command line option ``list-groups`` for listing all the check groups ``pylint`` knows about.
 

@@ -4,7 +4,7 @@ See https://github.com/pylint-dev/pylint/issues/73
 
 See also:
 https://github.com/pylint-dev/pylint/issues/2955
-https://github.com/PyCQA/astroid/pull/1321
+https://github.com/pylint-dev/astroid/pull/1321
 """
 
 # pylint: disable=unused-import, deprecated-module
