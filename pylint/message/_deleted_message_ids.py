@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ DELETED_MSGID_PREFIXES: list[int] = []
 
 DELETED_MESSAGES_IDS = {
     # Everything until the next comment is from the PY3K+ checker
-    "https://github.com/PyCQA/pylint/pull/4942": [
+    "https://github.com/pylint-dev/pylint/pull/4942": [
         DeletedMessage("W1601", "apply-builtin"),
         DeletedMessage("E1601", "print-statement"),
         DeletedMessage("E1602", "parameter-unpacking"),
@@ -95,10 +95,10 @@ DELETED_MESSAGES_IDS = {
         DeletedMessage("W1661", "exception-escape"),
         DeletedMessage("W1662", "comprehension-escape"),
     ],
-    "https://github.com/PyCQA/pylint/pull/3578": [
+    "https://github.com/pylint-dev/pylint/pull/3578": [
         DeletedMessage("W0312", "mixed-indentation"),
     ],
-    "https://github.com/PyCQA/pylint/pull/3577": [
+    "https://github.com/pylint-dev/pylint/pull/3577": [
         DeletedMessage(
             "C0326",
             "bad-whitespace",
@@ -109,7 +109,7 @@ DELETED_MESSAGES_IDS = {
             ],
         ),
     ],
-    "https://github.com/PyCQA/pylint/pull/3571": [
+    "https://github.com/pylint-dev/pylint/pull/3571": [
         DeletedMessage("C0330", "bad-continuation")
     ],
     "https://pylint.readthedocs.io/en/latest/whatsnew/1/1.4.html#what-s-new-in-pylint-1-4-3": [
@@ -117,10 +117,10 @@ DELETED_MESSAGES_IDS = {
         DeletedMessage("R0922", "abstract-class-little-used"),
         DeletedMessage("W0142", "star-args"),
     ],
-    "https://github.com/PyCQA/pylint/issues/2409": [
+    "https://github.com/pylint-dev/pylint/issues/2409": [
         DeletedMessage("W0232", "no-init"),
     ],
-    "https://github.com/PyCQA/pylint/pull/6421": [
+    "https://github.com/pylint-dev/pylint/pull/6421": [
         DeletedMessage("W0111", "assign-to-new-keyword"),
     ],
 }

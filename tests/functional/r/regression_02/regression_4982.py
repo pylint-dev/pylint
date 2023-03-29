@@ -1,4 +1,4 @@
-"""Regression test for a crash reported in https://github.com/PyCQA/pylint/issues/4982"""
+"""Regression test for a crash reported in https://github.com/pylint-dev/pylint/issues/4982"""
 # pylint: disable=too-few-public-methods
 
 class Base:

@@ -7,7 +7,7 @@
 # pylint: disable=unnecessary-direct-lambda-call
 
 # Disabled because of a bug with pypy 3.8 see
-# https://github.com/PyCQA/pylint/pull/7918#issuecomment-1352737369
+# https://github.com/pylint-dev/pylint/pull/7918#issuecomment-1352737369
 # pylint: disable=multiple-statements
 
 import collections

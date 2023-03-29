@@ -3,14 +3,14 @@
 # pylint: disable=unused-import, wrong-import-order, wrong-import-position
 
 # False positive for wrong-import-order
-# Reported in https://github.com/PyCQA/pylint/issues/2366
+# Reported in https://github.com/pylint-dev/pylint/issues/2366
 from pylint import run_pylint
 import astroid
 
 # False-positive for 'line-too-long'
-# Reported in https://github.com/PyCQA/pylint/issues/4212
+# Reported in https://github.com/pylint-dev/pylint/issues/4212
 VAR = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" # pylint: disable=line-too-long
 
 # False-positive for 'wrong-import-order'
-# Reported in https://github.com/PyCQA/pylint/issues/5219
+# Reported in https://github.com/pylint-dev/pylint/issues/5219
 import os

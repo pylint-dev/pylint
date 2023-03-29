@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -96,12 +96,12 @@ def modify_sys_path() -> None:
     - Remove the first entry. This will always be either "" or the working directory
     - Remove the working directory from the second and third entries
       if PYTHONPATH includes a ":" at the beginning or the end.
-      https://github.com/PyCQA/pylint/issues/3636
+      https://github.com/pylint-dev/pylint/issues/3636
       Don't remove it if PYTHONPATH contains the cwd or '.' as the entry will
       only be added once.
     - Don't remove the working directory from the rest. It will be included
       if pylint is installed in an editable configuration (as the last item).
-      https://github.com/PyCQA/pylint/issues/4161
+      https://github.com/pylint-dev/pylint/issues/4161
     """
     cwd = os.getcwd()
     if sys.path[0] in ("", ".", cwd):

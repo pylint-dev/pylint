@@ -2,7 +2,7 @@
 # pylint: disable=broad-exception-raised
 
 def func():
-    """https://github.com/PyCQA/pylint/issues/5586"""
+    """https://github.com/pylint-dev/pylint/issues/5586"""
     try:
         print(value for value in range(1 / 0) if isinstance(value, int))
     except ZeroDivisionError:
@@ -29,7 +29,7 @@ def func3():
 
 
 def func4():
-    """https://github.com/PyCQA/pylint/issues/6035"""
+    """https://github.com/pylint-dev/pylint/issues/6035"""
     assets = [asset for asset in range(3) if asset.name == "filename"]
 
     try:
@@ -54,7 +54,7 @@ def func5():
 
 def func6(data, keys):
     """Similar, but with a subscript in a key-value pair rather than the test
-    See https://github.com/PyCQA/pylint/issues/6069"""
+    See https://github.com/pylint-dev/pylint/issues/6069"""
     try:
         results = {key: data[key] for key in keys}
     except KeyError as exc:

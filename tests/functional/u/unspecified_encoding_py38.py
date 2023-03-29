@@ -87,7 +87,7 @@ Path(FILENAME).open("w", encoding=LOCALE_ENCODING)
 
 # Tests for storing data about open calls.
 # Most of these are regression tests for a crash
-# reported in https://github.com/PyCQA/pylint/issues/5321
+# reported in https://github.com/pylint-dev/pylint/issues/5321
 
 # -- Constants
 MODE = "wb"
@@ -126,7 +126,7 @@ open(FILENAME, mode=IOData.mode)
 open(FILENAME, mode=IOData().my_mode)
 open(FILENAME, mode=IOData().my_mode_method())
 open(FILENAME, mode=IOData().my_mode_method_returner("wb"))
-# Invalid value but shouldn't crash, reported in https://github.com/PyCQA/pylint/issues/5321
+# Invalid value but shouldn't crash, reported in https://github.com/pylint-dev/pylint/issues/5321
 open(FILENAME, mode=IOData)
 
 
@@ -141,7 +141,7 @@ class IOArgs:
 
 args_good_one = IOArgs(encoding=None, mode="wb")
 
-# Test for crash reported in https://github.com/PyCQA/pylint/issues/5321
+# Test for crash reported in https://github.com/pylint-dev/pylint/issues/5321
 open(FILENAME, args_good_one.mode, encoding=args_good_one.encoding)
 
 # Positional arguments
@@ -157,10 +157,10 @@ Path(FILENAME).read_text()  # [unspecified-encoding]
 Path(FILENAME).write_text("string", "utf-8")
 Path(FILENAME).write_text("string")  # [unspecified-encoding]
 
-# Test for crash reported in https://github.com/PyCQA/pylint/issues/5731
+# Test for crash reported in https://github.com/pylint-dev/pylint/issues/5731
 open(FILENAME, mode=None)  # [bad-open-mode, unspecified-encoding]
 
-# Test for crash reported in https://github.com/PyCQA/pylint/issues/6414
+# Test for crash reported in https://github.com/pylint-dev/pylint/issues/6414
 open('foo', mode=2)  # [bad-open-mode, unspecified-encoding]
 
 # Infer kwargs

@@ -1,4 +1,4 @@
-"""Regression test for https://github.com/PyCQA/pylint/issues/8109."""
+"""Regression test for https://github.com/pylint-dev/pylint/issues/8109."""
 
 # pylint: disable=missing-docstring, unsupported-binary-operation
 

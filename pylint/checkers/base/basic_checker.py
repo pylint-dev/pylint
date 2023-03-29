@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Basic checker for Python code."""
 
@@ -367,7 +367,7 @@ class BasicChecker(_BasicChecker):
             try:
                 # Just forcing the generator to infer all elements.
                 # astroid.exceptions.InferenceError are false positives
-                # see https://github.com/PyCQA/pylint/pull/8185
+                # see https://github.com/pylint-dev/pylint/pull/8185
                 if isinstance(inferred, nodes.FunctionDef):
                     call_inferred = list(inferred.infer_call_result())
                 elif isinstance(inferred, nodes.Lambda):
@@ -462,7 +462,7 @@ class BasicChecker(_BasicChecker):
 
             # Heuristic: only run inference for names that begin with an uppercase char
             # This reduces W0133's coverage, but retains acceptable runtime performance
-            # For more details, see: https://github.com/PyCQA/pylint/issues/8073
+            # For more details, see: https://github.com/pylint-dev/pylint/issues/8073
             inferred = utils.safe_infer(expr) if name[:1].isupper() else None
             if isinstance(inferred, objects.ExceptionInstance):
                 self.add_message(

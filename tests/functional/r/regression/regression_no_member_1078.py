@@ -1,6 +1,6 @@
 """Make sure no-member is not emitted when modifying __doc__ via augmented assignment
 
-https://github.com/PyCQA/pylint/issues/1078
+https://github.com/pylint-dev/pylint/issues/1078
 """
 # pylint: disable=too-few-public-methods,missing-class-docstring
 class Cls:

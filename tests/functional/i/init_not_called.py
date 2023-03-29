@@ -86,7 +86,7 @@ class Child(Parent):
         super().__init__(round(num))
 
 
-# https://github.com/PyCQA/pylint/issues/7742
+# https://github.com/pylint-dev/pylint/issues/7742
 # Crash when parent class has a class attribute named `__init__`
 class NoInitMethod:
     __init__ = 42

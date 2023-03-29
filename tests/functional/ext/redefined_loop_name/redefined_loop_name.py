@@ -1,6 +1,6 @@
 """Tests for redefinitions of loop variables inside the loop body.
 
-See: https://github.com/PyCQA/pylint/issues/5608
+See: https://github.com/pylint-dev/pylint/issues/5608
 """
 # pylint: disable=invalid-name
 

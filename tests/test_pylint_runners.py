@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 # pylint: disable=missing-module-docstring, missing-function-docstring
 
 from __future__ import annotations
@@ -83,8 +83,8 @@ def test_pylint_argument_deduplication(
     """Check that the Pylint runner does not over-report on duplicate
     arguments.
 
-    See https://github.com/PyCQA/pylint/issues/6242 and
-    https://github.com/PyCQA/pylint/issues/4053
+    See https://github.com/pylint-dev/pylint/issues/6242 and
+    https://github.com/pylint-dev/pylint/issues/4053
     """
     filepath = str(tests_directory / "functional/t/too/too_many_branches.py")
     testargs = shlex.split("--report n --score n --max-branches 13")

@@ -16,7 +16,7 @@ A lot of ``undefined-variables`` and ``used-before-assignment`` issues were reso
 
 We started integrating ``pylint-error`` the documentation created by @vald-phoenix a developer from Hlyniane,
 Ukraine. We hope he's doing well despite the current situation. The deployment is set up but `there's still a lot to do so we welcome any community effort
-help to review, integrate, and add good/bad examples <https://github.com/PyCQA/pylint/issues/5953>`_. This should be doable
+help to review, integrate, and add good/bad examples <https://github.com/pylint-dev/pylint/issues/5953>`_. This should be doable
 without any pylint or astroid knowledge, so this is the perfect entrypoint if you want to contribute
 to pylint without investing any time learning the internals.
 

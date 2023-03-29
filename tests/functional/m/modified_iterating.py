@@ -97,7 +97,7 @@ def update_existing_key():
 
 
 class MyClass:
-    """Regression test for https://github.com/PyCQA/pylint/issues/7380"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/7380"""
 
     def __init__(self) -> None:
         self.attribute = [1, 2, 3]
@@ -109,7 +109,7 @@ class MyClass:
 
 
 class MyClass2:
-    """Regression test for https://github.com/PyCQA/pylint/issues/7461"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/7461"""
     def __init__(self) -> None:
         self.attribute = {}
 

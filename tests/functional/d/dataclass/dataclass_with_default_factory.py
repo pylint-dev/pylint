@@ -1,7 +1,7 @@
 """Various regression tests for dataclasses."""
 # See issues:
-# - https://github.com/PyCQA/pylint/issues/2605
-# - https://github.com/PyCQA/pylint/issues/2698
+# - https://github.com/pylint-dev/pylint/issues/2605
+# - https://github.com/pylint-dev/pylint/issues/2698
 from dataclasses import dataclass, field
 import dataclasses as dc
 from typing import cast

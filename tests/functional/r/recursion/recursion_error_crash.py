@@ -1,6 +1,6 @@
 """Test that a recursion error does not happen
 
-https://github.com/PyCQA/pylint/issues/2463
+https://github.com/pylint-dev/pylint/issues/2463
 """
 import os
 

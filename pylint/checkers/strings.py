@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for string formatting operations."""
 
@@ -816,7 +816,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             token_index = (elt.lineno, elt.col_offset)
             if token_index not in self.string_tokens:
                 # This may happen with Latin1 encoding
-                # cf. https://github.com/PyCQA/pylint/issues/2610
+                # cf. https://github.com/pylint-dev/pylint/issues/2610
                 continue
             matching_token, next_token = self.string_tokens[token_index]
             # We detect string concatenation: the AST Const is the

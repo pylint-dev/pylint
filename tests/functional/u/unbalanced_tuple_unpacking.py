@@ -158,5 +158,5 @@ a, b = my_function("12")  # [unbalanced-tuple-unpacking]
 c = my_function("12")
 d, *_ = my_function("12")
 
-# https://github.com/PyCQA/pylint/issues/5998
+# https://github.com/pylint-dev/pylint/issues/5998
 x, y, z = (1, 2)  # [unbalanced-tuple-unpacking]

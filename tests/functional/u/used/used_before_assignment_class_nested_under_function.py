@@ -1,4 +1,4 @@
-"""https://github.com/PyCQA/pylint/issues/4590"""
+"""https://github.com/pylint-dev/pylint/issues/4590"""
 # pylint: disable=too-few-public-methods
 
 
