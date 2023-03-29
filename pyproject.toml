@@ -39,7 +39,7 @@ dependencies    = [
     "platformdirs>=2.2.0",
     # Also upgrade requirements_test_min.txt.
     # Pinned to dev of second minor update to allow editable installs and fix primer issues,
-    # see https://github.com/PyCQA/astroid/issues/1341
+    # see https://github.com/pylint-dev/astroid/issues/1341
     "astroid>=2.15.1,<=2.17.0-dev0",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.8",

@@ -2,7 +2,7 @@
 
 # Slots with base that inherits from 'Generic'
 # https://github.com/pylint-dev/pylint/issues/4509
-# https://github.com/PyCQA/astroid/issues/999
+# https://github.com/pylint-dev/astroid/issues/999
 
 from typing import Generic, TypeVar
 T = TypeVar("T")

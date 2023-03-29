@@ -1,6 +1,6 @@
 """Test that a recursion error does not happen
 
-https://github.com/PyCQA/astroid/issues/623
+https://github.com/pylint-dev/astroid/issues/623
 """
 from os import path
 

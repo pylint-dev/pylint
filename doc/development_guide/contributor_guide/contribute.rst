@@ -27,7 +27,7 @@ Here's a list of links you can check depending on what you want to do:
 .. _`on github`: https://github.com/pylint-dev/pylint/issues/new/choose
 .. _`Opening an issue`: https://github.com/pylint-dev/pylint/issues/new?assignees=&labels=Needs+triage+%3Ainbox_tray%3A&template=BUG-REPORT.yml
 .. _`Making the documentation better`: https://github.com/pylint-dev/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Documentation+%3Agreen_book%3A%22
-.. _`Making the error message better`: https://github.com/pylint-dev/pylint/issues?q=is%3Aopen+is%3Aissue+project%3Apycqa%2Fpylint%2F4+
+.. _`Making the error message better`: https://github.com/pylint-dev/pylint/issues?q=is%3Aopen%20is%3Aissue%20project%3Apylint-dev%2Fpylint%2F4
 .. _`Reproducing bugs and confirming that issues are valid`: https://github.com/pylint-dev/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+reproduction+%3Amag%3A%22%2C%22Cannot+reproduce+%F0%9F%A4%B7%22
 .. _`Investigating or debugging complicated issues`: https://github.com/pylint-dev/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+investigation+%F0%9F%94%AC%22
 .. _`Designing or specifying a solution`: https://github.com/pylint-dev/pylint/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs+design+proposal+%3Alock%3A%22%2C%22Needs+specification+%3Aclosed_lock_with_key%3A%22
@@ -100,7 +100,7 @@ your patch gets accepted:
 .. _pytest: https://docs.pytest.org/en/latest/
 .. _black: https://github.com/psf/black
 .. _isort: https://github.com/PyCQA/isort
-.. _astroid: https://github.com/pycqa/astroid
+.. _astroid: https://github.com/pylint-dev/astroid
 
 
 Tips for Getting Started with Pylint Development

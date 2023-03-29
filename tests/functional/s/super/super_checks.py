@@ -99,7 +99,7 @@ class InvalidSuperChecks(BaseClass):
 
 
 
-# Regression for PyCQA/pylint/issues/773
+# Regression for pylint-dev/pylint/issues/773
 import subprocess
 
 # The problem was related to astroid not filtering statements
