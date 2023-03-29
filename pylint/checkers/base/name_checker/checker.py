@@ -41,7 +41,9 @@ DEFAULT_PATTERNS = {
     "typevar": re.compile(
         r"^_{0,2}(?!T[A-Z])(?:[A-Z]+|(?:[A-Z]+[a-z]+)+T?(?<!Type))(?:_co(?:ntra)?)?$"
     ),
-    "typealias": re.compile(r"^_{0,2}(?!T[A-Z]|Type)[A-Z]+[a-z]+(?:[A-Z][a-z]+)*$"),
+    "typealias": re.compile(
+        r"^_{0,2}(?!T[A-Z]|Type)[A-Z]+[a-z0-9]+(?:[A-Z][a-z0-9]+)*$"
+    ),
 }
 
 BUILTIN_PROPERTY = "builtins.property"

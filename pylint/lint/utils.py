@@ -5,13 +5,14 @@
 from __future__ import annotations
 
 import contextlib
+import platform
 import sys
 import traceback
 from collections.abc import Iterator, Sequence
 from datetime import datetime
 from pathlib import Path
 
-from pylint.constants import PYLINT_HOME
+from pylint.constants import PYLINT_HOME, full_version
 
 
 def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> Path:
@@ -26,16 +27,18 @@ def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> 
 First, please verify that the bug is not already filled:
 https://github.com/PyCQA/pylint/issues/
 
-Then create a new crash issue:
-https://github.com/PyCQA/pylint/issues/new?assignees=&labels=crash%2Cneeds+triage&template=BUG-REPORT.yml
+Then create a new issue:
+https://github.com/PyCQA/pylint/issues/new?labels=Crash 💥%2CNeeds triage 📥
+
 
 """
-    template += f"""\
-
+    template += f"""
 Issue title:
 Crash ``{ex}`` (if possible, be more specific about what made pylint crash)
-Content:
-When parsing the following file:
+
+### Bug description
+
+When parsing the following ``a.py``:
 
 <!--
  If sharing the code is not an option, please state so,
@@ -46,11 +49,49 @@ When parsing the following file:
 {file_content}
 ```
 
-pylint crashed with a ``{ex.__class__.__name__}`` and with the following stacktrace:
+### Command used
+
+```shell
+pylint a.py
 ```
+
+### Pylint output
+
+<details open>
+    <summary>
+        pylint crashed with a ``{ex.__class__.__name__}`` and with the following stacktrace:
+    </summary>
+
+```python
 """
     template += traceback.format_exc()
-    template += "```\n"
+    template += f"""
+```
+
+
+</details>
+
+### Expected behavior
+
+No crash.
+
+### Pylint version
+
+```shell
+{full_version}
+```
+
+### OS / Environment
+
+{sys.platform} ({platform.system()})
+
+### Additional dependencies
+
+<!--
+Please remove this part if you're not using any of
+your dependencies in the example.
+ -->
+"""
     try:
         with open(issue_template_path, "a", encoding="utf8") as f:
             f.write(template)

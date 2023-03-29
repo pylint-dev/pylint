@@ -7,6 +7,7 @@ from pathlib import Path, PosixPath
 
 import pytest
 
+from pylint.constants import full_version
 from pylint.lint.utils import get_fatal_error_message, prepare_crash_report
 from pylint.testutils._run import _Run as Run
 
@@ -17,19 +18,22 @@ def test_prepare_crash_report(tmp_path: PosixPath) -> None:
     python_content = "from shadok import MagicFaucet"
     with open(python_file, "w", encoding="utf8") as f:
         f.write(python_content)
+    template_path = None
     try:
-        raise Exception(exception_content)  # pylint: disable=broad-exception-raised
-    except Exception as ex:  # pylint: disable=broad-except
+        raise ValueError(exception_content)
+    except ValueError as ex:
         template_path = prepare_crash_report(
             ex, str(python_file), str(tmp_path / "pylint-crash-%Y.txt")
         )
-    assert str(tmp_path) in str(template_path)  # pylint: disable=used-before-assignment
+    assert str(tmp_path) in str(template_path)
     with open(template_path, encoding="utf8") as f:
         template_content = f.read()
     assert python_content in template_content
     assert exception_content in template_content
     assert "in test_prepare_crash_report" in template_content
-    assert "raise Exception(exception_content)" in template_content
+    assert "raise ValueError(exception_content)" in template_content
+    assert "<details open>" in template_content
+    assert full_version in template_content
 
 
 def test_get_fatal_error_message() -> None:
