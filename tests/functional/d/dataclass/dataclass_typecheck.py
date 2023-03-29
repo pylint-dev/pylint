@@ -1,6 +1,6 @@
 """Tests for dataclass attributes with basic type annotations.
 
-Tests for regressions from https://github.com/PyCQA/astroid/pull/1126
+Tests for regressions from https://github.com/pylint-dev/astroid/pull/1126
 """
 
 # pylint: disable=missing-docstring,too-few-public-methods,pointless-statement,redefined-builtin, fixme

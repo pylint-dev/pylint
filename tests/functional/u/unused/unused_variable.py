@@ -155,7 +155,7 @@ def func4():
 
 
 def main(lst):
-    """https://github.com/PyCQA/astroid/pull/1111#issuecomment-890367609"""
+    """https://github.com/pylint-dev/astroid/pull/1111#issuecomment-890367609"""
     try:
         raise ValueError
     except ValueError as e:  # [unused-variable]

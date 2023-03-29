@@ -14,7 +14,7 @@ class Impl(Base[str]):
     """Impl"""
 
 
-# https://github.com/PyCQA/astroid/issues/942
+# https://github.com/pylint-dev/astroid/issues/942
 Anything = TypeVar("Anything")
 MoreSpecific = TypeVar("MoreSpecific", str, int)
 

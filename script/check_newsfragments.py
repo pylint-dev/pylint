@@ -39,7 +39,7 @@ VALID_FILE_TYPE = frozenset(
 ISSUES_KEYWORDS = "|".join(VALID_ISSUES_KEYWORDS)
 VALID_CHANGELOG_PATTERN = (
     rf"(?P<description>(.*\n)*(.*\.\n))\n(?P<ref>({ISSUES_KEYWORDS})"
-    r" (PyCQA/astroid)?#(?P<issue>\d+))"
+    r" (pylint-dev/astroid)?#(?P<issue>\d+))"
 )
 VALID_CHANGELOG_COMPILED_PATTERN: Pattern[str] = re.compile(
     VALID_CHANGELOG_PATTERN, flags=re.MULTILINE
