@@ -1,6 +1,6 @@
 """Test that positional only argument annotations are properly marked as consumed
 
-https://github.com/PyCQA/pylint/issues/3462
+https://github.com/pylint-dev/pylint/issues/3462
 """
 from typing import AnyStr, Set
 

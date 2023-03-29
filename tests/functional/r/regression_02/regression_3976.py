@@ -1,5 +1,5 @@
 """
-Regression test for https://github.com/PyCQA/pylint/issues/3976
+Regression test for https://github.com/pylint-dev/pylint/issues/3976
 
 E1123: Unexpected keyword argument 'include_extras' in function call (unexpected-keyword-arg)
 """

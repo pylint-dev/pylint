@@ -94,7 +94,7 @@ class BBBB:
         self.spam = 1
 
 
-# Regression test for https://github.com/PyCQA/pylint/issues/5771
+# Regression test for https://github.com/pylint-dev/pylint/issues/5771
 # involving keyword-only arguments
 class Ancestor:
     def __init__(self):

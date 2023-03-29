@@ -1,7 +1,7 @@
 # pylint: disable=invalid-name,missing-docstring,too-few-public-methods
 
 # Slots with base that inherits from 'Generic'
-# https://github.com/PyCQA/pylint/issues/4509
+# https://github.com/pylint-dev/pylint/issues/4509
 # https://github.com/PyCQA/astroid/issues/999
 
 from typing import Generic, TypeVar

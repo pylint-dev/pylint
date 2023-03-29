@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Script used to generate the messages files."""
 
@@ -336,7 +336,7 @@ def _generate_checker_url(message: MessageData) -> str:
     checker_module_rel_path = os.path.relpath(
         message.checker_module_path, PYLINT_BASE_PATH
     )
-    return f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
+    return f"https://github.com/pylint-dev/pylint/blob/main/{checker_module_rel_path}"
 
 
 def _write_single_shared_message_page(

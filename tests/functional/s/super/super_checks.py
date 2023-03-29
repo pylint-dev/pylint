@@ -125,7 +125,7 @@ class SuperWithSelfClass:
         super(self.__class__, self).__init__() # [bad-super-call]
 
 
-# Reported in https://github.com/PyCQA/pylint/issues/2903
+# Reported in https://github.com/pylint-dev/pylint/issues/2903
 class Parent:
     def method(self):
         print()
@@ -149,7 +149,7 @@ class GrandChild(Child):
         super(Niece, self).method()  # [bad-super-call]
 
 
-# Reported in https://github.com/PyCQA/pylint/issues/4922
+# Reported in https://github.com/pylint-dev/pylint/issues/4922
 class AlabamaCousin(Child, Niece):
     def method(self):
         print("AlabamaCousin")

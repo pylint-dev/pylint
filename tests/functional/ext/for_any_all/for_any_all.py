@@ -147,7 +147,7 @@ def is_from_decorator(node):
             return False
 
 def optimized_any_with_break(split_lines, max_chars):
-    """False negative found in https://github.com/PyCQA/pylint/pull/7697"""
+    """False negative found in https://github.com/pylint-dev/pylint/pull/7697"""
     potential_line_length_warning = False
     for line in split_lines:  # [consider-using-any-or-all]
         if len(line) > max_chars:

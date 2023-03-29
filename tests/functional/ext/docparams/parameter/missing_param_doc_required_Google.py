@@ -12,7 +12,7 @@ https://google.github.io/styleguide/pyguide.html#doc-function-args
 
 def test_multi_line_parameters(param: int) -> None:
     """Checks that multi line parameters lists are checked correctly
-    See https://github.com/PyCQA/pylint/issues/5452
+    See https://github.com/pylint-dev/pylint/issues/5452
 
     Args:
         param:

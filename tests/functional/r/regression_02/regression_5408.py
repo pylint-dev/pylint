@@ -1,7 +1,7 @@
 """Regression test for issue 5408.
 
 Recursion error for self-referencing class attribute.
-See: https://github.com/PyCQA/pylint/issues/5408
+See: https://github.com/pylint-dev/pylint/issues/5408
 """
 
 # pylint: disable=missing-docstring, too-few-public-methods, invalid-name, inherit-non-class

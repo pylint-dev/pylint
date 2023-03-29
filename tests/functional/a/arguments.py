@@ -265,7 +265,7 @@ CALL = lambda *args: func(*args)
 
 # Ensure `too-many-function-args` is not emitted when a function call is assigned
 # to a class attribute inside the class where the function is defined.
-# Reference: https://github.com/PyCQA/pylint/issues/6592
+# Reference: https://github.com/pylint-dev/pylint/issues/6592
 class FruitPicker:
     def _pick_fruit(fruit):
         def _print_selection(self):

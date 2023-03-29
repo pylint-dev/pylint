@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,invalid-name,too-few-public-methods
-# https://github.com/PyCQA/pylint/issues/2439
+# https://github.com/pylint-dev/pylint/issues/2439
 class TestClass:
     __slots__ = ["_i"]
 

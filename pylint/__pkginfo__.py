@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """This module exists for compatibility reasons.
 
@@ -15,8 +15,8 @@ __version__ = "3.0.0a6"
 def get_numversion_from_version(v: str) -> tuple[int, int, int]:
     """Kept for compatibility reason.
 
-    See https://github.com/PyCQA/pylint/issues/4399
-    https://github.com/PyCQA/pylint/issues/4420,
+    See https://github.com/pylint-dev/pylint/issues/4399
+    https://github.com/pylint-dev/pylint/issues/4420,
     """
     version = v.replace("pylint-", "")
     result_version = []

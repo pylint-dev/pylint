@@ -1,4 +1,4 @@
-"""Regression test for https://github.com/PyCQA/pylint/issues/6895"""
+"""Regression test for https://github.com/pylint-dev/pylint/issues/6895"""
 # pylint: disable=missing-class-docstring,too-few-public-methods
 import argparse
 class Cls:

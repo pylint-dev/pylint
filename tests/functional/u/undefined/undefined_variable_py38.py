@@ -120,7 +120,7 @@ sorted_things = sorted(
 # Tests for type annotation reused in comprehension
 
 def type_annotation_used_after_comprehension():
-    """https://github.com/PyCQA/pylint/issues/5326#issuecomment-982635371"""
+    """https://github.com/pylint-dev/pylint/issues/5326#issuecomment-982635371"""
     my_int: int
     ints = [my_int + 1 for my_int in range(5)]
 
@@ -129,13 +129,13 @@ def type_annotation_used_after_comprehension():
 
 
 def type_annotation_unused_after_comprehension():
-    """https://github.com/PyCQA/pylint/issues/5326"""
+    """https://github.com/pylint-dev/pylint/issues/5326"""
     my_int: int
     _ = [print(sep=my_int, end=my_int) for my_int in range(10)]
 
 
 def type_annotation_used_improperly_after_comprehension():
-    """https://github.com/PyCQA/pylint/issues/5654"""
+    """https://github.com/pylint-dev/pylint/issues/5654"""
     my_int: int
     _ = [print(sep=my_int, end=my_int) for my_int in range(10)]
     print(my_int)  # [used-before-assignment]

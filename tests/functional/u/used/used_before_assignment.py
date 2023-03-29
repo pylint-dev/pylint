@@ -108,7 +108,7 @@ for num in [0, 1]:
 print(VAR12)
 
 def turn_on2(**kwargs):
-    """https://github.com/PyCQA/pylint/issues/7873"""
+    """https://github.com/pylint-dev/pylint/issues/7873"""
     if "brightness" in kwargs:
         brightness = kwargs["brightness"]
         var, *args = (1, "set_dimmer_state", brightness)

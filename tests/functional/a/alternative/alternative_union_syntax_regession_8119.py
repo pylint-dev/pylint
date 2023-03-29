@@ -2,7 +2,7 @@
 Syntax support was added in Python 3.10.
 
 The code snipped should not raise any errors.
-https://github.com/PyCQA/pylint/issues/8119
+https://github.com/pylint-dev/pylint/issues/8119
 """
 # pylint: disable=missing-docstring,too-few-public-methods
 from typing import Generic, TypeVar

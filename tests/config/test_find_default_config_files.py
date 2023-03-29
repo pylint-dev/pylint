@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -242,7 +242,7 @@ def test_cfg_has_config(content: str, expected: bool, tmp_path: Path) -> None:
 def test_non_existent_home() -> None:
     """Test that we handle a non-existent home directory.
 
-    Reported in https://github.com/PyCQA/pylint/issues/6802.
+    Reported in https://github.com/pylint-dev/pylint/issues/6802.
     """
     with mock.patch("pathlib.Path.home", side_effect=RuntimeError):
         current_dir = os.getcwd()
@@ -256,7 +256,7 @@ def test_non_existent_home() -> None:
 def test_permission_error() -> None:
     """Test that we handle PermissionError correctly in find_default_config_files.
 
-    Reported in https://github.com/PyCQA/pylint/issues/7169.
+    Reported in https://github.com/pylint-dev/pylint/issues/7169.
     """
     with mock.patch("pathlib.Path.is_file", side_effect=PermissionError):
         list(config.find_default_config_files())

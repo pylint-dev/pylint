@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ class DunderCallChecker(BaseChecker):
 
     Docs: https://docs.python.org/3/reference/datamodel.html#basic-customization
     We exclude names in list pylint.constants.EXTRA_DUNDER_METHODS such as
-    __index__ (see https://github.com/PyCQA/pylint/issues/6795)
+    __index__ (see https://github.com/pylint-dev/pylint/issues/6795)
     since these either have no alternative method of being called or
     have a genuine use case for being called manually.
 

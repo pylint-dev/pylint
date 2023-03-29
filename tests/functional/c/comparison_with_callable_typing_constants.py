@@ -6,7 +6,7 @@ from typing import Any, Optional
 
 
 def check_any(type_) -> bool:
-    """See https://github.com/PyCQA/pylint/issues/5557"""
+    """See https://github.com/pylint-dev/pylint/issues/5557"""
     return type_ == Any
 
 
