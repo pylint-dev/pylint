@@ -30,12 +30,13 @@ Then create a new crash issue:
 https://github.com/PyCQA/pylint/issues/new?assignees=&labels=crash%2Cneeds+triage&template=BUG-REPORT.yml
 
 """
-    template += f"""\
-
+    template += f"""
 Issue title:
 Crash ``{ex}`` (if possible, be more specific about what made pylint crash)
-Content:
-When parsing the following file:
+
+### Bug description
+
+When parsing the following ``a.py``:
 
 <!--
  If sharing the code is not an option, please state so,
@@ -46,11 +47,27 @@ When parsing the following file:
 {file_content}
 ```
 
-pylint crashed with a ``{ex.__class__.__name__}`` and with the following stacktrace:
+### Command used
+
+```shell
+pylint a.py
 ```
+
+### Pylint output
+
+<details open>
+    <summary>
+        pylint crashed with a ``{ex.__class__.__name__}`` and with the following stacktrace:
+    </summary>
+
+```python
 """
     template += traceback.format_exc()
-    template += "```\n"
+    template += """
+```
+
+</details>
+"""
     try:
         with open(issue_template_path, "a", encoding="utf8") as f:
             f.write(template)
