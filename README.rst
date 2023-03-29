@@ -9,7 +9,7 @@
     :target: https://github.com/pylint-dev/pylint/actions
 
 .. image:: https://codecov.io/gh/PyCQA/pylint/branch/main/graph/badge.svg?token=ZETEzayrfk
-    :target: https://codecov.io/gh/PyCQA/pylint
+    :target: https://codecov.io/gh/pylint-dev/pylint
 
 .. image:: https://img.shields.io/pypi/v/pylint.svg
     :alt: Pypi Package version
