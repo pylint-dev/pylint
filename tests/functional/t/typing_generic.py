@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring,invalid-name,too-few-public-methods
 
-# https://github.com/PyCQA/pylint/issues/2822
+# https://github.com/pylint-dev/pylint/issues/2822
 # Base should be subscriptable, even with ABCMeta as metaclass
 from abc import ABC, ABCMeta
 from typing import Generic, TypeVar

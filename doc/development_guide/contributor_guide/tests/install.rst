@@ -10,7 +10,7 @@ Pylint is developed using the git_ distributed version control system.
 
 You can clone Pylint using ::
 
-  git clone https://github.com/PyCQA/pylint
+  git clone https://github.com/pylint-dev/pylint
 
 Before you start testing your code, you need to install your source-code package locally.
 Suppose you just cloned pylint with the previous ``git clone`` command. To set up your

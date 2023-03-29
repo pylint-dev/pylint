@@ -81,7 +81,7 @@ import foo
 import bar
 
 # Issues with contextlib.suppress reported in
-# https://github.com/PyCQA/pylint/issues/7270
+# https://github.com/pylint-dev/pylint/issues/7270
 import contextlib
 with contextlib.suppress(ImportError):
     import foo2

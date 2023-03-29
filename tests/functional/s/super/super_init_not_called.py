@@ -52,14 +52,14 @@ class ChildThree(ParentWithoutInit):
 
 
 # Regression test as reported in
-# https://github.com/PyCQA/pylint/issues/6027
+# https://github.com/pylint-dev/pylint/issues/6027
 class MyUnion(ctypes.Union):
     def __init__(self):
         pass
 
 
 # Should not be called on abstract __init__ methods
-# https://github.com/PyCQA/pylint/issues/3975
+# https://github.com/pylint-dev/pylint/issues/3975
 class Base:
     def __init__(self, param: int, param_two: str) -> None:
         raise NotImplementedError()

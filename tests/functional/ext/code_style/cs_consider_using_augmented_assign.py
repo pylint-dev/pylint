@@ -121,7 +121,7 @@ x = x <= 3
 x = 3 <= x
 
 
-# https://github.com/PyCQA/pylint/issues/8086
+# https://github.com/pylint-dev/pylint/issues/8086
 # consider-using-augmented-assign should only be flagged
 # if names attribute names match exactly.
 

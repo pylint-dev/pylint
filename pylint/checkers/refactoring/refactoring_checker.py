@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -1060,8 +1060,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_consider_using_generator(self, node: nodes.Call) -> None:
         # 'any', 'all', definitely should use generator, while 'list', 'tuple',
         # 'sum', 'max', and 'min' need to be considered first
-        # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
-        # https://github.com/PyCQA/pylint/pull/6595#issuecomment-1125704244
+        # See https://github.com/pylint-dev/pylint/pull/3309#discussion_r576683109
+        # https://github.com/pylint-dev/pylint/pull/6595#issuecomment-1125704244
         # and https://peps.python.org/pep-0289/
         checked_call = ["any", "all", "sum", "max", "min", "list", "tuple"]
         if (
@@ -1171,7 +1171,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         if len(node.args) == 0:
             # handle case when builtin.next is called without args.
-            # see https://github.com/PyCQA/pylint/issues/7828
+            # see https://github.com/pylint-dev/pylint/issues/7828
             return
 
         inferred = utils.safe_infer(node.func)

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=too-many-public-methods
 
@@ -301,7 +301,7 @@ class TestRunTC:
 
         An import inside `module_a`, which is used as a type annotation in `module_a`, should not prevent
         emitting the `unused-import` message when the same import occurs in `module_b` & is unused.
-        See: https://github.com/PyCQA/pylint/issues/4150
+        See: https://github.com/pylint-dev/pylint/issues/4150
         """
         module1 = join(
             HERE, "regrtest_data", "imported_module_in_typehint", "module_a.py"
@@ -888,7 +888,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         [
             ["--disable=import-error,unused-import"],
             # Test with multiple jobs for 'hmac.py' for which we have a
-            # CVE against: https://github.com/PyCQA/pylint/issues/959
+            # CVE against: https://github.com/pylint-dev/pylint/issues/959
             ["-j2", "--disable=import-error,unused-import"],
         ],
     )
@@ -904,7 +904,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             new_python_path = os.environ.get("PYTHONPATH", "").strip(":")
             with _test_cwd(tmp_path), _test_environ_pythonpath(f"{new_python_path}:"):
                 # Appending a colon to PYTHONPATH should not break path stripping
-                # https://github.com/PyCQA/pylint/issues/3636
+                # https://github.com/pylint-dev/pylint/issues/3636
                 subprocess.check_output(pylint_call, cwd=str(tmp_path))
 
     @staticmethod
@@ -983,7 +983,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
 
     def test_regression_parallel_mode_without_filepath(self) -> None:
         # Test that parallel mode properly passes filepath
-        # https://github.com/PyCQA/pylint/issues/3564
+        # https://github.com/pylint-dev/pylint/issues/3564
         path = join(
             HERE, "regrtest_data", "regression_missing_init_3564", "subdirectory/"
         )
@@ -1127,7 +1127,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     def test_regex_paths_csv_validator() -> None:
         """Test to see if _regexp_paths_csv_validator works.
         Previously the validator crashed when encountering already validated values.
-        Reported in https://github.com/PyCQA/pylint/issues/5437
+        Reported in https://github.com/pylint-dev/pylint/issues/5437
         """
         with pytest.raises(SystemExit) as ex:
             args = _add_rcfile_default_pylintrc(
@@ -1138,7 +1138,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
 
     @staticmethod
     def test_max_inferred_for_complicated_class_hierarchy() -> None:
-        """Regression test for a crash reported in https://github.com/PyCQA/pylint/issues/5679.
+        """Regression test for a crash reported in https://github.com/pylint-dev/pylint/issues/5679.
 
         The class hierarchy of 'sqlalchemy' is so intricate that it becomes uninferable with
         the standard max_inferred of 100. We used to crash when this happened.
@@ -1273,7 +1273,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     def test_line_too_long_useless_suppression(self) -> None:
         """A test that demonstrates a known false positive for useless-suppression
 
-        See https://github.com/PyCQA/pylint/issues/3368
+        See https://github.com/pylint-dev/pylint/issues/3368
 
         If you manage to make this test fail and remove the useless-suppression
         warning please contact open a Pylint PR!

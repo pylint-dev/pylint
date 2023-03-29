@@ -2,5 +2,5 @@
 
 """Regression test for disabling of invalid-name for module names.
 
-See https://github.com/PyCQA/pylint/issues/3973.
+See https://github.com/pylint-dev/pylint/issues/3973.
 """
