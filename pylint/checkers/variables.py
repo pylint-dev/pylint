@@ -694,9 +694,7 @@ scope_type : {self._atomic.scope_type}
         return found_nodes
 
     @staticmethod
-    def _inferred_to_define_name_raise_or_return(
-        name: str, node: nodes.NodeNG
-    ) -> bool:
+    def _inferred_to_define_name_raise_or_return(name: str, node: nodes.NodeNG) -> bool:
         """Return True if there is a path under this `if_node`
         that is inferred to define `name`, raise, or return.
         """
@@ -706,10 +704,7 @@ scope_type : {self._atomic.scope_type}
             try_except_node = node
             if isinstance(node, nodes.TryFinally):
                 try_except_node = next(
-                    (
-                        child
-                        for child in node.nodes_of_class(nodes.TryExcept)
-                    ),
+                    (child for child in node.nodes_of_class(nodes.TryExcept)),
                     None,
                 )
             handlers = try_except_node.handlers if try_except_node else []
@@ -1721,7 +1716,10 @@ class VariablesChecker(BaseChecker):
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
             if (
-                not (self._postponed_evaluation_enabled and utils.is_node_in_type_annotation_context(node))
+                not (
+                    self._postponed_evaluation_enabled
+                    and utils.is_node_in_type_annotation_context(node)
+                )
                 and not self._is_builtin(node.name)
                 and not self._is_variable_annotation_in_function(node)
             ):
