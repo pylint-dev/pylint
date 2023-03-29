@@ -694,9 +694,11 @@ scope_type : {self._atomic.scope_type}
         return found_nodes
 
     @staticmethod
-    def _inferred_to_define_name_raise_or_return(name: str, node: nodes.NodeNG) -> bool:
-        """Return True if there is a collectively exhaustive set of paths under
-        this `if_node` that define `name`, raise, or return.
+    def _inferred_to_define_name_raise_or_return(
+        name: str, node: nodes.NodeNG
+    ) -> bool:
+        """Return True if there is a path under this `if_node`
+        that is inferred to define `name`, raise, or return.
         """
         # Handle try and with
         if isinstance(node, (nodes.TryExcept, nodes.TryFinally)):
@@ -706,8 +708,7 @@ scope_type : {self._atomic.scope_type}
                 try_except_node = next(
                     (
                         child
-                        for child in node.get_children()
-                        if isinstance(child, nodes.TryExcept)
+                        for child in node.nodes_of_class(nodes.TryExcept)
                     ),
                     None,
                 )
@@ -735,19 +736,22 @@ scope_type : {self._atomic.scope_type}
 
         test = node.test.value if isinstance(node.test, nodes.NamedExpr) else node.test
         all_inferred = utils.infer_all(test)
+        only_search_if = False
+        only_search_else = True
+
+        for inferred in all_inferred:
+            if not isinstance(inferred, nodes.Const):
+                only_search_else = False
+                continue
+            val = inferred.value
+            only_search_if = only_search_if or (val != NotImplemented and val)
+            only_search_else = only_search_else and not val
+
         # Only search else branch when test condition is inferred to be false
-        if all_inferred and all(
-            isinstance(inferred, nodes.Const) and not inferred.value
-            for inferred in all_inferred
-        ):
+        if all_inferred and only_search_else:
             return NamesConsumer._branch_handles_name(name, node.orelse)
         # Only search if branch when test condition is inferred to be true
-        if all_inferred and any(
-            isinstance(inferred, nodes.Const)
-            and inferred.value != NotImplemented
-            and inferred.value
-            for inferred in all_inferred
-        ):
+        if all_inferred and only_search_if:
             return NamesConsumer._branch_handles_name(name, node.body)
         # Search both if and else branches
         return NamesConsumer._branch_handles_name(
@@ -781,8 +785,8 @@ scope_type : {self._atomic.scope_type}
         """Identify nodes of uncertain execution because they are defined under
         tests that evaluate false.
 
-        Don't identify a node if there is a collectively exhaustive set of paths
-        that define the name, raise, or return (e.g. every if/else branch).
+        Don't identify a node if there is a path that is inferred to
+        define the name, raise, or return (e.g. any executed if/elif/else branch).
         """
         uncertain_nodes = []
         for other_node in found_nodes:
@@ -1717,7 +1721,7 @@ class VariablesChecker(BaseChecker):
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
             if (
-                not self._postponed_evaluation_enabled
+                not (self._postponed_evaluation_enabled and utils.is_node_in_type_annotation_context(node))
                 and not self._is_builtin(node.name)
                 and not self._is_variable_annotation_in_function(node)
             ):
