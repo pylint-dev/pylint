@@ -1,5 +1,5 @@
 """Crash regression in astroid on Compare node inference
-Fixed in https://github.com/PyCQA/astroid/pull/1185"""
+Fixed in https://github.com/pylint-dev/astroid/pull/1185"""
 # pylint: disable=missing-docstring, broad-exception-raised
 
 

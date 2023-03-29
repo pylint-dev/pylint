@@ -34,7 +34,7 @@ If you're testing new changes in astroid you need to also clone astroid_ and ins
 with an editable installation alongside pylint as follows::
 
     # Suppose you're in the pylint directory
-    git clone https://github.com/PyCQA/astroid.git
+    git clone https://github.com/pylint-dev/astroid.git
     python3 -m pip install -e astroid/
 
 You're now using the local astroid in pylint and can control the version with git for example::
@@ -43,5 +43,5 @@ You're now using the local astroid in pylint and can control the version with gi
     git switch my-astroid-dev-branch
 
 .. _pytest-cov: https://pypi.org/project/pytest-cov/
-.. _astroid: https://github.com/pycqa/astroid
+.. _astroid: https://github.com/pylint-dev/astroid
 .. _git: https://git-scm.com/

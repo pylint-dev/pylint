@@ -14,7 +14,7 @@ https://github.com/pylint-dev/pylint
 Note that the issue might also be reported in one of Pylint's major dependencies,
 astroid:
 
-* https://github.com/PyCQA/astroid
+* https://github.com/pylint-dev/astroid
 
 Discord server
 --------------
