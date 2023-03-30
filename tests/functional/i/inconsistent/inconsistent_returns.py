@@ -336,7 +336,7 @@ def bug_pylint_3873_2():
         nothing_to_do()
     return False
 
-# https://github.com/PyCQA/pylint/issues/4019
+# https://github.com/pylint-dev/pylint/issues/4019
 def bug_pylint_4019(x):
     """
     assert False is equivalent to a return
@@ -355,7 +355,7 @@ def bug_pylint_4019_wrong(x):  # [inconsistent-return-statements]
     assert True
 
 
-# https://github.com/PyCQA/pylint/issues/8280
+# https://github.com/pylint-dev/pylint/issues/8280
 class A:
     def get_the_answer(self):  # [inconsistent-return-statements]
         while self.is_running:

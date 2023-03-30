@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Puts the check_parallel system under test."""
 
@@ -188,7 +188,7 @@ class TestCheckParallelFramework:
 
         See:
         https://stackoverflow.com/questions/8804830/python-multiprocessing-picklingerror-cant-pickle-type-function
-        https://github.com/PyCQA/pylint/pull/5584
+        https://github.com/pylint-dev/pylint/pull/5584
         """
         linter = PyLinter(reporter=Reporter())
         linter.attribute = argparse.ArgumentParser()  # type: ignore[attr-defined]
@@ -548,7 +548,7 @@ class TestCheckParallel:
 
         The intent here is to validate the reduce step: no stats should be lost.
 
-        Checks regression of https://github.com/PyCQA/pylint/issues/4118
+        Checks regression of https://github.com/pylint-dev/pylint/issues/4118
         """
 
         # define the stats we expect to get back from the runs, these should only vary

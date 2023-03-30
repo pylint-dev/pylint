@@ -1,5 +1,5 @@
 """Test for a regression on slots and annotated assignments.
-Reported in https://github.com/PyCQA/pylint/issues/5479
+Reported in https://github.com/pylint-dev/pylint/issues/5479
 """
 # pylint: disable=too-few-public-methods, unused-private-member, missing-class-docstring, missing-function-docstring
 

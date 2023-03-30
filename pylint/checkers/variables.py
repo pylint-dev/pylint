@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Variables checkers for Python code."""
 
@@ -953,12 +953,13 @@ scope_type : {self._atomic.scope_type}
     def _check_loop_finishes_via_except(
         node: nodes.NodeNG, other_node_try_except: nodes.TryExcept
     ) -> bool:
-        """Check for a case described in https://github.com/PyCQA/pylint/issues/5683.
+        """Check for a specific control flow scenario.
 
-        It consists of a specific control flow scenario where the only
-        non-break exit from a loop consists of the very except handler we are
-        examining, such that code in the `else` branch of the loop can depend on it
-        being assigned.
+        Described in https://github.com/pylint-dev/pylint/issues/5683.
+
+        A scenario where the only non-break exit from a loop consists of the very
+        except handler we are examining, such that code in the `else` branch of
+        the loop can depend on it being assigned.
 
         Example:
 
