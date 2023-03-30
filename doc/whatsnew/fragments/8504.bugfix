@@ -1,3 +1,3 @@
-Fix a crash in pyreverse when "/" characters are used in the output filename e.g pyreverse -o png -p name/ path/to/project
+Fix a crash in pyreverse when "/" characters are used in the output filename e.g pyreverse -o png -p name/ path/to/project.
 
 Closes #8504
