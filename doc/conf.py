@@ -109,7 +109,8 @@ master_doc = "index"
 # General information about the project.
 project = "Pylint"
 current_year = datetime.utcnow().year
-copyright = f"2003-{current_year}, Logilab, PyCQA and contributors"  # pylint: disable=redefined-builtin
+contributors = "Logilab and Pylint contributors"
+copyright = f"2003-{current_year}, {contributors}"  # pylint: disable=redefined-builtin
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -249,7 +250,7 @@ latex_documents = [
         "index",
         "Pylint.tex",
         "Pylint Documentation",
-        "Logilab, PyCQA and contributors",
+        contributors,
         "manual",
     )
 ]
@@ -282,9 +283,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ("index", "pylint", "Pylint Documentation", ["Logilab, PyCQA and contributors"], 1)
-]
+man_pages = [("index", "pylint", "Pylint Documentation", [contributors], 1)]
 
 # pylint: disable-next=consider-using-namedtuple-or-dataclass
 intersphinx_mapping = {
