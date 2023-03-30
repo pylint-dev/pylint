@@ -7,11 +7,12 @@ from typing import List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     if True:  # pylint: disable=using-constant-test
         import math
+    import dbm
+    print(dbm)  # no error when defined and used in the same false branch
     from urllib.request import urlopen
     import array
     import base64
     import binascii
-    import bisect
     import calendar
     import collections
     import copy
