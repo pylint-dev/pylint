@@ -35,6 +35,7 @@ _DEFAULTS = {
     "show_stdlib": False,
     "only_classnames": False,
     "output_directory": "",
+    "no_standalone": False,
 }
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
@@ -45,6 +46,7 @@ PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
 COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
 MMD_FILES = ["packages_No_Name.mmd", "classes_No_Name.mmd"]
 HTML_FILES = ["packages_No_Name.html", "classes_No_Name.html"]
+NO_STANDALONE_FILES = ["no_standalone_classes.dot", "no_standalone_packages.dot"]
 
 
 class Config:
@@ -85,6 +87,15 @@ def setup_colorized_dot(
     writer = DiagramWriter(colorized_dot_config)
     project = get_project(TEST_DATA_DIR, name="colorized")
     yield from _setup(project, colorized_dot_config, writer)
+
+
+@pytest.fixture()
+def setup_no_standalone_dot(
+    no_standalone_dot_config: PyreverseConfig, get_project: GetProjectCallable
+) -> Iterator[None]:
+    writer = DiagramWriter(no_standalone_dot_config)
+    project = get_project(TEST_DATA_DIR)
+    yield from _setup(project, no_standalone_dot_config, writer)
 
 
 @pytest.fixture()
@@ -158,6 +169,12 @@ def test_dot_files(generated_file: str) -> None:
 @pytest.mark.usefixtures("setup_colorized_dot")
 @pytest.mark.parametrize("generated_file", COLORIZED_DOT_FILES)
 def test_colorized_dot_files(generated_file: str) -> None:
+    _assert_files_are_equal(generated_file)
+
+
+@pytest.mark.usefixtures("setup_no_standalone_dot")
+@pytest.mark.parametrize("generated_file", NO_STANDALONE_FILES)
+def test_no_standalone_dot_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 

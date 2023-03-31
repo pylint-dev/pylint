@@ -29,6 +29,14 @@ def colorized_dot_config() -> PyreverseConfig:
 
 
 @pytest.fixture()
+def no_standalone_dot_config() -> PyreverseConfig:
+    return PyreverseConfig(
+        output_format="dot",
+        no_standalone=True,
+    )
+
+
+@pytest.fixture()
 def puml_config() -> PyreverseConfig:
     return PyreverseConfig(
         output_format="puml",
