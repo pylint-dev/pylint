@@ -57,6 +57,12 @@ class DiagramWriter:
         # sorted to get predictable (hence testable) results
         for module in sorted(diagram.modules(), key=lambda x: x.title):
             module.fig_id = module.node.qname()
+            if self.config.no_standalone and not any(
+                module in (rel.from_object, rel.to_object)
+                for rel in diagram.get_relationships("depends")
+            ):
+                continue
+
             self.printer.emit_node(
                 module.fig_id,
                 type_=NodeType.PACKAGE,
@@ -75,6 +81,13 @@ class DiagramWriter:
         # sorted to get predictable (hence testable) results
         for obj in sorted(diagram.objects, key=lambda x: x.title):  # type: ignore[no-any-return]
             obj.fig_id = obj.node.qname()
+            if self.config.no_standalone and not any(
+                obj in (rel.from_object, rel.to_object)
+                for rel_type in ("specialization", "association", "aggregation")
+                for rel in diagram.get_relationships(rel_type)
+            ):
+                continue
+
             self.printer.emit_node(
                 obj.fig_id,
                 type_=NodeType.CLASS,
