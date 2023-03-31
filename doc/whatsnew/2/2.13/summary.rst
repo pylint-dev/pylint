@@ -295,13 +295,13 @@ Other Changes
   the class itself.
 
   Closes #5408
-  Refspylint-dev/astroid#1392
+  Refs pylint-dev/astroid#1392
 
 * Fixed false positive for ``unused-argument`` when a method overridden in a subclass
   does nothing with the value of a keyword-only argument.
 
   Closes #5771
-  Refspylint-dev/astroid#1382
+  Refs pylint-dev/astroid#1382
 
 * Optimize parsing of long lines when ``missing-final-newline`` is enabled.
 
@@ -343,7 +343,7 @@ Other Changes
 * Fixed a crash involving a ``NewType`` named with an f-string.
 
   Closes #5770
-  Refspylint-dev/astroid#1400
+  Refs pylint-dev/astroid#1400
 
 * Improved ``bad-open-mode`` message when providing ``None`` to the ``mode``
   argument of an ``open()`` call.
