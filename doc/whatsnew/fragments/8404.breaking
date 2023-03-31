@@ -1,9 +1,5 @@
 Everything related to the ``__implements__`` construct was removed. It was based on PEP245
-that was proposed in 2001 and rejected in 2006. It includes all the classes inheriting
-``Interface`` in ``pylint.interfaces``
-
-``Checker`` should only inherit ``BaseChecker`` or any of the other checker types from ``pylint.checkers``.
-``Reporter`` should only inherit ``BaseReporter``.
+that was proposed in 2001 and rejected in 2006.
 
 The capability from pyreverse to take ``__implements__`` into account when generating diagrams
 was also removed.
