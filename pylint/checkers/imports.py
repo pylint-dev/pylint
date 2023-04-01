@@ -12,7 +12,6 @@ import os
 import sys
 from collections import defaultdict
 from collections.abc import ItemsView, Sequence
-from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import astroid
@@ -37,6 +36,12 @@ from pylint.utils.linterstats import LinterStats
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from astroid.decorators import cachedproperty as cached_property
+
 
 # The dictionary with Any should actually be a _ImportTree again
 # but mypy doesn't support recursive types yet
