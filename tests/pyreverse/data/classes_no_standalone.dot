@@ -1,4 +1,4 @@
-digraph "classes" {
+digraph "classes_no_standalone" {
 rankdir=BT
 charset="utf-8"
 "data.clientmodule_test.Ancestor" [color="black", fontcolor="black", label=<{Ancestor|attr : str<br ALIGN="LEFT"/>cls_member<br ALIGN="LEFT"/>|get_value()<br ALIGN="LEFT"/>set_value(value)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];

@@ -46,7 +46,7 @@ PUML_FILES = ["packages_No_Name.puml", "classes_No_Name.puml"]
 COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
 MMD_FILES = ["packages_No_Name.mmd", "classes_No_Name.mmd"]
 HTML_FILES = ["packages_No_Name.html", "classes_No_Name.html"]
-NO_STANDALONE_FILES = ["no_standalone_classes.dot", "no_standalone_packages.dot"]
+NO_STANDALONE_FILES = ["classes_no_standalone.dot", "packages_no_standalone.dot"]
 
 
 class Config:
@@ -94,7 +94,7 @@ def setup_no_standalone_dot(
     no_standalone_dot_config: PyreverseConfig, get_project: GetProjectCallable
 ) -> Iterator[None]:
     writer = DiagramWriter(no_standalone_dot_config)
-    project = get_project(TEST_DATA_DIR)
+    project = get_project(TEST_DATA_DIR, name="no_standalone")
     yield from _setup(project, no_standalone_dot_config, writer)
 
 
