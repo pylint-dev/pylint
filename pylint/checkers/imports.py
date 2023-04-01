@@ -12,6 +12,7 @@ import os
 import sys
 from collections import defaultdict
 from collections.abc import ItemsView, Sequence
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 import astroid
@@ -997,7 +998,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self, sect: Section, _: LinterStats, _dummy: LinterStats | None
     ) -> None:
         """Return a verbatim layout for displaying dependencies."""
-        dep_info = _make_tree_defs(self._external_dependencies_info().items())
+        dep_info = _make_tree_defs(self._external_dependencies_info.items())
         if not dep_info:
             raise EmptyReportError()
         tree_str = _repr_tree_defs(dep_info)
@@ -1019,10 +1020,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             _make_graph(filename, dep_info, sect, "")
         filename = self.linter.config.ext_import_graph
         if filename:
-            _make_graph(filename, self._external_dependencies_info(), sect, "external ")
+            _make_graph(filename, self._external_dependencies_info, sect, "external ")
         filename = self.linter.config.int_import_graph
         if filename:
-            _make_graph(filename, self._internal_dependencies_info(), sect, "internal ")
+            _make_graph(filename, self._internal_dependencies_info, sect, "internal ")
 
     def _filter_dependencies_graph(self, internal: bool) -> defaultdict[str, set[str]]:
         """Build the internal or the external dependency graph."""
@@ -1035,14 +1036,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     graph[importee].add(importer)
         return graph
 
-    @astroid.decorators.cached
+    @cached_property
     def _external_dependencies_info(self) -> defaultdict[str, set[str]]:
         """Return cached external dependencies information or build and
         cache them.
         """
         return self._filter_dependencies_graph(internal=False)
 
-    @astroid.decorators.cached
+    @cached_property
     def _internal_dependencies_info(self) -> defaultdict[str, set[str]]:
         """Return cached internal dependencies information or build and
         cache them.
