@@ -1,4 +1,4 @@
-FROM python:3.10.0-alpine3.15
+FROM python:3.10.10-alpine3.17
 
 COPY ./ /tmp/build
 WORKDIR /tmp/build
