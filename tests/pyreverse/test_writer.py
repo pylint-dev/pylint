@@ -149,6 +149,7 @@ def _setup(
     for fname in (
         DOT_FILES
         + COLORIZED_DOT_FILES
+        + NO_STANDALONE_FILES
         + PUML_FILES
         + COLORIZED_PUML_FILES
         + MMD_FILES
