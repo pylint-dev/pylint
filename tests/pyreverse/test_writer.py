@@ -208,6 +208,7 @@ def test_color_for_stdlib_module(default_config: PyreverseConfig) -> None:
     obj.node.qname.return_value = "collections"
     assert writer.get_shape_color(obj) == "grey"
 
+
 # test to check the names of the generated files are corrected when using an incorrect character like "/" in the package name
 def test_package_name_with_slash(default_config: PyreverseConfig) -> None:
     writer = DiagramWriter(default_config)
