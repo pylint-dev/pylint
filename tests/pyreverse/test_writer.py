@@ -223,3 +223,20 @@ def test_color_for_stdlib_module(default_config: PyreverseConfig) -> None:
     obj.node = Mock()
     obj.node.qname.return_value = "collections"
     assert writer.get_shape_color(obj) == "grey"
+
+
+def test_package_name_with_slash(default_config: PyreverseConfig) -> None:
+    """Test to check the names of the generated files are corrected
+    when using an incorrect character like "/" in the package name.
+    """
+    writer = DiagramWriter(default_config)
+    obj = Mock()
+
+    obj.objects = []
+    obj.get_relationships.return_value = []
+    obj.title = "test/package/name/with/slash/"
+    writer.write([obj])
+
+    assert os.path.exists("test_package_name_with_slash_.dot")
+    # remove the generated file
+    os.remove("test_package_name_with_slash_.dot")
