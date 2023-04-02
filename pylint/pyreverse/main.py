@@ -158,6 +158,14 @@ OPTIONS: Options = (
         },
     ),
     (
+        "no-standalone",
+        {
+            "action": "store_true",
+            "default": False,
+            "help": "only show nodes with connections",
+        },
+    ),
+    (
         "output",
         {
             "short": "o",

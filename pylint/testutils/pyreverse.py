@@ -37,6 +37,7 @@ class PyreverseConfig(
         all_ancestors: bool | None = None,
         show_associated: int | None = None,
         all_associated: bool | None = None,
+        no_standalone: bool = False,
         show_builtin: bool = False,
         show_stdlib: bool = False,
         module_names: bool | None = None,
@@ -59,6 +60,7 @@ class PyreverseConfig(
         self.all_ancestors = all_ancestors
         self.show_associated = show_associated
         self.all_associated = all_associated
+        self.no_standalone = no_standalone
         self.show_builtin = show_builtin
         self.show_stdlib = show_stdlib
         self.module_names = module_names
