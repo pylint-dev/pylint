@@ -10,9 +10,11 @@ import codecs
 import os
 from collections.abc import Iterator
 from difflib import unified_diff
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+from pytest import MonkeyPatch
 
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, Project
@@ -69,6 +71,11 @@ def _file_lines(path: str) -> list[str]:
             )
         ]
     return [line for line in lines if line]
+
+
+@pytest.fixture(autouse=True)
+def change_to_temp_dir(monkeypatch: MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
 
 
 @pytest.fixture()
@@ -146,19 +153,6 @@ def _setup(
         diagram.extract_relationships()
     writer.write(dd)
     yield
-    for fname in (
-        DOT_FILES
-        + COLORIZED_DOT_FILES
-        + NO_STANDALONE_FILES
-        + PUML_FILES
-        + COLORIZED_PUML_FILES
-        + MMD_FILES
-        + HTML_FILES
-    ):
-        try:
-            os.remove(fname)
-        except FileNotFoundError:
-            continue
 
 
 @pytest.mark.usefixtures("setup_dot")
@@ -240,5 +234,3 @@ def test_package_name_with_slash(default_config: PyreverseConfig) -> None:
     writer.write([obj])
 
     assert os.path.exists("test_package_name_with_slash_.dot")
-    # remove the generated file
-    os.remove("test_package_name_with_slash_.dot")
