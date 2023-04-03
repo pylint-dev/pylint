@@ -23,6 +23,7 @@ from pylint.checkers.utils import (
     get_import_name,
     in_type_checking_block,
     is_from_fallback_block,
+    is_module_ignored,
     is_sys_guard,
     node_ignores_exception,
 )
@@ -84,18 +85,6 @@ DEPRECATED_MODULES = {
 }
 
 
-def _qualified_names(modname: str | None) -> list[str]:
-    """Split the names of the given module into subparts.
-
-    For example,
-        _qualified_names('pylint.checkers.ImportsChecker')
-    returns
-        ['pylint', 'pylint.checkers', 'pylint.checkers.ImportsChecker']
-    """
-    names = modname.split(".") if modname is not None else ""
-    return [".".join(names[0 : i + 1]) for i in range(len(names))]
-
-
 def _get_first_import(
     node: ImportNode,
     context: nodes.LocalsDictNodeNG,
@@ -153,12 +142,11 @@ def _get_first_import(
 
 def _ignore_import_failure(
     node: ImportNode,
-    modname: str | None,
+    modname: str,
     ignored_modules: Sequence[str],
 ) -> bool:
-    for submodule in _qualified_names(modname):
-        if submodule in ignored_modules:
-            return True
+    if is_module_ignored(modname, ignored_modules):
+        return True
 
     # Ignore import failure if part of guarded import block
     # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
@@ -852,7 +840,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return std_imports, external_imports, local_imports
 
     def _get_imported_module(
-        self, importnode: ImportNode, modname: str | None
+        self, importnode: ImportNode, modname: str
     ) -> nodes.Module | None:
         try:
             return importnode.do_import_module(modname)

@@ -12,7 +12,6 @@ import itertools
 import numbers
 import re
 import string
-from collections import deque
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
@@ -2050,37 +2049,30 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
     return False, ""
 
 
+def _qualified_name_parts(qualified_module_name: str) -> list[str]:
+    """Split the names of the given module into subparts.
+
+    For example,
+        _qualified_name_parts('pylint.checkers.ImportsChecker')
+    returns
+        ['pylint', 'pylint.checkers', 'pylint.checkers.ImportsChecker']
+    """
+    names = qualified_module_name.split(".")
+    return [".".join(names[0 : i + 1]) for i in range(len(names))]
+
+
 def is_module_ignored(
-    module: nodes.Module,
-    ignored_modules: Iterable[str],
+    qualified_module_name: str, ignored_modules: Iterable[str]
 ) -> bool:
     ignored_modules = set(ignored_modules)
-    module_name = module.name
-    module_qname = module.qname()
-
-    for ignore in ignored_modules:
-        # Try to match the module name / fully qualified name directly
-        if module_qname in ignored_modules or module_name in ignored_modules:
+    for current_module in _qualified_name_parts(qualified_module_name):
+        # Try to match the module name directly
+        if current_module in ignored_modules:
             return True
-
-        # Try to see if the ignores pattern match against the module name.
-        if fnmatch.fnmatch(module_qname, ignore):
-            return True
-
-        # Otherwise, we might have a root module name being ignored,
-        # and the qualified owner has more levels of depth.
-        parts = deque(module_name.split("."))
-        current_module = ""
-
-        while parts:
-            part = parts.popleft()
-            if not current_module:
-                current_module = part
-            else:
-                current_module += f".{part}"
-            if current_module in ignored_modules:
+        for ignore in ignored_modules:
+            # Try to see if the ignores pattern match against the module name.
+            if fnmatch.fnmatch(current_module, ignore):
                 return True
-
     return False
 
 

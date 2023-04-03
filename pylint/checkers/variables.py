@@ -25,6 +25,7 @@ from astroid.typing import InferenceResult
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     in_type_checking_block,
+    is_module_ignored,
     is_postponed_evaluation_enabled,
     is_sys_guard,
     overridden_method,
@@ -2941,7 +2942,9 @@ class VariablesChecker(BaseChecker):
                 if not isinstance(module, nodes.Module):
                     return None
             except astroid.NotFoundError:
-                if module.name in self._ignored_modules:
+                # Unable to import `name` from `module`. Since `name` may itself be a
+                # module, we first check if it matches the ignored modules.
+                if is_module_ignored(f"{module.qname()}.{name}", self._ignored_modules):
                     return None
                 self.add_message(
                     "no-name-in-module", args=(name, module.name), node=node
