@@ -29,6 +29,42 @@ so we find problems before the actual release.
 
 .. towncrier release notes start
 
+What's new in Pylint 2.17.2?
+----------------------------
+Release date: 2023-04-03
+
+
+False Positives Fixed
+---------------------
+
+- ``invalid-name`` now allows for integers in ``typealias`` names:
+  - now valid: ``Good2Name``, ``GoodName2``.
+  - still invalid: ``_1BadName``.
+
+  Closes #8485 (`#8485 <https://github.com/PyCQA/pylint/issues/8485>`_)
+
+- No longer consider ``Union`` as type annotation as type alias for naming
+  checks.
+
+  Closes #8487 (`#8487 <https://github.com/PyCQA/pylint/issues/8487>`_)
+
+- ``unnecessary-lambda`` no longer warns on lambdas which use its parameters in
+  their body (other than the final arguments), e.g.
+  ``lambda foo: (bar if foo else baz)(foo)``.
+
+  Closes #8496 (`#8496 <https://github.com/PyCQA/pylint/issues/8496>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix a crash in pyreverse when "/" characters are used in the output filename
+  e.g pyreverse -o png -p name/ path/to/project.
+
+  Closes #8504 (`#8504 <https://github.com/PyCQA/pylint/issues/8504>`_)
+
+
 What's new in Pylint 2.17.1?
 ----------------------------
 Release date: 2023-03-22
