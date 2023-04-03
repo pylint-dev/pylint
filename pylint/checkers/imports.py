@@ -142,7 +142,7 @@ def _get_first_import(
 
 def _ignore_import_failure(
     node: ImportNode,
-    modname: str | None,
+    modname: str,
     ignored_modules: Sequence[str],
 ) -> bool:
     if is_module_ignored(modname, ignored_modules):
@@ -840,7 +840,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return std_imports, external_imports, local_imports
 
     def _get_imported_module(
-        self, importnode: ImportNode, modname: str | None
+        self, importnode: ImportNode, modname: str
     ) -> nodes.Module | None:
         try:
             return importnode.do_import_module(modname)
