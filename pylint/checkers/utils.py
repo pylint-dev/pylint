@@ -2044,9 +2044,11 @@ def _qualified_name_parts(qualified_module_name: str) -> list[str]:
 
 
 def is_module_ignored(
-    qualified_module_name: str,
+    qualified_module_name: str | None,
     ignored_modules: Iterable[str],
 ) -> bool:
+    if qualified_module_name is None:
+        return False
     ignored_modules = set(ignored_modules)
 
     for current_module in _qualified_name_parts(qualified_module_name):
