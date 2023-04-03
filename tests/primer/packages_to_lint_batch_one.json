@@ -3,11 +3,5 @@
     "branch": "master",
     "directories": ["keras"],
     "url": "https://github.com/keras-team/keras.git"
-  },
-  "music21": {
-    "branch": "master",
-    "directories": ["music21"],
-    "pylintrc_relpath": ".pylintrc",
-    "url": "https://github.com/cuthbertLab/music21"
   }
 }

@@ -1,1 +1,5 @@
-# This is a placeholder for correct code for this message.
+class Fruit:
+    pass
+
+
+Fruit.__name__ = "FRUIT"

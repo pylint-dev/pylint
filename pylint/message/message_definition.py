@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -31,6 +31,7 @@ class MessageDefinition:
         maxversion: tuple[int, int] | None = None,
         old_names: list[tuple[str, str]] | None = None,
         shared: bool = False,
+        default_enabled: bool = True,
     ) -> None:
         self.checker_name = checker.name
         self.check_msgid(msgid)
@@ -42,6 +43,7 @@ class MessageDefinition:
         self.minversion = minversion
         self.maxversion = maxversion
         self.shared = shared
+        self.default_enabled = default_enabled
         self.old_names: list[tuple[str, str]] = []
         if old_names:
             for old_msgid, old_symbol in old_names:
@@ -70,11 +72,11 @@ class MessageDefinition:
     def __str__(self) -> str:
         return f"{repr(self)}:\n{self.msg} {self.description}"
 
-    def may_be_emitted(self) -> bool:
-        """Return True if message may be emitted using the current interpreter."""
-        if self.minversion is not None and self.minversion > sys.version_info:
+    def may_be_emitted(self, py_version: tuple[int, ...] | sys._version_info) -> bool:
+        """May the message be emitted using the configured py_version?"""
+        if self.minversion is not None and self.minversion > py_version:
             return False
-        if self.maxversion is not None and self.maxversion <= sys.version_info:
+        if self.maxversion is not None and self.maxversion <= py_version:
             return False
         return True
 

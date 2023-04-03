@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 import astroid
 
@@ -9,7 +9,6 @@ from pylint.testutils import CheckerTestCase, set_config
 
 
 class TestDesignChecker(CheckerTestCase):
-
     CHECKER_CLASS = design_analysis.MisdesignChecker
 
     @set_config(

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Utilities methods and classes for checkers.
 
@@ -51,7 +51,6 @@ from pylint.checkers.base_checker import (
     BaseTokenChecker,
 )
 from pylint.checkers.deprecated import DeprecatedMixin
-from pylint.checkers.mapreduce_checker import MapReduceMixin
 from pylint.utils import LinterStats, diff_string, register_plugins
 
 if sys.version_info >= (3, 8):
@@ -127,7 +126,7 @@ def table_lines_from_stats(
         )
         new_str = f"{new_value:.3f}" if isinstance(new_value, float) else str(new_value)
         old_str = f"{old_value:.3f}" if isinstance(old_value, float) else str(old_value)
-        lines.extend((value[0].replace("_", " "), new_str, old_str, diff_str))
+        lines.extend((value[0].replace("_", " "), new_str, old_str, diff_str))  # type: ignore[arg-type]
     return lines
 
 
@@ -141,7 +140,6 @@ __all__ = [
     "BaseTokenChecker",
     "BaseRawFileChecker",
     "initialize",
-    "MapReduceMixin",
     "DeprecatedMixin",
     "register_plugins",
 ]

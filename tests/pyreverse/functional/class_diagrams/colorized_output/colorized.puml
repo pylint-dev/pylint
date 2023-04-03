@@ -1,18 +1,18 @@
 @startuml classes
 set namespaceSeparator none
-class "CheckerCollector" as colorized.CheckerCollector #aliceblue {
+class "CheckerCollector" as colorized.CheckerCollector #77AADD {
   checker1
   checker2
   checker3
 }
-class "ElseifUsedChecker" as pylint.extensions.check_elif.ElseifUsedChecker #antiquewhite {
+class "ElseifUsedChecker" as pylint.extensions.check_elif.ElseifUsedChecker #99DDFF {
   msgs : dict
   name : str
   leave_module(_: nodes.Module) -> None
   process_tokens(tokens: list[TokenInfo]) -> None
   visit_if(node: nodes.If) -> None
 }
-class "ExceptionsChecker" as pylint.checkers.exceptions.ExceptionsChecker #aquamarine {
+class "ExceptionsChecker" as pylint.checkers.exceptions.ExceptionsChecker #44BB99 {
   msgs : dict
   name : str
   options : tuple
@@ -22,7 +22,7 @@ class "ExceptionsChecker" as pylint.checkers.exceptions.ExceptionsChecker #aquam
   visit_raise(node: nodes.Raise) -> None
   visit_tryexcept(node: nodes.TryExcept) -> None
 }
-class "StdlibChecker" as pylint.checkers.stdlib.StdlibChecker #aquamarine {
+class "StdlibChecker" as pylint.checkers.stdlib.StdlibChecker #44BB99 {
   msgs : dict[str, MessageDefinitionTuple]
   name : str
   deprecated_arguments(method: str) -> tuple[tuple[int | None, str], ...]

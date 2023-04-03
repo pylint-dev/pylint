@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for string formatting operations."""
 
@@ -15,7 +15,7 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING
 
 import astroid
-from astroid import bases, nodes
+from astroid import bases, nodes, util
 from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
@@ -247,7 +247,7 @@ class StringFormatChecker(BaseChecker):
     name = "string"
     msgs = MSGS
 
-    # pylint: disable=too-many-branches
+    # pylint: disable = too-many-branches, too-many-locals, too-many-statements
     @only_required_for_messages(
         "bad-format-character",
         "truncated-format-string",
@@ -337,7 +337,7 @@ class StringFormatChecker(BaseChecker):
                     if (
                         format_type is not None
                         and arg_type
-                        and arg_type != astroid.Uninferable
+                        and not isinstance(arg_type, util.UninferableBase)
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -395,7 +395,7 @@ class StringFormatChecker(BaseChecker):
                     arg_type = utils.safe_infer(arg)
                     if (
                         arg_type
-                        and arg_type != astroid.Uninferable
+                        and not isinstance(arg_type, util.UninferableBase)
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -494,7 +494,7 @@ class StringFormatChecker(BaseChecker):
 
         check_args = False
         # Consider "{[0]} {[1]}" as num_args.
-        num_args += sum(1 for field in named_fields if field == "")
+        num_args += sum(1 for field in named_fields if not field)
         if named_fields:
             for field in named_fields:
                 if field and field not in named_arguments:
@@ -509,7 +509,7 @@ class StringFormatChecker(BaseChecker):
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
             if positional_arguments or num_args:
-                empty = any(field == "" for field in named_fields)
+                empty = not all(field for field in named_fields)
                 if named_arguments or empty:
                     # Verify the required number of positional arguments
                     # only if the .format got at least one keyword argument.
@@ -533,6 +533,7 @@ class StringFormatChecker(BaseChecker):
         self._detect_vacuous_formatting(node, positional_arguments)
         self._check_new_format_specifiers(node, fields, named_arguments)
 
+    # pylint: disable = too-many-statements
     def _check_new_format_specifiers(
         self,
         node: nodes.Call,
@@ -546,7 +547,7 @@ class StringFormatChecker(BaseChecker):
         for key, specifiers in fields:
             # Obtain the argument. If it can't be obtained
             # or inferred, skip this check.
-            if key == "":
+            if not key:
                 # {[0]} will have an unnamed argument, defaulting
                 # to 0. It will not be present in `named`, so use the value
                 # 0 for it.
@@ -560,7 +561,7 @@ class StringFormatChecker(BaseChecker):
                 if key not in named:
                     continue
                 argname = named[key]
-            if argname in (astroid.Uninferable, None):
+            if argname is None or isinstance(argname, util.UninferableBase):
                 continue
             try:
                 argument = utils.safe_infer(argname)
@@ -577,7 +578,7 @@ class StringFormatChecker(BaseChecker):
             previous = argument
             parsed: list[tuple[bool, str]] = []
             for is_attribute, specifier in specifiers:
-                if previous is astroid.Uninferable:
+                if isinstance(previous, util.UninferableBase):
                     break
                 parsed.append((is_attribute, specifier))
                 if is_attribute:
@@ -610,7 +611,7 @@ class StringFormatChecker(BaseChecker):
                             warn_error = True
                         except astroid.InferenceError:
                             break
-                        if previous is astroid.Uninferable:
+                        if isinstance(previous, util.UninferableBase):
                             break
                     else:
                         try:
@@ -815,7 +816,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             token_index = (elt.lineno, elt.col_offset)
             if token_index not in self.string_tokens:
                 # This may happen with Latin1 encoding
-                # cf. https://github.com/PyCQA/pylint/issues/2610
+                # cf. https://github.com/pylint-dev/pylint/issues/2610
                 continue
             matching_token, next_token = self.string_tokens[token_index]
             # We detect string concatenation: the AST Const is the
@@ -834,16 +835,16 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
 
     def process_string_token(self, token: str, start_row: int, start_col: int) -> None:
         quote_char = None
-        index = None
-        for index, char in enumerate(token):
+        for _index, char in enumerate(token):
             if char in "'\"":
                 quote_char = char
                 break
         if quote_char is None:
             return
-
-        prefix = token[:index].lower()  # markers like u, b, r.
-        after_prefix = token[index:]
+        # pylint: disable=undefined-loop-variable
+        prefix = token[:_index].lower()  # markers like u, b, r.
+        after_prefix = token[_index:]
+        # pylint: enable=undefined-loop-variable
         # Chop off quotes
         quote_length = (
             3 if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char else 1

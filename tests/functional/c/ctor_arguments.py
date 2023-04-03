@@ -65,8 +65,8 @@ ClassNew(one=2)  # [no-value-for-parameter,unexpected-keyword-arg]
 
 
 class Metaclass(type):
-    def __new__(cls, name, bases, namespace):
-        return type.__new__(cls, name, bases, namespace)
+    def __new__(mcs, name, bases, namespace):
+        return type.__new__(mcs, name, bases, namespace)
 
 def with_metaclass(meta, base=object):
     """Create a new type that can be used as a metaclass."""
@@ -82,7 +82,7 @@ class BuiltinExc(Exception):
     def __init__(self, val=True):
         self.val = val
 
-BuiltinExc(42, 24, badarg=1) # [too-many-function-args,unexpected-keyword-arg]
+BuiltinExc(42, 24, badarg=1) # [line-too-long,pointless-exception-statement,too-many-function-args,unexpected-keyword-arg]
 
 
 class Clsmethod:

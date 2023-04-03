@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -85,7 +85,7 @@ class RunCommand(PrimerCommand):
         try:
             Run(arguments, reporter=reporter)
         except SystemExit as e:
-            pylint_exit_code = int(e.code)
+            pylint_exit_code = int(e.code)  # type: ignore[arg-type]
         readable_messages: str = output.getvalue()
         messages: list[OldJsonExport] = json.loads(readable_messages)
         fatal_msgs: list[Message] = []
@@ -96,6 +96,7 @@ class RunCommand(PrimerCommand):
             if fatal_msgs:
                 warnings.warn(
                     f"Encountered fatal errors while priming {package_name} !\n"
-                    f"{self._print_msgs(fatal_msgs)}\n\n"
+                    f"{self._print_msgs(fatal_msgs)}\n\n",
+                    stacklevel=2,
                 )
         return messages, fatal_msgs

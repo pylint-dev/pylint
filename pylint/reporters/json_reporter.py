@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """JSON reporter."""
 
@@ -75,7 +75,7 @@ class JSONReporter(BaseJSONReporter):
     TODO: 3.0: Remove this JSONReporter in favor of the new one handling abs-path
     and confidence.
 
-    TODO: 2.16: Add a new JSONReporter handling abs-path, confidence and scores.
+    TODO: 3.0: Add a new JSONReporter handling abs-path, confidence and scores.
     (Ultimately all other breaking change related to json for 3.0).
     """
 

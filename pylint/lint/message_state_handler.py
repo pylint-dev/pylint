@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -55,9 +55,8 @@ class _MessageStateHandler:
             "enable-msg": self._options_methods["enable"],
         }
         self._pragma_lineno: dict[str, int] = {}
-        # TODO: 3.0: Update key type to str when current_name is always str
         self._stashed_messages: defaultdict[
-            tuple[str | None, str], list[tuple[str | None, str]]
+            tuple[str, str], list[tuple[str | None, str]]
         ] = defaultdict(list)
         """Some messages in the options (for --enable and --disable) are encountered
         too early to warn about them.
@@ -347,7 +346,7 @@ class _MessageStateHandler:
         prev_line = None
         saw_newline = True
         seen_newline = True
-        for (tok_type, content, start, _, _) in tokens:
+        for tok_type, content, start, _, _ in tokens:
             if prev_line and prev_line != start[0]:
                 saw_newline = seen_newline
                 seen_newline = False
@@ -361,7 +360,7 @@ class _MessageStateHandler:
             match = OPTION_PO.search(content)
             if match is None:
                 continue
-            try:
+            try:  # pylint: disable = too-many-try-statements
                 for pragma_repr in parse_pragma(match.group(2)):
                     if pragma_repr.action in {"disable-all", "skip-file"}:
                         if pragma_repr.action == "disable-all":

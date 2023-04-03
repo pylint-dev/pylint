@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -93,7 +93,7 @@ def create_files(paths: list[str], chroot: str = ".") -> None:
         path = os.path.join(chroot, path)
         filename = os.path.basename(path)
         # path is a directory path
-        if filename == "":
+        if not filename:
             dirs.add(path)
         # path is a filename path
         else:

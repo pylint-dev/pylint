@@ -1,0 +1,2 @@
+invalid-all-format:5:11:None:None::Invalid format for __all__, must be tuple or list:UNDEFINED
+superfluous-parens:5:0:None:None::Unnecessary parens after '=' keyword:UNDEFINED

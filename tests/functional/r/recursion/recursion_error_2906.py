@@ -1,4 +1,4 @@
-"""Recursion error for https://github.com/PyCQA/pylint/issues/2906"""
+"""Recursion error for https://github.com/pylint-dev/pylint/issues/2906"""
 # pylint: disable=disallowed-name,global-statement,invalid-name,missing-docstring
 lst = []
 

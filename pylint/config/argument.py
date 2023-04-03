@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Definition of an Argument class and transformers for various argument types.
 
@@ -15,6 +15,7 @@ import pathlib
 import re
 import sys
 from collections.abc import Callable
+from glob import glob
 from typing import Any, Pattern, Sequence, Tuple, Union
 
 from pylint import interfaces
@@ -88,6 +89,16 @@ def _path_transformer(value: str) -> str:
     return os.path.expandvars(os.path.expanduser(value))
 
 
+def _glob_paths_csv_transformer(value: str) -> Sequence[str]:
+    """Transforms a comma separated list of paths while expanding user and
+    variables and glob patterns.
+    """
+    paths: list[str] = []
+    for path in _csv_transformer(value):
+        paths.extend(glob(_path_transformer(path), recursive=True))
+    return paths
+
+
 def _py_version_transformer(value: str) -> tuple[int, ...]:
     """Transforms a version string into a version tuple."""
     try:
@@ -105,7 +116,7 @@ def _regex_transformer(value: str) -> Pattern[str]:
         return re.compile(value)
     except re.error as e:
         msg = f"Error in provided regular expression: {value} beginning at index {e.pos}: {e.msg}"
-        raise argparse.ArgumentTypeError(msg)
+        raise argparse.ArgumentTypeError(msg) from e
 
 
 def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
@@ -138,6 +149,7 @@ _TYPE_TRANSFORMERS: dict[str, Callable[[str], _ArgumentTypes]] = {
     "confidence": _confidence_transformer,
     "non_empty_string": _non_empty_string_transformer,
     "path": _path_transformer,
+    "glob_paths_csv": _glob_paths_csv_transformer,
     "py_version": _py_version_transformer,
     "regexp": _regex_transformer,
     "regexp_csv": _regexp_csv_transfomer,
@@ -272,7 +284,7 @@ class _StoreTrueArgument(_BaseStoreArgument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=useless-super-delegation # We narrow down the type of action
+    # pylint: disable-next=useless-parent-delegation # We narrow down the type of action
     def __init__(
         self,
         *,
@@ -365,9 +377,9 @@ class _ExtendArgument(_DeprecationArgument):
     ) -> None:
         # The extend action is included in the stdlib from 3.8+
         if PY38_PLUS:
-            action_class = argparse._ExtendAction  # type: ignore[attr-defined]
+            action_class = argparse._ExtendAction
         else:
-            action_class = _ExtendAction
+            action_class = _ExtendAction  # type: ignore[assignment]
 
         self.dest = dest
         """The destination of the argument."""

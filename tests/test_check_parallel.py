@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Puts the check_parallel system under test."""
 
@@ -9,8 +9,11 @@
 from __future__ import annotations
 
 import argparse
-import multiprocessing
 import os
+import sys
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures.process import BrokenProcessPool
+from pickle import PickleError
 
 import dill
 import pytest
@@ -19,7 +22,7 @@ from astroid import nodes
 import pylint.interfaces
 import pylint.lint.parallel
 from pylint.checkers import BaseRawFileChecker
-from pylint.lint import PyLinter
+from pylint.lint import PyLinter, augmented_sys_path
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
@@ -171,25 +174,33 @@ class TestCheckParallelFramework:
         worker_initialize(linter=dill.dumps(linter))
         assert isinstance(pylint.lint.parallel._worker_linter, type(linter))
 
+    def test_worker_initialize_with_package_paths(self) -> None:
+        linter = PyLinter(reporter=Reporter())
+        with augmented_sys_path([]):
+            worker_initialize(
+                linter=dill.dumps(linter), extra_packages_paths=["fake-path"]
+            )
+            assert "fake-path" in sys.path
+
     @pytest.mark.needs_two_cores
     def test_worker_initialize_pickling(self) -> None:
         """Test that we can pickle objects that standard pickling in multiprocessing can't.
 
         See:
         https://stackoverflow.com/questions/8804830/python-multiprocessing-picklingerror-cant-pickle-type-function
-        https://github.com/PyCQA/pylint/pull/5584
+        https://github.com/pylint-dev/pylint/pull/5584
         """
         linter = PyLinter(reporter=Reporter())
         linter.attribute = argparse.ArgumentParser()  # type: ignore[attr-defined]
-        with multiprocessing.Pool(
-            2, initializer=worker_initialize, initargs=[dill.dumps(linter)]
-        ) as pool:
-            pool.imap_unordered(print, [1, 2])
+        with ProcessPoolExecutor(
+            max_workers=2, initializer=worker_initialize, initargs=(dill.dumps(linter),)
+        ) as executor:
+            executor.map(print, [1, 2])
 
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
         with pytest.raises(  # Objects that do not match the linter interface will fail
-            Exception, match="Worker linter not yet initialised"
+            RuntimeError, match="Worker linter not yet initialised"
         ):
             worker_check_single_file(_gen_file_data())
 
@@ -230,6 +241,28 @@ class TestCheckParallelFramework:
         assert stats.refactor == 0
         assert stats.statement == 18
         assert stats.warning == 0
+
+    def test_linter_with_unpickleable_plugins_is_pickleable(self) -> None:
+        """The linter needs to be pickle-able in order to be passed between workers"""
+        linter = PyLinter(reporter=Reporter())
+        # We load an extension that we know is not pickle-safe
+        linter.load_plugin_modules(["pylint.extensions.overlapping_exceptions"])
+        try:
+            dill.dumps(linter)
+            raise AssertionError(
+                "Plugins loaded were pickle-safe! This test needs altering"
+            )
+        except (KeyError, TypeError, PickleError, NotImplementedError):
+            pass
+
+        # And expect this call to make it pickle-able
+        linter.load_plugin_configuration()
+        try:
+            dill.dumps(linter)
+        except KeyError as exc:
+            raise AssertionError(
+                "Cannot pickle linter when using non-pickleable plugin"
+            ) from exc
 
     def test_worker_check_sequential_checker(self) -> None:
         """Same as test_worker_check_single_file_no_checkers with SequentialTestChecker."""
@@ -300,7 +333,6 @@ class TestCheckParallel:
             linter,
             jobs=1,
             files=iter(single_file_container),
-            arguments=["--enable", "R9999"],
         )
         assert len(linter.get_checkers()) == 2, (
             "We should only have the 'main' and 'sequential-checker' "
@@ -366,7 +398,9 @@ class TestCheckParallel:
         # Invoke the lint process in a multi-process way, although we only specify one
         # job.
         check_parallel(
-            linter, jobs=1, files=iter(single_file_container), arguments=None
+            linter,
+            jobs=1,
+            files=iter(single_file_container),
         )
 
         assert {
@@ -480,7 +514,6 @@ class TestCheckParallel:
                     linter,
                     jobs=num_jobs,
                     files=file_infos,
-                    arguments=None,
                 )
                 stats_check_parallel = linter.stats
                 assert linter.msg_status == 0, "We should not fail the lint"
@@ -515,7 +548,7 @@ class TestCheckParallel:
 
         The intent here is to validate the reduce step: no stats should be lost.
 
-        Checks regression of https://github.com/PyCQA/pylint/issues/4118
+        Checks regression of https://github.com/pylint-dev/pylint/issues/4118
         """
 
         # define the stats we expect to get back from the runs, these should only vary
@@ -548,9 +581,32 @@ class TestCheckParallel:
                     linter,
                     jobs=num_jobs,
                     files=file_infos,
-                    arguments=None,
                 )
                 stats_check_parallel = linter.stats
         assert str(stats_single_proc.by_msg) == str(
             stats_check_parallel.by_msg
         ), "Single-proc and check_parallel() should return the same thing"
+
+    @pytest.mark.timeout(5)
+    def test_no_deadlock_due_to_initializer_error(self) -> None:
+        """Tests that an error in the initializer for the parallel jobs doesn't
+        lead to a deadlock.
+        """
+        linter = PyLinter(reporter=Reporter())
+
+        linter.register_checker(SequentialTestChecker(linter))
+
+        # Create a dummy file, the actual contents of which will be ignored by the
+        # register test checkers, but it will trigger at least a single-job to be run.
+        single_file_container = _gen_file_datas(count=1)
+
+        # The error in the initializer should trigger a BrokenProcessPool exception
+        with pytest.raises(BrokenProcessPool):
+            check_parallel(
+                linter,
+                jobs=1,
+                files=iter(single_file_container),
+                # This will trigger an exception in the initializer for the parallel jobs
+                # because arguments has to be an Iterable.
+                extra_packages_paths=1,  # type: ignore[arg-type]
+            )

@@ -10,8 +10,7 @@ charset="utf-8"
 "data.property_pattern.PropertyPatterns" [color="black", fontcolor="black", label=<{PropertyPatterns|prop1<br ALIGN="LEFT"/>prop2<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
 "data.clientmodule_test.Specialization" [color="black", fontcolor="black", label=<{Specialization|TYPE : str<br ALIGN="LEFT"/>relation<br ALIGN="LEFT"/>relation2<br ALIGN="LEFT"/>top : str<br ALIGN="LEFT"/>|from_value(value: int)<br ALIGN="LEFT"/>increment_value(): None<br ALIGN="LEFT"/>transform_value(value: int): int<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
 "data.clientmodule_test.Specialization" -> "data.clientmodule_test.Ancestor" [arrowhead="empty", arrowtail="none"];
-"data.clientmodule_test.Ancestor" -> "data.suppliermodule_test.Interface" [arrowhead="empty", arrowtail="node", style="dashed"];
 "data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Ancestor" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="cls_member", style="solid"];
 "data.suppliermodule_test.DoNothing" -> "data.clientmodule_test.Specialization" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="relation", style="solid"];
-"data.suppliermodule_test.DoNothing2" -> "data.clientmodule_test.Specialization" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="relation2", style="solid"];
+"data.suppliermodule_test.DoNothing2" -> "data.clientmodule_test.Specialization" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="relation2", style="solid"];
 }

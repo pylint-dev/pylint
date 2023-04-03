@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Looks for overlapping exceptions."""
 
@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import astroid
-from astroid import nodes
+from astroid import nodes, util
 
 from pylint import checkers
 from pylint.checkers import utils
@@ -51,7 +51,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
 
             handled_in_clause: list[tuple[Any, Any]] = []
             for part, exc in excs:
-                if exc is astroid.Uninferable:
+                if isinstance(exc, util.UninferableBase):
                     continue
                 if isinstance(exc, astroid.Instance) and utils.inherit_from_std_ex(exc):
                     exc = exc._proxied

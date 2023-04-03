@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Micro reports objects.
 
@@ -72,7 +72,7 @@ class BaseLayout(VNode):
         assert self.parent is not self
         if self.parent is None:
             return []
-        return [self.parent] + self.parent.parents()
+        return [self.parent, *self.parent.parents()]
 
     def add_text(self, text: str) -> None:
         """Shortcut to add text data."""

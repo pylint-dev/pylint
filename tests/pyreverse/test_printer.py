@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -10,7 +10,6 @@ from astroid import nodes
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
 from pylint.pyreverse.printer import Layout, NodeType, Printer
-from pylint.pyreverse.vcg_printer import VCGPrinter
 
 
 @pytest.mark.parametrize(
@@ -20,10 +19,6 @@ from pylint.pyreverse.vcg_printer import VCGPrinter
         (Layout.BOTTOM_TO_TOP, DotPrinter, "rankdir=BT", -2),
         (Layout.LEFT_TO_RIGHT, DotPrinter, "rankdir=LR", -2),
         (Layout.RIGHT_TO_LEFT, DotPrinter, "rankdir=RL", -2),
-        (Layout.TOP_TO_BOTTOM, VCGPrinter, "orientation:top_to_bottom", -1),
-        (Layout.BOTTOM_TO_TOP, VCGPrinter, "orientation:bottom_to_top", -1),
-        (Layout.LEFT_TO_RIGHT, VCGPrinter, "orientation:left_to_right", -1),
-        (Layout.RIGHT_TO_LEFT, VCGPrinter, "orientation:right_to_left", -1),
         (Layout.TOP_TO_BOTTOM, PlantUmlPrinter, "top to bottom direction", -1),
         (Layout.LEFT_TO_RIGHT, PlantUmlPrinter, "left to right direction", -1),
     ],

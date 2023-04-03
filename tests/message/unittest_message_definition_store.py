@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -26,7 +26,8 @@ from pylint.typing import MessageDefinitionTuple
                 "W1234": ("message one", "msg-symbol-one", "msg description"),
                 "W4321": ("message two", "msg-symbol-two", "msg description"),
             },
-            r"Inconsistent checker part in message id 'W4321' (expected 'x12xx' because we already had ['W1234']).",
+            r"Inconsistent checker part in message id 'W4321' (expected 'x12xx' because we"
+            r" already had ['W1234']).",
         ),
         (
             {

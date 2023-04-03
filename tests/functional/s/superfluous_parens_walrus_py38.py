@@ -1,5 +1,5 @@
 """Test the superfluous-parens warning with python 3.8 functionality (walrus operator)"""
-# pylint: disable=missing-function-docstring, invalid-name, missing-class-docstring, import-error
+# pylint: disable=missing-function-docstring, invalid-name, missing-class-docstring, import-error, pointless-statement,named-expr-without-context
 import numpy
 
 # Test parens in if statements
@@ -49,3 +49,25 @@ class TestYieldClass:
     @classmethod
     def function_C(cls):
         yield (1 + 1) # [superfluous-parens]
+
+
+if (x := "Test " + "String"):
+    print(x)
+
+if (x := ("Test " + "String")):  # [superfluous-parens]
+    print(x)
+
+if not (foo := "Test " + "String" in "hello"):
+    print(foo)
+
+if not (foo := ("Test " + "String") in "hello"):  # [superfluous-parens]
+    print(foo)
+
+assert (ret := "Test " + "String")
+assert (ret := ("Test " + "String"))  # [superfluous-parens]
+
+(walrus := False)
+(walrus := (False))  # [superfluous-parens]
+
+(hi := ("CONST"))  # [superfluous-parens]
+(hi := ("CONST",))

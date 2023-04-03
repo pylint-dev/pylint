@@ -74,7 +74,7 @@ class ChildDefaults(ParentDefaults):
         print(f"arguments: {arg2}")
 
 # Check for crash on method definitions not at top level of class
-# https://github.com/PyCQA/pylint/issues/5648
+# https://github.com/pylint-dev/pylint/issues/5648
 class FruitConditional:
 
     define_eat = True

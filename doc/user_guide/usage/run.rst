@@ -45,6 +45,20 @@ directory is automatically added on top of the python path
 package (i.e. has an ``__init__.py`` file), an implicit namespace package
 or if ``directory`` is in the python path.
 
+With implicit namespace packages
+--------------------------------
+
+If the analyzed sources use implicit namespace packages (PEP 420), the source root(s) should
+be specified using the ``--source-roots`` option. Otherwise, the package names are
+detected incorrectly, since implicit namespace packages don't contain an ``__init__.py``.
+
+Globbing support
+----------------
+
+It is also possible to specify both directories and files using globbing patterns::
+
+   pylint [options] packages/*/src
+
 Command line options
 --------------------
 
@@ -88,6 +102,8 @@ configuration file in the following order and uses the first one it finds:
    for example ``[tool.pylint.'MESSAGES CONTROL']``. They can also be passed
    in on the command line.
 #. ``setup.cfg`` in the current working directory,
+   providing it has at least one ``pylint.`` section
+#. ``tox.ini`` in the current working directory,
    providing it has at least one ``pylint.`` section
 #. If the current working directory is in a Python package, Pylint searches \
    up the hierarchy of Python packages until it finds a ``pylintrc`` file. \

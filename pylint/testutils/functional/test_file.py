@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -62,7 +62,7 @@ class FunctionalTestFile:
     def __init__(self, directory: str, filename: str) -> None:
         self._directory = directory
         self.base = filename.replace(".py", "")
-        # TODO: 2.x: Deprecate FunctionalTestFile.options and related code
+        # TODO: 3.0: Deprecate FunctionalTestFile.options and related code
         # We should just parse these options like a normal configuration file.
         self.options: TestFileOptions = {
             "min_pyver": (2, 5),

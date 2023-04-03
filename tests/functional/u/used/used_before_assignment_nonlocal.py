@@ -1,5 +1,5 @@
 """Check for nonlocal and used-before-assignment"""
-# pylint: disable=missing-docstring, unused-variable, too-few-public-methods, consider-using-augmented-assign
+# pylint: disable=missing-docstring, unused-variable, too-few-public-methods
 
 
 def test_ok():
@@ -60,7 +60,7 @@ nonlocal_in_ifexp()
 
 
 def type_annotation_only_gets_value_via_nonlocal():
-    """https://github.com/PyCQA/pylint/issues/5394"""
+    """https://github.com/pylint-dev/pylint/issues/5394"""
     some_num: int
     def inner():
         nonlocal some_num

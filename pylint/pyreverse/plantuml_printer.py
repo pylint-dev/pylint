@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Class to generate files in dot format and image formats supported by Graphviz."""
 
@@ -17,13 +17,12 @@ class PlantUmlPrinter(Printer):
 
     NODES: dict[NodeType, str] = {
         NodeType.CLASS: "class",
-        NodeType.INTERFACE: "class",
         NodeType.PACKAGE: "package",
     }
     ARROWS: dict[EdgeType, str] = {
         EdgeType.INHERITS: "--|>",
-        EdgeType.IMPLEMENTS: "..|>",
         EdgeType.ASSOCIATION: "--*",
+        EdgeType.AGGREGATION: "--o",
         EdgeType.USES: "-->",
     }
 
@@ -39,7 +38,8 @@ class PlantUmlPrinter(Printer):
                 self.emit("top to bottom direction")
             else:
                 raise ValueError(
-                    f"Unsupported layout {self.layout}. PlantUmlPrinter only supports left to right and top to bottom layout."
+                    f"Unsupported layout {self.layout}. PlantUmlPrinter only "
+                    "supports left to right and top to bottom layout."
                 )
 
     def emit_node(
@@ -54,10 +54,9 @@ class PlantUmlPrinter(Printer):
         """
         if properties is None:
             properties = NodeProperties(label=name)
-        stereotype = " << interface >>" if type_ is NodeType.INTERFACE else ""
         nodetype = self.NODES[type_]
         if properties.color and properties.color != self.DEFAULT_COLOR:
-            color = f" #{properties.color}"
+            color = f" #{properties.color.lstrip('#')}"
         else:
             color = ""
         body = []
@@ -74,7 +73,7 @@ class PlantUmlPrinter(Printer):
         label = properties.label if properties.label is not None else name
         if properties.fontcolor and properties.fontcolor != self.DEFAULT_COLOR:
             label = f"<color:{properties.fontcolor}>{label}</color>"
-        self.emit(f'{nodetype} "{label}" as {name}{stereotype}{color} {{')
+        self.emit(f'{nodetype} "{label}" as {name}{color} {{')
         self._inc_indent()
         for line in body:
             self.emit(line)

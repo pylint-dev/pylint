@@ -1,6 +1,6 @@
-Sphinx==5.2.3
+Sphinx==6.1.3
 sphinx-reredirects<1
-myst-parser~=0.18
-towncrier~=22.8
-furo==2022.9.29
+myst-parser~=1.0
+towncrier~=22.12
+furo==2023.3.27
 -e .

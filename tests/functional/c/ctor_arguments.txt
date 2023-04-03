@@ -15,6 +15,8 @@ too-many-function-args:60:0:60:30::Too many positional arguments for constructor
 too-many-function-args:63:0:63:17::Too many positional arguments for constructor call:UNDEFINED
 no-value-for-parameter:64:0:64:15::No value for argument 'first_argument' in constructor call:UNDEFINED
 unexpected-keyword-arg:64:0:64:15::Unexpected keyword argument 'one' in constructor call:UNDEFINED
+line-too-long:85:0::::Line too long (122/100):UNDEFINED
+pointless-exception-statement:85:0:85:28::Exception statement has no effect:INFERENCE
 too-many-function-args:85:0:85:28::Too many positional arguments for constructor call:UNDEFINED
 unexpected-keyword-arg:85:0:85:28::Unexpected keyword argument 'badarg' in constructor call:UNDEFINED
 too-many-function-args:95:15:95:30:Clsmethod.from_nothing:Too many positional arguments for constructor call:UNDEFINED

@@ -1,5 +1,5 @@
 """
-Regression test for https://github.com/PyCQA/pylint/issues/3979
+Regression test for https://github.com/pylint-dev/pylint/issues/3979
 """
 
 import os
@@ -10,4 +10,4 @@ if TYPE_CHECKING:
 else:
     BasePathLike = os.PathLike
 
-foo: Union[str, BasePathLike] = "bar"
+Foo: Union[str, BasePathLike] = "bar"

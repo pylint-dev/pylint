@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=too-many-arguments, redefined-builtin
 
@@ -104,4 +104,5 @@ class _NewNamesAction(argparse._StoreAction):
             f"{self.option_strings[0]} has been deprecated. Please look into "
             f"using any of the following options: {', '.join(self.new_names)}.",
             DeprecationWarning,
+            stacklevel=2,
         )

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Functions that creates the basic options for the Run and PyLinter classes."""
 
@@ -69,7 +69,7 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "default": [],
                 "help": "Add files or directories matching the regular expressions patterns to the "
                 "ignore-list. The regex matches against paths and can be in "
-                "Posix or Windows format. Because '\\' represents the directory delimiter "
+                "Posix or Windows format. Because '\\\\' represents the directory delimiter "
                 "on Windows systems, it can't be used as an escape character.",
             },
         ),
@@ -344,6 +344,18 @@ def _make_linter_options(linter: PyLinter) -> Options:
             },
         ),
         (
+            "source-roots",
+            {
+                "type": "glob_paths_csv",
+                "metavar": "<path>[,<path>...]",
+                "default": (),
+                "help": "Add paths to the list of the source roots. Supports globbing patterns. "
+                "The source root is an absolute path or a path relative to the current working "
+                "directory used to determine a package namespace for modules located under the "
+                "source root.",
+            },
+        ),
+        (
             "recursive",
             {
                 "type": "yn",
@@ -389,6 +401,16 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "means that the block might have code that exists "
                 "only in one or another interpreter, leading to false "
                 "positives when analysed.",
+            },
+        ),
+        (
+            "clear-cache-post-run",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Clear in-memory caches upon conclusion of linting. "
+                "Useful if running pylint in a server-like mode.",
             },
         ),
     )

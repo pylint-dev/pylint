@@ -1,9 +1,9 @@
 digraph "packages_colorized" {
 rankdir=BT
 charset="utf-8"
-"data" [color="aliceblue", label=<data>, shape="box", style="filled"];
-"data.clientmodule_test" [color="aliceblue", label=<data.clientmodule_test>, shape="box", style="filled"];
-"data.property_pattern" [color="aliceblue", label=<data.property_pattern>, shape="box", style="filled"];
-"data.suppliermodule_test" [color="aliceblue", label=<data.suppliermodule_test>, shape="box", style="filled"];
+"data" [color="#77AADD", label=<data>, shape="box", style="filled"];
+"data.clientmodule_test" [color="#77AADD", label=<data.clientmodule_test>, shape="box", style="filled"];
+"data.property_pattern" [color="#77AADD", label=<data.property_pattern>, shape="box", style="filled"];
+"data.suppliermodule_test" [color="#77AADD", label=<data.suppliermodule_test>, shape="box", style="filled"];
 "data.clientmodule_test" -> "data.suppliermodule_test" [arrowhead="open", arrowtail="none"];
 }

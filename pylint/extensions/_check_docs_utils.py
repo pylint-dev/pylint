@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Utility methods for docstring checking."""
 
@@ -10,7 +10,7 @@ import re
 
 import astroid
 from astroid import nodes
-from astroid.util import Uninferable
+from astroid.util import UninferableBase
 
 from pylint.checkers import utils
 
@@ -89,7 +89,7 @@ def returns_something(return_node: nodes.Return) -> bool:
     return not (isinstance(returns, nodes.Const) and returns.value is None)
 
 
-def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | Uninferable | None:
+def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | UninferableBase | None:
     if isinstance(node.exc, nodes.Call):
         func = node.exc.func
         if isinstance(func, (nodes.Name, nodes.Attribute)):
@@ -126,7 +126,7 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
         if handler and handler.type:
             try:
                 for exception in astroid.unpack_infer(handler.type):
-                    if exception is not astroid.Uninferable:
+                    if not isinstance(exception, UninferableBase):
                         exceptions.append(exception)
             except astroid.InferenceError:
                 pass
@@ -471,7 +471,7 @@ class GoogleDocstring(Docstring):
 
     re_param_line = re.compile(
         rf"""
-        \s*  ((?:\\?\*{{0,2}})?\w+)     # identifier potentially with asterisks
+        \s*  ((?:\\?\*{{0,2}})?[\w\\]+) # identifier potentially with asterisks or escaped `\`
         \s*  ( [(]
             {re_multiple_type}
             (?:,\s+optional)?

@@ -9,5 +9,8 @@ def cached_fibonacci(n):
 
 
 class Fibonnaci:
+    def __init__(self):
+        self.result = []
+
     def fibonacci(self, n):
-        return cached_fibonacci(n)
+        self.result.append(cached_fibonacci(n))

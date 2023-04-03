@@ -1,5 +1,5 @@
 """Emit a message for accessing first/last element of string.split"""
-# pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,invalid-name,redefined-builtin,consider-using-augmented-assign
+# pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,invalid-name,redefined-builtin
 
 # Test subscripting .split()
 get_first = '1,2,3'.split(',')[0]  # [use-maxsplit-arg]
@@ -52,12 +52,12 @@ get_mid = Foo.class_str.split(',')[-2]
 
 
 # Test with accessors
-bar = Foo()
-get_first = bar.get_string().split(',')[0]  # [use-maxsplit-arg]
-get_last = bar.get_string().split(',')[-1]  # [use-maxsplit-arg]
+test = Foo()
+get_first = test.get_string().split(',')[0]  # [use-maxsplit-arg]
+get_last = test.get_string().split(',')[-1]  # [use-maxsplit-arg]
 
-get_mid = bar.get_string().split(',')[1]
-get_mid = bar.get_string().split(',')[-2]
+get_mid = test.get_string().split(',')[1]
+get_mid = test.get_string().split(',')[-2]
 
 
 # Test with iterating over strings
@@ -84,7 +84,7 @@ a = "1,2,3".split('split')[-1]  # [use-maxsplit-arg]
 a = "1,2,3".rsplit('rsplit')[0]  # [use-maxsplit-arg]
 
 # Test cases for false-positive reported in #4664
-# https://github.com/PyCQA/pylint/issues/4664
+# https://github.com/pylint-dev/pylint/issues/4664
 source = 'A.B.C.D.E.F.G'
 i = 0
 for j in range(5):
@@ -92,5 +92,13 @@ for j in range(5):
     i = i + 1
 
 # Test for crash when sep is given by keyword
-# https://github.com/PyCQA/pylint/issues/5737
+# https://github.com/pylint-dev/pylint/issues/5737
 get_last = SEQ.split(sep=None)[-1]  # [use-maxsplit-arg]
+
+
+class FalsePositive4857:
+    def split(self, point):
+        return point
+
+obj = FalsePositive4857()
+obj = obj.split((0, 0))[0]

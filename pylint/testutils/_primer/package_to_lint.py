@@ -1,14 +1,21 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import logging
+import sys
 from pathlib import Path
 
+from git import GitCommandError
 from git.cmd import Git
 from git.repo import Repo
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
 
 PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
 
@@ -34,6 +41,9 @@ class PackageToLint:
     pylintrc_relpath: str | None
     """Path relative to project's main directory to the pylintrc if it exists."""
 
+    minimum_python: str | None
+    """Minimum python version supported by the package."""
+
     def __init__(
         self,
         url: str,
@@ -42,6 +52,7 @@ class PackageToLint:
         commit: str | None = None,
         pylint_additional_args: list[str] | None = None,
         pylintrc_relpath: str | None = None,
+        minimum_python: str | None = None,
     ) -> None:
         self.url = url
         self.branch = branch
@@ -49,11 +60,13 @@ class PackageToLint:
         self.commit = commit
         self.pylint_additional_args = pylint_additional_args or []
         self.pylintrc_relpath = pylintrc_relpath
+        self.minimum_python = minimum_python
 
     @property
-    def pylintrc(self) -> Path | None:
+    def pylintrc(self) -> Path | Literal[""]:
         if self.pylintrc_relpath is None:
-            return None
+            # Fall back to "" to ensure pylint's own pylintrc is not discovered
+            return ""
         return self.clone_directory / self.pylintrc_relpath
 
     @property
@@ -70,9 +83,8 @@ class PackageToLint:
     @property
     def pylint_args(self) -> list[str]:
         options: list[str] = []
-        if self.pylintrc is not None:
-            # There is an error if rcfile is given but does not exist
-            options += [f"--rcfile={self.pylintrc}"]
+        # There is an error if rcfile is given but does not exist
+        options += [f"--rcfile={self.pylintrc}"]
         return self.paths_to_lint + options + self.pylint_additional_args
 
     def lazy_clone(self) -> str:  # pragma: no cover
@@ -86,18 +98,23 @@ class PackageToLint:
         """
         logging.info("Lazy cloning %s", self.url)
         if not self.clone_directory.exists():
-            options: dict[str, str | int] = {
-                "url": self.url,
-                "to_path": str(self.clone_directory),
-                "branch": self.branch,
-                "depth": 1,
-            }
-            logging.info("Directory does not exists, cloning: %s", options)
-            repo = Repo.clone_from(
-                url=self.url, to_path=self.clone_directory, branch=self.branch, depth=1
-            )
-            return str(repo.head.object.hexsha)
+            return self._clone_repository()
+        return self._pull_repository()
 
+    def _clone_repository(self) -> str:
+        options: dict[str, str | int] = {
+            "url": self.url,
+            "to_path": str(self.clone_directory),
+            "branch": self.branch,
+            "depth": 1,
+        }
+        logging.info("Directory does not exists, cloning: %s", options)
+        repo = Repo.clone_from(
+            url=self.url, to_path=self.clone_directory, branch=self.branch, depth=1
+        )
+        return str(repo.head.object.hexsha)
+
+    def _pull_repository(self) -> str:
         remote_sha1_commit = Git().ls_remote(self.url, self.branch).split("\t")[0]
         local_sha1_commit = Repo(self.clone_directory).head.object.hexsha
         if remote_sha1_commit != local_sha1_commit:
@@ -106,9 +123,14 @@ class PackageToLint:
                 remote_sha1_commit,
                 local_sha1_commit,
             )
-            repo = Repo(self.clone_directory)
-            origin = repo.remotes.origin
-            origin.pull()
+            try:
+                repo = Repo(self.clone_directory)
+                origin = repo.remotes.origin
+                origin.pull()
+            except GitCommandError as e:
+                raise SystemError(
+                    f"Failed to clone repository for {self.clone_directory}"
+                ) from e
         else:
             logging.info("Repository already up to date.")
         return str(remote_sha1_commit)

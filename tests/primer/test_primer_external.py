@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -64,7 +64,7 @@ class TestPrimer:
             enables = ["--enable-all-extensions", "--enable=all"]
             # Duplicate code takes too long and is relatively safe
             disables = ["--disable=duplicate-code"]
-            command = ["pylint"] + enables + disables + package.pylint_args
+            command = ["pylint", *enables, *disables, *package.pylint_args]
             logging.info("Launching primer:\n%s", " ".join(command))
             subprocess.run(command, check=True)
         except subprocess.CalledProcessError as ex:

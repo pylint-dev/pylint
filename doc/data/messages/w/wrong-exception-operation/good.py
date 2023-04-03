@@ -1,1 +1,4 @@
-# This is a placeholder for correct code for this message.
+try:
+    1/0
+except (ValueError, TypeError):
+    pass

@@ -1,1 +1,4 @@
-# This is a placeholder for correct code for this message.
+class Meta(type):
+    @classmethod
+    def foo(mcs):
+        pass

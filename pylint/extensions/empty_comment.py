@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -40,7 +40,6 @@ def comment_part_of_string(line: bytes, comment_idx: int) -> bool:
 
 
 class CommentChecker(BaseRawFileChecker):
-
     name = "empty-comment"
     msgs = {
         "R2044": (
@@ -55,7 +54,7 @@ class CommentChecker(BaseRawFileChecker):
 
     def process_module(self, node: nodes.Module) -> None:
         with node.stream() as stream:
-            for (line_num, line) in enumerate(stream):
+            for line_num, line in enumerate(stream):
                 line = line.rstrip()
                 if line.endswith(b"#"):
                     if not is_line_commented(line[:-1]):

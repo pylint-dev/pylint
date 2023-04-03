@@ -1,1 +1,1 @@
-bare-except:5:0:6:8::No exception type(s) specified:UNDEFINED
+bare-except:5:0:6:8::No exception type(s) specified:HIGH

@@ -31,6 +31,7 @@ bla
 bom
 bool
 boolean
+booleaness
 boolop
 boundmethod
 builtins
@@ -73,6 +74,7 @@ cyclomatic
 dataclass
 datetime
 debian
+deduplication
 deepcopy
 defaultdicts
 defframe
@@ -106,6 +108,7 @@ epytext
 erroring
 etree
 expr
+falsey
 favour
 filepath
 filestream
@@ -125,9 +128,11 @@ functools
 genexpr
 getattr
 globals
+globbing
 GPL
 graphname
 graphviz
+grey
 guido's
 gv
 hashable
@@ -239,6 +244,7 @@ params
 paren
 parens
 passthru
+pathlib
 positionals
 png
 pragma
@@ -278,10 +284,12 @@ rstrip
 rtype
 runtime
 se
+seaborn
 sep
 setcomp
 shortstrings
 singledispatch
+singledispatchmethod
 spammy
 sqlalchemy
 src
@@ -299,6 +307,8 @@ subcommands
 subdicts
 subgraphs
 sublists
+submodule
+submodules
 subparsers
 subparts
 subprocess
@@ -325,6 +335,8 @@ toplevel
 towncrier
 tp
 truthness
+truthy
+truthey
 tryexcept
 txt
 typecheck
@@ -342,6 +354,7 @@ unicode
 Uninferable
 uninferable
 unittest
+untriggered
 # prefix for string
 ur
 ureport

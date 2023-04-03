@@ -4,6 +4,7 @@ iterating/mapping context.
 """
 # pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,unused-argument,bad-mcs-method-argument,
 # pylint: disable=wrong-import-position,no-else-return, unnecessary-comprehension,redundant-u-string-prefix
+# pylint: disable=use-dict-literal
 # primitives
 numbers = [1, 2, 3]
 
@@ -191,5 +192,5 @@ for elem in HasDynamicGetattr():
     pass
 
 
-# Regression test for https://github.com/PyCQA/pylint/issues/6372
+# Regression test for https://github.com/pylint-dev/pylint/issues/6372
 string_twos = "".join(str(*y) for _, *y in [[1, 2], [1, 2]])

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check source code is ascii only or has an encoding declaration (PEP 263)."""
 
@@ -42,7 +42,7 @@ class ByIdManagedMessagesChecker(BaseRawFileChecker):
     def process_module(self, node: nodes.Module) -> None:
         """Inspect the source file to find messages activated or deactivated by id."""
         managed_msgs = self._get_by_id_managed_msgs()
-        for (mod_name, msgid, symbol, lineno, is_disabled) in managed_msgs:
+        for mod_name, msgid, symbol, lineno, is_disabled in managed_msgs:
             if mod_name == node.name:
                 verb = "disable" if is_disabled else "enable"
                 txt = f"'{msgid}' is cryptic: use '# pylint: {verb}={symbol}' instead"

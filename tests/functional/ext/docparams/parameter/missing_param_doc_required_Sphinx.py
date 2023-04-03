@@ -220,7 +220,7 @@ def test_finds_args_without_type_sphinx(  # [inconsistent-return-statements]
 ):
     r"""The Sphinx docstring
     In Sphinx docstrings asterisks should be escaped.
-    See https://github.com/PyCQA/pylint/issues/5406
+    See https://github.com/pylint-dev/pylint/issues/5406
 
     :param named_arg: Returned
     :type named_arg: object
@@ -239,7 +239,7 @@ def test_finds_kwargs_without_type_sphinx(  # [inconsistent-return-statements]
 ):
     r"""The Sphinx docstring
     In Sphinx docstrings asterisks should be escaped.
-    See https://github.com/PyCQA/pylint/issues/5406
+    See https://github.com/pylint-dev/pylint/issues/5406
 
     :param named_arg: Returned
     :type named_arg: object

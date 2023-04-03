@@ -10,6 +10,7 @@ from sys import flags  # [unused-import]
 # +1:[unused-import,unused-import]
 from collections import deque, OrderedDict, Counter
 import re, html.parser  # [unused-import]
+import six
 
 DATA = Counter()
 # pylint: disable=self-assigning-variable
@@ -80,7 +81,7 @@ if TYPE_CHECKING:
 # Pathological cases
 from io import TYPE_CHECKING  # pylint: disable=no-name-in-module
 import trace as t
-import astroid as typing
+import astroid as typing  # pylint: disable=shadowed-import
 
 TYPE_CHECKING = "red herring"
 
@@ -98,11 +99,13 @@ if TYPE_CHECKING:
     import zoneinfo
 
 
-class WithMetaclass(metaclass=ABCMeta):
-    pass
+class WithMetaclass(six.with_metaclass(ABCMeta)):
+    """Regression test for https://github.com/PyCQA/pylint/issues/7506.
+
+    Requires six."""
 
 
-# Regression test for https://github.com/PyCQA/pylint/issues/3765
+# Regression test for https://github.com/pylint-dev/pylint/issues/3765
 # `unused-import` should not be emitted when a type annotation uses quotation marks
 from typing import List
 

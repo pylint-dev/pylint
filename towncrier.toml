@@ -1,9 +1,9 @@
 [tool.towncrier]
-version = "2.16.0"
+version = "3.0.0"
 directory = "doc/whatsnew/fragments"
-filename = "doc/whatsnew/2/2.16/index.rst"
+filename = "doc/whatsnew/3/3.0/index.rst"
 template = "doc/whatsnew/fragments/_template.rst"
-issue_format = "`#{issue} <https://github.com/PyCQA/pylint/issues/{issue}>`_"
+issue_format = "`#{issue} <https://github.com/pylint-dev/pylint/issues/{issue}>`_"
 wrap = true
 
 # Definition of fragment types.
@@ -19,6 +19,11 @@ showcontent = true
 [[tool.towncrier.type]]
 directory = "user_action"
 name = "Changes requiring user actions"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "feature"
+name = "New Features"
 showcontent = true
 
 [[tool.towncrier.type]]

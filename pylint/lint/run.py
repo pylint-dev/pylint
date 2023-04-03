@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -9,9 +9,10 @@ import sys
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from pylint import config
+from pylint.checkers.utils import clear_lru_caches
 from pylint.config._pylint_config import (
     _handle_pylint_config_commands,
     _register_generate_config_options,
@@ -21,7 +22,7 @@ from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
 from pylint.constants import full_version
 from pylint.lint.base_options import _make_run_options
-from pylint.lint.pylinter import PyLinter
+from pylint.lint.pylinter import MANAGER, PyLinter
 from pylint.reporters.base_reporter import BaseReporter
 
 try:
@@ -29,6 +30,11 @@ try:
     from multiprocessing import synchronize  # noqa pylint: disable=unused-import
 except ImportError:
     multiprocessing = None  # type: ignore[assignment]
+
+try:
+    from concurrent.futures import ProcessPoolExecutor
+except ImportError:
+    ProcessPoolExecutor = None  # type: ignore[assignment,misc]
 
 
 def _query_cpu() -> int | None:
@@ -51,7 +57,8 @@ def _query_cpu() -> int | None:
     ):
         with open("/sys/fs/cgroup/cpu/cpu.cfs_period_us", encoding="utf-8") as file:
             cpu_period = int(file.read().rstrip())
-        # Divide quota by period and you should get num of allotted CPU to the container, rounded down if fractional.
+        # Divide quota by period and you should get num of allotted CPU to the container,
+        # rounded down if fractional.
         avail_cpu = int(cpu_quota / cpu_period)
     elif Path("/sys/fs/cgroup/cpu/cpu.shares").is_file():
         with open("/sys/fs/cgroup/cpu/cpu.shares", encoding="utf-8") as file:
@@ -90,9 +97,6 @@ def _cpu_count() -> int:
     return cpu_count
 
 
-UNUSED_PARAM_SENTINEL = object()
-
-
 class Run:
     """Helper class to use as main for pylint with 'run(*sys.argv[1:])'."""
 
@@ -110,12 +114,12 @@ group are mutually exclusive.",
     Used by _PylintConfigRun to make the 'pylint-config' command work.
     """
 
+    # pylint: disable = too-many-statements, too-many-branches
     def __init__(
         self,
         args: Sequence[str],
         reporter: BaseReporter | None = None,
         exit: bool = True,  # pylint: disable=redefined-builtin
-        do_exit: Any = UNUSED_PARAM_SENTINEL,
     ) -> None:
         # Immediately exit if user asks for version
         if "--version" in args:
@@ -167,6 +171,7 @@ group are mutually exclusive.",
             warnings.warn(
                 "NOTE: The 'pylint-config' command is experimental and usage can change",
                 UserWarning,
+                stacklevel=2,
             )
             code = _handle_pylint_config_commands(linter)
             if exit:
@@ -185,9 +190,9 @@ group are mutually exclusive.",
             )
             sys.exit(32)
         if linter.config.jobs > 1 or linter.config.jobs == 0:
-            if multiprocessing is None:
+            if ProcessPoolExecutor is None:
                 print(
-                    "Multiprocessing library is missing, fallback to single process",
+                    "concurrent.futures module is missing, fallback to single process",
                     file=sys.stderr,
                 )
                 linter.set_option("jobs", 1)
@@ -206,13 +211,9 @@ group are mutually exclusive.",
         else:
             linter.check(args)
             score_value = linter.generate_reports()
-
-        if do_exit is not UNUSED_PARAM_SENTINEL:
-            warnings.warn(
-                "do_exit is deprecated and it is going to be removed in a future version.",
-                DeprecationWarning,
-            )
-            exit = do_exit
+        if linter.config.clear_cache_post_run:
+            clear_lru_caches()
+            MANAGER.clear_cache()
 
         if exit:
             if linter.config.exit_zero:

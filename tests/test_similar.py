@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -207,7 +207,8 @@ class TestSimilarCodeChecker:
         )
 
     def test_duplicate_code_raw_strings_disable_scope_function(self) -> None:
-        """Tests disabling duplicate-code at an inner scope level with another scope with similarity."""
+        """Tests disabling duplicate-code at an inner scope level with another scope with
+        similarity."""
         path = join(DATA, "raw_strings_disable_scope_second_function")
         expected_output = "Similar lines in 2 files"
         self._test_output(

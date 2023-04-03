@@ -2,3 +2,7 @@ used-before-assignment:5:19:5:22::Using variable 'MSG' before assignment:HIGH
 used-before-assignment:7:20:7:24::Using variable 'MSG2' before assignment:HIGH
 used-before-assignment:10:4:10:9:outer:Using variable 'inner' before assignment:HIGH
 used-before-assignment:20:10:20:14:redefine_time_import:Using variable 'time' before assignment:HIGH
+used-before-assignment:34:3:34:7::Using variable 'VAR2' before assignment:CONTROL_FLOW
+used-before-assignment:52:3:52:7::Using variable 'VAR4' before assignment:CONTROL_FLOW
+used-before-assignment:67:3:67:7::Using variable 'VAR6' before assignment:CONTROL_FLOW
+used-before-assignment:102:6:102:11::Using variable 'VAR10' before assignment:CONTROL_FLOW

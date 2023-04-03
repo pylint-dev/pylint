@@ -1,0 +1,2 @@
+consider-refactoring-into-while-condition:7:8:9:21:Issue8015.test_assignment_expr:"Consider using 'while (a := 10) != (a := 10)' instead of 'while True:' an 'if', and a 'break'":HIGH
+consider-refactoring-into-while-condition:10:8:12:21:Issue8015.test_assignment_expr:"Consider using 'while (a if a == 10 else 0) != (b if b == 10 else 0)' instead of 'while True:' an 'if', and a 'break'":HIGH

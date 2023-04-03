@@ -1,1 +1,5 @@
-# This is a placeholder for correct code for this message.
+class Plant:
+    pass
+
+class Apple(Plant):
+    pass

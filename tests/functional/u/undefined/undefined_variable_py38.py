@@ -1,8 +1,9 @@
 """Tests for undefined variable with assignment expressions"""
-# pylint: disable=using-constant-test, expression-not-assigned, consider-using-augmented-assign
+# pylint: disable=using-constant-test, expression-not-assigned
 
 # Tests for annotation of variables and potentially undefinition
 
+from typing import TYPE_CHECKING
 
 def typing_and_assignment_expression():
     """The variable gets assigned in an assignment expression"""
@@ -119,7 +120,7 @@ sorted_things = sorted(
 # Tests for type annotation reused in comprehension
 
 def type_annotation_used_after_comprehension():
-    """https://github.com/PyCQA/pylint/issues/5326#issuecomment-982635371"""
+    """https://github.com/pylint-dev/pylint/issues/5326#issuecomment-982635371"""
     my_int: int
     ints = [my_int + 1 for my_int in range(5)]
 
@@ -128,13 +129,13 @@ def type_annotation_used_after_comprehension():
 
 
 def type_annotation_unused_after_comprehension():
-    """https://github.com/PyCQA/pylint/issues/5326"""
+    """https://github.com/pylint-dev/pylint/issues/5326"""
     my_int: int
     _ = [print(sep=my_int, end=my_int) for my_int in range(10)]
 
 
 def type_annotation_used_improperly_after_comprehension():
-    """https://github.com/PyCQA/pylint/issues/5654"""
+    """https://github.com/pylint-dev/pylint/issues/5654"""
     my_int: int
     _ = [print(sep=my_int, end=my_int) for my_int in range(10)]
     print(my_int)  # [used-before-assignment]
@@ -172,11 +173,44 @@ def expression_in_ternary_operator_inside_container_tuple():
     return [(val3, val3) if (val3 := 'something') else 'anything']
 
 
-def expression_in_ternary_operator_inside_container_wrong_position():
-    """2-element list where named expression comes too late"""
-    return [val3, val3 if (val3 := 'something') else 'anything']  # [used-before-assignment]
+def expression_in_ternary_operator_inside_container_later_position():
+    """
+    Named expression follows unrelated item in container.
+
+    If 23 is replaced with `val3`, there is currently a false negative,
+    but the false positive here is more important and likely to occur."""
+    return [23, val3 if (val3 := 'something') else 'anything']
 
 
 # Self-referencing
 if (z := z):  # [used-before-assignment]
     z = z + 1
+
+
+if (defined := False):
+    NEVER_DEFINED = 1
+print(defined)
+print(NEVER_DEFINED)  # [used-before-assignment]
+
+if (still_defined := False) == 1:
+    NEVER_DEFINED_EITHER = 1
+print(still_defined)
+
+
+if TYPE_CHECKING:
+    import enum
+    import weakref
+elif input():
+    if input() + 1:
+        pass
+    elif (enum := None):
+        pass
+    else:
+        print(None if (weakref := '') else True)
+else:
+    pass
+
+def defined_by_walrus_in_type_checking() -> weakref:
+    """Usage of variables defined in TYPE_CHECKING blocks"""
+    print(enum)
+    return weakref

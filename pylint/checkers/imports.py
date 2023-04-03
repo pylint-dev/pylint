@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Imports checkers for Python code."""
 
@@ -21,10 +21,12 @@ from astroid.nodes._base_nodes import ImportNode
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
     get_import_name,
+    in_type_checking_block,
     is_from_fallback_block,
     is_module_ignored,
     is_node_in_guarded_import_block,
     is_typing_guard,
+    is_sys_guard,
     node_ignores_exception,
 )
 from pylint.exceptions import EmptyReportError
@@ -37,6 +39,12 @@ from pylint.utils.linterstats import LinterStats
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from astroid.decorators import cachedproperty as cached_property
+
 
 # The dictionary with Any should actually be a _ImportTree again
 # but mypy doesn't support recursive types yet
@@ -51,7 +59,7 @@ DEPRECATED_MODULES = {
     (3, 6, 0): {"asynchat", "asyncore", "smtpd"},
     (3, 7, 0): {"macpath"},
     (3, 9, 0): {"lib2to3", "parser", "symbol", "binhex"},
-    (3, 10, 0): {"distutils"},
+    (3, 10, 0): {"distutils", "typing.io", "typing.re"},
     (3, 11, 0): {
         "aifc",
         "audioop",
@@ -86,12 +94,14 @@ def _get_first_import(
     base: str | None,
     level: int | None,
     alias: str | None,
-) -> nodes.Import | nodes.ImportFrom | None:
+) -> tuple[nodes.Import | nodes.ImportFrom | None, str | None]:
     """Return the node where [base.]<name> is imported or None if not found."""
     fullname = f"{base}.{name}" if base else name
 
     first = None
     found = False
+    msg = "reimported"
+
     for first in context.body:
         if first is node:
             continue
@@ -100,6 +110,13 @@ def _get_first_import(
         if isinstance(first, nodes.Import):
             if any(fullname == iname[0] for iname in first.names):
                 found = True
+                break
+            for imported_name, imported_alias in first.names:
+                if not imported_alias and imported_name == alias:
+                    found = True
+                    msg = "shadowed-import"
+                    break
+            if found:
                 break
         elif isinstance(first, nodes.ImportFrom):
             if level == first.level:
@@ -114,11 +131,15 @@ def _get_first_import(
                     ):
                         found = True
                         break
+                    if not imported_alias and imported_name == alias:
+                        found = True
+                        msg = "shadowed-import"
+                        break
                 if found:
                     break
     if found and not astroid.are_exclusive(first, node):
-        return first
-    return None
+        return first, msg
+    return None, None
 
 
 def _ignore_import_failure(
@@ -129,9 +150,11 @@ def _ignore_import_failure(
     if is_module_ignored(modname, ignored_modules):
         return True
 
-    if is_node_in_guarded_import_block(node):
-        # Ignore import failure if part of guarded import block
-        # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
+    # Ignore import failure if part of guarded import block
+    # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
+    if in_type_checking_block(node):
+        return True
+    if isinstance(node.parent, nodes.If) and is_sys_guard(node.parent):
         return True
 
     return node_ignores_exception(node, ImportError)
@@ -151,7 +174,7 @@ def _make_tree_defs(mod_files_list: ItemsView[str, set[str]]) -> _ImportTree:
             assert isinstance(node[0], dict)
             node = node[0].setdefault(prefix, ({}, []))  # type: ignore[arg-type,assignment]
         assert isinstance(node[1], list)
-        node[1] += files
+        node[1].extend(files)
     return tree_defs
 
 
@@ -240,7 +263,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0404": (
         "Reimport %r (imported line %s)",
         "reimported",
-        "Used when a module is reimported multiple times.",
+        "Used when a module is imported more than once.",
     ),
     "W0406": (
         "Module import itself",
@@ -290,6 +313,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "import-outside-toplevel",
         "Used when an import statement is used anywhere other than the module "
         "toplevel. Move this import to the top of the file.",
+    ),
+    "W0416": (
+        "Shadowed %r (imported line %s)",
+        "shadowed-import",
+        "Used when a module is aliased with a name that shadows another import.",
     ),
 }
 
@@ -409,6 +437,15 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 "help": "Allow wildcard imports from modules that define __all__.",
             },
         ),
+        (
+            "allow-reexport-from-package",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Allow explicit reexports by alias from a package __init__.",
+            },
+        ),
     )
 
     def __init__(self, linter: PyLinter) -> None:
@@ -431,6 +468,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self.linter.stats = self.linter.stats
         self.import_graph = defaultdict(set)
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
+        self._current_module_package = False
         self._excluded_edges: defaultdict[str, set[str]] = defaultdict(set)
         self._ignored_modules: Sequence[str] = self.linter.config.ignored_modules
         # Build a mapping {'module': 'preferred-module'}
@@ -440,6 +478,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if ":" in module
         )
         self._allow_any_import_level = set(self.linter.config.allow_any_import_level)
+        self._allow_reexport_package = self.linter.config.allow_reexport_from_package
 
     def _import_graph_without_ignored_edges(self) -> defaultdict[str, set[str]]:
         filtered_graph = copy.deepcopy(self.import_graph)
@@ -464,6 +503,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if since_vers <= sys.version_info:
                 all_deprecated_modules = all_deprecated_modules.union(mod_set)
         return all_deprecated_modules
+
+    def visit_module(self, node: nodes.Module) -> None:
+        """Store if current module is a package, i.e. an __init__ file."""
+        self._current_module_package = node.package
 
     def visit_import(self, node: nodes.Import) -> None:
         """Triggered when an import statement is seen."""
@@ -533,7 +576,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 current_package
                 and current_package != package
                 and package in met
-                and is_node_in_guarded_import_block(import_node) is False
+                and not in_type_checking_block(import_node)
+                and not (
+                    isinstance(import_node.parent, nodes.If)
+                    and is_sys_guard(import_node.parent)
+                )
             ):
                 self.add_message("ungrouped-imports", node=import_node, args=package)
             current_package = package
@@ -692,6 +739,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         imports = [import_node for (import_node, _) in imports]
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
+    # pylint: disable = too-many-statements
     def _check_imports_order(
         self, _module_node: nodes.Module
     ) -> tuple[
@@ -838,14 +886,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         except ImportError:
             pass
 
-        in_type_checking_block = isinstance(node.parent, nodes.If) and is_typing_guard(
-            node.parent
-        )
-
         if context_name == importedmodname:
             self.add_message("import-self", node=node)
 
-        elif not astroid.modutils.is_standard_module(importedmodname):
+        elif not astroid.modutils.is_stdlib_module(importedmodname):
             # if this is not a package __init__ module
             if base != "__init__" and context_name not in self._module_pkg:
                 # record the module's parent, or the module itself if this is
@@ -860,19 +904,36 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
             # update import graph
             self.import_graph[context_name].add(importedmodname)
-            if (
-                not self.linter.is_message_enabled("cyclic-import", line=node.lineno)
-                or in_type_checking_block
-            ):
+            if not self.linter.is_message_enabled(
+                "cyclic-import", line=node.lineno
+            ) or in_type_checking_block(node):
                 self._excluded_edges[context_name].add(importedmodname)
 
     def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
         """Check if the module has a preferred replacement."""
-        if mod_path in self.preferred_modules:
+
+        mod_compare = [mod_path]
+        # build a comparison list of possible names using importfrom
+        if isinstance(node, astroid.nodes.node_classes.ImportFrom):
+            mod_compare = [f"{node.modname}.{name[0]}" for name in node.names]
+
+        # find whether there are matches with the import vs preferred_modules keys
+        matches = [
+            k
+            for k in self.preferred_modules
+            for mod in mod_compare
+            # exact match
+            if k == mod
+            # checks for base module matches
+            or k in mod.split(".")[0]
+        ]
+
+        # if we have matches, add message
+        if matches:
             self.add_message(
                 "preferred-module",
                 node=node,
-                args=(self.preferred_modules[mod_path], mod_path),
+                args=(self.preferred_modules[matches[0]], matches[0]),
             )
 
     def _check_import_as_rename(self, node: ImportNode) -> None:
@@ -887,8 +948,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if import_name != aliased_name:
                 continue
 
-            if len(splitted_packages) == 1:
-                self.add_message("useless-import-alias", node=node)
+            if len(splitted_packages) == 1 and (
+                self._allow_reexport_package is False
+                or self._current_module_package is False
+            ):
+                self.add_message("useless-import-alias", node=node, confidence=HIGH)
             elif len(splitted_packages) == 2:
                 self.add_message(
                     "consider-using-from-import",
@@ -902,8 +966,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         basename: str | None = None,
         level: int | None = None,
     ) -> None:
-        """Check if the import is necessary (i.e. not already done)."""
-        if not self.linter.is_message_enabled("reimported"):
+        """Check if a module with the same name is already imported or aliased."""
+        if not self.linter.is_message_enabled(
+            "reimported"
+        ) and not self.linter.is_message_enabled("shadowed-import"):
             return
 
         frame = node.frame(future=True)
@@ -914,19 +980,20 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         for known_context, known_level in contexts:
             for name, alias in node.names:
-                first = _get_first_import(
+                first, msg = _get_first_import(
                     node, known_context, name, basename, known_level, alias
                 )
-                if first is not None:
+                if first is not None and msg is not None:
+                    name = name if msg == "reimported" else alias
                     self.add_message(
-                        "reimported", node=node, args=(name, first.fromlineno)
+                        msg, node=node, args=(name, first.fromlineno), confidence=HIGH
                     )
 
     def _report_external_dependencies(
         self, sect: Section, _: LinterStats, _dummy: LinterStats | None
     ) -> None:
         """Return a verbatim layout for displaying dependencies."""
-        dep_info = _make_tree_defs(self._external_dependencies_info().items())
+        dep_info = _make_tree_defs(self._external_dependencies_info.items())
         if not dep_info:
             raise EmptyReportError()
         tree_str = _repr_tree_defs(dep_info)
@@ -948,10 +1015,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             _make_graph(filename, dep_info, sect, "")
         filename = self.linter.config.ext_import_graph
         if filename:
-            _make_graph(filename, self._external_dependencies_info(), sect, "external ")
+            _make_graph(filename, self._external_dependencies_info, sect, "external ")
         filename = self.linter.config.int_import_graph
         if filename:
-            _make_graph(filename, self._internal_dependencies_info(), sect, "internal ")
+            _make_graph(filename, self._internal_dependencies_info, sect, "internal ")
 
     def _filter_dependencies_graph(self, internal: bool) -> defaultdict[str, set[str]]:
         """Build the internal or the external dependency graph."""
@@ -964,14 +1031,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     graph[importee].add(importer)
         return graph
 
-    @astroid.decorators.cached
+    @cached_property
     def _external_dependencies_info(self) -> defaultdict[str, set[str]]:
         """Return cached external dependencies information or build and
         cache them.
         """
         return self._filter_dependencies_graph(internal=False)
 
-    @astroid.decorators.cached
+    @cached_property
     def _internal_dependencies_info(self) -> defaultdict[str, set[str]]:
         """Return cached internal dependencies information or build and
         cache them.

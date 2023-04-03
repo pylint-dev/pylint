@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Tests for pylint.pyreverse.utils."""
 
@@ -117,7 +117,7 @@ def test_infer_node_1(mock_infer: Any, mock_get_annotation: Any) -> None:
 
 
 @patch("pylint.pyreverse.utils.get_annotation")
-@patch("astroid.node_classes.NodeNG.infer")
+@patch("astroid.nodes.NodeNG.infer")
 def test_infer_node_2(mock_infer: Any, mock_get_annotation: Any) -> None:
     """Return set(node.infer()) when InferenceError is not raised and an
     annotation has not been returned

@@ -1,0 +1,6 @@
+compare-to-zero:6:3:6:9::"""X is 0"" can be simplified to ""not X"" as 0 is falsey":HIGH
+compare-to-zero:12:3:12:13::"""Y is not 0"" can be simplified to ""Y"" as 0 is falsey":HIGH
+compare-to-zero:18:3:18:9::"""X == 0"" can be simplified to ""not X"" as 0 is falsey":HIGH
+compare-to-zero:24:3:24:9::"""0 == Y"" can be simplified to ""not Y"" as 0 is falsey":HIGH
+compare-to-zero:27:3:27:9::"""Y != 0"" can be simplified to ""Y"" as 0 is falsey":HIGH
+compare-to-zero:30:3:30:9::"""0 != X"" can be simplified to ""X"" as 0 is falsey":HIGH

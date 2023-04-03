@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -10,6 +10,8 @@ import shlex
 import sys
 from pathlib import Path
 from typing import NamedTuple
+
+from pylint.pyreverse.main import DEFAULT_COLOR_PALETTE
 
 if sys.version_info >= (3, 8):
     from typing import TypedDict
@@ -35,12 +37,15 @@ class PyreverseConfig(
         all_ancestors: bool | None = None,
         show_associated: int | None = None,
         all_associated: bool | None = None,
+        no_standalone: bool = False,
         show_builtin: bool = False,
+        show_stdlib: bool = False,
         module_names: bool | None = None,
         only_classnames: bool = False,
         output_format: str = "dot",
         colorized: bool = False,
         max_color_depth: int = 2,
+        color_palette: tuple[str, ...] = DEFAULT_COLOR_PALETTE,
         ignore_list: tuple[str, ...] = tuple(),
         project: str = "",
         output_directory: str = "",
@@ -55,18 +60,22 @@ class PyreverseConfig(
         self.all_ancestors = all_ancestors
         self.show_associated = show_associated
         self.all_associated = all_associated
+        self.no_standalone = no_standalone
         self.show_builtin = show_builtin
+        self.show_stdlib = show_stdlib
         self.module_names = module_names
         self.only_classnames = only_classnames
         self.output_format = output_format
         self.colorized = colorized
         self.max_color_depth = max_color_depth
+        self.color_palette = color_palette
         self.ignore_list = ignore_list
         self.project = project
         self.output_directory = output_directory
 
 
 class TestFileOptions(TypedDict):
+    source_roots: list[str]
     output_formats: list[str]
     command_line_args: list[str]
 
@@ -97,7 +106,11 @@ def get_functional_test_files(
             test_files.append(
                 FunctionalPyreverseTestfile(
                     source=path,
-                    options={"output_formats": ["mmd"], "command_line_args": []},
+                    options={
+                        "source_roots": [],
+                        "output_formats": ["mmd"],
+                        "command_line_args": [],
+                    },
                 )
             )
     return test_files
@@ -106,7 +119,9 @@ def get_functional_test_files(
 def _read_config(config_file: Path) -> TestFileOptions:
     config = configparser.ConfigParser()
     config.read(str(config_file))
+    source_roots = config.get("testoptions", "source_roots", fallback=None)
     return {
+        "source_roots": source_roots.split(",") if source_roots else [],
         "output_formats": config.get(
             "testoptions", "output_formats", fallback="mmd"
         ).split(","),

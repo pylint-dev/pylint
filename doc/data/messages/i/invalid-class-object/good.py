@@ -1,1 +1,9 @@
-# This is a placeholder for correct code for this message.
+class Apple:
+    pass
+
+
+class RedDelicious:
+    pass
+
+
+Apple.__class__ = RedDelicious

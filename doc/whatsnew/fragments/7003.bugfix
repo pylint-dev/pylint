@@ -1,4 +1,0 @@
-Fixed handling of ``--`` as separator between positional arguments and flags.
-This was not actually fixed in 2.14.5.
-
-Closes #7003, Refs #7096

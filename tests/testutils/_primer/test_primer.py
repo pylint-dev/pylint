@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Test the primer commands. """
 from __future__ import annotations
@@ -29,7 +29,7 @@ DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"
 @pytest.mark.parametrize("args", [[], ["wrong_command"]])
 def test_primer_launch_bad_args(args: list[str], capsys: CaptureFixture) -> None:
     with pytest.raises(SystemExit):
-        with patch("sys.argv", ["python tests/primer/__main__.py"] + args):
+        with patch("sys.argv", ["python tests/primer/__main__.py", *args]):
             Primer(PRIMER_DIRECTORY, PACKAGES_TO_PRIME_PATH).run()
     out, err = capsys.readouterr()
     assert not out
@@ -84,7 +84,7 @@ class TestPrimer:
             pr = directory / "pr.json"
         if expected_file is None:
             expected_file = directory / "expected.txt"
-        new_argv = DEFAULT_ARGS + [f"--base-file={main}", f"--new-file={pr}"]
+        new_argv = [*DEFAULT_ARGS, f"--base-file={main}", f"--new-file={pr}"]
         with patch("sys.argv", new_argv):
             Primer(PRIMER_DIRECTORY, PACKAGES_TO_PRIME_PATH).run()
         with open(PRIMER_DIRECTORY / "comment.txt", encoding="utf8") as f:

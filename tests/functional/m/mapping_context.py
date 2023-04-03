@@ -1,7 +1,7 @@
 """
 Checks that only valid values are used in a mapping context.
 """
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,wrong-import-position
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,wrong-import-position,use-dict-literal
 
 
 def test(**kwargs):

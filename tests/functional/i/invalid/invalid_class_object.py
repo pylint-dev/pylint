@@ -40,7 +40,7 @@ class AnotherClass:
 
 
 class Pylint7429Good:
-    """See https://github.com/PyCQA/pylint/issues/7467"""
+    """See https://github.com/pylint-dev/pylint/issues/7467"""
 
     def class_defining_function_good(self):
         self.__class__, myvar = AnotherClass, "myvalue"

@@ -1,8 +1,8 @@
 """Profiles basic -jX functionality."""
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=missing-function-docstring
 
@@ -13,6 +13,7 @@ import pprint
 from pathlib import Path
 
 import pytest
+from git.repo import Repo
 
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.testutils._run import _Run as Run
@@ -45,7 +46,7 @@ def test_run(tmp_path: Path, name: str, git_repo: str) -> None:
     """Runs pylint against external sources."""
     checkoutdir = tmp_path / name
     checkoutdir.mkdir()
-    os.system(f"git clone --depth=1 {git_repo} {checkoutdir}")
+    Repo.clone_from(url=git_repo, to_path=checkoutdir, depth=1)
     filepaths = _get_py_files(scanpath=str(checkoutdir))
     print(f"Have {len(filepaths)} files")
 

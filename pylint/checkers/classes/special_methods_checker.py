@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Special methods checker and helper function's module."""
 
@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import astroid
-from astroid import bases, nodes
+from astroid import bases, nodes, util
 from astroid.context import InferenceContext
 from astroid.typing import InferenceResult
 
@@ -296,9 +296,6 @@ class SpecialMethodsChecker(BaseChecker):
 
     @staticmethod
     def _is_iterator(node: InferenceResult) -> bool:
-        if node is astroid.Uninferable:
-            # Just ignore Uninferable objects.
-            return True
         if isinstance(node, bases.Generator):
             # Generators can be iterated.
             return True
@@ -394,11 +391,10 @@ class SpecialMethodsChecker(BaseChecker):
                 (inferred.elts[0], self._is_tuple),
                 (inferred.elts[1], self._is_dict),
             ):
-
                 if isinstance(arg, nodes.Call):
                     arg = safe_infer(arg)
 
-                if arg and arg is not astroid.Uninferable:
+                if arg and not isinstance(arg, util.UninferableBase):
                     if not check(arg):
                         found_error = True
                         break

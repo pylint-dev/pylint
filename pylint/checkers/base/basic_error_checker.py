@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Basic Error checker from the basic checker."""
 
@@ -301,7 +301,6 @@ class BasicErrorChecker(_BasicChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_name_used_prior_global(self, node: nodes.FunctionDef) -> None:
-
         scope_globals = {
             name: child
             for child in node.nodes_of_class(nodes.Global)
@@ -397,10 +396,7 @@ class BasicErrorChecker(_BasicChecker):
 
     def _check_nonlocal_without_binding(self, node: nodes.Nonlocal, name: str) -> None:
         current_scope = node.scope()
-        while True:
-            if current_scope.parent is None:
-                break
-
+        while current_scope.parent is not None:
             if not isinstance(current_scope, (nodes.ClassDef, nodes.FunctionDef)):
                 self.add_message("nonlocal-without-binding", args=(name,), node=node)
                 return

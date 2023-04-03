@@ -22,3 +22,9 @@ class Unhashable:
 {"tomato": "tomahto"}
 {dict: {}}
 {lambda x: x: "tomato"}  # pylint: disable=unnecessary-lambda
+
+
+class FromDict(dict):
+    ...
+
+{FromDict: 1}

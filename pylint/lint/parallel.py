@@ -1,11 +1,10 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import functools
-import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any
@@ -13,7 +12,7 @@ from typing import TYPE_CHECKING, Any
 import dill
 
 from pylint import reporters
-from pylint.lint.utils import _patch_sys_path
+from pylint.lint.utils import _augment_sys_path
 from pylint.message import Message
 from pylint.typing import FileItem
 from pylint.utils import LinterStats, merge_stats
@@ -23,22 +22,26 @@ try:
 except ImportError:
     multiprocessing = None  # type: ignore[assignment]
 
+try:
+    from concurrent.futures import ProcessPoolExecutor
+except ImportError:
+    ProcessPoolExecutor = None  # type: ignore[assignment,misc]
+
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-# PyLinter object used by worker processes when checking files using multiprocessing
+# PyLinter object used by worker processes when checking files using parallel mode
 # should only be used by the worker processes
 _worker_linter: PyLinter | None = None
 
 
 def _worker_initialize(
-    linter: bytes, arguments: None | str | Sequence[str] = None
+    linter: bytes, extra_packages_paths: Sequence[str] | None = None
 ) -> None:
-    """Function called to initialize a worker for a Process within a multiprocessing
-    Pool.
+    """Function called to initialize a worker for a Process within a concurrent Pool.
 
     :param linter: A linter-class (PyLinter) instance pickled with dill
-    :param arguments: File or module name(s) to lint and to be added to sys.path
+    :param extra_packages_paths: Extra entries to be added to `sys.path`
     """
     global _worker_linter  # pylint: disable=global-statement
     _worker_linter = dill.loads(linter)
@@ -49,25 +52,24 @@ def _worker_initialize(
     _worker_linter.set_reporter(reporters.CollectingReporter())
     _worker_linter.open()
 
-    # Patch sys.path so that each argument is importable just like in single job mode
-    _patch_sys_path(arguments or ())
+    if extra_packages_paths:
+        _augment_sys_path(extra_packages_paths)
 
 
 def _worker_check_single_file(
     file_item: FileItem,
 ) -> tuple[
     int,
-    # TODO: 3.0: Make this only str after deprecation has been removed
-    str | None,
     str,
-    str | None,
+    str,
+    str,
     list[Message],
     LinterStats,
     int,
     defaultdict[str, list[Any]],
 ]:
     if not _worker_linter:
-        raise Exception("Worker linter not yet initialised")
+        raise RuntimeError("Worker linter not yet initialised")
     _worker_linter.open()
     _worker_linter.check_single_file_item(file_item)
     mapreduce_data = defaultdict(list)
@@ -78,14 +80,6 @@ def _worker_check_single_file(
     msgs = _worker_linter.reporter.messages
     assert isinstance(_worker_linter.reporter, reporters.CollectingReporter)
     _worker_linter.reporter.reset()
-    if _worker_linter.current_name is None:
-        warnings.warn(
-            (
-                "In pylint 3.0 the current_name attribute of the linter object should be a string. "
-                "If unknown it should be initialized as an empty string."
-            ),
-            DeprecationWarning,
-        )
     return (
         id(multiprocessing.current_process()),
         _worker_linter.current_name,
@@ -126,7 +120,7 @@ def check_parallel(
     linter: PyLinter,
     jobs: int,
     files: Iterable[FileItem],
-    arguments: None | str | Sequence[str] = None,
+    extra_packages_paths: Sequence[str] | None = None,
 ) -> None:
     """Use the given linter to lint the files with given amount of workers (jobs).
 
@@ -136,10 +130,12 @@ def check_parallel(
     # The linter is inherited by all the pool's workers, i.e. the linter
     # is identical to the linter object here. This is required so that
     # a custom PyLinter object can be used.
-    initializer = functools.partial(_worker_initialize, arguments=arguments)
-    with multiprocessing.Pool(
-        jobs, initializer=initializer, initargs=[dill.dumps(linter)]
-    ) as pool:
+    initializer = functools.partial(
+        _worker_initialize, extra_packages_paths=extra_packages_paths
+    )
+    with ProcessPoolExecutor(
+        max_workers=jobs, initializer=initializer, initargs=(dill.dumps(linter),)
+    ) as executor:
         linter.open()
         all_stats = []
         all_mapreduce_data: defaultdict[
@@ -158,7 +154,7 @@ def check_parallel(
             stats,
             msg_status,
             mapreduce_data,
-        ) in pool.imap_unordered(_worker_check_single_file, files):
+        ) in executor.map(_worker_check_single_file, files):
             linter.file_state.base_name = base_name
             linter.file_state._is_base_filestate = False
             linter.set_current_module(module, file_path)
@@ -168,8 +164,5 @@ def check_parallel(
             all_mapreduce_data[worker_idx].append(mapreduce_data)
             linter.msg_status |= msg_status
 
-        pool.close()
-        pool.join()
-
     _merge_mapreduce_data(linter, all_mapreduce_data)
-    linter.stats = merge_stats([linter.stats] + all_stats)
+    linter.stats = merge_stats([linter.stats, *all_stats])

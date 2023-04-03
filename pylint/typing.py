@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """A collection of typing utilities."""
 
@@ -125,14 +125,14 @@ class ExtraMessageOptions(TypedDict, total=False):
     maxversion: tuple[int, int]
     minversion: tuple[int, int]
     shared: bool
+    default_enabled: bool
 
 
 MessageDefinitionTuple = Union[
     Tuple[str, str, str],
     Tuple[str, str, str, ExtraMessageOptions],
 ]
-# Mypy doesn't support recursive types (yet), see https://github.com/python/mypy/issues/731
-DirectoryNamespaceDict = Dict[Path, Tuple[argparse.Namespace, "DirectoryNamespaceDict"]]  # type: ignore[misc]
+DirectoryNamespaceDict = Dict[Path, Tuple[argparse.Namespace, "DirectoryNamespaceDict"]]
 
 
 class GetProjectCallable(Protocol):

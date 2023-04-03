@@ -12,7 +12,7 @@ https://google.github.io/styleguide/pyguide.html#doc-function-args
 
 def test_multi_line_parameters(param: int) -> None:
     """Checks that multi line parameters lists are checked correctly
-    See https://github.com/PyCQA/pylint/issues/5452
+    See https://github.com/pylint-dev/pylint/issues/5452
 
     Args:
         param:
@@ -433,3 +433,15 @@ def test_finds_multiple_complex_types_google(
         named_arg_nine,
         named_arg_ten,
     )
+
+def test_escape_underscore(something: int, raise_: bool = False) -> bool:
+    """Tests param with escaped _ is handled correctly.
+
+    Args:
+        something: the something
+        raise\\_: the other
+
+    Returns:
+        something
+    """
+    return something and raise_
