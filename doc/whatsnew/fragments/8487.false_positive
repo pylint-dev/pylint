@@ -1,3 +1,0 @@
-No longer consider ``Union`` as type annotation as type alias for naming checks.
-
-Closes #8487
