@@ -6,6 +6,7 @@ contributors-txt>=1.0.0
 pytest-cov~=4.0
 pytest-profiling~=1.7
 pytest-xdist~=3.2
+six
 # Type packages for mypy
 types-pkg_resources==0.1.3
 tox>=3
