@@ -12,7 +12,6 @@ import itertools
 import numbers
 import re
 import string
-from collections import deque
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
@@ -2076,7 +2075,6 @@ def is_module_ignored(
             return True
 
         for ignore in ignored_modules:
-
             # Try to see if the ignores pattern match against the module name.
             if fnmatch.fnmatch(current_module, ignore):
                 return True

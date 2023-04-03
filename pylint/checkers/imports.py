@@ -24,8 +24,6 @@ from pylint.checkers.utils import (
     in_type_checking_block,
     is_from_fallback_block,
     is_module_ignored,
-    is_node_in_guarded_import_block,
-    is_typing_guard,
     is_sys_guard,
     node_ignores_exception,
 )
