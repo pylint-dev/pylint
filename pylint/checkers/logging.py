@@ -246,7 +246,7 @@ class LoggingChecker(checkers.BaseChecker):
         if isinstance(format_arg, nodes.BinOp):
             binop = format_arg
             emit = binop.op == "%"
-            if binop.op == "+":
+            if binop.op == "+" and not self._is_node_explicit_str_concatenation(binop):
                 total_number_of_strings = sum(
                     1
                     for operand in (binop.left, binop.right)
@@ -293,6 +293,19 @@ class LoggingChecker(checkers.BaseChecker):
     def _is_operand_literal_str(operand: InferenceResult | None) -> bool:
         """Return True if the operand in argument is a literal string."""
         return isinstance(operand, nodes.Const) and operand.name == "str"
+    
+    @staticmethod
+    def _is_node_explicit_str_concatenation(node: nodes.NodeNG) -> bool:
+        """Return True if the node represents an explicitly concatenated string."""
+        if not isinstance(node, nodes.BinOp):
+            return False
+        return (
+            LoggingChecker._is_operand_literal_str(node.left)
+            or LoggingChecker._is_node_explicit_str_concatenation(node.left)
+        ) and (
+            LoggingChecker._is_operand_literal_str(node.right)
+            or LoggingChecker._is_node_explicit_str_concatenation(node.right)
+        )
 
     def _check_call_func(self, node: nodes.Call) -> None:
         """Checks that function call is not format_string.format()."""
