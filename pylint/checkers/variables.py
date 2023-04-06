@@ -2602,6 +2602,16 @@ class VariablesChecker(BaseChecker):
         argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
         if name in argnames:
+            if node.name == "__new__":
+                is_init_def = False
+                # Look for the `__init__` method in all the methods of the same class.
+                for n in node.parent.get_children():
+                    is_init_def = hasattr(n, "name") and (n.name == "__init__")
+                    if is_init_def:
+                        break
+                # Ignore unused arguments check for `__new__` if `__init__` is defined.
+                if is_init_def:
+                    return
             self._check_unused_arguments(name, node, stmt, argnames, nonlocal_names)
         else:
             if stmt.parent and isinstance(
