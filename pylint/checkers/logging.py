@@ -293,7 +293,7 @@ class LoggingChecker(checkers.BaseChecker):
     def _is_operand_literal_str(operand: InferenceResult | None) -> bool:
         """Return True if the operand in argument is a literal string."""
         return isinstance(operand, nodes.Const) and operand.name == "str"
-    
+
     @staticmethod
     def _is_node_explicit_str_concatenation(node: nodes.NodeNG) -> bool:
         """Return True if the node represents an explicitly concatenated string."""
