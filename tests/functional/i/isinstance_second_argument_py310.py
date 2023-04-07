@@ -1,13 +1,17 @@
-'''Tests for invalid isinstance with compound types'''
+"""Tests for invalid isinstance with compound types"""
 
 # True negatives
 isinstance(0, int | str)
 isinstance(0, int | int | int)
 isinstance(0, int | str | list | float)
 isinstance(0, (int | str) | (list | float))
+isinstance(0, int | None)
+isinstance(0, None | int)
 
 IntOrStr = int | str
 isinstance(0, IntOrStr)
+IntOrNone = int | None
+isinstance(0, IntOrNone)
 ListOrDict = list | dict
 isinstance(0, (float | ListOrDict) | IntOrStr)
 
