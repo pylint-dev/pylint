@@ -26,5 +26,8 @@ _1BadName = Union[int, str]  # [invalid-name]
 ANOTHERBADNAME = Union[int, str]  # [invalid-name]
 
 # Regression tests
-# This is not a TypeAlias, and thus shouldn't flag the message
+# They are not TypeAlias, and thus shouldn't flag the message
 x: Union[str, int] = 42
+y: Union[str, int]
+# But the following, using a good TypeAlias name, is:
+GoodTypeAliasToUnion: TypeAlias = Union[str, int]
