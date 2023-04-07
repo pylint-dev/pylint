@@ -9,4 +9,4 @@ invalid-name:23:0:23:9::"Type alias name ""_BAD_NAME"" doesn't conform to predef
 invalid-name:24:0:24:10::"Type alias name ""__BAD_NAME"" doesn't conform to predefined naming style":HIGH
 invalid-name:25:0:25:9::"Type alias name ""_1BadName"" doesn't conform to predefined naming style":HIGH
 invalid-name:26:0:26:14::"Type alias name ""ANOTHERBADNAME"" doesn't conform to predefined naming style":HIGH
-invalid-name:36:4:36:18:my_function:"Type alias name ""local_bad_name"" doesn't conform to predefined naming style":HIGH
+invalid-name:39:4:39:18:my_function:"Type alias name ""local_bad_name"" doesn't conform to predefined naming style":HIGH
