@@ -31,3 +31,14 @@ x: Union[str, int] = 42
 y: Union[str, int]
 # But the following, using a good TypeAlias name, is:
 GoodTypeAliasToUnion: TypeAlias = Union[str, int]
+
+
+def my_function():
+    """My doc."""
+    LocalGoodName: TypeAlias = int
+    local_bad_name: TypeAlias = int  # [invalid-name]
+    local_declaration: Union[str, int]
+    LocalTypeAliasToUnion: TypeAlias = Union[str, int]
+    local_declaration = 1
+    del local_declaration
+    del LocalGoodName, local_bad_name, LocalTypeAliasToUnion

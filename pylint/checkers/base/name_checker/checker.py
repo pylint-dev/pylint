@@ -476,7 +476,12 @@ class NameChecker(_BasicChecker):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
                 if not _redefines_import(node):
-                    self._check_name("variable", node.name, node)
+                    if isinstance(
+                        assign_type, nodes.AnnAssign
+                    ) and self._assigns_typealias(assign_type.annotation):
+                        self._check_name("typealias", node.name, node)
+                    else:
+                        self._check_name("variable", node.name, node)
 
         # Check names defined in class scopes
         elif isinstance(frame, nodes.ClassDef):
