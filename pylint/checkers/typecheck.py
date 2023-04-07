@@ -37,6 +37,7 @@ from pylint.checkers.utils import (
     is_mapping,
     is_module_ignored,
     is_node_in_type_annotation_context,
+    is_none,
     is_overload_stub,
     is_postponed_evaluation_enabled,
     is_super,
@@ -798,8 +799,9 @@ def _is_c_extension(module_node: InferenceResult) -> bool:
 def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
     # Return True if we are sure that arg is not a type
     if PY310_PLUS and isinstance(arg, nodes.BinOp) and arg.op == "|":
-        return _is_invalid_isinstance_type(arg.left) or _is_invalid_isinstance_type(
-            arg.right
+        return any(
+            _is_invalid_isinstance_type(elt) and not is_none(elt)
+            for elt in (arg.left, arg.right)
         )
     inferred = utils.safe_infer(arg)
     if not inferred:
@@ -812,9 +814,10 @@ def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
     if isinstance(inferred, astroid.Instance) and inferred.qname() == BUILTIN_TUPLE:
         return False
     if PY310_PLUS and isinstance(inferred, bases.UnionType):
-        return _is_invalid_isinstance_type(
-            inferred.left
-        ) or _is_invalid_isinstance_type(inferred.right)
+        return any(
+            _is_invalid_isinstance_type(elt) and not is_none(elt)
+            for elt in (inferred.left, inferred.right)
+        )
     return True
 
 
