@@ -9,10 +9,10 @@ var = "123"
 var_name = "Var:"
 # Statements that should be flagged:
 renamed_logging.warn("%s, %s" % (4, 5))  # [logging-not-lazy]
+renamed_logging.warn("Var: " + var)  # [logging-not-lazy]
 renamed_logging.exception("%s" % "Exceptional!")  # [logging-not-lazy]
 renamed_logging.log(renamed_logging.INFO, "msg: %s" % "Run!")  # [logging-not-lazy]
 renamed_logging.log(renamed_logging.INFO, "Var: " + var)  # [logging-not-lazy]
-renamed_logging.warn("%s" + " the rest of a single string")  # [logging-not-lazy]
 renamed_logging.log(renamed_logging.INFO, var_name + var)  # [logging-not-lazy]
 
 # Statements that should not be flagged:
@@ -21,6 +21,11 @@ renamed_logging.log(renamed_logging.INFO, "msg: %s", "Run!")
 logging.warn("%s, %s" % (4, 5))
 logging.log(logging.INFO, "msg: %s" % "Run!")
 logging.log("Var: " + var)
+# Explicit string concatenations are fine:
+renamed_logging.warn("%s" + " the rest of a single string")
+renamed_logging.warn("Msg: " + "%s", "first piece " + "second piece")
+renamed_logging.warn("first" + "second" + "third %s", "parameter")
+renamed_logging.warn(("first" + "second" + "third %s"))
 
 # Regression crash test for incorrect format call
 renamed_logging.error(

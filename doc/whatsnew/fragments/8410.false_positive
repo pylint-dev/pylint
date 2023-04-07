@@ -1,0 +1,3 @@
+`logging-not-lazy` is not longer emitted for explicitly concatenated string arguments.
+
+Closes #8410
