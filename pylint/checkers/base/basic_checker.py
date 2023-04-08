@@ -616,6 +616,11 @@ class BasicChecker(_BasicChecker):
             return isinstance(internal_node, (nodes.List, nodes.Set, nodes.Dict))
 
         def is_callable_immutable_builtins_func(default: nodes.NodeNG, value: nodes.NodeNG) -> bool:
+            """Indirect recognize immutable builtins function exceptions:
+
+            1 - If the name is the same
+            2 - And type of value provided is the right one
+            """
             if not hasattr(default, "func"):
                 return False
             default_as_string = default.func.as_string()
