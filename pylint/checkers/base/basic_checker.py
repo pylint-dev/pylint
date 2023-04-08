@@ -615,7 +615,9 @@ class BasicChecker(_BasicChecker):
         def is_iterable(internal_node: nodes.NodeNG) -> bool:
             return isinstance(internal_node, (nodes.List, nodes.Set, nodes.Dict))
 
-        def is_callable_immutable_builtins_func(default: nodes.NodeNG, value: nodes.NodeNG) -> bool:
+        def is_callable_immutable_builtins_func(
+            default: nodes.NodeNG, value: nodes.NodeNG
+        ) -> bool:
             """Indirect recognize immutable builtins function exceptions:
 
             1 - If the name is the same
@@ -664,7 +666,9 @@ class BasicChecker(_BasicChecker):
                     msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
                 self.add_message("dangerous-default-value", node=node, args=(msg,))
 
-            elif isinstance(default, astroid.nodes.node_classes.Call) and not is_callable_immutable_builtins_func(default, value):
+            elif isinstance(
+                default, astroid.nodes.node_classes.Call
+            ) and not is_callable_immutable_builtins_func(default, value):
                 msg = f"{default.as_string()} Callable"
                 self.add_message("dangerous-default-value", node=node, args=(msg,))
 
