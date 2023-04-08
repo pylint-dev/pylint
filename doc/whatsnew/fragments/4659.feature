@@ -1,0 +1,3 @@
+Dangerous-default-value warns also about callables: functions, methods, lambdas, ...
+
+Closes #4659
