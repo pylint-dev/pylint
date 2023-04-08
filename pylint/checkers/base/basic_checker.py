@@ -61,6 +61,16 @@ DEFAULT_ARGUMENT_SYMBOLS = dict(
         )
     },
 )
+DEFAULT_ARGUMENT_CALLABLE_IMMUTABLE_BUILTINS = [
+    "frozenset",
+    "bytes",
+    "tuple",
+    "str",
+    "int",
+    "float",
+    "complex",
+    "range",
+]
 
 
 def report_by_type_stats(
@@ -605,6 +615,16 @@ class BasicChecker(_BasicChecker):
         def is_iterable(internal_node: nodes.NodeNG) -> bool:
             return isinstance(internal_node, (nodes.List, nodes.Set, nodes.Dict))
 
+        def is_callable_immutable_builtins(
+            default_as_string: str, value: nodes.NodeNG
+        ) -> bool:
+            a = (
+                default_as_string in DEFAULT_ARGUMENT_CALLABLE_IMMUTABLE_BUILTINS
+                and isinstance(value, astroid.Instance)
+                and value.qname() == f"builtins.{default_as_string}"
+            )
+            return a
+
         defaults = (node.args.defaults or []) + (node.args.kw_defaults or [])
         for default in defaults:
             if not default:
@@ -638,6 +658,13 @@ class BasicChecker(_BasicChecker):
                     # this argument is a name
                     msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
                 self.add_message("dangerous-default-value", node=node, args=(msg,))
+
+            elif isinstance(default, astroid.nodes.node_classes.Call):
+                if hasattr(default, "func") and not is_callable_immutable_builtins(
+                    default.func.as_string(), value
+                ):
+                    msg = f"{default.as_string()} Callable"
+                    self.add_message("dangerous-default-value", node=node, args=(msg,))
 
     @utils.only_required_for_messages("unreachable", "lost-exception")
     def visit_return(self, node: nodes.Return) -> None:
