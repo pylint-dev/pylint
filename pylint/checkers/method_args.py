@@ -111,6 +111,8 @@ class MethodArgsChecker(BaseChecker):
             and inferred_func.args.posonlyargs
         ):
             return
+        if inferred_func.args.kwarg:
+            return
         pos_args = [a.name for a in inferred_func.args.posonlyargs]
         kws = [k.arg for k in node.keywords if k.arg in pos_args]
         if not kws:
