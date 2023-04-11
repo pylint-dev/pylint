@@ -1001,8 +1001,20 @@ accessed. Python regular expressions are accepted.",
 
     @only_required_for_messages("keyword-arg-before-vararg")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        # check for keyword arg before varargs
-        if node.args.vararg and node.args.defaults:
+        """Check for keyword arg before varargs.
+
+        - When `positional-only` parameters are present then only
+        `positional-or-keyword` parameters are checked. I.e:
+         >>> def name(positional_only_parameters, /,
+                      positional_or_keyword_parameters, *args): ...
+        """
+
+        if node.args.vararg and node.args.defaults and node.args.args:
+            if node.args.posonlyargs:
+                try:
+                    node.args.default_value(node.args.args[-1].name)
+                except astroid.exceptions.NoDefault:
+                    return
             self.add_message("keyword-arg-before-vararg", node=node, args=(node.name))
 
     visit_asyncfunctiondef = visit_functiondef
