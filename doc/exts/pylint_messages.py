@@ -313,7 +313,7 @@ def _generate_single_message_body(message: MessageData) -> str:
 
 *{message.definition.description}*
 """
-    if not message.default_enabled or MSG_TYPES[message.id[0]] == 'info':
+    if not message.default_enabled or MSG_TYPES[message.id[0]] == "info":
         body += f"""
 .. caution::
   This message is disabled by default. To enable it, add ``{message.name}`` to the ``enable`` option.
