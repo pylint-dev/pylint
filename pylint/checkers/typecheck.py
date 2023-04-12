@@ -1009,12 +1009,9 @@ accessed. Python regular expressions are accepted.",
                       positional_or_keyword_parameters, *args): ...
         """
 
-        if node.args.vararg and node.args.defaults and node.args.args:
-            if node.args.posonlyargs:
-                try:
-                    node.args.default_value(node.args.args[-1].name)
-                except astroid.exceptions.NoDefault:
-                    return
+        if node.args.vararg and node.args.defaults:
+            if node.args.posonlyargs and not node.args.args:
+                return
             self.add_message("keyword-arg-before-vararg", node=node, args=(node.name))
 
     visit_asyncfunctiondef = visit_functiondef
