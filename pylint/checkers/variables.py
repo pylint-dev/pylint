@@ -3057,9 +3057,9 @@ class VariablesChecker(BaseChecker):
                 )
 
                 is_dummy_import = (
-                        as_name
-                        and self.linter.config.dummy_variables_rgx
-                        and self.linter.config.dummy_variables_rgx.match(as_name)
+                    as_name
+                    and self.linter.config.dummy_variables_rgx
+                    and self.linter.config.dummy_variables_rgx.match(as_name)
                 )
 
                 if isinstance(stmt, nodes.Import) or (
