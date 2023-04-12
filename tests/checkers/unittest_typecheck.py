@@ -10,7 +10,7 @@ from pylint.interfaces import INFERENCE, UNDEFINED
 from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 try:
-    from coverage import tracer as _  # pylint: disable=unused-import
+    from coverage import tracer as _
 
     C_EXTENTIONS_AVAILABLE = True
 except ImportError:

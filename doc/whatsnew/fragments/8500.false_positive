@@ -1,0 +1,3 @@
+Fixed `unused-import` so that it observes the `dummy-variables-rgx` option.
+
+Closes #8500

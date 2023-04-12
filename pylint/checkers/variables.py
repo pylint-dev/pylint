@@ -3062,6 +3062,13 @@ class VariablesChecker(BaseChecker):
                     imported_name in self._type_annotation_names
                     or as_name in self._type_annotation_names
                 )
+
+                is_dummy_import = (
+                    as_name
+                    and self.linter.config.dummy_variables_rgx
+                    and self.linter.config.dummy_variables_rgx.match(as_name)
+                )
+
                 if isinstance(stmt, nodes.Import) or (
                     isinstance(stmt, nodes.ImportFrom) and not stmt.modname
                 ):
@@ -3072,12 +3079,11 @@ class VariablesChecker(BaseChecker):
                         # because they can be imported for exporting.
                         continue
 
-                    if is_type_annotation_import:
+                    if is_type_annotation_import or is_dummy_import:
                         # Most likely a typing import if it wasn't used so far.
+                        # Also filter dummy variables.
                         continue
 
-                    if as_name == "_":
-                        continue
                     if as_name is None:
                         msg = f"import {imported_name}"
                     else:
@@ -3095,8 +3101,9 @@ class VariablesChecker(BaseChecker):
                         # __future__ import in another module.
                         continue
 
-                    if is_type_annotation_import:
+                    if is_type_annotation_import or is_dummy_import:
                         # Most likely a typing import if it wasn't used so far.
+                        # Also filter dummy variables.
                         continue
 
                     if imported_name == "*":
