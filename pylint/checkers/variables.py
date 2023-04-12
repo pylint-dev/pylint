@@ -3070,10 +3070,14 @@ class VariablesChecker(BaseChecker):
                         continue
 
                     dummy_variables_rgx = self.linter.config.dummy_variables_rgx
-                    if as_name and dummy_variables_rgx and dummy_variables_rgx.match(as_name):
+                    if (
+                        as_name
+                        and dummy_variables_rgx
+                        and dummy_variables_rgx.match(as_name)
+                    ):
                         # Filter dummy variables
                         continue
-                    
+
                     if as_name is None:
                         msg = f"import {imported_name}"
                     else:
@@ -3096,7 +3100,11 @@ class VariablesChecker(BaseChecker):
                         continue
 
                     dummy_variables_rgx = self.linter.config.dummy_variables_rgx
-                    if as_name and dummy_variables_rgx and dummy_variables_rgx.match(as_name):
+                    if (
+                        as_name
+                        and dummy_variables_rgx
+                        and dummy_variables_rgx.match(as_name)
+                    ):
                         # Filter dummy variables
                         continue
 
