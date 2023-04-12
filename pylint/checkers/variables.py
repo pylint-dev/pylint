@@ -3069,8 +3069,11 @@ class VariablesChecker(BaseChecker):
                         # Most likely a typing import if it wasn't used so far.
                         continue
 
-                    if as_name == "_":
+                    dummy_variables_rgx = self.linter.config.dummy_variables_rgx
+                    if as_name and dummy_variables_rgx and dummy_variables_rgx.match(as_name):
+                        # Filter dummy variables
                         continue
+                    
                     if as_name is None:
                         msg = f"import {imported_name}"
                     else:
@@ -3090,6 +3093,11 @@ class VariablesChecker(BaseChecker):
 
                     if is_type_annotation_import:
                         # Most likely a typing import if it wasn't used so far.
+                        continue
+
+                    dummy_variables_rgx = self.linter.config.dummy_variables_rgx
+                    if as_name and dummy_variables_rgx and dummy_variables_rgx.match(as_name):
+                        # Filter dummy variables
                         continue
 
                     if imported_name == "*":
