@@ -154,9 +154,6 @@ group are mutually exclusive.",
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
 
-        linter.disable("I")
-        linter.enable("c-extension-no-member")
-
         # Register the options needed for 'pylint-config'
         # By not registering them by default they don't show up in the normal usage message
         if self._is_pylint_config:
