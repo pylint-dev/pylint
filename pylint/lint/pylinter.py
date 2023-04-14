@@ -138,26 +138,38 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "raw-checker-failed",
         "Used to inform that a built-in module has not been checked "
         "using the raw checkers.",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0010": (
         "Unable to consider inline option %r",
         "bad-inline-option",
         "Used when an inline option is either badly formatted or can't "
         "be used inside modules.",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0011": (
         "Locally disabling %s (%s)",
         "locally-disabled",
         "Used when an inline option disables a message or a messages category.",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0013": (
         "Ignoring entire file",
         "file-ignored",
         "Used to inform that the file will not be checked",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0020": (
         "Suppressed %s (from line %d)",
@@ -166,14 +178,20 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "by a disable= comment in the file. This message is not "
         "generated for messages that are ignored due to configuration "
         "settings.",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0021": (
         "Useless suppression of %s",
         "useless-suppression",
         "Reported when a message is explicitly disabled for a line or "
         "a block of code, but never triggered.",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0022": (
         'Pragma "%s" is deprecated, use "%s" instead',
@@ -184,6 +202,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         {
             "old_names": [("I0014", "deprecated-disable-all")],
             "scope": WarningScope.LINE,
+            "default_enabled": False,
         },
     ),
     "E0001": (

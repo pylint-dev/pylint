@@ -29,6 +29,7 @@ class ByIdManagedMessagesChecker(BaseRawFileChecker):
             "%s",
             "use-symbolic-message-instead",
             "Used when a message is enabled or disabled by id.",
+            {"default_enabled": False},
         )
     }
     options = ()
