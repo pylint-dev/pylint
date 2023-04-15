@@ -1569,6 +1569,11 @@ accessed. Python regular expressions are accepted.",
                             node=node,
                             args=(keyword, callable_name),
                         )
+                elif (
+                    keyword in [arg.name for arg in called.args.posonlyargs]
+                    and called.args.kwarg
+                ):
+                    pass
                 else:
                     parameters[i] = (parameters[i][0], True)
             elif keyword in kwparams:
