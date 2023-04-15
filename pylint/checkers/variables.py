@@ -29,6 +29,7 @@ from pylint.checkers.utils import (
     is_postponed_evaluation_enabled,
     is_sys_guard,
     overridden_method,
+    safe_infer,
 )
 from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
@@ -1342,6 +1343,9 @@ class VariablesChecker(BaseChecker):
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Visit class: update consumption analysis variable."""
+        for name in node.nodes_of_class(nodes.AssignName):
+            # Names have to be inferred, because they could affect locals.
+            safe_infer(name)
         self._to_consume.append(NamesConsumer(node, "class"))
 
     def leave_classdef(self, node: nodes.ClassDef) -> None:
