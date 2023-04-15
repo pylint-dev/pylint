@@ -16,7 +16,7 @@ outer()
 
 class ClassWithProperty:  # pylint: disable=too-few-public-methods
     """This test depends on a later-defined module-level function."""
-    prop = property(calculate)
+    prop = property(calculate)  # [used-before-assignment]
 
 
 calculate(1.01, 2)  # [used-before-assignment]

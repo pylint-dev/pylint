@@ -1,6 +1,7 @@
 used-before-assignment:5:19:5:22::Using variable 'MSG' before assignment:HIGH
 used-before-assignment:7:20:7:24::Using variable 'MSG2' before assignment:HIGH
 used-before-assignment:10:4:10:9:outer:Using variable 'inner' before assignment:HIGH
+used-before-assignment:19:20:19:29:ClassWithProperty:Using variable 'calculate' before assignment:HIGH
 used-before-assignment:22:0:22:9::Using variable 'calculate' before assignment:HIGH
 used-before-assignment:30:10:30:14:redefine_time_import:Using variable 'time' before assignment:HIGH
 used-before-assignment:44:3:44:7::Using variable 'VAR2' before assignment:CONTROL_FLOW
