@@ -1897,7 +1897,7 @@ class VariablesChecker(BaseChecker):
         self, node: nodes.NodeNG, current_consumer: NamesConsumer
     ) -> None:
         """Reports used-before-assignment when all name definition nodes
-        gets filtered out by NamesConsumer.
+        get filtered out by NamesConsumer.
         """
         if (
             self._postponed_evaluation_enabled
@@ -1927,7 +1927,7 @@ class VariablesChecker(BaseChecker):
     def _filter_type_checking_import_from_consumption(
         self, node: nodes.NodeNG, nodes_to_consume: list[nodes.NodeNG]
     ) -> list[nodes.NodeNG]:
-        """Do not consume type checking import node as used-before-assignment
+        """Do not consume type-checking import node as used-before-assignment
         may invoke in different scopes.
         """
         type_checking_import = next(
