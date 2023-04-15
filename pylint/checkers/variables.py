@@ -224,12 +224,6 @@ def _detect_global_scope(
             return node.lineno < defframe.lineno  # type: ignore[no-any-return]
         if not isinstance(node.parent, (nodes.FunctionDef, nodes.Arguments)):
             return False
-    elif frame is not def_scope and any(
-        not isinstance(f, (nodes.ClassDef, nodes.Module)) for f in (frame, defframe)
-    ):
-        # Not interested in other frames, since they are already
-        # not in a global scope.
-        return False
 
     break_scopes = []
     for current_scope in (scope or frame, def_scope):

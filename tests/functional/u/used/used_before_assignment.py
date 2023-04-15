@@ -16,7 +16,7 @@ outer()
 
 class ClassWithProperty:  # pylint: disable=too-few-public-methods
     """This test depends on earlier and later defined module-level functions."""
-    prop = property(calculate)  # [used-before-assignment]
+    prop = property(redefine_time_import)  # [used-before-assignment]
     prop_defined_earlier = property(outer)
 
 
