@@ -239,11 +239,11 @@ def _detect_global_scope(
         while parent_scope:
             if not isinstance(parent_scope, (nodes.ClassDef, nodes.Module)):
                 break_scopes.append(parent_scope)
+                break
             if parent_scope.parent:
                 parent_scope = parent_scope.parent.scope()
             else:
                 break
-
     if len(set(break_scopes)) > 1:
         # Store different scopes than expected.
         # If the stored scopes are, in fact, the very same, then it means
