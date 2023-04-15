@@ -9,7 +9,7 @@ print('windows line ends are ok')
 # +1: [trailing-whitespace]
 print('but trailing whitespace on win is not')   
 
-# Regression test for https://github.com/PyCQA/pylint/issues/6936
+# Regression test for https://github.com/pylint-dev/pylint/issues/6936
 # +2: [trailing-whitespace]
 """ This module has the Board class.
 """ 
@@ -19,7 +19,7 @@ print('but trailing whitespace on win is not')
 It's a very nice Board.
 """ 
 
-# Regression test for https://github.com/PyCQA/pylint/issues/3822
+# Regression test for https://github.com/pylint-dev/pylint/issues/3822
 def example(*args):
     """Example function."""
     print(*args)

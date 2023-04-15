@@ -106,7 +106,7 @@ k = Klass()
 print(k.twentyone)
 print(k.ninetyfive)
 
-# https://github.com/PyCQA/pylint/issues/4657
+# https://github.com/pylint-dev/pylint/issues/4657
 # Mutation of class member with cls should not fire a false-positive
 class FalsePositive4657:
     """False positive tests for 4657"""
@@ -140,7 +140,7 @@ class FalsePositive4657:
         return cls.__attr_c  # [undefined-variable]
 
 
-# https://github.com/PyCQA/pylint/issues/4668
+# https://github.com/pylint-dev/pylint/issues/4668
 # Attributes assigned within __new__() has to be processed as part of the class
 class FalsePositive4668:
     # pylint: disable=protected-access, no-member, unreachable
@@ -166,7 +166,7 @@ class FalsePositive4668:
         return self.func(*self.__args)
 
 
-# https://github.com/PyCQA/pylint/issues/4673
+# https://github.com/pylint-dev/pylint/issues/4673
 # Nested functions shouldn't cause a false positive if they are properly used
 class FalsePositive4673:
     """ The testing class """
@@ -207,7 +207,7 @@ class FalsePositive4673:
         return fn_to_return
 
 
-# https://github.com/PyCQA/pylint/issues/4755
+# https://github.com/pylint-dev/pylint/issues/4755
 # Nested attributes shouldn't cause crash
 class Crash4755Context:
     def __init__(self):
@@ -223,7 +223,7 @@ class Crash4755Command:
             print(message)
 
 
-# https://github.com/PyCQA/pylint/issues/4681
+# https://github.com/pylint-dev/pylint/issues/4681
 # Accessing attributes of the class using the class name should not result in a false positive
 # as long as it is used within the class
 class FalsePositive4681:
@@ -263,7 +263,7 @@ class FalsePositive4681b:
             FalsePositive4681b.__instance = False  # This should be fine
 
 
-# https://github.com/PyCQA/pylint/issues/4849
+# https://github.com/pylint-dev/pylint/issues/4849
 # Accessing private static methods from classmethods via `cls` should not result in a
 # false positive
 class FalsePositive4849:
@@ -283,7 +283,7 @@ class FalsePositive4849:
 
 
 class Pony:
-    """https://github.com/PyCQA/pylint/issues/4837"""
+    """https://github.com/pylint-dev/pylint/issues/4837"""
     __defaults = {}
     __defaults_set = False
 
@@ -305,7 +305,7 @@ def lookup_attribute(mapping, key):
 
 
 # Test for regression on checking __class__ attribute
-# See: https://github.com/PyCQA/pylint/issues/5261
+# See: https://github.com/pylint-dev/pylint/issues/5261
 class Foo:
     __ham = 1
 
@@ -313,7 +313,7 @@ class Foo:
         print(self.__class__.__ham)
 
 
-# https://github.com/PyCQA/pylint/issues/4756
+# https://github.com/pylint-dev/pylint/issues/4756
 # Check for false positives emitted when private functions are not referenced in the class body
 # with standard calls but passed as arguments to other functions.
 class FalsePositive4756a:
@@ -347,7 +347,7 @@ class TypeSelfCallInMethod:
 
 
 class Item:
-    """Regression test for https://github.com/PyCQA/pylint/issues/6709"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/6709"""
     def __init__(self, parent):
         self.__parent: Item = parent
         self.__item = self.__parent.__item  # [unused-private-member]

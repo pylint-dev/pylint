@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -153,9 +153,6 @@ group are mutually exclusive.",
         linter.load_default_plugins()
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
-
-        linter.disable("I")
-        linter.enable("c-extension-no-member")
 
         # Register the options needed for 'pylint-config'
         # By not registering them by default they don't show up in the normal usage message

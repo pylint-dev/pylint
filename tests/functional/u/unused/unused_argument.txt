@@ -7,3 +7,5 @@ unused-argument:73:0:None:None:AAAA.selected:Unused argument 'args':INFERENCE
 unused-argument:73:0:None:None:AAAA.selected:Unused argument 'kwargs':INFERENCE
 unused-argument:92:23:92:26:BBBB.__init__:Unused argument 'arg':INFERENCE
 unused-argument:103:34:103:39:Ancestor.set_thing:Unused argument 'other':INFERENCE
+unused-argument:129:21:129:25:TestClassWithOnlyNew.__new__:Unused argument 'argA':INFERENCE
+unused-argument:129:27:129:31:TestClassWithOnlyNew.__new__:Unused argument 'argB':INFERENCE

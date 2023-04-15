@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Imports checkers for Python code."""
 
@@ -23,6 +23,7 @@ from pylint.checkers.utils import (
     get_import_name,
     in_type_checking_block,
     is_from_fallback_block,
+    is_module_ignored,
     is_sys_guard,
     node_ignores_exception,
 )
@@ -36,6 +37,12 @@ from pylint.utils.linterstats import LinterStats
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from astroid.decorators import cachedproperty as cached_property
+
 
 # The dictionary with Any should actually be a _ImportTree again
 # but mypy doesn't support recursive types yet
@@ -76,18 +83,6 @@ DEPRECATED_MODULES = {
         "xdrlib",
     },
 }
-
-
-def _qualified_names(modname: str | None) -> list[str]:
-    """Split the names of the given module into subparts.
-
-    For example,
-        _qualified_names('pylint.checkers.ImportsChecker')
-    returns
-        ['pylint', 'pylint.checkers', 'pylint.checkers.ImportsChecker']
-    """
-    names = modname.split(".") if modname is not None else ""
-    return [".".join(names[0 : i + 1]) for i in range(len(names))]
 
 
 def _get_first_import(
@@ -147,12 +142,11 @@ def _get_first_import(
 
 def _ignore_import_failure(
     node: ImportNode,
-    modname: str | None,
+    modname: str,
     ignored_modules: Sequence[str],
 ) -> bool:
-    for submodule in _qualified_names(modname):
-        if submodule in ignored_modules:
-            return True
+    if is_module_ignored(modname, ignored_modules):
+        return True
 
     # Ignore import failure if part of guarded import block
     # I.e. `sys.version_info` or `typing.TYPE_CHECKING`
@@ -846,7 +840,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return std_imports, external_imports, local_imports
 
     def _get_imported_module(
-        self, importnode: ImportNode, modname: str | None
+        self, importnode: ImportNode, modname: str
     ) -> nodes.Module | None:
         try:
             return importnode.do_import_module(modname)
@@ -997,7 +991,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self, sect: Section, _: LinterStats, _dummy: LinterStats | None
     ) -> None:
         """Return a verbatim layout for displaying dependencies."""
-        dep_info = _make_tree_defs(self._external_dependencies_info().items())
+        dep_info = _make_tree_defs(self._external_dependencies_info.items())
         if not dep_info:
             raise EmptyReportError()
         tree_str = _repr_tree_defs(dep_info)
@@ -1019,10 +1013,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             _make_graph(filename, dep_info, sect, "")
         filename = self.linter.config.ext_import_graph
         if filename:
-            _make_graph(filename, self._external_dependencies_info(), sect, "external ")
+            _make_graph(filename, self._external_dependencies_info, sect, "external ")
         filename = self.linter.config.int_import_graph
         if filename:
-            _make_graph(filename, self._internal_dependencies_info(), sect, "internal ")
+            _make_graph(filename, self._internal_dependencies_info, sect, "internal ")
 
     def _filter_dependencies_graph(self, internal: bool) -> defaultdict[str, set[str]]:
         """Build the internal or the external dependency graph."""
@@ -1035,14 +1029,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     graph[importee].add(importer)
         return graph
 
-    @astroid.decorators.cached
+    @cached_property
     def _external_dependencies_info(self) -> defaultdict[str, set[str]]:
         """Return cached external dependencies information or build and
         cache them.
         """
         return self._filter_dependencies_graph(internal=False)
 
-    @astroid.decorators.cached
+    @cached_property
     def _internal_dependencies_info(self) -> defaultdict[str, set[str]]:
         """Return cached internal dependencies information or build and
         cache them.

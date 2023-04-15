@@ -1,4 +1,4 @@
-"""Add regression test for https://github.com/PyCQA/pylint/issues/2667"""
+"""Add regression test for https://github.com/pylint-dev/pylint/issues/2667"""
 # pylint: disable=missing-docstring, too-few-public-methods
 
 class MyClass:

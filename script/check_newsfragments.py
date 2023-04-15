@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Small script to check the formatting of news fragments for towncrier.
 Used by pre-commit.
@@ -39,7 +39,7 @@ VALID_FILE_TYPE = frozenset(
 ISSUES_KEYWORDS = "|".join(VALID_ISSUES_KEYWORDS)
 VALID_CHANGELOG_PATTERN = (
     rf"(?P<description>(.*\n)*(.*\.\n))\n(?P<ref>({ISSUES_KEYWORDS})"
-    r" (PyCQA/astroid)?#(?P<issue>\d+))"
+    r" (pylint-dev/astroid)?#(?P<issue>\d+))"
 )
 VALID_CHANGELOG_COMPILED_PATTERN: Pattern[str] = re.compile(
     VALID_CHANGELOG_PATTERN, flags=re.MULTILINE

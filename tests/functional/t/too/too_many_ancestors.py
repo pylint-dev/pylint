@@ -25,8 +25,8 @@ class Jjjj(Iiii): # [too-many-ancestors]
     pass
 
 
-# https://github.com/PyCQA/pylint/issues/4166
-# https://github.com/PyCQA/pylint/issues/4415
+# https://github.com/pylint-dev/pylint/issues/4166
+# https://github.com/pylint-dev/pylint/issues/4415
 class ItemSequence(MutableSequence):
     """Minimal MutableSequence."""
     def __getitem__(self, key):

@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-# https://github.com/PyCQA/pylint/issues/4221
+# https://github.com/pylint-dev/pylint/issues/4221
 
 import random
 o = object()

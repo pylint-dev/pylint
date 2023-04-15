@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ class GenericTestReporter(BaseReporter):
 
     out: StringIO
 
-    def __init__(  # pylint: disable=super-init-not-called # See https://github.com/PyCQA/pylint/issues/4941
+    def __init__(  # pylint: disable=super-init-not-called # See https://github.com/pylint-dev/pylint/issues/4941
         self,
     ) -> None:
         self.path_strip_prefix: str = getcwd() + sep

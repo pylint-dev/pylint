@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -155,7 +155,7 @@ def test_short_verbose(capsys: CaptureFixture) -> None:
 def test_argument_separator() -> None:
     """Check that we support using '--' to separate argument types.
 
-    Reported in https://github.com/PyCQA/pylint/issues/7003.
+    Reported in https://github.com/pylint-dev/pylint/issues/7003.
     """
     runner = Run(["--", str(EMPTY_MODULE)], exit=False)
     assert not runner.linter.stats.by_msg

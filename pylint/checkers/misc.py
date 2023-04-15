@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check source code is ascii only or has an encoding declaration (PEP 263)."""
 
@@ -29,6 +29,7 @@ class ByIdManagedMessagesChecker(BaseRawFileChecker):
             "%s",
             "use-symbolic-message-instead",
             "Used when a message is enabled or disabled by id.",
+            {"default_enabled": False},
         )
     }
     options = ()

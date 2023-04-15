@@ -3,7 +3,7 @@ from enum import Enum, Flag, IntEnum, auto
 
 
 class Issue1932(IntEnum):
-    """https://github.com/PyCQA/pylint/issues/1932"""
+    """https://github.com/pylint-dev/pylint/issues/1932"""
 
     FOO = 1
 
@@ -12,7 +12,7 @@ class Issue1932(IntEnum):
 
 
 class Issue2062(Enum):
-    """https://github.com/PyCQA/pylint/issues/2062"""
+    """https://github.com/pylint-dev/pylint/issues/2062"""
 
     FOO = 1
     BAR = 2
@@ -81,7 +81,7 @@ assert test_enum.hello_pylint() == test_enum.name
 
 
 # Check combinations of Flag members using the bitwise operators (&, |, ^, ~)
-# https://github.com/PyCQA/pylint/issues/7381
+# https://github.com/pylint-dev/pylint/issues/7381
 class Colour(Flag):
     NONE = 0
     RED = 2

@@ -137,4 +137,4 @@ module name should be ``{abspath}`` and the file name ``{relpath}``.
 .. _tox: https://tox.wiki/en/latest/
 .. _pytest: https://docs.pytest.org/en/latest/
 .. _pytest-cov: https://pypi.org/project/pytest-cov/
-.. _astroid: https://github.com/pycqa/astroid
+.. _astroid: https://github.com/pylint-dev/astroid

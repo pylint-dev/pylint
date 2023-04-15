@@ -25,7 +25,7 @@ concurrency:
 
 env:
   # This needs to be the SAME as in the Main and comment job
-  CACHE_VERSION: 2
+  CACHE_VERSION: 3
   KEY_PREFIX: venv-primer
 
 permissions:
@@ -41,7 +41,7 @@ jobs:
         python-version: ["3.7", "3.11"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.4.0
+        uses: actions/checkout@v3.5.0
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
@@ -74,7 +74,7 @@ jobs:
       # Cache primer packages
       - name: Download last 'main' run info
         id: download-main-run
-        uses: actions/github-script@v6.4.0
+        uses: actions/github-script@v6.4.1
         with:
           script: |
             // Download 'main' pylint output

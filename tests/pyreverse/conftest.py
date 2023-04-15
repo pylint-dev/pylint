@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -25,6 +25,14 @@ def colorized_dot_config() -> PyreverseConfig:
     return PyreverseConfig(
         output_format="dot",
         colorized=True,
+    )
+
+
+@pytest.fixture()
+def no_standalone_dot_config() -> PyreverseConfig:
+    return PyreverseConfig(
+        output_format="dot",
+        no_standalone=True,
     )
 
 

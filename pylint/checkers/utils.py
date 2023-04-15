@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Some functions that may be useful for various checkers."""
 
@@ -12,7 +12,6 @@ import itertools
 import numbers
 import re
 import string
-from collections import deque
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
@@ -359,7 +358,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         defnode_scope = defnode.scope()
         if isinstance(defnode_scope, (*COMP_NODE_TYPES, nodes.Lambda)):
             # Avoid the case where var_node_scope is a nested function
-            # FunctionDef is a Lambda until https://github.com/PyCQA/astroid/issues/291
+            # FunctionDef is a Lambda until https://github.com/pylint-dev/astroid/issues/291
             if isinstance(defnode_scope, nodes.FunctionDef):
                 var_node_scope = var_node.scope()
                 if var_node_scope is not defnode_scope and isinstance(
@@ -2050,37 +2049,30 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
     return False, ""
 
 
+def _qualified_name_parts(qualified_module_name: str) -> list[str]:
+    """Split the names of the given module into subparts.
+
+    For example,
+        _qualified_name_parts('pylint.checkers.ImportsChecker')
+    returns
+        ['pylint', 'pylint.checkers', 'pylint.checkers.ImportsChecker']
+    """
+    names = qualified_module_name.split(".")
+    return [".".join(names[0 : i + 1]) for i in range(len(names))]
+
+
 def is_module_ignored(
-    module: nodes.Module,
-    ignored_modules: Iterable[str],
+    qualified_module_name: str, ignored_modules: Iterable[str]
 ) -> bool:
     ignored_modules = set(ignored_modules)
-    module_name = module.name
-    module_qname = module.qname()
-
-    for ignore in ignored_modules:
-        # Try to match the module name / fully qualified name directly
-        if module_qname in ignored_modules or module_name in ignored_modules:
+    for current_module in _qualified_name_parts(qualified_module_name):
+        # Try to match the module name directly
+        if current_module in ignored_modules:
             return True
-
-        # Try to see if the ignores pattern match against the module name.
-        if fnmatch.fnmatch(module_qname, ignore):
-            return True
-
-        # Otherwise, we might have a root module name being ignored,
-        # and the qualified owner has more levels of depth.
-        parts = deque(module_name.split("."))
-        current_module = ""
-
-        while parts:
-            part = parts.popleft()
-            if not current_module:
-                current_module = part
-            else:
-                current_module += f".{part}"
-            if current_module in ignored_modules:
+        for ignore in ignored_modules:
+            # Try to see if the ignores pattern match against the module name.
+            if fnmatch.fnmatch(current_module, ignore):
                 return True
-
     return False
 
 
@@ -2118,53 +2110,6 @@ def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
         return True
     except astroid.NotFoundError:
         return False
-
-
-def is_defined(name: str, node: nodes.NodeNG) -> bool:
-    """Searches for a tree node that defines the given variable name."""
-    is_defined_so_far = False
-
-    if isinstance(node, nodes.NamedExpr):
-        is_defined_so_far = node.target.name == name
-
-    if isinstance(node, (nodes.Import, nodes.ImportFrom)):
-        is_defined_so_far = any(node_name[0] == name for node_name in node.names)
-
-    if isinstance(node, nodes.With):
-        is_defined_so_far = any(
-            isinstance(item[1], nodes.AssignName) and item[1].name == name
-            for item in node.items
-        )
-
-    if isinstance(node, (nodes.ClassDef, nodes.FunctionDef)):
-        is_defined_so_far = node.name == name
-
-    if isinstance(node, nodes.AnnAssign):
-        is_defined_so_far = (
-            node.value
-            and isinstance(node.target, nodes.AssignName)
-            and node.target.name == name
-        )
-
-    if isinstance(node, nodes.Assign):
-        is_defined_so_far = any(
-            any(
-                (
-                    (
-                        isinstance(elt, nodes.Starred)
-                        and isinstance(elt.value, nodes.AssignName)
-                        and elt.value.name == name
-                    )
-                    or (isinstance(elt, nodes.AssignName) and elt.name == name)
-                )
-                for elt in get_all_elements(target)
-            )
-            for target in node.targets
-        )
-
-    return is_defined_so_far or any(
-        is_defined(name, child) for child in node.get_children()
-    )
 
 
 def get_inverse_comparator(op: str) -> str:

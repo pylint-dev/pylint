@@ -84,7 +84,7 @@ a = "1,2,3".split('split')[-1]  # [use-maxsplit-arg]
 a = "1,2,3".rsplit('rsplit')[0]  # [use-maxsplit-arg]
 
 # Test cases for false-positive reported in #4664
-# https://github.com/PyCQA/pylint/issues/4664
+# https://github.com/pylint-dev/pylint/issues/4664
 source = 'A.B.C.D.E.F.G'
 i = 0
 for j in range(5):
@@ -92,7 +92,7 @@ for j in range(5):
     i = i + 1
 
 # Test for crash when sep is given by keyword
-# https://github.com/PyCQA/pylint/issues/5737
+# https://github.com/pylint-dev/pylint/issues/5737
 get_last = SEQ.split(sep=None)[-1]  # [use-maxsplit-arg]
 
 

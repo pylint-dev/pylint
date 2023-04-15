@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Basic checker for Python code."""
 
@@ -41,7 +41,9 @@ DEFAULT_PATTERNS = {
     "typevar": re.compile(
         r"^_{0,2}(?!T[A-Z])(?:[A-Z]+|(?:[A-Z]+[a-z]+)+T?(?<!Type))(?:_co(?:ntra)?)?$"
     ),
-    "typealias": re.compile(r"^_{0,2}(?!T[A-Z]|Type)[A-Z]+[a-z]+(?:[A-Z][a-z]+)*$"),
+    "typealias": re.compile(
+        r"^_{0,2}(?!T[A-Z]|Type)[A-Z]+[a-z0-9]+(?:[A-Z][a-z0-9]+)*$"
+    ),
 }
 
 BUILTIN_PROPERTY = "builtins.property"
@@ -474,7 +476,12 @@ class NameChecker(_BasicChecker):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
                 if not _redefines_import(node):
-                    self._check_name("variable", node.name, node)
+                    if isinstance(
+                        assign_type, nodes.AnnAssign
+                    ) and self._assigns_typealias(assign_type.annotation):
+                        self._check_name("typealias", node.name, node)
+                    else:
+                        self._check_name("variable", node.name, node)
 
         # Check names defined in class scopes
         elif isinstance(frame, nodes.ClassDef):
@@ -600,10 +607,7 @@ class NameChecker(_BasicChecker):
                 # Union is a special case because it can be used as a type alias
                 # or as a type annotation. We only want to check the former.
                 assert node is not None
-                return not (
-                    isinstance(node.parent, nodes.AnnAssign)
-                    and node.parent.value is not None
-                )
+                return not isinstance(node.parent, nodes.AnnAssign)
         elif isinstance(inferred, nodes.FunctionDef):
             if inferred.qname() == "typing.TypeAlias":
                 return True

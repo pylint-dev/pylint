@@ -171,7 +171,7 @@ def github_issue_1879():
     assert len(function_returning_list(z))  # [use-implicit-booleaness-not-len]
     assert len(function_returning_int(z))
     # This should raise a use-implicit-booleaness-not-len once astroid can infer it
-    # See https://github.com/PyCQA/pylint/pull/3821#issuecomment-743771514
+    # See https://github.com/pylint-dev/pylint/pull/3821#issuecomment-743771514
     # assert len(function_returning_generator(z))
     # assert len(function_returning_comprehension(z))
     # assert len(function_returning_function(z))
@@ -179,7 +179,7 @@ def github_issue_1879():
 
 def github_issue_4215():
     # Test undefined variables
-    # https://github.com/PyCQA/pylint/issues/4215
+    # https://github.com/pylint-dev/pylint/issues/4215
     if len(undefined_var):  # [undefined-variable]
         pass
     if len(undefined_var2[0]):  # [undefined-variable]

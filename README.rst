@@ -5,11 +5,11 @@
 
 .. This is used inside the doc to recover the start of the introduction
 
-.. image:: https://github.com/PyCQA/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
-    :target: https://github.com/PyCQA/pylint/actions
+.. image:: https://github.com/pylint-dev/pylint/actions/workflows/tests.yaml/badge.svg?branch=main
+    :target: https://github.com/pylint-dev/pylint/actions
 
-.. image:: https://codecov.io/gh/PyCQA/pylint/branch/main/graph/badge.svg?token=ZETEzayrfk
-    :target: https://codecov.io/gh/PyCQA/pylint
+.. image:: https://codecov.io/gh/pylint-dev/pylint/branch/main/graph/badge.svg?token=ZETEzayrfk
+    :target: https://codecov.io/gh/pylint-dev/pylint
 
 .. image:: https://img.shields.io/pypi/v/pylint.svg
     :alt: Pypi Package version
@@ -23,17 +23,17 @@
     :target: https://github.com/ambv/black
 
 .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
-    :target: https://github.com/PyCQA/pylint
+    :target: https://github.com/pylint-dev/pylint
 
-.. image:: https://results.pre-commit.ci/badge/github/PyCQA/pylint/main.svg
-   :target: https://results.pre-commit.ci/latest/github/PyCQA/pylint/main
+.. image:: https://results.pre-commit.ci/badge/github/pylint-dev/pylint/main.svg
+   :target: https://results.pre-commit.ci/latest/github/pylint-dev/pylint/main
    :alt: pre-commit.ci status
 
 .. image:: https://bestpractices.coreinfrastructure.org/projects/6328/badge
    :target: https://bestpractices.coreinfrastructure.org/projects/6328
    :alt: CII Best Practices
 
-.. image:: https://api.securityscorecards.dev/projects/github.com/PyCQA/pylint/badge
+.. image:: https://img.shields.io/ossf-scorecard/github.com/PyCQA/pylint?label=openssf%20scorecard&style=flat
    :target: https://api.securityscorecards.dev/projects/github.com/PyCQA/pylint
    :alt: OpenSSF Scorecard
 
@@ -174,7 +174,7 @@ Please follow the `code of conduct`_ and check `the Contributor Guides`_ if you 
 make a code contribution.
 
 .. _creating issues because you found a bug or want a feature: https://pylint.readthedocs.io/en/latest/contact.html#bug-reports-feedback
-.. _code of conduct: https://github.com/PyCQA/pylint/blob/main/CODE_OF_CONDUCT.md
+.. _code of conduct: https://github.com/pylint-dev/pylint/blob/main/CODE_OF_CONDUCT.md
 .. _the Contributor Guides: https://pylint.readthedocs.io/en/latest/development_guide/contribute.html
 
 .. This is used inside the doc to recover the end of the short text for contribution
@@ -185,7 +185,7 @@ Show your usage
 You can place this badge in your README to let others know your project uses pylint.
 
     .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
-        :target: https://github.com/PyCQA/pylint
+        :target: https://github.com/pylint-dev/pylint
 
 Learn how to add a badge to your documentation in the `the badge documentation`_.
 
@@ -194,12 +194,12 @@ Learn how to add a badge to your documentation in the `the badge documentation`_
 License
 -------
 
-pylint is, with a few exceptions listed below, `GPLv2 <https://github.com/PyCQA/pylint/blob/main/LICENSE>`_.
+pylint is, with a few exceptions listed below, `GPLv2 <https://github.com/pylint-dev/pylint/blob/main/LICENSE>`_.
 
 The icon files are licensed under the `CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0/>`_ license:
 
-- `doc/logo.png <https://raw.githubusercontent.com/PyCQA/pylint/main/doc/logo.png>`_
-- `doc/logo.svg <https://raw.githubusercontent.com/PyCQA/pylint/main/doc/logo.svg>`_
+- `doc/logo.png <https://raw.githubusercontent.com/pylint-dev/pylint/main/doc/logo.png>`_
+- `doc/logo.svg <https://raw.githubusercontent.com/pylint-dev/pylint/main/doc/logo.svg>`_
 
 Support
 -------
@@ -208,7 +208,7 @@ Please check `the contact information`_.
 
 .. _`the contact information`: https://pylint.readthedocs.io/en/latest/contact.html
 
-.. |tideliftlogo| image:: https://raw.githubusercontent.com/PyCQA/pylint/main/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
+.. |tideliftlogo| image:: https://raw.githubusercontent.com/pylint-dev/pylint/main/doc/media/Tidelift_Logos_RGB_Tidelift_Shorthand_On-White.png
    :width: 200
    :alt: Tidelift
 

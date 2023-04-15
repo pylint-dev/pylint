@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Try to find more bugs in the code using astroid inference capabilities."""
 
@@ -37,6 +37,7 @@ from pylint.checkers.utils import (
     is_mapping,
     is_module_ignored,
     is_node_in_type_annotation_context,
+    is_none,
     is_overload_stub,
     is_postponed_evaluation_enabled,
     is_super,
@@ -124,7 +125,7 @@ def _is_owner_ignored(
     matches any name from the *ignored_classes* or if its qualified
     name can be found in *ignored_classes*.
     """
-    if is_module_ignored(owner.root(), ignored_modules):
+    if is_module_ignored(owner.root().qname(), ignored_modules):
         return True
 
     # Match against ignored classes.
@@ -798,8 +799,9 @@ def _is_c_extension(module_node: InferenceResult) -> bool:
 def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
     # Return True if we are sure that arg is not a type
     if PY310_PLUS and isinstance(arg, nodes.BinOp) and arg.op == "|":
-        return _is_invalid_isinstance_type(arg.left) or _is_invalid_isinstance_type(
-            arg.right
+        return any(
+            _is_invalid_isinstance_type(elt) and not is_none(elt)
+            for elt in (arg.left, arg.right)
         )
     inferred = utils.safe_infer(arg)
     if not inferred:
@@ -812,9 +814,10 @@ def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
     if isinstance(inferred, astroid.Instance) and inferred.qname() == BUILTIN_TUPLE:
         return False
     if PY310_PLUS and isinstance(inferred, bases.UnionType):
-        return _is_invalid_isinstance_type(
-            inferred.left
-        ) or _is_invalid_isinstance_type(inferred.right)
+        return any(
+            _is_invalid_isinstance_type(elt) and not is_none(elt)
+            for elt in (inferred.left, inferred.right)
+        )
     return True
 
 
@@ -998,8 +1001,14 @@ accessed. Python regular expressions are accepted.",
 
     @only_required_for_messages("keyword-arg-before-vararg")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        # check for keyword arg before varargs
+        # check for keyword arg before varargs.
+
         if node.args.vararg and node.args.defaults:
+            # When `positional-only` parameters are present then only
+            # `positional-or-keyword` parameters are checked. I.e:
+            # >>> def name(pos_only_params, /, pos_or_keyword_params, *args): ...
+            if node.args.posonlyargs and not node.args.args:
+                return
             self.add_message("keyword-arg-before-vararg", node=node, args=(node.name))
 
     visit_asyncfunctiondef = visit_functiondef
@@ -1560,6 +1569,11 @@ accessed. Python regular expressions are accepted.",
                             node=node,
                             args=(keyword, callable_name),
                         )
+                elif (
+                    keyword in [arg.name for arg in called.args.posonlyargs]
+                    and called.args.kwarg
+                ):
+                    pass
                 else:
                     parameters[i] = (parameters[i][0], True)
             elif keyword in kwparams:
@@ -2006,7 +2020,7 @@ accessed. Python regular expressions are accepted.",
 
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?
-    # https://github.com/PyCQA/pylint/issues/6359
+    # https://github.com/pylint-dev/pylint/issues/6359
     @only_required_for_messages("unsupported-binary-operation")
     def _visit_binop(self, node: nodes.BinOp) -> None:
         """Detect TypeErrors for binary arithmetic operands."""
@@ -2014,7 +2028,7 @@ accessed. Python regular expressions are accepted.",
 
     # TODO: This check was disabled (by adding the leading underscore)
     # due to false positives several years ago - can we re-enable it?
-    # https://github.com/PyCQA/pylint/issues/6359
+    # https://github.com/pylint-dev/pylint/issues/6359
     @only_required_for_messages("unsupported-binary-operation")
     def _visit_augassign(self, node: nodes.AugAssign) -> None:
         """Detect TypeErrors for augmented binary arithmetic operands."""

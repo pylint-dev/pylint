@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Utilities for creating diagrams."""
 
@@ -41,7 +41,7 @@ class DiagramWriter:
     def write(self, diadefs: Iterable[ClassDiagram | PackageDiagram]) -> None:
         """Write files for <project> according to <diadefs>."""
         for diagram in diadefs:
-            basename = diagram.title.strip().replace(" ", "_")
+            basename = diagram.title.strip().replace("/", "_").replace(" ", "_")
             file_name = f"{basename}.{self.config.output_format}"
             if os.path.exists(self.config.output_directory):
                 file_name = os.path.join(self.config.output_directory, file_name)
@@ -57,6 +57,12 @@ class DiagramWriter:
         # sorted to get predictable (hence testable) results
         for module in sorted(diagram.modules(), key=lambda x: x.title):
             module.fig_id = module.node.qname()
+            if self.config.no_standalone and not any(
+                module in (rel.from_object, rel.to_object)
+                for rel in diagram.get_relationships("depends")
+            ):
+                continue
+
             self.printer.emit_node(
                 module.fig_id,
                 type_=NodeType.PACKAGE,
@@ -75,6 +81,13 @@ class DiagramWriter:
         # sorted to get predictable (hence testable) results
         for obj in sorted(diagram.objects, key=lambda x: x.title):  # type: ignore[no-any-return]
             obj.fig_id = obj.node.qname()
+            if self.config.no_standalone and not any(
+                obj in (rel.from_object, rel.to_object)
+                for rel_type in ("specialization", "association", "aggregation")
+                for rel in diagram.get_relationships(rel_type)
+            ):
+                continue
+
             self.printer.emit_node(
                 obj.fig_id,
                 type_=NodeType.CLASS,

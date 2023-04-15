@@ -116,12 +116,12 @@ contributors:
 - Julien Jehannet <julien.jehannet@logilab.fr>
 - Boris Feld <lothiraldan@gmail.com>
 - Anthony Sottile <asottile@umich.edu>
+- Zen Lee <53538590+zenlyj@users.noreply.github.com>
 - Pedro Algarvio <pedro@algarvio.me> (s0undt3ch)
 - Julien Palard <julien@palard.fr>
 - David Liu <david@cs.toronto.edu> (david-yz-liu)
 - Dan Goldsmith <djgoldsmith@googlemail.com>: support for msg-template in HTML reporter.
 - Buck Evan <buck.2019@gmail.com>
-- Zen Lee <53538590+zenlyj@users.noreply.github.com>
 - Robert Hofer <hofrob@protonmail.com>
 - Mariatta Wijaya <Mariatta@users.noreply.github.com>
   * Added new check `logging-fstring-interpolation`
@@ -253,6 +253,7 @@ contributors:
 - Sergei Lebedev <185856+superbobry@users.noreply.github.com>
 - Scott Worley <scottworley@scottworley.com>
 - Saugat Pachhai <suagatchhetri@outlook.com>
+- Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
 - Rémi Cardona <remi.cardona@polyconseil.fr>
 - Rogdham <contact@rogdham.net>
 - Raphael Gaschignard <raphael@makeleaps.com>
@@ -339,6 +340,7 @@ contributors:
 - danields <danields761@gmail.com>
 - cosven <cosven@users.noreply.github.com>
 - cordis-dev <darius@adroiti.com>
+- cherryblossom <31467609+cherryblossom000@users.noreply.github.com>
 - bluesheeptoken <louis.fruleux1@gmail.com>
 - anatoly techtonik <techtonik@gmail.com>
 - agutole <toldo_carp@hotmail.com>
@@ -373,6 +375,7 @@ contributors:
 - Svetoslav Neykov <svet@hyperscience.com>
 - Stéphane Wirtel <stephane@wirtel.be>: nonlocal-without-binding
 - Stephen Longofono <8992396+SLongofono@users.noreply.github.com>
+- Stephane Odul <1504511+sodul@users.noreply.github.com>
 - Stanislav Levin <slev@altlinux.org>
 - Sorin Sbarnea <ssbarnea@redhat.com>
 - Slavfox <slavfoxman@gmail.com>
@@ -384,7 +387,6 @@ contributors:
 - Sardorbek Imomaliev <sardorbek.imomaliev@gmail.com>
 - Santiago Castro <bryant@montevideo.com.uy>
 - Samuel Freilich <sfreilich@google.com> (sfreilich)
-- Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
 - Sam Vermeiren <88253337+PaaEl@users.noreply.github.com>
 - Ryan McGuire <ryan@enigmacurry.com>
 - Ry4an Brase <ry4an-hg@ry4an.org>
@@ -543,6 +545,7 @@ contributors:
 - Benedikt Morbach <benedikt.morbach@googlemail.com>
 - Ben Greiner <code@bnavigator.de>
 - Banjamin Freeman <befreeman@users.noreply.github.com>
+- Avram Lubkin <avylove@rockhopper.net>
 - Athos Ribeiro <athoscr@fedoraproject.org>: Fixed dict-keys-not-iterating false positive for inverse containment checks
 - Arun Persaud <arun@nubati.net>
 - Arthur Lutz <arthur.lutz@logilab.fr>

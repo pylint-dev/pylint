@@ -23,7 +23,7 @@ maintainer that depends on pylint, please verify that you're ready for pylint 3.
 by activating deprecation warnings.
 
 We continued the integration of ``pylint-error`` and are now at 33%!. We still welcome any community effort
-to help review, integrate, and add good/bad examples <https://github.com/PyCQA/pylint/issues/5953>`_. This should be doable
+to help review, integrate, and add good/bad examples <https://github.com/pylint-dev/pylint/issues/5953>`_. This should be doable
 without any ``pylint`` or ``astroid`` knowledge, so this is the perfect entrypoint if you want
 to contribute to ``pylint`` or open source without any experience with our code!
 

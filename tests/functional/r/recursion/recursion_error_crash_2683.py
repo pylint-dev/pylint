@@ -1,4 +1,4 @@
-"""Test for https://github.com/PyCQA/pylint/issues/2683"""
+"""Test for https://github.com/pylint-dev/pylint/issues/2683"""
 # pylint: disable=missing-docstring,too-few-public-methods
 
 class Cls:
