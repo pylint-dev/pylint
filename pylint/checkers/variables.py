@@ -824,15 +824,12 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _node_guarded_by_same_test(node: nodes.NodeNG, other_if: nodes.If) -> bool:
-        """Identify if `node` is guarded by an equivalent test as `other_if`,
-        and neither of the tests is a Name.
+        """Identify if `node` is guarded by an equivalent test as `other_if`.
 
         Two tests are equivalent if their string representations are identical
         or if their inferred values consist only of constants and those constants
-        are identical.
+        are identical, and the if test guarding `node` is not a Name.
         """
-        if isinstance(other_if.test, nodes.Name):
-            return False
         other_if_test_as_string = other_if.test.as_string()
         other_if_test_all_inferred = utils.infer_all(other_if.test)
         for ancestor in node.node_ancestors():
