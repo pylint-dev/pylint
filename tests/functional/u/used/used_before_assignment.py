@@ -1,6 +1,6 @@
 """Miscellaneous used-before-assignment cases"""
 # pylint: disable=consider-using-f-string, missing-function-docstring
-
+import datetime
 
 MSG = "hello %s" % MSG  # [used-before-assignment]
 
@@ -116,3 +116,50 @@ def turn_on2(**kwargs):
         var, *args = (1, "restore_dimmer_state")
 
     print(var, *args)
+
+
+# Variables guarded by the same test when used.
+
+# Always false
+if __name__ == "__main__":
+    PERCENT = 20
+    SALE = True
+
+if __name__ == "__main__":
+    print(PERCENT)
+
+# Different test
+if __name__ is None:
+    print(SALE)  # [used-before-assignment]
+
+
+# Ambiguous, but same test
+if not datetime.date.today():
+    WAS_TODAY = True
+
+if not datetime.date.today():
+    print(WAS_TODAY)
+
+
+# Different tests but same inferred values
+# Need falsy values here
+def give_me_zero():
+    return 0
+
+def give_me_nothing():
+    return 0
+
+if give_me_zero():
+    WE_HAVE_ZERO = True
+    ALL_DONE = True
+
+if give_me_nothing():
+    print(WE_HAVE_ZERO)
+
+
+# Different tests, different values
+def give_me_none():
+    return None
+
+if give_me_none():
+    print(ALL_DONE)  # [used-before-assignment]
