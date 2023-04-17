@@ -18,3 +18,8 @@ tuple(0 for y in list(range(10)))
 sum(x*x for x in range(10))
 min(x*x for x in range(10))
 max(x*x for x in range(10))
+
+# Keyword arguments
+# https://github.com/pylint-dev/pylint/issues/8563
+min([x*x for x in range(10)], default=42)  # [consider-using-generator]
+min((x*x for x in range(10)), default=42)
