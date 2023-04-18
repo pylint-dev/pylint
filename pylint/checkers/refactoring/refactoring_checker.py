@@ -1070,11 +1070,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(node.func, nodes.Name)
             and node.func.name in checked_call
         ):
-            # functions in checked_calls take exactly one argument
+            # functions in checked_calls take exactly one positional argument
             # check whether the argument is list comprehension
             if len(node.args) == 1 and isinstance(node.args[0], nodes.ListComp):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[1:-1]
+                if node.keywords:
+                    inside_comp = f"({inside_comp})"
+                    inside_comp += ", "
+                    inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
                 call_name = node.func.name
                 if call_name in {"any", "all"}:
                     self.add_message(

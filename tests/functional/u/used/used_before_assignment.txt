@@ -6,3 +6,5 @@ used-before-assignment:34:3:34:7::Using variable 'VAR2' before assignment:CONTRO
 used-before-assignment:52:3:52:7::Using variable 'VAR4' before assignment:CONTROL_FLOW
 used-before-assignment:67:3:67:7::Using variable 'VAR6' before assignment:CONTROL_FLOW
 used-before-assignment:102:6:102:11::Using variable 'VAR10' before assignment:CONTROL_FLOW
+used-before-assignment:133:10:133:14::Using variable 'SALE' before assignment:CONTROL_FLOW
+used-before-assignment:165:10:165:18::Using variable 'ALL_DONE' before assignment:CONTROL_FLOW

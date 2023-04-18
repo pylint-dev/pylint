@@ -48,7 +48,14 @@ class TestStdlibChecker(CheckerTestCase):
             inner_node: nodes.Name,
             context: InferenceContext | None = None,  # pylint: disable=unused-argument
         ) -> Iterator[nodes.AssignAttr]:
-            new_node = nodes.AssignAttr(attrname="alpha", parent=inner_node)
+            new_node = nodes.AssignAttr(
+                attrname="alpha",
+                parent=inner_node,
+                lineno=0,
+                col_offset=0,
+                end_lineno=0,
+                end_col_offset=0,
+            )
             yield new_node
 
         manager = astroid.MANAGER
