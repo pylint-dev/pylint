@@ -5,9 +5,11 @@ TEST_TUPLE = ('a', 'b'  # [implicit-str-concat]
 
 # See https://github.com/pylint-dev/pylint/issues/8552.
 PARENTHESIZED_IS_OK = [
-    'a',
-    ('b'
-     'c'),
+    "a",
+    (
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
+        " sed do eiusmod tempor incididunt ut labore et dolore "
+    ),
 ]
 
 # Single argument without trailing comma is OK:
