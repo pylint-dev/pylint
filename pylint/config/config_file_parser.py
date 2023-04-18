@@ -79,7 +79,8 @@ class _ConfigurationFileParser:
                 for config, value in values.items():
                     value = _parse_rich_type_value(value)
                     config_content[config] = value
-                    options += [f"--{config}", value]
+                    if value.lower() != "false":
+                        options += [f"--{config}", value]
             else:
                 values = _parse_rich_type_value(values)
                 config_content[opt] = values
