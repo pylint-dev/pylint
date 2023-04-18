@@ -1292,7 +1292,9 @@ class VariablesChecker(BaseChecker):
             tuple[nodes.ExceptHandler, nodes.AssignName]
         ] = []
         """This is a queue, last in first out."""
-        self._evaluated_type_checking_scopes: dict[str, list[nodes.LocalsDictNodeNG]] = {}
+        self._evaluated_type_checking_scopes: dict[
+            str, list[nodes.LocalsDictNodeNG]
+        ] = {}
         self._postponed_evaluation_enabled = False
 
     @utils.only_required_for_messages(
