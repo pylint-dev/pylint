@@ -61,6 +61,11 @@ _PREFIXES = {
     "Rb",
     "RB",
 }
+_PAREN_IGNORE_TOKENS = (
+    tokenize.NEWLINE,
+    tokenize.NL,
+    tokenize.COMMENT,
+)
 SINGLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?'''")
 DOUBLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?\"\"\"")
 QUOTE_DELIMITER_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?(\"|')", re.DOTALL)
@@ -716,6 +721,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             tuple[int, int], tuple[str, tokenize.TokenInfo | None]
         ] = {}
         """Token position -> (token value, next token)."""
+        self._parenthesized_string_tokens = {}
 
     def process_module(self, node: nodes.Module) -> None:
         self._unicode_literals = "unicode_literals" in node.future_imports
@@ -744,9 +750,61 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                     # to match with astroid `.col_offset`
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
+                is_parenthesized = self._is_initial_string_token(
+                    i, tokens
+                ) and self._is_parenthesised(i, tokens)
+                self._parenthesized_string_tokens[start] = is_parenthesized
 
         if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
+
+    def _is_initial_string_token(
+        self, index: int, tokens: Sequence[tokenize.TokenInfo]
+    ) -> bool:
+        token = tokens[index]
+        # Must be a string literal token
+        if token[0] != tokenize.STRING:
+            return False
+        # Must NOT be preceded by a string literal
+        prev_token = self._find_prev_token(index, tokens)
+        if prev_token and prev_token[0] == tokenize.STRING:
+            return False
+        # Must be followed by a string literal token.
+        next_token = self._find_next_token(index, tokens)
+        return next_token and next_token[0] == tokenize.STRING
+
+    def _is_parenthesised(self, index: int, tokens: list[tokenize.TokenInfo]) -> bool:
+        prev_token = self._find_prev_token(
+            index, tokens, _PAREN_IGNORE_TOKENS + (tokenize.STRING,)
+        )
+        if not prev_token or prev_token[0] != tokenize.OP or prev_token[1] != "(":
+            return False
+        next_token = self._find_next_token(
+            index, tokens, _PAREN_IGNORE_TOKENS + (tokenize.STRING,)
+        )
+        return next_token and next_token[0] == tokenize.OP and next_token[1] == ")"
+
+    def _find_prev_token(
+        self,
+        index: int,
+        tokens: Sequence[tokenize.TokenInfo],
+        ignore: tuple[tokenize.Token] = _PAREN_IGNORE_TOKENS,
+    ) -> tokenize.Token | None:
+        i = index - 1
+        while i >= 0 and tokens[i].type in ignore:
+            i -= 1
+        return tokens[i] if i >= 0 else None
+
+    def _find_next_token(
+        self,
+        index: int,
+        tokens: Sequence[tokenize.TokenInfo],
+        ignore: tuple[tokenize.Token] = _PAREN_IGNORE_TOKENS,
+    ):
+        i = index + 1
+        while i < len(tokens) and tokens[i].type in ignore:
+            i += 1
+        return tokens[i] if i < len(tokens) else None
 
     @only_required_for_messages("implicit-str-concat")
     def visit_call(self, node: nodes.Call) -> None:
@@ -821,10 +879,18 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             matching_token, next_token = self.string_tokens[token_index]
             # We detect string concatenation: the AST Const is the
             # combination of 2 string tokens
-            if matching_token != elt.value and next_token is not None:
-                if next_token.type == tokenize.STRING and (
-                    next_token.start[0] == elt.lineno
-                    or self.linter.config.check_str_concat_over_line_jumps
+            if (
+                matching_token != elt.value
+                and next_token is not None
+                and next_token.type == tokenize.STRING
+            ):
+                if next_token.start[0] == elt.lineno or (
+                    self.linter.config.check_str_concat_over_line_jumps
+                    # Allow implicitly concatenated strings in in parens.
+                    # See https://github.com/pylint-dev/pylint/issues/8552.
+                    and not self._parenthesized_string_tokens.get(
+                        (elt.lineno, elt.col_offset)
+                    )
                 ):
                     self.add_message(
                         "implicit-str-concat",
