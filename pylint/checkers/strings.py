@@ -61,7 +61,7 @@ _PREFIXES = {
     "Rb",
     "RB",
 }
-_PAREN_IGNORE_TOKENS = (
+_PAREN_IGNORE_TOKEN_TYPES = (
     tokenize.NEWLINE,
     tokenize.NL,
     tokenize.COMMENT,
@@ -721,7 +721,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             tuple[int, int], tuple[str, tokenize.TokenInfo | None]
         ] = {}
         """Token position -> (token value, next token)."""
-        self._parenthesized_string_tokens = {}
+        self._parenthesized_string_tokens: dict[tuple[int, int], bool] = {}
 
     def process_module(self, node: nodes.Module) -> None:
         self._unicode_literals = "unicode_literals" in node.future_imports
@@ -771,25 +771,28 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             return False
         # Must be followed by a string literal token.
         next_token = self._find_next_token(index, tokens)
-        return next_token and next_token[0] == tokenize.STRING
+        return bool(next_token and next_token[0] == tokenize.STRING)
 
     def _is_parenthesised(self, index: int, tokens: list[tokenize.TokenInfo]) -> bool:
         prev_token = self._find_prev_token(
-            index, tokens, _PAREN_IGNORE_TOKENS + (tokenize.STRING,)
+            index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
         )
         if not prev_token or prev_token[0] != tokenize.OP or prev_token[1] != "(":
             return False
         next_token = self._find_next_token(
-            index, tokens, _PAREN_IGNORE_TOKENS + (tokenize.STRING,)
+            index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
         )
-        return next_token and next_token[0] == tokenize.OP and next_token[1] == ")"
+        return bool(
+            next_token and next_token[0] == tokenize.OP and next_token[1] == ")"
+        )
 
     def _find_prev_token(
         self,
         index: int,
         tokens: Sequence[tokenize.TokenInfo],
-        ignore: tuple[tokenize.Token] = _PAREN_IGNORE_TOKENS,
-    ) -> tokenize.Token | None:
+        *,
+        ignore: tuple[int, ...] = _PAREN_IGNORE_TOKEN_TYPES,
+    ) -> tokenize.TokenInfo | None:
         i = index - 1
         while i >= 0 and tokens[i].type in ignore:
             i -= 1
@@ -799,8 +802,9 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         self,
         index: int,
         tokens: Sequence[tokenize.TokenInfo],
-        ignore: tuple[tokenize.Token] = _PAREN_IGNORE_TOKENS,
-    ):
+        *,
+        ignore: tuple[int, ...] = _PAREN_IGNORE_TOKEN_TYPES,
+    ) -> tokenize.TokenInfo | None:
         i = index + 1
         while i < len(tokens) and tokens[i].type in ignore:
             i += 1

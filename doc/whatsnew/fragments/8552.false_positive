@@ -1,0 +1,3 @@
+Allow parenthesized implicitly concatenated strings when `check-str-concat-over-line-jumps` is enabled.
+
+Closes #8552.
