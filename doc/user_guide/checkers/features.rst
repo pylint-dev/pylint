@@ -916,9 +916,9 @@ Refactoring checker Messages
   comparison inside a condition to determine if a sequence is empty. Instead of
   coercing the length to a boolean, either rely on the fact that empty
   sequences are false or compare the length against a scalar.
-:consider-using-f-string (C0209): *Formatting a regular string which could be a f-string*
+:consider-using-f-string (C0209): *Formatting a regular string which could be an f-string*
   Used when we detect a string that is being formatted with format() or % which
-  could potentially be a f-string. The use of f-strings is preferred. Requires
+  could potentially be an f-string. The use of f-strings is preferred. Requires
   Python 3.6 and ``py-version >= 3.6``.
 :use-maxsplit-arg (C0207): *Use %s instead*
   Emitted when accessing only the first or last element of str.split(). The
@@ -1308,7 +1308,7 @@ Unsupported Version checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :using-f-string-in-unsupported-version (W2601): *F-strings are not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.6 and pylint
-  encounters a f-string.
+  encounters an f-string.
 :using-final-decorator-in-unsupported-version (W2602): *typing.final is not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.8 and pylint
   encounters a ``typing.final`` decorator.
