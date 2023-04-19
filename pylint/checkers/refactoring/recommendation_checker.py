@@ -54,10 +54,10 @@ class RecommendationChecker(checkers.BaseChecker):
             "are more efficient than ``sets``.",
         ),
         "C0209": (
-            "Formatting a regular string which could be a f-string",
+            "Formatting a regular string which could be an f-string",
             "consider-using-f-string",
             "Used when we detect a string that is being formatted with format() or % "
-            "which could potentially be a f-string. The use of f-strings is preferred. "
+            "which could potentially be an f-string. The use of f-strings is preferred. "
             "Requires Python 3.6 and ``py-version >= 3.6``.",
         ),
     }
