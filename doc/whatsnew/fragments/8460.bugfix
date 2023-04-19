@@ -1,7 +1,3 @@
-<one or more line of text ending with a '.'>
-<one blank line>
-<issue reference> #<issuenumber>
-
 Fixed issue of specifying options as false on .toml files.
 
 Refs #8460
