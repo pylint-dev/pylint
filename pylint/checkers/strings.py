@@ -761,29 +761,25 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     def _is_initial_string_token(
         self, index: int, tokens: Sequence[tokenize.TokenInfo]
     ) -> bool:
-        token = tokens[index]
-        # Must be a string literal token
-        if token[0] != tokenize.STRING:
-            return False
         # Must NOT be preceded by a string literal
         prev_token = self._find_prev_token(index, tokens)
-        if prev_token and prev_token[0] == tokenize.STRING:
+        if prev_token and prev_token.type == tokenize.STRING:
             return False
         # Must be followed by a string literal token.
         next_token = self._find_next_token(index, tokens)
-        return bool(next_token and next_token[0] == tokenize.STRING)
+        return bool(next_token and next_token.type == tokenize.STRING)
 
     def _is_parenthesised(self, index: int, tokens: list[tokenize.TokenInfo]) -> bool:
         prev_token = self._find_prev_token(
             index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
         )
-        if not prev_token or prev_token[0] != tokenize.OP or prev_token[1] != "(":
+        if not prev_token or prev_token.type != tokenize.OP or prev_token[1] != "(":
             return False
         next_token = self._find_next_token(
             index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
         )
         return bool(
-            next_token and next_token[0] == tokenize.OP and next_token[1] == ")"
+            next_token and next_token.type == tokenize.OP and next_token[1] == ")"
         )
 
     def _find_prev_token(

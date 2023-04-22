@@ -20,6 +20,15 @@ print(
     "exercitation ullamco laboris nisi ut aliquip ex ea "
 )
 
+# Implicit concatenated strings on the same line always raises:
+print(
+    "Lorem ipsum dolor sit amet, ""consectetur adipiscing elit,"  # [implicit-str-concat]
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
+    " sed do eiusmod tempor incididunt ut labore et dolore "
+    "magna aliqua. Ut enim ad minim veniam, quis nostrud "
+    "exercitation ullamco laboris nisi ut aliquip ex ea "
+)
+
 # Explicitly wrapping in parens with a trailing comma is OK:
 print(
     (
