@@ -169,7 +169,7 @@ def get_annotation_label(ann: nodes.Name | nodes.NodeNG) -> str:
     if isinstance(ann, nodes.NodeNG):
         label = ann.as_string()
 
-        return escape_vertical_bar(label)  # type: ignore[no-any-return]
+        return escape_vertical_bar(label)
     return ""
 
 
