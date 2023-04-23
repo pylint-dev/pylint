@@ -11,7 +11,7 @@ from __future__ import annotations
 import os
 import re
 import sys
-from typing import Any
+from typing import Any, TypedDict
 
 import sphinx
 from sphinx.application import Sphinx
@@ -21,11 +21,6 @@ from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import PyLinter
 from pylint.typing import MessageDefinitionTuple, OptionDict, ReportsCallable
 from pylint.utils import get_rst_title
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
 
 
 class _CheckerInfo(TypedDict):

@@ -11,10 +11,10 @@ import copy
 import itertools
 import os
 import re
-import sys
 from collections import defaultdict
 from collections.abc import Generator, Iterable, Iterator
 from enum import Enum
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
@@ -33,11 +33,6 @@ from pylint.checkers.utils import (
 from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
-
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

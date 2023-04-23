@@ -14,9 +14,9 @@ import shlex
 import sys
 import types
 from collections.abc import Callable, Iterable, Iterator, Sequence
-from functools import singledispatch
+from functools import cached_property, singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union
 
 import astroid
 import astroid.exceptions
@@ -52,13 +52,6 @@ from pylint.checkers.utils import (
 from pylint.constants import PY310_PLUS
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
-
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-    from typing import Literal
-else:
-    from astroid.decorators import cachedproperty as cached_property
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

@@ -42,8 +42,7 @@ messages nor reports. XXX not true, emit a 07 report !
 
 from __future__ import annotations
 
-import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from pylint.checkers.base_checker import (
     BaseChecker,
@@ -52,11 +51,6 @@ from pylint.checkers.base_checker import (
 )
 from pylint.checkers.deprecated import DeprecatedMixin
 from pylint.utils import LinterStats, diff_string, register_plugins
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

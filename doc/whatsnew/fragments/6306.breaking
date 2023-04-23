@@ -1,0 +1,3 @@
+Remove support for Python 3.7.
+
+Refs #6306

@@ -45,7 +45,7 @@ What is Pylint?
 ---------------
 
 Pylint is a `static code analyser`_ for Python 2 or 3. The latest version supports Python
-3.7.2 and above.
+3.8.0 and above.
 
 .. _`static code analyser`: https://en.wikipedia.org/wiki/Static_code_analysis
 

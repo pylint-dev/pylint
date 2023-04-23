@@ -1,11 +1,6 @@
 # pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string, unnecessary-direct-lambda-call, broad-exception-raised
 
-import sys
-
-if sys.version_info >= (3, 8):
-    from typing import NoReturn
-else:
-    from typing_extensions import NoReturn
+from typing import NoReturn
 
 
 def do_stuff(some_random_list):

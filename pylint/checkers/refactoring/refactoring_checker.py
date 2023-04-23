@@ -7,10 +7,9 @@ from __future__ import annotations
 import collections
 import copy
 import itertools
-import sys
 import tokenize
 from collections.abc import Iterator
-from functools import reduce
+from functools import cached_property, reduce
 from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
 
@@ -27,10 +26,6 @@ from pylint.interfaces import HIGH, INFERENCE, Confidence
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
 
 NodesWithNestedBlocks = Union[
     nodes.TryExcept, nodes.TryFinally, nodes.While, nodes.For, nodes.If

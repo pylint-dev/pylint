@@ -32,7 +32,7 @@ classifiers = [
     "Topic :: Software Development :: Testing",
     "Typing :: Typed"
 ]
-requires-python = ">=3.7.2"
+requires-python = ">=3.8.0"
 dependencies    = [
     "dill>=0.2;python_version<'3.11'",
     "dill>=0.3.6;python_version>='3.11'",

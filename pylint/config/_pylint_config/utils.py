@@ -9,12 +9,7 @@ from __future__ import annotations
 import sys
 from collections.abc import Callable
 from pathlib import Path
-from typing import TypeVar
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
+from typing import Literal, TypeVar
 
 if sys.version_info >= (3, 10):
     from typing import ParamSpec
