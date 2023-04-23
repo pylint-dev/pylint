@@ -1130,6 +1130,7 @@ def node_ignores_exception(
     return any(get_contextlib_suppressors(node, exception))
 
 
+@lru_cache(maxsize=1024)
 def class_is_abstract(node: nodes.ClassDef) -> bool:
     """Return true if the given class node should be considered as an abstract
     class.
@@ -2191,6 +2192,7 @@ def overridden_method(
 def clear_lru_caches() -> None:
     """Clear caches holding references to AST nodes."""
     caches_holding_node_references: list[_lru_cache_wrapper[Any]] = [
+        class_is_abstract,
         in_for_else_branch,
         infer_all,
         is_overload_stub,
