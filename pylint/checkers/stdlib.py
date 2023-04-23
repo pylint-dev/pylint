@@ -465,6 +465,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 ]
             },
         ),
+        "W1519": (
+            "Using next without explicitly specifying a default value or catching the StopIteration",
+            "unguarded-next-without-default",
+            "Without a default value calls to next() can raise a StopIteration "
+            "exception. This exception should be caught or a default value should "
+            "be provided.",
+        ),
     }
 
     def __init__(self, linter: PyLinter) -> None:
@@ -535,6 +542,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "deprecated-class",
         "unspecified-encoding",
         "forgotten-debug-statement",
+        "unguarded-next-without-default",
     )
     def visit_call(self, node: nodes.Call) -> None:
         """Visit a Call node."""
@@ -559,6 +567,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     self._check_for_preexec_fn_in_popen(node)
             elif isinstance(inferred, nodes.FunctionDef):
                 name = inferred.qname()
+                self._check_next_call(node, name)
                 if name == COPY_COPY:
                     self._check_shallow_copy_environ(node)
                 elif name in ENV_GETTERS:
@@ -796,6 +805,24 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 call_arg=utils.safe_infer(env_value_arg),
                 allow_none=True,
             )
+
+    def _check_next_call(self, node: nodes.Call, name: str) -> None:
+        if name != "builtins.next":
+            return
+        # We don't care about this call if there are zero arguments
+        if len(node.args) != 1:
+            return
+        if utils.get_exception_handlers(node, StopIteration):
+            return
+        # Raising is fine within __next__
+        func_def = utils.get_node_first_ancestor_of_type(node, nodes.FunctionDef)
+        if func_def and func_def.name == "__next__":
+            return
+        self.add_message(
+            "unguarded-next-without-default",
+            node=node,
+            confidence=interfaces.INFERENCE,
+        )
 
     def _check_invalid_envvar_value(
         self,
