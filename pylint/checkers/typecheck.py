@@ -733,7 +733,9 @@ def _no_context_variadic(
         else:
             inferred_statement = inferred.statement(future=True)
 
-        if not length and isinstance(inferred_statement, nodes.Lambda):
+        if not length and isinstance(
+            inferred_statement, (nodes.Lambda, nodes.FunctionDef)
+        ):
             is_in_starred_context = _has_parent_of_type(node, variadic_type, statement)
             used_as_starred_argument = any(
                 variadic.value == name or variadic.value.parent_of(name)

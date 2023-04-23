@@ -2500,7 +2500,7 @@ class VariablesChecker(BaseChecker):
         # FunctionDef subclasses Lambda due to a curious ontology. Check both.
         # See https://github.com/pylint-dev/astroid/issues/291
         # TODO: Revisit when astroid 3.0 includes the change
-        if isinstance(scope, nodes.Lambda) and any(
+        if isinstance(scope, (nodes.Lambda, nodes.FunctionDef)) and any(
             asmt.scope().parent_of(scope) for asmt in astmts
         ):
             return
