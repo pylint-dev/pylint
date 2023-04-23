@@ -7,7 +7,7 @@
 
 from typing import Optional
 
-from attr import attrib, attrs
+from attr import attrib, attrs  # pylint: disable=import-error
 
 
 @attrs()
