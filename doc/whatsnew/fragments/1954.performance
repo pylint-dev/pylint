@@ -1,0 +1,3 @@
+Optimize `is_trailing_comma()`.
+
+Refs #1954
