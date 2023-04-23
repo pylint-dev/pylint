@@ -77,7 +77,8 @@ class RunCommand(PrimerCommand):
         # Duplicate code takes too long and is relatively safe
         # TODO: Find a way to allow cyclic-import and compare output correctly
         disables = ["--disable=duplicate-code,cyclic-import"]
-        arguments = data.pylint_args + enables + disables
+        additional = ["--clear-cache-post-run=y"]
+        arguments = data.pylint_args + enables + disables + additional
         output = StringIO()
         reporter = JSONReporter(output)
         print(f"Running 'pylint {', '.join(arguments)}'")
