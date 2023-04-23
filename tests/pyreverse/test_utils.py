@@ -92,6 +92,7 @@ def test_get_annotation_assignattr(init_method: str, label: str) -> None:
         ("def f() -> None: pass", "None"),
         ("def f() -> int: pass", "int"),
         ("def f(a) -> Optional[int]: return 1 if a else None", "Optional[int]"),
+        ("def f(a) -> int | None: return 1 if a else None", r"int \| None"),
         ("def f() -> 'MyType': pass", "'MyType'"),
     ],
 )
