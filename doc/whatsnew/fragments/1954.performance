@@ -1,3 +1,4 @@
-Cache `class_is_abstract()`.
+- Optimize `is_trailing_comma()`.
+- Cache `class_is_abstract()`.
 
 Refs #1954

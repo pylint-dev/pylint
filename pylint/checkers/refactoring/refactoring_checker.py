@@ -98,7 +98,7 @@ def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
     if token.exact_type != tokenize.COMMA:
         return False
     # Must have remaining tokens on the same line such as NEWLINE
-    left_tokens = list(itertools.islice(tokens, index + 1, None))
+    left_tokens = itertools.islice(tokens, index + 1, None)
 
     more_tokens_on_line = False
     for remaining_token in left_tokens:
@@ -644,9 +644,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # token[2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
-            elif _is_trailing_comma(tokens, index):
-                if self.linter.is_message_enabled("trailing-comma-tuple"):
-                    self.add_message("trailing-comma-tuple", line=token.start[0])
+            elif self.linter.is_message_enabled(
+                "trailing-comma-tuple"
+            ) and _is_trailing_comma(tokens, index):
+                self.add_message("trailing-comma-tuple", line=token.start[0])
 
     @utils.only_required_for_messages("consider-using-with")
     def leave_module(self, _: nodes.Module) -> None:
