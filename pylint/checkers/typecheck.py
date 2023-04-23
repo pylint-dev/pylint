@@ -1692,9 +1692,9 @@ accessed. Python regular expressions are accepted.",
         # Determine what method on the parent this index will use
         # The parent of this node will be a Subscript, and the parent of that
         # node determines if the Subscript is a get, set, or delete operation.
-        if subscript.ctx is astroid.Store:
+        if subscript.ctx is astroid.Context.Store:
             methodname = "__setitem__"
-        elif subscript.ctx is astroid.Del:
+        elif subscript.ctx is astroid.Context.Del:
             methodname = "__delitem__"
         else:
             methodname = "__getitem__"
@@ -2116,13 +2116,13 @@ accessed. Python regular expressions are accepted.",
                     confidence=INFERENCE,
                 )
 
-        if node.ctx == astroid.Load:
+        if node.ctx == astroid.Context.Load:
             supported_protocol = supports_getitem
             msg = "unsubscriptable-object"
-        elif node.ctx == astroid.Store:
+        elif node.ctx == astroid.Context.Store:
             supported_protocol = supports_setitem
             msg = "unsupported-assignment-operation"
-        elif node.ctx == astroid.Del:
+        elif node.ctx == astroid.Context.Del:
             supported_protocol = supports_delitem
             msg = "unsupported-delete-operation"
 
