@@ -28,7 +28,7 @@ class PrepareCommand(PrimerCommand):
         elif self.config.make_commit_string:
             for package, data in self.packages.items():
                 remote_sha1_commit = (
-                    Git().ls_remote(data.url, data.branch).split("\t")[0]
+                    Git().ls_remote(data.url, data.branch).split("\t")[0][:8]
                 )
                 print(f"'{package}' remote is at commit '{remote_sha1_commit}'.")
                 commit_string += remote_sha1_commit + "_"
