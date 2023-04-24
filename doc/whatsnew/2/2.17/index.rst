@@ -31,7 +31,7 @@ so we find problems before the actual release.
 
 What's new in Pylint 2.17.3?
 ----------------------------
-Release date: 2023-04-23
+Release date: 2023-04-24
 
 
 False Positives Fixed
