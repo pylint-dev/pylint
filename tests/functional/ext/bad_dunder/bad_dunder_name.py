@@ -49,6 +49,9 @@ class Apples:
     def __doc__(self):
         return "Docstring"
 
+    def __index__(self):
+        return 1
+
 
 def __increase_me__(val):
     return val + 1
