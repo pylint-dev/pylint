@@ -20,6 +20,11 @@
     "directories": ["src/flask"],
     "url": "https://github.com/pallets/flask"
   },
+  "keras": {
+    "branch": "master",
+    "directories": ["keras"],
+    "url": "https://github.com/keras-team/keras.git"
+  },
   "music21": {
     "branch": "master",
     "directories": ["music21"],
