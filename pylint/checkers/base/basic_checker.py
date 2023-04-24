@@ -776,21 +776,18 @@ class BasicChecker(_BasicChecker):
         confidence: Confidence = HIGH,
     ) -> None:
         """Check unreachable code."""
-        if (unreachable_statement := node.next_sibling()) is not None:
-            if (
-                isinstance(node, nodes.Return)
-                and isinstance(unreachable_statement, nodes.Expr)
-                and isinstance(unreachable_statement.value, nodes.Yield)
-            ):
-                # Don't add 'unreachable' for empty generators.
-                # Only add warning if 'yield' is followed by another node.
-                if (
-                    unreachable_statement := unreachable_statement.next_sibling()
-                ) is None:
-                    return
-            self.add_message(
-                "unreachable", node=unreachable_statement, confidence=confidence
-            )
+        if (unreachable := node.next_sibling()) is None:
+            return
+        if (
+            isinstance(node, nodes.Return)
+            and isinstance(unreachable, nodes.Expr)
+            and isinstance(unreachable.value, nodes.Yield)
+            and (unreachable := unreachable.next_sibling())
+        ):
+            # Don't add 'unreachable' for empty generators.
+            # Only add warning if 'yield' is followed by another node.
+            return
+        self.add_message("unreachable", node=unreachable, confidence=confidence)
 
     def _check_not_in_finally(
         self,
