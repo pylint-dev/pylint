@@ -1,4 +1,4 @@
-""" docstring for file nullable_patterns.py """
+""" docstring for file nullable_pattern.py """
 from typing import Optional
 
 class NullablePatterns:
