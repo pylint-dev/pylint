@@ -22,6 +22,10 @@ class "Interface" as data.suppliermodule_test.Interface #77AADD {
   {abstract}get_value()
   {abstract}set_value(value)
 }
+class "NullablePatterns" as data.nullable_pattern.NullablePatterns #77AADD {
+  {abstract}return_nullable_1() -> int | None
+  {abstract}return_nullable_2() -> Optional[int]
+}
 class "PropertyPatterns" as data.property_pattern.PropertyPatterns #77AADD {
   prop1
   prop2
