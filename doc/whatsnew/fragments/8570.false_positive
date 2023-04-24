@@ -1,3 +1,0 @@
-Fix false positive for ``keyword-arg-before-vararg`` when a positional-only parameter with a default value precedes ``*args``.
-
-Closes #8570

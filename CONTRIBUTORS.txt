@@ -130,10 +130,10 @@ contributors:
 - Eli Fine <ejfine@gmail.com> (eli88fine): Fixed false positive duplicate code warning for lines with symbols only
 - Andrew Haigh <nelfin@gmail.com> (nelfin)
 - Émile Crater <emile@crater.logilab.fr>
+- Yilei "Dolee" Yang <yileiyang@google.com>
 - Pavel Roskin <proski@gnu.org>
 - David Gilman <davidgilman1@gmail.com>
 - へーさん <hira9603859504@gmail.com>
-- Yilei "Dolee" Yang <yileiyang@google.com>
 - Thomas Hisch <t.hisch@gmail.com>
 - Marianna Polatoglou <mpolatoglou@bloomberg.net>: minor contribution for wildcard import check
 - Manuel Vázquez Acosta <mva.led@gmail.com>
@@ -206,6 +206,7 @@ contributors:
 - chohner <mail@chohner.com>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
+- Rogdham <contact@rogdham.net>
 - Robin Tweedie <70587124+robin-wayve@users.noreply.github.com>
 - Roberto Leinardi <leinardi@gmail.com>: PyCharm plugin maintainer
 - Ricardo Gemignani <ricardo.gemignani@gmail.com>
@@ -254,7 +255,6 @@ contributors:
 - Scott Worley <scottworley@scottworley.com>
 - Saugat Pachhai <suagatchhetri@outlook.com>
 - Rémi Cardona <remi.cardona@polyconseil.fr>
-- Rogdham <contact@rogdham.net>
 - Raphael Gaschignard <raphael@makeleaps.com>
 - Ram Rachum <ram@rachum.com> (cool-RR)
 - Radostin Stoyanov <rst0git@users.noreply.github.com>
