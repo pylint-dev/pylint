@@ -67,8 +67,7 @@ def check_file(file: Path, verbose: bool) -> bool:
     """Check that a file contains a valid changelog entry."""
     with open(file, encoding="utf8") as f:
         content = f.read()
-    match = VALID_CHANGELOG_COMPILED_PATTERN.match(content)
-    if match:
+    if match := VALID_CHANGELOG_COMPILED_PATTERN.match(content):
         issue = match.group("issue")
         if file.stem != issue:
             echo(
@@ -76,8 +75,7 @@ def check_file(file: Path, verbose: bool) -> bool:
             )
             return False
         if not any(file.suffix.endswith(t) for t in VALID_FILE_TYPE):
-            suggestions = difflib.get_close_matches(file.suffix, VALID_FILE_TYPE)
-            if suggestions:
+            if suggestions := difflib.get_close_matches(file.suffix, VALID_FILE_TYPE):
                 multiple_suggestions = "', '".join(f"{issue}.{s}" for s in suggestions)
                 suggestion = f"should probably be named '{multiple_suggestions}'"
             else:

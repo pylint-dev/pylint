@@ -287,7 +287,7 @@ class TestRunTC:
         actual_output = self._clean_paths(out.getvalue().strip())
 
         to_remove = "No config file found, using default configuration"
-        if to_remove in actual_output:
+        if to_remove in actual_output:  # pylint: disable=consider-using-assignment-expr
             actual_output = actual_output[len(to_remove) :]
         if actual_output.startswith("Using config file "):
             # If ~/.pylintrc is present remove the
