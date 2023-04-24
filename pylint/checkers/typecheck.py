@@ -1637,7 +1637,6 @@ accessed. Python regular expressions are accepted.",
             return False
 
         for decorator in func.decorators.nodes:
-
             # If we can't infer the decorator we assume it satisfies consumes
             # the keyword, so we don't raise false positives
             if not (inferred := safe_infer(decorator)):

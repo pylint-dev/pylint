@@ -195,7 +195,6 @@ class SpecialMethodsChecker(BaseChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_unexpected_method_signature(self, node: nodes.FunctionDef) -> None:
-
         if (expected_params := SPECIAL_METHODS_PARAMS[node.name]) is None:
             # This can support a variable number of parameters.
             return
