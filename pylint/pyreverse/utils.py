@@ -167,18 +167,8 @@ def get_annotation_label(ann: nodes.Name | nodes.NodeNG) -> str:
     if isinstance(ann, nodes.Name) and ann.name is not None:
         return ann.name  # type: ignore[no-any-return]
     if isinstance(ann, nodes.NodeNG):
-        label = ann.as_string()
-
-        return escape_vertical_bar(label)
+        return ann.as_string()  # type: ignore[no-any-return]
     return ""
-
-
-def escape_vertical_bar(value: str) -> str:
-    """Escapes vertical bar character to make it appear as a literal character
-    otherwise it gets treated as field separator of record-based nodes.
-    """
-
-    return value.replace("|", r"\|")
 
 
 def get_annotation(
