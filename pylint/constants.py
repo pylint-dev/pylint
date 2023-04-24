@@ -281,6 +281,7 @@ EXTRA_DUNDER_METHODS = [
     "__getnewargs_ex__",
     "__getnewargs__",
     "__getstate__",
+    "__index__",
     "__setstate__",
     "__reduce__",
     "__reduce_ex__",
