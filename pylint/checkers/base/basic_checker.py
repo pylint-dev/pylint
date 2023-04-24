@@ -782,7 +782,7 @@ class BasicChecker(_BasicChecker):
             isinstance(node, nodes.Return)
             and isinstance(unreachable, nodes.Expr)
             and isinstance(unreachable.value, nodes.Yield)
-            and (unreachable := unreachable.next_sibling())
+            and (unreachable := unreachable.next_sibling()) is None
         ):
             # Don't add 'unreachable' for empty generators.
             # Only add warning if 'yield' is followed by another node.
