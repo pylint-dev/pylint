@@ -1942,7 +1942,7 @@ def is_typing_member(node: nodes.NodeNG, names_to_check: tuple[str, ...]) -> boo
     return False
 
 
-@lru_cache()
+@lru_cache
 def in_for_else_branch(parent: nodes.NodeNG, stmt: nodes.Statement) -> bool:
     """Returns True if stmt is inside the else branch for a parent For stmt."""
     return isinstance(parent, nodes.For) and any(

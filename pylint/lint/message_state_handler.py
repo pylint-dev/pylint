@@ -4,10 +4,9 @@
 
 from __future__ import annotations
 
-import sys
 import tokenize
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from pylint import exceptions, interfaces
 from pylint.constants import (
@@ -26,12 +25,6 @@ from pylint.utils.pragma_parser import (
     UnRecognizedOptionError,
     parse_pragma,
 )
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter

@@ -5,10 +5,9 @@
 from __future__ import annotations
 
 import collections
-import sys
 from collections import defaultdict
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Literal
 
 from astroid import nodes
 
@@ -17,11 +16,6 @@ from pylint.constants import (
     MSG_STATE_SCOPE_MODULE,
     WarningScope,
 )
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.message import MessageDefinition, MessageDefinitionStore

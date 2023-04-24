@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-import sys
+from typing import Protocol
 
 import pytest
 
@@ -15,11 +15,6 @@ from pylint.interfaces import HIGH, INFERENCE, Confidence
 from pylint.message import Message
 from pylint.testutils.output_line import OutputLine
 from pylint.typing import MessageLocationTuple
-
-if sys.version_info >= (3, 8):
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
 
 
 class _MessageCallable(Protocol):
