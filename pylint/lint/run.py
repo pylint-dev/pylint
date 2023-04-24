@@ -81,9 +81,8 @@ def _cpu_count() -> int:
     """
     cpu_share = _query_cpu()
     cpu_count = None
-    sched_getaffinity = getattr(os, "sched_getaffinity", None)
     # pylint: disable=not-callable,using-constant-test,useless-suppression
-    if sched_getaffinity:
+    if sched_getaffinity := getattr(os, "sched_getaffinity", None):
         cpu_count = len(sched_getaffinity(0))
     elif multiprocessing:
         cpu_count = multiprocessing.cpu_count()
@@ -140,8 +139,7 @@ group are mutually exclusive.",
 
         # Determine configuration file
         if self._rcfile is None:
-            default_file = next(config.find_default_config_files(), None)
-            if default_file:
+            if default_file := next(config.find_default_config_files(), None):
                 self._rcfile = str(default_file)
 
         self.linter = linter = self.LinterClass(

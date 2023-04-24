@@ -170,8 +170,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 target_node = node.left if is_right_empty_literal else comparator
                 literal_node = comparator if is_right_empty_literal else node.left
                 # Infer node to check
-                target_instance = utils.safe_infer(target_node)
-                if target_instance is None:
+                if (target_instance := utils.safe_infer(target_node)) is None:
                     continue
                 mother_classes = self.base_names_of_instance(target_instance)
                 is_base_comprehension_type = any(

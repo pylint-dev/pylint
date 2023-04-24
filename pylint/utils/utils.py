@@ -315,8 +315,7 @@ def _ini_format(stream: TextIO, options: list[tuple[str, OptionDict, Any]]) -> N
             if "new_names" in optdict["kwargs"]:
                 continue
         value = _format_option_value(optdict, value)
-        help_opt = optdict.get("help")
-        if help_opt:
+        if help_opt := optdict.get("help"):
             assert isinstance(help_opt, str)
             help_opt = normalize_text(help_opt, indent="# ")
             print(file=stream)

@@ -237,8 +237,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         resolve module dependencies
         """
         basename = node.modname
-        context_file = node.root().file
-        if context_file is not None:
+        if (context_file := node.root().file) is not None:
             relative = astroid.modutils.is_relative(basename, context_file)
         else:
             relative = False
@@ -355,8 +354,7 @@ def project_from_files(
             fpath = os.path.join(something, "__init__.py")
         else:
             fpath = something
-        ast = func_wrapper(astroid_manager.ast_from_file, fpath)
-        if ast is None:
+        if (ast := func_wrapper(astroid_manager.ast_from_file, fpath)) is None:
             continue
         project.path = project.path or ast.file
         project.add_module(ast)

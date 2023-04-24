@@ -110,8 +110,7 @@ class Printer(ABC):
         annotations = dict(zip(arguments, method.args.annotations[first_arg:]))
         for arg in arguments:
             annotation_label = ""
-            ann = annotations.get(arg)
-            if ann:
+            if ann := annotations.get(arg):
                 annotation_label = get_annotation_label(ann)
             annotations[arg] = annotation_label
 

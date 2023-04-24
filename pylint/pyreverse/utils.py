@@ -33,8 +33,7 @@ RCFILE = ".pyreverserc"
 def get_default_options() -> list[str]:
     """Read config file and return list of options."""
     options = []
-    home = os.environ.get("HOME", "")
-    if home:
+    if home := os.environ.get("HOME", ""):
         rcfile = os.path.join(home, RCFILE)
         try:
             with open(rcfile, encoding="utf-8") as file_handle:
@@ -132,8 +131,7 @@ class LocalsVisitor:
     def get_callbacks(self, node: nodes.NodeNG) -> _CallbackTupleT:
         """Get callbacks from handler for the visited node."""
         klass = node.__class__
-        methods = self._cache.get(klass)
-        if methods is None:
+        if (methods := self._cache.get(klass)) is None:
             kid = klass.__name__.lower()
             e_method = getattr(
                 self, f"visit_{kid}", getattr(self, "visit_default", None)

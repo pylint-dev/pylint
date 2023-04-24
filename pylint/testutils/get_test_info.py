@@ -36,9 +36,8 @@ def _get_tests_info(
             # skip test for higher python versions
             if pyrestr[1:].isdigit() and int(SYS_VERS_STR) >= int(pyrestr[1:]):
                 continue
-        messages = glob(join(msg_dir, fbase + "*.txt"))
         # the last one will be without ext, i.e. for all or upper versions:
-        if messages:
+        if messages := glob(join(msg_dir, fbase + "*.txt")):
             for outfile in sorted(messages, reverse=True):
                 py_rest = outfile.rsplit("_py", 1)[-1][:-4]
                 if py_rest.isdigit() and int(SYS_VERS_STR) >= int(py_rest):

@@ -47,11 +47,9 @@ class ThreadingChecker(BaseChecker):
         context_managers = (c for c, _ in node.items if isinstance(c, nodes.Call))
         for context_manager in context_managers:
             if isinstance(context_manager, nodes.Call):
-                infered_function = safe_infer(context_manager.func)
-                if infered_function is None:
+                if (infered_function := safe_infer(context_manager.func)) is None:
                     continue
-                qname = infered_function.qname()
-                if qname in self.LOCKS:
+                if (qname := infered_function.qname()) in self.LOCKS:
                     self.add_message("useless-with-lock", node=node, args=qname)
 
 

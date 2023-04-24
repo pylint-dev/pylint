@@ -384,16 +384,14 @@ class BasicChecker(_BasicChecker):
         assert isinstance(test, nodes.Name)
         emit = False
         maybe_generator_call = None
-        lookup_result = test.frame(future=True).lookup(test.name)
-        if not lookup_result:
+        if not (lookup_result := test.frame(future=True).lookup(test.name)):
             return emit, maybe_generator_call
         maybe_generator_assigned = (
             isinstance(assign_name.parent.value, nodes.GeneratorExp)
             for assign_name in lookup_result[1]
             if isinstance(assign_name.parent, nodes.Assign)
         )
-        first_item = next(maybe_generator_assigned, None)
-        if first_item is not None:
+        if (first_item := next(maybe_generator_assigned, None)) is not None:
             # Emit if this variable is certain to hold a generator
             if all(itertools.chain((first_item,), maybe_generator_assigned)):
                 emit = True
@@ -778,8 +776,7 @@ class BasicChecker(_BasicChecker):
         confidence: Confidence = HIGH,
     ) -> None:
         """Check unreachable code."""
-        unreachable_statement = node.next_sibling()
-        if unreachable_statement is not None:
+        if (unreachable_statement := node.next_sibling()) is not None:
             if (
                 isinstance(node, nodes.Return)
                 and isinstance(unreachable_statement, nodes.Expr)
@@ -787,8 +784,9 @@ class BasicChecker(_BasicChecker):
             ):
                 # Don't add 'unreachable' for empty generators.
                 # Only add warning if 'yield' is followed by another node.
-                unreachable_statement = unreachable_statement.next_sibling()
-                if unreachable_statement is None:
+                if (
+                    unreachable_statement := unreachable_statement.next_sibling()
+                ) is None:
                     return
             self.add_message(
                 "unreachable", node=unreachable_statement, confidence=confidence
@@ -880,8 +878,7 @@ class BasicChecker(_BasicChecker):
     def visit_with(self, node: nodes.With) -> None:
         # a "with" statement with multiple managers corresponds
         # to one AST "With" node with multiple items
-        pairs = node.items
-        if pairs:
+        if pairs := node.items:
             for prev_pair, pair in zip(pairs, pairs[1:]):
                 if isinstance(prev_pair[1], nodes.AssignName) and (
                     pair[1] is None and not isinstance(pair[0], nodes.Call)

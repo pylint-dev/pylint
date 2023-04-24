@@ -113,8 +113,7 @@ class BaseChecker(_ArgumentsProvider):
             result += get_rst_title(f"{checker_title} Documentation", "^")
             result += f"{cleandoc(doc)}\n\n"
         # options might be an empty generator and not be False when cast to boolean
-        options_list = list(options)
-        if options_list:
+        if options_list := list(options):
             if show_options:
                 result += get_rst_title(f"{checker_title} Options", "^")
                 result += f"{get_rst_section(None, options_list)}\n"

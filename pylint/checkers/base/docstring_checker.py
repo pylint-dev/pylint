@@ -34,8 +34,7 @@ def _infer_dunder_doc_attribute(
     except KeyError:
         return None
 
-    docstring = utils.safe_infer(docstring)
-    if not docstring:
+    if not (docstring := utils.safe_infer(docstring)):
         return None
     if not isinstance(docstring, nodes.Const):
         return None

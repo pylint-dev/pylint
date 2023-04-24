@@ -191,8 +191,7 @@ class BaseVisitor:
 
     def visit(self, node: SuccessfulInferenceResult) -> None:
         name = node.__class__.__name__.lower()
-        dispatch_meth = getattr(self, "visit_" + name, None)
-        if dispatch_meth:
+        if dispatch_meth := getattr(self, "visit_" + name, None):
             dispatch_meth(node)
         else:
             self.visit_default(node)
@@ -393,8 +392,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             # cause.
             return
         # We'd like to check whether we're inside an `except` clause:
-        containing_except_node = utils.find_except_wrapper_node_in_scope(node)
-        if not containing_except_node:
+        if not (containing_except := utils.find_except_wrapper_node_in_scope(node)):
             return
         # We found a surrounding `except`! We're almost done proving there's a
         # `raise-missing-from` here. The only thing we need to protect against is that maybe
@@ -402,13 +400,13 @@ class ExceptionsChecker(checkers.BaseChecker):
         # like `exc.with_traceback(whatever)`. We won't analyze these, we'll just assume
         # there's a violation on two simple cases: `raise SomeException(whatever)` and `raise
         # SomeException`.
-        if containing_except_node.name is None:
+        if containing_except.name is None:
             # The `except` doesn't have an `as exception:` part, meaning there's no way that
             # the `raise` is raising the same exception.
             class_of_old_error = "Exception"
-            if isinstance(containing_except_node.type, (nodes.Name, nodes.Tuple)):
+            if isinstance(containing_except.type, (nodes.Name, nodes.Tuple)):
                 # 'except ZeroDivisionError' or 'except (ZeroDivisionError, ValueError)'
-                class_of_old_error = containing_except_node.type.as_string()
+                class_of_old_error = containing_except.type.as_string()
             self.add_message(
                 "raise-missing-from",
                 node=node,
@@ -423,13 +421,13 @@ class ExceptionsChecker(checkers.BaseChecker):
             isinstance(node.exc, nodes.Call)
             and isinstance(node.exc.func, nodes.Name)
             or isinstance(node.exc, nodes.Name)
-            and node.exc.name != containing_except_node.name.name
+            and node.exc.name != containing_except.name.name
         ):
             # We have a `raise SomeException(whatever)` or a `raise SomeException`
             self.add_message(
                 "raise-missing-from",
                 node=node,
-                args=("", node.as_string(), containing_except_node.name.name),
+                args=("", node.as_string(), containing_except.name.name),
                 confidence=HIGH,
             )
 
@@ -487,7 +485,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 )
 
     def _check_try_except_raise(self, node: nodes.TryExcept) -> None:
-        def gather_exceptions_from_handler(
+        def exceptions_from_handler(
             handler: nodes.ExceptHandler,
         ) -> list[InferenceResult] | None:
             exceptions: list[InferenceResult] = []
@@ -516,9 +514,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 # check that subsequent handler is not parent of handler which had bare raise.
                 # since utils.safe_infer can fail for bare except, check it before.
                 # also break early if bare except is followed by bare except.
-
-                excs_in_current_handler = gather_exceptions_from_handler(handler)
-                if not excs_in_current_handler:
+                if not (excs_in_current_handler := exceptions_from_handler(handler)):
                     break
                 if exceptions_in_bare_handler is None:
                     # It can be `None` when the inference failed
@@ -538,7 +534,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 if handler.body[0].exc is None:
                     bare_raise = True
                     handler_having_bare_raise = handler
-                    exceptions_in_bare_handler = gather_exceptions_from_handler(handler)
+                    exceptions_in_bare_handler = exceptions_from_handler(handler)
         else:
             if bare_raise:
                 self.add_message("try-except-raise", node=handler_having_bare_raise)

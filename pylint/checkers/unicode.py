@@ -145,9 +145,7 @@ def _line_length(line: _StrLike, codec: str) -> int:
     else:
         decoded = line
 
-    stripped = decoded.rstrip("\n")
-
-    if stripped != decoded:
+    if (stripped := decoded.rstrip("\n")) != decoded:
         stripped = stripped.rstrip("\r")
 
     return len(stripped)
@@ -265,8 +263,7 @@ def _fix_utf16_32_line_stream(steam: Iterable[bytes], codec: str) -> Iterable[by
         # we can't use split as it would strip the \n that we need
         start = 0
         while True:
-            pos = content.find(new_line, start)
-            if pos >= 0:
+            if (pos := content.find(new_line, start)) >= 0:
                 yield content[start : pos + len(new_line)]
             else:
                 # Yield the rest and finish

@@ -293,8 +293,7 @@ class SpellingChecker(BaseTokenChecker):
         self.initialized = False
         if not PYENCHANT_AVAILABLE:
             return
-        dict_name = self.linter.config.spelling_dict
-        if not dict_name:
+        if not (dict_name := self.linter.config.spelling_dict):
             return
 
         self.ignore_list = [
@@ -334,7 +333,6 @@ class SpellingChecker(BaseTokenChecker):
         )
         self.initialized = True
 
-    # pylint: disable = too-many-statements
     def _check_spelling(self, msgid: str, line: str, line_num: int) -> None:
         original_line = line
         try:
@@ -402,8 +400,7 @@ class SpellingChecker(BaseTokenChecker):
                 suggestions = self.spelling_dict.suggest(word)
                 del suggestions[self.linter.config.max_spelling_suggestions :]
                 line_segment = line[word_start_at:]
-                match = re.search(rf"(\W|^)({word})(\W|$)", line_segment)
-                if match:
+                if match := re.search(rf"(\W|^)({word})(\W|$)", line_segment):
                     # Start position of second group in regex.
                     col = match.regs[2][0]
                 else:

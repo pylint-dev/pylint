@@ -77,8 +77,7 @@ class NoSelfUseChecker(BaseChecker):
         methods overridden from a parent class.
         """
         if node.is_method():
-            first = self._first_attrs.pop()
-            if first is None:
+            if (_first := self._first_attrs.pop()) is None:
                 return
             class_node = node.parent.frame(future=True)
             if (

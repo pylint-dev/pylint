@@ -87,8 +87,7 @@ class _MessageStateHandler:
             return message_definitions
 
         # msgid is a category?
-        category_id = msgid.upper()
-        if category_id not in MSG_TYPES:
+        if (category_id := msgid.upper()) not in MSG_TYPES:
             category_id_formatted = MSG_TYPES_LONG.get(category_id)
         else:
             category_id_formatted = category_id
@@ -350,8 +349,7 @@ class _MessageStateHandler:
 
             if tok_type != tokenize.COMMENT:
                 continue
-            match = OPTION_PO.search(content)
-            if match is None:
+            if (match := OPTION_PO.search(content)) is None:
                 continue
             try:  # pylint: disable = too-many-try-statements
                 for pragma_repr in parse_pragma(match.group(2)):

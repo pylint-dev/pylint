@@ -662,11 +662,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     visit_classdef = visit_for = visit_while = visit_functiondef
 
     def _check_misplaced_future(self, node: nodes.ImportFrom) -> None:
-        basename = node.modname
-        if basename == "__future__":
+        if (_basename := node.modname) == "__future__":
             # check if this is the first non-docstring statement in the module
-            prev = node.previous_sibling()
-            if prev:
+            if prev := node.previous_sibling():
                 # consecutive future statements are possible
                 if not (
                     isinstance(prev, nodes.ImportFrom) and prev.modname == "__future__"
@@ -987,8 +985,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self, sect: Section, _: LinterStats, _dummy: LinterStats | None
     ) -> None:
         """Return a verbatim layout for displaying dependencies."""
-        dep_info = _make_tree_defs(self._external_dependencies_info.items())
-        if not dep_info:
+        if not (dep_info := _make_tree_defs(self._external_dependencies_info.items())):
             raise EmptyReportError()
         tree_str = _repr_tree_defs(dep_info)
         sect.append(VerbatimText(tree_str))
@@ -1004,14 +1001,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             or self.linter.config.int_import_graph
         ):
             raise EmptyReportError()
-        filename = self.linter.config.import_graph
-        if filename:
+        if filename := self.linter.config.import_graph:
             _make_graph(filename, dep_info, sect, "")
-        filename = self.linter.config.ext_import_graph
-        if filename:
+        if filename := self.linter.config.ext_import_graph:
             _make_graph(filename, self._external_dependencies_info, sect, "external ")
-        filename = self.linter.config.int_import_graph
-        if filename:
+        if filename := self.linter.config.int_import_graph:
             _make_graph(filename, self._internal_dependencies_info, sect, "internal ")
 
     def _filter_dependencies_graph(self, internal: bool) -> defaultdict[str, set[str]]:

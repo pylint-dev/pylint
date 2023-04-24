@@ -81,9 +81,8 @@ def returns_something(return_node: nodes.Return) -> bool:
     :return: True if the return node returns a value other than None,
         False otherwise.
     """
-    returns = return_node.value
 
-    if returns is None:
+    if (returns := return_node.value) is None:
         return False
 
     return not (isinstance(returns, nodes.Const) and returns.value is None)
@@ -115,8 +114,7 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
     """
     exceptions = []
     if isinstance(node.exc, nodes.Name):
-        inferred = utils.safe_infer(node.exc)
-        if inferred:
+        if inferred := utils.safe_infer(node.exc):
             exceptions = [inferred]
     elif node.exc is None:
         handler = node.parent
@@ -170,8 +168,7 @@ def docstringify(
         NumpyDocstring,
     ):
         instance = docstring_type(docstring)
-        matching_sections = instance.matching_sections()
-        if matching_sections > best_match[0]:
+        if (matching_sections := instance.matching_sections()) > best_match[0]:
             best_match = (matching_sections, instance)
 
     return best_match[1]
@@ -375,8 +372,7 @@ class SphinxDocstring(Docstring):
             # Remove escape characters necessary for asterisks
             name = name.replace("\\", "")
             params_with_doc.add(name)
-            param_type = match.group(1)
-            if param_type is not None:
+            if (_param_type := match.group(1)) is not None:
                 params_with_type.add(name)
 
         params_with_type.update(re.findall(self.re_type_in_docstring, self.doc))
@@ -546,12 +542,10 @@ class GoogleDocstring(Docstring):
 
         entries = self._parse_section(self.re_returns_section)
         for entry in entries:
-            match = self.re_returns_line.match(entry)
-            if not match:
+            if not (match := self.re_returns_line.match(entry)):
                 continue
 
-            return_desc = match.group(2)
-            if return_desc:
+            if _return_desc := match.group(2):
                 return True
 
         return False
@@ -562,12 +556,10 @@ class GoogleDocstring(Docstring):
 
         entries = self._parse_section(self.re_returns_section)
         for entry in entries:
-            match = self.re_returns_line.match(entry)
-            if not match:
+            if not (match := self.re_returns_line.match(entry)):
                 continue
 
-            return_type = match.group(1)
-            if return_type:
+            if _return_type := match.group(1):
                 return True
 
         return False
@@ -595,12 +587,10 @@ class GoogleDocstring(Docstring):
 
         entries = self._parse_section(self.re_yields_section)
         for entry in entries:
-            match = self.re_yields_line.match(entry)
-            if not match:
+            if not (match := self.re_yields_line.match(entry)):
                 continue
 
-            yield_desc = match.group(2)
-            if yield_desc:
+            if _yield_desc := match.group(2):
                 return True
 
         return False
@@ -611,12 +601,10 @@ class GoogleDocstring(Docstring):
 
         entries = self._parse_section(self.re_yields_section)
         for entry in entries:
-            match = self.re_yields_line.match(entry)
-            if not match:
+            if not (match := self.re_yields_line.match(entry)):
                 continue
 
-            yield_type = match.group(1)
-            if yield_type:
+            if _yield_type := match.group(1):
                 return True
 
         return False
@@ -626,13 +614,11 @@ class GoogleDocstring(Docstring):
 
         entries = self._parse_section(self.re_raise_section)
         for entry in entries:
-            match = self.re_raise_line.match(entry)
-            if not match:
+            if not (match := self.re_raise_line.match(entry)):
                 continue
 
             exc_type = match.group(1)
-            exc_desc = match.group(2)
-            if exc_desc:
+            if _exc_desc := match.group(2):
                 types.update(_split_multiple_exc_types(exc_type))
 
         return types
@@ -644,8 +630,7 @@ class GoogleDocstring(Docstring):
         entries = self._parse_section(self.re_param_section)
         entries.extend(self._parse_section(self.re_keyword_param_section))
         for entry in entries:
-            match = self.re_param_line.match(entry)
-            if not match:
+            if not (match := self.re_param_line.match(entry)):
                 continue
 
             param_name = match.group(1)
@@ -677,8 +662,7 @@ class GoogleDocstring(Docstring):
         return False
 
     def _parse_section(self, section_re: re.Pattern[str]) -> list[str]:
-        section_match = section_re.search(self.doc)
-        if section_match is None:
+        if (section_match := section_re.search(self.doc)) is None:
             return []
 
         min_indentation = self.min_section_indent(section_match)
@@ -689,8 +673,7 @@ class GoogleDocstring(Docstring):
         for line in section_match.group(2).splitlines():
             if not line.strip():
                 continue
-            indentation = space_indentation(line)
-            if indentation < min_indentation:
+            if (indentation := space_indentation(line)) < min_indentation:
                 break
 
             # The first line after the header defines the minimum
@@ -792,13 +775,11 @@ class NumpyDocstring(GoogleDocstring):
         entries = self._parse_section(self.re_param_section)
         entries.extend(self._parse_section(self.re_keyword_param_section))
         for entry in entries:
-            match = self.re_param_line.match(entry)
-            if not match:
+            if not (match := self.re_param_line.match(entry)):
                 continue
 
             # check if parameter has description only
-            re_only_desc = re.match(r"\s*(\*{0,2}\w+)\s*:?\n\s*\w*$", entry)
-            if re_only_desc:
+            if _re_only_desc := re.match(r"\s*(\*{0,2}\w+)\s*:?\n\s*\w*$", entry):
                 param_name = match.group("param_name")
                 param_desc = match.group("param_type")
                 param_type = None

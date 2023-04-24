@@ -515,8 +515,7 @@ class StringFormatChecker(BaseChecker):
             check_args = True
         if check_args:
             # num_args can be 0 if manual_pos is not.
-            num_args = num_args or manual_pos
-            if not num_args:
+            if not (num_args := num_args or manual_pos):
                 self.add_message("format-string-without-interpolation", node=node)
                 return
             if len(positional_arguments) > num_args:
@@ -807,8 +806,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             if elt.col_offset < 0:
                 # This can happen in case of escaped newlines
                 continue
-            token_index = (elt.lineno, elt.col_offset)
-            if token_index not in self.string_tokens:
+            if (token_index := (elt.lineno, elt.col_offset)) not in self.string_tokens:
                 # This may happen with Latin1 encoding
                 # cf. https://github.com/pylint-dev/pylint/issues/2610
                 continue
@@ -873,10 +871,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         # sequence <https://docs.python.org/reference/lexical_analysis.html>
         #
         index = 0
-        while True:
-            index = string_body.find("\\", index)
-            if index == -1:
-                break
+        while (index := string_body.find("\\", index)) != -1:
             # There must be a next character; having a backslash at the end
             # of the string would be a SyntaxError.
             next_char = string_body[index + 1]
@@ -884,8 +879,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             # The column offset will vary depending on whether the string token
             # is broken across lines. Calculate relative to the nearest line
             # break or relative to the start of the token's line.
-            last_newline = string_body.rfind("\n", 0, index)
-            if last_newline == -1:
+            if (last_newline := string_body.rfind("\n", 0, index)) == -1:
                 line = start_row
                 col_offset = index + string_start_col
             else:
@@ -991,8 +985,7 @@ def _get_quote_delimiter(string_token: str) -> str:
     Raises:
       ValueError: No quote delimiter characters are present.
     """
-    match = QUOTE_DELIMITER_REGEX.match(string_token)
-    if not match:
+    if not (match := QUOTE_DELIMITER_REGEX.match(string_token)):
         raise ValueError(f"string token {string_token} is not a well-formed string")
     return match.group(2)
 

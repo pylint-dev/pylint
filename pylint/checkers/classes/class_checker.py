@@ -467,8 +467,7 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
         if inferred.pytype() != property_name:
             continue
 
-        cls = node_frame_class(inferred)
-        if cls == klass.declared_metaclass():
+        if (_cls := node_frame_class(inferred)) == klass.declared_metaclass():
             continue
         return True
     return False
@@ -742,8 +741,7 @@ class ScopeAccessMap:
     def set_accessed(self, node: _AccessNodes) -> None:
         """Set the given node as accessed."""
 
-        frame = node_frame_class(node)
-        if frame is None:
+        if (frame := node_frame_class(node)) is None:
             # The node does not live in a class.
             return
         self._scopes[frame][node.attrname].append(node)
@@ -938,8 +936,7 @@ a metaclass class method.",
         a class or a type.
         """
         for base in node.bases:
-            ancestor = safe_infer(base)
-            if not ancestor:
+            if not (ancestor := safe_infer(base)):
                 continue
             if isinstance(ancestor, astroid.Instance) and ancestor.is_subtype_of(
                 "builtins.type"
@@ -968,8 +965,7 @@ a metaclass class method.",
         if not self._py38_plus:
             return
         for base in node.bases:
-            ancestor = safe_infer(base)
-            if not ancestor:
+            if not (ancestor := safe_infer(base)):
                 continue
 
             if isinstance(ancestor, nodes.ClassDef) and (
@@ -1252,8 +1248,7 @@ a metaclass class method.",
                         return
 
                 # Infer the decorator and see if it returns something useful
-                inferred = safe_infer(decorator)
-                if not inferred:
+                if not (inferred := safe_infer(decorator)):
                     return
                 if isinstance(inferred, nodes.FunctionDef):
                     # Okay, it's a decorator, let's see what it can infer.
@@ -1506,9 +1501,8 @@ a metaclass class method.",
         }
 
         # Slots which are common to `node` and its parent classes
-        redefined_slots = ancestors_slots_names.intersection(slots_names)
 
-        if redefined_slots:
+        if redefined_slots := ancestors_slots_names.intersection(slots_names):
             self.add_message(
                 "redefined-slots-in-subclass",
                 args=([name for name in slots_names if name in redefined_slots],),
@@ -1540,8 +1534,7 @@ a metaclass class method.",
                 )
 
             # Check if we have a conflict with a class variable.
-            class_variable = node.locals.get(inferred.value)
-            if class_variable:
+            if class_variable := node.locals.get(inferred.value):
                 # Skip annotated assignments which don't conflict at all with slots.
                 if len(class_variable) == 1:
                     parent = class_variable[0].parent
@@ -1665,8 +1658,7 @@ a metaclass class method.",
             if cache and cache.get(klass.slots) is not None:
                 del cache[klass.slots]
 
-        slots = klass.slots()
-        if slots is None:
+        if (slots := klass.slots()) is None:
             return
         # If any ancestor doesn't use slots, the slots
         # defined for this class are superfluous.
@@ -1798,8 +1790,7 @@ a metaclass class method.",
         ):
             return
 
-        klass = node_frame_class(node)
-        if klass is None:
+        if (klass := node_frame_class(node)) is None:
             # We are not in a class, no remaining valid case
             self.add_message("protected-access", node=node, args=attrname)
             return
@@ -1947,7 +1938,7 @@ a metaclass class method.",
             else:
                 # filter out augment assignment nodes
                 defstmts = [stmt for stmt in defstmts if stmt not in nodes_lst]
-                if not defstmts:
+                if not defstmts:  # pylint: disable = consider-using-assignment-expr
                     # only augment assignment for this node, no-member should be
                     # triggered by the typecheck checker
                     continue
@@ -2092,8 +2083,7 @@ a metaclass class method.",
             key=lambda item: item[0],
         )
         for name, method in methods:
-            owner = method.parent.frame(future=True)
-            if owner is node:
+            if (owner := method.parent.frame(future=True)) is node:
                 continue
             # owner is not this class, it must be a parent class
             # check that the ancestor's method is not abstract

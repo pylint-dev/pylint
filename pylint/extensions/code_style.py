@@ -138,8 +138,7 @@ class CodeStyleChecker(BaseChecker):
             for _, dict_value in node.items:
                 dict_value = cast(nodes.Dict, dict_value)
                 for key, _ in dict_value.items:
-                    key_tuple = (type(key), key.as_string())
-                    if key_tuple in keys_checked:
+                    if (key_tuple := (type(key), key.as_string())) in keys_checked:
                         continue
                     inferred = safe_infer(key)
                     if not (
@@ -171,8 +170,7 @@ class CodeStyleChecker(BaseChecker):
             for _, dict_value in node.items
         ):
             # Make sure all sublists have the same length > 0
-            list_length = len(node.items[0][1].elts)
-            if list_length == 0:
+            if (list_length := len(node.items[0][1].elts)) == 0:
                 return
             for _, dict_value in node.items[1:]:
                 if len(dict_value.elts) != list_length:

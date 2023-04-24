@@ -216,7 +216,7 @@ def _count_boolean_expressions(bool_op: nodes.BoolOp) -> int:
     return nb_bool_expr
 
 
-def _count_methods_in_class(node: nodes.ClassDef) -> int:
+def _count_methods(node: nodes.ClassDef) -> int:
     all_methods = sum(1 for method in node.methods() if not method.name.startswith("_"))
     # Special methods count towards the number of public methods,
     # but don't count towards there being too many methods.
@@ -430,8 +430,7 @@ class MisdesignChecker(BaseChecker):
             node,
             STDLIB_CLASSES_IGNORE_ANCESTOR.union(self.linter.config.ignored_parents),
         )
-        nb_parents = len(parents)
-        if nb_parents > self.linter.config.max_parents:
+        if (nb_parents := len(parents)) > self.linter.config.max_parents:
             self.add_message(
                 "too-many-ancestors",
                 node=node,
@@ -483,12 +482,11 @@ class MisdesignChecker(BaseChecker):
         # Does the class contain more than n public methods ?
         # This checks all the methods defined by ancestors and
         # by the current class.
-        all_methods = _count_methods_in_class(node)
-        if all_methods < self.linter.config.min_public_methods:
+        if (count := _count_methods(node)) < self.linter.config.min_public_methods:
             self.add_message(
                 "too-few-public-methods",
                 node=node,
-                args=(all_methods, self.linter.config.min_public_methods),
+                args=(count, self.linter.config.min_public_methods),
             )
 
     @only_required_for_messages(
@@ -515,8 +513,7 @@ class MisdesignChecker(BaseChecker):
                     1 for arg in args if ignored_argument_names.match(arg.name)
                 )
 
-            argnum = len(args) - ignored_args_num
-            if argnum > self.linter.config.max_args:
+            if (_argnum := len(args) - ignored_args_num) > self.linter.config.max_args:
                 self.add_message(
                     "too-many-arguments",
                     node=node,
@@ -553,23 +550,20 @@ class MisdesignChecker(BaseChecker):
         """Most of the work is done here on close:
         checks for max returns, branch, return in __init__.
         """
-        returns = self._returns.pop()
-        if returns > self.linter.config.max_returns:
+        if (returns := self._returns.pop()) > self.linter.config.max_returns:
             self.add_message(
                 "too-many-return-statements",
                 node=node,
                 args=(returns, self.linter.config.max_returns),
             )
-        branches = self._branches[node]
-        if branches > self.linter.config.max_branches:
+        if (branches := self._branches[node]) > self.linter.config.max_branches:
             self.add_message(
                 "too-many-branches",
                 node=node,
                 args=(branches, self.linter.config.max_branches),
             )
         # check number of statements
-        stmts = self._stmts.pop()
-        if stmts > self.linter.config.max_statements:
+        if (stmts := self._stmts.pop()) > self.linter.config.max_statements:
             self.add_message(
                 "too-many-statements",
                 node=node,

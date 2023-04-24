@@ -96,9 +96,8 @@ def get_minimal_setting() -> bool:
 
 def get_and_validate_output_file() -> tuple[bool, Path]:
     """Make sure that the output file is correct."""
-    to_file = validate_yes_no("Do you want to write the output to a file?", "no")
 
-    if not to_file:
+    if not validate_yes_no("Do you want to write the output to a file?", "no"):
         return False, Path()
 
     # pylint: disable-next=bad-builtin

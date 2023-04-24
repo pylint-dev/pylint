@@ -58,9 +58,8 @@ class MessageStyle(NamedTuple):
         if self.color is None and len(self.style) == 0:
             # If both color and style are not defined, then leave the text as is.
             return msg
-        escape_code = self.__get_ansi_code()
         # If invalid (or unknown) color, don't wrap msg with ANSI codes
-        if escape_code:
+        if escape_code := self.__get_ansi_code():
             return f"{escape_code}{msg}{ANSI_RESET}"
         return msg
 
@@ -125,7 +124,7 @@ class TextReporter(BaseReporter):
         template = str(self.linter.config.msg_template or self._template)
 
         # Return early if the template is the same as the previous one
-        if template == self._template:
+        if template == self._template:  # pylint: disable=consider-using-assignment-expr
             return
 
         # Set template to the currently selected template

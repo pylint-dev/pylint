@@ -287,8 +287,7 @@ class TypingChecker(BaseChecker):
     ) -> None:
         types_set = set()
         for typehint in types:
-            typehint_str = typehint.as_string()
-            if typehint_str in types_set:
+            if (typehint_str := typehint.as_string()) in types_set:
                 self.add_message(
                     "redundant-typehint-argument",
                     node=annotation,
@@ -345,8 +344,7 @@ class TypingChecker(BaseChecker):
         inferred = safe_infer(node)
         if not isinstance(inferred, nodes.ClassDef):
             return
-        alias = DEPRECATED_TYPING_ALIASES.get(inferred.qname(), None)
-        if alias is None:
+        if (alias := DEPRECATED_TYPING_ALIASES.get(inferred.qname(), None)) is None:
             return
 
         if self._py39_plus:

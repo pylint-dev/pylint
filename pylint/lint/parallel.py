@@ -74,8 +74,7 @@ def _worker_check_single_file(
     _worker_linter.check_single_file_item(file_item)
     mapreduce_data = defaultdict(list)
     for checker in _worker_linter.get_checkers():
-        data = checker.get_map_data()
-        if data is not None:
+        if (data := checker.get_map_data()) is not None:
             mapreduce_data[checker.name].append(data)
     msgs = _worker_linter.reporter.messages
     assert isinstance(_worker_linter.reporter, reporters.CollectingReporter)

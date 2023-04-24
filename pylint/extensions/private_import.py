@@ -43,8 +43,7 @@ class PrivateImportChecker(BaseChecker):
             return
         names = [name[0] for name in node.names]
         private_names = self._get_private_imports(names)
-        private_names = self._get_type_annotation_names(node, private_names)
-        if private_names:
+        if private_names := self._get_type_annotation_names(node, private_names):
             imported_identifier = "modules" if len(private_names) > 1 else "module"
             private_name_string = ", ".join(private_names)
             self.add_message(
@@ -66,8 +65,7 @@ class PrivateImportChecker(BaseChecker):
 
         # Check the imported objects first. If they are all valid type annotations,
         # the package can be private
-        private_names = self._get_type_annotation_names(node, names)
-        if not private_names:
+        if not (private_names := self._get_type_annotation_names(node, names)):
             return
 
         # There are invalid imported objects, so check the name of the package
@@ -84,9 +82,7 @@ class PrivateImportChecker(BaseChecker):
             )
             return  # Do not emit messages on the objects if the package is private
 
-        private_names = self._get_private_imports(private_names)
-
-        if private_names:
+        if private_names := self._get_private_imports(private_names):
             imported_identifier = "objects" if len(private_names) > 1 else "object"
             private_name_string = ", ".join(private_names)
             self.add_message(

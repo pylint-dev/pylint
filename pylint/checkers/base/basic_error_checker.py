@@ -40,8 +40,7 @@ def _get_break_loop_node(break_node: nodes.Break) -> nodes.For | nodes.While | N
         parent, "orelse", []
     ):
         break_node = parent
-        parent = parent.parent
-        if parent is None:
+        if (parent := parent.parent) is None:
             break
     return parent
 
@@ -316,8 +315,7 @@ class BasicErrorChecker(_BasicChecker):
                 continue
 
             name = node_name.name
-            corresponding_global = scope_globals.get(name)
-            if not corresponding_global:
+            if not (corresponding_global := scope_globals.get(name)):
                 continue
 
             global_lineno = corresponding_global.fromlineno
@@ -435,8 +433,7 @@ class BasicErrorChecker(_BasicChecker):
         if not isinstance(inferred, nodes.ClassDef):
             return
 
-        klass = utils.node_frame_class(node)
-        if klass is inferred:
+        if (_klass := utils.node_frame_class(node)) is inferred:
             # Don't emit the warning if the class is instantiated
             # in its own body or if the call is not an instance
             # creation. If the class is instantiated into its own
@@ -444,14 +441,11 @@ class BasicErrorChecker(_BasicChecker):
             return
 
         # __init__ was called
-        abstract_methods = _has_abstract_methods(inferred)
 
-        if not abstract_methods:
+        if not (_abstract_methods := _has_abstract_methods(inferred)):
             return
 
-        metaclass = inferred.metaclass()
-
-        if metaclass is None:
+        if (metaclass := inferred.metaclass()) is None:
             # Python 3.4 has `abc.ABC`, which won't be detected
             # by ClassNode.metaclass()
             for ancestor in inferred.ancestors():

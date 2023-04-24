@@ -184,8 +184,7 @@ def _similar_names(
         if name == attrname:
             continue
 
-        distance = _string_distance(attrname or "", name)
-        if distance <= distance_threshold:
+        if (distance := _string_distance(attrname or "", name)) <= distance_threshold:
             possible_names.append((name, distance))
 
     # Now get back the values with a minimum, up to the given
@@ -205,8 +204,7 @@ def _missing_member_hint(
     distance_threshold: int,
     max_choices: int,
 ) -> str:
-    names = _similar_names(owner, attrname, distance_threshold, max_choices)
-    if not names:
+    if not (names := _similar_names(owner, attrname, distance_threshold, max_choices)):
         # No similar name.
         return ""
 
@@ -798,8 +796,7 @@ def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
             _is_invalid_isinstance_type(elt) and not is_none(elt)
             for elt in (arg.left, arg.right)
         )
-    inferred = utils.safe_infer(arg)
-    if not inferred:
+    if not (inferred := utils.safe_infer(arg)):
         # Cannot infer it so skip it.
         return False
     if isinstance(inferred, nodes.Tuple):
@@ -1020,14 +1017,12 @@ accessed. Python regular expressions are accepted.",
                 return str(metaclass)
             return metaclass.as_string()  # type: ignore[no-any-return]
 
-        metaclass = node.declared_metaclass()
-        if not metaclass:
+        if not (metaclass := node.declared_metaclass()):
             return
 
         if isinstance(metaclass, nodes.FunctionDef):
             # Try to infer the result.
-            metaclass = _infer_from_metaclass_constructor(node, metaclass)
-            if not metaclass:
+            if not (metaclass := _infer_from_metaclass_constructor(node, metaclass)):
                 # Don't do anything if we cannot infer the result.
                 return
 
@@ -1299,8 +1294,7 @@ accessed. Python regular expressions are accepted.",
         rhs = node.value
         if isinstance(rhs, nodes.Const) and isinstance(rhs.value, str):
             return
-        inferred = utils.safe_infer(rhs)
-        if not inferred:
+        if not (inferred := utils.safe_infer(rhs)):
             return
         if not (isinstance(inferred, nodes.Const) and isinstance(inferred.value, str)):
             # Add the message
@@ -1643,11 +1637,10 @@ accessed. Python regular expressions are accepted.",
             return False
 
         for decorator in func.decorators.nodes:
-            inferred = safe_infer(decorator)
 
             # If we can't infer the decorator we assume it satisfies consumes
             # the keyword, so we don't raise false positives
-            if not inferred:
+            if not (inferred := safe_infer(decorator)):
                 return True
 
             # We only check arguments of function decorators
@@ -2160,8 +2153,7 @@ accessed. Python regular expressions are accepted.",
             # it's not a bare variable
             return
 
-        inferred = safe_infer(iterable)
-        if not inferred:
+        if not (inferred := safe_infer(iterable)):
             return
         if not isinstance(inferred, nodes.Dict):
             # the iterable is not a dict

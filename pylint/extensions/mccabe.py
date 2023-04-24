@@ -64,8 +64,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[mis
     def dispatch(self, node: nodes.NodeNG, *args: Any) -> Any:
         self.node = node
         klass = node.__class__
-        meth = self._cache.get(klass)
-        if meth is None:
+        if (meth := self._cache.get(klass)) is None:
             class_name = klass.__name__
             meth = getattr(self.visitor, "visit" + class_name, self.default)
             self._cache[klass] = meth

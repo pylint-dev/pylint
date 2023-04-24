@@ -385,8 +385,7 @@ class NameChecker(_BasicChecker):
             confidence,
         )
         # Check argument names
-        args = node.args.args
-        if args is not None:
+        if (args := node.args.args) is not None:
             self._recursive_check_names(args)
 
     visit_asyncfunctiondef = visit_functiondef

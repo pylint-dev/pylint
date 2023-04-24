@@ -68,8 +68,7 @@ class RecommendationChecker(checkers.BaseChecker):
 
     @staticmethod
     def _is_builtin(node: nodes.NodeNG, function: str) -> bool:
-        inferred = utils.safe_infer(node)
-        if not inferred:
+        if not (inferred := utils.safe_infer(node)):
             return False
         return utils.is_builtin_object(inferred) and inferred.name == function
 
@@ -262,8 +261,7 @@ class RecommendationChecker(checkers.BaseChecker):
         # that the object which is iterated is used as a subscript in the
         # body of the for.
 
-        iterating_object_name = utils.get_iterating_dictionary_name(node)
-        if iterating_object_name is None:
+        if (iterating_object_name := utils.get_iterating_dictionary_name(node)) is None:
             return
 
         # Verify that the body of the for loop uses a subscript
@@ -282,8 +280,7 @@ class RecommendationChecker(checkers.BaseChecker):
                     or iterating_object_name != subscript.value.as_string()
                 ):
                     continue
-                last_definition_lineno = value.lookup(value.name)[1][-1].lineno
-                if last_definition_lineno > node.lineno:
+                if value.lookup(value.name)[1][-1].lineno > node.lineno:
                     # Ignore this subscript if it has been redefined after
                     # the for loop. This checks for the line number using .lookup()
                     # to get the line number where the iterating object was last
@@ -314,8 +311,7 @@ class RecommendationChecker(checkers.BaseChecker):
         self, node: nodes.Comprehension
     ) -> None:
         """Add message when accessing dict values by index lookup."""
-        iterating_object_name = utils.get_iterating_dictionary_name(node)
-        if iterating_object_name is None:
+        if (iterating_object_name := utils.get_iterating_dictionary_name(node)) is None:
             return
 
         for child in node.parent.get_children():

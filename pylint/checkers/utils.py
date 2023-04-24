@@ -352,8 +352,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
     """
     varname = var_node.name
     for parent in var_node.node_ancestors():
-        defnode = defnode_in_scope(var_node, varname, parent)
-        if defnode is None:
+        if (defnode := defnode_in_scope(var_node, varname, parent)) is None:
             continue
         defnode_scope = defnode.scope()
         if isinstance(
@@ -529,8 +528,7 @@ def parse_format_string(
 
     i = 0
     while i < len(format_string):
-        char = format_string[i]
-        if char == "%":
+        if (char := format_string[i]) == "%":
             i, char = next_char(i)
             # Parse the mapping key (optional).
             key = None
@@ -938,8 +936,7 @@ def unimplemented_abstract_methods(
         for obj in ancestor.values():
             inferred = obj
             if isinstance(obj, nodes.AssignName):
-                inferred = safe_infer(obj)
-                if not inferred:
+                if not (inferred := safe_infer(obj)):
                     # Might be an abstract function,
                     # but since we don't have enough information
                     # in order to take this decision, we're taking
@@ -959,8 +956,7 @@ def unimplemented_abstract_methods(
                 # class A:
                 #     def keys(self): pass
                 #     __iter__ = keys
-                abstract = is_abstract_cb(inferred)
-                if abstract:
+                if abstract := is_abstract_cb(inferred):
                     visited[obj.name] = inferred
                 elif not abstract and obj.name in visited:
                     del visited[obj.name]
@@ -999,8 +995,7 @@ def find_except_wrapper_node_in_scope(
 
 def is_from_fallback_block(node: nodes.NodeNG) -> bool:
     """Check if the given node is from a fallback import block."""
-    context = find_try_except_wrapper_node(node)
-    if not context:
+    if not (context := find_try_except_wrapper_node(node)):
         return False
 
     if isinstance(context, nodes.ExceptHandler):
@@ -1125,8 +1120,7 @@ def node_ignores_exception(
     If the exception is not given, the function is going to look for bare
     excepts.
     """
-    managing_handlers = get_exception_handlers(node, exception)
-    if managing_handlers:
+    if _managing_handlers := get_exception_handlers(node, exception):
         return True
     return any(get_contextlib_suppressors(node, exception))
 
@@ -1141,8 +1135,7 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
         return True
 
     # Only check for explicit metaclass=ABCMeta on this specific class
-    meta = node.declared_metaclass()
-    if meta is not None:
+    if (meta := node.declared_metaclass()) is not None:
         if meta.name == "ABCMeta" and meta.root().name in ABC_MODULES:
             return True
 
@@ -1251,8 +1244,7 @@ def _supports_protocol(
         if not has_known_bases(value):
             return True
         # classobj can only be iterable if it has an iterable metaclass
-        meta = value.metaclass()
-        if meta is not None:
+        if (meta := value.metaclass()) is not None:
             if protocol_callback(meta):
                 return True
     if isinstance(value, astroid.BaseInstance):
@@ -1347,11 +1339,9 @@ def safe_infer(
     if not isinstance(value, util.UninferableBase):
         inferred_types.add(_get_python_type_of_node(value))
 
-    # pylint: disable = too-many-try-statements
     try:
         for inferred in infer_gen:
-            inferred_type = _get_python_type_of_node(inferred)
-            if inferred_type not in inferred_types:
+            if _get_python_type_of_node(inferred) not in inferred_types:
                 return None  # If there is ambiguity on the inferred node.
             if (
                 compare_constants
@@ -1505,8 +1495,7 @@ def is_registered_in_singledispatchmethod_function(node: nodes.FunctionDef) -> b
 
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
-        func_def = find_inferred_fn_from_register(decorator)
-        if func_def:
+        if func_def := find_inferred_fn_from_register(decorator):
             return decorated_with(func_def, singledispatchmethod_qnames)
 
     return False
@@ -1892,8 +1881,7 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
         if isinstance(ancestor.test, nodes.Name):
             if ancestor.test.name != "TYPE_CHECKING":
                 continue
-            lookup_result = ancestor.test.lookup(ancestor.test.name)[1]
-            if not lookup_result:
+            if not (lookup_result := ancestor.test.lookup(ancestor.test.name)[1]):
                 return False
             maybe_import_from = lookup_result[0]
             if (

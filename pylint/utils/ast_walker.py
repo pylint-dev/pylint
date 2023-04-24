@@ -46,8 +46,7 @@ class ASTWalker:
         visits = self.visit_events
         leaves = self.leave_events
         for member in dir(checker):
-            cid = member[6:]
-            if cid == "default":
+            if (cid := member[6:]) == "default":
                 continue
             if member.startswith("visit_"):
                 v_meth = getattr(checker, member)
@@ -61,11 +60,9 @@ class ASTWalker:
                 if self._is_method_enabled(l_meth):
                     leaves[cid].append(l_meth)
                     lcids.add(cid)
-        visit_default = getattr(checker, "visit_default", None)
-        if visit_default:
+        if visit_default := getattr(checker, "visit_default", None):
             for cls in nodes.ALL_NODE_CLASSES:
-                cid = cls.__name__.lower()
-                if cid not in vcids:
+                if (cid := cls.__name__.lower()) not in vcids:
                     visits[cid].append(visit_default)
         # For now, we have no "leave_default" method in Pylint
 

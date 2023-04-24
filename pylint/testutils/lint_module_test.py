@@ -127,13 +127,11 @@ class LintModuleTest:
                 missing.append(requirement)
         if missing:
             pytest.skip(f"Requires {','.join(missing)} to be present.")
-        except_implementations = self._linter.config.except_implementations
-        if except_implementations:
+        if except_implementations := self._linter.config.except_implementations:
             if platform.python_implementation() in except_implementations:
                 msg = "Test cannot run with Python implementation %r"
                 pytest.skip(msg % platform.python_implementation())
-        excluded_platforms = self._linter.config.exclude_platforms
-        if excluded_platforms:
+        if excluded_platforms := self._linter.config.exclude_platforms:
             if sys.platform.lower() in excluded_platforms:
                 pytest.skip(f"Test cannot run on platform {sys.platform!r}")
         if (
@@ -166,11 +164,9 @@ class LintModuleTest:
         """
         messages: MessageCounter = Counter()
         for i, line in enumerate(stream):
-            match = _EXPECTED_RE.search(line)
-            if match is None:
+            if (match := _EXPECTED_RE.search(line)) is None:
                 continue
-            line = match.group("line")
-            if line is None:
+            if (line := match.group("line")) is None:
                 lineno = i + 1
             elif line.startswith("+") or line.startswith("-"):
                 lineno = i + 1 + int(line)

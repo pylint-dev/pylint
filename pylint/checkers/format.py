@@ -474,10 +474,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         self._last_line_ending = line_ending
 
         # check if line ending is as expected
-        expected = self.linter.config.expected_line_ending_format
-        if expected:
+        if expected := self.linter.config.expected_line_ending_format:
             # reduce multiple \n\n\n\n to one \n
             line_ending = reduce(lambda x, y: x + y if x != y else x, line_ending, "")
+            # pylint: disable = consider-using-assignment-expr
             line_ending = "LF" if line_ending == "\n" else "CRLF"
             if line_ending != expected:
                 self.add_message(
@@ -493,8 +493,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             return
         if not node.root().pure_python:
             return
-        prev_sibl = node.previous_sibling()
-        if prev_sibl is not None:
+        if (prev_sibl := node.previous_sibling()) is not None:
             prev_line = prev_sibl.fromlineno
         # The line on which a 'finally': occurs in a 'try/finally'
         # is not directly represented in the AST. We infer it
@@ -693,8 +692,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
 
     def check_indent_level(self, string: str, expected: int, line_num: int) -> None:
         """Return the indent level of the string."""
-        indent = self.linter.config.indent_string
-        if indent == "\\t":  # \t is not interpreted in the configuration file
+        if (indent := self.linter.config.indent_string) == "\\t":
+            # \t is not interpreted in the configuration file
             indent = "\t"
         level = 0
         unit_size = len(indent)

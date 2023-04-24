@@ -97,8 +97,7 @@ class MultipleTypesChecker(BaseChecker):
         # ignore NoneType
         if is_none(node):
             return
-        _type = node_type(node.value)
-        if _type:
+        if _type := node_type(node.value):
             self._assigns[-1].setdefault(target.as_string(), []).append(
                 (node, _type.pytype())
             )

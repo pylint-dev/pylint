@@ -112,8 +112,9 @@ class ConsiderUsingAnyOrAllChecker(BaseChecker):
             # node before loop isn't assigning to boolean
             return False
 
-        assign_children = [x for x in if_children if isinstance(x, nodes.Assign)]
-        if not assign_children:
+        if not (
+            assign_children := [x for x in if_children if isinstance(x, nodes.Assign)]
+        ):
             # if-nodes inside loop aren't assignments
             return False
 

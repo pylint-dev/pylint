@@ -195,9 +195,8 @@ def _get_cycles(
         # make a canonical representation
         start_from = min(cycle)
         index = cycle.index(start_from)
-        cycle = cycle[index:] + cycle[0:index]
         # append it to result if not already in
-        if cycle not in result:
+        if (cycle := cycle[index:] + cycle[0:index]) not in result:
             result.append(cycle)
         return
     path.append(vertice)

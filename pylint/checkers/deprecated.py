@@ -112,15 +112,13 @@ class DeprecatedMixin(BaseChecker):
     @utils.only_required_for_messages("deprecated-decorator")
     def visit_decorators(self, node: nodes.Decorators) -> None:
         """Triggered when a decorator statement is seen."""
-        children = list(node.get_children())
-        if not children:
+        if not (children := list(node.get_children())):
             return
         if isinstance(children[0], nodes.Call):
             inf = safe_infer(children[0].func)
         else:
             inf = safe_infer(children[0])
-        qname = inf.qname() if inf else None
-        if qname in self.deprecated_decorators():
+        if (qname := inf.qname() if inf else None) in self.deprecated_decorators():
             self.add_message("deprecated-decorator", node=node, args=qname)
 
     @utils.only_required_for_messages(

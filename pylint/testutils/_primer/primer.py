@@ -94,8 +94,7 @@ class Primer:
 
     @staticmethod
     def _minimum_python_supported(package_data: dict[str, str]) -> bool:
-        min_python_str = package_data.get("minimum_python", None)
-        if not min_python_str:
+        if not (min_python_str := package_data.get("minimum_python", None)):
             return True
         min_python_tuple = tuple(int(n) for n in min_python_str.split("."))
         return min_python_tuple <= sys.version_info[:2]

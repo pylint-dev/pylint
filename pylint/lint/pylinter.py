@@ -445,8 +445,7 @@ class PyLinter(
             self.set_reporter(sub_reporters[0])
 
     def _load_reporter_by_name(self, reporter_name: str) -> reporters.BaseReporter:
-        name = reporter_name.lower()
-        if name in self._reporters:
+        if (name := reporter_name.lower()) in self._reporters:
             return self._reporters[name]()
 
         try:
@@ -501,8 +500,7 @@ class PyLinter(
         Convert values in config.fail_on (which might be msg category, msg id,
         or symbol) to specific msgs, then enable and flag them for later.
         """
-        fail_on_vals = self.config.fail_on
-        if not fail_on_vals:
+        if not (fail_on_vals := self.config.fail_on):
             return
 
         fail_on_cats = set()
@@ -814,8 +812,7 @@ class PyLinter(
         """
         self.set_current_module(file.name, file.filepath)
         # get the module representation
-        ast_node = get_ast(file.filepath, file.name)
-        if ast_node is None:
+        if (ast_node := get_ast(file.filepath, file.name)) is None:
             return
 
         self._ignore_file = False
@@ -975,8 +972,7 @@ class PyLinter(
                 data, modname, filepath
             )
         except astroid.AstroidSyntaxError as ex:
-            line = getattr(ex.error, "lineno", None)
-            if line is None:
+            if (line := getattr(ex.error, "lineno", None)) is None:
                 line = 0
             self.add_message(
                 "syntax-error",
@@ -1127,8 +1123,7 @@ class PyLinter(
             self.stats.global_note = note
             msg = f"Your code has been rated at {note:.2f}/10"
             if previous_stats:
-                pnote = previous_stats.global_note
-                if pnote is not None:
+                if (pnote := previous_stats.global_note) is not None:
                     msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
 
         if self.config.score:

@@ -171,8 +171,7 @@ def _will_be_released_automatically(node: nodes.Call) -> bool:
     )
     if not isinstance(node.parent, nodes.Call):
         return False
-    func = utils.safe_infer(node.parent.func)
-    if not func:
+    if not (func := utils.safe_infer(node.parent.func)):
         return False
     return func.qname() in callables_taking_care_of_exit
 
@@ -630,8 +629,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         # Process tokens and look for 'if' or 'elif'
         for index, token in enumerate(tokens):
-            token_string = token[1]
-            if token_string == "elif":
+            if (_token_string := token[1]) == "elif":
                 # AST exists by the time process_tokens is called, so
                 # it's safe to assume tokens[index+1] exists.
                 # tokens[index+1][2] is the elif's position as
@@ -1075,8 +1073,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     inside_comp = f"({inside_comp})"
                     inside_comp += ", "
                     inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
-                call_name = node.func.name
-                if call_name in {"any", "all"}:
+                if (call_name := node.func.name) in {"any", "all"}:
                     self.add_message(
                         "use-a-generator",
                         node=node,
@@ -1324,9 +1321,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             variables.append(variable_set)
 
         # Look for (common-)variables that occur in all comparisons
-        common_variables = reduce(lambda a, b: a.intersection(b), variables)
 
-        if not common_variables:
+        if not (common_variables := reduce(lambda a, b: a.intersection(b), variables)):
             return
 
         # Gather information for the suggestion
@@ -1416,8 +1412,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for subnode in values:
             inferred_bool = None
             if not next(subnode.nodes_of_class(nodes.Name), False):
-                inferred = utils.safe_infer(subnode)
-                if inferred:
+                if inferred := utils.safe_infer(subnode):
                     inferred_bool = inferred.bool_value()
 
             if not isinstance(inferred_bool, bool):
@@ -1546,9 +1541,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             inferred_truth_value, UninferableBase
         ):
             return
-        truth_boolean_value = inferred_truth_value.bool_value()
 
-        if truth_boolean_value is False:
+        if (_truth_boolean_value := inferred_truth_value.bool_value()) is False:
             message = "simplify-boolean-expression"
             suggestion = false_value.as_string()
         else:
@@ -1931,8 +1925,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return False
         exc_name = exc.pytype().split(".")[-1]
         handlers = utils.get_exception_handlers(node, exc_name)
-        handlers = list(handlers) if handlers is not None else []
-        if handlers:
+        if handlers := list(handlers) if handlers is not None else []:
             # among all the handlers handling the exception at least one
             # must end with a return statement
             return any(self._is_node_return_ended(_handler) for _handler in handlers)

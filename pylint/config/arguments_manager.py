@@ -345,10 +345,9 @@ class _ArgumentsManager:
                         group_table.add(tomlkit.comment(line))
 
                 # Get current value of option
-                value = getattr(self.config, optname.replace("-", "_"))
 
                 # Create a comment if the option has no value
-                if not value:
+                if not (value := getattr(self.config, optname.replace("-", "_"))):
                     if not minimal:
                         group_table.add(tomlkit.comment(f"{optname} ="))
                         group_table.add(tomlkit.nl())

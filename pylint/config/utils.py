@@ -44,9 +44,8 @@ def _convert_option_to_argument(
         flags += [f"-{optdict['short']}"]
 
     # Get the action type
-    action = optdict.get("action", "store")
 
-    if action == "store_true":
+    if (action := optdict.get("action", "store")) == "store_true":
         return _StoreTrueArgument(
             flags=flags,
             action=action,
@@ -180,9 +179,8 @@ def _enable_all_extensions(run: Run, value: str | None) -> None:
     assert value is None
     for filename in Path(extensions.__file__).parent.iterdir():
         if filename.suffix == ".py" and not filename.stem.startswith("_"):
-            extension_name = f"pylint.extensions.{filename.stem}"
-            if extension_name not in run._plugins:
-                run._plugins.append(extension_name)
+            if (ext_name := f"pylint.extensions.{filename.stem}") not in run._plugins:
+                run._plugins.append(ext_name)
 
 
 PREPROCESSABLE_OPTIONS: dict[
@@ -231,8 +229,7 @@ def _preprocess_options(run: Run, args: Sequence[str]) -> list[str]:
 
         matched_option = None
         for option_name, data in PREPROCESSABLE_OPTIONS.items():
-            to_match = data[2]
-            if to_match == 0:
+            if (to_match := data[2]) == 0:
                 if option == option_name:
                     matched_option = option_name
             elif option.startswith(option_name[:to_match]):

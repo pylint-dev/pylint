@@ -149,8 +149,7 @@ class DotPrinter(Printer):
             os.close(pdot)
             os.close(ppng)
         else:
-            target = Path(outputfile).suffix.lstrip(".")
-            if not target:
+            if not (target := Path(outputfile).suffix.lstrip(".")):
                 target = "png"
                 outputfile = outputfile + "." + target
             if target not in graphviz_extensions:

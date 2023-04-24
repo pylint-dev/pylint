@@ -263,8 +263,7 @@ class ComparisonChecker(_BasicChecker):
         )
 
     def _check_callable_comparison(self, node: nodes.Compare) -> None:
-        operator = node.ops[0][0]
-        if operator not in COMPARISON_OPERATORS:
+        if (_operator := node.ops[0][0]) not in COMPARISON_OPERATORS:
             return
 
         bare_callables = (nodes.FunctionDef, astroid.BoundMethod)

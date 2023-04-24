@@ -20,8 +20,7 @@ def _get_checkers_infos(linter: PyLinter) -> dict[str, dict[str, Any]]:
     """Get info from a checker and handle KeyError."""
     by_checker: dict[str, dict[str, Any]] = {}
     for checker in linter.get_checkers():
-        name = checker.name
-        if name != MAIN_CHECKER_NAME:
+        if (name := checker.name) != MAIN_CHECKER_NAME:
             try:
                 by_checker[name]["checker"] = checker
                 by_checker[name]["options"] += checker._options_and_values()

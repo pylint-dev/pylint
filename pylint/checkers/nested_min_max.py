@@ -69,8 +69,7 @@ class NestedMinMaxChecker(BaseChecker):
         if not self.is_min_max_call(node):
             return
 
-        redundant_calls = self.get_redundant_calls(node)
-        if not redundant_calls:
+        if not (redundant_calls := self.get_redundant_calls(node)):
             return
 
         fixed_node = copy.copy(node)

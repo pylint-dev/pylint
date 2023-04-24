@@ -92,12 +92,10 @@ class RunCommand(PrimerCommand):
         fatal_msgs: list[Message] = []
         if pylint_exit_code % 2 == 0:
             print(f"Successfully primed {package_name}.")
-        else:
-            fatal_msgs = self._filter_fatal_errors(messages)
-            if fatal_msgs:
-                warnings.warn(
-                    f"Encountered fatal errors while priming {package_name} !\n"
-                    f"{self._print_msgs(fatal_msgs)}\n\n",
-                    stacklevel=2,
-                )
+        elif fatal_msgs := self._filter_fatal_errors(messages):
+            warnings.warn(
+                f"Encountered fatal errors while priming {package_name} !\n"
+                f"{self._print_msgs(fatal_msgs)}\n\n",
+                stacklevel=2,
+            )
         return messages, fatal_msgs

@@ -222,8 +222,7 @@ class DocstringParameterChecker(BaseChecker):
     ) -> None:
         node_allow_no_param = None
         if node.name in self.constructor_names:
-            class_node = checker_utils.node_frame_class(node)
-            if class_node is not None:
+            if (class_node := checker_utils.node_frame_class(node)) is not None:
                 class_doc = utils.docstringify(
                     class_node.doc_node, self.linter.config.default_docstring_type
                 )
@@ -283,16 +282,13 @@ class DocstringParameterChecker(BaseChecker):
         if no_docstring_rgx and re.match(no_docstring_rgx, func_node.name):
             return
 
-        expected_excs = utils.possible_exc_types(node)
-
-        if not expected_excs:
+        if not (expected_excs := utils.possible_exc_types(node)):
             return
 
         if not func_node.doc_node:
             # If this is a property setter,
             # the property should have the docstring instead.
-            property_ = utils.get_setters_property(func_node)
-            if property_:
+            if property_ := utils.get_setters_property(func_node):
                 func_node = property_
 
         doc = utils.docstringify(
@@ -482,9 +478,10 @@ class DocstringParameterChecker(BaseChecker):
         :param ignored_argument_names: Expected argument names
         :param warning_node: The node to be analyzed
         """
-        existing_ignored_argument_names = ignored_argument_names & found_argument_names
 
-        if existing_ignored_argument_names:
+        if existing_ignored_argument_names := (
+            ignored_argument_names & found_argument_names
+        ):
             self.add_message(
                 message_id,
                 args=(", ".join(sorted(existing_ignored_argument_names)),),
@@ -545,8 +542,7 @@ class DocstringParameterChecker(BaseChecker):
         not_needed_type_in_docstring = self.not_needed_param_in_docstring.copy()
 
         expected_but_ignored_argument_names = set()
-        ignored_argument_names = self.linter.config.ignored_argument_names
-        if ignored_argument_names:
+        if ignored_argument_names := self.linter.config.ignored_argument_names:
             expected_but_ignored_argument_names = {
                 arg
                 for arg in expected_argument_names

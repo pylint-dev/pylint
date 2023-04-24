@@ -127,8 +127,7 @@ class ClassDiagram(Figure, FilterMixIn):
         ):
             if not self.show_attr(node_name):
                 continue
-            names = self.class_names(associated_nodes)
-            if names:
+            if names := self.class_names(associated_nodes):
                 node_name = f"{node_name} : {', '.join(names)}"
             attrs.append(node_name)
         return sorted(attrs)
@@ -261,8 +260,7 @@ class PackageDiagram(ClassDiagram):
         raise KeyError if not found.
         """
         for mod in self.modules():
-            mod_name = mod.node.name
-            if mod_name == name:
+            if (mod_name := mod.node.name) == name:
                 return mod
             # search for fullname of relative import modules
             package = node.root().name

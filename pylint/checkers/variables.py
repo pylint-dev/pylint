@@ -283,8 +283,7 @@ def _fix_dot_imports(
                 continue
             for imports in stmt.names:
                 second_name = None
-                import_module_name = imports[0]
-                if import_module_name == "*":
+                if (import_module_name := imports[0]) == "*":
                     # In case of wildcard imports,
                     # pick the name from inside the imported module.
                     second_name = name
@@ -1305,8 +1304,7 @@ class VariablesChecker(BaseChecker):
         if not isinstance(inferred, DICT_TYPES):
             return
 
-        values = self._nodes_to_unpack(inferred)
-        if not values:
+        if not (values := self._nodes_to_unpack(inferred)):
             # no dict items returned
             return
 
@@ -1746,8 +1744,7 @@ class VariablesChecker(BaseChecker):
                 self._check_late_binding_closure(node)
                 return (VariableVisitConsumerAction.RETURN, None)
 
-        found_nodes = current_consumer.get_next_to_consume(node)
-        if found_nodes is None:
+        if (found_nodes := current_consumer.get_next_to_consume(node)) is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
             self._report_unfound_name_definition(node, current_consumer)
@@ -2022,8 +2019,7 @@ class VariablesChecker(BaseChecker):
             module = node.do_import_module(name_parts[0])
         except astroid.AstroidBuildingException:
             return
-        module = self._check_module_attrs(node, module, name_parts[1:])
-        if not module:
+        if not (module := self._check_module_attrs(node, module, name_parts[1:])):
             return
         for name, _ in node.names:
             if name == "*":
@@ -2051,8 +2047,7 @@ class VariablesChecker(BaseChecker):
             return
 
         try:
-            inferred = utils.safe_infer(node.value)
-            if inferred is not None:
+            if (inferred := utils.safe_infer(node.value)) is not None:
                 self._check_unpacking(inferred, node, targets)
         except astroid.InferenceError:
             return
@@ -2568,8 +2563,7 @@ class VariablesChecker(BaseChecker):
                     ):
                         return
 
-        maybe_walrus = utils.get_node_first_ancestor_of_type(node, nodes.NamedExpr)
-        if maybe_walrus:
+        if maybe_walrus := utils.get_node_first_ancestor_of_type(node, nodes.NamedExpr):
             maybe_comprehension = utils.get_node_first_ancestor_of_type(
                 maybe_walrus, nodes.Comprehension
             )
@@ -2621,8 +2615,7 @@ class VariablesChecker(BaseChecker):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
                 return
 
-            elements = getattr(inferred, "elts", getattr(inferred, "items", []))
-            if not elements:
+            if not getattr(inferred, "elts", getattr(inferred, "items", [])):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
     # pylint: disable = too-many-branches
@@ -2668,8 +2661,7 @@ class VariablesChecker(BaseChecker):
                 is_init_def = False
                 # Look for the `__init__` method in all the methods of the same class.
                 for n in node.parent.get_children():
-                    is_init_def = hasattr(n, "name") and (n.name == "__init__")
-                    if is_init_def:
+                    if is_init_def := (hasattr(n, "name") and (n.name == "__init__")):
                         break
                 # Ignore unused arguments check for `__new__` if `__init__` is defined.
                 if is_init_def:
@@ -2897,10 +2889,9 @@ class VariablesChecker(BaseChecker):
     def _store_type_annotation_names(
         self, node: nodes.For | nodes.Assign | nodes.With
     ) -> None:
-        type_annotation = node.type_annotation
-        if not type_annotation:
+        if not (type_annotation := node.type_annotation):
             return
-        self._store_type_annotation_node(node.type_annotation)
+        self._store_type_annotation_node(type_annotation)
 
     def _check_self_cls_assign(self, node: nodes.Assign) -> None:
         """Check that self/cls don't get assigned."""
@@ -2925,11 +2916,9 @@ class VariablesChecker(BaseChecker):
             and "builtins.staticmethod" not in scope.decoratornames()
         ):
             return
-        argument_names = scope.argnames()
-        if not argument_names:
+        if not (argument_names := scope.argnames()):
             return
-        self_cls_name = argument_names[0]
-        if self_cls_name in assign_names:
+        if (self_cls_name := argument_names[0]) in assign_names:
             self.add_message("self-cls-assignment", node=node, args=(self_cls_name,))
 
     def _check_unpacking(
@@ -3014,8 +3003,7 @@ class VariablesChecker(BaseChecker):
         given module, if the latest access name corresponds to a module, return it.
         """
         while module_names:
-            name = module_names.pop(0)
-            if name == "__dict__":
+            if (name := module_names.pop(0)) == "__dict__":
                 module = None
                 break
             try:
@@ -3231,8 +3219,7 @@ class VariablesChecker(BaseChecker):
             name = metaclass.root().name
 
         found = False
-        name = METACLASS_NAME_TRANSFORMS.get(name, name)
-        if name:
+        if name := METACLASS_NAME_TRANSFORMS.get(name, name):
             # check enclosing scopes starting from most local
             for scope_locals, _, _, _ in self._to_consume[::-1]:
                 found_nodes = scope_locals.get(name, [])

@@ -338,8 +338,7 @@ def _check_mode_str(mode: Any) -> bool:
         reading = True
     if text and binary:
         return False
-    total = reading + writing + appending + creating
-    if total > 1:
+    if (_total := reading + writing + appending + creating) > 1:
         return False
     if not (reading or writing or appending or creating):
         return False
@@ -608,8 +607,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             # pylint: disable = too-many-try-statements
             try:
                 for infered_node in d_node.infer():
-                    q_name = infered_node.qname()
-                    if q_name in NON_INSTANCE_METHODS:
+                    if (q_name := infered_node.qname()) in NON_INSTANCE_METHODS:
                         return
 
                     # Check if there is a maxsize argument set to None in the call
