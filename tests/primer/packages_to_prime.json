@@ -20,10 +20,10 @@
     "directories": ["src/flask"],
     "url": "https://github.com/pallets/flask"
   },
-  "keras": {
-    "branch": "master",
-    "directories": ["keras"],
-    "url": "https://github.com/keras-team/keras.git"
+  "home-assistant": {
+    "branch": "dev",
+    "directories": ["homeassistant"],
+    "url": "https://github.com/home-assistant/core.git"
   },
   "music21": {
     "branch": "master",
