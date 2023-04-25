@@ -467,7 +467,7 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
         if inferred.pytype() != property_name:
             continue
 
-        if (_cls := node_frame_class(inferred)) == klass.declared_metaclass():
+        if node_frame_class(inferred) == klass.declared_metaclass():
             continue
         return True
     return False
