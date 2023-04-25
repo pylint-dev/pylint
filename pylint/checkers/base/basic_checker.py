@@ -363,7 +363,7 @@ class BasicChecker(_BasicChecker):
                 # astroid.exceptions.InferenceError are false positives
                 # see https://github.com/pylint-dev/pylint/pull/8185
                 if isinstance(inferred, nodes.FunctionDef):
-                    call_inferred = list(inferred.infer_call_result(caller=None))
+                    call_inferred = list(inferred.infer_call_result(node))
                 elif isinstance(inferred, nodes.Lambda):
                     call_inferred = list(inferred.infer_call_result(node))
             except astroid.InferenceError:
