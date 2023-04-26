@@ -1,0 +1,2 @@
+[MAIN]
+enable=use-implicit-booleaness-not-comparison-to-string

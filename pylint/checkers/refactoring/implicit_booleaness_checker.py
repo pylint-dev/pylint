@@ -81,6 +81,15 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "of a collection classes; empty collections are considered as false",
         ),
         "C1804": (
+            '"%s" can be simplified to "%s" as an empty string is falsey',
+            "use-implicit-booleaness-not-comparison-to-string",
+            "Used when Pylint detects comparison to an empty string constant.",
+            {
+                "default_enabled": False,
+                "old_names": [("C1901", "compare-to-empty-string")],
+            },
+        ),
+        "C1805": (
             '"%s" can be simplified to "%s" as 0 is falsey',
             "use-implicit-booleaness-not-comparison-to-zero",
             "Used when Pylint detects comparison to a 0 constant.",
@@ -162,12 +171,16 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 "use-implicit-booleaness-not-len", node=node, confidence=HIGH
             )
 
-    @utils.only_required_for_messages("use-implicit-booleaness-not-comparison")
+    @utils.only_required_for_messages(
+        "use-implicit-booleaness-not-comparison",
+        "use-implicit-booleaness-not-comparison-to-string",
+        "use-implicit-booleaness-not-comparison-to-zero",
+    )
     def visit_compare(self, node: nodes.Compare) -> None:
         self._check_use_implicit_booleaness_not_comparison(node)
         self._check_compare_to_zero(node)
+        self._check_compare_to_string(node)
 
-    @utils.only_required_for_messages("compare-to-zero")
     def _check_compare_to_zero(self, node: nodes.Compare) -> None:
         # pylint: disable=duplicate-code
         _operators = ["!=", "==", "is not", "is"]
@@ -205,6 +218,47 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 self.add_message(
                     "compare-to-zero",
                     args=(original, suggestion),
+                    node=node,
+                    confidence=HIGH,
+                )
+
+    def _check_compare_to_string(self, node: nodes.Compare) -> None:
+        """Checks for comparisons to empty string.
+
+        Most of the time you should use the fact that empty strings are false.
+        An exception to this rule is when an empty string value is allowed in the program
+        and has a different meaning than None!
+        """
+        _operators = {"!=", "==", "is not", "is"}
+        # note: astroid.Compare has the left most operand in node.left while the rest
+        # are a list of tuples in node.ops the format of the tuple is
+        # ('compare operator sign', node) here we squash everything into `ops`
+        # to make it easier for processing later
+        ops: list[tuple[str, nodes.NodeNG | None]] = [("", node.left)]
+        ops.extend(node.ops)
+        iter_ops = iter(ops)
+        ops = list(itertools.chain(*iter_ops))  # type: ignore[arg-type]
+        for ops_idx in range(len(ops) - 2):
+            op_1: nodes.NodeNG | None = ops[ops_idx]
+            op_2: str = ops[ops_idx + 1]  # type: ignore[assignment]
+            op_3: nodes.NodeNG | None = ops[ops_idx + 2]
+            error_detected = False
+            if op_1 is None or op_3 is None or op_2 not in _operators:
+                continue
+            node_name = ""
+            # x ?? ""
+            if utils.is_empty_str_literal(op_1):
+                error_detected = True
+                node_name = op_3.as_string()
+            # '' ?? X
+            elif utils.is_empty_str_literal(op_3):
+                error_detected = True
+                node_name = op_1.as_string()
+            if error_detected:
+                suggestion = f"not {node_name}" if op_2 in {"==", "is"} else node_name
+                self.add_message(
+                    "compare-to-empty-string",
+                    args=(node.as_string(), suggestion),
                     node=node,
                     confidence=HIGH,
                 )
