@@ -893,14 +893,14 @@ Refactoring checker Messages
   Emitted when a single "return" or "return None" statement is found at the end
   of function or method definition. This statement can safely be removed
   because Python will implicitly return None
-:use-implicit-booleaness-not-comparison-to-zero (C1805): *"%s" can be simplified to "%s" as 0 is falsey*
-  Used when Pylint detects comparison to a 0 constant.
-:use-implicit-booleaness-not-comparison-to-string (C1804): *"%s" can be simplified to "%s" as an empty string is falsey*
+:use-implicit-booleaness-not-comparison-to-string (C1804): *"%s" can be simplified to "%s", if it is striclty a string, as an empty string is falsey*
   Used when Pylint detects comparison to an empty string constant.
-:use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty %s is falsey*
+:use-implicit-booleaness-not-comparison (C1803): *"%s" can be simplified to "%s", if it is strictly a sequence, as an empty %s is falsey*
   Used when Pylint detects that collection literal comparison is being used to
   check for emptiness; Use implicit booleaness instead of a collection classes;
   empty collections are considered as false
+:use-implicit-booleaness-not-comparison-to-zero (C1805): *"%s" can be simplified to "%s", if it is strictly an int, as 0 is falsey*
+  Used when Pylint detects comparison to a 0 constant.
 :unneeded-not (C0113): *Consider changing "%s" to "%s"*
   Used when a boolean expression contains an unneeded negation.
 :consider-iterating-dictionary (C0201): *Consider iterating the dictionary directly instead of calling .keys()*
