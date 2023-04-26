@@ -4,12 +4,22 @@
 
 from __future__ import annotations
 
+import itertools
+
 import astroid
 from astroid import bases, nodes, util
 
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.interfaces import HIGH, INFERENCE
+
+
+def _is_constant_zero(node: str | nodes.NodeNG) -> bool:
+    # We have to check that node.value is not False because node.value == 0 is True
+    # when node.value is False
+    return (
+        isinstance(node, astroid.Const) and node.value == 0 and node.value is not False
+    )
 
 
 class ImplicitBooleanessChecker(checkers.BaseChecker):
@@ -69,6 +79,12 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "Used when Pylint detects that collection literal comparison is being "
             "used to check for emptiness; Use implicit booleaness instead "
             "of a collection classes; empty collections are considered as false",
+        ),
+        "C1804": (
+            '"%s" can be simplified to "%s" as 0 is falsey',
+            "use-implicit-booleaness-not-comparison-to-zero",
+            "Used when Pylint detects comparison to a 0 constant.",
+            {"default_enabled": False, "old_names": [("C2001", "compare-to-zero")]},
         ),
     }
 
@@ -149,6 +165,49 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     @utils.only_required_for_messages("use-implicit-booleaness-not-comparison")
     def visit_compare(self, node: nodes.Compare) -> None:
         self._check_use_implicit_booleaness_not_comparison(node)
+        self._check_compare_to_zero(node)
+
+    @utils.only_required_for_messages("compare-to-zero")
+    def _check_compare_to_zero(self, node: nodes.Compare) -> None:
+        # pylint: disable=duplicate-code
+        _operators = ["!=", "==", "is not", "is"]
+        # note: astroid.Compare has the left most operand in node.left
+        # while the rest are a list of tuples in node.ops
+        # the format of the tuple is ('compare operator sign', node)
+        # here we squash everything into `ops` to make it easier for processing later
+        ops: list[tuple[str, nodes.NodeNG]] = [("", node.left)]
+        ops.extend(node.ops)
+        iter_ops = iter(ops)
+        all_ops = list(itertools.chain(*iter_ops))
+
+        for ops_idx in range(len(all_ops) - 2):
+            op_1 = all_ops[ops_idx]
+            op_2 = all_ops[ops_idx + 1]
+            op_3 = all_ops[ops_idx + 2]
+            error_detected = False
+
+            # 0 ?? X
+            if _is_constant_zero(op_1) and op_2 in _operators:
+                error_detected = True
+                op = op_3
+            # X ?? 0
+            elif op_2 in _operators and _is_constant_zero(op_3):
+                error_detected = True
+                op = op_1
+
+            if error_detected:
+                original = f"{op_1.as_string()} {op_2} {op_3.as_string()}"
+                suggestion = (
+                    op.as_string()
+                    if op_2 in {"!=", "is not"}
+                    else f"not {op.as_string()}"
+                )
+                self.add_message(
+                    "compare-to-zero",
+                    args=(original, suggestion),
+                    node=node,
+                    confidence=HIGH,
+                )
 
     def _check_use_implicit_booleaness_not_comparison(
         self, node: nodes.Compare

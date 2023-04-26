@@ -391,7 +391,6 @@ All messages in the convention category:
    convention/bad-mcs-classmethod-argument
    convention/bad-mcs-method-argument
    convention/compare-to-empty-string
-   convention/compare-to-zero
    convention/consider-iterating-dictionary
    convention/consider-using-any-or-all
    convention/consider-using-dict-items
@@ -433,6 +432,7 @@ All messages in the convention category:
    convention/unnecessary-lambda-assignment
    convention/unneeded-not
    convention/use-implicit-booleaness-not-comparison
+   convention/use-implicit-booleaness-not-comparison-to-zero
    convention/use-implicit-booleaness-not-len
    convention/use-maxsplit-arg
    convention/use-sequence-for-iteration
@@ -449,6 +449,7 @@ All renamed messages in the convention category:
    :titlesonly:
 
    convention/blacklisted-name
+   convention/compare-to-zero
    convention/len-as-condition
    convention/missing-docstring
    convention/old-misplaced-comparison-constant
