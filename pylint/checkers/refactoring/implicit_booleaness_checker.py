@@ -74,14 +74,14 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             {"old_names": [("C1801", "len-as-condition")]},
         ),
         "C1803": (
-            '"%s" can be simplified to "%s" as an empty %s is falsey',
+            '"%s" can be simplified to "%s", if it is strictly a sequence, as an empty %s is falsey',
             "use-implicit-booleaness-not-comparison",
             "Used when Pylint detects that collection literal comparison is being "
             "used to check for emptiness; Use implicit booleaness instead "
             "of a collection classes; empty collections are considered as false",
         ),
         "C1804": (
-            '"%s" can be simplified to "%s" as an empty string is falsey',
+            '"%s" can be simplified to "%s", if it is striclty a string, as an empty string is falsey',
             "use-implicit-booleaness-not-comparison-to-string",
             "Used when Pylint detects comparison to an empty string constant.",
             {
@@ -90,7 +90,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             },
         ),
         "C1805": (
-            '"%s" can be simplified to "%s" as 0 is falsey',
+            '"%s" can be simplified to "%s", if it is strictly an int, as 0 is falsey',
             "use-implicit-booleaness-not-comparison-to-zero",
             "Used when Pylint detects comparison to a 0 constant.",
             {"default_enabled": False, "old_names": [("C2001", "compare-to-zero")]},
