@@ -40,7 +40,7 @@ class CompareToZeroChecker(checkers.BaseChecker):
     name = "compare-to-zero"
     msgs = {
         "C2001": (
-            '"%s" can be simplified to "%s" as 0 is falsey',
+            '"%s" can be simplified to "%s", if "%s" is strictly an int, as 0 is falsey',
             "compare-to-zero",
             "Used when Pylint detects comparison to a 0 constant.",
         )
@@ -85,7 +85,7 @@ class CompareToZeroChecker(checkers.BaseChecker):
                 )
                 self.add_message(
                     "compare-to-zero",
-                    args=(original, suggestion),
+                    args=(original, suggestion, op.as_string()),
                     node=node,
                     confidence=HIGH,
                 )

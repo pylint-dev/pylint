@@ -96,9 +96,20 @@ Compare-To-Empty-String checker
 This checker is provided by ``pylint.extensions.emptystring``.
 Verbatim name of the checker is ``compare-to-empty-string``.
 
+Compare-To-Empty-String checker Documentation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can use this plugin for finding patterns such as ``a == ''`` and ``a != ''`` in your code base.
+It is usually possible to replace ``a == ''`` with a Pythonic expression of ``not a``
+and replace ``a != ''`` with ``a``, if the variable ``a`` is strictly a ``str``.
+
+Note that this replacement is not always safe to perform when the expression
+being compared to an empty string is not an ``str``, or a union of ``str`` with other types.
+For example, ``False != ''`` is ``True``, while the expression ``False`` is falsey.
+
 Compare-To-Empty-String checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-empty-string (C1901): *"%s" can be simplified to "%s" as an empty string is falsey*
+:compare-to-empty-string (C1901): *"%s" can be simplified to "%s", if "%s" is strictly a string, as an empty string is falsey*
   Used when Pylint detects comparison to an empty string constant.
 
 
@@ -110,9 +121,20 @@ Compare-To-Zero checker
 This checker is provided by ``pylint.extensions.comparetozero``.
 Verbatim name of the checker is ``compare-to-zero``.
 
+Compare-To-Zero checker Documentation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can use this plugin for finding patterns such as ``a == 0`` and ``a != 0`` in your code base.
+It is usually possible to replace ``a == 0`` with a Pythonic expression of ``not a``
+and replace ``a != 0`` with ``a``, if the variable ``a`` is strictly an ``int``.
+
+Note that this replacement is not always safe to perform when the expression
+being compared to zero is not an ``int``, or a union of ``int`` with other types.
+For example, ``'' != 0`` is ``True``, while the expression ``''`` is falsey.
+
 Compare-To-Zero checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-zero (C2001): *"%s" can be simplified to "%s" as 0 is falsey*
+:compare-to-zero (C2001): *"%s" can be simplified to "%s", if "%s" is strictly an int, as 0 is falsey*
   Used when Pylint detects comparison to a 0 constant.
 
 

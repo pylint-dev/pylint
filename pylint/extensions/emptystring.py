@@ -23,7 +23,7 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
     name = "compare-to-empty-string"
     msgs = {
         "C1901": (
-            '"%s" can be simplified to "%s" as an empty string is falsey',
+            '"%s" can be simplified to "%s", if "%s" is strictly a string, as an empty string is falsey',
             "compare-to-empty-string",
             "Used when Pylint detects comparison to an empty string constant.",
         )
@@ -68,7 +68,7 @@ class CompareToEmptyStringChecker(checkers.BaseChecker):
                 suggestion = f"not {node_name}" if op_2 in {"==", "is"} else node_name
                 self.add_message(
                     "compare-to-empty-string",
-                    args=(node.as_string(), suggestion),
+                    args=(node.as_string(), suggestion, node_name),
                     node=node,
                     confidence=HIGH,
                 )
