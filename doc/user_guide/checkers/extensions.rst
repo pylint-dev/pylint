@@ -10,7 +10,6 @@ Pylint provides the following optional plugins:
 - :ref:`pylint.extensions.broad_try_clause`
 - :ref:`pylint.extensions.check_elif`
 - :ref:`pylint.extensions.code_style`
-- :ref:`pylint.extensions.comparetozero`
 - :ref:`pylint.extensions.comparison_placement`
 - :ref:`pylint.extensions.confusing_elif`
 - :ref:`pylint.extensions.consider_refactoring_into_while_condition`
@@ -100,20 +99,6 @@ Compare-To-Empty-String checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :compare-to-empty-string (C1901): *"%s" can be simplified to "%s" as an empty string is falsey*
   Used when Pylint detects comparison to an empty string constant.
-
-
-.. _pylint.extensions.comparetozero:
-
-Compare-To-Zero checker
-~~~~~~~~~~~~~~~~~~~~~~~
-
-This checker is provided by ``pylint.extensions.comparetozero``.
-Verbatim name of the checker is ``compare-to-zero``.
-
-Compare-To-Zero checker Messages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-zero (C2001): *"%s" can be simplified to "%s" as 0 is falsey*
-  Used when Pylint detects comparison to a 0 constant.
 
 
 .. _pylint.extensions.comparison_placement:

@@ -893,6 +893,8 @@ Refactoring checker Messages
   Emitted when a single "return" or "return None" statement is found at the end
   of function or method definition. This statement can safely be removed
   because Python will implicitly return None
+:use-implicit-booleaness-not-comparison-to-zero (C1804): *"%s" can be simplified to "%s" as 0 is falsey*
+  Used when Pylint detects comparison to a 0 constant.
 :use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty %s is falsey*
   Used when Pylint detects that collection literal comparison is being used to
   check for emptiness; Use implicit booleaness instead of a collection classes;
