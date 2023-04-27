@@ -21,6 +21,10 @@ classDiagram
     get_value()*
     set_value(value)*
   }
+  class NullablePatterns {
+    return_nullable_1()* int | None
+    return_nullable_2()* Optional[int]
+  }
   class PropertyPatterns {
     prop1
     prop2

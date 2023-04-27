@@ -141,6 +141,7 @@ def test_known_values1(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
     assert modules == [
         (True, "data"),
         (True, "data.clientmodule_test"),
+        (True, "data.nullable_pattern"),
         (True, "data.property_pattern"),
         (True, "data.suppliermodule_test"),
     ]
@@ -154,6 +155,7 @@ def test_known_values1(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
         (True, "DoNothing2"),
         (True, "DoSomething"),
         (True, "Interface"),
+        (True, "NullablePatterns"),
         (True, "PropertyPatterns"),
         (True, "Specialization"),
     ]
