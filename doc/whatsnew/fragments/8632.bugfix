@@ -1,0 +1,4 @@
+tomlkit max version was set to 0.11.7 following a
+regression in tomlkit 0.11.8.
+
+Closes #8632
