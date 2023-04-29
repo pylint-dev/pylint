@@ -37,3 +37,4 @@ unexpected-keyword-arg:203:23:203:56:namedtuple_replace_issue_1036:Unexpected ke
 no-value-for-parameter:216:0:216:24::No value for argument 'third' in function call:UNDEFINED
 no-value-for-parameter:217:0:217:30::No value for argument 'second' in function call:UNDEFINED
 unexpected-keyword-arg:218:0:218:43::Unexpected keyword argument 'fourth' in function call:UNDEFINED
+redundant-keyword-arg:306:0:306:75::Argument 'orange' passed by position and keyword in function call:UNDEFINED

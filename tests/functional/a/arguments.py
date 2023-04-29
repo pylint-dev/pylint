@@ -278,3 +278,29 @@ class FruitPicker:
 picker = FruitPicker()
 picker.pick_apple()
 picker.pick_pear()
+
+
+def name1(apple, /, **kwargs):
+    """
+    Positional-only parameter with `**kwargs`.
+    Calling this function with the `apple` keyword should not emit
+    `redundant-keyword-arg` since it is added to `**kwargs`.
+    >>> name1("Red apple", apple="Green apple")
+    >>> "Red apple"
+    >>> {"apple": "Green apple"}
+    """
+    print(apple)
+    print(kwargs)
+
+
+name1("Red apple", apple="Green apple")
+
+
+def name2(apple, /, orange, **kwargs):
+    """
+    Positional-only parameter with positional-or-keyword parameter and `**kwargs`.
+    """
+
+
+# +1:[redundant-keyword-arg]
+name2("Red apple", "Green pear", apple="Green apple", orange="Yellow pear")

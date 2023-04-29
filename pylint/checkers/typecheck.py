@@ -1548,6 +1548,12 @@ accessed. Python regular expressions are accepted.",
 
         # 2. Match the keyword arguments.
         for keyword in keyword_args:
+            # Skip if `keyword` is the same name as a positional-only-parameter
+            # and a `**kwargs` parameter exists.
+            if called.args.kwarg and keyword in [
+                arg.name for arg in called.args.posonlyargs
+            ]:
+                continue
             if keyword in parameter_name_to_index:
                 i = parameter_name_to_index[keyword]
                 if parameters[i][1]:
@@ -1564,11 +1570,6 @@ accessed. Python regular expressions are accepted.",
                             node=node,
                             args=(keyword, callable_name),
                         )
-                elif (
-                    keyword in [arg.name for arg in called.args.posonlyargs]
-                    and called.args.kwarg
-                ):
-                    pass
                 else:
                     parameters[i] = (parameters[i][0], True)
             elif keyword in kwparams:
