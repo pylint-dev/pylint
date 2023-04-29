@@ -4,15 +4,9 @@
 
 from __future__ import annotations
 
-import sys
-from typing import cast
+from typing import Literal, TypedDict, cast
 
 from pylint.typing import MessageTypesFullName
-
-if sys.version_info >= (3, 8):
-    from typing import Literal, TypedDict
-else:
-    from typing_extensions import Literal, TypedDict
 
 
 class BadNames(TypedDict):

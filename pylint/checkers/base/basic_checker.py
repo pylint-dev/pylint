@@ -8,9 +8,8 @@ from __future__ import annotations
 
 import collections
 import itertools
-import sys
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 import astroid
 from astroid import nodes, objects, util
@@ -23,11 +22,6 @@ from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 class _BasicChecker(BaseChecker):
@@ -369,7 +363,7 @@ class BasicChecker(_BasicChecker):
                 # astroid.exceptions.InferenceError are false positives
                 # see https://github.com/pylint-dev/pylint/pull/8185
                 if isinstance(inferred, nodes.FunctionDef):
-                    call_inferred = list(inferred.infer_call_result())
+                    call_inferred = list(inferred.infer_call_result(node))
                 elif isinstance(inferred, nodes.Lambda):
                     call_inferred = list(inferred.infer_call_result(node))
             except astroid.InferenceError:

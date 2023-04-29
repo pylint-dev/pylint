@@ -356,9 +356,10 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         if defnode is None:
             continue
         defnode_scope = defnode.scope()
-        if isinstance(defnode_scope, (*COMP_NODE_TYPES, nodes.Lambda)):
+        if isinstance(
+            defnode_scope, (*COMP_NODE_TYPES, nodes.Lambda, nodes.FunctionDef)
+        ):
             # Avoid the case where var_node_scope is a nested function
-            # FunctionDef is a Lambda until https://github.com/pylint-dev/astroid/issues/291
             if isinstance(defnode_scope, nodes.FunctionDef):
                 var_node_scope = var_node.scope()
                 if var_node_scope is not defnode_scope and isinstance(
@@ -1130,6 +1131,7 @@ def node_ignores_exception(
     return any(get_contextlib_suppressors(node, exception))
 
 
+@lru_cache(maxsize=1024)
 def class_is_abstract(node: nodes.ClassDef) -> bool:
     """Return true if the given class node should be considered as an abstract
     class.
@@ -1940,7 +1942,7 @@ def is_typing_member(node: nodes.NodeNG, names_to_check: tuple[str, ...]) -> boo
     return False
 
 
-@lru_cache()
+@lru_cache
 def in_for_else_branch(parent: nodes.NodeNG, stmt: nodes.Statement) -> bool:
     """Returns True if stmt is inside the else branch for a parent For stmt."""
     return isinstance(parent, nodes.For) and any(
@@ -2191,6 +2193,7 @@ def overridden_method(
 def clear_lru_caches() -> None:
     """Clear caches holding references to AST nodes."""
     caches_holding_node_references: list[_lru_cache_wrapper[Any]] = [
+        class_is_abstract,
         in_for_else_branch,
         infer_all,
         is_overload_stub,

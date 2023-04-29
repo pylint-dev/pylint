@@ -18,7 +18,7 @@ from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
 from types import ModuleType
-from typing import Any
+from typing import Any, Protocol
 
 import astroid
 from astroid import nodes
@@ -67,12 +67,6 @@ from pylint.typing import (
     Options,
 )
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
-
-if sys.version_info >= (3, 8):
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
-
 
 MANAGER = astroid.MANAGER
 

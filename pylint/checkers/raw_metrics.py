@@ -4,18 +4,12 @@
 
 from __future__ import annotations
 
-import sys
 import tokenize
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from pylint.checkers import BaseTokenChecker
 from pylint.reporters.ureports.nodes import Paragraph, Section, Table, Text
 from pylint.utils import LinterStats, diff_string
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

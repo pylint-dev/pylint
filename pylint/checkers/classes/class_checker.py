@@ -7,9 +7,9 @@
 from __future__ import annotations
 
 import collections
-import sys
 from collections import defaultdict
 from collections.abc import Callable, Sequence
+from functools import cached_property
 from itertools import chain, zip_longest
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Union
@@ -46,11 +46,6 @@ from pylint.typing import MessageDefinitionTuple
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
-
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
 
 _AccessNodes = Union[nodes.Attribute, nodes.AssignAttr]
 

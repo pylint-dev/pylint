@@ -11,10 +11,10 @@ import copy
 import itertools
 import os
 import re
-import sys
 from collections import defaultdict
 from collections.abc import Generator, Iterable, Iterator
 from enum import Enum
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
@@ -33,11 +33,6 @@ from pylint.checkers.utils import (
 from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
-
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -805,6 +800,9 @@ scope_type : {self._atomic.scope_type}
                 continue
 
             outer_if = all_if[-1]
+            if NamesConsumer._node_guarded_by_same_test(node, outer_if):
+                continue
+
             # Name defined in the if/else control flow
             if NamesConsumer._inferred_to_define_name_raise_or_return(name, outer_if):
                 continue
@@ -812,6 +810,38 @@ scope_type : {self._atomic.scope_type}
             uncertain_nodes.append(other_node)
 
         return uncertain_nodes
+
+    @staticmethod
+    def _node_guarded_by_same_test(node: nodes.NodeNG, other_if: nodes.If) -> bool:
+        """Identify if `node` is guarded by an equivalent test as `other_if`.
+
+        Two tests are equivalent if their string representations are identical
+        or if their inferred values consist only of constants and those constants
+        are identical, and the if test guarding `node` is not a Name.
+        """
+        other_if_test_as_string = other_if.test.as_string()
+        other_if_test_all_inferred = utils.infer_all(other_if.test)
+        for ancestor in node.node_ancestors():
+            if not isinstance(ancestor, nodes.If):
+                continue
+            if ancestor.test.as_string() == other_if_test_as_string:
+                return True
+            if isinstance(ancestor.test, nodes.Name):
+                continue
+            all_inferred = utils.infer_all(ancestor.test)
+            if len(all_inferred) == len(other_if_test_all_inferred):
+                if any(
+                    not isinstance(test, nodes.Const)
+                    for test in (*all_inferred, *other_if_test_all_inferred)
+                ):
+                    continue
+                if {test.value for test in all_inferred} != {
+                    test.value for test in other_if_test_all_inferred
+                }:
+                    continue
+                return True
+
+        return False
 
     @staticmethod
     def _uncertain_nodes_in_except_blocks(
@@ -1251,6 +1281,9 @@ class VariablesChecker(BaseChecker):
             tuple[nodes.ExceptHandler, nodes.AssignName]
         ] = []
         """This is a queue, last in first out."""
+        self._evaluated_type_checking_scopes: dict[
+            str, list[nodes.LocalsDictNodeNG]
+        ] = {}
         self._postponed_evaluation_enabled = False
 
     @utils.only_required_for_messages(
@@ -1711,30 +1744,16 @@ class VariablesChecker(BaseChecker):
         if found_nodes is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
-            if (
-                not (
-                    self._postponed_evaluation_enabled
-                    and utils.is_node_in_type_annotation_context(node)
-                )
-                and not self._is_builtin(node.name)
-                and not self._is_variable_annotation_in_function(node)
-            ):
-                confidence = (
-                    CONTROL_FLOW
-                    if node.name in current_consumer.consumed_uncertain
-                    else HIGH
-                )
-                self.add_message(
-                    "used-before-assignment",
-                    args=node.name,
-                    node=node,
-                    confidence=confidence,
-                )
+            self._report_unfound_name_definition(node, current_consumer)
             # Mark for consumption any nodes added to consumed_uncertain by
             # get_next_to_consume() because they might not have executed.
+            nodes_to_consume = current_consumer.consumed_uncertain[node.name]
+            nodes_to_consume = self._filter_type_checking_import_from_consumption(
+                node, nodes_to_consume
+            )
             return (
                 VariableVisitConsumerAction.RETURN,
-                current_consumer.consumed_uncertain[node.name],
+                nodes_to_consume,
             )
 
         self._check_late_binding_closure(node)
@@ -1899,6 +1918,61 @@ class VariablesChecker(BaseChecker):
                     return (VariableVisitConsumerAction.RETURN, found_nodes)
 
         return (VariableVisitConsumerAction.RETURN, found_nodes)
+
+    def _report_unfound_name_definition(
+        self, node: nodes.NodeNG, current_consumer: NamesConsumer
+    ) -> None:
+        """Reports used-before-assignment when all name definition nodes
+        get filtered out by NamesConsumer.
+        """
+        if (
+            self._postponed_evaluation_enabled
+            and utils.is_node_in_type_annotation_context(node)
+        ):
+            return
+        if self._is_builtin(node.name):
+            return
+        if self._is_variable_annotation_in_function(node):
+            return
+        if (
+            node.name in self._evaluated_type_checking_scopes
+            and node.scope() in self._evaluated_type_checking_scopes[node.name]
+        ):
+            return
+
+        confidence = (
+            CONTROL_FLOW if node.name in current_consumer.consumed_uncertain else HIGH
+        )
+        self.add_message(
+            "used-before-assignment",
+            args=node.name,
+            node=node,
+            confidence=confidence,
+        )
+
+    def _filter_type_checking_import_from_consumption(
+        self, node: nodes.NodeNG, nodes_to_consume: list[nodes.NodeNG]
+    ) -> list[nodes.NodeNG]:
+        """Do not consume type-checking import node as used-before-assignment
+        may invoke in different scopes.
+        """
+        type_checking_import = next(
+            (
+                n
+                for n in nodes_to_consume
+                if isinstance(n, (nodes.Import, nodes.ImportFrom))
+                and in_type_checking_block(n)
+            ),
+            None,
+        )
+        # If used-before-assignment reported for usage of type checking import
+        # keep track of its scope
+        if type_checking_import and not self._is_variable_annotation_in_function(node):
+            self._evaluated_type_checking_scopes.setdefault(node.name, []).append(
+                node.scope()
+            )
+        nodes_to_consume = [n for n in nodes_to_consume if n != type_checking_import]
+        return nodes_to_consume
 
     @utils.only_required_for_messages("no-name-in-module")
     def visit_import(self, node: nodes.Import) -> None:
@@ -2412,10 +2486,7 @@ class VariablesChecker(BaseChecker):
         # the usage is safe because the function will not be defined either if
         # the variable is not defined.
         scope = node.scope()
-        # FunctionDef subclasses Lambda due to a curious ontology. Check both.
-        # See https://github.com/pylint-dev/astroid/issues/291
-        # TODO: Revisit when astroid 3.0 includes the change
-        if isinstance(scope, nodes.Lambda) and any(
+        if isinstance(scope, (nodes.Lambda, nodes.FunctionDef)) and any(
             asmt.scope().parent_of(scope) for asmt in astmts
         ):
             return

@@ -1,1 +1,1 @@
-consider-using-f-string:14:24:14:34:Number.__str__:Formatting a regular string which could be a f-string:UNDEFINED
+consider-using-f-string:14:24:14:34:Number.__str__:Formatting a regular string which could be an f-string:UNDEFINED

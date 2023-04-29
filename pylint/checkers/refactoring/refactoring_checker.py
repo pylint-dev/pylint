@@ -7,10 +7,9 @@ from __future__ import annotations
 import collections
 import copy
 import itertools
-import sys
 import tokenize
 from collections.abc import Iterator
-from functools import reduce
+from functools import cached_property, reduce
 from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
 
@@ -27,10 +26,6 @@ from pylint.interfaces import HIGH, INFERENCE, Confidence
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
 
 NodesWithNestedBlocks = Union[
     nodes.TryExcept, nodes.TryFinally, nodes.While, nodes.For, nodes.If
@@ -98,7 +93,7 @@ def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
     if token.exact_type != tokenize.COMMA:
         return False
     # Must have remaining tokens on the same line such as NEWLINE
-    left_tokens = list(itertools.islice(tokens, index + 1, None))
+    left_tokens = itertools.islice(tokens, index + 1, None)
 
     more_tokens_on_line = False
     for remaining_token in left_tokens:
@@ -644,9 +639,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # token[2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
-            elif _is_trailing_comma(tokens, index):
-                if self.linter.is_message_enabled("trailing-comma-tuple"):
-                    self.add_message("trailing-comma-tuple", line=token.start[0])
+            elif self.linter.is_message_enabled(
+                "trailing-comma-tuple"
+            ) and _is_trailing_comma(tokens, index):
+                self.add_message("trailing-comma-tuple", line=token.start[0])
 
     @utils.only_required_for_messages("consider-using-with")
     def leave_module(self, _: nodes.Module) -> None:
@@ -1070,11 +1066,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(node.func, nodes.Name)
             and node.func.name in checked_call
         ):
-            # functions in checked_calls take exactly one argument
+            # functions in checked_calls take exactly one positional argument
             # check whether the argument is list comprehension
             if len(node.args) == 1 and isinstance(node.args[0], nodes.ListComp):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[1:-1]
+                if node.keywords:
+                    inside_comp = f"({inside_comp})"
+                    inside_comp += ", "
+                    inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
                 call_name = node.func.name
                 if call_name in {"any", "all"}:
                     self.add_message(

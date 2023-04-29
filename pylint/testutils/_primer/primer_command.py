@@ -6,17 +6,11 @@ from __future__ import annotations
 
 import abc
 import argparse
-import sys
 from pathlib import Path
-from typing import Dict
+from typing import Dict, TypedDict
 
 from pylint.reporters.json_reporter import OldJsonExport
 from pylint.testutils._primer import PackageToLint
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
 
 
 class PackageData(TypedDict):

@@ -7,18 +7,12 @@
 from __future__ import annotations
 
 import json
-import sys
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, TypedDict
 
 from pylint.interfaces import UNDEFINED
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.typing import MessageLocationTuple
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter

@@ -14,9 +14,9 @@ import shlex
 import sys
 import types
 from collections.abc import Callable, Iterable, Iterator, Sequence
-from functools import singledispatch
+from functools import cached_property, singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union
 
 import astroid
 import astroid.exceptions
@@ -52,13 +52,6 @@ from pylint.checkers.utils import (
 from pylint.constants import PY310_PLUS
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
-
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-    from typing import Literal
-else:
-    from astroid.decorators import cachedproperty as cached_property
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -733,7 +726,9 @@ def _no_context_variadic(
         else:
             inferred_statement = inferred.statement(future=True)
 
-        if not length and isinstance(inferred_statement, nodes.Lambda):
+        if not length and isinstance(
+            inferred_statement, (nodes.Lambda, nodes.FunctionDef)
+        ):
             is_in_starred_context = _has_parent_of_type(node, variadic_type, statement)
             used_as_starred_argument = any(
                 variadic.value == name or variadic.value.parent_of(name)
@@ -1659,7 +1654,7 @@ accessed. Python regular expressions are accepted.",
             if not isinstance(inferred, nodes.FunctionDef):
                 return False
 
-            for return_value in inferred.infer_call_result():
+            for return_value in inferred.infer_call_result(caller=None):
                 # infer_call_result() returns nodes.Const.None for None return values
                 # so this also catches non-returning decorators
                 if not isinstance(return_value, nodes.FunctionDef):
@@ -1690,9 +1685,9 @@ accessed. Python regular expressions are accepted.",
         # Determine what method on the parent this index will use
         # The parent of this node will be a Subscript, and the parent of that
         # node determines if the Subscript is a get, set, or delete operation.
-        if subscript.ctx is astroid.Store:
+        if subscript.ctx is astroid.Context.Store:
             methodname = "__setitem__"
-        elif subscript.ctx is astroid.Del:
+        elif subscript.ctx is astroid.Context.Del:
             methodname = "__delitem__"
         else:
             methodname = "__getitem__"
@@ -2114,13 +2109,13 @@ accessed. Python regular expressions are accepted.",
                     confidence=INFERENCE,
                 )
 
-        if node.ctx == astroid.Load:
+        if node.ctx == astroid.Context.Load:
             supported_protocol = supports_getitem
             msg = "unsubscriptable-object"
-        elif node.ctx == astroid.Store:
+        elif node.ctx == astroid.Context.Store:
             supported_protocol = supports_setitem
             msg = "unsupported-assignment-operation"
-        elif node.ctx == astroid.Del:
+        elif node.ctx == astroid.Context.Del:
             supported_protocol = supports_delitem
             msg = "unsupported-delete-operation"
 

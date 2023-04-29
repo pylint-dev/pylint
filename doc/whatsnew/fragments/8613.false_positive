@@ -1,0 +1,3 @@
+Fix a false positive for ``bad-dunder-name`` when there is a user-defined ``__index__`` method.
+
+Closes #8613

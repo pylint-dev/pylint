@@ -6,19 +6,13 @@
 
 from __future__ import annotations
 
-import sys
-from typing import Any
+from typing import Any, Literal
 
 from astroid import nodes
 
 from pylint.interfaces import UNDEFINED, Confidence
 from pylint.lint import PyLinter
 from pylint.testutils.output_line import MessageTest
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 class UnittestLinter(PyLinter):

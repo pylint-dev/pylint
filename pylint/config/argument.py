@@ -13,22 +13,15 @@ import argparse
 import os
 import pathlib
 import re
-import sys
 from collections.abc import Callable
 from glob import glob
-from typing import Any, Pattern, Sequence, Tuple, Union
+from typing import Any, Literal, Pattern, Sequence, Tuple, Union
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
 from pylint.config.callback_actions import _CallbackAction, _ExtendAction
 from pylint.config.deprecation_actions import _NewNamesAction, _OldNamesAction
 from pylint.constants import PY38_PLUS
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
 
 _ArgumentTypes = Union[
     str,
