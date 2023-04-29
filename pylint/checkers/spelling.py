@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 import re
 import tokenize
 from re import Pattern
@@ -15,6 +16,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import only_required_for_messages
+from pylint.exceptions import InvalidArgsError
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -82,7 +84,7 @@ def _get_enchant_dict_help(
         if not pyenchant_available:
             enchant_help += "both the python package and "
         enchant_help += "the system dependency for enchant to work."
-    return f"Spelling dictionary name. {enchant_help}."
+    return f"Spelling dictionary name(s). {enchant_help}."
 
 
 enchant_dicts = _get_enchant_dicts()
@@ -229,11 +231,12 @@ class SpellingChecker(BaseTokenChecker):
         (
             "spelling-dict",
             {
-                "default": "",
+                "default": [],
                 "type": "choice",
                 "metavar": "<dict name>",
                 "choices": _get_enchant_dict_choices(enchant_dicts),
                 "help": _get_enchant_dict_help(enchant_dicts, PYENCHANT_AVAILABLE),
+                "action": "append",
             },
         ),
         (
@@ -293,9 +296,17 @@ class SpellingChecker(BaseTokenChecker):
         self.initialized = False
         if not PYENCHANT_AVAILABLE:
             return
-        dict_name = self.linter.config.spelling_dict
-        if not dict_name:
+        dict_names = set(self.linter.config.spelling_dict)
+        languages = set(dict_name[:2].lower() for dict_name in dict_names if dict_name)
+        if not languages:
             return
+
+        if len(languages) > 1:
+            raise InvalidArgsError(
+                f"SpellingChecker was configured with multiple languages ({languages}), "
+                "and does not currently support multilingual spellchecking."
+            )
+        tokenization_language = next(iter(languages))
 
         self.ignore_list = [
             w.strip() for w in self.linter.config.spelling_ignore_words.split(",")
@@ -310,17 +321,21 @@ class SpellingChecker(BaseTokenChecker):
         ]
 
         if self.linter.config.spelling_private_dict_file:
-            self.spelling_dict = enchant.DictWithPWL(
-                dict_name, self.linter.config.spelling_private_dict_file
-            )
+            self.spelling_dicts = [
+                enchant.DictWithPWL(dict_name, self.linter.config.spelling_private_dict_file)
+                for dict_name in dict_names if dict_name
+            ]
         else:
-            self.spelling_dict = enchant.Dict(dict_name)
+            self.spelling_dicts = [
+                enchant.Dict(dict_name)
+                for dict_name in dict_names if dict_name
+            ]
 
         if self.linter.config.spelling_store_unknown_words:
             self.unknown_words: set[str] = set()
 
         self.tokenizer = get_tokenizer(
-            dict_name,
+            tokenization_language,
             chunkers=[ForwardSlashChunker],
             filters=[
                 EmailFilter,
@@ -334,7 +349,20 @@ class SpellingChecker(BaseTokenChecker):
         )
         self.initialized = True
 
-    # pylint: disable = too-many-statements
+    def _suggest_corrections(self, word: str, limit: int | None = None) -> Iterable[str]:
+        assert self.initialized
+
+        suggestions = set()
+        limit = limit or self.linter.config.max_spelling_suggestions
+
+        for spelling_dict in self.spelling_dicts:
+            for suggestion in spelling_dict.suggest(word):
+                if suggestion not in suggestions:
+                    suggestions.add(suggestion)
+                    yield suggestion
+                if limit and len(suggestions) == limit:
+                    return
+
     def _check_spelling(self, msgid: str, line: str, line_num: int) -> None:
         original_line = line
         try:
@@ -372,14 +400,20 @@ class SpellingChecker(BaseTokenChecker):
 
             # If it is a known word, then continue.
             try:
-                if self.spelling_dict.check(lower_cased_word):
+                if any(
+                    spelling_dict.check(lower_cased_word)
+                    for spelling_dict in self.spelling_dicts
+                ):
                     # The lower cased version of word passed spell checking
                     continue
 
                 # If we reached this far, it means there was a spelling mistake.
                 # Let's retry with the original work because 'unicode' is a
                 # spelling mistake but 'Unicode' is not
-                if self.spelling_dict.check(word):
+                if any(
+                    spelling_dict.check(word)
+                    for spelling_dict in self.spelling_dicts
+                ):
                     continue
             except enchant.errors.Error:
                 self.add_message(
@@ -399,8 +433,7 @@ class SpellingChecker(BaseTokenChecker):
                     self.unknown_words.add(lower_cased_word)
             else:
                 # Present up to N suggestions.
-                suggestions = self.spelling_dict.suggest(word)
-                del suggestions[self.linter.config.max_spelling_suggestions :]
+                suggestions = self._suggest_corrections(word)
                 line_segment = line[word_start_at:]
                 match = re.search(rf"(\W|^)({word})(\W|$)", line_segment)
                 if match:

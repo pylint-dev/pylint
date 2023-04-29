@@ -37,7 +37,8 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     )
 
     def _get_msg_suggestions(self, word: str, count: int = 4) -> str:
-        suggestions = "' or '".join(self.checker.spelling_dict.suggest(word)[:count])
+        corrections = list(self.checker._suggest_corrections(word, count))
+        suggestions = "' or '".join(corrections)
         return f"'{suggestions}'"
 
     def test_spelling_dict_help_no_enchant(self) -> None:
@@ -610,3 +611,10 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             )
         ):
             self.checker.visit_functiondef(stmt)
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict='en_CA')
+    @set_config(spelling_dict='en_US')
+    def test_multilocality_spellchecking(self) -> None:
+        with self.assertNoMessages():
+            self.checker.process_tokens(_tokenize_str("# either 'color' or 'colour' is valid"))
