@@ -20,6 +20,11 @@
     "directories": ["src/flask"],
     "url": "https://github.com/pallets/flask"
   },
+  "home-assistant": {
+    "branch": "dev",
+    "directories": ["homeassistant"],
+    "url": "https://github.com/home-assistant/core.git"
+  },
   "music21": {
     "branch": "master",
     "directories": ["music21"],
