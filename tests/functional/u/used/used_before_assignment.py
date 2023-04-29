@@ -14,6 +14,17 @@ def outer():
 outer()
 
 
+class ClassWithProperty:  # pylint: disable=too-few-public-methods
+    """This test depends on earlier and later defined module-level functions."""
+    prop = property(redefine_time_import)  # [used-before-assignment]
+    prop_defined_earlier = property(outer)
+
+
+calculate(1.01, 2)  # [used-before-assignment]
+def calculate(value1: int, value2: float) -> int:
+    return value1 + value2
+
+
 # pylint: disable=unused-import, wrong-import-position, import-outside-toplevel, reimported, redefined-outer-name, global-statement
 import time
 def redefine_time_import():
