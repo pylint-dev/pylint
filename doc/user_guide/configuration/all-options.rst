@@ -171,7 +171,7 @@ Standard Checkers
 """"""""""""
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
-**Default:**  ``(3, 10)``
+**Default:**  ``(3, 11)``
 
 
 --recursive
@@ -233,7 +233,7 @@ Standard Checkers
 
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
-   disable = ["consider-using-augmented-assign"]
+   disable = ["raw-checker-failed", "bad-inline-option", "locally-disabled", "file-ignored", "suppressed-message", "useless-suppression", "deprecated-pragma", "use-symbolic-message-instead", "consider-using-augmented-assign"]
 
    enable = []
 
@@ -271,7 +271,7 @@ Standard Checkers
 
    persistent = true
 
-   py-version = [3, 10]
+   py-version = [3, 11]
 
    recursive = false
 
@@ -1285,7 +1285,7 @@ Standard Checkers
 
 --spelling-dict
 """""""""""""""
-*Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell), en_CA (aspell), en_GB (aspell), en_US (aspell).*
+*Spelling dictionary name. Available dictionaries: af (aspell), am (aspell), ar (aspell), ast (aspell), az (aspell), be (aspell), be_BY (aspell), be_SU (aspell), bg (aspell), bn (aspell), br (aspell), ca (aspell), cs (aspell), csb (aspell), cy (aspell), da (aspell), de (aspell), de_AT (aspell), de_CH (aspell), de_DE (aspell), el (aspell), en (aspell), en_AU (aspell), en_CA (aspell), en_GB (aspell), en_US (aspell), eo (aspell), es (aspell), es_ES (AppleSpell), et (aspell), fa (aspell), fi (aspell), fo (aspell), fr (aspell), fr_CH (aspell), fr_FR (aspell), fy (aspell), ga (aspell), gd (aspell), gl (aspell), gr (aspell), grc (aspell), gu (aspell), gv (aspell), he (aspell), hi (aspell), hil (aspell), hr (aspell), hsb (aspell), hu (aspell), hu_HU (AppleSpell), hus (aspell), hy (aspell), ia (aspell), id (aspell), it (aspell), it_IT (AppleSpell), kn (aspell), ku (aspell), ky (aspell), la (aspell), lt (aspell), lv (aspell), mg (aspell), mi (aspell), mk (aspell), ml (aspell), mn (aspell), mr (aspell), ms (aspell), mt (aspell), nds (aspell), nl (aspell), nl_NL (AppleSpell), nn (aspell), ny (aspell), or (aspell), pa (aspell), pl (aspell), pt_BR (aspell), pt_PT (aspell), qu (aspell), ro (aspell), ru (aspell), rw (aspell), sc (aspell), sk (aspell), sk_SK (aspell), sl (aspell), sr (aspell), srd (aspell), sv (aspell), sv_SE (AppleSpell), sw (aspell), ta (aspell), te (aspell), tet (aspell), tk (aspell), tl (aspell), tn (aspell), tr (aspell), uk (aspell), uz (aspell), vi (aspell), wa (aspell), yi (aspell), zu (aspell).*
 
 **Default:** ``""``
 
