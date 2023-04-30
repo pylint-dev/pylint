@@ -15,7 +15,7 @@ class PrepareCommand(PrimerCommand):
     def run(self) -> None:
         commit_string = ""
         version_string = ".".join(str(x) for x in sys.version_info[:2])
-        # Shorten the SHA to avoid exceeeding GitHub's 512 char ceiling
+        # Shorten the SHA to avoid exceeding GitHub's 512 char ceiling
         if self.config.clone:
             for package, data in self.packages.items():
                 local_commit = data.lazy_clone()
