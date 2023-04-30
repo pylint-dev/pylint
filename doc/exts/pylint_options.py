@@ -70,8 +70,10 @@ def _create_checker_section(
     checker_string += get_rst_title(f"``{checker.capitalize()}`` **Checker**", "-")
 
     toml_doc = tomlkit.document()
+    tool_table = tomlkit.table(is_super_table=True)
+    toml_doc.add(tomlkit.key("tool"), tool_table)
     pylint_tool_table = tomlkit.table(is_super_table=True)
-    toml_doc.add(tomlkit.key(["tool", "pylint"]), pylint_tool_table)
+    tool_table.add(tomlkit.key("pylint"), pylint_tool_table)
 
     checker_table = tomlkit.table()
 
