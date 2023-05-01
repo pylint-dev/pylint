@@ -1,4 +1,4 @@
-Sphinx==6.2.0
+Sphinx==7.0.0
 sphinx-reredirects<1
 myst-parser~=1.0
 towncrier~=22.12
