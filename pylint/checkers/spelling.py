@@ -6,9 +6,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 import re
 import tokenize
+from collections.abc import Iterable
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -297,7 +297,7 @@ class SpellingChecker(BaseTokenChecker):
         if not PYENCHANT_AVAILABLE:
             return
         dict_names = set(self.linter.config.spelling_dict)
-        languages = set(dict_name[:2].lower() for dict_name in dict_names if dict_name)
+        languages = {dict_name[:2].lower() for dict_name in dict_names if dict_name}
         if not languages:
             return
 
@@ -322,13 +322,15 @@ class SpellingChecker(BaseTokenChecker):
 
         if self.linter.config.spelling_private_dict_file:
             self.spelling_dicts = [
-                enchant.DictWithPWL(dict_name, self.linter.config.spelling_private_dict_file)
-                for dict_name in dict_names if dict_name
+                enchant.DictWithPWL(
+                    dict_name, self.linter.config.spelling_private_dict_file
+                )
+                for dict_name in dict_names
+                if dict_name
             ]
         else:
             self.spelling_dicts = [
-                enchant.Dict(dict_name)
-                for dict_name in dict_names if dict_name
+                enchant.Dict(dict_name) for dict_name in dict_names if dict_name
             ]
 
         if self.linter.config.spelling_store_unknown_words:
@@ -349,7 +351,9 @@ class SpellingChecker(BaseTokenChecker):
         )
         self.initialized = True
 
-    def _suggest_corrections(self, word: str, limit: int | None = None) -> Iterable[str]:
+    def _suggest_corrections(
+        self, word: str, limit: int | None = None
+    ) -> Iterable[str]:
         assert self.initialized
 
         suggestions = set()
@@ -411,8 +415,7 @@ class SpellingChecker(BaseTokenChecker):
                 # Let's retry with the original work because 'unicode' is a
                 # spelling mistake but 'Unicode' is not
                 if any(
-                    spelling_dict.check(word)
-                    for spelling_dict in self.spelling_dicts
+                    spelling_dict.check(word) for spelling_dict in self.spelling_dicts
                 ):
                     continue
             except enchant.errors.Error:

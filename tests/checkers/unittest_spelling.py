@@ -613,8 +613,10 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
             self.checker.visit_functiondef(stmt)
 
     @skip_on_missing_package_or_dict
-    @set_config(spelling_dict='en_CA')
-    @set_config(spelling_dict='en_US')
+    @set_config(spelling_dict="en_CA")
+    @set_config(spelling_dict="en_US")
     def test_multilocality_spellchecking(self) -> None:
         with self.assertNoMessages():
-            self.checker.process_tokens(_tokenize_str("# either 'color' or 'colour' is valid"))
+            self.checker.process_tokens(
+                _tokenize_str("# either 'color' or 'colour' is valid")
+            )
