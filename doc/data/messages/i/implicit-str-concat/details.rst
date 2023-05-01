@@ -1,4 +1,6 @@
-By default, detection of implicit string concatenation of line jumps is disabled.Hence the following code will not trigger this rule:
+By default, detection of implicit string concatenation of line jumps is disabled.
+Hence the following code will not trigger this rule:
+Hence the following code will not trigger this rule:
 
 .. code-block:: python
 
