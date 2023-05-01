@@ -1,6 +1,7 @@
 ignore = []
 # Reading ease is drastically reduced on read the doc after 103 chars
 # (Because of horizontal scrolling)
+# Need to match the black-doc configuration in .pre-commit-config.yaml
 line-length = 103
 select = ["E501", "I"]
 

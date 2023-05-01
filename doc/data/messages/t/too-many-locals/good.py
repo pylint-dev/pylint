@@ -21,9 +21,7 @@ def handle_sweets(infos):
     print(f"{children} ate {financial_impact}")
 
 
-def _allocate_sweets_to_children(
-    children, characteristics: SweetDistrubutionCharacteristics
-) -> None:
+def _allocate_sweets_to_children(children, characteristics: SweetDistrubutionCharacteristics) -> None:
     sweets = [Sweet() * characteristics.number_of_sweets]
     for child in children:
         child.give(sweets[characteristics.number_of_sweet_per_child :])
