@@ -106,6 +106,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     }
 
     options = ()
+    _operators = {"!=", "==", "is not", "is"}
 
     @utils.only_required_for_messages("use-implicit-booleaness-not-len")
     def visit_call(self, node: nodes.Call) -> None:
@@ -189,7 +190,6 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         self._check_compare_to_str_or_zero(node)
 
     def _check_compare_to_str_or_zero(self, node: nodes.Compare) -> None:
-        _operators = {"!=", "==", "is not", "is"}
         # note: astroid.Compare has the left most operand in node.left
         # while the rest are a list of tuples in node.ops
         # the format of the tuple is ('compare operator sign', node)
@@ -199,19 +199,21 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         iter_ops = iter(ops)
         all_ops = list(itertools.chain(*iter_ops))
         for ops_idx in range(len(all_ops) - 2):
-            op_1 = all_ops[ops_idx]
             op_2 = all_ops[ops_idx + 1]
+            if op_2 not in self._operators:
+                continue
+            op_1 = all_ops[ops_idx]
             op_3 = all_ops[ops_idx + 2]
             error_detected = False
             if self.linter.is_message_enabled(
                 "use-implicit-booleaness-not-comparison-to-zero"
             ):
                 # 0 ?? X
-                if _is_constant_zero(op_1) and op_2 in _operators:
+                if _is_constant_zero(op_1):
                     error_detected = True
                     op = op_3
                 # X ?? 0
-                elif op_2 in _operators and _is_constant_zero(op_3):
+                elif _is_constant_zero(op_3):
                     error_detected = True
                     op = op_1
                 if error_detected:
@@ -231,7 +233,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             if self.linter.is_message_enabled(
                 "use-implicit-booleaness-not-comparison-to-str"
             ):
-                if op_1 is None or op_3 is None or op_2 not in _operators:
+                if op_1 is None or op_3 is None:
                     continue
                 node_name = ""
                 # x ?? ""
