@@ -233,8 +233,6 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             if self.linter.is_message_enabled(
                 "use-implicit-booleaness-not-comparison-to-str"
             ):
-                if op_1 is None or op_3 is None:
-                    continue
                 node_name = ""
                 # x ?? ""
                 if utils.is_empty_str_literal(op_1):
