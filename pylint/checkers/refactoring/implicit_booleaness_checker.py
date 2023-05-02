@@ -186,16 +186,21 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         "use-implicit-booleaness-not-comparison-to-zero",
     )
     def visit_compare(self, node: nodes.Compare) -> None:
-        self._check_use_implicit_booleaness_not_comparison(node)
-        self._check_compare_to_str_or_zero(node)
+        if self.linter.is_message_enabled("use-implicit-booleaness-not-comparison"):
+            self._check_use_implicit_booleaness_not_comparison(node)
+        if self.linter.is_message_enabled(
+            "use-implicit-booleaness-not-comparison-to-zero"
+        ) or self.linter.is_message_enabled(
+            "use-implicit-booleaness-not-comparison-to-str"
+        ):
+            self._check_compare_to_str_or_zero(node)
 
     def _check_compare_to_str_or_zero(self, node: nodes.Compare) -> None:
         # note: astroid.Compare has the left most operand in node.left
         # while the rest are a list of tuples in node.ops
         # the format of the tuple is ('compare operator sign', node)
         # here we squash everything into `ops` to make it easier for processing later
-        ops: list[tuple[str, nodes.NodeNG]] = [("", node.left)]
-        ops.extend(node.ops)
+        ops: list[tuple[str, nodes.NodeNG]] = [("", node.left), *node.ops]
         iter_ops = iter(ops)
         all_ops = list(itertools.chain(*iter_ops))
         for ops_idx in range(len(all_ops) - 2):
