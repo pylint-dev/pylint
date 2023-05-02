@@ -1,1 +1,1 @@
-STRING = "Invalid escape character " # [invalid-character-esc]
+STRING = "Invalid escape character "  # [invalid-character-esc]

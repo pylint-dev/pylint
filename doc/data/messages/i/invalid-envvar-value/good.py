@@ -1,3 +1,3 @@
 import os
 
-os.getenv('1')
+os.getenv("1")
