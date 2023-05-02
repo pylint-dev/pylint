@@ -186,12 +186,10 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     )
     def visit_compare(self, node: nodes.Compare) -> None:
         self._check_use_implicit_booleaness_not_comparison(node)
-        self._check_compare_to_zero(node)
-        self._check_compare_to_string(node)
+        self._check_compare_to_str_or_zero(node)
 
-    def _check_compare_to_zero(self, node: nodes.Compare) -> None:
-        # pylint: disable=duplicate-code
-        _operators = ["!=", "==", "is not", "is"]
+    def _check_compare_to_str_or_zero(self, node: nodes.Compare) -> None:
+        _operators = {"!=", "==", "is not", "is"}
         # note: astroid.Compare has the left most operand in node.left
         # while the rest are a list of tuples in node.ops
         # the format of the tuple is ('compare operator sign', node)
@@ -200,70 +198,60 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         ops.extend(node.ops)
         iter_ops = iter(ops)
         all_ops = list(itertools.chain(*iter_ops))
-
         for ops_idx in range(len(all_ops) - 2):
             op_1 = all_ops[ops_idx]
             op_2 = all_ops[ops_idx + 1]
             op_3 = all_ops[ops_idx + 2]
             error_detected = False
-
-            # 0 ?? X
-            if _is_constant_zero(op_1) and op_2 in _operators:
-                error_detected = True
-                op = op_3
-            # X ?? 0
-            elif op_2 in _operators and _is_constant_zero(op_3):
-                error_detected = True
-                op = op_1
-
-            if error_detected:
-                original = f"{op_1.as_string()} {op_2} {op_3.as_string()}"
-                suggestion = (
-                    op.as_string()
-                    if op_2 in {"!=", "is not"}
-                    else f"not {op.as_string()}"
-                )
-                self.add_message(
-                    "compare-to-zero",
-                    args=(original, suggestion),
-                    node=node,
-                    confidence=HIGH,
-                )
-
-    def _check_compare_to_string(self, node: nodes.Compare) -> None:
-        _operators = {"!=", "==", "is not", "is"}
-        # note: astroid.Compare has the left most operand in node.left while the rest
-        # are a list of tuples in node.ops the format of the tuple is
-        # ('compare operator sign', node) here we squash everything into `ops`
-        # to make it easier for processing later
-        ops: list[tuple[str, nodes.NodeNG | None]] = [("", node.left)]
-        ops.extend(node.ops)
-        iter_ops = iter(ops)
-        ops = list(itertools.chain(*iter_ops))  # type: ignore[arg-type]
-        for ops_idx in range(len(ops) - 2):
-            op_1: nodes.NodeNG | None = ops[ops_idx]
-            op_2: str = ops[ops_idx + 1]  # type: ignore[assignment]
-            op_3: nodes.NodeNG | None = ops[ops_idx + 2]
-            error_detected = False
-            if op_1 is None or op_3 is None or op_2 not in _operators:
-                continue
-            node_name = ""
-            # x ?? ""
-            if utils.is_empty_str_literal(op_1):
-                error_detected = True
-                node_name = op_3.as_string()
-            # '' ?? X
-            elif utils.is_empty_str_literal(op_3):
-                error_detected = True
-                node_name = op_1.as_string()
-            if error_detected:
-                suggestion = f"not {node_name}" if op_2 in {"==", "is"} else node_name
-                self.add_message(
-                    "use-implicit-booleaness-not-comparison-to-string",
-                    args=(node.as_string(), suggestion),
-                    node=node,
-                    confidence=HIGH,
-                )
+            if self.linter.is_message_enabled(
+                "use-implicit-booleaness-not-comparison-to-zero"
+            ):
+                # 0 ?? X
+                if _is_constant_zero(op_1) and op_2 in _operators:
+                    error_detected = True
+                    op = op_3
+                # X ?? 0
+                elif op_2 in _operators and _is_constant_zero(op_3):
+                    error_detected = True
+                    op = op_1
+                if error_detected:
+                    original = f"{op_1.as_string()} {op_2} {op_3.as_string()}"
+                    suggestion = (
+                        op.as_string()
+                        if op_2 in {"!=", "is not"}
+                        else f"not {op.as_string()}"
+                    )
+                    self.add_message(
+                        "use-implicit-booleaness-not-comparison-to-zero",
+                        args=(original, suggestion),
+                        node=node,
+                        confidence=HIGH,
+                    )
+                    error_detected = False
+            if self.linter.is_message_enabled(
+                "use-implicit-booleaness-not-comparison-to-str"
+            ):
+                if op_1 is None or op_3 is None or op_2 not in _operators:
+                    continue
+                node_name = ""
+                # x ?? ""
+                if utils.is_empty_str_literal(op_1):
+                    error_detected = True
+                    node_name = op_3.as_string()
+                # '' ?? X
+                elif utils.is_empty_str_literal(op_3):
+                    error_detected = True
+                    node_name = op_1.as_string()
+                if error_detected:
+                    suggestion = (
+                        f"not {node_name}" if op_2 in {"==", "is"} else node_name
+                    )
+                    self.add_message(
+                        "use-implicit-booleaness-not-comparison-to-string",
+                        args=(node.as_string(), suggestion),
+                        node=node,
+                        confidence=HIGH,
+                    )
 
     def _check_use_implicit_booleaness_not_comparison(
         self, node: nodes.Compare
