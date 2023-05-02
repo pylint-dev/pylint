@@ -61,20 +61,20 @@ repos:
         files: doc/data/messages/
         exclude: |
           (?x)^(
-              doc/data/messages/r/redundant-u-string-prefix/bad.py|
-              doc/data/messages/i/invalid-format-index/bad.py|
-              doc/data/messages/i/inconsistent-quotes/bad.py|
-              doc/data/messages/s/superfluous-parens/bad.py|
-              doc/data/messages/m/missing-final-newline/bad.py|
-              doc/data/messages/m/multiple-statements/bad.py|
-              doc/data/messages/b/bad-indentation/bad.py|
-              doc/data/messages/u/unnecessary-semicolon/bad.py|
-              doc/data/messages/l/line-too-long/bad.py|
-              doc/data/messages/t/trailing-comma-tuple/bad.py|
-              doc/data/messages/t/trailing-newlines/bad.py|
-              doc/data/messages/t/trailing-whitespace/bad.py|
-              doc/data/messages/t/too-many-ancestors/bad.py|
-              doc/data/messages/s/syntax-error/bad.py
+            doc/data/messages/b/bad-indentation/bad.py|
+            doc/data/messages/i/inconsistent-quotes/bad.py|
+            doc/data/messages/i/invalid-format-index/bad.py|
+            doc/data/messages/l/line-too-long/bad.py|
+            doc/data/messages/m/missing-final-newline/bad.py|
+            doc/data/messages/m/multiple-statements/bad.py|
+            doc/data/messages/r/redundant-u-string-prefix/bad.py|
+            doc/data/messages/s/superfluous-parens/bad.py|
+            doc/data/messages/s/syntax-error/bad.py|
+            doc/data/messages/t/too-many-ancestors/bad.py|
+            doc/data/messages/t/trailing-comma-tuple/bad.py|
+            doc/data/messages/t/trailing-newlines/bad.py|
+            doc/data/messages/t/trailing-whitespace/bad.py|
+            doc/data/messages/u/unnecessary-semicolon/bad.py
           )$
   - repo: https://github.com/Pierre-Sassoulas/black-disable-checker
     rev: v1.1.3
