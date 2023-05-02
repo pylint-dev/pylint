@@ -57,7 +57,7 @@ repos:
     hooks:
       - id: black
         name: black-doc
-        args: [--safe, --quiet, -l 103]
+        args: [--safe, --quiet]
         files: doc/data/messages/
         exclude: |
           (?x)^(
