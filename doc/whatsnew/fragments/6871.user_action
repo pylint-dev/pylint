@@ -9,7 +9,9 @@ and they now need to be enabled explicitly.
 The `pylint.extensions.emptystring`` and ``pylint.extensions.compare-to-zero`` extensions
 no longer exists and needs to be removed from the ``load-plugins`` option.
 
+Messages related to implicit booleaness were made more explicit and actionable.
+
 This permits to make their likeness explicit and will provide better performance as they share most of their
 conditions to be raised.
 
-Refs #6871
+Closes #6871
