@@ -66,24 +66,28 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         "C1802": (
             "Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty",
             "use-implicit-booleaness-not-len",
-            "Used when Pylint detects that len(sequence) is being used "
-            "without explicit comparison inside a condition to determine if a sequence is empty. "
-            "Instead of coercing the length to a boolean, either "
-            "rely on the fact that empty sequences are false or "
-            "compare the length against a scalar.",
+            "Empty sequences are considered false in a boolean context. You can either"
+            " remove the call to 'len' (``if not x``) or compare the length against a"
+            "scalar (``if len(x) > 1``).",
             {"old_names": [("C1801", "len-as-condition")]},
         ),
         "C1803": (
             '"%s" can be simplified to "%s", if it is strictly a sequence, as an empty %s is falsey',
             "use-implicit-booleaness-not-comparison",
-            "Used when Pylint detects that collection literal comparison is being "
-            "used to check for emptiness; Use implicit booleaness instead "
-            "of a collection classes; empty collections are considered as false",
+            "Empty sequences are considered false in a boolean context. Following this"
+            " check blindly in weakly typed code base can create hard to debug issues."
+            " If the value can be something else that is falsey but not a sequence (for"
+            " example ``None``, an empty string, or ``0``) the code will not be "
+            "equivalent.",
         ),
         "C1804": (
             '"%s" can be simplified to "%s", if it is striclty a string, as an empty string is falsey',
             "use-implicit-booleaness-not-comparison-to-string",
-            "Used when Pylint detects comparison to an empty string constant.",
+            "Empty string are considered false in a boolean context. Following this"
+            " check blindly in weakly typed code base can create hard to debug issues."
+            " If the value can be something else that is falsey but not a string (for"
+            " example ``None``, an empty sequence, or ``0``) the code will not be "
+            "equivalent.",
             {
                 "default_enabled": False,
                 "old_names": [("C1901", "compare-to-empty-string")],
@@ -92,7 +96,11 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         "C1805": (
             '"%s" can be simplified to "%s", if it is strictly an int, as 0 is falsey',
             "use-implicit-booleaness-not-comparison-to-zero",
-            "Used when Pylint detects comparison to a 0 constant.",
+            "0 is considered false in a boolean context. Following this"
+            " check blindly in weakly typed code base can create hard to debug issues."
+            " If the value can be something else that is falsey but not an int (for"
+            " example ``None``, an empty string, or an empty sequence) the code will not be "
+            "equivalent.",
             {"default_enabled": False, "old_names": [("C2001", "compare-to-zero")]},
         ),
     }
@@ -223,12 +231,6 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 )
 
     def _check_compare_to_string(self, node: nodes.Compare) -> None:
-        """Checks for comparisons to empty string.
-
-        Most of the time you should use the fact that empty strings are false.
-        An exception to this rule is when an empty string value is allowed in the program
-        and has a different meaning than None!
-        """
         _operators = {"!=", "==", "is not", "is"}
         # note: astroid.Compare has the left most operand in node.left while the rest
         # are a list of tuples in node.ops the format of the tuple is
@@ -257,7 +259,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             if error_detected:
                 suggestion = f"not {node_name}" if op_2 in {"==", "is"} else node_name
                 self.add_message(
-                    "compare-to-empty-string",
+                    "use-implicit-booleaness-not-comparison-to-string",
                     args=(node.as_string(), suggestion),
                     node=node,
                     confidence=HIGH,
