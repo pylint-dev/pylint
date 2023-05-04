@@ -307,19 +307,6 @@ def _make_linter_options(linter: PyLinter) -> Options:
             },
         ),
         (
-            "suggestion-mode",
-            {
-                "type": "yn",
-                "metavar": "<y or n>",
-                "default": True,
-                "help": (
-                    "When enabled, pylint would attempt to guess common "
-                    "misconfiguration and emit user-friendly hints instead "
-                    "of false-positive error messages."
-                ),
-            },
-        ),
-        (
             "exit-zero",
             {
                 "action": "store_true",

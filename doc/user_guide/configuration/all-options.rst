@@ -209,13 +209,6 @@ Standard Checkers
 **Default:**  ``()``
 
 
---suggestion-mode
-"""""""""""""""""
-*When enabled, pylint would attempt to guess common misconfiguration and emit user-friendly hints instead of false-positive error messages.*
-
-**Default:**  ``True``
-
-
 --unsafe-load-any-extension
 """""""""""""""""""""""""""
 *Allow loading of arbitrary C extensions. Extensions are imported into the active Python interpreter and may run arbitrary code.*
@@ -289,8 +282,6 @@ Standard Checkers
    score = true
 
    source-roots = []
-
-   suggestion-mode = true
 
    unsafe-load-any-extension = false
 

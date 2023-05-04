@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from pylint import config
-from pylint.checkers.utils import clear_lru_caches
+from pylint.checkers.clear_lru_cache import clear_lru_caches
 from pylint.config._pylint_config import (
     _handle_pylint_config_commands,
     _register_generate_config_options,

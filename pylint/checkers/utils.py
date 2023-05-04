@@ -16,7 +16,7 @@ import string
 from collections.abc import Callable, Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 import astroid.objects
 from astroid import TooManyLevelsError, nodes, util
@@ -28,7 +28,6 @@ from astroid.typing import InferenceResult, SuccessfulInferenceResult
 from pylint.constants import TYPING_NEVER, TYPING_NORETURN
 
 if TYPE_CHECKING:
-    from functools import _lru_cache_wrapper
 
     from pylint.checkers import BaseChecker
 
@@ -2325,21 +2324,6 @@ def overridden_method(
     if isinstance(meth_node, nodes.FunctionDef):
         return meth_node
     return None  # pragma: no cover
-
-
-def clear_lru_caches() -> None:
-    """Clear caches holding references to AST nodes."""
-    caches_holding_node_references: list[_lru_cache_wrapper[Any]] = [
-        class_is_abstract,
-        in_for_else_branch,
-        infer_all,
-        is_overload_stub,
-        overridden_method,
-        unimplemented_abstract_methods,
-        safe_infer,
-    ]
-    for lru in caches_holding_node_references:
-        lru.cache_clear()
 
 
 def is_enum_member(node: nodes.AssignName) -> bool:
