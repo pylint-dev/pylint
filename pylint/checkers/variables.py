@@ -3337,12 +3337,15 @@ class VariablesChecker(BaseChecker):
             # e.g. "?" or ":" in typing.Literal["?", ":"]
             pass
 
+
 def _is_variable_defined_in_ancestor_loop_assignment(node: nodes.NodeNG, name: str):
     for for_node in node.node_ancestors():
         if not isinstance(for_node, nodes.For):
             continue
         targets = (
-            for_node.target.elts if isinstance(for_node.target, nodes.Tuple) else [for_node.target]
+            for_node.target.elts
+            if isinstance(for_node.target, nodes.Tuple)
+            else [for_node.target]
         )
         for target in targets:
             if isinstance(target, nodes.Starred):
@@ -3350,6 +3353,7 @@ def _is_variable_defined_in_ancestor_loop_assignment(node: nodes.NodeNG, name: s
             if target.name == name:
                 return True
     return False
+
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(VariablesChecker(linter))
