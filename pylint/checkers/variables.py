@@ -1306,7 +1306,9 @@ class VariablesChecker(BaseChecker):
                     confidence=HIGH,
                 )
                 continue
-            global_refs = [ref for ref in scope.globals.get(target.name) if ref != target]
+            global_refs = [
+                ref for ref in scope.globals.get(target.name) if ref != target
+            ]
             if global_refs:
                 self.add_message(
                     "redefined-outer-name",
