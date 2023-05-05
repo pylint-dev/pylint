@@ -1305,9 +1305,9 @@ class VariablesChecker(BaseChecker):
             for ref in scope.locals.get(target.name, []):
                 if ref == target:
                     continue
-                is_loop_variable = (
-                    isinstance(ref.parent, nodes.For)
-                    or (isinstance(ref.parent, nodes.Tuple) and isinstance(ref.parent.parent, nodes.For))
+                is_loop_variable = isinstance(ref.parent, nodes.For) or (
+                    isinstance(ref.parent, nodes.Tuple)
+                    and isinstance(ref.parent.parent, nodes.For)
                 )
                 if is_loop_variable:
                     continue  # ignoring other loop variable assignments
