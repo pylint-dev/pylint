@@ -1295,7 +1295,9 @@ class VariablesChecker(BaseChecker):
         "unbalanced-dict-unpacking",
     )
     def visit_for(self, node: nodes.For) -> None:
-        targets = node.target.elts if isinstance(node.target, nodes.Tuple) else [node.target]
+        targets = (
+            node.target.elts if isinstance(node.target, nodes.Tuple) else [node.target]
+        )
         scope = node.scope()
         for target in targets:
             if not isinstance(target, nodes.AssignName):
@@ -1305,11 +1307,12 @@ class VariablesChecker(BaseChecker):
                     continue
                 is_loop_variable = (
                     isinstance(ref.parent, nodes.For)
-                    or isinstance(ref.parent, nodes.Tuple) and isinstance(ref.parent.parent, nodes.For)
+                    or isinstance(ref.parent, nodes.Tuple)
+                    and isinstance(ref.parent.parent, nodes.For)
                 )
                 if is_loop_variable:
                     continue  # no message when the previous definition was a loop variable
-                              # (redefined-loop-name should spot those cases)
+                    # (redefined-loop-name should spot those cases)
                 if self._dummy_rgx and self._dummy_rgx.match(target.name):
                     continue  # no message for variables matching dummy-variables-rgx
                 self.add_message(
