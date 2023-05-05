@@ -3351,6 +3351,7 @@ def _is_variable_defined_in_ancestor_loop_assignment(node: nodes.NodeNG, name: s
             return True
     return False
 
+
 def _contains_assignment_matching_name(targets: tuple[nodes.NodeNG], name: str):
     for target in targets:
         if isinstance(target, nodes.Tuple):
