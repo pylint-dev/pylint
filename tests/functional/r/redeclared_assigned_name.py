@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring,redefined-outer-name
 
 FIRST, FIRST = (1, 2)  # [redeclared-assigned-name]
 

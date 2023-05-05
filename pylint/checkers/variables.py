@@ -3347,9 +3347,20 @@ def _is_variable_defined_in_ancestor_loop_assignment(node: nodes.NodeNG, name: s
             if isinstance(for_node.target, nodes.Tuple)
             else [for_node.target]
         )
-        for target in targets:
+        if _contains_assignment_matching_name(targets, name):
+            return True
+    return False
+
+def _contains_assignment_matching_name(targets: tuple[nodes.NodeNG], name: str):
+    for target in targets:
+        if isinstance(target, nodes.Tuple):
+            # E.g. with SECOND in test redeclared_assigned_name.py
+            if _contains_assignment_matching_name(target.elts, name):
+                return True
+        else:
             if isinstance(target, nodes.Starred):
                 target = target.value
+            # assert(isinstance(target, nodes.AssignName))
             if target.name == name:
                 return True
     return False
