@@ -1,0 +1,1 @@
+redefined-outer-name:11:0:12:38::Redefining name 'errors' from outer scope (line 3):HIGH

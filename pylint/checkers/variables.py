@@ -1287,6 +1287,7 @@ class VariablesChecker(BaseChecker):
         self._postponed_evaluation_enabled = False
 
     @utils.only_required_for_messages(
+        "redefined-outer-name",
         "unbalanced-dict-unpacking",
     )
     def visit_for(self, node: nodes.For) -> None:
@@ -1294,6 +1295,25 @@ class VariablesChecker(BaseChecker):
             return
 
         targets = node.target.elts
+        scope = node.scope()
+        for target in targets:
+            local_refs = [ref for ref in scope.locals.get(target.name) if ref != target]
+            if local_refs:
+                self.add_message(
+                    "redefined-outer-name",
+                    args=(target.name, local_refs[0].lineno),
+                    node=node,
+                    confidence=HIGH,
+                )
+                continue
+            global_refs = [ref for ref in scope.globals.get(target.name) if ref != target]
+            if global_refs:
+                self.add_message(
+                    "redefined-outer-name",
+                    args=(target.name, global_refs[0].lineno),
+                    node=node,
+                    confidence=HIGH,
+                )
 
         inferred = utils.safe_infer(node.iter)
         if not isinstance(inferred, DICT_TYPES):
