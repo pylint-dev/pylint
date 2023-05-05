@@ -1307,12 +1307,13 @@ class VariablesChecker(BaseChecker):
                     continue
                 is_loop_variable = (
                     isinstance(ref.parent, nodes.For)
-                    or isinstance(ref.parent, nodes.Tuple)
-                    and isinstance(ref.parent.parent, nodes.For)
+                    or (isinstance(ref.parent, nodes.Tuple) and isinstance(ref.parent.parent, nodes.For))
                 )
                 if is_loop_variable:
-                    continue  # no message when the previous definition was a loop variable
-                    # (redefined-loop-name should spot those cases)
+                    continue  # ignoring other loop variable assignments
+                    # (redefined-loop-name should handle those cases)
+                if any(ancestor is node for ancestor in ref.node_ancestors()):
+                    continue  # ignoring assignments that are part of the loop, later on
                 if self._dummy_rgx and self._dummy_rgx.match(target.name):
                     continue  # no message for variables matching dummy-variables-rgx
                 self.add_message(

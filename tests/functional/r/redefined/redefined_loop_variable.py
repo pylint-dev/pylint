@@ -1,4 +1,4 @@
-"cf. issue #8646 for context"
+"redefined-outer-name with loop variables - cf. issue #8646 for context"
 # pylint: disable=invalid-name
 from collections import defaultdict
 errors = [
@@ -26,12 +26,19 @@ for letter, *words in words:  # [redefined-outer-name]
 
 #--- Notable cases where redefined-outer-name should NOT be raised:
 
-# When the loop variable is re-assigned:
-for i in enumerate(errors):
+# When loop variables are re-assigned:
+for i, err in enumerate(errors):
     i += 1
+    err = None
 
 # When the same loop variables are used consecutively:
 for k, v in errors_per_arg0.items():
     print(k, v)
 for k, v in errors_per_arg0.items():
     print(k, v)
+
+# When a similarly named loop variable is assigned in another loop (trickier to implement):
+for n in range(10):
+    n += 1
+for n in range(10):
+    n += 1
