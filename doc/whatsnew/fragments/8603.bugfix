@@ -1,3 +1,0 @@
-``pyreverse``: added escaping of vertical bar character in annotation labels produced by DOT printer to ensure it is not treated as field separator of record-based nodes.
-
-Closes #8603
