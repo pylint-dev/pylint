@@ -1300,8 +1300,8 @@ class VariablesChecker(BaseChecker):
         )
         scope = node.scope()
         for target in targets:
-            if not isinstance(target, nodes.AssignName):
-                continue  # This check is needed to exclude Starred nodes (for *args in seq:)
+            if isinstance(target, nodes.Starred):
+                target = target.value
             for ref in scope.locals.get(target.name, []):
                 if ref == target:
                     continue
@@ -1321,7 +1321,7 @@ class VariablesChecker(BaseChecker):
                     node=node,
                     confidence=HIGH,
                 )
-                break
+                break  # no need to check other refs once a message has been emitted
 
         if not isinstance(node.target, nodes.Tuple):
             return

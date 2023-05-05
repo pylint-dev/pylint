@@ -16,6 +16,13 @@ pair = 2
 for pair in errors_per_arg0.items():  # [redefined-outer-name]
     print(pair)
 
+words = (
+    ("A", ("a", "abandon", "ability", ...)),
+    ("B", ("ball", "banana", ...)),
+)
+for letter, *words in words:  # [redefined-outer-name]
+    print(letter, words)
+
 
 #--- Notable cases where redefined-outer-name should NOT be raised:
 

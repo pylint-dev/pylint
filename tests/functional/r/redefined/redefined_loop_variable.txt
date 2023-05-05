@@ -1,2 +1,3 @@
 redefined-outer-name:12:0:13:38::Redefining name 'errors' from outer scope (line 4):HIGH
 redefined-outer-name:16:0:17:15::Redefining name 'pair' from outer scope (line 15):HIGH
+redefined-outer-name:23:0:24:23::Redefining name 'words' from outer scope (line 19):HIGH

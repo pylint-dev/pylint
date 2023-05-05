@@ -1,4 +1,4 @@
 The rule ``redefined-outer-name`` now checks for loop variables
-shadowing variables defined before in the local or global scope.
+shadowing variables defined before in the local scope.
 
 Closes #8646
