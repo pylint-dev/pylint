@@ -37,7 +37,7 @@ for k, v in errors_per_arg0.items():
 for k, v in errors_per_arg0.items():
     print(k, v)
 
-# When a similarly named loop variable is assigned in another loop (trickier to implement):
+# When a similarly named loop variable is assigned in another loop:
 for n in range(10):
     n += 1
 for n in range(10):
