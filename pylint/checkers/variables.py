@@ -1286,36 +1286,42 @@ class VariablesChecker(BaseChecker):
         ] = {}
         self._postponed_evaluation_enabled = False
 
+    @cached_property
+    def _dummy_rgx(self) -> re.Pattern[str]:
+        return self.linter.config.dummy_variables_rgx  # type: ignore[no-any-return]
+
     @utils.only_required_for_messages(
         "redefined-outer-name",
         "unbalanced-dict-unpacking",
     )
     def visit_for(self, node: nodes.For) -> None:
-        if not isinstance(node.target, nodes.Tuple):
-            return
-
-        targets = node.target.elts
+        targets = node.target.elts if isinstance(node.target, nodes.Tuple) else [node.target]
         scope = node.scope()
         for target in targets:
-            local_refs = [ref for ref in scope.locals.get(target.name) if ref != target]
-            if local_refs:
+            if not isinstance(target, nodes.AssignName):
+                continue  # This check is needed to exclude Starred nodes (for *args in seq:)
+            for ref in scope.locals.get(target.name, []):
+                if ref == target:
+                    continue
+                is_loop_variable = (
+                    isinstance(ref.parent, nodes.For)
+                    or isinstance(ref.parent, nodes.Tuple) and isinstance(ref.parent.parent, nodes.For)
+                )
+                if is_loop_variable:
+                    continue  # no message when the previous definition was a loop variable
+                              # (redefined-loop-name should spot those cases)
+                if self._dummy_rgx and self._dummy_rgx.match(target.name):
+                    continue  # no message for variables matching dummy-variables-rgx
                 self.add_message(
                     "redefined-outer-name",
-                    args=(target.name, local_refs[0].lineno),
+                    args=(target.name, ref.lineno),
                     node=node,
                     confidence=HIGH,
                 )
-                continue
-            global_refs = [
-                ref for ref in scope.globals.get(target.name) if ref != target
-            ]
-            if global_refs:
-                self.add_message(
-                    "redefined-outer-name",
-                    args=(target.name, global_refs[0].lineno),
-                    node=node,
-                    confidence=HIGH,
-                )
+                break
+
+        if not isinstance(node.target, nodes.Tuple):
+            return
 
         inferred = utils.safe_infer(node.iter)
         if not isinstance(inferred, DICT_TYPES):
