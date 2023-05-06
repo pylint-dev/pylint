@@ -3340,6 +3340,7 @@ class VariablesChecker(BaseChecker):
             # e.g. "?" or ":" in typing.Literal["?", ":"]
             pass
 
+
 def _is_variable_defined_in_ancestor_loop_assignment(node: nodes.NodeNG, name: str):
     for for_node in node.node_ancestors():
         if not isinstance(for_node, nodes.For):
@@ -3368,16 +3369,18 @@ def _contains_assignment_matching_name(targets: tuple[nodes.NodeNG], name: str):
                 return True
     return False
 
+
 def _is_assignment_performed_after(assign: nodes.AssignName, for_node: nodes.For):
     """
     This function check if the assignment was made
-    in the same function/module as the loop, but after it
+    in the same function/module as the loop, but after it.
     """
     # assert(isinstance(assign, nodes.AssignName))
     for node in assign.node_ancestors():
         if node is for_node.parent:
             return assign.lineno > for_node.lineno
     return False
+
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(VariablesChecker(linter))
