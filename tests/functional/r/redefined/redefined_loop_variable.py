@@ -1,5 +1,5 @@
 "redefined-outer-name with loop variables - cf. issue #8646 for context"
-# pylint: disable=invalid-name
+# pylint: disable=global-statement,invalid-name,missing-function-docstring
 from collections import defaultdict
 errors = [
     Exception("E101", "Boom!"),
@@ -23,8 +23,18 @@ words = (
 for letter, *words in words:  # [redefined-outer-name]
     print(letter, words)
 
+def func1(arg):
+    print(arg)
+    for arg in range(10):  # [redefined-argument-from-local,redefined-outer-name]
+        pass
+
 
 #--- Notable cases where redefined-outer-name should NOT be raised:
+
+# When a dummy variable is used:
+_ = 42
+for _ in range(10):
+    pass
 
 # When loop variables are re-assigned:
 for i, err in enumerate(errors):
@@ -42,3 +52,17 @@ for n in range(10):
     n += 1
 for n in range(10):
     n += 1
+
+# When the loop variable is re-assigned AFTER the for loop:
+def func2():
+    for value in range(10):
+        print(value)
+    if 1 + 1:
+        value = 42
+
+# When the variable is global or nonlocal:
+glob = 42
+def func3():
+    global glob
+    for glob in range(10):
+        pass

@@ -1298,17 +1298,20 @@ class VariablesChecker(BaseChecker):
         targets = (
             node.target.elts if isinstance(node.target, nodes.Tuple) else [node.target]
         )
-        scope = node.scope()
+        # This loop check for potential redefined-outer-name
+        # The test covering this is redefined_loop_variable.py
         for target in targets:
             if isinstance(target, nodes.Starred):
                 target = target.value
-            for ref in scope.locals.get(target.name, []):
+            for ref in node.scope().locals.get(target.name, []):
                 if ref == target:
-                    continue  # ignored
-                if _is_variable_defined_in_ancestor_loop_assignment(ref, target.name):
-                    continue  # ignored
+                    continue
                 if self._dummy_rgx and self._dummy_rgx.match(target.name):
                     continue  # no message for variables matching dummy-variables-rgx
+                if _is_variable_defined_in_ancestor_loop_assignment(ref, target.name):
+                    continue
+                if _is_assignment_performed_after(ref, node):
+                    continue
                 self.add_message(
                     "redefined-outer-name",
                     args=(target.name, ref.lineno),
@@ -3337,7 +3340,6 @@ class VariablesChecker(BaseChecker):
             # e.g. "?" or ":" in typing.Literal["?", ":"]
             pass
 
-
 def _is_variable_defined_in_ancestor_loop_assignment(node: nodes.NodeNG, name: str):
     for for_node in node.node_ancestors():
         if not isinstance(for_node, nodes.For):
@@ -3366,6 +3368,16 @@ def _contains_assignment_matching_name(targets: tuple[nodes.NodeNG], name: str):
                 return True
     return False
 
+def _is_assignment_performed_after(assign: nodes.AssignName, for_node: nodes.For):
+    """
+    This function check if the assignment was made
+    in the same function/module as the loop, but after it
+    """
+    # assert(isinstance(assign, nodes.AssignName))
+    for node in assign.node_ancestors():
+        if node is for_node.parent:
+            return assign.lineno > for_node.lineno
+    return False
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(VariablesChecker(linter))
