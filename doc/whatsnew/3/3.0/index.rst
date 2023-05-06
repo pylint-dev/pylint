@@ -12,6 +12,13 @@
 Summary -- Release highlights
 =============================
 
+Note Bene for alpha users: Do not upgrade unless you want to
+test things out. Some changes will require a configuration change,
+that won't be compatible with 2.x. For example some extensions
+were removed in favor of a builtin message (``compare-to-zero``
+and ``compare-to-empty-string``). We'll make a configuration
+upgrade tool available before 3.0.0 is out.
+
 Pylint now provides some important usability and performance improvements,
 along with enacting necessary breaking changes and long-announced deprecations.
 
