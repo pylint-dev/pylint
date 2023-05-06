@@ -296,11 +296,11 @@ def name1(apple, /, **kwargs):
 name1("Red apple", apple="Green apple")
 
 
-def name2(apple, /, orange, **kwargs):
+def name2(apple, /, banana, **kwargs):
     """
     Positional-only parameter with positional-or-keyword parameter and `**kwargs`.
     """
 
 
 # +1:[redundant-keyword-arg]
-name2("Red apple", "Green pear", apple="Green apple", orange="Yellow pear")
+name2("Red apple", "Yellow banana", apple="Green apple", banana="Green banana")
