@@ -1,3 +1,3 @@
 Fix a false positive for ``redundant-keyword-arg`` when a function, with a keyword-only-parameter and ``**kwargs``, is called with a positional argument and a keyword argument where the keyword argument has the same name as the positional-only-parameter.
 
-Closes #8558
+Refs #8558
