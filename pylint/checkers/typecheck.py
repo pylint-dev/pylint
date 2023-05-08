@@ -399,6 +399,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "isinstance-second-argument-not-valid-type",
         "Emitted when the second argument of an isinstance call is not a type.",
     ),
+    "W1117": (
+        "The keyword argument %r will be added to the keyword variadic "
+        "parameter dictionary %r since it has the same name as a positional-only parameter",
+        "hidden-kwarg",
+        "Emitted when a function is called with a keyword argument that has the "
+        "same name as a positional-only parameter and the function contains a "
+        "keyword variadic parameter dict.",
+    ),
 }
 
 # builtin sequence types in Python 2 and 3.
@@ -1553,6 +1561,12 @@ accessed. Python regular expressions are accepted.",
             if called.args.kwarg and keyword in [
                 arg.name for arg in called.args.posonlyargs
             ]:
+                self.add_message(
+                    "hidden-kwarg",
+                    node=node,
+                    args=(keyword, f"**{called.args.kwarg}"),
+                    confidence=HIGH,
+                )
                 continue
             if keyword in parameter_name_to_index:
                 i = parameter_name_to_index[keyword]
