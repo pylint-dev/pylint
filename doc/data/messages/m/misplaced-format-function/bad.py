@@ -1,1 +1,1 @@
-print('Value: {}').format('Car')  # [misplaced-format-function]
+print("Value: {}").format("Car")  # [misplaced-format-function]

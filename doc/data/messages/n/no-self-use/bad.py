@@ -1,5 +1,4 @@
 class Person:
-
     def developer_greeting(self):  # [no-self-use]
         print("Greetings developer!")
 

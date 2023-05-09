@@ -1,2 +1,2 @@
 class Person:
-    __slots__ = ('name', 'surname')
+    __slots__ = ("name", "surname")

@@ -1,1 +1,1 @@
-STRING = "Invalid character backspace " # [invalid-character-backspace]
+STRING = "Invalid character backspace "  # [invalid-character-backspace]

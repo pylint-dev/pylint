@@ -16,13 +16,13 @@ repos:
             doc/data/messages/m/missing-final-newline/bad.py|
           )$
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.262"
+    rev: "v0.0.263"
     hooks:
       - id: ruff
         args: ["--fix"]
         exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.262"
+    rev: "v0.0.263"
     hooks:
       - id: ruff
         name: ruff-doc
@@ -52,6 +52,27 @@ repos:
       - id: black
         args: [--safe, --quiet]
         exclude: *fixtures
+      - id: black
+        name: black-doc
+        args: [--safe, --quiet]
+        files: doc/data/messages/
+        exclude: |
+          (?x)^(
+            doc/data/messages/b/bad-indentation/bad.py|
+            doc/data/messages/i/inconsistent-quotes/bad.py|
+            doc/data/messages/i/invalid-format-index/bad.py|
+            doc/data/messages/l/line-too-long/bad.py|
+            doc/data/messages/m/missing-final-newline/bad.py|
+            doc/data/messages/m/multiple-statements/bad.py|
+            doc/data/messages/r/redundant-u-string-prefix/bad.py|
+            doc/data/messages/s/superfluous-parens/bad.py|
+            doc/data/messages/s/syntax-error/bad.py|
+            doc/data/messages/t/too-many-ancestors/bad.py|
+            doc/data/messages/t/trailing-comma-tuple/bad.py|
+            doc/data/messages/t/trailing-newlines/bad.py|
+            doc/data/messages/t/trailing-whitespace/bad.py|
+            doc/data/messages/u/unnecessary-semicolon/bad.py
+          )$
   - repo: https://github.com/Pierre-Sassoulas/black-disable-checker
     rev: v1.1.3
     hooks:

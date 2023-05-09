@@ -893,10 +893,21 @@ Refactoring checker Messages
   Emitted when a single "return" or "return None" statement is found at the end
   of function or method definition. This statement can safely be removed
   because Python will implicitly return None
-:use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty %s is falsey*
-  Used when Pylint detects that collection literal comparison is being used to
-  check for emptiness; Use implicit booleaness instead of a collection classes;
-  empty collections are considered as false
+:use-implicit-booleaness-not-comparison-to-string (C1804): *"%s" can be simplified to "%s", if it is striclty a string, as an empty string is falsey*
+  Empty string are considered false in a boolean context. Following this check
+  blindly in weakly typed code base can create hard to debug issues. If the
+  value can be something else that is falsey but not a string (for example
+  ``None``, an empty sequence, or ``0``) the code will not be equivalent.
+:use-implicit-booleaness-not-comparison (C1803): *"%s" can be simplified to "%s", if it is strictly a sequence, as an empty %s is falsey*
+  Empty sequences are considered false in a boolean context. Following this
+  check blindly in weakly typed code base can create hard to debug issues. If
+  the value can be something else that is falsey but not a sequence (for
+  example ``None``, an empty string, or ``0``) the code will not be equivalent.
+:use-implicit-booleaness-not-comparison-to-zero (C1805): *"%s" can be simplified to "%s", if it is strictly an int, as 0 is falsey*
+  0 is considered false in a boolean context. Following this check blindly in
+  weakly typed code base can create hard to debug issues. If the value can be
+  something else that is falsey but not an int (for example ``None``, an empty
+  string, or an empty sequence) the code will not be equivalent.
 :unneeded-not (C0113): *Consider changing "%s" to "%s"*
   Used when a boolean expression contains an unneeded negation.
 :consider-iterating-dictionary (C0201): *Consider iterating the dictionary directly instead of calling .keys()*
@@ -912,10 +923,9 @@ Refactoring checker Messages
   Emitted when code that iterates with range and len is encountered. Such code
   can be simplified by using the enumerate builtin.
 :use-implicit-booleaness-not-len (C1802): *Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty*
-  Used when Pylint detects that len(sequence) is being used without explicit
-  comparison inside a condition to determine if a sequence is empty. Instead of
-  coercing the length to a boolean, either rely on the fact that empty
-  sequences are false or compare the length against a scalar.
+  Empty sequences are considered false in a boolean context. You can either
+  remove the call to 'len' (``if not x``) or compare the length against ascalar
+  (``if len(x) > 1``).
 :consider-using-f-string (C0209): *Formatting a regular string which could be an f-string*
   Used when we detect a string that is being formatted with format() or % which
   could potentially be an f-string. The use of f-strings is preferred. Requires

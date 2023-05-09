@@ -1,0 +1,6 @@
+use-implicit-booleaness-not-comparison-to-string:6:3:6:10::"""X is ''"" can be simplified to ""not X"", if it is striclty a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:9:3:9:14::"""Y is not ''"" can be simplified to ""Y"", if it is striclty a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:12:3:12:10::"""X == ''"" can be simplified to ""not X"", if it is striclty a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:15:3:15:10::"""Y != ''"" can be simplified to ""Y"", if it is striclty a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:18:3:18:10::"""'' == Y"" can be simplified to ""not Y"", if it is striclty a string, as an empty string is falsey":HIGH
+use-implicit-booleaness-not-comparison-to-string:21:3:21:10::"""'' != X"" can be simplified to ""X"", if it is striclty a string, as an empty string is falsey":HIGH

@@ -218,17 +218,11 @@ def _detect_global_scope(
             return node.lineno < defframe.lineno  # type: ignore[no-any-return]
         if not isinstance(node.parent, (nodes.FunctionDef, nodes.Arguments)):
             return False
-    elif any(
-        not isinstance(f, (nodes.ClassDef, nodes.Module)) for f in (frame, defframe)
-    ):
-        # Not interested in other frames, since they are already
-        # not in a global scope.
-        return False
 
     break_scopes = []
-    for current_scope in (scope, def_scope):
+    for current_scope in (scope or frame, def_scope):
         # Look for parent scopes. If there is anything different
-        # than a module or a class scope, then they frames don't
+        # than a module or a class scope, then the frames don't
         # share a global scope.
         parent_scope = current_scope
         while parent_scope:
@@ -239,7 +233,7 @@ def _detect_global_scope(
                 parent_scope = parent_scope.parent.scope()
             else:
                 break
-    if break_scopes and len(set(break_scopes)) != 1:
+    if len(set(break_scopes)) > 1:
         # Store different scopes than expected.
         # If the stored scopes are, in fact, the very same, then it means
         # that the two frames (frame and defframe) share the same scope,
