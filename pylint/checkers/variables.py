@@ -1316,7 +1316,10 @@ class VariablesChecker(BaseChecker):
                     # if ref is an instance of Arguments, we have a definitive match, the following checks are not needed
                     if _is_assignment_performed_after(ref, node):
                         continue
-                    if isinstance(ref.parent, nodes.AnnAssign) and ref.parent.value is None:
+                    if (
+                        isinstance(ref.parent, nodes.AnnAssign)
+                        and ref.parent.value is None
+                    ):
                         continue  # ignoring type-only definitions of variables
                 self.add_message(
                     "redefined-outer-name",
