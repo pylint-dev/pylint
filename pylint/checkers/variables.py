@@ -3392,7 +3392,7 @@ def _is_assignment_performed_after(
     # assert(isinstance(assign, nodes.AssignName)), str(type(assign))
     for node in assign.node_ancestors():
         if node is for_node.parent:
-            return assign.lineno > for_node.lineno
+            return assign.lineno > for_node.lineno  # type: ignore[no-any-return]
     return False
 
 
