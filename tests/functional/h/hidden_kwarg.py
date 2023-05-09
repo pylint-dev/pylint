@@ -29,3 +29,16 @@ def name1(apple, /, banana="Yellow banana", **kwargs):
 name1("Red apple", apple="Green apple", banana="Green banana")  # [hidden-kwarg]
 
 name1("Red apple", banana="Green banana")
+
+
+def name2(apple="Green apple", /, **kwargs):
+    """
+    >>> name2(apple="Red apple")
+    Green apple
+    {'apple': 'Red apple'}
+    """
+    print(apple)
+    print(kwargs)
+
+# The keyword argument `apple` is hidden:
+name2(apple="Red apple")  # [hidden-kwarg]
