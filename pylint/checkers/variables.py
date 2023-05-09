@@ -1313,7 +1313,8 @@ class VariablesChecker(BaseChecker):
                 if _is_variable_defined_in_ancestor_loop_assignment(ref, target.name):
                     continue
                 if not isinstance(ref, nodes.Arguments):
-                    # if ref is an instance of Arguments, we have a definitive match, the following checks are not needed
+                    # if ref is an instance of Arguments, we have a definitive match,
+                    # the following checks are not needed:
                     if _is_assignment_performed_after(ref, node):
                         continue
                     if (
@@ -3350,7 +3351,7 @@ class VariablesChecker(BaseChecker):
             pass
 
 
-def _is_variable_defined_in_ancestor_loop_assignment(node: nodes.NodeNG, name: str):
+def _is_variable_defined_in_ancestor_loop_assignment(node: nodes.NodeNG, name: str) -> bool:
     for for_node in node.node_ancestors():
         if not isinstance(for_node, nodes.For):
             continue
@@ -3364,7 +3365,7 @@ def _is_variable_defined_in_ancestor_loop_assignment(node: nodes.NodeNG, name: s
     return False
 
 
-def _contains_assignment_matching_name(targets: tuple[nodes.NodeNG], name: str):
+def _contains_assignment_matching_name(targets: tuple[nodes.NodeNG], name: str) -> bool:
     for target in targets:
         if isinstance(target, nodes.Tuple):
             # E.g. with SECOND in test redeclared_assigned_name.py
@@ -3379,7 +3380,7 @@ def _contains_assignment_matching_name(targets: tuple[nodes.NodeNG], name: str):
     return False
 
 
-def _is_assignment_performed_after(assign: nodes.AssignName, for_node: nodes.For):
+def _is_assignment_performed_after(assign: nodes.AssignName, for_node: nodes.For) -> bool:
     """
     This function check if the assignment was made
     in the same function/module as the loop, but after it.
