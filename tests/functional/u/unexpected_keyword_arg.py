@@ -116,3 +116,23 @@ def test_no_return():
 
 
 test_no_return(internal_arg=2)  # [unexpected-keyword-arg]
+
+
+def ambiguous_func1(arg1):
+    print(arg1)
+
+
+def ambiguous_func2(other_arg1):
+    print(other_arg1)
+
+
+func1 = ambiguous_func1 if unknown else ambiguous_func2
+func1(arg1=1)
+
+
+def ambiguous_func3(arg1=None):
+    print(arg1)
+
+
+func2 = ambiguous_func3 if unknown else ambiguous_func1
+func2()
