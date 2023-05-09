@@ -25,4 +25,5 @@ unused-variable:144:8:145:28:func3:Unused variable 'error':UNDEFINED
 unused-variable:150:4:154:26:func4:Unused variable 'error':UNDEFINED
 redefined-outer-name:153:8:154:26:func4:Redefining name 'error' from outer scope (line 150):UNDEFINED
 unused-variable:161:4:162:12:main:Unused variable 'e':UNDEFINED
+redefined-outer-name:164:4:165:12:main:Redefining name 'e' from outer scope (line 161):HIGH
 undefined-loop-variable:168:10:168:11:main:Using possibly undefined loop variable 'e':UNDEFINED

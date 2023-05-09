@@ -161,7 +161,7 @@ def main(lst):
     except ValueError as e:  # [unused-variable]
         pass
 
-    for e in lst:
+    for e in lst:  # [redefined-outer-name]
         pass
 
     # e will be undefined if lst is empty

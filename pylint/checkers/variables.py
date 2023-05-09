@@ -1306,12 +1306,18 @@ class VariablesChecker(BaseChecker):
             for ref in node.scope().locals.get(target.name, []):
                 if ref == target:
                     continue
+                if isinstance(ref.parent, nodes.Arguments):
+                    continue  # ignoring case covered by redefined-argument-from-local
                 if self._dummy_rgx and self._dummy_rgx.match(target.name):
                     continue  # no message for variables matching dummy-variables-rgx
                 if _is_variable_defined_in_ancestor_loop_assignment(ref, target.name):
                     continue
-                if _is_assignment_performed_after(ref, node):
-                    continue
+                if not isinstance(ref, nodes.Arguments):
+                    # if ref is an instance of Arguments, we have a definitive match, the following checks are not needed
+                    if _is_assignment_performed_after(ref, node):
+                        continue
+                    if isinstance(ref.parent, nodes.AnnAssign) and ref.parent.value is None:
+                        continue  # ignoring type-only definitions of variables
                 self.add_message(
                     "redefined-outer-name",
                     args=(target.name, ref.lineno),
@@ -3364,7 +3370,7 @@ def _contains_assignment_matching_name(targets: tuple[nodes.NodeNG], name: str):
         else:
             if isinstance(target, nodes.Starred):
                 target = target.value
-            # assert(isinstance(target, nodes.AssignName))
+            # assert(isinstance(target, nodes.AssignName)), str(type(target))
             if target.name == name:
                 return True
     return False
@@ -3375,7 +3381,7 @@ def _is_assignment_performed_after(assign: nodes.AssignName, for_node: nodes.For
     This function check if the assignment was made
     in the same function/module as the loop, but after it.
     """
-    # assert(isinstance(assign, nodes.AssignName))
+    # assert(isinstance(assign, nodes.AssignName)), str(type(assign))
     for node in assign.node_ancestors():
         if node is for_node.parent:
             return assign.lineno > for_node.lineno

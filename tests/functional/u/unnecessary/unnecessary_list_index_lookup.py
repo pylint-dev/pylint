@@ -61,7 +61,7 @@ for a, b in enumerate(num_list):
 
 num_list = [1, 2, 3]
 for a, b in enumerate(num_list):
-    ([x, num_list[a]], _) = ([5, 6], 1)
+    ([n, num_list[a]], _) = ([5, 6], 1)
 
 # Regression test for https://github.com/pylint-dev/pylint/issues/6818
 updated_list = [1, 2, 3]

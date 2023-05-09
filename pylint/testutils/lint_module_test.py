@@ -266,9 +266,6 @@ class LintModuleTest:
         expected_messages: MessageCounter,
         actual_output: list[OutputLine],
     ) -> str:
-        # Uncomment those lines to ease debug of functional tests:
-        # for line in actual_output:
-        #     print(line)
         msg = [f'Wrong message(s) raised for "{Path(self._test_file.source).name}":']
         missing, unexpected = self.multiset_difference(
             expected_messages, actual_messages

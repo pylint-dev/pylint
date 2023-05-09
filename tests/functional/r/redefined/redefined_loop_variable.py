@@ -23,9 +23,11 @@ words = (
 for letter, *words in words:  # [redefined-outer-name]
     print(letter, words)
 
-def func1(arg):
-    print(arg)
-    for arg in range(10):  # [redefined-argument-from-local,redefined-outer-name]
+def func0(*args, **kwargs):
+    print(args, kwargs)
+    for args in range(10):  # [redefined-outer-name]
+        pass
+    for _, kwargs in {}.items():  # [redefined-outer-name]
         pass
 
 
@@ -54,7 +56,7 @@ for n in range(10):
     n += 1
 
 # When the loop variable is re-assigned AFTER the for loop:
-def func2():
+def func1():
     for value in range(10):
         print(value)
     if 1 + 1:
@@ -62,7 +64,18 @@ def func2():
 
 # When the variable is global or nonlocal:
 glob = 42
-def func3():
+def func2():
     global glob
     for glob in range(10):
+        pass
+
+# When the variable was just type-declared before the loop:
+var: int
+for var in (1, 2):
+    print(var)
+
+# Function argument override, already covered by redefined-argument-from-local:
+def func3(arg):
+    print(arg)
+    for arg in range(10):  # [redefined-argument-from-local]
         pass

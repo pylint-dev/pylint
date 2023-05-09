@@ -1,5 +1,6 @@
 redefined-outer-name:12:0:13:38::Redefining name 'errors' from outer scope (line 4):HIGH
 redefined-outer-name:16:0:17:15::Redefining name 'pair' from outer scope (line 15):HIGH
 redefined-outer-name:23:0:24:24::Redefining name 'words' from outer scope (line 19):HIGH
-redefined-argument-from-local:28:8:28:11:func1:Redefining argument with the local name 'arg':UNDEFINED
-redefined-outer-name:28:4:29:12:func1:Redefining name 'arg' from outer scope (line 26):HIGH
+redefined-outer-name:28:4:29:12:func0:Redefining name 'args' from outer scope (line None):HIGH
+redefined-outer-name:30:4:31:12:func0:Redefining name 'kwargs' from outer scope (line None):HIGH
+redefined-argument-from-local:80:8:80:11:func3:Redefining argument with the local name 'arg':UNDEFINED
