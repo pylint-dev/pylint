@@ -3351,7 +3351,9 @@ class VariablesChecker(BaseChecker):
             pass
 
 
-def _is_variable_defined_in_ancestor_loop_assignment(node: nodes.NodeNG, name: str) -> bool:
+def _is_variable_defined_in_ancestor_loop_assignment(
+    node: nodes.NodeNG, name: str
+) -> bool:
     for for_node in node.node_ancestors():
         if not isinstance(for_node, nodes.For):
             continue
@@ -3380,7 +3382,9 @@ def _contains_assignment_matching_name(targets: tuple[nodes.NodeNG], name: str) 
     return False
 
 
-def _is_assignment_performed_after(assign: nodes.AssignName, for_node: nodes.For) -> bool:
+def _is_assignment_performed_after(
+    assign: nodes.AssignName, for_node: nodes.For
+) -> bool:
     """
     This function check if the assignment was made
     in the same function/module as the loop, but after it.
