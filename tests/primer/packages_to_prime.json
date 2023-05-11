@@ -23,7 +23,7 @@
   "home-assistant": {
     "branch": "dev",
     "directories": ["homeassistant"],
-    "url": "https://github.com/home-assistant/core.git"
+    "url": "https://github.com/home-assistant/core"
   },
   "music21": {
     "branch": "master",
