@@ -285,7 +285,7 @@ class MisdesignChecker(BaseChecker):
         (
             "max-args",
             {
-                "default": 7,
+                "default": 5,
                 "type": "int",
                 "metavar": "<int>",
                 "help": "Maximum number of arguments for function / method.",

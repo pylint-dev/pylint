@@ -33,5 +33,5 @@ def func_call():
 
 
 # +1: [too-many-arguments]
-def name1(par1, par2, par3, par4, par5, /, par6, par7, *args, par8="apple", **kwargs):
-    return par1, par2, par3, par4, par5, par6, par7, par8, args, kwargs
+def name1(param1, param2, param3, /, param4, param5, *args, param6="apple", **kwargs):
+    return param1, param2, param3, param4, param5, param6, args, kwargs
