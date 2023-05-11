@@ -29,13 +29,16 @@ def too_many_locals_function(): # [too-many-locals]
     args15 = args14 * 15
     return args15
 
-def too_many_arguments_function(arga, argu, argi, arge, argt, args): # [too-many-arguments]
+# +1: [too-many-arguments]
+def too_many_arguments_function(arga, argu, argi, arge, argt, args, arg7, arg8):
     """pylint will complain about too many arguments."""
     arga = argu
     arga += argi
     arga += arge
     arga += argt
     arga += args
+    arga += arg7
+    arga += arg8
     return arga
 
 def ignored_arguments_function(arga, argu, argi,
