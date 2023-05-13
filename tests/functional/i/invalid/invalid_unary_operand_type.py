@@ -49,3 +49,10 @@ def these_are_bad():
     invert_instance = ~A() # [invalid-unary-operand-type]
     invert_module = ~collections # [invalid-unary-operand-type]
     invert_float = ~2.0 # [invalid-unary-operand-type]
+
+
+class NoArgumentSuper:
+    def __init__(self):
+        """https://github.com/pylint-dev/pylint/issues/8554"""
+        if not isinstance(super(), float):
+            pass
