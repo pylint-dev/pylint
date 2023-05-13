@@ -62,6 +62,7 @@ ASTROID_TYPE_COMPARATORS = {
 # Dealing with useless override detection, with regard
 # to parameters vs arguments
 
+
 class _CallSignature(NamedTuple):
     args: list[str | None]
     kws: dict[str | None, str | None]
