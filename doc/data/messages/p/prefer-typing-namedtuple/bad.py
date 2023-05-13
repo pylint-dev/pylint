@@ -1,3 +1,5 @@
 from collections import namedtuple
 
-Philosophy = namedtuple("Philosophy", ("goodness", "truth", "beauty"))
+Philosophy = namedtuple(  # [prefer-typing-namedtuple]
+    "Philosophy", ("goodness", "truth", "beauty")
+)
