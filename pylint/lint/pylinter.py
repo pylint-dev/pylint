@@ -18,7 +18,7 @@ from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
 from types import ModuleType
-from typing import Any, Protocol
+from typing import Any, Iterable, Protocol
 
 import astroid
 from astroid import nodes
@@ -363,7 +363,7 @@ class PyLinter(
         checkers.initialize(self)
         reporters.initialize(self)
 
-    def load_plugin_modules(self, modnames: list[str], force: bool = False) -> None:
+    def load_plugin_modules(self, modnames: Iterable[str], force: bool = False) -> None:
         """Check a list of pylint plugins modules, load and register them.
 
         If a module cannot be loaded, never try to load it again and instead
