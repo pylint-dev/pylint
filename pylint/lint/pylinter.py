@@ -363,15 +363,18 @@ class PyLinter(
         checkers.initialize(self)
         reporters.initialize(self)
 
-    def load_plugin_modules(self, modnames: list[str]) -> None:
+    def load_plugin_modules(self, modnames: list[str], force: bool = False) -> None:
         """Check a list of pylint plugins modules, load and register them.
 
         If a module cannot be loaded, never try to load it again and instead
         store the error message for later use in ``load_plugin_configuration``
         below.
+
+        If `force` is True (useful when multiprocessing), then the plugin is
+        reloaded regardless if an entry exists in self._dynamic_plugins.
         """
         for modname in modnames:
-            if modname in self._dynamic_plugins:
+            if modname in self._dynamic_plugins and not force:
                 continue
             try:
                 module = astroid.modutils.load_module_from_name(modname)

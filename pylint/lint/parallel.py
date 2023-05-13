@@ -52,6 +52,11 @@ def _worker_initialize(
     _worker_linter.set_reporter(reporters.CollectingReporter())
     _worker_linter.open()
 
+    # Re-register dynamic plugins, since the pool does not have access to the
+    # astroid module that existed when the linter was pickled.
+    _worker_linter.load_plugin_modules(_worker_linter._dynamic_plugins, force=True)
+    _worker_linter.load_plugin_configuration()
+
     if extra_packages_paths:
         _augment_sys_path(extra_packages_paths)
 
