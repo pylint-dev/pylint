@@ -18,7 +18,7 @@ from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
 from types import ModuleType
-from typing import Any, Iterable, Protocol
+from typing import Any, Protocol
 
 import astroid
 from astroid import nodes
