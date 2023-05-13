@@ -69,6 +69,13 @@ class CodeStyleChecker(BaseChecker):
                 "default_enabled": False,
             },
         ),
+        "R6105": (
+            "Prefer typing.NamedTuple over collections.namedtuple",
+            "prefer-typing-namedtuple",
+            "Emitted when a call to collections.namedtuple() is detected. "
+            "This can be rewritten more elegantly as a class with type annotations. "
+            "Requires Python 3.8 and ``py-version >= 3.8``.",
+        ),
     }
     options = (
         (
@@ -94,6 +101,15 @@ class CodeStyleChecker(BaseChecker):
             self.linter.config.max_line_length_suggestions
             or self.linter.config.max_line_length
         )
+
+    @only_required_for_messages("prefer-typing-namedtuple")
+    def visit_call(self, node: nodes.Call) -> None:
+        if self._py38_plus:
+            called = safe_infer(node.func)
+            if called and called.qname() == "collections.namedtuple":
+                self.add_message(
+                    "prefer-typing-namedtuple", node=node, confidence=INFERENCE
+                )
 
     @only_required_for_messages("consider-using-namedtuple-or-dataclass")
     def visit_dict(self, node: nodes.Dict) -> None:
