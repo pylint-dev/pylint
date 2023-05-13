@@ -6,13 +6,12 @@
 
 from __future__ import annotations
 
-import collections
 from collections import defaultdict
 from collections.abc import Callable, Sequence
 from functools import cached_property
 from itertools import chain, zip_longest
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, NamedTuple, Union
 
 import astroid
 from astroid import bases, nodes, util
@@ -63,12 +62,18 @@ ASTROID_TYPE_COMPARATORS = {
 # Dealing with useless override detection, with regard
 # to parameters vs arguments
 
-_CallSignature = collections.namedtuple(
-    "_CallSignature", "args kws starred_args starred_kws"
-)
-_ParameterSignature = collections.namedtuple(
-    "_ParameterSignature", "args kwonlyargs varargs kwargs"
-)
+class _CallSignature(NamedTuple):
+    args: list[str | None]
+    kws: dict[str | None, str | None]
+    starred_args: list[str]
+    starred_kws: list[str]
+
+
+class _ParameterSignature(NamedTuple):
+    args: list[str]
+    kwonlyargs: list[str]
+    varargs: str
+    kwargs: str
 
 
 def _signature_from_call(call: nodes.Call) -> _CallSignature:
