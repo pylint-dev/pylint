@@ -950,15 +950,19 @@ scope_type : {self._atomic.scope_type}
             return True
         if isinstance(node, (nodes.ClassDef, nodes.FunctionDef)) and node.name == name:
             return True
+        if isinstance(node, nodes.ExceptHandler) and node.name and node.name.name == name:
+            return True
         return False
 
     @staticmethod
     def _defines_name_raises_or_returns_recursive(
         name: str, node: nodes.NodeNG
     ) -> bool:
-        """Return True if some child of `node` defines the name `name`,
+        """Return True if `node` or some child of `node` defines the name `name`,
         raises, or returns.
         """
+        if NamesConsumer._defines_name_raises_or_returns(name, node):
+            return True
         for stmt in node.get_children():
             if NamesConsumer._defines_name_raises_or_returns(name, stmt):
                 return True
