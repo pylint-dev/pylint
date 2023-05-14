@@ -93,7 +93,7 @@ class ModifiedIterationChecker(checkers.BaseChecker):
             self.add_message(
                 msg_id,
                 node=node,
-                args=(iter_obj._repr_name(),),
+                args=(iter_obj.repr_name(),),
                 confidence=interfaces.INFERENCE,
             )
 
