@@ -70,11 +70,11 @@ class CodeStyleChecker(BaseChecker):
             },
         ),
         "R6105": (
-            "Prefer typing.NamedTuple over collections.namedtuple",
+            "Prefer 'typing.NamedTuple' over 'collections.namedtuple'",
             "prefer-typing-namedtuple",
-            "Emitted when a call to collections.namedtuple() is detected. "
-            "This can be rewritten more elegantly as a class with type annotations. "
-            "Requires Python 3.8 and ``py-version >= 3.8``.\n"
+            "'typing.NamedTuple' uses the well-known 'class' keyword "
+            "with type-hints for readability (it's also faster as it avoids "
+            "an internal exec call).\n"
             "Disabled by default!",
             {
                 "default_enabled": False,

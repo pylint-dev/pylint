@@ -2,4 +2,6 @@ Add new ``prefer-typing-namedtuple`` message to the ``CodeStyleChecker`` to sugg
 rewriting calls to ``collections.namedtuple`` as classes inheriting from ``typing.NamedTuple``
 on Python 3.8+.
 
+Requires ``load-plugins=pylint.extensions.code_style`` and ``enable=prefer-typing-namedtuple`` to be raised.
+
 Closes #8660
