@@ -778,7 +778,9 @@ def _infer_from_metaclass_constructor(
     class_bases = nodes.List()
     class_bases.postinit(elts=cls.bases)
 
-    attrs = nodes.Dict()
+    attrs = nodes.Dict(
+        lineno=0, col_offset=0, parent=None, end_lineno=0, end_col_offset=0
+    )
     local_names = [(name, values[-1]) for name, values in cls.locals.items()]
     attrs.postinit(local_names)
 
