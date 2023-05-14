@@ -1555,7 +1555,7 @@ accessed. Python regular expressions are accepted.",
 
         # 2. Match the keyword arguments.
         for keyword in keyword_args:
-            # Skip if `keyword` is the same name as a positional-only-parameter
+            # Skip if `keyword` is the same name as a positional-only parameter
             # and a `**kwargs` parameter exists.
             if called.args.kwarg and keyword in [
                 arg.name for arg in called.args.posonlyargs
