@@ -402,7 +402,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W1117": (
         "The keyword argument %r will be added to the keyword variadic "
         "parameter dictionary %r since it has the same name as a positional-only parameter",
-        "hidden-kwarg",
+        "kwarg-superseded-by-positional-arg",
         "Emitted when a function is called with a keyword argument that has the "
         "same name as a positional-only parameter and the function contains a "
         "keyword variadic parameter dict.",
@@ -1562,7 +1562,7 @@ accessed. Python regular expressions are accepted.",
                 arg.name for arg in called.args.posonlyargs
             ]:
                 self.add_message(
-                    "hidden-kwarg",
+                    "kwarg-superseded-by-positional-arg",
                     node=node,
                     args=(keyword, f"**{called.args.kwarg}"),
                     confidence=HIGH,

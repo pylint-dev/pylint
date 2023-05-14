@@ -1,0 +1,2 @@
+kwarg-superseded-by-positional-arg:26:0:26:62::The keyword argument 'apple' will be added to the keyword variadic parameter dictionary '**kwargs' since it has the same name as a positional-only parameter:HIGH
+kwarg-superseded-by-positional-arg:39:0:39:24::The keyword argument 'apple' will be added to the keyword variadic parameter dictionary '**kwargs' since it has the same name as a positional-only parameter:HIGH

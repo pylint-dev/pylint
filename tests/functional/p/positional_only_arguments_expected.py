@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,unused-argument,pointless-statement
-# pylint: disable=too-few-public-methods, hidden-kwarg
+# pylint: disable=too-few-public-methods, kwarg-superseded-by-positional-arg
 
 class Gateaux:
     def nihon(self, a, r, i, /, cheese=False):
