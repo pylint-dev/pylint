@@ -962,11 +962,9 @@ scope_type : {self._atomic.scope_type}
     def _defines_name_raises_or_returns_recursive(
         name: str, node: nodes.NodeNG
     ) -> bool:
-        """Return True if `node` or some child of `node` defines the name `name`,
+        """Return True if some child of `node` defines the name `name`,
         raises, or returns.
         """
-        if NamesConsumer._defines_name_raises_or_returns(name, node):
-            return True
         for stmt in node.get_children():
             if NamesConsumer._defines_name_raises_or_returns(name, stmt):
                 return True
