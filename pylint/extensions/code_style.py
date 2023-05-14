@@ -74,7 +74,11 @@ class CodeStyleChecker(BaseChecker):
             "prefer-typing-namedtuple",
             "Emitted when a call to collections.namedtuple() is detected. "
             "This can be rewritten more elegantly as a class with type annotations. "
-            "Requires Python 3.8 and ``py-version >= 3.8``.",
+            "Requires Python 3.8 and ``py-version >= 3.8``.\n"
+            "Disabled by default!",
+            {
+                "default_enabled": False,
+            },
         ),
     }
     options = (
