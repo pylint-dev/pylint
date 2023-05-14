@@ -400,8 +400,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Emitted when the second argument of an isinstance call is not a type.",
     ),
     "W1117": (
-        "The keyword argument %r will be added to the keyword variadic "
-        "parameter dictionary %r since it has the same name as a positional-only parameter",
+        "%r will be included in %r since a positional-only parameter with this name already exists",
         "kwarg-superseded-by-positional-arg",
         "Emitted when a function is called with a keyword argument that has the "
         "same name as a positional-only parameter and the function contains a "
