@@ -506,7 +506,7 @@ class MisdesignChecker(BaseChecker):
         # init branch and returns counters
         self._returns.append(0)
         # check number of arguments
-        args = node.args.args
+        args = node.args.args + node.args.posonlyargs + node.args.kwonlyargs
         ignored_argument_names = self.linter.config.ignored_argument_names
         if args is not None:
             ignored_args_num = 0

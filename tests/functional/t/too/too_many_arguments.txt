@@ -1,1 +1,2 @@
 too-many-arguments:3:0:3:19:stupid_function:Too many arguments (9/5):UNDEFINED
+too-many-arguments:36:0:36:9:name1:Too many arguments (6/5):UNDEFINED
