@@ -950,6 +950,12 @@ scope_type : {self._atomic.scope_type}
             return True
         if isinstance(node, (nodes.ClassDef, nodes.FunctionDef)) and node.name == name:
             return True
+        if (
+            isinstance(node, nodes.ExceptHandler)
+            and node.name
+            and node.name.name == name
+        ):
+            return True
         return False
 
     @staticmethod
