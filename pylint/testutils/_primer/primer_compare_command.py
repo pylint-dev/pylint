@@ -33,6 +33,8 @@ class CompareCommand(PrimerCommand):
     ) -> tuple[PackageMessages, PackageMessages]:
         missing_messages_data: PackageMessages = {}
         for package, data in main_data.items():
+            if package not in pr_data:
+                continue
             package_missing_messages: list[OldJsonExport] = []
             for message in data["messages"]:
                 try:
