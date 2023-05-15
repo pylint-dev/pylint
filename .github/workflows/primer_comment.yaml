@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.5.2
+        with:
+          ref: extending-redefined-outer-name-to-loop-variables
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v4.6.0
