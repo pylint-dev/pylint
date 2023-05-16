@@ -21,9 +21,6 @@ repos:
       - id: ruff
         args: ["--fix"]
         exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.267"
-    hooks:
       - id: ruff
         name: ruff-doc
         files: doc/data/messages
