@@ -98,7 +98,7 @@ class ASTWalker:
             if self.exception_msg is False:
                 file = getattr(astroid.root(), "file", None)
                 print(
-                    f"Exception on node {repr(astroid)} in file '{file}'",
+                    f"Exception on node {astroid!r} in file '{file}'",
                     file=sys.stderr,
                 )
                 traceback.print_exc()
