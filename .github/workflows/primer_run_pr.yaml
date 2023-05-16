@@ -33,12 +33,14 @@ permissions:
 
 jobs:
   run-primer:
-    name: Run / ${{ matrix.python-version }}
+    name: Run / ${{ matrix.python-version }} / batch index ${{ matrix.batchIdx }}
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 45
     strategy:
       matrix:
         python-version: ["3.8", "3.11"]
+        batches: [4]
+        batchIdx: [0, 1, 2, 3]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v3.5.2
@@ -156,7 +158,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          python tests/primer/__main__.py run --type=pr 2>warnings.txt
+          python tests/primer/__main__.py run --type=pr --batches=${{ matrix.batches }} --batchIdx=${{ matrix.batchIdx }} 2>warnings.txt
           WARNINGS=$(head -c 65000 < warnings.txt)
           if [[ $WARNINGS ]]
           then echo "::warning ::$WARNINGS"
@@ -167,12 +169,12 @@ jobs:
           name: primer_output_pr
           path:
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
-            }}_pr.txt
+            }}_pr_batch${{ matrix.batchIdx }}.txt
       - name: Upload output of 'main'
         uses: actions/upload-artifact@v3.1.2
         with:
           name: primer_output_main
-          path: output_${{ steps.python.outputs.python-version }}_main.txt
+          path: output_${{ steps.python.outputs.python-version }}_main_batch${{ matrix.batchIdx }}.txt
 
       # Save PR number so we know which PR to comment on
       - name: Save PR number
