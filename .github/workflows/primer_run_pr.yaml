@@ -159,6 +159,9 @@ jobs:
           . venv/bin/activate
           pip install -e .
           python tests/primer/__main__.py run --type=pr --batches=${{ matrix.batches }} --batchIdx=${{ matrix.batchIdx }} 2>warnings.txt
+      - name: Echo warnings
+        if: success() || failure()
+        run: |
           WARNINGS=$(head -c 65000 < warnings.txt)
           if [[ $WARNINGS ]]
           then echo "::warning ::$WARNINGS"
