@@ -68,3 +68,11 @@ class Invalid(metaclass=invalid_metaclass_1):  # [invalid-metaclass]
 
 class InvalidSecond(metaclass=invalid_metaclass_2):  # [invalid-metaclass]
     pass
+
+
+class MetaclassWithInvalidMRO(type(object), type(object)):  # [duplicate-bases]
+    pass
+
+
+class FifthInvalid(metaclass=MetaclassWithInvalidMRO):  # [invalid-metaclass]
+    pass
