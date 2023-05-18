@@ -5,8 +5,6 @@
 # pylint: disable=multiple-statements
 
 import abc
-from pathlib import Path
-from typing import Protocol
 
 import six
 from unknown import Unknown
@@ -77,18 +75,4 @@ class MetaclassWithInvalidMRO(type(object), type(object)):  # [duplicate-bases]
 
 
 class FifthInvalid(metaclass=MetaclassWithInvalidMRO):  # [invalid-metaclass]
-    pass
-
-
-class Proto(Protocol):
-    ...
-
-
-class MetaclassWithInconsistentMRO(type(Path), type(Proto)):  # [inconsistent-mro]
-    pass
-
-
-class SixthInvalid(  # [invalid-metaclass]
-    Path, Proto, metaclass=MetaclassWithInconsistentMRO
-):
     pass
