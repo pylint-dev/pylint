@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import sys
+import warnings
 from glob import glob
 from itertools import chain
 from pathlib import Path
@@ -101,6 +102,19 @@ def _config_initialization(
         linter.add_message(
             "unrecognized-option", args=unrecognized_options_message, line=0
         )
+
+    # TODO 3.1: Change this to emit unknown-option-value
+    for exc_name in linter.config.overgeneral_exceptions:
+        if "." not in exc_name:
+            warnings.warn_explicit(
+                f"'{exc_name}' is not a proper value for the 'overgeneral-exceptions' option. "
+                f"Use fully qualified name (maybe 'builtins.{exc_name}' ?) instead. "
+                "This will cease to be checked at runtime in 3.1.0.",
+                category=UserWarning,
+                filename="pylint: Command line or configuration file",
+                lineno=1,
+                module="pylint",
+            )
 
     linter._emit_stashed_messages()
 
