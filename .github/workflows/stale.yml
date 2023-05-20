@@ -21,14 +21,13 @@ jobs:
               "Cannot reproduce 🤷",
               "python past end of life",
               "Won't fix/not planned",
-              "Work in progress",
             ]
           exempt-issue-labels: ["High priority", "Blocked 🚧"]
           stale-issue-message:
             "This issue is stale because it has been open 4 weeks with no activity.
             Remove 'Stale' label or comment or this will be closed in a week."
           close-issue-message:
-            "This issue was closed because it has been stalled for a week with no
+            "This issue was closed because it has been stalled for five weeks with no
             activity."
 
           days-before-pr-stale: 56
