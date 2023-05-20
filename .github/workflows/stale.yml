@@ -22,7 +22,8 @@ jobs:
               "python past end of life",
               "Won't fix/not planned",
             ]
-          exempt-issue-labels: ["High priority", "Blocked 🚧"]
+          exempt-issue-labels: ["High priority", "Blocked 🚧", "Needs decision 🔒"]
+          exempt-pr-labels: ["High priority", "Blocked 🚧", "Needs review 🔍"]          
           stale-issue-message:
             "This issue is stale because it has been open 4 weeks with no activity.
             Remove 'Stale' label or comment or this will be closed in a week."
@@ -31,12 +32,11 @@ jobs:
             activity."
 
           days-before-pr-stale: 56
-          days-before-pr-close: 112
+          days-before-pr-close: -1
           stale-pr-label: "Needs take over 🛎️"
           close-pr-message:
             "This PR was closed because it needed to be taken over for 16 weeks with no
             one stepping up."
           stale-pr-message:
             "This PR needs take over because because it has been open 8 weeks with no
-            activity. Remove 'Needs take over 🛎️' label or comment or this will be
-            closed in 8 weeks."
+            activity."
