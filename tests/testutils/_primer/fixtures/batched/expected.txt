@@ -1,0 +1,19 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+The following messages are no longer emitted:
+
+<details>
+
+1) locally-disabled:
+*Locally disabling redefined-builtin (W0622)*
+https://github.com/pylint-dev/astroid/blob/1234567890abcdef/astroid/__init__.py#L91
+2) unknown-option-value:
+*Unknown option value for 'disable', expected a valid pylint message and got 'Ellipsis'*
+https://github.com/pylint-dev/astroid/blob/1234567890abcdef/astroid/__init__.py#L91
+
+</details>
+
+*This comment was generated for commit v2.14.2*
