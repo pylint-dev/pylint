@@ -177,7 +177,9 @@ jobs:
         uses: actions/upload-artifact@v3.1.2
         with:
           name: primer_output_main
-          path: output_${{ steps.python.outputs.python-version }}_main_batch${{ matrix.batchIdx }}.txt
+          path:
+            output_${{ steps.python.outputs.python-version }}_main_batch${{
+            matrix.batchIdx }}.txt
 
       # Save PR number so we know which PR to comment on
       - name: Save PR number
