@@ -262,6 +262,7 @@ All messages in the warning category:
    warning/invalid-overridden-method
    warning/isinstance-second-argument-not-valid-type
    warning/keyword-arg-before-vararg
+   warning/kwarg-superseded-by-positional-arg
    warning/logging-format-interpolation
    warning/logging-fstring-interpolation
    warning/logging-not-lazy
@@ -508,6 +509,7 @@ All messages in the refactor category:
    refactor/no-else-return
    refactor/no-self-use
    refactor/no-staticmethod-decorator
+   refactor/prefer-typing-namedtuple
    refactor/property-with-parameters
    refactor/redefined-argument-from-local
    refactor/redefined-variable-type

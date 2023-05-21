@@ -77,6 +77,10 @@ Code Style checker Messages
 :consider-using-namedtuple-or-dataclass (R6101): *Consider using namedtuple or dataclass for dictionary values*
   Emitted when dictionary values can be replaced by namedtuples or dataclass
   instances.
+:prefer-typing-namedtuple (R6105): *Prefer 'typing.NamedTuple' over 'collections.namedtuple'*
+  'typing.NamedTuple' uses the well-known 'class' keyword with type-hints for
+  readability (it's also faster as it avoids an internal exec call). Disabled
+  by default!
 :consider-using-assignment-expr (R6103): *Use '%s' instead*
   Emitted when an if assignment is directly followed by an if statement and
   both can be combined by using an assignment expression ``:=``. Requires
