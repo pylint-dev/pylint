@@ -18,9 +18,9 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-def _is_dataclasses_module(node: nodes.NodeNG) -> bool:
+def _is_dataclasses_module(node: nodes.Module) -> bool:
     """Utility function to check if node is from dataclasses_module."""
-    return isinstance(node, nodes.Module) and node.name in DATACLASS_MODULES
+    return node.name in DATACLASS_MODULES
 
 
 def _check_name_or_attrname_eq_to(
