@@ -3,7 +3,7 @@
 import sys
 
 def valid():
-    """https://github.com/PyCQA/pylint/issues/6790"""
+    """https://github.com/pylint-dev/pylint/issues/6790"""
     try:
         pass
     except ValueError:

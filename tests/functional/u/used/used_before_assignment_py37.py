@@ -30,6 +30,6 @@ class MyClass:
 
 
 class NamedTupleSubclass(namedtuple("NamedTupleSubclass", [])):
-    """Taken from https://github.com/PyCQA/pylint/issues/5982"""
+    """Taken from https://github.com/pylint-dev/pylint/issues/5982"""
     def method(self) -> NamedTupleSubclass:
         """Variables checker crashed when astroid did not supply a lineno"""

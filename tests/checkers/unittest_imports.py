@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unit tests for the imports checker."""
 
@@ -11,8 +11,8 @@ from pytest import CaptureFixture
 
 from pylint.checkers import imports
 from pylint.interfaces import UNDEFINED
-from pylint.lint import Run
 from pylint.testutils import CheckerTestCase, MessageTest
+from pylint.testutils._run import _Run as Run
 
 REGR_DATA = os.path.join(os.path.dirname(__file__), "..", "regrtest_data", "")
 
@@ -192,6 +192,23 @@ class TestImportsChecker(CheckerTestCase):
         # assert there were no errors
         assert len(errors) == 0
 
+        # Test for challenges with preferred modules indefinite matches
+        Run(
+            [
+                f"{os.path.join(REGR_DATA, 'preferred_module/unpreferred_submodule.py')}",
+                "-d all",
+                "-e preferred-module",
+                # prefer pathlib instead of random (testing to avoid regression)
+                # pathlib shouldn't match with path, which is in the test file
+                "--preferred-modules=random:pathlib",
+            ],
+            exit=False,
+        )
+        _, errors = capsys.readouterr()
+
+        # Assert there were no errors
+        assert len(errors) == 0
+
     @staticmethod
     def test_allow_reexport_package(capsys: CaptureFixture[str]) -> None:
         """Test --allow-reexport-from-package option."""
@@ -206,7 +223,7 @@ class TestImportsChecker(CheckerTestCase):
             exit=False,
         )
         output, errors = capsys.readouterr()
-        assert len(output.split("\n")) == 5
+        assert len(output.split("\n")) == 7, f"Expected 7 line breaks in:{output}"
         assert (
             "__init__.py:1:0: C0414: Import alias does not rename original package (useless-import-alias)"
             in output
@@ -222,6 +239,7 @@ class TestImportsChecker(CheckerTestCase):
             [
                 f"{os.path.join(REGR_DATA, 'allow_reexport')}",
                 "--allow-reexport-from-package=yes",
+                "--disable=missing-module-docstring",
                 "-sn",
             ],
             exit=False,

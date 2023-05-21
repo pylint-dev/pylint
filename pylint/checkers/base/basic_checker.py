@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Basic checker for Python code."""
 
@@ -8,12 +8,11 @@ from __future__ import annotations
 
 import collections
 import itertools
-import sys
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 import astroid
-from astroid import nodes, objects
+from astroid import nodes, objects, util
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
@@ -23,11 +22,6 @@ from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 class _BasicChecker(BaseChecker):
@@ -212,7 +206,8 @@ class BasicChecker(_BasicChecker):
             "the user intended to do.",
         ),
         "W0126": (
-            "Using a conditional statement with potentially wrong function or method call due to missing parentheses",
+            "Using a conditional statement with potentially wrong function or method call due to "
+            "missing parentheses",
             "missing-parentheses-for-call-in-test",
             "Emitted when a conditional statement (If or ternary if) "
             "seems to wrongly call a function due to missing parentheses",
@@ -328,11 +323,13 @@ class BasicChecker(_BasicChecker):
             nodes.Subscript,
         )
         inferred = None
-        emit = isinstance(test, (nodes.Const,) + structs + const_nodes)
+        emit = isinstance(test, (nodes.Const, *structs, *const_nodes))
         maybe_generator_call = None
         if not isinstance(test, except_nodes):
             inferred = utils.safe_infer(test)
-            if inferred is astroid.Uninferable and isinstance(test, nodes.Name):
+            if isinstance(inferred, util.UninferableBase) and isinstance(
+                test, nodes.Name
+            ):
                 emit, maybe_generator_call = BasicChecker._name_holds_generator(test)
 
         # Emit if calling a function that only returns GeneratorExp (always tests True)
@@ -364,9 +361,9 @@ class BasicChecker(_BasicChecker):
             try:
                 # Just forcing the generator to infer all elements.
                 # astroid.exceptions.InferenceError are false positives
-                # see https://github.com/PyCQA/pylint/pull/8185
+                # see https://github.com/pylint-dev/pylint/pull/8185
                 if isinstance(inferred, nodes.FunctionDef):
-                    call_inferred = list(inferred.infer_call_result())
+                    call_inferred = list(inferred.infer_call_result(node))
                 elif isinstance(inferred, nodes.Lambda):
                     call_inferred = list(inferred.infer_call_result(node))
             except astroid.InferenceError:
@@ -459,7 +456,7 @@ class BasicChecker(_BasicChecker):
 
             # Heuristic: only run inference for names that begin with an uppercase char
             # This reduces W0133's coverage, but retains acceptable runtime performance
-            # For more details, see: https://github.com/PyCQA/pylint/issues/8073
+            # For more details, see: https://github.com/pylint-dev/pylint/issues/8073
             inferred = utils.safe_infer(expr) if name[:1].isupper() else None
             if isinstance(inferred, objects.ExceptionInstance):
                 self.add_message(
@@ -516,6 +513,7 @@ class BasicChecker(_BasicChecker):
         )
 
     @utils.only_required_for_messages("unnecessary-lambda")
+    # pylint: disable-next=too-many-return-statements
     def visit_lambda(self, node: nodes.Lambda) -> None:
         """Check whether the lambda is suspicious."""
         # if the body of the lambda is a call expression with the same
@@ -571,6 +569,13 @@ class BasicChecker(_BasicChecker):
             if not isinstance(passed_arg, nodes.Name):
                 return
             if arg.name != passed_arg.name:
+                return
+
+        # The lambda is necessary if it uses its parameter in the function it is
+        # calling in the lambda's body
+        # e.g. lambda foo: (func1 if foo else func2)(foo)
+        for name in call.func.nodes_of_class(nodes.Name):
+            if name.lookup(name.name)[0] is node:
                 return
 
         self.add_message("unnecessary-lambda", line=node.fromlineno, node=node)
@@ -676,7 +681,7 @@ class BasicChecker(_BasicChecker):
             return
 
         expr = utils.safe_infer(call_node.func.expr)
-        if expr is astroid.Uninferable:
+        if isinstance(expr, util.UninferableBase):
             return
         if not expr:
             # we are doubtful on inferred type of node, so here just check if format
@@ -821,7 +826,7 @@ class BasicChecker(_BasicChecker):
         except utils.NoSuchArgumentError:
             pass
         else:
-            if argument is astroid.Uninferable:
+            if isinstance(argument, util.UninferableBase):
                 return
             if argument is None:
                 # Nothing was inferred.

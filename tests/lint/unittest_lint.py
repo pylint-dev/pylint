@@ -1,42 +1,38 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
 
 from __future__ import annotations
 
 import argparse
-import datetime
 import os
 import re
 import sys
 import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
-from importlib import reload
 from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, dirname, join, sep
 from pathlib import Path
 from shutil import copy, rmtree
+from unittest import mock
 
 import platformdirs
 import pytest
 from astroid import nodes
 from pytest import CaptureFixture
 
-from pylint import checkers, config, exceptions, interfaces, lint, testutils
+from pylint import checkers, constants, exceptions, interfaces, lint, testutils
 from pylint.checkers.utils import only_required_for_messages
 from pylint.constants import (
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
-    OLD_DEFAULT_PYLINT_HOME,
     PYLINT_HOME,
-    USER_HOME,
     _get_pylint_home,
-    _warn_about_old_home,
 )
 from pylint.exceptions import InvalidMessageError
 from pylint.lint import PyLinter, expand_modules
@@ -116,15 +112,6 @@ def fake_path() -> Iterator[list[str]]:
     sys.path[:] = orig
 
 
-def test_deprecated() -> None:
-    """Test that fix_import_path() and get_python_path() are deprecated"""
-    with tempdir():
-        create_files(["__init__.py"])
-        with pytest.deprecated_call():
-            with lint.fix_import_path([""]):
-                expand_modules.get_python_path("__init__.py")
-
-
 def test_no_args(fake_path: list[str]) -> None:
     with lint.augmented_sys_path([]):
         assert sys.path == fake_path
@@ -137,7 +124,7 @@ def test_no_args(fake_path: list[str]) -> None:
 def test_one_arg(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py"])
-        expected = [join(chroot, "a")] + fake_path
+        expected = [join(chroot, "a"), *fake_path]
 
         extra_sys_paths = [
             expand_modules.discover_package_path(arg, []) for arg in case
@@ -161,7 +148,7 @@ def test_one_arg(fake_path: list[str], case: list[str]) -> None:
 def test_two_similar_args(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py", "a/c/__init__.py"])
-        expected = [join(chroot, "a")] + fake_path
+        expected = [join(chroot, "a"), *fake_path]
 
         extra_sys_paths = [
             expand_modules.discover_package_path(arg, []) for arg in case
@@ -940,126 +927,14 @@ def pop_pylintrc() -> None:
 
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_pylint_home() -> None:
-    uhome = os.path.expanduser("~")
-    if uhome == "~":
-        expected = OLD_DEFAULT_PYLINT_HOME
-    else:
-        expected = platformdirs.user_cache_dir("pylint")
-    assert config.PYLINT_HOME == expected
+    expected = platformdirs.user_cache_dir("pylint")
+    assert constants.PYLINT_HOME == expected
     assert PYLINT_HOME == expected
 
 
+@mock.patch.dict(os.environ, {"PYLINTHOME": "whatever.d"})
 def test_pylint_home_from_environ() -> None:
-    try:
-        pylintd = join(tempfile.gettempdir(), OLD_DEFAULT_PYLINT_HOME)
-        os.environ["PYLINTHOME"] = pylintd
-        try:
-            assert _get_pylint_home() == pylintd
-        finally:
-            try:
-                rmtree(pylintd)
-            except FileNotFoundError:
-                pass
-    finally:
-        del os.environ["PYLINTHOME"]
-
-
-def test_warn_about_old_home(capsys: CaptureFixture[str]) -> None:
-    """Test that we correctly warn about old_home."""
-    # Create old home
-    old_home = Path(USER_HOME) / OLD_DEFAULT_PYLINT_HOME
-    old_home.mkdir(parents=True, exist_ok=True)
-
-    # Create spam prevention file
-    ten_years_ago = datetime.datetime.now() - datetime.timedelta(weeks=520)
-    new_prevention_file = Path(PYLINT_HOME) / ten_years_ago.strftime(
-        "pylint_warned_about_old_cache_already_%Y-%m-%d.temp"
-    )
-    with open(new_prevention_file, "w", encoding="utf8") as f:
-        f.write("")
-
-    # Remove current prevention file
-    cur_prevention_file = Path(PYLINT_HOME) / datetime.datetime.now().strftime(
-        "pylint_warned_about_old_cache_already_%Y-%m-%d.temp"
-    )
-    if cur_prevention_file.exists():
-        os.remove(cur_prevention_file)
-
-    _warn_about_old_home(Path(PYLINT_HOME))
-
-    assert not new_prevention_file.exists()
-    assert cur_prevention_file.exists()
-
-    out = capsys.readouterr()
-    assert "PYLINTHOME is now" in out.err
-
-
-@pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc() -> None:
-    with fake_home():
-        current_dir = getcwd()
-        chdir(os.path.dirname(os.path.abspath(sys.executable)))
-        # pylint: disable = too-many-try-statements
-        try:
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-            os.environ["PYLINTRC"] = join(tempfile.gettempdir(), ".pylintrc")
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-            os.environ["PYLINTRC"] = "."
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-        finally:
-            chdir(current_dir)
-            reload(config)
-
-
-@pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc_parentdir() -> None:
-    with tempdir() as chroot:
-        create_files(
-            [
-                "a/pylintrc",
-                "a/b/__init__.py",
-                "a/b/pylintrc",
-                "a/b/c/__init__.py",
-                "a/b/c/d/__init__.py",
-                "a/b/c/d/e/.pylintrc",
-            ]
-        )
-        with fake_home():
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-        results = {
-            "a": join(chroot, "a", "pylintrc"),
-            "a/b": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c/d": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c/d/e": join(chroot, "a", "b", "c", "d", "e", ".pylintrc"),
-        }
-        for basedir, expected in results.items():
-            os.chdir(join(chroot, basedir))
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() == expected
-
-
-@pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc_parentdir_no_package() -> None:
-    with tempdir() as chroot:
-        with fake_home():
-            create_files(["a/pylintrc", "a/b/pylintrc", "a/b/c/d/__init__.py"])
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-            results = {
-                "a": join(chroot, "a", "pylintrc"),
-                "a/b": join(chroot, "a", "b", "pylintrc"),
-                "a/b/c": None,
-                "a/b/c/d": None,
-            }
-            for basedir, expected in results.items():
-                os.chdir(join(chroot, basedir))
-                with pytest.warns(DeprecationWarning):
-                    assert config.find_pylintrc() == expected
+    assert _get_pylint_home() == "whatever.d"
 
 
 class _CustomPyLinter(PyLinter):
@@ -1208,6 +1083,20 @@ def test_recursive_ignore(ignore_parameter: str, ignore_parameter_value: str) ->
     assert module in linted_file_paths
 
 
+def test_source_roots_globbing() -> None:
+    run = Run(
+        [
+            "--source-roots",
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "*"),
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "project"),
+        ],
+        exit=False,
+    )
+    assert run.linter.config.source_roots == [
+        join(REGRTEST_DATA_DIR, "pep420", "basic", "project")
+    ]
+
+
 def test_recursive_implicit_namespace() -> None:
     run = Run(
         [
@@ -1220,8 +1109,6 @@ def test_recursive_implicit_namespace() -> None:
         ],
         exit=False,
     )
-    run.linter.set_reporter(testutils.GenericTestReporter())
-    run.linter.check([join(REGRTEST_DATA_DIR, "pep420", "basic")])
     assert run.linter.file_state.base_name == "namespace.package"
 
 
@@ -1241,8 +1128,21 @@ def test_recursive_implicit_namespace_wrapper() -> None:
     assert run.linter.reporter.messages == []
 
 
+def test_globbing() -> None:
+    run = Run(
+        [
+            "--verbose",
+            "--source-roots",
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "project"),
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "project", "**", "__init__.py"),
+        ],
+        exit=False,
+    )
+    assert run.linter.file_state.base_name == "namespace.package.__init__"
+
+
 def test_relative_imports(initialized_linter: PyLinter) -> None:
-    """Regression test for https://github.com/PyCQA/pylint/issues/3651"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/3651"""
     linter = initialized_linter
     with tempdir() as tmpdir:
         create_files(["x/y/__init__.py", "x/y/one.py", "x/y/two.py"], tmpdir)
@@ -1297,7 +1197,7 @@ print(submodule1)
 
 
 def test_lint_namespace_package_under_dir(initialized_linter: PyLinter) -> None:
-    """Regression test for https://github.com/PyCQA/pylint/issues/1667"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/1667"""
     linter = initialized_linter
     with tempdir():
         create_files(["outer/namespace/__init__.py", "outer/namespace/module.py"])

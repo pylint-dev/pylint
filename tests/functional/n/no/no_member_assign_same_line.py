@@ -1,5 +1,5 @@
 """Tests for no-member for self-referencing instance attributes
-See https://github.com/PyCQA/pylint/issues/1555
+See https://github.com/pylint-dev/pylint/issues/1555
 """
 # pylint: disable=too-few-public-methods
 

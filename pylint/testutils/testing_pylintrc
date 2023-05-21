@@ -7,3 +7,7 @@ disable=
     suppressed-message,
     locally-disabled,
     useless-suppression,
+
+enable=
+    deprecated-pragma,
+    use-symbolic-message-instead,

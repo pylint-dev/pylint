@@ -1,0 +1,3 @@
+[MAIN]
+load-plugins=pylint.extensions.code_style
+enable=prefer-typing-namedtuple

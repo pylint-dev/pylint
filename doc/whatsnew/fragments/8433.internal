@@ -1,0 +1,10 @@
+The following utilities are deprecated in favor of the more robust ``in_type_checking_block``
+and will be removed in pylint 3.0:
+
+  - ``is_node_in_guarded_import_block``
+  - ``is_node_in_typing_guarded_import_block``
+  - ``is_typing_guard``
+
+``is_sys_guard`` is still available, which was part of ``is_node_in_guarded_import_block``.
+
+Refs #8433

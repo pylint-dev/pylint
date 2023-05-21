@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unit tests for pylint.pyreverse.printer_factory."""
 
@@ -12,13 +12,11 @@ from pylint.pyreverse import printer_factory
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
 from pylint.pyreverse.printer import Printer
-from pylint.pyreverse.vcg_printer import VCGPrinter
 
 
 @pytest.mark.parametrize(
     "filetype, expected_printer_class",
     [
-        ("vcg", VCGPrinter),
         ("dot", DotPrinter),
         ("puml", PlantUmlPrinter),
         ("plantuml", PlantUmlPrinter),

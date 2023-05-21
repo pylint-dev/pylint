@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Diagram objects."""
 
@@ -10,10 +10,10 @@ from collections.abc import Iterable
 from typing import Any
 
 import astroid
-from astroid import nodes
+from astroid import nodes, util
 
 from pylint.checkers.utils import decorated_with_property
-from pylint.pyreverse.utils import FilterMixIn, is_interface
+from pylint.pyreverse.utils import FilterMixIn
 
 
 class Figure:
@@ -50,7 +50,13 @@ class DiagramEntity(Figure):
     ) -> None:
         super().__init__()
         self.title = title
-        self.node: nodes.NodeNG = node if node else nodes.NodeNG()
+        self.node: nodes.NodeNG = node or nodes.NodeNG(
+            lineno=None,
+            col_offset=None,
+            end_lineno=None,
+            end_col_offset=None,
+            parent=None,
+        )
         self.shape = self.default_shape
 
 
@@ -195,23 +201,12 @@ class ClassDiagram(Figure, FilterMixIn):
             node = obj.node
             obj.attrs = self.get_attrs(node)
             obj.methods = self.get_methods(node)
-            # shape
-            if is_interface(node):
-                obj.shape = "interface"
-            else:
-                obj.shape = "class"
+            obj.shape = "class"
             # inheritance link
             for par_node in node.ancestors(recurs=False):
                 try:
                     par_obj = self.object_from_node(par_node)
                     self.add_relationship(obj, par_obj, "specialization")
-                except KeyError:
-                    continue
-            # implements link
-            for impl_node in node.implements:
-                try:
-                    impl_obj = self.object_from_node(impl_node)
-                    self.add_relationship(obj, impl_obj, "implements")
                 except KeyError:
                     continue
 
@@ -233,7 +228,7 @@ class ClassDiagram(Figure, FilterMixIn):
     def assign_association_relationship(
         self, value: astroid.NodeNG, obj: ClassEntity, name: str, type_relationship: str
     ) -> None:
-        if value is astroid.Uninferable:
+        if isinstance(value, util.UninferableBase):
             return
         if isinstance(value, astroid.Instance):
             value = value._proxied

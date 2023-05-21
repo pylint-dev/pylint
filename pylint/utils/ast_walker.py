@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -98,7 +98,7 @@ class ASTWalker:
             if self.exception_msg is False:
                 file = getattr(astroid.root(), "file", None)
                 print(
-                    f"Exception on node {repr(astroid)} in file '{file}'",
+                    f"Exception on node {astroid!r} in file '{file}'",
                     file=sys.stderr,
                 )
                 traceback.print_exc()

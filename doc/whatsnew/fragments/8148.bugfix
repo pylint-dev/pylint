@@ -1,4 +1,0 @@
-Fix ``no-name-in-module`` false positive raised when a package defines a variable with the
-same name as one of its submodules.
-
-Closes #8148

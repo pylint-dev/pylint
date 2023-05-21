@@ -1,13 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Everything related to the 'pylint-config generate' command."""
 
 
 from __future__ import annotations
 
-import warnings
 from io import StringIO
 from typing import TYPE_CHECKING
 
@@ -29,10 +28,8 @@ def generate_interactive_config(linter: PyLinter) -> None:
         config_string = linter._generate_config_file(minimal=minimal)
     else:
         output_stream = StringIO()
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            linter.generate_config(stream=output_stream, skipsections=("Commands",))
-            config_string = output_stream.getvalue()
+        linter._generate_config(stream=output_stream, skipsections=("Commands",))
+        config_string = output_stream.getvalue()
 
     if to_file:
         with open(output_file_name, "w", encoding="utf-8") as f:

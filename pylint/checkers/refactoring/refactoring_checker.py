@@ -1,35 +1,31 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import collections
 import copy
 import itertools
-import sys
 import tokenize
 from collections.abc import Iterator
-from functools import reduce
+from functools import cached_property, reduce
 from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
 
 import astroid
 from astroid import bases, nodes
-from astroid.util import Uninferable
+from astroid.util import UninferableBase
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.checkers.base.basic_error_checker import _loop_exits_early
 from pylint.checkers.utils import node_frame_class
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
 
 NodesWithNestedBlocks = Union[
     nodes.TryExcept, nodes.TryFinally, nodes.While, nodes.For, nodes.If
@@ -97,7 +93,7 @@ def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
     if token.exact_type != tokenize.COMMA:
         return False
     # Must have remaining tokens on the same line such as NEWLINE
-    left_tokens = list(itertools.islice(tokens, index + 1, None))
+    left_tokens = itertools.islice(tokens, index + 1, None)
 
     more_tokens_on_line = False
     for remaining_token in left_tokens:
@@ -460,7 +456,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Consider using 'with' for resource-allocating operations",
             "consider-using-with",
             "Emitted if a resource-allocating assignment or call may be replaced by a 'with' block. "
-            "By using 'with' the release of the allocated resources is ensured even in the case of an exception.",
+            "By using 'with' the release of the allocated resources is ensured even in the case "
+            "of an exception.",
         ),
         "R1733": (
             "Unnecessary dictionary index lookup, use '%s' instead",
@@ -642,9 +639,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # token[2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
-            elif _is_trailing_comma(tokens, index):
-                if self.linter.is_message_enabled("trailing-comma-tuple"):
-                    self.add_message("trailing-comma-tuple", line=token.start[0])
+            elif self.linter.is_message_enabled(
+                "trailing-comma-tuple"
+            ) and _is_trailing_comma(tokens, index):
+                self.add_message("trailing-comma-tuple", line=token.start[0])
 
     @utils.only_required_for_messages("consider-using-with")
     def leave_module(self, _: nodes.Module) -> None:
@@ -712,8 +710,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for var, names in node.items:
             if isinstance(var, nodes.Name):
                 for stack in self._consider_using_with_stack:
-                    # We don't need to restrict the stacks we search to the current scope and outer scopes,
-                    # as e.g. the function_scope stack will be empty when we check a ``with`` on the class level.
+                    # We don't need to restrict the stacks we search to the current scope and
+                    # outer scopes, as e.g. the function_scope stack will be empty when we
+                    # check a ``with`` on the class level.
                     if var.name in stack:
                         del stack[var.name]
                         break
@@ -1057,8 +1056,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_consider_using_generator(self, node: nodes.Call) -> None:
         # 'any', 'all', definitely should use generator, while 'list', 'tuple',
         # 'sum', 'max', and 'min' need to be considered first
-        # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
-        # https://github.com/PyCQA/pylint/pull/6595#issuecomment-1125704244
+        # See https://github.com/pylint-dev/pylint/pull/3309#discussion_r576683109
+        # https://github.com/pylint-dev/pylint/pull/6595#issuecomment-1125704244
         # and https://peps.python.org/pep-0289/
         checked_call = ["any", "all", "sum", "max", "min", "list", "tuple"]
         if (
@@ -1067,11 +1066,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(node.func, nodes.Name)
             and node.func.name in checked_call
         ):
-            # functions in checked_calls take exactly one argument
+            # functions in checked_calls take exactly one positional argument
             # check whether the argument is list comprehension
             if len(node.args) == 1 and isinstance(node.args[0], nodes.ListComp):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[1:-1]
+                if node.keywords:
+                    inside_comp = f"({inside_comp})"
+                    inside_comp += ", "
+                    inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
                 call_name = node.func.name
                 if call_name in {"any", "all"}:
                     self.add_message(
@@ -1117,7 +1120,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_quit_exit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
-            # If we have `exit` imported from `sys` in the current or global scope, exempt this instance.
+            # If we have `exit` imported from `sys` in the current or global scope,
+            # exempt this instance.
             local_scope = node.scope()
             if self._has_exit_in_scope(local_scope) or self._has_exit_in_scope(
                 node.root()
@@ -1167,7 +1171,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         if len(node.args) == 0:
             # handle case when builtin.next is called without args.
-            # see https://github.com/PyCQA/pylint/issues/7828
+            # see https://github.com/pylint-dev/pylint/issues/7828
             return
 
         inferred = utils.safe_infer(node.func)
@@ -1538,7 +1542,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         inferred_truth_value = utils.safe_infer(truth_value, compare_constants=True)
-        if inferred_truth_value is None or inferred_truth_value == astroid.Uninferable:
+        if inferred_truth_value is None or isinstance(
+            inferred_truth_value, UninferableBase
+        ):
             return
         truth_boolean_value = inferred_truth_value.bool_value()
 
@@ -1552,7 +1558,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _append_context_managers_to_stack(self, node: nodes.Assign) -> None:
         if _is_inside_context_manager(node):
-            # if we are inside a context manager itself, we assume that it will handle the resource management itself.
+            # if we are inside a context manager itself, we assume that it will handle
+            # the resource management itself.
             return
         if isinstance(node.targets[0], (nodes.Tuple, nodes.List, nodes.Set)):
             assignees = node.targets[0].elts
@@ -1564,7 +1571,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             assignees = [node.targets[0]]
             values = [node.value]
-        if Uninferable in (assignees, values):
+        if any(isinstance(n, UninferableBase) for n in (assignees, values)):
             return
         for assignee, value in zip(assignees, values):
             if not isinstance(value, nodes.Call):
@@ -1599,9 +1606,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_consider_using_with(self, node: nodes.Call) -> None:
         if _is_inside_context_manager(node) or _is_a_return_statement(node):
-            # If we are inside a context manager itself, we assume that it will handle the resource management itself.
-            # If the node is a child of a return, we assume that the caller knows he is getting a context manager
-            # he should use properly (i.e. in a ``with``).
+            # If we are inside a context manager itself, we assume that it will handle the
+            # resource management itself.
+            # If the node is a child of a return, we assume that the caller knows he is getting
+            # a context manager he should use properly (i.e. in a ``with``).
             return
         if (
             node
@@ -1609,7 +1617,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 node.frame(future=True)
             ).values()
         ):
-            # the result of this call was already assigned to a variable and will be checked when leaving the scope.
+            # the result of this call was already assigned to a variable and will be
+            # checked when leaving the scope.
             return
         inferred = utils.safe_infer(node.func)
         if not inferred or not isinstance(
@@ -1914,7 +1923,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # to infer it.
             return True
         exc = utils.safe_infer(node.exc)
-        if exc is None or exc is astroid.Uninferable or not hasattr(exc, "pytype"):
+        if (
+            exc is None
+            or isinstance(exc, UninferableBase)
+            or not hasattr(exc, "pytype")
+        ):
             return False
         exc_name = exc.pytype().split(".")[-1]
         handlers = utils.get_exception_handlers(node, exc_name)
@@ -1945,10 +1958,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     return True
             except astroid.InferenceError:
                 pass
-        # Avoid the check inside while loop as we don't know
-        # if they will be completed
         if isinstance(node, nodes.While):
-            return True
+            # A while-loop is considered return-ended if it has a
+            # truthy test and no break statements
+            return (node.test.bool_value() and not _loop_exits_early(node)) or any(
+                self._is_node_return_ended(child) for child in node.orelse
+            )
         if isinstance(node, nodes.Raise):
             return self._is_raise_node_return_ended(node)
         if isinstance(node, nodes.If):

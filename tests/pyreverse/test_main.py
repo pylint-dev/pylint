@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unittest for the main module."""
 
@@ -138,6 +138,7 @@ def test_graphviz_unsupported_image_format(capsys: CaptureFixture) -> None:
         ("show_associated", None),
         ("all_associated", None),
         ("show_builtin", 0),
+        ("show_stdlib", 0),
         ("module_names", None),
         ("output_format", "dot"),
         ("colorized", 0),

@@ -1,5 +1,0 @@
-Fix a false negative for 'missing-parentheses-for-call-in-test' when inference
-failed for the internal of the call as we did not need that information to raise
-correctly.
-
-Refs #8185

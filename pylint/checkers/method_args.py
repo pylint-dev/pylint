@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Variables checkers for Python code."""
 
@@ -110,6 +110,8 @@ class MethodArgsChecker(BaseChecker):
             isinstance(inferred_func, (nodes.FunctionDef))
             and inferred_func.args.posonlyargs
         ):
+            return
+        if inferred_func.args.kwarg:
             return
         pos_args = [a.name for a in inferred_func.args.posonlyargs]
         kws = [k.arg for k in node.keywords if k.arg in pos_args]

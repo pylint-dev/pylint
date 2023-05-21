@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checkers for various standard library functions."""
 
@@ -11,7 +11,7 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Dict, Set, Tuple
 
 import astroid
-from astroid import nodes
+from astroid import nodes, util
 from astroid.typing import InferenceResult
 
 from pylint import interfaces
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 DeprecationDict = Dict[Tuple[int, int, int], Set[str]]
 
 OPEN_FILES_MODE = ("open", "file")
-OPEN_FILES_FUNCS = OPEN_FILES_MODE + ("read_text", "write_text")
+OPEN_FILES_FUNCS = (*OPEN_FILES_MODE, "read_text", "write_text")
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
 COPY_COPY = "copy.copy"
@@ -386,7 +386,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "By default, the first parameter is the group param, not the target param.",
         ),
         "W1507": (
-            "Using copy.copy(os.environ). Use os.environ.copy() instead. ",
+            "Using copy.copy(os.environ). Use os.environ.copy() instead.",
             "shallow-copy-environ",
             "os.environ is not a dict object but proxy object, so "
             "shallow copy has still effects on original object. "
@@ -540,7 +540,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         """Visit a Call node."""
         self.check_deprecated_class_in_call(node)
         for inferred in utils.infer_all(node.func):
-            if inferred is astroid.Uninferable:
+            if isinstance(inferred, util.UninferableBase):
                 continue
             if inferred.root().name in OPEN_MODULE:
                 open_func_name: str | None = None
@@ -805,7 +805,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         call_arg: InferenceResult | None,
         allow_none: bool,
     ) -> None:
-        if call_arg in (astroid.Uninferable, None):
+        if call_arg is None or isinstance(call_arg, util.UninferableBase):
             return
 
         name = infer.qname()
@@ -818,7 +818,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if emit:
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
-            self.add_message(message, node=node, args=(name, call_arg.pytype()))  # type: ignore[union-attr]
+            self.add_message(message, node=node, args=(name, call_arg.pytype()))
 
     def deprecated_methods(self) -> set[str]:
         return self._deprecated_methods

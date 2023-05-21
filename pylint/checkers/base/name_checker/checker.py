@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Basic checker for Python code."""
 
@@ -40,7 +40,10 @@ _BadNamesTuple = Tuple[nodes.NodeNG, str, str, interfaces.Confidence]
 DEFAULT_PATTERNS = {
     "typevar": re.compile(
         r"^_{0,2}(?!T[A-Z])(?:[A-Z]+|(?:[A-Z]+[a-z]+)+T?(?<!Type))(?:_co(?:ntra)?)?$"
-    )
+    ),
+    "typealias": re.compile(
+        r"^_{0,2}(?!T[A-Z]|Type)[A-Z]+[a-z0-9]+(?:[A-Z][a-z0-9]+)*$"
+    ),
 }
 
 BUILTIN_PROPERTY = "builtins.property"
@@ -388,11 +391,6 @@ class NameChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @utils.only_required_for_messages("disallowed-name", "invalid-name")
-    def visit_global(self, node: nodes.Global) -> None:
-        for name in node.names:
-            self._check_name("const", name, node)
-
     @utils.only_required_for_messages(
         "disallowed-name",
         "invalid-name",
@@ -400,7 +398,9 @@ class NameChecker(_BasicChecker):
         "typevar-double-variance",
         "typevar-name-mismatch",
     )
-    def visit_assignname(self, node: nodes.AssignName) -> None:
+    def visit_assignname(  # pylint: disable=too-many-branches
+        self, node: nodes.AssignName
+    ) -> None:
         """Check module level assigned names."""
         frame = node.frame(future=True)
         assign_type = node.assign_type()
@@ -415,25 +415,40 @@ class NameChecker(_BasicChecker):
             if isinstance(assign_type, nodes.Assign):
                 inferred_assign_type = utils.safe_infer(assign_type.value)
 
-                # Check TypeVar's assigned alone or in tuple assignment
-                if isinstance(node.parent, nodes.Assign) and self._assigns_typevar(
-                    assign_type.value
-                ):
-                    self._check_name("typevar", assign_type.targets[0].name, node)
-                elif (
+                # Check TypeVar's and TypeAliases assigned alone or in tuple assignment
+                if isinstance(node.parent, nodes.Assign):
+                    if self._assigns_typevar(assign_type.value):
+                        self._check_name("typevar", assign_type.targets[0].name, node)
+                        return
+                    if self._assigns_typealias(assign_type.value):
+                        self._check_name("typealias", assign_type.targets[0].name, node)
+                        return
+
+                if (
                     isinstance(node.parent, nodes.Tuple)
                     and isinstance(assign_type.value, nodes.Tuple)
                     # protect against unbalanced tuple unpacking
                     and node.parent.elts.index(node) < len(assign_type.value.elts)
-                    and self._assigns_typevar(
-                        assign_type.value.elts[node.parent.elts.index(node)]
-                    )
                 ):
-                    self._check_name(
-                        "typevar",
-                        assign_type.targets[0].elts[node.parent.elts.index(node)].name,
-                        node,
-                    )
+                    assigner = assign_type.value.elts[node.parent.elts.index(node)]
+                    if self._assigns_typevar(assigner):
+                        self._check_name(
+                            "typevar",
+                            assign_type.targets[0]
+                            .elts[node.parent.elts.index(node)]
+                            .name,
+                            node,
+                        )
+                        return
+                    if self._assigns_typealias(assigner):
+                        self._check_name(
+                            "typealias",
+                            assign_type.targets[0]
+                            .elts[node.parent.elts.index(node)]
+                            .name,
+                            node,
+                        )
+                        return
 
                 # Check classes (TypeVar's are classes so they need to be excluded first)
                 elif isinstance(inferred_assign_type, nodes.ClassDef):
@@ -450,17 +465,23 @@ class NameChecker(_BasicChecker):
                     )
 
             # Check names defined in AnnAssign nodes
-            elif isinstance(
-                assign_type, nodes.AnnAssign
-            ) and utils.is_assign_name_annotated_with(node, "Final"):
-                self._check_name("const", node.name, node)
+            elif isinstance(assign_type, nodes.AnnAssign):
+                if utils.is_assign_name_annotated_with(node, "Final"):
+                    self._check_name("const", node.name, node)
+                elif self._assigns_typealias(assign_type.annotation):
+                    self._check_name("typealias", node.name, node)
 
         # Check names defined in function scopes
         elif isinstance(frame, nodes.FunctionDef):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
                 if not _redefines_import(node):
-                    self._check_name("variable", node.name, node)
+                    if isinstance(
+                        assign_type, nodes.AnnAssign
+                    ) and self._assigns_typealias(assign_type.annotation):
+                        self._check_name("typealias", node.name, node)
+                    else:
+                        self._check_name("variable", node.name, node)
 
         # Check names defined in class scopes
         elif isinstance(frame, nodes.ClassDef):
@@ -574,6 +595,21 @@ class NameChecker(_BasicChecker):
                 isinstance(inferred, astroid.ClassDef)
                 and inferred.qname() in TYPE_VAR_QNAME
             ):
+                return True
+        return False
+
+    @staticmethod
+    def _assigns_typealias(node: nodes.NodeNG | None) -> bool:
+        """Check if a node is assigning a TypeAlias."""
+        inferred = utils.safe_infer(node)
+        if isinstance(inferred, nodes.ClassDef):
+            if inferred.qname() == ".Union":
+                # Union is a special case because it can be used as a type alias
+                # or as a type annotation. We only want to check the former.
+                assert node is not None
+                return not isinstance(node.parent, nodes.AnnAssign)
+        elif isinstance(inferred, nodes.FunctionDef):
+            if inferred.qname() == "typing.TypeAlias":
                 return True
         return False
 

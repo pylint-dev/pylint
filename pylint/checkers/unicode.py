@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unicode and some other ASCII characters can be used to create programs that run
 much different compared to what a human reader would expect from them.
@@ -330,7 +330,7 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
                 "For compatibility use UTF-8 instead of UTF-16/UTF-32. "
                 "See also https://bugs.python.org/issue1503789 for a history "
                 "of this issue. And "
-                "https://softwareengineering.stackexchange.com/questions/102205/should-utf-16-be-considered-harmful "
+                "https://softwareengineering.stackexchange.com/questions/102205/ "
                 "for some possible problems when using UTF-16 for instance."
             ),
         ),
@@ -347,7 +347,8 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
                 "So can you trust this code? "
                 "Are you sure it displayed correctly in all editors? "
                 "If you did not write it or your language is not RTL,"
-                " remove the special characters, as they could be used to trick you into executing code, "
+                " remove the special characters, as they could be used to trick you into "
+                "executing code, "
                 "that does something else than what it looks like.\n"
                 "More Information:\n"
                 "https://en.wikipedia.org/wiki/Bidirectional_text\n"

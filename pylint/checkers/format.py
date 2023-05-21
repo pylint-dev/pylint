@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Python code format's checker.
 
@@ -13,11 +13,10 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
-import sys
 import tokenize
 from functools import reduce
 from re import Match
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from astroid import nodes
 
@@ -31,10 +30,6 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 _KEYWORD_TOKENS = {
     "assert",
@@ -346,7 +341,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     if found_and_or:
                         return
                     if keyword_token == "in":
-                        # This special case was added in https://github.com/PyCQA/pylint/pull/4948
+                        # This special case was added in https://github.com/pylint-dev/pylint/pull/4948
                         # but it could be removed in the future. Avoid churn for now.
                         return
                     self.add_message(
@@ -667,8 +662,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 self.add_message("missing-final-newline", line=lineno + offset)
                 continue
             # We don't test for trailing whitespaces in strings
-            # See https://github.com/PyCQA/pylint/issues/6936
-            # and https://github.com/PyCQA/pylint/issues/3822
+            # See https://github.com/pylint-dev/pylint/issues/6936
+            # and https://github.com/pylint-dev/pylint/issues/3822
             if tokens.type(line_start) != tokenize.STRING:
                 self.check_trailing_whitespace_ending(line, lineno + offset)
 

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -137,6 +137,7 @@ DEFAULT_NAMING_STYLES = {
 KNOWN_NAME_TYPES = {
     *KNOWN_NAME_TYPES_WITH_STYLE,
     "typevar",
+    "typealias",
 }
 
 
@@ -149,7 +150,10 @@ def _create_naming_options() -> Options:
         help_msg = f"Regular expression matching correct {human_readable_name} names. "
         if name_type in KNOWN_NAME_TYPES_WITH_STYLE:
             help_msg += f"Overrides {name_type_hyphened}-naming-style. "
-        help_msg += f"If left empty, {human_readable_name} names will be checked with the set naming style."
+        help_msg += (
+            f"If left empty, {human_readable_name} names will be checked "
+            "with the set naming style."
+        )
 
         # Add style option for names that support it
         if name_type in KNOWN_NAME_TYPES_WITH_STYLE:

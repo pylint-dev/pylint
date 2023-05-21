@@ -14,7 +14,7 @@ on:
 
 env:
   # This needs to be the SAME as in the Main and PR job
-  CACHE_VERSION: 2
+  CACHE_VERSION: 3
   KEY_PREFIX: venv-primer
   DEFAULT_PYTHON: "3.11"
 
@@ -30,10 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v3.5.2
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v4.5.0
+        uses: actions/setup-python@v4.6.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -41,7 +41,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.2.5
+        uses: actions/cache@v3.3.1
         with:
           path: venv
           fail-on-cache-miss: true
@@ -52,7 +52,7 @@ jobs:
             'requirements_test_pre_commit.txt') }}
 
       - name: Download outputs
-        uses: actions/github-script@v6.4.0
+        uses: actions/github-script@v6.4.1
         with:
           script: |
             // Download workflow pylint output
@@ -107,7 +107,7 @@ jobs:
           --new-file=output_${{ steps.python.outputs.python-version }}_pr.txt
       - name: Post comment
         id: post-comment
-        uses: actions/github-script@v6.4.0
+        uses: actions/github-script@v6.4.1
         with:
           script: |
             const fs = require('fs')

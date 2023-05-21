@@ -39,8 +39,16 @@ branch
 - Push the tag.
 - Release the version on GitHub with the same name as the tag and copy and paste the
   appropriate changelog in the description. This triggers the PyPI release.
-- Delete the `maintenance/X.Y-1.x` branch. (For example: `maintenance/2.3.x`)
 - Create a `maintenance/X.Y.x` (For example: `maintenance/2.4.x` from the `v2.4.0` tag.)
+- Upgrade the pattern for the protected branches in the settings under `Branches` /
+  `Branch protection rules`. (For example: `maintenance/2.4*` instead of
+  `maintenance/2.3*`.). There's a lot of configuration done in these settings, do NOT
+  recreate it from scratch.
+- Delete the `maintenance/X.Y-1.x` branch. (For example: `maintenance/2.3.x`)
+- Select all the issues labelled `backport maintenance/X.Y-1.x` and label them
+  `backported`, then rename the `backport maintenance/X.Y-1.x` label to
+  `backport maintenance/X.Y.x` (for example rename `backport maintenance/2.3.x` to
+  `backport maintenance/2.4.x`)
 - Close the current milestone and create the new ones (For example: close `2.4.0`,
   create `2.4.1` and `2.6.0`)
 - Hide and deactivate all the patch releases for the previous minor release on

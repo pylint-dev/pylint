@@ -1,4 +1,4 @@
-""" Regression test for https://github.com/PyCQA/pylint/issues/3405. """
+""" Regression test for https://github.com/pylint-dev/pylint/issues/3405. """
 
 import dataclasses
 from typing import ClassVar

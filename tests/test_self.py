@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=too-many-public-methods
 
@@ -10,7 +10,6 @@ import configparser
 import contextlib
 import json
 import os
-import platform
 import re
 import subprocess
 import sys
@@ -133,7 +132,7 @@ class TestRunTC:
 
     @staticmethod
     def _run_pylint(args: list[str], out: TextIO, reporter: Any = None) -> int:
-        args = _add_rcfile_default_pylintrc(args + ["--persistent=no"])
+        args = _add_rcfile_default_pylintrc([*args, "--persistent=no"])
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
                 with warnings.catch_warnings():
@@ -257,9 +256,9 @@ class TestRunTC:
         expected = textwrap.dedent(
             f"""
         ************* Module data.clientmodule_test
-        {module}:10:8: W0612: Unused variable 'local_variable' (unused-variable)
-        {module}:18:4: C0116: Missing function or method docstring (missing-function-docstring)
-        {module}:22:0: C0115: Missing class docstring (missing-class-docstring)
+        {module}:9:8: W0612: Unused variable 'local_variable' (unused-variable)
+        {module}:17:4: C0116: Missing function or method docstring (missing-function-docstring)
+        {module}:21:0: C0115: Missing class docstring (missing-class-docstring)
         """
         )
         self._test_output(
@@ -301,7 +300,7 @@ class TestRunTC:
 
         An import inside `module_a`, which is used as a type annotation in `module_a`, should not prevent
         emitting the `unused-import` message when the same import occurs in `module_b` & is unused.
-        See: https://github.com/PyCQA/pylint/issues/4150
+        See: https://github.com/pylint-dev/pylint/issues/4150
         """
         module1 = join(
             HERE, "regrtest_data", "imported_module_in_typehint", "module_a.py"
@@ -349,16 +348,9 @@ class TestRunTC:
         assert isinstance(output, list)
         assert len(output) == 1
         assert isinstance(output[0], dict)
-        # So each version wants a different column number...
-        if platform.python_implementation() == "PyPy":
-            column = 9
-        elif sys.version_info >= (3, 8):
-            column = 9
-        else:
-            column = 15
         expected = {
             "obj": "",
-            "column": column,
+            "column": 9,
             "line": 1,
             "type": "error",
             "symbol": "syntax-error",
@@ -716,8 +708,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     @pytest.mark.parametrize(
         "fu_score,fo_msgs,fname,out",
         [
-            # Essentially same test cases as --fail-under, but run with/without a detected issue code
-            # missing-function-docstring (C0116) is issue in both files
+            # Essentially same test cases as --fail-under, but run with/without a detected
+            # issue code missing-function-docstring (C0116) is issue in both files
             # --fail-under should be irrelevant as missing-function-docstring is hit
             (-10, "missing-function-docstring", "fail_under_plus7_5.py", 16),
             (6, "missing-function-docstring", "fail_under_plus7_5.py", 16),
@@ -775,7 +767,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     )
     def test_fail_on_edge_case(self, opts: list[str], out: int) -> None:
         self._runtest(
-            opts + [join(HERE, "regrtest_data", "fail_under_plus7_5.py")],
+            [*opts, join(HERE, "regrtest_data", "fail_under_plus7_5.py")],
             code=out,
         )
 
@@ -888,7 +880,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         [
             ["--disable=import-error,unused-import"],
             # Test with multiple jobs for 'hmac.py' for which we have a
-            # CVE against: https://github.com/PyCQA/pylint/issues/959
+            # CVE against: https://github.com/pylint-dev/pylint/issues/959
             ["-j2", "--disable=import-error,unused-import"],
         ],
     )
@@ -898,13 +890,13 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         for path in ("astroid.py", "hmac.py"):
             file_path = tmp_path / path
             file_path.write_text("'Docstring'\nimport completely_unknown\n")
-            pylint_call = [sys.executable, "-m", "pylint"] + args + [path]
+            pylint_call = [sys.executable, "-m", "pylint", *args, path]
             with _test_cwd(tmp_path):
                 subprocess.check_output(pylint_call, cwd=str(tmp_path))
             new_python_path = os.environ.get("PYTHONPATH", "").strip(":")
             with _test_cwd(tmp_path), _test_environ_pythonpath(f"{new_python_path}:"):
                 # Appending a colon to PYTHONPATH should not break path stripping
-                # https://github.com/PyCQA/pylint/issues/3636
+                # https://github.com/pylint-dev/pylint/issues/3636
                 subprocess.check_output(pylint_call, cwd=str(tmp_path))
 
     @staticmethod
@@ -983,7 +975,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
 
     def test_regression_parallel_mode_without_filepath(self) -> None:
         # Test that parallel mode properly passes filepath
-        # https://github.com/PyCQA/pylint/issues/3564
+        # https://github.com/pylint-dev/pylint/issues/3564
         path = join(
             HERE, "regrtest_data", "regression_missing_init_3564", "subdirectory/"
         )
@@ -1022,7 +1014,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         path = join(HERE, "regrtest_data", "fail_on.py")
         # We set fail-under to be something very low so that even with the warnings
         # and errors that are generated they don't affect the exit code.
-        self._runtest([path, "--fail-under=-10", "--disable=C"] + args, code=expected)
+        self._runtest([path, "--fail-under=-10", "--disable=C", *args], code=expected)
 
     def test_one_module_fatal_error(self) -> None:
         """Fatal errors in one of several modules linted still exits non-zero."""
@@ -1046,7 +1038,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     )
     def test_fail_on_info_only_exit_code(self, args: list[str], expected: int) -> None:
         path = join(HERE, "regrtest_data", "fail_on_info_only.py")
-        self._runtest([path] + args, code=expected)
+        self._runtest([path, *args], code=expected)
 
     @pytest.mark.parametrize(
         "output_format, expected_output",
@@ -1127,7 +1119,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     def test_regex_paths_csv_validator() -> None:
         """Test to see if _regexp_paths_csv_validator works.
         Previously the validator crashed when encountering already validated values.
-        Reported in https://github.com/PyCQA/pylint/issues/5437
+        Reported in https://github.com/pylint-dev/pylint/issues/5437
         """
         with pytest.raises(SystemExit) as ex:
             args = _add_rcfile_default_pylintrc(
@@ -1138,7 +1130,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
 
     @staticmethod
     def test_max_inferred_for_complicated_class_hierarchy() -> None:
-        """Regression test for a crash reported in https://github.com/PyCQA/pylint/issues/5679.
+        """Regression test for a crash reported in https://github.com/pylint-dev/pylint/issues/5679.
 
         The class hierarchy of 'sqlalchemy' is so intricate that it becomes uninferable with
         the standard max_inferred of 100. We used to crash when this happened.
@@ -1155,6 +1147,13 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
         """Tests if running linter over directory using --recursive=y"""
         self._runtest(
             [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
+            code=0,
+        )
+
+    def test_recursive_globbing(self) -> None:
+        """Tests if running linter over directory using --recursive=y and globbing"""
+        self._runtest(
+            [join(HERE, "regrtest_data", "d?rectory", "subd*"), "--recursive=y"],
             code=0,
         )
 
@@ -1266,7 +1265,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
     def test_line_too_long_useless_suppression(self) -> None:
         """A test that demonstrates a known false positive for useless-suppression
 
-        See https://github.com/PyCQA/pylint/issues/3368
+        See https://github.com/pylint-dev/pylint/issues/3368
 
         If you manage to make this test fail and remove the useless-suppression
         warning please contact open a Pylint PR!
@@ -1325,7 +1324,7 @@ class TestCallbackOptions:
         """Test whether certain strings are in the output of a callback command."""
         command = _add_rcfile_default_pylintrc(command)
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + command,
+            [sys.executable, "-m", "pylint", *command],
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1349,7 +1348,7 @@ class TestCallbackOptions:
         """Test the --help-msg flag."""
         args = _add_rcfile_default_pylintrc(args)
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1366,7 +1365,7 @@ class TestCallbackOptions:
         """Test the --generate-rcfile flag."""
         args = _add_rcfile_default_pylintrc(["--generate-rcfile"])
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1377,7 +1376,7 @@ class TestCallbackOptions:
         assert "profile" not in process.stdout
         args = _add_rcfile_default_pylintrc(["--generate-rcfile"])
         process_two = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1429,7 +1428,7 @@ class TestCallbackOptions:
             ]
         )
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
@@ -1442,7 +1441,7 @@ class TestCallbackOptions:
         assert 'preferred-modules = ["a:b"]' in process.stdout
 
         process_two = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,

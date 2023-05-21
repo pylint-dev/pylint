@@ -171,14 +171,7 @@ Standard Checkers
 """"""""""""
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
-**Default:**  ``(3, 10)``
-
-
---source-roots
-""""""""""""""
-*Add paths to the list of the source roots. The source root is an absolute path or a path relative to the current working directory used to determine a package namespace for modules located under the source root.*
-
-**Default:**  ``()``
+**Default:**  ``(3, 11)``
 
 
 --recursive
@@ -200,6 +193,13 @@ Standard Checkers
 *Activate the evaluation score.*
 
 **Default:**  ``True``
+
+
+--source-roots
+""""""""""""""
+*Add paths to the list of the source roots. Supports globbing patterns. The source root is an absolute path or a path relative to the current working directory used to determine a package namespace for modules located under the source root.*
+
+**Default:**  ``()``
 
 
 --suggestion-mode
@@ -233,7 +233,7 @@ Standard Checkers
 
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
-   disable = ["consider-using-augmented-assign"]
+   disable = ["raw-checker-failed", "bad-inline-option", "locally-disabled", "file-ignored", "suppressed-message", "useless-suppression", "deprecated-pragma", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "consider-using-augmented-assign"]
 
    enable = []
 
@@ -271,13 +271,15 @@ Standard Checkers
 
    persistent = true
 
-   py-version = [3, 10]
+   py-version = [3, 11]
 
    recursive = false
 
    reports = false
 
    score = true
+
+   source-roots = []
 
    suggestion-mode = true
 
@@ -497,6 +499,13 @@ Standard Checkers
 **Default:**  ``('abc.abstractproperty',)``
 
 
+--typealias-rgx
+"""""""""""""""
+*Regular expression matching correct type alias names. If left empty, type alias names will be checked with the set naming style.*
+
+**Default:**  ``None``
+
+
 --typevar-rgx
 """""""""""""
 *Regular expression matching correct type variable names. If left empty, type variable names will be checked with the set naming style.*
@@ -587,6 +596,8 @@ Standard Checkers
 
    property-classes = ["abc.abstractproperty"]
 
+   # typealias-rgx =
+
    # typevar-rgx =
 
    variable-naming-style = "snake_case"
@@ -615,14 +626,14 @@ Standard Checkers
 """""""""""""""""""""""
 *List of method names used to declare (i.e. assign) instance attributes.*
 
-**Default:**  ``('__init__', '__new__', 'setUp', '__post_init__')``
+**Default:**  ``('__init__', '__new__', 'setUp', 'asyncSetUp', '__post_init__')``
 
 
 --exclude-protected
 """""""""""""""""""
 *List of member names, which should be excluded from the protected access warning.*
 
-**Default:**  ``('_asdict', '_fields', '_replace', '_source', '_make')``
+**Default:**  ``('_asdict', '_fields', '_replace', '_source', '_make', 'os._exit')``
 
 
 --valid-classmethod-first-arg
@@ -652,9 +663,9 @@ Standard Checkers
    [tool.pylint.classes]
    check-protected-access-in-special-methods = false
 
-   defining-attr-methods = ["__init__", "__new__", "setUp", "__post_init__"]
+   defining-attr-methods = ["__init__", "__new__", "setUp", "asyncSetUp", "__post_init__"]
 
-   exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make"]
+   exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make", "os._exit"]
 
    valid-classmethod-first-arg = ["cls"]
 
@@ -1000,7 +1011,7 @@ Standard Checkers
 
 --preferred-modules
 """""""""""""""""""
-*Couples of modules and preferred modules, separated by a comma. Submodules may also be specified using '.' syntax (for ex. 'os.path').*
+*Couples of modules and preferred modules, separated by a comma.*
 
 **Default:**  ``()``
 

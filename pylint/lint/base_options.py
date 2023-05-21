@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Functions that creates the basic options for the Run and PyLinter classes."""
 
@@ -346,12 +346,13 @@ def _make_linter_options(linter: PyLinter) -> Options:
         (
             "source-roots",
             {
-                "type": "paths_csv",
+                "type": "glob_paths_csv",
                 "metavar": "<path>[,<path>...]",
                 "default": (),
-                "help": "Add paths to the list of the source roots. The source root is an absolute "
-                "path or a path relative to the current working directory used to "
-                "determine a package namespace for modules located under the source root.",
+                "help": "Add paths to the list of the source roots. Supports globbing patterns. "
+                "The source root is an absolute path or a path relative to the current working "
+                "directory used to determine a package namespace for modules located under the "
+                "source root.",
             },
         ),
         (

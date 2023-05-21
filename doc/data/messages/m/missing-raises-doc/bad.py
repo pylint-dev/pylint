@@ -4,5 +4,5 @@ def integer_sum(a: int, b: int):  # [missing-raises-doc]
     :param b: second integer
     """
     if not (isinstance(a, int) and isinstance(b, int)):
-        raise ValueError('Function supports only integer parameters.')
+        raise ValueError("Function supports only integer parameters.")
     return a + b

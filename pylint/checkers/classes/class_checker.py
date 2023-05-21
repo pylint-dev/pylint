@@ -1,21 +1,20 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Classes checker for Python code."""
 
 from __future__ import annotations
 
-import collections
-import sys
 from collections import defaultdict
 from collections.abc import Callable, Sequence
+from functools import cached_property
 from itertools import chain, zip_longest
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, NamedTuple, Union
 
 import astroid
-from astroid import bases, nodes
+from astroid import bases, nodes, util
 from astroid.nodes import LocalsDictNodeNG
 from astroid.typing import SuccessfulInferenceResult
 
@@ -47,11 +46,6 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
-
 _AccessNodes = Union[nodes.Attribute, nodes.AssignAttr]
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
@@ -68,12 +62,19 @@ ASTROID_TYPE_COMPARATORS = {
 # Dealing with useless override detection, with regard
 # to parameters vs arguments
 
-_CallSignature = collections.namedtuple(
-    "_CallSignature", "args kws starred_args starred_kws"
-)
-_ParameterSignature = collections.namedtuple(
-    "_ParameterSignature", "args kwonlyargs varargs kwargs"
-)
+
+class _CallSignature(NamedTuple):
+    args: list[str | None]
+    kws: dict[str | None, str | None]
+    starred_args: list[str]
+    starred_kws: list[str]
+
+
+class _ParameterSignature(NamedTuple):
+    args: list[str]
+    kwonlyargs: list[str]
+    varargs: str
+    kwargs: str
 
 
 def _signature_from_call(call: nodes.Call) -> _CallSignature:
@@ -459,7 +460,7 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
         return False
     property_name = "builtins.property"
     for attr in attributes:
-        if attr is astroid.Uninferable:
+        if isinstance(attr, util.UninferableBase):
             continue
         try:
             inferred = next(attr.infer())
@@ -524,6 +525,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a protected member (i.e. class member with a name "
         "beginning with an underscore) is access outside the class or a "
         "descendant of the class where it's defined.",
+    ),
+    "W0213": (
+        "Flag member %(overlap)s shares bit positions with %(sources)s",
+        "implicit-flag-alias",
+        "Used when multiple integer values declared within an enum.IntFlag "
+        "class share a common bit position.",
     ),
     "E0211": (
         "Method %r has no argument",
@@ -772,7 +779,13 @@ class ClassChecker(BaseChecker):
         (
             "defining-attr-methods",
             {
-                "default": ("__init__", "__new__", "setUp", "__post_init__"),
+                "default": (
+                    "__init__",
+                    "__new__",
+                    "setUp",
+                    "asyncSetUp",
+                    "__post_init__",
+                ),
                 "type": "csv",
                 "metavar": "<method names>",
                 "help": "List of method names used to declare (i.e. assign) \
@@ -809,6 +822,7 @@ a metaclass class method.",
                     "_replace",
                     "_source",
                     "_make",
+                    "os._exit",
                 ),
                 "type": "csv",
                 "metavar": "<protected access exclusions>",
@@ -856,6 +870,7 @@ a metaclass class method.",
         "redefined-slots-in-subclass",
         "invalid-enum-extension",
         "subclassed-final-class",
+        "implicit-flag-alias",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
@@ -873,6 +888,56 @@ a metaclass class method.",
             self.add_message("inconsistent-mro", args=node.name, node=node)
         except astroid.DuplicateBasesError:
             self.add_message("duplicate-bases", args=node.name, node=node)
+
+    def _check_enum_base(self, node: nodes.ClassDef, ancestor: nodes.ClassDef) -> None:
+        members = ancestor.getattr("__members__")
+        if members and isinstance(members[0], nodes.Dict) and members[0].items:
+            self.add_message(
+                "invalid-enum-extension",
+                args=ancestor.name,
+                node=node,
+                confidence=INFERENCE,
+            )
+
+        if ancestor.is_subtype_of("enum.IntFlag"):
+            # Collect integer flag assignments present on the class
+            assignments = defaultdict(list)
+            for assign_name in node.nodes_of_class(nodes.AssignName):
+                if isinstance(assign_name.parent, nodes.Assign):
+                    value = getattr(assign_name.parent.value, "value", None)
+                    if isinstance(value, int):
+                        assignments[value].append(assign_name)
+
+            # For each bit position, collect all the flags that set the bit
+            bit_flags = defaultdict(set)
+            for flag in assignments:
+                flag_bits = (i for i, c in enumerate(reversed(bin(flag))) if c == "1")
+                for bit in flag_bits:
+                    bit_flags[bit].add(flag)
+
+            # Collect the minimum, unique values that each flag overlaps with
+            overlaps = defaultdict(list)
+            for flags in bit_flags.values():
+                source, *conflicts = sorted(flags)
+                for conflict in conflicts:
+                    overlaps[conflict].append(source)
+
+            # Report the overlapping values
+            for overlap in overlaps:
+                for assignment_node in assignments[overlap]:
+                    self.add_message(
+                        "implicit-flag-alias",
+                        node=assignment_node,
+                        args={
+                            "overlap": f"<{node.name}.{assignment_node.name}: {overlap}>",
+                            "sources": ", ".join(
+                                f"<{node.name}.{assignments[source][0].name}: {source}> "
+                                f"({overlap} & {source} = {overlap & source})"
+                                for source in overlaps[overlap]
+                            ),
+                        },
+                        confidence=INFERENCE,
+                    )
 
     def _check_proper_bases(self, node: nodes.ClassDef) -> None:
         """Detect that a class inherits something which is not
@@ -895,14 +960,7 @@ a metaclass class method.",
             if isinstance(ancestor, nodes.ClassDef) and ancestor.is_subtype_of(
                 "enum.Enum"
             ):
-                members = ancestor.getattr("__members__")
-                if members and isinstance(members[0], nodes.Dict) and members[0].items:
-                    self.add_message(
-                        "invalid-enum-extension",
-                        args=ancestor.name,
-                        node=node,
-                        confidence=INFERENCE,
-                    )
+                self._check_enum_base(node, ancestor)
 
             if ancestor.name == object.__name__:
                 self.add_message(
@@ -958,7 +1016,8 @@ a metaclass class method.",
                 ):
                     continue
             for child in node.nodes_of_class((nodes.Name, nodes.Attribute)):
-                # Check for cases where the functions are used as a variable instead of as a method call
+                # Check for cases where the functions are used as a variable instead of as a
+                # method call
                 if isinstance(child, nodes.Name) and child.name == function_def.name:
                     break
                 if isinstance(child, nodes.Attribute):
@@ -1401,7 +1460,7 @@ a metaclass class method.",
 
         for slots in node.ilookup("__slots__"):
             # check if __slots__ is a valid type
-            if slots is astroid.Uninferable:
+            if isinstance(slots, util.UninferableBase):
                 continue
             if not is_iterable(slots) and not is_comprehension(slots):
                 self.add_message("invalid-slots", node=node)
@@ -1419,7 +1478,7 @@ a metaclass class method.",
                 values = [item[0] for item in slots.items]
             else:
                 values = slots.itered()
-            if values is astroid.Uninferable:
+            if isinstance(values, util.UninferableBase):
                 continue
             for elt in values:
                 try:
@@ -1466,7 +1525,7 @@ a metaclass class method.",
         self, elt: SuccessfulInferenceResult, node: nodes.ClassDef
     ) -> None:
         for inferred in elt.infer():
-            if inferred is astroid.Uninferable:
+            if isinstance(inferred, util.UninferableBase):
                 continue
             if not isinstance(inferred, nodes.Const) or not isinstance(
                 inferred.value, str
@@ -1571,8 +1630,7 @@ a metaclass class method.",
         else:
             inferred = safe_infer(node.parent.value)
         if (
-            isinstance(inferred, nodes.ClassDef)
-            or inferred is astroid.Uninferable
+            isinstance(inferred, (nodes.ClassDef, util.UninferableBase))
             or inferred is None
         ):
             # If is uninferable, we allow it to prevent false positives
@@ -1725,85 +1783,97 @@ a metaclass class method.",
             Klass.
         """
         attrname = node.attrname
+
         if (
-            is_attr_protected(attrname)
-            and attrname not in self.linter.config.exclude_protected
+            not is_attr_protected(attrname)
+            or attrname in self.linter.config.exclude_protected
         ):
-            klass = node_frame_class(node)
+            return
 
-            # In classes, check we are not getting a parent method
-            # through the class object or through super
-            callee = node.expr.as_string()
+        # Typing annotations in function definitions can include protected members
+        if utils.is_node_in_type_annotation_context(node):
+            return
 
-            # Typing annotations in function definitions can include protected members
-            if utils.is_node_in_type_annotation_context(node):
-                return
+        # Return if `attrname` is defined at the module-level or as a class attribute
+        # and is listed in `exclude-protected`.
+        inferred = safe_infer(node.expr)
+        if (
+            inferred
+            and isinstance(inferred, (nodes.ClassDef, nodes.Module))
+            and f"{inferred.name}.{attrname}" in self.linter.config.exclude_protected
+        ):
+            return
 
+        klass = node_frame_class(node)
+        if klass is None:
             # We are not in a class, no remaining valid case
-            if klass is None:
-                self.add_message("protected-access", node=node, args=attrname)
-                return
+            self.add_message("protected-access", node=node, args=attrname)
+            return
 
-            # If the expression begins with a call to super, that's ok.
+        # In classes, check we are not getting a parent method
+        # through the class object or through super
+
+        # If the expression begins with a call to super, that's ok.
+        if (
+            isinstance(node.expr, nodes.Call)
+            and isinstance(node.expr.func, nodes.Name)
+            and node.expr.func.name == "super"
+        ):
+            return
+
+        # If the expression begins with a call to type(self), that's ok.
+        if self._is_type_self_call(node.expr):
+            return
+
+        # Check if we are inside the scope of a class or nested inner class
+        inside_klass = True
+        outer_klass = klass
+        callee = node.expr.as_string()
+        parents_callee = callee.split(".")
+        parents_callee.reverse()
+        for callee in parents_callee:
+            if not outer_klass or callee != outer_klass.name:
+                inside_klass = False
+                break
+
+            # Move up one level within the nested classes
+            outer_klass = get_outer_class(outer_klass)
+
+        # We are in a class, one remaining valid cases, Klass._attr inside
+        # Klass
+        if not (inside_klass or callee in klass.basenames):
+            # Detect property assignments in the body of the class.
+            # This is acceptable:
+            #
+            # class A:
+            #     b = property(lambda: self._b)
+
+            stmt = node.parent.statement(future=True)
             if (
-                isinstance(node.expr, nodes.Call)
-                and isinstance(node.expr.func, nodes.Name)
-                and node.expr.func.name == "super"
+                isinstance(stmt, nodes.Assign)
+                and len(stmt.targets) == 1
+                and isinstance(stmt.targets[0], nodes.AssignName)
+            ):
+                name = stmt.targets[0].name
+                if _is_attribute_property(name, klass):
+                    return
+
+            if (
+                self._is_classmethod(node.frame(future=True))
+                and self._is_inferred_instance(node.expr, klass)
+                and self._is_class_or_instance_attribute(attrname, klass)
             ):
                 return
 
-            # If the expression begins with a call to type(self), that's ok.
-            if self._is_type_self_call(node.expr):
+            licit_protected_member = not attrname.startswith("__")
+            if (
+                not self.linter.config.check_protected_access_in_special_methods
+                and licit_protected_member
+                and self._is_called_inside_special_method(node)
+            ):
                 return
 
-            # Check if we are inside the scope of a class or nested inner class
-            inside_klass = True
-            outer_klass = klass
-            parents_callee = callee.split(".")
-            parents_callee.reverse()
-            for callee in parents_callee:
-                if not outer_klass or callee != outer_klass.name:
-                    inside_klass = False
-                    break
-
-                # Move up one level within the nested classes
-                outer_klass = get_outer_class(outer_klass)
-
-            # We are in a class, one remaining valid cases, Klass._attr inside
-            # Klass
-            if not (inside_klass or callee in klass.basenames):
-                # Detect property assignments in the body of the class.
-                # This is acceptable:
-                #
-                # class A:
-                #     b = property(lambda: self._b)
-
-                stmt = node.parent.statement(future=True)
-                if (
-                    isinstance(stmt, nodes.Assign)
-                    and len(stmt.targets) == 1
-                    and isinstance(stmt.targets[0], nodes.AssignName)
-                ):
-                    name = stmt.targets[0].name
-                    if _is_attribute_property(name, klass):
-                        return
-
-                if (
-                    self._is_classmethod(node.frame(future=True))
-                    and self._is_inferred_instance(node.expr, klass)
-                    and self._is_class_or_instance_attribute(attrname, klass)
-                ):
-                    return
-
-                licit_protected_member = not attrname.startswith("__")
-                if (
-                    not self.linter.config.check_protected_access_in_special_methods
-                    and licit_protected_member
-                    and self._is_called_inside_special_method(node)
-                ):
-                    return
-
-                self.add_message("protected-access", node=node, args=attrname)
+            self.add_message("protected-access", node=node, args=attrname)
 
     @staticmethod
     def _is_called_inside_special_method(node: nodes.NodeNG) -> bool:
@@ -1951,7 +2021,8 @@ a metaclass class method.",
                 return
             self._first_attrs[-1] = None
         elif "builtins.staticmethod" in node.decoratornames():
-            # Check if there is a decorator which is not named `staticmethod` but is assigned to one.
+            # Check if there is a decorator which is not named `staticmethod`
+            # but is assigned to one.
             return
         # class / regular method with no args
         elif not (
@@ -2068,7 +2139,7 @@ a metaclass class method.",
             # pylint: disable = too-many-try-statements
             try:
                 for klass in expr.expr.infer():
-                    if klass is astroid.Uninferable:
+                    if isinstance(klass, util.UninferableBase):
                         continue
                     # The inferred klass can be super(), which was
                     # assigned to a variable and the `__init__`

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -77,7 +77,8 @@ class RunCommand(PrimerCommand):
         # Duplicate code takes too long and is relatively safe
         # TODO: Find a way to allow cyclic-import and compare output correctly
         disables = ["--disable=duplicate-code,cyclic-import"]
-        arguments = data.pylint_args + enables + disables
+        additional = ["--clear-cache-post-run=y"]
+        arguments = data.pylint_args + enables + disables + additional
         output = StringIO()
         reporter = JSONReporter(output)
         print(f"Running 'pylint {', '.join(arguments)}'")
@@ -96,6 +97,7 @@ class RunCommand(PrimerCommand):
             if fatal_msgs:
                 warnings.warn(
                     f"Encountered fatal errors while priming {package_name} !\n"
-                    f"{self._print_msgs(fatal_msgs)}\n\n"
+                    f"{self._print_msgs(fatal_msgs)}\n\n",
+                    stacklevel=2,
                 )
         return messages, fatal_msgs

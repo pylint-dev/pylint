@@ -1,14 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import os
-import pathlib
 import platform
 import sys
-from datetime import datetime
 
 import astroid
 import platformdirs
@@ -49,9 +47,6 @@ MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 # on all project using [MAIN] in their rcfile.
 MAIN_CHECKER_NAME = "main"
 
-USER_HOME = os.path.expanduser("~")
-# TODO: 3.0: Remove in 3.0 with all the surrounding code
-OLD_DEFAULT_PYLINT_HOME = ".pylint.d"
 DEFAULT_PYLINT_HOME = platformdirs.user_cache_dir("pylint")
 
 DEFAULT_IGNORE_LIST = ("CVS",)
@@ -80,6 +75,7 @@ HUMAN_READABLE_TYPES = {
     "class_const": "class constant",
     "inlinevar": "inline iteration",
     "typevar": "type variable",
+    "typealias": "type alias",
 }
 
 # ignore some messages when emitting useless-suppression:
@@ -100,55 +96,10 @@ INCOMPATIBLE_WITH_USELESS_SUPPRESSION = frozenset(
 )
 
 
-def _warn_about_old_home(pylint_home: pathlib.Path) -> None:
-    """Warn users about the old pylint home being deprecated.
-
-    The spam prevention mechanism is due to pylint being used in parallel by
-    pre-commit, and the message being spammy in this context
-    Also if you work with an old version of pylint that recreates the
-    old pylint home, you can get the old message for a long time.
-    """
-    prefix_spam_prevention = "pylint_warned_about_old_cache_already"
-    spam_prevention_file = pathlib.Path(pylint_home) / datetime.now().strftime(
-        prefix_spam_prevention + "_%Y-%m-%d.temp"
-    )
-    old_home = pathlib.Path(USER_HOME) / OLD_DEFAULT_PYLINT_HOME
-
-    if old_home.exists() and not spam_prevention_file.exists():
-        print(
-            f"PYLINTHOME is now '{pylint_home}' but obsolescent '{old_home}' is found; "
-            "you can safely remove the latter",
-            file=sys.stderr,
-        )
-
-        # Remove old spam prevention file
-        if pylint_home.exists():
-            for filename in pylint_home.iterdir():
-                if prefix_spam_prevention in str(filename):
-                    try:
-                        os.remove(pylint_home / filename)
-                    except OSError:  # pragma: no cover
-                        pass
-
-        # Create spam prevention file for today
-        try:
-            pylint_home.mkdir(parents=True, exist_ok=True)
-            with open(spam_prevention_file, "w", encoding="utf8") as f:
-                f.write("")
-        except Exception as exc:  # pragma: no cover  # pylint: disable=broad-except
-            print(
-                "Can't write the file that was supposed to "
-                f"prevent 'pylint.d' deprecation spam in {pylint_home} because of {exc}."
-            )
-
-
 def _get_pylint_home() -> str:
     """Return the pylint home."""
     if "PYLINTHOME" in os.environ:
         return os.environ["PYLINTHOME"]
-
-    _warn_about_old_home(pathlib.Path(DEFAULT_PYLINT_HOME))
-
     return DEFAULT_PYLINT_HOME
 
 
@@ -280,6 +231,7 @@ EXTRA_DUNDER_METHODS = [
     "__getnewargs_ex__",
     "__getnewargs__",
     "__getstate__",
+    "__index__",
     "__setstate__",
     "__reduce__",
     "__reduce_ex__",

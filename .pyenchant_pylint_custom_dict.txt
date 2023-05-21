@@ -130,9 +130,11 @@ functools
 genexpr
 getattr
 globals
+globbing
 GPL
 graphname
 graphviz
+grey
 guido's
 gv
 hashable
@@ -261,6 +263,7 @@ pylint
 pylintdict
 pylintrc
 pylint's
+pyproject
 pypy
 pyreverse
 pytest
@@ -318,6 +321,8 @@ subtree
 supcls
 superclass
 symilar
+symlink
+symlinks
 sys
 tbump
 tempfile

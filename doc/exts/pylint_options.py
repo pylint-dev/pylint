@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Script used to generate the options page."""
 
@@ -70,8 +70,10 @@ def _create_checker_section(
     checker_string += get_rst_title(f"``{checker.capitalize()}`` **Checker**", "-")
 
     toml_doc = tomlkit.document()
+    tool_table = tomlkit.table(is_super_table=True)
+    toml_doc.add(tomlkit.key("tool"), tool_table)
     pylint_tool_table = tomlkit.table(is_super_table=True)
-    toml_doc.add(tomlkit.key(["tool", "pylint"]), pylint_tool_table)
+    tool_table.add(tomlkit.key("pylint"), pylint_tool_table)
 
     checker_table = tomlkit.table()
 

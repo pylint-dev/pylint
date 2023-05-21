@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """A similarities / code duplication command line tool and pylint checker.
 
@@ -377,7 +377,8 @@ class Similar:
                 raise ValueError
             readlines = decoding_stream(stream, encoding).readlines
         else:
-            readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
+            # hint parameter is incorrectly typed as non-optional
+            readlines = stream.readlines  # type: ignore[assignment]
 
         try:
             lines = readlines()
@@ -590,7 +591,8 @@ def stripped_lines(
     :param ignore_docstrings: if true, any line that is a docstring is removed from the result
     :param ignore_imports: if true, any line that is an import is removed from the result
     :param ignore_signatures: if true, any line that is part of a function signature is removed from the result
-    :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard the line
+    :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard
+           the line
     :return: the collection of line/line number/line type tuples
     """
     if ignore_imports or ignore_signatures:
@@ -846,15 +848,17 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         stream must implement the readlines method
         """
         if self.linter.current_name is None:
+            # TODO: 3.0 Fix current_name
             warnings.warn(
                 (
                     "In pylint 3.0 the current_name attribute of the linter object should be a string. "
                     "If unknown it should be initialized as an empty string."
                 ),
                 DeprecationWarning,
+                stacklevel=2,
             )
         with node.stream() as stream:
-            self.append_stream(self.linter.current_name, stream, node.file_encoding)  # type: ignore[arg-type]
+            self.append_stream(self.linter.current_name, stream, node.file_encoding)
 
     def close(self) -> None:
         """Compute and display similarities on closing (i.e. end of parsing)."""

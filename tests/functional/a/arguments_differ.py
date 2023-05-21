@@ -246,7 +246,7 @@ class ChildClass(ParentClass):
         pass
 
 
-# https://github.com/PyCQA/pylint/issues/4443
+# https://github.com/pylint-dev/pylint/issues/4443
 # Some valid overwrites with type annotations
 
 import typing  # pylint: disable=wrong-import-position
@@ -331,8 +331,8 @@ class Foo2(AbstractFoo):
 
 # Adding arguments with default values to a child class is valid
 # See:
-# https://github.com/PyCQA/pylint/issues/1556
-# https://github.com/PyCQA/pylint/issues/5338
+# https://github.com/pylint-dev/pylint/issues/1556
+# https://github.com/pylint-dev/pylint/issues/5338
 
 
 class BaseClass:

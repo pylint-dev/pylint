@@ -31,6 +31,19 @@ Async checker Messages
   function. This message can't be emitted when using Python < 3.5.
 
 
+Bad-Chained-Comparison checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``bad-chained-comparison``.
+
+Bad-Chained-Comparison checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:bad-chained-comparison (W3601): *Suspicious %s-part chained comparison using semantically incompatible operators (%s)*
+  Used when there is a chained comparison where one expression is part of two
+  comparisons that belong to different semantic groups ("<" does not mean the
+  same thing as "is", chaining them in "0 < x is None" is probably a mistake).
+
+
 Basic checker
 ~~~~~~~~~~~~~
 
@@ -311,6 +324,9 @@ Classes checker Messages
   Used when an instance attribute is defined outside the __init__ method.
 :subclassed-final-class (W0240): *Class %r is a subclass of a class decorated with typing.final: %r*
   Used when a class decorated with typing.final has been subclassed.
+:implicit-flag-alias (W0213): *Flag member %(overlap)s shares bit positions with %(sources)s*
+  Used when multiple integer values declared within an enum.IntFlag class share
+  a common bit position.
 :abstract-method (W0223): *Method %r is abstract in class %r but is not overridden in child class %r*
   Used when an abstract method (i.e. raise NotImplementedError) is not
   overridden in concrete class.
@@ -741,13 +757,10 @@ Verbatim name of the checker is ``nonascii-checker``.
 
 Nonascii-Checker checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:non-ascii-file-name (W2402): *%s name "%s" contains a non-ASCII character. PEP 3131 only allows non-ascii identifiers, not file names.*
-  Some editors don't support non-ASCII file names properly. Even though Python
-  supports UTF-8 files since Python 3.5 this isn't recommended for
-  interoperability. Further reading: -
-  https://peps.python.org/pep-0489/#export-hook-name -
-  https://peps.python.org/pep-0672/#confusing-features -
-  https://bugs.python.org/issue20485
+:non-ascii-file-name (W2402): *%s name "%s" contains a non-ASCII character.*
+  Under python 3.5, PEP 3131 allows non-ascii identifiers, but not non-ascii
+  file names.Since Python 3.5, even though Python supports UTF-8 files, some
+  editors or tools don't.
 :non-ascii-name (C2401): *%s name "%s" contains a non-ASCII character, consider renaming it.*
   Used when the name contains at least one non-ASCII unicode character. See
   https://peps.python.org/pep-0672/#confusing-features for a background why
@@ -893,10 +906,21 @@ Refactoring checker Messages
   Emitted when a single "return" or "return None" statement is found at the end
   of function or method definition. This statement can safely be removed
   because Python will implicitly return None
-:use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty %s is falsey*
-  Used when Pylint detects that collection literal comparison is being used to
-  check for emptiness; Use implicit booleaness instead of a collection classes;
-  empty collections are considered as false
+:use-implicit-booleaness-not-comparison-to-string (C1804): *"%s" can be simplified to "%s", if it is striclty a string, as an empty string is falsey*
+  Empty string are considered false in a boolean context. Following this check
+  blindly in weakly typed code base can create hard to debug issues. If the
+  value can be something else that is falsey but not a string (for example
+  ``None``, an empty sequence, or ``0``) the code will not be equivalent.
+:use-implicit-booleaness-not-comparison (C1803): *"%s" can be simplified to "%s", if it is strictly a sequence, as an empty %s is falsey*
+  Empty sequences are considered false in a boolean context. Following this
+  check blindly in weakly typed code base can create hard to debug issues. If
+  the value can be something else that is falsey but not a sequence (for
+  example ``None``, an empty string, or ``0``) the code will not be equivalent.
+:use-implicit-booleaness-not-comparison-to-zero (C1805): *"%s" can be simplified to "%s", if it is strictly an int, as 0 is falsey*
+  0 is considered false in a boolean context. Following this check blindly in
+  weakly typed code base can create hard to debug issues. If the value can be
+  something else that is falsey but not an int (for example ``None``, an empty
+  string, or an empty sequence) the code will not be equivalent.
 :unneeded-not (C0113): *Consider changing "%s" to "%s"*
   Used when a boolean expression contains an unneeded negation.
 :consider-iterating-dictionary (C0201): *Consider iterating the dictionary directly instead of calling .keys()*
@@ -912,13 +936,12 @@ Refactoring checker Messages
   Emitted when code that iterates with range and len is encountered. Such code
   can be simplified by using the enumerate builtin.
 :use-implicit-booleaness-not-len (C1802): *Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty*
-  Used when Pylint detects that len(sequence) is being used without explicit
-  comparison inside a condition to determine if a sequence is empty. Instead of
-  coercing the length to a boolean, either rely on the fact that empty
-  sequences are false or compare the length against a scalar.
-:consider-using-f-string (C0209): *Formatting a regular string which could be a f-string*
+  Empty sequences are considered false in a boolean context. You can either
+  remove the call to 'len' (``if not x``) or compare the length against ascalar
+  (``if len(x) > 1``).
+:consider-using-f-string (C0209): *Formatting a regular string which could be an f-string*
   Used when we detect a string that is being formatted with format() or % which
-  could potentially be a f-string. The use of f-strings is preferred. Requires
+  could potentially be an f-string. The use of f-strings is preferred. Requires
   Python 3.6 and ``py-version >= 3.6``.
 :use-maxsplit-arg (C0207): *Use %s instead*
   Emitted when accessing only the first or last element of str.split(). The
@@ -1267,9 +1290,8 @@ Unicode Checker checker Messages
 :invalid-unicode-codec (E2501): *UTF-16 and UTF-32 aren't backward compatible. Use UTF-8 instead*
   For compatibility use UTF-8 instead of UTF-16/UTF-32. See also
   https://bugs.python.org/issue1503789 for a history of this issue. And
-  https://softwareengineering.stackexchange.com/questions/102205/should-
-  utf-16-be-considered-harmful for some possible problems when using UTF-16 for
-  instance.
+  https://softwareengineering.stackexchange.com/questions/102205/ for some
+  possible problems when using UTF-16 for instance.
 :bad-file-encoding (C2503): *PEP8 recommends UTF-8 as encoding for Python files*
   PEP8 recommends UTF-8 default encoding for Python files. See
   https://peps.python.org/pep-0008/#source-file-encoding
@@ -1309,7 +1331,7 @@ Unsupported Version checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :using-f-string-in-unsupported-version (W2601): *F-strings are not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.6 and pylint
-  encounters a f-string.
+  encounters an f-string.
 :using-final-decorator-in-unsupported-version (W2602): *typing.final is not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.8 and pylint
   encounters a ``typing.final`` decorator.
@@ -1376,8 +1398,8 @@ Variables checker Messages
 :unused-variable (W0612): *Unused variable %r*
   Used when a variable is defined but not used.
 :global-variable-not-assigned (W0602): *Using global for %r but no assignment is done*
-  When a variable defined in the global scope is modified in an inner scope, the
-  'global' keyword is required in the inner scope only if there is an
+  When a variable defined in the global scope is modified in an inner scope,
+  the 'global' keyword is required in the inner scope only if there is an
   assignment operation done in the inner scope.
 :undefined-loop-variable (W0631): *Using possibly undefined loop variable %r*
   Used when a loop variable (i.e. defined by a for loop or a list comprehension

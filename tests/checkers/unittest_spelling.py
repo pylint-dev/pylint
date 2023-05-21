@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unittest for the spelling checker."""
 
@@ -8,6 +8,7 @@ import astroid
 import pytest
 
 from pylint.checkers import spelling
+from pylint.checkers.spelling import _get_enchant_dict_help
 from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str, set_config
 
 # try to create enchant dictionary
@@ -38,6 +39,20 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     def _get_msg_suggestions(self, word: str, count: int = 4) -> str:
         suggestions = "' or '".join(self.checker.spelling_dict.suggest(word)[:count])
         return f"'{suggestions}'"
+
+    def test_spelling_dict_help_no_enchant(self) -> None:
+        assert "both the python package and the system dep" in _get_enchant_dict_help(
+            [], pyenchant_available=False
+        )
+        assert "need to install the system dep" in _get_enchant_dict_help(
+            [], pyenchant_available=True
+        )
+
+    @skip_on_missing_package_or_dict
+    def test_spelling_dict_help_enchant(self) -> None:
+        assert "Available dictionaries: " in _get_enchant_dict_help(
+            enchant.Broker().list_dicts(), pyenchant_available=True
+        )
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
@@ -245,6 +260,27 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
+    @pytest.mark.parametrize(
+        "type_comment",
+        [
+            "# type: (NotAWord) -> NotAWord",
+            "# type: List[NotAWord] -> List[NotAWord]",
+            "# type: Dict[NotAWord] -> Dict[NotAWord]",
+            "# type: NotAWord",
+            "# type: List[NotAWord]",
+            "# type: Dict[NotAWord]",
+            "# type: ImmutableList[Manager]",
+            # will result in error: Invalid "type: ignore" comment  [syntax]
+            # when analyzed with mypy 1.02
+            "# type: ignore[attr-defined] NotAWord",
+        ],
+    )
+    def test_skip_type_comments(self, type_comment: str) -> None:
+        self.checker.process_tokens(_tokenize_str(type_comment))
+        assert not self.linter.release_messages()
+
+    @skip_on_missing_package_or_dict
+    @set_config(spelling_dict=spell_dict)
     def test_skip_sphinx_directives(self) -> None:
         stmt = astroid.extract_node(
             'class ComentAbc(object):\n   """This is :class:`ComentAbc` with a bad coment"""\n   pass'
@@ -343,24 +379,6 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
                     full_comment,
                     "                 ^^^^^",
                     self._get_msg_suggestions("qsize"),
-                ),
-            )
-        ):
-            self.checker.process_tokens(_tokenize_str(full_comment))
-
-    @skip_on_missing_package_or_dict
-    @set_config(spelling_dict=spell_dict)
-    def test_skip_mypy_ignore_directives(self) -> None:
-        full_comment = "# type: ignore[attr-defined] attr"
-        with self.assertAddsMessages(
-            MessageTest(
-                "wrong-spelling-in-comment",
-                line=1,
-                args=(
-                    "attr",
-                    full_comment,
-                    "   ^^^^",
-                    self._get_msg_suggestions("attr"),
                 ),
             )
         ):

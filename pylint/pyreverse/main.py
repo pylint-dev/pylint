@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Create UML diagrams for classes and modules in <packages>."""
 
@@ -27,7 +27,6 @@ from pylint.typing import Options
 
 DIRECTLY_SUPPORTED_FORMATS = (
     "dot",
-    "vcg",
     "puml",
     "plantuml",
     "mmd",
@@ -35,23 +34,16 @@ DIRECTLY_SUPPORTED_FORMATS = (
 )
 
 DEFAULT_COLOR_PALETTE = (
-    "aliceblue",
-    "antiquewhite",
-    "aquamarine",
-    "burlywood",
-    "cadetblue",
-    "chartreuse",
-    "chocolate",
-    "coral",
-    "cornflowerblue",
-    "cyan",
-    "darkgoldenrod",
-    "darkseagreen",
-    "dodgerblue",
-    "forestgreen",
-    "gold",
-    "hotpink",
-    "mediumspringgreen",
+    # colorblind scheme taken from https://personal.sron.nl/~pault/
+    "#77AADD",  # light blue
+    "#99DDFF",  # light cyan
+    "#44BB99",  # mint
+    "#BBCC33",  # pear
+    "#AAAA00",  # olive
+    "#EEDD88",  # light yellow
+    "#EE8866",  # orange
+    "#FFAABB",  # pink
+    "#DDDDDD",  # pale grey
 )
 
 OPTIONS: Options = (
@@ -138,6 +130,15 @@ OPTIONS: Options = (
         },
     ),
     (
+        "show-stdlib",
+        {
+            "short": "L",
+            "action": "store_true",
+            "default": False,
+            "help": "include standard library objects in representation of classes",
+        },
+    ),
+    (
         "module-names",
         {
             "short": "m",
@@ -154,6 +155,14 @@ OPTIONS: Options = (
             "action": "store_true",
             "default": False,
             "help": "don't show attributes and methods in the class boxes; this disables -f values",
+        },
+    ),
+    (
+        "no-standalone",
+        {
+            "action": "store_true",
+            "default": False,
+            "help": "only show nodes with connections",
         },
     ),
     (
@@ -238,12 +247,12 @@ OPTIONS: Options = (
     (
         "source-roots",
         {
-            "type": "paths_csv",
+            "type": "glob_paths_csv",
             "metavar": "<path>[,<path>...]",
             "default": (),
-            "help": "Add paths to the list of the source roots. The source root is an absolute "
-            "path or a path relative to the current working directory used to "
-            "determine a package namespace for modules located under the source root.",
+            "help": "Add paths to the list of the source roots. Supports globbing patterns. The "
+            "source root is an absolute path or a path relative to the current working directory "
+            "used to determine a package namespace for modules located under the source root.",
         },
     ),
 )

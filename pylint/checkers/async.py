@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for anything related to the async protocol (PEP 492)."""
 
@@ -10,7 +10,7 @@ import sys
 from typing import TYPE_CHECKING
 
 import astroid
-from astroid import nodes
+from astroid import nodes, util
 
 from pylint import checkers
 from pylint.checkers import utils as checker_utils
@@ -55,7 +55,7 @@ class AsyncChecker(checkers.BaseChecker):
     def visit_asyncwith(self, node: nodes.AsyncWith) -> None:
         for ctx_mgr, _ in node.items:
             inferred = checker_utils.safe_infer(ctx_mgr)
-            if inferred is None or inferred is astroid.Uninferable:
+            if inferred is None or isinstance(inferred, util.UninferableBase):
                 continue
 
             if isinstance(inferred, nodes.AsyncFunctionDef):

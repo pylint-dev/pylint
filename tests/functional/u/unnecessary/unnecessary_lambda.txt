@@ -5,3 +5,5 @@ unnecessary-lambda:19:4:19:33:<lambda>:Lambda may not be necessary:UNDEFINED
 unnecessary-lambda:21:4:21:39:<lambda>:Lambda may not be necessary:UNDEFINED
 unnecessary-lambda:23:4:23:53:<lambda>:Lambda may not be necessary:UNDEFINED
 unnecessary-lambda:25:4:25:71:<lambda>:Lambda may not be necessary:UNDEFINED
+unnecessary-lambda:29:4:29:31:<lambda>:Lambda may not be necessary:UNDEFINED
+unnecessary-lambda:31:4:31:44:<lambda>:Lambda may not be necessary:UNDEFINED

@@ -1,10 +1,10 @@
-# Everything in this file should reflect the pre-commit configuration
-# in .pre-commit-config.yaml
-pre-commit~=3.0;python_version>='3.8'
-bandit==1.7.4
-black==23.1.0
-flake8==6.0.0;python_version>='3.8'
+# This file is accurate as long as the version in pre-commit configuration
+# is the latest. We don't want to pin and have to upgrade all the time.
+pre-commit
+bandit
+black
+flake8
 ruff
-flake8-typing-imports==1.14.0;python_version>='3.8'
-isort==5.12.0;python_version>='3.8'
-mypy==1.0.0
+flake8-typing-imports
+isort
+mypy

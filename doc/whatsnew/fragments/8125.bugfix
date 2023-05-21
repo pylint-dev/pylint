@@ -1,4 +1,0 @@
-Fix ``used-before-assignment`` false positive when the walrus operator
-is used with a ternary operator in dictionary key/value initialization.
-
-Closes #8125

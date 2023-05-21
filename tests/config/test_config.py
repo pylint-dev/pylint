@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -121,10 +121,12 @@ def test_regex_error(capsys: CaptureFixture) -> None:
             exit=False,
         )
     output = capsys.readouterr()
-    assert (
-        r"Error in provided regular expression: [\p{Han}a-z_][\p{Han}a-z0-9_]{2,30}$ beginning at index 1: bad escape \p"
-        in output.err
+
+    assertString = (
+        r"Error in provided regular expression: [\p{Han}a-z_][\p{Han}a-z0-9_]{2,30}$ "
+        r"beginning at index 1: bad escape \p"
     )
+    assert assertString in output.err
 
 
 def test_csv_regex_error(capsys: CaptureFixture) -> None:
@@ -153,7 +155,7 @@ def test_short_verbose(capsys: CaptureFixture) -> None:
 def test_argument_separator() -> None:
     """Check that we support using '--' to separate argument types.
 
-    Reported in https://github.com/PyCQA/pylint/issues/7003.
+    Reported in https://github.com/pylint-dev/pylint/issues/7003.
     """
     runner = Run(["--", str(EMPTY_MODULE)], exit=False)
     assert not runner.linter.stats.by_msg

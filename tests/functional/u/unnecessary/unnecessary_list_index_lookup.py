@@ -45,16 +45,16 @@ result = [val for idx, val in enumerate(my_list) if idx > 0 and my_list[idx - 1]
 result = [val for idx, val in enumerate(my_list) if other_list[idx] == 'a']
 result = [my_list[idx] for idx, val in enumerate(my_list)] # [unnecessary-list-index-lookup]
 
-# Regression test for https://github.com/PyCQA/pylint/issues/6049
+# Regression test for https://github.com/pylint-dev/pylint/issues/6049
 pairs = [(0, 0)]
 for i, (a, b) in enumerate(pairs):
     print(pairs[i][0])
 
-# Regression test for https://github.com/PyCQA/pylint/issues/6603
+# Regression test for https://github.com/pylint-dev/pylint/issues/6603
 for i, num in enumerate():  # raises TypeError, but shouldn't crash pylint
     pass
 
-# Regression test for https://github.com/PyCQA/pylint/issues/6788
+# Regression test for https://github.com/pylint-dev/pylint/issues/6788
 num_list = [1, 2, 3]
 for a, b in enumerate(num_list):
     num_list[a], _ = (2, 1)
@@ -63,7 +63,7 @@ num_list = [1, 2, 3]
 for a, b in enumerate(num_list):
     ([x, num_list[a]], _) = ([5, 6], 1)
 
-# Regression test for https://github.com/PyCQA/pylint/issues/6818
+# Regression test for https://github.com/pylint-dev/pylint/issues/6818
 updated_list = [1, 2, 3]
 for idx, val in enumerate(updated_list):
     while updated_list[idx] > 0:
@@ -75,14 +75,14 @@ for idx, val in enumerate(updated_list):
     updated_list[idx] -= 1
     print(updated_list[idx])
 
-# Regression test for https://github.com/PyCQA/pylint/issues/6896
+# Regression test for https://github.com/pylint-dev/pylint/issues/6896
 parts = ["a", "b", "c", "d"]
 for i, part in enumerate(parts):
     if i == 3:  # more complex condition actually
         parts.insert(i, "X")
     print(part, parts[i])
 
-# regression tests for https://github.com/PyCQA/pylint/issues/7682
+# regression tests for https://github.com/pylint-dev/pylint/issues/7682
 series = [1, 2, 3, 4, 5]
 output_list = [
     (item, series[index])

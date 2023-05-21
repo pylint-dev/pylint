@@ -97,7 +97,7 @@ else:
     value = 3
 
 
-# https://github.com/PyCQA/pylint/issues/4379
+# https://github.com/pylint-dev/pylint/issues/4379
 var = 1
 if var == -1:
     var = None

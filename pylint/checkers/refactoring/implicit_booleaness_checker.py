@@ -1,15 +1,25 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
+import itertools
+
 import astroid
-from astroid import bases, nodes
+from astroid import bases, nodes, util
 
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.interfaces import HIGH, INFERENCE
+
+
+def _is_constant_zero(node: str | nodes.NodeNG) -> bool:
+    # We have to check that node.value is not False because node.value == 0 is True
+    # when node.value is False
+    return (
+        isinstance(node, astroid.Const) and node.value == 0 and node.value is not False
+    )
 
 
 class ImplicitBooleanessChecker(checkers.BaseChecker):
@@ -56,23 +66,47 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         "C1802": (
             "Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty",
             "use-implicit-booleaness-not-len",
-            "Used when Pylint detects that len(sequence) is being used "
-            "without explicit comparison inside a condition to determine if a sequence is empty. "
-            "Instead of coercing the length to a boolean, either "
-            "rely on the fact that empty sequences are false or "
-            "compare the length against a scalar.",
+            "Empty sequences are considered false in a boolean context. You can either"
+            " remove the call to 'len' (``if not x``) or compare the length against a"
+            "scalar (``if len(x) > 1``).",
             {"old_names": [("C1801", "len-as-condition")]},
         ),
         "C1803": (
-            "'%s' can be simplified to '%s' as an empty %s is falsey",
+            '"%s" can be simplified to "%s", if it is strictly a sequence, as an empty %s is falsey',
             "use-implicit-booleaness-not-comparison",
-            "Used when Pylint detects that collection literal comparison is being "
-            "used to check for emptiness; Use implicit booleaness instead "
-            "of a collection classes; empty collections are considered as false",
+            "Empty sequences are considered false in a boolean context. Following this"
+            " check blindly in weakly typed code base can create hard to debug issues."
+            " If the value can be something else that is falsey but not a sequence (for"
+            " example ``None``, an empty string, or ``0``) the code will not be "
+            "equivalent.",
+        ),
+        "C1804": (
+            '"%s" can be simplified to "%s", if it is striclty a string, as an empty string is falsey',
+            "use-implicit-booleaness-not-comparison-to-string",
+            "Empty string are considered false in a boolean context. Following this"
+            " check blindly in weakly typed code base can create hard to debug issues."
+            " If the value can be something else that is falsey but not a string (for"
+            " example ``None``, an empty sequence, or ``0``) the code will not be "
+            "equivalent.",
+            {
+                "default_enabled": False,
+                "old_names": [("C1901", "compare-to-empty-string")],
+            },
+        ),
+        "C1805": (
+            '"%s" can be simplified to "%s", if it is strictly an int, as 0 is falsey',
+            "use-implicit-booleaness-not-comparison-to-zero",
+            "0 is considered false in a boolean context. Following this"
+            " check blindly in weakly typed code base can create hard to debug issues."
+            " If the value can be something else that is falsey but not an int (for"
+            " example ``None``, an empty string, or an empty sequence) the code will not be "
+            "equivalent.",
+            {"default_enabled": False, "old_names": [("C2001", "compare-to-zero")]},
         ),
     }
 
     options = ()
+    _operators = {"!=", "==", "is not", "is"}
 
     @utils.only_required_for_messages("use-implicit-booleaness-not-len")
     def visit_call(self, node: nodes.Call) -> None:
@@ -146,9 +180,83 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 "use-implicit-booleaness-not-len", node=node, confidence=HIGH
             )
 
-    @utils.only_required_for_messages("use-implicit-booleaness-not-comparison")
+    @utils.only_required_for_messages(
+        "use-implicit-booleaness-not-comparison",
+        "use-implicit-booleaness-not-comparison-to-string",
+        "use-implicit-booleaness-not-comparison-to-zero",
+    )
     def visit_compare(self, node: nodes.Compare) -> None:
-        self._check_use_implicit_booleaness_not_comparison(node)
+        if self.linter.is_message_enabled("use-implicit-booleaness-not-comparison"):
+            self._check_use_implicit_booleaness_not_comparison(node)
+        if self.linter.is_message_enabled(
+            "use-implicit-booleaness-not-comparison-to-zero"
+        ) or self.linter.is_message_enabled(
+            "use-implicit-booleaness-not-comparison-to-str"
+        ):
+            self._check_compare_to_str_or_zero(node)
+
+    def _check_compare_to_str_or_zero(self, node: nodes.Compare) -> None:
+        # note: astroid.Compare has the left most operand in node.left
+        # while the rest are a list of tuples in node.ops
+        # the format of the tuple is ('compare operator sign', node)
+        # here we squash everything into `ops` to make it easier for processing later
+        ops: list[tuple[str, nodes.NodeNG]] = [("", node.left), *node.ops]
+        iter_ops = iter(ops)
+        all_ops = list(itertools.chain(*iter_ops))
+        for ops_idx in range(len(all_ops) - 2):
+            op_2 = all_ops[ops_idx + 1]
+            if op_2 not in self._operators:
+                continue
+            op_1 = all_ops[ops_idx]
+            op_3 = all_ops[ops_idx + 2]
+            error_detected = False
+            if self.linter.is_message_enabled(
+                "use-implicit-booleaness-not-comparison-to-zero"
+            ):
+                # 0 ?? X
+                if _is_constant_zero(op_1):
+                    error_detected = True
+                    op = op_3
+                # X ?? 0
+                elif _is_constant_zero(op_3):
+                    error_detected = True
+                    op = op_1
+                if error_detected:
+                    original = f"{op_1.as_string()} {op_2} {op_3.as_string()}"
+                    suggestion = (
+                        op.as_string()
+                        if op_2 in {"!=", "is not"}
+                        else f"not {op.as_string()}"
+                    )
+                    self.add_message(
+                        "use-implicit-booleaness-not-comparison-to-zero",
+                        args=(original, suggestion),
+                        node=node,
+                        confidence=HIGH,
+                    )
+                    error_detected = False
+            if self.linter.is_message_enabled(
+                "use-implicit-booleaness-not-comparison-to-str"
+            ):
+                node_name = ""
+                # x ?? ""
+                if utils.is_empty_str_literal(op_1):
+                    error_detected = True
+                    node_name = op_3.as_string()
+                # '' ?? X
+                elif utils.is_empty_str_literal(op_3):
+                    error_detected = True
+                    node_name = op_1.as_string()
+                if error_detected:
+                    suggestion = (
+                        f"not {node_name}" if op_2 in {"==", "is"} else node_name
+                    )
+                    self.add_message(
+                        "use-implicit-booleaness-not-comparison-to-string",
+                        args=(node.as_string(), suggestion),
+                        node=node,
+                        confidence=HIGH,
+                    )
 
     def _check_use_implicit_booleaness_not_comparison(
         self, node: nodes.Compare
@@ -224,7 +332,9 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         return original_comparison, suggestion, description
 
     @staticmethod
-    def base_names_of_instance(node: bases.Uninferable | bases.Instance) -> list[str]:
+    def base_names_of_instance(
+        node: util.UninferableBase | bases.Instance,
+    ) -> list[str]:
         """Return all names inherited by a class instance or those returned by a
         function.
 

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Class to generate files in dot format and image formats supported by Graphviz."""
 
@@ -25,13 +25,11 @@ class HTMLLabels(Enum):
 ALLOWED_CHARSETS: frozenset[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
 SHAPES: dict[NodeType, str] = {
     NodeType.PACKAGE: "box",
-    NodeType.INTERFACE: "record",
     NodeType.CLASS: "record",
 }
 # pylint: disable-next=consider-using-namedtuple-or-dataclass
 ARROWS: dict[EdgeType, dict[str, str]] = {
     EdgeType.INHERITS: {"arrowtail": "none", "arrowhead": "empty"},
-    EdgeType.IMPLEMENTS: {"arrowtail": "node", "arrowhead": "empty", "style": "dashed"},
     EdgeType.ASSOCIATION: {
         "fontcolor": "green",
         "arrowtail": "none",
@@ -121,10 +119,18 @@ class DotPrinter(Printer):
             )
             label += rf"{method_name}({', '.join(args)})"
             if func.returns:
-                label += ": " + get_annotation_label(func.returns)
+                annotation_label = get_annotation_label(func.returns)
+                label += ": " + self._escape_annotation_label(annotation_label)
             label += rf"{HTMLLabels.LINEBREAK_LEFT.value}"
         label += "}"
         return label
+
+    def _escape_annotation_label(self, annotation_label: str) -> str:
+        # Escape vertical bar characters to make them appear as a literal characters
+        # otherwise it gets treated as field separator of record-based nodes
+        annotation_label = annotation_label.replace("|", r"\|")
+
+        return annotation_label
 
     def emit_edge(
         self,

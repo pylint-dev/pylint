@@ -1,6 +1,6 @@
 """Tests for except handlers that shadow outer except handlers or exceptions.
 
-See: https://github.com/PyCQA/pylint/issues/5370
+See: https://github.com/pylint-dev/pylint/issues/5370
 """
 
 try:
@@ -60,7 +60,7 @@ except ImportError as err:
 
 
 class CustomException(Exception):
-    """https://github.com/PyCQA/pylint/issues/4434"""
+    """https://github.com/pylint-dev/pylint/issues/4434"""
 
 
 def func():

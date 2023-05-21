@@ -1,22 +1,16 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import argparse
 import configparser
 import shlex
-import sys
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, TypedDict
 
 from pylint.pyreverse.main import DEFAULT_COLOR_PALETTE
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
 
 
 # This class could and should be replaced with a simple dataclass when support for Python < 3.7 is dropped.
@@ -37,7 +31,9 @@ class PyreverseConfig(
         all_ancestors: bool | None = None,
         show_associated: int | None = None,
         all_associated: bool | None = None,
+        no_standalone: bool = False,
         show_builtin: bool = False,
+        show_stdlib: bool = False,
         module_names: bool | None = None,
         only_classnames: bool = False,
         output_format: str = "dot",
@@ -58,7 +54,9 @@ class PyreverseConfig(
         self.all_ancestors = all_ancestors
         self.show_associated = show_associated
         self.all_associated = all_associated
+        self.no_standalone = no_standalone
         self.show_builtin = show_builtin
+        self.show_stdlib = show_stdlib
         self.module_names = module_names
         self.only_classnames = only_classnames
         self.output_format = output_format

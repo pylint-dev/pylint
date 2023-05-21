@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 # pylint: disable=missing-module-docstring, missing-function-docstring
 
 from __future__ import annotations
@@ -12,20 +12,15 @@ import shlex
 import sys
 from collections.abc import Sequence
 from io import BufferedReader
-from typing import Any, NoReturn
+from typing import Any, NoReturn, Protocol
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
-from pylint import run_epylint, run_pylint, run_pyreverse, run_symilar
-from pylint.lint import Run
+from pylint import run_pylint, run_pyreverse, run_symilar
 from pylint.testutils import GenericTestReporter as Reporter
+from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import _test_cwd
-
-if sys.version_info >= (3, 8):
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
 
 
 class _RunCallable(Protocol):  # pylint: disable=too-few-public-methods
@@ -44,17 +39,6 @@ def test_runner(runner: _RunCallable, tmp_path: pathlib.Path) -> None:
             assert err.value.code == 0
 
 
-def test_epylint(tmp_path: pathlib.Path) -> None:
-    """TODO: 3.0 delete with epylint."""
-    filepath = os.path.abspath(__file__)
-    with _test_cwd(tmp_path):
-        with patch.object(sys, "argv", ["", filepath]):
-            with pytest.raises(SystemExit) as err:
-                with pytest.warns(DeprecationWarning):
-                    run_epylint()
-            assert err.value.code == 0
-
-
 @pytest.mark.parametrize("runner", [run_pylint, run_pyreverse, run_symilar])
 def test_runner_with_arguments(runner: _RunCallable, tmp_path: pathlib.Path) -> None:
     """Check the runners with arguments as parameter instead of sys.argv."""
@@ -66,25 +50,14 @@ def test_runner_with_arguments(runner: _RunCallable, tmp_path: pathlib.Path) -> 
         assert err.value.code == 0
 
 
-def test_epylint_with_arguments(tmp_path: pathlib.Path) -> None:
-    """TODO: 3.0 delete with epylint."""
-    filepath = os.path.abspath(__file__)
-    testargs = [filepath]
-    with _test_cwd(tmp_path):
-        with pytest.raises(SystemExit) as err:
-            with pytest.warns(DeprecationWarning):
-                run_epylint(testargs)
-        assert err.value.code == 0
-
-
 def test_pylint_argument_deduplication(
     tmp_path: pathlib.Path, tests_directory: pathlib.Path
 ) -> None:
     """Check that the Pylint runner does not over-report on duplicate
     arguments.
 
-    See https://github.com/PyCQA/pylint/issues/6242 and
-    https://github.com/PyCQA/pylint/issues/4053
+    See https://github.com/pylint-dev/pylint/issues/6242 and
+    https://github.com/pylint-dev/pylint/issues/4053
     """
     filepath = str(tests_directory / "functional/t/too/too_many_branches.py")
     testargs = shlex.split("--report n --score n --max-branches 13")

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for string formatting operations."""
 
@@ -8,14 +8,13 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
 import tokenize
 from collections import Counter
 from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import astroid
-from astroid import bases, nodes
+from astroid import bases, nodes, util
 from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
@@ -25,11 +24,6 @@ from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
@@ -337,7 +331,7 @@ class StringFormatChecker(BaseChecker):
                     if (
                         format_type is not None
                         and arg_type
-                        and arg_type != astroid.Uninferable
+                        and not isinstance(arg_type, util.UninferableBase)
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -395,7 +389,7 @@ class StringFormatChecker(BaseChecker):
                     arg_type = utils.safe_infer(arg)
                     if (
                         arg_type
-                        and arg_type != astroid.Uninferable
+                        and not isinstance(arg_type, util.UninferableBase)
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -561,7 +555,7 @@ class StringFormatChecker(BaseChecker):
                 if key not in named:
                     continue
                 argname = named[key]
-            if argname in (astroid.Uninferable, None):
+            if argname is None or isinstance(argname, util.UninferableBase):
                 continue
             try:
                 argument = utils.safe_infer(argname)
@@ -578,7 +572,7 @@ class StringFormatChecker(BaseChecker):
             previous = argument
             parsed: list[tuple[bool, str]] = []
             for is_attribute, specifier in specifiers:
-                if previous is astroid.Uninferable:
+                if isinstance(previous, util.UninferableBase):
                     break
                 parsed.append((is_attribute, specifier))
                 if is_attribute:
@@ -611,7 +605,7 @@ class StringFormatChecker(BaseChecker):
                             warn_error = True
                         except astroid.InferenceError:
                             break
-                        if previous is astroid.Uninferable:
+                        if isinstance(previous, util.UninferableBase):
                             break
                     else:
                         try:
@@ -816,7 +810,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             token_index = (elt.lineno, elt.col_offset)
             if token_index not in self.string_tokens:
                 # This may happen with Latin1 encoding
-                # cf. https://github.com/PyCQA/pylint/issues/2610
+                # cf. https://github.com/pylint-dev/pylint/issues/2610
                 continue
             matching_token, next_token = self.string_tokens[token_index]
             # We detect string concatenation: the AST Const is the

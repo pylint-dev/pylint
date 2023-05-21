@@ -2,7 +2,7 @@
   "astroid": {
     "branch": "main",
     "directories": ["astroid"],
-    "url": "https://github.com/PyCQA/astroid",
+    "url": "https://github.com/pylint-dev/astroid",
     "pylintrc_relpath": "pylintrc"
   },
   "black": {
@@ -19,6 +19,11 @@
     "branch": "main",
     "directories": ["src/flask"],
     "url": "https://github.com/pallets/flask"
+  },
+  "home-assistant": {
+    "branch": "dev",
+    "directories": ["homeassistant"],
+    "url": "https://github.com/home-assistant/core"
   },
   "music21": {
     "branch": "master",

@@ -1,4 +1,0 @@
-Fix false positive for ``used-before-assignment`` for named expressions
-appearing after the first element in a list, tuple, or set.
-
-Closes #8252

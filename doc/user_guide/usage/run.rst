@@ -52,6 +52,13 @@ If the analyzed sources use implicit namespace packages (PEP 420), the source ro
 be specified using the ``--source-roots`` option. Otherwise, the package names are
 detected incorrectly, since implicit namespace packages don't contain an ``__init__.py``.
 
+Globbing support
+----------------
+
+It is also possible to specify both directories and files using globbing patterns::
+
+   pylint [options] packages/*/src
+
 Command line options
 --------------------
 
@@ -98,6 +105,9 @@ configuration file in the following order and uses the first one it finds:
    providing it has at least one ``pylint.`` section
 #. ``tox.ini`` in the current working directory,
    providing it has at least one ``pylint.`` section
+#. Pylint will search for the ``pyproject.toml`` file up the directories hierarchy
+   unless it's found, or a ``.git``/``.hg`` directory is found, or the file system root
+   is approached.
 #. If the current working directory is in a Python package, Pylint searches \
    up the hierarchy of Python packages until it finds a ``pylintrc`` file. \
    This allows you to specify coding standards on a module-by-module \
@@ -150,10 +160,10 @@ This will spawn 4 parallel Pylint sub-process, where each provided module will
 be checked in parallel. Discovered problems by checkers are not displayed
 immediately. They are shown just after checking a module is complete.
 
-There are some limitations in running checks in parallel in the current
-implementation. It is not possible to use custom plugins
-(i.e. ``--load-plugins`` option), nor it is not possible to use
-initialization hooks (i.e. the ``--init-hook`` option).
+There is one known limitation with running checks in parallel as currently
+implemented. Since the division of files into worker processes is indeterminate,
+checkers that depend on comparing multiple files (e.g. ``cyclic-import``
+and ``duplicate-code``) can produce indeterminate results.
 
 Exit codes
 ----------

@@ -14,3 +14,4 @@ global-statement:81:4:81:15:override_func:Using the global statement:HIGH
 global-statement:91:4:91:16:override_class:Using the global statement:HIGH
 global-variable-not-assigned:101:4:101:21:init_connection_state:Using global for 'RAN_DB_SET' but no assignment is done:HIGH
 global-variable-not-assigned:102:4:102:22:init_connection_state:Using global for 'RAN_DB_DICT' but no assignment is done:HIGH
+global-statement:112:4:112:15:setup_shared_foo:Using the global statement:HIGH

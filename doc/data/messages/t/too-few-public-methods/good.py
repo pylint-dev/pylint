@@ -12,17 +12,22 @@ class Worm:
     def wiggle(self):
         print(f"{self.name} wiggle around wormily.")
 
+
 # or
+
 
 @dataclasses.dataclass
 class Worm:
-    name:str
+    name: str
     fruit_of_residence: Fruit
+
 
 def bore(worm: Worm):
     print(f"{worm.name} is boring into {worm.fruit_of_residence}")
 
+
 # or
+
 
 def bore(fruit: Fruit, worm_name: str):
     print(f"{worm_name} is boring into {fruit}")

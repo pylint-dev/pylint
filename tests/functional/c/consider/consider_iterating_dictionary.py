@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, expression-not-assigned, too-few-public-methods
+# pylint: disable=missing-docstring, expression-not-assigned, too-few-public-methods, bad-chained-comparison
 # pylint: disable=no-member, import-error, line-too-long
 # pylint: disable=unnecessary-comprehension, use-dict-literal, use-implicit-booleaness-not-comparison
 
@@ -68,7 +68,7 @@ VAR = 1 in dict()
 VAR = [1, 2] == {}.keys() in {False}
 
 # Additional membership checks
-# See: https://github.com/PyCQA/pylint/issues/5323
+# See: https://github.com/pylint-dev/pylint/issues/5323
 metadata = {}
 if "a" not in list(metadata.keys()): # [consider-iterating-dictionary]
     print(1)

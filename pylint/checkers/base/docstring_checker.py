@@ -1,13 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Docstring checker from the basic checker."""
 
 from __future__ import annotations
 
 import re
-import sys
+from typing import Literal
 
 import astroid
 from astroid import nodes
@@ -20,11 +20,6 @@ from pylint.checkers.utils import (
     is_property_deleter,
     is_property_setter,
 )
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 # do not require a doc string on private/system methods
 NO_REQUIRED_DOC_RGX = re.compile("^_")

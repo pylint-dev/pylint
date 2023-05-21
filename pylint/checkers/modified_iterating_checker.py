@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -90,14 +90,10 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         elif self._modified_iterating_set_cond(node, iter_obj):
             msg_id = "modified-iterating-set"
         if msg_id:
-            if isinstance(iter_obj, nodes.Attribute):
-                obj_name = iter_obj.attrname
-            else:
-                obj_name = iter_obj.name
             self.add_message(
                 msg_id,
                 node=node,
-                args=(obj_name,),
+                args=(iter_obj._repr_name(),),
                 confidence=interfaces.INFERENCE,
             )
 

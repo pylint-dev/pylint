@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Puts the check_parallel system under test."""
 
@@ -14,10 +14,11 @@ import sys
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures.process import BrokenProcessPool
 from pickle import PickleError
+from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import dill
 import pytest
-from astroid import nodes
 
 import pylint.interfaces
 import pylint.lint.parallel
@@ -29,6 +30,9 @@ from pylint.lint.parallel import check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.typing import FileItem
 from pylint.utils import LinterStats, ModuleStats
+
+if TYPE_CHECKING:
+    from astroid import nodes
 
 
 def _gen_file_data(idx: int = 0) -> FileItem:
@@ -182,13 +186,24 @@ class TestCheckParallelFramework:
             )
             assert "fake-path" in sys.path
 
+    def test_worker_initialize_reregisters_custom_plugins(self) -> None:
+        linter = PyLinter(reporter=Reporter())
+        linter.load_plugin_modules(["pylint.extensions.private_import"])
+
+        pickled = dill.dumps(linter)
+        with patch(
+            "pylint.extensions.private_import.register", side_effect=AssertionError
+        ):
+            with pytest.raises(AssertionError):
+                worker_initialize(linter=pickled)
+
     @pytest.mark.needs_two_cores
     def test_worker_initialize_pickling(self) -> None:
         """Test that we can pickle objects that standard pickling in multiprocessing can't.
 
         See:
         https://stackoverflow.com/questions/8804830/python-multiprocessing-picklingerror-cant-pickle-type-function
-        https://github.com/PyCQA/pylint/pull/5584
+        https://github.com/pylint-dev/pylint/pull/5584
         """
         linter = PyLinter(reporter=Reporter())
         linter.attribute = argparse.ArgumentParser()  # type: ignore[attr-defined]
@@ -548,7 +563,7 @@ class TestCheckParallel:
 
         The intent here is to validate the reduce step: no stats should be lost.
 
-        Checks regression of https://github.com/PyCQA/pylint/issues/4118
+        Checks regression of https://github.com/pylint-dev/pylint/issues/4118
         """
 
         # define the stats we expect to get back from the runs, these should only vary

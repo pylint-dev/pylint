@@ -13,3 +13,4 @@ The contributor guide will help you if you want to contribute to pylint itself.
    tests/index
    profiling
    release
+   governance

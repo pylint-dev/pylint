@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Some functions that may be useful for various checkers."""
 
@@ -12,22 +12,22 @@ import itertools
 import numbers
 import re
 import string
-import warnings
-from collections import deque
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
 import _string
 import astroid.objects
-from astroid import TooManyLevelsError, nodes
+from astroid import TooManyLevelsError, nodes, util
 from astroid.context import InferenceContext
 from astroid.exceptions import AstroidError
 from astroid.nodes._base_nodes import ImportNode
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 if TYPE_CHECKING:
+    from functools import _lru_cache_wrapper
+
     from pylint.checkers import BaseChecker
 
 _NodeT = TypeVar("_NodeT", bound=nodes.NodeNG)
@@ -247,17 +247,6 @@ class InferredTypeError(Exception):
     pass
 
 
-def is_inside_lambda(node: nodes.NodeNG) -> bool:
-    """Return whether the given node is inside a lambda."""
-    warnings.warn(
-        "utils.is_inside_lambda will be removed in favour of calling "
-        "utils.get_node_first_ancestor_of_type(x, nodes.Lambda) in pylint 3.0",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return any(isinstance(parent, nodes.Lambda) for parent in node.node_ancestors())
-
-
 def get_all_elements(
     node: nodes.NodeNG,
 ) -> Iterable[nodes.NodeNG]:
@@ -367,9 +356,10 @@ def is_defined_before(var_node: nodes.Name) -> bool:
         if defnode is None:
             continue
         defnode_scope = defnode.scope()
-        if isinstance(defnode_scope, COMP_NODE_TYPES + (nodes.Lambda,)):
+        if isinstance(
+            defnode_scope, (*COMP_NODE_TYPES, nodes.Lambda, nodes.FunctionDef)
+        ):
             # Avoid the case where var_node_scope is a nested function
-            # FunctionDef is a Lambda until https://github.com/PyCQA/astroid/issues/291
             if isinstance(defnode_scope, nodes.FunctionDef):
                 var_node_scope = var_node.scope()
                 if var_node_scope is not defnode_scope and isinstance(
@@ -501,25 +491,6 @@ def only_required_for_messages(
         return func
 
     return store_messages
-
-
-def check_messages(
-    *messages: str,
-) -> Callable[
-    [AstCallbackMethod[_CheckerT, _NodeT]], AstCallbackMethod[_CheckerT, _NodeT]
-]:
-    """Kept for backwards compatibility, deprecated.
-
-    Use only_required_for_messages instead, which conveys the intent of the decorator much clearer.
-    """
-    warnings.warn(
-        "utils.check_messages will be removed in favour of calling "
-        "utils.only_required_for_messages in pylint 3.0",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-
-    return only_required_for_messages(*messages)
 
 
 class IncompleteFormatString(Exception):
@@ -885,7 +856,7 @@ def decorated_with(
             if any(
                 i.name in qnames or i.qname() in qnames
                 for i in decorator_node.infer()
-                if i is not None and i != astroid.Uninferable
+                if i is not None and not isinstance(i, util.UninferableBase)
             ):
                 return True
         except astroid.InferenceError:
@@ -936,11 +907,10 @@ def uninferable_final_decorators(
             decorator, "attrname", None
         ) == "final"
 
-        if (is_from_import or is_import) and safe_infer(decorator) in [
-            astroid.Uninferable,
-            None,
-        ]:
-            decorators.append(decorator)
+        if is_from_import or is_import:
+            inferred = safe_infer(decorator)
+            if inferred is None or isinstance(inferred, util.UninferableBase):
+                decorators.append(decorator)
     return decorators
 
 
@@ -1161,6 +1131,7 @@ def node_ignores_exception(
     return any(get_contextlib_suppressors(node, exception))
 
 
+@lru_cache(maxsize=1024)
 def class_is_abstract(node: nodes.ClassDef) -> bool:
     """Return true if the given class node should be considered as an abstract
     class.
@@ -1373,7 +1344,7 @@ def safe_infer(
     except Exception as e:  # pragma: no cover
         raise AstroidError from e
 
-    if value is not astroid.Uninferable:
+    if not isinstance(value, util.UninferableBase):
         inferred_types.add(_get_python_type_of_node(value))
 
     # pylint: disable = too-many-try-statements
@@ -1458,7 +1429,7 @@ def node_type(node: nodes.NodeNG) -> SuccessfulInferenceResult | None:
     types: set[SuccessfulInferenceResult] = set()
     try:
         for var_type in node.infer():
-            if var_type == astroid.Uninferable or is_none(var_type):
+            if isinstance(var_type, util.UninferableBase) or is_none(var_type):
                 continue
             types.add(var_type)
             if len(types) > 1:
@@ -1569,27 +1540,6 @@ def is_postponed_evaluation_enabled(node: nodes.NodeNG) -> bool:
     """Check if the postponed evaluation of annotations is enabled."""
     module = node.root()
     return "annotations" in module.future_imports
-
-
-def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
-    value: nodes.ClassDef, node: nodes.NodeNG
-) -> bool:
-    """Check if class is subscriptable with PEP 585 and
-    postponed evaluation enabled.
-    """
-    warnings.warn(
-        "'is_class_subscriptable_pep585_with_postponed_evaluation_enabled' has been "
-        "deprecated and will be removed in pylint 3.0. "
-        "Use 'is_postponed_evaluation_enabled(node) and "
-        "is_node_in_type_annotation_context(node)' instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return (
-        is_postponed_evaluation_enabled(node)
-        and value.qname() in SUBSCRIPTABLE_CLASSES_PEP585
-        and is_node_in_type_annotation_context(node)
-    )
 
 
 def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
@@ -1812,7 +1762,9 @@ def get_import_name(importnode: ImportNode, modname: str | None) -> str | None:
         root = importnode.root()
         if isinstance(root, nodes.Module):
             try:
-                return root.relative_to_absolute_name(modname, level=importnode.level)  # type: ignore[no-any-return]
+                return root.relative_to_absolute_name(  # type: ignore[no-any-return]
+                    modname, level=importnode.level
+                )
             except TooManyLevelsError:
                 return modname
     return modname
@@ -1838,33 +1790,6 @@ def is_sys_guard(node: nodes.If) -> bool:
             return True
 
     return False
-
-
-def is_typing_guard(node: nodes.If) -> bool:
-    """Return True if IF stmt is a typing guard.
-
-    >>> from typing import TYPE_CHECKING
-    >>> if TYPE_CHECKING:
-    >>>     from xyz import a
-    """
-    return isinstance(
-        node.test, (nodes.Name, nodes.Attribute)
-    ) and node.test.as_string().endswith("TYPE_CHECKING")
-
-
-def is_node_in_typing_guarded_import_block(node: nodes.NodeNG) -> bool:
-    """Return True if node is part for guarded `typing.TYPE_CHECKING` if block."""
-    return isinstance(node.parent, nodes.If) and is_typing_guard(node.parent)
-
-
-def is_node_in_guarded_import_block(node: nodes.NodeNG) -> bool:
-    """Return True if node is part for guarded if block.
-
-    I.e. `sys.version_info` or `typing.TYPE_CHECKING`
-    """
-    return isinstance(node.parent, nodes.If) and (
-        is_sys_guard(node.parent) or is_typing_guard(node.parent)
-    )
 
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
@@ -1967,7 +1892,10 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
         if isinstance(ancestor.test, nodes.Name):
             if ancestor.test.name != "TYPE_CHECKING":
                 continue
-            maybe_import_from = ancestor.test.lookup(ancestor.test.name)[1][0]
+            lookup_result = ancestor.test.lookup(ancestor.test.name)[1]
+            if not lookup_result:
+                return False
+            maybe_import_from = lookup_result[0]
             if (
                 isinstance(maybe_import_from, nodes.ImportFrom)
                 and maybe_import_from.modname == "typing"
@@ -2014,7 +1942,7 @@ def is_typing_member(node: nodes.NodeNG, names_to_check: tuple[str, ...]) -> boo
     return False
 
 
-@lru_cache()
+@lru_cache
 def in_for_else_branch(parent: nodes.NodeNG, stmt: nodes.Statement) -> bool:
     """Returns True if stmt is inside the else branch for a parent For stmt."""
     return isinstance(parent, nodes.For) and any(
@@ -2056,7 +1984,7 @@ def is_hashable(node: nodes.NodeNG) -> bool:
     # pylint: disable = too-many-try-statements
     try:
         for inferred in node.infer():
-            if inferred is astroid.Uninferable or isinstance(inferred, nodes.ClassDef):
+            if isinstance(inferred, (nodes.ClassDef, util.UninferableBase)):
                 return True
             if not hasattr(inferred, "igetattr"):
                 return True
@@ -2123,37 +2051,30 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
     return False, ""
 
 
+def _qualified_name_parts(qualified_module_name: str) -> list[str]:
+    """Split the names of the given module into subparts.
+
+    For example,
+        _qualified_name_parts('pylint.checkers.ImportsChecker')
+    returns
+        ['pylint', 'pylint.checkers', 'pylint.checkers.ImportsChecker']
+    """
+    names = qualified_module_name.split(".")
+    return [".".join(names[0 : i + 1]) for i in range(len(names))]
+
+
 def is_module_ignored(
-    module: nodes.Module,
-    ignored_modules: Iterable[str],
+    qualified_module_name: str, ignored_modules: Iterable[str]
 ) -> bool:
     ignored_modules = set(ignored_modules)
-    module_name = module.name
-    module_qname = module.qname()
-
-    for ignore in ignored_modules:
-        # Try to match the module name / fully qualified name directly
-        if module_qname in ignored_modules or module_name in ignored_modules:
+    for current_module in _qualified_name_parts(qualified_module_name):
+        # Try to match the module name directly
+        if current_module in ignored_modules:
             return True
-
-        # Try to see if the ignores pattern match against the module name.
-        if fnmatch.fnmatch(module_qname, ignore):
-            return True
-
-        # Otherwise, we might have a root module name being ignored,
-        # and the qualified owner has more levels of depth.
-        parts = deque(module_name.split("."))
-        current_module = ""
-
-        while parts:
-            part = parts.popleft()
-            if not current_module:
-                current_module = part
-            else:
-                current_module += f".{part}"
-            if current_module in ignored_modules:
+        for ignore in ignored_modules:
+            # Try to see if the ignores pattern match against the module name.
+            if fnmatch.fnmatch(current_module, ignore):
                 return True
-
     return False
 
 
@@ -2191,53 +2112,6 @@ def is_class_attr(name: str, klass: nodes.ClassDef) -> bool:
         return True
     except astroid.NotFoundError:
         return False
-
-
-def is_defined(name: str, node: nodes.NodeNG) -> bool:
-    """Searches for a tree node that defines the given variable name."""
-    is_defined_so_far = False
-
-    if isinstance(node, nodes.NamedExpr):
-        is_defined_so_far = node.target.name == name
-
-    if isinstance(node, (nodes.Import, nodes.ImportFrom)):
-        is_defined_so_far = any(node_name[0] == name for node_name in node.names)
-
-    if isinstance(node, nodes.With):
-        is_defined_so_far = any(
-            isinstance(item[1], nodes.AssignName) and item[1].name == name
-            for item in node.items
-        )
-
-    if isinstance(node, (nodes.ClassDef, nodes.FunctionDef)):
-        is_defined_so_far = node.name == name
-
-    if isinstance(node, nodes.AnnAssign):
-        is_defined_so_far = (
-            node.value
-            and isinstance(node.target, nodes.AssignName)
-            and node.target.name == name
-        )
-
-    if isinstance(node, nodes.Assign):
-        is_defined_so_far = any(
-            any(
-                (
-                    (
-                        isinstance(elt, nodes.Starred)
-                        and isinstance(elt.value, nodes.AssignName)
-                        and elt.value.name == name
-                    )
-                    or (isinstance(elt, nodes.AssignName) and elt.name == name)
-                )
-                for elt in get_all_elements(target)
-            )
-            for target in node.targets
-        )
-
-    return is_defined_so_far or any(
-        is_defined(name, child) for child in node.get_children()
-    )
 
 
 def get_inverse_comparator(op: str) -> str:
@@ -2294,3 +2168,38 @@ def not_condition_as_string(
         )
         msg = f"{lhs} {get_inverse_comparator(ops)} {rhs}"
     return msg
+
+
+@lru_cache(maxsize=1000)
+def overridden_method(
+    klass: nodes.LocalsDictNodeNG, name: str | None
+) -> nodes.FunctionDef | None:
+    """Get overridden method if any."""
+    try:
+        parent = next(klass.local_attr_ancestors(name))
+    except (StopIteration, KeyError):
+        return None
+    try:
+        meth_node = parent[name]
+    except KeyError:  # pragma: no cover
+        # We have found an ancestor defining <name> but it's not in the local
+        # dictionary. This may happen with astroid built from living objects.
+        return None
+    if isinstance(meth_node, nodes.FunctionDef):
+        return meth_node
+    return None  # pragma: no cover
+
+
+def clear_lru_caches() -> None:
+    """Clear caches holding references to AST nodes."""
+    caches_holding_node_references: list[_lru_cache_wrapper[Any]] = [
+        class_is_abstract,
+        in_for_else_branch,
+        infer_all,
+        is_overload_stub,
+        overridden_method,
+        unimplemented_abstract_methods,
+        safe_infer,
+    ]
+    for lru in caches_holding_node_references:
+        lru.cache_clear()

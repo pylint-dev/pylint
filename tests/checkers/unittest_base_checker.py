@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unittest for the BaseChecker class."""
 
@@ -132,16 +132,5 @@ def test_base_checker_ordering() -> None:
 
 def test_base_checker_invalid_message() -> None:
     linter = PyLinter()
-
     with pytest.raises(InvalidMessageError):
         linter.register_checker(MissingFieldsChecker(linter))
-
-
-def test_get_message_definition() -> None:
-    checker = LessBasicChecker()
-    with pytest.warns(DeprecationWarning):
-        with pytest.raises(InvalidMessageError):
-            checker.get_message_definition("W123")
-
-    with pytest.warns(DeprecationWarning):
-        assert checker.get_message_definition("W0001")

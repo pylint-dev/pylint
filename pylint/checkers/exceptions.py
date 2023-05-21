@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checks for various exception related errors."""
 
@@ -13,7 +13,7 @@ from collections.abc import Generator
 from typing import TYPE_CHECKING, Any
 
 import astroid
-from astroid import nodes, objects
+from astroid import nodes, objects, util
 from astroid.context import InferenceContext
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
@@ -46,11 +46,11 @@ def _annotated_unpack_infer(
     if isinstance(stmt, (nodes.List, nodes.Tuple)):
         for elt in stmt.elts:
             inferred = utils.safe_infer(elt)
-            if inferred and inferred is not astroid.Uninferable:
+            if inferred and not isinstance(inferred, util.UninferableBase):
                 yield elt, inferred
         return
     for inferred in stmt.infer(context):
-        if inferred is astroid.Uninferable:
+        if isinstance(inferred, util.UninferableBase):
             continue
         yield stmt, inferred
 
@@ -210,16 +210,17 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
                 "notimplemented-raised", node=self._node, confidence=HIGH
             )
             return
-
         try:
-            exceptions = list(_annotated_unpack_infer(node))
+            exceptions = [
+                c
+                for _, c in _annotated_unpack_infer(node)
+                if isinstance(c, nodes.ClassDef)
+            ]
         except astroid.InferenceError:
             return
 
-        for _, exception in exceptions:
-            if isinstance(
-                exception, nodes.ClassDef
-            ) and self._checker._is_overgeneral_exception(exception):
+        for exception in exceptions:
+            if self._checker._is_overgeneral_exception(exception):
                 self._checker.add_message(
                     "broad-exception-raised",
                     args=exception.name,
@@ -306,13 +307,13 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     def open(self) -> None:
         self._builtin_exceptions = _builtin_exceptions()
+        # TODO 3.1: Remove this check and put it elsewhere
         for exc_name in self.linter.config.overgeneral_exceptions:
             if "." not in exc_name:
                 warnings.warn_explicit(
-                    "Specifying exception names in the overgeneral-exceptions option"
-                    " without module name is deprecated and support for it"
-                    " will be removed in pylint 3.0."
-                    f" Use fully qualified name (maybe 'builtins.{exc_name}' ?) instead.",
+                    f"'{exc_name}' is not a proper value for the 'overgeneral-exceptions' option. "
+                    f"Use fully qualified name (maybe 'builtins.{exc_name}' ?) instead. "
+                    "This will cease to be checked at runtime in 3.1.0.",
                     category=UserWarning,
                     filename="pylint: Command line or configuration file",
                     lineno=1,
@@ -344,7 +345,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         ExceptionRaiseRefVisitor(self, node).visit(expr)
 
         inferred = utils.safe_infer(expr)
-        if inferred is None or inferred is astroid.Uninferable:
+        if inferred is None or isinstance(inferred, util.UninferableBase):
             return
         ExceptionRaiseLeafVisitor(self, node).visit(inferred)
 
@@ -375,7 +376,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         An exception cause can be only `None` or an exception.
         """
         cause = utils.safe_infer(node.cause)
-        if cause in (astroid.Uninferable, None):
+        if cause is None or isinstance(cause, util.UninferableBase):
             return
 
         if isinstance(cause, nodes.Const):
@@ -441,7 +442,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         if isinstance(exc, nodes.Tuple):
             # Check if it is a tuple of exceptions.
             inferred = [utils.safe_infer(elt) for elt in exc.elts]
-            if any(node is astroid.Uninferable for node in inferred):
+            if any(isinstance(node, util.UninferableBase) for node in inferred):
                 # Don't emit if we don't know every component.
                 return
             if all(
@@ -646,13 +647,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 exceptions_classes += [exc for _, exc in exceptions]
 
     def _is_overgeneral_exception(self, exception: nodes.ClassDef) -> bool:
-        return (
-            exception.qname() in self.linter.config.overgeneral_exceptions
-            # TODO: 3.0: not a qualified name, deprecated
-            or "." not in exception.name
-            and exception.name in self.linter.config.overgeneral_exceptions
-            and exception.root().name == utils.EXCEPTIONS_MODULE
-        )
+        return exception.qname() in self.linter.config.overgeneral_exceptions
 
 
 def register(linter: PyLinter) -> None:

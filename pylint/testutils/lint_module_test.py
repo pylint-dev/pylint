@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -23,7 +23,9 @@ from pylint.constants import IS_PYPY
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
-from pylint.testutils.functional.test_file import (  # need to import from functional.test_file to avoid cyclic import
+
+# need to import from functional.test_file to avoid cyclic import
+from pylint.testutils.functional.test_file import (
     FunctionalTestFile,
     NoFileError,
     parse_python_version,
@@ -264,7 +266,7 @@ class LintModuleTest:
         expected_messages: MessageCounter,
         actual_output: list[OutputLine],
     ) -> str:
-        msg = [f'Wrong results for file "{self._test_file.base}":']
+        msg = [f'Wrong message(s) raised for "{Path(self._test_file.source).name}":']
         missing, unexpected = self.multiset_difference(
             expected_messages, actual_messages
         )
@@ -287,7 +289,7 @@ class LintModuleTest:
     ) -> str:
         missing = set(expected_lines) - set(received_lines)
         unexpected = set(received_lines) - set(expected_lines)
-        error_msg = f"Wrong output for '{self._test_file.base}.txt':"
+        error_msg = f'Wrong output for "{Path(self._test_file.expected_output).name}":'
         sort_by_line_number = operator.attrgetter("lineno")
         if missing:
             error_msg += "\n- Missing lines:\n"

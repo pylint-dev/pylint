@@ -1,4 +1,4 @@
-"""Regression tests for https://github.com/PyCQA/pylint/issues/4660"""
+"""Regression tests for https://github.com/pylint-dev/pylint/issues/4660"""
 
 # pylint: disable=useless-return, unused-argument
 # pylint: disable=missing-docstring, too-few-public-methods, invalid-name
