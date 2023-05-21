@@ -1,6 +1,6 @@
 """Tests for the invalid-field-call message."""
 
-# pylint: disable=unused-import, invalid-name, missing-module-docstring, missing-class-docstring, missing-function-docstring, too-few-public-methods, unsubscriptable-object, multiple-statements
+# pylint: disable=invalid-name, missing-class-docstring, missing-function-docstring, too-few-public-methods
 
 from dataclasses import dataclass, field, make_dataclass
 import dataclasses as dc
