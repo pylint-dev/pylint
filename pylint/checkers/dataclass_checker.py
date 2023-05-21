@@ -109,7 +109,8 @@ class DataclassChecker(BaseChecker):
         """
         inferred_func = utils.safe_infer(scope_node.func)
         if (
-            scope_node.func.name == "make_dataclass"
+            isinstance(scope_node.func, nodes.FunctionDef)
+            and scope_node.func.name == "make_dataclass"
             and isinstance(inferred_func, nodes.FunctionDef)
             and _is_dataclasses_module(inferred_func.root())
         ):
