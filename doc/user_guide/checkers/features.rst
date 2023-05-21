@@ -396,7 +396,7 @@ Verbatim name of the checker is ``dataclass``.
 
 Dataclass checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-:invalid-field-call (E3601): *Invalid usage of field(), %s*
+:invalid-field-call (E3701): *Invalid usage of field(), %s*
   The dataclasses.field() specifier should only be used as the value of an
   assignment within a dataclass, or within the make_dataclass() function. This
   message can't be emitted when using Python < 3.7.

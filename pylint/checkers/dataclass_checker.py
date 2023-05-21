@@ -43,7 +43,7 @@ class DataclassChecker(BaseChecker):
 
     name = "dataclass"
     msgs = {
-        "E3601": (
+        "E3701": (
             "Invalid usage of field(), %s",
             "invalid-field-call",
             "The dataclasses.field() specifier should only be used as the value of "
