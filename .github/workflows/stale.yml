@@ -10,7 +10,7 @@ jobs:
     permissions:
       issues: write
     steps:
-      - uses: actions/stale@v5
+      - uses: actions/stale@v8
         with:
           debug-only: true
           days-before-issue-stale: 28
@@ -23,7 +23,6 @@ jobs:
               "Won't fix/not planned",
             ]
           exempt-issue-labels: ["High priority", "Blocked 🚧", "Needs decision 🔒"]
-          exempt-pr-labels: ["High priority", "Blocked 🚧", "Needs review 🔍"]          
           stale-issue-message:
             "This issue is stale because it has been open 4 weeks with no activity.
             Remove 'Stale' label or comment or this will be closed in a week."
@@ -31,6 +30,7 @@ jobs:
             "This issue was closed because it has been stalled for five weeks with no
             activity."
 
+          exempt-pr-labels: ["High priority", "Blocked 🚧", "Needs review 🔍"]
           days-before-pr-stale: 56
           days-before-pr-close: -1
           stale-pr-label: "Needs take over 🛎️"
