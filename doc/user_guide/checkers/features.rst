@@ -389,6 +389,19 @@ Classes checker Messages
   an unexpected reason. Please report this kind if you don't make sense of it.
 
 
+Dataclass checker
+~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``dataclass``.
+
+Dataclass checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+:invalid-field-call (E3701): *Invalid usage of field(), %s*
+  The dataclasses.field() specifier should only be used as the value of an
+  assignment within a dataclass, or within the make_dataclass() function. This
+  message can't be emitted when using Python < 3.7.
+
+
 Design checker
 ~~~~~~~~~~~~~~
 

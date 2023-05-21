@@ -91,6 +91,7 @@ All messages in the error category:
    error/invalid-class-object
    error/invalid-enum-extension
    error/invalid-envvar-value
+   error/invalid-field-call
    error/invalid-format-returned
    error/invalid-getnewargs-ex-returned
    error/invalid-getnewargs-returned
