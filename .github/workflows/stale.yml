@@ -15,7 +15,7 @@ jobs:
           debug-only: true
           days-before-issue-stale: 28
           days-before-issue-close: 7
-          any-of-labels:
+          any-of-issue-labels:
             [
               "Waiting on author",
               "Cannot reproduce 🤷",
@@ -30,6 +30,8 @@ jobs:
             "This issue was closed because it has been stalled for five weeks with no
             activity."
 
+          any-of-pr-labels:
+            ["Waiting on author", "python past end of life", "Won't fix/not planned"]
           exempt-pr-labels: ["High priority", "Blocked 🚧", "Needs review 🔍"]
           days-before-pr-stale: 56
           days-before-pr-close: -1
