@@ -34,6 +34,7 @@ class DC:
     mc.field()
     a: float = field(init=False)
     b: float = dc.field(init=False)
+    # TODO(remove py3.9 min) pylint: disable-next=unsubscriptable-object
     c: list[float] = [field(), field()]  # [invalid-field-call, invalid-field-call]
 
 @dc.dataclass
@@ -41,6 +42,7 @@ class IsAlsoDC:
     field()  # [invalid-field-call]
     a: float = field(init=False)
     b: float = dc.field(init=False)
+    # TODO(remove py3.9 min) pylint: disable-next=unsubscriptable-object
     c: list[float] = [field(), field()]  # [invalid-field-call, invalid-field-call]
 
 @dc.dataclass(frozen=True)
