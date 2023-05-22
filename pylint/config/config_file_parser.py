@@ -10,7 +10,7 @@ import configparser
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Tuple
 
 from pylint.config.utils import _parse_rich_type_value
 
@@ -22,12 +22,14 @@ else:
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
+PylintConfigFileData = Tuple[Dict[str, str], List[str]]
+
 
 class _RawConfParser:
     """Class to parse various formats of configuration files."""
 
     @staticmethod
-    def parse_ini_file(file_path: Path) -> tuple[dict[str, str], list[str]]:
+    def parse_ini_file(file_path: Path) -> PylintConfigFileData:
         """Parse and handle errors of an ini configuration file.
 
         Raises ``configparser.Error``.
@@ -58,7 +60,7 @@ class _RawConfParser:
         return False
 
     @staticmethod
-    def parse_toml_file(file_path: Path) -> tuple[dict[str, str], list[str]]:
+    def parse_toml_file(file_path: Path) -> PylintConfigFileData:
         """Parse and handle errors of a toml configuration file.
 
         Raises ``tomllib.TOMLDecodeError``.
@@ -87,7 +89,7 @@ class _RawConfParser:
     @staticmethod
     def parse_config_file(
         file_path: Path | None, verbose: bool
-    ) -> tuple[dict[str, str], list[str]]:
+    ) -> PylintConfigFileData:
         """Parse a config file and return str-str pairs.
 
         Raises ``tomllib.TOMLDecodeError``, ``configparser.Error``.
@@ -118,9 +120,7 @@ class _ConfigurationFileParser:
         self.verbose_mode = verbose
         self.linter = linter
 
-    def parse_config_file(
-        self, file_path: Path | None
-    ) -> tuple[dict[str, str], list[str]]:
+    def parse_config_file(self, file_path: Path | None) -> PylintConfigFileData:
         """Parse a config file and return str-str pairs."""
         try:
             return _RawConfParser.parse_config_file(file_path, self.verbose_mode)
