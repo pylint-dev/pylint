@@ -118,23 +118,6 @@ class _ConfigurationFileParser:
         self.verbose_mode = verbose
         self.linter = linter
 
-    def _parse_ini_file(self, file_path: Path) -> tuple[dict[str, str], list[str]]:
-        """Parse and handle errors of a ini configuration file."""
-        return _RawConfParser.parse_ini_file(file_path)
-
-    @staticmethod
-    def _ini_file_with_sections(file_path: Path) -> bool:
-        """Return whether the file uses sections."""
-        return _RawConfParser._ini_file_with_sections(file_path)
-
-    def _parse_toml_file(self, file_path: Path) -> tuple[dict[str, str], list[str]]:
-        """Parse and handle errors of a toml configuration file."""
-        try:
-            return _RawConfParser.parse_toml_file(file_path)
-        except tomllib.TOMLDecodeError as e:
-            self.linter.add_message("config-parse-error", line=0, args=str(e))
-            return {}, []
-
     def parse_config_file(
         self, file_path: Path | None
     ) -> tuple[dict[str, str], list[str]]:
