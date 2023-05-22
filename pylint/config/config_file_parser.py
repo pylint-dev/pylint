@@ -28,9 +28,9 @@ class _RawConfParser:
 
     @staticmethod
     def parse_ini_file(file_path: Path) -> tuple[dict[str, str], list[str]]:
-        """Parse and handle errors of a ini configuration file.
+        """Parse and handle errors of an ini configuration file.
 
-        Raises configparser.Error
+        Raises 'configparser.Error'.
         """
         parser = configparser.ConfigParser(inline_comment_prefixes=("#", ";"))
         # Use this encoding in order to strip the BOM marker, if any.
@@ -61,7 +61,7 @@ class _RawConfParser:
     def parse_toml_file(file_path: Path) -> tuple[dict[str, str], list[str]]:
         """Parse and handle errors of a toml configuration file.
 
-        Raises tomllib.TOMLDecodeError
+        Raises 'tomllib.TOMLDecodeError'.
         """
         with open(file_path, mode="rb") as fp:
             content = tomllib.load(fp)
@@ -90,7 +90,7 @@ class _RawConfParser:
     ) -> tuple[dict[str, str], list[str]]:
         """Parse a config file and return str-str pairs.
 
-        Raises tomllib.TOMLDecodeError, configparser.Error
+        Raises 'tomllib.TOMLDecodeError', 'configparser.Error'.
         """
         if file_path is None:
             if verbose:
