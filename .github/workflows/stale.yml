@@ -16,13 +16,9 @@ jobs:
           days-before-issue-stale: 28
           days-before-issue-close: 7
           any-of-issue-labels:
-            [
-              "Waiting on author",
-              "Cannot reproduce 🤷",
-              "python past end of life",
-              "Won't fix/not planned",
-            ]
-          exempt-issue-labels: ["High priority", "Blocked 🚧", "Needs decision 🔒"]
+            "Waiting on author,Cannot reproduce 🤷,python past end of life,Won't fix/not
+            planned"
+          exempt-issue-labels: "High priority,Blocked 🚧,Needs decision 🔒"
           stale-issue-message:
             "This issue is stale because it has been open 4 weeks with no activity.
             Remove 'Stale' label or comment or this will be closed in a week."
@@ -31,8 +27,8 @@ jobs:
             activity."
 
           any-of-pr-labels:
-            ["Waiting on author", "python past end of life", "Won't fix/not planned"]
-          exempt-pr-labels: ["High priority", "Blocked 🚧", "Needs review 🔍"]
+            "Waiting on author,python past end of life,Won't fix/not planned"
+          exempt-pr-labels: "High priority,Blocked 🚧,Needs review 🔍"
           days-before-pr-stale: 56
           days-before-pr-close: -1
           stale-pr-label: "Needs take over 🛎️"
