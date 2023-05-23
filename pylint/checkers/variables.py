@@ -3101,6 +3101,8 @@ class VariablesChecker(BaseChecker):
             return
         for name, node_lst in not_consumed.items():
             for node in node_lst:
+                if in_type_checking_block(node):
+                    continue
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches
