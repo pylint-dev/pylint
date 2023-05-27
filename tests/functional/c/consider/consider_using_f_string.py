@@ -39,6 +39,7 @@ def print_good():
     print("{}".format("\n".join(i for i in "string")))
     print("%s" % "\n")
     print("%s" % "\n".join(i for i in "string"))
+    print("{%s}%s" % (PARAM_1, PARAM_2))
 
 
 def print_bad():
