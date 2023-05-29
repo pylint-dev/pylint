@@ -3,7 +3,7 @@
 coverage~=7.2
 tbump~=6.10.0
 contributors-txt>=1.0.0
-pytest-cov~=4.0
+pytest-cov~=4.1
 pytest-profiling~=1.7
 pytest-xdist~=3.3
 six
