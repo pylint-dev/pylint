@@ -1,0 +1,3 @@
+Enable ``deprecated-pragma`` by default.
+
+Closes #8725
