@@ -182,4 +182,8 @@ jobs:
         run: |
           . venv/bin/activate
           cd doc
-          make html
+          pre-commit run --hook-stage push sphinx-generated-doc --all-files || {
+            git diff ; \
+            echo "Make sure that there are no modifications locally when launching 'make html'" ; \
+            exit 1; \
+          }

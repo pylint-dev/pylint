@@ -94,6 +94,13 @@ repos:
         args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I", "--spelling-dict=en"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/\w*)*data/|doc/
         stages: [manual]
+      - id: sphinx-generated-doc
+        alias: sphinx-generated-doc
+        name: sphinx-generated-doc
+        entry: make -C doc/ html
+        pass_filenames: false
+        language: system
+        stages: [push]
       - id: check-newsfragments
         name: Check newsfragments
         entry: python3 -m script.check_newsfragments
