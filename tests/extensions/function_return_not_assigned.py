@@ -4,12 +4,12 @@
 
 import astroid
 
-from pylint.extensions import unassigned_function_call
+from pylint.extensions import function_return_not_assigned
 from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class TestUnassignedFunctionCall(CheckerTestCase):
-    CHECKER_CLASS = unassigned_function_call.UnusedReturnValueChecker
+    CHECKER_CLASS = function_return_not_assigned.FunctionReturnNotAssignedChecker
 
     def test_simple_func(self) -> None:
         node = astroid.extract_node(
@@ -20,7 +20,7 @@ class TestUnassignedFunctionCall(CheckerTestCase):
             """,
         )
         msg = MessageTest(
-            msg_id="unused-return-value",
+            msg_id="function-return-not-assigned",
             node=node,
             line=4,
             end_line=4,
@@ -41,7 +41,7 @@ class TestUnassignedFunctionCall(CheckerTestCase):
             """,
         )
         msg = MessageTest(
-            msg_id="unused-return-value",
+            msg_id="function-return-not-assigned",
             node=node,
             line=6,
             end_line=6,
@@ -92,7 +92,7 @@ class TestUnassignedFunctionCall(CheckerTestCase):
         )
 
         msg = MessageTest(
-            msg_id="unused-return-value",
+            msg_id="function-return-not-assigned",
             node=node,
             line=9,
             end_line=9,
@@ -122,7 +122,7 @@ class TestUnassignedFunctionCall(CheckerTestCase):
         )
 
         msg = MessageTest(
-            msg_id="unused-return-value",
+            msg_id="function-return-not-assigned",
             node=node,
             line=13,
             end_line=13,

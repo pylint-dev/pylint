@@ -19,18 +19,18 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-class UnusedReturnValueChecker(BaseChecker):
-    name = "unused_return_value"
+class FunctionReturnNotAssignedChecker(BaseChecker):
+    name = "function_return_not_assigned"
     msgs = {
         "W5486": (
             "Function returned value which is never used",
-            "unused-return-value",
+            "function-return-not-assigned",
             "Function returns non-nullable value which is never used. "
             "Use explicit `_ = func_call()` if you are not interested in returned value",
         )
     }
 
-    @only_required_for_messages("unused-return-value")
+    @only_required_for_messages("function-return-not-assigned")
     def visit_call(self, node: nodes.Call) -> None:
         result_is_used = not isinstance(node.parent, nodes.Expr)
 
@@ -83,9 +83,9 @@ class UnusedReturnValueChecker(BaseChecker):
                 and ret_node.value.value is None
                 or ret_node.value is None
             ):
-                self.add_message("unused-return-value", node=node)
+                self.add_message("function-return-not-assigned", node=node)
                 return
 
 
 def register(linter: PyLinter) -> None:
-    linter.register_checker(UnusedReturnValueChecker(linter))
+    linter.register_checker(FunctionReturnNotAssignedChecker(linter))
