@@ -196,6 +196,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         {
             "old_names": [("I0014", "deprecated-disable-all")],
             "scope": WarningScope.LINE,
+            "default_enabled": False,
         },
     ),
     "E0001": (

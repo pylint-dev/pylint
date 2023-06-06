@@ -388,7 +388,6 @@ class _MessageStateHandler:
                                 "deprecated-pragma",
                                 line=start[0],
                                 args=("disable=all", "skip-file"),
-                                confidence=HIGH,
                             )
                             self.linter.add_message("file-ignored", line=start[0])
                             self._ignore_file = True
