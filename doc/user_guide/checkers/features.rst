@@ -101,6 +101,9 @@ Basic checker Messages
   Emitted when format function is not called on str object. e.g doing
   print("value: {}").format(123) instead of print("value: {}".format(123)).
   This might not be what the user intended to do.
+:nonlocal-defined-at-module-level (E0120): *nonlocal name %s defined at module level*
+  Emitted when a nonlocal variable is defined at module-level which is a
+  SyntaxError
 :nonlocal-without-binding (E0117): *nonlocal name %s found without binding*
   Emitted when a nonlocal variable does not have an attached name somewhere in
   the parent scopes

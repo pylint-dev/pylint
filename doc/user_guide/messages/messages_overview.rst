@@ -130,6 +130,7 @@ All messages in the error category:
    error/non-iterator-returned
    error/nonexistent-operator
    error/nonlocal-and-global
+   error/nonlocal-defined-at-module-level
    error/nonlocal-without-binding
    error/not-a-mapping
    error/not-an-iterable

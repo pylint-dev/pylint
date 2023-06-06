@@ -1,0 +1,4 @@
+Fix a crash when a ``nonlocal`` is defined at module-level.
+Add a new checker ``nonlocal-defined-at-module-level`` when a ``nonlocal`` is defined at module-level.
+
+Closes #8735
