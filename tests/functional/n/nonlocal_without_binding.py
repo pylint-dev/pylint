@@ -69,3 +69,7 @@ def function():
         myint += 1
 
     return inner()
+
+
+nonlocal APPLE  # [nonlocal-without-binding]
+APPLE = 42
