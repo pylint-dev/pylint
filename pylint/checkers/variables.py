@@ -3046,7 +3046,10 @@ class VariablesChecker(BaseChecker):
     def _check_all(
         self, node: nodes.Module, not_consumed: dict[str, list[nodes.NodeNG]]
     ) -> None:
-        assigned = next(node.igetattr("__all__"))
+        try:
+            assigned = next(node.igetattr("__all__"))
+        except astroid.InferenceError:
+            return
         if isinstance(assigned, util.UninferableBase):
             return
         if assigned.pytype() not in {"builtins.list", "builtins.tuple"}:
