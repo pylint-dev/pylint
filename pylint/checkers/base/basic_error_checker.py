@@ -204,12 +204,6 @@ class BasicErrorChecker(_BasicChecker):
             "which results in an error since Python 3.6.",
             {"minversion": (3, 6)},
         ),
-        "E0120": (
-            "nonlocal name %s defined at module level",
-            "nonlocal-defined-at-module-level",
-            "Emitted when a nonlocal variable is defined at module-level "
-            "which is a SyntaxError",
-        ),
     }
 
     def open(self) -> None:
@@ -402,15 +396,6 @@ class BasicErrorChecker(_BasicChecker):
 
     def _check_nonlocal_without_binding(self, node: nodes.Nonlocal, name: str) -> None:
         current_scope = node.scope()
-        if isinstance(current_scope, nodes.Module):
-            self.add_message(
-                "nonlocal-defined-at-module-level",
-                args=(name,),
-                node=node,
-                confidence=HIGH,
-            )
-            return
-
         while current_scope.parent is not None:
             if not isinstance(current_scope, (nodes.ClassDef, nodes.FunctionDef)):
                 self.add_message("nonlocal-without-binding", args=(name,), node=node)
@@ -432,7 +417,6 @@ class BasicErrorChecker(_BasicChecker):
             )
 
     @utils.only_required_for_messages("nonlocal-without-binding")
-    @utils.only_required_for_messages("nonlocal-defined-at-module-level")
     def visit_nonlocal(self, node: nodes.Nonlocal) -> None:
         for name in node.names:
             self._check_nonlocal_without_binding(node, name)
