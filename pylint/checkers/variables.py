@@ -2851,7 +2851,7 @@ class VariablesChecker(BaseChecker):
                     elt.name for elt in target.elts if isinstance(elt, nodes.AssignName)
                 )
         scope = node.scope()
-        nonlocals_with_same_name = any(
+        nonlocals_with_same_name = node.scope().parent and any(
             child for child in scope.body if isinstance(child, nodes.Nonlocal)
         )
         if nonlocals_with_same_name:
