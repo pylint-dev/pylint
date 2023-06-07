@@ -260,6 +260,12 @@ class BasicChecker(_BasicChecker):
             "Used when an exception is created without being assigned, raised or returned "
             "for subsequent use elsewhere.",
         ),
+        "W0134": (
+            "'return' shadowed by the 'finally' clause.",
+            "return-in-finally",
+            "Emitted when a 'return' statement is found in a 'finally' block. This will overwrite "
+            "the return value of a function and should be avoided.",
+        ),
     }
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
@@ -766,6 +772,10 @@ class BasicChecker(_BasicChecker):
         """Update try...finally flag."""
         assert self._tryfinallys is not None
         self._tryfinallys.append(node)
+
+        for final_node in node.finalbody:
+            for return_node in final_node.nodes_of_class(nodes.Return):
+                self.add_message("return-in-finally", node=return_node, confidence=HIGH)
 
     def leave_tryfinally(self, _: nodes.TryFinally) -> None:
         """Update try...finally flag."""

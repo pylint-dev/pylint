@@ -14,10 +14,11 @@ import sys
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures.process import BrokenProcessPool
 from pickle import PickleError
+from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import dill
 import pytest
-from astroid import nodes
 
 import pylint.interfaces
 import pylint.lint.parallel
@@ -29,6 +30,9 @@ from pylint.lint.parallel import check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.typing import FileItem
 from pylint.utils import LinterStats, ModuleStats
+
+if TYPE_CHECKING:
+    from astroid import nodes
 
 
 def _gen_file_data(idx: int = 0) -> FileItem:
@@ -181,6 +185,17 @@ class TestCheckParallelFramework:
                 linter=dill.dumps(linter), extra_packages_paths=["fake-path"]
             )
             assert "fake-path" in sys.path
+
+    def test_worker_initialize_reregisters_custom_plugins(self) -> None:
+        linter = PyLinter(reporter=Reporter())
+        linter.load_plugin_modules(["pylint.extensions.private_import"])
+
+        pickled = dill.dumps(linter)
+        with patch(
+            "pylint.extensions.private_import.register", side_effect=AssertionError
+        ):
+            with pytest.raises(AssertionError):
+                worker_initialize(linter=pickled)
 
     @pytest.mark.needs_two_cores
     def test_worker_initialize_pickling(self) -> None:

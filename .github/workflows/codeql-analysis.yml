@@ -29,6 +29,8 @@ concurrency:
 
 jobs:
   analyze:
+    if:
+      ${{ github.repository_owner == 'pylint-dev' || github.event_name != 'schedule' }}
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
