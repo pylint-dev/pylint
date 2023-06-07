@@ -108,6 +108,9 @@ Basic checker Messages
   Used when a break or a return statement is found inside the finally clause of
   a try...finally block: the exceptions raised in the try clause will be
   silently swallowed instead of being re-raised.
+:return-in-finally (W0134): *'return' shadowed by the 'finally' clause.*
+  Emitted when a 'return' statement is found in a 'finally' block. This will
+  overwrite the return value of a function and should be avoided.
 :assert-on-tuple (W0199): *Assert called on a populated tuple. Did you mean 'assert x,y'?*
   A call of assert on a tuple will always evaluate to true if the tuple is not
   empty, and will always evaluate to false if it is.

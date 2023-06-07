@@ -309,6 +309,7 @@ All messages in the warning category:
    warning/redundant-unittest-assert
    warning/redundant-yields-doc
    warning/reimported
+   warning/return-in-finally
    warning/self-assigning-variable
    warning/self-cls-assignment
    warning/shadowed-import

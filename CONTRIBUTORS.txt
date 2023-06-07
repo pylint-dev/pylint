@@ -103,10 +103,10 @@ contributors:
 - Tushar Sadhwani <tushar.sadhwani000@gmail.com> (tusharsadhwani)
 - Nicolas Chauvat <nicolas.chauvat@logilab.fr>
 - orSolocate <38433858+orSolocate@users.noreply.github.com>
+- Zen Lee <53538590+zenlyj@users.noreply.github.com>
 - Radu Ciorba <radu@devrandom.ro>: not-context-manager and confusing-with-statement warnings.
 - Holger Peters <email@holger-peters.de>
 - Cosmin Poieană <cmin@ropython.org>: unichr-builtin and improvements to bad-open-mode.
-- Zen Lee <53538590+zenlyj@users.noreply.github.com>
 - Steven Myint <hg@stevenmyint.com>: duplicate-except.
 - Peter Kolbus <peter.kolbus@gmail.com> (Garmin)
 - Luigi Bertaco Cristofolini <lucristofolini@gmail.com> (luigibertaco)
@@ -118,16 +118,17 @@ contributors:
 - Julien Jehannet <julien.jehannet@logilab.fr>
 - Boris Feld <lothiraldan@gmail.com>
 - Anthony Sottile <asottile@umich.edu>
+- Robert Hofer <hofrob@protonmail.com>
 - Pedro Algarvio <pedro@algarvio.me> (s0undt3ch)
 - Julien Palard <julien@palard.fr>
 - David Liu <david@cs.toronto.edu> (david-yz-liu)
 - Dan Goldsmith <djgoldsmith@googlemail.com>: support for msg-template in HTML reporter.
 - Buck Evan <buck.2019@gmail.com>
-- Robert Hofer <hofrob@protonmail.com>
 - Mariatta Wijaya <Mariatta@users.noreply.github.com>
   * Added new check `logging-fstring-interpolation`
   * Documentation typo fixes
 - Jakub Wilk <jwilk@jwilk.net>
+- Hugo van Kemenade <hugovk@users.noreply.github.com>
 - Eli Fine <ejfine@gmail.com> (eli88fine): Fixed false positive duplicate code warning for lines with symbols only
 - Andrew Haigh <nelfin@gmail.com> (nelfin)
 - Émile Crater <emile@crater.logilab.fr>
@@ -138,10 +139,10 @@ contributors:
 - Marianna Polatoglou <mpolatoglou@bloomberg.net>: minor contribution for wildcard import check
 - Manuel Vázquez Acosta <mva.led@gmail.com>
 - Luis Escobar <lescobar@vauxoo.com> (Vauxoo): Add bad-docstring-quotes and docstring-first-line-empty
+- Lucas Cimon <lucas.cimon@gmail.com>
 - Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 - Konstantin <Github@pheanex.de>
 - Jim Robertson <jrobertson98atx@gmail.com>
-- Hugo van Kemenade <hugovk@users.noreply.github.com>
 - Ethan Leba <ethanleba5@gmail.com>
 - Enji Cooper <yaneurabeya@gmail.com>
 - Drum Ogilvie <me@daogilvie.com>
@@ -219,7 +220,6 @@ contributors:
   * Fixed ignored empty functions by similarities checker with "ignore-signatures" option enabled
   * Ignore function decorators signatures as well by similarities checker with "ignore-signatures" option enabled
   * Ignore class methods and nested functions signatures as well by similarities checker with "ignore-signatures" option enabled
-- Lucas Cimon <lucas.cimon@gmail.com>
 - Kylian <development@goudcode.nl>
 - Konstantin Manna <Konstantin@Manna.uno>
 - Kai Mueller <15907922+kasium@users.noreply.github.com>
@@ -363,6 +363,7 @@ contributors:
 - Viorel Știrbu <viorels@gmail.com>: intern-builtin warning.
 - VictorT <victor.taix@gmail.com>
 - Victor Jiajunsu <16359131+jiajunsu@users.noreply.github.com>
+- ViRuSTriNiTy <cradle-of-mail@gmx.de>
 - Trevor Bekolay <tbekolay@gmail.com>
   * Added --list-msgs-enabled command
 - Tomer Chachamu <tomer.chachamu@gmail.com>: simplifiable-if-expression
@@ -428,6 +429,7 @@ contributors:
 - Moody <mooodyhunter@outlook.com>
 - Mitchell Young <mitchelly@gmail.com>: minor adjustment to docparams
 - Mitar <mitar.github@tnode.com>
+- Mikhail f. Shiryaev <mr.felixoid@gmail.com>
 - Mike Fiedler <miketheman@gmail.com> (miketheman)
 - Mike Bryant <leachim@leachim.info>
 - Michka Popoff <michkapopoff@gmail.com>
@@ -476,6 +478,7 @@ contributors:
   * Fixed `toml` dependency issue
 - Jeremy Fleischman <jeremyfleischman@gmail.com>
 - Jason Owen <jason.a.owen@gmail.com>
+- Jason Lau <github.com@dotkr.nl>
 - Jared Garst <cultofjared@gmail.com>
 - Jared Deckard <jared.deckard@gmail.com>
 - Janne Rönkkö <jannero@users.noreply.github.com>
@@ -553,6 +556,7 @@ contributors:
 - Arun Persaud <arun@nubati.net>
 - Arthur Lutz <arthur.lutz@logilab.fr>
 - Antonio Ossa <aaossa@uc.cl>
+- Antonio <antonioglez-23@hotmail.com>
 - Anthony VEREZ <anthony.verez.external@cassidian.com>
 - Anthony Tan <tanant@users.noreply.github.com>
 - Anthony Foglia <afoglia@users.noreply.github.com> (Google): Added simple string slots check.
