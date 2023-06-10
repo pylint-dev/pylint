@@ -82,6 +82,23 @@ class TestSimilarCodeChecker:
             expected_output=expected_output,
         )
 
+    @pytest.mark.needs_two_cores
+    def test_duplicate_code_parallel(self) -> None:
+        path = join(DATA, "raw_strings_all")
+        expected_output = "Similar lines in 2 files"
+        self._test_output(
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+                "--jobs=2",
+            ],
+            expected_output=expected_output,
+        )
+
     def test_duplicate_code_raw_strings_disable_file(self) -> None:
         """Tests disabling duplicate-code at the file level in a single file."""
         path = join(DATA, "raw_strings_disable_file")
