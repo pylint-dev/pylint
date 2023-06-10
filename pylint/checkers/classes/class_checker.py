@@ -49,6 +49,7 @@ if TYPE_CHECKING:
 _AccessNodes = Union[nodes.Attribute, nodes.AssignAttr]
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
+ALLOWED_PROPETIES = {"property", "cached_property"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
 ASTROID_TYPE_COMPARATORS = {
     nodes.Const: lambda a, b: a.value == b.value,
@@ -1252,10 +1253,17 @@ a metaclass class method.",
                     # attribute affectation will call this method, not hiding it
                     return
                 if isinstance(decorator, nodes.Name):
-                    if decorator.name == "property":
+                    if decorator.name in ALLOWED_PROPETIES:
                         # attribute affectation will either call a setter or raise
                         # an attribute error, anyway not hiding the function
                         return
+
+                if (
+                    isinstance(decorator, nodes.Attribute)
+                    and decorator.expr.name == "functools"
+                    and decorator.attrname == "cached_property"
+                ):
+                    return
 
                 # Infer the decorator and see if it returns something useful
                 inferred = safe_infer(decorator)

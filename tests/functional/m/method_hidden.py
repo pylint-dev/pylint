@@ -2,6 +2,7 @@
 # pylint: disable=unused-private-member
 """check method hiding ancestor attribute
 """
+import functools
 
 
 class Abcd:
@@ -110,6 +111,12 @@ class Parent:
 
 class Child(Parent):
     def _protected(self):  # [method-hidden]
+        pass
+
+
+class CachedChild(Parent):
+    @functools.cached_property
+    def _protected(self):
         pass
 
 
