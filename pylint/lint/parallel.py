@@ -130,7 +130,7 @@ def check_parallel(
     """Use the given linter to lint the files with given amount of workers (jobs).
 
     This splits the work filestream-by-filestream. If you need to do work across
-    multiple files, as in the similarity-checker, then implement the map/reduce mixin functionality.
+    multiple files, as in the similarity-checker, then implement the map/reduce functionality.
     """
     # The linter is inherited by all the pool's workers, i.e. the linter
     # is identical to the linter object here. This is required so that

@@ -889,8 +889,11 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         """Reduces and recombines data into a format that we can report on.
 
         The partner function of get_map_data()
+
+        Calls self.close() to actually calculate and report duplicate code.
         """
         Similar.combine_mapreduce_data(self, linesets_collection=data)
+        self.close()
 
 
 def register(linter: PyLinter) -> None:
