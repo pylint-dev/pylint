@@ -1260,8 +1260,9 @@ a metaclass class method.",
 
                 if (
                     isinstance(decorator, nodes.Attribute)
-                    and decorator.expr.name == "functools"
                     and decorator.attrname == "cached_property"
+                    and isinstance(decorator.expr, nodes.Name)
+                    and decorator.expr.name == "functools"
                 ):
                     return
 
