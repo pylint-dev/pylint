@@ -109,6 +109,7 @@ class JsonEncoder(js.JSONEncoder):
 class Parent:
     def __init__(self):
         self._protected = None
+        self._protected_two = None
 
 
 class Child(Parent):
@@ -122,7 +123,7 @@ class CachedChild(Parent):
         pass
 
     @functools.cached_property
-    def _protected_two(self):  # [method-hidden]
+    def _protected_two(self):
         pass
 
 
