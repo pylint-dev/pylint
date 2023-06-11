@@ -1,8 +1,10 @@
 # pylint: disable=too-few-public-methods,missing-docstring
 # pylint: disable=unused-private-member
+# pylint: disable=import-error
 """check method hiding ancestor attribute
 """
-import functools
+import functools as ft
+import something_else as functools
 
 
 class Abcd:
@@ -115,8 +117,12 @@ class Child(Parent):
 
 
 class CachedChild(Parent):
-    @functools.cached_property
+    @ft.cached_property
     def _protected(self):
+        pass
+
+    @functools.cached_property
+    def _protected_two(self):  # [method-hidden]
         pass
 
 
