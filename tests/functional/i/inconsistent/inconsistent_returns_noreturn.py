@@ -84,9 +84,9 @@ class ClassUnderTest:
         except ValueError:
             self._does_return_method()
 
-    def bug_pylint_8747_incorrect_annotation_trumps_inference(self, s: str) -> int:
-        """Every return is consistent since pylint does not currently use inference
-        to detect that the NoReturn annotation is incorrect and the function actually returns
+    def bug_pylint_8747_incorrect_annotation(self, s: str) -> int:
+        """Every return is consistent since pylint does not attempt to detect that the
+        NoReturn annotation is incorrect and the function actually returns
         """
         try:
             n = int(s)
