@@ -4,8 +4,6 @@ message: >-
   If you use this software, please cite it using the metadata from this file.
 type: software
 authors:
-  - family-names: Sassoulas
-    given-names: Pierre
   - name: "Pylint contributors"
 repository-code: "https://github.com/pylint-dev/pylint"
 url: "https://pylint.readthedocs.io/en/latest/"
