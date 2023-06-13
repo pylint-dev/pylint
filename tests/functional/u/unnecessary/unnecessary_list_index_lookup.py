@@ -136,6 +136,9 @@ for idx, val in enumerate(iterable=series, start=0):
 
 result = [my_list[idx] for idx, val in enumerate(iterable=my_list)]  # [unnecessary-list-index-lookup]
 
+iterable_kwarg = {"iterable": my_list}
+result = [my_list[idx] for idx, val in enumerate(**iterable_kwarg)]  # [unnecessary-list-index-lookup]
+
 for idx, val in enumerate():
     print(my_list[idx])
 

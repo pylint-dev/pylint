@@ -17,12 +17,14 @@ get_mid = SEQ.split(',')[-2]
 
 
 # Test varying maxsplit argument -- all these will be okay
+maxSplit = {"maxSplit": 2}
 # ## str.split() tests
 good_split = '1,2,3'.split(sep=',', maxsplit=1)[-1]
 good_split = '1,2,3'.split(sep=',', maxsplit=1)[0]
 good_split = '1,2,3'.split(sep=',', maxsplit=2)[-1]
 good_split = '1,2,3'.split(sep=',', maxsplit=2)[0]
 good_split = '1,2,3'.split(sep=',', maxsplit=2)[1]
+good_split = '1,2,3'.split(sep=',', **maxSplit)[1]
 
 # ## str.rsplit() tests
 good_split = '1,2,3'.rsplit(sep=',', maxsplit=1)[-1]
@@ -91,9 +93,11 @@ for j in range(5):
     print(source.split('.')[i])
     i = i + 1
 
+sepNone = {"sep": None}
 # Test for crash when sep is given by keyword
 # https://github.com/pylint-dev/pylint/issues/5737
 get_last = SEQ.split(sep=None)[-1]  # [use-maxsplit-arg]
+get_last = SEQ.split(**sepNone)[-1]  # [use-maxsplit-arg]
 
 
 class FalsePositive4857:

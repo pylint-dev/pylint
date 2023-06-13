@@ -2203,12 +2203,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             return
 
+        preliminary_confidence = HIGH
         try:
             iterable_arg = utils.get_argument_from_call(
                 node.iter, position=0, keyword="iterable"
             )
         except utils.NoSuchArgumentError:
-            return
+            iterable_arg = utils.infer_kwarg_from_call(node.iter, keyword="iterable")
+            preliminary_confidence = INFERENCE
 
         if not isinstance(iterable_arg, nodes.Name):
             return
@@ -2227,6 +2229,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # enumerate is being called with start arg/kwarg so resulting index lookup
             # is not redundant, hence we should not report an error.
             return
+
+        # Preserve preliminary_confidence if it was INFERENCE
+        confidence = (
+            preliminary_confidence
+            if preliminary_confidence == INFERENCE
+            else confidence
+        )
 
         iterating_object_name = iterable_arg.name
         value_variable = node.target.elts[1]
