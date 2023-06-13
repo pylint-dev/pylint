@@ -1253,7 +1253,7 @@ a metaclass class method.",
                     # attribute affectation will call this method, not hiding it
                     return
                 if isinstance(decorator, nodes.Name):
-                    if decorator.name in ALLOWED_PROPETIES:
+                    if decorator.name in ALLOWED_PROPERTIES:
                         # attribute affectation will either call a setter or raise
                         # an attribute error, anyway not hiding the function
                         return
