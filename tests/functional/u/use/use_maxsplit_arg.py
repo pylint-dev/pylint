@@ -17,14 +17,14 @@ get_mid = SEQ.split(',')[-2]
 
 
 # Test varying maxsplit argument -- all these will be okay
-maxSplit = {"maxSplit": 2}
+max_split = {"maxsplit": 2}
 # ## str.split() tests
 good_split = '1,2,3'.split(sep=',', maxsplit=1)[-1]
 good_split = '1,2,3'.split(sep=',', maxsplit=1)[0]
 good_split = '1,2,3'.split(sep=',', maxsplit=2)[-1]
 good_split = '1,2,3'.split(sep=',', maxsplit=2)[0]
 good_split = '1,2,3'.split(sep=',', maxsplit=2)[1]
-good_split = '1,2,3'.split(sep=',', **maxSplit)[1]
+good_split = '1,2,3'.split(sep=',', **max_split)[1]
 
 # ## str.rsplit() tests
 good_split = '1,2,3'.rsplit(sep=',', maxsplit=1)[-1]
