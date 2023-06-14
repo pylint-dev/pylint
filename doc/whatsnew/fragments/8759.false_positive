@@ -1,0 +1,3 @@
+Fix a false positive for ``no-member`` when accessing a no-value attribute that is annotated in a class body.
+
+Closes #8759
