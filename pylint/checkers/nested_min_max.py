@@ -101,7 +101,13 @@ class NestedMinMaxChecker(BaseChecker):
                         ctx=Context.Load,
                         lineno=inferred.lineno,
                         col_offset=0,
-                        parent=nodes.NodeNG(),
+                        parent=nodes.NodeNG(
+                            lineno=None,
+                            col_offset=None,
+                            end_lineno=None,
+                            end_col_offset=None,
+                            parent=None,
+                        ),
                         end_lineno=0,
                         end_col_offset=0,
                     )

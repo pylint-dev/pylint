@@ -65,3 +65,8 @@ showcontent = true
 directory = "internal"
 name = "Internal Changes"
 showcontent = true
+
+[[tool.towncrier.type]]
+directory = "performance"
+name = "Performance Improvements"
+showcontent = true

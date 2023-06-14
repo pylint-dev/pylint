@@ -16,7 +16,7 @@ from astroid.typing import InferenceResult
 
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
-from pylint.interfaces import INFERENCE
+from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -619,7 +619,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                                 d_node, position=0, keyword="maxsize"
                             )
                         except utils.NoSuchArgumentError:
-                            break
+                            arg = utils.infer_kwarg_from_call(d_node, "maxsize")
 
                         if not isinstance(arg, nodes.Const) or arg.value is not None:
                             break
@@ -699,6 +699,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     ) -> None:
         """Various checks for an open call."""
         mode_arg = None
+        confidence = HIGH
         try:
             if open_module == "_io":
                 mode_arg = utils.get_argument_from_call(
@@ -709,11 +710,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     node, position=0, keyword="mode"
                 )
         except utils.NoSuchArgumentError:
-            pass
+            mode_arg = utils.infer_kwarg_from_call(node, keyword="mode")
+            if mode_arg:
+                confidence = INFERENCE
 
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
-
             if (
                 func_name in OPEN_FILES_MODE
                 and isinstance(mode_arg, nodes.Const)
@@ -723,6 +725,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     "bad-open-mode",
                     node=node,
                     args=mode_arg.value or str(mode_arg.value),
+                    confidence=confidence,
                 )
 
         if (
@@ -730,7 +733,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             or isinstance(mode_arg, nodes.Const)
             and (not mode_arg.value or "b" not in str(mode_arg.value))
         ):
-            encoding_arg = None
+            confidence = HIGH
             try:
                 if open_module == "pathlib":
                     if node.func.attrname == "read_text":
@@ -750,13 +753,21 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                         node, position=3, keyword="encoding"
                     )
             except utils.NoSuchArgumentError:
-                self.add_message("unspecified-encoding", node=node)
+                encoding_arg = utils.infer_kwarg_from_call(node, keyword="encoding")
+                if encoding_arg:
+                    confidence = INFERENCE
+                else:
+                    self.add_message(
+                        "unspecified-encoding", node=node, confidence=confidence
+                    )
 
             if encoding_arg:
                 encoding_arg = utils.safe_infer(encoding_arg)
 
                 if isinstance(encoding_arg, nodes.Const) and encoding_arg.value is None:
-                    self.add_message("unspecified-encoding", node=node)
+                    self.add_message(
+                        "unspecified-encoding", node=node, confidence=confidence
+                    )
 
     def _check_env_function(self, node: nodes.Call, infer: nodes.FunctionDef) -> None:
         env_name_kwarg = "key"

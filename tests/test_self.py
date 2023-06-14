@@ -10,7 +10,6 @@ import configparser
 import contextlib
 import json
 import os
-import platform
 import re
 import subprocess
 import sys
@@ -234,7 +233,6 @@ class TestRunTC:
                 join(HERE, "functional", "a", "arguments.py"),
             ],
             out=out,
-            # We expect similarities to fail and an error
             code=MSG_TYPES_STATUS["E"],
         )
         assert (
@@ -349,16 +347,9 @@ class TestRunTC:
         assert isinstance(output, list)
         assert len(output) == 1
         assert isinstance(output[0], dict)
-        # So each version wants a different column number...
-        if platform.python_implementation() == "PyPy":
-            column = 9
-        elif sys.version_info >= (3, 8):
-            column = 9
-        else:
-            column = 15
         expected = {
             "obj": "",
-            "column": column,
+            "column": 9,
             "line": 1,
             "type": "error",
             "symbol": "syntax-error",

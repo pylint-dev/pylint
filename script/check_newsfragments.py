@@ -34,6 +34,7 @@ VALID_FILE_TYPE = frozenset(
         "bugfix",
         "other",
         "internal",
+        "performance",
     ]
 )
 ISSUES_KEYWORDS = "|".join(VALID_ISSUES_KEYWORDS)

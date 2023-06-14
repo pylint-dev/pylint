@@ -13,12 +13,12 @@ import sys
 import tokenize
 import traceback
 from collections import defaultdict
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
 from types import ModuleType
-from typing import Any
+from typing import Any, Protocol
 
 import astroid
 from astroid import nodes
@@ -67,12 +67,6 @@ from pylint.typing import (
     Options,
 )
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
-
-if sys.version_info >= (3, 8):
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
-
 
 MANAGER = astroid.MANAGER
 
@@ -369,15 +363,18 @@ class PyLinter(
         checkers.initialize(self)
         reporters.initialize(self)
 
-    def load_plugin_modules(self, modnames: list[str]) -> None:
+    def load_plugin_modules(self, modnames: Iterable[str], force: bool = False) -> None:
         """Check a list of pylint plugins modules, load and register them.
 
         If a module cannot be loaded, never try to load it again and instead
         store the error message for later use in ``load_plugin_configuration``
         below.
+
+        If `force` is True (useful when multiprocessing), then the plugin is
+        reloaded regardless if an entry exists in self._dynamic_plugins.
         """
         for modname in modnames:
-            if modname in self._dynamic_plugins:
+            if modname in self._dynamic_plugins and not force:
                 continue
             try:
                 module = astroid.modutils.load_module_from_name(modname)

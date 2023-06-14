@@ -8,9 +8,8 @@ from __future__ import annotations
 
 import collections
 import itertools
-import sys
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 import astroid
 from astroid import nodes, objects, util
@@ -23,11 +22,6 @@ from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 class _BasicChecker(BaseChecker):
@@ -266,6 +260,12 @@ class BasicChecker(_BasicChecker):
             "Used when an exception is created without being assigned, raised or returned "
             "for subsequent use elsewhere.",
         ),
+        "W0134": (
+            "'return' shadowed by the 'finally' clause.",
+            "return-in-finally",
+            "Emitted when a 'return' statement is found in a 'finally' block. This will overwrite "
+            "the return value of a function and should be avoided.",
+        ),
     }
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
@@ -369,7 +369,7 @@ class BasicChecker(_BasicChecker):
                 # astroid.exceptions.InferenceError are false positives
                 # see https://github.com/pylint-dev/pylint/pull/8185
                 if isinstance(inferred, nodes.FunctionDef):
-                    call_inferred = list(inferred.infer_call_result())
+                    call_inferred = list(inferred.infer_call_result(node))
                 elif isinstance(inferred, nodes.Lambda):
                     call_inferred = list(inferred.infer_call_result(node))
             except astroid.InferenceError:
@@ -772,6 +772,10 @@ class BasicChecker(_BasicChecker):
         """Update try...finally flag."""
         assert self._tryfinallys is not None
         self._tryfinallys.append(node)
+
+        for final_node in node.finalbody:
+            for return_node in final_node.nodes_of_class(nodes.Return):
+                self.add_message("return-in-finally", node=return_node, confidence=HIGH)
 
     def leave_tryfinally(self, _: nodes.TryFinally) -> None:
         """Update try...finally flag."""

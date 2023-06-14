@@ -1,4 +1,4 @@
-"""Test to see if a f-string would be possible and consider-using-f-string should be raised"""
+"""Test to see if an f-string would be possible and consider-using-f-string should be raised"""
 # pylint: disable=unused-variable, invalid-name, missing-function-docstring, pointless-statement
 # pylint: disable=expression-not-assigned, repeated-keyword, too-many-locals
 

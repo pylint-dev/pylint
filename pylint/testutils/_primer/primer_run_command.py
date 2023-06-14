@@ -30,14 +30,21 @@ class RunCommand(PrimerCommand):
     def run(self) -> None:
         packages: PackageMessages = {}
         fatal_msgs: list[Message] = []
-        for package, data in self.packages.items():
+        package_data_iter = (
+            self.packages.items()
+            if self.config.batches is None
+            else list(self.packages.items())[
+                self.config.batchIdx :: self.config.batches
+            ]
+        )
+        for package, data in package_data_iter:
             messages, p_fatal_msgs = self._lint_package(package, data)
             fatal_msgs += p_fatal_msgs
             local_commit = Repo(data.clone_directory).head.object.hexsha
             packages[package] = PackageData(commit=local_commit, messages=messages)
-        path = (
-            self.primer_directory
-            / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt"
+        path = self.primer_directory / (
+            f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}"
+            + (f"_batch{self.config.batchIdx}.txt" if self.config.batches else "")
         )
         print(f"Writing result in {path}")
         with open(path, "w", encoding="utf-8") as f:
@@ -77,7 +84,8 @@ class RunCommand(PrimerCommand):
         # Duplicate code takes too long and is relatively safe
         # TODO: Find a way to allow cyclic-import and compare output correctly
         disables = ["--disable=duplicate-code,cyclic-import"]
-        arguments = data.pylint_args + enables + disables
+        additional = ["--clear-cache-post-run=y"]
+        arguments = data.pylint_args + enables + disables + additional
         output = StringIO()
         reporter = JSONReporter(output)
         print(f"Running 'pylint {', '.join(arguments)}'")

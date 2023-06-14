@@ -1,6 +1,6 @@
 # using LF
 
-eat("apple", "candy") #  \n
+eat("apple", "candy")  #  \n
 print(123)  # \nEOF
 
 # using CRLF

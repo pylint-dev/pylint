@@ -73,6 +73,7 @@ def test_project_node(project: Project) -> None:
     expected = [
         "data",
         "data.clientmodule_test",
+        "data.nullable_pattern",
         "data.property_pattern",
         "data.suppliermodule_test",
     ]

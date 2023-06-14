@@ -15,8 +15,7 @@ We migrated to ``argparse`` from ``optparse`` and refactored the configuration h
 thanks to Daniël van Noord. On the user side it should change the output of the
 ``--help`` command, and some inconsistencies and bugs should disappear. The behavior
 between options set in a config file versus on the command line will be more consistent. For us,
-it will permit to maintain this part of the code easily in the future and anticipate
-``optparse``'s removal in Python 3.12.
+it will permit to maintain this part of the code easily in the future.
 
 As a result of the refactor there are a lot of internal deprecations. If you're a library
 maintainer that depends on pylint, please verify that you're ready for pylint 3.0

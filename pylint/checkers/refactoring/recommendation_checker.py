@@ -54,10 +54,10 @@ class RecommendationChecker(checkers.BaseChecker):
             "are more efficient than ``sets``.",
         ),
         "C0209": (
-            "Formatting a regular string which could be a f-string",
+            "Formatting a regular string which could be an f-string",
             "consider-using-f-string",
             "Used when we detect a string that is being formatted with format() or % "
-            "which could potentially be a f-string. The use of f-strings is preferred. "
+            "which could potentially be an f-string. The use of f-strings is preferred. "
             "Requires Python 3.6 and ``py-version >= 3.6``.",
         ),
     }
@@ -127,17 +127,22 @@ class RecommendationChecker(checkers.BaseChecker):
         ):
             return
 
+        confidence = HIGH
         try:
             sep = utils.get_argument_from_call(node, 0, "sep")
         except utils.NoSuchArgumentError:
-            return
+            sep = utils.infer_kwarg_from_call(node, keyword="sep")
+            confidence = INFERENCE
+            if not sep:
+                return
 
         try:
             # Ignore if maxsplit arg has been set
             utils.get_argument_from_call(node, 1, "maxsplit")
             return
         except utils.NoSuchArgumentError:
-            pass
+            if utils.infer_kwarg_from_call(node, keyword="maxsplit"):
+                return
 
         if isinstance(node.parent, nodes.Subscript):
             try:
@@ -171,7 +176,12 @@ class RecommendationChecker(checkers.BaseChecker):
                     + new_fn
                     + f"({sep.as_string()}, maxsplit=1)[{subscript_value}]"
                 )
-                self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
+                self.add_message(
+                    "use-maxsplit-arg",
+                    node=node,
+                    args=(new_name,),
+                    confidence=confidence,
+                )
 
     @utils.only_required_for_messages(
         "consider-using-enumerate",

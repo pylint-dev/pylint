@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import re
-import sys
+from typing import Literal
 
 import astroid
 from astroid import nodes
@@ -20,11 +20,6 @@ from pylint.checkers.utils import (
     is_property_deleter,
     is_property_setter,
 )
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 # do not require a doc string on private/system methods
 NO_REQUIRED_DOC_RGX = re.compile("^_")

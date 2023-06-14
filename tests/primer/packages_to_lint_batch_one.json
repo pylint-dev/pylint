@@ -1,7 +1,0 @@
-{
-  "keras": {
-    "branch": "master",
-    "directories": ["keras"],
-    "url": "https://github.com/keras-team/keras.git"
-  }
-}

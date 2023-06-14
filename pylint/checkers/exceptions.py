@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import builtins
 import inspect
-import warnings
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Any
 
@@ -307,18 +306,6 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     def open(self) -> None:
         self._builtin_exceptions = _builtin_exceptions()
-        # TODO 3.1: Remove this check and put it elsewhere
-        for exc_name in self.linter.config.overgeneral_exceptions:
-            if "." not in exc_name:
-                warnings.warn_explicit(
-                    f"'{exc_name}' is not a proper value for the 'overgeneral-exceptions' option. "
-                    f"Use fully qualified name (maybe 'builtins.{exc_name}' ?) instead. "
-                    "This will cease to be checked at runtime in 3.1.0.",
-                    category=UserWarning,
-                    filename="pylint: Command line or configuration file",
-                    lineno=1,
-                    module="pylint",
-                )
         super().open()
 
     @utils.only_required_for_messages(

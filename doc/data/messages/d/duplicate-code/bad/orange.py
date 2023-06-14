@@ -1,4 +1,4 @@
-class Orange: # [duplicate-code]
+class Orange:  # [duplicate-code]
     def __init__(self):
         self.remaining_bites = 3
 

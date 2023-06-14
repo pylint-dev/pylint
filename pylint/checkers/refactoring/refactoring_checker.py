@@ -7,10 +7,9 @@ from __future__ import annotations
 import collections
 import copy
 import itertools
-import sys
 import tokenize
 from collections.abc import Iterator
-from functools import reduce
+from functools import cached_property, reduce
 from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
 
@@ -27,10 +26,6 @@ from pylint.interfaces import HIGH, INFERENCE, Confidence
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
 
 NodesWithNestedBlocks = Union[
     nodes.TryExcept, nodes.TryFinally, nodes.While, nodes.For, nodes.If
@@ -98,7 +93,7 @@ def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
     if token.exact_type != tokenize.COMMA:
         return False
     # Must have remaining tokens on the same line such as NEWLINE
-    left_tokens = list(itertools.islice(tokens, index + 1, None))
+    left_tokens = itertools.islice(tokens, index + 1, None)
 
     more_tokens_on_line = False
     for remaining_token in left_tokens:
@@ -644,9 +639,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # token[2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
-            elif _is_trailing_comma(tokens, index):
-                if self.linter.is_message_enabled("trailing-comma-tuple"):
-                    self.add_message("trailing-comma-tuple", line=token.start[0])
+            elif self.linter.is_message_enabled(
+                "trailing-comma-tuple"
+            ) and _is_trailing_comma(tokens, index):
+                self.add_message("trailing-comma-tuple", line=token.start[0])
 
     @utils.only_required_for_messages("consider-using-with")
     def leave_module(self, _: nodes.Module) -> None:
@@ -2002,16 +1998,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             next_sibling = next_sibling.next_sibling()
         return False
 
-    def _is_function_def_never_returning(self, node: nodes.FunctionDef) -> bool:
+    def _is_function_def_never_returning(
+        self, node: nodes.FunctionDef | astroid.BoundMethod
+    ) -> bool:
         """Return True if the function never returns, False otherwise.
 
         Args:
-            node (nodes.FunctionDef): function definition node to be analyzed.
+            node (nodes.FunctionDef or astroid.BoundMethod): function definition node to be analyzed.
 
         Returns:
             bool: True if the function never returns, False otherwise.
         """
-        if isinstance(node, nodes.FunctionDef) and node.returns:
+        if isinstance(node, (nodes.FunctionDef, astroid.BoundMethod)) and node.returns:
             return (
                 isinstance(node.returns, nodes.Attribute)
                 and node.returns.attrname == "NoReturn"
@@ -2205,12 +2203,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             return
 
+        preliminary_confidence = HIGH
         try:
             iterable_arg = utils.get_argument_from_call(
                 node.iter, position=0, keyword="iterable"
             )
         except utils.NoSuchArgumentError:
-            return
+            iterable_arg = utils.infer_kwarg_from_call(node.iter, keyword="iterable")
+            preliminary_confidence = INFERENCE
 
         if not isinstance(iterable_arg, nodes.Name):
             return
@@ -2229,6 +2229,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # enumerate is being called with start arg/kwarg so resulting index lookup
             # is not redundant, hence we should not report an error.
             return
+
+        # Preserve preliminary_confidence if it was INFERENCE
+        confidence = (
+            preliminary_confidence
+            if preliminary_confidence == INFERENCE
+            else confidence
+        )
 
         iterating_object_name = iterable_arg.name
         value_variable = node.target.elts[1]

@@ -44,3 +44,10 @@ if True:  # pylint: disable=using-constant-test
 CONSTANT or True
 bool(CONSTANT or OTHER)
 bool(func(CONSTANT or True))
+
+# Strings also evaluate as True (they are constants)
+if func("a") == "b" or "c":  # [condition-evals-to-constant]
+    pass
+
+if 1 == func(2) or "fermi":  # [condition-evals-to-constant]
+    pass

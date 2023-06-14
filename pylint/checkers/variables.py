@@ -11,10 +11,10 @@ import copy
 import itertools
 import os
 import re
-import sys
 from collections import defaultdict
 from collections.abc import Generator, Iterable, Iterator
 from enum import Enum
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
@@ -33,11 +33,6 @@ from pylint.checkers.utils import (
 from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
-
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -223,17 +218,11 @@ def _detect_global_scope(
             return node.lineno < defframe.lineno  # type: ignore[no-any-return]
         if not isinstance(node.parent, (nodes.FunctionDef, nodes.Arguments)):
             return False
-    elif any(
-        not isinstance(f, (nodes.ClassDef, nodes.Module)) for f in (frame, defframe)
-    ):
-        # Not interested in other frames, since they are already
-        # not in a global scope.
-        return False
 
     break_scopes = []
-    for current_scope in (scope, def_scope):
+    for current_scope in (scope or frame, def_scope):
         # Look for parent scopes. If there is anything different
-        # than a module or a class scope, then they frames don't
+        # than a module or a class scope, then the frames don't
         # share a global scope.
         parent_scope = current_scope
         while parent_scope:
@@ -244,7 +233,7 @@ def _detect_global_scope(
                 parent_scope = parent_scope.parent.scope()
             else:
                 break
-    if break_scopes and len(set(break_scopes)) != 1:
+    if len(set(break_scopes)) > 1:
         # Store different scopes than expected.
         # If the stored scopes are, in fact, the very same, then it means
         # that the two frames (frame and defframe) share the same scope,
@@ -960,6 +949,12 @@ scope_type : {self._atomic.scope_type}
         ):
             return True
         if isinstance(node, (nodes.ClassDef, nodes.FunctionDef)) and node.name == name:
+            return True
+        if (
+            isinstance(node, nodes.ExceptHandler)
+            and node.name
+            and node.name.name == name
+        ):
             return True
         return False
 
@@ -2497,10 +2492,7 @@ class VariablesChecker(BaseChecker):
         # the usage is safe because the function will not be defined either if
         # the variable is not defined.
         scope = node.scope()
-        # FunctionDef subclasses Lambda due to a curious ontology. Check both.
-        # See https://github.com/pylint-dev/astroid/issues/291
-        # TODO: Revisit when astroid 3.0 includes the change
-        if isinstance(scope, nodes.Lambda) and any(
+        if isinstance(scope, (nodes.Lambda, nodes.FunctionDef)) and any(
             asmt.scope().parent_of(scope) for asmt in astmts
         ):
             return
@@ -2921,7 +2913,7 @@ class VariablesChecker(BaseChecker):
                     elt.name for elt in target.elts if isinstance(elt, nodes.AssignName)
                 )
         scope = node.scope()
-        nonlocals_with_same_name = any(
+        nonlocals_with_same_name = node.scope().parent and any(
             child for child in scope.body if isinstance(child, nodes.Nonlocal)
         )
         if nonlocals_with_same_name:
@@ -3054,7 +3046,10 @@ class VariablesChecker(BaseChecker):
     def _check_all(
         self, node: nodes.Module, not_consumed: dict[str, list[nodes.NodeNG]]
     ) -> None:
-        assigned = next(node.igetattr("__all__"))
+        try:
+            assigned = next(node.igetattr("__all__"))
+        except astroid.InferenceError:
+            return
         if isinstance(assigned, util.UninferableBase):
             return
         if assigned.pytype() not in {"builtins.list", "builtins.tuple"}:
@@ -3109,6 +3104,8 @@ class VariablesChecker(BaseChecker):
             return
         for name, node_lst in not_consumed.items():
             for node in node_lst:
+                if in_type_checking_block(node):
+                    continue
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches

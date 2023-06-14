@@ -56,6 +56,18 @@ class Primer:
         run_parser.add_argument(
             "--type", choices=["main", "pr"], required=True, help="Type of primer run."
         )
+        run_parser.add_argument(
+            "--batches",
+            required=False,
+            type=int,
+            help="Number of batches",
+        )
+        run_parser.add_argument(
+            "--batchIdx",
+            required=False,
+            type=int,
+            help="Portion of primer packages to run.",
+        )
 
         # All arguments for the compare parser
         compare_parser = self._subparsers.add_parser("compare")
@@ -73,6 +85,12 @@ class Primer:
             "--commit",
             required=True,
             help="Commit hash of the PR commit being checked.",
+        )
+        compare_parser.add_argument(
+            "--batches",
+            required=False,
+            type=int,
+            help="Number of batches (filepaths with the placeholder BATCHIDX will be numbered)",
         )
 
         # Storing arguments

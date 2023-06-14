@@ -4,8 +4,10 @@ __all__ = (
     Worm,
 )
 
+
 class Fruit:
     pass
+
 
 class Worm:
     pass

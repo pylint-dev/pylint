@@ -24,17 +24,22 @@ import tokenize
 import warnings
 from collections.abc import Sequence
 from io import BufferedReader, BytesIO
-from typing import TYPE_CHECKING, Any, List, Pattern, TextIO, Tuple, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    List,
+    Literal,
+    Pattern,
+    TextIO,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 from astroid import Module, modutils, nodes
 
 from pylint.constants import PY_EXTS
 from pylint.typing import OptionDict
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

@@ -43,7 +43,6 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
     "sphinx_reredirects",
-    "myst_parser",
 ]
 
 

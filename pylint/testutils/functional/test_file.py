@@ -5,9 +5,9 @@
 from __future__ import annotations
 
 import configparser
-import sys
 from collections.abc import Callable
 from os.path import basename, exists, join
+from typing import TypedDict
 
 
 def parse_python_version(ver_str: str) -> tuple[int, ...]:
@@ -17,12 +17,6 @@ def parse_python_version(ver_str: str) -> tuple[int, ...]:
 
 class NoFileError(Exception):
     pass
-
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
 
 
 class TestFileOptions(TypedDict):
