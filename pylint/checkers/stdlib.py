@@ -619,7 +619,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                                 d_node, position=0, keyword="maxsize"
                             )
                         except utils.NoSuchArgumentError:
-                            break
+                            arg = utils.infer_kwarg_from_call(d_node, "maxsize")
 
                         if not isinstance(arg, nodes.Const) or arg.value is not None:
                             break
