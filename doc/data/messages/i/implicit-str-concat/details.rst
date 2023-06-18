@@ -25,7 +25,7 @@ for string parameters passed on multiple lines in function calls:
         stacklevel=3,
     )
 
-No message will be emitted, though, if you clarify the wanted concatenation with parentheses::
+No message will be emitted, though, if you clarify the wanted concatenation with parentheses:
 
 .. code-block:: python
 
