@@ -6,7 +6,9 @@
 
 from __future__ import annotations
 
+import itertools
 import re
+from collections.abc import Iterable
 
 import astroid
 from astroid import nodes
@@ -157,6 +159,106 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
         }
     except astroid.InferenceError:
         return set()
+
+
+def _is_ellipsis(node: nodes.NodeNG) -> bool:
+    return isinstance(node, nodes.Const) and node.value == Ellipsis
+
+
+def _merge_annotations(
+    annotations: Iterable[nodes.NodeNG], comment_annotations: Iterable[nodes.NodeNG]
+) -> Iterable[nodes.NodeNG | None]:
+    for ann, comment_ann in itertools.zip_longest(annotations, comment_annotations):
+        if ann and not _is_ellipsis(ann):
+            yield ann
+        elif comment_ann and not _is_ellipsis(comment_ann):
+            yield comment_ann
+        else:
+            yield None
+
+
+def _annotations_list(args_node: nodes.Arguments) -> list[nodes.NodeNG]:
+    """Get a merged list of annotations.
+
+    The annotations can come from:
+
+    * Real type annotations.
+    * A type comment on the function.
+    * A type common on the individual argument.
+
+    :param args_node: The node to get the annotations for.
+    :returns: The annotations.
+    """
+    plain_annotations = args_node.annotations or ()
+    func_comment_annotations = args_node.parent.type_comment_args or ()
+    comment_annotations = args_node.type_comment_posonlyargs
+    comment_annotations += args_node.type_comment_args or []
+    comment_annotations += args_node.type_comment_kwonlyargs
+    return list(
+        _merge_annotations(
+            plain_annotations,
+            _merge_annotations(func_comment_annotations, comment_annotations),
+        )
+    )
+
+
+def args_with_annotation(args_node: nodes.Arguments) -> set[str]:
+    result = set()
+    annotations = _annotations_list(args_node)
+    annotation_offset = 0
+
+    if args_node.posonlyargs:
+        posonlyargs_annotations = args_node.posonlyargs_annotations
+        if not any(args_node.posonlyargs_annotations):
+            num_args = len(args_node.posonlyargs)
+            posonlyargs_annotations = annotations[
+                annotation_offset : annotation_offset + num_args
+            ]
+            annotation_offset += num_args
+
+        for arg, annotation in zip(args_node.posonlyargs, posonlyargs_annotations):
+            if annotation:
+                result.add(arg.name)
+
+    if args_node.args:
+        num_args = len(args_node.args)
+        for arg, annotation in zip(
+            args_node.args,
+            annotations[annotation_offset : annotation_offset + num_args],
+        ):
+            if annotation:
+                result.add(arg.name)
+
+        annotation_offset += num_args
+
+    if args_node.vararg:
+        if args_node.varargannotation:
+            result.add(args_node.vararg)
+        elif len(annotations) > annotation_offset and annotations[annotation_offset]:
+            result.add(args_node.vararg)
+            annotation_offset += 1
+
+    if args_node.kwonlyargs:
+        kwonlyargs_annotations = args_node.kwonlyargs_annotations
+        if not any(args_node.kwonlyargs_annotations):
+            num_args = len(args_node.kwonlyargs)
+            kwonlyargs_annotations = annotations[
+                annotation_offset : annotation_offset + num_args
+            ]
+            annotation_offset += num_args
+
+        for arg, annotation in zip(args_node.kwonlyargs, kwonlyargs_annotations):
+            if annotation:
+                result.add(arg.name)
+
+    if args_node.kwarg:
+        if args_node.kwargannotation:
+            result.add(args_node.kwarg)
+        elif len(annotations) > annotation_offset and annotations[annotation_offset]:
+            result.add(args_node.kwarg)
+            annotation_offset += 1
+
+    return result
 
 
 def docstringify(

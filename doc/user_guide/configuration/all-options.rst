@@ -171,7 +171,7 @@ Standard Checkers
 """"""""""""
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
-**Default:**  ``(3, 10)``
+**Default:**  ``(3, 11)``
 
 
 --recursive
@@ -233,7 +233,7 @@ Standard Checkers
 
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
-   disable = ["consider-using-augmented-assign"]
+   disable = ["raw-checker-failed", "bad-inline-option", "locally-disabled", "file-ignored", "suppressed-message", "useless-suppression", "deprecated-pragma", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "consider-using-augmented-assign", "prefer-typing-namedtuple"]
 
    enable = []
 
@@ -271,7 +271,7 @@ Standard Checkers
 
    persistent = true
 
-   py-version = [3, 10]
+   py-version = [3, 11]
 
    recursive = false
 

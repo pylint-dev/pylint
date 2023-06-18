@@ -13,11 +13,10 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
-import sys
 import tokenize
 from functools import reduce
 from re import Match
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from astroid import nodes
 
@@ -31,10 +30,6 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 _KEYWORD_TOKENS = {
     "assert",

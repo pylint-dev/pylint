@@ -20,7 +20,9 @@ def handle_sweets(infos):  # [too-many-locals]
     # Calculate remaining money
     remaining_money = money - cost_of_children
     # Calculate time it took
-    time_it_took_assuming_parallel_eating = time_to_eat_sweet * number_of_sweet_per_child
+    time_it_took_assuming_parallel_eating = (
+        time_to_eat_sweet * number_of_sweet_per_child
+    )
     print(
         f"{children} ate {cost_of_children}¤ of sweets in {time_it_took_assuming_parallel_eating}, "
         f"you still have {remaining_money}"

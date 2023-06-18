@@ -144,7 +144,7 @@ Named = typing.NamedTuple("Named", [("foo", int), ("bar", int)])
 named = Named(1, 2)
 
 
-# NamedTuple is callable, even if it aliased to a attribute
+# NamedTuple is callable, even if it aliased to an attribute
 # See https://github.com/pylint-dev/pylint/issues/1730
 class TestNamedTuple:
     def __init__(self, field: str) -> None:

@@ -1,5 +1,4 @@
 class Animal:
-
     def eat(self, food):
         print(f"Eating {food}")
 

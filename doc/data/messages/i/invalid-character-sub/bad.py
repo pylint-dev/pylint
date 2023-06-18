@@ -1,1 +1,1 @@
-STRING = "Invalid character sub " # [invalid-character-sub]
+STRING = "Invalid character sub "  # [invalid-character-sub]

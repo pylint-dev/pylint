@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -15,18 +14,16 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    Literal,
     NamedTuple,
     Optional,
     Pattern,
+    Protocol,
     Tuple,
     Type,
+    TypedDict,
     Union,
 )
-
-if sys.version_info >= (3, 8):
-    from typing import Literal, Protocol, TypedDict
-else:
-    from typing_extensions import Literal, Protocol, TypedDict
 
 if TYPE_CHECKING:
     from pylint.config.callback_actions import _CallbackAction

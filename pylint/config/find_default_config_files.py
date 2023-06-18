@@ -16,7 +16,28 @@ else:
     import tomli as tomllib
 
 RC_NAMES = (Path("pylintrc"), Path(".pylintrc"))
-CONFIG_NAMES = (*RC_NAMES, Path("pyproject.toml"), Path("setup.cfg"))
+PYPROJECT_NAME = Path("pyproject.toml")
+CONFIG_NAMES = (*RC_NAMES, PYPROJECT_NAME, Path("setup.cfg"))
+
+
+def _find_pyproject() -> Path:
+    """Search for file pyproject.toml in the parent directories recursively.
+
+    It resolves symlinks, so if there is any symlink up in the tree, it does not respect them
+    """
+    current_dir = Path.cwd().resolve()
+    is_root = False
+    while not is_root:
+        if (current_dir / PYPROJECT_NAME).is_file():
+            return current_dir / PYPROJECT_NAME
+        is_root = (
+            current_dir == current_dir.parent
+            or (current_dir / ".git").is_dir()
+            or (current_dir / ".hg").is_dir()
+        )
+        current_dir = current_dir.parent
+
+    return current_dir
 
 
 def _toml_has_config(path: Path | str) -> bool:
@@ -96,6 +117,13 @@ def find_default_config_files() -> Iterator[Path]:
 
     try:
         yield from _find_project_config()
+    except OSError:
+        pass
+
+    try:
+        parent_pyproject = _find_pyproject()
+        if parent_pyproject.is_file() and _toml_has_config(parent_pyproject):
+            yield parent_pyproject.resolve()
     except OSError:
         pass
 

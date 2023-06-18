@@ -7,16 +7,10 @@ from __future__ import annotations
 import argparse
 import configparser
 import shlex
-import sys
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, TypedDict
 
 from pylint.pyreverse.main import DEFAULT_COLOR_PALETTE
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
 
 
 # This class could and should be replaced with a simple dataclass when support for Python < 3.7 is dropped.

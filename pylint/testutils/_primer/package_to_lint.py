@@ -5,17 +5,12 @@
 from __future__ import annotations
 
 import logging
-import sys
 from pathlib import Path
+from typing import Literal
 
 from git import GitCommandError
 from git.cmd import Git
 from git.repo import Repo
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
 

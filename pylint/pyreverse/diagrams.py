@@ -50,7 +50,13 @@ class DiagramEntity(Figure):
     ) -> None:
         super().__init__()
         self.title = title
-        self.node: nodes.NodeNG = node if node else nodes.NodeNG()
+        self.node: nodes.NodeNG = node or nodes.NodeNG(
+            lineno=None,
+            col_offset=None,
+            end_lineno=None,
+            end_col_offset=None,
+            parent=None,
+        )
         self.shape = self.default_shape
 
 

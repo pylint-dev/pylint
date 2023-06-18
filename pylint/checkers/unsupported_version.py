@@ -34,7 +34,7 @@ class UnsupportedVersionChecker(BaseChecker):
             "F-strings are not supported by all versions included in the py-version setting",
             "using-f-string-in-unsupported-version",
             "Used when the py-version set by the user is lower than 3.6 and pylint encounters "
-            "a f-string.",
+            "an f-string.",
         ),
         "W2602": (
             "typing.final is not supported by all versions included in the py-version setting",

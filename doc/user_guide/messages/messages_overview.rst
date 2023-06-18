@@ -91,6 +91,7 @@ All messages in the error category:
    error/invalid-class-object
    error/invalid-enum-extension
    error/invalid-envvar-value
+   error/invalid-field-call
    error/invalid-format-returned
    error/invalid-getnewargs-ex-returned
    error/invalid-getnewargs-returned
@@ -261,6 +262,7 @@ All messages in the warning category:
    warning/invalid-overridden-method
    warning/isinstance-second-argument-not-valid-type
    warning/keyword-arg-before-vararg
+   warning/kwarg-superseded-by-positional-arg
    warning/logging-format-interpolation
    warning/logging-fstring-interpolation
    warning/logging-not-lazy
@@ -390,8 +392,6 @@ All messages in the convention category:
    convention/bad-file-encoding
    convention/bad-mcs-classmethod-argument
    convention/bad-mcs-method-argument
-   convention/compare-to-empty-string
-   convention/compare-to-zero
    convention/consider-iterating-dictionary
    convention/consider-using-any-or-all
    convention/consider-using-dict-items
@@ -433,6 +433,8 @@ All messages in the convention category:
    convention/unnecessary-lambda-assignment
    convention/unneeded-not
    convention/use-implicit-booleaness-not-comparison
+   convention/use-implicit-booleaness-not-comparison-to-string
+   convention/use-implicit-booleaness-not-comparison-to-zero
    convention/use-implicit-booleaness-not-len
    convention/use-maxsplit-arg
    convention/use-sequence-for-iteration
@@ -449,6 +451,8 @@ All renamed messages in the convention category:
    :titlesonly:
 
    convention/blacklisted-name
+   convention/compare-to-empty-string
+   convention/compare-to-zero
    convention/len-as-condition
    convention/missing-docstring
    convention/old-misplaced-comparison-constant
@@ -505,6 +509,7 @@ All messages in the refactor category:
    refactor/no-else-return
    refactor/no-self-use
    refactor/no-staticmethod-decorator
+   refactor/prefer-typing-namedtuple
    refactor/property-with-parameters
    refactor/redefined-argument-from-local
    refactor/redefined-variable-type

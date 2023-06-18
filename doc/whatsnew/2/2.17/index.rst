@@ -29,6 +29,95 @@ so we find problems before the actual release.
 
 .. towncrier release notes start
 
+What's new in Pylint 2.17.4?
+----------------------------
+Release date: 2023-05-06
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for ``bad-dunder-name`` when there is a user-defined
+  ``__index__`` method.
+
+  Closes #8613 (`#8613 <https://github.com/PyCQA/pylint/issues/8613>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- ``pyreverse``: added escaping of vertical bar character in annotation labels
+  produced by DOT printer to ensure it is not treated as field separator of
+  record-based nodes.
+
+  Closes #8603 (`#8603 <https://github.com/PyCQA/pylint/issues/8603>`_)
+
+- Fixed a crash when generating a configuration file:
+  ``tomlkit.exceptions.TOMLKitError: Can't add a table to a dotted key``
+  caused by tomlkit ``v0.11.8``.
+
+  Closes #8632 (`#8632 <https://github.com/PyCQA/pylint/issues/8632>`_)
+
+
+What's new in Pylint 2.17.3?
+----------------------------
+Release date: 2023-04-24
+
+
+False Positives Fixed
+---------------------
+
+- Fix `unused-argument` false positive when `__new__` does not use all the
+  arguments of `__init__`.
+
+  Closes #3670 (`#3670 <https://github.com/PyCQA/pylint/issues/3670>`_)
+
+- Fix ``unused-import`` false positive for usage of ``six.with_metaclass``.
+
+  Closes #7506 (`#7506 <https://github.com/PyCQA/pylint/issues/7506>`_)
+
+- `logging-not-lazy` is not longer emitted for explicitly concatenated string
+  arguments.
+
+  Closes #8410 (`#8410 <https://github.com/PyCQA/pylint/issues/8410>`_)
+
+- Fix false positive for isinstance-second-argument-not-valid-type when union
+  types contains None.
+
+  Closes #8424 (`#8424 <https://github.com/PyCQA/pylint/issues/8424>`_)
+
+- Fixed `unused-import` so that it observes the `dummy-variables-rgx` option.
+
+  Closes #8500 (`#8500 <https://github.com/PyCQA/pylint/issues/8500>`_)
+
+- `Union` typed variables without assignment are no longer treated as
+  `TypeAlias`.
+
+  Closes #8540 (`#8540 <https://github.com/PyCQA/pylint/issues/8540>`_)
+
+- Fix false positive for ``positional-only-arguments-expected`` when a function
+  contains both a positional-only parameter that has a default value, and
+  ``**kwargs``.
+
+  Closes #8555 (`#8555 <https://github.com/PyCQA/pylint/issues/8555>`_)
+
+- Fix false positive for ``keyword-arg-before-vararg`` when a positional-only
+  parameter with a default value precedes ``*args``.
+
+  Closes #8570 (`#8570 <https://github.com/PyCQA/pylint/issues/8570>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Improve output of ``consider-using-generator`` message for ``min()` calls
+  with ``default`` keyword.
+
+  Closes #8563 (`#8563 <https://github.com/PyCQA/pylint/issues/8563>`_)
+
+
 What's new in Pylint 2.17.2?
 ----------------------------
 Release date: 2023-04-03
