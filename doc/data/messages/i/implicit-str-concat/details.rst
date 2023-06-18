@@ -24,3 +24,16 @@ for string parameters passed on multiple lines in function calls:
         DeprecationWarning,
         stacklevel=3,
     )
+
+No message will be emitted, though, if you clarify the wanted concatenation with parentheses::
+
+.. code-block:: python
+
+    warnings.warn(
+        (
+            "rotate() is deprecated and will be removed in a future release. "
+            "Use the rotation() context manager instead."
+        ),
+        DeprecationWarning,
+        stacklevel=3,
+    )
