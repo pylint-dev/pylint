@@ -40,7 +40,7 @@ Below you can find tutorials for some of the most common ones.
 .. _Sublime Text: https://packagecontrol.io/packages/SublimeLinter-pylint
 .. _Vim: https://www.vim.org/scripts/script.php?script_id=891
 .. _Visual Studio: https://docs.microsoft.com/visualstudio/python/code-pylint
-.. _Visual Studio Code: https://code.visualstudio.com/docs/python/linting#_pylint
+.. _Visual Studio Code: https://code.visualstudio.com/docs/python/linting
 .. _Visual Studio Code Pylint Extension: https://marketplace.visualstudio.com/items?itemName=ms-python.pylint
 .. _WingIDE: https://wingware.com/doc/warnings/external-checkers
 
