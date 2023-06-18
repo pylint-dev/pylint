@@ -4,10 +4,13 @@ with accept-no-param-doc = no
 Styleguide:
 https://google.github.io/styleguide/pyguide.html#doc-function-args
 """
+
 # pylint: disable=invalid-name, unused-argument, undefined-variable
 # pylint: disable=line-too-long, too-few-public-methods, missing-class-docstring
 # pylint: disable=missing-function-docstring, function-redefined, inconsistent-return-statements
 # pylint: disable=dangerous-default-value, too-many-arguments
+
+from __future__ import annotations
 
 
 def test_multi_line_parameters(param: int) -> None:
@@ -313,6 +316,20 @@ def test_finds_args_without_type_google(named_arg, *args):
 
 
 def test_finds_kwargs_without_type_google(named_arg, **kwargs):
+    """The docstring
+
+    Args:
+        named_arg (object): Returned
+        **kwargs: Keyword arguments
+
+    Returns:
+        object or None: Maybe named_arg
+    """
+    if kwargs:
+        return named_arg
+
+
+def test_finds_kwargs_without_type_google(named_arg, **kwargs: dict[str, str]):
     """The docstring
 
     Args:

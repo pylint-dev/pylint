@@ -1998,16 +1998,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             next_sibling = next_sibling.next_sibling()
         return False
 
-    def _is_function_def_never_returning(self, node: nodes.FunctionDef) -> bool:
+    def _is_function_def_never_returning(
+        self, node: nodes.FunctionDef | astroid.BoundMethod
+    ) -> bool:
         """Return True if the function never returns, False otherwise.
 
         Args:
-            node (nodes.FunctionDef): function definition node to be analyzed.
+            node (nodes.FunctionDef or astroid.BoundMethod): function definition node to be analyzed.
 
         Returns:
             bool: True if the function never returns, False otherwise.
         """
-        if isinstance(node, nodes.FunctionDef) and node.returns:
+        if isinstance(node, (nodes.FunctionDef, astroid.BoundMethod)) and node.returns:
             return (
                 isinstance(node.returns, nodes.Attribute)
                 and node.returns.attrname == "NoReturn"
@@ -2201,12 +2203,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             return
 
+        preliminary_confidence = HIGH
         try:
             iterable_arg = utils.get_argument_from_call(
                 node.iter, position=0, keyword="iterable"
             )
         except utils.NoSuchArgumentError:
-            return
+            iterable_arg = utils.infer_kwarg_from_call(node.iter, keyword="iterable")
+            preliminary_confidence = INFERENCE
 
         if not isinstance(iterable_arg, nodes.Name):
             return
@@ -2225,6 +2229,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # enumerate is being called with start arg/kwarg so resulting index lookup
             # is not redundant, hence we should not report an error.
             return
+
+        # Preserve preliminary_confidence if it was INFERENCE
+        confidence = (
+            preliminary_confidence
+            if preliminary_confidence == INFERENCE
+            else confidence
+        )
 
         iterating_object_name = iterable_arg.name
         value_variable = node.target.elts[1]

@@ -119,6 +119,13 @@ class MyClass2:
             tmp = self.attribute.copy()
             tmp[key] = None
 
+
+def my_call():
+    """Regression test for https://github.com/pylint-dev/pylint/issues/7461"""
+    for var in {}.copy():
+        del var  # [modified-iterating-dict]
+
+
 class MyEnum(Enum):
     FOO = 1
     BAR = 2

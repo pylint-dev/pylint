@@ -1,0 +1,5 @@
+``--jobs`` can now be used with ``--load-plugins``.
+
+This had regressed in astroid 2.5.0.
+
+Closes #4874

@@ -24,18 +24,20 @@ permissions:
 
 jobs:
   run-primer:
-    name: Run / ${{ matrix.python-version }}
+    name: Run / ${{ matrix.python-version }} / batch index ${{ matrix.batchIdx }}
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 45
     strategy:
       matrix:
         python-version: ["3.8", "3.11"]
+        batches: [4]
+        batchIdx: [0, 1, 2, 3]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.6.0
+        uses: actions/setup-python@v4.6.1
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -91,7 +93,10 @@ jobs:
         run: |
           . venv/bin/activate
           pip install -e .
-          python tests/primer/__main__.py run --type=main 2>warnings.txt
+          python tests/primer/__main__.py run --type=main --batches=${{ matrix.batches }} --batchIdx=${{ matrix.batchIdx }} 2>warnings.txt
+      - name: Echo warnings
+        if: success() || failure()
+        run: |
           WARNINGS=$(head -c 65000 < warnings.txt)
           if [[ $WARNINGS ]]
           then echo "::warning ::$WARNINGS"
@@ -102,4 +107,4 @@ jobs:
           name: primer_output
           path: >-
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
-            }}_main.txt
+            }}_main_batch${{ matrix.batchIdx }}.txt

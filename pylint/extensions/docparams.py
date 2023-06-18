@@ -348,7 +348,7 @@ class DocstringParameterChecker(BaseChecker):
         if not (doc.has_returns() or (doc.has_property_returns() and is_property)):
             self.add_message("missing-return-doc", node=func_node, confidence=HIGH)
 
-        if func_node.returns:
+        if func_node.returns or func_node.type_comment_returns:
             return
 
         if not (doc.has_rtype() or (doc.has_property_type() and is_property)):
@@ -379,7 +379,9 @@ class DocstringParameterChecker(BaseChecker):
         if not doc_has_yields:
             self.add_message("missing-yield-doc", node=func_node, confidence=HIGH)
 
-        if not (doc_has_yields_type or func_node.returns):
+        if not (
+            doc_has_yields_type or func_node.returns or func_node.type_comment_returns
+        ):
             self.add_message("missing-yield-type-doc", node=func_node, confidence=HIGH)
 
     visit_yieldfrom = visit_yield
@@ -540,8 +542,9 @@ class DocstringParameterChecker(BaseChecker):
 
         # Collect the function arguments.
         expected_argument_names = {arg.name for arg in arguments_node.args}
-        expected_argument_names.update(arg.name for arg in arguments_node.kwonlyargs)
-        expected_argument_names.update(arg.name for arg in arguments_node.posonlyargs)
+        expected_argument_names.update(
+            a.name for a in arguments_node.posonlyargs + arguments_node.kwonlyargs
+        )
         not_needed_type_in_docstring = self.not_needed_param_in_docstring.copy()
 
         expected_but_ignored_argument_names = set()
@@ -564,7 +567,7 @@ class DocstringParameterChecker(BaseChecker):
         if not params_with_doc and not params_with_type and accept_no_param_doc:
             tolerate_missing_params = True
 
-        # This is before the update of param_with_type because this must check only
+        # This is before the update of params_with_type because this must check only
         # the type documented in a docstring, not the one using pep484
         # See #4117 and #4593
         self._compare_ignored_args(
@@ -573,15 +576,7 @@ class DocstringParameterChecker(BaseChecker):
             expected_but_ignored_argument_names,
             warning_node,
         )
-        for index, arg_name in enumerate(arguments_node.args):
-            if arguments_node.annotations[index]:
-                params_with_type.add(arg_name.name)
-        for index, arg_name in enumerate(arguments_node.kwonlyargs):
-            if arguments_node.kwonlyargs_annotations[index]:
-                params_with_type.add(arg_name.name)
-        for index, arg_name in enumerate(arguments_node.posonlyargs):
-            if arguments_node.posonlyargs_annotations[index]:
-                params_with_type.add(arg_name.name)
+        params_with_type |= utils.args_with_annotation(arguments_node)
 
         if not tolerate_missing_params:
             missing_param_doc = (expected_argument_names - params_with_doc) - (

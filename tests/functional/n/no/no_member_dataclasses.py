@@ -1,6 +1,6 @@
 """Test various regressions for dataclasses and no-member."""
 
-# pylint: disable=missing-docstring, too-few-public-methods
+# pylint: disable=missing-docstring, too-few-public-methods, invalid-field-call
 
 # Disabled because of a bug with pypy 3.8 see
 # https://github.com/pylint-dev/pylint/pull/7918#issuecomment-1352737369
