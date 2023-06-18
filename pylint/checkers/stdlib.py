@@ -511,14 +511,23 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             self.add_message("subprocess-run-check", node=node, confidence=INFERENCE)
 
     def _check_shallow_copy_environ(self, node: nodes.Call) -> None:
-        arg = utils.get_argument_from_call(node, position=0)
+        confidence = HIGH
+        try:
+            arg = utils.get_argument_from_call(node, position=0, keyword="x")
+        except utils.NoSuchArgumentError:
+            arg = utils.infer_kwarg_from_call(node, keyword="x")
+            if not arg:
+                return
+            confidence = INFERENCE
         try:
             inferred_args = arg.inferred()
         except astroid.InferenceError:
             return
         for inferred in inferred_args:
             if inferred.qname() == OS_ENVIRON:
-                self.add_message("shallow-copy-environ", node=node)
+                self.add_message(
+                    "shallow-copy-environ", node=node, confidence=confidence
+                )
                 break
 
     @utils.only_required_for_messages(
