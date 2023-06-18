@@ -1363,9 +1363,9 @@ def safe_infer(
             if (
                 isinstance(inferred, nodes.FunctionDef)
                 and isinstance(value, nodes.FunctionDef)
-                and inferred.args.format_args() != value.args.format_args()
+                and inferred.argnames() != value.argnames()
             ):
-                return None  # Different arguments indicates ambiguity
+                return None  # Different argument names indicate ambiguity
     except astroid.InferenceError:
         return None  # There is some kind of ambiguity
     except StopIteration:
