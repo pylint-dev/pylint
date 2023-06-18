@@ -136,3 +136,21 @@ def ambiguous_func3(arg1=None):
 
 func2 = ambiguous_func1 if unknown else ambiguous_func3
 func2()
+
+
+def ambiguous_func4(arg1=print):
+    print(arg1)
+
+
+def ambiguous_func5(arg1=input):
+    print(arg1)
+
+
+# Two functions with same keyword argument but different defaults (names)
+func6 = ambiguous_func4 if unknown else ambiguous_func5
+func6()
+
+
+# Two functions with same keyword argument but mixed defaults (names, constant)
+func7 = ambiguous_func3 if unknown else ambiguous_func5
+func7()
