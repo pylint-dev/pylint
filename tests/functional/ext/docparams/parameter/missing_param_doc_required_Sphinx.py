@@ -1,8 +1,11 @@
 """Tests for missing-param-doc and missing-type-doc for Sphinx style docstrings
 with accept-no-param-doc = no"""
+
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-class-docstring
 # pylint: disable=unused-argument, too-few-public-methods, unnecessary-pass, line-too-long
 # pylint: disable=missing-function-docstring, disallowed-name
+
+from __future__ import annotations
 
 
 def test_missing_func_params_in_sphinx_docstring(  # [missing-param-doc, missing-type-doc]
@@ -168,6 +171,21 @@ def test_warns_missing_args_sphinx(  # [missing-param-doc, inconsistent-return-s
 
 def test_warns_missing_kwargs_sphinx(  # [missing-param-doc, inconsistent-return-statements]
     named_arg, **kwargs
+):
+    """The docstring
+
+    :param named_arg: Returned
+    :type named_arg: object
+
+    :returns: Maybe named_arg
+    :rtype: object or None
+    """
+    if kwargs:
+        return named_arg
+
+
+def test_warns_typed_kwargs_sphinx(  # [missing-param-doc, inconsistent-return-statements]
+    named_arg, **kwargs: dict[str, str]
 ):
     """The docstring
 

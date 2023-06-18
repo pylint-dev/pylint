@@ -233,7 +233,6 @@ class TestRunTC:
                 join(HERE, "functional", "a", "arguments.py"),
             ],
             out=out,
-            # We expect similarities to fail and an error
             code=MSG_TYPES_STATUS["E"],
         )
         assert (

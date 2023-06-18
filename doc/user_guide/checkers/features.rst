@@ -389,6 +389,18 @@ Classes checker Messages
   an unexpected reason. Please report this kind if you don't make sense of it.
 
 
+Dataclass checker
+~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``dataclass``.
+
+Dataclass checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+:invalid-field-call (E3701): *Invalid usage of field(), %s*
+  The dataclasses.field() specifier should only be used as the value of an
+  assignment within a dataclass, or within the make_dataclass() function.
+
+
 Design checker
 ~~~~~~~~~~~~~~
 
@@ -1225,6 +1237,10 @@ Typecheck checker Messages
 :unsubscriptable-object (E1136): *Value '%s' is unsubscriptable*
   Emitted when a subscripted value doesn't support subscription (i.e. doesn't
   define __getitem__ method or __class_getitem__ for a class).
+:kwarg-superseded-by-positional-arg (W1117): *%r will be included in %r since a positional-only parameter with this name already exists*
+  Emitted when a function is called with a keyword argument that has the same
+  name as a positional-only parameter and the function contains a keyword
+  variadic parameter dict.
 :keyword-arg-before-vararg (W1113): *Keyword argument before variable positional arguments list in the definition of %s function*
   When defining a keyword argument before variable positional arguments, one
   can end up in having multiple values passed for the aforementioned parameter

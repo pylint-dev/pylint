@@ -1,0 +1,3 @@
+Fixed crash when a call to ``super()`` was placed after an operator (e.g. ``not``).
+
+Closes #8554

@@ -21,6 +21,7 @@ async
 asynccontextmanager
 attr
 attrib
+attrname
 backport
 BaseChecker
 basename
@@ -72,6 +73,7 @@ CVE
 cwd
 cyclomatic
 dataclass
+dataclasses
 datetime
 debian
 deduplication

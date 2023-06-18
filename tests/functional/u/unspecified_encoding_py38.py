@@ -162,3 +162,35 @@ open(FILENAME, mode=None)  # [bad-open-mode, unspecified-encoding]
 
 # Test for crash reported in https://github.com/pylint-dev/pylint/issues/6414
 open('foo', mode=2)  # [bad-open-mode, unspecified-encoding]
+
+# Infer kwargs
+KWARGS = {"mode": "rb"}
+open(FILENAME, **KWARGS)
+
+KWARGS = {"mode": "w", "encoding": "utf-8"}
+open(FILENAME, **KWARGS)
+io.open(FILENAME, **KWARGS)
+Path(FILENAME).open(**KWARGS)
+
+KWARGS = {"mode": 5}
+open(FILENAME, **KWARGS)  # [bad-open-mode, unspecified-encoding]
+io.open(FILENAME, **KWARGS)  # [bad-open-mode, unspecified-encoding]
+
+KWARGS = {"mode": "wt", "encoding": None}
+with open(FILENAME, **KWARGS) as fd:  # [unspecified-encoding]
+    pass
+
+Path(FILENAME).open(**KWARGS)  # [unspecified-encoding]
+
+KWARGS = {"encoding": None}
+Path(FILENAME).write_text("hello", **KWARGS)  # [unspecified-encoding]
+
+KWARGS = {"encoding": "utf-8"}
+Path(FILENAME).write_text("goodbye", **KWARGS)
+
+# No one does it this way, but it is a possibility
+KWARGS = {"encoding": None}
+Path(FILENAME).read_text(**KWARGS)  # [unspecified-encoding]
+
+KWARGS = {"encoding": "utf-8"}
+Path(FILENAME).read_text(**KWARGS)

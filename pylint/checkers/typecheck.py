@@ -399,6 +399,13 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "isinstance-second-argument-not-valid-type",
         "Emitted when the second argument of an isinstance call is not a type.",
     ),
+    "W1117": (
+        "%r will be included in %r since a positional-only parameter with this name already exists",
+        "kwarg-superseded-by-positional-arg",
+        "Emitted when a function is called with a keyword argument that has the "
+        "same name as a positional-only parameter and the function contains a "
+        "keyword variadic parameter dict.",
+    ),
 }
 
 # builtin sequence types in Python 2 and 3.
@@ -740,7 +747,10 @@ def _no_context_variadic(
 
 
 def _is_invalid_metaclass(metaclass: nodes.ClassDef) -> bool:
-    mro = metaclass.mro()
+    try:
+        mro = metaclass.mro()
+    except (astroid.DuplicateBasesError, astroid.InconsistentMroError):
+        return True
     return not any(is_builtin_object(cls) and cls.name == "type" for cls in mro)
 
 
@@ -768,7 +778,9 @@ def _infer_from_metaclass_constructor(
     class_bases = nodes.List()
     class_bases.postinit(elts=cls.bases)
 
-    attrs = nodes.Dict()
+    attrs = nodes.Dict(
+        lineno=0, col_offset=0, parent=None, end_lineno=0, end_col_offset=0
+    )
     local_names = [(name, values[-1]) for name, values in cls.locals.items()]
     attrs.postinit(local_names)
 
@@ -1548,6 +1560,18 @@ accessed. Python regular expressions are accepted.",
 
         # 2. Match the keyword arguments.
         for keyword in keyword_args:
+            # Skip if `keyword` is the same name as a positional-only parameter
+            # and a `**kwargs` parameter exists.
+            if called.args.kwarg and keyword in [
+                arg.name for arg in called.args.posonlyargs
+            ]:
+                self.add_message(
+                    "kwarg-superseded-by-positional-arg",
+                    node=node,
+                    args=(keyword, f"**{called.args.kwarg}"),
+                    confidence=HIGH,
+                )
+                continue
             if keyword in parameter_name_to_index:
                 i = parameter_name_to_index[keyword]
                 if parameters[i][1]:
@@ -1564,11 +1588,6 @@ accessed. Python regular expressions are accepted.",
                             node=node,
                             args=(keyword, callable_name),
                         )
-                elif (
-                    keyword in [arg.name for arg in called.args.posonlyargs]
-                    and called.args.kwarg
-                ):
-                    pass
                 else:
                     parameters[i] = (parameters[i][0], True)
             elif keyword in kwparams:

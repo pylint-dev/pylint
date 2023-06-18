@@ -29,6 +29,37 @@ so we find problems before the actual release.
 
 .. towncrier release notes start
 
+What's new in Pylint 2.17.4?
+----------------------------
+Release date: 2023-05-06
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for ``bad-dunder-name`` when there is a user-defined
+  ``__index__`` method.
+
+  Closes #8613 (`#8613 <https://github.com/PyCQA/pylint/issues/8613>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- ``pyreverse``: added escaping of vertical bar character in annotation labels
+  produced by DOT printer to ensure it is not treated as field separator of
+  record-based nodes.
+
+  Closes #8603 (`#8603 <https://github.com/PyCQA/pylint/issues/8603>`_)
+
+- Fixed a crash when generating a configuration file:
+  ``tomlkit.exceptions.TOMLKitError: Can't add a table to a dotted key``
+  caused by tomlkit ``v0.11.8``.
+
+  Closes #8632 (`#8632 <https://github.com/PyCQA/pylint/issues/8632>`_)
+
+
 What's new in Pylint 2.17.3?
 ----------------------------
 Release date: 2023-04-24
