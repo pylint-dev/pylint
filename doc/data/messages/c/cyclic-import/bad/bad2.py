@@ -1,4 +1,4 @@
-from .bad import count_to_one
+from .bad import count_to_one  # [cyclic-import]
 
 
 def count_to_two():
