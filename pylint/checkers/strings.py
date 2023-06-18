@@ -746,7 +746,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                 self.string_tokens[start] = (str_eval(token), next_token)
                 is_parenthesized = self._is_initial_string_token(
                     i, tokens
-                ) and self._is_parenthesised(i, tokens)
+                ) and self._is_parenthesized(i, tokens)
                 self._parenthesized_string_tokens[start] = is_parenthesized
 
         if self.linter.config.check_quote_consistency:
@@ -763,7 +763,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         next_token = self._find_next_token(index, tokens)
         return bool(next_token and next_token.type == tokenize.STRING)
 
-    def _is_parenthesised(self, index: int, tokens: list[tokenize.TokenInfo]) -> bool:
+    def _is_parenthesized(self, index: int, tokens: list[tokenize.TokenInfo]) -> bool:
         prev_token = self._find_prev_token(
             index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
         )
@@ -880,7 +880,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             ):
                 if next_token.start[0] == elt.lineno or (
                     self.linter.config.check_str_concat_over_line_jumps
-                    # Allow implicitly concatenated strings in in parens.
+                    # Allow implicitly concatenated strings in parens.
                     # See https://github.com/pylint-dev/pylint/issues/8552.
                     and not self._parenthesized_string_tokens.get(
                         (elt.lineno, elt.col_offset)
