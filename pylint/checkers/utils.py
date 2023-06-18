@@ -1382,9 +1382,9 @@ def safe_infer(
             if (
                 isinstance(inferred, nodes.FunctionDef)
                 and isinstance(value, nodes.FunctionDef)
-                and inferred.argnames() != value.argnames()
+                and function_arguments_are_ambiguous(inferred, value)
             ):
-                return None  # Different argument names indicate ambiguity
+                return None
     except astroid.InferenceError:
         return None  # There is some kind of ambiguity
     except StopIteration:
@@ -1404,6 +1404,25 @@ def infer_all(
         return []
     except Exception as e:  # pragma: no cover
         raise AstroidError from e
+
+
+def function_arguments_are_ambiguous(
+    func1: nodes.FunctionDef, func2: nodes.FunctionDef
+) -> bool:
+    if func1.argnames() != func2.argnames():
+        return True
+    if func1.args.args is not None and func2.args.args is not None:
+        # Check ambiguity among function default values
+        for default1, default2 in zip(func1.args.defaults, func1.args.defaults):
+            if isinstance(default1, nodes.Const) and isinstance(default2, nodes.Const):
+                if default1.value != default2.value:
+                    return True
+            elif isinstance(default1, nodes.Name) and isinstance(default2, nodes.Name):
+                if default1.name != default2.name:
+                    return True
+            else:
+                return True
+    return False
 
 
 def has_known_bases(
