@@ -1413,15 +1413,26 @@ def function_arguments_are_ambiguous(
         return True
     if func1.args.args is not None and func2.args.args is not None:
         # Check ambiguity among function default values
-        for default1, default2 in zip(func1.args.defaults, func1.args.defaults):
-            if isinstance(default1, nodes.Const) and isinstance(default2, nodes.Const):
-                if default1.value != default2.value:
-                    return True
-            elif isinstance(default1, nodes.Name) and isinstance(default2, nodes.Name):
-                if default1.name != default2.name:
-                    return True
-            else:
+        pairs_of_defaults = [
+            (func1.args.defaults, func2.args.defaults),
+            (func1.args.kw_defaults, func2.args.kw_defaults),
+        ]
+        for zippable_default in pairs_of_defaults:
+            if len(zippable_default[0]) != len(zippable_default[1]):
                 return True
+            for default1, default2 in zip(*zippable_default):
+                if isinstance(default1, nodes.Const) and isinstance(
+                    default2, nodes.Const
+                ):
+                    if default1.value != default2.value:
+                        return True
+                elif isinstance(default1, nodes.Name) and isinstance(
+                    default2, nodes.Name
+                ):
+                    if default1.name != default2.name:
+                        return True
+                else:
+                    return True
     return False
 
 
