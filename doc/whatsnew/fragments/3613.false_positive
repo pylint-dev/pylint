@@ -1,0 +1,6 @@
+Extend concept of "function ambiguity" in ``safe_infer()`` from
+differing number of function arguments to differing set of argument names.
+
+Solves false positives in ``tensorflow``.
+
+Closes #3613
