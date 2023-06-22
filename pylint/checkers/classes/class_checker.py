@@ -55,6 +55,7 @@ else:
 _AccessNodes = Union[nodes.Attribute, nodes.AssignAttr]
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
+ALLOWED_PROPERTIES = {"bultins.property", "functools.cached_property"}
 BUILTIN_DECORATORS = {"builtins.property", "builtins.classmethod"}
 ASTROID_TYPE_COMPARATORS = {
     nodes.Const: lambda a, b: a.value == b.value,
@@ -1251,9 +1252,13 @@ a metaclass class method.",
                     # attribute affectation will call this method, not hiding it
                     return
                 if isinstance(decorator, nodes.Name):
-                    if decorator.name == "property":
+                    if decorator.name in ALLOWED_PROPERTIES:
                         # attribute affectation will either call a setter or raise
                         # an attribute error, anyway not hiding the function
+                        return
+
+                if isinstance(decorator, nodes.Attribute):
+                    if self._check_functools_or_not(decorator):
                         return
 
                 # Infer the decorator and see if it returns something useful
@@ -1452,6 +1457,24 @@ a metaclass class method.",
                 args=(function_node.name, parent_function_node.parent.frame().name),
                 node=function_node,
             )
+
+    def _check_functools_or_not(self, decorator: nodes.Attribute) -> bool:
+        if decorator.attrname != "cached_property":
+            return False
+
+        if not isinstance(decorator.expr, nodes.Name):
+            return False
+
+        _, import_nodes = decorator.expr.lookup(decorator.expr.name)
+
+        if not import_nodes:
+            return False
+        import_node = import_nodes[0]
+
+        if not isinstance(import_node, (astroid.Import, astroid.ImportFrom)):
+            return False
+
+        return "functools" in dict(import_node.names)
 
     def _check_slots(self, node: nodes.ClassDef) -> None:
         if "__slots__" not in node.locals:
