@@ -110,6 +110,7 @@ class Parent:
     def __init__(self):
         self._protected = None
         self._protected_two = None
+        self._protected_three = None
 
 
 class Child(Parent):
@@ -124,6 +125,10 @@ class CachedChild(Parent):
 
     @functools.cached_property
     def _protected_two(self):
+        pass
+
+    @functools().cached_property
+    def _protected_three(self):
         pass
 
 
