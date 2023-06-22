@@ -1,3 +1,0 @@
-method-hidden:20:4:20:12:Cdef.abcd:An attribute defined in functional.m.method_hidden_py39 line 14 hides this method:UNDEFINED
-method-hidden:88:4:88:11:One.one:An attribute defined in functional.m.method_hidden_py39 line 86 hides this method:UNDEFINED
-method-hidden:117:4:117:18:Child._protected:An attribute defined in functional.m.method_hidden_py39 line 111 hides this method:UNDEFINED

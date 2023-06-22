@@ -1,10 +1,9 @@
 # pylint: disable=too-few-public-methods,missing-docstring
 # pylint: disable=unused-private-member
-# pylint: disable=import-error
 """check method hiding ancestor attribute
 """
 import functools as ft
-import something_else as functools
+import something_else as functools  # pylint: disable=import-error
 
 
 class Abcd:
