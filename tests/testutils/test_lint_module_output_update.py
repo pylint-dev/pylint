@@ -35,15 +35,6 @@ def lint_module_fixture(
     return inner
 
 
-@pytest.mark.skipif(PY38_PLUS, reason="Requires python 3.7 or lower")
-def test_not_py38(tmp_path: Path) -> None:
-    with pytest.raises(RuntimeError, match="new AST parser"):
-        LintModuleOutputUpdate(
-            test_file=FunctionalTestFile(str(tmp_path), str(tmp_path / "filename.py"))
-        )
-
-
-@pytest.mark.skipif(not PY38_PLUS, reason="Requires python 3.8 or superior")
 def test_lint_module_output_update_fail_before(
     lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
 ) -> None:
@@ -56,7 +47,6 @@ def test_lint_module_output_update_fail_before(
     assert not expected_output_file.exists()
 
 
-@pytest.mark.skipif(not PY38_PLUS, reason="Requires python 3.8 or superior")
 def test_lint_module_output_update_effective(
     lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
 ) -> None:
@@ -71,7 +61,6 @@ def test_lint_module_output_update_effective(
     )
 
 
-@pytest.mark.skipif(not PY38_PLUS, reason="Requires python 3.8 or superior")
 def test_lint_module_output_update_remove_useless_txt(
     lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
 ) -> None:
