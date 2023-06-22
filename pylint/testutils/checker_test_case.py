@@ -10,7 +10,7 @@ from typing import Any
 
 from astroid import nodes
 
-from pylint.constants import IS_PYPY, PY38_PLUS, PY39_PLUS
+from pylint.constants import IS_PYPY, PY39_PLUS
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import MessageTest
 from pylint.testutils.unittest_linter import UnittestLinter
@@ -76,7 +76,7 @@ class CheckerTestCase:
 
             assert expected_msg.line == gotten_msg.line, msg
             assert expected_msg.col_offset == gotten_msg.col_offset, msg
-            if PY38_PLUS and not IS_PYPY or PY39_PLUS:
+            if not IS_PYPY or PY39_PLUS:
                 assert expected_msg.end_line == gotten_msg.end_line, msg
                 assert expected_msg.end_col_offset == gotten_msg.end_col_offset, msg
 

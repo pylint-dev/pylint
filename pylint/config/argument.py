@@ -21,7 +21,6 @@ from pylint import interfaces
 from pylint import utils as pylint_utils
 from pylint.config.callback_actions import _CallbackAction
 from pylint.config.deprecation_actions import _NewNamesAction, _OldNamesAction
-from pylint.constants import PY38_PLUS
 
 _ArgumentTypes = Union[
     str,

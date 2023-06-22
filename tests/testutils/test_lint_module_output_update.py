@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from pylint.constants import IS_PYPY, PY38_PLUS, PY39_PLUS
+from pylint.constants import IS_PYPY, PY39_PLUS
 from pylint.testutils import FunctionalTestFile, LintModuleTest
 from pylint.testutils.functional import LintModuleOutputUpdate
 
@@ -73,7 +73,7 @@ def test_lint_module_output_update_remove_useless_txt(
 
 
 @pytest.mark.skipif(
-    not PY38_PLUS or (IS_PYPY and not PY39_PLUS),
+    IS_PYPY and not PY39_PLUS,
     reason="Requires accurate 'end_col' value to update output",
 )
 @pytest.mark.parametrize(
