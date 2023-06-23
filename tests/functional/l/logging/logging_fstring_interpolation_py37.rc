@@ -1,5 +1,4 @@
 [testoptions]
-min_pyver=3.7
 exclude_from_minimal_messages_config=true
 
 [LOGGING]
