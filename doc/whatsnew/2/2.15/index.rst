@@ -383,9 +383,6 @@ Release date: 2022-09-07
 - Fix false positive for ``too-many-function-args`` when a function call is assigned to a class attribute inside the class where the function is defined.
 
   Closes #6592 (`#6592 <https://github.com/pylint-dev/pylint/issues/6592>`_)
-- Fix ``used-before-assignment`` for functions/classes defined in type checking guard.
-
-  Closes #7368 (`#7368 <https://github.com/pylint-dev/pylint/issues/7368>`_)
 - Fix ignored files being linted when passed on stdin.
 
   Closes #4354 (`#4354 <https://github.com/pylint-dev/pylint/issues/4354>`_)

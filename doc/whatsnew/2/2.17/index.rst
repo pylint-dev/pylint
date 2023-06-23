@@ -112,7 +112,7 @@ False Positives Fixed
 Other Bug Fixes
 ---------------
 
-- Improve output of ``consider-using-generator`` message for ``min()` calls
+- Improve output of ``consider-using-generator`` message for ``min()`` calls
   with ``default`` keyword.
 
   Closes #8563 (`#8563 <https://github.com/PyCQA/pylint/issues/8563>`_)
