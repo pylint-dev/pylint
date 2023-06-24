@@ -638,6 +638,14 @@ scope_type : {self._atomic.scope_type}
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
+
+        # Filter out assignments which may not happen
+        if found_nodes:
+            uncertain_nodes = self._uncertain_nodes_2(found_nodes, node)
+            self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_set = set(uncertain_nodes)
+            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
+
         # Filter out assignments in ExceptHandlers that node is not contained in
         if found_nodes:
             found_nodes = [
@@ -782,6 +790,8 @@ scope_type : {self._atomic.scope_type}
             else:
                 continue
 
+            # TODO: doc 
+            # Get all "If" ancestors of other node which node are not parents of node
             all_if = [
                 n
                 for n in other_node.node_ancestors()
@@ -796,6 +806,8 @@ scope_type : {self._atomic.scope_type}
                 and node.frame() is not closest_if.frame()
             ):
                 continue
+
+            # TODO: THIS IS REDUNDANT???
             if closest_if.parent_of(node):
                 continue
 
@@ -805,6 +817,57 @@ scope_type : {self._atomic.scope_type}
 
             # Name defined in the if/else control flow
             if NamesConsumer._inferred_to_define_name_raise_or_return(name, outer_if):
+                continue
+
+            uncertain_nodes.append(other_node)
+
+        return uncertain_nodes
+    
+    def _uncertain_nodes_2(
+        self, found_nodes: list[nodes.NodeNG], node: nodes.NodeNG
+    ) -> list[nodes.NodeNG]:
+        """Identify nodes of uncertain execution because they are defined under
+        tests that evaluate false.
+
+        Don't identify a node if there is a path that is inferred to
+        define the name, raise, or return (e.g. any executed if/elif/else branch).
+        """
+        uncertain_nodes = []
+        for other_node in found_nodes:
+            if isinstance(other_node, nodes.AssignName):
+                name = other_node.name
+            elif isinstance(other_node, (nodes.Import, nodes.ImportFrom)):
+                name = node.name
+            else:
+                continue
+
+            # Get all "If" ancestors of other node which node are not parents of node
+            all_if = [
+                n
+                for n in other_node.node_ancestors()
+                if isinstance(n, nodes.If) and not n.parent_of(node)
+            ]
+            if not all_if:
+                continue
+
+            # TODO: are these things needed?
+            closest_if = all_if[0]
+            if (
+                isinstance(node, nodes.AssignName)
+                and node.frame() is not closest_if.frame()
+            ):
+                continue
+
+            # THIS IS REDUNDANT???
+            if closest_if.parent_of(node):
+                continue
+
+            outer_if = all_if[-1]
+            if NamesConsumer._node_guarded_by_same_test(node, outer_if):
+                continue
+
+            # TODO: think about this, do really all of the elses need to define it?
+            if all(NamesConsumer._branch_handles_name(name, if_.orelse) for if_ in all_if):
                 continue
 
             uncertain_nodes.append(other_node)
