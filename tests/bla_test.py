@@ -1,5 +1,6 @@
 """module docstring"""
 
+
 def a_function(test_var):
     """func docstring"""
     if test_var == 2:
@@ -8,6 +9,7 @@ def a_function(test_var):
         else:
             possibly_undefined_var = 2
     return possibly_undefined_var
+
 
 # TODO: doesn't detect this?
 # def a_function(test_var):

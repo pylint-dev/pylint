@@ -1,12 +1,6 @@
-
-from _pytest.config import Config
-
 from pylint import testutils
-from pylint.testutils import UPDATE_FILE
-from pylint.testutils.functional import (
-    FunctionalTestFile,
-    LintModuleOutputUpdate,
-)
+from pylint.testutils.functional import FunctionalTestFile
+
 
 def test_bla_1() -> None:
     __tracebackhide__ = True  # pylint: disable=unused-variable

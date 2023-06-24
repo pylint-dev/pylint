@@ -638,7 +638,6 @@ scope_type : {self._atomic.scope_type}
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
-
         # Filter out assignments which may not happen
         if found_nodes:
             uncertain_nodes = self._uncertain_nodes_2(found_nodes, node)
@@ -790,7 +789,7 @@ scope_type : {self._atomic.scope_type}
             else:
                 continue
 
-            # TODO: doc 
+            # TODO: doc
             # Get all "If" ancestors of other node which node are not parents of node
             all_if = [
                 n
@@ -822,7 +821,7 @@ scope_type : {self._atomic.scope_type}
             uncertain_nodes.append(other_node)
 
         return uncertain_nodes
-    
+
     def _uncertain_nodes_2(
         self, found_nodes: list[nodes.NodeNG], node: nodes.NodeNG
     ) -> list[nodes.NodeNG]:
@@ -867,7 +866,9 @@ scope_type : {self._atomic.scope_type}
                 continue
 
             # TODO: think about this, do really all of the elses need to define it?
-            if all(NamesConsumer._branch_handles_name(name, if_.orelse) for if_ in all_if):
+            if all(
+                NamesConsumer._branch_handles_name(name, if_.orelse) for if_ in all_if
+            ):
                 continue
 
             uncertain_nodes.append(other_node)
