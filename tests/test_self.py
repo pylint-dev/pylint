@@ -214,8 +214,8 @@ class TestRunTC:
 
     def test_disable_all(self) -> None:
         out = StringIO()
-        self._runtest([UNNECESSARY_LAMBDA, "--disable=all"], out=out, code=0)
-        assert "show this help message and exit" in out.getvalue().strip()
+        self._runtest([UNNECESSARY_LAMBDA, "--disable=all"], out=out, code=32)
+        assert "No files to lint: exiting." in out.getvalue().strip()
 
     def test_no_out_encoding(self) -> None:
         """Test redirection of stdout with non ascii characters."""

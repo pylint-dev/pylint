@@ -179,9 +179,8 @@ group are mutually exclusive.",
         if not args or len(linter.config.disable) == len(
             linter.msgs_store._messages_definitions
         ):
-            print(linter.help())
-            exit_code = 32 if not args else 0
-            sys.exit(exit_code)
+            print("No files to lint: exiting.")
+            sys.exit(32)
 
         if linter.config.jobs < 0:
             print(
