@@ -175,10 +175,13 @@ group are mutually exclusive.",
                 sys.exit(code)
             return
 
-        # Display help messages if there are no files to lint
-        if not args:
+        # Display help if there are no files to lint or no checks enabled
+        if not args or len(linter.config.disable) == len(
+            linter.msgs_store._messages_definitions
+        ):
             print(linter.help())
-            sys.exit(32)
+            exit_code = 32 if not args else 0
+            sys.exit(exit_code)
 
         if linter.config.jobs < 0:
             print(
