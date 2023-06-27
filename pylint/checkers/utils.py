@@ -935,7 +935,7 @@ def uninferable_final_decorators(
 
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
-    node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef = None
+    node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef | None = None
 ) -> dict[str, nodes.FunctionDef]:
     """Get the unimplemented abstract methods for the given *node*.
 
