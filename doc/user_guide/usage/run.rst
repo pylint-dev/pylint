@@ -160,11 +160,6 @@ This will spawn 4 parallel Pylint sub-process, where each provided module will
 be checked in parallel. Discovered problems by checkers are not displayed
 immediately. They are shown just after checking a module is complete.
 
-There is one known limitation with running checks in parallel as currently
-implemented. Since the division of files into worker processes is indeterminate,
-checkers that depend on comparing multiple files (e.g. ``cyclic-import``
-and ``duplicate-code``) can produce indeterminate results.
-
 Exit codes
 ----------
 

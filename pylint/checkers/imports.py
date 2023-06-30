@@ -455,6 +455,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
         )
+        self._excluded_edges: defaultdict[str, set[str]] = defaultdict(set)
 
     def open(self) -> None:
         """Called before visiting project (i.e set of modules)."""
@@ -463,7 +464,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self.import_graph = defaultdict(set)
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
         self._current_module_package = False
-        self._excluded_edges: defaultdict[str, set[str]] = defaultdict(set)
         self._ignored_modules: Sequence[str] = self.linter.config.ignored_modules
         # Build a mapping {'module': 'preferred-module'}
         self.preferred_modules = dict(
@@ -487,6 +487,17 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             vertices = list(graph)
             for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message("cyclic-import", args=" -> ".join(cycle))
+
+    def get_map_data(self) -> defaultdict[str, set[str]]:
+        return self.import_graph
+
+    def reduce_map_data(
+        self, linter: PyLinter, data: list[defaultdict[str, set[str]]]
+    ) -> None:
+        self.import_graph = defaultdict(set)
+        for graph in data:
+            self.import_graph.update(graph)
+        self.close()
 
     def deprecated_modules(self) -> set[str]:
         """Callback returning the deprecated modules."""
