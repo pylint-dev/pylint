@@ -297,7 +297,7 @@ def _fix_dot_imports(
                         second_name = import_module_name
                 if second_name and second_name not in names:
                     names[second_name] = stmt
-    return sorted(names.items(), key=lambda a: a[1].fromlineno)  # type: ignore[no-any-return]
+    return sorted(names.items(), key=lambda a: a[1].fromlineno)
 
 
 def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
