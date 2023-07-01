@@ -1318,10 +1318,8 @@ accessed. Python regular expressions are accepted.",
             and isinstance(node.value.func, nodes.Attribute)
             and bool(inferred := utils.safe_infer(node.value.func.expr))
             and isinstance(inferred, bases.Instance)
-            and bool(pytype := inferred.pytype())
-            and pytype.startswith("builtins")
-            and pytype in BUILTINS_RETURN_NONE
-            and node.value.func.attrname in BUILTINS_RETURN_NONE[pytype]
+            and node.value.func.attrname
+            in BUILTINS_RETURN_NONE.get(inferred.pytype(), ())
         )
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
