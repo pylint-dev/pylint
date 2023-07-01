@@ -1133,16 +1133,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not isinstance(node.func, nodes.Name) or node.func.name != "super":
             return
 
-        # pylint: disable=too-many-boolean-expressions
         if (
             len(node.args) != 2
-            or not isinstance(node.args[1], nodes.Name)
+            or not all(isinstance(arg, nodes.Name) for arg in node.args)
             or node.args[1].name != "self"
-            or not isinstance(node.args[0], nodes.Name)
-            or not isinstance(node.args[1], nodes.Name)
-            or node_frame_class(node) is None
-            # TODO: PY38: Use walrus operator, this will also fix the mypy issue
-            or node.args[0].name != node_frame_class(node).name  # type: ignore[union-attr]
+            or (frame_class := node_frame_class(node)) is None
+            or node.args[0].name != frame_class.name
         ):
             return
 
