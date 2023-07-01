@@ -1316,9 +1316,9 @@ accessed. Python regular expressions are accepted.",
         return (
             isinstance(node.value, nodes.Call)
             and isinstance(node.value.func, nodes.Attribute)
-            and (inferred := utils.safe_infer(node.value.func.expr))
+            and bool(inferred := utils.safe_infer(node.value.func.expr))
             and isinstance(inferred, bases.Instance)
-            and (pytype := inferred.pytype())
+            and bool(pytype := inferred.pytype())
             and pytype.startswith("builtins")
             and pytype in BUILTINS_RETURN_NONE
             and node.value.func.attrname in BUILTINS_RETURN_NONE[pytype]
