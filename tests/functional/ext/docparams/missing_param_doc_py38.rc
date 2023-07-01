@@ -1,9 +1,6 @@
 [MASTER]
 load-plugins=pylint.extensions.docparams,
 
-[testoptions]
-min_pyver=3.8
-
 [PARAMETER_DOCUMENTATION]
 accept-no-param-doc=no
 accept-no-raise-doc=no
