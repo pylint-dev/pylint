@@ -1,0 +1,3 @@
+Emit ``assignment-from-none`` for calls to builtin methods like ``dict.update()``.
+
+Closes #8714

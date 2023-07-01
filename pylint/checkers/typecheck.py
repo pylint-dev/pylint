@@ -74,6 +74,28 @@ TYPE_ANNOTATION_NODES_TYPES = (
     nodes.Arguments,
     nodes.FunctionDef,
 )
+BUILTINS_RETURN_NONE = {
+    "builtins.dict": {"clear", "update"},
+    "builtins.list": {
+        "append",
+        "clear",
+        "extend",
+        "insert",
+        "remove",
+        "reverse",
+        "sort",
+    },
+    "builtins.set": {
+        "add",
+        "clear",
+        "difference_update",
+        "discard",
+        "intersection_update",
+        "remove",
+        "symmetric_difference_update",
+        "update",
+    },
+}
 
 
 class VERSION_COMPATIBLE_OVERLOAD:
@@ -1254,8 +1276,8 @@ accessed. Python regular expressions are accepted.",
         ):
             return
 
-        # Fix a false-negative for list.sort(), see issue #5722
-        if self._is_list_sort_method(node.value):
+        # Handle builtins such as list.sort() or dict.update()
+        if self._is_builtin_no_return(node):
             self.add_message("assignment-from-none", node=node, confidence=INFERENCE)
             return
 
@@ -1290,11 +1312,16 @@ accessed. Python regular expressions are accepted.",
         )
 
     @staticmethod
-    def _is_list_sort_method(node: nodes.Call) -> bool:
+    def _is_builtin_no_return(node: nodes.Assign) -> bool:
         return (
-            isinstance(node.func, nodes.Attribute)
-            and node.func.attrname == "sort"
-            and isinstance(utils.safe_infer(node.func.expr), nodes.List)
+            isinstance(node.value, nodes.Call)
+            and isinstance(node.value.func, nodes.Attribute)
+            and (inferred := utils.safe_infer(node.value.func.expr))
+            and isinstance(inferred, bases.Instance)
+            and (pytype := inferred.pytype())
+            and pytype.startswith("builtins")
+            and pytype in BUILTINS_RETURN_NONE
+            and node.value.func.attrname in BUILTINS_RETURN_NONE[pytype]
         )
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:

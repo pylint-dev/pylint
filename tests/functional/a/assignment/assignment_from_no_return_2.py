@@ -33,6 +33,10 @@ A = func_implicit_return_none()  # [assignment-from-none]
 
 lst = [3, 2]
 A = lst.sort()  # [assignment-from-none]
+my_dict = {3: 2}
+B = my_dict.update({2: 1})  # [assignment-from-none]
+my_set = set()
+C = my_set.symmetric_difference_update([6])  # [assignment-from-none]
 
 def func_return_none_and_smth():
     """function returning none and something else"""
