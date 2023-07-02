@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,import-error,unused-import,assignment-from-no-return
+# pylint: disable=missing-docstring,import-error,unused-import,assignment-from-none
 # pylint: disable=invalid-name, too-few-public-methods
 from UNINFERABLE import uninferable_func
 

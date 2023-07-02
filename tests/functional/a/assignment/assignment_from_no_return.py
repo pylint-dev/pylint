@@ -23,12 +23,12 @@ class Class:
         pass
 
     def some_other_method(self):
-        value = self.some_method()  # [assignment-from-no-return]
+        value = self.some_method()  # [assignment-from-none]
         other_value = self.some_other_decorated_method()
         return value + other_value
 
 
-VALUE = some_func() # [assignment-from-no-return]
+VALUE = some_func() # [assignment-from-none]
 
 
 class Parent:

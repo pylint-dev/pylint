@@ -1,0 +1,4 @@
+Merged ``assignment-from-no-return`` message into ``assignment-from-none``.
+The historical name will still work.
+
+Closes #8810

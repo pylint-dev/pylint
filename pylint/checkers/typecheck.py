@@ -263,12 +263,6 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when an object being called has been inferred to a non "
         "callable object.",
     ),
-    "E1111": (
-        "Assigning result of a function call, where the function has no return",
-        "assignment-from-no-return",
-        "Used when an assignment is done on a function call but the "
-        "inferred function doesn't return anything.",
-    ),
     "E1120": (
         "No value for argument %s in %s call",
         "no-value-for-parameter",
@@ -318,7 +312,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "assignment-from-none",
         "Used when an assignment is done on a function call but the "
         "inferred function returns nothing but None.",
-        {"old_names": [("W1111", "old-assignment-from-none")]},
+        {
+            "old_names": [
+                ("W1111", "old-assignment-from-none"),
+                ("E1111", "assignment-from-no-return"),
+            ]
+        },
     ),
     "E1129": (
         "Context manager '%s' doesn't implement __enter__ and __exit__.",
@@ -1239,7 +1238,6 @@ accessed. Python regular expressions are accepted.",
         return msg, hint  # type: ignore[return-value]
 
     @only_required_for_messages(
-        "assignment-from-no-return",
         "assignment-from-none",
         "non-str-assignment-to-dunder-name",
     )
@@ -1287,18 +1285,15 @@ accessed. Python regular expressions are accepted.",
         return_nodes = list(
             function_node.nodes_of_class(nodes.Return, skip_klass=nodes.FunctionDef)
         )
-        if not return_nodes:
-            self.add_message("assignment-from-no-return", node=node)
+        for ret_node in return_nodes:
+            if not (
+                isinstance(ret_node.value, nodes.Const)
+                and ret_node.value.value is None
+                or ret_node.value is None
+            ):
+                break
         else:
-            for ret_node in return_nodes:
-                if not (
-                    isinstance(ret_node.value, nodes.Const)
-                    and ret_node.value.value is None
-                    or ret_node.value is None
-                ):
-                    break
-            else:
-                self.add_message("assignment-from-none", node=node)
+            self.add_message("assignment-from-none", node=node)
 
     @staticmethod
     def _is_ignored_function(

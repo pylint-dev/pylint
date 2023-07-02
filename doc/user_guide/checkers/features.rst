@@ -1193,9 +1193,6 @@ Typecheck checker Messages
   Used when a function call would result in assigning multiple values to a
   function parameter, one value from a positional argument and one from a
   keyword argument.
-:assignment-from-no-return (E1111): *Assigning result of a function call, where the function has no return*
-  Used when an assignment is done on a function call but the inferred function
-  doesn't return anything.
 :assignment-from-none (E1128): *Assigning result of a function call, where the function returns None*
   Used when an assignment is done on a function call but the inferred function
   returns nothing but None.

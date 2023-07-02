@@ -14,7 +14,7 @@ def func_no_return():
     """function without return"""
     print('dougloup')
 
-A = func_no_return()  # [assignment-from-no-return]
+A = func_no_return()  # [assignment-from-none]
 
 
 def func_return_none():

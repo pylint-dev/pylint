@@ -51,7 +51,6 @@ All messages in the error category:
    error/abstract-class-instantiated
    error/access-member-before-definition
    error/assigning-non-slot
-   error/assignment-from-no-return
    error/assignment-from-none
    error/await-outside-async
    error/bad-configuration-section
