@@ -1,4 +1,4 @@
-The 'overgeneral-exceptions' option now only takes fully qualified name
+The 'overgeneral-exceptions' option now only takes fully qualified names
 into account (``builtins.Exception`` not ``Exception``). If you overrode
 this option, you need to use the fully qualified name now.
 
