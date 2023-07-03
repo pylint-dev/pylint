@@ -74,7 +74,7 @@ TYPE_ANNOTATION_NODES_TYPES = (
     nodes.Arguments,
     nodes.FunctionDef,
 )
-BUILTINS_RETURN_NONE = {
+BUILTINS_IMPLICIT_RETURN_NONE = {
     "builtins.dict": {"clear", "update"},
     "builtins.list": {
         "append",
@@ -1278,7 +1278,9 @@ accessed. Python regular expressions are accepted.",
 
         # Handle builtins such as list.sort() or dict.update()
         if self._is_builtin_no_return(node):
-            self.add_message("assignment-from-none", node=node, confidence=INFERENCE)
+            self.add_message(
+                "assignment-from-no-return", node=node, confidence=INFERENCE
+            )
             return
 
         if not function_node.root().fully_defined():
@@ -1319,7 +1321,7 @@ accessed. Python regular expressions are accepted.",
             and bool(inferred := utils.safe_infer(node.value.func.expr))
             and isinstance(inferred, bases.Instance)
             and node.value.func.attrname
-            in BUILTINS_RETURN_NONE.get(inferred.pytype(), ())
+            in BUILTINS_IMPLICIT_RETURN_NONE.get(inferred.pytype(), ())
         )
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:

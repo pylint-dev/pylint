@@ -1,3 +1,6 @@
-Emit ``assignment-from-none`` for calls to builtin methods like ``dict.update()``.
+Emit ``assignment-from-no-return`` for calls to builtin methods like ``dict.update()``.
+(Calls to ``list.sort()`` now raise ``assignment-from-no-return``
+rather than ``assignment-from-none`` for consistency.)
 
 Closes #8714
+Closes #8810
