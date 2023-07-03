@@ -1539,16 +1539,8 @@ accessed. Python regular expressions are accepted.",
         parameters: list[tuple[tuple[str | None, nodes.NodeNG | None], bool]] = []
         parameter_name_to_index = {}
         for i, arg in enumerate(args):
-            if isinstance(arg, nodes.Tuple):
-                name = None
-                # Don't store any parameter names within the tuple, since those
-                # are not assignable from keyword arguments.
-            else:
-                assert isinstance(arg, nodes.AssignName)
-                # This occurs with:
-                #    def f( (a), (b) ): pass
-                name = arg.name
-                parameter_name_to_index[name] = i
+            name = arg.name
+            parameter_name_to_index[name] = i
             if i >= num_mandatory_parameters:
                 defval = called.args.defaults[i - num_mandatory_parameters]
             else:
