@@ -655,3 +655,30 @@ class TestCheckParallel:
             )
 
         assert "cyclic-import" in linter.stats.by_msg
+
+    @pytest.mark.needs_two_cores
+    def test_cyclic_import_parallel_disabled(self) -> None:
+        tests_dir = Path("tests")
+        package_path = Path("input") / "func_noerror_cycle"
+        linter = PyLinter(reporter=Reporter())
+        linter.register_checker(ImportsChecker(linter))
+
+        with _test_cwd(tests_dir):
+            check_parallel(
+                linter,
+                jobs=2,
+                files=[
+                    FileItem(
+                        name="input.func_noerror_cycle.a",
+                        filepath=str(package_path / "a.py"),
+                        modpath="input.func_noerror_cycle",
+                    ),
+                    FileItem(
+                        name="input.func_noerror_cycle.b",
+                        filepath=str(package_path / "b.py"),
+                        modpath="input.func_noerror_cycle",
+                    ),
+                ],
+            )
+
+        assert "cyclic-import" not in linter.stats.by_msg
