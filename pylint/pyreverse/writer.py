@@ -76,6 +76,13 @@ class DiagramWriter:
                 type_=EdgeType.USES,
             )
 
+        for rel in diagram.get_relationships("type_depends"):
+            self.printer.emit_edge(
+                rel.from_object.fig_id,
+                rel.to_object.fig_id,
+                type_=EdgeType.TYPE_USES,
+            )
+
     def write_classes(self, diagram: ClassDiagram) -> None:
         """Write a class diagram."""
         # sorted to get predictable (hence testable) results

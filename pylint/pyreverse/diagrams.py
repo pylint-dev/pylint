@@ -12,7 +12,7 @@ from typing import Any
 import astroid
 from astroid import nodes, util
 
-from pylint.checkers.utils import decorated_with_property
+from pylint.checkers.utils import decorated_with_property, in_type_checking_block
 from pylint.pyreverse.utils import FilterMixIn
 
 
@@ -281,9 +281,17 @@ class PackageDiagram(ClassDiagram):
     def add_from_depend(self, node: nodes.ImportFrom, from_module: str) -> None:
         """Add dependencies created by from-imports."""
         mod_name = node.root().name
-        obj = self.module(mod_name)
-        if from_module not in obj.node.depends:
-            obj.node.depends.append(from_module)
+        package = self.module(mod_name).node
+
+        if not in_type_checking_block(node):
+            if from_module not in package.depends:
+                package.depends.append(from_module)
+        else:
+            if (
+                from_module not in package.type_depends
+                and from_module not in package.depends
+            ):
+                package.type_depends.append(from_module)
 
     def extract_relationships(self) -> None:
         """Extract relationships between nodes in the diagram."""
@@ -304,3 +312,10 @@ class PackageDiagram(ClassDiagram):
                 except KeyError:
                     continue
                 self.add_relationship(package_obj, dep, "depends")
+
+            for dep_name in package_obj.node.type_depends:
+                try:
+                    dep = self.get_module(dep_name, package_obj.node)
+                except KeyError:
+                    continue
+                self.add_relationship(package_obj, dep, "type_depends")

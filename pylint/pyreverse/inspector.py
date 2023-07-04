@@ -139,6 +139,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             return
         node.locals_type = collections.defaultdict(list)
         node.depends = []
+        node.type_depends = []
         if self.tag:
             node.uid = self.generate_id()
 
