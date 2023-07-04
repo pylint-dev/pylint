@@ -2168,7 +2168,7 @@ accessed. Python regular expressions are accepted.",
             return
 
         if getattr(inferred, "decorators", None):
-            first_decorator = astroid.helpers.safe_infer(inferred.decorators.nodes[0])
+            first_decorator = astroid.util.safe_infer(inferred.decorators.nodes[0])
             if isinstance(first_decorator, nodes.ClassDef):
                 inferred = first_decorator.instantiate_class()
             else:
