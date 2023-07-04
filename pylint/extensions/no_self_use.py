@@ -80,7 +80,7 @@ class NoSelfUseChecker(BaseChecker):
             first = self._first_attrs.pop()
             if first is None:
                 return
-            class_node = node.parent.frame(future=True)
+            class_node = node.parent.frame()
             if (
                 self._meth_could_be_func
                 and node.type == "method"
