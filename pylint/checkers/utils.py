@@ -386,7 +386,7 @@ def is_defined_before(var_node: nodes.Name) -> bool:
             ):
                 return True
     # possibly multiple statements on the same line using semicolon separator
-    stmt = var_node.statement(future=True)
+    stmt = var_node.statement()
     _node = stmt.previous_sibling()
     lineno = stmt.fromlineno
     while _node and _node.fromlineno == lineno:
@@ -672,7 +672,7 @@ def node_frame_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
     The function returns a class for a method node (or a staticmethod or a
     classmethod), otherwise it returns `None`.
     """
-    klass = node.frame(future=True)
+    klass = node.frame()
     nodes_to_check = (
         nodes.NodeNG,
         astroid.UnboundMethod,
@@ -686,14 +686,14 @@ def node_frame_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
         if klass.parent is None:
             return None
 
-        klass = klass.parent.frame(future=True)
+        klass = klass.parent.frame()
 
     return klass
 
 
 def get_outer_class(class_node: astroid.ClassDef) -> astroid.ClassDef | None:
     """Return the class that is the outer class of given (nested) class_node."""
-    parent_klass = class_node.parent.frame(future=True)
+    parent_klass = class_node.parent.frame()
 
     return parent_klass if isinstance(parent_klass, astroid.ClassDef) else None
 
@@ -1171,7 +1171,7 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
             return True
 
     for method in node.methods():
-        if method.parent.frame(future=True) is node:
+        if method.parent.frame() is node:
             if method.is_abstract(pass_is_abstract=False):
                 return True
     return False

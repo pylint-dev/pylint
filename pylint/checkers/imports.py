@@ -985,7 +985,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         ) and not self.linter.is_message_enabled("shadowed-import"):
             return
 
-        frame = node.frame(future=True)
+        frame = node.frame()
         root = node.root()
         contexts = [(frame, level)]
         if root is not frame:

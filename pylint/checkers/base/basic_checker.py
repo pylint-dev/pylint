@@ -390,7 +390,7 @@ class BasicChecker(_BasicChecker):
         assert isinstance(test, nodes.Name)
         emit = False
         maybe_generator_call = None
-        lookup_result = test.frame(future=True).lookup(test.name)
+        lookup_result = test.frame().lookup(test.name)
         if not lookup_result:
             return emit, maybe_generator_call
         maybe_generator_assigned = (
@@ -717,7 +717,7 @@ class BasicChecker(_BasicChecker):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
-            if not (name in node.frame(future=True) or name in node.root()):
+            if not (name in node.frame() or name in node.root()):
                 if name == "exec":
                     self.add_message("exec-used", node=node)
                 elif name == "reversed":

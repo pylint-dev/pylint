@@ -507,7 +507,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         elif isinstance(node.parent, nodes.Module):
             prev_line = 0
         else:
-            prev_line = node.parent.statement(future=True).fromlineno
+            prev_line = node.parent.statement().fromlineno
         line = node.fromlineno
         assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:

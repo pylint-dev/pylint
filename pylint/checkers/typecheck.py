@@ -692,7 +692,7 @@ def _has_parent_of_type(
 
 
 def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool:
-    statement = node.statement(future=True)
+    statement = node.statement()
     variadics = []
 
     if (
@@ -735,7 +735,7 @@ def _no_context_variadic(
     is_in_lambda_scope = not isinstance(scope, nodes.FunctionDef) and isinstance(
         scope, nodes.Lambda
     )
-    statement = node.statement(future=True)
+    statement = node.statement()
     for name in statement.nodes_of_class(nodes.Name):
         if name.name != variadic_name:
             continue
@@ -753,7 +753,7 @@ def _no_context_variadic(
             # so we need to go the lambda instead
             inferred_statement = inferred.parent.parent
         else:
-            inferred_statement = inferred.statement(future=True)
+            inferred_statement = inferred.statement()
 
         if not length and isinstance(
             inferred_statement, (nodes.Lambda, nodes.FunctionDef)
@@ -1175,9 +1175,7 @@ accessed. Python regular expressions are accepted.",
                     attr_parent = attr_node.parent
                     # Skip augmented assignments
                     try:
-                        if isinstance(
-                            attr_node.statement(future=True), nodes.AugAssign
-                        ) or (
+                        if isinstance(attr_node.statement(), nodes.AugAssign) or (
                             isinstance(attr_parent, nodes.Assign)
                             and utils.is_augmented_assign(attr_parent)[0]
                         ):

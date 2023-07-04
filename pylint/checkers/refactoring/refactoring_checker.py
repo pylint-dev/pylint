@@ -124,7 +124,7 @@ def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
 
 
 def _is_inside_context_manager(node: nodes.Call) -> bool:
-    frame = node.frame(future=True)
+    frame = node.frame()
     if not isinstance(
         frame, (nodes.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod)
     ):
@@ -135,7 +135,7 @@ def _is_inside_context_manager(node: nodes.Call) -> bool:
 
 
 def _is_a_return_statement(node: nodes.Call) -> bool:
-    frame = node.frame(future=True)
+    frame = node.frame()
     for parent in node.node_ancestors():
         if parent is frame:
             break
@@ -148,7 +148,7 @@ def _is_part_of_with_items(node: nodes.Call) -> bool:
     """Checks if one of the node's parents is a ``nodes.With`` node and that the node
     itself is located somewhere under its ``items``.
     """
-    frame = node.frame(future=True)
+    frame = node.frame()
     current = node
     while current != frame:
         if isinstance(current, nodes.With):
@@ -998,7 +998,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_stop_iteration_inside_generator(self, node: nodes.Raise) -> None:
         """Check if an exception of type StopIteration is raised inside a generator."""
-        frame = node.frame(future=True)
+        frame = node.frame()
         if not isinstance(frame, nodes.FunctionDef) or not frame.is_generator():
             return
         if utils.node_ignores_exception(node, StopIteration):
@@ -1176,7 +1176,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             isinstance(inferred, nodes.FunctionDef)
             and inferred.qname() == "builtins.next"
         ):
-            frame = node.frame(future=True)
+            frame = node.frame()
             # The next builtin can only have up to two
             # positional arguments and no keyword arguments
             has_sentinel_value = len(node.args) > 1
@@ -1579,9 +1579,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 or not isinstance(assignee, (nodes.AssignName, nodes.AssignAttr))
             ):
                 continue
-            stack = self._consider_using_with_stack.get_stack_for_frame(
-                node.frame(future=True)
-            )
+            stack = self._consider_using_with_stack.get_stack_for_frame(node.frame())
             varname = (
                 assignee.name
                 if isinstance(assignee, nodes.AssignName)
@@ -1610,7 +1608,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if (
             node
             in self._consider_using_with_stack.get_stack_for_frame(
-                node.frame(future=True)
+                node.frame()
             ).values()
         ):
             # the result of this call was already assigned to a variable and will be
