@@ -43,6 +43,11 @@ CONFIGURATION_PATHS = [
     str(path.relative_to(FUNCTIONAL_DIR))
     for ext in ACCEPTED_CONFIGURATION_EXTENSIONS
     for path in FUNCTIONAL_DIR.rglob(f"*.{ext}")
+    if (str_path := str(path))
+    # The enable/disable all tests are not practical with this framework.
+    # They require manually listing ~400 messages, which will
+    # require constant updates.
+    and "enable_all" not in str_path and "disable_all" not in str_path
 ]
 
 
