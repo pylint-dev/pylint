@@ -488,15 +488,23 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message("cyclic-import", args=" -> ".join(cycle))
 
-    def get_map_data(self) -> defaultdict[str, set[str]]:
-        return self.import_graph
+    def get_map_data(
+        self,
+    ) -> tuple[defaultdict[str, set[str]], defaultdict[str, set[str]]]:
+        return (self.import_graph, self._excluded_edges)
 
     def reduce_map_data(
-        self, linter: PyLinter, data: list[defaultdict[str, set[str]]]
+        self,
+        linter: PyLinter,
+        data: list[tuple[defaultdict[str, set[str]], defaultdict[str, set[str]]]],
     ) -> None:
         self.import_graph = defaultdict(set)
-        for graph in data:
+        self._excluded_edges = defaultdict(set)
+        for to_update in data:
+            graph, excluded_edges = to_update
             self.import_graph.update(graph)
+            self._excluded_edges.update(excluded_edges)
+
         self.close()
 
     def deprecated_modules(self) -> set[str]:
