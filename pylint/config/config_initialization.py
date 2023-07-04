@@ -13,7 +13,10 @@ from typing import TYPE_CHECKING
 
 from pylint import reporters
 from pylint.config.config_file_parser import _ConfigurationFileParser
-from pylint.config.exceptions import _UnrecognizedOptionError
+from pylint.config.exceptions import (
+    ArgumentPreprocessingError,
+    _UnrecognizedOptionError,
+)
 from pylint.utils import utils
 
 if TYPE_CHECKING:
@@ -46,6 +49,9 @@ def _config_initialization(
         print(ex, file=sys.stderr)
         sys.exit(32)
 
+    # Order --enable=all or --disable=all to come first.
+    config_args = _order_all_first(config_args, joined=False)
+
     # Run init hook, if present, before loading plugins
     if "init-hook" in config_data:
         exec(utils._unquote(config_data["init-hook"]))  # pylint: disable=exec-used
@@ -73,6 +79,7 @@ def _config_initialization(
 
     # Now we parse any options from the command line, so they can override
     # the configuration file
+    args_list = _order_all_first(args_list, joined=True)
     parsed_args_list = linter._parse_command_line_configuration(args_list)
 
     # Remove the positional arguments separator from the list of arguments if it exists
@@ -147,3 +154,49 @@ def _config_initialization(
             for arg in parsed_args_list
         )
     )
+
+
+def _order_all_first(config_args: list[str], *, joined: bool = True) -> list[str]:
+    """Reorder config_args such that --enable=all or --disable=all comes first.
+
+    Raise if both are given.
+
+    If joined is True, expect args in the form `--enable=all,for-any-all`.
+    If joined is False, expect args in the form '--enable', 'all,for-any-all`.
+    """
+    indexes_to_prepend = []
+    all_action = ""
+
+    for i, arg in enumerate(config_args):
+        if joined and (arg.startswith("--enable=") or arg.startswith("--disable=")):
+            value = arg.split("=")[1]
+        elif arg in {"--enable", "--disable"}:
+            value = config_args[i + 1]
+        else:
+            continue
+
+        if "all" not in (msg.strip() for msg in value.split(",")):
+            continue
+
+        arg = arg.split("=")[0]
+        if all_action and (arg != all_action):
+            raise ArgumentPreprocessingError(
+                "--enable=all and --disable=all are incompatible."
+            )
+        all_action = arg
+        indexes_to_prepend.append(i)
+
+    returned_args = []
+    for i in indexes_to_prepend:
+        returned_args.append(config_args[i])
+        if not joined:
+            returned_args.append(config_args[i + 1])
+
+    for i, arg in enumerate(config_args):
+        if i in indexes_to_prepend:
+            continue
+        if not joined and i - 1 in indexes_to_prepend:
+            continue
+        returned_args.append(arg)
+
+    return returned_args
