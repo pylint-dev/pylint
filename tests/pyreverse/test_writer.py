@@ -49,7 +49,10 @@ COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
 MMD_FILES = ["packages_No_Name.mmd", "classes_No_Name.mmd"]
 HTML_FILES = ["packages_No_Name.html", "classes_No_Name.html"]
 NO_STANDALONE_FILES = ["classes_no_standalone.dot", "packages_no_standalone.dot"]
-TYPE_CHECK_IMPORTS_FILES = ["packages_type_check_imports.dot", "classes_type_check_imports.dot"]
+TYPE_CHECK_IMPORTS_FILES = [
+    "packages_type_check_imports.dot",
+    "classes_type_check_imports.dot",
+]
 
 
 class Config:
