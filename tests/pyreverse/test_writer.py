@@ -116,7 +116,8 @@ def setup_type_check_imports_dot(
     writer = DiagramWriter(type_check_imports_dot_config)
     project = get_project(
         os.path.join(os.path.dirname(__file__), "functional", "package_diagrams"),
-        name="type_check_imports")
+        name="type_check_imports",
+    )
 
     yield from _setup(project, type_check_imports_dot_config, writer)
 
