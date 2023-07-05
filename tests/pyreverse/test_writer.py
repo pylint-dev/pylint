@@ -107,6 +107,15 @@ def setup_no_standalone_dot(
 
 
 @pytest.fixture()
+def setup_type_check_imports_dot(
+    type_check_imports_dot_config: PyreverseConfig, get_project: GetProjectCallable
+) -> Iterator[None]:
+    writer = DiagramWriter(type_check_imports_dot_config)
+    project = get_project(TEST_DATA_DIR, name="type_check_imports")
+    yield from _setup(project, type_check_imports_dot_config, writer)
+
+
+@pytest.fixture()
 def setup_puml(
     puml_config: PyreverseConfig, get_project: GetProjectCallable
 ) -> Iterator[None]:
@@ -171,6 +180,12 @@ def test_colorized_dot_files(generated_file: str) -> None:
 @pytest.mark.usefixtures("setup_no_standalone_dot")
 @pytest.mark.parametrize("generated_file", NO_STANDALONE_FILES)
 def test_no_standalone_dot_files(generated_file: str) -> None:
+    _assert_files_are_equal(generated_file)
+
+
+@pytest.mark.usefixtures("setup_type_check_imports_dot")
+@pytest.mark.parametrize("generated_file", TYPE_CHECK_IMPORTS_FILES)
+def test_type_check_imports_dot_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 
