@@ -283,15 +283,13 @@ class PackageDiagram(ClassDiagram):
         mod_name = node.root().name
         package = self.module(mod_name).node
 
+        if from_module in package.depends:
+            return
+
         if not in_type_checking_block(node):
-            if from_module not in package.depends:
-                package.depends.append(from_module)
-        else:
-            if (
-                from_module not in package.type_depends
-                and from_module not in package.depends
-            ):
-                package.type_depends.append(from_module)
+            package.depends.append(from_module)
+        elif from_module not in package.type_depends:
+            package.type_depends.append(from_module)
 
     def extract_relationships(self) -> None:
         """Extract relationships between nodes in the diagram."""
