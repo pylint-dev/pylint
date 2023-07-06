@@ -1,0 +1,2 @@
+prefer-typing-namedtuple:4:11:4:66::Prefer 'typing.NamedTuple' over 'collections.namedtuple':INFERENCE
+prefer-typing-namedtuple:7:4:7:59:SearchMatch:Prefer 'typing.NamedTuple' over 'collections.namedtuple':INFERENCE

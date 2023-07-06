@@ -605,7 +605,7 @@ def stripped_lines(
         line_begins_import = {
             lineno: all(is_import for _, is_import in node_is_import_group)
             for lineno, node_is_import_group in groupby(
-                node_is_import_by_lineno, key=lambda x: x[0]  # type: ignore[no-any-return]
+                node_is_import_by_lineno, key=lambda x: x[0]
             )
         }
         current_line_is_import = False
@@ -889,8 +889,11 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         """Reduces and recombines data into a format that we can report on.
 
         The partner function of get_map_data()
+
+        Calls self.close() to actually calculate and report duplicate code.
         """
         Similar.combine_mapreduce_data(self, linesets_collection=data)
+        self.close()
 
 
 def register(linter: PyLinter) -> None:

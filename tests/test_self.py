@@ -212,6 +212,11 @@ class TestRunTC:
     def test_error_missing_arguments(self) -> None:
         self._runtest([], code=32)
 
+    def test_disable_all(self) -> None:
+        out = StringIO()
+        self._runtest([UNNECESSARY_LAMBDA, "--disable=all"], out=out, code=32)
+        assert "No files to lint: exiting." in out.getvalue().strip()
+
     def test_no_out_encoding(self) -> None:
         """Test redirection of stdout with non ascii characters."""
         # This test reproduces bug #48066 ; it happens when stdout is redirected
@@ -233,7 +238,6 @@ class TestRunTC:
                 join(HERE, "functional", "a", "arguments.py"),
             ],
             out=out,
-            # We expect similarities to fail and an error
             code=MSG_TYPES_STATUS["E"],
         )
         assert (

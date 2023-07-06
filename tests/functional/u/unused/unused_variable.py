@@ -199,3 +199,20 @@ def func6():
     nonlocal_writer()
 
     assert a == 9, a
+
+def test_regression_8595():
+    # pylint: disable=broad-exception-caught
+    import logging
+    def compute():
+        pass
+    try:
+        compute()
+        error = False
+    except Exception as e:
+        logging.error(e)
+        error = True
+    if error:
+        try:
+            compute()
+        except Exception as e:  # [unused-variable]
+            pass

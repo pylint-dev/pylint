@@ -74,6 +74,28 @@ TYPE_ANNOTATION_NODES_TYPES = (
     nodes.Arguments,
     nodes.FunctionDef,
 )
+BUILTINS_IMPLICIT_RETURN_NONE = {
+    "builtins.dict": {"clear", "update"},
+    "builtins.list": {
+        "append",
+        "clear",
+        "extend",
+        "insert",
+        "remove",
+        "reverse",
+        "sort",
+    },
+    "builtins.set": {
+        "add",
+        "clear",
+        "difference_update",
+        "discard",
+        "intersection_update",
+        "remove",
+        "symmetric_difference_update",
+        "update",
+    },
+}
 
 
 class VERSION_COMPATIBLE_OVERLOAD:
@@ -398,6 +420,13 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Second argument of isinstance is not a type",
         "isinstance-second-argument-not-valid-type",
         "Emitted when the second argument of an isinstance call is not a type.",
+    ),
+    "W1117": (
+        "%r will be included in %r since a positional-only parameter with this name already exists",
+        "kwarg-superseded-by-positional-arg",
+        "Emitted when a function is called with a keyword argument that has the "
+        "same name as a positional-only parameter and the function contains a "
+        "keyword variadic parameter dict.",
     ),
 }
 
@@ -740,7 +769,10 @@ def _no_context_variadic(
 
 
 def _is_invalid_metaclass(metaclass: nodes.ClassDef) -> bool:
-    mro = metaclass.mro()
+    try:
+        mro = metaclass.mro()
+    except (astroid.DuplicateBasesError, astroid.InconsistentMroError):
+        return True
     return not any(is_builtin_object(cls) and cls.name == "type" for cls in mro)
 
 
@@ -1244,9 +1276,11 @@ accessed. Python regular expressions are accepted.",
         ):
             return
 
-        # Fix a false-negative for list.sort(), see issue #5722
-        if self._is_list_sort_method(node.value):
-            self.add_message("assignment-from-none", node=node, confidence=INFERENCE)
+        # Handle builtins such as list.sort() or dict.update()
+        if self._is_builtin_no_return(node):
+            self.add_message(
+                "assignment-from-no-return", node=node, confidence=INFERENCE
+            )
             return
 
         if not function_node.root().fully_defined():
@@ -1280,11 +1314,14 @@ accessed. Python regular expressions are accepted.",
         )
 
     @staticmethod
-    def _is_list_sort_method(node: nodes.Call) -> bool:
+    def _is_builtin_no_return(node: nodes.Assign) -> bool:
         return (
-            isinstance(node.func, nodes.Attribute)
-            and node.func.attrname == "sort"
-            and isinstance(utils.safe_infer(node.func.expr), nodes.List)
+            isinstance(node.value, nodes.Call)
+            and isinstance(node.value.func, nodes.Attribute)
+            and bool(inferred := utils.safe_infer(node.value.func.expr))
+            and isinstance(inferred, bases.Instance)
+            and node.value.func.attrname
+            in BUILTINS_IMPLICIT_RETURN_NONE.get(inferred.pytype(), ())
         )
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
@@ -1504,16 +1541,8 @@ accessed. Python regular expressions are accepted.",
         parameters: list[tuple[tuple[str | None, nodes.NodeNG | None], bool]] = []
         parameter_name_to_index = {}
         for i, arg in enumerate(args):
-            if isinstance(arg, nodes.Tuple):
-                name = None
-                # Don't store any parameter names within the tuple, since those
-                # are not assignable from keyword arguments.
-            else:
-                assert isinstance(arg, nodes.AssignName)
-                # This occurs with:
-                #    def f( (a), (b) ): pass
-                name = arg.name
-                parameter_name_to_index[name] = i
+            name = arg.name
+            parameter_name_to_index[name] = i
             if i >= num_mandatory_parameters:
                 defval = called.args.defaults[i - num_mandatory_parameters]
             else:
@@ -1550,6 +1579,18 @@ accessed. Python regular expressions are accepted.",
 
         # 2. Match the keyword arguments.
         for keyword in keyword_args:
+            # Skip if `keyword` is the same name as a positional-only parameter
+            # and a `**kwargs` parameter exists.
+            if called.args.kwarg and keyword in [
+                arg.name for arg in called.args.posonlyargs
+            ]:
+                self.add_message(
+                    "kwarg-superseded-by-positional-arg",
+                    node=node,
+                    args=(keyword, f"**{called.args.kwarg}"),
+                    confidence=HIGH,
+                )
+                continue
             if keyword in parameter_name_to_index:
                 i = parameter_name_to_index[keyword]
                 if parameters[i][1]:
@@ -1566,11 +1607,6 @@ accessed. Python regular expressions are accepted.",
                             node=node,
                             args=(keyword, callable_name),
                         )
-                elif (
-                    keyword in [arg.name for arg in called.args.posonlyargs]
-                    and called.args.kwarg
-                ):
-                    pass
                 else:
                     parameters[i] = (parameters[i][0], True)
             elif keyword in kwparams:

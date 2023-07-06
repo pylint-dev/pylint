@@ -30,12 +30,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
         with:
           ref: extending-redefined-outer-name-to-loop-variables
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v4.6.0
+        uses: actions/setup-python@v4.6.1
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -105,8 +105,9 @@ jobs:
           . venv/bin/activate
           python tests/primer/__main__.py compare \
           --commit=${{ github.event.workflow_run.head_sha }} \
-          --base-file=output_${{ steps.python.outputs.python-version }}_main.txt \
-          --new-file=output_${{ steps.python.outputs.python-version }}_pr.txt
+          --base-file=output_${{ steps.python.outputs.python-version }}_main_BATCHIDX.txt \
+          --new-file=output_${{ steps.python.outputs.python-version }}_pr_BATCHIDX.txt \
+          --batches=4
       - name: Post comment
         id: post-comment
         uses: actions/github-script@v6.4.1

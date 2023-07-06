@@ -1,0 +1,3 @@
+Fix false positives generated when supplying arguments as ``**kwargs`` to IO calls like open().
+
+Closes #8719

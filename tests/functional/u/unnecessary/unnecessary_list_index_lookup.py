@@ -136,6 +136,9 @@ for idx, val in enumerate(iterable=series, start=0):
 
 result = [my_list[idx] for idx, val in enumerate(iterable=my_list)]  # [unnecessary-list-index-lookup]
 
+iterable_kwarg = {"iterable": my_list}
+result = [my_list[idx] for idx, val in enumerate(**iterable_kwarg)]  # [unnecessary-list-index-lookup]
+
 for idx, val in enumerate():
     print(my_list[idx])
 
@@ -149,3 +152,7 @@ Y_START = 2
 nums = list(range(20))
 for y, x in enumerate(nums, start=Y_START + 1):
     pass
+
+for idx, val in enumerate(my_list):
+    if (val := 42) and my_list[idx] == 'b':
+        print(1)

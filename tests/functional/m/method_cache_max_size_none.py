@@ -45,6 +45,11 @@ class MyClassWithMethods:
     def my_func(self, param):
         return param + 1
 
+    maxsizeKwarg = {"maxsize": None}
+    @lru_cache(**maxsizeKwarg)  # [method-cache-max-size-none]
+    def my_func(self, param):
+        return param + 1
+
 
 class MyClassWithMethodsAndMaxSize:
     @lru_cache(maxsize=1)

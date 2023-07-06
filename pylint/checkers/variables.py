@@ -297,7 +297,7 @@ def _fix_dot_imports(
                         second_name = import_module_name
                 if second_name and second_name not in names:
                     names[second_name] = stmt
-    return sorted(names.items(), key=lambda a: a[1].fromlineno)  # type: ignore[no-any-return]
+    return sorted(names.items(), key=lambda a: a[1].fromlineno)
 
 
 def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
@@ -949,6 +949,12 @@ scope_type : {self._atomic.scope_type}
         ):
             return True
         if isinstance(node, (nodes.ClassDef, nodes.FunctionDef)) and node.name == name:
+            return True
+        if (
+            isinstance(node, nodes.ExceptHandler)
+            and node.name
+            and node.name.name == name
+        ):
             return True
         return False
 
@@ -2945,7 +2951,7 @@ class VariablesChecker(BaseChecker):
                     elt.name for elt in target.elts if isinstance(elt, nodes.AssignName)
                 )
         scope = node.scope()
-        nonlocals_with_same_name = any(
+        nonlocals_with_same_name = node.scope().parent and any(
             child for child in scope.body if isinstance(child, nodes.Nonlocal)
         )
         if nonlocals_with_same_name:
@@ -3078,7 +3084,10 @@ class VariablesChecker(BaseChecker):
     def _check_all(
         self, node: nodes.Module, not_consumed: dict[str, list[nodes.NodeNG]]
     ) -> None:
-        assigned = next(node.igetattr("__all__"))
+        try:
+            assigned = next(node.igetattr("__all__"))
+        except astroid.InferenceError:
+            return
         if isinstance(assigned, util.UninferableBase):
             return
         if assigned.pytype() not in {"builtins.list", "builtins.tuple"}:
@@ -3133,6 +3142,8 @@ class VariablesChecker(BaseChecker):
             return
         for name, node_lst in not_consumed.items():
             for node in node_lst:
+                if in_type_checking_block(node):
+                    continue
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches

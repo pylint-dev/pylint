@@ -736,6 +736,25 @@ def get_argument_from_call(
     raise NoSuchArgumentError
 
 
+def infer_kwarg_from_call(call_node: nodes.Call, keyword: str) -> nodes.Name | None:
+    """Returns the specified argument from a function's kwargs.
+
+    :param nodes.Call call_node: Node representing a function call to check.
+    :param str keyword: Name of the argument to be extracted.
+
+    :returns: The node representing the argument, None if the argument is not found.
+    :rtype: nodes.Name
+    """
+    for arg in call_node.kwargs:
+        inferred = safe_infer(arg.value)
+        if isinstance(inferred, nodes.Dict):
+            for item in inferred.items:
+                if item[0].value == keyword:
+                    return item[1]
+
+    return None
+
+
 def inherit_from_std_ex(node: nodes.NodeNG | astroid.Instance) -> bool:
     """Return whether the given class node is subclass of
     exceptions.Exception.
@@ -916,7 +935,7 @@ def uninferable_final_decorators(
 
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
-    node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef = None
+    node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef | None = None
 ) -> dict[str, nodes.FunctionDef]:
     """Get the unimplemented abstract methods for the given *node*.
 
@@ -1362,12 +1381,10 @@ def safe_infer(
                 return None
             if (
                 isinstance(inferred, nodes.FunctionDef)
-                and inferred.args.args is not None
                 and isinstance(value, nodes.FunctionDef)
-                and value.args.args is not None
-                and len(inferred.args.args) != len(value.args.args)
+                and function_arguments_are_ambiguous(inferred, value)
             ):
-                return None  # Different number of arguments indicates ambiguity
+                return None
     except astroid.InferenceError:
         return None  # There is some kind of ambiguity
     except StopIteration:
@@ -1387,6 +1404,33 @@ def infer_all(
         return []
     except Exception as e:  # pragma: no cover
         raise AstroidError from e
+
+
+def function_arguments_are_ambiguous(
+    func1: nodes.FunctionDef, func2: nodes.FunctionDef
+) -> bool:
+    if func1.argnames() != func2.argnames():
+        return True
+    # Check ambiguity among function default values
+    pairs_of_defaults = [
+        (func1.args.defaults, func2.args.defaults),
+        (func1.args.kw_defaults, func2.args.kw_defaults),
+    ]
+    for zippable_default in pairs_of_defaults:
+        if None in zippable_default:
+            continue
+        if len(zippable_default[0]) != len(zippable_default[1]):
+            return True
+        for default1, default2 in zip(*zippable_default):
+            if isinstance(default1, nodes.Const) and isinstance(default2, nodes.Const):
+                if default1.value != default2.value:
+                    return True
+            elif isinstance(default1, nodes.Name) and isinstance(default2, nodes.Name):
+                if default1.name != default2.name:
+                    return True
+            else:
+                return True
+    return False
 
 
 def has_known_bases(

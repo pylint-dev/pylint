@@ -27,3 +27,4 @@ redefined-outer-name:153:8:154:26:func4:Redefining name 'error' from outer scope
 unused-variable:161:4:162:12:main:Unused variable 'e':UNDEFINED
 redefined-outer-name:164:4:165:12:main:Redefining name 'e' from outer scope (line 161):HIGH
 undefined-loop-variable:168:10:168:11:main:Using possibly undefined loop variable 'e':UNDEFINED
+unused-variable:217:8:218:16:test_regression_8595:Unused variable 'e':UNDEFINED

@@ -1,0 +1,3 @@
+Fix a crash when ``__all__`` exists but cannot be inferred.
+
+Closes #8740

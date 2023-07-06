@@ -70,7 +70,7 @@ class MessageDefinition:
         return f"MessageDefinition:{self.symbol} ({self.msgid})"
 
     def __str__(self) -> str:
-        return f"{repr(self)}:\n{self.msg} {self.description}"
+        return f"{self!r}:\n{self.msg} {self.description}"
 
     def may_be_emitted(self, py_version: tuple[int, ...] | sys._version_info) -> bool:
         """May the message be emitted using the configured py_version?"""

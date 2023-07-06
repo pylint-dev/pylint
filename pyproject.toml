@@ -39,7 +39,7 @@ dependencies    = [
     # Also upgrade requirements_test_min.txt.
     # Pinned to dev of second minor update to allow editable installs and fix primer issues,
     # see https://github.com/pylint-dev/astroid/issues/1341
-    "astroid>=3.0.0a3,<=3.1.0-dev0",
+    "astroid>=3.0.0a5,<=3.1.0-dev0",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.8",
     "tomli>=1.1.0;python_version<'3.11'",
@@ -145,7 +145,8 @@ select = [
 ]
 
 ignore = [
-    "B905", # `zip()` without an explicit `strict=` parameter
+    "B905",  # `zip()` without an explicit `strict=` parameter
+    "RUF012",  # mutable default values in class attributes
 ]
 
 fixable = [

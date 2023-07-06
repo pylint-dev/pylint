@@ -1,0 +1,3 @@
+Fix a false positive for ``unused-variable`` when there is an import in a ``if TYPE_CHECKING:`` block and ``allow-global-unused-variables`` is set to ``no`` in the configuration.
+
+Closes #8696
