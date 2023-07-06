@@ -312,5 +312,8 @@ class PackageDiagram(ClassDiagram):
                 self.add_relationship(package_obj, dep, "depends")
 
             for dep_name in package_obj.node.type_depends:
-                dep = self.get_module(dep_name, package_obj.node)
+                try:
+                    dep = self.get_module(dep_name, package_obj.node)
+                except KeyError:
+                    continue
                 self.add_relationship(package_obj, dep, "type_depends")
