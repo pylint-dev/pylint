@@ -80,7 +80,7 @@ class DiagramWriter:
             self.printer.emit_edge(
                 rel.from_object.fig_id,
                 rel.to_object.fig_id,
-                type_=EdgeType.TYPE_USES,
+                type_=EdgeType.TYPE_DEPENDENCY,
             )
 
     def write_classes(self, diagram: ClassDiagram) -> None:

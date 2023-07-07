@@ -43,7 +43,11 @@ ARROWS: dict[EdgeType, dict[str, str]] = {
         "style": "solid",
     },
     EdgeType.USES: {"arrowtail": "none", "arrowhead": "open"},
-    EdgeType.TYPE_USES: {"arrowtail": "none", "arrowhead": "open", "style": "dashed"},
+    EdgeType.TYPE_DEPENDENCY: {
+        "arrowtail": "none",
+        "arrowhead": "open",
+        "style": "dashed",
+    },
 }
 
 

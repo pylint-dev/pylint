@@ -24,7 +24,7 @@ class MermaidJSPrinter(Printer):
         EdgeType.ASSOCIATION: "--*",
         EdgeType.AGGREGATION: "--o",
         EdgeType.USES: "-->",
-        EdgeType.TYPE_USES: "-.->",
+        EdgeType.TYPE_DEPENDENCY: "-.->",
     }
 
     def _open_graph(self) -> None:
