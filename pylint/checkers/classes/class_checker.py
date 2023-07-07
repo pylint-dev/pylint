@@ -893,12 +893,21 @@ a metaclass class method.",
     def _check_enum_base(self, node: nodes.ClassDef, ancestor: nodes.ClassDef) -> None:
         members = ancestor.getattr("__members__")
         if members and isinstance(members[0], nodes.Dict) and members[0].items:
-            self.add_message(
-                "invalid-enum-extension",
-                args=ancestor.name,
-                node=node,
-                confidence=INFERENCE,
-            )
+            for _, name_node in members[0].items:
+                # Exempt type annotations without value assignments
+                if all(
+                    isinstance(item.parent, nodes.AnnAssign)
+                    and item.parent.value is None
+                    for item in ancestor.getattr(name_node.name)
+                ):
+                    continue
+                self.add_message(
+                    "invalid-enum-extension",
+                    args=ancestor.name,
+                    node=node,
+                    confidence=INFERENCE,
+                )
+                break
 
         if ancestor.is_subtype_of("enum.IntFlag"):
             # Collect integer flag assignments present on the class
