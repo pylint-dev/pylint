@@ -37,13 +37,6 @@ def no_standalone_dot_config() -> PyreverseConfig:
 
 
 @pytest.fixture()
-def type_check_imports_dot_config() -> PyreverseConfig:
-    return PyreverseConfig(
-        output_format="dot",
-    )
-
-
-@pytest.fixture()
 def puml_config() -> PyreverseConfig:
     return PyreverseConfig(
         output_format="puml",
