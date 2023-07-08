@@ -39,7 +39,7 @@ dependencies    = [
     # Also upgrade requirements_test_min.txt.
     # Pinned to dev of second minor update to allow editable installs and fix primer issues,
     # see https://github.com/pylint-dev/astroid/issues/1341
-    "astroid>=3.0.0a6,<=3.1.0-dev0",
+    "astroid @ git+https://github.com/pylint-dev/astroid.git@a7ab0880dea776e45c4c7e440298c4041d945e6d",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.8",
     "tomli>=1.1.0;python_version<'3.11'",
