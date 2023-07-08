@@ -44,7 +44,6 @@ def test_epylint_good_command(example_path: PosixPath) -> None:
 def test_epylint_strange_command(example_path: PosixPath) -> None:
     with pytest.warns(DeprecationWarning):
         out, _ = lint.py_run(
-            # pylint: disable-next=consider-using-f-string
             "%s -E --disable=E1111 --msg-template={category} {module} {obj} {line} {column} {msg}"
             % example_path,
             return_std=True,
