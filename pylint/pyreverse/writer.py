@@ -54,9 +54,12 @@ class DiagramWriter:
 
     def write_packages(self, diagram: PackageDiagram) -> None:
         """Write a package diagram."""
+        module_info: dict[str, dict[str, int]] = {}
+
         # sorted to get predictable (hence testable) results
         for module in sorted(diagram.modules(), key=lambda x: x.title):
             module.fig_id = module.node.qname()
+
             if self.config.no_standalone and not any(
                 module in (rel.from_object, rel.to_object)
                 for rel in diagram.get_relationships("depends")
@@ -68,20 +71,41 @@ class DiagramWriter:
                 type_=NodeType.PACKAGE,
                 properties=self.get_package_properties(module),
             )
+
+            module_info[module.fig_id] = {
+                "imports": 0,
+                "imported": 0,
+            }
+
         # package dependencies
         for rel in diagram.get_relationships("depends"):
+            from_id = rel.from_object.fig_id
+            to_id = rel.to_object.fig_id
+
             self.printer.emit_edge(
-                rel.from_object.fig_id,
-                rel.to_object.fig_id,
+                from_id,
+                to_id,
                 type_=EdgeType.USES,
             )
 
+            module_info[from_id]["imports"] += 1
+            module_info[to_id]["imported"] += 1
+
         for rel in diagram.get_relationships("type_depends"):
+            from_id = rel.from_object.fig_id
+            to_id = rel.to_object.fig_id
+
             self.printer.emit_edge(
-                rel.from_object.fig_id,
-                rel.to_object.fig_id,
+                from_id,
+                to_id,
                 type_=EdgeType.TYPE_DEPENDENCY,
             )
+
+            module_info[from_id]["imports"] += 1
+            module_info[to_id]["imported"] += 1
+
+        print(f"Modules: {len(module_info)}")
+        print(f'Imports: {sum(mod["imports"] for mod in module_info.values())}')
 
     def write_classes(self, diagram: ClassDiagram) -> None:
         """Write a class diagram."""
