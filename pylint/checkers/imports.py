@@ -491,7 +491,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     def get_map_data(
         self,
     ) -> tuple[defaultdict[str, set[str]], defaultdict[str, set[str]]]:
-        return (self.import_graph, self._excluded_edges)
+        if self.linter.is_message_enabled("cyclic-import"):
+            return (self.import_graph, self._excluded_edges)
+        return (defaultdict(set), defaultdict(set))
 
     def reduce_map_data(
         self,
