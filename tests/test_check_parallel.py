@@ -35,6 +35,8 @@ from pylint.typing import FileItem
 from pylint.utils import LinterStats, ModuleStats
 
 if TYPE_CHECKING:
+    from unittest.mock import MagicMock
+
     from astroid import nodes
 
 
@@ -657,7 +659,37 @@ class TestCheckParallel:
         assert "cyclic-import" in linter.stats.by_msg
 
     @pytest.mark.needs_two_cores
-    def test_cyclic_import_parallel_disabled(self) -> None:
+    @patch("pylint.checkers.imports.ImportsChecker.close")
+    def test_cyclic_import_parallel_disabled_globally(self, mock: MagicMock) -> None:
+        tests_dir = Path("tests")
+        package_path = Path("input") / "func_w0401_package"
+        linter = PyLinter(reporter=Reporter())
+        linter.register_checker(ImportsChecker(linter))
+        linter.disable("cyclic-import")
+
+        with _test_cwd(tests_dir):
+            check_parallel(
+                linter,
+                jobs=2,
+                files=[
+                    FileItem(
+                        name="input.func_w0401_package.all_the_things",
+                        filepath=str(package_path / "all_the_things.py"),
+                        modpath="input.func_w0401_package",
+                    ),
+                    FileItem(
+                        name="input.func_w0401_package.thing2",
+                        filepath=str(package_path / "thing2.py"),
+                        modpath="input.func_w0401_package",
+                    ),
+                ],
+            )
+
+        mock.assert_not_called()
+        assert "cyclic-import" not in linter.stats.by_msg
+
+    @pytest.mark.needs_two_cores
+    def test_cyclic_import_parallel_disabled_locally(self) -> None:
         tests_dir = Path("tests")
         package_path = Path("input") / "func_noerror_cycle"
         linter = PyLinter(reporter=Reporter())

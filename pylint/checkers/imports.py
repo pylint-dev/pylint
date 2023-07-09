@@ -491,21 +491,24 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     def get_map_data(
         self,
     ) -> tuple[defaultdict[str, set[str]], defaultdict[str, set[str]]]:
-        return (self.import_graph, self._excluded_edges)
+        if self.linter.is_message_enabled("cyclic-import"):
+            return (self.import_graph, self._excluded_edges)
+        return (defaultdict(set), defaultdict(set))
 
     def reduce_map_data(
         self,
         linter: PyLinter,
         data: list[tuple[defaultdict[str, set[str]], defaultdict[str, set[str]]]],
     ) -> None:
-        self.import_graph = defaultdict(set)
-        self._excluded_edges = defaultdict(set)
-        for to_update in data:
-            graph, excluded_edges = to_update
-            self.import_graph.update(graph)
-            self._excluded_edges.update(excluded_edges)
+        if self.linter.is_message_enabled("cyclic-import"):
+            self.import_graph = defaultdict(set)
+            self._excluded_edges = defaultdict(set)
+            for to_update in data:
+                graph, excluded_edges = to_update
+                self.import_graph.update(graph)
+                self._excluded_edges.update(excluded_edges)
 
-        self.close()
+            self.close()
 
     def deprecated_modules(self) -> set[str]:
         """Callback returning the deprecated modules."""
