@@ -36,6 +36,7 @@ from pylint.utils import LinterStats, ModuleStats
 
 if TYPE_CHECKING:
     from astroid import nodes
+    from unittest.mock import MagicMock
 
 
 def _gen_file_data(idx: int = 0) -> FileItem:
@@ -658,7 +659,7 @@ class TestCheckParallel:
 
     @pytest.mark.needs_two_cores
     @patch("pylint.checkers.imports.ImportsChecker.close")
-    def test_cyclic_import_parallel_disabled_globally(self, mock) -> None:
+    def test_cyclic_import_parallel_disabled_globally(self, mock: MagicMock) -> None:
         tests_dir = Path("tests")
         package_path = Path("input") / "func_w0401_package"
         linter = PyLinter(reporter=Reporter())
