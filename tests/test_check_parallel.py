@@ -35,8 +35,9 @@ from pylint.typing import FileItem
 from pylint.utils import LinterStats, ModuleStats
 
 if TYPE_CHECKING:
-    from astroid import nodes
     from unittest.mock import MagicMock
+
+    from astroid import nodes
 
 
 def _gen_file_data(idx: int = 0) -> FileItem:
