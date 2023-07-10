@@ -496,7 +496,7 @@ class BasicErrorChecker(_BasicChecker):
             if isinstance(parent, (nodes.ClassDef, nodes.FunctionDef)):
                 break
             if (
-                isinstance(parent, nodes.TryFinally)
+                isinstance(parent, nodes.Try)
                 and node in parent.finalbody
                 and isinstance(node, nodes.Continue)
                 and not self._py38_plus

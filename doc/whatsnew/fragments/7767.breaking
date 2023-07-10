@@ -1,0 +1,4 @@
+Disables placed in a ``try`` block now apply to the ``except`` block.
+Previously, they only happened to do so in the presence of an ``else`` clause.
+
+Refs #7767

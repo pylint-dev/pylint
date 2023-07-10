@@ -617,8 +617,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         | nodes.IfExp
         | nodes.Assign
         | nodes.AssignAttr
-        | nodes.TryExcept
-        | nodes.TryFinally,
+        | nodes.Try,
     ) -> None:
         # if the node does not contain an import instruction, and if it is the
         # first node of the module, keep a track of it (all the import positions
@@ -628,11 +627,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             return
         if not isinstance(node.parent, nodes.Module):
             return
-        nested_allowed = [nodes.TryExcept, nodes.TryFinally]
-        is_nested_allowed = [
-            allowed for allowed in nested_allowed if isinstance(node, allowed)
-        ]
-        if is_nested_allowed and any(
+        if isinstance(node, nodes.Try) and any(
             node.nodes_of_class((nodes.Import, nodes.ImportFrom))
         ):
             return
@@ -649,9 +644,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 return
         self._first_non_import_node = node
 
-    visit_tryfinally = (
-        visit_tryexcept
-    ) = (
+    visit_try = (
         visit_assignattr
     ) = (
         visit_assign
@@ -675,7 +668,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         while not isinstance(root.parent, nodes.Module):
             root = root.parent
 
-        if isinstance(root, (nodes.If, nodes.TryFinally, nodes.TryExcept)):
+        if isinstance(root, (nodes.If, nodes.Try)):
             if any(root.nodes_of_class((nodes.Import, nodes.ImportFrom))):
                 return
 
