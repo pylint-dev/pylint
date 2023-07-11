@@ -266,7 +266,7 @@ class TestRunTC:
         """
         )
         self._test_output(
-            [module, "--disable=all", "--enable=all", "-rn"], expected_output=expected
+            [module, "--disable=I", "--enable=all", "-rn"], expected_output=expected
         )
 
     def test_wrong_import_position_when_others_disabled(self) -> None:

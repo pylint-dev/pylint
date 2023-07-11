@@ -11,6 +11,7 @@ from tempfile import TemporaryDirectory
 import pytest
 from pytest import CaptureFixture
 
+from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.interfaces import CONFIDENCE_LEVEL_NAMES
 from pylint.lint import Run as LintRun
 from pylint.testutils import create_files
@@ -20,6 +21,7 @@ from pylint.testutils.configuration_test import run_using_a_configuration_file
 HERE = Path(__file__).parent.absolute()
 REGRTEST_DATA_DIR = HERE / ".." / "regrtest_data"
 EMPTY_MODULE = REGRTEST_DATA_DIR / "empty.py"
+FIXME_MODULE = REGRTEST_DATA_DIR / "fixme.py"
 
 
 def check_configuration_file_reader(
@@ -175,3 +177,45 @@ def test_clear_cache_post_run() -> None:
 
     assert not run_before_edit.linter.stats.by_msg
     assert run_after_edit.linter.stats.by_msg
+
+
+def test_enable_all_disable_all_mutually_exclusive() -> None:
+    with pytest.raises(ArgumentPreprocessingError):
+        runner = Run(["--enable=all", "--disable=all", str(EMPTY_MODULE)], exit=False)
+
+    runner = Run(["--enable=all", "--enable=all", str(EMPTY_MODULE)], exit=False)
+    assert not runner.linter.stats.by_msg
+
+    with pytest.raises(ArgumentPreprocessingError):
+        run_using_a_configuration_file(
+            HERE
+            / "functional"
+            / "toml"
+            / "toml_with_mutually_exclusive_disable_enable_all.toml",
+        )
+
+
+def test_disable_before_enable_all_takes_effect() -> None:
+    runner = Run(["--disable=fixme", "--enable=all", str(FIXME_MODULE)], exit=False)
+    assert not runner.linter.stats.by_msg
+
+    _, _, toml_runner = run_using_a_configuration_file(
+        HERE
+        / "functional"
+        / "toml"
+        / "toml_with_specific_disable_before_enable_all.toml",
+    )
+    assert not toml_runner.linter.is_message_enabled("fixme")
+
+
+def test_enable_before_disable_all_takes_effect() -> None:
+    runner = Run(["--enable=fixme", "--disable=all", str(FIXME_MODULE)], exit=False)
+    assert runner.linter.stats.by_msg
+
+    _, _, toml_runner = run_using_a_configuration_file(
+        HERE
+        / "functional"
+        / "toml"
+        / "toml_with_specific_enable_before_disable_all.toml",
+    )
+    assert toml_runner.linter.is_message_enabled("fixme")
