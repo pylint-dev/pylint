@@ -49,6 +49,10 @@ COLORIZED_PUML_FILES = ["packages_colorized.puml", "classes_colorized.puml"]
 MMD_FILES = ["packages_No_Name.mmd", "classes_No_Name.mmd"]
 HTML_FILES = ["packages_No_Name.html", "classes_No_Name.html"]
 NO_STANDALONE_FILES = ["classes_no_standalone.dot", "packages_no_standalone.dot"]
+TYPE_CHECK_IMPORTS_FILES = [
+    "packages_type_check_imports.dot",
+    "classes_type_check_imports.dot",
+]
 
 
 class Config:
@@ -103,6 +107,19 @@ def setup_no_standalone_dot(
     writer = DiagramWriter(no_standalone_dot_config)
     project = get_project(TEST_DATA_DIR, name="no_standalone")
     yield from _setup(project, no_standalone_dot_config, writer)
+
+
+@pytest.fixture()
+def setup_type_check_imports_dot(
+    default_config: PyreverseConfig, get_project: GetProjectCallable
+) -> Iterator[None]:
+    writer = DiagramWriter(default_config)
+    project = get_project(
+        os.path.join(os.path.dirname(__file__), "functional", "package_diagrams"),
+        name="type_check_imports",
+    )
+
+    yield from _setup(project, default_config, writer)
 
 
 @pytest.fixture()
@@ -170,6 +187,12 @@ def test_colorized_dot_files(generated_file: str) -> None:
 @pytest.mark.usefixtures("setup_no_standalone_dot")
 @pytest.mark.parametrize("generated_file", NO_STANDALONE_FILES)
 def test_no_standalone_dot_files(generated_file: str) -> None:
+    _assert_files_are_equal(generated_file)
+
+
+@pytest.mark.usefixtures("setup_type_check_imports_dot")
+@pytest.mark.parametrize("generated_file", TYPE_CHECK_IMPORTS_FILES)
+def test_type_check_imports_dot_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 
