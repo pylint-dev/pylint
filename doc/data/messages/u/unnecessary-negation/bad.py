@@ -3,5 +3,5 @@ if not not input():  # [unnecessary-negation]
 
 a = 3
 b = 10
-if not a > b: # [unnecessary-negation]
+if not a > b:  # [unnecessary-negation]
     pass
