@@ -609,7 +609,9 @@ scope_type : {self._atomic.scope_type}
             and parent_node == found_nodes[0].parent
         ):
             lhs = found_nodes[0].parent.targets[0]
-            if lhs.name == name:  # this name is defined in this very statement
+            if (
+                isinstance(lhs, nodes.AssignName) and lhs.name == name
+            ):  # this name is defined in this very statement
                 found_nodes = None
 
         if (
