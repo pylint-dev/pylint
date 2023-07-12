@@ -116,3 +116,8 @@ def turn_on2(**kwargs):
         var, *args = (1, "restore_dimmer_state")
 
     print(var, *args)
+
+attr = 'test'  # pylint: disable=invalid-name
+class T:  # pylint: disable=invalid-name, too-few-public-methods, undefined-variable
+    '''Issue #8754, no crash from unexpected assignment between attribute and variable'''
+    T.attr = attr
