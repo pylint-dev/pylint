@@ -68,7 +68,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "use-implicit-booleaness-not-len",
             "Empty sequences are considered false in a boolean context. You can either"
             " remove the call to 'len' (``if not x``) or compare the length against a"
-            "scalar (``if len(x) > 1``).",
+            " scalar (``if len(x) > 1``).",
             {"old_names": [("C1801", "len-as-condition")]},
         ),
         "C1803": (
