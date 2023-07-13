@@ -538,7 +538,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node.value.value, bool
         )
 
-    def _is_actual_elif(self, node: nodes.If | nodes.TryExcept) -> bool:
+    def _is_actual_elif(self, node: nodes.If | nodes.Try) -> bool:
         """Check if the given node is an actual elif.
 
         This is a problem we're having with the builtin ast module,
