@@ -140,7 +140,7 @@ class MyClass1:
         pass
 
     def method2(self, param1):  # [too-complex, too-many-branches]
-        """McCabe rating: 18"""
+        """McCabe rating: 15"""
         if not param1:
             pass
         pass
@@ -205,7 +205,7 @@ for count in range(10): # [too-complex]
 
 
 def method3(self):  # [too-complex]
-    """McCabe rating: 2"""
+    """McCabe rating: 3"""
     try:
         if True:
             pass

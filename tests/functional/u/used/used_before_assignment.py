@@ -174,3 +174,9 @@ def give_me_none():
 
 if give_me_none():
     print(ALL_DONE)  # [used-before-assignment]
+
+
+attr = 'test'  # pylint: disable=invalid-name
+class T:  # pylint: disable=invalid-name, too-few-public-methods, undefined-variable
+    '''Issue #8754, no crash from unexpected assignment between attribute and variable'''
+    T.attr = attr

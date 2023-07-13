@@ -1,0 +1,13 @@
+Enabling or disabling individual messages will now take effect even if an
+``--enable=all`` or ``disable=all`` follows in the same configuration file
+(or on the command line).
+
+This means for the following example, ``fixme`` messages will now be emitted::
+
+.. code-block::
+
+    pylint my_module --enable=fixme --disable=all
+
+To regain the prior behavior, remove the superfluous earlier option.
+
+Closes #3696

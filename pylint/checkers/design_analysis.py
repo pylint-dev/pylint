@@ -593,18 +593,15 @@ class MisdesignChecker(BaseChecker):
         if node.is_statement:
             self._inc_all_stmts(1)
 
-    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
+    def visit_try(self, node: nodes.Try) -> None:
         """Increments the branches counter."""
         branches = len(node.handlers)
         if node.orelse:
             branches += 1
+        if node.finalbody:
+            branches += 1
         self._inc_branch(node, branches)
         self._inc_all_stmts(branches)
-
-    def visit_tryfinally(self, node: nodes.TryFinally) -> None:
-        """Increments the branches counter."""
-        self._inc_branch(node, 2)
-        self._inc_all_stmts(2)
 
     @only_required_for_messages("too-many-boolean-expressions", "too-many-branches")
     def visit_if(self, node: nodes.If) -> None:

@@ -46,16 +46,18 @@ class BroadTryClauseChecker(checkers.BaseChecker):
         ),
     )
 
-    def _count_statements(self, try_node: nodes.TryExcept | nodes.TryFinally) -> int:
-        statement_count = len(try_node.body)
+    def _count_statements(
+        self, node: nodes.For | nodes.If | nodes.Try | nodes.While | nodes.With
+    ) -> int:
+        statement_count = len(node.body)
 
-        for body_node in try_node.body:
+        for body_node in node.body:
             if isinstance(body_node, (nodes.For, nodes.If, nodes.While, nodes.With)):
                 statement_count += self._count_statements(body_node)
 
         return statement_count
 
-    def visit_tryexcept(self, node: nodes.TryExcept | nodes.TryFinally) -> None:
+    def visit_try(self, node: nodes.Try) -> None:
         try_clause_statements = self._count_statements(node)
         if try_clause_statements > self.linter.config.max_try_statements:
             msg = (
@@ -65,8 +67,6 @@ class BroadTryClauseChecker(checkers.BaseChecker):
             self.add_message(
                 "too-many-try-statements", node.lineno, node=node, args=msg
             )
-
-    visit_tryfinally = visit_tryexcept
 
 
 def register(linter: PyLinter) -> None:

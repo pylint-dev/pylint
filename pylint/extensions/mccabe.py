@@ -39,7 +39,7 @@ _StatementNodes = Union[
     nodes.Await,
 ]
 
-_SubGraphNodes = Union[nodes.If, nodes.TryExcept, nodes.For, nodes.While]
+_SubGraphNodes = Union[nodes.If, nodes.Try, nodes.For, nodes.While]
 _AppendableNodeT = TypeVar(
     "_AppendableNodeT", bound=Union[_StatementNodes, nodes.While, nodes.FunctionDef]
 )

@@ -152,3 +152,7 @@ Y_START = 2
 nums = list(range(20))
 for y, x in enumerate(nums, start=Y_START + 1):
     pass
+
+for idx, val in enumerate(my_list):
+    if (val := 42) and my_list[idx] == 'b':
+        print(1)

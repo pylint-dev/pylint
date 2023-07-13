@@ -1,5 +1,2 @@
-[testoptions]
-min_pyver=3.8
-
 [variables]
 allow-global-unused-variables=no

@@ -379,14 +379,13 @@ def is_defined_before(var_node: nodes.Name) -> bool:
                     nodes.For,
                     nodes.While,
                     nodes.With,
-                    nodes.TryExcept,
-                    nodes.TryFinally,
+                    nodes.Try,
                     nodes.ExceptHandler,
                 ),
             ):
                 return True
     # possibly multiple statements on the same line using semicolon separator
-    stmt = var_node.statement(future=True)
+    stmt = var_node.statement()
     _node = stmt.previous_sibling()
     lineno = stmt.fromlineno
     while _node and _node.fromlineno == lineno:
@@ -672,7 +671,7 @@ def node_frame_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
     The function returns a class for a method node (or a staticmethod or a
     classmethod), otherwise it returns `None`.
     """
-    klass = node.frame(future=True)
+    klass = node.frame()
     nodes_to_check = (
         nodes.NodeNG,
         astroid.UnboundMethod,
@@ -686,14 +685,14 @@ def node_frame_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
         if klass.parent is None:
             return None
 
-        klass = klass.parent.frame(future=True)
+        klass = klass.parent.frame()
 
     return klass
 
 
 def get_outer_class(class_node: astroid.ClassDef) -> astroid.ClassDef | None:
     """Return the class that is the outer class of given (nested) class_node."""
-    parent_klass = class_node.parent.frame(future=True)
+    parent_klass = class_node.parent.frame()
 
     return parent_klass if isinstance(parent_klass, astroid.ClassDef) else None
 
@@ -935,7 +934,7 @@ def uninferable_final_decorators(
 
 @lru_cache(maxsize=1024)
 def unimplemented_abstract_methods(
-    node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef = None
+    node: nodes.ClassDef, is_abstract_cb: nodes.FunctionDef | None = None
 ) -> dict[str, nodes.FunctionDef]:
     """Get the unimplemented abstract methods for the given *node*.
 
@@ -988,10 +987,10 @@ def unimplemented_abstract_methods(
 
 def find_try_except_wrapper_node(
     node: nodes.NodeNG,
-) -> nodes.ExceptHandler | nodes.TryExcept | None:
-    """Return the ExceptHandler or the TryExcept node in which the node is."""
+) -> nodes.ExceptHandler | nodes.Try | None:
+    """Return the ExceptHandler or the Try node in which the node is."""
     current = node
-    ignores = (nodes.ExceptHandler, nodes.TryExcept)
+    ignores = (nodes.ExceptHandler, nodes.Try)
     while current and not isinstance(current.parent, ignores):
         current = current.parent
 
@@ -1002,7 +1001,7 @@ def find_try_except_wrapper_node(
 
 def find_except_wrapper_node_in_scope(
     node: nodes.NodeNG,
-) -> nodes.ExceptHandler | nodes.TryExcept | None:
+) -> nodes.ExceptHandler | None:
     """Return the ExceptHandler in which the node is, without going out of scope."""
     for current in node.node_ancestors():
         if isinstance(current, astroid.scoped_nodes.LocalsDictNodeNG):
@@ -1062,7 +1061,7 @@ def get_exception_handlers(
         list: the collection of handlers that are handling the exception or None.
     """
     context = find_try_except_wrapper_node(node)
-    if isinstance(context, nodes.TryExcept):
+    if isinstance(context, nodes.Try):
         return [
             handler for handler in context.handlers if error_of_type(handler, exception)
         ]
@@ -1133,13 +1132,13 @@ def is_node_inside_try_except(node: nodes.Raise) -> bool:
         bool: True if the node is inside a try/except statement, False otherwise.
     """
     context = find_try_except_wrapper_node(node)
-    return isinstance(context, nodes.TryExcept)
+    return isinstance(context, nodes.Try)
 
 
 def node_ignores_exception(
     node: nodes.NodeNG, exception: type[Exception] | str = Exception
 ) -> bool:
-    """Check if the node is in a TryExcept which handles the given exception.
+    """Check if the node is in a Try which handles the given exception.
 
     If the exception is not given, the function is going to look for bare
     excepts.
@@ -1171,7 +1170,7 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
             return True
 
     for method in node.methods():
-        if method.parent.frame(future=True) is node:
+        if method.parent.frame() is node:
             if method.is_abstract(pass_is_abstract=False):
                 return True
     return False
@@ -1918,7 +1917,7 @@ def get_node_first_ancestor_of_type_and_its_child(
     descendant visited directly before reaching the sought ancestor.
 
     Useful for extracting whether a statement is guarded by a try, except, or finally
-    when searching for a TryFinally ancestor.
+    when searching for a Try ancestor.
     """
     child = node
     for ancestor in node.node_ancestors():

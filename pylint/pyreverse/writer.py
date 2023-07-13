@@ -76,10 +76,17 @@ class DiagramWriter:
                 type_=EdgeType.USES,
             )
 
+        for rel in diagram.get_relationships("type_depends"):
+            self.printer.emit_edge(
+                rel.from_object.fig_id,
+                rel.to_object.fig_id,
+                type_=EdgeType.TYPE_DEPENDENCY,
+            )
+
     def write_classes(self, diagram: ClassDiagram) -> None:
         """Write a class diagram."""
         # sorted to get predictable (hence testable) results
-        for obj in sorted(diagram.objects, key=lambda x: x.title):  # type: ignore[no-any-return]
+        for obj in sorted(diagram.objects, key=lambda x: x.title):
             obj.fig_id = obj.node.qname()
             if self.config.no_standalone and not any(
                 obj in (rel.from_object, rel.to_object)

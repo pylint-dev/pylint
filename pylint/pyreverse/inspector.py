@@ -139,6 +139,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             return
         node.locals_type = collections.defaultdict(list)
         node.depends = []
+        node.type_depends = []
         if self.tag:
             node.uid = self.generate_id()
 
@@ -190,8 +191,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         if hasattr(node, "_handled"):
             return
         node._handled = True
-        if node.name in node.frame(future=True):
-            frame = node.frame(future=True)
+        if node.name in node.frame():
+            frame = node.frame()
         else:
             # the name has been defined as 'global' in the frame and belongs
             # there.

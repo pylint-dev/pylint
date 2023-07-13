@@ -16,6 +16,8 @@ def wrong(): # [too-many-branches]
         pass
     try:
         pass
+    except TypeError:
+        pass
     finally:
         pass
     if 2:

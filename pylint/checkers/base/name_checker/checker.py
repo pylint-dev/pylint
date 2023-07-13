@@ -345,7 +345,7 @@ class NameChecker(_BasicChecker):
             if len(groups[min_warnings]) > 1:
                 by_line = sorted(
                     groups[min_warnings],
-                    key=lambda group: min(  # type: ignore[no-any-return]
+                    key=lambda group: min(
                         warning[0].lineno
                         for warning in group
                         if warning[0].lineno is not None
@@ -370,11 +370,11 @@ class NameChecker(_BasicChecker):
         # of a base class method.
         confidence = interfaces.HIGH
         if node.is_method():
-            if utils.overrides_a_method(node.parent.frame(future=True), node.name):
+            if utils.overrides_a_method(node.parent.frame(), node.name):
                 return
             confidence = (
                 interfaces.INFERENCE
-                if utils.has_known_bases(node.parent.frame(future=True))
+                if utils.has_known_bases(node.parent.frame())
                 else interfaces.INFERENCE_FAILURE
             )
 
@@ -402,7 +402,7 @@ class NameChecker(_BasicChecker):
         self, node: nodes.AssignName
     ) -> None:
         """Check module level assigned names."""
-        frame = node.frame(future=True)
+        frame = node.frame()
         assign_type = node.assign_type()
 
         # Check names defined in comprehensions

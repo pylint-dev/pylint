@@ -74,6 +74,28 @@ TYPE_ANNOTATION_NODES_TYPES = (
     nodes.Arguments,
     nodes.FunctionDef,
 )
+BUILTINS_IMPLICIT_RETURN_NONE = {
+    "builtins.dict": {"clear", "update"},
+    "builtins.list": {
+        "append",
+        "clear",
+        "extend",
+        "insert",
+        "remove",
+        "reverse",
+        "sort",
+    },
+    "builtins.set": {
+        "add",
+        "clear",
+        "difference_update",
+        "discard",
+        "intersection_update",
+        "remove",
+        "symmetric_difference_update",
+        "update",
+    },
+}
 
 
 class VERSION_COMPATIBLE_OVERLOAD:
@@ -670,7 +692,7 @@ def _has_parent_of_type(
 
 
 def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool:
-    statement = node.statement(future=True)
+    statement = node.statement()
     variadics = []
 
     if (
@@ -713,7 +735,7 @@ def _no_context_variadic(
     is_in_lambda_scope = not isinstance(scope, nodes.FunctionDef) and isinstance(
         scope, nodes.Lambda
     )
-    statement = node.statement(future=True)
+    statement = node.statement()
     for name in statement.nodes_of_class(nodes.Name):
         if name.name != variadic_name:
             continue
@@ -731,7 +753,7 @@ def _no_context_variadic(
             # so we need to go the lambda instead
             inferred_statement = inferred.parent.parent
         else:
-            inferred_statement = inferred.statement(future=True)
+            inferred_statement = inferred.statement()
 
         if not length and isinstance(
             inferred_statement, (nodes.Lambda, nodes.FunctionDef)
@@ -1153,9 +1175,7 @@ accessed. Python regular expressions are accepted.",
                     attr_parent = attr_node.parent
                     # Skip augmented assignments
                     try:
-                        if isinstance(
-                            attr_node.statement(future=True), nodes.AugAssign
-                        ) or (
+                        if isinstance(attr_node.statement(), nodes.AugAssign) or (
                             isinstance(attr_parent, nodes.Assign)
                             and utils.is_augmented_assign(attr_parent)[0]
                         ):
@@ -1254,9 +1274,11 @@ accessed. Python regular expressions are accepted.",
         ):
             return
 
-        # Fix a false-negative for list.sort(), see issue #5722
-        if self._is_list_sort_method(node.value):
-            self.add_message("assignment-from-none", node=node, confidence=INFERENCE)
+        # Handle builtins such as list.sort() or dict.update()
+        if self._is_builtin_no_return(node):
+            self.add_message(
+                "assignment-from-no-return", node=node, confidence=INFERENCE
+            )
             return
 
         if not function_node.root().fully_defined():
@@ -1290,11 +1312,14 @@ accessed. Python regular expressions are accepted.",
         )
 
     @staticmethod
-    def _is_list_sort_method(node: nodes.Call) -> bool:
+    def _is_builtin_no_return(node: nodes.Assign) -> bool:
         return (
-            isinstance(node.func, nodes.Attribute)
-            and node.func.attrname == "sort"
-            and isinstance(utils.safe_infer(node.func.expr), nodes.List)
+            isinstance(node.value, nodes.Call)
+            and isinstance(node.value.func, nodes.Attribute)
+            and bool(inferred := utils.safe_infer(node.value.func.expr))
+            and isinstance(inferred, bases.Instance)
+            and node.value.func.attrname
+            in BUILTINS_IMPLICIT_RETURN_NONE.get(inferred.pytype(), ())
         )
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
@@ -1514,16 +1539,8 @@ accessed. Python regular expressions are accepted.",
         parameters: list[tuple[tuple[str | None, nodes.NodeNG | None], bool]] = []
         parameter_name_to_index = {}
         for i, arg in enumerate(args):
-            if isinstance(arg, nodes.Tuple):
-                name = None
-                # Don't store any parameter names within the tuple, since those
-                # are not assignable from keyword arguments.
-            else:
-                assert isinstance(arg, nodes.AssignName)
-                # This occurs with:
-                #    def f( (a), (b) ): pass
-                name = arg.name
-                parameter_name_to_index[name] = i
+            name = arg.name
+            parameter_name_to_index[name] = i
             if i >= num_mandatory_parameters:
                 defval = called.args.defaults[i - num_mandatory_parameters]
             else:
@@ -2151,7 +2168,7 @@ accessed. Python regular expressions are accepted.",
             return
 
         if getattr(inferred, "decorators", None):
-            first_decorator = astroid.helpers.safe_infer(inferred.decorators.nodes[0])
+            first_decorator = astroid.util.safe_infer(inferred.decorators.nodes[0])
             if isinstance(first_decorator, nodes.ClassDef):
                 inferred = first_decorator.instantiate_class()
             else:

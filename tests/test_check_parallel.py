@@ -13,6 +13,7 @@ import os
 import sys
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures.process import BrokenProcessPool
+from pathlib import Path
 from pickle import PickleError
 from typing import TYPE_CHECKING
 from unittest.mock import patch
@@ -23,15 +24,19 @@ import pytest
 import pylint.interfaces
 import pylint.lint.parallel
 from pylint.checkers import BaseRawFileChecker
+from pylint.checkers.imports import ImportsChecker
 from pylint.lint import PyLinter, augmented_sys_path
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
+from pylint.testutils.utils import _test_cwd
 from pylint.typing import FileItem
 from pylint.utils import LinterStats, ModuleStats
 
 if TYPE_CHECKING:
+    from unittest.mock import MagicMock
+
     from astroid import nodes
 
 
@@ -625,3 +630,87 @@ class TestCheckParallel:
                 # because arguments has to be an Iterable.
                 extra_packages_paths=1,  # type: ignore[arg-type]
             )
+
+    @pytest.mark.needs_two_cores
+    def test_cyclic_import_parallel(self) -> None:
+        tests_dir = Path("tests")
+        package_path = Path("input") / "func_w0401_package"
+        linter = PyLinter(reporter=Reporter())
+        linter.register_checker(ImportsChecker(linter))
+
+        with _test_cwd(tests_dir):
+            check_parallel(
+                linter,
+                jobs=2,
+                files=[
+                    FileItem(
+                        name="input.func_w0401_package.all_the_things",
+                        filepath=str(package_path / "all_the_things.py"),
+                        modpath="input.func_w0401_package",
+                    ),
+                    FileItem(
+                        name="input.func_w0401_package.thing2",
+                        filepath=str(package_path / "thing2.py"),
+                        modpath="input.func_w0401_package",
+                    ),
+                ],
+            )
+
+        assert "cyclic-import" in linter.stats.by_msg
+
+    @pytest.mark.needs_two_cores
+    @patch("pylint.checkers.imports.ImportsChecker.close")
+    def test_cyclic_import_parallel_disabled_globally(self, mock: MagicMock) -> None:
+        tests_dir = Path("tests")
+        package_path = Path("input") / "func_w0401_package"
+        linter = PyLinter(reporter=Reporter())
+        linter.register_checker(ImportsChecker(linter))
+        linter.disable("cyclic-import")
+
+        with _test_cwd(tests_dir):
+            check_parallel(
+                linter,
+                jobs=2,
+                files=[
+                    FileItem(
+                        name="input.func_w0401_package.all_the_things",
+                        filepath=str(package_path / "all_the_things.py"),
+                        modpath="input.func_w0401_package",
+                    ),
+                    FileItem(
+                        name="input.func_w0401_package.thing2",
+                        filepath=str(package_path / "thing2.py"),
+                        modpath="input.func_w0401_package",
+                    ),
+                ],
+            )
+
+        mock.assert_not_called()
+        assert "cyclic-import" not in linter.stats.by_msg
+
+    @pytest.mark.needs_two_cores
+    def test_cyclic_import_parallel_disabled_locally(self) -> None:
+        tests_dir = Path("tests")
+        package_path = Path("input") / "func_noerror_cycle"
+        linter = PyLinter(reporter=Reporter())
+        linter.register_checker(ImportsChecker(linter))
+
+        with _test_cwd(tests_dir):
+            check_parallel(
+                linter,
+                jobs=2,
+                files=[
+                    FileItem(
+                        name="input.func_noerror_cycle.a",
+                        filepath=str(package_path / "a.py"),
+                        modpath="input.func_noerror_cycle",
+                    ),
+                    FileItem(
+                        name="input.func_noerror_cycle.b",
+                        filepath=str(package_path / "b.py"),
+                        modpath="input.func_noerror_cycle",
+                    ),
+                ],
+            )
+
+        assert "cyclic-import" not in linter.stats.by_msg
