@@ -1707,7 +1707,8 @@ a metaclass class method.",
         # If any ancestor doesn't use slots, the slots
         # defined for this class are superfluous.
         if any(
-            "__slots__" not in ancestor.locals and ancestor.name != "object"
+            "__slots__" not in ancestor.locals
+            and ancestor.name not in ("Generic", "object")
             for ancestor in klass.ancestors()
         ):
             return
