@@ -83,6 +83,10 @@ DEPRECATED_ARGUMENTS: dict[
         ),
     },
     (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
+    (3, 12, 0): {
+        "coroutine.throw": ((1, "value"), (2, "traceback")),
+        "shutil.rmtree": ((2, "onerror"),),
+    },
 }
 
 DEPRECATED_DECORATORS: DeprecationDict = {
@@ -253,6 +257,12 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "unittest.TestLoader.loadTestsFromTestCase",
             "unittest.TestLoader.getTestCaseNames",
         },
+        (3, 12, 0): {
+            "builtins.bool.__invert__",
+            "datetime.datetime.utcfromtimestamp",
+            "datetime.datetime.utcnow",
+            "xml.etree.ElementTree.Element.__bool__",
+        },
     },
 }
 
@@ -311,6 +321,12 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
         },
         "webbrowser": {
             "MacOSX",
+        },
+    },
+    (3, 12, 0): {
+        "typing": {
+            "Hashable",
+            "Sized",
         },
     },
 }
