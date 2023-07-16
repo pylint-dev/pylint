@@ -1899,16 +1899,13 @@ accessed. Python regular expressions are accepted.",
 
                 # Retrieve node from all previously visited nodes in the
                 # inference history
-                context_path_names: Iterator[Any] = filter(
-                    None, _unflatten(context.path)
-                )
-                inferred_paths = _flatten_container(
-                    safe_infer(path) for path in context_path_names
-                )
-                for inferred_path in inferred_paths:
+                for inferred_path, _ in context.path:
                     if not inferred_path:
                         continue
-                    scope = inferred_path.scope()
+                    if isinstance(inferred_path, nodes.Call):
+                        scope = safe_infer(inferred_path.func)
+                    else:
+                        scope = inferred_path.scope()
                     if not isinstance(scope, nodes.FunctionDef):
                         continue
                     if decorated_with(
