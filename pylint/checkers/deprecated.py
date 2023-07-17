@@ -11,6 +11,8 @@ from itertools import chain
 
 import astroid
 from astroid import nodes
+from astroid import Attribute
+
 
 from pylint.checkers import utils
 from pylint.checkers.base_checker import BaseChecker
@@ -22,6 +24,7 @@ ACCEPTABLE_NODES = (
     astroid.UnboundMethod,
     nodes.FunctionDef,
     nodes.ClassDef,
+    astroid.Attribute,
 )
 
 
@@ -30,6 +33,15 @@ class DeprecatedMixin(BaseChecker):
 
     A class implementing mixin must define "deprecated-method" Message.
     """
+
+    DEPRECATED_ATTRIBUTE_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4906": (
+            "Using deprecated attribute %r",
+            "deprecated-attribute",
+            "The attribute is marked as deprecated and will be removed in the future.",
+            {"old_names": [("WXXXX", "old-deprecated-attribute")], "shared": True},
+        ),
+    }
 
     DEPRECATED_MODULE_MESSAGE: dict[str, MessageDefinitionTuple] = {
         "W4901": (
@@ -75,6 +87,11 @@ class DeprecatedMixin(BaseChecker):
             {"old_names": [("W1513", "old-deprecated-decorator")], "shared": True},
         ),
     }
+
+    @utils.only_required_for_messages("deprecated-attribute")
+    def visit_attribute(self, node: astroid.Attribute) -> None:
+        """Called when an `astroid.Attribute` node is visited."""
+        self.check_deprecated_attribute(node)
 
     @utils.only_required_for_messages(
         "deprecated-method",
@@ -189,13 +206,29 @@ class DeprecatedMixin(BaseChecker):
         # pylint: disable=unused-argument
         return ()
 
+    def deprecated_attribute(self) -> Container[str]:
+        """Callback returning the deprecated attributes.
+
+        Returns:
+            collections.abc.Container of deprecated attribute names.
+        """
+        return ()
+
+    def check_deprecated_attribute(self, node: astroid.Attribute) -> None:
+        """Checks if the attribute is deprecated."""
+        qnames = {node.expr.name}
+        if any(name in self.deprecated_attribute() for name in qnames):
+            self.add_message("deprecated-attribute", node=node, args=(node.attrname,))
+
     def check_deprecated_module(self, node: nodes.Import, mod_path: str | None) -> None:
         """Checks if the module is deprecated."""
         for mod_name in self.deprecated_modules():
             if mod_path == mod_name or mod_path and mod_path.startswith(mod_name + "."):
                 self.add_message("deprecated-module", node=node, args=mod_path)
 
-    def check_deprecated_method(self, node: nodes.Call, inferred: nodes.NodeNG) -> None:
+    def check_deprecated_method(
+            self, node: nodes.Call, inferred: nodes.NodeNG
+    ) -> None:
         """Executes the checker for the given node.
 
         This method should be called from the checker implementing this mixin.
@@ -204,6 +237,13 @@ class DeprecatedMixin(BaseChecker):
         # Reject nodes which aren't of interest to us.
         if not isinstance(inferred, ACCEPTABLE_NODES):
             return
+
+        if isinstance(node.func, nodes.Attribute) and isinstance(
+                node.func.expr, nodes.Name
+        ):
+            mod_name = node.func.expr.name
+            attr_name = node.func.attrname
+            self.check_deprecated_attribute(node, attr_name)
 
         if isinstance(node.func, nodes.Attribute):
             func_name = node.func.attrname
