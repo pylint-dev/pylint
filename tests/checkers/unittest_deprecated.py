@@ -9,7 +9,6 @@ import astroid
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.interfaces import UNDEFINED
 from pylint.testutils import CheckerTestCase, MessageTest
-from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
@@ -70,16 +69,16 @@ class TestDeprecatedChecker(CheckerTestCase):
         """
         )
         with self.assertAddsMessages(
-                MessageTest(
-                    msg_id="deprecated-attribute",
-                    args=("deprecated_attribute",),
-                    node=node,
-                    confidence=UNDEFINED,
-                    line=7,
-                    col_offset=0,
-                    end_line=7,
-                    end_col_offset=26,
-                )
+            MessageTest(
+                msg_id="deprecated-attribute",
+                args=("deprecated_attribute",),
+                node=node,
+                confidence=UNDEFINED,
+                line=7,
+                col_offset=0,
+                end_line=7,
+                end_col_offset=26,
+            )
         ):
             self.checker.visit_attribute(node)
 

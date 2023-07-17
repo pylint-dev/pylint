@@ -11,8 +11,6 @@ from itertools import chain
 
 import astroid
 from astroid import nodes
-from astroid import Attribute
-
 
 from pylint.checkers import utils
 from pylint.checkers.base_checker import BaseChecker
@@ -226,9 +224,7 @@ class DeprecatedMixin(BaseChecker):
             if mod_path == mod_name or mod_path and mod_path.startswith(mod_name + "."):
                 self.add_message("deprecated-module", node=node, args=mod_path)
 
-    def check_deprecated_method(
-            self, node: nodes.Call, inferred: nodes.NodeNG
-    ) -> None:
+    def check_deprecated_method(self, node: nodes.Call, inferred: nodes.NodeNG) -> None:
         """Executes the checker for the given node.
 
         This method should be called from the checker implementing this mixin.
@@ -239,9 +235,8 @@ class DeprecatedMixin(BaseChecker):
             return
 
         if isinstance(node.func, nodes.Attribute) and isinstance(
-                node.func.expr, nodes.Name
+            node.func.expr, nodes.Name
         ):
-            mod_name = node.func.expr.name
             attr_name = node.func.attrname
             self.check_deprecated_attribute(node, attr_name)
 
