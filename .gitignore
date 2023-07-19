@@ -4,7 +4,6 @@
 /log
 *.py[cod]
 /build
-/venv
 /doc/_build
 /dist/
 /pylint.egg-info/
