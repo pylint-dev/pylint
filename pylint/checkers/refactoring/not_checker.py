@@ -21,7 +21,7 @@ class NotChecker(checkers.BaseChecker):
             'Consider changing "%s" to "%s"',
             "unnecessary-negation",
             "Used when a boolean expression contains an unneeded negation, e.g. when two negation operators cancel each other out.",
-            {"old_names": [("C0113", "unneeded-not")]}
+            {"old_names": [("C0113", "unneeded-not")]},
         )
     }
     name = "refactoring"
