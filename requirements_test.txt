@@ -8,4 +8,4 @@ pytest-xdist~=3.3
 six
 # Type packages for mypy
 types-pkg_resources==0.1.3
-tox>=4.6.2
+tox>=3
