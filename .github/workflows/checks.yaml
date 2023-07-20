@@ -63,6 +63,7 @@ jobs:
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
           pip install -U -r doc/requirements.txt
+          pip install pre-commit
       - name: Generate pre-commit restore key
         id: generate-pre-commit-key
         run: >-
@@ -173,11 +174,9 @@ jobs:
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-base.outputs.python-key }}
-      - name: Install tox
-        run: |
-          pip install -U tox
       - name: Run checks on documentation code examples
         run: |
+          . venv/bin/activate
           tox -e test_doc
       - name: Check documentation build and links
         run: |
