@@ -143,6 +143,8 @@ jobs:
       - name: Check cache
         run: |
           . venv/bin/activate
+          pip list
+          ls tests/.pylint_primer_tests
           python tests/primer/__main__.py prepare --check
 
       # Merge the 'main' commit of last successful run
