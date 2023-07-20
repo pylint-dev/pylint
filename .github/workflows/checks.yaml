@@ -176,6 +176,7 @@ jobs:
             needs.prepare-base.outputs.python-key }}
       - name: Run checks on documentation code examples
         run: |
+          . venv/bin/activate
           tox -e test_doc
       - name: Check documentation build and links
         run: |
