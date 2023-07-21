@@ -220,7 +220,9 @@ class DeprecatedMixin(BaseChecker):
         attribute_qname = ".".join((inferred_expr.qname(), node.attrname))
         for deprecated_name in self.deprecated_attributes():
             if attribute_qname == deprecated_name:
-                self.add_message("deprecated-attribute", node=node, args=(node.attrname,))
+                self.add_message(
+                    "deprecated-attribute", node=node, args=(node.attrname,)
+                )
 
     def check_deprecated_module(self, node: nodes.Import, mod_path: str | None) -> None:
         """Checks if the module is deprecated."""

@@ -883,5 +883,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def deprecated_attributes(self) -> Iterable[str]:
         return self._deprecated_attributes
 
+
 def register(linter: PyLinter) -> None:
     linter.register_checker(StdlibChecker(linter))
