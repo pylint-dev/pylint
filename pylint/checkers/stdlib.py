@@ -332,6 +332,13 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
 }
 
 
+DEPRECATED_ATTRIBUTES: DeprecationDict = {
+    (3, 12, 0): {
+        "calendar.January",
+    },
+}
+
+
 def _check_mode_str(mode: Any) -> bool:
     # check type
     if not isinstance(mode, str):
@@ -370,6 +377,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         **DeprecatedMixin.DEPRECATED_ARGUMENT_MESSAGE,
         **DeprecatedMixin.DEPRECATED_CLASS_MESSAGE,
         **DeprecatedMixin.DEPRECATED_DECORATOR_MESSAGE,
+        **DeprecatedMixin.DEPRECATED_ATTRIBUTE_MESSAGE,
         "W1501": (
             '"%s" is not a valid mode for open.',
             "bad-open-mode",
@@ -489,6 +497,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         self._deprecated_arguments: dict[str, tuple[tuple[int | None, str], ...]] = {}
         self._deprecated_classes: dict[str, set[str]] = {}
         self._deprecated_decorators: set[str] = set()
+        self._deprecated_attributes: set[str] = set()
 
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
@@ -502,6 +511,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_decorators.update(decorator_list)
+        for since_vers, attribute_list in DEPRECATED_ATTRIBUTES.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_attributes.update(attribute_list)
         # Modules are checked by the ImportsChecker, because the list is
         # synced with the config argument deprecated-modules
 
@@ -868,6 +880,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def deprecated_decorators(self) -> Iterable[str]:
         return self._deprecated_decorators
 
+    def deprecated_attributes(self) -> Iterable[str]:
+        return self._deprecated_attributes
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(StdlibChecker(linter))

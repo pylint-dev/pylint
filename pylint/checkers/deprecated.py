@@ -204,7 +204,7 @@ class DeprecatedMixin(BaseChecker):
         # pylint: disable=unused-argument
         return ()
 
-    def deprecated_attribute(self) -> Container[str]:
+    def deprecated_attributes(self) -> Container[str]:
         """Callback returning the deprecated attributes.
 
         Returns:
@@ -214,9 +214,13 @@ class DeprecatedMixin(BaseChecker):
 
     def check_deprecated_attribute(self, node: astroid.Attribute) -> None:
         """Checks if the attribute is deprecated."""
-        qnames = {node.expr.name}
-        if any(name in self.deprecated_attribute() for name in qnames):
-            self.add_message("deprecated-attribute", node=node, args=(node.attrname,))
+        inferred_expr = safe_infer(node.expr)
+        if not isinstance(inferred_expr, (nodes.ClassDef, nodes.Module)):
+            return
+        attribute_qname = ".".join((inferred_expr.qname(), node.attrname))
+        for deprecated_name in self.deprecated_attributes():
+            if attribute_qname == deprecated_name:
+                self.add_message("deprecated-attribute", node=node, args=(node.attrname,))
 
     def check_deprecated_module(self, node: nodes.Import, mod_path: str | None) -> None:
         """Checks if the module is deprecated."""
@@ -233,12 +237,6 @@ class DeprecatedMixin(BaseChecker):
         # Reject nodes which aren't of interest to us.
         if not isinstance(inferred, ACCEPTABLE_NODES):
             return
-
-        if isinstance(node.func, nodes.Attribute) and isinstance(
-            node.func.expr, nodes.Name
-        ):
-            attr_name = node.func.attrname
-            self.check_deprecated_attribute(node, attr_name)
 
         if isinstance(node.func, nodes.Attribute):
             func_name = node.func.attrname
