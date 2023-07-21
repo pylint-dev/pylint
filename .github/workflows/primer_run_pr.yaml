@@ -140,6 +140,11 @@ jobs:
           key: >-
             ${{ runner.os }}-${{ matrix.python-version }}-${{
             steps.commitstring.outputs.commitstring }}-primer
+      - name: Regenerate cache
+        if: steps.cache-projects.outputs.cache-hit != 'true'
+        run: |
+          . venv/bin/activate
+          python tests/primer/__main__.py prepare --clone
       - name: Check cache
         run: |
           . venv/bin/activate
