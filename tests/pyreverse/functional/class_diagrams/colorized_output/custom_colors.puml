@@ -26,6 +26,7 @@ class "StdlibChecker" as pylint.checkers.stdlib.StdlibChecker #yellow {
   msgs : dict[str, MessageDefinitionTuple]
   name : str
   deprecated_arguments(method: str) -> tuple[tuple[int | None, str], ...]
+  deprecated_attributes() -> Iterable[str]
   deprecated_classes(module: str) -> Iterable[str]
   deprecated_decorators() -> Iterable[str]
   deprecated_methods() -> set[str]

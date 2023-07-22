@@ -3,11 +3,12 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
+from collections.abc import Container
 
 import astroid
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
-from pylint.interfaces import UNDEFINED
+from pylint.interfaces import UNDEFINED, INFERENCE
 from pylint.testutils import CheckerTestCase, MessageTest
 
 
@@ -52,6 +53,9 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
     def deprecated_decorators(self) -> set[str]:
         return {".deprecated_decorator"}
 
+    def deprecated_attributes(self) -> Container[str]:
+        return {".DeprecatedClass.deprecated_attribute"}
+
 
 # pylint: disable-next = too-many-public-methods
 class TestDeprecatedChecker(CheckerTestCase):
@@ -73,11 +77,11 @@ class TestDeprecatedChecker(CheckerTestCase):
                 msg_id="deprecated-attribute",
                 args=("deprecated_attribute",),
                 node=node,
-                confidence=UNDEFINED,
-                line=7,
+                confidence=INFERENCE,
+                line=6,
                 col_offset=0,
-                end_line=7,
-                end_col_offset=26,
+                end_line=6,
+                end_col_offset=24,
             )
         ):
             self.checker.visit_attribute(node)

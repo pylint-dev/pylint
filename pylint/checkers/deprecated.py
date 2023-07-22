@@ -11,10 +11,12 @@ from itertools import chain
 
 import astroid
 from astroid import nodes
+from astroid.bases import Instance
 
 from pylint.checkers import utils
 from pylint.checkers.base_checker import BaseChecker
 from pylint.checkers.utils import get_import_name, infer_all, safe_infer
+from pylint.interfaces import INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
 ACCEPTABLE_NODES = (
@@ -215,13 +217,16 @@ class DeprecatedMixin(BaseChecker):
     def check_deprecated_attribute(self, node: astroid.Attribute) -> None:
         """Checks if the attribute is deprecated."""
         inferred_expr = safe_infer(node.expr)
-        if not isinstance(inferred_expr, (nodes.ClassDef, nodes.Module)):
+        if not isinstance(inferred_expr, (nodes.ClassDef, Instance, nodes.Module)):
             return
         attribute_qname = ".".join((inferred_expr.qname(), node.attrname))
         for deprecated_name in self.deprecated_attributes():
             if attribute_qname == deprecated_name:
                 self.add_message(
-                    "deprecated-attribute", node=node, args=(node.attrname,)
+                    "deprecated-attribute",
+                    node=node,
+                    args=(node.attrname,),
+                    confidence=INFERENCE,
                 )
 
     def check_deprecated_module(self, node: nodes.Import, mod_path: str | None) -> None:
