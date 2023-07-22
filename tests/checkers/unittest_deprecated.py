@@ -3,12 +3,13 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
+
 from collections.abc import Container
 
 import astroid
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
-from pylint.interfaces import UNDEFINED, INFERENCE
+from pylint.interfaces import INFERENCE, UNDEFINED
 from pylint.testutils import CheckerTestCase, MessageTest
 
 
