@@ -36,7 +36,7 @@ requires-python = ">=3.8.0"
 dependencies    = [
     "dill>=0.2;python_version<'3.11'",
     "dill>=0.3.6;python_version>='3.11'",
-    "dill @ git+https://github.com/uqfoundation/dill.git@83ab36ce3e8cfcc0224aa99d5249a5e8f1c22590 ; python_version>='3.12'",
+    "dill>=0.3.7;python_version>='3.12'",
     "platformdirs>=2.2.0",
     # Also upgrade requirements_test_min.txt.
     # Pinned to dev of second minor update to allow editable installs and fix primer issues,
