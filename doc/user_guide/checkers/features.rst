@@ -167,7 +167,8 @@ Basic checker Messages
   disable it if you're using those strings as documentation, instead of
   comments.
 :unnecessary-pass (W0107): *Unnecessary pass statement*
-  Used when a "pass" statement that can be avoided is encountered.
+  Used when a "pass" statement can be removed without affecting the behaviour
+  of the code.
 :unreachable (W0101): *Unreachable code*
   Used when there is some code behind a "return" or "raise" statement, which
   will never be accessed.
