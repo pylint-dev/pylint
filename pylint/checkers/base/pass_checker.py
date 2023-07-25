@@ -16,7 +16,7 @@ class PassChecker(_BasicChecker):
             "Unnecessary pass statement",
             "unnecessary-pass",
             'Used when a "pass" statement can be removed without affecting '
-            'the behaviour of the code.',
+            "the behaviour of the code.",
         )
     }
 
