@@ -148,7 +148,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install pygal
-          pip install -e .
+          pip install .
           pip list | grep 'astroid\|pylint'
           pytest --exitfirst \
             --benchmark-only \
