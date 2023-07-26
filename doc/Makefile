@@ -9,11 +9,13 @@ PAPER         =
 BUILDDIR      = _build
 PYTHON        = /usr/bin/env python
 PYTHONPATH    =
+# Set PYLINT_SPHINX_FATAL_WARNINGS= on the command line to restore the default.
+PYLINT_SPHINX_FATAL_WARNINGS = -W --keep-going
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees -T -W --keep-going $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) -n .
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees -T $(PYLINT_SPHINX_FATAL_WARNINGS) $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) -n .
 
 .PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck
 
