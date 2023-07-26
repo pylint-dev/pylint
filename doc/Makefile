@@ -48,7 +48,7 @@ distclean: clean
 
 install-dependencies:
 	@echo "Install dependencies"
-	cd ../ && $(PIP) install -r doc/requirements.txt && cd doc/
+	cd ../ && $(PIP) install -r doc/requirements.txt
 
 build-html:
 	@echo "If you did not run 'make install-dependencies', you need to."
