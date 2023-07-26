@@ -787,7 +787,7 @@ See also :ref:`refactoring checker's options' documentation <refactoring-options
 
 Refactoring checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:simplifiable-condition (R1726): *Boolean condition '%s' may be simplified to '%s'*
+:simplifiable-condition (R1726): *Boolean condition "%s" may be simplified to "%s"*
   Emitted when a boolean condition is able to be simplified.
 :condition-evals-to-constant (R1727): *Boolean condition '%s' will always evaluate to '%s'*
   Emitted when a boolean condition can be simplified to a constant value.
