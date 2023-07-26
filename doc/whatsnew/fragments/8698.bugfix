@@ -1,3 +1,0 @@
-Fix crash in ``invalid-metaclass`` check when a metaclass had duplicate bases.
-
-Closes #8698

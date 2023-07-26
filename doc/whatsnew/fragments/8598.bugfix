@@ -1,4 +1,0 @@
-Fix crash for ``modified-while-iterating`` checker when deleting
-members of a dict returned from a call.
-
-Closes #8598
