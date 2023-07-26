@@ -36,7 +36,7 @@ help:
 	@echo "  linkcheck  to check all external links for integrity"
 
 clean:
-	-rm -rf $(BUILDDIR)/* user_guide/messages/convention user_guide/messages/error \
+	rm -rf $(BUILDDIR)/* user_guide/messages/convention user_guide/messages/error \
 	  user_guide/messages/fatal user_guide/messages/information user_guide/messages/refactor \
 	  user_guide/messages/warning technical_reference/extensions.rst technical_reference/features.rst
 
