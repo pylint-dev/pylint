@@ -1,3 +1,0 @@
-Fix a crash when a ``nonlocal`` is defined at module-level.
-
-Closes #8735

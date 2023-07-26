@@ -1,3 +1,0 @@
-Fix crash when a variable is assigned to a class attribute of identical name.
-
-Closes #8754
