@@ -2958,7 +2958,6 @@ class VariablesChecker(BaseChecker):
 
         if values is not None:
             if len(targets) != len(values):
-                breakpoint()
                 self._report_unbalanced_unpacking(
                     node, inferred, targets, values, details
                 )
