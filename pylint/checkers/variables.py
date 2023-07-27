@@ -1327,10 +1327,11 @@ class VariablesChecker(BaseChecker):
                 return
 
         for value in values:
-            value_length = len(list(value.get_children()))
+            value_length = self._get_value_length(value)
             if len(targets) != value_length:
                 details = _get_unpacking_extra_info(node, inferred)
-                self._report_unbalanced_unpacking(node, inferred, targets, values, details)
+                self._report_unbalanced_unpacking(node, inferred, targets, value_length, details)
+                break
 
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
@@ -2959,16 +2960,28 @@ class VariablesChecker(BaseChecker):
         if values is not None:
             if len(targets) != len(values):
                 self._report_unbalanced_unpacking(
-                    node, inferred, targets, values, details
+                    node, inferred, targets, len(values), details
                 )
         # attempt to check unpacking may be possible (i.e. RHS is iterable)
         elif not utils.is_iterable(inferred):
             self._report_unpacking_non_sequence(node, details)
 
     @staticmethod
+    def _get_value_length(value_node: nodes.NodeNG) -> int:
+        value_subnodes = VariablesChecker._nodes_to_unpack(value_node)
+        if value_subnodes is not None:
+            return len(value_subnodes)
+        if isinstance(value_node, nodes.Const) and isinstance(value_node.value, (str, bytes)):
+            return len(value_node.value)
+        if isinstance(value_node, nodes.Subscript):
+            step = value_node.slice.step or 1
+            return (value_node.slice.upper - value_node.slice.lower) // step
+        return 1
+
+    @staticmethod
     def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:
         """Return the list of values of the `Assign` node."""
-        if isinstance(node, (nodes.Tuple, nodes.List, *DICT_TYPES)):
+        if isinstance(node, (nodes.Tuple, nodes.List, nodes.Set, *DICT_TYPES)):
             return node.itered()  # type: ignore[no-any-return]
         if isinstance(node, astroid.Instance) and any(
             ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
@@ -2981,15 +2994,15 @@ class VariablesChecker(BaseChecker):
         node: nodes.NodeNG,
         inferred: InferenceResult,
         targets: list[nodes.NodeNG],
-        values: list[nodes.NodeNG],
+        values_count: int,
         details: str,
     ) -> None:
         args = (
             details,
             len(targets),
             "" if len(targets) == 1 else "s",
-            len(values),
-            "" if len(values) == 1 else "s",
+            values_count,
+            "" if values_count == 1 else "s",
         )
 
         symbol = (
