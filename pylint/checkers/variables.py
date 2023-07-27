@@ -1326,9 +1326,11 @@ class VariablesChecker(BaseChecker):
             if any(isinstance(target, nodes.Starred) for target in targets):
                 return
 
-        if len(targets) != len(values):
-            details = _get_unpacking_extra_info(node, inferred)
-            self._report_unbalanced_unpacking(node, inferred, targets, values, details)
+        for value in values:
+            value_length = len(list(value.get_children()))
+            if len(targets) != value_length:
+                details = _get_unpacking_extra_info(node, inferred)
+                self._report_unbalanced_unpacking(node, inferred, targets, values, details)
 
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)

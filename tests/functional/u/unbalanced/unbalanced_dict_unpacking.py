@@ -89,3 +89,32 @@ one, *others, last = {1: 2, 3: 4, 5: 6}.values()
 _, *others = {1: 2, 3: 4, 5: 6}.items()
 _, *others = {1: 2, 3: 4, 5: 6}.values()
 _, others = {1: 2, 3: 4, 5: 6}.values()  # [unbalanced-dict-unpacking]
+
+
+for value1, value2 in {1: 2, 3: 4}.values():  # [unbalanced-dict-unpacking]
+    pass
+
+for value1, value2 in {1: (2, 3), 4: 5}.values():  # [unbalanced-dict-unpacking]
+    pass
+
+for value1, value2 in {1: 2, 3: (4, 5)}.values():  # [unbalanced-dict-unpacking]
+    pass
+
+for value1, value2 in {1: (2, 3, 4), 5: (6, 7)}.values():  # [unbalanced-dict-unpacking]
+    pass
+
+for value1, value2, value3 in {1: (2, 3, 4), 5: (6, 7)}.values():  # [unbalanced-dict-unpacking]
+    pass
+
+# These should not raise unbalanced-dict since the there are two elements in every value
+for value1, value2 in {1: (2, 3), 4: (5, 6)}.values():
+    pass
+
+for value1, value2, value3 in {1: (2, 3, 4), 5: (6, 7, 8)}.values():
+    pass
+
+for value1, value2 in {1: [2, 3], 4: {5, 6}}.values():
+    pass
+
+for value1, value2 in {1: {2: 3, 4: 5}, 6: {7: 8, 9: 10}}.values():
+    pass

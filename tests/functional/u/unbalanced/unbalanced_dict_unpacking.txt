@@ -14,3 +14,8 @@ unbalanced-dict-unpacking:67:0:68:14::"Possible unbalanced dict unpacking with {
 unbalanced-dict-unpacking:77:0:78:14::"Possible unbalanced dict unpacking with {'key': 'value', 1: 2, 20: 21}.values(): left side has 2 labels, right side has 3 values":INFERENCE
 unbalanced-dict-unpacking:80:0:81:14::"Possible unbalanced dict unpacking with {'key': 'value', 1: 2, 20: 21}.values(): left side has 2 labels, right side has 3 values":INFERENCE
 unbalanced-dict-unpacking:91:0:91:39::"Possible unbalanced dict unpacking with {1: 2, 3: 4, 5: 6}.values(): left side has 2 labels, right side has 3 values":INFERENCE
+unbalanced-dict-unpacking:94:0:95:8::"Possible unbalanced dict unpacking with {1: 2, 3: 4}.values(): left side has 2 labels, right side has 1 value":INFERENCE
+unbalanced-dict-unpacking:97:0:98:8::"Possible unbalanced dict unpacking with {1: (2, 3), 4: 5}.values(): left side has 2 labels, right side has 1 value":INFERENCE
+unbalanced-dict-unpacking:100:0:101:8::"Possible unbalanced dict unpacking with {1: 2, 3: (4, 5)}.values(): left side has 2 labels, right side has 1 value":INFERENCE
+unbalanced-dict-unpacking:103:0:104:8::"Possible unbalanced dict unpacking with {1: (2, 3, 4), 5: (6, 7)}.values(): left side has 2 labels, right side has 3 value":INFERENCE
+unbalanced-dict-unpacking:106:0:107:8::"Possible unbalanced dict unpacking with {1: (2, 3, 4), 5: (6, 7)}.values(): left side has 3 labels, right side has 2 value":INFERENCE
