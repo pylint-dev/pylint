@@ -106,7 +106,7 @@ for value1, value2 in {1: (2, 3, 4), 5: (6, 7)}.values():  # [unbalanced-dict-un
 for value1, value2, value3 in {1: (2, 3, 4), 5: (6, 7)}.values():  # [unbalanced-dict-unpacking]
     pass
 
-# These should not raise unbalanced-dict since the there are two elements in every value
+# These should not raise unbalanced-dict since the there are the same number of targets and values in every expression
 for value1, value2 in {1: (2, 3), 4: (5, 6)}.values():
     pass
 
@@ -117,4 +117,7 @@ for value1, value2 in {1: [2, 3], 4: {5, 6}}.values():
     pass
 
 for value1, value2 in {1: {2: 3, 4: 5}, 6: {7: 8, 9: 10}}.values():
+    pass
+
+for value1, value2 in {1: [1, 2, 3][0:1]}.values():
     pass
