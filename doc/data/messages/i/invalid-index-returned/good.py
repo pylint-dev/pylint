@@ -1,1 +1,5 @@
-# This is a placeholder for correct code for this message.
+class GoodIndex:
+    """__index__ returns <type 'int'>"""
+
+    def __index__(self):
+        return 19

@@ -1,9 +1,12 @@
 """Tests for missing-param-doc and missing-type-doc for Numpy style docstrings
 with accept-no-param-doc = no
 """
+
 # pylint: disable=invalid-name, unused-argument, undefined-variable, too-many-arguments
 # pylint: disable=line-too-long, too-few-public-methods, missing-class-docstring
 # pylint: disable=missing-function-docstring, function-redefined, inconsistent-return-statements
+
+from __future__ import annotations
 
 
 def test_missing_func_params_in_numpy_docstring(  # [missing-param-doc, missing-type-doc]
@@ -294,6 +297,25 @@ def test_finds_kwargs_without_type_numpy(named_arg, **kwargs):
         return named_arg
 
 
+def test_finds_kwargs_with_type_numpy(named_arg, **kwargs: dict[str, str]):
+    """The docstring
+
+    Args
+    ----
+    named_arg : object
+        Returned
+    **kwargs :
+        Keyword arguments
+
+    Returns
+    -------
+        object or None
+            Maybe named_arg
+    """
+    if kwargs:
+        return named_arg
+
+
 def test_finds_kwargs_without_asterisk_numpy(named_arg, **kwargs):
     """The docstring
 
@@ -392,8 +414,9 @@ def test_ignores_optional_specifier_numpy(param, param2="all"):
     """
     return param, param2
 
+
 def test_with_list_of_default_values(arg, option, option2):
-    """Reported in https://github.com/PyCQA/pylint/issues/4035.
+    """Reported in https://github.com/pylint-dev/pylint/issues/4035.
 
     Parameters
     ----------
@@ -406,3 +429,18 @@ def test_with_list_of_default_values(arg, option, option2):
 
     """
     return arg, option, option2
+
+
+def test_with_descriptions_instead_of_typing(arg, axis, option):
+    """We choose to accept description in place of typing as well.
+
+    See: https://github.com/pylint-dev/pylint/pull/7398.
+
+    Parameters
+    ----------
+    arg : a number type.
+    axis : int or None
+    option : {"y", "n"}
+        Do I do it?
+    """
+    return arg, option

@@ -1,5 +1,5 @@
 """Test for statements without effects."""
-# pylint: disable=too-few-public-methods, useless-object-inheritance, unnecessary-comprehension, unnecessary-ellipsis, use-list-literal
+# pylint: disable=too-few-public-methods, unnecessary-comprehension, unnecessary-ellipsis, use-list-literal
 
 # +1:[pointless-string-statement]
 """inline doc string should use a separated message"""
@@ -35,8 +35,11 @@ to_be().title  # [expression-not-assigned]
 GOOD_ATTRIBUTE_DOCSTRING = 42
 """Module level attribute docstring is fine. """
 
-class ClassLevelAttributeTest(object):
+class ClassLevelAttributeTest:
     """ test attribute docstrings. """
+
+    class ClassLevelException(Exception):
+        """Exception defined for access as a class attribute."""
 
     good_attribute_docstring = 24
     """ class level attribute docstring is fine either. """
@@ -73,3 +76,24 @@ def ellipsis():
 class EllipsisBody:
     """Test that an Ellipsis as a body does not trigger the error"""
     ...
+
+
+def assigned_exception():
+    """Test that an assigned exception is not flagged as a pointless statement"""
+    exception = ValueError("one")
+    return exception, ValueError("two")
+
+
+def raised_exception():
+    """Test that a raised exception is not flagged as a pointless statement"""
+    raise ValueError()
+
+
+def unraised_exception():
+    """Test that instantiating but not raising an exception is flagged as a pointless statement"""
+    ValueError("pointless-statement")  # [pointless-exception-statement]
+    ValueError(to_be())  # [pointless-exception-statement]
+    ClassLevelAttributeTest.ClassLevelException(to_be())  # [pointless-exception-statement]
+    ValueError("another-pointless-statement")  # [pointless-exception-statement]
+    instance = ClassLevelAttributeTest()
+    instance.ClassLevelException(to_be())  # [pointless-exception-statement]

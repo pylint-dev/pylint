@@ -1,5 +1,4 @@
 # pylint: disable=missing-docstring, pointless-statement
-from __future__ import print_function
 
 
 def totoo():

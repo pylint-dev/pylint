@@ -9,12 +9,12 @@ You think you have found a bug in Pylint? Well, this may be the case
 since Pylint and Python are under heavy development!
 
 Please take the time to check if it is already in the issue tracker at
-https://github.com/PyCQA/pylint
+https://github.com/pylint-dev/pylint
 
 Note that the issue might also be reported in one of Pylint's major dependencies,
 astroid:
 
-* https://github.com/PyCQA/astroid
+* https://github.com/pylint-dev/astroid
 
 Discord server
 --------------
@@ -37,8 +37,8 @@ https://mail.python.org/mailman3/lists/code-quality.python.org/
 Archives are available at
 https://mail.python.org/pipermail/code-quality/
 
-Archives before April 2013 are available at
-https://lists.logilab.org/pipermail/python-projects/
+Archives before April 2013 are not available anymore. At
+https://mail.python.org/pipermail/ it was under ``python-projects``.
 
 Support
 -------

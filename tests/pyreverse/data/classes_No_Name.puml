@@ -19,8 +19,12 @@ class "DoSomething" as data.suppliermodule_test.DoSomething {
   do_it(new_int: int) -> int
 }
 class "Interface" as data.suppliermodule_test.Interface {
-  get_value()
-  set_value(value)
+  {abstract}get_value()
+  {abstract}set_value(value)
+}
+class "NullablePatterns" as data.nullable_pattern.NullablePatterns {
+  {abstract}return_nullable_1() -> int | None
+  {abstract}return_nullable_2() -> Optional[int]
 }
 class "PropertyPatterns" as data.property_pattern.PropertyPatterns {
   prop1
@@ -36,8 +40,7 @@ class "Specialization" as data.clientmodule_test.Specialization {
   transform_value(value: int) -> int
 }
 data.clientmodule_test.Specialization --|> data.clientmodule_test.Ancestor
-data.clientmodule_test.Ancestor ..|> data.suppliermodule_test.Interface
 data.suppliermodule_test.DoNothing --* data.clientmodule_test.Ancestor : cls_member
 data.suppliermodule_test.DoNothing --* data.clientmodule_test.Specialization : relation
-data.suppliermodule_test.DoNothing2 --* data.clientmodule_test.Specialization : relation2
+data.suppliermodule_test.DoNothing2 --o data.clientmodule_test.Specialization : relation2
 @enduml

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Non regression tests for pylint, which requires a too specific configuration
 to be incorporated in the automatic functional test framework
@@ -16,7 +16,6 @@ from collections.abc import Callable, Iterator
 from os.path import abspath, dirname, join
 from typing import cast
 
-import astroid
 import pytest
 
 from pylint import testutils
@@ -27,12 +26,12 @@ sys.path.insert(1, REGR_DATA)
 
 
 @pytest.fixture(scope="module")
-def reporter():
+def reporter() -> type[testutils.GenericTestReporter]:
     return testutils.GenericTestReporter
 
 
 @pytest.fixture(scope="module")
-def disable():
+def disable() -> list[str]:
     return ["I"]
 
 
@@ -48,7 +47,7 @@ def finalize_linter(linter: PyLinter) -> Iterator[PyLinter]:
     linter.reporter.finalize()
 
 
-def Equals(expected):
+def Equals(expected: str) -> Callable[[str], bool]:
     return lambda got: got == expected
 
 
@@ -67,7 +66,7 @@ def Equals(expected):
     ],
 )
 def test_package(
-    finalize_linter: PyLinter, file_names: list[str], check: Callable
+    finalize_linter: PyLinter, file_names: list[str], check: Callable[[str], bool]
 ) -> None:
     finalize_linter.check(file_names)
     finalize_linter.reporter = cast(  # Due to fixture
@@ -101,7 +100,7 @@ def test_descriptor_crash(fname: str, finalize_linter: PyLinter) -> None:
 
 
 @pytest.fixture
-def modify_path() -> Iterator:
+def modify_path() -> Iterator[None]:
     cwd = os.getcwd()
     sys.path.insert(0, "")
     yield
@@ -120,28 +119,6 @@ def test_check_package___init__(finalize_linter: PyLinter) -> None:
     finalize_linter.check(["__init__"])
     checked = list(finalize_linter.stats.by_module.keys())
     assert checked == ["__init__"]
-
-
-# TODO: 3.0: Test are broken because of property shenanigans of config attribute
-# Re-enable after some of the old attributes have been removed after deprecation period
-@pytest.mark.xfail
-def test_pylint_config_attr() -> None:
-    mod = astroid.MANAGER.ast_from_module_name("pylint.lint.pylinter")
-    pylinter = mod["PyLinter"]
-    expect = [
-        "_ArgumentsManager",
-        "object",
-        "ReportsHandlerMixIn",
-        "BaseTokenChecker",
-        "BaseChecker",
-        "_ArgumentsProvider",
-    ]
-    assert [c.name for c in pylinter.ancestors()] == expect
-    assert list(astroid.Instance(pylinter).getattr("config"))
-    inferred = list(astroid.Instance(pylinter).igetattr("config"))
-    assert len(inferred) >= 1
-    assert inferred[0].root().name == "argparse"
-    assert inferred[0].name == "Namespace"
 
 
 @pytest.mark.timeout(30)

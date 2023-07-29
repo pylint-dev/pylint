@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 import itertools
 import unicodedata
@@ -78,7 +78,7 @@ class TestBidirectionalUnicodeChecker(pylint.testutils.CheckerTestCase):
             )
         ],
     )
-    def test_find_bidi_string(self, bad_string: str, codec: str):
+    def test_find_bidi_string(self, bad_string: str, codec: str) -> None:
         """Ensure that all Bidirectional strings are detected.
 
         Tests also UTF-16 and UTF-32.

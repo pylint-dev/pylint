@@ -1,11 +1,11 @@
 """Don't warn if the class is instantiated in its own body."""
-# pylint: disable=missing-docstring, useless-object-inheritance
+# pylint: disable=missing-docstring
 
 
 import abc
 
 
-class Ala(object, metaclass=abc.ABCMeta):
+class Ala(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def bala(self):

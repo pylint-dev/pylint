@@ -1,0 +1,5 @@
+@startuml classes
+set namespaceSeparator none
+class "PEP420" as namespaces.pep420.pep420.PEP420 {
+}
+@enduml

@@ -1,0 +1,3 @@
+singledispatch-method:9:5:9:19:Board.convert_position:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:HIGH
+singledispatch-method:14:5:14:30:Board._:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:INFERENCE
+singledispatch-method:20:5:20:30:Board._:singledispatch decorator should not be used with methods, use singledispatchmethod instead.:INFERENCE

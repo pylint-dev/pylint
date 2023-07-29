@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ class ASTWalker:
     def _is_method_enabled(self, method: AstCallback) -> bool:
         if not hasattr(method, "checks_msgs"):
             return True
-        return any(self.linter.is_message_enabled(m) for m in method.checks_msgs)  # type: ignore[attr-defined]
+        return any(self.linter.is_message_enabled(m) for m in method.checks_msgs)
 
     def add_checker(self, checker: BaseChecker) -> None:
         """Walk to the checker's dir and collect visit and leave methods."""
@@ -82,6 +82,7 @@ class ASTWalker:
         visit_events: Sequence[AstCallback] = self.visit_events.get(cid, ())
         leave_events: Sequence[AstCallback] = self.leave_events.get(cid, ())
 
+        # pylint: disable = too-many-try-statements
         try:
             if astroid.is_statement:
                 self.nbstatements += 1
@@ -97,7 +98,7 @@ class ASTWalker:
             if self.exception_msg is False:
                 file = getattr(astroid.root(), "file", None)
                 print(
-                    f"Exception on node {repr(astroid)} in file '{file}'",
+                    f"Exception on node {astroid!r} in file '{file}'",
                     file=sys.stderr,
                 )
                 traceback.print_exc()

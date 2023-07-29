@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Script used to generate the features file before building the actual
 documentation.
 """
 
+from __future__ import annotations
+
 import os
-from typing import Optional
 
 import sphinx
 from sphinx.application import Sphinx
@@ -19,7 +20,7 @@ from pylint.utils import get_rst_title, print_full_documentation
 
 
 # pylint: disable-next=unused-argument
-def builder_inited(app: Optional[Sphinx]) -> None:
+def builder_inited(app: Sphinx | None) -> None:
     # PACKAGE/docs/exts/pylint_extensions.py --> PACKAGE/
     base_path = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +40,7 @@ def builder_inited(app: Optional[Sphinx]) -> None:
         print_full_documentation(linter, stream, False)
 
 
-def setup(app):
+def setup(app: Sphinx) -> dict[str, str]:
     app.connect("builder-inited", builder_inited)
     return {"version": sphinx.__display_version__}
 

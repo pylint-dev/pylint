@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -23,7 +23,9 @@ from pylint.constants import IS_PYPY
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
-from pylint.testutils.functional.test_file import (  # need to import from functional.test_file to avoid cyclic import
+
+# need to import from functional.test_file to avoid cyclic import
+from pylint.testutils.functional.test_file import (
     FunctionalTestFile,
     NoFileError,
     parse_python_version,
@@ -145,7 +147,7 @@ class LintModuleTest:
         self._runTest()
 
     def _should_be_skipped_due_to_version(self) -> bool:
-        return (
+        return (  # type: ignore[no-any-return]
             sys.version_info < self._linter.config.min_pyver
             or sys.version_info > self._linter.config.max_pyver
         )
@@ -264,7 +266,7 @@ class LintModuleTest:
         expected_messages: MessageCounter,
         actual_output: list[OutputLine],
     ) -> str:
-        msg = [f'Wrong results for file "{self._test_file.base}":']
+        msg = [f'Wrong message(s) raised for "{Path(self._test_file.source).name}":']
         missing, unexpected = self.multiset_difference(
             expected_messages, actual_messages
         )
@@ -287,12 +289,7 @@ class LintModuleTest:
     ) -> str:
         missing = set(expected_lines) - set(received_lines)
         unexpected = set(received_lines) - set(expected_lines)
-        error_msg = (
-            f"Wrong output for '{self._test_file.base}.txt':\n"
-            "You can update the expected output automatically with: '"
-            f"python tests/test_functional.py {UPDATE_OPTION} -k "
-            f'"test_functional[{self._test_file.base}]"\'\n\n'
-        )
+        error_msg = f'Wrong output for "{Path(self._test_file.expected_output).name}":'
         sort_by_line_number = operator.attrgetter("lineno")
         if missing:
             error_msg += "\n- Missing lines:\n"
@@ -302,6 +299,17 @@ class LintModuleTest:
             error_msg += "\n- Unexpected lines:\n"
             for line in sorted(unexpected, key=sort_by_line_number):
                 error_msg += f"{line}\n"
+            error_msg += (
+                "\nYou can update the expected output automatically with:\n'"
+                f"python tests/test_functional.py {UPDATE_OPTION} -k "
+                f'"test_functional[{self._test_file.base}]"\'\n\n'
+                "Here's the update text in case you can't:\n"
+            )
+            expected_csv = StringIO()
+            writer = csv.writer(expected_csv, dialect="test")
+            for line in sorted(received_lines, key=sort_by_line_number):
+                writer.writerow(line.to_csv())
+            error_msg += expected_csv.getvalue()
         return error_msg
 
     def _check_output_text(

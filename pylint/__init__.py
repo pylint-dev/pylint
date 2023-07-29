@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -9,7 +9,6 @@ __all__ = [
     "version",
     "modify_sys_path",
     "run_pylint",
-    "run_epylint",
     "run_symilar",
     "run_pyreverse",
 ]
@@ -47,17 +46,7 @@ def _run_pylint_config(argv: Sequence[str] | None = None) -> None:
     _PylintConfigRun(argv or sys.argv[1:])
 
 
-def run_epylint(argv: Sequence[str] | None = None) -> NoReturn:
-    """Run epylint.
-
-    argv can be a list of strings normally supplied as arguments on the command line
-    """
-    from pylint.epylint import Run as EpylintRun
-
-    EpylintRun(argv)
-
-
-def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:  # type: ignore[misc]
+def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:
     """Run pyreverse.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
@@ -89,16 +78,17 @@ def modify_sys_path() -> None:
     - Remove the first entry. This will always be either "" or the working directory
     - Remove the working directory from the second and third entries
       if PYTHONPATH includes a ":" at the beginning or the end.
-      https://github.com/PyCQA/pylint/issues/3636
+      https://github.com/pylint-dev/pylint/issues/3636
       Don't remove it if PYTHONPATH contains the cwd or '.' as the entry will
       only be added once.
     - Don't remove the working directory from the rest. It will be included
       if pylint is installed in an editable configuration (as the last item).
-      https://github.com/PyCQA/pylint/issues/4161
+      https://github.com/pylint-dev/pylint/issues/4161
     """
-    sys.path.pop(0)
-    env_pythonpath = os.environ.get("PYTHONPATH", "")
     cwd = os.getcwd()
+    if sys.path[0] in ("", ".", cwd):
+        sys.path.pop(0)
+    env_pythonpath = os.environ.get("PYTHONPATH", "")
     if env_pythonpath.startswith(":") and env_pythonpath not in (f":{cwd}", ":."):
         sys.path.pop(0)
     elif env_pythonpath.endswith(":") and env_pythonpath not in (f"{cwd}:", ".:"):

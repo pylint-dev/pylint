@@ -1,4 +1,4 @@
-'''Regression for issue https://github.com/PyCQA/pylint/issues/1004'''
+'''Regression for issue https://github.com/pylint-dev/pylint/issues/1004'''
 # pylint: disable=missing-docstring, pointless-statement
 
 import sys

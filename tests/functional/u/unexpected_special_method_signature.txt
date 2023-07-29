@@ -4,7 +4,7 @@ unexpected-special-method-signature:14:4:14:18:Invalid.__format__:The special me
 unexpected-special-method-signature:17:4:17:19:Invalid.__setattr__:The special method '__setattr__' expects 2 param(s), 0 was given:UNDEFINED
 unexpected-special-method-signature:20:4:20:17:Invalid.__round__:The special method '__round__' expects between 0 or 1 param(s), 2 were given:UNDEFINED
 unexpected-special-method-signature:23:4:23:20:Invalid.__deepcopy__:The special method '__deepcopy__' expects 1 param(s), 2 were given:UNDEFINED
-no-method-argument:26:4:26:16:Invalid.__iter__:Method has no argument:UNDEFINED
+no-method-argument:26:4:26:16:Invalid.__iter__:Method '__iter__' has no argument:UNDEFINED
 unexpected-special-method-signature:30:4:30:19:Invalid.__getattr__:The special method '__getattr__' expects 1 param(s), 2 were given:UNDEFINED
 unexpected-special-method-signature:33:4:33:22:Invalid.__subclasses__:The special method '__subclasses__' expects 0 param(s), 1 was given:UNDEFINED
 unexpected-special-method-signature:40:4:40:16:FirstBadContextManager.__exit__:The special method '__exit__' expects 3 param(s), 1 was given:UNDEFINED

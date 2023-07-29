@@ -1,6 +1,6 @@
-# pylint: disable=too-few-public-methods, missing-docstring, useless-object-inheritance
+# pylint: disable=too-few-public-methods, missing-docstring
 
-class Abcd(object):
+class Abcd:
 
     def __init__(self):
         self.aarg = False

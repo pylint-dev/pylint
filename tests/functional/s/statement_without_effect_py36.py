@@ -1,8 +1,8 @@
 """Test for statements without effects."""
-# pylint: disable=too-few-public-methods, useless-object-inheritance
+# pylint: disable=too-few-public-methods
 
 
-class ClassLevelAttributeTest(object):
+class ClassLevelAttributeTest:
     """ test attribute docstrings. """
 
     some_variable: int = 42

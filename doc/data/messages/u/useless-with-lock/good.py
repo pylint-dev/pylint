@@ -1,1 +1,7 @@
-# This is a placeholder for correct code for this message.
+import threading
+
+lock = threading.Lock()
+with lock:
+    print("Make your bed.")
+with lock:
+    print("Sleep in it.")

@@ -1,0 +1,4 @@
+positional-only-arguments-expected:15:0:15:21::"`cake.nihon()` got some positional-only arguments passed as keyword arguments: 'i'":INFERENCE
+positional-only-arguments-expected:16:0:16:23::"`cake.nihon()` got some positional-only arguments passed as keyword arguments: 'r', 'i'":INFERENCE
+positional-only-arguments-expected:17:0:17:25::"`cake.nihon()` got some positional-only arguments passed as keyword arguments: 'a', 'r', 'i'":INFERENCE
+positional-only-arguments-expected:18:0:18:36::"`cake.nihon()` got some positional-only arguments passed as keyword arguments: 'r', 'i'":INFERENCE

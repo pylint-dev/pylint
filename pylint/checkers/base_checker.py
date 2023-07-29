@@ -1,13 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import abc
 import functools
-import warnings
-from collections.abc import Iterator
+from collections.abc import Iterable, Sequence
 from inspect import cleandoc
 from tokenize import TokenInfo
 from typing import TYPE_CHECKING, Any
@@ -17,7 +16,7 @@ from astroid import nodes
 from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
-from pylint.interfaces import Confidence, IRawChecker, ITokenChecker, implements
+from pylint.interfaces import Confidence
 from pylint.message.message_definition import MessageDefinition
 from pylint.typing import (
     ExtraMessageOptions,
@@ -34,7 +33,6 @@ if TYPE_CHECKING:
 
 @functools.total_ordering
 class BaseChecker(_ArgumentsProvider):
-
     # checker name (you may reuse an existing one)
     name: str = ""
     # ordered list of options to control the checker behaviour
@@ -48,17 +46,9 @@ class BaseChecker(_ArgumentsProvider):
 
     def __init__(self, linter: PyLinter) -> None:
         """Checker instances should have the linter as argument."""
-        if getattr(self, "__implements__", None):
-            warnings.warn(
-                "Using the __implements__ inheritance pattern for BaseChecker is no "
-                "longer supported. Child classes should only inherit BaseChecker or any "
-                "of the other checker types from pylint.checkers.",
-                DeprecationWarning,
-            )
         if self.name is not None:
             self.name = self.name.lower()
         self.linter = linter
-
         _ArgumentsProvider.__init__(self, linter)
 
     def __gt__(self, other: Any) -> bool:
@@ -96,17 +86,15 @@ class BaseChecker(_ArgumentsProvider):
 
         See: MessageHandlerMixIn.get_full_documentation()
         """
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            return self.get_full_documentation(
-                msgs=self.msgs, options=self.options_and_values(), reports=self.reports
-            )
+        return self.get_full_documentation(
+            msgs=self.msgs, options=self._options_and_values(), reports=self.reports
+        )
 
     def get_full_documentation(
         self,
         msgs: dict[str, MessageDefinitionTuple],
-        options: Iterator[tuple[str, OptionDict, Any]],
-        reports: tuple[tuple[str, str, ReportsCallable], ...],
+        options: Iterable[tuple[str, OptionDict, Any]],
+        reports: Sequence[tuple[str, str, ReportsCallable]],
         doc: str | None = None,
         module: str | None = None,
         show_options: bool = True,
@@ -193,21 +181,10 @@ class BaseChecker(_ArgumentsProvider):
     def create_message_definition_from_tuple(
         self, msgid: str, msg_tuple: MessageDefinitionTuple
     ) -> MessageDefinition:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
-                default_scope = WarningScope.LINE
-            # TODO: 3.0: Remove deprecated if-statement
-            elif implements(self, (IRawChecker, ITokenChecker)):
-                warnings.warn(  # pragma: no cover
-                    "Checkers should subclass BaseTokenChecker or BaseRawFileChecker "
-                    "instead of using the __implements__ mechanism. Use of __implements__ "
-                    "will no longer be supported in pylint 3.0",
-                    DeprecationWarning,
-                )
-                default_scope = WarningScope.LINE  # pragma: no cover
-            else:
-                default_scope = WarningScope.NODE
+        if isinstance(self, (BaseTokenChecker, BaseRawFileChecker)):
+            default_scope = WarningScope.LINE
+        else:
+            default_scope = WarningScope.NODE
         options: ExtraMessageOptions = {}
         if len(msg_tuple) == 4:
             (msg, symbol, descr, options) = msg_tuple  # type: ignore[misc]
@@ -233,14 +210,6 @@ class BaseChecker(_ArgumentsProvider):
             self.create_message_definition_from_tuple(msgid, msg_tuple)
             for msgid, msg_tuple in sorted(self.msgs.items())
         ]
-
-    def get_message_definition(self, msgid: str) -> MessageDefinition:
-        for message_definition in self.messages:
-            if message_definition.msgid == msgid:
-                return message_definition
-        error_msg = f"MessageDefinition for '{msgid}' does not exists. "
-        error_msg += f"Choose from {[m.msgid for m in self.messages]}."
-        raise InvalidMessageError(error_msg)
 
     def open(self) -> None:
         """Called before visiting project (i.e. set of modules)."""

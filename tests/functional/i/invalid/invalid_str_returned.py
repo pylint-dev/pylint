@@ -1,19 +1,19 @@
 """Check invalid value returned by __str__ """
 
-# pylint: disable=too-few-public-methods,missing-docstring,import-error,useless-object-inheritance,unnecessary-lambda-assignment
+# pylint: disable=too-few-public-methods,missing-docstring,import-error,unnecessary-lambda-assignment
 import six
 
 from missing import Missing
 
 
-class FirstGoodStr(object):
+class FirstGoodStr:
     """__str__ returns <type 'str'>"""
 
     def __str__(self):
         return "some str"
 
 
-class SecondGoodStr(object):
+class SecondGoodStr:
     """__str__ returns <type 'str'>"""
 
     def __str__(self):
@@ -26,38 +26,38 @@ class StrMetaclass(type):
 
 
 @six.add_metaclass(StrMetaclass)
-class ThirdGoodStr(object):
+class ThirdGoodStr:
     """Str through the metaclass."""
 
 
-class FirstBadStr(object):
+class FirstBadStr:
     """ __str__ returns bytes """
 
     def __str__(self):  # [invalid-str-returned]
         return b"123"
 
 
-class SecondBadStr(object):
+class SecondBadStr:
     """ __str__ returns int """
 
     def __str__(self):  # [invalid-str-returned]
         return 1
 
 
-class ThirdBadStr(object):
+class ThirdBadStr:
     """ __str__ returns node which does not have 'value' in AST """
 
     def __str__(self):  # [invalid-str-returned]
         return lambda: "some str"
 
 
-class AmbiguousStr(object):
+class AmbiguousStr:
     """ Uninferable return value """
 
     __str__ = lambda self: Missing
 
 
-class AnotherAmbiguousStr(object):
+class AnotherAmbiguousStr:
     """Potential uninferable return value"""
 
     def __str__(self):

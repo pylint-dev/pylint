@@ -4,7 +4,6 @@
 
 import socket, unknown
 
-__revision__ = 0
 
 class ExceptionSubclass(Exception):
     """ subclass """
@@ -29,4 +28,4 @@ def function():
 try:
     pass
 except function as exc:  # [catching-non-exception]
-    raise Exception from exc  # [bad-exception-cause]
+    raise Exception from exc  # [bad-exception-cause, broad-exception-raised]

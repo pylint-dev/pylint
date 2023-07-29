@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 import pytest
 
@@ -85,6 +85,14 @@ def test_unsupported_assignment() -> None:
 
 def test_unknown_keyword_with_messages() -> None:
     comment = "#pylint: unknown-keyword = missing-docstring"
+    match = OPTION_PO.search(comment)
+    assert match
+    with pytest.raises(UnRecognizedOptionError):
+        list(parse_pragma(match.group(2)))
+
+
+def test_unknown_keyword_with_missing_messages() -> None:
+    comment = "#pylint: unknown-keyword = "
     match = OPTION_PO.search(comment)
     assert match
     with pytest.raises(UnRecognizedOptionError):

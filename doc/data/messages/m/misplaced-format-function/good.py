@@ -1,1 +1,1 @@
-print('Value: {}'.format('Car'))
+print("Value: {}".format("Car"))

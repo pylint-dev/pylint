@@ -1,13 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
-import sys
 import tokenize
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from pylint import exceptions, interfaces
 from pylint.constants import (
@@ -26,12 +25,6 @@ from pylint.utils.pragma_parser import (
     UnRecognizedOptionError,
     parse_pragma,
 )
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -55,9 +48,8 @@ class _MessageStateHandler:
             "enable-msg": self._options_methods["enable"],
         }
         self._pragma_lineno: dict[str, int] = {}
-        # TODO: 3.0: Update key type to str when current_name is always str
         self._stashed_messages: defaultdict[
-            tuple[str | None, str], list[tuple[str | None, str]]
+            tuple[str, str], list[tuple[str | None, str]]
         ] = defaultdict(list)
         """Some messages in the options (for --enable and --disable) are encountered
         too early to warn about them.
@@ -70,10 +62,10 @@ class _MessageStateHandler:
         self, scope: str, msg: MessageDefinition, line: int | None, enable: bool
     ) -> None:
         """Set the status of an individual message."""
-        if scope == "module":
+        if scope in {"module", "line"}:
             assert isinstance(line, int)  # should always be int inside module scope
 
-            self.linter.file_state.set_msg_status(msg, line, enable)
+            self.linter.file_state.set_msg_status(msg, line, enable, scope)
             if not enable and msg.symbol != "locally-disabled":
                 self.linter.add_message(
                     "locally-disabled", line=line, args=(msg.symbol, msg.msgid)
@@ -143,7 +135,7 @@ class _MessageStateHandler:
         ignore_unknown: bool = False,
     ) -> None:
         """Do some tests and then iterate over message definitions to set state."""
-        assert scope in {"package", "module"}
+        assert scope in {"package", "module", "line"}
 
         message_definitions = self._get_messages_to_set(msgid, enable, ignore_unknown)
 
@@ -197,7 +189,7 @@ class _MessageStateHandler:
     def disable_next(
         self,
         msgid: str,
-        scope: str = "package",
+        _: str = "package",
         line: int | None = None,
         ignore_unknown: bool = False,
     ) -> None:
@@ -207,7 +199,7 @@ class _MessageStateHandler:
         self._set_msg_status(
             msgid,
             enable=False,
-            scope=scope,
+            scope="line",
             line=line + 1,
             ignore_unknown=ignore_unknown,
         )
@@ -347,7 +339,7 @@ class _MessageStateHandler:
         prev_line = None
         saw_newline = True
         seen_newline = True
-        for (tok_type, content, start, _, _) in tokens:
+        for tok_type, content, start, _, _ in tokens:
             if prev_line and prev_line != start[0]:
                 saw_newline = seen_newline
                 seen_newline = False
@@ -361,7 +353,7 @@ class _MessageStateHandler:
             match = OPTION_PO.search(content)
             if match is None:
                 continue
-            try:
+            try:  # pylint: disable = too-many-try-statements
                 for pragma_repr in parse_pragma(match.group(2)):
                     if pragma_repr.action in {"disable-all", "skip-file"}:
                         if pragma_repr.action == "disable-all":

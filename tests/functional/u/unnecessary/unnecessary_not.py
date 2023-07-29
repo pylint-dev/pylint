@@ -1,7 +1,7 @@
 """Check exceeding negations in boolean expressions trigger warnings"""
 
 # pylint: disable=singleton-comparison,too-many-branches,too-few-public-methods,undefined-variable
-# pylint: disable=literal-comparison, comparison-with-itself, useless-object-inheritance, comparison-of-constants
+# pylint: disable=literal-comparison, comparison-with-itself, comparison-of-constants
 def unneeded_not():
     """This is not ok
     """
@@ -57,7 +57,7 @@ def tolerated_statements():
         pass
 
 
-class Klass(object):
+class Klass:
     """This is also ok"""
     def __ne__(self, other):
         return not self == other

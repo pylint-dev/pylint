@@ -1,7 +1,7 @@
 """ Various tests for class members access. """
-# pylint: disable=too-few-public-methods,import-error,missing-docstring, wrong-import-position,wrong-import-order, useless-object-inheritance, unnecessary-dunder-call
+# pylint: disable=too-few-public-methods,import-error,missing-docstring, wrong-import-position,wrong-import-order, unnecessary-dunder-call
 from missing import Missing
-class MyClass(object):
+class MyClass:
     """class docstring"""
 
     def __init__(self):
@@ -16,7 +16,7 @@ class MyClass(object):
         self.nonexistent1.truc() # [no-member]
         self.nonexistent2[1] = 'hehe' # [no-member]
 
-class XYZMixin(object):
+class XYZMixin:
     """access to undefined members should be ignored in mixin classes by
     default
     """
@@ -24,23 +24,23 @@ class XYZMixin(object):
         print(self.nonexistent)
 
 
-class NewClass(object):
+class NewClass:
     """use object.__setattr__"""
     def __init__(self):
         self.__setattr__('toto', 'tutu')
 
 from abc import ABCMeta
 
-class TestMetaclass(object, metaclass=ABCMeta):
+class TestMetaclass(metaclass=ABCMeta):
     """ Test attribute access for metaclasses. """
 
 class Metaclass(type):
     """ metaclass """
     @classmethod
-    def test(cls):
+    def test(mcs):
         """ classmethod """
 
-class UsingMetaclass(object, metaclass=Metaclass):
+class UsingMetaclass(metaclass=Metaclass):
     """ empty """
 
 TestMetaclass.register(int)
@@ -55,7 +55,7 @@ class NoKnownBases(Missing):
 NoKnownBases().lalala()
 
 
-class MetaClass(object):
+class MetaClass:
     """Look some methods in the implicit metaclass."""
 
     @classmethod

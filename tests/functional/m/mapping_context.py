@@ -1,8 +1,7 @@
 """
 Checks that only valid values are used in a mapping context.
 """
-# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,wrong-import-position, useless-object-inheritance
-from __future__ import print_function
+# pylint: disable=missing-docstring,invalid-name,too-few-public-methods,import-error,wrong-import-position,use-dict-literal
 
 
 def test(**kwargs):
@@ -18,7 +17,7 @@ test(**dict_comp)
 
 # in order to be used in kwargs custom mapping class should define
 # __iter__(), __getitem__(key) and keys().
-class CustomMapping(object):
+class CustomMapping:
     def __init__(self):
         self.data = dict(a=1, b=2, c=3, d=4, e=5)
 
@@ -31,13 +30,13 @@ class CustomMapping(object):
 test(**CustomMapping())
 test(**CustomMapping)  # [not-a-mapping]
 
-class NotMapping(object):
+class NotMapping:
     pass
 
 test(**NotMapping())  # [not-a-mapping]
 
 # skip checks if statement is inside mixin/base/abstract class
-class SomeMixin(object):
+class SomeMixin:
     kwargs = None
 
     def get_kwargs(self):
@@ -50,7 +49,7 @@ class SomeMixin(object):
         kws = self.get_kwargs()
         self.run(**kws)
 
-class AbstractThing(object):
+class AbstractThing:
     kwargs = None
 
     def get_kwargs(self):
@@ -63,7 +62,7 @@ class AbstractThing(object):
         kws = self.get_kwargs()
         self.run(**kws)
 
-class BaseThing(object):
+class BaseThing:
     kwargs = None
 
     def get_kwargs(self):
@@ -77,7 +76,7 @@ class BaseThing(object):
         self.run(**kws)
 
 # abstract class
-class Thing(object):
+class Thing:
     def get_kwargs(self):
         raise NotImplementedError
 
@@ -97,7 +96,7 @@ class MyClass(Mapping):
 test(**MyClass())
 
 
-class HasDynamicGetattr(object):
+class HasDynamicGetattr:
 
     def __init__(self):
         self._obj = {}

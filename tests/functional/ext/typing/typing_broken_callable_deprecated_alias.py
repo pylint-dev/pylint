@@ -7,7 +7,7 @@ Use 'typing.Callable' instead.
 Don't emit 'deprecated-typing-alias' for 'Callable' if at least one replacement
 would create broken instances.
 """
-# pylint: disable=missing-docstring,unsubscriptable-object
+# pylint: disable=missing-docstring,unsubscriptable-object,invalid-name
 from typing import Callable, Optional, Union
 
 Alias1 = Optional[Callable[[int], None]]

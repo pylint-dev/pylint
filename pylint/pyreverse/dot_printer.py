@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Class to generate files in dot format and image formats supported by Graphviz."""
 
@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import os
 import subprocess
-import sys
 import tempfile
+from enum import Enum
 from pathlib import Path
 
 from astroid import nodes
@@ -17,19 +17,37 @@ from astroid import nodes
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 from pylint.pyreverse.utils import get_annotation_label
 
+
+class HTMLLabels(Enum):
+    LINEBREAK_LEFT = '<br ALIGN="LEFT"/>'
+
+
 ALLOWED_CHARSETS: frozenset[str] = frozenset(("utf-8", "iso-8859-1", "latin1"))
 SHAPES: dict[NodeType, str] = {
     NodeType.PACKAGE: "box",
-    NodeType.INTERFACE: "record",
     NodeType.CLASS: "record",
 }
+# pylint: disable-next=consider-using-namedtuple-or-dataclass
 ARROWS: dict[EdgeType, dict[str, str]] = {
-    EdgeType.INHERITS: dict(arrowtail="none", arrowhead="empty"),
-    EdgeType.IMPLEMENTS: dict(arrowtail="node", arrowhead="empty", style="dashed"),
-    EdgeType.ASSOCIATION: dict(
-        fontcolor="green", arrowtail="none", arrowhead="diamond", style="solid"
-    ),
-    EdgeType.USES: dict(arrowtail="none", arrowhead="open"),
+    EdgeType.INHERITS: {"arrowtail": "none", "arrowhead": "empty"},
+    EdgeType.ASSOCIATION: {
+        "fontcolor": "green",
+        "arrowtail": "none",
+        "arrowhead": "diamond",
+        "style": "solid",
+    },
+    EdgeType.AGGREGATION: {
+        "fontcolor": "green",
+        "arrowtail": "none",
+        "arrowhead": "odiamond",
+        "style": "solid",
+    },
+    EdgeType.USES: {"arrowtail": "none", "arrowhead": "open"},
+    EdgeType.TYPE_DEPENDENCY: {
+        "arrowtail": "none",
+        "arrowhead": "open",
+        "style": "dashed",
+    },
 }
 
 
@@ -73,7 +91,7 @@ class DotPrinter(Printer):
         color = properties.color if properties.color is not None else self.DEFAULT_COLOR
         style = "filled" if color != self.DEFAULT_COLOR else "solid"
         label = self._build_label_for_node(properties)
-        label_part = f', label="{label}"' if label else ""
+        label_part = f", label=<{label}>" if label else ""
         fontcolor_part = (
             f', fontcolor="{properties.fontcolor}"' if properties.fontcolor else ""
         )
@@ -92,19 +110,32 @@ class DotPrinter(Printer):
 
         # Add class attributes
         attrs: list[str] = properties.attrs or []
-        attrs_string = r"\l".join(attr.replace("|", r"\|") for attr in attrs)
-        label = rf"{{{label}|{attrs_string}\l|"
+        attrs_string = rf"{HTMLLabels.LINEBREAK_LEFT.value}".join(
+            attr.replace("|", r"\|") for attr in attrs
+        )
+        label = rf"{{{label}|{attrs_string}{HTMLLabels.LINEBREAK_LEFT.value}|"
 
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
         for func in methods:
             args = self._get_method_arguments(func)
-            label += rf"{func.name}({', '.join(args)})"
+            method_name = (
+                f"<I>{func.name}</I>" if func.is_abstract() else f"{func.name}"
+            )
+            label += rf"{method_name}({', '.join(args)})"
             if func.returns:
-                label += ": " + get_annotation_label(func.returns)
-            label += r"\l"
+                annotation_label = get_annotation_label(func.returns)
+                label += ": " + self._escape_annotation_label(annotation_label)
+            label += rf"{HTMLLabels.LINEBREAK_LEFT.value}"
         label += "}"
         return label
+
+    def _escape_annotation_label(self, annotation_label: str) -> str:
+        # Escape vertical bar characters to make them appear as a literal characters
+        # otherwise it gets treated as field separator of record-based nodes
+        annotation_label = annotation_label.replace("|", r"\|")
+
+        return annotation_label
 
     def emit_edge(
         self,
@@ -143,10 +174,8 @@ class DotPrinter(Printer):
         with open(dot_sourcepath, "w", encoding="utf8") as outfile:
             outfile.writelines(self.lines)
         if target not in graphviz_extensions:
-            use_shell = sys.platform == "win32"
-            subprocess.call(
-                ["dot", "-T", target, dot_sourcepath, "-o", outputfile],
-                shell=use_shell,
+            subprocess.run(
+                ["dot", "-T", target, dot_sourcepath, "-o", outputfile], check=True
             )
             os.unlink(dot_sourcepath)
 

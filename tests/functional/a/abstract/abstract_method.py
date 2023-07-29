@@ -1,12 +1,12 @@
 """Test abstract-method warning."""
-from __future__ import print_function
+
 
 # pylint: disable=missing-docstring
-# pylint: disable=too-few-public-methods, useless-object-inheritance
+# pylint: disable=too-few-public-methods
 import abc
 
 
-class Abstract(object):
+class Abstract:
     def aaaa(self):
         """should be overridden in concrete class"""
         raise NotImplementedError()
@@ -51,7 +51,7 @@ class Concrete(Abstract): # [abstract-method]
         """overridden form Abstract"""
 
 
-class Structure(object, metaclass=abc.ABCMeta):
+class Structure(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __iter__(self):
         pass

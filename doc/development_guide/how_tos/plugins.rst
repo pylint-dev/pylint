@@ -1,5 +1,7 @@
 .. -*- coding: utf-8 -*-
 
+.. _plugins:
+
 How To Write a Pylint Plugin
 ============================
 

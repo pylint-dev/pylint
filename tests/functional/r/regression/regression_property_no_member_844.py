@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,too-few-public-methods,invalid-overridden-method
-# https://github.com/PyCQA/pylint/issues/844
+# https://github.com/pylint-dev/pylint/issues/844
 class Parent:
     def __init__(self):
         self.__thing = 'foo'

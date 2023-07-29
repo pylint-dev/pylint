@@ -1,21 +1,21 @@
-# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance, arguments-differ
+# pylint: disable=missing-docstring, too-few-public-methods, arguments-differ
 from collections.abc import MutableSequence
 
-class Aaaa(object):
+class Aaaa:
     pass
-class Bbbb(object):
+class Bbbb:
     pass
-class Cccc(object):
+class Cccc:
     pass
-class Dddd(object):
+class Dddd:
     pass
-class Eeee(object):
+class Eeee:
     pass
-class Ffff(object):
+class Ffff:
     pass
-class Gggg(object):
+class Gggg:
     pass
-class Hhhh(object):
+class Hhhh:
     pass
 
 class Iiii(Aaaa, Bbbb, Cccc, Dddd, Eeee, Ffff, Gggg, Hhhh): # [too-many-ancestors]
@@ -25,8 +25,8 @@ class Jjjj(Iiii): # [too-many-ancestors]
     pass
 
 
-# https://github.com/PyCQA/pylint/issues/4166
-# https://github.com/PyCQA/pylint/issues/4415
+# https://github.com/pylint-dev/pylint/issues/4166
+# https://github.com/pylint-dev/pylint/issues/4415
 class ItemSequence(MutableSequence):
     """Minimal MutableSequence."""
     def __getitem__(self, key):

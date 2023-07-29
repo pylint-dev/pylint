@@ -1,14 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for use of Python logging."""
 
 from __future__ import annotations
 
 import string
-import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import astroid
 from astroid import bases, nodes
@@ -18,11 +17,6 @@ from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import infer_all
 from pylint.typing import MessageDefinitionTuple
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -104,6 +98,8 @@ CHECKED_CONVENIENCE_FUNCTIONS = {
     "warn",
     "warning",
 }
+
+MOST_COMMON_FORMATTING = frozenset(["%s", "%d", "%f", "%r"])
 
 
 def is_method_call(
@@ -240,10 +236,11 @@ class LoggingChecker(checkers.BaseChecker):
         else:
             return
 
-        if isinstance(node.args[format_pos], nodes.BinOp):
-            binop = node.args[format_pos]
+        format_arg = node.args[format_pos]
+        if isinstance(format_arg, nodes.BinOp):
+            binop = format_arg
             emit = binop.op == "%"
-            if binop.op == "+":
+            if binop.op == "+" and not self._is_node_explicit_str_concatenation(binop):
                 total_number_of_strings = sum(
                     1
                     for operand in (binop.left, binop.right)
@@ -256,11 +253,13 @@ class LoggingChecker(checkers.BaseChecker):
                     node=node,
                     args=(self._helper_string(node),),
                 )
-        elif isinstance(node.args[format_pos], nodes.Call):
-            self._check_call_func(node.args[format_pos])
-        elif isinstance(node.args[format_pos], nodes.Const):
+        elif isinstance(format_arg, nodes.Call):
+            self._check_call_func(format_arg)
+        elif isinstance(format_arg, nodes.Const):
             self._check_format_string(node, format_pos)
-        elif isinstance(node.args[format_pos], nodes.JoinedStr):
+        elif isinstance(format_arg, nodes.JoinedStr):
+            if str_formatting_in_f_string(format_arg):
+                return
             self.add_message(
                 "logging-fstring-interpolation",
                 node=node,
@@ -288,6 +287,19 @@ class LoggingChecker(checkers.BaseChecker):
     def _is_operand_literal_str(operand: InferenceResult | None) -> bool:
         """Return True if the operand in argument is a literal string."""
         return isinstance(operand, nodes.Const) and operand.name == "str"
+
+    @staticmethod
+    def _is_node_explicit_str_concatenation(node: nodes.NodeNG) -> bool:
+        """Return True if the node represents an explicitly concatenated string."""
+        if not isinstance(node, nodes.BinOp):
+            return False
+        return (
+            LoggingChecker._is_operand_literal_str(node.left)
+            or LoggingChecker._is_node_explicit_str_concatenation(node.left)
+        ) and (
+            LoggingChecker._is_operand_literal_str(node.right)
+            or LoggingChecker._is_node_explicit_str_concatenation(node.right)
+        )
 
     def _check_call_func(self, node: nodes.Call) -> None:
         """Checks that function call is not format_string.format()."""
@@ -340,7 +352,7 @@ class LoggingChecker(checkers.BaseChecker):
                     ) = utils.parse_format_method_string(format_string)
 
                     keyword_args_cnt = len(
-                        {k for k, l in keyword_arguments if not isinstance(k, int)}
+                        {k for k, _ in keyword_arguments if not isinstance(k, int)}
                     )
                     required_num_args = (
                         keyword_args_cnt + implicit_pos_args + explicit_pos_args
@@ -391,6 +403,19 @@ def _count_supplied_tokens(args: list[nodes.NodeNG]) -> int:
       Number of AST nodes that aren't keywords.
     """
     return sum(1 for arg in args if not isinstance(arg, nodes.Keyword))
+
+
+def str_formatting_in_f_string(node: nodes.JoinedStr) -> bool:
+    """Determine whether the node represents an f-string with string formatting.
+
+    For example: `f'Hello %s'`
+    """
+    # Check "%" presence first for performance.
+    return any(
+        "%" in val.value and any(x in val.value for x in MOST_COMMON_FORMATTING)
+        for val in node.values
+        if isinstance(val, nodes.Const)
+    )
 
 
 def register(linter: PyLinter) -> None:

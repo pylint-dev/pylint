@@ -1,5 +1,5 @@
 # pylint: disable=too-few-public-methods,invalid-name,missing-docstring
-# https://github.com/PyCQA/pylint/issues/870
+# https://github.com/pylint-dev/pylint/issues/870
 
 class X:
     def __init__(self, val=None):

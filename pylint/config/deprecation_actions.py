@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=too-many-arguments, redefined-builtin
 
@@ -52,7 +52,7 @@ class _OldNamesAction(argparse._StoreAction):
         namespace: argparse.Namespace,
         values: str | Sequence[Any] | None,
         option_string: str | None = None,
-    ):
+    ) -> None:
         assert isinstance(values, list)
         setattr(namespace, self.dest, values[0])
         for old_name in self.old_names:
@@ -97,11 +97,12 @@ class _NewNamesAction(argparse._StoreAction):
         namespace: argparse.Namespace,
         values: str | Sequence[Any] | None,
         option_string: str | None = None,
-    ):
+    ) -> None:
         assert isinstance(values, list)
         setattr(namespace, self.dest, values[0])
         warnings.warn(
             f"{self.option_strings[0]} has been deprecated. Please look into "
             f"using any of the following options: {', '.join(self.new_names)}.",
             DeprecationWarning,
+            stacklevel=2,
         )

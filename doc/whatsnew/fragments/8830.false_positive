@@ -1,0 +1,4 @@
+Exempt parents with only type annotations from the ``invalid-enum-extension``
+message.
+
+Closes #8830

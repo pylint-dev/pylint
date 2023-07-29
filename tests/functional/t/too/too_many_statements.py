@@ -1,6 +1,5 @@
 # pylint: disable=missing-docstring, invalid-name
 
-from __future__ import print_function
 
 def stupid_function(arg): # [too-many-statements]
     if arg == 1:

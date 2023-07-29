@@ -1,9 +1,5 @@
 # pylint: disable=missing-docstring, comparison-with-itself, invalid-name
 
-
-if 2 is 2:  # [literal-comparison, comparison-of-constants]
-    pass
-
 while 2 == 2:  # [comparison-of-constants]
     pass
 
@@ -22,14 +18,6 @@ if True == True:  # [comparison-of-constants, singleton-comparison]
 
 CONST = 24
 
-if CONST is 0:  # [literal-comparison]
-    pass
-
-if CONST is 1:  # [literal-comparison]
-    pass
-
-if CONST is 42:  # [literal-comparison]
-    pass
 
 if  0 < CONST < 42:
     pass

@@ -1,4 +1,5 @@
 from abc import *  # [unused-wildcard-import]
 
 
-class Animal(ABC): ...
+class Animal(ABC):
+    ...

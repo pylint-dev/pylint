@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Basic Error checker from the basic checker."""
 
@@ -12,6 +12,7 @@ from typing import Any
 
 import astroid
 from astroid import nodes
+from astroid.typing import InferenceResult
 
 from pylint.checkers import utils
 from pylint.checkers.base.basic_checker import _BasicChecker
@@ -68,7 +69,7 @@ def _loop_exits_early(loop: nodes.For | nodes.While) -> bool:
     )
 
 
-def _has_abstract_methods(node):
+def _has_abstract_methods(node: nodes.ClassDef) -> bool:
     """Determine if the given `node` has abstract methods.
 
     The methods should be made abstract by decorating them
@@ -248,7 +249,7 @@ class BasicErrorChecker(_BasicChecker):
             # PEP 448 unpacking.
             return
 
-        stmt = node.statement(future=True)
+        stmt = node.statement()
         if not isinstance(stmt, nodes.Assign):
             return
 
@@ -300,7 +301,6 @@ class BasicErrorChecker(_BasicChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_name_used_prior_global(self, node: nodes.FunctionDef) -> None:
-
         scope_globals = {
             name: child
             for child in node.nodes_of_class(nodes.Global)
@@ -356,7 +356,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.only_required_for_messages("return-outside-function")
     def visit_return(self, node: nodes.Return) -> None:
-        if not isinstance(node.frame(future=True), nodes.FunctionDef):
+        if not isinstance(node.frame(), nodes.FunctionDef):
             self.add_message("return-outside-function", node=node)
 
     @utils.only_required_for_messages("yield-outside-function")
@@ -396,10 +396,7 @@ class BasicErrorChecker(_BasicChecker):
 
     def _check_nonlocal_without_binding(self, node: nodes.Nonlocal, name: str) -> None:
         current_scope = node.scope()
-        while True:
-            if current_scope.parent is None:
-                break
-
+        while current_scope.parent is not None:
             if not isinstance(current_scope, (nodes.ClassDef, nodes.FunctionDef)):
                 self.add_message("nonlocal-without-binding", args=(name,), node=node)
                 return
@@ -432,7 +429,9 @@ class BasicErrorChecker(_BasicChecker):
         for inferred in infer_all(node.func):
             self._check_inferred_class_is_abstract(inferred, node)
 
-    def _check_inferred_class_is_abstract(self, inferred, node: nodes.Call):
+    def _check_inferred_class_is_abstract(
+        self, inferred: InferenceResult, node: nodes.Call
+    ) -> None:
         if not isinstance(inferred, nodes.ClassDef):
             return
 
@@ -470,7 +469,7 @@ class BasicErrorChecker(_BasicChecker):
             )
 
     def _check_yield_outside_func(self, node: nodes.Yield) -> None:
-        if not isinstance(node.frame(future=True), (nodes.FunctionDef, nodes.Lambda)):
+        if not isinstance(node.frame(), (nodes.FunctionDef, nodes.Lambda)):
             self.add_message("yield-outside-function", node=node)
 
     def _check_else_on_loop(self, node: nodes.For | nodes.While) -> None:
@@ -497,7 +496,7 @@ class BasicErrorChecker(_BasicChecker):
             if isinstance(parent, (nodes.ClassDef, nodes.FunctionDef)):
                 break
             if (
-                isinstance(parent, nodes.TryFinally)
+                isinstance(parent, nodes.Try)
                 and node in parent.finalbody
                 and isinstance(node, nodes.Continue)
                 and not self._py38_plus
@@ -510,7 +509,7 @@ class BasicErrorChecker(_BasicChecker):
         self, redeftype: str, node: nodes.Call | nodes.FunctionDef
     ) -> None:
         """Check for redefinition of a function / method / class name."""
-        parent_frame = node.parent.frame(future=True)
+        parent_frame = node.parent.frame()
 
         # Ignore function stubs created for type information
         redefinitions = [

@@ -1,24 +1,18 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """JSON reporter."""
 
 from __future__ import annotations
 
 import json
-import sys
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, TypedDict
 
 from pylint.interfaces import UNDEFINED
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.typing import MessageLocationTuple
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -75,7 +69,7 @@ class JSONReporter(BaseJSONReporter):
     TODO: 3.0: Remove this JSONReporter in favor of the new one handling abs-path
     and confidence.
 
-    TODO: 2.15: Add a new JSONReporter handling abs-path, confidence and scores.
+    TODO: 3.0: Add a new JSONReporter handling abs-path, confidence and scores.
     (Ultimately all other breaking change related to json for 3.0).
     """
 

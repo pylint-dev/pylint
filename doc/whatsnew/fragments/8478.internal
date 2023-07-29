@@ -1,0 +1,4 @@
+Following a deprecation period, the ``check_single_file`` function of the
+``Pylinter`` is replaced by ``Pylinter.check_single_file_item``.
+
+Refs #8478

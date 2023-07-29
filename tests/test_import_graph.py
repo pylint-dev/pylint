@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
 
@@ -20,7 +20,7 @@ from pylint.lint import PyLinter
 
 
 @pytest.fixture
-def dest(request: SubRequest) -> Iterator[Iterator | Iterator[str]]:
+def dest(request: SubRequest) -> Iterator[str]:
     dest = request.param
     yield dest
     try:
@@ -74,7 +74,7 @@ def linter() -> PyLinter:
 
 
 @pytest.fixture
-def remove_files() -> Iterator:
+def remove_files() -> Iterator[None]:
     yield
     for fname in ("import.dot", "ext_import.dot", "int_import.dot"):
         try:

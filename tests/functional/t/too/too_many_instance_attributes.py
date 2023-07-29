@@ -1,7 +1,11 @@
-# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
+# pylint: disable=missing-docstring, too-few-public-methods
+
+# Disabled because of a bug with pypy 3.8 see
+# https://github.com/pylint-dev/pylint/pull/7918#issuecomment-1352737369
+# pylint: disable=multiple-statements
 
 
-class Aaaa(object): # [too-many-instance-attributes]
+class Aaaa: # [too-many-instance-attributes]
 
     def __init__(self):
         self.aaaa = 1

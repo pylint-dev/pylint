@@ -1,0 +1,7 @@
+The 'overgeneral-exceptions' option now only takes fully qualified names
+into account (``builtins.Exception`` not ``Exception``). If you overrode
+this option, you need to use the fully qualified name now.
+
+There's still a warning, but it will be removed in 3.1.0.
+
+Refs #8411

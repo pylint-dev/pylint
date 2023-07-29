@@ -28,4 +28,4 @@ for x in [2, *var]:  # [consider-using-tuple]
 
 # Don't emit warning for sets as this is handled by builtin checker
 (x for x in {1, 2, 3})  # [use-sequence-for-iteration]
-[x for x in {*var, 2}]  # [use-sequence-for-iteration]
+[x for x in {*var, 2}]

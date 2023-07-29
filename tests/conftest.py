@@ -1,19 +1,22 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
 
 from __future__ import annotations
 
 import os
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
 
 from pylint import checkers
+from pylint.checkers import BaseChecker
 from pylint.lint import PyLinter
 from pylint.lint.run import _cpu_count
+from pylint.reporters import BaseReporter
 from pylint.testutils import MinimalTestReporter
 
 HERE = Path(__file__).parent
@@ -25,7 +28,13 @@ def tests_directory() -> Path:
 
 
 @pytest.fixture
-def linter(checker, register, enable, disable, reporter):
+def linter(
+    checker: type[BaseChecker] | None,
+    register: Callable[[PyLinter], None] | None,
+    enable: str | None,
+    disable: str | None,
+    reporter: type[BaseReporter],
+) -> PyLinter:
     _linter = PyLinter()
     _linter.set_reporter(reporter())
     checkers.initialize(_linter)
@@ -44,42 +53,36 @@ def linter(checker, register, enable, disable, reporter):
 
 
 @pytest.fixture(scope="module")
-def checker():
+def checker() -> None:
     return None
 
 
 @pytest.fixture(scope="module")
-def register():
+def register() -> None:
     return None
 
 
 @pytest.fixture(scope="module")
-def enable():
+def enable() -> None:
     return None
 
 
 @pytest.fixture(scope="module")
-def disable():
+def disable() -> None:
     return None
 
 
 @pytest.fixture(scope="module")
-def reporter():
+def reporter() -> type[MinimalTestReporter]:
     return MinimalTestReporter
 
 
-def pytest_addoption(parser) -> None:
+def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--primer-stdlib",
         action="store_true",
         default=False,
         help="Run primer stdlib tests",
-    )
-    parser.addoption(
-        "--primer-external",
-        action="store_true",
-        default=False,
-        help="Run primer external tests",
     )
     parser.addoption(
         "--minimal-messages-config",
@@ -98,15 +101,6 @@ def pytest_collection_modifyitems(
     config: pytest.Config, items: list[pytest.Function]
 ) -> None:
     """Convert command line options to markers."""
-    # Add skip_primer_external mark
-    if not config.getoption("--primer-external"):
-        skip_primer_external = pytest.mark.skip(
-            reason="need --primer-external option to run"
-        )
-        for item in items:
-            if "primer_external_batch_one" in item.keywords:
-                item.add_marker(skip_primer_external)
-
     # Add skip_primer_stdlib mark
     if not config.getoption("--primer-stdlib"):
         skip_primer_stdlib = pytest.mark.skip(

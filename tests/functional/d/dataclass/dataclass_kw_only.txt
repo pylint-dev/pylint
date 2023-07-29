@@ -1,0 +1,4 @@
+missing-kwoa:24:0:26:1::Missing mandatory keyword argument 'a' in constructor call:INFERENCE
+missing-kwoa:24:0:26:1::Missing mandatory keyword argument 'b' in constructor call:INFERENCE
+redundant-keyword-arg:24:0:26:1::Argument 'c' passed by position and keyword in constructor call:UNDEFINED
+too-many-function-args:24:0:26:1::Too many positional arguments for constructor call:UNDEFINED

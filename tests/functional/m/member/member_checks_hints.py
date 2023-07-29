@@ -1,7 +1,7 @@
-# pylint: disable=missing-docstring, too-few-public-methods, pointless-statement, useless-object-inheritance
+# pylint: disable=missing-docstring, too-few-public-methods, pointless-statement
 
 
-class Parent(object):
+class Parent:
 
     def __init__(self):
         self._parent = 42

@@ -3,8 +3,7 @@ Checks that value used in a subscript support assignments
 (i.e. defines __setitem__ method).
 """
 # pylint: disable=missing-docstring,pointless-statement,expression-not-assigned,wrong-import-position,unnecessary-comprehension
-# pylint: disable=too-few-public-methods,import-error,invalid-name,wrong-import-order, useless-object-inheritance
-import six
+# pylint: disable=too-few-public-methods,import-error,invalid-name,wrong-import-order,use-dict-literal
 
 # primitives
 numbers = [1, 2, 3]
@@ -21,10 +20,10 @@ dict(a=1, b=2)['a'] = 42
 
 
 # instances
-class NonSubscriptable(object):
+class NonSubscriptable:
     pass
 
-class Subscriptable(object):
+class Subscriptable:
     def __setitem__(self, key, value):
         return key + value
 
@@ -69,7 +68,7 @@ class MetaSubscriptable(type):
     def __setitem__(cls, key, value):
         return key + value
 
-class SubscriptableClass(six.with_metaclass(MetaSubscriptable, object)):
+class SubscriptableClass(metaclass=MetaSubscriptable):
     pass
 
 SubscriptableClass[0] = 24

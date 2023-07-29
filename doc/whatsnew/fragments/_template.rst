@@ -17,6 +17,7 @@ Release date: {{ versiondata.date }}
 {% if definitions[category]['showcontent'] %}
 {% for text, values in sections[section][category].items() %}
 - {{ text }} ({{ values|join(', ') }})
+
 {% endfor %}
 
 {% else %}

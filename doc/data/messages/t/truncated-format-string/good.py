@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+PARG_2 = 1
+
+print(f"strange format {PARG_2}")

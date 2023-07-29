@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,useless-object-inheritance
+# pylint: disable=too-few-public-methods
 """Test case for the problem described below :
  - A class extends 'object'
  - This class defines its own __init__()
@@ -9,9 +9,8 @@
    object.__init__()
 """
 
-__revision__ = None
 
-class Statement(object):
+class Statement:
     """ ... """
     def __init__(self):
         pass

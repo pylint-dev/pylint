@@ -15,15 +15,14 @@ We migrated to ``argparse`` from ``optparse`` and refactored the configuration h
 thanks to Daniël van Noord. On the user side it should change the output of the
 ``--help`` command, and some inconsistencies and bugs should disappear. The behavior
 between options set in a config file versus on the command line will be more consistent. For us,
-it will permit to maintain this part of the code easily in the future and anticipate
-``optparse``'s removal in Python 3.12.
+it will permit to maintain this part of the code easily in the future.
 
 As a result of the refactor there are a lot of internal deprecations. If you're a library
 maintainer that depends on pylint, please verify that you're ready for pylint 3.0
 by activating deprecation warnings.
 
 We continued the integration of ``pylint-error`` and are now at 33%!. We still welcome any community effort
-to help review, integrate, and add good/bad examples <https://github.com/PyCQA/pylint/issues/5953>`_. This should be doable
+to help review, integrate, and add good/bad examples <https://github.com/pylint-dev/pylint/issues/5953>`_. This should be doable
 without any ``pylint`` or ``astroid`` knowledge, so this is the perfect entrypoint if you want
 to contribute to ``pylint`` or open source without any experience with our code!
 

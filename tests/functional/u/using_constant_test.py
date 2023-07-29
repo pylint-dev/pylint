@@ -1,6 +1,6 @@
 """Verify if constant tests are used inside if statements."""
 # pylint: disable=invalid-name, missing-docstring,too-few-public-methods
-# pylint: disable=expression-not-assigned, useless-object-inheritance
+# pylint: disable=expression-not-assigned
 # pylint: disable=missing-parentheses-for-call-in-test, unnecessary-comprehension, condition-evals-to-constant
 # pylint: disable=use-list-literal, use-dict-literal
 
@@ -11,7 +11,7 @@ def function():
     yield
 
 
-class Class(object):
+class Class:
 
     def method(self):
         pass

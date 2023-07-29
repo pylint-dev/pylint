@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Test for the 'pylint-config generate' command."""
 
@@ -23,6 +23,9 @@ def test_generate_interactive_exitcode(monkeypatch: MonkeyPatch) -> None:
         "pylint.config._pylint_config.utils.get_and_validate_format", lambda: "toml"
     )
     monkeypatch.setattr(
+        "pylint.config._pylint_config.utils.get_minimal_setting", lambda: False
+    )
+    monkeypatch.setattr(
         "pylint.config._pylint_config.utils.get_and_validate_output_file",
         lambda: (False, Path()),
     )
@@ -41,6 +44,9 @@ def test_format_of_output(
 ) -> None:
     """Check that we output the correct format."""
     # Monkeypatch everything we don't want to check in this test
+    monkeypatch.setattr(
+        "pylint.config._pylint_config.utils.get_minimal_setting", lambda: False
+    )
     monkeypatch.setattr(
         "pylint.config._pylint_config.utils.get_and_validate_output_file",
         lambda: (False, Path()),
@@ -89,6 +95,9 @@ def test_writing_to_output_file(
     # Monkeypatch everything we don't want to check in this test
     monkeypatch.setattr(
         "pylint.config._pylint_config.utils.get_and_validate_format", lambda: "toml"
+    )
+    monkeypatch.setattr(
+        "pylint.config._pylint_config.utils.get_minimal_setting", lambda: False
     )
 
     # Set up a temporary file to write to
@@ -150,3 +159,42 @@ def test_writing_to_output_file(
         Run(["generate", "--interactive"], exit=False)
         captured = capsys.readouterr()
         assert last_modified != tempfile_name.stat().st_mtime
+
+
+def test_writing_minimal_file(
+    monkeypatch: MonkeyPatch, capsys: CaptureFixture[str]
+) -> None:
+    """Check that we can write a minimal file."""
+    # Monkeypatch everything we don't want to check in this test
+    monkeypatch.setattr(
+        "pylint.config._pylint_config.utils.get_and_validate_format", lambda: "toml"
+    )
+    monkeypatch.setattr(
+        "pylint.config._pylint_config.utils.get_and_validate_output_file",
+        lambda: (False, Path()),
+    )
+
+    # Set the answers needed for the input() calls
+    answers = iter(["no", "yes"])
+    monkeypatch.setattr("builtins.input", lambda x: next(answers))
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="NOTE:.*", category=UserWarning)
+        # Check not minimal has comments
+        Run(["generate", "--interactive"], exit=False)
+        captured = capsys.readouterr()
+        assert any(line.startswith("#") for line in captured.out.splitlines())
+
+        # Check minimal doesn't have comments and no default values
+        Run(
+            [
+                "--load-plugins=pylint.extensions.docparams",
+                "--accept-no-return-doc=y",
+                "generate",
+                "--interactive",
+            ],
+            exit=False,
+        )
+        captured = capsys.readouterr()
+        assert not any(i.startswith("#") for i in captured.out.split("\n"))
+        assert "accept-no-return-doc" not in captured.out

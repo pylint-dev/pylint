@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods, useless-object-inheritance
+# pylint: disable=missing-docstring,too-few-public-methods
 
 def test_unused(first, second, _not_used): # [unused-argument, unused-argument]
     pass
@@ -17,7 +17,7 @@ def test_prefixed_with_unused(first, unused_second):
 # use the arguments (e.g. Sub2)
 
 
-class Base(object):
+class Base:
     "parent"
     def inherited(self, aaa, aab, aac):
         "abstract method"
@@ -53,15 +53,14 @@ def metadata_from_dict_2(key):
     return {key: (a, b) for key, (a, b) in key.items()}
 
 
-# pylint: disable=too-few-public-methods, misplaced-future,wrong-import-position
-from __future__ import print_function
+# pylint: disable=too-few-public-methods, wrong-import-position
 
 
 def function(arg=1):  # [unused-argument]
     """ignore arg"""
 
 
-class AAAA(object):
+class AAAA:
     """dummy class"""
 
     def method(self, arg):  # [unused-argument]
@@ -87,7 +86,7 @@ class AAAA(object):
         # pylint: disable = attribute-defined-outside-init
         rset.get_entity = inner
 
-class BBBB(object):
+class BBBB:
     """dummy class"""
 
     def __init__(self, arg):  # [unused-argument]
@@ -95,7 +94,7 @@ class BBBB(object):
         self.spam = 1
 
 
-# Regression test for https://github.com/PyCQA/pylint/issues/5771
+# Regression test for https://github.com/pylint-dev/pylint/issues/5771
 # involving keyword-only arguments
 class Ancestor:
     def __init__(self):
@@ -108,3 +107,24 @@ class Descendant(Ancestor):
     def set_thing(self, thing, *, other=None):
         """Subclass does not raise unused-argument"""
         self.thing = thing
+
+
+# Test that Class with both `__init__` and `__new__` don't check
+# on `__new__` for unused arguments
+
+# pylint: disable=invalid-name
+
+class TestClassWithInitAndNew:
+    def __init__(self, argA, argB):
+        self.argA = argA
+        self.argB = argB
+
+    def __new__(cls, argA, argB):
+        return object.__new__(cls)
+
+# Test that `__new__` method is checked for unused arguments
+# when `__init__` is not in the Class
+
+class TestClassWithOnlyNew:
+    def __new__(cls, argA, argB): # [unused-argument, unused-argument]
+        return object.__new__(cls)

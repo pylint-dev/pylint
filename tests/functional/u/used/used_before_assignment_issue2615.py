@@ -1,4 +1,4 @@
-"""https://github.com/PyCQA/pylint/issues/2615"""
+"""https://github.com/pylint-dev/pylint/issues/2615"""
 def main():
     """When evaluating except blocks, assume try statements fail."""
     try:
@@ -33,8 +33,8 @@ def nested_except_blocks():
 
 
 def consecutive_except_blocks():
-    """An assignment assumed to execute in one TryExcept should continue to be
-    assumed to execute in a consecutive TryExcept.
+    """An assignment assumed to execute in one Try should continue to be
+    assumed to execute in a consecutive Try.
     """
     try:
         res = 100

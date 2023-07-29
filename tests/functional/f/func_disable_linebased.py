@@ -10,6 +10,5 @@ the enclosed lines.
 """
 # pylint: enable=line-too-long
 
-from __future__ import print_function
 
 print('This is a very long line which the linter will warn about, now that line-too-long has been enabled again.')  # [line-too-long]

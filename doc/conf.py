@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -43,7 +43,6 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
     "sphinx_reredirects",
-    "myst_parser",
 ]
 
 
@@ -109,7 +108,8 @@ master_doc = "index"
 # General information about the project.
 project = "Pylint"
 current_year = datetime.utcnow().year
-copyright = f"2003-{current_year}, Logilab, PyCQA and contributors"  # pylint: disable=redefined-builtin
+contributors = "Logilab and Pylint contributors"
+copyright = f"2003-{current_year}, {contributors}"  # pylint: disable=redefined-builtin
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -249,7 +249,7 @@ latex_documents = [
         "index",
         "Pylint.tex",
         "Pylint Documentation",
-        "Logilab, PyCQA and contributors",
+        contributors,
         "manual",
     )
 ]
@@ -282,13 +282,11 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ("index", "pylint", "Pylint Documentation", ["Logilab, PyCQA and contributors"], 1)
-]
+man_pages = [("index", "pylint", "Pylint Documentation", [contributors], 1)]
 
 # pylint: disable-next=consider-using-namedtuple-or-dataclass
 intersphinx_mapping = {
-    "astroid": ("https://pylint.pycqa.org/projects/astroid/en/latest/", None),
+    "astroid": ("https://pylint.readthedocs.io/projects/astroid/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
 }
 
@@ -296,4 +294,10 @@ intersphinx_mapping = {
 # through including multiple documents
 autosectionlabel_prefix_document = True
 
-linkcheck_ignore = ["https://github.com/PyCQA/pylint/blob/main/pylint/extensions/.*"]
+# Permit duplicated titles in the resulting document.
+# See https://github.com/pylint-dev/pylint/issues/7362#issuecomment-1256932866
+autosectionlabel_maxdepth = 2
+
+linkcheck_ignore = [
+    "https://github.com/pylint-dev/pylint/blob/main/pylint/extensions/.*"
+]

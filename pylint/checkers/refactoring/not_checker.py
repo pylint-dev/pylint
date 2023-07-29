@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 import astroid
 from astroid import nodes
@@ -61,7 +61,7 @@ class NotChecker(checkers.BaseChecker):
             if operator not in self.reverse_op:
                 return
             # Ignore __ne__ as function of __eq__
-            frame = node.frame(future=True)
+            frame = node.frame()
             if frame.name == "__ne__" and operator == "==":
                 return
             for _type in (utils.node_type(left), utils.node_type(right)):

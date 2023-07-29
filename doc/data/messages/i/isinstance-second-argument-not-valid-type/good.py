@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+isinstance("apples and oranges", str)

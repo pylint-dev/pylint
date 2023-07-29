@@ -1,4 +1,4 @@
-# This crashed previously see https://github.com/PyCQA/pylint/issues/3181
+# This crashed previously see https://github.com/pylint-dev/pylint/issues/3181
 [tool.pylint]
 max-line-length = 120
 disable = ["C0121"]

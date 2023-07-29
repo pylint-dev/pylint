@@ -1,16 +1,16 @@
 """ Checks that reversed() receive proper argument """
-# pylint: disable=missing-docstring, useless-object-inheritance
+# pylint: disable=missing-docstring
 # pylint: disable=too-few-public-methods
 from collections import deque, OrderedDict
 from enum import IntEnum
 
 
-class GoodReversed(object):
+class GoodReversed:
     """ Implements __reversed__ """
     def __reversed__(self):
         return [1, 2, 3]
 
-class SecondGoodReversed(object):
+class SecondGoodReversed:
     """ Implements __len__ and __getitem__ """
     def __len__(self):
         return 3
@@ -18,12 +18,12 @@ class SecondGoodReversed(object):
     def __getitem__(self, index):
         return index
 
-class BadReversed(object):
+class BadReversed:
     """ implements only len() """
     def __len__(self):
         return 3
 
-class SecondBadReversed(object):
+class SecondBadReversed:
     """ implements only __getitem__ """
     def __getitem__(self, index):
         return index

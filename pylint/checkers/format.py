@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Python code format's checker.
 
@@ -15,23 +15,21 @@ from __future__ import annotations
 
 import tokenize
 from functools import reduce
-from typing import TYPE_CHECKING
+from re import Match
+from typing import TYPE_CHECKING, Literal
 
 from astroid import nodes
 
 from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
-from pylint.checkers.utils import (
-    is_overload_stub,
-    is_protocol_class,
-    node_frame_class,
-    only_required_for_messages,
-)
+from pylint.checkers.utils import only_required_for_messages
 from pylint.constants import WarningScope
+from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
 
 _KEYWORD_TOKENS = {
     "assert",
@@ -47,6 +45,8 @@ _KEYWORD_TOKENS = {
     "while",
     "yield",
     "with",
+    "=",
+    ":=",
 }
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
@@ -114,7 +114,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 }
 
 
-def _last_token_on_line_is(tokens, line_end, token):
+def _last_token_on_line_is(tokens: TokenWrapper, line_end: int, token: str) -> bool:
     return (
         line_end > 0
         and tokens.token(line_end - 1) == token
@@ -127,22 +127,22 @@ def _last_token_on_line_is(tokens, line_end, token):
 class TokenWrapper:
     """A wrapper for readable access to token information."""
 
-    def __init__(self, tokens):
+    def __init__(self, tokens: list[tokenize.TokenInfo]) -> None:
         self._tokens = tokens
 
-    def token(self, idx):
+    def token(self, idx: int) -> str:
         return self._tokens[idx][1]
 
-    def type(self, idx):
+    def type(self, idx: int) -> int:
         return self._tokens[idx][0]
 
-    def start_line(self, idx):
+    def start_line(self, idx: int) -> int:
         return self._tokens[idx][2][0]
 
-    def start_col(self, idx):
+    def start_col(self, idx: int) -> int:
         return self._tokens[idx][2][1]
 
-    def line(self, idx):
+    def line(self, idx: int) -> str:
         return self._tokens[idx][4]
 
 
@@ -251,13 +251,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         ),
     )
 
-    def __init__(self, linter=None):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._lines = None
-        self._visited_lines = None
-        self._bracket_stack = [None]
+        self._lines: dict[int, str] = {}
+        self._visited_lines: dict[int, Literal[1, 2]] = {}
 
-    def new_line(self, tokens, line_end, line_start):
+    def new_line(self, tokens: TokenWrapper, line_end: int, line_start: int) -> None:
         """A new line has been encountered, process it if necessary."""
         if _last_token_on_line_is(tokens, line_end, ";"):
             self.add_message("unnecessary-semicolon", line=tokens.start_line(line_end))
@@ -266,12 +265,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         line = tokens.line(line_start)
         if tokens.type(line_start) not in _JUNK_TOKENS:
             self._lines[line_num] = line.split("\n")[0]
-        self.check_lines(line, line_num)
+        self.check_lines(tokens, line_start, line, line_num)
 
     def process_module(self, node: nodes.Module) -> None:
         pass
 
-    # pylint: disable-next=too-many-return-statements
+    # pylint: disable-next = too-many-return-statements, too-many-branches
     def _check_keyword_parentheses(
         self, tokens: list[tokenize.TokenInfo], start: int
     ) -> None:
@@ -281,12 +280,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         line and contains no commas (i.e. is not a tuple).
 
         Args:
-        tokens: list of Tokens; the entire list of Tokens.
-        start: int; the position of the keyword in the token list.
+        tokens: The entire list of Tokens.
+        start: The position of the keyword in the token list.
         """
         # If the next token is not a paren, we're fine.
-        if self._bracket_stack[-1] == ":" and tokens[start].string == "for":
-            self._bracket_stack.pop()
         if tokens[start + 1].string != "(":
             return
         if (
@@ -344,7 +341,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     if found_and_or:
                         return
                     if keyword_token == "in":
-                        # This special case was added in https://github.com/PyCQA/pylint/pull/4948
+                        # This special case was added in https://github.com/pylint-dev/pylint/pull/4948
                         # but it could be removed in the future. Avoid churn for now.
                         return
                     self.add_message(
@@ -378,21 +375,20 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     return
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
-        """Process tokens and search for :
+        """Process tokens and search for:
 
-        _ too long lines (i.e. longer than <max_chars>)
-        _ optionally bad construct (if given, bad_construct must be a compiled
+        - too long lines (i.e. longer than <max_chars>)
+        - optionally bad construct (if given, bad_construct must be a compiled
           regular expression).
         """
-        self._bracket_stack = [None]
         indents = [0]
         check_equal = False
         line_num = 0
         self._lines = {}
         self._visited_lines = {}
-        self._last_line_ending = None
+        self._last_line_ending: str | None = None
         last_blank_line_num = 0
-        for idx, (tok_type, token, start, _, line) in enumerate(tokens):
+        for idx, (tok_type, string, start, _, line) in enumerate(tokens):
             if start[0] != line_num:
                 line_num = start[0]
                 # A tokenizer oddity: if an indented line contains a multi-line
@@ -410,10 +406,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 # If an INDENT appears, setting check_equal is wrong, and will
                 # be undone when we see the INDENT.
                 check_equal = True
-                self._check_line_ending(token, line_num)
+                self._check_line_ending(string, line_num)
             elif tok_type == tokenize.INDENT:
                 check_equal = False
-                self.check_indent_level(token, indents[-1] + 1, line_num)
+                self.check_indent_level(string, indents[-1] + 1, line_num)
                 indents.append(indents[-1] + 1)
             elif tok_type == tokenize.DEDENT:
                 # there's nothing we need to check here!  what's important is
@@ -437,10 +433,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     check_equal = False
                     self.check_indent_level(line, indents[-1], line_num)
 
-            if tok_type == tokenize.NUMBER and token.endswith("l"):
+            if tok_type == tokenize.NUMBER and string.endswith("l"):
                 self.add_message("lowercase-l-suffix", line=line_num)
 
-            if token in _KEYWORD_TOKENS:
+            if string in _KEYWORD_TOKENS:
                 self._check_keyword_parentheses(tokens, idx)
 
         line_num -= 1  # to be ok with "wc -l"
@@ -466,7 +462,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         if line_num == last_blank_line_num and line_num > 0:
             self.add_message("trailing-newlines", line=line_num)
 
-    def _check_line_ending(self, line_ending, line_num):
+    def _check_line_ending(self, line_ending: str, line_num: int) -> None:
         # check if line endings are mixed
         if self._last_line_ending is not None:
             # line_ending == "" indicates a synthetic newline added at
@@ -500,18 +496,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
-        # The line on which a 'finally': occurs in a 'try/finally'
-        # is not directly represented in the AST. We infer it
-        # by taking the last line of the body and adding 1, which
-        # should be the line of finally:
-        elif (
-            isinstance(node.parent, nodes.TryFinally) and node in node.parent.finalbody
-        ):
-            prev_line = node.parent.body[0].tolineno + 1
         elif isinstance(node.parent, nodes.Module):
             prev_line = 0
         else:
-            prev_line = node.parent.statement(future=True).fromlineno
+            prev_line = node.parent.statement().fromlineno
         line = node.fromlineno
         assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:
@@ -524,25 +512,19 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         except AttributeError:
             tolineno = node.tolineno
         assert tolineno, node
-        lines = []
-        for line in range(line, tolineno + 1):
+        lines: list[str] = []
+        for line in range(line, tolineno + 1):  # noqa: B020
             self._visited_lines[line] = 1
             try:
                 lines.append(self._lines[line].rstrip())
             except KeyError:
                 lines.append("")
 
-    def _check_multi_statement_line(self, node, line):
+    def _check_multi_statement_line(self, node: nodes.NodeNG, line: int) -> None:
         """Check for lines containing multiple statements."""
         # Do not warn about multiple nested context managers
         # in with statements.
         if isinstance(node, nodes.With):
-            return
-        # For try... except... finally..., the two nodes
-        # appear to be on the same line due to how the AST is built.
-        if isinstance(node, nodes.TryExcept) and isinstance(
-            node.parent, nodes.TryFinally
-        ):
             return
         if (
             isinstance(node.parent, nodes.If)
@@ -557,31 +539,28 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         ):
             return
 
-        # Function overloads that use ``Ellipsis`` are exempted.
+        # Functions stubs with ``Ellipsis`` as body are exempted.
         if (
-            isinstance(node, nodes.Expr)
+            isinstance(node.parent, nodes.FunctionDef)
+            and isinstance(node, nodes.Expr)
             and isinstance(node.value, nodes.Const)
             and node.value.value is Ellipsis
         ):
-            frame = node.frame(future=True)
-            if is_overload_stub(frame) or is_protocol_class(node_frame_class(frame)):
-                return
+            return
 
         self.add_message("multiple-statements", node=node)
         self._visited_lines[line] = 2
 
-    def check_line_ending(self, line: str, i: int) -> None:
-        """Check that the final newline is not missing and that there is no trailing
-        white-space.
-        """
-        if not line.endswith("\n"):
-            self.add_message("missing-final-newline", line=i)
-            return
+    def check_trailing_whitespace_ending(self, line: str, i: int) -> None:
+        """Check that there is no trailing white-space."""
         # exclude \f (formfeed) from the rstrip
         stripped_line = line.rstrip("\t\n\r\v ")
         if line[len(stripped_line) :] not in ("\n", "\r\n"):
             self.add_message(
-                "trailing-whitespace", line=i, col_offset=len(stripped_line)
+                "trailing-whitespace",
+                line=i,
+                col_offset=len(stripped_line),
+                confidence=HIGH,
             )
 
     def check_line_length(self, line: str, i: int, checker_off: bool) -> None:
@@ -596,7 +575,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 self.add_message("line-too-long", line=i, args=(len(line), max_chars))
 
     @staticmethod
-    def remove_pylint_option_from_lines(options_pattern_obj) -> str:
+    def remove_pylint_option_from_lines(options_pattern_obj: Match[str]) -> str:
         """Remove the `# pylint ...` pattern from lines."""
         lines = options_pattern_obj.string
         purged_lines = (
@@ -606,8 +585,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         return purged_lines
 
     @staticmethod
-    def is_line_length_check_activated(pylint_pattern_match_object) -> bool:
-        """Return true if the line length check is activated."""
+    def is_line_length_check_activated(pylint_pattern_match_object: Match[str]) -> bool:
+        """Return True if the line length check is activated."""
         try:
             for pragma in parse_pragma(pylint_pattern_match_object.group(2)):
                 if pragma.action == "disable" and "line-too-long" in pragma.messages:
@@ -632,7 +611,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             "\u2028",
             "\u2029",
         }
-        res = []
+        res: list[str] = []
         buffer = ""
         for atomic_line in lines.splitlines(True):
             if atomic_line[-1] not in unsplit_ends:
@@ -642,10 +621,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 buffer += atomic_line
         return res
 
-    def check_lines(self, lines: str, lineno: int) -> None:
+    def check_lines(
+        self, tokens: TokenWrapper, line_start: int, lines: str, lineno: int
+    ) -> None:
         """Check given lines for potential messages.
 
-        Check lines have :
+        Check if lines have:
         - a final newline
         - no trailing white-space
         - less than a maximum number of characters
@@ -663,17 +644,20 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         split_lines = self.specific_splitlines(lines)
 
         for offset, line in enumerate(split_lines):
-            self.check_line_ending(line, lineno + offset)
+            if not line.endswith("\n"):
+                self.add_message("missing-final-newline", line=lineno + offset)
+                continue
+            # We don't test for trailing whitespaces in strings
+            # See https://github.com/pylint-dev/pylint/issues/6936
+            # and https://github.com/pylint-dev/pylint/issues/3822
+            if tokens.type(line_start) != tokenize.STRING:
+                self.check_trailing_whitespace_ending(line, lineno + offset)
 
-        # hold onto the initial lineno for later
-        potential_line_length_warning = False
-        for offset, line in enumerate(split_lines):
-            # this check is purposefully simple and doesn't rstrip
-            # since this is running on every line you're checking it's
-            # advantageous to avoid doing a lot of work
-            if len(line) > max_chars:
-                potential_line_length_warning = True
-                break
+        # This check is purposefully simple and doesn't rstrip since this is running
+        # on every line you're checking it's advantageous to avoid doing a lot of work
+        potential_line_length_warning = any(
+            len(line) > max_chars for line in split_lines
+        )
 
         # if there were no lines passing the max_chars config, we don't bother
         # running the full line check (as we've met an even more strict condition)
@@ -693,7 +677,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         for offset, line in enumerate(self.specific_splitlines(lines)):
             self.check_line_length(line, lineno + offset, checker_off)
 
-    def check_indent_level(self, string, expected, line_num):
+    def check_indent_level(self, string: str, expected: int, line_num: int) -> None:
         """Return the indent level of the string."""
         indent = self.linter.config.indent_string
         if indent == "\\t":  # \t is not interpreted in the configuration file

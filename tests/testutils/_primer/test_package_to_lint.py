@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from pylint.testutils._primer import PRIMER_DIRECTORY_PATH, PackageToLint
 
@@ -31,7 +31,8 @@ def test_package_to_lint() -> None:
     expected_args = [
         str(expected_path_to_lint),
         f"--rcfile={expected_pylintrc_path}",
-    ] + args
+        *args,
+    ]
     assert package_to_lint.pylint_args == expected_args
 
 
@@ -42,8 +43,8 @@ def test_package_to_lint_default_value() -> None:
         branch="main",
         directories=["src/flask"],  # Must work on Windows (src\\flask)
     )
-    assert package_to_lint.pylintrc is None
+    assert package_to_lint.pylintrc == ""
     expected_path_to_lint = (
         PRIMER_DIRECTORY_PATH / "pallets" / "flask" / "src" / "flask"
     )
-    assert package_to_lint.pylint_args == [str(expected_path_to_lint)]
+    assert package_to_lint.pylint_args == [str(expected_path_to_lint), "--rcfile="]

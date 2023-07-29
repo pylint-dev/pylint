@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for use of while loops."""
 
@@ -18,13 +18,13 @@ if TYPE_CHECKING:
 
 
 class WhileChecker(BaseChecker):
-
     name = "while_used"
     msgs = {
         "W0149": (
             "Used `while` loop",
             "while-used",
-            "Unbounded `while` loops can often be rewritten as bounded `for` loops.",
+            "Unbounded `while` loops can often be rewritten as bounded `for` loops. "
+            "Exceptions can be made for cases such as event loops, listeners, etc.",
         )
     }
 

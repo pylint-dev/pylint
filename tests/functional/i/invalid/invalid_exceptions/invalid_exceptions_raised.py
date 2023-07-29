@@ -1,4 +1,4 @@
-# pylint:disable=too-few-public-methods,import-error,missing-docstring, not-callable, useless-object-inheritance,import-outside-toplevel
+# pylint:disable=too-few-public-methods,import-error,missing-docstring, not-callable, import-outside-toplevel
 """test pb with exceptions and old/new style classes"""
 
 
@@ -8,7 +8,7 @@ class ValidException(Exception):
 class OldStyleClass:
     """Not an exception."""
 
-class NewStyleClass(object):
+class NewStyleClass:
     """Not an exception."""
 
 
@@ -99,7 +99,7 @@ def reusing_same_name_picks_the_latest_raised_value():
     try:
         raise ValueError
     except exceptions as exc:  # pylint: disable=catching-non-exception
-        # https://github.com/PyCQA/pylint/issues/1756
+        # https://github.com/pylint-dev/pylint/issues/1756
         exc = Error(exc)
         if exc:
             raise exc

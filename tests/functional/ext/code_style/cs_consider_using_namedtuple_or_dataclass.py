@@ -23,6 +23,11 @@ MAPPING_3 = {
     "entry_2": {0: None, 1: None},
 }
 
+# Subdicts have no common keys
+MAPPING_4 = {
+    "entry_1": {"key_3": 0, "key_4": 1, "key_diff_1": 2},
+    "entry_2": {"key_1": 0, "key_2": 1, "key_diff_2": 3},
+}
 
 def func():
     # Not in module scope

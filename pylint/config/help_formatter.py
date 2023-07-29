@@ -1,13 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import argparse
 
 from pylint.config.callback_actions import _CallbackAction
-from pylint.constants import DEFAULT_PYLINT_HOME, OLD_DEFAULT_PYLINT_HOME
+from pylint.constants import DEFAULT_PYLINT_HOME
 
 
 class _HelpFormatter(argparse.RawDescriptionHelpFormatter):
@@ -35,8 +35,7 @@ class _HelpFormatter(argparse.RawDescriptionHelpFormatter):
 Environment variables:
     The following environment variables are used:
         * PYLINTHOME    Path to the directory where persistent data for the run will
-                        be stored. If not found, it defaults to '{DEFAULT_PYLINT_HOME}'
-                        or '{OLD_DEFAULT_PYLINT_HOME}' (in the current working directory).
+                        be stored. If not found, it defaults to '{DEFAULT_PYLINT_HOME}'.
         * PYLINTRC      Path to the configuration file. See the documentation for the method used
                         to search for configuration file.
 

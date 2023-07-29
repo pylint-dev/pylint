@@ -1,6 +1,6 @@
 """Test for unsupported-binary-operation."""
 # pylint: disable=missing-docstring,too-few-public-methods,pointless-statement
-# pylint: disable=expression-not-assigned, invalid-name, useless-object-inheritance
+# pylint: disable=expression-not-assigned, invalid-name
 
 
 import collections
@@ -20,32 +20,32 @@ import collections
 [] * 2.0 # [unsupported-binary-operation]
 () * 2.0 # [unsupported-binary-operation]
 2.0 >> 2.0 # [unsupported-binary-operation]
-class A(object):
+class A:
     pass
-class B(object):
+class B:
     pass
 A() + B() # [unsupported-binary-operation]
-class A1(object):
+class A1:
     def __add__(self, other):
         return NotImplemented
 
 A1() + A1() # [unsupported-binary-operation]
 
-class A2(object):
+class A2:
     def __add__(self, other):
         return NotImplemented
-class B2(object):
+class B2:
     def __radd__(self, other):
         return NotImplemented
 A2() + B2() # [unsupported-binary-operation]
 
-class Parent(object):
+class Parent:
     pass
 class Child(Parent):
     def __add__(self, other):
         return NotImplemented
 Child() + Parent() # [unsupported-binary-operation]
-class A3(object):
+class A3:
     def __add__(self, other):
         return NotImplemented
 class B3(A3):

@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,unused-argument,too-few-public-methods
-# https://github.com/PyCQA/pylint/issues/2641
+# https://github.com/pylint-dev/pylint/issues/2641
 from abc import ABCMeta, abstractmethod
 
 
