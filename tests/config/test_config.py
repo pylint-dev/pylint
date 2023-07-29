@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import os
 import re
-import timeit
 from pathlib import Path
 
 import pytest
@@ -135,7 +134,6 @@ def test_csv_regex_comma_in_quantifier(in_string, expected) -> None:
         return r.linter.config.bad_names_rgxs
 
     assert _template_run(in_string) == [re.compile(regex) for regex in expected]
-
 
 
 def test_short_verbose(capsys: CaptureFixture) -> None:
