@@ -8,7 +8,7 @@ import os
 import re
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, cast
+from typing import Any
 
 import pytest
 from pytest import CaptureFixture
@@ -136,7 +136,8 @@ def test_csv_regex_comma_in_quantifier(in_string: str, expected: list[str]) -> N
             [str(EMPTY_MODULE), rf"--bad-names-rgx={in_string}"],
             exit=False,
         )
-        return cast(list[re.Pattern[Any]], r.linter.config.bad_names_rgxs)
+        bad_names_rgxs: list[re.Pattern[Any]] = r.linter.config.bad_names_rgxs
+        return bad_names_rgxs
 
     assert _template_run(in_string) == [re.compile(regex) for regex in expected]
 
