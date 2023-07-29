@@ -164,12 +164,12 @@ def test_csv_regex_error(capsys: CaptureFixture) -> None:
     """
     with pytest.raises(SystemExit):
         Run(
-            [str(EMPTY_MODULE), r"--bad-names-rgx=(foo{1,3})"],
+            [str(EMPTY_MODULE), r"--bad-names-rgx=(foo{1,}, foo{1,3}})"],
             exit=False,
         )
     output = capsys.readouterr()
     assert (
-        r"Error in provided regular expression: (foo{1 beginning at index 0: missing ), unterminated subpattern"
+        r"Error in provided regular expression: (foo{1,} beginning at index 0: missing ), unterminated subpattern"
         in output.err
     )
 
