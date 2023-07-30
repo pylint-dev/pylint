@@ -94,5 +94,5 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pip install -e .
+          pip install .
           pytest -m primer_stdlib --primer-stdlib -n auto -vv

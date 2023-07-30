@@ -20,6 +20,7 @@ environment for testing, open a terminal and run::
     python3 -m venv venv
     source venv/bin/activate
     pip install -r requirements_test_min.txt
+    pip install -e .
 
 This ensures your testing environment is similar to Pylint's testing environment on GitHub.
 

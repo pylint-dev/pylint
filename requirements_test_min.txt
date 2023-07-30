@@ -1,4 +1,4 @@
--e .[testutils,spelling]
+.[testutils,spelling]
 # astroid dependency is also defined in pyproject.toml
 astroid==3.0.0a8  # Pinned to a specific version for tests
 typing-extensions~=4.7

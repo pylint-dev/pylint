@@ -119,7 +119,7 @@ jobs:
       - name: Run pylint checks
         run: |
           . venv/bin/activate
-          pip install -e .
+          pip install .
           pip list | grep 'astroid\|pylint'
           pre-commit run --hook-stage manual pylint-with-spelling --all-files
 
