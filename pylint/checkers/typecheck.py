@@ -478,18 +478,17 @@ def _emit_no_member(
     ):
         return False
     if isinstance(owner, (astroid.Instance, nodes.ClassDef)):
+        # Issue #2565: Don't ignore enums, as they have a `__getattr__` but it's not
+        # invoked at this point.
+        try:
+            metaclass = owner.metaclass()
+        except astroid.MroError:
+            pass
+        else:
+            # Renamed in Python 3.10 to `EnumType`
+            if metaclass and metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}:
+                return not _enum_has_attribute(owner, node)
         if owner.has_dynamic_getattr():
-            # Issue #2565: Don't ignore enums, as they have a `__getattr__` but it's not
-            # invoked at this point.
-            try:
-                metaclass = owner.metaclass()
-            except astroid.MroError:
-                return False
-            if metaclass:
-                # Renamed in Python 3.10 to `EnumType`
-                if metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}:
-                    return not _enum_has_attribute(owner, node)
-                return False
             return False
         if not has_known_bases(owner):
             return False
