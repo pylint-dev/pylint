@@ -9,9 +9,9 @@ from __future__ import annotations
 import collections
 import copy
 import itertools
+import math
 import os
 import re
-import math
 from collections import defaultdict
 from collections.abc import Generator, Iterable, Iterator
 from enum import Enum
