@@ -2983,7 +2983,7 @@ class VariablesChecker(BaseChecker):
         if isinstance(value_node, nodes.Subscript):
             step = value_node.slice.step or 1
             splice_range = value_node.slice.upper.value - value_node.slice.lower.value
-            splice_length = math.ceil(splice_range / step)
+            splice_length = int(math.ceil(splice_range / step))
             return splice_length
         return 1
 
