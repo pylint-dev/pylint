@@ -42,7 +42,7 @@ clean:
 
 install-dependencies:
 	@echo "Install dependencies"
-	cd ../ && $(PIP) install -r doc/requirements.txt && cd doc/
+	cd ../ && $(PIP) install . && $(PIP) install -r doc/requirements.txt && cd doc/
 
 build-html:
 	@echo "If you did not run 'make install-dependencies', you need to."
