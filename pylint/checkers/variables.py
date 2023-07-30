@@ -11,6 +11,7 @@ import copy
 import itertools
 import os
 import re
+import math
 from collections import defaultdict
 from collections.abc import Generator, Iterable, Iterator
 from enum import Enum
@@ -2981,7 +2982,9 @@ class VariablesChecker(BaseChecker):
             return len(value_node.value)
         if isinstance(value_node, nodes.Subscript):
             step = value_node.slice.step or 1
-            return (value_node.slice.upper - value_node.slice.lower) // step
+            splice_range = value_node.slice.upper.value - value_node.slice.lower.value
+            splice_length = math.ceil(splice_range / step)
+            return splice_length
         return 1
 
     @staticmethod
