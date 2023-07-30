@@ -119,5 +119,5 @@ for value1, value2 in {1: [2, 3], 4: {5, 6}}.values():
 for value1, value2 in {1: {2: 3, 4: 5}, 6: {7: 8, 9: 10}}.values():
     pass
 
-for value1, value2 in {1: [1, 2, 3][0:1]}.values():
+for value1, value2 in {1: [1, 2, 3][0:2]}.values():
     pass
