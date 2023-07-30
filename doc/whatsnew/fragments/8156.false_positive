@@ -2,4 +2,4 @@ When checking for unbalanced dict unpacking in for-loops, Pylint will now test w
 unpacked matches the number of unpacking targets. Previously, Pylint would test the number of values for the loop
 iteration, which would produce a false unbalanced-dict-unpacking warning.
 
-closes #8156
+Closes #8156
