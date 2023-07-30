@@ -5,7 +5,7 @@ and name length, and users regularly reported this to be surprising.)
 If checking for a minimum length is still desired, it can be regained in two ways:
 
 - If you are content with a ``disallowed-name`` message (instead of ``invalid-name``),
-then simply add the option ``bad-names-rgx="^..?$"``, which will fail 1-2
+then simply add the option ``bad-names-rgxs="^..?$"``, which will fail 1-2
 character-long names. (Ensure you enable ``disallowed-name``.)
 
 - If you would prefer an ``invalid-name`` message to be emitted, or would prefer

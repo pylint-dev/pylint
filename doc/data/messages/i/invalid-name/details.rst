@@ -99,7 +99,7 @@ Before pylint 3.0, most predefined patterns also enforced a minimum length
 of three characters. If this behavior is desired in versions 3.0 and following,
 it can be had by providing custom regular expressions as described next. (Or,
 if the ``disallowed-name`` check is sufficient instead of ``invalid-name``,
-providing the single option ``bad-names-rgx="^..?$"`` will suffice to fail 1-2
+providing the single option ``bad-names-rgxs="^..?$"`` will suffice to fail 1-2
 character names.
 
 Custom regular expressions
