@@ -26,8 +26,10 @@ from datetime import datetime
 sys.path.append(os.path.abspath("exts"))
 sys.path.append(os.path.abspath(".."))
 
-from pylint import __version__
-from pylint.__pkginfo__ import numversion
+# pylint: disable=wrong-import-position
+from pylint import __version__  # noqa: E402
+from pylint.__pkginfo__ import numversion   # noqa: E402
+# pylint: enable=wrong-import-position
 
 # -- General configuration -----------------------------------------------------
 
