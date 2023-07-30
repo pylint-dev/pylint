@@ -28,7 +28,8 @@ sys.path.append(os.path.abspath(".."))
 
 # pylint: disable=wrong-import-position
 from pylint import __version__  # noqa: E402
-from pylint.__pkginfo__ import numversion   # noqa: E402
+from pylint.__pkginfo__ import numversion  # noqa: E402
+
 # pylint: enable=wrong-import-position
 
 # -- General configuration -----------------------------------------------------
