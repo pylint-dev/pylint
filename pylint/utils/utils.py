@@ -255,6 +255,8 @@ def _check_csv(value: list[str] | tuple[str] | str) -> Sequence[str]:
 
 
 def _check_regexp_csv(value: list[str] | tuple[str] | str) -> Iterable[str]:
+    r"""Split a comma-separated list of regexes, taking care to avoid splitting
+    a regex employing a comma as quantifier, as in `\d{1,2}`."""
     if isinstance(value, (list, tuple)):
         yield from value
     else:
