@@ -69,10 +69,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
-          cd ..
-          INSTALLED_PATH=$(python -c 'from pathlib import Path;import pylint;print(Path(pylint.__file__).parent)')
-          cd pylint
-          pytest --durations=10 --benchmark-disable --cov=$INSTALLED_PATH --cov-report= tests/
+          python -m pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
       - name: Run functional tests with minimal messages config
         run: |
           . venv/bin/activate
