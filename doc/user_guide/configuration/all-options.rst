@@ -1285,7 +1285,7 @@ Standard Checkers
 
 --spelling-dict
 """""""""""""""
-*Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell), en_CA (aspell), en_GB (aspell), en_US (aspell).*
+*Spelling dictionary name. No available dictionaries : You need to install both the python package and the system dependency for enchant to work..*
 
 **Default:** ``""``
 
