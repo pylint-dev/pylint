@@ -487,7 +487,14 @@ class NameChecker(_BasicChecker):
         elif isinstance(frame, nodes.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
                 for ancestor in frame.ancestors():
-                    if utils.is_enum(ancestor) or utils.is_assign_name_annotated_with(
+                    is_enum_member = False
+                    if utils.is_enum(ancestor):
+                        enum_members = next(frame.igetattr("__members__"))
+                        is_enum_member = any(
+                            node.name == name_node.name
+                            for _, name_node in enum_members.items
+                        )
+                    if (is_enum_member) or utils.is_assign_name_annotated_with(
                         node, "Final"
                     ):
                         self._check_name("class_const", node.name, node)
