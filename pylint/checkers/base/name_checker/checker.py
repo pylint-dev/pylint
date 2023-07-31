@@ -17,7 +17,7 @@ from re import Pattern
 from typing import TYPE_CHECKING, Tuple
 
 import astroid
-from astroid import nodes
+from astroid import nodes, util
 
 from pylint import constants, interfaces
 from pylint.checkers import utils
@@ -490,11 +490,13 @@ class NameChecker(_BasicChecker):
                     is_enum_member = False
                     if utils.is_enum(ancestor):
                         enum_members = next(frame.igetattr("__members__"))
+                        if isinstance(enum_members, util.UninferableBase):
+                            continue
                         is_enum_member = any(
                             node.name == name_node.name
                             for _, name_node in enum_members.items
                         )
-                    if (is_enum_member) or utils.is_assign_name_annotated_with(
+                    if is_enum_member or utils.is_assign_name_annotated_with(
                         node, "Final"
                     ):
                         self._check_name("class_const", node.name, node)
