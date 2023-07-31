@@ -659,7 +659,7 @@ def is_attr_protected(attrname: str) -> bool:
     details), False otherwise.
     """
     return (
-        attrname[0] == "_"
+        attrname.startswith("_")
         and attrname != "_"
         and not (attrname.startswith("__") and attrname.endswith("__"))
     )
