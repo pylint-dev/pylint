@@ -17,7 +17,7 @@ from re import Pattern
 from typing import TYPE_CHECKING, Tuple
 
 import astroid
-from astroid import nodes, util
+from astroid import nodes
 
 from pylint import constants, interfaces
 from pylint.checkers import utils
@@ -485,24 +485,12 @@ class NameChecker(_BasicChecker):
 
         # Check names defined in class scopes
         elif isinstance(frame, nodes.ClassDef):
-            if not list(frame.local_attr_ancestors(node.name)):
-                for ancestor in frame.ancestors():
-                    is_enum_member = False
-                    if utils.is_enum(ancestor):
-                        enum_members = next(frame.igetattr("__members__"))
-                        if isinstance(enum_members, util.UninferableBase):
-                            continue
-                        is_enum_member = any(
-                            node.name == name_node.name
-                            for _, name_node in enum_members.items
-                        )
-                    if is_enum_member or utils.is_assign_name_annotated_with(
-                        node, "Final"
-                    ):
-                        self._check_name("class_const", node.name, node)
-                        break
-                else:
-                    self._check_name("class_attribute", node.name, node)
+            if utils.is_enum_member(node) or utils.is_assign_name_annotated_with(
+                node, "Final"
+            ):
+                self._check_name("class_const", node.name, node)
+            else:
+                self._check_name("class_attribute", node.name, node)
 
     def _recursive_check_names(self, args: list[nodes.AssignName]) -> None:
         """Check names in a possibly recursive list <arg>."""
