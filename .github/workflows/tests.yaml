@@ -69,7 +69,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
-          pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
+          python -m pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
       - name: Run functional tests with minimal messages config
         run: |
           . venv/bin/activate
@@ -148,7 +148,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install pygal
-          pip install -e .
+          pip install .
           pip list | grep 'astroid\|pylint'
           pytest --exitfirst \
             --benchmark-only \

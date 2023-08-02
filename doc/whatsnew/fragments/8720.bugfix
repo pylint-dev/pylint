@@ -1,3 +1,0 @@
-Avoid ``consider-using-f-string`` on modulos with brackets in template.
-
-Closes #8720.
