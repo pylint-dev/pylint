@@ -4,16 +4,19 @@ and name length, and users regularly reported this to be surprising.)
 
 If checking for a minimum length is still desired, it can be regained in two ways:
 
-- If you are content with a ``disallowed-name`` message (instead of ``invalid-name``),
-  then simply add the option ``bad-names-rgxs="^..?$"``, which will fail 1-2
-  character-long names. (Ensure you enable ``disallowed-name``.)
+- If you are content with a ``disallowed-name`` message (instead of
+  ``invalid-name``), then simply add the option ``bad-names-rgxs="^..?$"``,
+  which will fail 1-2 character-long names. (Ensure you enable
+  ``disallowed-name``.)
 
-- If you would prefer an ``invalid-name`` message to be emitted, or would prefer
-  finer-grained control over the circumstances in which messages are emitted
-  (classes vs. methods, etc.), then avail yourself of the regex options described
+- If you would prefer an ``invalid-name`` message to be emitted, or would
+  prefer finer-grained control over the circumstances in which messages are
+  emitted (classes vs. methods, etc.), then avail yourself of the regex
+  options described
   `here <https://pylint.readthedocs.io/en/stable/user_guide/configuration/all-options.html#main-checker>`_.
-  (In particular, take note of the commented out options in the "example configuration" given at
-  the bottom of the section.) The prior regexes can be found in the
+  (In particular, take note of the commented out options in the "example
+  configuration" given at the bottom of the section.) The prior regexes can
+  be found in the
   `pull request <https://github.com/pylint-dev/pylint/pull/8813>`_
   that removed the length requirements.
 
