@@ -4,7 +4,7 @@ directory = "doc/whatsnew/fragments"
 filename = "doc/whatsnew/3/3.0/index.rst"
 template = "doc/whatsnew/fragments/_template.rst"
 issue_format = "`#{issue} <https://github.com/pylint-dev/pylint/issues/{issue}>`_"
-wrap = true
+wrap = false  # doesn't wrap links correctly if beginning with indentation
 
 # Definition of fragment types.
 # We want the changelog to show in the same order as the fragment types
