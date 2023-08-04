@@ -1,3 +1,0 @@
-Fix a false positive where pylint was ignoring method calls annotated as ``NoReturn`` during the ``inconsistent-return-statements`` check.
-
-Closes #8747

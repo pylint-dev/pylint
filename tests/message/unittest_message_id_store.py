@@ -30,7 +30,7 @@ def test_len_str(msgid_store: MessageIdStore, msgids: dict[str, str]) -> None:
 
 def test_get_message_ids(msgid_store: MessageIdStore, msgids: dict[str, str]) -> None:
     """We can get message id even with capitalization problem."""
-    msgid = list(msgids.keys())[0]
+    msgid = next(iter(msgids.keys()))
     msgids_result = msgid_store.get_active_msgids(msgid.lower())
     assert len(msgids_result) == 1
     assert msgid == msgids_result[0]
