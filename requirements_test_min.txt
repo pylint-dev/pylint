@@ -8,3 +8,4 @@ pytest-benchmark~=4.0
 pytest-timeout~=2.1
 towncrier~=23.6
 requests
+setuptools==41.6.0
