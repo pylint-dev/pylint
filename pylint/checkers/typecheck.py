@@ -15,7 +15,7 @@ import sys
 from collections.abc import Callable, Iterable
 from functools import cached_property, singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 
 import astroid
 import astroid.exceptions
