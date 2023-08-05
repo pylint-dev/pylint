@@ -74,7 +74,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
-          pytest -vv --minimal-messages-config tests/test_functional.py
+          python -m pytest -vv --minimal-messages-config tests/test_functional.py
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v3.1.2
         with:
@@ -214,7 +214,7 @@ jobs:
         run: |
           . venv\\Scripts\\activate
           pip list | grep 'astroid\|pylint'
-          pytest --durations=10 --benchmark-disable tests/
+          python -m pytest --durations=10 --benchmark-disable tests/
 
   tests-macos:
     name: run / ${{ matrix.python-version }} / macOS
