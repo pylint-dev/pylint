@@ -12,8 +12,7 @@ import operator
 import re
 import shlex
 import sys
-import types
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable
 from functools import cached_property, singledispatch
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union
@@ -64,8 +63,6 @@ CallableObjects = Union[
     nodes.ClassDef,
 ]
 
-_T = TypeVar("_T")
-
 STR_FORMAT = {"builtins.str.format"}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
 BUILTIN_TUPLE = "builtins.tuple"
@@ -103,24 +100,6 @@ class VERSION_COMPATIBLE_OVERLOAD:
 
 
 VERSION_COMPATIBLE_OVERLOAD_SENTINEL = VERSION_COMPATIBLE_OVERLOAD()
-
-
-def _unflatten(iterable: Iterable[_T]) -> Iterator[_T]:
-    for index, elem in enumerate(iterable):
-        if isinstance(elem, Sequence) and not isinstance(elem, str):
-            yield from _unflatten(elem)
-        elif elem and not index:
-            # We're interested only in the first element.
-            yield elem  # type: ignore[misc]
-
-
-def _flatten_container(iterable: Iterable[_T]) -> Iterator[_T]:
-    # Flatten nested containers into a single iterable
-    for item in iterable:
-        if isinstance(item, (list, tuple, types.GeneratorType)):
-            yield from _flatten_container(item)
-        else:
-            yield item
 
 
 def _is_owner_ignored(
