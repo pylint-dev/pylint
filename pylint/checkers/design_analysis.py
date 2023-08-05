@@ -440,11 +440,18 @@ class MisdesignChecker(BaseChecker):
                 args=(nb_parents, self.linter.config.max_parents),
             )
 
-        if len(node.instance_attrs) > self.linter.config.max_attributes:
+        # Something at inference time is modifying instance_attrs to add
+        # properties from parent classes. Given how much we cache inference
+        # results, mutating instance_attrs can become a real mess. Filter
+        # them out here until the root cause is solved.
+        # https://github.com/pylint-dev/astroid/issues/2273
+        filtered_attrs = [a for a in node.instance_attrs if a in node.locals]
+
+        if len(filtered_attrs) > self.linter.config.max_attributes:
             self.add_message(
                 "too-many-instance-attributes",
                 node=node,
-                args=(len(node.instance_attrs), self.linter.config.max_attributes),
+                args=(len(filtered_attrs), self.linter.config.max_attributes),
             )
 
     @only_required_for_messages("too-few-public-methods", "too-many-public-methods")
