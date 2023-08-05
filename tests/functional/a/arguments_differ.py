@@ -358,3 +358,13 @@ class AClass:
 class ClassWithNewNonDefaultKeywordOnly(AClass):
     def method(self, *, arg2, arg1=None):  # [arguments-differ]
         ...
+
+
+# Exclude `__init_subclass__` from the check:
+class InitSubclassParent:
+    def __init_subclass__(cls, *args, **kwargs):
+        ...
+
+class InitSubclassChild(InitSubclassParent):
+    def __init_subclass__(cls, /, **kwargs) -> None:
+        super().__init_subclass__(**kwargs)
