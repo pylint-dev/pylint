@@ -1,0 +1,4 @@
+``pylint`` runs (at least) ~5% faster after improvements to ``astroid``
+that make better use of the inference cache.
+
+Refs pylint-dev/astroid#529
