@@ -260,7 +260,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
-          pytest --durations=10 --benchmark-disable tests/
+          python -m pytest --durations=10 --benchmark-disable tests/
 
   tests-pypy:
     name: run / ${{ matrix.python-version }} / Linux
@@ -304,4 +304,4 @@ jobs:
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
-          pytest --durations=10 --benchmark-disable tests/
+          python -m pytest --durations=10 --benchmark-disable tests/
