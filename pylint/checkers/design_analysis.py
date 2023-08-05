@@ -16,8 +16,8 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
-    is_enum,
     get_node_first_ancestor_of_type,
+    is_enum,
     only_required_for_messages,
 )
 from pylint.typing import MessageDefinitionTuple
