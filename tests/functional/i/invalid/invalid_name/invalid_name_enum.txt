@@ -1,2 +1,1 @@
-invalid-name:19:4:19:9:EnumClass:"Class constant name ""apple"" doesn't conform to UPPER_CASE naming style":HIGH
-invalid-name:20:4:20:10:EnumClass:"Class constant name ""orange"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:16:4:16:14:Color:"Class constant name ""aquamarine"" doesn't conform to UPPER_CASE naming style":HIGH
