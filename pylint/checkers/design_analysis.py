@@ -447,9 +447,7 @@ class MisdesignChecker(BaseChecker):
         # https://github.com/pylint-dev/astroid/issues/2273
         root = node.root()
         filtered_attrs = [
-            k
-            for (k, v) in node.instance_attrs.items()
-            if v[0].root() is root
+            k for (k, v) in node.instance_attrs.items() if v[0].root() is root
         ]
         if len(filtered_attrs) > self.linter.config.max_attributes:
             self.add_message(
