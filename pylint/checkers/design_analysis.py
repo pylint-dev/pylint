@@ -15,11 +15,7 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import (
-    get_node_first_ancestor_of_type,
-    is_enum,
-    only_required_for_messages,
-)
+from pylint.checkers.utils import is_enum, only_required_for_messages
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -449,11 +445,11 @@ class MisdesignChecker(BaseChecker):
         # results, mutating instance_attrs can become a real mess. Filter
         # them out here until the root cause is solved.
         # https://github.com/pylint-dev/astroid/issues/2273
-        this_module = get_node_first_ancestor_of_type(node, nodes.Module)
+        root = node.root()
         filtered_attrs = [
             k
             for (k, v) in node.instance_attrs.items()
-            if get_node_first_ancestor_of_type(v[0], nodes.Module) is this_module
+            if v[0].root() is root
         ]
         if len(filtered_attrs) > self.linter.config.max_attributes:
             self.add_message(
