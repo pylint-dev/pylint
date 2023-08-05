@@ -8,4 +8,5 @@ pytest-benchmark~=4.0
 pytest-timeout~=2.1
 towncrier~=23.6
 requests
-setuptools==65.5.1
+# Voluntary for test purpose, not actually used in prod, see #8904
+setuptools==41.6.0
