@@ -76,6 +76,13 @@ license-files = ["LICENSE", "CONTRIBUTORS.txt"]  # Keep in sync with setup.cfg
 [tool.setuptools.packages.find]
 include = ["pylint*"]
 
+[tool.setuptools.package-dir]
+# Simulate editable_mode=compat, described at:
+# https://github.com/pypa/setuptools/issues/3767
+# TODO: remove after solving root cause described at:
+# https://github.com/pylint-dev/astroid/pull/2267#issuecomment-1666642781
+"" = "."
+
 [tool.setuptools.package-data]
 pylint = ["testutils/testing_pylintrc", "py.typed"]
 
