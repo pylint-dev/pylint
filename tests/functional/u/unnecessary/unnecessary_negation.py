@@ -2,38 +2,38 @@
 
 # pylint: disable=singleton-comparison,too-many-branches,too-few-public-methods,undefined-variable
 # pylint: disable=literal-comparison, comparison-with-itself, comparison-of-constants
-def unneeded_not():
+def unnecessary_negation():
     """This is not ok
     """
     bool_var = True
     someint = 2
-    if not not bool_var:  # [unneeded-not]
+    if not not bool_var:  # [unnecessary-negation]
         pass
-    if not someint == 1:  # [unneeded-not]
+    if not someint == 1:  # [unnecessary-negation]
         pass
-    if not someint != 1:  # [unneeded-not]
+    if not someint != 1:  # [unnecessary-negation]
         pass
-    if not someint < 1:  # [unneeded-not]
+    if not someint < 1:  # [unnecessary-negation]
         pass
-    if not someint > 1:  # [unneeded-not]
+    if not someint > 1:  # [unnecessary-negation]
         pass
-    if not someint <= 1:  # [unneeded-not]
+    if not someint <= 1:  # [unnecessary-negation]
         pass
-    if not someint >= 1:  # [unneeded-not]
+    if not someint >= 1:  # [unnecessary-negation]
         pass
-    if not not someint:  # [unneeded-not]
+    if not not someint:  # [unnecessary-negation]
         pass
-    if not bool_var == True:  # [unneeded-not]
+    if not bool_var == True:  # [unnecessary-negation]
         pass
-    if not bool_var == False:  # [unneeded-not]
+    if not bool_var == False:  # [unnecessary-negation]
         pass
-    if not bool_var != True:  # [unneeded-not]
+    if not bool_var != True:  # [unnecessary-negation]
         pass
-    if not True == True:  # [unneeded-not]
+    if not True == True:  # [unnecessary-negation]
         pass
-    if not 2 in [3, 4]:  # [unneeded-not]
+    if not 2 in [3, 4]:  # [unnecessary-negation]
         pass
-    if not someint is 'test':  # [unneeded-not]
+    if not someint == 'test':  # [unnecessary-negation]
         pass
 
 

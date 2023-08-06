@@ -1,0 +1,14 @@
+unnecessary-negation:10:7:10:23:unnecessary_negation:"Consider changing ""not not bool_var"" to ""bool_var""":UNDEFINED
+unnecessary-negation:12:7:12:23:unnecessary_negation:"Consider changing ""not someint == 1"" to ""someint != 1""":UNDEFINED
+unnecessary-negation:14:7:14:23:unnecessary_negation:"Consider changing ""not someint != 1"" to ""someint == 1""":UNDEFINED
+unnecessary-negation:16:7:16:22:unnecessary_negation:"Consider changing ""not someint < 1"" to ""someint >= 1""":UNDEFINED
+unnecessary-negation:18:7:18:22:unnecessary_negation:"Consider changing ""not someint > 1"" to ""someint <= 1""":UNDEFINED
+unnecessary-negation:20:7:20:23:unnecessary_negation:"Consider changing ""not someint <= 1"" to ""someint > 1""":UNDEFINED
+unnecessary-negation:22:7:22:23:unnecessary_negation:"Consider changing ""not someint >= 1"" to ""someint < 1""":UNDEFINED
+unnecessary-negation:24:7:24:22:unnecessary_negation:"Consider changing ""not not someint"" to ""someint""":UNDEFINED
+unnecessary-negation:26:7:26:27:unnecessary_negation:"Consider changing ""not bool_var == True"" to ""bool_var != True""":UNDEFINED
+unnecessary-negation:28:7:28:28:unnecessary_negation:"Consider changing ""not bool_var == False"" to ""bool_var != False""":UNDEFINED
+unnecessary-negation:30:7:30:27:unnecessary_negation:"Consider changing ""not bool_var != True"" to ""bool_var == True""":UNDEFINED
+unnecessary-negation:32:7:32:23:unnecessary_negation:"Consider changing ""not True == True"" to ""True != True""":UNDEFINED
+unnecessary-negation:34:7:34:22:unnecessary_negation:"Consider changing ""not 2 in [3, 4]"" to ""2 not in [3, 4]""":UNDEFINED
+unnecessary-negation:36:7:36:28:unnecessary_negation:"Consider changing ""not someint == 'test'"" to ""someint != 'test'""":UNDEFINED
