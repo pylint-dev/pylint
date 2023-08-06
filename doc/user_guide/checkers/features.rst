@@ -940,8 +940,8 @@ Refactoring checker Messages
   can be simplified by using the enumerate builtin.
 :use-implicit-booleaness-not-len (C1802): *Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty*
   Empty sequences are considered false in a boolean context. You can either
-  remove the call to 'len' (``if not x``) or compare the length against a scalar
-  (``if len(x) > 1``).
+  remove the call to 'len' (``if not x``) or compare the length against a
+  scalar (``if len(x) > 1``).
 :consider-using-f-string (C0209): *Formatting a regular string which could be an f-string*
   Used when we detect a string that is being formatted with format() or % which
   could potentially be an f-string. The use of f-strings is preferred. Requires

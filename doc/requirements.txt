@@ -1,5 +1,6 @@
-Sphinx==7.0.1
+Sphinx==7.1.2
 sphinx-reredirects<1
 towncrier~=23.6
-furo==2023.5.20
+furo==2023.7.26
 -e .
+astroid @ git+https://github.com/pylint-dev/astroid.git@cf8763a2b8e897ec7c8389906f3cb13714300cd2
