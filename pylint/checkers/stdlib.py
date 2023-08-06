@@ -713,10 +713,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             inferred = next(node.infer())
         except astroid.InferenceError:
             return
-        if (
-            isinstance(inferred, astroid.Instance)
-            and inferred.qname() == "datetime.time"
-        ):
+        if isinstance(inferred, astroid.Instance) and inferred.qname() in {
+            "_pydatetime.time",
+            "datetime.time",
+        }:
             self.add_message("boolean-datetime", node=node)
 
     def _check_open_call(
