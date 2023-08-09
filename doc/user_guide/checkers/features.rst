@@ -924,8 +924,9 @@ Refactoring checker Messages
   weakly typed code base can create hard to debug issues. If the value can be
   something else that is falsey but not an int (for example ``None``, an empty
   string, or an empty sequence) the code will not be equivalent.
-:unneeded-not (C0113): *Consider changing "%s" to "%s"*
-  Used when a boolean expression contains an unneeded negation.
+:unnecessary-negation (C0117): *Consider changing "%s" to "%s"*
+  Used when a boolean expression contains an unneeded negation, e.g. when two
+  negation operators cancel each other out.
 :consider-iterating-dictionary (C0201): *Consider iterating the dictionary directly instead of calling .keys()*
   Emitted when the keys of a dictionary are iterated through the ``.keys()``
   method or when ``.keys()`` is used for a membership check. It is enough to
