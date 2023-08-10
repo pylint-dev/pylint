@@ -81,9 +81,9 @@ Basic checker Messages
 :return-outside-function (E0104): *Return outside function*
   Used when a "return" statement is found outside a function or method.
 :return-arg-in-generator (E0106): *Return with argument inside generator*
-  Used when a "return" statement with an argument is found outside in a
-  generator function or method (e.g. with some "yield" statements). This
-  message can't be emitted when using Python >= 3.3.
+  Used when a "return" statement with an argument is found in a generator
+  function or method (e.g. with some "yield" statements). This message can't be
+  emitted when using Python >= 3.3.
 :invalid-star-assignment-target (E0113): *Starred assignment target must be in a list or tuple*
   Emitted when a star expression is used as a starred assignment target.
 :bad-reversed-sequence (E0111): *The first reversed() argument is not a sequence*
