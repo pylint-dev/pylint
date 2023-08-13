@@ -58,7 +58,6 @@ def _get_all_options(linter: PyLinter) -> OptionsDataDict:
     """Get all options registered to a linter and return the data."""
     all_options: OptionsDataDict = defaultdict(list)
     for checker in sorted(linter.get_checkers()):
-        checker_name = checker.name
         for option_name, option_info in checker.options:
             changes_to_do = DYNAMICALLY_DEFINED_OPTIONS.get(option_name, {})
             if changes_to_do:
@@ -68,7 +67,7 @@ def _get_all_options(linter: PyLinter) -> OptionsDataDict:
                         f"{new_value!r} (instead of {option_info[key_to_change]!r})"
                     )
                     option_info[key_to_change] = new_value
-            all_options[checker_name].append(
+            all_options[checker.name].append(
                 OptionsData(
                     option_name,
                     option_info,
@@ -176,12 +175,17 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
         get_rst_title("Standard Checkers", "^"),
     ]
     found_extensions = False
-
-    for checker, checker_options in sorted(options.items()):
+    # We can't sort without using the 'key' keyword because if keys in 'options' were
+    # checkers then it wouldn't be possible to have a checker with the same name
+    # spanning multiple classes. It would make pylint plugin code less readable by
+    # forcing to use a single class / file.
+    for checker_name, checker_options in sorted(
+        options.items(), key=lambda x: x[1][0].checker
+    ):
         if not found_extensions and checker_options[0].extension:
             sections.append(get_rst_title("Extensions", "^"))
             found_extensions = True
-        sections.append(_create_checker_section(checker, checker_options, linter))
+        sections.append(_create_checker_section(checker_name, checker_options, linter))
 
     all_options_path = PYLINT_USERGUIDE_PATH / "configuration" / "all-options.rst"
     sections_string = "\n\n".join(sections)
