@@ -153,11 +153,8 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
         sections.append(_create_checker_section(checker, checker_options, linter))
 
     sections_string = "\n\n".join(sections)
-    with open(
-        PYLINT_USERGUIDE_PATH / "configuration" / "all-options.rst",
-        "w",
-        encoding="utf-8",
-    ) as stream:
+    all_options_path = PYLINT_USERGUIDE_PATH / "configuration" / "all-options.rst"
+    with open(all_options_path, "w", encoding="utf-8") as stream:
         stream.write(
             f"""
 
