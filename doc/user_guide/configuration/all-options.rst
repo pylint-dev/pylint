@@ -9,289 +9,6 @@ Standard Checkers
 ^^^^^^^^^^^^^^^^^
 
 
-.. _main-options:
-
-``Main`` **Checker**
---------------------
---analyse-fallback-blocks
-"""""""""""""""""""""""""
-*Analyse import fallback blocks. This can be used to support both Python 2 and 3 compatible code, which means that the block might have code that exists only in one or another interpreter, leading to false positives when analysed.*
-
-**Default:**  ``False``
-
-
---clear-cache-post-run
-""""""""""""""""""""""
-*Clear in-memory caches upon conclusion of linting. Useful if running pylint in a server-like mode.*
-
-**Default:**  ``False``
-
-
---confidence
-""""""""""""
-*Only show warnings with the listed confidence levels. Leave empty to show all. Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED.*
-
-**Default:**  ``['HIGH', 'CONTROL_FLOW', 'INFERENCE', 'INFERENCE_FAILURE', 'UNDEFINED']``
-
-
---disable
-"""""""""
-*Disable the message, report, category or checker with the given id(s). You can either give multiple identifiers separated by comma (,) or put this option multiple times (only on the command line, not in the configuration file where it should appear only once). You can also use "--disable=all" to disable everything first and then re-enable specific checks. For example, if you want to run only the similarities checker, you can use "--disable=all --enable=similarities". If you want to run only the classes checker, but have no Warning level messages displayed, use "--disable=all --enable=classes --disable=W".*
-
-**Default:**  ``()``
-
-
---enable
-""""""""
-*Enable the message, report, category or checker with the given id(s). You can either give multiple identifier separated by comma (,) or put this option multiple time (only on the command line, not in the configuration file where it should appear only once). See also the "--disable" option for examples.*
-
-**Default:**  ``()``
-
-
---evaluation
-""""""""""""
-*Python expression which should return a score less than or equal to 10. You have access to the variables 'fatal', 'error', 'warning', 'refactor', 'convention', and 'info' which contain the number of messages in each category, as well as 'statement' which is the total number of statements analyzed. This score is used by the global evaluation report (RP0004).*
-
-**Default:**  ``max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))``
-
-
---exit-zero
-"""""""""""
-*Always return a 0 (non-error) status code, even if lint errors are found. This is primarily useful in continuous integration scripts.*
-
-**Default:**  ``False``
-
-
---extension-pkg-allow-list
-""""""""""""""""""""""""""
-*A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into the active Python interpreter and may run arbitrary code.*
-
-**Default:**  ``[]``
-
-
---extension-pkg-whitelist
-"""""""""""""""""""""""""
-*A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into the active Python interpreter and may run arbitrary code. (This is an alternative name to extension-pkg-allow-list for backward compatibility.)*
-
-**Default:**  ``[]``
-
-
---fail-on
-"""""""""
-*Return non-zero exit code if any of these messages/categories are detected, even if score is above --fail-under value. Syntax same as enable. Messages specified are enabled, while categories only check already-enabled messages.*
-
-**Default:** ``""``
-
-
---fail-under
-""""""""""""
-*Specify a score threshold under which the program will exit with error.*
-
-**Default:**  ``10``
-
-
---from-stdin
-""""""""""""
-*Interpret the stdin as a python script, whose filename needs to be passed as the module_or_package argument.*
-
-**Default:**  ``False``
-
-
---ignore
-""""""""
-*Files or directories to be skipped. They should be base names, not paths.*
-
-**Default:**  ``('CVS',)``
-
-
---ignore-paths
-""""""""""""""
-*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
-
-**Default:**  ``[]``
-
-
---ignore-patterns
-"""""""""""""""""
-*Files or directories matching the regular expression patterns are skipped. The regex matches against base names, not paths. The default value ignores Emacs file locks*
-
-**Default:**  ``(re.compile('^\\.#'),)``
-
-
---ignored-modules
-"""""""""""""""""
-*List of module names for which member attributes should not be checked (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis). It supports qualified module names, as well as Unix pattern matching.*
-
-**Default:**  ``()``
-
-
---jobs
-""""""
-*Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use, and will cap the count on Windows to avoid hangs.*
-
-**Default:**  ``1``
-
-
---limit-inference-results
-"""""""""""""""""""""""""
-*Control the amount of potential inferred values when inferring a single object. This can help the performance when dealing with large functions or complex, nested conditions.*
-
-**Default:**  ``100``
-
-
---load-plugins
-""""""""""""""
-*List of plugins (as comma separated values of python module names) to load, usually to register additional checkers.*
-
-**Default:**  ``()``
-
-
---msg-template
-""""""""""""""
-*Template used to display messages. This is a python new-style format string used to format the message information. See doc for all details.*
-
-**Default:** ``""``
-
-
---output-format
-"""""""""""""""
-*Set the output format. Available formats are text, parseable, colorized, json and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
-
-**Default:**  ``text``
-
-
---persistent
-""""""""""""
-*Pickle collected data for later comparisons.*
-
-**Default:**  ``True``
-
-
---py-version
-""""""""""""
-*Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
-
-**Default:**  ``sys.version_info[:2]``
-
-
---recursive
-"""""""""""
-*Discover python modules and packages in the file system subtree.*
-
-**Default:**  ``False``
-
-
---reports
-"""""""""
-*Tells whether to display a full report or only the messages.*
-
-**Default:**  ``False``
-
-
---score
-"""""""
-*Activate the evaluation score.*
-
-**Default:**  ``True``
-
-
---source-roots
-""""""""""""""
-*Add paths to the list of the source roots. Supports globbing patterns. The source root is an absolute path or a path relative to the current working directory used to determine a package namespace for modules located under the source root.*
-
-**Default:**  ``()``
-
-
---suggestion-mode
-"""""""""""""""""
-*When enabled, pylint would attempt to guess common misconfiguration and emit user-friendly hints instead of false-positive error messages.*
-
-**Default:**  ``True``
-
-
---unsafe-load-any-extension
-"""""""""""""""""""""""""""
-*Allow loading of arbitrary C extensions. Extensions are imported into the active Python interpreter and may run arbitrary code.*
-
-**Default:**  ``False``
-
-
-
-.. raw:: html
-
-   <details>
-   <summary><a>Example configuration section</a></summary>
-
-**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
-
-.. code-block:: toml
-
-   [tool.pylint.main]
-   analyse-fallback-blocks = false
-
-   clear-cache-post-run = false
-
-   confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
-
-   disable = ["raw-checker-failed", "bad-inline-option", "locally-disabled", "file-ignored", "suppressed-message", "useless-suppression", "deprecated-pragma", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "consider-using-augmented-assign", "prefer-typing-namedtuple"]
-
-   enable = []
-
-   evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
-
-   exit-zero = false
-
-   extension-pkg-allow-list = []
-
-   extension-pkg-whitelist = []
-
-   fail-on = []
-
-   fail-under = 10
-
-   from-stdin = false
-
-   ignore = ["CVS"]
-
-   ignore-paths = []
-
-   ignore-patterns = ["^\\.#"]
-
-   ignored-modules = []
-
-   jobs = 1
-
-   limit-inference-results = 100
-
-   load-plugins = []
-
-   msg-template = ""
-
-   # output-format =
-
-   persistent = true
-
-   py-version = "sys.version_info[:2]"
-
-   recursive = false
-
-   reports = false
-
-   score = true
-
-   source-roots = []
-
-   suggestion-mode = true
-
-   unsafe-load-any-extension = false
-
-
-
-.. raw:: html
-
-   </details>
-
-
 .. _basic-options:
 
 ``Basic`` **Checker**
@@ -622,6 +339,41 @@ Standard Checkers
    </details>
 
 
+Extensions
+^^^^^^^^^^
+
+
+.. _broad_try_clause-options:
+
+``Broad_try_clause`` **Checker**
+--------------------------------
+--max-try-statements
+""""""""""""""""""""
+*Maximum number of statements allowed in a try clause*
+
+**Default:**  ``1``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.broad_try_clause]
+   max-try-statements = 1
+
+
+
+.. raw:: html
+
+   </details>
+
+
 .. _classes-options:
 
 ``Classes`` **Checker**
@@ -681,6 +433,68 @@ Standard Checkers
    valid-classmethod-first-arg = ["cls"]
 
    valid-metaclass-classmethod-first-arg = ["mcs"]
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _code_style-options:
+
+``Code_style`` **Checker**
+--------------------------
+--max-line-length-suggestions
+"""""""""""""""""""""""""""""
+*Max line length for which to sill emit suggestions. Used to prevent optional suggestions which would get split by a code formatter (e.g., black). Will default to the setting for ``max-line-length``.*
+
+**Default:**  ``0``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.code_style]
+   max-line-length-suggestions = 0
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _deprecated_builtins-options:
+
+``Deprecated_builtins`` **Checker**
+-----------------------------------
+--bad-functions
+"""""""""""""""
+*List of builtins function names that should not be used, separated by a comma*
+
+**Default:**  ``['map', 'filter']``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.deprecated_builtins]
+   bad-functions = ["map", "filter"]
 
 
 
@@ -820,6 +634,37 @@ Standard Checkers
    max-statements = 50
 
    min-public-methods = 2
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _dunder-options:
+
+``Dunder`` **Checker**
+----------------------
+--good-dunder-names
+"""""""""""""""""""
+*Good dunder names which should always be accepted.*
+
+**Default:**  ``[]``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.dunder]
+   good-dunder-names = []
 
 
 
@@ -1107,6 +952,320 @@ Standard Checkers
    </details>
 
 
+.. _magic-value-options:
+
+``Magic-value`` **Checker**
+---------------------------
+--valid-magic-values
+""""""""""""""""""""
+*List of valid magic values that `magic-value-compare` will not detect. Supports integers, floats, negative numbers, for empty string enter ``''``, for backslash values just use one backslash e.g \n.*
+
+**Default:**  ``(0, -1, 1, '', '__main__')``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.magic-value]
+   valid-magic-values = [0, -1, 1, "", "__main__"]
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _main-options:
+
+``Main`` **Checker**
+--------------------
+--analyse-fallback-blocks
+"""""""""""""""""""""""""
+*Analyse import fallback blocks. This can be used to support both Python 2 and 3 compatible code, which means that the block might have code that exists only in one or another interpreter, leading to false positives when analysed.*
+
+**Default:**  ``False``
+
+
+--clear-cache-post-run
+""""""""""""""""""""""
+*Clear in-memory caches upon conclusion of linting. Useful if running pylint in a server-like mode.*
+
+**Default:**  ``False``
+
+
+--confidence
+""""""""""""
+*Only show warnings with the listed confidence levels. Leave empty to show all. Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED.*
+
+**Default:**  ``['HIGH', 'CONTROL_FLOW', 'INFERENCE', 'INFERENCE_FAILURE', 'UNDEFINED']``
+
+
+--disable
+"""""""""
+*Disable the message, report, category or checker with the given id(s). You can either give multiple identifiers separated by comma (,) or put this option multiple times (only on the command line, not in the configuration file where it should appear only once). You can also use "--disable=all" to disable everything first and then re-enable specific checks. For example, if you want to run only the similarities checker, you can use "--disable=all --enable=similarities". If you want to run only the classes checker, but have no Warning level messages displayed, use "--disable=all --enable=classes --disable=W".*
+
+**Default:**  ``()``
+
+
+--enable
+""""""""
+*Enable the message, report, category or checker with the given id(s). You can either give multiple identifier separated by comma (,) or put this option multiple time (only on the command line, not in the configuration file where it should appear only once). See also the "--disable" option for examples.*
+
+**Default:**  ``()``
+
+
+--evaluation
+""""""""""""
+*Python expression which should return a score less than or equal to 10. You have access to the variables 'fatal', 'error', 'warning', 'refactor', 'convention', and 'info' which contain the number of messages in each category, as well as 'statement' which is the total number of statements analyzed. This score is used by the global evaluation report (RP0004).*
+
+**Default:**  ``max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))``
+
+
+--exit-zero
+"""""""""""
+*Always return a 0 (non-error) status code, even if lint errors are found. This is primarily useful in continuous integration scripts.*
+
+**Default:**  ``False``
+
+
+--extension-pkg-allow-list
+""""""""""""""""""""""""""
+*A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into the active Python interpreter and may run arbitrary code.*
+
+**Default:**  ``[]``
+
+
+--extension-pkg-whitelist
+"""""""""""""""""""""""""
+*A comma-separated list of package or module names from where C extensions may be loaded. Extensions are loading into the active Python interpreter and may run arbitrary code. (This is an alternative name to extension-pkg-allow-list for backward compatibility.)*
+
+**Default:**  ``[]``
+
+
+--fail-on
+"""""""""
+*Return non-zero exit code if any of these messages/categories are detected, even if score is above --fail-under value. Syntax same as enable. Messages specified are enabled, while categories only check already-enabled messages.*
+
+**Default:** ``""``
+
+
+--fail-under
+""""""""""""
+*Specify a score threshold under which the program will exit with error.*
+
+**Default:**  ``10``
+
+
+--from-stdin
+""""""""""""
+*Interpret the stdin as a python script, whose filename needs to be passed as the module_or_package argument.*
+
+**Default:**  ``False``
+
+
+--ignore
+""""""""
+*Files or directories to be skipped. They should be base names, not paths.*
+
+**Default:**  ``('CVS',)``
+
+
+--ignore-paths
+""""""""""""""
+*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
+
+**Default:**  ``[]``
+
+
+--ignore-patterns
+"""""""""""""""""
+*Files or directories matching the regular expression patterns are skipped. The regex matches against base names, not paths. The default value ignores Emacs file locks*
+
+**Default:**  ``(re.compile('^\\.#'),)``
+
+
+--ignored-modules
+"""""""""""""""""
+*List of module names for which member attributes should not be checked (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis). It supports qualified module names, as well as Unix pattern matching.*
+
+**Default:**  ``()``
+
+
+--jobs
+""""""
+*Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the number of processors available to use, and will cap the count on Windows to avoid hangs.*
+
+**Default:**  ``1``
+
+
+--limit-inference-results
+"""""""""""""""""""""""""
+*Control the amount of potential inferred values when inferring a single object. This can help the performance when dealing with large functions or complex, nested conditions.*
+
+**Default:**  ``100``
+
+
+--load-plugins
+""""""""""""""
+*List of plugins (as comma separated values of python module names) to load, usually to register additional checkers.*
+
+**Default:**  ``()``
+
+
+--msg-template
+""""""""""""""
+*Template used to display messages. This is a python new-style format string used to format the message information. See doc for all details.*
+
+**Default:** ``""``
+
+
+--output-format
+"""""""""""""""
+*Set the output format. Available formats are text, parseable, colorized, json and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
+
+**Default:**  ``text``
+
+
+--persistent
+""""""""""""
+*Pickle collected data for later comparisons.*
+
+**Default:**  ``True``
+
+
+--py-version
+""""""""""""
+*Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
+
+**Default:**  ``sys.version_info[:2]``
+
+
+--recursive
+"""""""""""
+*Discover python modules and packages in the file system subtree.*
+
+**Default:**  ``False``
+
+
+--reports
+"""""""""
+*Tells whether to display a full report or only the messages.*
+
+**Default:**  ``False``
+
+
+--score
+"""""""
+*Activate the evaluation score.*
+
+**Default:**  ``True``
+
+
+--source-roots
+""""""""""""""
+*Add paths to the list of the source roots. Supports globbing patterns. The source root is an absolute path or a path relative to the current working directory used to determine a package namespace for modules located under the source root.*
+
+**Default:**  ``()``
+
+
+--suggestion-mode
+"""""""""""""""""
+*When enabled, pylint would attempt to guess common misconfiguration and emit user-friendly hints instead of false-positive error messages.*
+
+**Default:**  ``True``
+
+
+--unsafe-load-any-extension
+"""""""""""""""""""""""""""
+*Allow loading of arbitrary C extensions. Extensions are imported into the active Python interpreter and may run arbitrary code.*
+
+**Default:**  ``False``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.main]
+   analyse-fallback-blocks = false
+
+   clear-cache-post-run = false
+
+   confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
+
+   disable = ["raw-checker-failed", "bad-inline-option", "locally-disabled", "file-ignored", "suppressed-message", "useless-suppression", "deprecated-pragma", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "consider-using-augmented-assign", "prefer-typing-namedtuple"]
+
+   enable = []
+
+   evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
+
+   exit-zero = false
+
+   extension-pkg-allow-list = []
+
+   extension-pkg-whitelist = []
+
+   fail-on = []
+
+   fail-under = 10
+
+   from-stdin = false
+
+   ignore = ["CVS"]
+
+   ignore-paths = []
+
+   ignore-patterns = ["^\\.#"]
+
+   ignored-modules = []
+
+   jobs = 1
+
+   limit-inference-results = 100
+
+   load-plugins = []
+
+   msg-template = ""
+
+   # output-format =
+
+   persistent = true
+
+   py-version = "sys.version_info[:2]"
+
+   recursive = false
+
+   reports = false
+
+   score = true
+
+   source-roots = []
+
+   suggestion-mode = true
+
+   unsafe-load-any-extension = false
+
+
+
+.. raw:: html
+
+   </details>
+
+
 .. _method_args-options:
 
 ``Method_args`` **Checker**
@@ -1170,6 +1329,74 @@ Standard Checkers
    notes = ["FIXME", "XXX", "TODO"]
 
    notes-rgx = ""
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _parameter_documentation-options:
+
+``Parameter_documentation`` **Checker**
+---------------------------------------
+--accept-no-param-doc
+"""""""""""""""""""""
+*Whether to accept totally missing parameter documentation in the docstring of a function that has parameters.*
+
+**Default:**  ``True``
+
+
+--accept-no-raise-doc
+"""""""""""""""""""""
+*Whether to accept totally missing raises documentation in the docstring of a function that raises an exception.*
+
+**Default:**  ``True``
+
+
+--accept-no-return-doc
+""""""""""""""""""""""
+*Whether to accept totally missing return documentation in the docstring of a function that returns a statement.*
+
+**Default:**  ``True``
+
+
+--accept-no-yields-doc
+""""""""""""""""""""""
+*Whether to accept totally missing yields documentation in the docstring of a generator.*
+
+**Default:**  ``True``
+
+
+--default-docstring-type
+""""""""""""""""""""""""
+*If the docstring type cannot be guessed the specified docstring type will be used.*
+
+**Default:**  ``default``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.parameter_documentation]
+   accept-no-param-doc = true
+
+   accept-no-raise-doc = true
+
+   accept-no-return-doc = true
+
+   accept-no-yields-doc = true
+
+   # Possible choices: ['sphinx', 'epytext', 'google', 'numpy', 'default']
+   default-docstring-type = "default"
 
 
 
@@ -1532,6 +1759,37 @@ Standard Checkers
    </details>
 
 
+.. _typing-options:
+
+``Typing`` **Checker**
+----------------------
+--runtime-typing
+""""""""""""""""
+*Set to ``no`` if the app / library does **NOT** need to support runtime introspection of type annotations. If you use type annotations **exclusively** for type checking of an application, you're probably fine. For libraries, evaluate if some users want to access the type hints at runtime first, e.g., through ``typing.get_type_hints``. Applies to Python versions 3.7 - 3.9*
+
+**Default:**  ``True``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.typing]
+   runtime-typing = true
+
+
+
+.. raw:: html
+
+   </details>
+
+
 .. _variables-options:
 
 ``Variables`` **Checker**
@@ -1618,264 +1876,6 @@ Standard Checkers
    init-import = false
 
    redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", "builtins", "io"]
-
-
-
-.. raw:: html
-
-   </details>
-
-
-Extensions
-^^^^^^^^^^
-
-
-.. _broad_try_clause-options:
-
-``Broad_try_clause`` **Checker**
---------------------------------
---max-try-statements
-""""""""""""""""""""
-*Maximum number of statements allowed in a try clause*
-
-**Default:**  ``1``
-
-
-
-.. raw:: html
-
-   <details>
-   <summary><a>Example configuration section</a></summary>
-
-**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
-
-.. code-block:: toml
-
-   [tool.pylint.broad_try_clause]
-   max-try-statements = 1
-
-
-
-.. raw:: html
-
-   </details>
-
-
-.. _code_style-options:
-
-``Code_style`` **Checker**
---------------------------
---max-line-length-suggestions
-"""""""""""""""""""""""""""""
-*Max line length for which to sill emit suggestions. Used to prevent optional suggestions which would get split by a code formatter (e.g., black). Will default to the setting for ``max-line-length``.*
-
-**Default:**  ``0``
-
-
-
-.. raw:: html
-
-   <details>
-   <summary><a>Example configuration section</a></summary>
-
-**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
-
-.. code-block:: toml
-
-   [tool.pylint.code_style]
-   max-line-length-suggestions = 0
-
-
-
-.. raw:: html
-
-   </details>
-
-
-.. _deprecated_builtins-options:
-
-``Deprecated_builtins`` **Checker**
------------------------------------
---bad-functions
-"""""""""""""""
-*List of builtins function names that should not be used, separated by a comma*
-
-**Default:**  ``['map', 'filter']``
-
-
-
-.. raw:: html
-
-   <details>
-   <summary><a>Example configuration section</a></summary>
-
-**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
-
-.. code-block:: toml
-
-   [tool.pylint.deprecated_builtins]
-   bad-functions = ["map", "filter"]
-
-
-
-.. raw:: html
-
-   </details>
-
-
-.. _dunder-options:
-
-``Dunder`` **Checker**
-----------------------
---good-dunder-names
-"""""""""""""""""""
-*Good dunder names which should always be accepted.*
-
-**Default:**  ``[]``
-
-
-
-.. raw:: html
-
-   <details>
-   <summary><a>Example configuration section</a></summary>
-
-**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
-
-.. code-block:: toml
-
-   [tool.pylint.dunder]
-   good-dunder-names = []
-
-
-
-.. raw:: html
-
-   </details>
-
-
-.. _magic-value-options:
-
-``Magic-value`` **Checker**
----------------------------
---valid-magic-values
-""""""""""""""""""""
-*List of valid magic values that `magic-value-compare` will not detect. Supports integers, floats, negative numbers, for empty string enter ``''``, for backslash values just use one backslash e.g \n.*
-
-**Default:**  ``(0, -1, 1, '', '__main__')``
-
-
-
-.. raw:: html
-
-   <details>
-   <summary><a>Example configuration section</a></summary>
-
-**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
-
-.. code-block:: toml
-
-   [tool.pylint.magic-value]
-   valid-magic-values = [0, -1, 1, "", "__main__"]
-
-
-
-.. raw:: html
-
-   </details>
-
-
-.. _parameter_documentation-options:
-
-``Parameter_documentation`` **Checker**
----------------------------------------
---accept-no-param-doc
-"""""""""""""""""""""
-*Whether to accept totally missing parameter documentation in the docstring of a function that has parameters.*
-
-**Default:**  ``True``
-
-
---accept-no-raise-doc
-"""""""""""""""""""""
-*Whether to accept totally missing raises documentation in the docstring of a function that raises an exception.*
-
-**Default:**  ``True``
-
-
---accept-no-return-doc
-""""""""""""""""""""""
-*Whether to accept totally missing return documentation in the docstring of a function that returns a statement.*
-
-**Default:**  ``True``
-
-
---accept-no-yields-doc
-""""""""""""""""""""""
-*Whether to accept totally missing yields documentation in the docstring of a generator.*
-
-**Default:**  ``True``
-
-
---default-docstring-type
-""""""""""""""""""""""""
-*If the docstring type cannot be guessed the specified docstring type will be used.*
-
-**Default:**  ``default``
-
-
-
-.. raw:: html
-
-   <details>
-   <summary><a>Example configuration section</a></summary>
-
-**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
-
-.. code-block:: toml
-
-   [tool.pylint.parameter_documentation]
-   accept-no-param-doc = true
-
-   accept-no-raise-doc = true
-
-   accept-no-return-doc = true
-
-   accept-no-yields-doc = true
-
-   # Possible choices: ['sphinx', 'epytext', 'google', 'numpy', 'default']
-   default-docstring-type = "default"
-
-
-
-.. raw:: html
-
-   </details>
-
-
-.. _typing-options:
-
-``Typing`` **Checker**
-----------------------
---runtime-typing
-""""""""""""""""
-*Set to ``no`` if the app / library does **NOT** need to support runtime introspection of type annotations. If you use type annotations **exclusively** for type checking of an application, you're probably fine. For libraries, evaluate if some users want to access the type hints at runtime first, e.g., through ``typing.get_type_hints``. Applies to Python versions 3.7 - 3.9*
-
-**Default:**  ``True``
-
-
-
-.. raw:: html
-
-   <details>
-   <summary><a>Example configuration section</a></summary>
-
-**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
-
-.. code-block:: toml
-
-   [tool.pylint.typing]
-   runtime-typing = true
 
 
 

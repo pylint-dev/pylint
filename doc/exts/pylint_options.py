@@ -171,7 +171,7 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
     ]
     found_extensions = False
 
-    for checker, checker_options in options.items():
+    for checker, checker_options in sorted(options.items()):
         if not found_extensions and checker_options[0].extension:
             sections.append(get_rst_title("Extensions", "^"))
             found_extensions = True
