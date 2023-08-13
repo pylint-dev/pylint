@@ -536,6 +536,7 @@ class NamesConsumer:
             copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
         )
         self.node = node
+        self.names_under_always_false_test = set()
 
     def __repr__(self) -> str:
         _to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
@@ -637,7 +638,7 @@ scope_type : {self._atomic.scope_type}
 
         # Filter out assignments guarded by always false conditions
         if found_nodes:
-            uncertain_nodes = self._uncertain_nodes_in_false_tests(found_nodes, node)
+            uncertain_nodes = self._uncertain_nodes_if_tests(found_nodes, node)
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
@@ -687,8 +688,9 @@ scope_type : {self._atomic.scope_type}
 
         return found_nodes
 
-    @staticmethod
-    def _inferred_to_define_name_raise_or_return(name: str, node: nodes.NodeNG) -> bool:
+    def _inferred_to_define_name_raise_or_return(
+        self, name: str, node: nodes.NodeNG
+    ) -> bool:
         """Return True if there is a path under this `if_node`
         that is inferred to define `name`, raise, or return.
         """
@@ -738,17 +740,14 @@ scope_type : {self._atomic.scope_type}
 
         # Only search else branch when test condition is inferred to be false
         if all_inferred and only_search_else:
-            return NamesConsumer._branch_handles_name(name, node.orelse)
-        # Only search if branch when test condition is inferred to be true
-        if all_inferred and only_search_if:
-            return NamesConsumer._branch_handles_name(name, node.body)
+            self.names_under_always_false_test.add(name)
+            return self._branch_handles_name(name, node.orelse)
         # Search both if and else branches
-        return NamesConsumer._branch_handles_name(
-            name, node.body
-        ) or NamesConsumer._branch_handles_name(name, node.orelse)
+        return self._branch_handles_name(name, node.body) and self._branch_handles_name(
+            name, node.orelse
+        )
 
-    @staticmethod
-    def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
+    def _branch_handles_name(self, name: str, body: Iterable[nodes.NodeNG]) -> bool:
         return any(
             NamesConsumer._defines_name_raises_or_returns(name, if_body_stmt)
             or isinstance(
@@ -761,17 +760,15 @@ scope_type : {self._atomic.scope_type}
                     nodes.While,
                 ),
             )
-            and NamesConsumer._inferred_to_define_name_raise_or_return(
-                name, if_body_stmt
-            )
+            and self._inferred_to_define_name_raise_or_return(name, if_body_stmt)
             for if_body_stmt in body
         )
 
-    def _uncertain_nodes_in_false_tests(
+    def _uncertain_nodes_if_tests(
         self, found_nodes: list[nodes.NodeNG], node: nodes.NodeNG
     ) -> list[nodes.NodeNG]:
-        """Identify nodes of uncertain execution because they are defined under
-        tests that evaluate false.
+        """Identify nodes of uncertain execution because they are defined under if
+        tests.
 
         Don't identify a node if there is a path that is inferred to
         define the name, raise, or return (e.g. any executed if/elif/else branch).
@@ -807,7 +804,7 @@ scope_type : {self._atomic.scope_type}
                 continue
 
             # Name defined in the if/else control flow
-            if NamesConsumer._inferred_to_define_name_raise_or_return(name, outer_if):
+            if self._inferred_to_define_name_raise_or_return(name, outer_if):
                 continue
 
             uncertain_nodes.append(other_node)
@@ -1974,9 +1971,12 @@ class VariablesChecker(BaseChecker):
         ):
             return
 
-        confidence = (
-            CONTROL_FLOW if node.name in current_consumer.consumed_uncertain else HIGH
-        )
+        confidence = HIGH
+        if node.name in current_consumer.consumed_uncertain:
+            confidence = CONTROL_FLOW
+        if node.name in current_consumer.names_under_always_false_test:
+            confidence = INFERENCE
+
         self.add_message(
             "used-before-assignment",
             args=node.name,
