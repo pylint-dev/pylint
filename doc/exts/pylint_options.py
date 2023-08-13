@@ -133,6 +133,12 @@ def _create_checker_section(
         ):
             value = [i.pattern for i in value]
 
+        # Sorting in order for the output to be the same on all interpreters
+        # Don't sort everything here, alphabetical order do not make a lot of sense
+        # for options most of the time. Only dict based 'unstable' options need this
+        if isinstance(value, (list, tuple)) and option.name in ["disable"]:
+            value = sorted(value, key=lambda x: str(x))
+
         # Add to table
         checker_table.add(option.name, value)
         checker_table.add(tomlkit.nl())
