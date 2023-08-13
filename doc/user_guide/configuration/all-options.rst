@@ -171,7 +171,7 @@ Standard Checkers
 """"""""""""
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
-**Default:**  ``(3, 11)``
+**Default:**  ``sys.version_info[:2]``
 
 
 --recursive
@@ -271,7 +271,7 @@ Standard Checkers
 
    persistent = true
 
-   py-version = [3, 11]
+   py-version = "sys.version_info[:2]"
 
    recursive = false
 
@@ -1298,7 +1298,7 @@ Standard Checkers
 
 --spelling-dict
 """""""""""""""
-*Spelling dictionary name. No available dictionaries : You need to install both the python package and the system dependency for enchant to work..*
+*Spelling dictionary name. Available dictionaries depends on your local enchant installation*
 
 **Default:** ``""``
 
@@ -1344,7 +1344,7 @@ Standard Checkers
    [tool.pylint.spelling]
    max-spelling-suggestions = 4
 
-   # Possible choices: ['', 'en', 'en_AU', 'en_CA', 'en_GB', 'en_US']
+   # Possible choices: Values from 'enchant.Broker().list_dicts()' depending on your local enchant installation
    spelling-dict = ""
 
    spelling-ignore-comment-directives = "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:"

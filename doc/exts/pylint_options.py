@@ -38,6 +38,15 @@ PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
 PYLINT_USERGUIDE_PATH = PYLINT_BASE_PATH / "doc" / "user_guide"
 """Path to the messages documentation folder."""
 
+DYNAMICALLY_DEFINED_OPTIONS: dict[str, dict[str, str]] = {
+    # Option name, key / values we want to modify
+    "py-version": {"default": "sys.version_info[:2]"},
+    "spelling-dict": {
+        "choices": "Values from 'enchant.Broker().list_dicts()' depending on your local enchant installation",
+        "help": "Spelling dictionary name. Available dictionaries depends on your local enchant installation",
+    },
+}
+
 
 def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
     """Registers all checkers and extensions found in the default folders."""
@@ -49,12 +58,20 @@ def _get_all_options(linter: PyLinter) -> OptionsDataDict:
     """Get all options registered to a linter and return the data."""
     all_options: OptionsDataDict = defaultdict(list)
     for checker in sorted(linter.get_checkers()):
-        ch_name = checker.name
-        for option in checker.options:
-            all_options[ch_name].append(
+        checker_name = checker.name
+        for option_name, option_info in checker.options:
+            changes_to_do = DYNAMICALLY_DEFINED_OPTIONS.get(option_name, {})
+            if changes_to_do:
+                for key_to_change, new_value in changes_to_do.items():
+                    print(
+                        f"Doc value for {option_name!r}['{key_to_change}'] changed to "
+                        f"{new_value!r} (instead of {option_info[key_to_change]!r})"
+                    )
+                    option_info[key_to_change] = new_value
+            all_options[checker_name].append(
                 OptionsData(
-                    option[0],
-                    option[1],
+                    option_name,
+                    option_info,
                     checker,
                     getmodule(checker).__name__.startswith("pylint.extensions."),  # type: ignore[union-attr]
                 )
@@ -90,7 +107,10 @@ def _create_checker_section(
             continue
 
         # Get current value of option
-        value = getattr(linter.config, option.name.replace("-", "_"))
+        try:
+            value = DYNAMICALLY_DEFINED_OPTIONS[option.name]["default"]
+        except KeyError:
+            value = getattr(linter.config, option.name.replace("-", "_"))
 
         # Create a comment if the option has no value
         if value is None:
@@ -191,6 +211,5 @@ def setup(app: Sphinx) -> None:
 
 
 if __name__ == "__main__":
-    pass
-    # Uncomment to allow running this script by your local python interpreter
+    print("Uncomment the following line to allow running this script directly.")
     # build_options_page(None)
