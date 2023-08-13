@@ -98,6 +98,11 @@ def _create_checker_section(
             checker_table.add(tomlkit.nl())
             continue
 
+        # Display possible choices
+        choices = option.optdict.get("choices", "")
+        if choices:
+            checker_table.add(tomlkit.comment(f"Possible choices: {choices}"))
+
         # Tomlkit doesn't support regular expressions
         if isinstance(value, re.Pattern):
             value = value.pattern
