@@ -370,14 +370,6 @@ def _different_parameters(
         if different_kwonly:
             output_messages += different_kwonly
 
-    if original.name in PYMETHODS:
-        # Ignore the difference for special methods. If the parameter
-        # numbers are different, then that is going to be caught by
-        # unexpected-special-method-signature.
-        # If the names are different, it doesn't matter, since they can't
-        # be used as keyword arguments anyway.
-        output_messages.clear()
-
     # Arguments will only violate LSP if there are variadics in the original
     # that are then removed from the overridden
     kwarg_lost = original.args.kwarg and not overridden.args.kwarg
@@ -385,6 +377,14 @@ def _different_parameters(
 
     if kwarg_lost or vararg_lost:
         output_messages += ["Variadics removed in"]
+
+    if original.name in PYMETHODS:
+        # Ignore the difference for special methods. If the parameter
+        # numbers are different, then that is going to be caught by
+        # unexpected-special-method-signature.
+        # If the names are different, it doesn't matter, since they can't
+        # be used as keyword arguments anyway.
+        output_messages.clear()
 
     return output_messages
 

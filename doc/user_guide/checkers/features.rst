@@ -81,9 +81,9 @@ Basic checker Messages
 :return-outside-function (E0104): *Return outside function*
   Used when a "return" statement is found outside a function or method.
 :return-arg-in-generator (E0106): *Return with argument inside generator*
-  Used when a "return" statement with an argument is found outside in a
-  generator function or method (e.g. with some "yield" statements). This
-  message can't be emitted when using Python >= 3.3.
+  Used when a "return" statement with an argument is found in a generator
+  function or method (e.g. with some "yield" statements). This message can't be
+  emitted when using Python >= 3.3.
 :invalid-star-assignment-target (E0113): *Starred assignment target must be in a list or tuple*
   Emitted when a star expression is used as a starred assignment target.
 :bad-reversed-sequence (E0111): *The first reversed() argument is not a sequence*
@@ -787,7 +787,7 @@ See also :ref:`refactoring checker's options' documentation <refactoring-options
 
 Refactoring checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:simplifiable-condition (R1726): *Boolean condition '%s' may be simplified to '%s'*
+:simplifiable-condition (R1726): *Boolean condition "%s" may be simplified to "%s"*
   Emitted when a boolean condition is able to be simplified.
 :condition-evals-to-constant (R1727): *Boolean condition '%s' will always evaluate to '%s'*
   Emitted when a boolean condition can be simplified to a constant value.
@@ -924,8 +924,9 @@ Refactoring checker Messages
   weakly typed code base can create hard to debug issues. If the value can be
   something else that is falsey but not an int (for example ``None``, an empty
   string, or an empty sequence) the code will not be equivalent.
-:unneeded-not (C0113): *Consider changing "%s" to "%s"*
-  Used when a boolean expression contains an unneeded negation.
+:unnecessary-negation (C0117): *Consider changing "%s" to "%s"*
+  Used when a boolean expression contains an unneeded negation, e.g. when two
+  negation operators cancel each other out.
 :consider-iterating-dictionary (C0201): *Consider iterating the dictionary directly instead of calling .keys()*
   Emitted when the keys of a dictionary are iterated through the ``.keys()``
   method or when ``.keys()`` is used for a membership check. It is enough to
