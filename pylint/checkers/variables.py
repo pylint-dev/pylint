@@ -1327,6 +1327,12 @@ class VariablesChecker(BaseChecker):
             if any(isinstance(target, nodes.Starred) for target in targets):
                 return
 
+        if isinstance(inferred, nodes.Dict) and isinstance(node.iter, nodes.Name):
+            # If this a case of missing call to `items`, we don't want to
+            # report it as an unbalanced dict unpacking as well
+            if len(targets) == 2:
+                return
+
         is_stared_targets = any(isinstance(target, nodes.Starred) for target in targets)
         for value in values:
             value_length = self._get_value_length(value)

@@ -1,5 +1,4 @@
 # pylint: disable=invalid-name, consider-iterating-dictionary, missing-docstring, import-error
-# pylint: disable=unbalanced-dict-unpacking
 from unknown import Uninferable
 
 d = {1: 1, 2: 2}
