@@ -102,9 +102,10 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "metavar": "<format>",
                 "short": "f",
                 "group": "Reports",
-                "help": "Set the output format. Available formats are text,"
-                " parseable, colorized, json and msvs (visual studio)."
-                " You can also give a reporter class, e.g. mypackage.mymodule."
+                "help": "Set the output format. Available formats are: text, "
+                "parseable, colorized, json2 (improved json format), json "
+                "(old json format) and msvs (visual studio). "
+                "You can also give a reporter class, e.g. mypackage.mymodule."
                 "MyReporterClass.",
                 "kwargs": {"linter": linter},
             },

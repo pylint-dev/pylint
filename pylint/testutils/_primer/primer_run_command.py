@@ -13,8 +13,7 @@ from git.repo import Repo
 
 from pylint.lint import Run
 from pylint.message import Message
-from pylint.reporters import JSONReporter
-from pylint.reporters.json_reporter import OldJsonExport
+from pylint.reporters.json_reporter import JSONReporter, OldJsonExport
 from pylint.testutils._primer.package_to_lint import PackageToLint
 from pylint.testutils._primer.primer_command import (
     PackageData,

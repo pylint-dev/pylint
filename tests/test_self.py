@@ -31,7 +31,8 @@ from pylint import extensions, modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
 from pylint.lint.pylinter import PyLinter
 from pylint.message import Message
-from pylint.reporters import BaseReporter, JSONReporter
+from pylint.reporters import BaseReporter
+from pylint.reporters.json_reporter import JSON2Reporter
 from pylint.reporters.text import ColorizedTextReporter, TextReporter
 from pylint.testutils._run import _add_rcfile_default_pylintrc
 from pylint.testutils._run import _Run as Run
@@ -187,7 +188,7 @@ class TestRunTC:
         reporters = [
             TextReporter(StringIO()),
             ColorizedTextReporter(StringIO()),
-            JSONReporter(StringIO()),
+            JSON2Reporter(StringIO()),
         ]
         self._runtest(
             [join(HERE, "functional", "a", "arguments.py")],
@@ -347,8 +348,8 @@ class TestRunTC:
     def test_json_report_when_file_has_syntax_error(self) -> None:
         out = StringIO()
         module = join(HERE, "regrtest_data", "syntax_error.py")
-        self._runtest([module], code=2, reporter=JSONReporter(out))
-        output = json.loads(out.getvalue())
+        self._runtest([module], code=2, reporter=JSON2Reporter(out))
+        output = json.loads(out.getvalue())["messages"]
         assert isinstance(output, list)
         assert len(output) == 1
         assert isinstance(output[0], dict)
@@ -372,8 +373,8 @@ class TestRunTC:
     def test_json_report_when_file_is_missing(self) -> None:
         out = StringIO()
         module = join(HERE, "regrtest_data", "totally_missing.py")
-        self._runtest([module], code=1, reporter=JSONReporter(out))
-        output = json.loads(out.getvalue())
+        self._runtest([module], code=1, reporter=JSON2Reporter(out))
+        output = json.loads(out.getvalue())["messages"]
         assert isinstance(output, list)
         assert len(output) == 1
         assert isinstance(output[0], dict)
@@ -394,8 +395,8 @@ class TestRunTC:
     def test_json_report_does_not_escape_quotes(self) -> None:
         out = StringIO()
         module = join(HERE, "regrtest_data", "unused_variable.py")
-        self._runtest([module], code=4, reporter=JSONReporter(out))
-        output = json.loads(out.getvalue())
+        self._runtest([module], code=4, reporter=JSON2Reporter(out))
+        output = json.loads(out.getvalue())["messages"]
         assert isinstance(output, list)
         assert len(output) == 1
         assert isinstance(output[0], dict)
@@ -404,7 +405,7 @@ class TestRunTC:
             "module": "unused_variable",
             "column": 4,
             "message": "Unused variable 'variable'",
-            "message-id": "W0612",
+            "messageId": "W0612",
             "line": 4,
             "type": "warning",
         }
@@ -1066,6 +1067,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
                 ),
             ),
             ("json", '"message": "Unused variable \'variable\'",'),
+            ("json2", '"message": "Unused variable \'variable\'",'),
         ],
     )
     def test_output_file_can_be_combined_with_output_format_option(
