@@ -58,19 +58,14 @@ class BaseChecker(_ArgumentsProvider):
         order, then extension checkers in alphabetical order.
         """
         if not isinstance(other, BaseChecker):
-            # print(f"{other} is not a base checker.")
             return False
         if self.name == MAIN_CHECKER_NAME:
-            # print(f"{self.name} is the main checker {other.name} is not")
             return False
         if other.name == MAIN_CHECKER_NAME:
-            # print(f"{other.name} is the main checker {self.name} is not")
             return True
         self_is_builtin = type(self).__module__.startswith("pylint.checkers")
         if self_is_builtin ^ type(other).__module__.startswith("pylint.checkers"):
-            # print(f"Checkers are different {self.name} is lower if it's builtin")
             return not self_is_builtin
-        # print(f"{self.name} and {other.name} are the same type of checker, sorting by name")
         return self.name > other.name
 
     def __eq__(self, other: Any) -> bool:
