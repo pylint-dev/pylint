@@ -28,6 +28,10 @@ This ensures your testing environment is similar to Pylint's testing environment
 pre-commit hooks which should take care of the autoformatting for you before each
 commit. To enable it, run ``pre-commit install`` in the ``pylint`` root directory.
 
+**Even more optionally**: You can enable slow on push hooks with ``pre-commit install --install-hooks -t pre-push``.
+It will do slow checks like checking that the generated documentation is up to date
+before each push.
+
 Astroid installation
 --------------------
 
