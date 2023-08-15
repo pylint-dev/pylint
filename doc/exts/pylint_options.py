@@ -177,14 +177,10 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
             found_extensions = True
         sections.append(_create_checker_section(checker, checker_options, linter))
 
-    sections_string = "\n\n".join(sections)
     all_options_path = PYLINT_USERGUIDE_PATH / "configuration" / "all-options.rst"
+    sections_string = "\n\n".join(sections)
     with open(all_options_path, "w", encoding="utf-8") as stream:
-        stream.write(
-            f"""
-
-{sections_string}"""
-        )
+        stream.write(f"\n\n{sections_string}")
 
 
 # pylint: disable-next=unused-argument
