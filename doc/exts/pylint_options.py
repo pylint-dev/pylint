@@ -38,6 +38,15 @@ PYLINT_BASE_PATH = Path(__file__).resolve().parent.parent.parent
 PYLINT_USERGUIDE_PATH = PYLINT_BASE_PATH / "doc" / "user_guide"
 """Path to the messages documentation folder."""
 
+DYNAMICALLY_DEFINED_OPTIONS: dict[str, dict[str, str]] = {
+    # Option name, key / values we want to modify
+    "py-version": {"default": "sys.version_info[:2]"},
+    "spelling-dict": {
+        "choices": "Values from 'enchant.Broker().list_dicts()' depending on your local enchant installation",
+        "help": "Spelling dictionary name. Available dictionaries depends on your local enchant installation",
+    },
+}
+
 
 def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
     """Registers all checkers and extensions found in the default folders."""
@@ -49,12 +58,19 @@ def _get_all_options(linter: PyLinter) -> OptionsDataDict:
     """Get all options registered to a linter and return the data."""
     all_options: OptionsDataDict = defaultdict(list)
     for checker in sorted(linter.get_checkers()):
-        ch_name = checker.name
-        for option in checker.options:
-            all_options[ch_name].append(
+        for option_name, option_info in checker.options:
+            changes_to_do = DYNAMICALLY_DEFINED_OPTIONS.get(option_name, {})
+            if changes_to_do:
+                for key_to_change, new_value in changes_to_do.items():
+                    print(
+                        f"Doc value for {option_name!r}['{key_to_change}'] changed to "
+                        f"{new_value!r} (instead of {option_info[key_to_change]!r})"
+                    )
+                    option_info[key_to_change] = new_value
+            all_options[checker.name].append(
                 OptionsData(
-                    option[0],
-                    option[1],
+                    option_name,
+                    option_info,
                     checker,
                     getmodule(checker).__name__.startswith("pylint.extensions."),  # type: ignore[union-attr]
                 )
@@ -90,7 +106,10 @@ def _create_checker_section(
             continue
 
         # Get current value of option
-        value = getattr(linter.config, option.name.replace("-", "_"))
+        try:
+            value = DYNAMICALLY_DEFINED_OPTIONS[option.name]["default"]
+        except KeyError:
+            value = getattr(linter.config, option.name.replace("-", "_"))
 
         # Create a comment if the option has no value
         if value is None:
@@ -112,6 +131,12 @@ def _create_checker_section(
             and isinstance(value[0], re.Pattern)
         ):
             value = [i.pattern for i in value]
+
+        # Sorting in order for the output to be the same on all interpreters
+        # Don't sort everything here, alphabetical order do not make a lot of sense
+        # for options most of the time. Only dict based 'unstable' options need this
+        if isinstance(value, (list, tuple)) and option.name in ["disable"]:
+            value = sorted(value, key=lambda x: str(x))
 
         # Add to table
         checker_table.add(option.name, value)
@@ -150,21 +175,22 @@ def _write_options_page(options: OptionsDataDict, linter: PyLinter) -> None:
         get_rst_title("Standard Checkers", "^"),
     ]
     found_extensions = False
-
-    for checker, checker_options in options.items():
+    # We can't sort without using the 'key' keyword because if keys in 'options' were
+    # checkers then it wouldn't be possible to have a checker with the same name
+    # spanning multiple classes. It would make pylint plugin code less readable by
+    # forcing to use a single class / file.
+    for checker_name, checker_options in sorted(
+        options.items(), key=lambda x: x[1][0].checker
+    ):
         if not found_extensions and checker_options[0].extension:
             sections.append(get_rst_title("Extensions", "^"))
             found_extensions = True
-        sections.append(_create_checker_section(checker, checker_options, linter))
+        sections.append(_create_checker_section(checker_name, checker_options, linter))
 
-    sections_string = "\n\n".join(sections)
     all_options_path = PYLINT_USERGUIDE_PATH / "configuration" / "all-options.rst"
+    sections_string = "\n\n".join(sections)
     with open(all_options_path, "w", encoding="utf-8") as stream:
-        stream.write(
-            f"""
-
-{sections_string}"""
-        )
+        stream.write(f"\n\n{sections_string}")
 
 
 # pylint: disable-next=unused-argument
@@ -191,6 +217,5 @@ def setup(app: Sphinx) -> None:
 
 
 if __name__ == "__main__":
-    pass
-    # Uncomment to allow running this script by your local python interpreter
+    print("Uncomment the following line to allow running this script directly.")
     # build_options_page(None)
