@@ -52,17 +52,25 @@ class BaseChecker(_ArgumentsProvider):
         _ArgumentsProvider.__init__(self, linter)
 
     def __gt__(self, other: Any) -> bool:
-        """Sorting of checkers."""
+        """Permits sorting checkers for stable doc and tests.
+
+        The main checker is always the first one, then builtin checkers in alphabetical
+        order, then extension checkers in alphabetical order.
+        """
         if not isinstance(other, BaseChecker):
+            # print(f"{other} is not a base checker.")
             return False
         if self.name == MAIN_CHECKER_NAME:
+            # print(f"{self.name} is the main checker {other.name} is not")
             return False
         if other.name == MAIN_CHECKER_NAME:
+            # print(f"{other.name} is the main checker {self.name} is not")
             return True
-        if type(self).__module__.startswith("pylint.checkers") and not type(
-            other
-        ).__module__.startswith("pylint.checkers"):
-            return False
+        self_is_builtin = type(self).__module__.startswith("pylint.checkers")
+        if self_is_builtin ^ type(other).__module__.startswith("pylint.checkers"):
+            # print(f"Checkers are different {self.name} is lower if it's builtin")
+            return not self_is_builtin
+        # print(f"{self.name} and {other.name} are the same type of checker, sorting by name")
         return self.name > other.name
 
     def __eq__(self, other: Any) -> bool:
