@@ -254,7 +254,7 @@ def test_serialize_deserialize_for_v2(message: Message) -> None:
     assert message == JSON2Reporter.deserialize(json_message)
 
 
-def test_json2_result_wiuth_broken_score() -> None:
+def test_json2_result_with_broken_score() -> None:
     """Test that the JSON2 reporter can handle broken score evaluations."""
     output = StringIO()
     reporter = JSON2Reporter(output)
