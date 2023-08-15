@@ -1330,7 +1330,7 @@ class VariablesChecker(BaseChecker):
         if isinstance(inferred, nodes.Dict) and isinstance(node.iter, nodes.Name):
             # If this a case of 'dict-items-missing-iter', we don't want to
             # report it as an 'unbalanced-dict-unpacking' as well
-            # TODO (perf), merging both checks would streamline this
+            # TODO (performance), merging both checks would streamline this
             if len(targets) == 2:
                 return
 
