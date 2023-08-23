@@ -155,7 +155,7 @@ Standard Checkers
 
 --output-format
 """""""""""""""
-*Set the output format. Available formats are text, parseable, colorized, json and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
+*Set the output format. Available formats are: text, parseable, colorized, json2 (improved json format), json (old json format) and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
 
 **Default:**  ``text``
 
@@ -171,7 +171,7 @@ Standard Checkers
 """"""""""""
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
-**Default:**  ``(3, 11)``
+**Default:**  ``sys.version_info[:2]``
 
 
 --recursive
@@ -233,7 +233,7 @@ Standard Checkers
 
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
-   disable = ["raw-checker-failed", "bad-inline-option", "locally-disabled", "file-ignored", "suppressed-message", "useless-suppression", "deprecated-pragma", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "consider-using-augmented-assign", "prefer-typing-namedtuple"]
+   disable = ["bad-inline-option", "consider-using-augmented-assign", "deprecated-pragma", "file-ignored", "locally-disabled", "prefer-typing-namedtuple", "raw-checker-failed", "suppressed-message", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "useless-suppression"]
 
    enable = []
 
@@ -271,7 +271,7 @@ Standard Checkers
 
    persistent = true
 
-   py-version = [3, 11]
+   py-version = "sys.version_info[:2]"
 
    recursive = false
 
@@ -1298,7 +1298,7 @@ Standard Checkers
 
 --spelling-dict
 """""""""""""""
-*Spelling dictionary name. No available dictionaries : You need to install both the python package and the system dependency for enchant to work..*
+*Spelling dictionary name. Available dictionaries depends on your local enchant installation*
 
 **Default:** ``""``
 
@@ -1344,7 +1344,7 @@ Standard Checkers
    [tool.pylint.spelling]
    max-spelling-suggestions = 4
 
-   # Possible choices: ['', 'en', 'en_AU', 'en_CA', 'en_GB', 'en_US']
+   # Possible choices: Values from 'enchant.Broker().list_dicts()' depending on your local enchant installation
    spelling-dict = ""
 
    spelling-ignore-comment-directives = "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:"

@@ -1,5 +1,6 @@
 abc
 abcmeta
+abspath
 abstractproperty
 analyse
 analysed
@@ -95,6 +96,7 @@ dirname
 docparams
 docstring
 docstrings
+dumpable
 dunder
 elif
 elif's
