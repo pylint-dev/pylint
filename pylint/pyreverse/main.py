@@ -260,7 +260,7 @@ OPTIONS: Options = (
         {
             "action": "store_true",
             "default": False,
-            "help": "print with verbose output",
+            "help": "Makes pyreverse more verbose/talkative. Mostly useful for debugging.",
         },
     ),
 )
