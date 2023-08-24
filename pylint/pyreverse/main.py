@@ -255,6 +255,14 @@ OPTIONS: Options = (
             "used to determine a package namespace for modules located under the source root.",
         },
     ),
+    (
+        "verbose",
+        {
+            "action": "store_true",
+            "default": False,
+            "help": "print with verbose output",
+        },
+    ),
 )
 
 
