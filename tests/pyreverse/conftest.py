@@ -72,7 +72,7 @@ def get_project() -> GetProjectCallable:
     def _get_project(module: str, name: str | None = "No Name") -> Project:
         """Return an astroid project representation."""
 
-        def _astroid_wrapper(func: Callable[[str], Module], modname: str) -> Module:
+        def _astroid_wrapper(func: Callable[[str], Module], modname: str, verbose: bool = False) -> Module:
             return func(modname)
 
         with augmented_sys_path([discover_package_path(module, [])]):
