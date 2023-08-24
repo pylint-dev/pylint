@@ -73,7 +73,7 @@ def get_project() -> GetProjectCallable:
         """Return an astroid project representation."""
 
         def _astroid_wrapper(
-            func: Callable[[str], Module], modname: str, verbose: bool = False
+            func: Callable[[str], Module], modname: str, _verbose: bool = False
         ) -> Module:
             return func(modname)
 
