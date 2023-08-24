@@ -309,6 +309,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
                 args,
                 project_name=self.config.project,
                 black_list=self.config.ignore_list,
+                verbose=self.config.verbose,
             )
             linker = Linker(project, tag=True)
             handler = DiadefsHandler(self.config)
