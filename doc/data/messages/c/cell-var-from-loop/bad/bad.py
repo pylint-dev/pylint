@@ -1,7 +1,7 @@
-def foo(numbers):
-    for i in numbers:
+def teacher(names):
+    for name in names:
 
-        def bar():
-            print(i)  # [cell-var-from-loop]
+        def greet():
+            print(f"Hello, {name}!")  # [cell-var-from-loop]
 
-        bar()
+        greet()
