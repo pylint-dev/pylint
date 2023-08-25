@@ -1,10 +1,10 @@
 import functools
 
 
-def foo(numbers):
-    for i in numbers:
+def teacher(names):
+    for name in names:
 
-        def bar():
-            functools.partial(print, i)()
+        def greet():
+            functools.partial(print, f"Hello, {name}!")()
 
         bar()
