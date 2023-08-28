@@ -225,9 +225,13 @@ class ClassDiagram(Figure, FilterMixIn):
                         value, obj, name, "aggregation"
                     )
 
-            for name, values in list(node.associations_type.items()) + list(
-                node.locals_type.items()
-            ):
+            associations = node.associations_type.copy()
+
+            for name, values in node.locals_type.items():
+                if name not in associations:
+                    associations[name] = values
+
+            for name, values in associations.items():
                 for value in values:
                     self.assign_association_relationship(
                         value, obj, name, "association"
