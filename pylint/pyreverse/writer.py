@@ -104,8 +104,10 @@ class DiagramWriter:
             module_info[from_id]["imports"] += 1
             module_info[to_id]["imported"] += 1
 
-        print(f"Modules: {len(module_info)}")
-        print(f'Imports: {sum(mod["imports"] for mod in module_info.values())}')
+        print(
+            f"Analysed {len(module_info)} modules with a total "
+            f"of {sum(mod['imports'] for mod in module_info.values())} imports"
+        )
 
     def write_classes(self, diagram: ClassDiagram) -> None:
         """Write a class diagram."""
