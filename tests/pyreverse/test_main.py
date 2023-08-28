@@ -132,7 +132,7 @@ def test_graphviz_unsupported_image_format(capsys: CaptureFixture) -> None:
 @mock.patch("pylint.pyreverse.main.DiadefsHandler", new=mock.MagicMock())
 @mock.patch("pylint.pyreverse.main.writer")
 @pytest.mark.usefixtures("mock_graphviz")
-def test_verbose(mock_writer: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
+def test_verbose(_: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
     """Test the --verbose flag."""
     with pytest.raises(SystemExit):
         # we have to catch the SystemExit so the test execution does not stop
