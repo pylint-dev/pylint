@@ -1,4 +1,4 @@
-# OPEN BUG: https://github.com/pylint-dev/pylint/issues/8189
+# FIXED: https://github.com/pylint-dev/pylint/issues/8189
 class DuplicateFields():
     example1: int
     example2: int
