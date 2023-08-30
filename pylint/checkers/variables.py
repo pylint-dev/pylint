@@ -1327,21 +1327,15 @@ class VariablesChecker(BaseChecker):
             if any(isinstance(target, nodes.Starred) for target in targets):
                 return
 
-        if isinstance(inferred, nodes.Dict) and isinstance(node.iter, nodes.Name):
-            # If this a case of 'dict-items-missing-iter', we don't want to
-            # report it as an 'unbalanced-dict-unpacking' as well
-            # TODO (performance), merging both checks would streamline this
-            if len(targets) == 2:
-                return
+        if isinstance(inferred, nodes.Dict):
+            if isinstance(node.iter, nodes.Name):
+                # If this a case of 'dict-items-missing-iter', we don't want to
+                # report it as an 'unbalanced-dict-unpacking' as well
+                # TODO (performance), merging both checks would streamline this
+                if len(targets) == 2:
+                    return
 
-        if isinstance(
-            inferred,
-            (
-                astroid.objects.DictKeys,
-                astroid.objects.DictValues,
-                astroid.objects.DictItems,
-            ),
-        ):
+        else:
             is_stared_targets = any(
                 isinstance(target, nodes.Starred) for target in targets
             )
