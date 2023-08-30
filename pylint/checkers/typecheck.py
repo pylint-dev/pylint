@@ -1151,9 +1151,11 @@ accessed. Python regular expressions are accepted.",
                     attr_parent = attr_node.parent
 
                     # If an annotation exists for this attribute, we don't emit `no-member`.
-                    if isinstance(
-                        owner, astroid.Instance
-                    ) and utils.is_attribute_typed_annotation(owner, node.attrname):
+                    if (
+                        isinstance(owner, astroid.Instance)
+                        and utils.is_attribute_typed_annotation(owner, node.attrname)
+                        and not isinstance(attr_node.statement(), nodes.AugAssign)
+                    ):
                         break
 
                     # Skip augmented assignments

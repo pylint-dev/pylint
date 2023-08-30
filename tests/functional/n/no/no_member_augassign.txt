@@ -1,0 +1,1 @@
+no-member:13:0:13:11::Instance of 'A' has no 'value' member:INFERENCE

@@ -10,7 +10,7 @@ class A:
 
 
 obj_a = A()
-obj_a.value += 1
+obj_a.value += 1  # [no-member]
 
 
 class B:
