@@ -23,7 +23,8 @@ def all_dict():
 for a, b, c, d, e, f, g in {1: 2}.items():  # [unbalanced-dict-unpacking]
     pass
 
-for key, value in {1: 2}:  # [unbalanced-dict-unpacking]
+# This is an instance of dict-items-missing-iter, so unbalanced-dict-unpacking is suppressed
+for key, value in {1: 2}:
     pass
 
 for key, value in {1: 2}.keys():  # [unbalanced-dict-unpacking, consider-iterating-dictionary]

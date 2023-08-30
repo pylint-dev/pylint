@@ -1334,16 +1334,19 @@ class VariablesChecker(BaseChecker):
             if len(targets) == 2:
                 return
 
-        is_stared_targets = any(isinstance(target, nodes.Starred) for target in targets)
-        for value in values:
-            value_length = self._get_value_length(value)
-            is_valid_star_unpack = is_stared_targets and value_length >= len(targets)
-            if len(targets) != value_length and not is_valid_star_unpack:
-                details = _get_unpacking_extra_info(node, inferred)
-                self._report_unbalanced_unpacking(
-                    node, inferred, targets, value_length, details
-                )
-                break
+        if isinstance(inferred, (astroid.objects.DictKeys,
+                                 astroid.objects.DictValues,
+                                 astroid.objects.DictItems)):
+            is_stared_targets = any(isinstance(target, nodes.Starred) for target in targets)
+            for value in values:
+                value_length = self._get_value_length(value)
+                is_valid_star_unpack = is_stared_targets and value_length >= len(targets)
+                if len(targets) != value_length and not is_valid_star_unpack:
+                    details = _get_unpacking_extra_info(node, inferred)
+                    self._report_unbalanced_unpacking(
+                        node, inferred, targets, value_length, details
+                    )
+                    break
 
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
