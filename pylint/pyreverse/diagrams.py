@@ -168,7 +168,8 @@ class ClassDiagram(Figure, FilterMixIn):
                 if node.name not in names:
                     node_name = node.name
                     names.append(node_name)
-        return names
+        # sorted to get predictable (hence testable) results
+        return sorted(names)
 
     def has_node(self, node: nodes.NodeNG) -> bool:
         """Return true if the given node is included in the diagram."""
