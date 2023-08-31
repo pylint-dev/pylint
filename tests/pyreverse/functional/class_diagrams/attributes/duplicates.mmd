@@ -1,0 +1,20 @@
+classDiagram
+  class A {
+  }
+  class DuplicateAnnotations {
+    lav : list, list[str]
+    val : str, str | int
+    bar() None
+  }
+  class DuplicateArrows {
+    a
+    a
+  }
+  class DuplicateFields {
+    example1 : int
+    example1 : int
+    example2 : int
+    example2 : int
+  }
+  A --* DuplicateArrows : a
+  A --* DuplicateArrows : a
