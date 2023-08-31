@@ -255,6 +255,14 @@ OPTIONS: Options = (
             "used to determine a package namespace for modules located under the source root.",
         },
     ),
+    (
+        "verbose",
+        {
+            "action": "store_true",
+            "default": False,
+            "help": "Makes pyreverse more verbose/talkative. Mostly useful for debugging.",
+        },
+    ),
 )
 
 
@@ -301,6 +309,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
                 args,
                 project_name=self.config.project,
                 black_list=self.config.ignore_list,
+                verbose=self.config.verbose,
             )
             linker = Linker(project, tag=True)
             handler = DiadefsHandler(self.config)
