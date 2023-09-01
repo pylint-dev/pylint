@@ -1,0 +1,5 @@
+Fix false negatives and false positives for ``too-many-try-statements``,
+``too-complex``, and ``too-many-branches`` by correctly counting statements
+under a ``try``.
+
+Refs #7767

@@ -1,0 +1,3 @@
+Fix false negative for ``no-value-for-parameter`` when a function, whose signature contains both a positional-only parameter ``name`` and also ``*kwargs``, is called with a keyword-argument for ``name``.
+
+Closes #8559

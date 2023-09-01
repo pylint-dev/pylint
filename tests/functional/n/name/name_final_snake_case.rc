@@ -1,6 +1,3 @@
-[testoptions]
-min_pyver=3.8
-
 [BASIC]
 class-const-naming-style=snake_case
 const-naming-style=snake_case

@@ -1,11 +1,6 @@
 # pylint: disable=missing-docstring,redefined-builtin, consider-using-f-string, unnecessary-direct-lambda-call, broad-exception-raised
 
-import sys
-
-if sys.version_info >= (3, 8):
-    from typing import NoReturn
-else:
-    from typing_extensions import NoReturn
+from typing import NoReturn
 
 
 def do_stuff(some_random_list):
@@ -84,7 +79,7 @@ def do_stuff_with_redefined_range():
 
 
 def test(content):
-    # https://github.com/PyCQA/pylint/issues/3711
+    # https://github.com/pylint-dev/pylint/issues/3711
     def handle_line(layne):
         if "X" in layne:
             layne = layne.replace("X", "Y")
@@ -160,7 +155,7 @@ bigger = [
 
 
 def lambda_in_first_of_two_loops():
-    """https://github.com/PyCQA/pylint/issues/6419"""
+    """https://github.com/pylint-dev/pylint/issues/6419"""
     my_list = []
     for thing in my_list:
         print_it = lambda: print(thing)  # pylint: disable=cell-var-from-loop, unnecessary-lambda-assignment
@@ -180,21 +175,21 @@ def variable_name_assigned_in_body_of_second_loop():
 
 
 def use_enumerate():
-    """https://github.com/PyCQA/pylint/issues/6593"""
+    """https://github.com/pylint-dev/pylint/issues/6593"""
     for i, num in enumerate(range(3)):
         pass
     print(i, num)
 
 
 def use_enumerate_in_ternary_expression():
-    """https://github.com/PyCQA/pylint/issues/7131"""
+    """https://github.com/pylint-dev/pylint/issues/7131"""
     for i, num in enumerate(range(3)) if __revision__ else enumerate(range(4)):
         pass
     print(i, num)
 
 
 def find_even_number(container):
-    """https://github.com/PyCQA/pylint/pull/6923#discussion_r895134495"""
+    """https://github.com/pylint-dev/pylint/pull/6923#discussion_r895134495"""
     for something in container:
         if something % 2 == 0:
             break

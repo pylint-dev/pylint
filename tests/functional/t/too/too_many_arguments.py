@@ -26,7 +26,12 @@ def root_function(first, second, third):
 
 
 def func_call():
-    """Test we don't emit a FP for https://github.com/PyCQA/pylint/issues/2588"""
+    """Test we don't emit a FP for https://github.com/pylint-dev/pylint/issues/2588"""
     partial_func = partial(root_function, 1, 2, 3)
     partial_func()
     return root_function(1, 2, 3)
+
+
+# +1: [too-many-arguments]
+def name1(param1, param2, param3, /, param4, param5, *args, param6="apple", **kwargs):
+    return param1, param2, param3, param4, param5, param6, args, kwargs

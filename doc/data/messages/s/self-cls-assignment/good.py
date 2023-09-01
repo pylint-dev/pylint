@@ -1,7 +1,7 @@
 class Fruit:
     @classmethod
     def list_fruits(cls):
-        fruit = 'apple'
+        fruit = "apple"
         print(fruit)
 
     def print_color(self, *colors):

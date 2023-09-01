@@ -23,8 +23,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   analyze:
+    if:
+      ${{ github.repository_owner == 'pylint-dev' || github.event_name != 'schedule' }}
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
@@ -42,7 +48,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v3.6.0
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL

@@ -1,8 +1,11 @@
 """Tests for missing-param-doc and missing-type-doc for Sphinx style docstrings
 with accept-no-param-doc = no"""
+
 # pylint: disable=function-redefined, invalid-name, undefined-variable, missing-class-docstring
 # pylint: disable=unused-argument, too-few-public-methods, unnecessary-pass, line-too-long
 # pylint: disable=missing-function-docstring, disallowed-name
+
+from __future__ import annotations
 
 
 def test_missing_func_params_in_sphinx_docstring(  # [missing-param-doc, missing-type-doc]
@@ -181,6 +184,21 @@ def test_warns_missing_kwargs_sphinx(  # [missing-param-doc, inconsistent-return
         return named_arg
 
 
+def test_warns_typed_kwargs_sphinx(  # [missing-param-doc, inconsistent-return-statements]
+    named_arg, **kwargs: dict[str, str]
+):
+    """The docstring
+
+    :param named_arg: Returned
+    :type named_arg: object
+
+    :returns: Maybe named_arg
+    :rtype: object or None
+    """
+    if kwargs:
+        return named_arg
+
+
 def test_finds_args_without_type_sphinx(  # [missing-param-doc, inconsistent-return-statements]
     named_arg, *args
 ):
@@ -220,7 +238,7 @@ def test_finds_args_without_type_sphinx(  # [inconsistent-return-statements]
 ):
     r"""The Sphinx docstring
     In Sphinx docstrings asterisks should be escaped.
-    See https://github.com/PyCQA/pylint/issues/5406
+    See https://github.com/pylint-dev/pylint/issues/5406
 
     :param named_arg: Returned
     :type named_arg: object
@@ -239,7 +257,7 @@ def test_finds_kwargs_without_type_sphinx(  # [inconsistent-return-statements]
 ):
     r"""The Sphinx docstring
     In Sphinx docstrings asterisks should be escaped.
-    See https://github.com/PyCQA/pylint/issues/5406
+    See https://github.com/pylint-dev/pylint/issues/5406
 
     :param named_arg: Returned
     :type named_arg: object

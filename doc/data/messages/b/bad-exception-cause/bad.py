@@ -3,5 +3,6 @@ def divide(x, y):
     try:
         result = x / y
     except ZeroDivisionError:
-        raise ValueError(f"Division by zero when dividing {x} by {y} !") from result  # [bad-exception-cause]
+        # +1: [bad-exception-cause]
+        raise ValueError(f"Division by zero when dividing {x} by {y} !") from result
     return result

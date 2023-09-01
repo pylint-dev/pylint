@@ -15,16 +15,18 @@ Maintainers
 -----------
 - Pierre Sassoulas <pierre.sassoulas@gmail.com>
 - Daniël van Noord <13665637+DanielNoord@users.noreply.github.com>
-- Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 - Jacob Walls <jacobtylerwalls@gmail.com>
+- Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 - Hippo91 <guillaume.peillex@gmail.com>
 - Mark Byrne <31762852+mbyrnepr2@users.noreply.github.com>
-- Matus Valo <matusvalo@users.noreply.github.com>
 - Andreas Finkler <3929834+DudeNr33@users.noreply.github.com>
+- Matus Valo <matusvalo@users.noreply.github.com>
+- Dani Alcala <112832187+clavedeluna@users.noreply.github.com>
 - Łukasz Rogalski <rogalski.91@gmail.com>
 - Ashley Whetter <ashley@awhetter.co.uk>
 - Bryce Guinta <bryce.paul.guinta@gmail.com>
 - Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
+- Nick Drozd <nicholasdrozd@gmail.com>: performance improvements to astroid
 - Dimitri Prybysh <dmand@yandex.ru>
   * multiple-imports, not-iterable, not-a-mapping, various patches.
 - Roy Williams <roy.williams.iii@gmail.com> (Lyft)
@@ -51,7 +53,6 @@ contributors:
   * wrong-spelling-in-comment
   * wrong-spelling-in-docstring
   * parallel execution on multiple CPUs
-- Dani Alcala <112832187+clavedeluna@users.noreply.github.com>
 - Julthep Nandakwang <julthep@nandakwang.com>
 - Bruno Daniel <bruno.daniel@blue-yonder.com>: check_docs extension.
 - Sushobhit <31987769+sushobhit27@users.noreply.github.com> (sushobhit27)
@@ -76,7 +77,6 @@ contributors:
   * ungrouped-imports,
   * wrong-import-position
   * redefined-variable-type
-- Nick Drozd <nicholasdrozd@gmail.com>: performance improvements to astroid
 - Harutaka Kawamura <hkawamura0130@gmail.com>
 - Alexandre Fayolle <alexandre.fayolle@logilab.fr> (Logilab): TkInter gui, documentation, debian support
 - Ville Skyttä <ville.skytta@iki.fi>
@@ -99,12 +99,15 @@ contributors:
 - Cezar Elnazli <cezar.elnazli2@gmail.com>: deprecated-method
 - Joseph Young <80432516+jpy-git@users.noreply.github.com> (jpy-git)
 - Tim Martin <tim@asymptotic.co.uk>
+- Ollie <46904826+ollie-iterators@users.noreply.github.com>
+- Zen Lee <53538590+zenlyj@users.noreply.github.com>
 - Tushar Sadhwani <tushar.sadhwani000@gmail.com> (tusharsadhwani)
 - Nicolas Chauvat <nicolas.chauvat@logilab.fr>
 - orSolocate <38433858+orSolocate@users.noreply.github.com>
 - Radu Ciorba <radu@devrandom.ro>: not-context-manager and confusing-with-statement warnings.
 - Holger Peters <email@holger-peters.de>
 - Cosmin Poieană <cmin@ropython.org>: unichr-builtin and improvements to bad-open-mode.
+- Yilei "Dolee" Yang <yileiyang@google.com>
 - Steven Myint <hg@stevenmyint.com>: duplicate-except.
 - Peter Kolbus <peter.kolbus@gmail.com> (Garmin)
 - Luigi Bertaco Cristofolini <lucristofolini@gmail.com> (luigibertaco)
@@ -115,6 +118,7 @@ contributors:
 - Julien Jehannet <julien.jehannet@logilab.fr>
 - Boris Feld <lothiraldan@gmail.com>
 - Anthony Sottile <asottile@umich.edu>
+- Robert Hofer <hofrob@protonmail.com>
 - Pedro Algarvio <pedro@algarvio.me> (s0undt3ch)
 - Julien Palard <julien@palard.fr>
 - David Liu <david@cs.toronto.edu> (david-yz-liu)
@@ -124,6 +128,7 @@ contributors:
   * Added new check `logging-fstring-interpolation`
   * Documentation typo fixes
 - Jakub Wilk <jwilk@jwilk.net>
+- Hugo van Kemenade <hugovk@users.noreply.github.com>
 - Eli Fine <ejfine@gmail.com> (eli88fine): Fixed false positive duplicate code warning for lines with symbols only
 - Andrew Haigh <nelfin@gmail.com> (nelfin)
 - Émile Crater <emile@crater.logilab.fr>
@@ -134,10 +139,10 @@ contributors:
 - Marianna Polatoglou <mpolatoglou@bloomberg.net>: minor contribution for wildcard import check
 - Manuel Vázquez Acosta <mva.led@gmail.com>
 - Luis Escobar <lescobar@vauxoo.com> (Vauxoo): Add bad-docstring-quotes and docstring-first-line-empty
+- Lucas Cimon <lucas.cimon@gmail.com>
 - Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 - Konstantin <Github@pheanex.de>
 - Jim Robertson <jrobertson98atx@gmail.com>
-- Hugo van Kemenade <hugovk@users.noreply.github.com>
 - Ethan Leba <ethanleba5@gmail.com>
 - Enji Cooper <yaneurabeya@gmail.com>
 - Drum Ogilvie <me@daogilvie.com>
@@ -151,7 +156,6 @@ contributors:
   * Added new extension which detects comparing integers to zero,
   * Added new useless-return checker,
   * Added new try-except-raise checker
-- Yilei "Dolee" Yang <yileiyang@google.com>
 - Téo Bouvard <teobouvard@gmail.com>
 - Mihai Balint <balint.mihai@gmail.com>
 - Mark Bell <mark00bell@googlemail.com>
@@ -166,16 +170,18 @@ contributors:
 - Andreas Freimuth <andreas.freimuth@united-bits.de>: fix indentation checking with tabs
 - Alexandru Coman <fcoman@bitdefender.com>
 - jpkotta <jpkotta@gmail.com>
-- Zen Lee <53538590+zenlyj@users.noreply.github.com>
 - Takahide Nojima <nozzy123nozzy@gmail.com>
 - Taewon D. Kim <kimt33@mcmaster.ca>
+- Stavros Ntentos <133706+stdedos@users.noreply.github.com>
 - Sneaky Pete <sneakypete81@gmail.com>
 - Sergey B Kirpichev <skirpichev@gmail.com>
 - Sandro Tosi <sandro.tosi@gmail.com>: Debian packaging
+- Rogdham <contact@rogdham.net>
 - Rene Zhang <rz99@cornell.edu>
 - Paul Lichtenberger <paul.lichtenberger.rgbg@gmail.com>
 - Or Bahari <or.ba402@gmail.com>
 - Mr. Senko <atodorov@mrsenko.com>
+- Mike Frysinger <vapier@gmail.com>
 - Martin von Gagern <gagern@google.com> (Google): Added 'raising-format-tuple' warning.
 - Martin Vielsmaier <martin@vielsmaier.net>
 - Martin Pool <mbp@google.com> (Google):
@@ -188,6 +194,7 @@ contributors:
 - Marcus Näslund <naslundx@gmail.com> (naslundx)
 - Marco Pernigotti <7657251+mpernigo@users.noreply.github.com>
 - Marco Forte <fortemarco.irl@gmail.com>
+- James Addison <55152140+jayaddison@users.noreply.github.com>
 - Ionel Maries Cristian <contact@ionelmc.ro>
 - Gergely Kalmár <gergely.kalmar@logikal.jp>
 - Damien Baty <damien.baty@polyconseil.fr>
@@ -195,7 +202,9 @@ contributors:
 - Anubhav <35621759+anubh-v@users.noreply.github.com>
 - Antonio Quarta <sgheppy88@gmail.com>
 - Andrew J. Simmons <anjsimmo@gmail.com>
+- Alexey Pelykh <alexey.pelykh@gmail.com>
 - wtracy <afishionado@gmail.com>
+- jessebrennan <jesse@jesse.computer>
 - chohner <mail@chohner.com>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
@@ -207,12 +216,10 @@ contributors:
 - Nicolas Dickreuter <dickreuter@gmail.com>
 - Nick Bastin <nick.bastin@gmail.com>
 - Nathaniel Manista <nathaniel@google.com>: suspicious lambda checking
-- Mike Frysinger <vapier@gmail.com>
 - Maksym Humetskyi <Humetsky@gmail.com> (mhumetskyi)
   * Fixed ignored empty functions by similarities checker with "ignore-signatures" option enabled
   * Ignore function decorators signatures as well by similarities checker with "ignore-signatures" option enabled
   * Ignore class methods and nested functions signatures as well by similarities checker with "ignore-signatures" option enabled
-- Lucas Cimon <lucas.cimon@gmail.com>
 - Kylian <development@goudcode.nl>
 - Konstantin Manna <Konstantin@Manna.uno>
 - Kai Mueller <15907922+kasium@users.noreply.github.com>
@@ -227,29 +234,31 @@ contributors:
 - Federico Bond <federicobond@gmail.com>
 - Erik Wright <erik.wright@shopify.com>
 - Erik Eriksson <molobrakos@users.noreply.github.com>: Added overlapping-except error check.
+- Daniel Mouritzen <dmrtzn@gmail.com>
 - Dan Hemberger <846186+hemberger@users.noreply.github.com>
 - Chris Rebert <code@rebertia.com>: unidiomatic-typecheck.
 - Aurelien Campeas <aurelien.campeas@logilab.fr>
+- Alvaro Frias <alvarofriasgaray@gmail.com>
 - Alexander Pervakov <frost.nzcr4@jagmort.com>
 - Alain Leufroy <alain.leufroy@logilab.fr>
 - Adam Williamson <awilliam@redhat.com>
 - xmo-odoo <xmo-odoo@users.noreply.github.com>
 - tbennett0 <tbennett0@users.noreply.github.com>
 - omarandlorraine <64254276+omarandlorraine@users.noreply.github.com>
+- crazybolillo <antonio@zoftko.com>
 - craig-sh <craig-sh@users.noreply.github.com>
 - bernie gray <bfgray3@users.noreply.github.com>
 - Wes Turner <westurner@google.com> (Google): added new check 'inconsistent-quotes'
 - Tyler Thieding <tyler@thieding.com>
 - Tobias Hernstig <30827238+thernstig@users.noreply.github.com>
 - Thomas Grainger <tagrain@gmail.com>
-- Stavros Ntentos <133706+stdedos@users.noreply.github.com>
 - Smixi <sismixx@hotmail.fr>
 - Simu Toni <simutoni@gmail.com>
 - Sergei Lebedev <185856+superbobry@users.noreply.github.com>
 - Scott Worley <scottworley@scottworley.com>
 - Saugat Pachhai <suagatchhetri@outlook.com>
+- Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
 - Rémi Cardona <remi.cardona@polyconseil.fr>
-- Rogdham <contact@rogdham.net>
 - Raphael Gaschignard <raphael@makeleaps.com>
 - Ram Rachum <ram@rachum.com> (cool-RR)
 - Radostin Stoyanov <rst0git@users.noreply.github.com>
@@ -283,9 +292,10 @@ contributors:
 - Fantix King <fantix@uchicago.edu> (UChicago)
 - Eric McDonald <221418+emcd@users.noreply.github.com>
 - Elias Dorneles <eliasdorneles@gmail.com>: minor adjust to config defaults and docs
+- Elazrod56 <thomas.lf5629@gmail.com>
 - Derek Harland <derek.harland@finq.co.nz>
 - David Pursehouse <david.pursehouse@gmail.com>
-- Daniel Mouritzen <dmrtzn@gmail.com>
+- Dave Bunten <dave.bunten@cuanschutz.edu>
 - Daniel Miller <millerdev@gmail.com>
 - Christoph Blessing <33834216+cblessing24@users.noreply.github.com>
 - Chris Murray <chris@chrismurray.scot>
@@ -300,7 +310,6 @@ contributors:
 - Ben James <benjames1999@hotmail.co.uk>
 - Ben Green <benhgreen@icloud.com>
 - Batuhan Taskaya <batuhanosmantaskaya@gmail.com>
-- Alvaro Frias <alvarofriasgaray@gmail.com>
 - Alexander Kapshuna <kapsh@kap.sh>
 - Adam Parkin <pzelnip@users.noreply.github.com>
 - 谭九鼎 <109224573@qq.com>
@@ -319,9 +328,12 @@ contributors:
 - mar-chi-pan <mar.polatoglou@gmail.com>
 - lrjball <50599110+lrjball@users.noreply.github.com>
 - laike9m <laike9m@users.noreply.github.com>
+- kyoto7250 <50972773+kyoto7250@users.noreply.github.com>
 - kriek <sylvain.ackermann@gmail.com>
+- kdestin <101366538+kdestin@users.noreply.github.com>
 - jaydesl <35102795+jaydesl@users.noreply.github.com>
 - jab <jab@users.noreply.github.com>
+- gracejiang16 <70730457+gracejiang16@users.noreply.github.com>
 - glmdgrielson <32415403+glmdgrielson@users.noreply.github.com>
 - glegoux <gilles.legoux@gmail.com>
 - gaurikholkar <f2013002@goa.bits-pilani.ac.in>
@@ -333,6 +345,7 @@ contributors:
 - danields <danields761@gmail.com>
 - cosven <cosven@users.noreply.github.com>
 - cordis-dev <darius@adroiti.com>
+- cherryblossom <31467609+cherryblossom000@users.noreply.github.com>
 - bluesheeptoken <louis.fruleux1@gmail.com>
 - anatoly techtonik <techtonik@gmail.com>
 - agutole <toldo_carp@hotmail.com>
@@ -354,18 +367,23 @@ contributors:
 - Viorel Știrbu <viorels@gmail.com>: intern-builtin warning.
 - VictorT <victor.taix@gmail.com>
 - Victor Jiajunsu <16359131+jiajunsu@users.noreply.github.com>
+- ViRuSTriNiTy <cradle-of-mail@gmx.de>
+- Val Lorentz <progval+github@progval.net>
 - Trevor Bekolay <tbekolay@gmail.com>
   * Added --list-msgs-enabled command
 - Tomer Chachamu <tomer.chachamu@gmail.com>: simplifiable-if-expression
 - Tomasz Magulski <tomasz@magullab.io>
+- Tom <tsarantis@proton.me>
 - Tim Hatch <tim@timhatch.com>
 - Tim Gates <tim.gates@iress.com>
+- Théo Battrel <theo.util@protonmail.ch>
 - Thomas Benhamou <thomas@lightricks.com>
 - Tanvi Moharir <74228962+tanvimoharir@users.noreply.github.com>: Fix for invalid toml config
 - T.Rzepka <Tobias.Rzepka@gmail.com>
 - Svetoslav Neykov <svet@hyperscience.com>
 - Stéphane Wirtel <stephane@wirtel.be>: nonlocal-without-binding
 - Stephen Longofono <8992396+SLongofono@users.noreply.github.com>
+- Stephane Odul <1504511+sodul@users.noreply.github.com>
 - Stanislav Levin <slev@altlinux.org>
 - Sorin Sbarnea <ssbarnea@redhat.com>
 - Slavfox <slavfoxman@gmail.com>
@@ -377,20 +395,20 @@ contributors:
 - Sardorbek Imomaliev <sardorbek.imomaliev@gmail.com>
 - Santiago Castro <bryant@montevideo.com.uy>
 - Samuel Freilich <sfreilich@google.com> (sfreilich)
-- Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
 - Sam Vermeiren <88253337+PaaEl@users.noreply.github.com>
 - Ryan McGuire <ryan@enigmacurry.com>
 - Ry4an Brase <ry4an-hg@ry4an.org>
 - Ruro <ruro.ruro@ya.ru>
 - Roman Ivanov <me@roivanov.com>
 - Robert Schweizer <robert_schweizer@gmx.de>
-- Robert Hofer <hofrob@protonmail.com>
 - Reverb Chu <reverbc@users.noreply.github.com>
 - Renat Galimov <renat2017@gmail.com>
 - Rebecca Turner <rbt@sent.as> (9999years)
 - Randall Leeds <randall@bleeds.info>
 - Ramon Saraiva <ramonsaraiva@gmail.com>
 - Ramiro Leal-Cavazos <ramiroleal050@gmail.com> (ramiro050): Fixed bug preventing pylint from working with Emacs tramp
+- RSTdefg <34202999+RSTdefg@users.noreply.github.com>
+- R. N. West <98110034+rnwst@users.noreply.github.com>
 - Qwiddle13 <32040075+Qwiddle13@users.noreply.github.com>
 - Quentin Young <qlyoung@users.noreply.github.com>
 - Prajwal Borkar <sunnyborkar7777@gmail.com>
@@ -416,6 +434,7 @@ contributors:
 - Moody <mooodyhunter@outlook.com>
 - Mitchell Young <mitchelly@gmail.com>: minor adjustment to docparams
 - Mitar <mitar.github@tnode.com>
+- Mikhail f. Shiryaev <mr.felixoid@gmail.com>
 - Mike Fiedler <miketheman@gmail.com> (miketheman)
 - Mike Bryant <leachim@leachim.info>
 - Michka Popoff <michkapopoff@gmail.com>
@@ -425,6 +444,7 @@ contributors:
 - Michael Hudson-Doyle <michael.hudson@canonical.com>
 - Michael Giuffrida <mgiuffrida@users.noreply.github.com>
 - Melvin Hazeleger <31448155+melvio@users.noreply.github.com>
+- Mehdi Drissi <mdrissi@hmc.edu>
 - Matěj Grabovský <mgrabovs@redhat.com>
 - Matthijs Blom <19817960+MatthijsBlom@users.noreply.github.com>
 - Matej Marušák <marusak.matej@gmail.com>
@@ -448,6 +468,7 @@ contributors:
 - Kian Meng, Ang <kianmeng.ang@gmail.com>
 - Kevin Phillips <thefriendlycoder@gmail.com>
 - Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
+- Kenneth Schackart <schackartk1@gmail.com>
 - Kayran Schmidt <59456929+yumasheta@users.noreply.github.com>
 - Karthik Nadig <kanadig@microsoft.com>
 - Jürgen Hermann <jh@web.de>
@@ -464,6 +485,7 @@ contributors:
   * Fixed `toml` dependency issue
 - Jeremy Fleischman <jeremyfleischman@gmail.com>
 - Jason Owen <jason.a.owen@gmail.com>
+- Jason Lau <github.com@dotkr.nl>
 - Jared Garst <cultofjared@gmail.com>
 - Jared Deckard <jared.deckard@gmail.com>
 - Janne Rönkkö <jannero@users.noreply.github.com>
@@ -471,13 +493,13 @@ contributors:
 - James M. Allen <james.m.allen@gmail.com>
 - James Lingard <jchl@aristanetworks.com>
 - James Broadhead <jamesbroadhead@gmail.com>
-- James Addison <55152140+jayaddison@users.noreply.github.com>
 - Jakub Kulík <Kulikjak@gmail.com>
 - Jakob Normark <jakobnormark@gmail.com>
 - Jake Lishman <jake@binhbar.com>
 - Jacques Kvam <jwkvam@gmail.com>
 - Jace Browning <jacebrowning@gmail.com>: updated default report format with clickable paths
 - JT Olds <jtolds@xnet5.com>
+- Iggy Eom <iggy.eom@sendbird.com>
 - Hayden Richards <62866982+SupImDos@users.noreply.github.com>
   * Fixed "no-self-use" for async methods
   * Fixed "docparams" extension for async functions and methods
@@ -537,6 +559,7 @@ contributors:
 - Benedikt Morbach <benedikt.morbach@googlemail.com>
 - Ben Greiner <code@bnavigator.de>
 - Banjamin Freeman <befreeman@users.noreply.github.com>
+- Avram Lubkin <avylove@rockhopper.net>
 - Athos Ribeiro <athoscr@fedoraproject.org>: Fixed dict-keys-not-iterating false positive for inverse containment checks
 - Arun Persaud <arun@nubati.net>
 - Arthur Lutz <arthur.lutz@logilab.fr>
@@ -550,9 +573,11 @@ contributors:
 - Andrzej Klajnert <github@aklajnert.pl>
 - Andrew Howe <howeaj@users.noreply.github.com>
 - Andres Perez Hortal <andresperezcba@gmail.com>
+- Andre Hora <andrehora@users.noreply.github.com>
 - Alok Singh <8325708+alok@users.noreply.github.com>
 - Allan Chandler <95424144+allanc65@users.noreply.github.com> (allanc65)
   * Fixed issue 5452, false positive missing-param-doc for multi-line Google-style params
+- Alex Mor <5476113+nashcontrol@users.noreply.github.com>
 - Alex Jurkiewicz <alex@jurkiewi.cz>
 - Alex Hearn <alex.d.hearn@gmail.com>
 - Alan Evangelista <alanoe@linux.vnet.ibm.com>

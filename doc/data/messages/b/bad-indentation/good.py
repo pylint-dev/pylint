@@ -1,2 +1,2 @@
 if input():
-    print('yes')
+    print("yes")

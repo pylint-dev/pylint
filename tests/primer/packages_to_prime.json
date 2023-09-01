@@ -2,7 +2,7 @@
   "astroid": {
     "branch": "main",
     "directories": ["astroid"],
-    "url": "https://github.com/PyCQA/astroid",
+    "url": "https://github.com/pylint-dev/astroid",
     "pylintrc_relpath": "pylintrc"
   },
   "black": {
@@ -19,6 +19,11 @@
     "branch": "main",
     "directories": ["src/flask"],
     "url": "https://github.com/pallets/flask"
+  },
+  "home-assistant": {
+    "branch": "dev",
+    "directories": ["homeassistant"],
+    "url": "https://github.com/home-assistant/core"
   },
   "music21": {
     "branch": "master",
@@ -58,5 +63,11 @@
     "directories": ["coverage"],
     "url": "https://github.com/nedbat/coveragepy",
     "pylintrc_relpath": "pylintrc"
+  },
+  "poetry-core": {
+    "branch": "main",
+    "directories": ["src"],
+    "url": "https://github.com/python-poetry/poetry-core",
+    "pylint_additional_args": ["--recursive=y", "--source-roots=src"]
   }
 }

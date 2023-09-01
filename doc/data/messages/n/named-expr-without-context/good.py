@@ -1,2 +1,2 @@
-if (a := 42):
-    print('Success')
+if a := 42:
+    print("Success")

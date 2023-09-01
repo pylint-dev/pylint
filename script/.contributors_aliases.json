@@ -4,7 +4,8 @@
       "112832187+clavedeluna@users.noreply.github.com",
       "danalitovsky+git@gmail.com"
     ],
-    "name": "Dani Alcala"
+    "name": "Dani Alcala",
+    "team": "Maintainers"
   },
   "13665637+DanielNoord@users.noreply.github.com": {
     "mails": ["13665637+DanielNoord@users.noreply.github.com"],
@@ -87,6 +88,10 @@
   "53625739+dbrookman@users.noreply.github.com": {
     "mails": ["53625739+dbrookman@users.noreply.github.com"],
     "name": "Daniel Brookman"
+  },
+  "55152140+jayaddison@users.noreply.github.com": {
+    "mails": ["jay@jp-hosting.net", "55152140+jayaddison@users.noreply.github.com"],
+    "name": "James Addison"
   },
   "61059243+tiagohonorato@users.noreply.github.com": {
     "mails": [
@@ -183,6 +188,10 @@
   "anjsimmo@gmail.com": {
     "mails": ["anjsimmo@gmail.com", "a.simmons@deakin.edu.au"],
     "name": "Andrew J. Simmons"
+  },
+  "antonio@zoftko.com": {
+    "mails": ["antonio@zoftko.com", "antonioglez-23@hotmail.com"],
+    "name": "crazybolillo"
   },
   "areveny@protonmail.com": {
     "mails": [
@@ -339,6 +348,10 @@
   "daniel.werner@scalableminds.com": {
     "mails": ["daniel.werner@scalableminds.com"],
     "name": "Daniel Werner"
+  },
+  "dave.bunten@cuanschutz.edu": {
+    "mails": ["dave.bunten@cuanschutz.edu", "ekgto445@gmail.com"],
+    "name": "Dave Bunten"
   },
   "david.douard@sdfa3.org": {
     "mails": ["david.douard@sdfa3.org", "david.douard@logilab.fr"],
@@ -501,7 +514,7 @@
     "name": "Steven Myint"
   },
   "hofrob@protonmail.com": {
-    "mails": ["hofrob@protonmail.com"],
+    "mails": ["hofrob@protonmail.com", "1058012+hofrob@users.noreply.github.com"],
     "name": "Robert Hofer"
   },
   "hugovk@users.noreply.github.com": {
@@ -625,6 +638,10 @@
     "mails": ["lothiraldan@gmail.com"],
     "name": "Boris Feld"
   },
+  "lucas.cimon@gmail.com": {
+    "mails": ["lucas.cimon@gmail.com", "925560+Lucas-C@users.noreply.github.com"],
+    "name": "Lucas Cimon"
+  },
   "lucristofolini@gmail.com": {
     "comment": " (luigibertaco)",
     "mails": ["luigi.cristofolini@q-ctrl.com", "lucristofolini@gmail.com"],
@@ -726,7 +743,8 @@
   "nicholasdrozd@gmail.com": {
     "comment": ": performance improvements to astroid",
     "mails": ["nicholasdrozd@gmail.com"],
-    "name": "Nick Drozd"
+    "name": "Nick Drozd",
+    "team": "Maintainers"
   },
   "nickpesce22@gmail.com": {
     "mails": ["nickpesce22@gmail.com", "npesce@terpmail.umd.edu"],

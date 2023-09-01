@@ -1,0 +1,3 @@
+Fix ``unused-import`` false positive for usage of ``six.with_metaclass``.
+
+Closes #7506

@@ -1,0 +1,3 @@
+Support ``cyclic-import`` message when parallelizing with ``--jobs``.
+
+Closes #4171

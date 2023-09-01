@@ -1,13 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
-import sys
 import tokenize
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from pylint import exceptions, interfaces
 from pylint.constants import (
@@ -26,12 +25,6 @@ from pylint.utils.pragma_parser import (
     UnRecognizedOptionError,
     parse_pragma,
 )
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -55,9 +48,8 @@ class _MessageStateHandler:
             "enable-msg": self._options_methods["enable"],
         }
         self._pragma_lineno: dict[str, int] = {}
-        # TODO: 3.0: Update key type to str when current_name is always str
         self._stashed_messages: defaultdict[
-            tuple[str | None, str], list[tuple[str | None, str]]
+            tuple[str, str], list[tuple[str | None, str]]
         ] = defaultdict(list)
         """Some messages in the options (for --enable and --disable) are encountered
         too early to warn about them.

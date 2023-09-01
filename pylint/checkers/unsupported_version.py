@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for features used that are not supported by all python versions
 indicated by the py-version setting.
@@ -34,7 +34,7 @@ class UnsupportedVersionChecker(BaseChecker):
             "F-strings are not supported by all versions included in the py-version setting",
             "using-f-string-in-unsupported-version",
             "Used when the py-version set by the user is lower than 3.6 and pylint encounters "
-            "a f-string.",
+            "an f-string.",
         ),
         "W2602": (
             "typing.final is not supported by all versions included in the py-version setting",

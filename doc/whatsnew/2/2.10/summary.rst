@@ -21,7 +21,7 @@ We're going to continue working on improving performance during 2.11. We're also
 a new ``possible-forgotten-f-prefix`` check that had too much false positives at release time.
 Check the `possible-forgotten-f-prefix`_ issue if you want to provide knowledge or use case :)
 
-.. _possible-forgotten-f-prefix: https://github.com/PyCQA/pylint/pull/4787
+.. _possible-forgotten-f-prefix: https://github.com/pylint-dev/pylint/pull/4787
 
 New checkers
 ============

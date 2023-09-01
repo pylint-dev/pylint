@@ -1,6 +1,6 @@
 """
 Regression test for `no-member`.
-See: https://github.com/PyCQA/pylint/issues/2964
+See: https://github.com/pylint-dev/pylint/issues/2964
 """
 
 # pylint: disable=missing-class-docstring,too-few-public-methods

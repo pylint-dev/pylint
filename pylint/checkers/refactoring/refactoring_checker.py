@@ -1,25 +1,25 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import collections
 import copy
 import itertools
-import sys
 import tokenize
 from collections.abc import Iterator, Sequence
-from functools import reduce
+from functools import cached_property, reduce
 from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
 
 import astroid
 from astroid import bases, nodes
-from astroid.util import Uninferable
+from astroid.util import UninferableBase
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.checkers.base.basic_error_checker import _loop_exits_early
 from pylint.checkers.utils import node_frame_class
 from pylint.graph import get_cycles, get_paths
 from pylint.interfaces import HIGH, INFERENCE, Confidence
@@ -27,14 +27,8 @@ from pylint.interfaces import HIGH, INFERENCE, Confidence
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from astroid.decorators import cachedproperty as cached_property
 
-NodesWithNestedBlocks = Union[
-    nodes.TryExcept, nodes.TryFinally, nodes.While, nodes.For, nodes.If
-]
+NodesWithNestedBlocks = Union[nodes.Try, nodes.While, nodes.For, nodes.If]
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
@@ -76,7 +70,7 @@ def _if_statement_is_always_returning(
 
 
 def _except_statement_is_always_returning(
-    node: nodes.TryExcept, returning_node_class: nodes.NodeNG
+    node: nodes.Try, returning_node_class: nodes.NodeNG
 ) -> bool:
     """Detect if all except statements return."""
     return all(
@@ -98,7 +92,7 @@ def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
     if token.exact_type != tokenize.COMMA:
         return False
     # Must have remaining tokens on the same line such as NEWLINE
-    left_tokens = list(itertools.islice(tokens, index + 1, None))
+    left_tokens = itertools.islice(tokens, index + 1, None)
 
     more_tokens_on_line = False
     for remaining_token in left_tokens:
@@ -129,7 +123,7 @@ def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
 
 
 def _is_inside_context_manager(node: nodes.Call) -> bool:
-    frame = node.frame(future=True)
+    frame = node.frame()
     if not isinstance(
         frame, (nodes.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod)
     ):
@@ -140,7 +134,7 @@ def _is_inside_context_manager(node: nodes.Call) -> bool:
 
 
 def _is_a_return_statement(node: nodes.Call) -> bool:
-    frame = node.frame(future=True)
+    frame = node.frame()
     for parent in node.node_ancestors():
         if parent is frame:
             break
@@ -153,7 +147,7 @@ def _is_part_of_with_items(node: nodes.Call) -> bool:
     """Checks if one of the node's parents is a ``nodes.With`` node and that the node
     itself is located somewhere under its ``items``.
     """
-    frame = node.frame(future=True)
+    frame = node.frame()
     current = node
     while current != frame:
         if isinstance(current, nodes.With):
@@ -256,7 +250,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when redundant pre-python 2.5 ternary syntax is used.",
         ),
         "R1726": (
-            "Boolean condition '%s' may be simplified to '%s'",
+            'Boolean condition "%s" may be simplified to "%s"',
             "simplifiable-condition",
             "Emitted when a boolean condition is able to be simplified.",
         ),
@@ -461,7 +455,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Consider using 'with' for resource-allocating operations",
             "consider-using-with",
             "Emitted if a resource-allocating assignment or call may be replaced by a 'with' block. "
-            "By using 'with' the release of the allocated resources is ensured even in the case of an exception.",
+            "By using 'with' the release of the allocated resources is ensured even in the case "
+            "of an exception.",
         ),
         "R1733": (
             "Unnecessary dictionary index lookup, use '%s' instead",
@@ -555,7 +550,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node.value.value, bool
         )
 
-    def _is_actual_elif(self, node: nodes.If | nodes.TryExcept) -> bool:
+    def _is_actual_elif(self, node: nodes.If | nodes.Try) -> bool:
         """Check if the given node is an actual elif.
 
         This is a problem we're having with the builtin ast module,
@@ -654,9 +649,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # token[2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
-            elif _is_trailing_comma(tokens, index):
-                if self.linter.is_message_enabled("trailing-comma-tuple"):
-                    self.add_message("trailing-comma-tuple", line=token.start[0])
+            elif self.linter.is_message_enabled(
+                "trailing-comma-tuple"
+            ) and _is_trailing_comma(tokens, index):
+                self.add_message("trailing-comma-tuple", line=token.start[0])
 
     @utils.only_required_for_messages("consider-using-with")
     def leave_module(self, _: nodes.Module) -> None:
@@ -667,15 +663,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._init()
 
     @utils.only_required_for_messages("too-many-nested-blocks", "no-else-return")
-    def visit_tryexcept(self, node: nodes.TryExcept | nodes.TryFinally) -> None:
+    def visit_try(self, node: nodes.Try) -> None:
         self._check_nested_blocks(node)
 
-        if isinstance(node, nodes.TryExcept):
-            self._check_superfluous_else_return(node)
-            self._check_superfluous_else_raise(node)
+        self._check_superfluous_else_return(node)
+        self._check_superfluous_else_raise(node)
 
-    visit_tryfinally = visit_tryexcept
-    visit_while = visit_tryexcept
+    visit_while = visit_try
 
     def _check_redefined_argument_from_local(self, name_node: nodes.AssignName) -> None:
         if self._dummy_rgx and self._dummy_rgx.match(name_node.name):
@@ -724,8 +718,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         for var, names in node.items:
             if isinstance(var, nodes.Name):
                 for stack in self._consider_using_with_stack:
-                    # We don't need to restrict the stacks we search to the current scope and outer scopes,
-                    # as e.g. the function_scope stack will be empty when we check a ``with`` on the class level.
+                    # We don't need to restrict the stacks we search to the current scope and
+                    # outer scopes, as e.g. the function_scope stack will be empty when we
+                    # check a ``with`` on the class level.
                     if var.name in stack:
                         del stack[var.name]
                         break
@@ -736,13 +731,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_superfluous_else(
         self,
-        node: nodes.If | nodes.TryExcept,
+        node: nodes.If | nodes.Try,
         msg_id: str,
         returning_node_class: nodes.NodeNG,
     ) -> None:
-        if isinstance(node, nodes.TryExcept) and isinstance(
-            node.parent, nodes.TryFinally
-        ):
+        if isinstance(node, nodes.Try) and node.finalbody:
             # Not interested in try/except/else/finally statements.
             return
 
@@ -758,7 +751,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             isinstance(node, nodes.If)
             and _if_statement_is_always_returning(node, returning_node_class)
         ) or (
-            isinstance(node, nodes.TryExcept)
+            isinstance(node, nodes.Try)
+            and not node.finalbody
             and _except_statement_is_always_returning(node, returning_node_class)
         ):
             orelse = node.orelse[0]
@@ -866,6 +860,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_get(node)
         self._check_consider_using_min_max_builtin(node)
 
+    # pylint: disable = too-many-branches
     def _check_consider_using_min_max_builtin(self, node: nodes.If) -> None:
         """Check if the given if node can be refactored as a min/max python builtin."""
         if self._is_actual_elif(node) or node.orelse:
@@ -1010,7 +1005,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_stop_iteration_inside_generator(self, node: nodes.Raise) -> None:
         """Check if an exception of type StopIteration is raised inside a generator."""
-        frame = node.frame(future=True)
+        frame = node.frame()
         if not isinstance(frame, nodes.FunctionDef) or not frame.is_generator():
             return
         if utils.node_ignores_exception(node, StopIteration):
@@ -1068,8 +1063,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_consider_using_generator(self, node: nodes.Call) -> None:
         # 'any', 'all', definitely should use generator, while 'list', 'tuple',
         # 'sum', 'max', and 'min' need to be considered first
-        # See https://github.com/PyCQA/pylint/pull/3309#discussion_r576683109
-        # https://github.com/PyCQA/pylint/pull/6595#issuecomment-1125704244
+        # See https://github.com/pylint-dev/pylint/pull/3309#discussion_r576683109
+        # https://github.com/pylint-dev/pylint/pull/6595#issuecomment-1125704244
         # and https://peps.python.org/pep-0289/
         checked_call = ["any", "all", "sum", "max", "min", "list", "tuple"]
         if (
@@ -1078,11 +1073,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(node.func, nodes.Name)
             and node.func.name in checked_call
         ):
-            # functions in checked_calls take exactly one argument
+            # functions in checked_calls take exactly one positional argument
             # check whether the argument is list comprehension
             if len(node.args) == 1 and isinstance(node.args[0], nodes.ListComp):
                 # remove square brackets '[]'
                 inside_comp = node.args[0].as_string()[1:-1]
+                if node.keywords:
+                    inside_comp = f"({inside_comp})"
+                    inside_comp += ", "
+                    inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
                 call_name = node.func.name
                 if call_name in {"any", "all"}:
                     self.add_message(
@@ -1128,7 +1127,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_quit_exit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
-            # If we have `exit` imported from `sys` in the current or global scope, exempt this instance.
+            # If we have `exit` imported from `sys` in the current or global scope,
+            # exempt this instance.
             local_scope = node.scope()
             if self._has_exit_in_scope(local_scope) or self._has_exit_in_scope(
                 node.root()
@@ -1140,16 +1140,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not isinstance(node.func, nodes.Name) or node.func.name != "super":
             return
 
-        # pylint: disable=too-many-boolean-expressions
         if (
             len(node.args) != 2
-            or not isinstance(node.args[1], nodes.Name)
+            or not all(isinstance(arg, nodes.Name) for arg in node.args)
             or node.args[1].name != "self"
-            or not isinstance(node.args[0], nodes.Name)
-            or not isinstance(node.args[1], nodes.Name)
-            or node_frame_class(node) is None
-            # TODO: PY38: Use walrus operator, this will also fix the mypy issue
-            or node.args[0].name != node_frame_class(node).name  # type: ignore[union-attr]
+            or (frame_class := node_frame_class(node)) is None
+            or node.args[0].name != frame_class.name
         ):
             return
 
@@ -1178,7 +1174,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         if len(node.args) == 0:
             # handle case when builtin.next is called without args.
-            # see https://github.com/PyCQA/pylint/issues/7828
+            # see https://github.com/pylint-dev/pylint/issues/7828
             return
 
         inferred = utils.safe_infer(node.func)
@@ -1187,7 +1183,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             isinstance(inferred, nodes.FunctionDef)
             and inferred.qname() == "builtins.next"
         ):
-            frame = node.frame(future=True)
+            frame = node.frame()
             # The next builtin can only have up to two
             # positional arguments and no keyword arguments
             has_sentinel_value = len(node.args) > 1
@@ -1642,7 +1638,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         inferred_truth_value = utils.safe_infer(truth_value, compare_constants=True)
-        if inferred_truth_value is None or inferred_truth_value == astroid.Uninferable:
+        if inferred_truth_value is None or isinstance(
+            inferred_truth_value, UninferableBase
+        ):
             return
         truth_boolean_value = inferred_truth_value.bool_value()
 
@@ -1656,7 +1654,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _append_context_managers_to_stack(self, node: nodes.Assign) -> None:
         if _is_inside_context_manager(node):
-            # if we are inside a context manager itself, we assume that it will handle the resource management itself.
+            # if we are inside a context manager itself, we assume that it will handle
+            # the resource management itself.
             return
         if isinstance(node.targets[0], (nodes.Tuple, nodes.List, nodes.Set)):
             assignees = node.targets[0].elts
@@ -1668,7 +1667,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             assignees = [node.targets[0]]
             values = [node.value]
-        if Uninferable in (assignees, values):
+        if any(isinstance(n, UninferableBase) for n in (assignees, values)):
             return
         for assignee, value in zip(assignees, values):
             if not isinstance(value, nodes.Call):
@@ -1680,9 +1679,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 or not isinstance(assignee, (nodes.AssignName, nodes.AssignAttr))
             ):
                 continue
-            stack = self._consider_using_with_stack.get_stack_for_frame(
-                node.frame(future=True)
-            )
+            stack = self._consider_using_with_stack.get_stack_for_frame(node.frame())
             varname = (
                 assignee.name
                 if isinstance(assignee, nodes.AssignName)
@@ -1703,20 +1700,24 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_consider_using_with(self, node: nodes.Call) -> None:
         if _is_inside_context_manager(node) or _is_a_return_statement(node):
-            # If we are inside a context manager itself, we assume that it will handle the resource management itself.
-            # If the node is a child of a return, we assume that the caller knows he is getting a context manager
-            # he should use properly (i.e. in a ``with``).
+            # If we are inside a context manager itself, we assume that it will handle the
+            # resource management itself.
+            # If the node is a child of a return, we assume that the caller knows he is getting
+            # a context manager he should use properly (i.e. in a ``with``).
             return
         if (
             node
             in self._consider_using_with_stack.get_stack_for_frame(
-                node.frame(future=True)
+                node.frame()
             ).values()
         ):
-            # the result of this call was already assigned to a variable and will be checked when leaving the scope.
+            # the result of this call was already assigned to a variable and will be
+            # checked when leaving the scope.
             return
         inferred = utils.safe_infer(node.func)
-        if not inferred:
+        if not inferred or not isinstance(
+            inferred, (nodes.FunctionDef, nodes.ClassDef, bases.UnboundMethod)
+        ):
             return
         could_be_used_in_with = (
             # things like ``lock.acquire()``
@@ -2016,7 +2017,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # to infer it.
             return True
         exc = utils.safe_infer(node.exc)
-        if exc is None or exc is astroid.Uninferable or not hasattr(exc, "pytype"):
+        if (
+            exc is None
+            or isinstance(exc, UninferableBase)
+            or not hasattr(exc, "pytype")
+        ):
             return False
         exc_name = exc.pytype().split(".")[-1]
         handlers = utils.get_exception_handlers(node, exc_name)
@@ -2047,15 +2052,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     return True
             except astroid.InferenceError:
                 pass
-        # Avoid the check inside while loop as we don't know
-        # if they will be completed
         if isinstance(node, nodes.While):
-            return True
+            # A while-loop is considered return-ended if it has a
+            # truthy test and no break statements
+            return (node.test.bool_value() and not _loop_exits_early(node)) or any(
+                self._is_node_return_ended(child) for child in node.orelse
+            )
         if isinstance(node, nodes.Raise):
             return self._is_raise_node_return_ended(node)
         if isinstance(node, nodes.If):
             return self._is_if_node_return_ended(node)
-        if isinstance(node, nodes.TryExcept):
+        if isinstance(node, nodes.Try):
             handlers = {
                 _child
                 for _child in node.get_children()
@@ -2085,16 +2092,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             next_sibling = next_sibling.next_sibling()
         return False
 
-    def _is_function_def_never_returning(self, node: nodes.FunctionDef) -> bool:
+    def _is_function_def_never_returning(
+        self, node: nodes.FunctionDef | astroid.BoundMethod
+    ) -> bool:
         """Return True if the function never returns, False otherwise.
 
         Args:
-            node (nodes.FunctionDef): function definition node to be analyzed.
+            node (nodes.FunctionDef or astroid.BoundMethod): function definition node to be analyzed.
 
         Returns:
             bool: True if the function never returns, False otherwise.
         """
-        if isinstance(node, nodes.FunctionDef) and node.returns:
+        if isinstance(node, (nodes.FunctionDef, astroid.BoundMethod)) and node.returns:
             return (
                 isinstance(node.returns, nodes.Attribute)
                 and node.returns.attrname == "NoReturn"
@@ -2103,7 +2112,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             )
         try:
             return node.qname() in self._never_returning_functions
-        except TypeError:
+        except (TypeError, AttributeError):
             return False
 
     def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:
@@ -2288,12 +2297,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             return
 
+        preliminary_confidence = HIGH
         try:
             iterable_arg = utils.get_argument_from_call(
                 node.iter, position=0, keyword="iterable"
             )
         except utils.NoSuchArgumentError:
-            return
+            iterable_arg = utils.infer_kwarg_from_call(node.iter, keyword="iterable")
+            preliminary_confidence = INFERENCE
 
         if not isinstance(iterable_arg, nodes.Name):
             return
@@ -2312,6 +2323,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # enumerate is being called with start arg/kwarg so resulting index lookup
             # is not redundant, hence we should not report an error.
             return
+
+        # Preserve preliminary_confidence if it was INFERENCE
+        confidence = (
+            preliminary_confidence
+            if preliminary_confidence == INFERENCE
+            else confidence
+        )
 
         iterating_object_name = iterable_arg.name
         value_variable = node.target.elts[1]
@@ -2440,7 +2458,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False, confidence
 
     def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
-        if isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute)):
+        if (
+            isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute))
+            or isinstance(node, nodes.UnaryOp)
+            and isinstance(node.operand, nodes.Attribute)
+        ):
             inferred = utils.safe_infer(node)
             start_val = inferred.value if inferred else None
             return start_val, INFERENCE
@@ -2448,5 +2470,4 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return node.operand.value, HIGH
         if isinstance(node, nodes.Const):
             return node.value, HIGH
-
         return None, HIGH

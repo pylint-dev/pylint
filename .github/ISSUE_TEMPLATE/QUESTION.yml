@@ -19,7 +19,8 @@ body:
         on Discord][Discussions].
 
 
-        [issue search]: https://github.com/PyCQA/pylint/issues?q=is%3Aissue+is%3Aopen+
+        [issue search]:
+        https://github.com/pylint-dev/pylint/issues?q=is%3Aissue+is%3Aopen+
 
         [Discussions]: https://discord.com/invite/Egy6P8AMB5
 

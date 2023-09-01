@@ -230,7 +230,7 @@ with used_pool:
 
 def test_subscript_assignment():
     """
-    Regression test for issue https://github.com/PyCQA/pylint/issues/4732.
+    Regression test for issue https://github.com/pylint-dev/pylint/issues/4732.
     If a context manager is assigned to a list or dict, we are not able to
     tell if / how the context manager is used later on, as it is not assigned
     to a variable or attribute directly.

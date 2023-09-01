@@ -1,0 +1,3 @@
+Fix `unused-argument` false positive when `__new__` does not use all the arguments of `__init__`.
+
+Closes #3670

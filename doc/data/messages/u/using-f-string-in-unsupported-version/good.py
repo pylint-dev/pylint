@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+"python {} is past end of life".format(3.5)

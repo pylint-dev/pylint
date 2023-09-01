@@ -30,7 +30,7 @@ def func():
 
     # Case where `nonlocal-without-binding` was not emitted when
     # the nonlocal name was assigned later in the same scope.
-    # https://github.com/PyCQA/pylint/issues/6883
+    # https://github.com/pylint-dev/pylint/issues/6883
     def other_func2():
         nonlocal c  # [nonlocal-without-binding]
         c = 1
@@ -69,3 +69,7 @@ def function():
         myint += 1
 
     return inner()
+
+
+nonlocal APPLE  # [nonlocal-without-binding]
+APPLE = 42

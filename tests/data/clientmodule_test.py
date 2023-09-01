@@ -3,7 +3,6 @@ from data.suppliermodule_test import Interface, DoNothing, DoNothing2
 
 class Ancestor:
     """ Ancestor method """
-    __implements__ = (Interface,)
     cls_member = DoNothing()
 
     def __init__(self, value):

@@ -1,0 +1,14 @@
+redundant-typehint-argument:8:0:8:52::Type `int` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:8:0:8:52::Type `str` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:11:0:11:57::Type `list[int]` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:12:10:12:24::Type `None` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:14:0:14:34::Type `None` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:16:0:16:82::Type `list[str]` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:17:0:17:23::Type `int` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:18:0:18:43::Type `int` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:21:0:21:87::Type `list[str]` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:25:0:25:24::Type `int` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:25:0:25:24::Type `int` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:25:0:25:24::Type `int` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:31:0:31:8::Type `Q` is used more than once in union type annotation. Remove redundant typehints.:HIGH
+redundant-typehint-argument:37:0:37:59::Type `dict[int | int, str | str]` is used more than once in union type annotation. Remove redundant typehints.:HIGH

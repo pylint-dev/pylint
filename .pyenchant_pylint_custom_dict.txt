@@ -1,5 +1,6 @@
 abc
 abcmeta
+abspath
 abstractproperty
 analyse
 analysed
@@ -21,6 +22,7 @@ async
 asynccontextmanager
 attr
 attrib
+attrname
 backport
 BaseChecker
 basename
@@ -72,6 +74,7 @@ CVE
 cwd
 cyclomatic
 dataclass
+dataclasses
 datetime
 debian
 deduplication
@@ -93,6 +96,7 @@ dirname
 docparams
 docstring
 docstrings
+dumpable
 dunder
 elif
 elif's
@@ -128,9 +132,11 @@ functools
 genexpr
 getattr
 globals
+globbing
 GPL
 graphname
 graphviz
+grey
 guido's
 gv
 hashable
@@ -242,6 +248,7 @@ params
 paren
 parens
 passthru
+pathlib
 positionals
 png
 pragma
@@ -258,6 +265,7 @@ pylint
 pylintdict
 pylintrc
 pylint's
+pyproject
 pypy
 pyreverse
 pytest
@@ -281,6 +289,7 @@ rstrip
 rtype
 runtime
 se
+seaborn
 sep
 setcomp
 shortstrings
@@ -303,6 +312,8 @@ subcommands
 subdicts
 subgraphs
 sublists
+submodule
+submodules
 subparsers
 subparts
 subprocess
@@ -312,6 +323,8 @@ subtree
 supcls
 superclass
 symilar
+symlink
+symlinks
 sys
 tbump
 tempfile
@@ -329,6 +342,7 @@ toplevel
 towncrier
 tp
 truthness
+truthy
 truthey
 tryexcept
 txt
@@ -347,6 +361,7 @@ unicode
 Uninferable
 uninferable
 unittest
+untriggered
 # prefix for string
 ur
 ureport

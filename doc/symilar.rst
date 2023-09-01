@@ -20,7 +20,6 @@ All files that shall be checked have to be passed in explicitly, e.g.::
   ==tests/data/suppliermodule_test.py:12
     class Ancestor:
         """ Ancestor method """
-        __implements__ = (Interface,)
         cls_member = DoNothing()
 
         def __init__(self, value):

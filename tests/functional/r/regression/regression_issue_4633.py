@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring,too-few-public-methods
 
 """
-Regression tests for https://github.com/PyCQA/pylint/issues/4633
+Regression tests for https://github.com/pylint-dev/pylint/issues/4633
 """
 
 from queue import Queue

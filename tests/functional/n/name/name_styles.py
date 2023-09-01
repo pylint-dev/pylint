@@ -94,7 +94,7 @@ NOT_CORRECT = CorrectClassName  # [invalid-name]
 def test_globals():
     """Names in global statements are also checked."""
     global NOT_CORRECT
-    global AlsoCorrect  # [invalid-name]
+    global AlsoCorrect
     NOT_CORRECT = 1
     AlsoCorrect = 2
 

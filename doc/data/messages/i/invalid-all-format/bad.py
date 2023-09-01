@@ -1,3 +1,3 @@
-__all__ = ("CONST")  # [invalid-all-format]
+__all__ = "CONST"  # [invalid-all-format]
 
 CONST = 42

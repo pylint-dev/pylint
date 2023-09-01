@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, using-constant-test,cell-var-from-loop
+# pylint: disable=missing-docstring, using-constant-test,cell-var-from-loop,return-in-finally
 
 def insidious_break_and_return():
     for i in range(0, -5, -1):

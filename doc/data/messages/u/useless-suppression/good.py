@@ -1,1 +1,5 @@
-# This is a placeholder for correct code for this message.
+fruit_counter = 0
+
+
+def eat(fruit_name: str):
+    ...

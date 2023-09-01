@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checkers for various standard library functions."""
 
@@ -11,11 +11,12 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Dict, Set, Tuple
 
 import astroid
-from astroid import nodes
+from astroid import nodes, util
 from astroid.typing import InferenceResult
 
 from pylint import interfaces
 from pylint.checkers import BaseChecker, DeprecatedMixin, utils
+from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
 DeprecationDict = Dict[Tuple[int, int, int], Set[str]]
 
 OPEN_FILES_MODE = ("open", "file")
-OPEN_FILES_FUNCS = OPEN_FILES_MODE + ("read_text", "write_text")
+OPEN_FILES_FUNCS = (*OPEN_FILES_MODE, "read_text", "write_text")
 UNITTEST_CASE = "unittest.case"
 THREADING_THREAD = "threading.Thread"
 COPY_COPY = "copy.copy"
@@ -82,6 +83,10 @@ DEPRECATED_ARGUMENTS: dict[
         ),
     },
     (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
+    (3, 12, 0): {
+        "coroutine.throw": ((1, "value"), (2, "traceback")),
+        "shutil.rmtree": ((2, "onerror"),),
+    },
 }
 
 DEPRECATED_DECORATORS: DeprecationDict = {
@@ -252,6 +257,12 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "unittest.TestLoader.loadTestsFromTestCase",
             "unittest.TestLoader.getTestCaseNames",
         },
+        (3, 12, 0): {
+            "builtins.bool.__invert__",
+            "datetime.datetime.utcfromtimestamp",
+            "datetime.datetime.utcnow",
+            "xml.etree.ElementTree.Element.__bool__",
+        },
     },
 }
 
@@ -310,6 +321,12 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
         },
         "webbrowser": {
             "MacOSX",
+        },
+    },
+    (3, 12, 0): {
+        "typing": {
+            "Hashable",
+            "Sized",
         },
     },
 }
@@ -385,7 +402,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "By default, the first parameter is the group param, not the target param.",
         ),
         "W1507": (
-            "Using copy.copy(os.environ). Use os.environ.copy() instead. ",
+            "Using copy.copy(os.environ). Use os.environ.copy() instead.",
             "shallow-copy-environ",
             "os.environ is not a dict object but proxy object, so "
             "shallow copy has still effects on original object. "
@@ -429,11 +446,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "See https://docs.python.org/3/library/subprocess.html#popen-constructor",
         ),
         "W1510": (
-            "Using subprocess.run without explicitly set `check` is not recommended.",
+            "'subprocess.run' used without explicitly defining the value for 'check'.",
             "subprocess-run-check",
-            "The check parameter should always be used with explicitly set "
-            "`check` keyword to make clear what the error-handling behavior is. "
-            "See https://docs.python.org/3/library/subprocess.html#subprocess.run",
+            "The ``check`` keyword  is set to False by default. It means the process "
+            "launched by ``subprocess.run`` can exit with a non-zero exit code and "
+            "fail silently. It's better to set it explicitly to make clear what the "
+            "error-handling behavior is.",
         ),
         "W1514": (
             "Using open without explicitly specifying an encoding",
@@ -506,17 +524,26 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def _check_for_check_kw_in_run(self, node: nodes.Call) -> None:
         kwargs = {keyword.arg for keyword in (node.keywords or ())}
         if "check" not in kwargs:
-            self.add_message("subprocess-run-check", node=node)
+            self.add_message("subprocess-run-check", node=node, confidence=INFERENCE)
 
     def _check_shallow_copy_environ(self, node: nodes.Call) -> None:
-        arg = utils.get_argument_from_call(node, position=0)
+        confidence = HIGH
+        try:
+            arg = utils.get_argument_from_call(node, position=0, keyword="x")
+        except utils.NoSuchArgumentError:
+            arg = utils.infer_kwarg_from_call(node, keyword="x")
+            if not arg:
+                return
+            confidence = INFERENCE
         try:
             inferred_args = arg.inferred()
         except astroid.InferenceError:
             return
         for inferred in inferred_args:
             if inferred.qname() == OS_ENVIRON:
-                self.add_message("shallow-copy-environ", node=node)
+                self.add_message(
+                    "shallow-copy-environ", node=node, confidence=confidence
+                )
                 break
 
     @utils.only_required_for_messages(
@@ -538,7 +565,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         """Visit a Call node."""
         self.check_deprecated_class_in_call(node)
         for inferred in utils.infer_all(node.func):
-            if inferred is astroid.Uninferable:
+            if isinstance(inferred, util.UninferableBase):
                 continue
             if inferred.root().name in OPEN_MODULE:
                 open_func_name: str | None = None
@@ -603,6 +630,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
         lru_cache_nodes: list[nodes.NodeNG] = []
         for d_node in node.decorators.nodes:
+            # pylint: disable = too-many-try-statements
             try:
                 for infered_node in d_node.infer():
                     q_name = infered_node.qname()
@@ -616,7 +644,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                                 d_node, position=0, keyword="maxsize"
                             )
                         except utils.NoSuchArgumentError:
-                            break
+                            arg = utils.infer_kwarg_from_call(d_node, "maxsize")
 
                         if not isinstance(arg, nodes.Const) or arg.value is not None:
                             break
@@ -685,10 +713,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             inferred = next(node.infer())
         except astroid.InferenceError:
             return
-        if (
-            isinstance(inferred, astroid.Instance)
-            and inferred.qname() == "datetime.time"
-        ):
+        if isinstance(inferred, astroid.Instance) and inferred.qname() in {
+            "_pydatetime.time",
+            "datetime.time",
+        }:
             self.add_message("boolean-datetime", node=node)
 
     def _check_open_call(
@@ -696,6 +724,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     ) -> None:
         """Various checks for an open call."""
         mode_arg = None
+        confidence = HIGH
         try:
             if open_module == "_io":
                 mode_arg = utils.get_argument_from_call(
@@ -706,11 +735,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     node, position=0, keyword="mode"
                 )
         except utils.NoSuchArgumentError:
-            pass
+            mode_arg = utils.infer_kwarg_from_call(node, keyword="mode")
+            if mode_arg:
+                confidence = INFERENCE
 
         if mode_arg:
             mode_arg = utils.safe_infer(mode_arg)
-
             if (
                 func_name in OPEN_FILES_MODE
                 and isinstance(mode_arg, nodes.Const)
@@ -720,6 +750,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     "bad-open-mode",
                     node=node,
                     args=mode_arg.value or str(mode_arg.value),
+                    confidence=confidence,
                 )
 
         if (
@@ -727,7 +758,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             or isinstance(mode_arg, nodes.Const)
             and (not mode_arg.value or "b" not in str(mode_arg.value))
         ):
-            encoding_arg = None
+            confidence = HIGH
             try:
                 if open_module == "pathlib":
                     if node.func.attrname == "read_text":
@@ -747,13 +778,21 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                         node, position=3, keyword="encoding"
                     )
             except utils.NoSuchArgumentError:
-                self.add_message("unspecified-encoding", node=node)
+                encoding_arg = utils.infer_kwarg_from_call(node, keyword="encoding")
+                if encoding_arg:
+                    confidence = INFERENCE
+                else:
+                    self.add_message(
+                        "unspecified-encoding", node=node, confidence=confidence
+                    )
 
             if encoding_arg:
                 encoding_arg = utils.safe_infer(encoding_arg)
 
                 if isinstance(encoding_arg, nodes.Const) and encoding_arg.value is None:
-                    self.add_message("unspecified-encoding", node=node)
+                    self.add_message(
+                        "unspecified-encoding", node=node, confidence=confidence
+                    )
 
     def _check_env_function(self, node: nodes.Call, infer: nodes.FunctionDef) -> None:
         env_name_kwarg = "key"
@@ -802,7 +841,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         call_arg: InferenceResult | None,
         allow_none: bool,
     ) -> None:
-        if call_arg in (astroid.Uninferable, None):
+        if call_arg is None or isinstance(call_arg, util.UninferableBase):
             return
 
         name = infer.qname()
@@ -815,7 +854,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             if emit:
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:
-            self.add_message(message, node=node, args=(name, call_arg.pytype()))  # type: ignore[union-attr]
+            self.add_message(message, node=node, args=(name, call_arg.pytype()))
 
     def deprecated_methods(self) -> set[str]:
         return self._deprecated_methods

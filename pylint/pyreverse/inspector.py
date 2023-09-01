@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Visitor doing some post-processing on the astroid tree.
 
@@ -12,10 +12,8 @@ from __future__ import annotations
 import collections
 import os
 import traceback
-import warnings
 from abc import ABC, abstractmethod
-from collections.abc import Generator
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 
 import astroid
 from astroid import nodes
@@ -23,13 +21,18 @@ from astroid import nodes
 from pylint import constants
 from pylint.pyreverse import utils
 
-_WrapperFuncT = Callable[[Callable[[str], nodes.Module], str], Optional[nodes.Module]]
+_WrapperFuncT = Callable[
+    [Callable[[str], nodes.Module], str, bool], Optional[nodes.Module]
+]
 
 
 def _astroid_wrapper(
-    func: Callable[[str], nodes.Module], modname: str
+    func: Callable[[str], nodes.Module],
+    modname: str,
+    verbose: bool = False,
 ) -> nodes.Module | None:
-    print(f"parsing {modname}...")
+    if verbose:
+        print(f"parsing {modname}...")
     try:
         return func(modname)
     except astroid.exceptions.AstroidBuildingException as exc:
@@ -37,27 +40,6 @@ def _astroid_wrapper(
     except Exception:  # pylint: disable=broad-except
         traceback.print_exc()
     return None
-
-
-def interfaces(node: nodes.ClassDef) -> Generator[Any, None, None]:
-    """Return an iterator on interfaces implemented by the given class node."""
-    try:
-        implements = astroid.bases.Instance(node).getattr("__implements__")[0]
-    except astroid.exceptions.NotFoundError:
-        return
-    if implements.frame(future=True) is not node:
-        return
-    found = set()
-    missing = False
-    for iface in nodes.unpack_infer(implements):
-        if iface is astroid.Uninferable:
-            missing = True
-            continue
-        if iface not in found:
-            found.add(iface)
-            yield iface
-    if missing:
-        raise astroid.exceptions.InferenceError()
 
 
 class IdGeneratorMixIn:
@@ -129,9 +111,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
     * aggregations_type
       as instance_attrs_type but for aggregations relationships
-
-    * implements,
-      list of implemented interface _objects_ (only on astroid.Class nodes)
     """
 
     def __init__(self, project: Project, tag: bool = False) -> None:
@@ -165,6 +144,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             return
         node.locals_type = collections.defaultdict(list)
         node.depends = []
+        node.type_depends = []
         if self.tag:
             node.uid = self.generate_id()
 
@@ -172,7 +152,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """Visit an astroid.Class node.
 
         * set the locals_type and instance_attrs_type mappings
-        * set the implements list and build it
         * optionally tag the node with a unique id
         """
         if hasattr(node, "locals_type"):
@@ -194,23 +173,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 if not isinstance(assignattr, nodes.Unknown):
                     self.associations_handler.handle(assignattr, node)
                     self.handle_assignattr_type(assignattr, node)
-        # resolve implemented interface
-        try:
-            ifaces = interfaces(node)
-            if ifaces is not None:
-                node.implements = list(ifaces)
-                if node.implements:
-                    # TODO: 3.0: Remove support for __implements__
-                    warnings.warn(
-                        "pyreverse will drop support for resolving and displaying implemented interfaces in pylint 3.0. "
-                        "The implementation relies on the '__implements__'  attribute proposed in PEP 245, which was rejected "
-                        "in 2006.",
-                        DeprecationWarning,
-                    )
-            else:
-                node.implements = []
-        except astroid.InferenceError:
-            node.implements = []
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Visit an astroid.Function node.
@@ -234,8 +196,8 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         if hasattr(node, "_handled"):
             return
         node._handled = True
-        if node.name in node.frame(future=True):
-            frame = node.frame(future=True)
+        if node.name in node.frame():
+            frame = node.frame()
         else:
             # the name has been defined as 'global' in the frame and belongs
             # there.
@@ -299,14 +261,14 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             if fullname != basename:
                 self._imported_module(node, fullname, relative)
 
-    def compute_module(self, context_name: str, mod_path: str) -> int:
-        """Return true if the module should be added to dependencies."""
+    def compute_module(self, context_name: str, mod_path: str) -> bool:
+        """Should the module be added to dependencies ?"""
         package_dir = os.path.dirname(self.project.path)
         if context_name == mod_path:
-            return 0
-        if astroid.modutils.is_standard_module(mod_path, (package_dir,)):
-            return 1
-        return 0
+            return False
+        # astroid does return a boolean but is not typed correctly yet
+
+        return astroid.modutils.module_in_path(mod_path, (package_dir,))  # type: ignore[no-any-return]
 
     def _imported_module(
         self, node: nodes.Import | nodes.ImportFrom, mod_path: str, relative: bool
@@ -387,6 +349,7 @@ def project_from_files(
     func_wrapper: _WrapperFuncT = _astroid_wrapper,
     project_name: str = "no name",
     black_list: tuple[str, ...] = constants.DEFAULT_IGNORE_LIST,
+    verbose: bool = False,
 ) -> Project:
     """Return a Project from a list of files or modules."""
     # build the project representation
@@ -399,7 +362,7 @@ def project_from_files(
             fpath = os.path.join(something, "__init__.py")
         else:
             fpath = something
-        ast = func_wrapper(astroid_manager.ast_from_file, fpath)
+        ast = func_wrapper(astroid_manager.ast_from_file, fpath, verbose)
         if ast is None:
             continue
         project.path = project.path or ast.file
@@ -411,7 +374,7 @@ def project_from_files(
             for fpath in astroid.modutils.get_module_files(
                 os.path.dirname(ast.file), black_list
             ):
-                ast = func_wrapper(astroid_manager.ast_from_file, fpath)
+                ast = func_wrapper(astroid_manager.ast_from_file, fpath, verbose)
                 if ast is None or ast.name == base_name:
                     continue
                 project.add_module(ast)

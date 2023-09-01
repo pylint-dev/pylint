@@ -1,5 +1,5 @@
 """Tests for used-before-assignment for typing related issues"""
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring,ungrouped-imports,invalid-name
 
 
 from typing import List, Optional, TYPE_CHECKING
@@ -7,8 +7,60 @@ from typing import List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     if True:  # pylint: disable=using-constant-test
         import math
-    import datetime
+    import dbm
+    print(dbm)  # no error when defined and used in the same false branch
     from urllib.request import urlopen
+    import array
+    import base64
+    import binascii
+    import calendar
+    import collections
+    import copy
+    import datetime
+    import email
+    import heapq
+    import json
+    import mailbox
+    import mimetypes
+    import numbers
+    import pprint
+    import types
+    import zoneinfo
+elif input():
+    import calendar, bisect  # pylint: disable=multiple-imports
+    if input() + 1:
+        import heapq
+    else:
+        import heapq
+elif input():
+    try:
+        numbers = None if input() else 1
+        import array
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        import types
+    finally:
+        copy = None
+elif input():
+    for i in range(1,2):
+        email = None
+    else:  # pylint: disable=useless-else-on-loop
+        json = None
+    while input():
+        import mailbox
+    else:  # pylint: disable=useless-else-on-loop
+        mimetypes = None
+elif input():
+    with input() as base64:
+        pass
+    with input() as temp:
+        import binascii
+else:
+    from urllib.request import urlopen
+    zoneinfo: str = ''
+    def pprint():
+        pass
+    class collections:  # pylint: disable=too-few-public-methods,missing-class-docstring
+        pass
 
 class MyClass:
     """Type annotation or default values for first level methods can't refer to their own class"""
@@ -40,7 +92,7 @@ class MyClass:
 
 class MySecondClass:
     """Class to test self referential variable typing.
-    This regressed, reported in: https://github.com/PyCQA/pylint/issues/5342
+    This regressed, reported in: https://github.com/pylint-dev/pylint/issues/5342
     """
 
     def self_referential_optional_within_method(self) -> None:
@@ -70,7 +122,7 @@ class MyOtherClass:
 
 class MyThirdClass:
     """Class to test self referential variable typing within conditionals.
-    This regressed, reported in: https://github.com/PyCQA/pylint/issues/5499
+    This regressed, reported in: https://github.com/pylint-dev/pylint/issues/5499
     """
 
     def function(self, var: int) -> None:
@@ -83,7 +135,7 @@ class MyThirdClass:
 
 class MyFourthClass:  # pylint: disable=too-few-public-methods
     """Class to test conditional imports guarded by TYPE_CHECKING two levels
-    up then used in function annotation. See https://github.com/PyCQA/pylint/issues/7539"""
+    up then used in function annotation. See https://github.com/pylint-dev/pylint/issues/7539"""
 
     def is_close(self, comparator: math.isclose, first, second):  # [used-before-assignment]
         """Conditional imports guarded are only valid for variable annotations."""
@@ -94,7 +146,8 @@ class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-publi
     """Class to test conditional imports guarded by TYPE_CHECKING then used in
     local (function) variable annotations, which are not evaluated at runtime.
 
-    See: https://github.com/PyCQA/pylint/issues/7609
+    See: https://github.com/pylint-dev/pylint/issues/7609
+    and https://github.com/pylint-dev/pylint/issues/7882
     """
 
     still_an_error: datetime.date  # [used-before-assignment]
@@ -103,8 +156,43 @@ class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-publi
         date: datetime.date = date
         print(date)
 
+        import datetime  # pylint: disable=import-outside-toplevel
+
 
 class ConditionalImportGuardedWhenUsed:  # pylint: disable=too-few-public-methods
     """Conditional imports also guarded by TYPE_CHECKING when used."""
     if TYPE_CHECKING:
         print(urlopen)
+
+
+class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-variable
+    """Test for defines in TYPE_CHECKING if/elif/else branching"""
+    def defined_in_elif_branch(self) -> calendar.Calendar:
+        print(bisect)
+        return calendar.Calendar()
+
+    def defined_in_else_branch(self) -> urlopen:
+        print(zoneinfo)
+        print(pprint())
+        print(collections())
+        return urlopen
+
+    def defined_in_nested_if_else(self) -> heapq:
+        print(heapq)
+        return heapq
+
+    def defined_in_try_except(self) -> array:
+        print(types)
+        print(copy)
+        print(numbers)
+        return array
+
+    def defined_in_loops(self) -> json:
+        print(email)
+        print(mailbox)
+        print(mimetypes)
+        return json
+
+    def defined_in_with(self) -> base64:
+        print(binascii)
+        return base64

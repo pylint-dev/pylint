@@ -78,7 +78,7 @@ class AbstractProperty:
         return
 
 
-# https://github.com/PyCQA/pylint/issues/4368
+# https://github.com/pylint-dev/pylint/issues/4368
 # Decrator functions with a nested property decorator should still be
 # inferred as property.
 

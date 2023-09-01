@@ -1,3 +1,0 @@
-Extended ``use-dict-literal`` to also warn about call to ``dict()`` when passing keyword arguments.
-
-Closes #7690

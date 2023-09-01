@@ -1,0 +1,6 @@
+@startuml classes
+set namespaceSeparator none
+class "A" as line_breaks.A {
+  {abstract}f(x: str | None)
+}
+@enduml

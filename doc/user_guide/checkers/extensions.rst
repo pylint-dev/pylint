@@ -10,16 +10,15 @@ Pylint provides the following optional plugins:
 - :ref:`pylint.extensions.broad_try_clause`
 - :ref:`pylint.extensions.check_elif`
 - :ref:`pylint.extensions.code_style`
-- :ref:`pylint.extensions.comparetozero`
 - :ref:`pylint.extensions.comparison_placement`
 - :ref:`pylint.extensions.confusing_elif`
+- :ref:`pylint.extensions.consider_refactoring_into_while_condition`
 - :ref:`pylint.extensions.consider_ternary_expression`
 - :ref:`pylint.extensions.dict_init_mutate`
 - :ref:`pylint.extensions.docparams`
 - :ref:`pylint.extensions.docstyle`
 - :ref:`pylint.extensions.dunder`
 - :ref:`pylint.extensions.empty_comment`
-- :ref:`pylint.extensions.emptystring`
 - :ref:`pylint.extensions.eq_without_hash`
 - :ref:`pylint.extensions.for_any_all`
 - :ref:`pylint.extensions.magic_value`
@@ -78,6 +77,10 @@ Code Style checker Messages
 :consider-using-namedtuple-or-dataclass (R6101): *Consider using namedtuple or dataclass for dictionary values*
   Emitted when dictionary values can be replaced by namedtuples or dataclass
   instances.
+:prefer-typing-namedtuple (R6105): *Prefer 'typing.NamedTuple' over 'collections.namedtuple'*
+  'typing.NamedTuple' uses the well-known 'class' keyword with type-hints for
+  readability (it's also faster as it avoids an internal exec call). Disabled
+  by default!
 :consider-using-assignment-expr (R6103): *Use '%s' instead*
   Emitted when an if assignment is directly followed by an if statement and
   both can be combined by using an assignment expression ``:=``. Requires
@@ -85,34 +88,6 @@ Code Style checker Messages
 :consider-using-augmented-assign (R6104): *Use '%s' to do an augmented assign directly*
   Emitted when an assignment is referring to the object that it is assigning
   to. This can be changed to be an augmented assign. Disabled by default!
-
-
-.. _pylint.extensions.emptystring:
-
-Compare-To-Empty-String checker
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This checker is provided by ``pylint.extensions.emptystring``.
-Verbatim name of the checker is ``compare-to-empty-string``.
-
-Compare-To-Empty-String checker Messages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-empty-string (C1901): *"%s" can be simplified to "%s" as an empty string is falsey*
-  Used when Pylint detects comparison to an empty string constant.
-
-
-.. _pylint.extensions.comparetozero:
-
-Compare-To-Zero checker
-~~~~~~~~~~~~~~~~~~~~~~~
-
-This checker is provided by ``pylint.extensions.comparetozero``.
-Verbatim name of the checker is ``compare-to-zero``.
-
-Compare-To-Zero checker Messages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-zero (C2001): *"%s" can be simplified to "%s" as 0 is falsey*
-  Used when Pylint detects comparison to a 0 constant.
 
 
 .. _pylint.extensions.comparison_placement:
@@ -161,6 +136,22 @@ Consider-Using-Any-Or-All checker Messages
 :consider-using-any-or-all (C0501): *`for` loop could be `%s`*
   A for loop that checks for a condition and return a bool can be replaced with
   any or all.
+
+
+.. _pylint.extensions.consider_refactoring_into_while_condition:
+
+Consider Refactoring Into While checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.consider_refactoring_into_while_condition``.
+Verbatim name of the checker is ``consider_refactoring_into_while``.
+
+Consider Refactoring Into While checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:consider-refactoring-into-while-condition (R3501): *Consider using 'while %s' instead of 'while %s:' an 'if', and a 'break'*
+  Emitted when `while True:` loop is used and the first statement is a break
+  condition. The ``if / break`` construct can be removed if the check is
+  inverted and moved to the ``while`` statement.
 
 
 .. _pylint.extensions.consider_ternary_expression:

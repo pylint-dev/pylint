@@ -1,3 +1,0 @@
-Flag ``superfluous-parens`` if parentheses are used during string concatenation.
-
-Closes #4792

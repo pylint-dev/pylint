@@ -1,4 +1,4 @@
-# https://github.com/PyCQA/pylint/issues/5801
+# https://github.com/pylint-dev/pylint/issues/5801
 # pylint: disable=missing-docstring
 
 import struct

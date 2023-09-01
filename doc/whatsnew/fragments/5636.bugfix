@@ -1,3 +1,0 @@
-Using custom braces in ``msg-template`` will now work properly.
-
-Closes #5636

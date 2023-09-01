@@ -1,0 +1,5 @@
+`pyreverse` now uses a new default color palette that is more colorblind friendly.
+The color scheme is taken from `Paul Tol's Notes <https://personal.sron.nl/~pault/>`_.
+If you prefer other colors, you can use the `--color-palette` option to specify custom colors.
+
+Closes #8251

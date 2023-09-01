@@ -1,10 +1,12 @@
 # pylint: disable=missing-docstring, too-few-public-methods, import-error,unused-argument
 
 # Disabled because of a bug with pypy 3.8 see
-# https://github.com/PyCQA/pylint/pull/7918#issuecomment-1352737369
+# https://github.com/pylint-dev/pylint/pull/7918#issuecomment-1352737369
 # pylint: disable=multiple-statements
 
 import abc
+from pathlib import Path
+from typing import Protocol
 
 import six
 from unknown import Unknown
@@ -67,4 +69,26 @@ class Invalid(metaclass=invalid_metaclass_1):  # [invalid-metaclass]
 
 
 class InvalidSecond(metaclass=invalid_metaclass_2):  # [invalid-metaclass]
+    pass
+
+
+class MetaclassWithInvalidMRO(type(object), type(object)):  # [duplicate-bases]
+    pass
+
+
+class FifthInvalid(metaclass=MetaclassWithInvalidMRO):  # [invalid-metaclass]
+    pass
+
+
+class Proto(Protocol):
+    ...
+
+
+class MetaclassWithInconsistentMRO(type(Path), type(Proto)):  # [inconsistent-mro]
+    pass
+
+
+class SixthInvalid(  # [invalid-metaclass]
+    Path, Proto, metaclass=MetaclassWithInconsistentMRO
+):
     pass

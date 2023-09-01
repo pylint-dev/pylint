@@ -40,7 +40,7 @@ class Base:
         return str(state)
 
 
-# https://github.com/PyCQA/pylint/issues/1990
+# https://github.com/pylint-dev/pylint/issues/1990
 # Attribute access after 'isinstance' should not cause 'no-member' error
 import subprocess  # pylint: disable=wrong-import-position  # noqa: E402
 
@@ -54,7 +54,7 @@ except Exception as err:
     raise
 
 
-# https://github.com/PyCQA/pylint/issues/4168
+# https://github.com/pylint-dev/pylint/issues/4168
 # 'encode' for 'arg' should not cause 'no-member' error
 mixed_tuple = (b"a", b"b", b"c", b"d")
 byte_tuple = [arg.encode('utf8') if isinstance(arg, str) else arg for arg in mixed_tuple]
@@ -66,7 +66,7 @@ for arg in mixed_tuple:
         print(arg)
 
 
-# https://github.com/PyCQA/pylint/issues/1162
+# https://github.com/pylint-dev/pylint/issues/1162
 # Attribute access after 'isinstance' should not cause 'no-member' error
 class FoobarException(Exception):
     foobar = None

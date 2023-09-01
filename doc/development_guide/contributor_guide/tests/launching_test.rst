@@ -7,7 +7,7 @@ pytest
 Since we use pytest_ to run the tests, you can also use it on its own.
 We do recommend using the tox_ command though::
 
-    pytest pylint -k test_functional
+    pytest tests/ -k test_functional
 
 You can use pytest_ directly. If you want to run tests on a specific portion of the
 code with pytest_ and your local python version::
@@ -85,4 +85,4 @@ You can find the latest list of repositories and any relevant code for these tes
 directory.
 
 .. _pytest-cov: https://pypi.org/project/pytest-cov/
-.. _astroid: https://github.com/pycqa/astroid
+.. _astroid: https://github.com/pylint-dev/astroid

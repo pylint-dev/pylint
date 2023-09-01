@@ -1,7 +1,10 @@
-def bar(x):
-    print(x)
+def greet(name):
+    print(f"Hello, {name}!")
 
 
-def foo(numbers):
-    for i in numbers:
-        bar(i)
+def teacher_greeting(names):
+    for name in names:
+        greet(name)
+
+
+teacher_greeting(["Graham", "John", "Terry", "Eric", "Terry", "Michael"])

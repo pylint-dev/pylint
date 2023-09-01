@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Generic classes/functions for pyreverse core/extensions."""
 
@@ -70,11 +70,6 @@ def get_visibility(name: str) -> str:
     else:
         visibility = "public"
     return visibility
-
-
-def is_interface(node: nodes.ClassDef) -> bool:
-    # bw compatibility
-    return node.type == "interface"  # type: ignore[no-any-return]
 
 
 def is_exception(node: nodes.ClassDef) -> bool:

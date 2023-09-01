@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unittest for the main module."""
 
@@ -16,7 +16,7 @@ import pytest
 from _pytest.capture import CaptureFixture
 from _pytest.fixtures import SubRequest
 
-from pylint.lint import fix_import_path
+from pylint.lint import augmented_sys_path, discover_package_path
 from pylint.pyreverse import main
 
 TEST_DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
@@ -61,7 +61,7 @@ def test_project_root_in_sys_path() -> None:
     """Test the context manager adds the project root directory to sys.path.
     This should happen when pyreverse is run from any directory
     """
-    with fix_import_path([TEST_DATA_DIR]):
+    with augmented_sys_path([discover_package_path(TEST_DATA_DIR, [])]):
         assert sys.path == [PROJECT_ROOT_DIR]
 
 
@@ -128,6 +128,18 @@ def test_graphviz_unsupported_image_format(capsys: CaptureFixture) -> None:
     assert wrapped_sysexit.value.code == 32
 
 
+@mock.patch("pylint.pyreverse.main.Linker", new=mock.MagicMock())
+@mock.patch("pylint.pyreverse.main.DiadefsHandler", new=mock.MagicMock())
+@mock.patch("pylint.pyreverse.main.writer")
+@pytest.mark.usefixtures("mock_graphviz")
+def test_verbose(_: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
+    """Test the --verbose flag."""
+    with pytest.raises(SystemExit):
+        # we have to catch the SystemExit so the test execution does not stop
+        main.Run(["--verbose", TEST_DATA_DIR])
+    assert "parsing" in capsys.readouterr().out
+
+
 @pytest.mark.parametrize(
     ("arg", "expected_default"),
     [
@@ -138,6 +150,7 @@ def test_graphviz_unsupported_image_format(capsys: CaptureFixture) -> None:
         ("show_associated", None),
         ("all_associated", None),
         ("show_builtin", 0),
+        ("show_stdlib", 0),
         ("module_names", None),
         ("output_format", "dot"),
         ("colorized", 0),
@@ -189,3 +202,16 @@ def test_class_command(
     )
     assert "data.clientmodule_test.Ancestor" in runner.config.classes
     assert "data.property_pattern.PropertyPatterns" in runner.config.classes
+
+
+def test_version_info(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+    """Test that it is possible to display the version information."""
+    test_full_version = "1.2.3.4"
+    monkeypatch.setattr(main.constants, "full_version", test_full_version)  # type: ignore[attr-defined]
+    with pytest.raises(SystemExit):
+        main.Run(["--version"])
+    out, _ = capsys.readouterr()
+    assert "pyreverse is included in pylint" in out
+    assert test_full_version in out

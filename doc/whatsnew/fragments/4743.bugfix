@@ -1,4 +1,0 @@
-``missing-return-doc``, ``missing-raises-doc`` and ``missing-yields-doc`` now respect
-the ``no-docstring-rgx`` option.
-
-Closes #4743

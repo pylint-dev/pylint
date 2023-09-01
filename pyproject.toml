@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools~=62.6", "wheel~=0.37.1"]
+requires = ["setuptools>=66.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -20,26 +20,28 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Debuggers",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
+    "Typing :: Typed"
 ]
-requires-python = ">=3.7.2"
+requires-python = ">=3.8.0"
 dependencies    = [
     "dill>=0.2;python_version<'3.11'",
     "dill>=0.3.6;python_version>='3.11'",
+    "dill>=0.3.7;python_version>='3.12'",
     "platformdirs>=2.2.0",
     # Also upgrade requirements_test_min.txt.
     # Pinned to dev of second minor update to allow editable installs and fix primer issues,
-    # see https://github.com/PyCQA/astroid/issues/1341
-    "astroid>=2.13.2,<=2.15.0-dev0",
+    # see https://github.com/pylint-dev/astroid/issues/1341
+    "astroid>=3.0.0a9,<=3.1.0-dev0",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.8",
     "tomli>=1.1.0;python_version<'3.11'",
@@ -54,18 +56,17 @@ testutils = ["gitpython>3"]
 spelling = ["pyenchant~=3.2"]
 
 [project.urls]
-"Docs: User Guide"  = "https://pylint.pycqa.org/en/latest/"
-"Source Code"       = "https://github.com/PyCQA/pylint"
-"homepage"          = "https://github.com/PyCQA/pylint"
-"What's New"        = "https://pylint.pycqa.org/en/latest/whatsnew/2/"
-"Bug Tracker"       = "https://github.com/PyCQA/pylint/issues"
+"Docs: User Guide"  = "https://pylint.readthedocs.io/en/latest/"
+"Source Code"       = "https://github.com/pylint-dev/pylint"
+"homepage"          = "https://github.com/pylint-dev/pylint"
+"What's New"        = "https://pylint.readthedocs.io/en/latest/whatsnew/2/"
+"Bug Tracker"       = "https://github.com/pylint-dev/pylint/issues"
 "Discord Server"    = "https://discord.com/invite/Egy6P8AMB5"
-"Docs: Contributor Guide" = "https://pylint.pycqa.org/en/latest/development_guide/contributor_guide/index.html"
+"Docs: Contributor Guide" = "https://pylint.readthedocs.io/en/latest/development_guide/contributor_guide/index.html"
 
 [project.scripts]
 pylint        = "pylint:run_pylint"
 pylint-config = "pylint:_run_pylint_config"
-epylint       = "pylint:run_epylint"
 pyreverse     = "pylint:run_pyreverse"
 symilar       = "pylint:run_symilar"
 
@@ -75,8 +76,15 @@ license-files = ["LICENSE", "CONTRIBUTORS.txt"]  # Keep in sync with setup.cfg
 [tool.setuptools.packages.find]
 include = ["pylint*"]
 
+[tool.setuptools.package-dir]
+# Simulate editable_mode=compat, described at:
+# https://github.com/pypa/setuptools/issues/3767
+# TODO: remove after solving root cause described at:
+# https://github.com/pylint-dev/astroid/pull/2267#issuecomment-1666642781
+"" = "."
+
 [tool.setuptools.package-data]
-pylint = ["testutils/testing_pylintrc"]
+pylint = ["testutils/testing_pylintrc", "py.typed"]
 
 [tool.setuptools.dynamic]
 version = {attr = "pylint.__pkginfo__.__version__"}
@@ -91,7 +99,6 @@ addopts = "--strict-markers"
 filterwarnings = "error"
 markers = [
     "primer_stdlib: Checks for crashes and errors when running pylint on stdlib",
-    "primer_external_batch_one: Checks for crashes and errors when running pylint on external libs (batch one)",
     "benchmark: Baseline of pylint performance, if this regress something serious happened",
     "timeout: Marks from pytest-timeout.",
     "needs_two_cores: Checks that need 2 or more cores to be meaningful",
@@ -129,4 +136,33 @@ module = [
     "pytest_benchmark.*",
     "pytest",
     "sphinx.*",
+]
+
+[tool.ruff]
+
+# ruff is less lenient than pylint and does not make any exceptions
+# (for docstrings, strings and comments in particular).
+line-length = 115
+
+select = [
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "W",  # pycodestyle
+    "B",  # bugbear
+    "I",  # isort
+    "RUF", # ruff
+]
+
+ignore = [
+    "B905",  # `zip()` without an explicit `strict=` parameter
+    "RUF012",  # mutable default values in class attributes
+]
+
+fixable = [
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "W",  # pycodestyle
+    "B",  # bugbear
+    "I",  # isort
+    "RUF", # ruff
 ]

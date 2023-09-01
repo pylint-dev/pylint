@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
 
@@ -85,12 +85,6 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         help="Run primer stdlib tests",
     )
     parser.addoption(
-        "--primer-external",
-        action="store_true",
-        default=False,
-        help="Run primer external tests",
-    )
-    parser.addoption(
         "--minimal-messages-config",
         action="store_true",
         default=False,
@@ -107,15 +101,6 @@ def pytest_collection_modifyitems(
     config: pytest.Config, items: list[pytest.Function]
 ) -> None:
     """Convert command line options to markers."""
-    # Add skip_primer_external mark
-    if not config.getoption("--primer-external"):
-        skip_primer_external = pytest.mark.skip(
-            reason="need --primer-external option to run"
-        )
-        for item in items:
-            if "primer_external_batch_one" in item.keywords:
-                item.add_marker(skip_primer_external)
-
     # Add skip_primer_stdlib mark
     if not config.getoption("--primer-stdlib"):
         skip_primer_stdlib = pytest.mark.skip(

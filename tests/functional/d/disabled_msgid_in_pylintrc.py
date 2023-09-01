@@ -1,4 +1,4 @@
-"""https://github.com/PyCQA/pylint/issues/4265"""
+"""https://github.com/pylint-dev/pylint/issues/4265"""
 
 try:
     f = open('test', encoding="utf-8")
