@@ -1381,12 +1381,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _get_graph_from_comparison_nodes(
         self, node: nodes.BoolOp
-    ) -> None | tuple[
-        dict[str | int | float, set[str | int | float]],
-        dict[tuple[str | int | float, str | int | float], str],
-        dict[str | int | float, int],
-        dict[tuple[str | int | float, str | int | float], int],
-    ]:
+    ) -> (
+        None
+        | tuple[
+            dict[str | int | float, set[str | int | float]],
+            dict[tuple[str | int | float, str | int | float], str],
+            dict[str | int | float, int],
+            dict[tuple[str | int | float, str | int | float], int],
+        ]
+    ):
         if node.op != "and" or len(node.values) < 2:
             return None
 
