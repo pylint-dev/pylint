@@ -146,21 +146,25 @@ class LintModuleTest:
                 messages[lineno, msg_id.strip()] += 1
         return messages
 
-    def _get_expected(self) -> MessageCounter:
+    def _get_expected(self) -> dict[Path, MessageCounter]:
         """Get the expected messages for a file or directory."""
-        expected_msgs: MessageCounter = Counter()
+        expected_msgs: dict[Path, MessageCounter] = {}
         if self._test_file[1].is_dir():
-            for test_file in self._test_file[1].iterdir():
+            for _i, test_file in enumerate(self._test_file[1].iterdir()):
+                expected_msgs[test_file] = Counter()
                 with open(test_file, encoding="utf8") as f:
-                    expected_msgs += self.get_expected_messages(f)
+                    expected_msgs[test_file] += self.get_expected_messages(f)
         else:
+            expected_msgs[self._test_file[1]] = Counter()
             with open(self._test_file[1], encoding="utf8") as f:
-                expected_msgs += self.get_expected_messages(f)
+                expected_msgs[self._test_file[1]] += self.get_expected_messages(f)
         return expected_msgs
 
     def _get_actual(self) -> MessageCounter:
         """Get the actual messages after a run."""
         messages: list[Message] = self._linter.reporter.messages
+        str_messages = "\n- ".join([str(m) for m in messages])
+        print(f"Actual messages raised:\n- {str_messages}")
         messages.sort(key=lambda m: (m.line, m.symbol, m.msg))
         received_msgs: MessageCounter = Counter()
         for msg in messages:
@@ -179,7 +183,10 @@ class LintModuleTest:
         if self.is_bad_test():
             msg = "There should be at least one warning raised for 'bad' examples."
             assert actual_messages.total() > 0, msg
-        assert expected_messages == actual_messages
+        all_files_counter: Counter[tuple[int, str]] = Counter()
+        for expected_message in expected_messages.values():
+            all_files_counter += expected_message
+        assert all_files_counter == actual_messages
 
     def assert_message_good(self, actual_messages: MessageCounter) -> str:
         if not actual_messages:
@@ -191,11 +198,47 @@ class LintModuleTest:
 See:
 
 """
-        with open(self._test_file[1]) as f:
-            lines = [line[:-1] for line in f.readlines()]
-        for line_index, value in actual_messages:
-            lines[line_index - 1] += f"  # <-- /!\\ unexpected '{value}' /!\\"
-        return msg + "\n".join(lines)
+
+        def create_representation_of_issue(
+            file_path: Path | str,
+            inner_actual_messages: Counter[tuple[int, str]],
+            certainty: str,
+        ) -> str:
+            with open(file_path) as f:
+                lines = [line[:-1] for line in f.readlines()]
+            for line_index, value in inner_actual_messages:
+                if line_index - 1 >= len(lines):
+                    # If the line does not exist, we know that the message
+                    # can't be emitted from this file
+                    return ""
+                comment = f"  # <-- /!\\ unexpected '{value}' {certainty}/!\\"
+                lines[line_index - 1] += comment
+            return "\n".join(lines)
+
+        good = self._test_file[1]
+        if good.is_file():
+            return f"{msg}{create_representation_of_issue(good, actual_messages, '')}"
+        else:
+            representations: dict[str, str] = {}
+            good_files = [str(g) for g in good.iterdir()]
+            for file_ in good_files:
+                file_representation = create_representation_of_issue(
+                    file_,
+                    actual_messages,
+                    certainty="(maybe in another file ?)"
+                    if len(good_files) > 1
+                    else "",
+                )
+                if file_representation:
+                    representations[file_] = file_representation
+            if len(representations) == 1:
+                return next(iter(representations.values()))
+            else:
+                separator = f"\n{'_' * 80}\n"
+                str_files = ""
+                for file_path, representation in representations.items():
+                    str_files += f"{separator}{file_path}{separator}{representation}\n"
+                return f"{msg}{separator}{str_files}{separator}\nOnly one file is a problem!"
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
