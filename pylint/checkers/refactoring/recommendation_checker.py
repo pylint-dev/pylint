@@ -428,6 +428,10 @@ class RecommendationChecker(checkers.BaseChecker):
             ):
                 return
 
+            # Brackets can be inconvenient in f-string expressions
+            if "{" in node.parent.left.value or "}" in node.parent.left.value:
+                return
+
             inferred_right = utils.safe_infer(node.parent.right)
 
             # If dicts or lists of length > 1 are used

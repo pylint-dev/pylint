@@ -1043,7 +1043,13 @@ class PyLinter(
         try:
             tokens = utils.tokenize_module(node)
         except tokenize.TokenError as ex:
-            self.add_message("syntax-error", line=ex.args[1][0], args=ex.args[0])
+            self.add_message(
+                "syntax-error",
+                line=ex.args[1][0],
+                col_offset=ex.args[1][1],
+                args=ex.args[0],
+                confidence=HIGH,
+            )
             return None
 
         if not node.pure_python:

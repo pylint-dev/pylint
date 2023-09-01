@@ -20,12 +20,17 @@ environment for testing, open a terminal and run::
     python3 -m venv venv
     source venv/bin/activate
     pip install -r requirements_test_min.txt
+    pip install -e .
 
 This ensures your testing environment is similar to Pylint's testing environment on GitHub.
 
 **Optionally** (Because there's an auto-fix if you open a merge request): We have
 pre-commit hooks which should take care of the autoformatting for you before each
 commit. To enable it, run ``pre-commit install`` in the ``pylint`` root directory.
+
+**Even more optionally**: You can enable slow on push hooks with ``pre-commit install --install-hooks -t pre-push``.
+It will do slow checks like checking that the generated documentation is up to date
+before each push.
 
 Astroid installation
 --------------------

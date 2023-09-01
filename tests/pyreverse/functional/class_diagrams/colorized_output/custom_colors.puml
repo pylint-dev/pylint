@@ -20,7 +20,7 @@ class "ExceptionsChecker" as pylint.checkers.exceptions.ExceptionsChecker #yello
   visit_binop(node: nodes.BinOp) -> None
   visit_compare(node: nodes.Compare) -> None
   visit_raise(node: nodes.Raise) -> None
-  visit_tryexcept(node: nodes.TryExcept) -> None
+  visit_try(node: nodes.Try) -> None
 }
 class "StdlibChecker" as pylint.checkers.stdlib.StdlibChecker #yellow {
   msgs : dict[str, MessageDefinitionTuple]

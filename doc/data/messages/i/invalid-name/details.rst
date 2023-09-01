@@ -80,7 +80,7 @@ Pylint provides predefined naming patterns for some names. These patterns are of
 based on a Naming Style but there is no option to choose one of the styles mentioned above.
 The pattern can be overwritten with the options discussed below.
 
-The following type of names are checked with a predefined pattern:
+The following types of names are checked with a predefined pattern:
 
 +--------------------+-------------------------------------------------------+------------------------------------------------------------+
 | Name type          | Good names                                            | Bad names                                                  |
@@ -94,6 +94,13 @@ The following type of names are checked with a predefined pattern:
 |                    |  distinguish them from ``typevars``. Note that        |                                                            |
 |                    |  ``TopName`` is allowed but ``TTopName`` isn't.       |                                                            |
 +--------------------+-------------------------------------------------------+------------------------------------------------------------+
+
+Before pylint 3.0, most predefined patterns also enforced a minimum length
+of three characters. If this behavior is desired in versions 3.0 and following,
+it can be had by providing custom regular expressions as described next. (Or,
+if the ``disallowed-name`` check is sufficient instead of ``invalid-name``,
+providing the single option ``bad-names-rgxs="^..?$"`` will suffice to fail 1-2
+character names.
 
 Custom regular expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

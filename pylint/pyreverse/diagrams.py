@@ -12,7 +12,7 @@ from typing import Any
 import astroid
 from astroid import nodes, util
 
-from pylint.checkers.utils import decorated_with_property
+from pylint.checkers.utils import decorated_with_property, in_type_checking_block
 from pylint.pyreverse.utils import FilterMixIn
 
 
@@ -174,7 +174,8 @@ class ClassDiagram(Figure, FilterMixIn):
                 if node.name not in names:
                     node_name = node.name
                     names.append(node_name)
-        return names
+        # sorted to get predictable (hence testable) results
+        return sorted(names)
 
     def has_node(self, node: nodes.NodeNG) -> bool:
         """Return true if the given node is included in the diagram."""
@@ -281,9 +282,15 @@ class PackageDiagram(ClassDiagram):
     def add_from_depend(self, node: nodes.ImportFrom, from_module: str) -> None:
         """Add dependencies created by from-imports."""
         mod_name = node.root().name
-        obj = self.module(mod_name)
-        if from_module not in obj.node.depends:
-            obj.node.depends.append(from_module)
+        package = self.module(mod_name).node
+
+        if from_module in package.depends:
+            return
+
+        if not in_type_checking_block(node):
+            package.depends.append(from_module)
+        elif from_module not in package.type_depends:
+            package.type_depends.append(from_module)
 
     def extract_relationships(self) -> None:
         """Extract relationships between nodes in the diagram."""
@@ -304,3 +311,10 @@ class PackageDiagram(ClassDiagram):
                 except KeyError:
                     continue
                 self.add_relationship(package_obj, dep, "depends")
+
+            for dep_name in package_obj.node.type_depends:
+                try:
+                    dep = self.get_module(dep_name, package_obj.node)
+                except KeyError:  # pragma: no cover
+                    continue
+                self.add_relationship(package_obj, dep, "type_depends")

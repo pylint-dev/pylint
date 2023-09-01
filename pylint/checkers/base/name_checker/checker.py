@@ -370,11 +370,11 @@ class NameChecker(_BasicChecker):
         # of a base class method.
         confidence = interfaces.HIGH
         if node.is_method():
-            if utils.overrides_a_method(node.parent.frame(future=True), node.name):
+            if utils.overrides_a_method(node.parent.frame(), node.name):
                 return
             confidence = (
                 interfaces.INFERENCE
-                if utils.has_known_bases(node.parent.frame(future=True))
+                if utils.has_known_bases(node.parent.frame())
                 else interfaces.INFERENCE_FAILURE
             )
 
@@ -402,7 +402,7 @@ class NameChecker(_BasicChecker):
         self, node: nodes.AssignName
     ) -> None:
         """Check module level assigned names."""
-        frame = node.frame(future=True)
+        frame = node.frame()
         assign_type = node.assign_type()
 
         # Check names defined in comprehensions
@@ -603,12 +603,17 @@ class NameChecker(_BasicChecker):
         """Check if a node is assigning a TypeAlias."""
         inferred = utils.safe_infer(node)
         if isinstance(inferred, nodes.ClassDef):
-            if inferred.qname() == ".Union":
+            qname = inferred.qname()
+            if qname == "typing.TypeAlias":
+                return True
+            if qname == ".Union":
                 # Union is a special case because it can be used as a type alias
                 # or as a type annotation. We only want to check the former.
                 assert node is not None
                 return not isinstance(node.parent, nodes.AnnAssign)
         elif isinstance(inferred, nodes.FunctionDef):
+            # TODO: when py3.12 is minimum, remove this condition
+            # TypeAlias became a class in python 3.12
             if inferred.qname() == "typing.TypeAlias":
                 return True
         return False

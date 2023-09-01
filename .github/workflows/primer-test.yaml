@@ -30,15 +30,15 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10", "3.11"]
+        python-version: [3.8, 3.9, "3.10", "3.11", "3.12-dev"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -72,13 +72,13 @@ jobs:
     needs: prepare-tests-linux
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10", "3.11"]
+        python-version: [3.8, 3.9, "3.10", "3.11", "3.12-dev"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -94,5 +94,5 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
-          pip install -e .
+          pip install .
           pytest -m primer_stdlib --primer-stdlib -n auto -vv
