@@ -1,4 +1,5 @@
 classDiagram
   class A {
-    f(x: str | None)*
+    p : int | None
+    f(x: str | None | (list[A] | list[int]), y: A | (int | str) | None)* int | str | list[A | int]
   }
