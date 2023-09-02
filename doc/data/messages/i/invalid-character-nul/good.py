@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+STRING = "Valid nul terminator: \x00"
