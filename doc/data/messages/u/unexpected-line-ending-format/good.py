@@ -1,2 +1,2 @@
-print("I'm drinking tea!")  # LF
-print("I'm drinking water!")  # LF
+print("I'm drinking tea!")  # LF (\n)
+print("I'm drinking water!")  # LF (\n)
