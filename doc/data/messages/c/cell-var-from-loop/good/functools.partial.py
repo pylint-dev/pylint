@@ -10,4 +10,3 @@ def teacher_greeting(names):
 
 
 teacher_greeting(["Graham", "John", "Terry", "Eric", "Terry", "Michael"])
-
