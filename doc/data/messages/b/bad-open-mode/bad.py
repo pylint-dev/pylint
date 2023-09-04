@@ -1,3 +1,3 @@
-def foo(file_path):
+def open_and_get_content(file_path):
     with open(file_path, "rwx") as file:  # [bad-open-mode]
-        contents = file.read()
+        return file.read()

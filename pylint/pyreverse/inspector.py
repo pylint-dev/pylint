@@ -21,13 +21,18 @@ from astroid import nodes
 from pylint import constants
 from pylint.pyreverse import utils
 
-_WrapperFuncT = Callable[[Callable[[str], nodes.Module], str], Optional[nodes.Module]]
+_WrapperFuncT = Callable[
+    [Callable[[str], nodes.Module], str, bool], Optional[nodes.Module]
+]
 
 
 def _astroid_wrapper(
-    func: Callable[[str], nodes.Module], modname: str
+    func: Callable[[str], nodes.Module],
+    modname: str,
+    verbose: bool = False,
 ) -> nodes.Module | None:
-    print(f"parsing {modname}...")
+    if verbose:
+        print(f"parsing {modname}...")
     try:
         return func(modname)
     except astroid.exceptions.AstroidBuildingException as exc:
@@ -344,6 +349,7 @@ def project_from_files(
     func_wrapper: _WrapperFuncT = _astroid_wrapper,
     project_name: str = "no name",
     black_list: tuple[str, ...] = constants.DEFAULT_IGNORE_LIST,
+    verbose: bool = False,
 ) -> Project:
     """Return a Project from a list of files or modules."""
     # build the project representation
@@ -356,7 +362,7 @@ def project_from_files(
             fpath = os.path.join(something, "__init__.py")
         else:
             fpath = something
-        ast = func_wrapper(astroid_manager.ast_from_file, fpath)
+        ast = func_wrapper(astroid_manager.ast_from_file, fpath, verbose)
         if ast is None:
             continue
         project.path = project.path or ast.file
@@ -368,7 +374,7 @@ def project_from_files(
             for fpath in astroid.modutils.get_module_files(
                 os.path.dirname(ast.file), black_list
             ):
-                ast = func_wrapper(astroid_manager.ast_from_file, fpath)
+                ast = func_wrapper(astroid_manager.ast_from_file, fpath, verbose)
                 if ast is None or ast.name == base_name:
                     continue
                 project.add_module(ast)
