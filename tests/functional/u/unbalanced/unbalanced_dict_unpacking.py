@@ -23,7 +23,8 @@ def all_dict():
 for a, b, c, d, e, f, g in {1: 2}.items():  # [unbalanced-dict-unpacking]
     pass
 
-for key, value in {1: 2}:  # [unbalanced-dict-unpacking]
+# This is an instance of dict-items-missing-iter, so unbalanced-dict-unpacking is suppressed
+for key, value in {1: 2}:
     pass
 
 for key, value in {1: 2}.keys():  # [unbalanced-dict-unpacking, consider-iterating-dictionary]
@@ -89,3 +90,35 @@ one, *others, last = {1: 2, 3: 4, 5: 6}.values()
 _, *others = {1: 2, 3: 4, 5: 6}.items()
 _, *others = {1: 2, 3: 4, 5: 6}.values()
 _, others = {1: 2, 3: 4, 5: 6}.values()  # [unbalanced-dict-unpacking]
+
+
+for value1, value2 in {1: 2, 3: 4}.values():  # [unbalanced-dict-unpacking]
+    pass
+
+for value1, value2 in {1: (2, 3), 4: 5}.values():  # [unbalanced-dict-unpacking]
+    pass
+
+for value1, value2 in {1: 2, 3: (4, 5)}.values():  # [unbalanced-dict-unpacking]
+    pass
+
+for value1, value2 in {1: (2, 3, 4), 5: (6, 7)}.values():  # [unbalanced-dict-unpacking]
+    pass
+
+for value1, value2, value3 in {1: (2, 3, 4), 5: (6, 7)}.values():  # [unbalanced-dict-unpacking]
+    pass
+
+# These should not raise unbalanced-dict since the there are the same number of targets and values in every expression
+for value1, value2 in {1: (2, 3), 4: (5, 6)}.values():
+    pass
+
+for value1, value2, value3 in {1: (2, 3, 4), 5: (6, 7, 8)}.values():
+    pass
+
+for value1, value2 in {1: [2, 3], 4: {5, 6}}.values():
+    pass
+
+for value1, value2 in {1: {2: 3, 4: 5}, 6: {7: 8, 9: 10}}.values():
+    pass
+
+for value1, value2 in {1: [1, 2, 3][0:2]}.values():
+    pass
