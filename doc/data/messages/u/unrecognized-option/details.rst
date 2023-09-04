@@ -1,6 +1,6 @@
-One of your option is not recognized. There's nothing to change in
-your code, but the pylint's configuration or the way you launch
-pylint need to be modified.
+One of your options is not recognized. There's nothing to change in
+your code, but your pylint configuration or the way you launch
+pylint needs to be modified.
 
 For example you might be launching pylint with the following ``toml`` configuration::
 
