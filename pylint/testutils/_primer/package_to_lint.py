@@ -15,6 +15,22 @@ from git.repo import Repo
 PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
 
 
+class DirtyPrimerDirectoryException(Exception):
+    """We can't pull if there's local changes."""
+
+    def __init__(self, path: Path | str):
+        super().__init__(
+            rf"""
+
+/!\ Can't pull /!\
+
+In order for the prepare command to be able to pull please cleanup your local repo:
+cd {path}
+git diff
+"""
+        )
+
+
 class PackageToLint:
     """Represents data about a package to be tested during primer tests."""
 
@@ -120,6 +136,8 @@ class PackageToLint:
             )
             try:
                 repo = Repo(self.clone_directory)
+                if repo.is_dirty():
+                    raise DirtyPrimerDirectoryException(self.clone_directory)
                 origin = repo.remotes.origin
                 origin.pull()
             except GitCommandError as e:
