@@ -3,7 +3,6 @@ import functools
 
 def teacher_greeting(names):
     for name in names:
-
         greet = functools.partial(print, f"Hello, {name}!")
 
         greet()
