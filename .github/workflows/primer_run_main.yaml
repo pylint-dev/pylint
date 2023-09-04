@@ -34,7 +34,7 @@ jobs:
         batchIdx: [0, 1, 2, 3]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v4.7.0
