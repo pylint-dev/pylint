@@ -1,7 +1,7 @@
 import functools
 
 
-def greet_teachers(names):
+def teacher_greeting(names):
     greetings = []
     for name in names:
         if name.isalpha():
