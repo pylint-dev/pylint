@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Container
-
 import astroid
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
@@ -54,7 +52,7 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
     def deprecated_decorators(self) -> set[str]:
         return {".deprecated_decorator"}
 
-    def deprecated_attributes(self) -> Container[str]:
+    def deprecated_attributes(self) -> set[str]:
         return {".DeprecatedClass.deprecated_attribute"}
 
 
