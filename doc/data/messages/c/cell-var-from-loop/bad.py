@@ -16,8 +16,8 @@ def teacher_greeting(names):
 
 
 teacher_greeting(["Graham", "John", "Terry", "Eric", "Terry", "Michael"])
-# "Hello, Michael"
-# "Hello, Michael"
-# "Hello, Michael"
-# "Hello, Michael"
-# "Hello, Michael"
+# "Hello, Michael!"
+# "Hello, Michael!"
+# "Hello, Michael!"
+# "Hello, Michael!"
+# "Hello, Michael!"
