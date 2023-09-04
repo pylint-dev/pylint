@@ -15,5 +15,9 @@ def teacher_greeting(names):
         greet()
 
 
-teacher_greeting(["Alice", "Bob", "Charlie", "Not-A-Name"])
-# "Hello, Not-A-Name!" * 3
+teacher_greeting(["Graham", "John", "Terry", "Eric", "Terry", "Michael"])
+# "Hello, Michael"
+# "Hello, Michael"
+# "Hello, Michael"
+# "Hello, Michael"
+# "Hello, Michael"
