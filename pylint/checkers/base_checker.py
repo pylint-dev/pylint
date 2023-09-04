@@ -190,7 +190,8 @@ class BaseChecker(_ArgumentsProvider):
             default_scope = WarningScope.NODE
         options: ExtraMessageOptions = {}
         if len(msg_tuple) == 4:
-            (msg, symbol, descr, options) = msg_tuple  # type: ignore[misc]
+            (msg, symbol, descr, msg_options) = msg_tuple  # type: ignore[misc]
+            options = ExtraMessageOptions(**msg_options)
         elif len(msg_tuple) == 3:
             (msg, symbol, descr) = msg_tuple  # type: ignore[misc]
         else:

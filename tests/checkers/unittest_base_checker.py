@@ -62,6 +62,18 @@ class DifferentBasicChecker(BaseChecker):
     }
 
 
+class MessageWithOptionsChecker(BaseChecker):
+    name = "message-with-options-checker"
+    msgs = {
+        "W0003": (
+            "Just a message with pre-defined options %s()",
+            "message-with-options",
+            "Message with options dict to test consistent hashing.",
+            {"old_names": [("W1003", "old-message-with-options")], "shared": True},
+        ),
+    }
+
+
 def test_base_checker_doc() -> None:
     basic = OtherBasicChecker()
     expected_beginning = """\
@@ -156,3 +168,18 @@ def test_base_checker_invalid_message() -> None:
     linter = PyLinter()
     with pytest.raises(InvalidMessageError):
         linter.register_checker(MissingFieldsChecker(linter))
+
+
+def test_base_checker_consistent_hash() -> None:
+    linter = PyLinter()
+    checker = MessageWithOptionsChecker(linter)
+    some_set = {checker}
+
+    original_hash = hash(checker)
+    assert checker in some_set
+
+    for msgid, msg in checker.msgs.items():
+        checker.create_message_definition_from_tuple(msgid, msg)
+
+    assert hash(checker) == original_hash
+    assert checker in some_set
