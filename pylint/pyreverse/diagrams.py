@@ -126,7 +126,9 @@ class ClassDiagram(Figure, FilterMixIn):
             for n, m in node.items()
             if isinstance(m, nodes.FunctionDef) and decorated_with_property(m)
         }
-        for (n, m) in list(node.locals_type.items()) + list(node.instance_attrs_type.items()):
+        for n, m in list(node.locals_type.items()) + list(
+            node.instance_attrs_type.items()
+        ):
             if n not in properties:
                 properties[n] = m
 
