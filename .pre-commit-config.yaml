@@ -16,7 +16,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad.py|
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.0.286"
+    rev: "v0.0.287"
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -135,7 +135,7 @@ repos:
           ]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.2
+    rev: v3.0.3
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
