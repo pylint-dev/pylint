@@ -122,15 +122,16 @@ class ClassDiagram(Figure, FilterMixIn):
         """Return visible attributes, possibly with class name."""
         attrs = []
         properties = {
-            name: attr
-            for name, attr in node.items()
-            if isinstance(attr, nodes.FunctionDef) and decorated_with_property(attr)
+            local_name: local_node
+            for local_name, local_node in node.items()
+            if isinstance(local_node, nodes.FunctionDef)
+            and decorated_with_property(local_node)
         }
-        for name, attr in list(node.locals_type.items()) + list(
+        for attr_name, attr_type in list(node.locals_type.items()) + list(
             node.instance_attrs_type.items()
         ):
-            if name not in properties:
-                properties[name] = attr
+            if attr_name not in properties:
+                properties[attr_name] = attr_type
 
         for node_name, associated_nodes in properties.items():
             if not self.show_attr(node_name):
