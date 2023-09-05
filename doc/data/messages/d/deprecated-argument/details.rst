@@ -1,6 +1,7 @@
-In order to be raised, this message need a `custom deprecation checker`_ (follow link for a full example).
+This message can be raised on your own code using a `custom deprecation checker`_ (follow link for a full example).
 
 Loading this custom checker using ``load-plugins`` would start raising ``deprecated-argument``.
+
 The actual replacement then need to be studied on a case by case basis by reading the
 deprecation warning or the release notes.
 
