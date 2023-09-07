@@ -209,7 +209,7 @@ def get_annotation(
     ):
         label = rf"Optional[{label}]"
 
-    if label:
+    if label and ann:
         ann.name = label
     return ann
 
