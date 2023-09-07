@@ -1,0 +1,3 @@
+Don't show duplicate type annotations in Pyreverse diagrams.
+
+Closes #8888

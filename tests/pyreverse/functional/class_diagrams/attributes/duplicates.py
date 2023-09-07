@@ -20,7 +20,7 @@ class DuplicateArrows:
 
 
 
-# OPEN BUG: https://github.com/pylint-dev/pylint/issues/8888
+# Test for https://github.com/pylint-dev/pylint/issues/8888
 class DuplicateAnnotations:
     def __init__(self) -> None:
         self.val: str | int = "1"
