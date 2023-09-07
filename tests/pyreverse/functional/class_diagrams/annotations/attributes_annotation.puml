@@ -3,8 +3,8 @@ set namespaceSeparator none
 class "Dummy" as attributes_annotation.Dummy {
 }
 class "Dummy2" as attributes_annotation.Dummy2 {
-  alternative_optional : Optional[int | None]
-  alternative_optional_swapped : Optional[None | int]
+  alternative_optional : int | None
+  alternative_optional_swapped : None | int
   alternative_union_syntax : str | int
   class_attr : list[Dummy]
   optional : Optional[Dummy]
