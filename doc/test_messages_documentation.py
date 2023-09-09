@@ -87,8 +87,11 @@ TESTS_NAMES = [f"{t[0]}-{t[1].stem}" for t in TESTS]
 
 
 class LintModuleTest:
-    def __init__(self, test_file: tuple[str, Path]) -> None:
+    def __init__(
+        self, test_file: tuple[str, Path], multiple_file_messages: list[str]
+    ) -> None:
         self._test_file = test_file
+        self._multiple_file_messages = multiple_file_messages
 
         _test_reporter = FunctionalTestReporter()
 
@@ -176,7 +179,12 @@ class LintModuleTest:
                 actual_messages_raw
             )
         if self.is_bad_test():
-            assert actual_messages_raw, self.assert_message_bad()
+            bad_files = [(self._test_file[1])]
+            if self._test_file[1].is_dir() and not self.is_multifile_example():
+                bad_files = list(self._test_file[1].iterdir())
+            assert len(actual_messages_raw) >= len(bad_files), self.assert_message_bad(
+                bad_files, actual_messages_raw
+            )
         assert expected_messages == self._get_actual(actual_messages_raw)
 
     def assert_message_good(self, messages: list[Message]) -> str:
@@ -197,12 +205,29 @@ class LintModuleTest:
             msg += f"\n\n\nIn {path}:\n\n{file_representation}\n"
         return msg
 
-    def assert_message_bad(self) -> str:
-        return f"There should be at least one warning raised for '{self._test_file[1]}' examples."
+    def is_multifile_example(self) -> bool:
+        """Multiple file example do not need to have one warning for each bad file."""
+        return self._test_file[0] in self._multiple_file_messages
+
+    def assert_message_bad(self, bad_files: list[Path], messages: list[Message]) -> str:
+        each = "each file in " if len(bad_files) > 1 else ""
+        msg = (
+            f"There should be at least one warning raised for "
+            f"{each}'{self._test_file[1]}' ({len(bad_files)} total)\n"
+        )
+        raised_files: set[Path] = set()
+        for message in messages:
+            raised_files.add(Path(message.path).absolute())
+        missing_files = set(bad_files) - raised_files
+        for missing_file in missing_files:
+            msg += f"- Missing warning in {missing_file}\n"
+        msg += f"'{messages[0].symbol}' might need to be added in 'known_multiple_file_messages'.\n\n"
+        return msg
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_code_examples(test_file: tuple[str, Path]) -> None:
-    lint_test = LintModuleTest(test_file)
+    known_multiple_file_messages = ["cyclic-import", "duplicate-code"]
+    lint_test = LintModuleTest(test_file, known_multiple_file_messages)
     lint_test.runTest()
