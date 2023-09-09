@@ -158,9 +158,8 @@ class LintModuleTest:
                 expected_msgs += self.get_expected_messages(f)
         return expected_msgs
 
-    def _get_actual(self) -> MessageCounter:
+    def _get_actual(self, messages: list[Message]) -> MessageCounter:
         """Get the actual messages after a run."""
-        messages: list[Message] = self._linter.reporter.messages
         messages.sort(key=lambda m: (m.line, m.symbol, m.msg))
         received_msgs: MessageCounter = Counter()
         for msg in messages:
@@ -171,14 +170,12 @@ class LintModuleTest:
         """Run the test and assert message differences."""
         self._linter.check([str(self._test_file[1])])
         expected_messages = self._get_expected()
-        actual_messages = self._get_actual()
+        actual_messages_raw: list[Message] = self._linter.reporter.messages
+        actual_messages = self._get_actual(actual_messages_raw)
         if self.is_good_test():
-            assert actual_messages.total() == 0, self.assert_message_good(
-                actual_messages
-            )
+            assert not actual_messages_raw, self.assert_message_good(actual_messages)
         if self.is_bad_test():
-            msg = "There should be at least one warning raised for 'bad' examples."
-            assert actual_messages.total() > 0, msg
+            assert actual_messages_raw, self.assert_message_bad()
         assert expected_messages == actual_messages
 
     def assert_message_good(self, actual_messages: MessageCounter) -> str:
@@ -196,6 +193,9 @@ See:
         for line_index, value in actual_messages:
             lines[line_index - 1] += f"  # <-- /!\\ unexpected '{value}' /!\\"
         return msg + "\n".join(lines)
+
+    def assert_message_bad(self) -> str:
+        return f"There should be at least one warning raised for '{self._test_file[1]}' examples."
 
 
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
