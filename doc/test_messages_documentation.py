@@ -170,29 +170,32 @@ class LintModuleTest:
         """Run the test and assert message differences."""
         self._linter.check([str(self._test_file[1])])
         expected_messages = self._get_expected()
-        actual_messages_raw: list[Message] = self._linter.reporter.messages
-        actual_messages = self._get_actual(actual_messages_raw)
+        actual_messages_raw = self._linter.reporter.messages
         if self.is_good_test():
-            assert not actual_messages_raw, self.assert_message_good(actual_messages)
+            assert not actual_messages_raw, self.assert_message_good(
+                actual_messages_raw
+            )
         if self.is_bad_test():
             assert actual_messages_raw, self.assert_message_bad()
-        assert expected_messages == actual_messages
+        assert expected_messages == self._get_actual(actual_messages_raw)
 
-    def assert_message_good(self, actual_messages: MessageCounter) -> str:
-        if not actual_messages:
-            return ""
-        messages = "\n- ".join(f"{v} (l. {i})" for i, v in actual_messages)
-        msg = f"""There should be no warning raised for 'good.py' but these messages were raised:
-- {messages}
-
-See:
-
-"""
-        with open(self._test_file[1]) as f:
-            lines = [line[:-1] for line in f.readlines()]
-        for line_index, value in actual_messages:
-            lines[line_index - 1] += f"  # <-- /!\\ unexpected '{value}' /!\\"
-        return msg + "\n".join(lines)
+    def assert_message_good(self, messages: list[Message]) -> str:
+        good = self._test_file[1]
+        msg = f"There should be no warning raised for '{good}' but these messages were raised:\n"
+        file_representations = {}
+        for message in messages:
+            if message.path not in file_representations:
+                with open(message.path) as f:
+                    file_representations[message.path] = [
+                        line[:-1] for line in f.readlines()
+                    ]
+            file_representations[message.path][
+                message.line - 1
+            ] += f"  # <-- /!\\ unexpected '{message.symbol}' /!\\"
+        for path, representation in file_representations.items():
+            file_representation = "\n".join(representation)
+            msg += f"\n\n\nIn {path}:\n\n{file_representation}\n"
+        return msg
 
     def assert_message_bad(self) -> str:
         return f"There should be at least one warning raised for '{self._test_file[1]}' examples."
