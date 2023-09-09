@@ -194,14 +194,22 @@ def get_annotation(
         default = ""
 
     label = get_annotation_label(ann)
-    if ann:
-        label = (
-            rf"Optional[{label}]"
-            if getattr(default, "value", "value") is None
-            and not label.startswith("Optional")
-            else label
+
+    if (
+        ann
+        and getattr(default, "value", "value") is None
+        and not label.startswith("Optional")
+        and (
+            not isinstance(ann, nodes.BinOp)
+            or not any(
+                isinstance(child, nodes.Const) and child.value is None
+                for child in ann.get_children()
+            )
         )
-    if label:
+    ):
+        label = rf"Optional[{label}]"
+
+    if label and ann:
         ann.name = label
     return ann
 
