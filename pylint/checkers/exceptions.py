@@ -348,7 +348,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
         current = node
         # Stop when a new scope is generated or when the raise
-        # statement is found inside a TryFinally.
+        # statement is found inside a Try.
         ignores = (nodes.ExceptHandler, nodes.FunctionDef)
         while current and not isinstance(current.parent, ignores):
             current = current.parent
@@ -473,7 +473,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                     "catching-non-exception", node=handler.type, args=(exc.name,)
                 )
 
-    def _check_try_except_raise(self, node: nodes.TryExcept) -> None:
+    def _check_try_except_raise(self, node: nodes.Try) -> None:
         def gather_exceptions_from_handler(
             handler: nodes.ExceptHandler,
         ) -> list[InferenceResult] | None:
@@ -556,7 +556,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         "catching-non-exception",
         "duplicate-except",
     )
-    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
+    def visit_try(self, node: nodes.Try) -> None:
         """Check for empty except."""
         self._check_try_except_raise(node)
         exceptions_classes: list[Any] = []

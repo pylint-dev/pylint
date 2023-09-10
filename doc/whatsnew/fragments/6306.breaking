@@ -1,3 +1,4 @@
-Remove support for Python 3.7.
+Remove support for launching pylint with Python 3.7.
+Code that supports Python 3.7 can still be linted with the ``--py-version=3.7`` setting.
 
 Refs #6306

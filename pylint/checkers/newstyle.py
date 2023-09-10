@@ -53,7 +53,7 @@ class NewStyleConflictChecker(BaseChecker):
         # ignore actual functions or method within a new style class
         if not node.is_method():
             return
-        klass = node.parent.frame(future=True)
+        klass = node.parent.frame()
         for stmt in node.nodes_of_class(nodes.Call):
             if node_frame_class(stmt) != node_frame_class(node):
                 # Don't look down in other scopes.

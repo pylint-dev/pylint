@@ -25,7 +25,7 @@ concurrency:
 
 env:
   # This needs to be the SAME as in the Main and comment job
-  CACHE_VERSION: 3
+  CACHE_VERSION: 4
   KEY_PREFIX: venv-primer
 
 permissions:
@@ -43,12 +43,12 @@ jobs:
         batchIdx: [0, 1, 2, 3]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.0.0
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -140,6 +140,11 @@ jobs:
           key: >-
             ${{ runner.os }}-${{ matrix.python-version }}-${{
             steps.commitstring.outputs.commitstring }}-primer
+      - name: Regenerate cache
+        if: steps.cache-projects.outputs.cache-hit != 'true'
+        run: |
+          . venv/bin/activate
+          python tests/primer/__main__.py prepare --clone
       - name: Check cache
         run: |
           . venv/bin/activate
@@ -157,7 +162,7 @@ jobs:
       - name: Run pylint primer
         run: |
           . venv/bin/activate
-          pip install -e .
+          pip install .
           python tests/primer/__main__.py run --type=pr --batches=${{ matrix.batches }} --batchIdx=${{ matrix.batchIdx }} 2>warnings.txt
       - name: Echo warnings
         if: success() || failure()

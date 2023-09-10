@@ -311,7 +311,7 @@ def test_enable_message_block(initialized_linter: PyLinter) -> None:
     # meth6
     assert not linter.is_message_enabled("E1101", 57)
     assert linter.is_message_enabled("E1101", 61)
-    assert not linter.is_message_enabled("E1101", 64)
+    assert linter.is_message_enabled("E1101", 64)
     assert not linter.is_message_enabled("E1101", 66)
 
     assert linter.is_message_enabled("E0602", 57)

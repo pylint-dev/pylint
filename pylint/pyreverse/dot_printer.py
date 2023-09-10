@@ -43,6 +43,11 @@ ARROWS: dict[EdgeType, dict[str, str]] = {
         "style": "solid",
     },
     EdgeType.USES: {"arrowtail": "none", "arrowhead": "open"},
+    EdgeType.TYPE_DEPENDENCY: {
+        "arrowtail": "none",
+        "arrowhead": "open",
+        "style": "dashed",
+    },
 }
 
 
@@ -113,11 +118,11 @@ class DotPrinter(Printer):
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
         for func in methods:
-            args = self._get_method_arguments(func)
+            args = ", ".join(self._get_method_arguments(func)).replace("|", r"\|")
             method_name = (
                 f"<I>{func.name}</I>" if func.is_abstract() else f"{func.name}"
             )
-            label += rf"{method_name}({', '.join(args)})"
+            label += rf"{method_name}({args})"
             if func.returns:
                 annotation_label = get_annotation_label(func.returns)
                 label += ": " + self._escape_annotation_label(annotation_label)

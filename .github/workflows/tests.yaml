@@ -13,7 +13,7 @@ on:
       - "maintenance/**"
 
 env:
-  CACHE_VERSION: 3
+  CACHE_VERSION: 4
   KEY_PREFIX: venv
 
 permissions:
@@ -31,15 +31,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.9, "3.10", "3.11"]
+        python-version: [3.8, 3.9, "3.10", "3.11", "3.12-dev"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -69,12 +69,12 @@ jobs:
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
-          pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
+          python -m pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
       - name: Run functional tests with minimal messages config
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
-          pytest -vv --minimal-messages-config tests/test_functional.py
+          python -m pytest -vv --minimal-messages-config tests/test_functional.py
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v3.1.2
         with:
@@ -88,10 +88,10 @@ jobs:
     needs: tests-linux
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.0.0
       - name: Set up Python 3.11
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.0
         with:
           python-version: "3.11"
           check-latest: true
@@ -128,10 +128,10 @@ jobs:
         python-version: ["3.11"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -148,7 +148,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install pygal
-          pip install -e .
+          pip install .
           pip list | grep 'astroid\|pylint'
           pytest --exitfirst \
             --benchmark-only \
@@ -175,17 +175,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.9, "3.10", "3.11"]
+        python-version: [3.8, 3.9, "3.10", "3.11", "3.12-dev"]
     steps:
       - name: Set temp directory
         run: echo "TEMP=$env:USERPROFILE\AppData\Local\Temp" >> $env:GITHUB_ENV
         # Workaround to set correct temp directory on Windows
         # https://github.com/actions/virtual-environments/issues/712
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -214,7 +214,7 @@ jobs:
         run: |
           . venv\\Scripts\\activate
           pip list | grep 'astroid\|pylint'
-          pytest --durations=10 --benchmark-disable tests/
+          python -m pytest --durations=10 --benchmark-disable tests/
 
   tests-macos:
     name: run / ${{ matrix.python-version }} / macOS
@@ -228,10 +228,10 @@ jobs:
         python-version: [3.8]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -260,7 +260,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
-          pytest --durations=10 --benchmark-disable tests/
+          python -m pytest --durations=10 --benchmark-disable tests/
 
   tests-pypy:
     name: run / ${{ matrix.python-version }} / Linux
@@ -272,10 +272,10 @@ jobs:
         python-version: ["pypy-3.8", "pypy-3.9"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -304,4 +304,4 @@ jobs:
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
-          pytest --durations=10 --benchmark-disable tests/
+          python -m pytest --durations=10 --benchmark-disable tests/

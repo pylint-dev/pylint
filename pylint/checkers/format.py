@@ -496,18 +496,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
-        # The line on which a 'finally': occurs in a 'try/finally'
-        # is not directly represented in the AST. We infer it
-        # by taking the last line of the body and adding 1, which
-        # should be the line of finally:
-        elif (
-            isinstance(node.parent, nodes.TryFinally) and node in node.parent.finalbody
-        ):
-            prev_line = node.parent.body[0].tolineno + 1
         elif isinstance(node.parent, nodes.Module):
             prev_line = 0
         else:
-            prev_line = node.parent.statement(future=True).fromlineno
+            prev_line = node.parent.statement().fromlineno
         line = node.fromlineno
         assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:
@@ -533,12 +525,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         # Do not warn about multiple nested context managers
         # in with statements.
         if isinstance(node, nodes.With):
-            return
-        # For try... except... finally..., the two nodes
-        # appear to be on the same line due to how the AST is built.
-        if isinstance(node, nodes.TryExcept) and isinstance(
-            node.parent, nodes.TryFinally
-        ):
             return
         if (
             isinstance(node.parent, nodes.If)

@@ -10,7 +10,6 @@ from typing import Protocol
 
 import pytest
 
-from pylint.constants import PY38_PLUS
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 from pylint.message import Message
 from pylint.testutils.output_line import OutputLine
@@ -62,12 +61,10 @@ def test_output_line() -> None:
 
 def test_output_line_from_message(message: _MessageCallable) -> None:
     """Test that the OutputLine NamedTuple is instantiated correctly with from_msg."""
-    expected_column = 2 if PY38_PLUS else 0
-
     output_line = OutputLine.from_msg(message())
     assert output_line.symbol == "missing-docstring"
     assert output_line.lineno == 1
-    assert output_line.column == expected_column
+    assert output_line.column == 2
     assert output_line.end_lineno == 1
     assert output_line.end_column == 3
     assert output_line.object == "obj"
@@ -77,7 +74,7 @@ def test_output_line_from_message(message: _MessageCallable) -> None:
     output_line_with_end = OutputLine.from_msg(message(), True)
     assert output_line_with_end.symbol == "missing-docstring"
     assert output_line_with_end.lineno == 1
-    assert output_line_with_end.column == expected_column
+    assert output_line_with_end.column == 2
     assert output_line_with_end.end_lineno == 1
     assert output_line_with_end.end_column == 3
     assert output_line_with_end.object == "obj"
@@ -87,7 +84,7 @@ def test_output_line_from_message(message: _MessageCallable) -> None:
     output_line_without_end = OutputLine.from_msg(message(), False)
     assert output_line_without_end.symbol == "missing-docstring"
     assert output_line_without_end.lineno == 1
-    assert output_line_without_end.column == expected_column
+    assert output_line_without_end.column == 2
     assert output_line_without_end.end_lineno is None
     assert output_line_without_end.end_column is None
     assert output_line_without_end.object == "obj"
@@ -102,11 +99,10 @@ def test_output_line_to_csv(confidence: Confidence, message: _MessageCallable) -
     """
     output_line = OutputLine.from_msg(message(confidence), True)
     csv = output_line.to_csv()
-    expected_column = "2" if PY38_PLUS else "0"
     assert csv == (
         "missing-docstring",
         "1",
-        expected_column,
+        "2",
         "1",
         "3",
         "obj",
@@ -116,11 +112,10 @@ def test_output_line_to_csv(confidence: Confidence, message: _MessageCallable) -
 
     output_line_without_end = OutputLine.from_msg(message(confidence), False)
     csv = output_line_without_end.to_csv()
-    expected_column = "2" if PY38_PLUS else "0"
     assert csv == (
         "missing-docstring",
         "1",
-        expected_column,
+        "2",
         "None",
         "None",
         "obj",
@@ -134,13 +129,12 @@ def test_output_line_from_csv() -> None:
     Test OutputLine of length 8.
     """
     proper_csv = ["missing-docstring", "1", "2", "1", "None", "obj", "msg", "HIGH"]
-    expected_column = 2 if PY38_PLUS else 0
 
     output_line = OutputLine.from_csv(proper_csv)
     assert output_line == OutputLine(
         symbol="missing-docstring",
         lineno=1,
-        column=expected_column,
+        column=2,
         end_lineno=1,
         end_column=None,
         object="obj",
@@ -151,7 +145,7 @@ def test_output_line_from_csv() -> None:
     assert output_line_with_end == OutputLine(
         symbol="missing-docstring",
         lineno=1,
-        column=expected_column,
+        column=2,
         end_lineno=1,
         end_column=None,
         object="obj",
@@ -162,7 +156,7 @@ def test_output_line_from_csv() -> None:
     assert output_line_without_end == OutputLine(
         symbol="missing-docstring",
         lineno=1,
-        column=expected_column,
+        column=2,
         end_lineno=None,
         end_column=None,
         object="obj",

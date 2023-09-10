@@ -11,5 +11,5 @@ class Number:
     round: int = 2
 
     def __str__(self):
-        number_format = "{:,.%sf}" % self.round  # [consider-using-f-string]
+        number_format = "{:,.%sf}" % self.round
         return number_format.format(self.amount).rstrip("0").rstrip(".")

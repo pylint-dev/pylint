@@ -27,9 +27,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-NodesWithNestedBlocks = Union[
-    nodes.TryExcept, nodes.TryFinally, nodes.While, nodes.For, nodes.If
-]
+NodesWithNestedBlocks = Union[nodes.Try, nodes.While, nodes.For, nodes.If]
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
@@ -71,7 +69,7 @@ def _if_statement_is_always_returning(
 
 
 def _except_statement_is_always_returning(
-    node: nodes.TryExcept, returning_node_class: nodes.NodeNG
+    node: nodes.Try, returning_node_class: nodes.NodeNG
 ) -> bool:
     """Detect if all except statements return."""
     return all(
@@ -124,7 +122,7 @@ def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
 
 
 def _is_inside_context_manager(node: nodes.Call) -> bool:
-    frame = node.frame(future=True)
+    frame = node.frame()
     if not isinstance(
         frame, (nodes.FunctionDef, astroid.BoundMethod, astroid.UnboundMethod)
     ):
@@ -135,7 +133,7 @@ def _is_inside_context_manager(node: nodes.Call) -> bool:
 
 
 def _is_a_return_statement(node: nodes.Call) -> bool:
-    frame = node.frame(future=True)
+    frame = node.frame()
     for parent in node.node_ancestors():
         if parent is frame:
             break
@@ -148,7 +146,7 @@ def _is_part_of_with_items(node: nodes.Call) -> bool:
     """Checks if one of the node's parents is a ``nodes.With`` node and that the node
     itself is located somewhere under its ``items``.
     """
-    frame = node.frame(future=True)
+    frame = node.frame()
     current = node
     while current != frame:
         if isinstance(current, nodes.With):
@@ -251,7 +249,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Emitted when redundant pre-python 2.5 ternary syntax is used.",
         ),
         "R1726": (
-            "Boolean condition '%s' may be simplified to '%s'",
+            'Boolean condition "%s" may be simplified to "%s"',
             "simplifiable-condition",
             "Emitted when a boolean condition is able to be simplified.",
         ),
@@ -540,7 +538,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             node.value.value, bool
         )
 
-    def _is_actual_elif(self, node: nodes.If | nodes.TryExcept) -> bool:
+    def _is_actual_elif(self, node: nodes.If | nodes.Try) -> bool:
         """Check if the given node is an actual elif.
 
         This is a problem we're having with the builtin ast module,
@@ -653,15 +651,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._init()
 
     @utils.only_required_for_messages("too-many-nested-blocks", "no-else-return")
-    def visit_tryexcept(self, node: nodes.TryExcept | nodes.TryFinally) -> None:
+    def visit_try(self, node: nodes.Try) -> None:
         self._check_nested_blocks(node)
 
-        if isinstance(node, nodes.TryExcept):
-            self._check_superfluous_else_return(node)
-            self._check_superfluous_else_raise(node)
+        self._check_superfluous_else_return(node)
+        self._check_superfluous_else_raise(node)
 
-    visit_tryfinally = visit_tryexcept
-    visit_while = visit_tryexcept
+    visit_while = visit_try
 
     def _check_redefined_argument_from_local(self, name_node: nodes.AssignName) -> None:
         if self._dummy_rgx and self._dummy_rgx.match(name_node.name):
@@ -723,13 +719,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_superfluous_else(
         self,
-        node: nodes.If | nodes.TryExcept,
+        node: nodes.If | nodes.Try,
         msg_id: str,
         returning_node_class: nodes.NodeNG,
     ) -> None:
-        if isinstance(node, nodes.TryExcept) and isinstance(
-            node.parent, nodes.TryFinally
-        ):
+        if isinstance(node, nodes.Try) and node.finalbody:
             # Not interested in try/except/else/finally statements.
             return
 
@@ -745,7 +739,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             isinstance(node, nodes.If)
             and _if_statement_is_always_returning(node, returning_node_class)
         ) or (
-            isinstance(node, nodes.TryExcept)
+            isinstance(node, nodes.Try)
+            and not node.finalbody
             and _except_statement_is_always_returning(node, returning_node_class)
         ):
             orelse = node.orelse[0]
@@ -998,7 +993,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_stop_iteration_inside_generator(self, node: nodes.Raise) -> None:
         """Check if an exception of type StopIteration is raised inside a generator."""
-        frame = node.frame(future=True)
+        frame = node.frame()
         if not isinstance(frame, nodes.FunctionDef) or not frame.is_generator():
             return
         if utils.node_ignores_exception(node, StopIteration):
@@ -1133,16 +1128,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not isinstance(node.func, nodes.Name) or node.func.name != "super":
             return
 
-        # pylint: disable=too-many-boolean-expressions
         if (
             len(node.args) != 2
-            or not isinstance(node.args[1], nodes.Name)
+            or not all(isinstance(arg, nodes.Name) for arg in node.args)
             or node.args[1].name != "self"
-            or not isinstance(node.args[0], nodes.Name)
-            or not isinstance(node.args[1], nodes.Name)
-            or node_frame_class(node) is None
-            # TODO: PY38: Use walrus operator, this will also fix the mypy issue
-            or node.args[0].name != node_frame_class(node).name  # type: ignore[union-attr]
+            or (frame_class := node_frame_class(node)) is None
+            or node.args[0].name != frame_class.name
         ):
             return
 
@@ -1180,7 +1171,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             isinstance(inferred, nodes.FunctionDef)
             and inferred.qname() == "builtins.next"
         ):
-            frame = node.frame(future=True)
+            frame = node.frame()
             # The next builtin can only have up to two
             # positional arguments and no keyword arguments
             has_sentinel_value = len(node.args) > 1
@@ -1583,9 +1574,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 or not isinstance(assignee, (nodes.AssignName, nodes.AssignAttr))
             ):
                 continue
-            stack = self._consider_using_with_stack.get_stack_for_frame(
-                node.frame(future=True)
-            )
+            stack = self._consider_using_with_stack.get_stack_for_frame(node.frame())
             varname = (
                 assignee.name
                 if isinstance(assignee, nodes.AssignName)
@@ -1614,7 +1603,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if (
             node
             in self._consider_using_with_stack.get_stack_for_frame(
-                node.frame(future=True)
+                node.frame()
             ).values()
         ):
             # the result of this call was already assigned to a variable and will be
@@ -1968,7 +1957,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return self._is_raise_node_return_ended(node)
         if isinstance(node, nodes.If):
             return self._is_if_node_return_ended(node)
-        if isinstance(node, nodes.TryExcept):
+        if isinstance(node, nodes.Try):
             handlers = {
                 _child
                 for _child in node.get_children()

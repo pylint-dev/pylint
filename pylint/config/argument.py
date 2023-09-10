@@ -19,9 +19,8 @@ from typing import Any, Literal, Pattern, Sequence, Tuple, Union
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
-from pylint.config.callback_actions import _CallbackAction, _ExtendAction
+from pylint.config.callback_actions import _CallbackAction
 from pylint.config.deprecation_actions import _NewNamesAction, _OldNamesAction
-from pylint.constants import PY38_PLUS
 
 _ArgumentTypes = Union[
     str,
@@ -115,7 +114,7 @@ def _regex_transformer(value: str) -> Pattern[str]:
 def _regexp_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     """Transforms a comma separated list of regular expressions."""
     patterns: list[Pattern[str]] = []
-    for pattern in _csv_transformer(value):
+    for pattern in pylint_utils._check_regexp_csv(value):
         patterns.append(_regex_transformer(pattern))
     return patterns
 
@@ -371,11 +370,7 @@ class _ExtendArgument(_DeprecationArgument):
         choices: list[str] | None,
         dest: str | None,
     ) -> None:
-        # The extend action is included in the stdlib from 3.8+
-        if PY38_PLUS:
-            action_class = argparse._ExtendAction
-        else:
-            action_class = _ExtendAction  # type: ignore[assignment]
+        action_class = argparse._ExtendAction
 
         self.dest = dest
         """The destination of the argument."""

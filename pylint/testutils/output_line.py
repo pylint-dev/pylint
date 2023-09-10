@@ -9,7 +9,6 @@ from typing import Any, NamedTuple, TypeVar
 
 from astroid import nodes
 
-from pylint.constants import PY38_PLUS
 from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
 
@@ -60,13 +59,7 @@ class OutputLine(NamedTuple):
 
     @staticmethod
     def _get_column(column: str | int) -> int:
-        """Handle column numbers except for python < 3.8.
-
-        The ast parser in those versions doesn't return them.
-        """
-        if not PY38_PLUS:
-            # We check the column only for the new better ast parser introduced in python 3.8
-            return 0  # pragma: no cover
+        """Handle column numbers."""
         return int(column)
 
     @staticmethod

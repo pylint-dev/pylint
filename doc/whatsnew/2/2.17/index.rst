@@ -29,6 +29,81 @@ so we find problems before the actual release.
 
 .. towncrier release notes start
 
+What's new in Pylint 2.17.5?
+----------------------------
+Release date: 2023-07-26
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for ``unused-variable`` when there is an import in a
+  ``if TYPE_CHECKING:`` block and ``allow-global-unused-variables`` is set to
+  ``no`` in the configuration.
+
+  Closes #8696 (`#8696 <https://github.com/pylint-dev/pylint/issues/8696>`_)
+
+- Fix false positives generated when supplying arguments as ``**kwargs`` to IO
+  calls like open().
+
+  Closes #8719 (`#8719 <https://github.com/pylint-dev/pylint/issues/8719>`_)
+
+- Fix a false positive where pylint was ignoring method calls annotated as
+  ``NoReturn`` during the ``inconsistent-return-statements`` check.
+
+  Closes #8747 (`#8747 <https://github.com/pylint-dev/pylint/issues/8747>`_)
+
+- Exempt parents with only type annotations from the ``invalid-enum-extension``
+  message.
+
+  Closes #8830 (`#8830 <https://github.com/pylint-dev/pylint/issues/8830>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fixed crash when a call to ``super()`` was placed after an operator (e.g.
+  ``not``).
+
+  Closes #8554 (`#8554 <https://github.com/pylint-dev/pylint/issues/8554>`_)
+
+- Fix crash for ``modified-while-iterating`` checker when deleting
+  members of a dict returned from a call.
+
+  Closes #8598 (`#8598 <https://github.com/pylint-dev/pylint/issues/8598>`_)
+
+- Fix crash in ``invalid-metaclass`` check when a metaclass had duplicate
+  bases.
+
+  Closes #8698 (`#8698 <https://github.com/pylint-dev/pylint/issues/8698>`_)
+
+- Avoid ``consider-using-f-string`` on modulos with brackets in template.
+
+  Closes #8720. (`#8720 <https://github.com/pylint-dev/pylint/issues/8720>`_)
+
+- Fix a crash when ``__all__`` exists but cannot be inferred.
+
+  Closes #8740 (`#8740 <https://github.com/pylint-dev/pylint/issues/8740>`_)
+
+- Fix crash when a variable is assigned to a class attribute of identical name.
+
+  Closes #8754 (`#8754 <https://github.com/pylint-dev/pylint/issues/8754>`_)
+
+- Fixed a crash when calling ``copy.copy()`` without arguments.
+
+  Closes #8774 (`#8774 <https://github.com/pylint-dev/pylint/issues/8774>`_)
+
+
+
+Other Changes
+-------------
+
+- Fix a crash when a ``nonlocal`` is defined at module-level.
+
+  Closes #8735 (`#8735 <https://github.com/pylint-dev/pylint/issues/8735>`_)
+
+
 What's new in Pylint 2.17.4?
 ----------------------------
 Release date: 2023-05-06
@@ -112,7 +187,7 @@ False Positives Fixed
 Other Bug Fixes
 ---------------
 
-- Improve output of ``consider-using-generator`` message for ``min()` calls
+- Improve output of ``consider-using-generator`` message for ``min()`` calls
   with ``default`` keyword.
 
   Closes #8563 (`#8563 <https://github.com/PyCQA/pylint/issues/8563>`_)

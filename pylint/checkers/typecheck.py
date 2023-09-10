@@ -12,11 +12,10 @@ import operator
 import re
 import shlex
 import sys
-import types
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable
 from functools import cached_property, singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 
 import astroid
 import astroid.exceptions
@@ -64,8 +63,6 @@ CallableObjects = Union[
     nodes.ClassDef,
 ]
 
-_T = TypeVar("_T")
-
 STR_FORMAT = {"builtins.str.format"}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
 BUILTIN_TUPLE = "builtins.tuple"
@@ -74,6 +71,28 @@ TYPE_ANNOTATION_NODES_TYPES = (
     nodes.Arguments,
     nodes.FunctionDef,
 )
+BUILTINS_IMPLICIT_RETURN_NONE = {
+    "builtins.dict": {"clear", "update"},
+    "builtins.list": {
+        "append",
+        "clear",
+        "extend",
+        "insert",
+        "remove",
+        "reverse",
+        "sort",
+    },
+    "builtins.set": {
+        "add",
+        "clear",
+        "difference_update",
+        "discard",
+        "intersection_update",
+        "remove",
+        "symmetric_difference_update",
+        "update",
+    },
+}
 
 
 class VERSION_COMPATIBLE_OVERLOAD:
@@ -81,24 +100,6 @@ class VERSION_COMPATIBLE_OVERLOAD:
 
 
 VERSION_COMPATIBLE_OVERLOAD_SENTINEL = VERSION_COMPATIBLE_OVERLOAD()
-
-
-def _unflatten(iterable: Iterable[_T]) -> Iterator[_T]:
-    for index, elem in enumerate(iterable):
-        if isinstance(elem, Sequence) and not isinstance(elem, str):
-            yield from _unflatten(elem)
-        elif elem and not index:
-            # We're interested only in the first element.
-            yield elem  # type: ignore[misc]
-
-
-def _flatten_container(iterable: Iterable[_T]) -> Iterator[_T]:
-    # Flatten nested containers into a single iterable
-    for item in iterable:
-        if isinstance(item, (list, tuple, types.GeneratorType)):
-            yield from _flatten_container(item)
-        else:
-            yield item
 
 
 def _is_owner_ignored(
@@ -456,18 +457,17 @@ def _emit_no_member(
     ):
         return False
     if isinstance(owner, (astroid.Instance, nodes.ClassDef)):
+        # Issue #2565: Don't ignore enums, as they have a `__getattr__` but it's not
+        # invoked at this point.
+        try:
+            metaclass = owner.metaclass()
+        except astroid.MroError:
+            pass
+        else:
+            # Renamed in Python 3.10 to `EnumType`
+            if metaclass and metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}:
+                return not _enum_has_attribute(owner, node)
         if owner.has_dynamic_getattr():
-            # Issue #2565: Don't ignore enums, as they have a `__getattr__` but it's not
-            # invoked at this point.
-            try:
-                metaclass = owner.metaclass()
-            except astroid.MroError:
-                return False
-            if metaclass:
-                # Renamed in Python 3.10 to `EnumType`
-                if metaclass.qname() in {"enum.EnumMeta", "enum.EnumType"}:
-                    return not _enum_has_attribute(owner, node)
-                return False
             return False
         if not has_known_bases(owner):
             return False
@@ -670,7 +670,7 @@ def _has_parent_of_type(
 
 
 def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool:
-    statement = node.statement(future=True)
+    statement = node.statement()
     variadics = []
 
     if (
@@ -713,7 +713,7 @@ def _no_context_variadic(
     is_in_lambda_scope = not isinstance(scope, nodes.FunctionDef) and isinstance(
         scope, nodes.Lambda
     )
-    statement = node.statement(future=True)
+    statement = node.statement()
     for name in statement.nodes_of_class(nodes.Name):
         if name.name != variadic_name:
             continue
@@ -731,7 +731,7 @@ def _no_context_variadic(
             # so we need to go the lambda instead
             inferred_statement = inferred.parent.parent
         else:
-            inferred_statement = inferred.statement(future=True)
+            inferred_statement = inferred.statement()
 
         if not length and isinstance(
             inferred_statement, (nodes.Lambda, nodes.FunctionDef)
@@ -1153,9 +1153,7 @@ accessed. Python regular expressions are accepted.",
                     attr_parent = attr_node.parent
                     # Skip augmented assignments
                     try:
-                        if isinstance(
-                            attr_node.statement(future=True), nodes.AugAssign
-                        ) or (
+                        if isinstance(attr_node.statement(), nodes.AugAssign) or (
                             isinstance(attr_parent, nodes.Assign)
                             and utils.is_augmented_assign(attr_parent)[0]
                         ):
@@ -1254,9 +1252,11 @@ accessed. Python regular expressions are accepted.",
         ):
             return
 
-        # Fix a false-negative for list.sort(), see issue #5722
-        if self._is_list_sort_method(node.value):
-            self.add_message("assignment-from-none", node=node, confidence=INFERENCE)
+        # Handle builtins such as list.sort() or dict.update()
+        if self._is_builtin_no_return(node):
+            self.add_message(
+                "assignment-from-no-return", node=node, confidence=INFERENCE
+            )
             return
 
         if not function_node.root().fully_defined():
@@ -1290,11 +1290,14 @@ accessed. Python regular expressions are accepted.",
         )
 
     @staticmethod
-    def _is_list_sort_method(node: nodes.Call) -> bool:
+    def _is_builtin_no_return(node: nodes.Assign) -> bool:
         return (
-            isinstance(node.func, nodes.Attribute)
-            and node.func.attrname == "sort"
-            and isinstance(utils.safe_infer(node.func.expr), nodes.List)
+            isinstance(node.value, nodes.Call)
+            and isinstance(node.value.func, nodes.Attribute)
+            and bool(inferred := utils.safe_infer(node.value.func.expr))
+            and isinstance(inferred, bases.Instance)
+            and node.value.func.attrname
+            in BUILTINS_IMPLICIT_RETURN_NONE.get(inferred.pytype(), ())
         )
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
@@ -1514,16 +1517,8 @@ accessed. Python regular expressions are accepted.",
         parameters: list[tuple[tuple[str | None, nodes.NodeNG | None], bool]] = []
         parameter_name_to_index = {}
         for i, arg in enumerate(args):
-            if isinstance(arg, nodes.Tuple):
-                name = None
-                # Don't store any parameter names within the tuple, since those
-                # are not assignable from keyword arguments.
-            else:
-                assert isinstance(arg, nodes.AssignName)
-                # This occurs with:
-                #    def f( (a), (b) ): pass
-                name = arg.name
-                parameter_name_to_index[name] = i
+            name = arg.name
+            parameter_name_to_index[name] = i
             if i >= num_mandatory_parameters:
                 defval = called.args.defaults[i - num_mandatory_parameters]
             else:
@@ -1882,16 +1877,13 @@ accessed. Python regular expressions are accepted.",
 
                 # Retrieve node from all previously visited nodes in the
                 # inference history
-                context_path_names: Iterator[Any] = filter(
-                    None, _unflatten(context.path)
-                )
-                inferred_paths = _flatten_container(
-                    safe_infer(path) for path in context_path_names
-                )
-                for inferred_path in inferred_paths:
+                for inferred_path, _ in context.path:
                     if not inferred_path:
                         continue
-                    scope = inferred_path.scope()
+                    if isinstance(inferred_path, nodes.Call):
+                        scope = safe_infer(inferred_path.func)
+                    else:
+                        scope = inferred_path.scope()
                     if not isinstance(scope, nodes.FunctionDef):
                         continue
                     if decorated_with(
@@ -2151,7 +2143,7 @@ accessed. Python regular expressions are accepted.",
             return
 
         if getattr(inferred, "decorators", None):
-            first_decorator = astroid.helpers.safe_infer(inferred.decorators.nodes[0])
+            first_decorator = astroid.util.safe_infer(inferred.decorators.nodes[0])
             if isinstance(first_decorator, nodes.ClassDef):
                 inferred = first_decorator.instantiate_class()
             else:

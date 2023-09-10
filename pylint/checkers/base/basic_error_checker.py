@@ -135,8 +135,7 @@ class BasicErrorChecker(_BasicChecker):
             "Return with argument inside generator",
             "return-arg-in-generator",
             'Used when a "return" statement with an argument is found '
-            "outside in a generator function or method (e.g. with some "
-            '"yield" statements).',
+            'in a generator function or method (e.g. with some "yield" statements).',
             {"maxversion": (3, 3)},
         ),
         "E0107": (
@@ -249,7 +248,7 @@ class BasicErrorChecker(_BasicChecker):
             # PEP 448 unpacking.
             return
 
-        stmt = node.statement(future=True)
+        stmt = node.statement()
         if not isinstance(stmt, nodes.Assign):
             return
 
@@ -356,7 +355,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.only_required_for_messages("return-outside-function")
     def visit_return(self, node: nodes.Return) -> None:
-        if not isinstance(node.frame(future=True), nodes.FunctionDef):
+        if not isinstance(node.frame(), nodes.FunctionDef):
             self.add_message("return-outside-function", node=node)
 
     @utils.only_required_for_messages("yield-outside-function")
@@ -469,7 +468,7 @@ class BasicErrorChecker(_BasicChecker):
             )
 
     def _check_yield_outside_func(self, node: nodes.Yield) -> None:
-        if not isinstance(node.frame(future=True), (nodes.FunctionDef, nodes.Lambda)):
+        if not isinstance(node.frame(), (nodes.FunctionDef, nodes.Lambda)):
             self.add_message("yield-outside-function", node=node)
 
     def _check_else_on_loop(self, node: nodes.For | nodes.While) -> None:
@@ -496,7 +495,7 @@ class BasicErrorChecker(_BasicChecker):
             if isinstance(parent, (nodes.ClassDef, nodes.FunctionDef)):
                 break
             if (
-                isinstance(parent, nodes.TryFinally)
+                isinstance(parent, nodes.Try)
                 and node in parent.finalbody
                 and isinstance(node, nodes.Continue)
                 and not self._py38_plus
@@ -509,7 +508,7 @@ class BasicErrorChecker(_BasicChecker):
         self, redeftype: str, node: nodes.Call | nodes.FunctionDef
     ) -> None:
         """Check for redefinition of a function / method / class name."""
-        parent_frame = node.parent.frame(future=True)
+        parent_frame = node.parent.frame()
 
         # Ignore function stubs created for type information
         redefinitions = [

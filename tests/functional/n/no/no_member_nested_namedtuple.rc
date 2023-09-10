@@ -1,6 +1,3 @@
-[testoptions]
-min_pyver=3.7
-
 [MESSAGES CONTROL]
 disable=fixme,
     logging-too-many-args,

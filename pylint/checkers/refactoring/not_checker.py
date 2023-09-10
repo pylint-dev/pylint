@@ -17,10 +17,12 @@ class NotChecker(checkers.BaseChecker):
     """
 
     msgs = {
-        "C0113": (
+        "C0117": (
             'Consider changing "%s" to "%s"',
-            "unneeded-not",
-            "Used when a boolean expression contains an unneeded negation.",
+            "unnecessary-negation",
+            "Used when a boolean expression contains an unneeded negation, "
+            "e.g. when two negation operators cancel each other out.",
+            {"old_names": [("C0113", "unneeded-not")]},
         )
     }
     name = "refactoring"
@@ -40,7 +42,7 @@ class NotChecker(checkers.BaseChecker):
     # 'builtins' py3, '__builtin__' py2
     skipped_classnames = [f"builtins.{qname}" for qname in ("set", "frozenset")]
 
-    @utils.only_required_for_messages("unneeded-not")
+    @utils.only_required_for_messages("unnecessary-negation")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         if node.op != "not":
             return
@@ -48,7 +50,7 @@ class NotChecker(checkers.BaseChecker):
 
         if isinstance(operand, nodes.UnaryOp) and operand.op == "not":
             self.add_message(
-                "unneeded-not",
+                "unnecessary-negation",
                 node=node,
                 args=(node.as_string(), operand.operand.as_string()),
             )
@@ -61,7 +63,7 @@ class NotChecker(checkers.BaseChecker):
             if operator not in self.reverse_op:
                 return
             # Ignore __ne__ as function of __eq__
-            frame = node.frame(future=True)
+            frame = node.frame()
             if frame.name == "__ne__" and operator == "==":
                 return
             for _type in (utils.node_type(left), utils.node_type(right)):
@@ -78,5 +80,5 @@ class NotChecker(checkers.BaseChecker):
                 f"{left.as_string()} {self.reverse_op[operator]} {right.as_string()}"
             )
             self.add_message(
-                "unneeded-not", node=node, args=(node.as_string(), suggestion)
+                "unnecessary-negation", node=node, args=(node.as_string(), suggestion)
             )

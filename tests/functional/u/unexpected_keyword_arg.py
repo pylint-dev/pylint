@@ -116,3 +116,50 @@ def test_no_return():
 
 
 test_no_return(internal_arg=2)  # [unexpected-keyword-arg]
+
+
+def ambiguous_func1(arg1):
+    print(arg1)
+
+
+def ambiguous_func2(other_arg1):
+    print(other_arg1)
+
+
+func1 = ambiguous_func1 if unknown else ambiguous_func2
+func1(other_arg1=1)
+
+
+def ambiguous_func3(arg1=None):
+    print(arg1)
+
+
+func2 = ambiguous_func1 if unknown else ambiguous_func3
+func2()
+
+
+def ambiguous_func4(arg1=print):
+    print(arg1)
+
+
+def ambiguous_func5(arg1=input):
+    print(arg1)
+
+
+def ambiguous_func6(arg1=42):
+    print(arg1)
+
+
+# Two functions with same keyword argument but different defaults (names)
+func3 = ambiguous_func4 if unknown else ambiguous_func5
+func3()
+
+
+# Two functions with same keyword argument but different defaults (constants)
+func4 = ambiguous_func3 if unknown else ambiguous_func6
+func4()
+
+
+# Two functions with same keyword argument but mixed defaults (names, constant)
+func5 = ambiguous_func3 if unknown else ambiguous_func5
+func5()

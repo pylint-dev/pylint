@@ -83,6 +83,10 @@ DEPRECATED_ARGUMENTS: dict[
         ),
     },
     (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
+    (3, 12, 0): {
+        "coroutine.throw": ((1, "value"), (2, "traceback")),
+        "shutil.rmtree": ((2, "onerror"),),
+    },
 }
 
 DEPRECATED_DECORATORS: DeprecationDict = {
@@ -253,6 +257,12 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "unittest.TestLoader.loadTestsFromTestCase",
             "unittest.TestLoader.getTestCaseNames",
         },
+        (3, 12, 0): {
+            "builtins.bool.__invert__",
+            "datetime.datetime.utcfromtimestamp",
+            "datetime.datetime.utcnow",
+            "xml.etree.ElementTree.Element.__bool__",
+        },
     },
 }
 
@@ -311,6 +321,12 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
         },
         "webbrowser": {
             "MacOSX",
+        },
+    },
+    (3, 12, 0): {
+        "typing": {
+            "Hashable",
+            "Sized",
         },
     },
 }
@@ -511,14 +527,23 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             self.add_message("subprocess-run-check", node=node, confidence=INFERENCE)
 
     def _check_shallow_copy_environ(self, node: nodes.Call) -> None:
-        arg = utils.get_argument_from_call(node, position=0)
+        confidence = HIGH
+        try:
+            arg = utils.get_argument_from_call(node, position=0, keyword="x")
+        except utils.NoSuchArgumentError:
+            arg = utils.infer_kwarg_from_call(node, keyword="x")
+            if not arg:
+                return
+            confidence = INFERENCE
         try:
             inferred_args = arg.inferred()
         except astroid.InferenceError:
             return
         for inferred in inferred_args:
             if inferred.qname() == OS_ENVIRON:
-                self.add_message("shallow-copy-environ", node=node)
+                self.add_message(
+                    "shallow-copy-environ", node=node, confidence=confidence
+                )
                 break
 
     @utils.only_required_for_messages(
@@ -688,10 +713,10 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             inferred = next(node.infer())
         except astroid.InferenceError:
             return
-        if (
-            isinstance(inferred, astroid.Instance)
-            and inferred.qname() == "datetime.time"
-        ):
+        if isinstance(inferred, astroid.Instance) and inferred.qname() in {
+            "_pydatetime.time",
+            "datetime.time",
+        }:
             self.add_message("boolean-datetime", node=node)
 
     def _check_open_call(

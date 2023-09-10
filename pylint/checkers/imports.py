@@ -455,6 +455,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ("RP0401", "External dependencies", self._report_external_dependencies),
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
         )
+        self._excluded_edges: defaultdict[str, set[str]] = defaultdict(set)
 
     def open(self) -> None:
         """Called before visiting project (i.e set of modules)."""
@@ -463,7 +464,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self.import_graph = defaultdict(set)
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
         self._current_module_package = False
-        self._excluded_edges: defaultdict[str, set[str]] = defaultdict(set)
         self._ignored_modules: Sequence[str] = self.linter.config.ignored_modules
         # Build a mapping {'module': 'preferred-module'}
         self.preferred_modules = dict(
@@ -487,6 +487,28 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             vertices = list(graph)
             for cycle in get_cycles(graph, vertices=vertices):
                 self.add_message("cyclic-import", args=" -> ".join(cycle))
+
+    def get_map_data(
+        self,
+    ) -> tuple[defaultdict[str, set[str]], defaultdict[str, set[str]]]:
+        if self.linter.is_message_enabled("cyclic-import"):
+            return (self.import_graph, self._excluded_edges)
+        return (defaultdict(set), defaultdict(set))
+
+    def reduce_map_data(
+        self,
+        linter: PyLinter,
+        data: list[tuple[defaultdict[str, set[str]], defaultdict[str, set[str]]]],
+    ) -> None:
+        if self.linter.is_message_enabled("cyclic-import"):
+            self.import_graph = defaultdict(set)
+            self._excluded_edges = defaultdict(set)
+            for to_update in data:
+                graph, excluded_edges = to_update
+                self.import_graph.update(graph)
+                self._excluded_edges.update(excluded_edges)
+
+            self.close()
 
     def deprecated_modules(self) -> set[str]:
         """Callback returning the deprecated modules."""
@@ -595,8 +617,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         | nodes.IfExp
         | nodes.Assign
         | nodes.AssignAttr
-        | nodes.TryExcept
-        | nodes.TryFinally,
+        | nodes.Try,
     ) -> None:
         # if the node does not contain an import instruction, and if it is the
         # first node of the module, keep a track of it (all the import positions
@@ -606,11 +627,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             return
         if not isinstance(node.parent, nodes.Module):
             return
-        nested_allowed = [nodes.TryExcept, nodes.TryFinally]
-        is_nested_allowed = [
-            allowed for allowed in nested_allowed if isinstance(node, allowed)
-        ]
-        if is_nested_allowed and any(
+        if isinstance(node, nodes.Try) and any(
             node.nodes_of_class((nodes.Import, nodes.ImportFrom))
         ):
             return
@@ -627,9 +644,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 return
         self._first_non_import_node = node
 
-    visit_tryfinally = (
-        visit_tryexcept
-    ) = (
+    visit_try = (
         visit_assignattr
     ) = (
         visit_assign
@@ -653,7 +668,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         while not isinstance(root.parent, nodes.Module):
             root = root.parent
 
-        if isinstance(root, (nodes.If, nodes.TryFinally, nodes.TryExcept)):
+        if isinstance(root, (nodes.If, nodes.Try)):
             if any(root.nodes_of_class((nodes.Import, nodes.ImportFrom))):
                 return
 
@@ -966,7 +981,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         ) and not self.linter.is_message_enabled("shadowed-import"):
             return
 
-        frame = node.frame(future=True)
+        frame = node.frame()
         root = node.root()
         contexts = [(frame, level)]
         if root is not frame:

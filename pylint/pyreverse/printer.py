@@ -25,6 +25,7 @@ class EdgeType(Enum):
     ASSOCIATION = "association"
     AGGREGATION = "aggregation"
     USES = "uses"
+    TYPE_DEPENDENCY = "type_dependency"
 
 
 class Layout(Enum):

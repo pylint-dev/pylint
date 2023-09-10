@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools~=62.6", "wheel~=0.37.1"]
+requires = ["setuptools>=66.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Debuggers",
@@ -35,11 +36,12 @@ requires-python = ">=3.8.0"
 dependencies    = [
     "dill>=0.2;python_version<'3.11'",
     "dill>=0.3.6;python_version>='3.11'",
+    "dill>=0.3.7;python_version>='3.12'",
     "platformdirs>=2.2.0",
     # Also upgrade requirements_test_min.txt.
     # Pinned to dev of second minor update to allow editable installs and fix primer issues,
     # see https://github.com/pylint-dev/astroid/issues/1341
-    "astroid>=3.0.0a5,<=3.1.0-dev0",
+    "astroid>=3.0.0a9,<=3.1.0-dev0",
     "isort>=4.2.5,<6",
     "mccabe>=0.6,<0.8",
     "tomli>=1.1.0;python_version<'3.11'",
@@ -73,6 +75,13 @@ license-files = ["LICENSE", "CONTRIBUTORS.txt"]  # Keep in sync with setup.cfg
 
 [tool.setuptools.packages.find]
 include = ["pylint*"]
+
+[tool.setuptools.package-dir]
+# Simulate editable_mode=compat, described at:
+# https://github.com/pypa/setuptools/issues/3767
+# TODO: remove after solving root cause described at:
+# https://github.com/pylint-dev/astroid/pull/2267#issuecomment-1666642781
+"" = "."
 
 [tool.setuptools.package-data]
 pylint = ["testutils/testing_pylintrc", "py.typed"]
@@ -145,7 +154,8 @@ select = [
 ]
 
 ignore = [
-    "B905", # `zip()` without an explicit `strict=` parameter
+    "B905",  # `zip()` without an explicit `strict=` parameter
+    "RUF012",  # mutable default values in class attributes
 ]
 
 fixable = [

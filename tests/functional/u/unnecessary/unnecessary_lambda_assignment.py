@@ -32,3 +32,7 @@ squares = list(map(lambda x: x**2, range(10)))
 DICT = {1: lambda x: x, 2: lambda x: x + 1}
 for key, value in DICT.items():
     print(value(key))
+
+# Flag lambda expression assignments via named expressions as well.
+if (e := lambda: 2) and e():  # [unnecessary-lambda-assignment]
+    pass
