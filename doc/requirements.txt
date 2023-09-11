@@ -1,5 +1,5 @@
 Sphinx==7.2.5
 sphinx-reredirects<1
 towncrier~=23.6
-furo==2023.8.19
+furo==2023.9.10
 -e .
