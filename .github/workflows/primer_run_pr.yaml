@@ -56,7 +56,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: venv
           key:
@@ -134,7 +134,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: tests/.pylint_primer_tests/
           key: >-
