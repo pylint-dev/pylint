@@ -13,7 +13,8 @@ repos:
             tests(/\w*)*/functional/m/missing/missing_final_newline.py|
             tests/functional/t/trailing_newlines.py|
             doc/data/messages/t/trailing-newlines/bad.py|
-            doc/data/messages/m/missing-final-newline/bad.py|
+            doc/data/messages/m/missing-final-newline/bad/lf.py|
+            doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.0.288"
@@ -59,7 +60,8 @@ repos:
             doc/data/messages/i/inconsistent-quotes/bad.py|
             doc/data/messages/i/invalid-format-index/bad.py|
             doc/data/messages/l/line-too-long/bad.py|
-            doc/data/messages/m/missing-final-newline/bad.py|
+            doc/data/messages/m/missing-final-newline/bad/crlf.py|
+            doc/data/messages/m/missing-final-newline/bad/lf.py|
             doc/data/messages/m/multiple-statements/bad.py|
             doc/data/messages/r/redundant-u-string-prefix/bad.py|
             doc/data/messages/s/superfluous-parens/bad.py|
