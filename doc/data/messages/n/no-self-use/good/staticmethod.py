@@ -1,3 +1,4 @@
 class Person:
-    def greeting(self):  # [no-self-use]
+    @staticmethod
+    def greeting():
         print("Greetings pythonista!")
