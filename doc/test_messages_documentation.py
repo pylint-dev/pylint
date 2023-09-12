@@ -221,7 +221,8 @@ class LintModuleTest:
         missing_files = set(bad_files) - raised_files
         for missing_file in missing_files:
             msg += f"- Missing warning in {missing_file}\n"
-        msg += f"'{messages[0].symbol}' might need to be added in 'known_multiple_file_messages'.\n\n"
+        if messages:
+            msg += f"'{messages[0].symbol}' might need to be added in 'known_multiple_file_messages'.\n\n"
         return msg
 
 
