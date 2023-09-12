@@ -1,4 +1,4 @@
-class GoodGetNewArgsEx:
+class CustomGetNewArgsEx:
     """__getnewargs_ex__ returns <type 'tuple'>"""
 
     def __getnewargs_ex__(self):
