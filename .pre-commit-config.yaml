@@ -16,7 +16,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad.py|
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.0.287"
+    rev: "v0.0.288"
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -44,7 +44,7 @@ repos:
       - id: isort
         exclude: doc/data/messages/
   - repo: https://github.com/psf/black
-    rev: 23.7.0
+    rev: 23.9.1
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -109,7 +109,7 @@ repos:
         files: ^(doc/whatsnew/fragments)
         exclude: doc/whatsnew/fragments/_.*.rst
   - repo: https://github.com/rstcheck/rstcheck
-    rev: "v6.1.2"
+    rev: "v6.2.0"
     hooks:
       - id: rstcheck
         args: ["--report-level=warning"]
