@@ -12,8 +12,7 @@ import itertools
 import numbers
 import re
 import string
-import warnings
-from collections import deque, namedtuple
+from collections import namedtuple
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
@@ -669,7 +668,7 @@ def parse_format_field(
     colon_idx = -1
     open_blocks: list[str] = []
 
-    for (i, char) in enumerate(format_field):
+    for i, char in enumerate(format_field):
         if char == "[" and (len(open_blocks) == 0 or open_blocks[-1] == "["):
             open_blocks.append(char)
         if char == "]":
@@ -781,7 +780,7 @@ def parse_format_method_string(
     implicit_types = []
     explicit_types = {}
 
-    for (name, format_spec) in collect_string_fields(format_string):
+    for name, format_spec in collect_string_fields(format_string):
         try:
             format_types = format_char_memo[format_spec]
         except ValueError as e:

@@ -545,7 +545,7 @@ class StringFormatChecker(BaseChecker):
         named_arguments: dict[str:str],
         positional_arguments: dict[str:str],
     ):
-        for (key, specifiers) in fields:
+        for key, specifiers in fields:
             if len(specifiers) > 0 or key not in named_arguments:
                 continue
 
