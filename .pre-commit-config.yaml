@@ -64,7 +64,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/lf.py|
             doc/data/messages/m/multiple-statements/bad.py|
             doc/data/messages/r/redundant-u-string-prefix/bad.py|
-            doc/data/messages/s/superfluous-parens/bad.py|
+            doc/data/messages/s/superfluous-parens/bad/example_1.py|
             doc/data/messages/s/syntax-error/bad.py|
             doc/data/messages/t/too-many-ancestors/bad.py|
             doc/data/messages/t/trailing-comma-tuple/bad.py|
