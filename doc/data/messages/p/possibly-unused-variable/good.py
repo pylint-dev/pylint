@@ -1,1 +1,6 @@
-# This is a placeholder for correct code for this message.
+def choose_fruits(fruits):
+    current_locals = locals()
+    print(fruits)
+    color = "red"
+    print(color)
+    return current_locals

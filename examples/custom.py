@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -50,16 +52,16 @@ class MyAstroidChecker(BaseChecker):
         if not (
             isinstance(node.func, nodes.Attribute)
             and isinstance(node.func.expr, nodes.Name)
-            and node.func.expr.name == self.config.store_locals_indicator
+            and node.func.expr.name == self.linter.config.store_locals_indicator
             and node.func.attrname == "create"
         ):
             return
-        in_class = node.frame(future=True)
+        in_class = node.frame()
         for param in node.args:
             in_class.locals[param.name] = node
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     """This required method auto registers the checker during initialization.
 
     :param linter: The linter to register the checker to.

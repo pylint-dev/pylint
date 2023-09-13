@@ -6,6 +6,7 @@ updates:
       interval: "weekly"
     labels:
       - "dependency"
+      - "Skip news :mute:"
     open-pull-requests-limit: 10
     rebase-strategy: "disabled"
 
@@ -15,5 +16,6 @@ updates:
       interval: "weekly"
     labels:
       - "dependency"
+      - "Skip news :mute:"
     open-pull-requests-limit: 10
     rebase-strategy: "disabled"

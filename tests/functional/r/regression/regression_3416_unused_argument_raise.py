@@ -1,6 +1,6 @@
 """Test that we emit unused-argument when a function uses `raise
 
-https://github.com/PyCQA/pylint/issues/3416
+https://github.com/pylint-dev/pylint/issues/3416
 """
 
 # pylint:disable=raise-missing-from

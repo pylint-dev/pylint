@@ -1,11 +1,10 @@
-# pylint: disable=missing-docstring, useless-object-inheritance
-from __future__ import print_function
+# pylint: disable=missing-docstring
 
 
 from enum import Enum
 
 
-class Aaaa(object): # [too-few-public-methods]
+class Aaaa: # [too-few-public-methods]
 
     def __init__(self):
         pass
@@ -18,7 +17,7 @@ class Aaaa(object): # [too-few-public-methods]
 
 
 # Don't emit for these cases.
-class Klass(object):
+class Klass:
     """docstring"""
 
     def meth1(self):

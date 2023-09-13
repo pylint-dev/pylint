@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+print("%(one)d, %(two)d" % {"one": 1, "two": 2})

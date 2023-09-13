@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,unused-argument,useless-object-inheritance
+# pylint: disable=too-few-public-methods,unused-argument
 """tagging a function as a class method cause a crash when checking for
 signature overriding
 """
@@ -14,8 +14,6 @@ def fetch_config(mainattr=None):
     fetch_order = classmethod(fetch_order)
     return fetch_order
 
-class Aaa(object):
+class Aaa:
     """hop"""
     fetch_order = fetch_config('A')
-
-__revision__ = None

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ class TestSimilarCodeChecker:
     @staticmethod
     def _run_pylint(args: list[str], out: TextIO) -> int:
         """Runs pylint with a patched output."""
-        args = args + [
+        args += [
             "--persistent=no",
             "--enable=astroid-error",
             # Enable functionality that will build another ast
@@ -48,7 +48,7 @@ class TestSimilarCodeChecker:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     Run(args)
-            return cm.value.code
+            return int(cm.value.code)
 
     @staticmethod
     def _clean_paths(output: str) -> str:
@@ -78,6 +78,23 @@ class TestSimilarCodeChecker:
                 "--ignore-imports=no",
                 "--ignore-signatures=no",
                 "--min-similarity-lines=4",
+            ],
+            expected_output=expected_output,
+        )
+
+    @pytest.mark.needs_two_cores
+    def test_duplicate_code_parallel(self) -> None:
+        path = join(DATA, "raw_strings_all")
+        expected_output = "Similar lines in 2 files"
+        self._test_output(
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--ignore-imports=no",
+                "--ignore-signatures=no",
+                "--min-similarity-lines=4",
+                "--jobs=2",
             ],
             expected_output=expected_output,
         )
@@ -207,7 +224,8 @@ class TestSimilarCodeChecker:
         )
 
     def test_duplicate_code_raw_strings_disable_scope_function(self) -> None:
-        """Tests disabling duplicate-code at an inner scope level with another scope with similarity."""
+        """Tests disabling duplicate-code at an inner scope level with another scope with
+        similarity."""
         path = join(DATA, "raw_strings_disable_scope_second_function")
         expected_output = "Similar lines in 2 files"
         self._test_output(

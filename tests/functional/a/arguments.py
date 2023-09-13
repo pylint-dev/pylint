@@ -1,13 +1,13 @@
 # pylint: disable=too-few-public-methods, missing-docstring,import-error,wrong-import-position
-# pylint: disable=wrong-import-order, useless-object-inheritance,unnecessary-lambda, consider-using-f-string
-# pylint: disable=unnecessary-lambda-assignment
+# pylint: disable=wrong-import-order, unnecessary-lambda, consider-using-f-string
+# pylint: disable=unnecessary-lambda-assignment, no-self-argument, unused-argument, kwarg-superseded-by-positional-arg
 
 def decorator(fun):
     """Decorator"""
     return fun
 
 
-class DemoClass(object):
+class DemoClass:
     """Test class for method invocations."""
 
     @staticmethod
@@ -84,7 +84,7 @@ def method_tests():
 # Test a regression (issue #234)
 import sys
 
-class Text(object):
+class Text:
     """ Regression """
 
     if sys.version_info > (3,):
@@ -98,7 +98,7 @@ class Text(object):
 
 Text()
 
-class TestStaticMethod(object):
+class TestStaticMethod:
 
     @staticmethod
     def test(first, second=None, **kwargs):
@@ -112,7 +112,7 @@ class TestStaticMethod(object):
         self.test(42, 42, 42) # [too-many-function-args]
 
 
-class TypeCheckConstructor(object):
+class TypeCheckConstructor:
     def __init__(self, first, second):
         self.first = first
         self.second = second
@@ -125,7 +125,7 @@ class TypeCheckConstructor(object):
         type(self)(first=1, second=2)
 
 
-class Test(object):
+class Test:
     """ lambda needs Test instance as first argument """
     lam = lambda self, icon: (self, icon)
 
@@ -139,7 +139,7 @@ Test().lam() # [no-value-for-parameter]
 # Don't emit a redundant-keyword-arg for this example,
 # it's perfectly valid
 
-class Issue642(object):
+class Issue642:
     attr = 0
     def __str__(self):
         return "{self.attr}".format(self=self)
@@ -261,3 +261,62 @@ def func(one, two, three):
 
 
 CALL = lambda *args: func(*args)
+
+
+# Ensure `too-many-function-args` is not emitted when a function call is assigned
+# to a class attribute inside the class where the function is defined.
+# Reference: https://github.com/pylint-dev/pylint/issues/6592
+class FruitPicker:
+    def _pick_fruit(fruit):
+        def _print_selection(self):
+            print(f"Selected: {fruit}!")
+        return _print_selection
+
+    pick_apple = _pick_fruit("apple")
+    pick_pear = _pick_fruit("pear")
+
+picker = FruitPicker()
+picker.pick_apple()
+picker.pick_pear()
+
+
+def name1(apple, /, **kwargs):
+    """
+    Positional-only parameter with `**kwargs`.
+    Calling this function with the `apple` keyword should not emit
+    `redundant-keyword-arg` since it is added to `**kwargs`.
+
+    >>> name1("Red apple", apple="Green apple")
+    "Red apple"
+    {"apple": "Green apple"}
+    """
+    print(apple)
+    print(kwargs)
+
+
+name1("Red apple", apple="Green apple")
+
+
+def name2(apple, /, banana, **kwargs):
+    """
+    Positional-only parameter with positional-or-keyword parameter and `**kwargs`.
+    """
+
+
+# `banana` is redundant
+# +1:[redundant-keyword-arg]
+name2("Red apple", "Yellow banana", apple="Green apple", banana="Green banana")
+
+
+# Test `no-value-for-parameter` in the context of positional-only parameters
+
+def name3(param1, /, **kwargs): ...
+def name4(param1, /, param2, **kwargs): ...
+def name5(param1=True, /, **kwargs): ...
+def name6(param1, **kwargs): ...
+
+name3(param1=43)  # [no-value-for-parameter]
+name3(43)
+name4(1, param2=False)
+name5()
+name6(param1=43)

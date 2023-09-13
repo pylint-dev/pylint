@@ -4,7 +4,7 @@ https://bugs.python.org/issue42965
 
 Use 'typing.Callable' instead.
 """
-# pylint: disable=missing-docstring,unsubscriptable-object
+# pylint: disable=missing-docstring,unsubscriptable-object,invalid-name
 from __future__ import annotations
 
 import collections.abc

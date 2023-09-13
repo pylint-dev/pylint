@@ -1,45 +1,41 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
 
 from __future__ import annotations
 
 import argparse
-import datetime
 import os
 import re
 import sys
 import tempfile
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterator
 from contextlib import contextmanager
-from importlib import reload
 from io import StringIO
 from os import chdir, getcwd
 from os.path import abspath, dirname, join, sep
 from pathlib import Path
-from shutil import rmtree
+from shutil import copy, rmtree
+from unittest import mock
 
 import platformdirs
 import pytest
+from astroid import nodes
 from pytest import CaptureFixture
 
-from pylint import checkers, config, exceptions, interfaces, lint, testutils
+from pylint import checkers, constants, exceptions, interfaces, lint, testutils
 from pylint.checkers.utils import only_required_for_messages
 from pylint.constants import (
     MSG_STATE_CONFIDENCE,
     MSG_STATE_SCOPE_CONFIG,
     MSG_STATE_SCOPE_MODULE,
-    OLD_DEFAULT_PYLINT_HOME,
     PYLINT_HOME,
-    USER_HOME,
     _get_pylint_home,
-    _warn_about_old_home,
 )
 from pylint.exceptions import InvalidMessageError
-from pylint.lint import PyLinter
-from pylint.lint.utils import fix_import_path
+from pylint.lint import PyLinter, expand_modules
 from pylint.message import Message
 from pylint.reporters import text
 from pylint.testutils import create_files
@@ -59,12 +55,12 @@ else:
 
 
 @contextmanager
-def fake_home() -> Iterator:
+def fake_home() -> Iterator[str]:
     folder = tempfile.mkdtemp("fake-home")
     old_home = os.environ.get(HOME)
     try:
         os.environ[HOME] = folder
-        yield
+        yield folder
     finally:
         os.environ.pop("PYLINTRC", "")
         if old_home is None:
@@ -74,7 +70,7 @@ def fake_home() -> Iterator:
         rmtree(folder, ignore_errors=True)
 
 
-def remove(file):
+def remove(file: str) -> None:
     try:
         os.remove(file)
     except OSError:
@@ -108,16 +104,16 @@ def tempdir() -> Iterator[str]:
 
 
 @pytest.fixture
-def fake_path() -> Iterator[Iterable[str]]:
+def fake_path() -> Iterator[list[str]]:
     orig = list(sys.path)
-    fake: Iterable[str] = ["1", "2", "3"]
+    fake = ["1", "2", "3"]
     sys.path[:] = fake
     yield fake
     sys.path[:] = orig
 
 
 def test_no_args(fake_path: list[str]) -> None:
-    with lint.fix_import_path([]):
+    with lint.augmented_sys_path([]):
         assert sys.path == fake_path
     assert sys.path == fake_path
 
@@ -128,10 +124,14 @@ def test_no_args(fake_path: list[str]) -> None:
 def test_one_arg(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py"])
-        expected = [join(chroot, "a")] + fake_path
+        expected = [join(chroot, "a"), *fake_path]
+
+        extra_sys_paths = [
+            expand_modules.discover_package_path(arg, []) for arg in case
+        ]
 
         assert sys.path == fake_path
-        with lint.fix_import_path(case):
+        with lint.augmented_sys_path(extra_sys_paths):
             assert sys.path == expected
         assert sys.path == fake_path
 
@@ -145,13 +145,17 @@ def test_one_arg(fake_path: list[str], case: list[str]) -> None:
         ["a", "a/c/__init__.py"],
     ],
 )
-def test_two_similar_args(fake_path, case):
+def test_two_similar_args(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/__init__.py", "a/c/__init__.py"])
-        expected = [join(chroot, "a")] + fake_path
+        expected = [join(chroot, "a"), *fake_path]
+
+        extra_sys_paths = [
+            expand_modules.discover_package_path(arg, []) for arg in case
+        ]
 
         assert sys.path == fake_path
-        with lint.fix_import_path(case):
+        with lint.augmented_sys_path(extra_sys_paths):
             assert sys.path == expected
         assert sys.path == fake_path
 
@@ -164,7 +168,7 @@ def test_two_similar_args(fake_path, case):
         ["a/b/c", "a", "a/b/c", "a/e", "a"],
     ],
 )
-def test_more_args(fake_path, case):
+def test_more_args(fake_path: list[str], case: list[str]) -> None:
     with tempdir() as chroot:
         create_files(["a/b/c/__init__.py", "a/d/__init__.py", "a/e/f.py"])
         expected = [
@@ -172,19 +176,23 @@ def test_more_args(fake_path, case):
             for suffix in (sep.join(("a", "b")), "a", sep.join(("a", "e")))
         ] + fake_path
 
+        extra_sys_paths = [
+            expand_modules.discover_package_path(arg, []) for arg in case
+        ]
+
         assert sys.path == fake_path
-        with lint.fix_import_path(case):
+        with lint.augmented_sys_path(extra_sys_paths):
             assert sys.path == expected
         assert sys.path == fake_path
 
 
 @pytest.fixture(scope="module")
-def disable():
+def disable() -> list[str]:
     return ["I"]
 
 
 @pytest.fixture(scope="module")
-def reporter():
+def reporter() -> type[testutils.GenericTestReporter]:
     return testutils.GenericTestReporter
 
 
@@ -208,7 +216,7 @@ def test_pylint_visit_method_taken_in_account(linter: PyLinter) -> None:
         msgs = {"W9999": ("", "custom", "")}
 
         @only_required_for_messages("custom")
-        def visit_class(self, _):
+        def visit_class(self, _: nodes.ClassDef) -> None:
             pass
 
     linter.register_checker(CustomChecker(linter))
@@ -303,7 +311,7 @@ def test_enable_message_block(initialized_linter: PyLinter) -> None:
     # meth6
     assert not linter.is_message_enabled("E1101", 57)
     assert linter.is_message_enabled("E1101", 61)
-    assert not linter.is_message_enabled("E1101", 64)
+    assert linter.is_message_enabled("E1101", 64)
     assert not linter.is_message_enabled("E1101", 66)
 
     assert linter.is_message_enabled("E0602", 57)
@@ -409,7 +417,7 @@ def test_set_option_2(initialized_linter: PyLinter) -> None:
 
 def test_enable_checkers(linter: PyLinter) -> None:
     linter.disable("design")
-    assert not ("design" in [c.name for c in linter.prepare_checkers()])
+    assert "design" not in [c.name for c in linter.prepare_checkers()]
     linter.enable("design")
     assert "design" in [c.name for c in linter.prepare_checkers()]
 
@@ -428,7 +436,7 @@ def test_disable_similar(initialized_linter: PyLinter) -> None:
     linter = initialized_linter
     linter.set_option("disable", "RP0801")
     linter.set_option("disable", "R0801")
-    assert not ("similarities" in [c.name for c in linter.prepare_checkers()])
+    assert "similarities" not in [c.name for c in linter.prepare_checkers()]
 
 
 def test_disable_alot(linter: PyLinter) -> None:
@@ -437,7 +445,7 @@ def test_disable_alot(linter: PyLinter) -> None:
     linter.set_option("disable", "R,C,W")
     checker_names = [c.name for c in linter.prepare_checkers()]
     for cname in ("design", "metrics", "similarities"):
-        assert not (cname in checker_names), cname
+        assert cname not in checker_names, cname
 
 
 def test_addmessage(linter: PyLinter) -> None:
@@ -522,6 +530,280 @@ def test_load_plugin_command_line() -> None:
     )
 
     sys.path.remove(dummy_plugin_path)
+
+
+@pytest.mark.usefixtures("pop_pylintrc")
+def test_load_plugin_path_manipulation_case_6() -> None:
+    """Case 6 refers to GitHub issue #7264.
+
+    This is where we supply a plugin we want to load on both the CLI and
+    config file, but that plugin is only loadable after the ``init-hook`` in
+    the config file has run. This is not supported, and was previously a silent
+    failure. This test ensures a ``bad-plugin-value`` message is emitted.
+    """
+    dummy_plugin_path = abspath(
+        join(REGRTEST_DATA_DIR, "dummy_plugin", "dummy_plugin.py")
+    )
+    with fake_home() as home_path:
+        # construct a basic rc file that just modifies the path
+        pylintrc_file = join(home_path, "pylintrc")
+        with open(pylintrc_file, "w", encoding="utf8") as out:
+            out.writelines(
+                [
+                    "[MASTER]\n",
+                    f"init-hook=\"import sys; sys.path.append(r'{home_path}')\"\n",
+                    "load-plugins=copy_dummy\n",
+                ]
+            )
+
+        copy(dummy_plugin_path, join(home_path, "copy_dummy.py"))
+
+        # To confirm we won't load this module _without_ the init hook running.
+        assert home_path not in sys.path
+
+        run = Run(
+            [
+                "--rcfile",
+                pylintrc_file,
+                "--load-plugins",
+                "copy_dummy",
+                join(REGRTEST_DATA_DIR, "empty.py"),
+            ],
+            reporter=testutils.GenericTestReporter(),
+            exit=False,
+        )
+        assert run._rcfile == pylintrc_file
+        assert home_path in sys.path
+        # The module should not be loaded
+        assert not any(ch.name == "dummy_plugin" for ch in run.linter.get_checkers())
+
+        # There should be a bad-plugin-message for this module
+        assert len(run.linter.reporter.messages) == 1
+        assert run.linter.reporter.messages[0] == Message(
+            msg_id="E0013",
+            symbol="bad-plugin-value",
+            msg="Plugin 'copy_dummy' is impossible to load, is it installed ? ('No module named 'copy_dummy'')",
+            confidence=interfaces.Confidence(
+                name="UNDEFINED",
+                description="Warning without any associated confidence level.",
+            ),
+            location=MessageLocationTuple(
+                abspath="Command line or configuration file",
+                path="Command line or configuration file",
+                module="Command line or configuration file",
+                obj="",
+                line=1,
+                column=0,
+                end_line=None,
+                end_column=None,
+            ),
+        )
+
+        # Necessary as the executed init-hook modifies sys.path
+        sys.path.remove(home_path)
+
+
+@pytest.mark.usefixtures("pop_pylintrc")
+def test_load_plugin_path_manipulation_case_3() -> None:
+    """Case 3 refers to GitHub issue #7264.
+
+    This is where we supply a plugin we want to load on the CLI only,
+    but that plugin is only loadable after the ``init-hook`` in
+    the config file has run. This is not supported, and was previously a silent
+    failure. This test ensures a ``bad-plugin-value`` message is emitted.
+    """
+    dummy_plugin_path = abspath(
+        join(REGRTEST_DATA_DIR, "dummy_plugin", "dummy_plugin.py")
+    )
+    with fake_home() as home_path:
+        # construct a basic rc file that just modifies the path
+        pylintrc_file = join(home_path, "pylintrc")
+        with open(pylintrc_file, "w", encoding="utf8") as out:
+            out.writelines(
+                [
+                    "[MASTER]\n",
+                    f"init-hook=\"import sys; sys.path.append(r'{home_path}')\"\n",
+                ]
+            )
+
+        copy(dummy_plugin_path, join(home_path, "copy_dummy.py"))
+
+        # To confirm we won't load this module _without_ the init hook running.
+        assert home_path not in sys.path
+
+        run = Run(
+            [
+                "--rcfile",
+                pylintrc_file,
+                "--load-plugins",
+                "copy_dummy",
+                join(REGRTEST_DATA_DIR, "empty.py"),
+            ],
+            reporter=testutils.GenericTestReporter(),
+            exit=False,
+        )
+        assert run._rcfile == pylintrc_file
+        assert home_path in sys.path
+        # The module should not be loaded
+        assert not any(ch.name == "dummy_plugin" for ch in run.linter.get_checkers())
+
+        # There should be a bad-plugin-message for this module
+        assert len(run.linter.reporter.messages) == 1
+        assert run.linter.reporter.messages[0] == Message(
+            msg_id="E0013",
+            symbol="bad-plugin-value",
+            msg="Plugin 'copy_dummy' is impossible to load, is it installed ? ('No module named 'copy_dummy'')",
+            confidence=interfaces.Confidence(
+                name="UNDEFINED",
+                description="Warning without any associated confidence level.",
+            ),
+            location=MessageLocationTuple(
+                abspath="Command line or configuration file",
+                path="Command line or configuration file",
+                module="Command line or configuration file",
+                obj="",
+                line=1,
+                column=0,
+                end_line=None,
+                end_column=None,
+            ),
+        )
+
+        # Necessary as the executed init-hook modifies sys.path
+        sys.path.remove(home_path)
+
+
+@pytest.mark.usefixtures("pop_pylintrc")
+def test_load_plugin_pylintrc_order_independent() -> None:
+    """Test that the init-hook is called independent of the order in a config file.
+
+    We want to ensure that any path manipulation in init hook
+    that means a plugin can load (as per GitHub Issue #7264 Cases 4+7)
+    runs before the load call, regardless of the order of lines in the
+    pylintrc file.
+    """
+    dummy_plugin_path = abspath(
+        join(REGRTEST_DATA_DIR, "dummy_plugin", "dummy_plugin.py")
+    )
+
+    with fake_home() as home_path:
+        copy(dummy_plugin_path, join(home_path, "copy_dummy.py"))
+        # construct a basic rc file that just modifies the path
+        pylintrc_file_before = join(home_path, "pylintrc_before")
+        with open(pylintrc_file_before, "w", encoding="utf8") as out:
+            out.writelines(
+                [
+                    "[MASTER]\n",
+                    f"init-hook=\"import sys; sys.path.append(r'{home_path}')\"\n",
+                    "load-plugins=copy_dummy\n",
+                ]
+            )
+        pylintrc_file_after = join(home_path, "pylintrc_after")
+        with open(pylintrc_file_after, "w", encoding="utf8") as out:
+            out.writelines(
+                [
+                    "[MASTER]\n",
+                    "load-plugins=copy_dummy\n"
+                    f"init-hook=\"import sys; sys.path.append(r'{home_path}')\"\n",
+                ]
+            )
+        for rcfile in (pylintrc_file_before, pylintrc_file_after):
+            # To confirm we won't load this module _without_ the init hook running.
+            assert home_path not in sys.path
+            run = Run(
+                [
+                    "--rcfile",
+                    rcfile,
+                    join(REGRTEST_DATA_DIR, "empty.py"),
+                ],
+                exit=False,
+            )
+            assert (
+                len(
+                    [
+                        ch.name
+                        for ch in run.linter.get_checkers()
+                        if ch.name == "dummy_plugin"
+                    ]
+                )
+                == 2
+            )
+            assert run._rcfile == rcfile
+            assert home_path in sys.path
+
+            # Necessary as the executed init-hook modifies sys.path
+            sys.path.remove(home_path)
+
+
+def test_load_plugin_command_line_before_init_hook() -> None:
+    """Check that the order of 'load-plugins' and 'init-hook' doesn't affect execution."""
+    dummy_plugin_path = abspath(
+        join(REGRTEST_DATA_DIR, "dummy_plugin", "dummy_plugin.py")
+    )
+
+    with fake_home() as home_path:
+        copy(dummy_plugin_path, join(home_path, "copy_dummy.py"))
+        # construct a basic rc file that just modifies the path
+        assert home_path not in sys.path
+        run = Run(
+            [
+                "--load-plugins",
+                "copy_dummy",
+                "--init-hook",
+                f'import sys; sys.path.append(r"{home_path}")',
+                join(REGRTEST_DATA_DIR, "empty.py"),
+            ],
+            exit=False,
+        )
+        assert home_path in sys.path
+        assert (
+            len(
+                [
+                    ch.name
+                    for ch in run.linter.get_checkers()
+                    if ch.name == "dummy_plugin"
+                ]
+            )
+            == 2
+        )
+
+        # Necessary as the executed init-hook modifies sys.path
+        sys.path.remove(home_path)
+
+
+def test_load_plugin_command_line_with_init_hook_command_line() -> None:
+    dummy_plugin_path = abspath(
+        join(REGRTEST_DATA_DIR, "dummy_plugin", "dummy_plugin.py")
+    )
+
+    with fake_home() as home_path:
+        copy(dummy_plugin_path, join(home_path, "copy_dummy.py"))
+        # construct a basic rc file that just modifies the path
+        assert home_path not in sys.path
+        run = Run(
+            [
+                "--init-hook",
+                f'import sys; sys.path.append(r"{home_path}")',
+                "--load-plugins",
+                "copy_dummy",
+                join(REGRTEST_DATA_DIR, "empty.py"),
+            ],
+            exit=False,
+        )
+        assert (
+            len(
+                [
+                    ch.name
+                    for ch in run.linter.get_checkers()
+                    if ch.name == "dummy_plugin"
+                ]
+            )
+            == 2
+        )
+        assert home_path in sys.path
+
+        # Necessary as the executed init-hook modifies sys.path
+        sys.path.remove(home_path)
 
 
 def test_load_plugin_config_file() -> None:
@@ -615,7 +897,7 @@ def test_full_documentation(linter: PyLinter) -> None:
 
 
 def test_list_msgs_enabled(
-    initialized_linter: PyLinter, capsys: CaptureFixture
+    initialized_linter: PyLinter, capsys: CaptureFixture[str]
 ) -> None:
     linter = initialized_linter
     linter.enable("W0101", scope="package")
@@ -645,126 +927,14 @@ def pop_pylintrc() -> None:
 
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_pylint_home() -> None:
-    uhome = os.path.expanduser("~")
-    if uhome == "~":
-        expected = OLD_DEFAULT_PYLINT_HOME
-    else:
-        expected = platformdirs.user_cache_dir("pylint")
-    assert config.PYLINT_HOME == expected
+    expected = platformdirs.user_cache_dir("pylint")
+    assert constants.PYLINT_HOME == expected
     assert PYLINT_HOME == expected
 
 
+@mock.patch.dict(os.environ, {"PYLINTHOME": "whatever.d"})
 def test_pylint_home_from_environ() -> None:
-    try:
-        pylintd = join(tempfile.gettempdir(), OLD_DEFAULT_PYLINT_HOME)
-        os.environ["PYLINTHOME"] = pylintd
-        try:
-            assert _get_pylint_home() == pylintd
-        finally:
-            try:
-                rmtree(pylintd)
-            except FileNotFoundError:
-                pass
-    finally:
-        del os.environ["PYLINTHOME"]
-
-
-def test_warn_about_old_home(capsys: CaptureFixture) -> None:
-    """Test that we correctly warn about old_home."""
-    # Create old home
-    old_home = Path(USER_HOME) / OLD_DEFAULT_PYLINT_HOME
-    old_home.mkdir(parents=True, exist_ok=True)
-
-    # Create spam prevention file
-    ten_years_ago = datetime.datetime.now() - datetime.timedelta(weeks=520)
-    new_prevention_file = Path(PYLINT_HOME) / ten_years_ago.strftime(
-        "pylint_warned_about_old_cache_already_%Y-%m-%d.temp"
-    )
-    with open(new_prevention_file, "w", encoding="utf8") as f:
-        f.write("")
-
-    # Remove current prevention file
-    cur_prevention_file = Path(PYLINT_HOME) / datetime.datetime.now().strftime(
-        "pylint_warned_about_old_cache_already_%Y-%m-%d.temp"
-    )
-    if cur_prevention_file.exists():
-        os.remove(cur_prevention_file)
-
-    _warn_about_old_home(Path(PYLINT_HOME))
-
-    assert not new_prevention_file.exists()
-    assert cur_prevention_file.exists()
-
-    out = capsys.readouterr()
-    assert "PYLINTHOME is now" in out.err
-
-
-@pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc() -> None:
-    with fake_home():
-        current_dir = getcwd()
-        chdir(os.path.dirname(os.path.abspath(sys.executable)))
-        try:
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-            os.environ["PYLINTRC"] = join(tempfile.gettempdir(), ".pylintrc")
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-            os.environ["PYLINTRC"] = "."
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-        finally:
-            chdir(current_dir)
-            reload(config)
-
-
-@pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc_parentdir() -> None:
-    with tempdir() as chroot:
-
-        create_files(
-            [
-                "a/pylintrc",
-                "a/b/__init__.py",
-                "a/b/pylintrc",
-                "a/b/c/__init__.py",
-                "a/b/c/d/__init__.py",
-                "a/b/c/d/e/.pylintrc",
-            ]
-        )
-        with fake_home():
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-        results = {
-            "a": join(chroot, "a", "pylintrc"),
-            "a/b": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c/d": join(chroot, "a", "b", "pylintrc"),
-            "a/b/c/d/e": join(chroot, "a", "b", "c", "d", "e", ".pylintrc"),
-        }
-        for basedir, expected in results.items():
-            os.chdir(join(chroot, basedir))
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() == expected
-
-
-@pytest.mark.usefixtures("pop_pylintrc")
-def test_pylintrc_parentdir_no_package() -> None:
-    with tempdir() as chroot:
-        with fake_home():
-            create_files(["a/pylintrc", "a/b/pylintrc", "a/b/c/d/__init__.py"])
-            with pytest.warns(DeprecationWarning):
-                assert config.find_pylintrc() is None
-            results = {
-                "a": join(chroot, "a", "pylintrc"),
-                "a/b": join(chroot, "a", "b", "pylintrc"),
-                "a/b/c": None,
-                "a/b/c/d": None,
-            }
-            for basedir, expected in results.items():
-                os.chdir(join(chroot, basedir))
-                with pytest.warns(DeprecationWarning):
-                    assert config.find_pylintrc() == expected
+    assert _get_pylint_home() == "whatever.d"
 
 
 class _CustomPyLinter(PyLinter):
@@ -859,7 +1029,6 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
 
     by_module_stats = linter.stats.by_module
     for module, module_stats in by_module_stats.items():
-
         linter2 = initialized_linter
         if module == "data":
             linter2.check([os.path.join(os.path.dirname(__file__), "data/__init__.py")])
@@ -882,7 +1051,7 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
         ("--ignore-paths", ".*ignored.*/failing.*"),
     ],
 )
-def test_recursive_ignore(ignore_parameter, ignore_parameter_value) -> None:
+def test_recursive_ignore(ignore_parameter: str, ignore_parameter_value: str) -> None:
     run = Run(
         [
             "--recursive",
@@ -914,6 +1083,96 @@ def test_recursive_ignore(ignore_parameter, ignore_parameter_value) -> None:
     assert module in linted_file_paths
 
 
+def test_source_roots_globbing() -> None:
+    run = Run(
+        [
+            "--source-roots",
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "*"),
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "project"),
+        ],
+        exit=False,
+    )
+    assert run.linter.config.source_roots == [
+        join(REGRTEST_DATA_DIR, "pep420", "basic", "project")
+    ]
+
+
+def test_recursive_implicit_namespace() -> None:
+    run = Run(
+        [
+            "--verbose",
+            "--recursive",
+            "y",
+            "--source-roots",
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "project"),
+            join(REGRTEST_DATA_DIR, "pep420", "basic"),
+        ],
+        exit=False,
+    )
+    assert run.linter.file_state.base_name == "namespace.package"
+
+
+def test_recursive_implicit_namespace_wrapper() -> None:
+    run = Run(
+        [
+            "--recursive",
+            "y",
+            "--source-roots",
+            join(REGRTEST_DATA_DIR, "pep420", "wrapper", "project"),
+            join(REGRTEST_DATA_DIR, "pep420", "wrapper"),
+        ],
+        exit=False,
+    )
+    run.linter.set_reporter(testutils.GenericTestReporter())
+    run.linter.check([join(REGRTEST_DATA_DIR, "pep420", "wrapper")])
+    assert run.linter.reporter.messages == []
+
+
+def test_globbing() -> None:
+    run = Run(
+        [
+            "--verbose",
+            "--source-roots",
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "project"),
+            join(REGRTEST_DATA_DIR, "pep420", "basic", "project", "**", "__init__.py"),
+        ],
+        exit=False,
+    )
+    assert run.linter.file_state.base_name == "namespace.package.__init__"
+
+
+def test_relative_imports(initialized_linter: PyLinter) -> None:
+    """Regression test for https://github.com/pylint-dev/pylint/issues/3651"""
+    linter = initialized_linter
+    with tempdir() as tmpdir:
+        create_files(["x/y/__init__.py", "x/y/one.py", "x/y/two.py"], tmpdir)
+        with open("x/y/__init__.py", "w", encoding="utf-8") as f:
+            f.write(
+                """
+\"\"\"Module x.y\"\"\"
+from .one import ONE
+from .two import TWO
+"""
+            )
+        with open("x/y/one.py", "w", encoding="utf-8") as f:
+            f.write(
+                """
+\"\"\"Module x.y.one\"\"\"
+ONE = 1
+"""
+            )
+        with open("x/y/two.py", "w", encoding="utf-8") as f:
+            f.write(
+                """
+\"\"\"Module x.y.two\"\"\"
+from .one import ONE
+TWO = ONE + ONE
+"""
+            )
+        linter.check(["x/y"])
+    assert not linter.stats.by_msg
+
+
 def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> None:
     """If the parent directory above `namespace` is on sys.path, ensure that
     modules under `namespace` can import each other without raising `import-error`."""
@@ -929,16 +1188,31 @@ print(submodule1)
 """
             )
         os.chdir("namespace")
+        extra_sys_paths = [expand_modules.discover_package_path(tmpdir, [])]
+
         # Add the parent directory to sys.path
-        with fix_import_path([tmpdir]):
+        with lint.augmented_sys_path(extra_sys_paths):
             linter.check(["submodule2.py"])
     assert not linter.stats.by_msg
 
 
 def test_lint_namespace_package_under_dir(initialized_linter: PyLinter) -> None:
-    """Regression test for https://github.com/PyCQA/pylint/issues/1667"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/1667"""
     linter = initialized_linter
     with tempdir():
         create_files(["outer/namespace/__init__.py", "outer/namespace/module.py"])
         linter.check(["outer.namespace"])
     assert not linter.stats.by_msg
+
+
+def test_lint_namespace_package_under_dir_on_path(initialized_linter: PyLinter) -> None:
+    """If the directory above a namespace package is on sys.path,
+    the namespace module under it is linted."""
+    linter = initialized_linter
+    with tempdir() as tmpdir:
+        create_files(["namespace_on_path/submodule1.py"])
+        os.chdir(tmpdir)
+        extra_sys_paths = [expand_modules.discover_package_path(tmpdir, [])]
+        with lint.augmented_sys_path(extra_sys_paths):
+            linter.check(["namespace_on_path"])
+    assert linter.file_state.base_name == "namespace_on_path"

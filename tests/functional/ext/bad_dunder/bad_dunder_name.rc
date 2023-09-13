@@ -1,0 +1,4 @@
+[MAIN]
+load-plugins=pylint.extensions.dunder
+
+good-dunder-names = __allowed__,

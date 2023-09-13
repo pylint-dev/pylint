@@ -1,4 +1,4 @@
-# -*- pylint: disable=too-few-public-methods, useless-object-inheritance, unnecessary-lambda-assignment
+# -*- pylint: disable=too-few-public-methods, unnecessary-lambda-assignment
 """Test that decorators sees the class namespace - just like
 function default values does but function body doesn't.
 
@@ -6,9 +6,8 @@ https://www.logilab.net/elo/ticket/3711 - bug finding decorator arguments
 https://www.logilab.net/elo/ticket/5626 - name resolution bug inside classes
 """
 
-from __future__ import print_function
 
-class Test(object):
+class Test:
     """test class"""
     ident = lambda x: x
 

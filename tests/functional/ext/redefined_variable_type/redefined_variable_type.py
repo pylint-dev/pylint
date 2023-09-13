@@ -1,12 +1,12 @@
 """Checks variable types aren't redefined within a method or a function"""
 
-# pylint: disable=too-few-public-methods,missing-docstring,unused-variable,invalid-name, useless-object-inheritance
+# pylint: disable=too-few-public-methods,missing-docstring,unused-variable,invalid-name
 
 _OK = True
 
-class MyClass(object):
+class MyClass:
 
-    class Klass(object):
+    class Klass:
         def __init__(self):
             self.var2 = 'var'
 
@@ -83,3 +83,28 @@ def func2(x):
     else:
         var4 = 2.
         var4 = 'baz'  # [redefined-variable-type]
+
+
+# Test that ``redefined-variable-type`` is not emitted
+# https://github.com/pylint-dev/pylint/issues/8120
+
+async def test_a():
+    data = [
+        {'test': 1},
+        {'test': 2},
+    ]
+    return data
+
+async def test_b():
+    data = {'test': 1}
+    return data
+
+
+class AsyncFunctions:
+    async def funtion1(self):
+        potato = 1
+        print(potato)
+
+    async def funtion2(self):
+        potato = {}
+        print(potato)

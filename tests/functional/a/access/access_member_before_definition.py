@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring,too-few-public-methods,invalid-name
-# pylint: disable=attribute-defined-outside-init, useless-object-inheritance
+# pylint: disable=attribute-defined-outside-init
 
 
-class Aaaa(object):
+class Aaaa:
     """class with attributes defined in wrong order"""
 
     def __init__(self):
@@ -11,7 +11,7 @@ class Aaaa(object):
         self._var3 = var1
 
 
-class Bbbb(object):
+class Bbbb:
     A = 23
     B = A
 
@@ -31,7 +31,7 @@ class Bbbb(object):
             return attr
 
 
-class Mixin(object):
+class Mixin:
     def test_mixin(self):
         """Don't emit access-member-before-definition for mixin classes."""
         if self.already_defined:

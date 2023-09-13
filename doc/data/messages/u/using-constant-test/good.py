@@ -1,1 +1,1 @@
-print('This code is always executed.')
+print("This code is always executed.")

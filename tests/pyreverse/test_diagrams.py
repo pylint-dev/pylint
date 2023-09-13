@@ -1,20 +1,19 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unit test for the diagrams modules."""
 
 from __future__ import annotations
 
-from collections.abc import Callable
-
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker
 from pylint.testutils.pyreverse import PyreverseConfig
+from pylint.typing import GetProjectCallable
 
 
 def test_property_handling(
-    default_config: PyreverseConfig, get_project: Callable
+    default_config: PyreverseConfig, get_project: GetProjectCallable
 ) -> None:
     project = get_project("data.property_pattern")
     class_diagram = DefaultDiadefGenerator(

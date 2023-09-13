@@ -1,0 +1,4 @@
+Following a deprecation period, the ``do_exit`` argument of the ``Run`` class (and of the ``_Run``
+class in testutils) were removed.
+
+Refs #8472

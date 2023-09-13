@@ -1,0 +1,5 @@
+shadowed-import:5:0:5:45::Shadowed 'Path' (imported line 4):HIGH
+reimported:7:0:7:24::Reimport 'Path' (imported line 4):HIGH
+shadowed-import:8:0:8:27::Shadowed 'Path' (imported line 4):HIGH
+shadowed-import:11:0:11:38::Shadowed 'algos' (imported line 10):HIGH
+shadowed-import:17:0:17:40::Shadowed 'Hello' (imported line 16):HIGH

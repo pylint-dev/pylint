@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Base class defining the interface for a printer."""
 
@@ -17,15 +17,15 @@ from pylint.pyreverse.utils import get_annotation_label
 
 class NodeType(Enum):
     CLASS = "class"
-    INTERFACE = "interface"
     PACKAGE = "package"
 
 
 class EdgeType(Enum):
     INHERITS = "inherits"
-    IMPLEMENTS = "implements"
     ASSOCIATION = "association"
+    AGGREGATION = "aggregation"
     USES = "uses"
+    TYPE_DEPENDENCY = "type_dependency"
 
 
 class Layout(Enum):

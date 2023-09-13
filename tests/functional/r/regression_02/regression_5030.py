@@ -1,11 +1,11 @@
 """Regression in astroid on ClassDef inference with two test cases.
-Fixed in https://github.com/PyCQA/astroid/pull/1181"""
+Fixed in https://github.com/pylint-dev/astroid/pull/1181"""
 
 from typing import Tuple, Type
 from typing import Dict, List, Any
 from dataclasses import dataclass, field
 
-# https://github.com/PyCQA/pylint/issues/5030
+# https://github.com/pylint-dev/pylint/issues/5030
 def is_type_list(f_type: Type) -> bool:
     """just here to show the issue"""
     return f_type == list
@@ -13,7 +13,7 @@ def is_type_list(f_type: Type) -> bool:
 assert not is_type_list(Tuple)
 
 
-# https://github.com/PyCQA/pylint/issues/5036
+# https://github.com/pylint-dev/pylint/issues/5036
 @dataclass
 class SomeData:
     """A dataclass."""

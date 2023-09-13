@@ -1,5 +1,9 @@
-"""Errors for invalid sequence indices"""
-# pylint: disable=too-few-public-methods, import-error, missing-docstring, useless-object-inheritance, unnecessary-pass
+# pylint: disable=too-few-public-methods, import-error, missing-docstring, unnecessary-pass
+
+# Disabled because of a bug with pypy 3.8 see
+# https://github.com/pylint-dev/pylint/pull/7918#issuecomment-1352737369
+# pylint: disable=multiple-statements
+
 import six
 from unknown import Unknown
 
@@ -26,7 +30,7 @@ def function4():
 
 def function5():
     """list index does not implement __index__"""
-    class NonIndexType(object):
+    class NonIndexType:
         """Class without __index__ method"""
         pass
 
@@ -62,7 +66,7 @@ def function11():
 
 def function12():
     """list index implements __index__"""
-    class IndexType(object):
+    class IndexType:
         """Class with __index__ method"""
         def __index__(self):
             """Allow objects of this class to be used as slice indices"""
@@ -72,7 +76,7 @@ def function12():
 
 def function13():
     """list index implements __index__ in a superclass"""
-    class IndexType(object):
+    class IndexType:
         """Class with __index__ method"""
         def __index__(self):
             """Allow objects of this class to be used as slice indices"""
@@ -202,14 +206,14 @@ def function24():
     test[0] = 0 # setitem with int, no error
     del test[0] # delitem with int, no error
 
-# Teest ExtSlice usage
+# Test ExtSlice usage
 def function25():
     """Extended slice used with a list"""
     return TESTLIST[..., 0] # [invalid-sequence-index]
 
 def function26():
     """Extended slice used with an object that implements __getitem__"""
-    class ExtSliceTest(object):
+    class ExtSliceTest:
         """Permit extslice syntax by implementing __getitem__"""
         def __getitem__(self, index):
             return 0
@@ -232,7 +236,7 @@ def function28():
             return 24
 
     @six.add_metaclass(Meta)
-    class Works(object):
+    class Works:
         pass
 
     @six.add_metaclass(Meta)

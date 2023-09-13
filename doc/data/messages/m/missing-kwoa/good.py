@@ -1,1 +1,6 @@
-# This is a placeholder for correct code for this message.
+def target(pos, *, keyword):
+    return pos + keyword
+
+
+def not_forwarding_kwargs(*args, **kwargs):
+    target(*args, **kwargs)

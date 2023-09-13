@@ -1,21 +1,21 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for string formatting operations."""
 
 from __future__ import annotations
 
 import collections
-import numbers
 import re
 import tokenize
 from collections import Counter
 from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import astroid
-from astroid import nodes
+from astroid import bases, nodes, util
+from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import only_required_for_messages
@@ -24,6 +24,7 @@ from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
 # Prefixes for both strings and bytes literals per
@@ -54,6 +55,11 @@ _PREFIXES = {
     "Rb",
     "RB",
 }
+_PAREN_IGNORE_TOKEN_TYPES = (
+    tokenize.NEWLINE,
+    tokenize.NL,
+    tokenize.COMMENT,
+)
 SINGLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?'''")
 DOUBLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?\"\"\"")
 QUOTE_DELIMITER_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?(\"|')", re.DOTALL)
@@ -200,7 +206,7 @@ OTHER_NODES = (
 )
 
 
-def get_access_path(key, parts):
+def get_access_path(key: str | Literal[0], parts: list[tuple[bool, str]]) -> str:
     """Given a list of format specifiers, returns
     the final access path (e.g. a.b.c[0][1]).
     """
@@ -213,7 +219,9 @@ def get_access_path(key, parts):
     return str(key) + "".join(path)
 
 
-def arg_matches_format_type(arg_type, format_type):
+def arg_matches_format_type(
+    arg_type: SuccessfulInferenceResult, format_type: str
+) -> bool:
     if format_type in "sr":
         # All types can be printed with %s and %r
         return True
@@ -238,7 +246,7 @@ class StringFormatChecker(BaseChecker):
     name = "string"
     msgs = MSGS
 
-    # pylint: disable=too-many-branches
+    # pylint: disable = too-many-branches, too-many-locals, too-many-statements
     @only_required_for_messages(
         "bad-format-character",
         "truncated-format-string",
@@ -328,7 +336,7 @@ class StringFormatChecker(BaseChecker):
                     if (
                         format_type is not None
                         and arg_type
-                        and arg_type != astroid.Uninferable
+                        and not isinstance(arg_type, util.UninferableBase)
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -386,7 +394,7 @@ class StringFormatChecker(BaseChecker):
                     arg_type = utils.safe_infer(arg)
                     if (
                         arg_type
-                        and arg_type != astroid.Uninferable
+                        and not isinstance(arg_type, util.UninferableBase)
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -427,7 +435,9 @@ class StringFormatChecker(BaseChecker):
             elif func.name == "format":
                 self._check_new_format(node, func)
 
-    def _detect_vacuous_formatting(self, node, positional_arguments):
+    def _detect_vacuous_formatting(
+        self, node: nodes.Call, positional_arguments: list[SuccessfulInferenceResult]
+    ) -> None:
         counter = collections.Counter(
             arg.name for arg in positional_arguments if isinstance(arg, nodes.Name)
         )
@@ -438,7 +448,7 @@ class StringFormatChecker(BaseChecker):
                 "duplicate-string-formatting-argument", node=node, args=(name,)
             )
 
-    def _check_new_format(self, node, func):
+    def _check_new_format(self, node: nodes.Call, func: bases.BoundMethod) -> None:
         """Check the new string formatting."""
         # Skip format nodes which don't have an explicit string on the
         # left side of the format operation.
@@ -483,7 +493,7 @@ class StringFormatChecker(BaseChecker):
 
         check_args = False
         # Consider "{[0]} {[1]}" as num_args.
-        num_args += sum(1 for field in named_fields if field == "")
+        num_args += sum(1 for field in named_fields if not field)
         if named_fields:
             for field in named_fields:
                 if field and field not in named_arguments:
@@ -498,7 +508,7 @@ class StringFormatChecker(BaseChecker):
             # num_args can be 0 if manual_pos is not.
             num_args = num_args or manual_pos
             if positional_arguments or num_args:
-                empty = any(field == "" for field in named_fields)
+                empty = not all(field for field in named_fields)
                 if named_arguments or empty:
                     # Verify the required number of positional arguments
                     # only if the .format got at least one keyword argument.
@@ -522,19 +532,26 @@ class StringFormatChecker(BaseChecker):
         self._detect_vacuous_formatting(node, positional_arguments)
         self._check_new_format_specifiers(node, fields, named_arguments)
 
-    def _check_new_format_specifiers(self, node, fields, named):
+    # pylint: disable = too-many-statements
+    def _check_new_format_specifiers(
+        self,
+        node: nodes.Call,
+        fields: list[tuple[str, list[tuple[bool, str]]]],
+        named: dict[str, SuccessfulInferenceResult],
+    ) -> None:
         """Check attribute and index access in the format
         string ("{0.a}" and "{0[a]}").
         """
+        key: Literal[0] | str
         for key, specifiers in fields:
             # Obtain the argument. If it can't be obtained
             # or inferred, skip this check.
-            if key == "":
+            if not key:
                 # {[0]} will have an unnamed argument, defaulting
                 # to 0. It will not be present in `named`, so use the value
                 # 0 for it.
                 key = 0
-            if isinstance(key, numbers.Number):
+            if isinstance(key, int):
                 try:
                     argname = utils.get_argument_from_call(node, key)
                 except utils.NoSuchArgumentError:
@@ -543,7 +560,7 @@ class StringFormatChecker(BaseChecker):
                 if key not in named:
                     continue
                 argname = named[key]
-            if argname in (astroid.Uninferable, None):
+            if argname is None or isinstance(argname, util.UninferableBase):
                 continue
             try:
                 argument = utils.safe_infer(argname)
@@ -558,9 +575,9 @@ class StringFormatChecker(BaseChecker):
                 # because we can't infer its value properly.
                 continue
             previous = argument
-            parsed = []
+            parsed: list[tuple[bool, str]] = []
             for is_attribute, specifier in specifiers:
-                if previous is astroid.Uninferable:
+                if isinstance(previous, util.UninferableBase):
                     break
                 parsed.append((is_attribute, specifier))
                 if is_attribute:
@@ -593,7 +610,7 @@ class StringFormatChecker(BaseChecker):
                             warn_error = True
                         except astroid.InferenceError:
                             break
-                        if previous is astroid.Uninferable:
+                        if isinstance(previous, util.UninferableBase):
                             break
                     else:
                         try:
@@ -692,9 +709,13 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     # Unicode strings.
     UNICODE_ESCAPE_CHARACTERS = "uUN"
 
-    def __init__(self, linter):
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self.string_tokens = {}  # token position -> (token value, next token)
+        self.string_tokens: dict[
+            tuple[int, int], tuple[str, tokenize.TokenInfo | None]
+        ] = {}
+        """Token position -> (token value, next token)."""
+        self._parenthesized_string_tokens: dict[tuple[int, int], bool] = {}
 
     def process_module(self, node: nodes.Module) -> None:
         self._unicode_literals = "unicode_literals" in node.future_imports
@@ -723,9 +744,61 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                     # to match with astroid `.col_offset`
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
+                is_parenthesized = self._is_initial_string_token(
+                    i, tokens
+                ) and self._is_parenthesized(i, tokens)
+                self._parenthesized_string_tokens[start] = is_parenthesized
 
         if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
+
+    def _is_initial_string_token(
+        self, index: int, tokens: Sequence[tokenize.TokenInfo]
+    ) -> bool:
+        # Must NOT be preceded by a string literal
+        prev_token = self._find_prev_token(index, tokens)
+        if prev_token and prev_token.type == tokenize.STRING:
+            return False
+        # Must be followed by a string literal token.
+        next_token = self._find_next_token(index, tokens)
+        return bool(next_token and next_token.type == tokenize.STRING)
+
+    def _is_parenthesized(self, index: int, tokens: list[tokenize.TokenInfo]) -> bool:
+        prev_token = self._find_prev_token(
+            index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
+        )
+        if not prev_token or prev_token.type != tokenize.OP or prev_token[1] != "(":
+            return False
+        next_token = self._find_next_token(
+            index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
+        )
+        return bool(
+            next_token and next_token.type == tokenize.OP and next_token[1] == ")"
+        )
+
+    def _find_prev_token(
+        self,
+        index: int,
+        tokens: Sequence[tokenize.TokenInfo],
+        *,
+        ignore: tuple[int, ...] = _PAREN_IGNORE_TOKEN_TYPES,
+    ) -> tokenize.TokenInfo | None:
+        i = index - 1
+        while i >= 0 and tokens[i].type in ignore:
+            i -= 1
+        return tokens[i] if i >= 0 else None
+
+    def _find_next_token(
+        self,
+        index: int,
+        tokens: Sequence[tokenize.TokenInfo],
+        *,
+        ignore: tuple[int, ...] = _PAREN_IGNORE_TOKEN_TYPES,
+    ) -> tokenize.TokenInfo | None:
+        i = index + 1
+        while i < len(tokens) and tokens[i].type in ignore:
+            i += 1
+        return tokens[i] if i < len(tokens) else None
 
     @only_required_for_messages("implicit-str-concat")
     def visit_call(self, node: nodes.Call) -> None:
@@ -795,15 +868,23 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             token_index = (elt.lineno, elt.col_offset)
             if token_index not in self.string_tokens:
                 # This may happen with Latin1 encoding
-                # cf. https://github.com/PyCQA/pylint/issues/2610
+                # cf. https://github.com/pylint-dev/pylint/issues/2610
                 continue
             matching_token, next_token = self.string_tokens[token_index]
             # We detect string concatenation: the AST Const is the
             # combination of 2 string tokens
-            if matching_token != elt.value and next_token is not None:
-                if next_token.type == tokenize.STRING and (
-                    next_token.start[0] == elt.lineno
-                    or self.linter.config.check_str_concat_over_line_jumps
+            if (
+                matching_token != elt.value
+                and next_token is not None
+                and next_token.type == tokenize.STRING
+            ):
+                if next_token.start[0] == elt.lineno or (
+                    self.linter.config.check_str_concat_over_line_jumps
+                    # Allow implicitly concatenated strings in parens.
+                    # See https://github.com/pylint-dev/pylint/issues/8552.
+                    and not self._parenthesized_string_tokens.get(
+                        (elt.lineno, elt.col_offset)
+                    )
                 ):
                     self.add_message(
                         "implicit-str-concat",
@@ -812,18 +893,18 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                         confidence=HIGH,
                     )
 
-    def process_string_token(self, token, start_row, start_col):
+    def process_string_token(self, token: str, start_row: int, start_col: int) -> None:
         quote_char = None
-        index = None
-        for index, char in enumerate(token):
+        for _index, char in enumerate(token):
             if char in "'\"":
                 quote_char = char
                 break
         if quote_char is None:
             return
-
-        prefix = token[:index].lower()  # markers like u, b, r.
-        after_prefix = token[index:]
+        # pylint: disable=undefined-loop-variable
+        prefix = token[:_index].lower()  # markers like u, b, r.
+        after_prefix = token[_index:]
+        # pylint: enable=undefined-loop-variable
         # Chop off quotes
         quote_length = (
             3 if after_prefix[:3] == after_prefix[-3:] == 3 * quote_char else 1
@@ -839,15 +920,15 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             )
 
     def process_non_raw_string_token(
-        self, prefix, string_body, start_row, string_start_col
-    ):
+        self, prefix: str, string_body: str, start_row: int, string_start_col: int
+    ) -> None:
         """Check for bad escapes in a non-raw string.
 
         prefix: lowercase string of string prefix markers ('ur').
         string_body: the un-parsed body of the string, not including the quote
         marks.
-        start_row: integer line number in the source.
-        string_start_col: integer col number of the string start in the source.
+        start_row: line number in the source.
+        string_start_col: col number of the string start in the source.
         """
         # Walk through the string; if we see a backslash then escape the next
         # character, and skip over it.  If we see a non-escaped character,
@@ -907,7 +988,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         ):
             self._detect_u_string_prefix(node)
 
-    def _detect_u_string_prefix(self, node: nodes.Const):
+    def _detect_u_string_prefix(self, node: nodes.Const) -> None:
         """Check whether strings include a 'u' prefix like u'String'."""
         if node.kind == "u":
             self.add_message(
@@ -922,7 +1003,7 @@ def register(linter: PyLinter) -> None:
     linter.register_checker(StringConstantChecker(linter))
 
 
-def str_eval(token):
+def str_eval(token: str) -> str:
     """Mostly replicate `ast.literal_eval(token)` manually to avoid any performance hit.
 
     This supports f-strings, contrary to `ast.literal_eval`.

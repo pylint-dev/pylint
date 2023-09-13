@@ -1,14 +1,17 @@
-global-at-module-level:5:0:5:11::Using the global statement at the module level:UNDEFINED
-undefined-variable:6:6:6:10::Undefined variable 'CSTE':UNDEFINED
-global-statement:17:4:17:19:fix_contant:Using the global statement:UNDEFINED
-global-variable-not-assigned:24:4:24:14:other:Using global for 'HOP' but no assignment is done:UNDEFINED
-undefined-variable:25:10:25:13:other:Undefined variable 'HOP':UNDEFINED
-global-variable-undefined:30:4:30:18:define_constant:Global variable 'SOMEVAR' undefined at the module level:UNDEFINED
-global-statement:36:4:36:14:global_with_import:Using the global statement:UNDEFINED
-global-variable-not-assigned:42:4:42:19:global_no_assign:Using global for 'CONSTANT' but no assignment is done:UNDEFINED
-global-statement:48:4:48:19:global_del:Using the global statement:UNDEFINED
-global-statement:55:4:55:19:global_operator_assign:Using the global statement:UNDEFINED
-global-statement:62:4:62:19:global_function_assign:Using the global statement:UNDEFINED
-global-statement:72:4:72:15:override_func:Using the global statement:UNDEFINED
-global-statement:81:4:81:14:func:Using the global statement:UNDEFINED
-global-statement:87:4:87:16:override_class:Using the global statement:UNDEFINED
+global-at-module-level:4:0:4:11::Using the global statement at the module level:HIGH
+undefined-variable:5:6:5:10::Undefined variable 'CSTE':UNDEFINED
+global-statement:20:4:20:19:fix_contant:Using the global statement:HIGH
+global-variable-not-assigned:27:4:27:14:other:Using global for 'HOP' but no assignment is done:HIGH
+undefined-variable:28:10:28:13:other:Undefined variable 'HOP':UNDEFINED
+global-variable-undefined:33:4:33:18:define_constant:Global variable 'SOMEVAR' undefined at the module level:HIGH
+global-statement:39:4:39:14:global_with_import:Using the global statement:HIGH
+global-statement:45:4:45:21:global_with_import_from:Using the global statement:HIGH
+global-variable-not-assigned:51:4:51:19:global_no_assign:Using global for 'CONSTANT' but no assignment is done:HIGH
+global-statement:57:4:57:19:global_del:Using the global statement:HIGH
+global-statement:64:4:64:19:global_operator_assign:Using the global statement:HIGH
+global-statement:71:4:71:19:global_function_assign:Using the global statement:HIGH
+global-statement:81:4:81:15:override_func:Using the global statement:HIGH
+global-statement:91:4:91:16:override_class:Using the global statement:HIGH
+global-variable-not-assigned:101:4:101:21:init_connection_state:Using global for 'RAN_DB_SET' but no assignment is done:HIGH
+global-variable-not-assigned:102:4:102:22:init_connection_state:Using global for 'RAN_DB_DICT' but no assignment is done:HIGH
+global-statement:112:4:112:15:setup_shared_foo:Using the global statement:HIGH

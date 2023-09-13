@@ -4,5 +4,3 @@ def func():
     """override __file__"""
     global __file__  # [global-statement, redefined-builtin]
     __file__ = 'hop'
-
-__revision__ = 'pouet'

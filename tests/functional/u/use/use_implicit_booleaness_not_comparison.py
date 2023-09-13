@@ -1,11 +1,11 @@
 # pylint: disable=missing-docstring, missing-module-docstring, invalid-name
 # pylint: disable=too-few-public-methods, line-too-long, dangerous-default-value
 # pylint: disable=wrong-import-order
-# https://github.com/PyCQA/pylint/issues/4774
+# https://github.com/pylint-dev/pylint/issues/4774
 
 def github_issue_4774():
     # Test literals
-    # https://github.com/PyCQA/pylint/issues/4774
+    # https://github.com/pylint-dev/pylint/issues/4774
     good_list = []
     if not good_list:
         pass
@@ -197,7 +197,7 @@ if long_test == {        }: # [use-implicit-booleaness-not-comparison]
 
 
 # Check for properties and uninferable class methods
-# See https://github.com/PyCQA/pylint/issues/5646
+# See https://github.com/pylint-dev/pylint/issues/5646
 from xyz import AnotherClassWithProperty
 
 

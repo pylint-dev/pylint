@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Utility functions for configuration testing."""
 
@@ -9,26 +9,17 @@ from __future__ import annotations
 import copy
 import json
 import logging
-import re
 import unittest
 from pathlib import Path
 from typing import Any, Dict
 from unittest.mock import Mock
 
-from pylint.constants import PY38_PLUS
 from pylint.lint import Run
 
 # We use Any in this typing because the configuration contains real objects and constants
 # that could be a lot of things.
 ConfigurationValue = Any
 PylintConfiguration = Dict[str, ConfigurationValue]
-
-
-if not PY38_PLUS:
-    # We need to deepcopy a compiled regex pattern
-    # In python 3.6 and 3.7 this requires a hack
-    # See https://stackoverflow.com/a/56935186
-    copy._deepcopy_dispatch[type(re.compile(""))] = lambda r, _: r  # type: ignore[attr-defined]
 
 
 def get_expected_or_default(

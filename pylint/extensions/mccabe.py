@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Module to add McCabe checker class for pylint."""
 
@@ -39,19 +39,19 @@ _StatementNodes = Union[
     nodes.Await,
 ]
 
-_SubGraphNodes = Union[nodes.If, nodes.TryExcept, nodes.For, nodes.While]
+_SubGraphNodes = Union[nodes.If, nodes.Try, nodes.For, nodes.While]
 _AppendableNodeT = TypeVar(
     "_AppendableNodeT", bound=Union[_StatementNodes, nodes.While, nodes.FunctionDef]
 )
 
 
-class PathGraph(Mccabe_PathGraph):
+class PathGraph(Mccabe_PathGraph):  # type: ignore[misc]
     def __init__(self, node: _SubGraphNodes | nodes.FunctionDef):
         super().__init__(name="", entity="", lineno=1)
         self.root = node
 
 
-class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
+class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[misc]
     def __init__(self) -> None:
         super().__init__()
         self._bottom_counter = 0

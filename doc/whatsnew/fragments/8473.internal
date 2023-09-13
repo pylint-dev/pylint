@@ -1,0 +1,6 @@
+Following a deprecation period, the ``py_version`` argument of the
+``MessageDefinition.may_be_emitted`` function is now required. The most likely solution
+is to use 'linter.config.py_version' if you need to keep using this
+function, or to use 'MessageDefinition.is_message_enabled' instead.
+
+Refs #8473

@@ -1,0 +1,8 @@
+logging-not-lazy:11:0:11:39::Use lazy % formatting in logging functions:UNDEFINED
+logging-not-lazy:12:0:12:35::Use lazy % formatting in logging functions:UNDEFINED
+logging-not-lazy:13:0:13:48::Use lazy % formatting in logging functions:UNDEFINED
+logging-not-lazy:14:0:14:61::Use lazy % formatting in logging functions:UNDEFINED
+logging-not-lazy:15:0:15:56::Use lazy % formatting in logging functions:UNDEFINED
+logging-not-lazy:16:0:16:57::Use lazy % formatting in logging functions:UNDEFINED
+bad-format-string:32:4:32:27::Invalid format string:UNDEFINED
+logging-format-interpolation:32:4:32:27::Use lazy % formatting in logging functions:UNDEFINED

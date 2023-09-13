@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -12,15 +12,16 @@ import os
 import sys
 import tokenize
 import traceback
-import warnings
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Any
+from re import Pattern
+from types import ModuleType
+from typing import Any, Protocol
 
 import astroid
-from astroid import AstroidError, nodes
+from astroid import nodes
 
 from pylint import checkers, exceptions, interfaces, reporters
 from pylint.checkers.base_checker import BaseChecker
@@ -34,7 +35,11 @@ from pylint.constants import (
 from pylint.interfaces import HIGH
 from pylint.lint.base_options import _make_linter_options
 from pylint.lint.caching import load_results, save_results
-from pylint.lint.expand_modules import _is_ignored_file, expand_modules
+from pylint.lint.expand_modules import (
+    _is_ignored_file,
+    discover_package_path,
+    expand_modules,
+)
 from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
 from pylint.lint.report_functions import (
@@ -44,7 +49,7 @@ from pylint.lint.report_functions import (
 )
 from pylint.lint.utils import (
     _is_relative_to,
-    fix_import_path,
+    augmented_sys_path,
     get_fatal_error_message,
     prepare_crash_report,
 )
@@ -62,12 +67,6 @@ from pylint.typing import (
     Options,
 )
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
-
-if sys.version_info >= (3, 8):
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
-
 
 MANAGER = astroid.MANAGER
 
@@ -93,7 +92,7 @@ def _load_reporter_by_class(reporter_class: str) -> type[BaseReporter]:
     class_name = qname.split(".")[-1]
     klass = getattr(module, class_name)
     assert issubclass(klass, BaseReporter), f"{klass} is not a BaseReporter"
-    return klass
+    return klass  # type: ignore[no-any-return]
 
 
 # Python Linter class #########################################################
@@ -133,26 +132,38 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "raw-checker-failed",
         "Used to inform that a built-in module has not been checked "
         "using the raw checkers.",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0010": (
         "Unable to consider inline option %r",
         "bad-inline-option",
         "Used when an inline option is either badly formatted or can't "
         "be used inside modules.",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0011": (
         "Locally disabling %s (%s)",
         "locally-disabled",
         "Used when an inline option disables a message or a messages category.",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0013": (
         "Ignoring entire file",
         "file-ignored",
         "Used to inform that the file will not be checked",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0020": (
         "Suppressed %s (from line %d)",
@@ -161,14 +172,20 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "by a disable= comment in the file. This message is not "
         "generated for messages that are ignored due to configuration "
         "settings.",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0021": (
         "Useless suppression of %s",
         "useless-suppression",
         "Reported when a message is explicitly disabled for a line or "
         "a block of code, but never triggered.",
-        {"scope": WarningScope.LINE},
+        {
+            "scope": WarningScope.LINE,
+            "default_enabled": False,
+        },
     ),
     "I0022": (
         'Pragma "%s" is deprecated, use "%s" instead',
@@ -179,6 +196,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         {
             "old_names": [("I0014", "deprecated-disable-all")],
             "scope": WarningScope.LINE,
+            "default_enabled": False,
         },
     ),
     "E0001": (
@@ -221,7 +239,8 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "E0014": (
         "Out-of-place setting encountered in top level configuration-section '%s' : '%s'",
         "bad-configuration-section",
-        "Used when we detect a setting in the top level of a toml configuration that shouldn't be there.",
+        "Used when we detect a setting in the top level of a toml configuration that"
+        " shouldn't be there.",
         {"scope": WarningScope.LINE},
     ),
     "E0015": (
@@ -294,19 +313,8 @@ class PyLinter(
             str, list[checkers.BaseChecker]
         ] = collections.defaultdict(list)
         """Dictionary of registered and initialized checkers."""
-        self._dynamic_plugins: set[str] = set()
+        self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
-
-        # Attributes related to registering messages and their handling
-        self.msgs_store = MessageDefinitionStore()
-        self.msg_status = 0
-        self._by_id_managed_msgs: list[ManagedMessage] = []
-
-        # Attributes related to visiting files
-        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
-        self.current_name: str | None = None
-        self.current_file: str | None = None
-        self._ignore_file = False
 
         # Attributes related to stats
         self.stats = LinterStats()
@@ -315,7 +323,8 @@ class PyLinter(
         self.options: Options = options + _make_linter_options(self)
         for opt_group in option_groups:
             self.option_groups_descs[opt_group[0]] = opt_group[1]
-        self._option_groups: tuple[tuple[str, str], ...] = option_groups + (
+        self._option_groups: tuple[tuple[str, str], ...] = (
+            *option_groups,
             ("Messages control", "Options controlling analysis messages"),
             ("Reports", "Options related to output formatting and reporting"),
         )
@@ -335,40 +344,44 @@ class PyLinter(
             ),
             ("RP0003", "Messages", report_messages_stats),
         )
+
+        # Attributes related to registering messages and their handling
+        self.msgs_store = MessageDefinitionStore(self.config.py_version)
+        self.msg_status = 0
+        self._by_id_managed_msgs: list[ManagedMessage] = []
+
+        # Attributes related to visiting files
+        self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
+        self.current_name: str = ""
+        self.current_file: str | None = None
+        self._ignore_file = False
+        self._ignore_paths: list[Pattern[str]] = []
+
         self.register_checker(self)
-
-    @property
-    def option_groups(self) -> tuple[tuple[str, str], ...]:
-        # TODO: 3.0: Remove deprecated attribute
-        warnings.warn(
-            "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
-            DeprecationWarning,
-        )
-        return self._option_groups
-
-    @option_groups.setter
-    def option_groups(self, value: tuple[tuple[str, str], ...]) -> None:
-        warnings.warn(
-            "The option_groups attribute has been deprecated and will be removed in pylint 3.0",
-            DeprecationWarning,
-        )
-        self._option_groups = value
 
     def load_default_plugins(self) -> None:
         checkers.initialize(self)
         reporters.initialize(self)
 
-    def load_plugin_modules(self, modnames: list[str]) -> None:
-        """Check a list pylint plugins modules, load and register them."""
+    def load_plugin_modules(self, modnames: Iterable[str], force: bool = False) -> None:
+        """Check a list of pylint plugins modules, load and register them.
+
+        If a module cannot be loaded, never try to load it again and instead
+        store the error message for later use in ``load_plugin_configuration``
+        below.
+
+        If `force` is True (useful when multiprocessing), then the plugin is
+        reloaded regardless if an entry exists in self._dynamic_plugins.
+        """
         for modname in modnames:
-            if modname in self._dynamic_plugins:
+            if modname in self._dynamic_plugins and not force:
                 continue
-            self._dynamic_plugins.add(modname)
             try:
                 module = astroid.modutils.load_module_from_name(modname)
                 module.register(self)
-            except ModuleNotFoundError:
-                pass
+                self._dynamic_plugins[modname] = module
+            except ModuleNotFoundError as mnf_e:
+                self._dynamic_plugins[modname] = mnf_e
 
     def load_plugin_configuration(self) -> None:
         """Call the configuration hook for plugins.
@@ -376,14 +389,31 @@ class PyLinter(
         This walks through the list of plugins, grabs the "load_configuration"
         hook, if exposed, and calls it to allow plugins to configure specific
         settings.
+
+        The result of attempting to load the plugin of the given name
+        is stored in the dynamic plugins dictionary in ``load_plugin_modules`` above.
+
+        ..note::
+            This function previously always tried to load modules again, which
+            led to some confusion and silent failure conditions as described
+            in GitHub issue #7264. Making it use the stored result is more efficient, and
+            means that we avoid the ``init-hook`` problems from before.
         """
-        for modname in self._dynamic_plugins:
-            try:
-                module = astroid.modutils.load_module_from_name(modname)
-                if hasattr(module, "load_configuration"):
-                    module.load_configuration(self)
-            except ModuleNotFoundError as e:
-                self.add_message("bad-plugin-value", args=(modname, e), line=0)
+        for modname, module_or_error in self._dynamic_plugins.items():
+            if isinstance(module_or_error, ModuleNotFoundError):
+                self.add_message(
+                    "bad-plugin-value", args=(modname, module_or_error), line=0
+                )
+            elif hasattr(module_or_error, "load_configuration"):
+                module_or_error.load_configuration(self)
+
+        # We re-set all the dictionary values to True here to make sure the dict
+        # is pickle-able. This is only a problem in multiprocessing/parallel mode.
+        # (e.g. invoking pylint -j 2)
+        self._dynamic_plugins = {
+            modname: not isinstance(val, ModuleNotFoundError)
+            for modname, val in self._dynamic_plugins.items()
+        }
 
     def _load_reporters(self, reporter_names: str) -> None:
         """Load the reporters if they are available on _reporters."""
@@ -426,8 +456,8 @@ class PyLinter(
             reporter_class = _load_reporter_by_class(reporter_name)
         except (ImportError, AttributeError, AssertionError) as e:
             raise exceptions.InvalidReporterError(name) from e
-        else:
-            return reporter_class()
+
+        return reporter_class()
 
     def set_reporter(
         self, reporter: reporters.BaseReporter | reporters.MultiReporter
@@ -461,6 +491,9 @@ class PyLinter(
             self.register_report(r_id, r_title, r_cb, checker)
         if hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
+            for message in checker.messages:
+                if not message.default_enabled:
+                    self.disable(message.msgid)
         # Register the checker, but disable all of its messages.
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)
@@ -576,10 +609,11 @@ class PyLinter(
 
         This method is called before any linting is done.
         """
+        self._ignore_paths = self.config.ignore_paths
         # initialize msgs_state now that all messages have been registered into
         # the store
         for msg in self.msgs_store.messages:
-            if not msg.may_be_emitted():
+            if not msg.may_be_emitted(self.config.py_version):
                 self._msgs_state[msg.msgid] = False
 
     def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
@@ -618,19 +652,12 @@ class PyLinter(
             else:
                 yield something
 
-    def check(self, files_or_modules: Sequence[str] | str) -> None:
+    def check(self, files_or_modules: Sequence[str]) -> None:
         """Main checking entry: check a list of files or modules from their name.
 
         files_or_modules is either a string or list of strings presenting modules to check.
         """
         self.initialize()
-        if not isinstance(files_or_modules, (list, tuple)):
-            # TODO: 3.0: Remove deprecated typing and update docstring
-            warnings.warn(
-                "In pylint 3.0, the checkers check function will only accept sequence of string",
-                DeprecationWarning,
-            )
-            files_or_modules = (files_or_modules,)  # type: ignore[assignment]
         if self.config.recursive:
             files_or_modules = tuple(self._discover_files(files_or_modules))
         if self.config.from_stdin:
@@ -639,32 +666,68 @@ class PyLinter(
                     "Missing filename required for --from-stdin"
                 )
 
-            filepath = files_or_modules[0]
-            with fix_import_path(files_or_modules):
-                self._check_files(
-                    functools.partial(self.get_ast, data=_read_stdin()),
-                    [self._get_file_descr_from_stdin(filepath)],
-                )
-        elif self.config.jobs == 1:
-            with fix_import_path(files_or_modules):
-                self._check_files(
-                    self.get_ast, self._iterate_file_descrs(files_or_modules)
-                )
-        else:
+        extra_packages_paths = list(
+            {
+                discover_package_path(file_or_module, self.config.source_roots)
+                for file_or_module in files_or_modules
+            }
+        )
+
+        # TODO: Move the parallel invocation into step 3 of the checking process
+        if not self.config.from_stdin and self.config.jobs > 1:
+            original_sys_path = sys.path[:]
             check_parallel(
                 self,
                 self.config.jobs,
                 self._iterate_file_descrs(files_or_modules),
-                files_or_modules,
+                extra_packages_paths,
             )
+            sys.path = original_sys_path
+            return
 
-    def check_single_file(self, name: str, filepath: str, modname: str) -> None:
-        warnings.warn(
-            "In pylint 3.0, the checkers check_single_file function will be removed. "
-            "Use check_single_file_item instead.",
-            DeprecationWarning,
-        )
-        self.check_single_file_item(FileItem(name, filepath, modname))
+        # 1) Get all FileItems
+        with augmented_sys_path(extra_packages_paths):
+            if self.config.from_stdin:
+                fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
+                data: str | None = _read_stdin()
+            else:
+                fileitems = self._iterate_file_descrs(files_or_modules)
+                data = None
+
+        # The contextmanager also opens all checkers and sets up the PyLinter class
+        with augmented_sys_path(extra_packages_paths):
+            with self._astroid_module_checker() as check_astroid_module:
+                # 2) Get the AST for each FileItem
+                ast_per_fileitem = self._get_asts(fileitems, data)
+
+                # 3) Lint each ast
+                self._lint_files(ast_per_fileitem, check_astroid_module)
+
+    def _get_asts(
+        self, fileitems: Iterator[FileItem], data: str | None
+    ) -> dict[FileItem, nodes.Module | None]:
+        """Get the AST for all given FileItems."""
+        ast_per_fileitem: dict[FileItem, nodes.Module | None] = {}
+
+        for fileitem in fileitems:
+            self.set_current_module(fileitem.name, fileitem.filepath)
+
+            try:
+                ast_per_fileitem[fileitem] = self.get_ast(
+                    fileitem.filepath, fileitem.name, data
+                )
+            except astroid.AstroidBuildingError as ex:
+                template_path = prepare_crash_report(
+                    ex, fileitem.filepath, self.crash_file_path
+                )
+                msg = get_fatal_error_message(fileitem.filepath, template_path)
+                self.add_message(
+                    "astroid-error",
+                    args=(fileitem.filepath, msg),
+                    confidence=HIGH,
+                )
+
+        return ast_per_fileitem
 
     def check_single_file_item(self, file: FileItem) -> None:
         """Check single file item.
@@ -676,27 +739,62 @@ class PyLinter(
         with self._astroid_module_checker() as check_astroid_module:
             self._check_file(self.get_ast, check_astroid_module, file)
 
-    def _check_files(
+    def _lint_files(
         self,
-        get_ast: GetAstProtocol,
-        file_descrs: Iterable[FileItem],
+        ast_mapping: dict[FileItem, nodes.Module | None],
+        check_astroid_module: Callable[[nodes.Module], bool | None],
     ) -> None:
-        """Check all files from file_descrs."""
-        with self._astroid_module_checker() as check_astroid_module:
-            for file in file_descrs:
-                try:
-                    self._check_file(get_ast, check_astroid_module, file)
-                except Exception as ex:  # pylint: disable=broad-except
-                    template_path = prepare_crash_report(
-                        ex, file.filepath, self.crash_file_path
+        """Lint all AST modules from a mapping.."""
+        for fileitem, module in ast_mapping.items():
+            if module is None:
+                continue
+            try:
+                self._lint_file(fileitem, module, check_astroid_module)
+            except Exception as ex:  # pylint: disable=broad-except
+                template_path = prepare_crash_report(
+                    ex, fileitem.filepath, self.crash_file_path
+                )
+                msg = get_fatal_error_message(fileitem.filepath, template_path)
+                if isinstance(ex, astroid.AstroidError):
+                    self.add_message(
+                        "astroid-error", args=(fileitem.filepath, msg), confidence=HIGH
                     )
-                    msg = get_fatal_error_message(file.filepath, template_path)
-                    if isinstance(ex, AstroidError):
-                        symbol = "astroid-error"
-                        self.add_message(symbol, args=(file.filepath, msg))
-                    else:
-                        symbol = "fatal"
-                        self.add_message(symbol, args=msg)
+                else:
+                    self.add_message("fatal", args=msg, confidence=HIGH)
+
+    def _lint_file(
+        self,
+        file: FileItem,
+        module: nodes.Module,
+        check_astroid_module: Callable[[nodes.Module], bool | None],
+    ) -> None:
+        """Lint a file using the passed utility function check_astroid_module).
+
+        :param FileItem file: data about the file
+        :param nodes.Module module: the ast module to lint
+        :param Callable check_astroid_module: callable checking an AST taking the following
+               arguments
+        - ast: AST of the module
+        :raises AstroidError: for any failures stemming from astroid
+        """
+        self.set_current_module(file.name, file.filepath)
+        self._ignore_file = False
+        self.file_state = FileState(file.modpath, self.msgs_store, module)
+        # fix the current file (if the source file was not available or
+        # if it's actually a c extension)
+        self.current_file = module.file
+
+        try:
+            check_astroid_module(module)
+        except Exception as e:
+            raise astroid.AstroidError from e
+
+        # warn about spurious inline messages handling
+        spurious_messages = self.file_state.iter_spurious_suppression_messages(
+            self.msgs_store
+        )
+        for msgid, line, args in spurious_messages:
+            self.add_message(msgid, line, None, args)
 
     def _check_file(
         self,
@@ -707,10 +805,12 @@ class PyLinter(
         """Check a file using the passed utility functions (get_ast and
         check_astroid_module).
 
-        :param callable get_ast: callable returning AST from defined file taking the following arguments
+        :param callable get_ast: callable returning AST from defined file taking the
+                                 following arguments
         - filepath: path to the file to check
         - name: Python module name
-        :param callable check_astroid_module: callable checking an AST taking the following arguments
+        :param callable check_astroid_module: callable checking an AST taking the following
+               arguments
         - ast: AST of the module
         :param FileItem file: data about the file
         :raises AstroidError: for any failures stemming from astroid
@@ -738,14 +838,21 @@ class PyLinter(
         for msgid, line, args in spurious_messages:
             self.add_message(msgid, line, None, args)
 
-    @staticmethod
-    def _get_file_descr_from_stdin(filepath: str) -> FileItem:
+    def _get_file_descr_from_stdin(self, filepath: str) -> Iterator[FileItem]:
         """Return file description (tuple of module name, file path, base name) from
         given file path.
 
         This method is used for creating suitable file description for _check_files when the
         source is standard input.
         """
+        if _is_ignored_file(
+            filepath,
+            self.config.ignore,
+            self.config.ignore_patterns,
+            self.config.ignore_paths,
+        ):
+            return
+
         try:
             # Note that this function does not really perform an
             # __import__ but may raise an ImportError exception, which
@@ -754,7 +861,7 @@ class PyLinter(
         except ImportError:
             modname = os.path.splitext(os.path.basename(filepath))[0]
 
-        return FileItem(modname, filepath, filepath)
+        yield FileItem(modname, filepath, filepath)
 
     def _iterate_file_descrs(
         self, files_or_modules: Sequence[str]
@@ -764,15 +871,18 @@ class PyLinter(
 
         The returned generator yield one item for each Python module that should be linted.
         """
-        for descr in self._expand_files(files_or_modules):
+        for descr in self._expand_files(files_or_modules).values():
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
             if self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield FileItem(name, filepath, descr["basename"])
 
-    def _expand_files(self, modules: Sequence[str]) -> list[ModuleDescriptionDict]:
+    def _expand_files(
+        self, files_or_modules: Sequence[str]
+    ) -> dict[str, ModuleDescriptionDict]:
         """Get modules and errors from a list of modules and handle errors."""
         result, errors = expand_modules(
-            modules,
+            files_or_modules,
+            self.config.source_roots,
             self.config.ignore,
             self.config.ignore_patterns,
             self._ignore_paths,
@@ -786,25 +896,13 @@ class PyLinter(
             self.add_message(key, args=message)
         return result
 
-    def set_current_module(
-        self, modname: str | None, filepath: str | None = None
-    ) -> None:
+    def set_current_module(self, modname: str, filepath: str | None = None) -> None:
         """Set the name of the currently analyzed module and
         init statistics for it.
         """
         if not modname and filepath is None:
             return
         self.reporter.on_set_current_module(modname or "", filepath)
-        if modname is None:
-            # TODO: 3.0: Remove all modname or ""'s in this method
-            warnings.warn(
-                (
-                    "In pylint 3.0 modname should be a string so that it can be used to "
-                    "correctly set the current_name attribute of the linter instance. "
-                    "If unknown it should be initialized as an empty string."
-                ),
-                DeprecationWarning,
-            )
         self.current_name = modname
         self.current_file = filepath or modname
         self.stats.init_single_module(modname or "")
@@ -840,45 +938,11 @@ class PyLinter(
         walker = ASTWalker(self)
         _checkers = self.prepare_checkers()
         tokencheckers = [
-            c
-            for c in _checkers
-            if isinstance(c, checkers.BaseTokenChecker) and c is not self
+            c for c in _checkers if isinstance(c, checkers.BaseTokenChecker)
         ]
-        # TODO: 3.0: Remove deprecated for-loop
-        for c in _checkers:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                if (
-                    interfaces.implements(c, interfaces.ITokenChecker)
-                    and c not in tokencheckers
-                    and c is not self
-                ):
-                    tokencheckers.append(c)  # type: ignore[arg-type]  # pragma: no cover
-                    warnings.warn(  # pragma: no cover
-                        "Checkers should subclass BaseTokenChecker "
-                        "instead of using the __implements__ mechanism. Use of __implements__ "
-                        "will no longer be supported in pylint 3.0",
-                        DeprecationWarning,
-                    )
         rawcheckers = [
             c for c in _checkers if isinstance(c, checkers.BaseRawFileChecker)
         ]
-        # TODO: 3.0: Remove deprecated if-statement
-        for c in _checkers:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                if (
-                    interfaces.implements(c, interfaces.IRawChecker)
-                    and c not in rawcheckers
-                ):
-                    rawcheckers.append(c)  # type: ignore[arg-type] # pragma: no cover
-                    warnings.warn(  # pragma: no cover
-                        "Checkers should subclass BaseRawFileChecker "
-                        "instead of using the __implements__ mechanism. Use of __implements__ "
-                        "will no longer be supported in pylint 3.0",
-                        DeprecationWarning,
-                    )
-        # notify global begin
         for checker in _checkers:
             checker.open()
             walker.add_checker(checker)
@@ -897,10 +961,10 @@ class PyLinter(
 
     def get_ast(
         self, filepath: str, modname: str, data: str | None = None
-    ) -> nodes.Module:
+    ) -> nodes.Module | None:
         """Return an ast(roid) representation of a module or a string.
 
-        :param str filepath: path to checked file.
+        :param filepath: path to checked file.
         :param str modname: The name of the module to be checked.
         :param str data: optional contents of the checked file.
         :returns: the AST
@@ -914,11 +978,15 @@ class PyLinter(
                 data, modname, filepath
             )
         except astroid.AstroidSyntaxError as ex:
+            line = getattr(ex.error, "lineno", None)
+            if line is None:
+                line = 0
             self.add_message(
                 "syntax-error",
-                line=getattr(ex.error, "lineno", 0),
+                line=line,
                 col_offset=getattr(ex.error, "offset", None),
-                args=str(ex.error),
+                args=f"Parsing failed: '{ex.error}'",
+                confidence=HIGH,
             )
         except astroid.AstroidBuildingError as ex:
             self.add_message("parse-error", args=ex)
@@ -949,10 +1017,6 @@ class PyLinter(
         retval = self._check_astroid_module(
             ast_node, walker, rawcheckers, tokencheckers
         )
-
-        # TODO: 3.0: Remove unnecessary assertion
-        assert self.current_name
-
         self.stats.by_module[self.current_name]["statement"] = (
             walker.nbstatements - before_check_statements
         )
@@ -979,7 +1043,13 @@ class PyLinter(
         try:
             tokens = utils.tokenize_module(node)
         except tokenize.TokenError as ex:
-            self.add_message("syntax-error", line=ex.args[1][0], args=ex.args[0])
+            self.add_message(
+                "syntax-error",
+                line=ex.args[1][0],
+                col_offset=ex.args[1][1],
+                args=ex.args[0],
+                confidence=HIGH,
+            )
             return None
 
         if not node.pure_python:
@@ -1010,7 +1080,6 @@ class PyLinter(
                 self.config.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
-        self._ignore_paths = self.linter.config.ignore_paths
 
     def generate_reports(self) -> int | None:
         """Close the whole package /module, it's time to make reports !
@@ -1019,12 +1088,7 @@ class PyLinter(
         """
         # Display whatever messages are left on the reporter.
         self.reporter.display_messages(report_nodes.Section())
-
-        # TODO: 3.0: Remove second half of if-statement
-        if (
-            not self.file_state._is_base_filestate
-            and self.file_state.base_name is not None
-        ):
+        if not self.file_state._is_base_filestate:
             # load previous results if any
             previous_stats = load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
@@ -1046,11 +1110,9 @@ class PyLinter(
 
     def _report_evaluation(self) -> int | None:
         """Make the global evaluation report."""
-        # check with at least check 1 statements (usually 0 when there is a
+        # check with at least a statement (usually 0 when there is a
         # syntax error preventing pylint from further processing)
         note = None
-        # TODO: 3.0: Remove assertion
-        assert self.file_state.base_name is not None
         previous_stats = load_results(self.file_state.base_name)
         if self.stats.statement == 0:
             return note
@@ -1135,11 +1197,7 @@ class PyLinter(
         msg_cat = MSG_TYPES[message_definition.msgid[0]]
         self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
         self.stats.increase_single_message_count(msg_cat, 1)
-        self.stats.increase_single_module_message_count(
-            self.current_name,  # type: ignore[arg-type] # Should be removable after https://github.com/PyCQA/pylint/pull/5580
-            msg_cat,
-            1,
-        )
+        self.stats.increase_single_module_message_count(self.current_name, msg_cat, 1)
         try:
             self.stats.by_msg[message_definition.symbol] += 1
         except KeyError:

@@ -1,13 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Utils for arguments/options parsing and handling."""
 
 from __future__ import annotations
 
 import re
-import warnings
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -39,13 +38,6 @@ def _convert_option_to_argument(
     | _ExtendArgument
 ):
     """Convert an optdict to an Argument class instance."""
-    if "level" in optdict and "hide" not in optdict:
-        warnings.warn(
-            "The 'level' key in optdicts has been deprecated. "
-            "Use 'hide' with a boolean to hide an option from the help message.",
-            DeprecationWarning,
-        )
-
     # Get the long and short flags
     flags = [f"--{opt}"]
     if "short" in optdict:
@@ -73,16 +65,9 @@ def _convert_option_to_argument(
             section=optdict.get("group", None),
             metavar=optdict.get("metavar", None),
         )
-    try:
-        default = optdict["default"]
-    except KeyError:
-        warnings.warn(
-            "An option dictionary should have a 'default' key to specify "
-            "the option's default value. This key will be required in pylint "
-            "3.0. It is not required for 'store_true' and callable actions.",
-            DeprecationWarning,
-        )
-        default = None
+
+    default = optdict["default"]
+
     if action == "extend":
         return _ExtendArgument(
             flags=flags,
@@ -151,7 +136,7 @@ def _parse_rich_type_value(value: Any) -> str:
     if isinstance(value, (list, tuple)):
         return ",".join(_parse_rich_type_value(i) for i in value)
     if isinstance(value, re.Pattern):
-        return value.pattern
+        return str(value.pattern)
     if isinstance(value, dict):
         return ",".join(f"{k}:{v}" for k, v in value.items())
     return str(value)

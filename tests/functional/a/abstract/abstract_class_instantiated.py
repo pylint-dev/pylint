@@ -4,31 +4,31 @@ abstract methods.
 """
 
 # pylint: disable=too-few-public-methods, missing-docstring
-# pylint: disable=abstract-method, import-error, useless-object-inheritance
+# pylint: disable=abstract-method, import-error
 
 import abc
 import weakref
 from lala import Bala
 
 
-class GoodClass(object, metaclass=abc.ABCMeta):
+class GoodClass(metaclass=abc.ABCMeta):
     pass
 
-class SecondGoodClass(object, metaclass=abc.ABCMeta):
+class SecondGoodClass(metaclass=abc.ABCMeta):
     def test(self):
         """ do nothing. """
 
-class ThirdGoodClass(object, metaclass=abc.ABCMeta):
+class ThirdGoodClass(metaclass=abc.ABCMeta):
     """ This should not raise the warning. """
     def test(self):
         raise NotImplementedError()
 
-class BadClass(object, metaclass=abc.ABCMeta):
+class BadClass(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def test(self):
         """ do nothing. """
 
-class SecondBadClass(object, metaclass=abc.ABCMeta):
+class SecondBadClass(metaclass=abc.ABCMeta):
     @property
     @abc.abstractmethod
     def test(self):
@@ -38,7 +38,7 @@ class ThirdBadClass(SecondBadClass):
     pass
 
 
-class Structure(object, metaclass=abc.ABCMeta):
+class Structure(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __iter__(self):
         pass
@@ -112,12 +112,12 @@ def main():
 
 
 if 1: # pylint: disable=using-constant-test
-    class FourthBadClass(object, metaclass=abc.ABCMeta):
+    class FourthBadClass(metaclass=abc.ABCMeta):
 
         def test(self):
             pass
 else:
-    class FourthBadClass(object, metaclass=abc.ABCMeta):
+    class FourthBadClass(metaclass=abc.ABCMeta):
 
         @abc.abstractmethod
         def test(self):

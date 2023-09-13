@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=too-many-public-methods
 
@@ -10,7 +10,6 @@ import configparser
 import contextlib
 import json
 import os
-import platform
 import re
 import subprocess
 import sys
@@ -27,14 +26,14 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
-from py._path.local import LocalPath  # type: ignore[import]
 
 from pylint import extensions, modify_sys_path
 from pylint.constants import MAIN_CHECKER_NAME, MSG_TYPES_STATUS
 from pylint.lint.pylinter import PyLinter
 from pylint.message import Message
-from pylint.reporters import JSONReporter
-from pylint.reporters.text import BaseReporter, ColorizedTextReporter, TextReporter
+from pylint.reporters import BaseReporter
+from pylint.reporters.json_reporter import JSON2Reporter
+from pylint.reporters.text import ColorizedTextReporter, TextReporter
 from pylint.testutils._run import _add_rcfile_default_pylintrc
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import (
@@ -62,7 +61,7 @@ UNNECESSARY_LAMBDA = join(
 
 
 @contextlib.contextmanager
-def _configure_lc_ctype(lc_ctype: str) -> Iterator:
+def _configure_lc_ctype(lc_ctype: str) -> Iterator[None]:
     lc_ctype_env = "LC_CTYPE"
     original_lctype = os.environ.get(lc_ctype_env)
     os.environ[lc_ctype_env] = lc_ctype
@@ -98,8 +97,8 @@ class MultiReporter(BaseReporter):
     def out(self) -> TextIO:  # type: ignore[override]
         return self._reporters[0].out
 
-    @property  # type: ignore[override]
-    def linter(self) -> PyLinter:  # type: ignore[override]
+    @property
+    def linter(self) -> PyLinter:
         return self._linter
 
     @linter.setter
@@ -134,13 +133,13 @@ class TestRunTC:
 
     @staticmethod
     def _run_pylint(args: list[str], out: TextIO, reporter: Any = None) -> int:
-        args = _add_rcfile_default_pylintrc(args + ["--persistent=no"])
+        args = _add_rcfile_default_pylintrc([*args, "--persistent=no"])
         with _patch_streams(out):
             with pytest.raises(SystemExit) as cm:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     Run(args, reporter=reporter)
-            return cm.value.code
+            return int(cm.value.code)
 
     @staticmethod
     def _clean_paths(output: str) -> str:
@@ -148,7 +147,9 @@ class TestRunTC:
         output = re.sub(CLEAN_PATH, "", output, flags=re.MULTILINE)
         return output.replace("\\", "/")
 
-    def _test_output(self, args: list[str], expected_output: str) -> None:
+    def _test_output(
+        self, args: list[str], expected_output: str, unexpected_output: str = ""
+    ) -> None:
         out = StringIO()
         args = _add_rcfile_default_pylintrc(args)
         self._run_pylint(args, out=out)
@@ -156,8 +157,11 @@ class TestRunTC:
         expected_output = self._clean_paths(expected_output)
         assert expected_output.strip() in actual_output.strip()
 
+        if unexpected_output:
+            assert unexpected_output.strip() not in actual_output.strip()
+
     def _test_output_file(
-        self, args: list[str], filename: LocalPath, expected_output: str
+        self, args: list[str], filename: Path, expected_output: str
     ) -> None:
         """Run Pylint with the ``output`` option set (must be included in
         the ``args`` passed to this method!) and check the file content afterwards.
@@ -184,7 +188,7 @@ class TestRunTC:
         reporters = [
             TextReporter(StringIO()),
             ColorizedTextReporter(StringIO()),
-            JSONReporter(StringIO()),
+            JSON2Reporter(StringIO()),
         ]
         self._runtest(
             [join(HERE, "functional", "a", "arguments.py")],
@@ -209,6 +213,11 @@ class TestRunTC:
     def test_error_missing_arguments(self) -> None:
         self._runtest([], code=32)
 
+    def test_disable_all(self) -> None:
+        out = StringIO()
+        self._runtest([UNNECESSARY_LAMBDA, "--disable=all"], out=out, code=32)
+        assert "No files to lint: exiting." in out.getvalue().strip()
+
     def test_no_out_encoding(self) -> None:
         """Test redirection of stdout with non ascii characters."""
         # This test reproduces bug #48066 ; it happens when stdout is redirected
@@ -230,7 +239,6 @@ class TestRunTC:
                 join(HERE, "functional", "a", "arguments.py"),
             ],
             out=out,
-            # We expect similarities to fail and an error
             code=MSG_TYPES_STATUS["E"],
         )
         assert (
@@ -253,13 +261,13 @@ class TestRunTC:
         expected = textwrap.dedent(
             f"""
         ************* Module data.clientmodule_test
-        {module}:10:8: W0612: Unused variable 'local_variable' (unused-variable)
-        {module}:18:4: C0116: Missing function or method docstring (missing-function-docstring)
-        {module}:22:0: C0115: Missing class docstring (missing-class-docstring)
+        {module}:9:8: W0612: Unused variable 'local_variable' (unused-variable)
+        {module}:17:4: C0116: Missing function or method docstring (missing-function-docstring)
+        {module}:21:0: C0115: Missing class docstring (missing-class-docstring)
         """
         )
         self._test_output(
-            [module, "--disable=all", "--enable=all", "-rn"], expected_output=expected
+            [module, "--disable=I", "--enable=all", "-rn"], expected_output=expected
         )
 
     def test_wrong_import_position_when_others_disabled(self) -> None:
@@ -292,6 +300,39 @@ class TestRunTC:
             actual_output = actual_output[actual_output.find("\n") :]
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
+    def test_type_annotation_names(self) -> None:
+        """Test resetting the `_type_annotation_names` list to `[]` when leaving a module.
+
+        An import inside `module_a`, which is used as a type annotation in `module_a`, should not prevent
+        emitting the `unused-import` message when the same import occurs in `module_b` & is unused.
+        See: https://github.com/pylint-dev/pylint/issues/4150
+        """
+        module1 = join(
+            HERE, "regrtest_data", "imported_module_in_typehint", "module_a.py"
+        )
+
+        module2 = join(
+            HERE, "regrtest_data", "imported_module_in_typehint", "module_b.py"
+        )
+        expected_output = textwrap.dedent(
+            f"""
+        ************* Module module_b
+        {module2}:1:0: W0611: Unused import uuid (unused-import)
+        """
+        )
+        args = [
+            module1,
+            module2,
+            "--disable=all",
+            "--enable=unused-import",
+            "-rn",
+            "-sn",
+        ]
+        out = StringIO()
+        self._run_pylint(args, out=out)
+        actual_output = self._clean_paths(out.getvalue().strip())
+        assert self._clean_paths(expected_output.strip()) in actual_output.strip()
+
     def test_import_itself_not_accounted_for_relative_imports(self) -> None:
         expected = "Your code has been rated at 10.00/10"
         package = join(HERE, "regrtest_data", "dummy")
@@ -307,21 +348,14 @@ class TestRunTC:
     def test_json_report_when_file_has_syntax_error(self) -> None:
         out = StringIO()
         module = join(HERE, "regrtest_data", "syntax_error.py")
-        self._runtest([module], code=2, reporter=JSONReporter(out))
-        output = json.loads(out.getvalue())
+        self._runtest([module], code=2, reporter=JSON2Reporter(out))
+        output = json.loads(out.getvalue())["messages"]
         assert isinstance(output, list)
         assert len(output) == 1
         assert isinstance(output[0], dict)
-        # So each version wants a different column number...
-        if platform.python_implementation() == "PyPy":
-            column = 9
-        elif sys.version_info >= (3, 8):
-            column = 9
-        else:
-            column = 15
         expected = {
             "obj": "",
-            "column": column,
+            "column": 9,
             "line": 1,
             "type": "error",
             "symbol": "syntax-error",
@@ -339,8 +373,8 @@ class TestRunTC:
     def test_json_report_when_file_is_missing(self) -> None:
         out = StringIO()
         module = join(HERE, "regrtest_data", "totally_missing.py")
-        self._runtest([module], code=1, reporter=JSONReporter(out))
-        output = json.loads(out.getvalue())
+        self._runtest([module], code=1, reporter=JSON2Reporter(out))
+        output = json.loads(out.getvalue())["messages"]
         assert isinstance(output, list)
         assert len(output) == 1
         assert isinstance(output[0], dict)
@@ -361,8 +395,8 @@ class TestRunTC:
     def test_json_report_does_not_escape_quotes(self) -> None:
         out = StringIO()
         module = join(HERE, "regrtest_data", "unused_variable.py")
-        self._runtest([module], code=4, reporter=JSONReporter(out))
-        output = json.loads(out.getvalue())
+        self._runtest([module], code=4, reporter=JSON2Reporter(out))
+        output = json.loads(out.getvalue())["messages"]
         assert isinstance(output, list)
         assert len(output) == 1
         assert isinstance(output[0], dict)
@@ -371,7 +405,7 @@ class TestRunTC:
             "module": "unused_variable",
             "column": 4,
             "message": "Unused variable 'variable'",
-            "message-id": "W0612",
+            "messageId": "W0612",
             "line": 4,
             "type": "warning",
         }
@@ -472,7 +506,7 @@ class TestRunTC:
             self._test_output([module, "-E"], expected_output=expected_output)
 
     @pytest.mark.skipif(sys.platform == "win32", reason="only occurs on *nix")
-    def test_parseable_file_path(self):
+    def test_parseable_file_path(self) -> None:
         file_name = "test_target.py"
         fake_path = HERE + os.getcwd()
         module = join(fake_path, file_name)
@@ -498,7 +532,7 @@ class TestRunTC:
             ("mymodule.py", "mymodule", "mymodule.py"),
         ],
     )
-    def test_stdin(self, input_path, module, expected_path):
+    def test_stdin(self, input_path: str, module: str, expected_path: str) -> None:
         expected_output = f"""************* Module {module}
 {expected_path}:1:0: W0611: Unused import os (unused-import)
 
@@ -517,8 +551,8 @@ class TestRunTC:
         self._runtest(["--from-stdin"], code=32)
 
     @pytest.mark.parametrize("write_bpy_to_disk", [False, True])
-    def test_relative_imports(self, write_bpy_to_disk, tmpdir):
-        a = tmpdir.join("a")
+    def test_relative_imports(self, write_bpy_to_disk: bool, tmp_path: Path) -> None:
+        a = tmp_path / "a"
 
         b_code = textwrap.dedent(
             """
@@ -538,12 +572,12 @@ class TestRunTC:
         )
 
         a.mkdir()
-        a.join("__init__.py").write("")
+        (a / "__init__.py").write_text("")
         if write_bpy_to_disk:
-            a.join("b.py").write(b_code)
-        a.join("c.py").write(c_code)
+            (a / "b.py").write_text(b_code)
+        (a / "c.py").write_text(c_code)
 
-        with tmpdir.as_cwd():
+        with _test_cwd(tmp_path):
             # why don't we start pylint in a sub-process?
             expected = (
                 "************* Module a.b\n"
@@ -569,12 +603,9 @@ class TestRunTC:
                     expected_output=expected,
                 )
 
-    def test_stdin_syntaxerror(self) -> None:
-        expected_output = (
-            "************* Module a\n"
-            "a.py:1:4: E0001: invalid syntax (<unknown>, line 1) (syntax-error)"
-        )
-
+    def test_stdin_syntax_error(self) -> None:
+        expected_output = """************* Module a
+a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-error)"""
         with mock.patch(
             "pylint.lint.pylinter._read_stdin", return_value="for\n"
         ) as mock_stdin:
@@ -682,8 +713,8 @@ class TestRunTC:
     @pytest.mark.parametrize(
         "fu_score,fo_msgs,fname,out",
         [
-            # Essentially same test cases as --fail-under, but run with/without a detected issue code
-            # missing-function-docstring (C0116) is issue in both files
+            # Essentially same test cases as --fail-under, but run with/without a detected
+            # issue code missing-function-docstring (C0116) is issue in both files
             # --fail-under should be irrelevant as missing-function-docstring is hit
             (-10, "missing-function-docstring", "fail_under_plus7_5.py", 16),
             (6, "missing-function-docstring", "fail_under_plus7_5.py", 16),
@@ -694,14 +725,14 @@ class TestRunTC:
             (-9, "missing-function-docstring", "fail_under_minus10.py", 22),
             (-5, "missing-function-docstring", "fail_under_minus10.py", 22),
             # --fail-under should guide whether error code as missing-function-docstring is not hit
-            (-10, "broad-except", "fail_under_plus7_5.py", 0),
-            (6, "broad-except", "fail_under_plus7_5.py", 0),
-            (7.5, "broad-except", "fail_under_plus7_5.py", 0),
-            (7.6, "broad-except", "fail_under_plus7_5.py", 16),
-            (-11, "broad-except", "fail_under_minus10.py", 0),
-            (-10, "broad-except", "fail_under_minus10.py", 0),
-            (-9, "broad-except", "fail_under_minus10.py", 22),
-            (-5, "broad-except", "fail_under_minus10.py", 22),
+            (-10, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (6, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (7.5, "broad-exception-caught", "fail_under_plus7_5.py", 0),
+            (7.6, "broad-exception-caught", "fail_under_plus7_5.py", 16),
+            (-11, "broad-exception-caught", "fail_under_minus10.py", 0),
+            (-10, "broad-exception-caught", "fail_under_minus10.py", 0),
+            (-9, "broad-exception-caught", "fail_under_minus10.py", 22),
+            (-5, "broad-exception-caught", "fail_under_minus10.py", 22),
             # Enable by message id
             (-10, "C0116", "fail_under_plus7_5.py", 16),
             # Enable by category
@@ -711,7 +742,7 @@ class TestRunTC:
             (-10, "C0115", "fail_under_plus7_5.py", 0),
         ],
     )
-    def test_fail_on(self, fu_score, fo_msgs, fname, out):
+    def test_fail_on(self, fu_score: int, fo_msgs: str, fname: str, out: int) -> None:
         self._runtest(
             [
                 "--fail-under",
@@ -739,14 +770,15 @@ class TestRunTC:
             (["--fail-on=C0116", "--disable=C0116"], 16),
         ],
     )
-    def test_fail_on_edge_case(self, opts, out):
+    def test_fail_on_edge_case(self, opts: list[str], out: int) -> None:
         self._runtest(
-            opts + [join(HERE, "regrtest_data", "fail_under_plus7_5.py")],
+            [*opts, join(HERE, "regrtest_data", "fail_under_plus7_5.py")],
             code=out,
         )
 
     @staticmethod
     def test_modify_sys_path() -> None:
+        # pylint: disable = too-many-statements
         cwd = "/tmp/pytest-of-root/pytest-0/test_do_not_import_files_from_0"
         default_paths = [
             "/usr/local/lib/python39.zip",
@@ -761,6 +793,24 @@ class TestRunTC:
             with _test_environ_pythonpath():
                 modify_sys_path()
             assert sys.path == paths[1:]
+
+            paths = ["", *default_paths]
+            sys.path = copy(paths)
+            with _test_environ_pythonpath():
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            paths = [".", *default_paths]
+            sys.path = copy(paths)
+            with _test_environ_pythonpath():
+                modify_sys_path()
+            assert sys.path == paths[1:]
+
+            paths = ["/do_not_remove", *default_paths]
+            sys.path = copy(paths)
+            with _test_environ_pythonpath():
+                modify_sys_path()
+            assert sys.path == paths
 
             paths = [cwd, cwd, *default_paths]
             sys.path = copy(paths)
@@ -817,44 +867,57 @@ class TestRunTC:
                 modify_sys_path()
             assert sys.path == paths[1:]
 
+    @staticmethod
+    def test_plugin_that_imports_from_open() -> None:
+        """Test that a plugin that imports a source file from a checker open()
+        function (ala pylint_django) does not raise an exception."""
+        with _test_sys_path():
+            # Enable --load-plugins=importing_plugin
+            sys.path.append(join(HERE, "regrtest_data", "importing_plugin"))
+            with _test_cwd(join(HERE, "regrtest_data", "settings_project")):
+                Run(
+                    ["--load-plugins=importing_plugin", "models.py"],
+                    exit=False,
+                )
+
     @pytest.mark.parametrize(
         "args",
         [
             ["--disable=import-error,unused-import"],
             # Test with multiple jobs for 'hmac.py' for which we have a
-            # CVE against: https://github.com/PyCQA/pylint/issues/959
+            # CVE against: https://github.com/pylint-dev/pylint/issues/959
             ["-j2", "--disable=import-error,unused-import"],
         ],
     )
     def test_do_not_import_files_from_local_directory(
-        self, tmpdir: LocalPath, args: list[str]
+        self, tmp_path: Path, args: list[str]
     ) -> None:
         for path in ("astroid.py", "hmac.py"):
-            file_path = tmpdir / path
-            file_path.write("'Docstring'\nimport completely_unknown\n")
-            pylint_call = [sys.executable, "-m", "pylint"] + args + [path]
-            with tmpdir.as_cwd():
-                subprocess.check_output(pylint_call, cwd=str(tmpdir))
+            file_path = tmp_path / path
+            file_path.write_text("'Docstring'\nimport completely_unknown\n")
+            pylint_call = [sys.executable, "-m", "pylint", *args, path]
+            with _test_cwd(tmp_path):
+                subprocess.check_output(pylint_call, cwd=str(tmp_path))
             new_python_path = os.environ.get("PYTHONPATH", "").strip(":")
-            with tmpdir.as_cwd(), _test_environ_pythonpath(f"{new_python_path}:"):
+            with _test_cwd(tmp_path), _test_environ_pythonpath(f"{new_python_path}:"):
                 # Appending a colon to PYTHONPATH should not break path stripping
-                # https://github.com/PyCQA/pylint/issues/3636
-                subprocess.check_output(pylint_call, cwd=str(tmpdir))
+                # https://github.com/pylint-dev/pylint/issues/3636
+                subprocess.check_output(pylint_call, cwd=str(tmp_path))
 
     @staticmethod
     def test_import_plugin_from_local_directory_if_pythonpath_cwd(
-        tmpdir: LocalPath,
+        tmp_path: Path,
     ) -> None:
-        p_plugin = tmpdir / "plugin.py"
-        p_plugin.write("# Some plugin content")
+        p_plugin = tmp_path / "plugin.py"
+        p_plugin.write_text("# Some plugin content")
         if sys.platform == "win32":
             python_path = "."
         else:
             python_path = f"{os.environ.get('PYTHONPATH', '').strip(':')}:."
-        with tmpdir.as_cwd(), _test_environ_pythonpath(python_path):
+        with _test_cwd(tmp_path), _test_environ_pythonpath(python_path):
             args = [sys.executable, "-m", "pylint", "--load-plugins", "plugin"]
             process = subprocess.run(
-                args, cwd=str(tmpdir), stderr=subprocess.PIPE, check=False
+                args, cwd=str(tmp_path), stderr=subprocess.PIPE, check=False
             )
             assert (
                 "AttributeError: module 'plugin' has no attribute 'register'"
@@ -862,18 +925,18 @@ class TestRunTC:
             )
 
     def test_allow_import_of_files_found_in_modules_during_parallel_check(
-        self, tmpdir: LocalPath
+        self, tmp_path: Path
     ) -> None:
-        test_directory = tmpdir / "test_directory"
+        test_directory = tmp_path / "test_directory"
         test_directory.mkdir()
         spam_module = test_directory / "spam.py"
-        spam_module.write("'Empty'")
+        spam_module.write_text("'Empty'")
 
         init_module = test_directory / "__init__.py"
-        init_module.write("'Empty'")
+        init_module.write_text("'Empty'")
 
         # For multiple jobs we could not find the `spam.py` file.
-        with tmpdir.as_cwd():
+        with _test_cwd(tmp_path):
             args = [
                 "-j2",
                 "--disable=missing-docstring, missing-final-newline",
@@ -882,7 +945,7 @@ class TestRunTC:
             self._runtest(args, code=0)
 
         # A single job should be fine as well
-        with tmpdir.as_cwd():
+        with _test_cwd(tmp_path):
             args = [
                 "-j1",
                 "--disable=missing-docstring, missing-final-newline",
@@ -891,11 +954,11 @@ class TestRunTC:
             self._runtest(args, code=0)
 
     @staticmethod
-    def test_can_list_directories_without_dunder_init(tmpdir: LocalPath) -> None:
-        test_directory = tmpdir / "test_directory"
+    def test_can_list_directories_without_dunder_init(tmp_path: Path) -> None:
+        test_directory = tmp_path / "test_directory"
         test_directory.mkdir()
         spam_module = test_directory / "spam.py"
-        spam_module.write("'Empty'")
+        spam_module.write_text("'Empty'")
 
         subprocess.check_output(
             [
@@ -905,7 +968,7 @@ class TestRunTC:
                 "--disable=missing-docstring, missing-final-newline",
                 "test_directory",
             ],
-            cwd=str(tmpdir),
+            cwd=str(tmp_path),
             stderr=subprocess.PIPE,
         )
 
@@ -917,15 +980,15 @@ class TestRunTC:
 
     def test_regression_parallel_mode_without_filepath(self) -> None:
         # Test that parallel mode properly passes filepath
-        # https://github.com/PyCQA/pylint/issues/3564
+        # https://github.com/pylint-dev/pylint/issues/3564
         path = join(
             HERE, "regrtest_data", "regression_missing_init_3564", "subdirectory/"
         )
         self._test_output([path, "-j2"], expected_output="")
 
-    def test_output_file_valid_path(self, tmpdir: LocalPath) -> None:
+    def test_output_file_valid_path(self, tmp_path: Path) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
-        output_file = tmpdir / "output.txt"
+        output_file = tmp_path / "output.txt"
         expected = "Your code has been rated at 7.50/10"
         self._test_output_file(
             [path, f"--output={output_file}"],
@@ -952,11 +1015,11 @@ class TestRunTC:
             (["--fail-on=useless-suppression", "--enable=C"], 22),
         ],
     )
-    def test_fail_on_exit_code(self, args, expected):
+    def test_fail_on_exit_code(self, args: list[str], expected: int) -> None:
         path = join(HERE, "regrtest_data", "fail_on.py")
         # We set fail-under to be something very low so that even with the warnings
         # and errors that are generated they don't affect the exit code.
-        self._runtest([path, "--fail-under=-10", "--disable=C"] + args, code=expected)
+        self._runtest([path, "--fail-under=-10", "--disable=C", *args], code=expected)
 
     def test_one_module_fatal_error(self) -> None:
         """Fatal errors in one of several modules linted still exits non-zero."""
@@ -978,48 +1041,51 @@ class TestRunTC:
             (["--fail-on=useless-suppression", "--enable=C"], 1),
         ],
     )
-    def test_fail_on_info_only_exit_code(self, args, expected):
+    def test_fail_on_info_only_exit_code(self, args: list[str], expected: int) -> None:
         path = join(HERE, "regrtest_data", "fail_on_info_only.py")
-        self._runtest([path] + args, code=expected)
+        self._runtest([path, *args], code=expected)
 
     @pytest.mark.parametrize(
         "output_format, expected_output",
         [
             (
                 "text",
-                "tests/regrtest_data/unused_variable.py:4:4: W0612: Unused variable 'variable' (unused-variable)",
+                "{path}:4:4: W0612: Unused variable 'variable' (unused-variable)",
             ),
             (
                 "parseable",
-                "tests/regrtest_data/unused_variable.py:4: [W0612(unused-variable), test] Unused variable 'variable'",
+                "{path}:4: [W0612(unused-variable), test] Unused variable 'variable'",
             ),
             (
                 "msvs",
-                "tests/regrtest_data/unused_variable.py(4): [W0612(unused-variable)test] Unused variable 'variable'",
+                "{path}(4): [W0612(unused-variable)test] Unused variable 'variable'",
             ),
             (
                 "colorized",
-                "tests/regrtest_data/unused_variable.py:4:4: W0612: \x1B[35mUnused variable 'variable'\x1B[0m (\x1B[35munused-variable\x1B[0m)",
+                (
+                    "{path}:4:4: W0612: \x1B[35mUnused variable 'variable'\x1B[0m (\x1B[35munused-variable\x1B[0m)"
+                ),
             ),
             ("json", '"message": "Unused variable \'variable\'",'),
+            ("json2", '"message": "Unused variable \'variable\'",'),
         ],
     )
     def test_output_file_can_be_combined_with_output_format_option(
-        self, tmpdir, output_format, expected_output
-    ):
+        self, tmp_path: Path, output_format: str, expected_output: str
+    ) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
-        output_file = tmpdir / "output.txt"
+        output_file = tmp_path / "output.txt"
         self._test_output_file(
             [path, f"--output={output_file}", f"--output-format={output_format}"],
             output_file,
-            expected_output,
+            expected_output.format(path="tests/regrtest_data/unused_variable.py"),
         )
 
     def test_output_file_can_be_combined_with_custom_reporter(
-        self, tmpdir: LocalPath
+        self, tmp_path: Path
     ) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
-        output_file = tmpdir / "output.txt"
+        output_file = tmp_path / "output.txt"
         # It does not really have to be a truly custom reporter.
         # It is only important that it is being passed explicitly to ``Run``.
         myreporter = TextReporter()
@@ -1030,9 +1096,9 @@ class TestRunTC:
         )
         assert output_file.exists()
 
-    def test_output_file_specified_in_rcfile(self, tmpdir: LocalPath) -> None:
-        output_file = tmpdir / "output.txt"
-        rcfile = tmpdir / "pylintrc"
+    def test_output_file_specified_in_rcfile(self, tmp_path: Path) -> None:
+        output_file = tmp_path / "output.txt"
+        rcfile = tmp_path / "pylintrc"
         rcfile_contents = textwrap.dedent(
             f"""
         [MAIN]
@@ -1059,7 +1125,7 @@ class TestRunTC:
     def test_regex_paths_csv_validator() -> None:
         """Test to see if _regexp_paths_csv_validator works.
         Previously the validator crashed when encountering already validated values.
-        Reported in https://github.com/PyCQA/pylint/issues/5437
+        Reported in https://github.com/pylint-dev/pylint/issues/5437
         """
         with pytest.raises(SystemExit) as ex:
             args = _add_rcfile_default_pylintrc(
@@ -1070,7 +1136,7 @@ class TestRunTC:
 
     @staticmethod
     def test_max_inferred_for_complicated_class_hierarchy() -> None:
-        """Regression test for a crash reported in https://github.com/PyCQA/pylint/issues/5679.
+        """Regression test for a crash reported in https://github.com/pylint-dev/pylint/issues/5679.
 
         The class hierarchy of 'sqlalchemy' is so intricate that it becomes uninferable with
         the standard max_inferred of 100. We used to crash when this happened.
@@ -1087,6 +1153,13 @@ class TestRunTC:
         """Tests if running linter over directory using --recursive=y"""
         self._runtest(
             [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
+            code=0,
+        )
+
+    def test_recursive_globbing(self) -> None:
+        """Tests if running linter over directory using --recursive=y and globbing"""
+        self._runtest(
+            [join(HERE, "regrtest_data", "d?rectory", "subd*"), "--recursive=y"],
             code=0,
         )
 
@@ -1112,6 +1185,20 @@ class TestRunTC:
             [directory, "--recursive=y", f"--ignore-patterns={ignore_pattern_value}"],
             code=0,
         )
+
+    def test_ignore_pattern_from_stdin(self) -> None:
+        """Test if linter ignores standard input if the filename matches the ignore pattern."""
+        with mock.patch("pylint.lint.pylinter._read_stdin", return_value="import os\n"):
+            self._runtest(
+                [
+                    "--from-stdin",
+                    "mymodule.py",
+                    "--disable=all",
+                    "--enable=unused-import",
+                    "--ignore-patterns=mymodule.py",
+                ],
+                code=0,
+            )
 
     @pytest.mark.parametrize("ignore_path_value", [".*ignored.*", ".*failing.*"])
     def test_ignore_path_recursive(self, ignore_path_value: str) -> None:
@@ -1162,6 +1249,64 @@ class TestRunTC:
                     code=0,
                 )
 
+    def test_syntax_error_invalid_encoding(self) -> None:
+        module = join(HERE, "regrtest_data", "invalid_encoding.py")
+        expected_output = "unknown encoding"
+        self._test_output([module, "-E"], expected_output=expected_output)
+
+    @pytest.mark.parametrize(
+        "module_name,expected_output",
+        [
+            ("good.py", ""),
+            ("bad_wrong_num.py", "(syntax-error)"),
+            ("bad_missing_num.py", "(bad-file-encoding)"),
+        ],
+    )
+    def test_encoding(self, module_name: str, expected_output: str) -> None:
+        path = join(HERE, "regrtest_data", "encoding", module_name)
+        self._test_output(
+            [path], expected_output=expected_output, unexpected_output="(astroid-error)"
+        )
+
+    def test_line_too_long_useless_suppression(self) -> None:
+        """A test that demonstrates a known false positive for useless-suppression
+
+        See https://github.com/pylint-dev/pylint/issues/3368
+
+        If you manage to make this test fail and remove the useless-suppression
+        warning please contact open a Pylint PR!
+        """
+        module = join(HERE, "regrtest_data", "line_too_long_no_code.py")
+        expected = textwrap.dedent(
+            f"""
+        {module}:1:0: I0011: Locally disabling line-too-long (C0301) (locally-disabled)
+        {module}:1:0: I0021: Useless suppression of 'line-too-long' (useless-suppression)
+        """
+        )
+
+        self._test_output([module, "--enable=all"], expected_output=expected)
+
+    def test_output_no_header(self) -> None:
+        module = join(HERE, "data", "clientmodule_test.py")
+        expected = "Unused variable 'local_variable'"
+        not_expected = textwrap.dedent(
+            """************* Module data.clientmodule_test"""
+        )
+
+        args = [module, "--output-format=no-header"]
+        self._test_output(
+            args, expected_output=expected, unexpected_output=not_expected
+        )
+
+    def test_no_name_in_module(self) -> None:
+        """Test that a package with both a variable name `base` and a module `base`
+        does not emit a no-name-in-module msg."""
+        module = join(HERE, "regrtest_data", "test_no_name_in_module.py")
+        unexpected = "No name 'errors' in module 'list' (no-name-in-module)"
+        self._test_output(
+            [module, "-E"], expected_output="", unexpected_output=unexpected
+        )
+
 
 class TestCallbackOptions:
     """Test for all callback options we support."""
@@ -1179,14 +1324,17 @@ class TestCallbackOptions:
             (["--long-help"], "Environment variables:"),
         ],
     )
-    def test_output_of_callback_options(command: list[str], expected: str) -> None:
+    def test_output_of_callback_options(
+        command: list[str], expected: str, tmp_path: Path
+    ) -> None:
         """Test whether certain strings are in the output of a callback command."""
         command = _add_rcfile_default_pylintrc(command)
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + command,
+            [sys.executable, "-m", "pylint", *command],
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         assert expected in process.stdout
 
@@ -1197,16 +1345,20 @@ class TestCallbackOptions:
             [["--help-msg", "W0101"], ":unreachable (W0101)", False],
             [["--help-msg", "WX101"], "No such message id", False],
             [["--help-msg"], "--help-msg: expected at least one argumen", True],
+            [["--help-msg", "C0102,C0103"], ":invalid-name (C0103):", False],
         ],
     )
-    def test_help_msg(args: list[str], expected: str, error: bool) -> None:
+    def test_help_msg(
+        args: list[str], expected: str, error: bool, tmp_path: Path
+    ) -> None:
         """Test the --help-msg flag."""
         args = _add_rcfile_default_pylintrc(args)
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         if error:
             result = process.stderr
@@ -1215,24 +1367,26 @@ class TestCallbackOptions:
         assert expected in result
 
     @staticmethod
-    def test_generate_rcfile() -> None:
+    def test_generate_rcfile(tmp_path: Path) -> None:
         """Test the --generate-rcfile flag."""
         args = _add_rcfile_default_pylintrc(["--generate-rcfile"])
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         assert "[MAIN]" in process.stdout
         assert "[MASTER]" not in process.stdout
         assert "profile" not in process.stdout
         args = _add_rcfile_default_pylintrc(["--generate-rcfile"])
         process_two = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         assert process.stdout == process_two.stdout
 
@@ -1271,7 +1425,7 @@ class TestCallbackOptions:
         assert "suppressed-message" in messages
 
     @staticmethod
-    def test_generate_toml_config() -> None:
+    def test_generate_toml_config(tmp_path: Path) -> None:
         """Test the --generate-toml-config flag."""
         args = _add_rcfile_default_pylintrc(
             [
@@ -1280,10 +1434,11 @@ class TestCallbackOptions:
             ]
         )
         process = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         assert "[tool.pylint.main]" in process.stdout
         assert "[tool.pylint.master]" not in process.stdout
@@ -1292,10 +1447,11 @@ class TestCallbackOptions:
         assert 'preferred-modules = ["a:b"]' in process.stdout
 
         process_two = subprocess.run(
-            [sys.executable, "-m", "pylint"] + args,
+            [sys.executable, "-m", "pylint", *args],
             capture_output=True,
             encoding="utf-8",
             check=False,
+            cwd=str(tmp_path),
         )
         assert process.stdout == process_two.stdout
 

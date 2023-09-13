@@ -1,7 +1,7 @@
 """Since Python version 3.8, a method decorated with typing.final cannot be
 overridden"""
 
-# pylint: disable=useless-object-inheritance, missing-docstring, too-few-public-methods
+# pylint: disable=missing-docstring, too-few-public-methods
 
 from typing import final
 
@@ -16,7 +16,7 @@ class Subclass(Base):
         pass
 
 # Check for crash on method definitions not at top level of class
-# https://github.com/PyCQA/pylint/issues/5648
+# https://github.com/pylint-dev/pylint/issues/5648
 class BaseConditional:
 
     create_final_method = True

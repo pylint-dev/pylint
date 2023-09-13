@@ -1,5 +1,5 @@
 """Warnings for using type(x) == Y or type(x) is Y instead of isinstance(x, Y)."""
-# pylint: disable=missing-docstring,expression-not-assigned,redefined-builtin,invalid-name,unnecessary-lambda-assignment
+# pylint: disable=missing-docstring,expression-not-assigned,redefined-builtin,invalid-name,unnecessary-lambda-assignment,use-dict-literal
 
 def simple_positives():
     type(42) is int # [unidiomatic-typecheck]

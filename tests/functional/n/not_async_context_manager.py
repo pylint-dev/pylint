@@ -1,5 +1,5 @@
 """Test that an async context manager receives a proper object."""
-# pylint: disable=missing-docstring, import-error, too-few-public-methods, useless-object-inheritance
+# pylint: disable=missing-docstring, import-error, too-few-public-methods
 import contextlib
 
 from ala import Portocala
@@ -10,17 +10,17 @@ def ctx_manager():
     yield
 
 
-class ContextManager(object):
+class ContextManager:
     def __enter__(self):
         pass
     def __exit__(self, *args):
         pass
 
-class PartialAsyncContextManager(object):
+class PartialAsyncContextManager:
     def __aenter__(self):
         pass
 
-class SecondPartialAsyncContextManager(object):
+class SecondPartialAsyncContextManager:
     def __aexit__(self, *args):
         pass
 
@@ -29,16 +29,16 @@ class UnknownBases(Portocala):
         pass
 
 
-class AsyncManagerMixin(object):
+class AsyncManagerMixin:
     pass
 
-class GoodAsyncManager(object):
+class GoodAsyncManager:
     def __aenter__(self):
         pass
     def __aexit__(self, *args):
         pass
 
-class InheritExit(object):
+class InheritExit:
     def __aexit__(self, *args):
         pass
 

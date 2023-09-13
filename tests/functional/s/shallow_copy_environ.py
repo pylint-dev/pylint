@@ -27,3 +27,11 @@ import copy
 import os
 
 copy.deepcopy(os.environ)
+
+# Edge cases
+copy.copy()  # [no-value-for-parameter]
+copy.copy(x=test_dict)
+copy.copy(x=os.environ)  # [shallow-copy-environ]
+copy.copy(**{"x": os.environ})  # [shallow-copy-environ]
+copy.copy(**{"y": os.environ})  # [unexpected-keyword-arg]
+copy.copy(y=os.environ)  # [no-value-for-parameter, unexpected-keyword-arg]

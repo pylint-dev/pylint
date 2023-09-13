@@ -1,16 +1,17 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Tuple, Type, Union, cast
+from typing import TYPE_CHECKING, Tuple, Type, cast
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import only_required_for_messages, safe_infer
+from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -58,6 +59,27 @@ class CodeStyleChecker(BaseChecker):
             "both can be combined by using an assignment expression ``:=``. "
             "Requires Python 3.8 and ``py-version >= 3.8``.",
         ),
+        "R6104": (
+            "Use '%s' to do an augmented assign directly",
+            "consider-using-augmented-assign",
+            "Emitted when an assignment is referring to the object that it is assigning "
+            "to. This can be changed to be an augmented assign.\n"
+            "Disabled by default!",
+            {
+                "default_enabled": False,
+            },
+        ),
+        "R6105": (
+            "Prefer 'typing.NamedTuple' over 'collections.namedtuple'",
+            "prefer-typing-namedtuple",
+            "'typing.NamedTuple' uses the well-known 'class' keyword "
+            "with type-hints for readability (it's also faster as it avoids "
+            "an internal exec call).\n"
+            "Disabled by default!",
+            {
+                "default_enabled": False,
+            },
+        ),
     }
     options = (
         (
@@ -78,11 +100,21 @@ class CodeStyleChecker(BaseChecker):
 
     def open(self) -> None:
         py_version = self.linter.config.py_version
+        self._py36_plus = py_version >= (3, 6)
         self._py38_plus = py_version >= (3, 8)
         self._max_length: int = (
             self.linter.config.max_line_length_suggestions
             or self.linter.config.max_line_length
         )
+
+    @only_required_for_messages("prefer-typing-namedtuple")
+    def visit_call(self, node: nodes.Call) -> None:
+        if self._py36_plus:
+            called = safe_infer(node.func)
+            if called and called.qname() == "collections.namedtuple":
+                self.add_message(
+                    "prefer-typing-namedtuple", node=node, confidence=INFERENCE
+                )
 
     @only_required_for_messages("consider-using-namedtuple-or-dataclass")
     def visit_dict(self, node: nodes.Dict) -> None:
@@ -164,13 +196,11 @@ class CodeStyleChecker(BaseChecker):
             if list_length == 0:
                 return
             for _, dict_value in node.items[1:]:
-                dict_value = cast(Union[nodes.List, nodes.Tuple], dict_value)
                 if len(dict_value.elts) != list_length:
                     return
 
             # Make sure at least one list entry isn't a dict
             for _, dict_value in node.items:
-                dict_value = cast(Union[nodes.List, nodes.Tuple], dict_value)
                 if all(isinstance(entry, nodes.Dict) for entry in dict_value.elts):
                     return
 
@@ -216,7 +246,6 @@ class CodeStyleChecker(BaseChecker):
         if CodeStyleChecker._check_prev_sibling_to_if_stmt(
             prev_sibling, node_name.name
         ):
-
             # Check if match statement would be a better fit.
             # I.e. multiple ifs that test the same name.
             if CodeStyleChecker._check_ignore_assignment_expr_suggestion(
@@ -302,6 +331,19 @@ class CodeStyleChecker(BaseChecker):
             ):
                 return True
         return False
+
+    @only_required_for_messages("consider-using-augmented-assign")
+    def visit_assign(self, node: nodes.Assign) -> None:
+        is_aug, op = utils.is_augmented_assign(node)
+        if is_aug:
+            self.add_message(
+                "consider-using-augmented-assign",
+                args=f"{op}=",
+                node=node,
+                line=node.lineno,
+                col_offset=node.col_offset,
+                confidence=INFERENCE,
+            )
 
 
 def register(linter: PyLinter) -> None:

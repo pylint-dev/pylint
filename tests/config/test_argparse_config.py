@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Test for the (new) implementation of option parsing with argparse"""
 
@@ -43,7 +43,10 @@ class TestArgparseOptionsProviderMixin:
     def test_logger_rcfile() -> None:
         """Check that we parse the rcfile for the logging checker correctly."""
         with pytest.raises(SystemExit) as ex:
-            Run([LOGGING_TEST, f"--rcfile={LOGGING_TEST.replace('.py', '.rc')}"])
+            # replace only the last .py in the string with .rc
+            # we do so by inverting the string and replace the first occurrence (of the inverted tokens!)
+            _rcfile = LOGGING_TEST[::-1].replace("yp.", "cr.", 1)[::-1]
+            Run([LOGGING_TEST, f"--rcfile={_rcfile}"])
         assert ex.value.code == 0
 
 

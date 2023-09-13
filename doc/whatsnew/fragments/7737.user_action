@@ -1,0 +1,3 @@
+epylint was removed. It now lives at: https://github.com/emacsorphanage/pylint.
+
+Refs #7737

@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+item_to_number_of_item: dict[str, int]

@@ -1,13 +1,12 @@
-# pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance, use-list-literal
+# pylint: disable=missing-docstring, too-few-public-methods, use-list-literal
 # pylint: disable=too-many-ancestors, import-error, multiple-imports,wrong-import-position
-from __future__ import print_function
 
 import socket, binascii, abc, six
 
-class MyException(object):
+class MyException:
     """Custom 'exception'."""
 
-class MySecondException(object):
+class MySecondException:
     """Custom 'exception'."""
 
 class MyGoodException(Exception):

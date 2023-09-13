@@ -1,19 +1,19 @@
 """Check invalid value returned by __hash__ """
 
-# pylint: disable=too-few-public-methods,missing-docstring,import-error,useless-object-inheritance,unnecessary-lambda-assignment
+# pylint: disable=too-few-public-methods,missing-docstring,import-error,unnecessary-lambda-assignment
 import six
 
 from missing import Missing
 
 
-class FirstGoodHash(object):
+class FirstGoodHash:
     """__hash__ returns <type 'int'>"""
 
     def __hash__(self):
         return 1
 
 
-class SecondGoodHash(object):
+class SecondGoodHash:
     """__hash__ returns <type 'int'>"""
 
     def __hash__(self):
@@ -26,45 +26,45 @@ class HashMetaclass(type):
 
 
 @six.add_metaclass(HashMetaclass)
-class ThirdGoodHash(object):
+class ThirdGoodHash:
     """Hash through the metaclass."""
 
 
-class FirstBadHash(object):
+class FirstBadHash:
     """ __hash__ returns a dict """
 
     def __hash__(self):  # [invalid-hash-returned]
         return {}
 
 
-class SecondBadHash(object):
+class SecondBadHash:
     """ __hash__ returns str """
 
     def __hash__(self):  # [invalid-hash-returned]
         return "True"
 
 
-class ThirdBadHash(object):
+class ThirdBadHash:
     """ __hash__ returns a float"""
 
     def __hash__(self):  # [invalid-hash-returned]
         return 1.11
 
 
-class FourthBadHash(object):
+class FourthBadHash:
     """ __hash__ returns node which does not have 'value' in AST """
 
     def __hash__(self):  # [invalid-hash-returned]
         return lambda: 3
 
 
-class AmbigousHash(object):
+class AmbigousHash:
     """ Uninferable return value """
 
     __hash__ = lambda self: Missing
 
 
-class AnotherAmbiguousHash(object):
+class AnotherAmbiguousHash:
     """Potential uninferable return value"""
 
     def __hash__(self):

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ def test_len_str(msgid_store: MessageIdStore, msgids: dict[str, str]) -> None:
 
 def test_get_message_ids(msgid_store: MessageIdStore, msgids: dict[str, str]) -> None:
     """We can get message id even with capitalization problem."""
-    msgid = list(msgids.keys())[0]
+    msgid = next(iter(msgids.keys()))
     msgids_result = msgid_store.get_active_msgids(msgid.lower())
     assert len(msgids_result) == 1
     assert msgid == msgids_result[0]
@@ -127,7 +127,7 @@ def test_exclusivity_of_msgids() -> None:
         "07": ("exceptions", "broad_try_clause", "overlap-except"),
         "12": ("design", "logging"),
         "17": ("async", "refactoring"),
-        "20": ("compare-to-zero", "empty-comment"),
+        "20": ("compare-to-zero", "empty-comment", "magic-value"),
     }
 
     for msgid, definition in runner.linter.msgs_store._messages_definitions.items():

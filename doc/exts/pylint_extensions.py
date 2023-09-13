@@ -1,27 +1,41 @@
 #!/usr/bin/env python
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Script used to generate the extensions file before building the actual documentation."""
+
+from __future__ import annotations
 
 import os
 import re
 import sys
-import warnings
-from typing import Optional
+from typing import Any, TypedDict
 
 import sphinx
 from sphinx.application import Sphinx
 
+from pylint.checkers import BaseChecker
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import PyLinter
+from pylint.typing import MessageDefinitionTuple, OptionDict, ReportsCallable
 from pylint.utils import get_rst_title
 
 
+class _CheckerInfo(TypedDict):
+    """Represents data about a checker."""
+
+    checker: BaseChecker
+    options: list[tuple[str, OptionDict, Any]]
+    msgs: dict[str, MessageDefinitionTuple]
+    reports: list[tuple[str, str, ReportsCallable]]
+    doc: str
+    module: str
+
+
 # pylint: disable-next=unused-argument
-def builder_inited(app: Optional[Sphinx]) -> None:
+def builder_inited(app: Sphinx | None) -> None:
     """Output full documentation in ReST format for all extension modules."""
     # PACKAGE/docs/exts/pylint_extensions.py --> PACKAGE/
     base_path = os.path.dirname(
@@ -30,7 +44,7 @@ def builder_inited(app: Optional[Sphinx]) -> None:
     # PACKAGE/ --> PACKAGE/pylint/extensions
     ext_path = os.path.join(base_path, "pylint", "extensions")
     modules = []
-    doc_files = {}
+    doc_files: dict[str, str] = {}
     for filename in os.listdir(ext_path):
         name, ext = os.path.splitext(filename)
         if name[0] == "_":
@@ -79,18 +93,26 @@ def builder_inited(app: Optional[Sphinx]) -> None:
             checker, information = checker_information
             j = -1
             checker = information["checker"]
-            del information["checker"]
             if i == max_len - 1:
                 # Remove the \n\n at the end of the file
                 j = -3
             print(
-                checker.get_full_documentation(**information, show_options=False)[:j],
+                checker.get_full_documentation(
+                    msgs=information["msgs"],
+                    options=information["options"],
+                    reports=information["reports"],
+                    doc=information["doc"],
+                    module=information["module"],
+                    show_options=False,
+                )[:j],
                 file=stream,
             )
 
 
-def get_plugins_info(linter, doc_files):
-    by_checker = {}
+def get_plugins_info(
+    linter: PyLinter, doc_files: dict[str, str]
+) -> dict[BaseChecker, _CheckerInfo]:
+    by_checker: dict[BaseChecker, _CheckerInfo] = {}
     for checker in linter.get_checkers():
         if checker.name == MAIN_CHECKER_NAME:
             continue
@@ -106,28 +128,24 @@ def get_plugins_info(linter, doc_files):
                 doc = f.read()
         try:
             by_checker[checker]["checker"] = checker
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                by_checker[checker]["options"] += checker.options_and_values()
+            by_checker[checker]["options"] += checker._options_and_values()
             by_checker[checker]["msgs"].update(checker.msgs)
             by_checker[checker]["reports"] += checker.reports
             by_checker[checker]["doc"] += doc
             by_checker[checker]["module"] += module
         except KeyError:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                by_checker[checker] = {
-                    "checker": checker,
-                    "options": list(checker.options_and_values()),
-                    "msgs": dict(checker.msgs),
-                    "reports": list(checker.reports),
-                    "doc": doc,
-                    "module": module,
-                }
+            by_checker[checker] = _CheckerInfo(
+                checker=checker,
+                options=list(checker._options_and_values()),
+                msgs=dict(checker.msgs),
+                reports=list(checker.reports),
+                doc=doc,
+                module=module,
+            )
     return by_checker
 
 
-def setup(app):
+def setup(app: Sphinx) -> dict[str, str]:
     app.connect("builder-inited", builder_inited)
     return {"version": sphinx.__display_version__}
 

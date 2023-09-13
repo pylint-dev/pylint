@@ -1,6 +1,5 @@
 """check reimport
 """
-from __future__ import absolute_import, print_function
 
 # pylint: disable=using-constant-test,ungrouped-imports,wrong-import-position,import-outside-toplevel
 import os

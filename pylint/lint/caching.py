@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -12,12 +12,14 @@ from pathlib import Path
 from pylint.constants import PYLINT_HOME
 from pylint.utils import LinterStats
 
+PYLINT_HOME_AS_PATH = Path(PYLINT_HOME)
+
 
 def _get_pdata_path(
-    base_name: Path, recurs: int, pylint_home: Path = Path(PYLINT_HOME)
+    base_name: Path, recurs: int, pylint_home: Path = PYLINT_HOME_AS_PATH
 ) -> Path:
-    # We strip all characters that can't be used in a filename
-    # Also strip '/' and '\\' because we want to create a single file, not sub-directories
+    # We strip all characters that can't be used in a filename. Also strip '/' and
+    # '\\' because we want to create a single file, not sub-directories.
     underscored_name = "_".join(
         str(p.replace(":", "_").replace("/", "_").replace("\\", "_"))
         for p in base_name.parts
@@ -43,6 +45,7 @@ def load_results(
                     "You're using an old pylint cache with invalid data following "
                     f"an upgrade, please delete '{data_file}'.",
                     UserWarning,
+                    stacklevel=2,
                 )
                 raise TypeError
             return data

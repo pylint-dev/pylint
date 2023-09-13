@@ -131,7 +131,7 @@ Following the analysis message, Pylint can display a set of reports,
 each one focusing on a particular aspect of the project, such as number
 of messages by categories, modules dependencies. These features can
 be enabled through the ``--reports=y`` option, or its shorthand
-version ``-rn``.
+version ``-ry``.
 
 For instance, the metrics report displays summaries gathered from the
 current run.

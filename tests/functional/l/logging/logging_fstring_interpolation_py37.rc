@@ -1,0 +1,5 @@
+[testoptions]
+exclude_from_minimal_messages_config=true
+
+[LOGGING]
+logging-format-style=new

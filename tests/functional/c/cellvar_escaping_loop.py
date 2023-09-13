@@ -1,6 +1,6 @@
 # pylint: disable=unnecessary-comprehension,missing-docstring,too-few-public-methods,unnecessary-direct-lambda-call
 """Tests for loopvar-in-closure."""
-from __future__ import print_function
+
 
 from enum import Enum
 
@@ -95,7 +95,7 @@ def good_case_issue3107():
 
 def good_case_issue_5012():
     """Eager binding of cell variable when used as the default value of a keyword-only argument.
-    https://github.com/PyCQA/pylint/issues/5012
+    https://github.com/pylint-dev/pylint/issues/5012
     """
     funs = []
     for i in range(5):

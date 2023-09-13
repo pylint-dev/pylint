@@ -1,6 +1,6 @@
 """Check for definitions and usage happening on the same line."""
 #pylint: disable=missing-docstring,multiple-statements,wrong-import-position,unnecessary-comprehension,unspecified-encoding,unnecessary-lambda-assignment
-from __future__ import print_function
+
 print([index
        for index in range(10)])
 

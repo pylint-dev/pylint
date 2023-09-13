@@ -1,11 +1,9 @@
-# pylint: disable=missing-docstring, useless-object-inheritance
+# pylint: disable=missing-docstring
 """check for methods first arguments
 """
 
-__revision__ = 0
 
-
-class Obj(object):
+class Obj:
     # C0202, classmethod
     def __new__(something):  # [bad-classmethod-argument]
         pass
@@ -33,7 +31,7 @@ class Meta(type):
         pass
 
     # C0205, metaclass classmethod
-    def class1(cls):
+    def class1(mcs):
         pass
     class1 = classmethod(class1)  # [no-classmethod-decorator]
 

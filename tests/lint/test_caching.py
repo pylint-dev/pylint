@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # Pytest fixtures work like this by design
 # pylint: disable=redefined-outer-name
@@ -98,6 +98,7 @@ def linter_stats() -> LinterStats:
             module=10,
             variable=11,
             typevar=12,
+            typealias=13,
         )
     )
 

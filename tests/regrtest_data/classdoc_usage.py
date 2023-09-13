@@ -1,9 +1,8 @@
 """ds"""
 
 __revision__ = None
-# pylint: disable=useless-object-inheritance
 
-class SomeClass(object):
+class SomeClass:
     """cds"""
     doc = __doc__
 

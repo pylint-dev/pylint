@@ -30,7 +30,7 @@ class MultipleAssignmentNonesClass(metaclass=MetaContainer):
 
 
 class MultipleAssignmentLambdasClass(metaclass=MetaContainer):
-    """https://github.com/PyCQA/pylint/issues/6366"""
+    """https://github.com/pylint-dev/pylint/issues/6366"""
     __len__, __iter__ = [lambda x: x] * 2
 
 

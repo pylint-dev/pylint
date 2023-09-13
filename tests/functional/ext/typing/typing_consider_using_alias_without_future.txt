@@ -1,20 +1,20 @@
-consider-using-alias:13:6:13:17::'typing.Dict' will be deprecated with PY39, consider using 'dict' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:14:6:14:10::'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:16:6:16:24::'typing.OrderedDict' will be deprecated with PY39, consider using 'collections.OrderedDict' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:17:6:17:22::'typing.Awaitable' will be deprecated with PY39, consider using 'collections.abc.Awaitable' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:18:6:18:21::'typing.Iterable' will be deprecated with PY39, consider using 'collections.abc.Iterable' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:19:6:19:21::'typing.Hashable' will be deprecated with PY39, consider using 'collections.abc.Hashable' instead:INFERENCE
-consider-using-alias:20:6:20:27::'typing.ContextManager' will be deprecated with PY39, consider using 'contextlib.AbstractContextManager' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:21:6:21:20::'typing.Pattern' will be deprecated with PY39, consider using 're.Pattern' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:22:7:22:22::'typing.Match' will be deprecated with PY39, consider using 're.Match' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:31:9:31:13::'typing.List' will be deprecated with PY39, consider using 'list' instead:INFERENCE
-consider-using-alias:33:7:33:11::'typing.Type' will be deprecated with PY39, consider using 'type' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:34:7:34:12::'typing.Tuple' will be deprecated with PY39, consider using 'tuple' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:35:7:35:15::'typing.Callable' will be deprecated with PY39, consider using 'collections.abc.Callable' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:41:74:41:78:func1:'typing.Dict' will be deprecated with PY39, consider using 'dict' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:41:16:41:20:func1:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:41:37:41:41:func1:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:41:93:41:105:func1:'typing.Tuple' will be deprecated with PY39, consider using 'tuple' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:57:12:57:16:CustomNamedTuple:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:62:12:62:16:CustomTypedDict2:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE
-consider-using-alias:66:12:66:16:CustomDataClass:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:20:6:20:17::'typing.Dict' will be deprecated with PY39, consider using 'dict' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:21:6:21:10::'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:23:6:23:24::'typing.OrderedDict' will be deprecated with PY39, consider using 'collections.OrderedDict' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:24:6:24:22::'typing.Awaitable' will be deprecated with PY39, consider using 'collections.abc.Awaitable' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:25:6:25:21::'typing.Iterable' will be deprecated with PY39, consider using 'collections.abc.Iterable' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:26:6:26:21::'typing.Hashable' will be deprecated with PY39, consider using 'collections.abc.Hashable' instead:INFERENCE
+consider-using-alias:27:6:27:27::'typing.ContextManager' will be deprecated with PY39, consider using 'contextlib.AbstractContextManager' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:28:6:28:20::'typing.Pattern' will be deprecated with PY39, consider using 're.Pattern' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:29:7:29:22::'typing.Match' will be deprecated with PY39, consider using 're.Match' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:38:9:38:13::'typing.List' will be deprecated with PY39, consider using 'list' instead:INFERENCE
+consider-using-alias:40:7:40:11::'typing.Type' will be deprecated with PY39, consider using 'type' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:41:7:41:12::'typing.Tuple' will be deprecated with PY39, consider using 'tuple' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:42:7:42:15::'typing.Callable' will be deprecated with PY39, consider using 'collections.abc.Callable' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:48:74:48:78:func1:'typing.Dict' will be deprecated with PY39, consider using 'dict' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:48:16:48:20:func1:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:48:37:48:41:func1:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:48:93:48:105:func1:'typing.Tuple' will be deprecated with PY39, consider using 'tuple' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:64:12:64:16:CustomNamedTuple:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:69:12:69:16:CustomTypedDict2:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE
+consider-using-alias:73:12:73:16:CustomDataClass:'typing.List' will be deprecated with PY39, consider using 'list' instead. Add 'from __future__ import annotations' as well:INFERENCE

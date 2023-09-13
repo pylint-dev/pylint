@@ -18,3 +18,4 @@ import-private-name:107:0:107:41::Imported private module (_private_module5):HIG
 import-private-name:111:0:111:42::Imported private module (_private_module6):HIGH
 import-private-name:114:0:114:40::Imported private object (_PrivateClass3):HIGH
 import-private-name:119:0:119:34::Imported private module (_private_module_unreachable):HIGH
+import-private-name:141:0:141:39::Imported private module (_private_module_x):HIGH

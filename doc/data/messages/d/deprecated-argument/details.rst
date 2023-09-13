@@ -1,1 +1,8 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+This message can be raised on your own code using a `custom deprecation checker`_ (follow link for a full example).
+
+Loading this custom checker using ``load-plugins`` would start raising ``deprecated-argument``.
+
+The actual replacement then need to be studied on a case by case basis by reading the
+deprecation warning or the release notes.
+
+.. _`custom deprecation checker`: https://github.com/pylint-dev/pylint/blob/main/examples/deprecation_checker.py

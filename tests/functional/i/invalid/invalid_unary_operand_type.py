@@ -1,11 +1,11 @@
 """Detect problems with invalid operands used on invalid objects."""
 # pylint: disable=missing-docstring,too-few-public-methods,invalid-name
-# pylint: disable=unused-variable, useless-object-inheritance, use-dict-literal
+# pylint: disable=unused-variable, use-dict-literal
 
 import collections
 
 
-class Implemented(object):
+class Implemented:
     def __invert__(self):
         return 42
     def __pos__(self):
@@ -42,10 +42,17 @@ def these_are_bad():
     neg_str = -"" # [invalid-unary-operand-type]
     invert_str = ~"" # [invalid-unary-operand-type]
     pos_str = +"" # [invalid-unary-operand-type]
-    class A(object):
+    class A:
         pass
     invert_func = ~(lambda: None) # [invalid-unary-operand-type]
     invert_class = ~A # [invalid-unary-operand-type]
     invert_instance = ~A() # [invalid-unary-operand-type]
     invert_module = ~collections # [invalid-unary-operand-type]
     invert_float = ~2.0 # [invalid-unary-operand-type]
+
+
+class NoArgumentSuper:
+    def __init__(self):
+        """https://github.com/pylint-dev/pylint/issues/8554"""
+        if not isinstance(super(), float):
+            pass

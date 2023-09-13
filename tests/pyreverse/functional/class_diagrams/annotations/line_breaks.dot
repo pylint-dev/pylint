@@ -1,0 +1,5 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+"line_breaks.A" [color="black", fontcolor="black", label=<{A|p : int \| None<br ALIGN="LEFT"/>|<I>f</I>(x: str \| None \| (list[A] \| list[int]), y: A \| (int \| str) \| None): int \| str \| list[A \| int]<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+}

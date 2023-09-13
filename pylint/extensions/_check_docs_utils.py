@@ -1,16 +1,18 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Utility methods for docstring checking."""
 
 from __future__ import annotations
 
+import itertools
 import re
+from collections.abc import Iterable
 
 import astroid
 from astroid import nodes
-from astroid.util import Uninferable
+from astroid.util import UninferableBase
 
 from pylint.checkers import utils
 
@@ -43,7 +45,7 @@ def get_setters_property_name(node: nodes.FunctionDef) -> str | None:
             and decorator.attrname == "setter"
             and isinstance(decorator.expr, nodes.Name)
         ):
-            return decorator.expr.name
+            return decorator.expr.name  # type: ignore[no-any-return]
     return None
 
 
@@ -89,7 +91,7 @@ def returns_something(return_node: nodes.Return) -> bool:
     return not (isinstance(returns, nodes.Const) and returns.value is None)
 
 
-def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | Uninferable | None:
+def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | UninferableBase | None:
     if isinstance(node.exc, nodes.Call):
         func = node.exc.func
         if isinstance(func, (nodes.Name, nodes.Attribute)):
@@ -126,7 +128,7 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
         if handler and handler.type:
             try:
                 for exception in astroid.unpack_infer(handler.type):
-                    if exception is not astroid.Uninferable:
+                    if not isinstance(exception, UninferableBase):
                         exceptions.append(exception)
             except astroid.InferenceError:
                 pass
@@ -138,7 +140,7 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
             for ret in target.nodes_of_class(nodes.Return):
                 if ret.value is None:
                     continue
-                if ret.frame(future=True) != target:
+                if ret.frame() != target:
                     # return from inner function - ignore it
                     continue
 
@@ -157,6 +159,106 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
         }
     except astroid.InferenceError:
         return set()
+
+
+def _is_ellipsis(node: nodes.NodeNG) -> bool:
+    return isinstance(node, nodes.Const) and node.value == Ellipsis
+
+
+def _merge_annotations(
+    annotations: Iterable[nodes.NodeNG], comment_annotations: Iterable[nodes.NodeNG]
+) -> Iterable[nodes.NodeNG | None]:
+    for ann, comment_ann in itertools.zip_longest(annotations, comment_annotations):
+        if ann and not _is_ellipsis(ann):
+            yield ann
+        elif comment_ann and not _is_ellipsis(comment_ann):
+            yield comment_ann
+        else:
+            yield None
+
+
+def _annotations_list(args_node: nodes.Arguments) -> list[nodes.NodeNG]:
+    """Get a merged list of annotations.
+
+    The annotations can come from:
+
+    * Real type annotations.
+    * A type comment on the function.
+    * A type common on the individual argument.
+
+    :param args_node: The node to get the annotations for.
+    :returns: The annotations.
+    """
+    plain_annotations = args_node.annotations or ()
+    func_comment_annotations = args_node.parent.type_comment_args or ()
+    comment_annotations = args_node.type_comment_posonlyargs
+    comment_annotations += args_node.type_comment_args or []
+    comment_annotations += args_node.type_comment_kwonlyargs
+    return list(
+        _merge_annotations(
+            plain_annotations,
+            _merge_annotations(func_comment_annotations, comment_annotations),
+        )
+    )
+
+
+def args_with_annotation(args_node: nodes.Arguments) -> set[str]:
+    result = set()
+    annotations = _annotations_list(args_node)
+    annotation_offset = 0
+
+    if args_node.posonlyargs:
+        posonlyargs_annotations = args_node.posonlyargs_annotations
+        if not any(args_node.posonlyargs_annotations):
+            num_args = len(args_node.posonlyargs)
+            posonlyargs_annotations = annotations[
+                annotation_offset : annotation_offset + num_args
+            ]
+            annotation_offset += num_args
+
+        for arg, annotation in zip(args_node.posonlyargs, posonlyargs_annotations):
+            if annotation:
+                result.add(arg.name)
+
+    if args_node.args:
+        num_args = len(args_node.args)
+        for arg, annotation in zip(
+            args_node.args,
+            annotations[annotation_offset : annotation_offset + num_args],
+        ):
+            if annotation:
+                result.add(arg.name)
+
+        annotation_offset += num_args
+
+    if args_node.vararg:
+        if args_node.varargannotation:
+            result.add(args_node.vararg)
+        elif len(annotations) > annotation_offset and annotations[annotation_offset]:
+            result.add(args_node.vararg)
+            annotation_offset += 1
+
+    if args_node.kwonlyargs:
+        kwonlyargs_annotations = args_node.kwonlyargs_annotations
+        if not any(args_node.kwonlyargs_annotations):
+            num_args = len(args_node.kwonlyargs)
+            kwonlyargs_annotations = annotations[
+                annotation_offset : annotation_offset + num_args
+            ]
+            annotation_offset += num_args
+
+        for arg, annotation in zip(args_node.kwonlyargs, kwonlyargs_annotations):
+            if annotation:
+                result.add(arg.name)
+
+    if args_node.kwarg:
+        if args_node.kwargannotation:
+            result.add(args_node.kwarg)
+        elif len(annotations) > annotation_offset and annotations[annotation_offset]:
+            result.add(args_node.kwarg)
+            annotation_offset += 1
+
+    return result
 
 
 def docstringify(
@@ -247,7 +349,7 @@ class SphinxDocstring(Docstring):
 
     re_multiple_simple_type = r"""
         (?:{container_type}|{type})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*)(?:{container_type}|{type}))*
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}))*
     """.format(
         type=re_type, container_type=re_simple_container_type
     )
@@ -449,7 +551,7 @@ class GoogleDocstring(Docstring):
 
     re_multiple_type = r"""
         (?:{container_type}|{type}|{xref})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*)(?:{container_type}|{type}|{xref}))*
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}|{xref}))*
     """.format(
         type=re_type, xref=re_xref, container_type=re_container_type
     )
@@ -471,7 +573,7 @@ class GoogleDocstring(Docstring):
 
     re_param_line = re.compile(
         rf"""
-        \s*  ((?:\\?\*{{0,2}})?\w+)     # identifier potentially with asterisks
+        \s*  ((?:\\?\*{{0,2}})?[\w\\]+) # identifier potentially with asterisks or escaped `\`
         \s*  ( [(]
             {re_multiple_type}
             (?:,\s+optional)?
@@ -728,13 +830,13 @@ class NumpyDocstring(GoogleDocstring):
         re.X | re.S | re.M,
     )
 
-    re_default_value = r"""((['"]\w+\s*['"])|(True)|(False)|(None))"""
+    re_default_value = r"""((['"]\w+\s*['"])|(\d+)|(True)|(False)|(None))"""
 
     re_param_line = re.compile(
         rf"""
-        \s*  (\*{{0,2}}\w+)(\s?(:|\n))              # identifier with potential asterisks
+        \s*  (?P<param_name>\*{{0,2}}\w+)(\s?(:|\n)) # identifier with potential asterisks
         \s*
-        (
+        (?P<param_type>
          (
           ({GoogleDocstring.re_multiple_type})      # default type declaration
           (,\s+optional)?                           # optional 'optional' indication
@@ -742,8 +844,11 @@ class NumpyDocstring(GoogleDocstring):
          (
           {{({re_default_value},?\s*)+}}            # set of default values
          )?
-        \n)?
-        \s* (.*)                                    # optional description
+         (?:$|\n)
+        )?
+        (
+         \s* (?P<param_desc>.*)                     # optional description
+        )?
     """,
         re.X | re.S,
     )
@@ -794,15 +899,26 @@ class NumpyDocstring(GoogleDocstring):
                 continue
 
             # check if parameter has description only
-            re_only_desc = re.match(r"\s*  (\*{0,2}\w+)\s*:?\n", entry)
+            re_only_desc = re.match(r"\s*(\*{0,2}\w+)\s*:?\n\s*\w*$", entry)
             if re_only_desc:
-                param_name = match.group(1)
-                param_desc = match.group(2)
+                param_name = match.group("param_name")
+                param_desc = match.group("param_type")
                 param_type = None
             else:
-                param_name = match.group(1)
-                param_type = match.group(3)
-                param_desc = match.group(4)
+                param_name = match.group("param_name")
+                param_type = match.group("param_type")
+                param_desc = match.group("param_desc")
+                # The re_param_line pattern needs to match multi-line which removes the ability
+                # to match a single line description like 'arg : a number type.'
+                # We are not trying to determine whether 'a number type' is correct typing
+                # but we do accept it as typing as it is in the place where typing
+                # should be
+                if param_type is None and re.match(r"\s*(\*{0,2}\w+)\s*:.+$", entry):
+                    param_type = param_desc
+                # If the description is "" but we have a type description
+                # we consider the description to be the type
+                if not param_desc and param_type:
+                    param_desc = param_type
 
             if param_type:
                 params_with_type.add(param_name)

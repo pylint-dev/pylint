@@ -1,8 +1,7 @@
 """Test for the confidence filter."""
-from __future__ import print_function
-# pylint: disable=useless-object-inheritance
 
-class Client(object):
+
+class Client:
     """use provider class"""
 
     def __init__(self):

@@ -1,10 +1,10 @@
-# pylint: disable=too-few-public-methods,missing-docstring,useless-object-inheritance,invalid-name
+# pylint: disable=too-few-public-methods,missing-docstring,invalid-name
 """test detection of method which could be a function"""
 from abc import ABC, abstractmethod
 from typing import Protocol, overload
 
 
-class Toto(object):
+class Toto:
     """bla bal abl"""
 
     def __init__(self):
@@ -26,7 +26,7 @@ class Toto(object):
         """this async method isn't a real method since it doesn't need self"""
         print('hello')
 
-class Base(object):
+class Base:
     """an abstract class"""
 
     def __init__(self):
@@ -46,7 +46,7 @@ class Sub(Base):
         """
         return arg == 0
 
-class Super(object):
+class Super:
     """same as before without abstract"""
     attr = 1
     def method(self):
@@ -74,7 +74,7 @@ class Sub1(Super):
         return 42
 
 
-class Prop(object):
+class Prop:
 
     @property
     def count(self):

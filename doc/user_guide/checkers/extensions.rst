@@ -10,16 +10,18 @@ Pylint provides the following optional plugins:
 - :ref:`pylint.extensions.broad_try_clause`
 - :ref:`pylint.extensions.check_elif`
 - :ref:`pylint.extensions.code_style`
-- :ref:`pylint.extensions.comparetozero`
 - :ref:`pylint.extensions.comparison_placement`
 - :ref:`pylint.extensions.confusing_elif`
+- :ref:`pylint.extensions.consider_refactoring_into_while_condition`
 - :ref:`pylint.extensions.consider_ternary_expression`
+- :ref:`pylint.extensions.dict_init_mutate`
 - :ref:`pylint.extensions.docparams`
 - :ref:`pylint.extensions.docstyle`
+- :ref:`pylint.extensions.dunder`
 - :ref:`pylint.extensions.empty_comment`
-- :ref:`pylint.extensions.emptystring`
 - :ref:`pylint.extensions.eq_without_hash`
 - :ref:`pylint.extensions.for_any_all`
+- :ref:`pylint.extensions.magic_value`
 - :ref:`pylint.extensions.mccabe`
 - :ref:`pylint.extensions.no_self_use`
 - :ref:`pylint.extensions.overlapping_exceptions`
@@ -75,38 +77,17 @@ Code Style checker Messages
 :consider-using-namedtuple-or-dataclass (R6101): *Consider using namedtuple or dataclass for dictionary values*
   Emitted when dictionary values can be replaced by namedtuples or dataclass
   instances.
+:prefer-typing-namedtuple (R6105): *Prefer 'typing.NamedTuple' over 'collections.namedtuple'*
+  'typing.NamedTuple' uses the well-known 'class' keyword with type-hints for
+  readability (it's also faster as it avoids an internal exec call). Disabled
+  by default!
 :consider-using-assignment-expr (R6103): *Use '%s' instead*
   Emitted when an if assignment is directly followed by an if statement and
   both can be combined by using an assignment expression ``:=``. Requires
   Python 3.8 and ``py-version >= 3.8``.
-
-
-.. _pylint.extensions.emptystring:
-
-Compare-To-Empty-String checker
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This checker is provided by ``pylint.extensions.emptystring``.
-Verbatim name of the checker is ``compare-to-empty-string``.
-
-Compare-To-Empty-String checker Messages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-empty-string (C1901): *Avoid comparisons to empty string*
-  Used when Pylint detects comparison to an empty string constant.
-
-
-.. _pylint.extensions.comparetozero:
-
-Compare-To-Zero checker
-~~~~~~~~~~~~~~~~~~~~~~~
-
-This checker is provided by ``pylint.extensions.comparetozero``.
-Verbatim name of the checker is ``compare-to-zero``.
-
-Compare-To-Zero checker Messages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:compare-to-zero (C2001): *Avoid comparisons to zero*
-  Used when Pylint detects comparison to a 0 constant.
+:consider-using-augmented-assign (R6104): *Use '%s' to do an augmented assign directly*
+  Emitted when an assignment is referring to the object that it is assigning
+  to. This can be changed to be an augmented assign. Disabled by default!
 
 
 .. _pylint.extensions.comparison_placement:
@@ -155,6 +136,22 @@ Consider-Using-Any-Or-All checker Messages
 :consider-using-any-or-all (C0501): *`for` loop could be `%s`*
   A for loop that checks for a condition and return a bool can be replaced with
   any or all.
+
+
+.. _pylint.extensions.consider_refactoring_into_while_condition:
+
+Consider Refactoring Into While checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.consider_refactoring_into_while_condition``.
+Verbatim name of the checker is ``consider_refactoring_into_while``.
+
+Consider Refactoring Into While checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:consider-refactoring-into-while-condition (R3501): *Consider using 'while %s' instead of 'while %s:' an 'if', and a 'break'*
+  Emitted when `while True:` loop is used and the first statement is a break
+  condition. The ``if / break`` construct can be removed if the check is
+  inverted and moved to the ``while`` statement.
 
 
 .. _pylint.extensions.consider_ternary_expression:
@@ -259,6 +256,21 @@ Design checker Messages
   Cyclomatic
 
 
+.. _pylint.extensions.dict_init_mutate:
+
+Dict-Init-Mutate checker
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.dict_init_mutate``.
+Verbatim name of the checker is ``dict-init-mutate``.
+
+Dict-Init-Mutate checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:dict-init-mutate (C3401): *Declare all known key/values when initializing the dictionary.*
+  Dictionaries can be initialized with a single statement using dictionary
+  literal syntax.
+
+
 .. _pylint.extensions.docstyle:
 
 Docstyle checker
@@ -273,6 +285,23 @@ Docstyle checker Messages
   Used when a docstring does not have triple double quotes.
 :docstring-first-line-empty (C0199): *First line empty in %s docstring*
   Used when a blank line is found at the beginning of a docstring.
+
+
+.. _pylint.extensions.dunder:
+
+Dunder checker
+~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.dunder``.
+Verbatim name of the checker is ``dunder``.
+
+See also :ref:`dunder checker's options' documentation <dunder-options>`
+
+Dunder checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^
+:bad-dunder-name (W3201): *Bad or misspelled dunder method name %s.*
+  Used when a dunder method is misspelled or defined with a name not within the
+  predefined list of dunder names.
 
 
 .. _pylint.extensions.check_elif:
@@ -333,6 +362,23 @@ Import-Private-Name checker Messages
   Used when a private module or object prefixed with _ is imported. PEP8
   guidance on Naming Conventions states that public attributes with leading
   underscores should be considered private.
+
+
+.. _pylint.extensions.magic_value:
+
+Magic-Value checker
+~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.magic_value``.
+Verbatim name of the checker is ``magic-value``.
+
+See also :ref:`magic-value checker's options' documentation <magic-value-options>`
+
+Magic-Value checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:magic-value-comparison (R2004): *Consider using a named constant or an enum instead of '%s'.*
+  Using named constants instead of magic values helps improve readability and
+  maintainability of your code, try to avoid them in comparisons.
 
 
 .. _pylint.extensions.redefined_variable_type:
@@ -642,6 +688,9 @@ Typing checker Messages
 :consider-alternative-union-syntax (R6003): *Consider using alternative Union syntax instead of '%s'%s*
   Emitted when 'typing.Union' or 'typing.Optional' is used instead of the
   alternative Union syntax 'int | None'.
+:redundant-typehint-argument (R6006): *Type `%s` is used more than once in union type annotation. Remove redundant typehints.*
+  Duplicated type arguments will be skipped by `mypy` tool, therefore should be
+  removed to avoid confusion.
 
 
 .. _pylint.extensions.while_used:
@@ -656,3 +705,4 @@ While Used checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :while-used (W0149): *Used `while` loop*
   Unbounded `while` loops can often be rewritten as bounded `for` loops.
+  Exceptions can be made for cases such as event loops, listeners, etc.
