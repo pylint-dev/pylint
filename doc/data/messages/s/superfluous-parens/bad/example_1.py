@@ -1,4 +1,4 @@
 x = input()
 y = input()
-if x == y:  # [superfluous-parens]
+if (x == y):  # [superfluous-parens]
     pass
