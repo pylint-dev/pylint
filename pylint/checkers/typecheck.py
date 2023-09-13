@@ -1504,10 +1504,10 @@ accessed. Python regular expressions are accepted.",
         # includes an implicit `self` argument which is not present in `called.args`.
         if (
             isinstance(node.frame(), nodes.ClassDef)
-            and isinstance(node.parent, (nodes.Assign, nodes.AnnAssign))
             and isinstance(called, nodes.FunctionDef)
             and called in node.frame().body
             and num_positional_args > 0
+            and "builtins.staticmethod" not in called.decoratornames()
         ):
             num_positional_args -= 1
 
