@@ -1557,7 +1557,7 @@ class VariablesChecker(BaseChecker):
 
         # Don't check arguments of abstract methods or within an interface.
         is_method = node.is_method()
-        if is_method and node.is_abstract():
+        if is_method and node.is_abstract(pass_is_abstract=False):
             return
 
         global_names = _flattened_scope_names(node.nodes_of_class(nodes.Global))
