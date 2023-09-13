@@ -84,7 +84,7 @@ class NoSelfUseChecker(BaseChecker):
                 and node.type == "method"
                 and node.name not in PYMETHODS
                 and not (
-                    node.is_abstract()
+                    node.is_abstract(pass_is_abstract=False)
                     or overrides_a_method(class_node, node.name)
                     or decorated_with_property(node)
                     or _has_bare_super_call(node)

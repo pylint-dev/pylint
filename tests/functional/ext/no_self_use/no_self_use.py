@@ -122,8 +122,8 @@ class Foo1(ABC):
     def b(self):
         raise NotImplementedError
 
-    def c(self):
-        pass  # pass counts as abstract
+    def c(self):  # [no-self-use]
+        pass  # pass NO LONGER counts as abstract, this is a very old pattern
 
 
 class Foo2(Protocol):
@@ -142,7 +142,7 @@ class Foo3:
     def a(self, var): ...
 
     def a(self, var):
-        pass
+        raise NotImplementedError
 
 
 class Foo4:
