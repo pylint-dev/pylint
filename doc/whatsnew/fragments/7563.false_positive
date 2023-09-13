@@ -1,3 +1,0 @@
-Fix ``used-before-assignment`` false positive when else branch calls ``sys.exit`` or similar terminating functions.
-
-Closes #7563

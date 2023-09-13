@@ -1,5 +1,6 @@
 class Person:
-    __slots__ = ("age", "name", "say_hi",)  # [class-variable-slots-conflict, class-variable-slots-conflict, class-variable-slots-conflict]
+    # +1: [class-variable-slots-conflict, class-variable-slots-conflict, class-variable-slots-conflict]
+    __slots__ = ("age", "name", "say_hi")
     name = None
 
     def __init__(self, age, name):

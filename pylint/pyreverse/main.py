@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Create UML diagrams for classes and modules in <packages>."""
 
@@ -13,7 +13,8 @@ from typing import NoReturn
 from pylint import constants
 from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.arguments_provider import _ArgumentsProvider
-from pylint.lint.utils import fix_import_path
+from pylint.lint import discover_package_path
+from pylint.lint.utils import augmented_sys_path
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
@@ -26,11 +27,23 @@ from pylint.typing import Options
 
 DIRECTLY_SUPPORTED_FORMATS = (
     "dot",
-    "vcg",
     "puml",
     "plantuml",
     "mmd",
     "html",
+)
+
+DEFAULT_COLOR_PALETTE = (
+    # colorblind scheme taken from https://personal.sron.nl/~pault/
+    "#77AADD",  # light blue
+    "#99DDFF",  # light cyan
+    "#44BB99",  # mint
+    "#BBCC33",  # pear
+    "#AAAA00",  # olive
+    "#EEDD88",  # light yellow
+    "#EE8866",  # orange
+    "#FFAABB",  # pink
+    "#DDDDDD",  # pale grey
 )
 
 OPTIONS: Options = (
@@ -117,6 +130,15 @@ OPTIONS: Options = (
         },
     ),
     (
+        "show-stdlib",
+        {
+            "short": "L",
+            "action": "store_true",
+            "default": False,
+            "help": "include standard library objects in representation of classes",
+        },
+    ),
+    (
         "module-names",
         {
             "short": "m",
@@ -136,6 +158,14 @@ OPTIONS: Options = (
         },
     ),
     (
+        "no-standalone",
+        {
+            "action": "store_true",
+            "default": False,
+            "help": "only show nodes with connections",
+        },
+    ),
+    (
         "output",
         {
             "short": "o",
@@ -145,8 +175,10 @@ OPTIONS: Options = (
             "metavar": "<format>",
             "type": "string",
             "help": (
-                f"create a *.<format> output file if format is available. Available formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. "
-                f"Any other format will be tried to create by means of the 'dot' command line tool, which requires a graphviz installation."
+                "create a *.<format> output file if format is available. Available "
+                f"formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. Any other "
+                f"format will be tried to create by means of the 'dot' command line "
+                f"tool, which requires a graphviz installation."
             ),
         },
     ),
@@ -168,6 +200,17 @@ OPTIONS: Options = (
             "metavar": "<depth>",
             "type": "int",
             "help": "Use separate colors up to package depth of <depth>",
+        },
+    ),
+    (
+        "color-palette",
+        {
+            "dest": "color_palette",
+            "action": "store",
+            "default": DEFAULT_COLOR_PALETTE,
+            "metavar": "<color1,color2,...>",
+            "type": "csv",
+            "help": "Comma separated list of colors to use",
         },
     ),
     (
@@ -201,6 +244,25 @@ OPTIONS: Options = (
             "help": "set the output directory path.",
         },
     ),
+    (
+        "source-roots",
+        {
+            "type": "glob_paths_csv",
+            "metavar": "<path>[,<path>...]",
+            "default": (),
+            "help": "Add paths to the list of the source roots. Supports globbing patterns. The "
+            "source root is an absolute path or a path relative to the current working directory "
+            "used to determine a package namespace for modules located under the source root.",
+        },
+    ),
+    (
+        "verbose",
+        {
+            "action": "store_true",
+            "default": False,
+            "help": "Makes pyreverse more verbose/talkative. Mostly useful for debugging.",
+        },
+    ),
 )
 
 
@@ -211,6 +273,12 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
     name = "pyreverse"
 
     def __init__(self, args: Sequence[str]) -> NoReturn:
+        # Immediately exit if user asks for version
+        if "--version" in args:
+            print("pyreverse is included in pylint:")
+            print(constants.full_version)
+            sys.exit(0)
+
         _ArgumentsManager.__init__(self, prog="pyreverse", description=__doc__)
         _ArgumentsProvider.__init__(self, self)
 
@@ -221,7 +289,8 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
         if self.config.output_format not in DIRECTLY_SUPPORTED_FORMATS:
             check_graphviz_availability()
             print(
-                f"Format {self.config.output_format} is not supported natively. Pyreverse will try to generate it using Graphviz..."
+                f"Format {self.config.output_format} is not supported natively."
+                " Pyreverse will try to generate it using Graphviz..."
             )
             check_if_graphviz_supports_format(self.config.output_format)
 
@@ -232,11 +301,15 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
         if not args:
             print(self.help())
             return 1
-        with fix_import_path(args):
+        extra_packages_paths = list(
+            {discover_package_path(arg, self.config.source_roots) for arg in args}
+        )
+        with augmented_sys_path(extra_packages_paths):
             project = project_from_files(
                 args,
                 project_name=self.config.project,
                 black_list=self.config.ignore_list,
+                verbose=self.config.verbose,
             )
             linker = Linker(project, tag=True)
             handler = DiadefsHandler(self.config)

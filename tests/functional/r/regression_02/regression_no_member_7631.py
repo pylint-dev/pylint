@@ -1,4 +1,4 @@
-"""Regression test from https://github.com/PyCQA/pylint/issues/7631
+"""Regression test from https://github.com/pylint-dev/pylint/issues/7631
 The following code should NOT raise no-member.
 """
 # pylint: disable=missing-docstring,too-few-public-methods

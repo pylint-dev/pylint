@@ -1,14 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for use of Python logging."""
 
 from __future__ import annotations
 
 import string
-import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import astroid
 from astroid import bases, nodes
@@ -18,11 +17,6 @@ from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import infer_all
 from pylint.typing import MessageDefinitionTuple
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -246,7 +240,7 @@ class LoggingChecker(checkers.BaseChecker):
         if isinstance(format_arg, nodes.BinOp):
             binop = format_arg
             emit = binop.op == "%"
-            if binop.op == "+":
+            if binop.op == "+" and not self._is_node_explicit_str_concatenation(binop):
                 total_number_of_strings = sum(
                     1
                     for operand in (binop.left, binop.right)
@@ -293,6 +287,19 @@ class LoggingChecker(checkers.BaseChecker):
     def _is_operand_literal_str(operand: InferenceResult | None) -> bool:
         """Return True if the operand in argument is a literal string."""
         return isinstance(operand, nodes.Const) and operand.name == "str"
+
+    @staticmethod
+    def _is_node_explicit_str_concatenation(node: nodes.NodeNG) -> bool:
+        """Return True if the node represents an explicitly concatenated string."""
+        if not isinstance(node, nodes.BinOp):
+            return False
+        return (
+            LoggingChecker._is_operand_literal_str(node.left)
+            or LoggingChecker._is_node_explicit_str_concatenation(node.left)
+        ) and (
+            LoggingChecker._is_operand_literal_str(node.right)
+            or LoggingChecker._is_node_explicit_str_concatenation(node.right)
+        )
 
     def _check_call_func(self, node: nodes.Call) -> None:
         """Checks that function call is not format_string.format()."""
@@ -341,11 +348,9 @@ class LoggingChecker(checkers.BaseChecker):
                 elif self._format_style == "new":
                     parse = utils.parse_format_method_string(format_string)
                     keyword_args_cnt = len(
-                        {
-                            field[0]
-                            for field in parse.keyword_arguments
-                            if isinstance(field[0], str)
-                        }
+# <<<<<<< format-parsing2
+# { f[0] for f in parse.keyword_arguments if isinstance(f[0], str) }
+                        {k for k, _ in keyword_arguments if not isinstance(k, int)}
                     )
                     required_num_args = (
                         keyword_args_cnt

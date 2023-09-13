@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for string formatting operations."""
 
@@ -8,14 +8,13 @@ from __future__ import annotations
 
 import collections
 import re
-import sys
 import tokenize
 from collections import Counter
 from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import astroid
-from astroid import bases, nodes
+from astroid import bases, nodes, util
 from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
@@ -25,11 +24,6 @@ from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
@@ -61,6 +55,11 @@ _PREFIXES = {
     "Rb",
     "RB",
 }
+_PAREN_IGNORE_TOKEN_TYPES = (
+    tokenize.NEWLINE,
+    tokenize.NL,
+    tokenize.COMMENT,
+)
 SINGLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?'''")
 DOUBLE_QUOTED_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?\"\"\"")
 QUOTE_DELIMITER_REGEX = re.compile(f"({'|'.join(_PREFIXES)})?(\"|')", re.DOTALL)
@@ -266,7 +265,7 @@ class StringFormatChecker(BaseChecker):
     name = "string"
     msgs = MSGS
 
-    # pylint: disable=too-many-branches
+    # pylint: disable = too-many-branches, too-many-locals, too-many-statements
     @only_required_for_messages(
         "bad-format-character",
         "truncated-format-string",
@@ -356,7 +355,7 @@ class StringFormatChecker(BaseChecker):
                     if (
                         format_type is not None
                         and arg_type
-                        and arg_type != astroid.Uninferable
+                        and not isinstance(arg_type, util.UninferableBase)
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -415,7 +414,7 @@ class StringFormatChecker(BaseChecker):
                     arg_type = utils.safe_infer(arg)
                     if (
                         arg_type
-                        and arg_type != astroid.Uninferable
+                        and not isinstance(arg_type, util.UninferableBase)
                         and not arg_matches_format_type(arg_type, format_type)
                     ):
                         self.add_message(
@@ -742,6 +741,7 @@ class StringFormatChecker(BaseChecker):
             node, parse.keyword_arguments, parse.explicit_pos_args, named_arguments
         )
 
+    # pylint: disable = too-many-statements
     def _check_new_format_specifiers(
         self,
         node: nodes.Call,
@@ -771,7 +771,7 @@ class StringFormatChecker(BaseChecker):
                 if key not in named:
                     continue
                 argname = named[key]
-            if argname in (astroid.Uninferable, None):
+            if argname is None or isinstance(argname, util.UninferableBase):
                 continue
             try:
                 argument = utils.safe_infer(argname)
@@ -788,7 +788,7 @@ class StringFormatChecker(BaseChecker):
             previous = argument
             parsed: list[tuple[bool, str]] = []
             for is_attribute, specifier in specifiers:
-                if previous is astroid.Uninferable:
+                if isinstance(previous, util.UninferableBase):
                     break
                 parsed.append((is_attribute, specifier))
                 if is_attribute:
@@ -821,7 +821,7 @@ class StringFormatChecker(BaseChecker):
                             warn_error = True
                         except astroid.InferenceError:
                             break
-                        if previous is astroid.Uninferable:
+                        if isinstance(previous, util.UninferableBase):
                             break
                     else:
                         try:
@@ -971,6 +971,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             tuple[int, int], tuple[str, tokenize.TokenInfo | None]
         ] = {}
         """Token position -> (token value, next token)."""
+        self._parenthesized_string_tokens: dict[tuple[int, int], bool] = {}
 
     def process_module(self, node: nodes.Module) -> None:
         self._unicode_literals = "unicode_literals" in node.future_imports
@@ -999,9 +1000,61 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
                     # to match with astroid `.col_offset`
                     start = (start[0], len(line[: start[1]].encode(encoding)))
                 self.string_tokens[start] = (str_eval(token), next_token)
+                is_parenthesized = self._is_initial_string_token(
+                    i, tokens
+                ) and self._is_parenthesized(i, tokens)
+                self._parenthesized_string_tokens[start] = is_parenthesized
 
         if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
+
+    def _is_initial_string_token(
+        self, index: int, tokens: Sequence[tokenize.TokenInfo]
+    ) -> bool:
+        # Must NOT be preceded by a string literal
+        prev_token = self._find_prev_token(index, tokens)
+        if prev_token and prev_token.type == tokenize.STRING:
+            return False
+        # Must be followed by a string literal token.
+        next_token = self._find_next_token(index, tokens)
+        return bool(next_token and next_token.type == tokenize.STRING)
+
+    def _is_parenthesized(self, index: int, tokens: list[tokenize.TokenInfo]) -> bool:
+        prev_token = self._find_prev_token(
+            index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
+        )
+        if not prev_token or prev_token.type != tokenize.OP or prev_token[1] != "(":
+            return False
+        next_token = self._find_next_token(
+            index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
+        )
+        return bool(
+            next_token and next_token.type == tokenize.OP and next_token[1] == ")"
+        )
+
+    def _find_prev_token(
+        self,
+        index: int,
+        tokens: Sequence[tokenize.TokenInfo],
+        *,
+        ignore: tuple[int, ...] = _PAREN_IGNORE_TOKEN_TYPES,
+    ) -> tokenize.TokenInfo | None:
+        i = index - 1
+        while i >= 0 and tokens[i].type in ignore:
+            i -= 1
+        return tokens[i] if i >= 0 else None
+
+    def _find_next_token(
+        self,
+        index: int,
+        tokens: Sequence[tokenize.TokenInfo],
+        *,
+        ignore: tuple[int, ...] = _PAREN_IGNORE_TOKEN_TYPES,
+    ) -> tokenize.TokenInfo | None:
+        i = index + 1
+        while i < len(tokens) and tokens[i].type in ignore:
+            i += 1
+        return tokens[i] if i < len(tokens) else None
 
     @only_required_for_messages("implicit-str-concat")
     def visit_call(self, node: nodes.Call) -> None:
@@ -1071,15 +1124,23 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
             token_index = (elt.lineno, elt.col_offset)
             if token_index not in self.string_tokens:
                 # This may happen with Latin1 encoding
-                # cf. https://github.com/PyCQA/pylint/issues/2610
+                # cf. https://github.com/pylint-dev/pylint/issues/2610
                 continue
             matching_token, next_token = self.string_tokens[token_index]
             # We detect string concatenation: the AST Const is the
             # combination of 2 string tokens
-            if matching_token != elt.value and next_token is not None:
-                if next_token.type == tokenize.STRING and (
-                    next_token.start[0] == elt.lineno
-                    or self.linter.config.check_str_concat_over_line_jumps
+            if (
+                matching_token != elt.value
+                and next_token is not None
+                and next_token.type == tokenize.STRING
+            ):
+                if next_token.start[0] == elt.lineno or (
+                    self.linter.config.check_str_concat_over_line_jumps
+                    # Allow implicitly concatenated strings in parens.
+                    # See https://github.com/pylint-dev/pylint/issues/8552.
+                    and not self._parenthesized_string_tokens.get(
+                        (elt.lineno, elt.col_offset)
+                    )
                 ):
                     self.add_message(
                         "implicit-str-concat",

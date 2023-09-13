@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Functions that creates the basic options for the Run and PyLinter classes."""
 
@@ -102,9 +102,10 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "metavar": "<format>",
                 "short": "f",
                 "group": "Reports",
-                "help": "Set the output format. Available formats are text,"
-                " parseable, colorized, json and msvs (visual studio)."
-                " You can also give a reporter class, e.g. mypackage.mymodule."
+                "help": "Set the output format. Available formats are: text, "
+                "parseable, colorized, json2 (improved json format), json "
+                "(old json format) and msvs (visual studio). "
+                "You can also give a reporter class, e.g. mypackage.mymodule."
                 "MyReporterClass.",
                 "kwargs": {"linter": linter},
             },
@@ -341,6 +342,18 @@ def _make_linter_options(linter: PyLinter) -> Options:
                     "Interpret the stdin as a python script, whose filename "
                     "needs to be passed as the module_or_package argument."
                 ),
+            },
+        ),
+        (
+            "source-roots",
+            {
+                "type": "glob_paths_csv",
+                "metavar": "<path>[,<path>...]",
+                "default": (),
+                "help": "Add paths to the list of the source roots. Supports globbing patterns. "
+                "The source root is an absolute path or a path relative to the current working "
+                "directory used to determine a package namespace for modules located under the "
+                "source root.",
             },
         ),
         (

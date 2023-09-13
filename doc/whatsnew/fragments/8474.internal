@@ -1,0 +1,5 @@
+Following a deprecation period, the ``OutputLine`` class now requires
+the right number of argument all the time. The functional output can be
+regenerated automatically to achieve that easily.
+
+Refs #8474

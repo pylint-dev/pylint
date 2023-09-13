@@ -3,7 +3,7 @@ accept-no-raise-doc option is set to True.
 
 Requires at least one matching section (`Docstring.matching_sections`).
 
-Taken from https://github.com/PyCQA/pylint/issues/7208
+Taken from https://github.com/pylint-dev/pylint/issues/7208
 """
 
 

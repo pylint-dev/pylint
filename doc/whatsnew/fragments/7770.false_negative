@@ -1,3 +1,0 @@
-Fixes ``unnecessary-list-index-lookup`` false negative when ``enumerate`` is called with ``iterable`` as a kwarg.
-
-Closes #7770

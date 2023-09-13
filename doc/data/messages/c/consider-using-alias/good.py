@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+import typing
+
+cats: typing.cast(dict[str, int], "string")

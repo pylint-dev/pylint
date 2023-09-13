@@ -2,6 +2,8 @@
 # pylint: disable=unused-private-member
 """check method hiding ancestor attribute
 """
+import functools as ft
+import something_else as functools  # pylint: disable=import-error
 
 
 class Abcd:
@@ -106,10 +108,21 @@ class JsonEncoder(js.JSONEncoder):
 class Parent:
     def __init__(self):
         self._protected = None
+        self._protected_two = None
 
 
 class Child(Parent):
     def _protected(self):  # [method-hidden]
+        pass
+
+
+class CachedChild(Parent):
+    @ft.cached_property
+    def _protected(self):
+        pass
+
+    @functools.cached_property
+    def _protected_two(self):
         pass
 
 

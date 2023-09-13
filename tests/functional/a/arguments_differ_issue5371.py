@@ -1,4 +1,4 @@
-"""https://github.com/PyCQA/pylint/issues/5371"""
+"""https://github.com/pylint-dev/pylint/issues/5371"""
 from enum import Enum
 
 

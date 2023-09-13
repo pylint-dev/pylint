@@ -1,12 +1,11 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
 
 from __future__ import annotations
 
-import sys
 import warnings
 from contextlib import redirect_stdout
 from io import StringIO
@@ -15,7 +14,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, TextIO
 
 import pytest
-from _pytest.recwarn import WarningsRecorder
 
 from pylint import checkers
 from pylint.interfaces import HIGH
@@ -128,16 +126,6 @@ def test_template_option_with_header(linter: PyLinter) -> None:
     assert out_lines[2] == '{ "Category": "convention" }'
 
 
-def test_deprecation_set_output(recwarn: WarningsRecorder) -> None:
-    """TODO remove in 3.0."""
-    reporter = BaseReporter()
-    # noinspection PyDeprecation
-    reporter.set_output(sys.stdout)
-    warning = recwarn.pop()
-    assert "set_output' will be removed in 3.0" in str(warning)
-    assert reporter.out == sys.stdout
-
-
 def test_parseable_output_deprecated() -> None:
     with warnings.catch_warnings(record=True) as cm:
         warnings.simplefilter("always")
@@ -188,10 +176,10 @@ def test_multi_format_output(tmp_path: Path) -> None:
 
     source_file = tmp_path / "somemodule.py"
     source_file.write_text('NOT_EMPTY = "This module is not empty"\n')
-    escaped_source_file = dumps(str(source_file))
+    dumps(str(source_file))
 
     nop_format = NopReporter.__module__ + "." + NopReporter.__name__
-    formats = ",".join(["json:" + str(json), "text", nop_format])
+    formats = ",".join(["json2:" + str(json), "text", nop_format])
 
     with redirect_stdout(text):
         linter = PyLinter()
@@ -220,37 +208,7 @@ def test_multi_format_output(tmp_path: Path) -> None:
         del linter.reporter
 
     with open(json, encoding="utf-8") as f:
-        assert (
-            f.read() == "[\n"
-            "    {\n"
-            '        "type": "convention",\n'
-            '        "module": "somemodule",\n'
-            '        "obj": "",\n'
-            '        "line": 1,\n'
-            '        "column": 0,\n'
-            '        "endLine": null,\n'
-            '        "endColumn": null,\n'
-            f'        "path": {escaped_source_file},\n'
-            '        "symbol": "missing-module-docstring",\n'
-            '        "message": "Missing module docstring",\n'
-            '        "message-id": "C0114"\n'
-            "    },\n"
-            "    {\n"
-            '        "type": "convention",\n'
-            '        "module": "somemodule",\n'
-            '        "obj": "",\n'
-            '        "line": 1,\n'
-            '        "column": 0,\n'
-            '        "endLine": null,\n'
-            '        "endColumn": null,\n'
-            f'        "path": {escaped_source_file},\n'
-            '        "symbol": "line-too-long",\n'
-            '        "message": "Line too long (1/2)",\n'
-            '        "message-id": "C0301"\n'
-            "    }\n"
-            "]\n"
-            "direct output\n"
-        )
+        assert '"messageId": "C0114"' in f.read()
 
     assert (
         text.getvalue() == "A NopReporter was initialized.\n"

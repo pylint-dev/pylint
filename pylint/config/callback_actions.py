@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=too-many-arguments, redefined-builtin, duplicate-code
 
@@ -11,7 +11,6 @@ from __future__ import annotations
 import abc
 import argparse
 import sys
-import warnings
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -53,27 +52,6 @@ class _DoNothingAction(_CallbackAction):
         option_string: str | None = None,
     ) -> None:
         return None
-
-
-class _ExtendAction(argparse._AppendAction):
-    """Action that adds the value to a pre-existing list.
-
-    It is directly copied from the stdlib implementation which is only available
-    on 3.8+.
-    """
-
-    def __call__(
-        self,
-        parser: argparse.ArgumentParser,
-        namespace: argparse.Namespace,
-        values: str | Sequence[Any] | None,
-        option_string: str | None = None,
-    ) -> None:
-        assert isinstance(values, (tuple, list))
-        current = getattr(namespace, self.dest, [])
-        assert isinstance(current, list)
-        current.extend(values)
-        setattr(namespace, self.dest, current)
 
 
 class _AccessRunObjectAction(_CallbackAction):
@@ -265,11 +243,9 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--generate-rcfile",
     ) -> None:
-        # TODO: 2.x: Deprecate this after the auto-upgrade functionality of
+        # TODO: 3.x: Deprecate this after the auto-upgrade functionality of
         # pylint-config is sufficient.
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            self.run.linter.generate_config(skipsections=("Commands",))
+        self.run.linter._generate_config(skipsections=("Commands",))
         sys.exit(0)
 
 

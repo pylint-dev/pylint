@@ -1,0 +1,3 @@
+``consider-using-augmented-assign`` is now applied to dicts and lists as well.
+
+Closes #8959.

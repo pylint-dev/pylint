@@ -1,1 +1,3 @@
-# This is a placeholder for correct code for this message.
+import datetime
+
+print("Current year: ", datetime.date.today().strftime("%Y"))

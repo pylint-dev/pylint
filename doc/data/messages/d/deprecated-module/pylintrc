@@ -1,0 +1,3 @@
+[main]
+py-version=3.7
+deprecated-modules=whatever_you_want

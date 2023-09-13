@@ -26,7 +26,7 @@ The future ``possible-forgotten-f-prefix`` check still had too much false positi
 and is delayed again. Check the `possible-forgotten-f-prefix`_ issue if you want
 to provide knowledge or use case :)
 
-.. _possible-forgotten-f-prefix: https://github.com/PyCQA/pylint/pull/4787
+.. _possible-forgotten-f-prefix: https://github.com/pylint-dev/pylint/pull/4787
 .. _pyupgrade: https://github.com/asottile/pyupgrade
 .. _flynt: https://github.com/ikamensh/flynt
 

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from astroid import nodes
 
@@ -15,7 +15,8 @@ class PassChecker(_BasicChecker):
         "W0107": (
             "Unnecessary pass statement",
             "unnecessary-pass",
-            'Used when a "pass" statement that can be avoided is encountered.',
+            'Used when a "pass" statement can be removed without affecting '
+            "the behaviour of the code.",
         )
     }
 

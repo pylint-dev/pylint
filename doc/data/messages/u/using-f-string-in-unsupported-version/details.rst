@@ -1,1 +1,1 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+f-strings were introduced in Python version 3.6; to use them, please use a more recent version of Python.

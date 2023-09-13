@@ -1,1 +1,2 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+The actual replacement need to be studied on a case by case basis
+by reading the deprecation warning or the release notes.

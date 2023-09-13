@@ -1,1 +1,1 @@
-correct_set = {'value1', 23, 5}
+correct_set = {"value1", 23, 5}

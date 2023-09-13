@@ -1,1 +1,2 @@
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
+This error was raised when we encountered an unexpected value type in a toml
+configuration between pylint 2.12 and pylint 2.14 (before the argparse refactor).

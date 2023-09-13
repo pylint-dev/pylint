@@ -73,7 +73,7 @@ for item in d.items():
 
 
 # Test false positive described in #4630
-# (https://github.com/PyCQA/pylint/issues/4630)
+# (https://github.com/pylint-dev/pylint/issues/4630)
 
 d = {'key': 'value'}
 
@@ -90,7 +90,7 @@ for k, _ in d.items():
 
 # Test false positive described in #4716
 # Should not be emitted for del
-# (https://github.com/PyCQA/pylint/issues/4716)
+# (https://github.com/pylint-dev/pylint/issues/4716)
 d = {}
 for key, val in d.items():
     del d[key]
@@ -107,25 +107,25 @@ for key, val in outer_dict.items():
         break
 
 # Test partial unpacking of items
-# https://github.com/PyCQA/pylint/issues/5504
+# https://github.com/pylint-dev/pylint/issues/5504
 
 d = {}
 for key, in d.items():
     print(d[key])
 
 # Test subscripting an attribute
-# https://github.com/PyCQA/pylint/issues/6557
+# https://github.com/pylint-dev/pylint/issues/6557
 f = Foo()
 for input_output in d.items():
     f.input_output = input_output  # pylint: disable=attribute-defined-outside-init
     print(d[f.input_output[0]])
 
-# Regression test for https://github.com/PyCQA/pylint/issues/6788
+# Regression test for https://github.com/pylint-dev/pylint/issues/6788
 d = {'a': 1, 'b': 2, 'c': 3}
 for key, val in d.items():
     ([d[key], x], y) = ([1, 2], 3)
 
-# Regression test for https://github.com/PyCQA/pylint/issues/6818
+# Regression test for https://github.com/pylint-dev/pylint/issues/6818
 d = {'a': 1, 'b': 2, 'c': 3}
 for key, val in d.items():
     while d[key] > 0:

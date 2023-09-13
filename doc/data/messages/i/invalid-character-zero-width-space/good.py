@@ -1,1 +1,1 @@
-# This is a placeholder for correct code for this message.
+STRING = "Valid character zero-width-space u200B"

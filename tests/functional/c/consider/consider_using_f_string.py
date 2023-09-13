@@ -1,4 +1,4 @@
-"""Test to see if a f-string would be possible and consider-using-f-string should be raised"""
+"""Test to see if an f-string would be possible and consider-using-f-string should be raised"""
 # pylint: disable=unused-variable, invalid-name, missing-function-docstring, pointless-statement
 # pylint: disable=expression-not-assigned, repeated-keyword, too-many-locals
 
@@ -39,6 +39,7 @@ def print_good():
     print("{}".format("\n".join(i for i in "string")))
     print("%s" % "\n")
     print("%s" % "\n".join(i for i in "string"))
+    print("{%s}%s" % (PARAM_1, PARAM_2))
 
 
 def print_bad():

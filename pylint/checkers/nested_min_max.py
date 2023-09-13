@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for use of nested min/max functions."""
 
@@ -9,7 +9,8 @@ from __future__ import annotations
 import copy
 from typing import TYPE_CHECKING
 
-from astroid import nodes
+from astroid import nodes, objects
+from astroid.const import Context
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import only_required_for_messages, safe_infer
@@ -17,6 +18,13 @@ from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+DICT_TYPES = (
+    objects.DictValues,
+    objects.DictKeys,
+    objects.DictItems,
+    nodes.node_classes.Dict,
+)
 
 
 class NestedMinMaxChecker(BaseChecker):
@@ -82,6 +90,33 @@ class NestedMinMaxChecker(BaseChecker):
                     break
 
             redundant_calls = self.get_redundant_calls(fixed_node)
+
+        for idx, arg in enumerate(fixed_node.args):
+            if not isinstance(arg, nodes.Const):
+                inferred = safe_infer(arg)
+                if isinstance(
+                    inferred, (nodes.List, nodes.Tuple, nodes.Set, *DICT_TYPES)
+                ):
+                    splat_node = nodes.Starred(
+                        ctx=Context.Load,
+                        lineno=inferred.lineno,
+                        col_offset=0,
+                        parent=nodes.NodeNG(
+                            lineno=None,
+                            col_offset=None,
+                            end_lineno=None,
+                            end_col_offset=None,
+                            parent=None,
+                        ),
+                        end_lineno=0,
+                        end_col_offset=0,
+                    )
+                    splat_node.value = arg
+                    fixed_node.args = (
+                        fixed_node.args[:idx]
+                        + [splat_node]
+                        + fixed_node.args[idx + 1 : idx]
+                    )
 
         self.add_message(
             "nested-min-max",

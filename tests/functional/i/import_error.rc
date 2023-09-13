@@ -3,7 +3,7 @@ disable=C,R,W
 enable=multiple-imports
 
 [TYPECHECK]
-ignored-modules=external_module,fake_module.submodule,foo,bar
+ignored-modules=external_module,fake_module.submodule,foo,bar,*_ignored
 
 [testoptions]
 # TODO: PY3.9: This does pass on PyPy 3.9

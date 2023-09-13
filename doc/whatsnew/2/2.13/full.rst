@@ -250,7 +250,7 @@ Release date: 2022-03-24
 * No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
   started the for loop uses a ``self`` that is encapsulated in tuples or lists.
 
-  Refs PyCQA/astroid#1360
+  Refs pylint-dev/astroid#1360
   Closes #4826
 
 * Output better error message if unsupported file formats are used with ``pyreverse``.
@@ -389,7 +389,7 @@ Release date: 2022-03-24
 * Fixed a crash involving a ``NewType`` named with an f-string.
 
   Closes #5770
-  Ref PyCQA/astroid#1400
+  Ref pylint-dev/astroid#1400
 
 * Improved ``bad-open-mode`` message when providing ``None`` to the ``mode``
   argument of an ``open()`` call.
@@ -406,13 +406,13 @@ Release date: 2022-03-24
   the class itself.
 
   Closes #5408
-  Ref PyCQA/astroid#1392
+  Ref pylint-dev/astroid#1392
 
 * Fixed false positive for ``unused-argument`` when a method overridden in a subclass
   does nothing with the value of a keyword-only argument.
 
   Closes #5771
-  Ref PyCQA/astroid#1382
+  Ref pylint-dev/astroid#1382
 
 * The issue template for crashes is now created for crashes which were previously not covered
   by this mechanism.

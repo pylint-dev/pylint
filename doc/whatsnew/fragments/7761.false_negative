@@ -1,0 +1,6 @@
+Apply ``infer_kwarg_from_call()`` to more checks
+
+These mostly solve false negatives for various checks,
+save for one false positive for ``use-maxsplit-arg``.
+
+Closes #7761

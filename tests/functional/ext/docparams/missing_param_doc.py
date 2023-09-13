@@ -140,3 +140,70 @@ def foobar15(*args):
         Relevant parameters.
     """
     print(args)
+
+
+def foobar16(one: int, two: str, three: float) -> int:
+    """Description of the function
+
+    Args:
+        one: A number.
+        two: Another number.
+        three: Yes another number.
+
+    Returns:
+        The number one.
+    """
+    print(one, two, three)
+    return 1
+
+
+def foobar17(one, two, three):
+    # type: (int, str, float) -> int
+    """Description of the function
+
+    Args:
+        one: A number.
+        two: Another number.
+        three: Yes another number.
+
+    Returns:
+        The number one.
+    """
+    print(one, two, three)
+    return 1
+
+
+def foobar18(
+    one,  # type: int
+    two,  # type: str
+    three,  # type: float
+):
+    # type: (...) -> int
+    """Description of the function
+
+    Args:
+        one: A number.
+        two: Another number.
+        three: Yes another number.
+
+    Returns:
+        The number one.
+    """
+    print(one, two, three)
+    return 1
+
+
+def foobar19(one, two, **kwargs):
+    # type: (int, str, float) -> int
+    """Description of the function
+
+    Args:
+        one: A number.
+        two: Another number.
+        kwargs: More numbers.
+
+    Returns:
+        The number one.
+    """
+    print(one, two, kwargs)
+    return 1

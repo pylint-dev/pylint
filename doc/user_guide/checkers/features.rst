@@ -31,6 +31,19 @@ Async checker Messages
   function. This message can't be emitted when using Python < 3.5.
 
 
+Bad-Chained-Comparison checker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``bad-chained-comparison``.
+
+Bad-Chained-Comparison checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:bad-chained-comparison (W3601): *Suspicious %s-part chained comparison using semantically incompatible operators (%s)*
+  Used when there is a chained comparison where one expression is part of two
+  comparisons that belong to different semantic groups ("<" does not mean the
+  same thing as "is", chaining them in "0 < x is None" is probably a mistake).
+
+
 Basic checker
 ~~~~~~~~~~~~~
 
@@ -68,9 +81,9 @@ Basic checker Messages
 :return-outside-function (E0104): *Return outside function*
   Used when a "return" statement is found outside a function or method.
 :return-arg-in-generator (E0106): *Return with argument inside generator*
-  Used when a "return" statement with an argument is found outside in a
-  generator function or method (e.g. with some "yield" statements). This
-  message can't be emitted when using Python >= 3.3.
+  Used when a "return" statement with an argument is found in a generator
+  function or method (e.g. with some "yield" statements). This message can't be
+  emitted when using Python >= 3.3.
 :invalid-star-assignment-target (E0113): *Starred assignment target must be in a list or tuple*
   Emitted when a star expression is used as a starred assignment target.
 :bad-reversed-sequence (E0111): *The first reversed() argument is not a sequence*
@@ -95,6 +108,9 @@ Basic checker Messages
   Used when a break or a return statement is found inside the finally clause of
   a try...finally block: the exceptions raised in the try clause will be
   silently swallowed instead of being re-raised.
+:return-in-finally (W0134): *'return' shadowed by the 'finally' clause.*
+  Emitted when a 'return' statement is found in a 'finally' block. This will
+  overwrite the return value of a function and should be avoided.
 :assert-on-tuple (W0199): *Assert called on a populated tuple. Did you mean 'assert x,y'?*
   A call of assert on a tuple will always evaluate to true if the tuple is not
   empty, and will always evaluate to false if it is.
@@ -121,6 +137,9 @@ Basic checker Messages
   Loops should only have an else clause if they can exit early with a break
   statement, otherwise the statements under else should be on the same scope as
   the loop itself.
+:pointless-exception-statement (W0133): *Exception statement has no effect*
+  Used when an exception is created without being assigned, raised or returned
+  for subsequent use elsewhere.
 :expression-not-assigned (W0106): *Expression "%s" is assigned to nothing*
   Used when an expression that is not a function call is assigned to nothing.
   Probably something else was intended.
@@ -148,7 +167,8 @@ Basic checker Messages
   disable it if you're using those strings as documentation, instead of
   comments.
 :unnecessary-pass (W0107): *Unnecessary pass statement*
-  Used when a "pass" statement that can be avoided is encountered.
+  Used when a "pass" statement can be removed without affecting the behaviour
+  of the code.
 :unreachable (W0101): *Unreachable code*
   Used when there is some code behind a "return" or "raise" statement, which
   will never be accessed.
@@ -308,6 +328,9 @@ Classes checker Messages
   Used when an instance attribute is defined outside the __init__ method.
 :subclassed-final-class (W0240): *Class %r is a subclass of a class decorated with typing.final: %r*
   Used when a class decorated with typing.final has been subclassed.
+:implicit-flag-alias (W0213): *Flag member %(overlap)s shares bit positions with %(sources)s*
+  Used when multiple integer values declared within an enum.IntFlag class share
+  a common bit position.
 :abstract-method (W0223): *Method %r is abstract in class %r but is not overridden in child class %r*
   Used when an abstract method (i.e. raise NotImplementedError) is not
   overridden in concrete class.
@@ -368,6 +391,18 @@ Classes checker Messages
 :method-check-failed (F0202): *Unable to check methods signature (%s / %s)*
   Used when Pylint has been unable to check methods signature compatibility for
   an unexpected reason. Please report this kind if you don't make sense of it.
+
+
+Dataclass checker
+~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``dataclass``.
+
+Dataclass checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+:invalid-field-call (E3701): *Invalid usage of field(), %s*
+  The dataclasses.field() specifier should only be used as the value of an
+  assignment within a dataclass, or within the make_dataclass() function.
 
 
 Design checker
@@ -444,8 +479,9 @@ Exceptions checker Messages
   Used when an except catches a type that was already caught by a previous
   handler.
 :broad-exception-caught (W0718): *Catching too general exception %s*
-  Used when an except catches a too general exception, possibly burying
-  unrelated errors.
+  If you use a naked ``except Exception:`` clause, you might end up catching
+  exceptions other than the ones you expect to catch. This can hide bugs or
+  make it harder to debug programs when unrelated errors are hidden.
 :raise-missing-from (W0707): *Consider explicitly re-raising using %s'%s from %s'*
   Python's exception chaining shows the traceback of the current exception, but
   also of the original exception. When you raise a new exception after another
@@ -464,9 +500,17 @@ Exceptions checker Messages
   valid for the exception in question. Usually emitted when having binary
   operations between exceptions in except handlers.
 :bare-except (W0702): *No exception type(s) specified*
-  Used when an except clause doesn't specify exceptions type to catch.
+  A bare ``except:`` clause will catch ``SystemExit`` and ``KeyboardInterrupt``
+  exceptions, making it harder to interrupt a program with ``Control-C``, and
+  can disguise other problems. If you want to catch all exceptions that signal
+  program errors, use ``except Exception:`` (bare except is equivalent to
+  ``except BaseException:``).
 :broad-exception-raised (W0719): *Raising too general exception: %s*
-  Used when an except raises a too general exception.
+  Raising exceptions that are too generic force you to catch exceptions
+  generically too. It will force you to use a naked ``except Exception:``
+  clause. You might then end up catching exceptions other than the ones you
+  expect to catch. This can hide bugs or make it harder to debug programs when
+  unrelated errors are hidden.
 :try-except-raise (W0706): *The except handler raises immediately*
   Used when an except handler uses raise as its first or only operator. This is
   useless because it raises back the exception immediately. Remove the raise
@@ -631,6 +675,10 @@ See also :ref:`method_args checker's options' documentation <method_args-options
 
 Method Args checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:positional-only-arguments-expected (E3102): *`%s()` got some positional-only arguments passed as keyword arguments: %s*
+  Emitted when positional-only arguments have been passed as keyword arguments.
+  Remove the keywords for the affected arguments in the function call. This
+  message can't be emitted when using Python < 3.8.
 :missing-timeout (W3101): *Missing timeout argument for method '%s' can cause your program to hang indefinitely*
   Used when a method needs a 'timeout' parameter in order to avoid waiting for
   a long time. If no timeout is specified explicitly the default value is used.
@@ -712,13 +760,10 @@ Verbatim name of the checker is ``nonascii-checker``.
 
 Nonascii-Checker checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:non-ascii-file-name (W2402): *%s name "%s" contains a non-ASCII character. PEP 3131 only allows non-ascii identifiers, not file names.*
-  Some editors don't support non-ASCII file names properly. Even though Python
-  supports UTF-8 files since Python 3.5 this isn't recommended for
-  interoperability. Further reading: -
-  https://peps.python.org/pep-0489/#export-hook-name -
-  https://peps.python.org/pep-0672/#confusing-features -
-  https://bugs.python.org/issue20485
+:non-ascii-file-name (W2402): *%s name "%s" contains a non-ASCII character.*
+  Under python 3.5, PEP 3131 allows non-ascii identifiers, but not non-ascii
+  file names.Since Python 3.5, even though Python supports UTF-8 files, some
+  editors or tools don't.
 :non-ascii-name (C2401): *%s name "%s" contains a non-ASCII character, consider renaming it.*
   Used when the name contains at least one non-ASCII unicode character. See
   https://peps.python.org/pep-0672/#confusing-features for a background why
@@ -742,7 +787,7 @@ See also :ref:`refactoring checker's options' documentation <refactoring-options
 
 Refactoring checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:simplifiable-condition (R1726): *Boolean condition '%s' may be simplified to '%s'*
+:simplifiable-condition (R1726): *Boolean condition "%s" may be simplified to "%s"*
   Emitted when a boolean condition is able to be simplified.
 :condition-evals-to-constant (R1727): *Boolean condition '%s' will always evaluate to '%s'*
   Emitted when a boolean condition can be simplified to a constant value.
@@ -864,12 +909,24 @@ Refactoring checker Messages
   Emitted when a single "return" or "return None" statement is found at the end
   of function or method definition. This statement can safely be removed
   because Python will implicitly return None
-:use-implicit-booleaness-not-comparison (C1803): *'%s' can be simplified to '%s' as an empty %s is falsey*
-  Used when Pylint detects that collection literal comparison is being used to
-  check for emptiness; Use implicit booleaness instead of a collection classes;
-  empty collections are considered as false
-:unneeded-not (C0113): *Consider changing "%s" to "%s"*
-  Used when a boolean expression contains an unneeded negation.
+:use-implicit-booleaness-not-comparison-to-string (C1804): *"%s" can be simplified to "%s", if it is striclty a string, as an empty string is falsey*
+  Empty string are considered false in a boolean context. Following this check
+  blindly in weakly typed code base can create hard to debug issues. If the
+  value can be something else that is falsey but not a string (for example
+  ``None``, an empty sequence, or ``0``) the code will not be equivalent.
+:use-implicit-booleaness-not-comparison (C1803): *"%s" can be simplified to "%s", if it is strictly a sequence, as an empty %s is falsey*
+  Empty sequences are considered false in a boolean context. Following this
+  check blindly in weakly typed code base can create hard to debug issues. If
+  the value can be something else that is falsey but not a sequence (for
+  example ``None``, an empty string, or ``0``) the code will not be equivalent.
+:use-implicit-booleaness-not-comparison-to-zero (C1805): *"%s" can be simplified to "%s", if it is strictly an int, as 0 is falsey*
+  0 is considered false in a boolean context. Following this check blindly in
+  weakly typed code base can create hard to debug issues. If the value can be
+  something else that is falsey but not an int (for example ``None``, an empty
+  string, or an empty sequence) the code will not be equivalent.
+:unnecessary-negation (C0117): *Consider changing "%s" to "%s"*
+  Used when a boolean expression contains an unneeded negation, e.g. when two
+  negation operators cancel each other out.
 :consider-iterating-dictionary (C0201): *Consider iterating the dictionary directly instead of calling .keys()*
   Emitted when the keys of a dictionary are iterated through the ``.keys()``
   method or when ``.keys()`` is used for a membership check. It is enough to
@@ -883,13 +940,12 @@ Refactoring checker Messages
   Emitted when code that iterates with range and len is encountered. Such code
   can be simplified by using the enumerate builtin.
 :use-implicit-booleaness-not-len (C1802): *Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty*
-  Used when Pylint detects that len(sequence) is being used without explicit
-  comparison inside a condition to determine if a sequence is empty. Instead of
-  coercing the length to a boolean, either rely on the fact that empty
-  sequences are false or compare the length against a scalar.
-:consider-using-f-string (C0209): *Formatting a regular string which could be a f-string*
+  Empty sequences are considered false in a boolean context. You can either
+  remove the call to 'len' (``if not x``) or compare the length against a
+  scalar (``if len(x) > 1``).
+:consider-using-f-string (C0209): *Formatting a regular string which could be an f-string*
   Used when we detect a string that is being formatted with format() or % which
-  could potentially be a f-string. The use of f-strings is preferred. Requires
+  could potentially be an f-string. The use of f-strings is preferred. Requires
   Python 3.6 and ``py-version >= 3.6``.
 :use-maxsplit-arg (C0207): *Use %s instead*
   Emitted when accessing only the first or last element of str.split(). The
@@ -965,6 +1021,11 @@ Stdlib checker Messages
   instance will never need to be garbage collected (singleton) it is
   recommended to refactor code to avoid this pattern or add a maxsize to the
   cache. The default value for maxsize is 128.
+:subprocess-run-check (W1510): *'subprocess.run' used without explicitly defining the value for 'check'.*
+  The ``check`` keyword is set to False by default. It means the process
+  launched by ``subprocess.run`` can exit with a non-zero exit code and fail
+  silently. It's better to set it explicitly to make clear what the error-
+  handling behavior is.
 :forgotten-debug-statement (W1515): *Leaving functions creating breakpoints in production code is not recommended*
   Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be
   removed from code that is not actively being debugged.
@@ -998,10 +1059,6 @@ Stdlib checker Messages
   your application. The child process could deadlock before exec is called. If
   you must use it, keep it trivial! Minimize the number of libraries you call
   into. See https://docs.python.org/3/library/subprocess.html#popen-constructor
-:subprocess-run-check (W1510): *Using subprocess.run without explicitly set `check` is not recommended.*
-  The check parameter should always be used with explicitly set `check` keyword
-  to make clear what the error-handling behavior is. See
-  https://docs.python.org/3/library/subprocess.html#subprocess.run
 :bad-thread-instantiation (W1506): *threading.Thread needs the target function*
   The warning is emitted when a threading.Thread class is instantiated without
   the target function being passed as a kwarg or as a second argument. By
@@ -1185,6 +1242,10 @@ Typecheck checker Messages
 :unsubscriptable-object (E1136): *Value '%s' is unsubscriptable*
   Emitted when a subscripted value doesn't support subscription (i.e. doesn't
   define __getitem__ method or __class_getitem__ for a class).
+:kwarg-superseded-by-positional-arg (W1117): *%r will be included in %r since a positional-only parameter with this name already exists*
+  Emitted when a function is called with a keyword argument that has the same
+  name as a positional-only parameter and the function contains a keyword
+  variadic parameter dict.
 :keyword-arg-before-vararg (W1113): *Keyword argument before variable positional arguments list in the definition of %s function*
   When defining a keyword argument before variable positional arguments, one
   can end up in having multiple values passed for the aforementioned parameter
@@ -1237,9 +1298,8 @@ Unicode Checker checker Messages
 :invalid-unicode-codec (E2501): *UTF-16 and UTF-32 aren't backward compatible. Use UTF-8 instead*
   For compatibility use UTF-8 instead of UTF-16/UTF-32. See also
   https://bugs.python.org/issue1503789 for a history of this issue. And
-  https://softwareengineering.stackexchange.com/questions/102205/should-
-  utf-16-be-considered-harmful for some possible problems when using UTF-16 for
-  instance.
+  https://softwareengineering.stackexchange.com/questions/102205/ for some
+  possible problems when using UTF-16 for instance.
 :bad-file-encoding (C2503): *PEP8 recommends UTF-8 as encoding for Python files*
   PEP8 recommends UTF-8 default encoding for Python files. See
   https://peps.python.org/pep-0008/#source-file-encoding
@@ -1279,7 +1339,7 @@ Unsupported Version checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :using-f-string-in-unsupported-version (W2601): *F-strings are not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.6 and pylint
-  encounters a f-string.
+  encounters an f-string.
 :using-final-decorator-in-unsupported-version (W2602): *typing.final is not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.8 and pylint
   encounters a ``typing.final`` decorator.
@@ -1346,14 +1406,15 @@ Variables checker Messages
 :unused-variable (W0612): *Unused variable %r*
   Used when a variable is defined but not used.
 :global-variable-not-assigned (W0602): *Using global for %r but no assignment is done*
-  Used when a variable is defined through the "global" statement but no
-  assignment to this variable is done.
+  When a variable defined in the global scope is modified in an inner scope,
+  the 'global' keyword is required in the inner scope only if there is an
+  assignment operation done in the inner scope.
 :undefined-loop-variable (W0631): *Using possibly undefined loop variable %r*
   Used when a loop variable (i.e. defined by a for loop or a list comprehension
   or a generator expression) is used outside the loop.
 :global-statement (W0603): *Using the global statement*
   Used when you use the "global" statement to update a global variable. Pylint
-  just try to discourage this usage. That doesn't mean you cannot use it !
+  discourages its usage. That doesn't mean you cannot use it!
 :global-at-module-level (W0604): *Using the global statement at the module level*
   Used when you use the "global" statement at the module level since it has no
-  effect
+  effect.

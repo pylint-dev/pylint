@@ -1,8 +1,5 @@
 [main]
 load-plugins=pylint.extensions.typing
 
-[testoptions]
-min_pyver=3.7
-
 [TYPING]
 runtime-typing=no

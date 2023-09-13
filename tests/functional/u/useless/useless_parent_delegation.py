@@ -312,7 +312,7 @@ class DecoratedList(MyList):
         return super().__hash__()
 
 
-# Reported in https://github.com/PyCQA/pylint/issues/2270
+# Reported in https://github.com/pylint-dev/pylint/issues/2270
 class Super:
     def __init__(self, *args):
         self.args = args

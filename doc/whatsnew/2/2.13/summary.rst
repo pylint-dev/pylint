@@ -16,7 +16,7 @@ A lot of ``undefined-variables`` and ``used-before-assignment`` issues were reso
 
 We started integrating ``pylint-error`` the documentation created by @vald-phoenix a developer from Hlyniane,
 Ukraine. We hope he's doing well despite the current situation. The deployment is set up but `there's still a lot to do so we welcome any community effort
-help to review, integrate, and add good/bad examples <https://github.com/PyCQA/pylint/issues/5953>`_. This should be doable
+help to review, integrate, and add good/bad examples <https://github.com/pylint-dev/pylint/issues/5953>`_. This should be doable
 without any pylint or astroid knowledge, so this is the perfect entrypoint if you want to contribute
 to pylint without investing any time learning the internals.
 
@@ -144,7 +144,7 @@ Other Changes
 * No longer emit ``no-member`` in for loops that reference ``self`` if the binary operation that
   started the for loop uses a ``self`` that is encapsulated in tuples or lists.
 
-  Refs PyCQA/astroid#1360
+  Refs pylint-dev/astroid#1360
   Closes #4826
 
 * Fix matching ``--notes`` options that end in a non-word character.
@@ -295,13 +295,13 @@ Other Changes
   the class itself.
 
   Closes #5408
-  RefsPyCQA/astroid#1392
+  Refs pylint-dev/astroid#1392
 
 * Fixed false positive for ``unused-argument`` when a method overridden in a subclass
   does nothing with the value of a keyword-only argument.
 
   Closes #5771
-  RefsPyCQA/astroid#1382
+  Refs pylint-dev/astroid#1382
 
 * Optimize parsing of long lines when ``missing-final-newline`` is enabled.
 
@@ -343,7 +343,7 @@ Other Changes
 * Fixed a crash involving a ``NewType`` named with an f-string.
 
   Closes #5770
-  RefsPyCQA/astroid#1400
+  Refs pylint-dev/astroid#1400
 
 * Improved ``bad-open-mode`` message when providing ``None`` to the ``mode``
   argument of an ``open()`` call.

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -54,10 +54,10 @@ class RecommendationChecker(checkers.BaseChecker):
             "are more efficient than ``sets``.",
         ),
         "C0209": (
-            "Formatting a regular string which could be a f-string",
+            "Formatting a regular string which could be an f-string",
             "consider-using-f-string",
             "Used when we detect a string that is being formatted with format() or % "
-            "which could potentially be a f-string. The use of f-strings is preferred. "
+            "which could potentially be an f-string. The use of f-strings is preferred. "
             "Requires Python 3.6 and ``py-version >= 3.6``.",
         ),
     }
@@ -121,18 +121,28 @@ class RecommendationChecker(checkers.BaseChecker):
             and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
             return
+        inferred_expr = utils.safe_infer(node.func.expr)
+        if isinstance(inferred_expr, astroid.Instance) and any(
+            inferred_expr.nodes_of_class(nodes.ClassDef)
+        ):
+            return
 
+        confidence = HIGH
         try:
             sep = utils.get_argument_from_call(node, 0, "sep")
         except utils.NoSuchArgumentError:
-            return
+            sep = utils.infer_kwarg_from_call(node, keyword="sep")
+            confidence = INFERENCE
+            if not sep:
+                return
 
         try:
             # Ignore if maxsplit arg has been set
             utils.get_argument_from_call(node, 1, "maxsplit")
             return
         except utils.NoSuchArgumentError:
-            pass
+            if utils.infer_kwarg_from_call(node, keyword="maxsplit"):
+                return
 
         if isinstance(node.parent, nodes.Subscript):
             try:
@@ -166,7 +176,12 @@ class RecommendationChecker(checkers.BaseChecker):
                     + new_fn
                     + f"({sep.as_string()}, maxsplit=1)[{subscript_value}]"
                 )
-                self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
+                self.add_message(
+                    "use-maxsplit-arg",
+                    node=node,
+                    args=(new_name,),
+                    confidence=confidence,
+                )
 
     @utils.only_required_for_messages(
         "consider-using-enumerate",
@@ -414,6 +429,10 @@ class RecommendationChecker(checkers.BaseChecker):
             if not hasattr(node.parent.left, "value") or not isinstance(
                 node.parent.left.value, str
             ):
+                return
+
+            # Brackets can be inconvenient in f-string expressions
+            if "{" in node.parent.left.value or "}" in node.parent.left.value:
                 return
 
             inferred_right = utils.safe_infer(node.parent.right)

@@ -246,7 +246,7 @@ class ChildClass(ParentClass):
         pass
 
 
-# https://github.com/PyCQA/pylint/issues/4443
+# https://github.com/pylint-dev/pylint/issues/4443
 # Some valid overwrites with type annotations
 
 import typing  # pylint: disable=wrong-import-position
@@ -331,8 +331,8 @@ class Foo2(AbstractFoo):
 
 # Adding arguments with default values to a child class is valid
 # See:
-# https://github.com/PyCQA/pylint/issues/1556
-# https://github.com/PyCQA/pylint/issues/5338
+# https://github.com/pylint-dev/pylint/issues/1556
+# https://github.com/pylint-dev/pylint/issues/5338
 
 
 class BaseClass:
@@ -358,3 +358,13 @@ class AClass:
 class ClassWithNewNonDefaultKeywordOnly(AClass):
     def method(self, *, arg2, arg1=None):  # [arguments-differ]
         ...
+
+
+# Exclude `__init_subclass__` from the check:
+class InitSubclassParent:
+    def __init_subclass__(cls, *args, **kwargs):
+        ...
+
+class InitSubclassChild(InitSubclassParent):
+    def __init_subclass__(cls, /, **kwargs) -> None:
+        super().__init_subclass__(**kwargs)

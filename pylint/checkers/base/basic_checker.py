@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Basic checker for Python code."""
 
@@ -8,12 +8,11 @@ from __future__ import annotations
 
 import collections
 import itertools
-import sys
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 import astroid
-from astroid import nodes
+from astroid import nodes, objects, util
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
@@ -23,11 +22,6 @@ from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 class _BasicChecker(BaseChecker):
@@ -104,6 +98,7 @@ def report_by_type_stats(
     sect.append(reporter_nodes.Table(children=lines, cols=6, rheaders=1))
 
 
+# pylint: disable-next = too-many-public-methods
 class BasicChecker(_BasicChecker):
     """Basic checker.
 
@@ -211,7 +206,8 @@ class BasicChecker(_BasicChecker):
             "the user intended to do.",
         ),
         "W0126": (
-            "Using a conditional statement with potentially wrong function or method call due to missing parentheses",
+            "Using a conditional statement with potentially wrong function or method call due to "
+            "missing parentheses",
             "missing-parentheses-for-call-in-test",
             "Emitted when a conditional statement (If or ternary if) "
             "seems to wrongly call a function due to missing parentheses",
@@ -258,19 +254,31 @@ class BasicChecker(_BasicChecker):
             "Emitted if named expression is used to do a regular assignment "
             "outside a context like if, for, while, or a comprehension.",
         ),
+        "W0133": (
+            "Exception statement has no effect",
+            "pointless-exception-statement",
+            "Used when an exception is created without being assigned, raised or returned "
+            "for subsequent use elsewhere.",
+        ),
+        "W0134": (
+            "'return' shadowed by the 'finally' clause.",
+            "return-in-finally",
+            "Emitted when a 'return' statement is found in a 'finally' block. This will overwrite "
+            "the return value of a function and should be avoided.",
+        ),
     }
 
     reports = (("RP0101", "Statistics by type", report_by_type_stats),)
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._tryfinallys: list[nodes.TryFinally] | None = None
+        self._trys: list[nodes.Try]
 
     def open(self) -> None:
         """Initialize visit variables and statistics."""
         py_version = self.linter.config.py_version
         self._py38_plus = py_version >= (3, 8)
-        self._tryfinallys = []
+        self._trys = []
         self.linter.stats.reset_node_count()
 
     @utils.only_required_for_messages(
@@ -321,11 +329,13 @@ class BasicChecker(_BasicChecker):
             nodes.Subscript,
         )
         inferred = None
-        emit = isinstance(test, (nodes.Const,) + structs + const_nodes)
+        emit = isinstance(test, (nodes.Const, *structs, *const_nodes))
         maybe_generator_call = None
         if not isinstance(test, except_nodes):
             inferred = utils.safe_infer(test)
-            if inferred is astroid.Uninferable and isinstance(test, nodes.Name):
+            if isinstance(inferred, util.UninferableBase) and isinstance(
+                test, nodes.Name
+            ):
                 emit, maybe_generator_call = BasicChecker._name_holds_generator(test)
 
         # Emit if calling a function that only returns GeneratorExp (always tests True)
@@ -355,24 +365,21 @@ class BasicChecker(_BasicChecker):
             # it may be an illicit function call due to missing parentheses
             call_inferred = None
             try:
+                # Just forcing the generator to infer all elements.
+                # astroid.exceptions.InferenceError are false positives
+                # see https://github.com/pylint-dev/pylint/pull/8185
                 if isinstance(inferred, nodes.FunctionDef):
-                    call_inferred = inferred.infer_call_result()
+                    call_inferred = list(inferred.infer_call_result(node))
                 elif isinstance(inferred, nodes.Lambda):
-                    call_inferred = inferred.infer_call_result(node)
+                    call_inferred = list(inferred.infer_call_result(node))
             except astroid.InferenceError:
                 call_inferred = None
             if call_inferred:
-                try:
-                    for inf_call in call_inferred:
-                        if inf_call != astroid.Uninferable:
-                            self.add_message(
-                                "missing-parentheses-for-call-in-test",
-                                node=test,
-                                confidence=INFERENCE,
-                            )
-                            break
-                except astroid.InferenceError:
-                    pass
+                self.add_message(
+                    "missing-parentheses-for-call-in-test",
+                    node=test,
+                    confidence=INFERENCE,
+                )
             self.add_message("using-constant-test", node=test, confidence=INFERENCE)
 
     @staticmethod
@@ -383,7 +390,7 @@ class BasicChecker(_BasicChecker):
         assert isinstance(test, nodes.Name)
         emit = False
         maybe_generator_call = None
-        lookup_result = test.frame(future=True).lookup(test.name)
+        lookup_result = test.frame().lookup(test.name)
         if not lookup_result:
             return emit, maybe_generator_call
         maybe_generator_assigned = (
@@ -417,6 +424,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.only_required_for_messages(
         "pointless-statement",
+        "pointless-exception-statement",
         "pointless-string-statement",
         "expression-not-assigned",
         "named-expr-without-context",
@@ -444,16 +452,33 @@ class BasicChecker(_BasicChecker):
             self.add_message("pointless-string-statement", node=node)
             return
 
+        # Warn W0133 for exceptions that are used as statements
+        if isinstance(expr, nodes.Call):
+            name = ""
+            if isinstance(expr.func, nodes.Name):
+                name = expr.func.name
+            elif isinstance(expr.func, nodes.Attribute):
+                name = expr.func.attrname
+
+            # Heuristic: only run inference for names that begin with an uppercase char
+            # This reduces W0133's coverage, but retains acceptable runtime performance
+            # For more details, see: https://github.com/pylint-dev/pylint/issues/8073
+            inferred = utils.safe_infer(expr) if name[:1].isupper() else None
+            if isinstance(inferred, objects.ExceptionInstance):
+                self.add_message(
+                    "pointless-exception-statement", node=node, confidence=INFERENCE
+                )
+            return
+
         # Ignore if this is :
-        # * a direct function call
         # * the unique child of a try/except body
         # * a yield statement
         # * an ellipsis (which can be used on Python 3 instead of pass)
         # warn W0106 if we have any underlying function call (we can't predict
         # side effects), else pointless-statement
         if (
-            isinstance(expr, (nodes.Yield, nodes.Await, nodes.Call))
-            or (isinstance(node.parent, nodes.TryExcept) and node.parent.body == [node])
+            isinstance(expr, (nodes.Yield, nodes.Await))
+            or (isinstance(node.parent, nodes.Try) and node.parent.body == [node])
             or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):
             return
@@ -494,6 +519,7 @@ class BasicChecker(_BasicChecker):
         )
 
     @utils.only_required_for_messages("unnecessary-lambda")
+    # pylint: disable-next=too-many-return-statements
     def visit_lambda(self, node: nodes.Lambda) -> None:
         """Check whether the lambda is suspicious."""
         # if the body of the lambda is a call expression with the same
@@ -549,6 +575,13 @@ class BasicChecker(_BasicChecker):
             if not isinstance(passed_arg, nodes.Name):
                 return
             if arg.name != passed_arg.name:
+                return
+
+        # The lambda is necessary if it uses its parameter in the function it is
+        # calling in the lambda's body
+        # e.g. lambda foo: (func1 if foo else func2)(foo)
+        for name in call.func.nodes_of_class(nodes.Name):
+            if name.lookup(name.name)[0] is node:
                 return
 
         self.add_message("unnecessary-lambda", line=node.fromlineno, node=node)
@@ -654,7 +687,7 @@ class BasicChecker(_BasicChecker):
             return
 
         expr = utils.safe_infer(call_node.func.expr)
-        if expr is astroid.Uninferable:
+        if isinstance(expr, util.UninferableBase):
             return
         if not expr:
             # we are doubtful on inferred type of node, so here just check if format
@@ -684,7 +717,7 @@ class BasicChecker(_BasicChecker):
             name = node.func.name
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
-            if not (name in node.frame(future=True) or name in node.root()):
+            if not (name in node.frame() or name in node.root()):
                 if name == "exec":
                     self.add_message("exec-used", node=node)
                 elif name == "reversed":
@@ -735,15 +768,17 @@ class BasicChecker(_BasicChecker):
                 )
             values.add(value)
 
-    def visit_tryfinally(self, node: nodes.TryFinally) -> None:
-        """Update try...finally flag."""
-        assert self._tryfinallys is not None
-        self._tryfinallys.append(node)
+    def visit_try(self, node: nodes.Try) -> None:
+        """Update try block flag."""
+        self._trys.append(node)
 
-    def leave_tryfinally(self, _: nodes.TryFinally) -> None:
-        """Update try...finally flag."""
-        assert self._tryfinallys is not None
-        self._tryfinallys.pop()
+        for final_node in node.finalbody:
+            for return_node in final_node.nodes_of_class(nodes.Return):
+                self.add_message("return-in-finally", node=return_node, confidence=HIGH)
+
+    def leave_try(self, _: nodes.Try) -> None:
+        """Update try block flag."""
+        self._trys.pop()
 
     def _check_unreachable(
         self,
@@ -779,8 +814,8 @@ class BasicChecker(_BasicChecker):
         If we find a parent which type is in breaker_classes before
         a 'try...finally' block we skip the whole check.
         """
-        # if self._tryfinallys is empty, we're not an in try...finally block
-        if not self._tryfinallys:
+        # if self._trys is empty, we're not an in try block
+        if not self._trys:
             return
         # the node could be a grand-grand...-child of the 'try...finally'
         _parent = node.parent
@@ -799,7 +834,7 @@ class BasicChecker(_BasicChecker):
         except utils.NoSuchArgumentError:
             pass
         else:
-            if argument is astroid.Uninferable:
+            if isinstance(argument, util.UninferableBase):
                 return
             if argument is None:
                 # Nothing was inferred.

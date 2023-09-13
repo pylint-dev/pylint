@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Functional full-module tests for PyLint."""
 
@@ -13,6 +13,7 @@ import pytest
 from _pytest.config import Config
 
 from pylint import testutils
+from pylint.constants import PY312_PLUS
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.functional import (
     FunctionalTestFile,
@@ -50,7 +51,8 @@ def test_functional(test_file: FunctionalTestFile, pytestconfig: Config) -> None
     lint_test.setUp()
 
     if test_file.base in TEST_WITH_EXPECTED_DEPRECATION:
-        with pytest.warns(DeprecationWarning, match="invalid escape sequence"):
+        exception_type = SyntaxWarning if PY312_PLUS else DeprecationWarning
+        with pytest.warns(exception_type, match="invalid escape sequence"):
             lint_test.runTest()
     else:
         lint_test.runTest()
