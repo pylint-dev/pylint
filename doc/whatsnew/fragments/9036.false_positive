@@ -1,0 +1,3 @@
+Fix a false positive for ``no-value-for-parameter`` when a staticmethod is called in a class body.
+
+Closes #9036
