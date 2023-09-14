@@ -1,0 +1,3 @@
+Add special cases of dunder methods that should not trigger ``unnecessary-dunder-call`` if it's in a lambda definition.
+
+Closes #8769
