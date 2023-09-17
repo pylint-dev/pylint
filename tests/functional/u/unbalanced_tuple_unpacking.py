@@ -1,5 +1,7 @@
 """Check possible unbalanced tuple unpacking """
 from __future__ import absolute_import
+
+import sys
 from typing import NamedTuple
 from functional.u.unpacking.unpacking import unpack
 
@@ -160,3 +162,8 @@ d, *_ = my_function("12")
 
 # https://github.com/pylint-dev/pylint/issues/5998
 x, y, z = (1, 2)  # [unbalanced-tuple-unpacking]
+
+# https://github.com/pylint-dev/pylint/issues/7710
+# Using a lot of args, so we have a high probability to still trigger the problem if
+# we add arguments to our unittest command later
+(p, q, r, s, t, u, v, w, x, y, z) = sys.argv
