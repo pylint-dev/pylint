@@ -11,7 +11,7 @@ from astroid.util import UninferableBase
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import safe_infer
-from pylint.constants import DUNDER_LAMBDA_EXCEPTIONS, DUNDER_METHODS
+from pylint.constants import DUNDER_METHODS, UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
@@ -70,7 +70,7 @@ class DunderCallChecker(BaseChecker):
     def is_lambda_rule_exception(ancestor: nodes.NodeNG, node: nodes.NodeNG) -> bool:
         return (
             isinstance(ancestor, nodes.Lambda)
-            and node.func.attrname in DUNDER_LAMBDA_EXCEPTIONS
+            and node.func.attrname in UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS
         )
 
     def visit_call(self, node: nodes.Call) -> None:

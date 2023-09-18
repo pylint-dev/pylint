@@ -252,7 +252,7 @@ DUNDER_PROPERTIES = [
 
 # C2801 rule exceptions as their corresponding function/method/operator
 # is not valid python syntax in a lambda definition
-DUNDER_LAMBDA_EXCEPTIONS = [
+UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS = [
     "__init__",
     "__del__",
     "__delattr__",
