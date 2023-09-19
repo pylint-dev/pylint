@@ -23,6 +23,7 @@ body:
         # Please disable message unrelated to the bug
         # pylint: disable=missing-docstring,
         <a> = b + 1
+      render: python
     validations:
       required: true
   - type: textarea
@@ -63,7 +64,7 @@ body:
       placeholder: |
         ************* Module a
         a.py:3:1: E0001: invalid syntax (<unknown>, line 1) (syntax-error)
-      render: shell
+      render: python
     validations:
       required: true
   - type: textarea
@@ -98,8 +99,8 @@ body:
     id: additional-deps
     attributes:
       label: Additional dependencies
-      description: If applicable ie, if we can't reproduce without it
+      description: If applicable ie, if we can't reproduce without it. Please copy and paste the result of `pip freeze`.
       placeholder: |
-        Please copy and paste the result of `pip freeze`. For example:
         pandas==0.23.2
         marshmallow==3.10.0
+      render: python
