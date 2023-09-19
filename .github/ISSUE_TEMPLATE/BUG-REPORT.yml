@@ -99,7 +99,9 @@ body:
     id: additional-deps
     attributes:
       label: Additional dependencies
-      description: If applicable ie, if we can't reproduce without it. Please copy and paste the result of `pip freeze`.
+      description:
+        If applicable ie, if we can't reproduce without it. Please copy and paste the
+        result of `pip freeze`.
       placeholder: |
         pandas==0.23.2
         marshmallow==3.10.0
