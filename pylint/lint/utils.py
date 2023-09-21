@@ -138,4 +138,4 @@ def augmented_sys_path(additional_paths: Sequence[str]) -> Iterator[None]:
 
 def _is_env_set_and_non_empty(env_var: str) -> bool:
     """Checks if env_var is set and non-empty."""
-    return os.environ.get(env_var) not in ["", None]
+    return bool(os.environ.get(env_var))
