@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import contextlib
+import os
 import platform
 import sys
 import traceback
@@ -133,3 +134,8 @@ def augmented_sys_path(additional_paths: Sequence[str]) -> Iterator[None]:
         yield
     finally:
         sys.path[:] = original
+
+
+def _is_env_set_and_non_empty(env_var: str) -> bool:
+    """Checks if env_var is set and non-empty."""
+    return os.environ.get(env_var) not in ["", None]

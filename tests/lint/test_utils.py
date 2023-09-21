@@ -4,11 +4,16 @@
 
 import unittest.mock
 from pathlib import Path, PosixPath
+from typing import Any
 
 import pytest
 
 from pylint.constants import full_version
-from pylint.lint.utils import get_fatal_error_message, prepare_crash_report
+from pylint.lint.utils import (
+    _is_env_set_and_non_empty,
+    get_fatal_error_message,
+    prepare_crash_report,
+)
 from pylint.testutils._run import _Run as Run
 
 
@@ -56,3 +61,31 @@ def test_issue_template_on_fatal_errors(capsys: pytest.CaptureFixture) -> None:
     assert "Fatal error while checking" in captured.out
     assert "Please open an issue" in captured.out
     assert "Traceback" in captured.err
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (None, False),
+        ("", False),
+        (0, True),
+        (1, True),
+        (2, True),
+        (False, True),
+        ("no", True),
+        ("off", True),
+        ("on", True),
+        (True, True),
+        ("yes", True),
+    ],
+    ids=repr,
+)
+def test_is_env_set_and_non_empty(
+    monkeypatch: pytest.MonkeyPatch, value: Any, expected: bool
+) -> None:
+    """Test the function returns True if the environment variable is set and non-empty."""
+    env_var = "TEST_VAR"
+    if value is not None:
+        monkeypatch.setenv(env_var, str(value))
+
+    assert _is_env_set_and_non_empty(env_var) == expected
