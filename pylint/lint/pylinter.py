@@ -12,6 +12,7 @@ import os
 import sys
 import tokenize
 import traceback
+import warnings
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from io import TextIOWrapper
@@ -48,13 +49,15 @@ from pylint.lint.report_functions import (
     report_total_messages_stats,
 )
 from pylint.lint.utils import (
+    _is_env_set_and_non_empty,
     augmented_sys_path,
     get_fatal_error_message,
     prepare_crash_report,
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
+from pylint.reporters import ReporterWarning
 from pylint.reporters.base_reporter import BaseReporter
-from pylint.reporters.text import TextReporter
+from pylint.reporters.text import ColorizedTextReporter, TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
     DirectoryNamespaceDict,
@@ -68,6 +71,14 @@ from pylint.typing import (
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
 
 MANAGER = astroid.MANAGER
+
+NO_COLOR = "NO_COLOR"
+FORCE_COLOR = "FORCE_COLOR"
+PY_COLORS = "PY_COLORS"
+
+WARN_FORCE_COLOR_SET = "FORCE_COLOR is set; ignoring `text` at stdout"
+WARN_NO_COLOR_SET = "NO_COLOR is set; ignoring `colorized` at stdout"
+WARN_BOTH_COLOR_SET = "Both NO_COLOR and FORCE_COLOR are set! (disabling colors)"
 
 
 class GetAstProtocol(Protocol):
@@ -248,6 +259,68 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         {"scope": WarningScope.LINE},
     ),
 }
+
+
+def _handle_force_color_no_color(reporter: list[reporters.BaseReporter]) -> None:
+    """
+    Check ``NO_COLOR``, ``FORCE_COLOR``, ``PY_COLOR`` and modify the reporter list
+    accordingly.
+
+    Rules are presented in this table:
+    +--------------+---------------+-----------------+------------------------------------------------------------+
+    | `NO_COLOR`   | `FORCE_COLOR` | `output-format` | Behavior                                                   |
+    +==============+===============+=================+============================================================+
+    | `bool: True` | `bool: True`  | colorized       | not colorized + warnings (override + inconsistent env var) |
+    | `bool: True` | `bool: True`  | /               | not colorized + warnings (inconsistent env var)            |
+    | unset        | `bool: True`  | colorized       | colorized                                                  |
+    | unset        | `bool: True`  | /               | colorized + warnings (override)                            |
+    | `bool: True` | unset         | colorized       | not colorized + warnings (override)                        |
+    | `bool: True` | unset         | /               | not colorized                                              |
+    | unset        | unset         | colorized       | colorized                                                  |
+    | unset        | unset         | /               | not colorized                                              |
+    +--------------+---------------+-----------------+------------------------------------------------------------+
+    """
+    no_color = _is_env_set_and_non_empty(NO_COLOR)
+    force_color = _is_env_set_and_non_empty(FORCE_COLOR) or _is_env_set_and_non_empty(
+        PY_COLORS
+    )
+
+    if no_color and force_color:
+        warnings.warn(
+            WARN_BOTH_COLOR_SET,
+            ReporterWarning,
+            stacklevel=2,
+        )
+        force_color = False
+
+    if no_color:
+        for idx, rep in enumerate(list(reporter)):
+            if not isinstance(rep, ColorizedTextReporter):
+                continue
+
+            if rep.out.buffer is sys.stdout.buffer:
+                warnings.warn(
+                    WARN_NO_COLOR_SET,
+                    ReporterWarning,
+                    stacklevel=2,
+                )
+                reporter.pop(idx)
+                reporter.append(TextReporter())
+
+    elif force_color:
+        for idx, rep in enumerate(list(reporter)):
+            # pylint: disable=unidiomatic-typecheck # Want explicit type check
+            if type(rep) is not TextReporter:
+                continue
+
+            if rep.out.buffer is sys.stdout.buffer:
+                warnings.warn(
+                    WARN_FORCE_COLOR_SET,
+                    ReporterWarning,
+                    stacklevel=2,
+                )
+                reporter.pop(idx)
+                reporter.append(ColorizedTextReporter())
 
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -434,6 +507,8 @@ class PyLinter(
 
             # Extend the lifetime of all opened output files
             close_output_files = stack.pop_all().close
+
+        _handle_force_color_no_color(sub_reporters)
 
         if len(sub_reporters) > 1 or output_files:
             self.set_reporter(
