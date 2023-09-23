@@ -2,16 +2,15 @@ The compare to empty string checker (``pylint.extensions.emptystring``) and the 
 zero checker (``pylint.extensions.compare-to-zero``) have been removed and their checks are
 now part of the implicit booleaness checker:
 
-``compare-to-zero`` was renamed ``use-implicit-booleaness-not-comparison-to-zero`` and
-``compare-to-empty-string`` was renamed ``use-implicit-booleaness-not-comparison-to-string``
-and they now need to be enabled explicitly.
+- ``compare-to-zero`` was renamed ``use-implicit-booleaness-not-comparison-to-zero`` and
+  ``compare-to-empty-string`` was renamed ``use-implicit-booleaness-not-comparison-to-string``
+  and they now need to be enabled explicitly.
 
-The ``pylint.extensions.emptystring`` and ``pylint.extensions.compare-to-zero`` extensions
-no longer exist and need to be removed from the ``load-plugins`` option.
+- The ``pylint.extensions.emptystring`` and ``pylint.extensions.compare-to-zero`` extensions
+  no longer exist and need to be removed from the ``load-plugins`` option.
 
-Messages related to implicit booleaness were made more explicit and actionable.
-
-This permits to make their likeness explicit and will provide better performance as they share most of their
-conditions to be raised.
+- Messages related to implicit booleaness were made more explicit and actionable.
+  This permits to make their likeness explicit and will provide better performance as they
+  share most of their conditions to be raised.
 
 Closes #6871
