@@ -66,12 +66,6 @@ def _get_enchant_dicts() -> list[tuple[Any, enchant.ProviderDesc]]:
     return enchant.Broker().list_dicts() if PYENCHANT_AVAILABLE else []  # type: ignore[no-any-return]
 
 
-def _get_enchant_dict_choices(
-    inner_enchant_dicts: list[tuple[Any, enchant.ProviderDesc]]
-) -> list[str]:
-    return [""] + [d[0] for d in inner_enchant_dicts]
-
-
 def _get_enchant_dict_help(
     inner_enchant_dicts: list[tuple[Any, enchant.ProviderDesc]],
     pyenchant_available: bool,
@@ -84,7 +78,7 @@ def _get_enchant_dict_help(
         if not pyenchant_available:
             enchant_help += "both the python package and "
         enchant_help += "the system dependency for enchant to work."
-    return f"Spelling dictionary name(s). {enchant_help}."
+    return f"List of spelling dictionary name(s). {enchant_help}."
 
 
 enchant_dicts = _get_enchant_dicts()
@@ -231,12 +225,10 @@ class SpellingChecker(BaseTokenChecker):
         (
             "spelling-dict",
             {
-                "default": [],
-                "type": "choice",
+                "default": tuple(),
+                "type": "csv",
                 "metavar": "<dict name>",
-                "choices": _get_enchant_dict_choices(enchant_dicts),
                 "help": _get_enchant_dict_help(enchant_dicts, PYENCHANT_AVAILABLE),
-                "action": "append",
             },
         ),
         (
