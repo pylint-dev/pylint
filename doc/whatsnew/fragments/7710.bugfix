@@ -1,4 +1,0 @@
-``sys.argv`` is now always correctly considered as impossible to infer (instead of
-using the actual values given to pylint).
-
-Closes #7710
