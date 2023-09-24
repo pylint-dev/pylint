@@ -42,7 +42,6 @@ DYNAMICALLY_DEFINED_OPTIONS: dict[str, dict[str, str]] = {
     # Option name, key / values we want to modify
     "py-version": {"default": "sys.version_info[:2]"},
     "spelling-dict": {
-        "choices": "Values from 'enchant.Broker().list_dicts()' depending on your local enchant installation",
         "help": "Spelling dictionary name. Available dictionaries depends on your local enchant installation",
     },
 }
