@@ -81,6 +81,10 @@ jobs:
         run: |
           . venv/bin/activate
           pre-commit install --install-hooks
+      - name: Install enchant and aspell
+        run: |
+          sudo apt-get update
+          sudo apt-get install enchant-2 aspell-en
 
   pylint:
     name: pylint
@@ -112,10 +116,6 @@ jobs:
           path: ${{ env.PRE_COMMIT_CACHE }}
           fail-on-cache-miss: true
           key: ${{ runner.os }}-${{ needs.prepare-base.outputs.pre-commit-key }}
-      - name: Install enchant and aspell
-        run: |
-          sudo apt-get update
-          sudo apt-get install enchant-2 aspell-en
       - name: Run pylint checks
         run: |
           . venv/bin/activate
