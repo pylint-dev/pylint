@@ -2,7 +2,7 @@
 
 
 def test_oserror_has_strerror():
-    # https://github.com/PyCQA/pylint/issues/2553
+    # https://github.com/pylint-dev/pylint/issues/2553
     try:
         raise OSError()
     except OSError as exc:

@@ -2,7 +2,7 @@
 from functools import cached_property
 
 
-# https://github.com/PyCQA/pylint/issues/4023
+# https://github.com/pylint-dev/pylint/issues/4023
 # False-positive 'invalid-overridden-method' with 'cached_property'
 class Parent:
     @property

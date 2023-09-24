@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -9,10 +9,10 @@ from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers import utils
+from pylint.interfaces import HIGH, INFERENCE
 
 
 class RecommendationChecker(checkers.BaseChecker):
-
     name = "refactoring"
     msgs = {
         "C0200": (
@@ -54,10 +54,10 @@ class RecommendationChecker(checkers.BaseChecker):
             "are more efficient than ``sets``.",
         ),
         "C0209": (
-            "Formatting a regular string which could be a f-string",
+            "Formatting a regular string which could be an f-string",
             "consider-using-f-string",
             "Used when we detect a string that is being formatted with format() or % "
-            "which could potentially be a f-string. The use of f-strings is preferred. "
+            "which could potentially be an f-string. The use of f-strings is preferred. "
             "Requires Python 3.6 and ``py-version >= 3.6``.",
         ),
     }
@@ -67,7 +67,7 @@ class RecommendationChecker(checkers.BaseChecker):
         self._py36_plus = py_version >= (3, 6)
 
     @staticmethod
-    def _is_builtin(node, function):
+    def _is_builtin(node: nodes.NodeNG, function: str) -> bool:
         inferred = utils.safe_infer(node)
         if not inferred:
             return False
@@ -85,6 +85,10 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         if node.func.attrname != "keys":
             return
+
+        if isinstance(node.parent, nodes.BinOp) and node.parent.op in {"&", "|", "^"}:
+            return
+
         comp_ancestor = utils.get_node_first_ancestor_of_type(node, nodes.Compare)
         if (
             isinstance(node.parent, (nodes.For, nodes.Comprehension))
@@ -101,7 +105,9 @@ class RecommendationChecker(checkers.BaseChecker):
                 inferred.bound, nodes.Dict
             ):
                 return
-            self.add_message("consider-iterating-dictionary", node=node)
+            self.add_message(
+                "consider-iterating-dictionary", node=node, confidence=INFERENCE
+            )
 
     def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:
         """Add message when accessing first or last elements of a str.split() or
@@ -115,18 +121,28 @@ class RecommendationChecker(checkers.BaseChecker):
             and isinstance(utils.safe_infer(node.func), astroid.BoundMethod)
         ):
             return
+        inferred_expr = utils.safe_infer(node.func.expr)
+        if isinstance(inferred_expr, astroid.Instance) and any(
+            inferred_expr.nodes_of_class(nodes.ClassDef)
+        ):
+            return
 
+        confidence = HIGH
         try:
             sep = utils.get_argument_from_call(node, 0, "sep")
         except utils.NoSuchArgumentError:
-            return
+            sep = utils.infer_kwarg_from_call(node, keyword="sep")
+            confidence = INFERENCE
+            if not sep:
+                return
 
         try:
             # Ignore if maxsplit arg has been set
             utils.get_argument_from_call(node, 1, "maxsplit")
             return
         except utils.NoSuchArgumentError:
-            pass
+            if utils.infer_kwarg_from_call(node, keyword="maxsplit"):
+                return
 
         if isinstance(node.parent, nodes.Subscript):
             try:
@@ -160,7 +176,12 @@ class RecommendationChecker(checkers.BaseChecker):
                     + new_fn
                     + f"({sep.as_string()}, maxsplit=1)[{subscript_value}]"
                 )
-                self.add_message("use-maxsplit-arg", node=node, args=(new_name,))
+                self.add_message(
+                    "use-maxsplit-arg",
+                    node=node,
+                    args=(new_name,),
+                    confidence=confidence,
+                )
 
     @utils.only_required_for_messages(
         "consider-using-enumerate",
@@ -326,9 +347,16 @@ class RecommendationChecker(checkers.BaseChecker):
     def _check_use_sequence_for_iteration(
         self, node: nodes.For | nodes.Comprehension
     ) -> None:
-        """Check if code iterates over an in-place defined set."""
-        if isinstance(node.iter, nodes.Set):
-            self.add_message("use-sequence-for-iteration", node=node.iter)
+        """Check if code iterates over an in-place defined set.
+
+        Sets using `*` are not considered in-place.
+        """
+        if isinstance(node.iter, nodes.Set) and not any(
+            utils.has_starred_node_recursive(node)
+        ):
+            self.add_message(
+                "use-sequence-for-iteration", node=node.iter, confidence=HIGH
+            )
 
     @utils.only_required_for_messages("consider-using-f-string")
     def visit_const(self, node: nodes.Const) -> None:
@@ -398,6 +426,10 @@ class RecommendationChecker(checkers.BaseChecker):
             if not hasattr(node.parent.left, "value") or not isinstance(
                 node.parent.left.value, str
             ):
+                return
+
+            # Brackets can be inconvenient in f-string expressions
+            if "{" in node.parent.left.value or "}" in node.parent.left.value:
                 return
 
             inferred_right = utils.safe_infer(node.parent.right)

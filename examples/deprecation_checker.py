@@ -52,9 +52,9 @@ class DeprecationChecker(DeprecatedMixin, BaseChecker):
     """Class implementing deprecation checker."""
 
     # DeprecatedMixin class is Mixin class implementing logic for searching deprecated methods and functions.
-    # The list of deprecated methods/functions is defined by the implementing class via deprecated_methods callback.
-    # DeprecatedMixin class is overriding attributes of BaseChecker hence must be specified *before* BaseChecker
-    # in list of base classes.
+    # The list of deprecated methods/functions is defined by the implementing class via
+    # deprecated_methods callback. DeprecatedMixin class is overriding attributes of BaseChecker hence must
+    # be specified *before* BaseChecker in list of base classes.
 
     # The name defines a custom section of the config for this checker.
     name = "deprecated"

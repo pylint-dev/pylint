@@ -1,20 +1,20 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """This launches the configuration functional tests. This permits to test configuration
 files by providing a file with the appropriate extension in the ``tests/config/functional``
 directory.
 
-Let's say you have a regression_list_crash.toml file to test. Then, if there is an error in the conf,
-add ``regression_list_crash.out`` alongside your file with the expected output of pylint in it. Use
-``{relpath}`` and ``{abspath}`` for the path of the file. The exit code will have to be 2 (error)
-if this file exists.
+Let's say you have a regression_list_crash.toml file to test. Then, if there is an error in the
+conf, add ``regression_list_crash.out`` alongside your file with the expected output of pylint in
+it. Use ``{relpath}`` and ``{abspath}`` for the path of the file. The exit code will have to be 2
+ (error) if this file exists.
 
-You must also define a ``regression_list_crash.result.json`` if you want to check the parsed configuration.
-This file will be loaded as a dict and will override the default value of the default pylint
-configuration. If you need to append or remove a value use the special key ``"functional_append"``
-and ``"functional_remove":``. Check the existing code for examples.
+You must also define a ``regression_list_crash.result.json`` if you want to check the parsed
+configuration. This file will be loaded as a dict and will override the default value of the
+default pylint configuration. If you need to append or remove a value use the special key
+``"functional_append"`` and ``"functional_remove":``. Check the existing code for examples.
 """
 
 # pylint: disable=redefined-outer-name
@@ -43,6 +43,11 @@ CONFIGURATION_PATHS = [
     str(path.relative_to(FUNCTIONAL_DIR))
     for ext in ACCEPTED_CONFIGURATION_EXTENSIONS
     for path in FUNCTIONAL_DIR.rglob(f"*.{ext}")
+    if (str_path := str(path))
+    # The enable/disable all tests are not practical with this framework.
+    # They require manually listing ~400 messages, which will
+    # require constant updates.
+    and "enable_all" not in str_path and "disable_all" not in str_path
 ]
 
 
@@ -64,9 +69,9 @@ def test_functional_config_loading(
     configuration_path: str,
     default_configuration: PylintConfiguration,
     file_to_lint_path: str,
-    capsys: CaptureFixture,
+    capsys: CaptureFixture[str],
     caplog: LogCaptureFixture,
-):
+) -> None:
     """Functional tests for configurations."""
     # logging is helpful to see what's expected and why. The output of the
     # program is checked during the test so printing messes with the result.

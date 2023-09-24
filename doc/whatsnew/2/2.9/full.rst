@@ -304,12 +304,12 @@ Release date: 2021-06-29
 
 * Fix false-positive ``no-member`` with generic base class
 
-  Closes PyCQA/astroid#942
+  Closes pylint-dev/astroid#942
 
 * Fix ``assigning-non-slot`` false-positive with base that inherits from ``typing.Generic``
 
   Closes #4509
-  Closes PyCQA/astroid#999
+  Closes pylint-dev/astroid#999
 
 * New checker ``invalid-all-format``. Emitted when ``__all__`` has an invalid format,
   i.e. isn't a ``tuple`` or ``list``.

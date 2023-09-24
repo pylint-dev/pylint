@@ -108,3 +108,87 @@ def bar4(x):
             return False
         except ValueError:
             return None
+
+# pylint: disable = bare-except
+def try_one_except() -> bool:
+    try:  # [no-else-return]
+        print('asdf')
+    except:
+        print("bad")
+        return False
+    else:
+        return True
+
+
+def try_multiple_except() -> bool:
+    try:  # [no-else-return]
+        print('asdf')
+    except TypeError:
+        print("bad")
+        return False
+    except ValueError:
+        print("bad second")
+        return False
+    else:
+        return True
+
+def try_not_all_except_return() -> bool:  # [inconsistent-return-statements]
+    try:
+        print('asdf')
+    except TypeError:
+        print("bad")
+        return False
+    except ValueError:
+        val = "something"
+    else:
+        return True
+
+# pylint: disable = raise-missing-from
+def try_except_raises() -> bool:
+    try:  # [no-else-raise]
+        print('asdf')
+    except:
+        raise ValueError
+    else:
+        return True
+
+def try_except_raises2() -> bool:
+    try:  # [no-else-raise]
+        print('asdf')
+    except TypeError:
+        raise ValueError
+    except ValueError:
+        raise TypeError
+    else:
+        return True
+
+def test() -> bool:  # [inconsistent-return-statements]
+    try:
+        print('asdf')
+    except RuntimeError:
+        return False
+    finally:
+        print("in finally")
+
+
+def try_finally_return() -> bool:  # [inconsistent-return-statements]
+    try:
+        print('asdf')
+    except RuntimeError:
+        return False
+    else:
+        print("inside else")
+    finally:
+        print("in finally")
+
+def try_finally_raise():
+    current_tags = {}
+    try:
+        yield current_tags
+    except Exception:
+        current_tags["result"] = "failure"
+        raise
+    else:
+        current_tags["result"] = "success"
+    finally:
+        print("inside finally")

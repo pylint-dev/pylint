@@ -31,7 +31,7 @@ class NegativeClass(BaseClass):
     def __init__(self):
         "Ordinary assignment is OK."
         BaseClass.__init__(self)
-        self.e1101 = self.e1101 + 1
+        self.e1101 += self.e1101
 
     def countup(self):
         "No problem."

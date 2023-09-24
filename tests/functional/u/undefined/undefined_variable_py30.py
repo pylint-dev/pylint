@@ -87,11 +87,11 @@ def used_before_assignment(*, arg): return arg + 1
 
 
 # Test for #4021
-# https://github.com/PyCQA/pylint/issues/4021
+# https://github.com/pylint-dev/pylint/issues/4021
 class MetaClass(type):
-    def __new__(cls, *args, parameter=None, **kwargs):
+    def __new__(mcs, *args, parameter=None, **kwargs):
         print(parameter)
-        return super().__new__(cls, *args, **kwargs)
+        return super().__new__(mcs, *args, **kwargs)
 
 
 class InheritingClass(metaclass=MetaClass, parameter=variable):  # [undefined-variable]
@@ -99,7 +99,7 @@ class InheritingClass(metaclass=MetaClass, parameter=variable):  # [undefined-va
 
 
 # Test for #4031
-# https://github.com/PyCQA/pylint/issues/4031
+# https://github.com/pylint-dev/pylint/issues/4031
 class Inheritor(metaclass=DefinedTooLate ): # [undefined-variable]
     pass
 

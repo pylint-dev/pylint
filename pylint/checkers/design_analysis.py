@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for signs of poor design."""
 
@@ -9,13 +9,13 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, List, cast
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import only_required_for_messages
+from pylint.checkers.utils import is_enum, only_required_for_messages
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -166,6 +166,8 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
         "typing.AsyncContextManager",
         "typing.Hashable",
         "typing.Sized",
+        TYPING_NAMEDTUPLE,
+        TYPING_TYPEDDICT,
     )
 )
 
@@ -175,7 +177,7 @@ def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
 
     # If it's a typing.Namedtuple, typing.TypedDict or an Enum
     for ancestor in node.ancestors():
-        if ancestor.name == "Enum" and ancestor.root().name == "enum":
+        if is_enum(ancestor):
             return True
         if ancestor.qname() in (TYPING_NAMEDTUPLE, TYPING_TYPEDDICT):
             return True
@@ -245,7 +247,7 @@ def _get_parents_iter(
     ``{A, B, C, D}`` -- both ``E`` and its ancestors are excluded.
     """
     parents: set[nodes.ClassDef] = set()
-    to_explore = cast(List[nodes.ClassDef], list(node.ancestors(recurs=False)))
+    to_explore = list(node.ancestors(recurs=False))
     while to_explore:
         parent = to_explore.pop()
         if parent.qname() in ignored_parents:
@@ -438,11 +440,20 @@ class MisdesignChecker(BaseChecker):
                 args=(nb_parents, self.linter.config.max_parents),
             )
 
-        if len(node.instance_attrs) > self.linter.config.max_attributes:
+        # Something at inference time is modifying instance_attrs to add
+        # properties from parent classes. Given how much we cache inference
+        # results, mutating instance_attrs can become a real mess. Filter
+        # them out here until the root cause is solved.
+        # https://github.com/pylint-dev/astroid/issues/2273
+        root = node.root()
+        filtered_attrs = [
+            k for (k, v) in node.instance_attrs.items() if v[0].root() is root
+        ]
+        if len(filtered_attrs) > self.linter.config.max_attributes:
             self.add_message(
                 "too-many-instance-attributes",
                 node=node,
-                args=(len(node.instance_attrs), self.linter.config.max_attributes),
+                args=(len(filtered_attrs), self.linter.config.max_attributes),
             )
 
     @only_required_for_messages("too-few-public-methods", "too-many-public-methods")
@@ -506,7 +517,7 @@ class MisdesignChecker(BaseChecker):
         # init branch and returns counters
         self._returns.append(0)
         # check number of arguments
-        args = node.args.args
+        args = node.args.args + node.args.posonlyargs + node.args.kwonlyargs
         ignored_argument_names = self.linter.config.ignored_argument_names
         if args is not None:
             ignored_args_num = 0
@@ -591,18 +602,15 @@ class MisdesignChecker(BaseChecker):
         if node.is_statement:
             self._inc_all_stmts(1)
 
-    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
+    def visit_try(self, node: nodes.Try) -> None:
         """Increments the branches counter."""
         branches = len(node.handlers)
         if node.orelse:
             branches += 1
+        if node.finalbody:
+            branches += 1
         self._inc_branch(node, branches)
         self._inc_all_stmts(branches)
-
-    def visit_tryfinally(self, node: nodes.TryFinally) -> None:
-        """Increments the branches counter."""
-        self._inc_branch(node, 2)
-        self._inc_all_stmts(2)
 
     @only_required_for_messages("too-many-boolean-expressions", "too-many-branches")
     def visit_if(self, node: nodes.If) -> None:

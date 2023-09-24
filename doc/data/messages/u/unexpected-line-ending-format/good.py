@@ -1,1 +1,2 @@
-# This is a placeholder for correct code for this message.
+print("I'm drinking tea!")  # LF (\n)
+print("I'm drinking water!")  # LF (\n)

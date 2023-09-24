@@ -1,0 +1,3 @@
+Fix false positive for ``positional-only-arguments-expected`` when a function contains both a positional-only parameter that has a default value, and ``**kwargs``.
+
+Closes #8555

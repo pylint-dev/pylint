@@ -1,0 +1,5 @@
+disallowed-name:3:0:3:7:baz:"Disallowed name ""baz""":HIGH
+disallowed-name:6:0:6:9:foo:"Disallowed name ""foo""":HIGH
+disallowed-name:9:0:9:3::"Disallowed name ""foo""":HIGH
+disallowed-name:10:0:10:3::"Disallowed name ""foo""":HIGH
+invalid-name:11:0:11:3::"Constant name ""aaa"" doesn't conform to UPPER_CASE naming style":HIGH

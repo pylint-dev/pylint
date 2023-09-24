@@ -10,7 +10,7 @@ def function(arg1, arg2, arg3, arg4, arg5): # [too-many-locals]
 
 
 def too_many_locals_function(): # [too-many-locals]
-    """pylint will complains about too many local variables"""
+    """pylint will complain about too many local variables"""
     args0 = 0
     args1 = args0 * 1
     args2 = args1 * 2
@@ -30,7 +30,7 @@ def too_many_locals_function(): # [too-many-locals]
     return args15
 
 def too_many_arguments_function(arga, argu, argi, arge, argt, args): # [too-many-arguments]
-    """pylint will complains about too many arguments."""
+    """pylint will complain about too many arguments."""
     arga = argu
     arga += argi
     arga += arge
@@ -42,7 +42,7 @@ def ignored_arguments_function(arga, argu, argi,
                                _arge=0, _argt=1, _args=None):
     """pylint will ignore _arge, _argt, _args.
 
-    Consequently pylint will only coun 13 arguments.
+    Consequently, pylint will only count 13 arguments.
     """
     arg0 = 0
     arg1 = arg0 * 1 + arga
@@ -62,7 +62,7 @@ def ignored_arguments_function(arga, argu, argi,
 def ignored_locals_function():
     """pylint will ignore '_' (an underscore) as a local variable.
 
-    Consequently pylint will only count 15 local variables.
+    Consequently, pylint will only count 15 local variables.
     """
 
     args0 = 0

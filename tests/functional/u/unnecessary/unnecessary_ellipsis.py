@@ -123,7 +123,7 @@ def func1(val1, _):
 
 def func2(val1, val2):
     """Ignore if ellipsis is used on comparisons.
-    See https://github.com/PyCQA/pylint/issues/6071."""
+    See https://github.com/pylint-dev/pylint/issues/6071."""
     if val1 is not ... and val2:
         pass
 

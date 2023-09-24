@@ -1,4 +1,12 @@
 used-before-assignment:5:19:5:22::Using variable 'MSG' before assignment:HIGH
 used-before-assignment:7:20:7:24::Using variable 'MSG2' before assignment:HIGH
 used-before-assignment:10:4:10:9:outer:Using variable 'inner' before assignment:HIGH
-used-before-assignment:20:10:20:14:redefine_time_import:Using variable 'time' before assignment:HIGH
+used-before-assignment:19:20:19:40:ClassWithProperty:Using variable 'redefine_time_import' before assignment:HIGH
+used-before-assignment:23:0:23:9::Using variable 'calculate' before assignment:HIGH
+used-before-assignment:31:10:31:14:redefine_time_import:Using variable 'time' before assignment:HIGH
+used-before-assignment:45:3:45:7::Using variable 'VAR2' before assignment:CONTROL_FLOW
+used-before-assignment:63:3:63:7::Using variable 'VAR4' before assignment:CONTROL_FLOW
+used-before-assignment:78:3:78:7::Using variable 'VAR6' before assignment:CONTROL_FLOW
+used-before-assignment:113:6:113:11::Using variable 'VAR10' before assignment:CONTROL_FLOW
+used-before-assignment:144:10:144:14::Using variable 'SALE' before assignment:CONTROL_FLOW
+used-before-assignment:176:10:176:18::Using variable 'ALL_DONE' before assignment:CONTROL_FLOW

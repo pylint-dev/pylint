@@ -4,15 +4,18 @@ with accept-no-param-doc = no
 Styleguide:
 https://google.github.io/styleguide/pyguide.html#doc-function-args
 """
+
 # pylint: disable=invalid-name, unused-argument, undefined-variable
 # pylint: disable=line-too-long, too-few-public-methods, missing-class-docstring
 # pylint: disable=missing-function-docstring, function-redefined, inconsistent-return-statements
 # pylint: disable=dangerous-default-value, too-many-arguments
 
+from __future__ import annotations
+
 
 def test_multi_line_parameters(param: int) -> None:
     """Checks that multi line parameters lists are checked correctly
-    See https://github.com/PyCQA/pylint/issues/5452
+    See https://github.com/pylint-dev/pylint/issues/5452
 
     Args:
         param:
@@ -326,6 +329,20 @@ def test_finds_kwargs_without_type_google(named_arg, **kwargs):
         return named_arg
 
 
+def test_finds_kwargs_without_type_google(named_arg, **kwargs: dict[str, str]):
+    """The docstring
+
+    Args:
+        named_arg (object): Returned
+        **kwargs: Keyword arguments
+
+    Returns:
+        object or None: Maybe named_arg
+    """
+    if kwargs:
+        return named_arg
+
+
 def test_finds_kwargs_without_asterisk_google(named_arg, **kwargs):
     """The docstring
 
@@ -433,3 +450,15 @@ def test_finds_multiple_complex_types_google(
         named_arg_nine,
         named_arg_ten,
     )
+
+def test_escape_underscore(something: int, raise_: bool = False) -> bool:
+    """Tests param with escaped _ is handled correctly.
+
+    Args:
+        something: the something
+        raise\\_: the other
+
+    Returns:
+        something
+    """
+    return something and raise_

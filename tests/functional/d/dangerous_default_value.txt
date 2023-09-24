@@ -20,3 +20,4 @@ dangerous-default-value:97:0:97:14:function21:Dangerous default value defaultdic
 dangerous-default-value:101:0:101:14:function22:Dangerous default value UserDict() (collections.UserDict) as argument:UNDEFINED
 dangerous-default-value:105:0:105:14:function23:Dangerous default value UserList() (collections.UserList) as argument:UNDEFINED
 dangerous-default-value:109:0:109:14:function24:Dangerous default value [] as argument:UNDEFINED
+dangerous-default-value:116:4:116:16:Clazz.__init__:Dangerous default value {} as argument:UNDEFINED

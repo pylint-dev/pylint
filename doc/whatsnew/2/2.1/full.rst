@@ -42,7 +42,7 @@ Release date: 2018-08-01
 
 * Correctly handle the new name of the Python implementation of the ``abc`` module.
 
-  Closes PyCQA/astroid#2288
+  Closes pylint-dev/astroid#2288
 
 * Modules with ``__getattr__`` are exempted by default from ``no-member``
 

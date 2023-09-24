@@ -1,11 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 try:
     import isort.api
+    import isort.settings
 
     HAS_ISORT_5 = True
 except ImportError:  # isort < 5
@@ -21,18 +22,19 @@ import sys
 import textwrap
 import tokenize
 import warnings
-from collections.abc import Sequence
+from collections import deque
+from collections.abc import Iterable, Sequence
 from io import BufferedReader, BytesIO
 from typing import (
     TYPE_CHECKING,
     Any,
     List,
+    Literal,
     Pattern,
     TextIO,
     Tuple,
     TypeVar,
     Union,
-    overload,
 )
 
 from astroid import Module, modutils, nodes
@@ -40,13 +42,7 @@ from astroid import Module, modutils, nodes
 from pylint.constants import PY_EXTS
 from pylint.typing import OptionDict
 
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
 if TYPE_CHECKING:
-    from pylint.checkers.base_checker import BaseChecker
     from pylint.lint import PyLinter
 
 DEFAULT_LINE_LENGTH = 79
@@ -116,7 +112,7 @@ def diff_string(old: int | float, new: int | float) -> str:
 
 def get_module_and_frameid(node: nodes.NodeNG) -> tuple[str, str]:
     """Return the module name and the frame id in the module."""
-    frame = node.frame(future=True)
+    frame = node.frame()
     module, obj = "", []
     while frame:
         if isinstance(frame, Module):
@@ -124,7 +120,7 @@ def get_module_and_frameid(node: nodes.NodeNG) -> tuple[str, str]:
         else:
             obj.append(getattr(frame, "name", "<lambda>"))
         try:
-            frame = frame.parent.frame(future=True)
+            frame = frame.parent.frame()
         except AttributeError:
             break
     obj.reverse()
@@ -214,76 +210,6 @@ def register_plugins(linter: PyLinter, directory: str) -> None:
                     imported[base] = 1
 
 
-@overload
-def get_global_option(
-    checker: BaseChecker, option: GLOBAL_OPTION_BOOL, default: bool | None = ...
-) -> bool:
-    ...
-
-
-@overload
-def get_global_option(
-    checker: BaseChecker, option: GLOBAL_OPTION_INT, default: int | None = ...
-) -> int:
-    ...
-
-
-@overload
-def get_global_option(
-    checker: BaseChecker,
-    option: GLOBAL_OPTION_LIST,
-    default: list[str] | None = ...,
-) -> list[str]:
-    ...
-
-
-@overload
-def get_global_option(
-    checker: BaseChecker,
-    option: GLOBAL_OPTION_PATTERN,
-    default: Pattern[str] | None = ...,
-) -> Pattern[str]:
-    ...
-
-
-@overload
-def get_global_option(
-    checker: BaseChecker,
-    option: GLOBAL_OPTION_PATTERN_LIST,
-    default: list[Pattern[str]] | None = ...,
-) -> list[Pattern[str]]:
-    ...
-
-
-@overload
-def get_global_option(
-    checker: BaseChecker,
-    option: GLOBAL_OPTION_TUPLE_INT,
-    default: tuple[int, ...] | None = ...,
-) -> tuple[int, ...]:
-    ...
-
-
-def get_global_option(
-    checker: BaseChecker,
-    option: GLOBAL_OPTION_NAMES,
-    default: T_GlobalOptionReturnTypes | None = None,  # pylint: disable=unused-argument
-) -> T_GlobalOptionReturnTypes | None | Any:
-    """DEPRECATED: Retrieve an option defined by the given *checker* or
-    by all known option providers.
-
-    It will look in the list of all options providers
-    until the given *option* will be found.
-    If the option wasn't found, the *default* value will be returned.
-    """
-    warnings.warn(
-        "get_global_option has been deprecated. You can use "
-        "checker.linter.config to get all global options instead.",
-        DeprecationWarning,
-    )
-    return getattr(checker.linter.config, option.replace("-", "_"))
-
-
 def _splitstrip(string: str, sep: str = ",") -> list[str]:
     """Return a list of stripped string by splitting the string given as
     argument on `sep` (',' by default), empty strings are discarded.
@@ -328,6 +254,31 @@ def _check_csv(value: list[str] | tuple[str] | str) -> Sequence[str]:
     return _splitstrip(value)
 
 
+def _check_regexp_csv(value: list[str] | tuple[str] | str) -> Iterable[str]:
+    r"""Split a comma-separated list of regexps, taking care to avoid splitting
+    a regex employing a comma as quantifier, as in `\d{1,2}`."""
+    if isinstance(value, (list, tuple)):
+        yield from value
+    else:
+        # None is a sentinel value here
+        regexps: deque[deque[str] | None] = deque([None])
+        open_braces = False
+        for char in value:
+            if char == "{":
+                open_braces = True
+            elif char == "}" and open_braces:
+                open_braces = False
+
+            if char == "," and not open_braces:
+                regexps.append(None)
+            elif regexps[-1] is None:
+                regexps.pop()
+                regexps.append(deque([char]))
+            else:
+                regexps[-1].append(char)
+        yield from ("".join(regexp).strip() for regexp in regexps if regexp is not None)
+
+
 def _comment(string: str) -> str:
     """Return string as a comment."""
     lines = [line.strip() for line in string.splitlines()]
@@ -338,7 +289,7 @@ def _comment(string: str) -> str:
 def _format_option_value(optdict: OptionDict, value: Any) -> str:
     """Return the user input's value from a 'compiled' value.
 
-    TODO: 3.0: Remove deprecated function
+    TODO: Refactor the code to not use this deprecated function
     """
     if optdict.get("type", None) == "py_version":
         value = ".".join(str(item) for item in value)
@@ -366,6 +317,7 @@ def format_section(
     warnings.warn(
         "format_section has been deprecated. It will be removed in pylint 3.0.",
         DeprecationWarning,
+        stacklevel=2,
     )
     if doc:
         print(_comment(doc), file=stream)
@@ -380,6 +332,7 @@ def _ini_format(stream: TextIO, options: list[tuple[str, OptionDict, Any]]) -> N
     warnings.warn(
         "_ini_format has been deprecated. It will be removed in pylint 3.0.",
         DeprecationWarning,
+        stacklevel=2,
     )
     for optname, optdict, value in options:
         # Skip deprecated option
@@ -413,7 +366,7 @@ class IsortDriver:
 
     def __init__(self, config: argparse.Namespace) -> None:
         if HAS_ISORT_5:
-            self.isort5_config = isort.api.Config(
+            self.isort5_config = isort.settings.Config(
                 # There is no typo here. EXTRA_standard_library is
                 # what most users want. The option has been named
                 # KNOWN_standard_library for ages in pylint, and we
@@ -423,7 +376,7 @@ class IsortDriver:
             )
         else:
             # pylint: disable-next=no-member
-            self.isort4_obj = isort.SortImports(
+            self.isort4_obj = isort.SortImports(  # type: ignore[attr-defined]
                 file_contents="",
                 known_standard_library=config.known_standard_library,
                 known_third_party=config.known_third_party,
@@ -432,4 +385,4 @@ class IsortDriver:
     def place_module(self, package: str) -> str:
         if HAS_ISORT_5:
             return isort.api.place_module(package, self.isort5_config)
-        return self.isort4_obj.place_module(package)
+        return self.isort4_obj.place_module(package)  # type: ignore[no-any-return]

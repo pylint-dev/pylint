@@ -1,0 +1,3 @@
+Don't add `Optional` to `|` annotations with `None` in Pyreverse diagrams.
+
+Closes #9014

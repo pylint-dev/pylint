@@ -1,2 +1,2 @@
 [Imports]
-deprecated-modules=imp
+deprecated-modules=optparse

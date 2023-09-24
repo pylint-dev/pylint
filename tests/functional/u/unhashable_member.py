@@ -8,7 +8,6 @@ class Unhashable:
 {}[[1, 2, 3]] # [unhashable-member]
 {}[{}] # [unhashable-member]
 {}[Unhashable()] # [unhashable-member]
-{}[1:2]  # [unhashable-member]
 {'foo': 'bar'}['foo']
 {'foo': 'bar'}[42]
 
@@ -21,3 +20,10 @@ class Unhashable:
 {[1, 2, 3]}  # [unhashable-member]
 {"tomato": "tomahto"}
 {dict: {}}
+{lambda x: x: "tomato"}  # pylint: disable=unnecessary-lambda
+
+
+class FromDict(dict):
+    ...
+
+{FromDict: 1}

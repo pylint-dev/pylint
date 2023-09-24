@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, import-outside-toplevel, fixme, line-too-long
+# pylint: disable=missing-docstring, invalid-name, too-few-public-methods, import-outside-toplevel, fixme, line-too-long, broad-exception-raised
 
 def test_regression_737():
     import xml # [unused-import]
@@ -94,7 +94,7 @@ def test_global():
     variables through imports.
     """
     # pylint: disable=redefined-outer-name
-    global PATH, OS, collections, deque  # [global-variable-not-assigned, global-variable-not-assigned]
+    global PATH, OS, collections, deque  # [global-statement]
     from os import path as PATH
     import os as OS
     import collections
@@ -155,7 +155,7 @@ def func4():
 
 
 def main(lst):
-    """https://github.com/PyCQA/astroid/pull/1111#issuecomment-890367609"""
+    """https://github.com/pylint-dev/astroid/pull/1111#issuecomment-890367609"""
     try:
         raise ValueError
     except ValueError as e:  # [unused-variable]
@@ -186,3 +186,33 @@ def sibling_except_handlers():
         pass
     except ValueError as e:
         print(e)
+
+def func6():
+    a = 1
+
+    def nonlocal_writer():
+        nonlocal a
+
+        for a in range(10):
+            pass
+
+    nonlocal_writer()
+
+    assert a == 9, a
+
+def test_regression_8595():
+    # pylint: disable=broad-exception-caught
+    import logging
+    def compute():
+        pass
+    try:
+        compute()
+        error = False
+    except Exception as e:
+        logging.error(e)
+        error = True
+    if error:
+        try:
+            compute()
+        except Exception as e:  # [unused-variable]
+            pass

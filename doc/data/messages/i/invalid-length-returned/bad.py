@@ -3,4 +3,4 @@ class FruitBasket:
         self.fruits = ["Apple", "Banana", "Orange"]
 
     def __len__(self):  # [invalid-length-returned]
-        return - len(self.fruits)
+        return -len(self.fruits)

@@ -1,4 +1,4 @@
-"""Tests for self-defined Enum members (https://github.com/PyCQA/pylint/issues/6805)"""
+"""Tests for self-defined Enum members (https://github.com/pylint-dev/pylint/issues/6805)"""
 # pylint: disable=missing-docstring
 # pylint: disable=too-few-public-methods
 from enum import IntEnum

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -13,8 +13,7 @@ from git.repo import Repo
 
 from pylint.lint import Run
 from pylint.message import Message
-from pylint.reporters import JSONReporter
-from pylint.reporters.json_reporter import OldJsonExport
+from pylint.reporters.json_reporter import JSONReporter, OldJsonExport
 from pylint.testutils._primer.package_to_lint import PackageToLint
 from pylint.testutils._primer.primer_command import (
     PackageData,
@@ -30,14 +29,21 @@ class RunCommand(PrimerCommand):
     def run(self) -> None:
         packages: PackageMessages = {}
         fatal_msgs: list[Message] = []
-        for package, data in self.packages.items():
+        package_data_iter = (
+            self.packages.items()
+            if self.config.batches is None
+            else list(self.packages.items())[
+                self.config.batchIdx :: self.config.batches
+            ]
+        )
+        for package, data in package_data_iter:
             messages, p_fatal_msgs = self._lint_package(package, data)
             fatal_msgs += p_fatal_msgs
             local_commit = Repo(data.clone_directory).head.object.hexsha
             packages[package] = PackageData(commit=local_commit, messages=messages)
-        path = (
-            self.primer_directory
-            / f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}.txt"
+        path = self.primer_directory / (
+            f"output_{'.'.join(str(i) for i in sys.version_info[:3])}_{self.config.type}"
+            + (f"_batch{self.config.batchIdx}.txt" if self.config.batches else "")
         )
         print(f"Writing result in {path}")
         with open(path, "w", encoding="utf-8") as f:
@@ -77,7 +83,8 @@ class RunCommand(PrimerCommand):
         # Duplicate code takes too long and is relatively safe
         # TODO: Find a way to allow cyclic-import and compare output correctly
         disables = ["--disable=duplicate-code,cyclic-import"]
-        arguments = data.pylint_args + enables + disables
+        additional = ["--clear-cache-post-run=y"]
+        arguments = data.pylint_args + enables + disables + additional
         output = StringIO()
         reporter = JSONReporter(output)
         print(f"Running 'pylint {', '.join(arguments)}'")
@@ -85,7 +92,7 @@ class RunCommand(PrimerCommand):
         try:
             Run(arguments, reporter=reporter)
         except SystemExit as e:
-            pylint_exit_code = int(e.code)
+            pylint_exit_code = int(e.code)  # type: ignore[arg-type]
         readable_messages: str = output.getvalue()
         messages: list[OldJsonExport] = json.loads(readable_messages)
         fatal_msgs: list[Message] = []
@@ -96,6 +103,7 @@ class RunCommand(PrimerCommand):
             if fatal_msgs:
                 warnings.warn(
                     f"Encountered fatal errors while priming {package_name} !\n"
-                    f"{self._print_msgs(fatal_msgs)}\n\n"
+                    f"{self._print_msgs(fatal_msgs)}\n\n",
+                    stacklevel=2,
                 )
         return messages, fatal_msgs

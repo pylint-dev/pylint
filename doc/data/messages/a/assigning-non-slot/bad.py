@@ -1,5 +1,5 @@
 class Student:
-    __slots__ = ('name',)
+    __slots__ = ("name",)
 
     def __init__(self, name, surname):
         self.name = name

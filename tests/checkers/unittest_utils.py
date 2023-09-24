@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Tests for the pylint.checkers.utils module."""
 
@@ -11,7 +11,6 @@ import pytest
 from astroid import nodes
 
 from pylint.checkers import utils
-from pylint.checkers.base_checker import BaseChecker
 
 
 @pytest.mark.parametrize(
@@ -25,7 +24,7 @@ from pylint.checkers.base_checker import BaseChecker
         ("mybuiltin", False),
     ],
 )
-def testIsBuiltin(name, expected):
+def testIsBuiltin(name: str, expected: bool) -> None:
     assert utils.is_builtin(name) == expected
 
 
@@ -164,7 +163,7 @@ def test_parse_format_method_string() -> None:
     ]
     for fmt, count in samples:
         keys, num_args, pos_args = utils.parse_format_method_string(fmt)
-        keyword_args = len({k for k, l in keys if not isinstance(k, int)})
+        keyword_args = len({k for k, _ in keys if not isinstance(k, int)})
         assert keyword_args + num_args + pos_args == count
 
 
@@ -421,30 +420,40 @@ def test_if_typing_guard() -> None:
     import typing as t
     from typing import TYPE_CHECKING
 
-    if typing.TYPE_CHECKING:  #@
-        pass
+    if typing.TYPE_CHECKING:
+        pass  #@
 
-    if t.TYPE_CHECKING:  #@
-        pass
+    if t.TYPE_CHECKING:
+        pass #@
 
-    if TYPE_CHECKING:  #@
-        pass
+    if TYPE_CHECKING:
+        pass #@
 
-    if typing.SOME_OTHER_CONST:  #@
-        pass
+    if typing.SOME_OTHER_CONST:
+        pass  #@
     """
     )
     assert isinstance(code, list) and len(code) == 4
 
-    assert isinstance(code[0], nodes.If)
-    assert utils.is_typing_guard(code[0]) is True
-    assert isinstance(code[1], nodes.If)
-    assert utils.is_typing_guard(code[1]) is True
-    assert isinstance(code[2], nodes.If)
-    assert utils.is_typing_guard(code[2]) is True
+    assert isinstance(code[0], nodes.Pass)
+    assert utils.in_type_checking_block(code[0]) is True
+    assert isinstance(code[1], nodes.Pass)
+    assert utils.in_type_checking_block(code[1]) is True
+    assert isinstance(code[2], nodes.Pass)
+    assert utils.in_type_checking_block(code[2]) is True
 
-    assert isinstance(code[3], nodes.If)
-    assert utils.is_typing_guard(code[3]) is False
+    assert isinstance(code[3], nodes.Pass)
+    assert utils.in_type_checking_block(code[3]) is False
+
+
+def test_in_type_checking_block() -> None:
+    code = astroid.extract_node(
+        """
+    if TYPE_CHECKING:  # don't import this!
+        import math  #@
+    """
+    )
+    assert utils.in_type_checking_block(code) is False
 
 
 def test_is_empty_literal() -> None:
@@ -469,29 +478,7 @@ def test_is_empty_literal() -> None:
     assert not utils.is_empty_str_literal(not_empty_string_node.value)
 
 
-def test_deprecation_is_inside_lambda() -> None:
-    """Test that is_inside_lambda is throwing a DeprecationWarning."""
-    with pytest.warns(DeprecationWarning) as records:
-        utils.is_inside_lambda(nodes.NodeNG())
-        assert len(records) == 1
-
-
-def test_deprecation_check_messages() -> None:
-    with pytest.warns(DeprecationWarning) as records:
-
-        class Checker(BaseChecker):  # pylint: disable=unused-variable
-            @utils.check_messages("my-message")
-            def visit_assname(self, node: nodes.NodeNG) -> None:
-                pass
-
-        assert len(records) == 1
-        assert (
-            records[0].message.args[0]
-            == "utils.check_messages will be removed in favour of calling utils.only_required_for_messages in pylint 3.0"
-        )
-
-
-def test_is_typing_literal() -> None:
+def test_is_typing_member() -> None:
     code = astroid.extract_node(
         """
     from typing import Literal as Lit, Set as Literal
@@ -503,9 +490,9 @@ def test_is_typing_literal() -> None:
     """
     )
 
-    assert not utils.is_typing_literal(code[0])
-    assert utils.is_typing_literal(code[1])
-    assert utils.is_typing_literal(code[2])
+    assert not utils.is_typing_member(code[0], ("Literal",))
+    assert utils.is_typing_member(code[1], ("Literal",))
+    assert utils.is_typing_member(code[2], ("Literal",))
 
     code = astroid.extract_node(
         """
@@ -513,5 +500,5 @@ def test_is_typing_literal() -> None:
     typing.Literal #@
     """
     )
-    assert not utils.is_typing_literal(code[0])
-    assert not utils.is_typing_literal(code[1])
+    assert not utils.is_typing_member(code[0], ("Literal",))
+    assert not utils.is_typing_member(code[1], ("Literal",))

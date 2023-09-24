@@ -1,15 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import collections
-import sys
-import warnings
 from collections import defaultdict
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Literal
 
 from astroid import nodes
 
@@ -18,11 +16,6 @@ from pylint.constants import (
     MSG_STATE_SCOPE_MODULE,
     WarningScope,
 )
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.message import MessageDefinition, MessageDefinitionStore
@@ -36,24 +29,12 @@ class FileState:
 
     def __init__(
         self,
-        modname: str | None = None,
-        msg_store: MessageDefinitionStore | None = None,
+        modname: str,
+        msg_store: MessageDefinitionStore,
         node: nodes.Module | None = None,
         *,
         is_base_filestate: bool = False,
     ) -> None:
-        if modname is None:
-            warnings.warn(
-                "FileState needs a string as modname argument. "
-                "This argument will be required in pylint 3.0",
-                DeprecationWarning,
-            )
-        if msg_store is None:
-            warnings.warn(
-                "FileState needs a 'MessageDefinitionStore' as msg_store argument. "
-                "This argument will be required in pylint 3.0",
-                DeprecationWarning,
-            )
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
         self._raw_module_msgs_state: MessageStateDict = {}
@@ -71,24 +52,6 @@ class FileState:
         """If this FileState is the base state made during initialization of
         PyLinter.
         """
-
-    def collect_block_lines(
-        self, msgs_store: MessageDefinitionStore, module_node: nodes.Module
-    ) -> None:
-        """Walk the AST to collect block level options line numbers."""
-        warnings.warn(
-            "'collect_block_lines' has been deprecated and will be removed in pylint 3.0.",
-            DeprecationWarning,
-        )
-        for msg, lines in self._module_msgs_state.items():
-            self._raw_module_msgs_state[msg] = lines.copy()
-        orig_state = self._module_msgs_state.copy()
-        self._module_msgs_state = {}
-        self._suppression_mapping = {}
-        self._effective_max_line_number = module_node.tolineno
-        for msgid, lines in orig_state.items():
-            for msgdef in msgs_store.get_message_definitions(msgid):
-                self._set_state_on_block_lines(msgs_store, module_node, msgdef, lines)
 
     def _set_state_on_block_lines(
         self,
@@ -194,30 +157,46 @@ class FileState:
                     state = lines[line]
                     original_lineno = line
 
-                # Update suppression mapping
-                if not state:
-                    self._suppression_mapping[(msg.msgid, line)] = original_lineno
-                else:
-                    self._suppression_mapping.pop((msg.msgid, line), None)
+                self._set_message_state_on_line(msg, line, state, original_lineno)
 
-                # Update message state for respective line
-                try:
-                    self._module_msgs_state[msg.msgid][line] = state
-                except KeyError:
-                    self._module_msgs_state[msg.msgid] = {line: state}
             del lines[lineno]
 
-    def set_msg_status(self, msg: MessageDefinition, line: int, status: bool) -> None:
+    def _set_message_state_on_line(
+        self,
+        msg: MessageDefinition,
+        line: int,
+        state: bool,
+        original_lineno: int,
+    ) -> None:
+        """Set the state of a message on a line."""
+        # Update suppression mapping
+        if not state:
+            self._suppression_mapping[(msg.msgid, line)] = original_lineno
+        else:
+            self._suppression_mapping.pop((msg.msgid, line), None)
+
+        # Update message state for respective line
+        try:
+            self._module_msgs_state[msg.msgid][line] = state
+        except KeyError:
+            self._module_msgs_state[msg.msgid] = {line: state}
+
+    def set_msg_status(
+        self,
+        msg: MessageDefinition,
+        line: int,
+        status: bool,
+        scope: str = "package",
+    ) -> None:
         """Set status (enabled/disable) for a given message at a given line."""
         assert line > 0
-        assert self._module
-        # TODO: 3.0: Remove unnecessary assertion
-        assert self._msgs_store
-
-        # Expand the status to cover all relevant block lines
-        self._set_state_on_block_lines(
-            self._msgs_store, self._module, msg, {line: status}
-        )
+        if scope != "line":
+            # Expand the status to cover all relevant block lines
+            self._set_state_on_block_lines(
+                self._msgs_store, self._module, msg, {line: status}
+            )
+        else:
+            self._set_message_state_on_line(msg, line, status, line)
 
         # Store the raw value
         try:
@@ -272,4 +251,4 @@ class FileState:
                 )
 
     def get_effective_max_line_number(self) -> int | None:
-        return self._effective_max_line_number
+        return self._effective_max_line_number  # type: ignore[no-any-return]

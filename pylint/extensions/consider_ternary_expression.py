@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for if / assign blocks that can be rewritten with if-expressions."""
 
@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 
 class ConsiderTernaryExpressionChecker(BaseChecker):
-
     name = "consider_ternary_expression"
     msgs = {
         "W0160": (
@@ -41,7 +40,7 @@ class ConsiderTernaryExpressionChecker(BaseChecker):
         if not isinstance(bst, nodes.Assign) or not isinstance(ost, nodes.Assign):
             return
 
-        for (bname, oname) in zip(bst.targets, ost.targets):
+        for bname, oname in zip(bst.targets, ost.targets):
             if not isinstance(bname, nodes.AssignName) or not isinstance(
                 oname, nodes.AssignName
             ):

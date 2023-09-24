@@ -20,6 +20,13 @@ Standard Checkers
 **Default:**  ``False``
 
 
+--clear-cache-post-run
+""""""""""""""""""""""
+*Clear in-memory caches upon conclusion of linting. Useful if running pylint in a server-like mode.*
+
+**Default:**  ``False``
+
+
 --confidence
 """"""""""""
 *Only show warnings with the listed confidence levels. Leave empty to show all. Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED.*
@@ -99,7 +106,7 @@ Standard Checkers
 
 --ignore-paths
 """"""""""""""
-*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
+*Add files or directories matching the regular expressions patterns to the ignore-list. The regex matches against paths and can be in Posix or Windows format. Because '\\' represents the directory delimiter on Windows systems, it can't be used as an escape character.*
 
 **Default:**  ``[]``
 
@@ -148,7 +155,7 @@ Standard Checkers
 
 --output-format
 """""""""""""""
-*Set the output format. Available formats are text, parseable, colorized, json and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
+*Set the output format. Available formats are: text, parseable, colorized, json2 (improved json format), json (old json format) and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
 
 **Default:**  ``text``
 
@@ -164,7 +171,7 @@ Standard Checkers
 """"""""""""
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
-**Default:**  ``(3, 10)``
+**Default:**  ``sys.version_info[:2]``
 
 
 --recursive
@@ -186,6 +193,13 @@ Standard Checkers
 *Activate the evaluation score.*
 
 **Default:**  ``True``
+
+
+--source-roots
+""""""""""""""
+*Add paths to the list of the source roots. Supports globbing patterns. The source root is an absolute path or a path relative to the current working directory used to determine a package namespace for modules located under the source root.*
+
+**Default:**  ``()``
 
 
 --suggestion-mode
@@ -215,11 +229,13 @@ Standard Checkers
    [tool.pylint.main]
    analyse-fallback-blocks = false
 
+   clear-cache-post-run = false
+
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
-   # disable =
+   disable = ["bad-inline-option", "consider-using-augmented-assign", "deprecated-pragma", "file-ignored", "locally-disabled", "prefer-typing-namedtuple", "raw-checker-failed", "suppressed-message", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "useless-suppression"]
 
-   # enable =
+   enable = []
 
    evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
 
@@ -255,13 +271,15 @@ Standard Checkers
 
    persistent = true
 
-   py-version = [3, 10]
+   py-version = "sys.version_info[:2]"
 
    recursive = false
 
    reports = false
 
    score = true
+
+   source-roots = []
 
    suggestion-mode = true
 
@@ -481,6 +499,13 @@ Standard Checkers
 **Default:**  ``('abc.abstractproperty',)``
 
 
+--typealias-rgx
+"""""""""""""""
+*Regular expression matching correct type alias names. If left empty, type alias names will be checked with the set naming style.*
+
+**Default:**  ``None``
+
+
 --typevar-rgx
 """""""""""""
 *Regular expression matching correct type variable names. If left empty, type variable names will be checked with the set naming style.*
@@ -513,10 +538,12 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.basic]
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    argument-naming-style = "snake_case"
 
    # argument-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    attr-naming-style = "snake_case"
 
    # attr-rgx =
@@ -525,24 +552,29 @@ Standard Checkers
 
    bad-names-rgxs = []
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    class-attribute-naming-style = "any"
 
    # class-attribute-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    class-const-naming-style = "UPPER_CASE"
 
    # class-const-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    class-naming-style = "PascalCase"
 
    # class-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    const-naming-style = "UPPER_CASE"
 
    # const-rgx =
 
    docstring-min-length = -1
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    function-naming-style = "snake_case"
 
    # function-rgx =
@@ -553,14 +585,17 @@ Standard Checkers
 
    include-naming-hint = false
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    inlinevar-naming-style = "any"
 
    # inlinevar-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    method-naming-style = "snake_case"
 
    # method-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    module-naming-style = "snake_case"
 
    # module-rgx =
@@ -571,8 +606,11 @@ Standard Checkers
 
    property-classes = ["abc.abstractproperty"]
 
+   # typealias-rgx =
+
    # typevar-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    variable-naming-style = "snake_case"
 
    # variable-rgx =
@@ -599,14 +637,14 @@ Standard Checkers
 """""""""""""""""""""""
 *List of method names used to declare (i.e. assign) instance attributes.*
 
-**Default:**  ``('__init__', '__new__', 'setUp', '__post_init__')``
+**Default:**  ``('__init__', '__new__', 'setUp', 'asyncSetUp', '__post_init__')``
 
 
 --exclude-protected
 """""""""""""""""""
 *List of member names, which should be excluded from the protected access warning.*
 
-**Default:**  ``('_asdict', '_fields', '_replace', '_source', '_make')``
+**Default:**  ``('_asdict', '_fields', '_replace', '_source', '_make', 'os._exit')``
 
 
 --valid-classmethod-first-arg
@@ -620,7 +658,7 @@ Standard Checkers
 """""""""""""""""""""""""""""""""""""""
 *List of valid names for the first argument in a metaclass class method.*
 
-**Default:**  ``('cls',)``
+**Default:**  ``('mcs',)``
 
 
 
@@ -636,13 +674,13 @@ Standard Checkers
    [tool.pylint.classes]
    check-protected-access-in-special-methods = false
 
-   defining-attr-methods = ["__init__", "__new__", "setUp", "__post_init__"]
+   defining-attr-methods = ["__init__", "__new__", "setUp", "asyncSetUp", "__post_init__"]
 
-   exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make"]
+   exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make", "os._exit"]
 
    valid-classmethod-first-arg = ["cls"]
 
-   valid-metaclass-classmethod-first-arg = ["cls"]
+   valid-metaclass-classmethod-first-arg = ["mcs"]
 
 
 
@@ -798,7 +836,7 @@ Standard Checkers
 """"""""""""""""""""""""
 *Exceptions that will emit a warning when caught.*
 
-**Default:**  ``('BaseException', 'Exception')``
+**Default:**  ``('builtins.BaseException', 'builtins.Exception')``
 
 
 
@@ -812,7 +850,7 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.exceptions]
-   overgeneral-exceptions = ["BaseException", "Exception"]
+   overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
 
 
 
@@ -892,6 +930,7 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.format]
+   # Possible choices: ['', 'LF', 'CRLF']
    expected-line-ending-format = ""
 
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
@@ -924,6 +963,13 @@ Standard Checkers
 *List of modules that can be imported at any level, not just the top level one.*
 
 **Default:**  ``()``
+
+
+--allow-reexport-from-package
+"""""""""""""""""""""""""""""
+*Allow explicit reexports by alias from a package __init__.*
+
+**Default:**  ``False``
 
 
 --allow-wildcard-with-all
@@ -995,6 +1041,8 @@ Standard Checkers
    [tool.pylint.imports]
    allow-any-import-level = []
 
+   allow-reexport-from-package = false
+
    allow-wildcard-with-all = false
 
    deprecated-modules = []
@@ -1047,6 +1095,7 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.logging]
+   # Possible choices: ['old', 'new']
    logging-format-style = "old"
 
    logging-modules = ["logging"]
@@ -1249,7 +1298,7 @@ Standard Checkers
 
 --spelling-dict
 """""""""""""""
-*Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell), en_CA (aspell), en_GB (aspell), en_US (aspell).*
+*Spelling dictionary name. Available dictionaries depends on your local enchant installation*
 
 **Default:** ``""``
 
@@ -1295,6 +1344,7 @@ Standard Checkers
    [tool.pylint.spelling]
    max-spelling-suggestions = 4
 
+   # Possible choices: Values from 'enchant.Broker().list_dicts()' depending on your local enchant installation
    spelling-dict = ""
 
    spelling-ignore-comment-directives = "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:"
@@ -1673,6 +1723,68 @@ Extensions
    </details>
 
 
+.. _dunder-options:
+
+``Dunder`` **Checker**
+----------------------
+--good-dunder-names
+"""""""""""""""""""
+*Good dunder names which should always be accepted.*
+
+**Default:**  ``[]``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.dunder]
+   good-dunder-names = []
+
+
+
+.. raw:: html
+
+   </details>
+
+
+.. _magic-value-options:
+
+``Magic-value`` **Checker**
+---------------------------
+--valid-magic-values
+""""""""""""""""""""
+*List of valid magic values that `magic-value-compare` will not detect. Supports integers, floats, negative numbers, for empty string enter ``''``, for backslash values just use one backslash e.g \n.*
+
+**Default:**  ``(0, -1, 1, '', '__main__')``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.magic-value]
+   valid-magic-values = [0, -1, 1, "", "__main__"]
+
+
+
+.. raw:: html
+
+   </details>
+
+
 .. _parameter_documentation-options:
 
 ``Parameter_documentation`` **Checker**
@@ -1731,6 +1843,7 @@ Extensions
 
    accept-no-yields-doc = true
 
+   # Possible choices: ['sphinx', 'epytext', 'google', 'numpy', 'default']
    default-docstring-type = "default"
 
 

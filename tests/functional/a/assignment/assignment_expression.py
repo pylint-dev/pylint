@@ -28,11 +28,11 @@ values = (
 )
 
 
-# https://github.com/PyCQA/pylint/issues/3347
+# https://github.com/pylint-dev/pylint/issues/3347
 s = 'foo' if (fval := lambda: 1) is None else fval
 
 
-# https://github.com/PyCQA/pylint/issues/3953
+# https://github.com/pylint-dev/pylint/issues/3953
 assert (n := 2) == 1, f"Expected 1, but got {n}"
 dict({1: (o := 2)}, data=o)
 assert (p := 2) == 1, \
@@ -42,7 +42,7 @@ FOO_PATT = re.compile("")
 foo = m.group("foo") if (m := FOO_PATT.match("")) else False
 
 
-# https://github.com/PyCQA/pylint/issues/3865
+# https://github.com/pylint-dev/pylint/issues/3865
 if (c := lambda: 2) and c():
     print("ok")
 
@@ -50,7 +50,7 @@ def func():
     print((d := lambda: 2) and d)
 
 
-# https://github.com/PyCQA/pylint/issues/3275
+# https://github.com/pylint-dev/pylint/issues/3275
 values = (
     e := 1,
     f := e,
@@ -64,11 +64,11 @@ function = lambda: (
 print(function())
 
 
-# https://github.com/PyCQA/pylint/issues/3763
+# https://github.com/pylint-dev/pylint/issues/3763
 foo if (foo := 3 - 2) > 0 else 0
 
 
-# https://github.com/PyCQA/pylint/issues/4238
+# https://github.com/pylint-dev/pylint/issues/4238
 l1 = f'The number {(count1 := 4)} ' \
      f'is equal to {count1}'
 l2: str = (
@@ -82,13 +82,13 @@ l3 += (
 )
 
 
-# https://github.com/PyCQA/pylint/issues/4301
+# https://github.com/pylint-dev/pylint/issues/4301
 def func2():
     return f'The number {(count := 4)} ' \
            f'is equal to {count}'
 
 
-# https://github.com/PyCQA/pylint/issues/4828
+# https://github.com/pylint-dev/pylint/issues/4828
 def func3():
     return bar if (bar := "") else ""
 
@@ -99,7 +99,7 @@ def func4():
 
 
 # Crash related to assignment expression in nested if statements
-# See https://github.com/PyCQA/pylint/issues/5178
+# See https://github.com/pylint-dev/pylint/issues/5178
 def func5(val):
     variable = None
 

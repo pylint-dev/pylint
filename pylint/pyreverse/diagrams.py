@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Diagram objects."""
 
@@ -10,10 +10,10 @@ from collections.abc import Iterable
 from typing import Any
 
 import astroid
-from astroid import nodes
+from astroid import nodes, util
 
-from pylint.checkers.utils import decorated_with_property
-from pylint.pyreverse.utils import FilterMixIn, is_interface
+from pylint.checkers.utils import decorated_with_property, in_type_checking_block
+from pylint.pyreverse.utils import FilterMixIn
 
 
 class Figure:
@@ -50,7 +50,13 @@ class DiagramEntity(Figure):
     ) -> None:
         super().__init__()
         self.title = title
-        self.node: nodes.NodeNG = node if node else nodes.NodeNG()
+        self.node: nodes.NodeNG = node or nodes.NodeNG(
+            lineno=None,
+            col_offset=None,
+            end_lineno=None,
+            end_col_offset=None,
+            parent=None,
+        )
         self.shape = self.default_shape
 
 
@@ -115,16 +121,19 @@ class ClassDiagram(Figure, FilterMixIn):
     def get_attrs(self, node: nodes.ClassDef) -> list[str]:
         """Return visible attributes, possibly with class name."""
         attrs = []
-        properties = [
-            (n, m)
-            for n, m in node.items()
-            if isinstance(m, nodes.FunctionDef) and decorated_with_property(m)
-        ]
-        for node_name, associated_nodes in (
-            list(node.instance_attrs_type.items())
-            + list(node.locals_type.items())
-            + properties
+        properties = {
+            local_name: local_node
+            for local_name, local_node in node.items()
+            if isinstance(local_node, nodes.FunctionDef)
+            and decorated_with_property(local_node)
+        }
+        for attr_name, attr_type in list(node.locals_type.items()) + list(
+            node.instance_attrs_type.items()
         ):
+            if attr_name not in properties:
+                properties[attr_name] = attr_type
+
+        for node_name, associated_nodes in properties.items():
             if not self.show_attr(node_name):
                 continue
             names = self.class_names(associated_nodes)
@@ -168,7 +177,12 @@ class ClassDiagram(Figure, FilterMixIn):
                 if node.name not in names:
                     node_name = node.name
                     names.append(node_name)
-        return names
+        # sorted to get predictable (hence testable) results
+        return sorted(
+            name
+            for name in names
+            if all(name not in other or name == other for other in names)
+        )
 
     def has_node(self, node: nodes.NodeNG) -> bool:
         """Return true if the given node is included in the diagram."""
@@ -195,11 +209,7 @@ class ClassDiagram(Figure, FilterMixIn):
             node = obj.node
             obj.attrs = self.get_attrs(node)
             obj.methods = self.get_methods(node)
-            # shape
-            if is_interface(node):
-                obj.shape = "interface"
-            else:
-                obj.shape = "class"
+            obj.shape = "class"
             # inheritance link
             for par_node in node.ancestors(recurs=False):
                 try:
@@ -207,27 +217,38 @@ class ClassDiagram(Figure, FilterMixIn):
                     self.add_relationship(obj, par_obj, "specialization")
                 except KeyError:
                     continue
-            # implements link
-            for impl_node in node.implements:
-                try:
-                    impl_obj = self.object_from_node(impl_node)
-                    self.add_relationship(obj, impl_obj, "implements")
-                except KeyError:
-                    continue
-            # associations link
-            for name, values in list(node.instance_attrs_type.items()) + list(
-                node.locals_type.items()
-            ):
+
+            # associations & aggregations links
+            for name, values in list(node.aggregations_type.items()):
                 for value in values:
-                    if value is astroid.Uninferable:
-                        continue
-                    if isinstance(value, astroid.Instance):
-                        value = value._proxied
-                    try:
-                        associated_obj = self.object_from_node(value)
-                        self.add_relationship(associated_obj, obj, "association", name)
-                    except KeyError:
-                        continue
+                    self.assign_association_relationship(
+                        value, obj, name, "aggregation"
+                    )
+
+            associations = node.associations_type.copy()
+
+            for name, values in node.locals_type.items():
+                if name not in associations:
+                    associations[name] = values
+
+            for name, values in associations.items():
+                for value in values:
+                    self.assign_association_relationship(
+                        value, obj, name, "association"
+                    )
+
+    def assign_association_relationship(
+        self, value: astroid.NodeNG, obj: ClassEntity, name: str, type_relationship: str
+    ) -> None:
+        if isinstance(value, util.UninferableBase):
+            return
+        if isinstance(value, astroid.Instance):
+            value = value._proxied
+        try:
+            associated_obj = self.object_from_node(value)
+            self.add_relationship(associated_obj, obj, type_relationship, name)
+        except KeyError:
+            return
 
 
 class PackageDiagram(ClassDiagram):
@@ -272,9 +293,15 @@ class PackageDiagram(ClassDiagram):
     def add_from_depend(self, node: nodes.ImportFrom, from_module: str) -> None:
         """Add dependencies created by from-imports."""
         mod_name = node.root().name
-        obj = self.module(mod_name)
-        if from_module not in obj.node.depends:
-            obj.node.depends.append(from_module)
+        package = self.module(mod_name).node
+
+        if from_module in package.depends:
+            return
+
+        if not in_type_checking_block(node):
+            package.depends.append(from_module)
+        elif from_module not in package.type_depends:
+            package.type_depends.append(from_module)
 
     def extract_relationships(self) -> None:
         """Extract relationships between nodes in the diagram."""
@@ -295,3 +322,10 @@ class PackageDiagram(ClassDiagram):
                 except KeyError:
                     continue
                 self.add_relationship(package_obj, dep, "depends")
+
+            for dep_name in package_obj.node.type_depends:
+                try:
+                    dep = self.get_module(dep_name, package_obj.node)
+                except KeyError:  # pragma: no cover
+                    continue
+                self.add_relationship(package_obj, dep, "type_depends")

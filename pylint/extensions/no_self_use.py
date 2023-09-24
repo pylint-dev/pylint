@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 
 
 class NoSelfUseChecker(BaseChecker):
-
     name = "no_self_use"
     msgs = {
         "R6301": (
@@ -81,7 +80,7 @@ class NoSelfUseChecker(BaseChecker):
             first = self._first_attrs.pop()
             if first is None:
                 return
-            class_node = node.parent.frame(future=True)
+            class_node = node.parent.frame()
             if (
                 self._meth_could_be_func
                 and node.type == "method"

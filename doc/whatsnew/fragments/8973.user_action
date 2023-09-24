@@ -1,0 +1,3 @@
+Package stats are now printed when running Pyreverse and a ``--verbose`` flag was added to get the original output with parsed modules. You might need to activate the verbose option if you want to keep the old output.
+
+Closes #8973

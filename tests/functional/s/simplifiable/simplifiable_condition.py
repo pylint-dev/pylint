@@ -34,3 +34,8 @@ assert {} or CONSTANT  # [simplifiable-condition]
 CONSTANT or True
 bool(CONSTANT or OTHER)
 bool(func(CONSTANT or True))
+
+# https://www.reddit.com/r/learnpython/comments/y5vtrw/confused_on_pylint_message_simplifiablecondition/
+board = {}
+if "wking" and "bking" in board.values():  # [simplifiable-condition]
+    pass

@@ -1,26 +1,20 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for spelling errors in comments and docstrings."""
 
 from __future__ import annotations
 
 import re
-import sys
 import tokenize
 from re import Pattern
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
 from astroid import nodes
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import only_required_for_messages
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -35,8 +29,11 @@ try:
         WikiWordFilter,
         get_tokenizer,
     )
-except ImportError:
+
+    PYENCHANT_AVAILABLE = True
+except ImportError:  # pragma: no cover
     enchant = None
+    PYENCHANT_AVAILABLE = False
 
     class EmailFilter:  # type: ignore[no-redef]
         ...
@@ -55,34 +52,50 @@ except ImportError:
         pass
 
     def get_tokenizer(
-        tag: str | None = None,
-        chunkers: list[Chunker] | None = None,
-        filters: list[Filter] | None = None,
-    ):  # pylint: disable=unused-argument
+        tag: str | None = None,  # pylint: disable=unused-argument
+        chunkers: list[Chunker] | None = None,  # pylint: disable=unused-argument
+        filters: list[Filter] | None = None,  # pylint: disable=unused-argument
+    ) -> Filter:
         return Filter()
 
 
-if enchant is not None:
-    br = enchant.Broker()
-    dicts = br.list_dicts()
-    dict_choices = [""] + [d[0] for d in dicts]
-    dicts = [f"{d[0]} ({d[1].name})" for d in dicts]
-    dicts = ", ".join(dicts)
-    instr = ""
-else:
-    dicts = "none"
-    dict_choices = [""]
-    instr = " To make it work, install the 'python-enchant' package."
+def _get_enchant_dicts() -> list[tuple[Any, enchant.ProviderDesc]]:
+    # Broker().list_dicts() is not typed in enchant, but it does return tuples
+    return enchant.Broker().list_dicts() if PYENCHANT_AVAILABLE else []  # type: ignore[no-any-return]
 
 
-class WordsWithDigitsFilter(Filter):
+def _get_enchant_dict_choices(
+    inner_enchant_dicts: list[tuple[Any, enchant.ProviderDesc]]
+) -> list[str]:
+    return [""] + [d[0] for d in inner_enchant_dicts]
+
+
+def _get_enchant_dict_help(
+    inner_enchant_dicts: list[tuple[Any, enchant.ProviderDesc]],
+    pyenchant_available: bool,
+) -> str:
+    if inner_enchant_dicts:
+        dict_as_str = [f"{d[0]} ({d[1].name})" for d in inner_enchant_dicts]
+        enchant_help = f"Available dictionaries: {', '.join(dict_as_str)}"
+    else:
+        enchant_help = "No available dictionaries : You need to install "
+        if not pyenchant_available:
+            enchant_help += "both the python package and "
+        enchant_help += "the system dependency for enchant to work."
+    return f"Spelling dictionary name. {enchant_help}."
+
+
+enchant_dicts = _get_enchant_dicts()
+
+
+class WordsWithDigitsFilter(Filter):  # type: ignore[misc]
     """Skips words with digits."""
 
     def _skip(self, word: str) -> bool:
         return any(char.isdigit() for char in word)
 
 
-class WordsWithUnderscores(Filter):
+class WordsWithUnderscores(Filter):  # type: ignore[misc]
     """Skips words with underscores.
 
     They are probably function parameter names.
@@ -92,7 +105,7 @@ class WordsWithUnderscores(Filter):
         return "_" in word
 
 
-class RegExFilter(Filter):
+class RegExFilter(Filter):  # type: ignore[misc]
     """Parent class for filters using regular expressions.
 
     This filter skips any words the match the expression
@@ -128,12 +141,14 @@ class SphinxDirectives(RegExFilter):
     _pattern = re.compile(r"^(:([a-z]+)){1,2}:`([^`]+)(`)?")
 
 
-class ForwardSlashChunker(Chunker):
+class ForwardSlashChunker(Chunker):  # type: ignore[misc]
     """This chunker allows splitting words like 'before/after' into 'before' and
     'after'.
     """
 
-    def next(self):
+    _text: str
+
+    def next(self) -> tuple[str, int]:
         while True:
             if not self._text:
                 raise StopIteration()
@@ -170,7 +185,6 @@ class ForwardSlashChunker(Chunker):
 
 
 CODE_FLANKED_IN_BACKTICK_REGEX = re.compile(r"(\s|^)(`{1,2})([^`]+)(\2)([^`]|$)")
-MYPY_IGNORE_DIRECTIVE_RULE_REGEX = re.compile(r"(\s|^)(type\: ignore\[[^\]]+\])(.*)")
 
 
 def _strip_code_flanked_in_backticks(line: str) -> str:
@@ -185,23 +199,6 @@ def _strip_code_flanked_in_backticks(line: str) -> str:
 
     return CODE_FLANKED_IN_BACKTICK_REGEX.sub(
         replace_code_but_leave_surrounding_characters, line
-    )
-
-
-def _strip_mypy_ignore_directive_rule(line: str) -> str:
-    """Alter line so mypy rule name is ignored.
-
-    Pyenchant parses anything flanked by spaces as an individual token,
-    so this cannot be done at the individual filter level.
-    """
-
-    def replace_rule_name_but_leave_surrounding_characters(
-        match_obj: re.Match[str],
-    ) -> str:
-        return match_obj.group(1) + match_obj.group(3)
-
-    return MYPY_IGNORE_DIRECTIVE_RULE_REGEX.sub(
-        replace_rule_name_but_leave_surrounding_characters, line
     )
 
 
@@ -235,9 +232,8 @@ class SpellingChecker(BaseTokenChecker):
                 "default": "",
                 "type": "choice",
                 "metavar": "<dict name>",
-                "choices": dict_choices,
-                "help": "Spelling dictionary name. "
-                f"Available dictionaries: {dicts}.{instr}",
+                "choices": _get_enchant_dict_choices(enchant_dicts),
+                "help": _get_enchant_dict_help(enchant_dicts, PYENCHANT_AVAILABLE),
             },
         ),
         (
@@ -295,7 +291,7 @@ class SpellingChecker(BaseTokenChecker):
 
     def open(self) -> None:
         self.initialized = False
-        if enchant is None:
+        if not PYENCHANT_AVAILABLE:
             return
         dict_name = self.linter.config.spelling_dict
         if not dict_name:
@@ -338,6 +334,7 @@ class SpellingChecker(BaseTokenChecker):
         )
         self.initialized = True
 
+    # pylint: disable = too-many-statements
     def _check_spelling(self, msgid: str, line: str, line_num: int) -> None:
         original_line = line
         try:
@@ -359,7 +356,6 @@ class SpellingChecker(BaseTokenChecker):
             starts_with_comment = False
 
         line = _strip_code_flanked_in_backticks(line)
-        line = _strip_mypy_ignore_directive_rule(line)
 
         for word, word_start_at in self.tokenizer(line.strip()):
             word_start_at += initial_space
@@ -425,13 +421,17 @@ class SpellingChecker(BaseTokenChecker):
             return
 
         # Process tokens and look for comments.
-        for (tok_type, token, (start_row, _), _, _) in tokens:
+        for tok_type, token, (start_row, _), _, _ in tokens:
             if tok_type == tokenize.COMMENT:
                 if start_row == 1 and token.startswith("#!/"):
                     # Skip shebang lines
                     continue
                 if token.startswith("# pylint:"):
                     # Skip pylint enable/disable comments
+                    continue
+                if token.startswith("# type: "):
+                    # Skip python 2 type comments and mypy type ignore comments
+                    # mypy do not support additional text in type comments
                     continue
                 self._check_spelling("wrong-spelling-in-comment", token, start_row)
 

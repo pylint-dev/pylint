@@ -1,6 +1,6 @@
 """Check invalid value returned by __getnewargs_ex__ """
 
-# pylint: disable=too-few-public-methods,missing-docstring,import-error,use-dict-literal,unnecessary-lambda-assignment
+# pylint: disable=too-few-public-methods,missing-docstring,import-error,use-dict-literal,unnecessary-lambda-assignment,use-dict-literal
 import six
 
 from missing import Missing

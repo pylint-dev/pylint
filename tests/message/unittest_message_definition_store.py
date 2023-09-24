@@ -1,6 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
+
+from __future__ import annotations
 
 from contextlib import redirect_stdout
 from io import StringIO
@@ -13,6 +15,7 @@ from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.lint.pylinter import PyLinter
 from pylint.message import MessageDefinition
 from pylint.message.message_definition_store import MessageDefinitionStore
+from pylint.typing import MessageDefinitionTuple
 
 
 @pytest.mark.parametrize(
@@ -23,7 +26,8 @@ from pylint.message.message_definition_store import MessageDefinitionStore
                 "W1234": ("message one", "msg-symbol-one", "msg description"),
                 "W4321": ("message two", "msg-symbol-two", "msg description"),
             },
-            r"Inconsistent checker part in message id 'W4321' (expected 'x12xx' because we already had ['W1234']).",
+            r"Inconsistent checker part in message id 'W4321' (expected 'x12xx' because we"
+            r" already had ['W1234']).",
         ),
         (
             {
@@ -120,7 +124,11 @@ from pylint.message.message_definition_store import MessageDefinitionStore
         ),
     ],
 )
-def test_register_error(empty_store, messages, expected):
+def test_register_error(
+    empty_store: MessageDefinitionStore,
+    messages: dict[str, MessageDefinitionTuple],
+    expected: str,
+) -> None:
     class Checker(BaseChecker):
         def __init__(self) -> None:
             super().__init__(PyLinter())

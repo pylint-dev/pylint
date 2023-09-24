@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -48,7 +48,14 @@ class TestStdlibChecker(CheckerTestCase):
             inner_node: nodes.Name,
             context: InferenceContext | None = None,  # pylint: disable=unused-argument
         ) -> Iterator[nodes.AssignAttr]:
-            new_node = nodes.AssignAttr(attrname="alpha", parent=inner_node)
+            new_node = nodes.AssignAttr(
+                attrname="alpha",
+                parent=inner_node,
+                lineno=0,
+                col_offset=0,
+                end_lineno=0,
+                end_col_offset=0,
+            )
             yield new_node
 
         manager = astroid.MANAGER

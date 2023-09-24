@@ -1,0 +1,3 @@
+Fix a regression of ``preferred-modules`` where a partial match was used instead of the required full match.
+
+Closes #8453

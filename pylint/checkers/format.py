@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Python code format's checker.
 
@@ -13,21 +13,15 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
-import sys
 import tokenize
 from functools import reduce
 from re import Match
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from astroid import nodes
 
 from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
-from pylint.checkers.utils import (
-    is_overload_stub,
-    is_protocol_class,
-    node_frame_class,
-    only_required_for_messages,
-)
+from pylint.checkers.utils import only_required_for_messages
 from pylint.constants import WarningScope
 from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
@@ -36,10 +30,6 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 _KEYWORD_TOKENS = {
     "assert",
@@ -55,6 +45,8 @@ _KEYWORD_TOKENS = {
     "while",
     "yield",
     "with",
+    "=",
+    ":=",
 }
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
@@ -278,7 +270,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def process_module(self, node: nodes.Module) -> None:
         pass
 
-    # pylint: disable-next=too-many-return-statements
+    # pylint: disable-next = too-many-return-statements, too-many-branches
     def _check_keyword_parentheses(
         self, tokens: list[tokenize.TokenInfo], start: int
     ) -> None:
@@ -349,7 +341,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     if found_and_or:
                         return
                     if keyword_token == "in":
-                        # This special case was added in https://github.com/PyCQA/pylint/pull/4948
+                        # This special case was added in https://github.com/pylint-dev/pylint/pull/4948
                         # but it could be removed in the future. Avoid churn for now.
                         return
                     self.add_message(
@@ -504,18 +496,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
-        # The line on which a 'finally': occurs in a 'try/finally'
-        # is not directly represented in the AST. We infer it
-        # by taking the last line of the body and adding 1, which
-        # should be the line of finally:
-        elif (
-            isinstance(node.parent, nodes.TryFinally) and node in node.parent.finalbody
-        ):
-            prev_line = node.parent.body[0].tolineno + 1
         elif isinstance(node.parent, nodes.Module):
             prev_line = 0
         else:
-            prev_line = node.parent.statement(future=True).fromlineno
+            prev_line = node.parent.statement().fromlineno
         line = node.fromlineno
         assert line, node
         if prev_line == line and self._visited_lines.get(line) != 2:
@@ -529,7 +513,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             tolineno = node.tolineno
         assert tolineno, node
         lines: list[str] = []
-        for line in range(line, tolineno + 1):
+        for line in range(line, tolineno + 1):  # noqa: B020
             self._visited_lines[line] = 1
             try:
                 lines.append(self._lines[line].rstrip())
@@ -541,12 +525,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         # Do not warn about multiple nested context managers
         # in with statements.
         if isinstance(node, nodes.With):
-            return
-        # For try... except... finally..., the two nodes
-        # appear to be on the same line due to how the AST is built.
-        if isinstance(node, nodes.TryExcept) and isinstance(
-            node.parent, nodes.TryFinally
-        ):
             return
         if (
             isinstance(node.parent, nodes.If)
@@ -561,15 +539,14 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         ):
             return
 
-        # Function overloads that use ``Ellipsis`` are exempted.
+        # Functions stubs with ``Ellipsis`` as body are exempted.
         if (
-            isinstance(node, nodes.Expr)
+            isinstance(node.parent, nodes.FunctionDef)
+            and isinstance(node, nodes.Expr)
             and isinstance(node.value, nodes.Const)
             and node.value.value is Ellipsis
         ):
-            frame = node.frame(future=True)
-            if is_overload_stub(frame) or is_protocol_class(node_frame_class(frame)):
-                return
+            return
 
         self.add_message("multiple-statements", node=node)
         self._visited_lines[line] = 2
@@ -671,20 +648,16 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 self.add_message("missing-final-newline", line=lineno + offset)
                 continue
             # We don't test for trailing whitespaces in strings
-            # See https://github.com/PyCQA/pylint/issues/6936
-            # and https://github.com/PyCQA/pylint/issues/3822
+            # See https://github.com/pylint-dev/pylint/issues/6936
+            # and https://github.com/pylint-dev/pylint/issues/3822
             if tokens.type(line_start) != tokenize.STRING:
                 self.check_trailing_whitespace_ending(line, lineno + offset)
 
-        # hold onto the initial lineno for later
-        potential_line_length_warning = False
-        for offset, line in enumerate(split_lines):
-            # this check is purposefully simple and doesn't rstrip
-            # since this is running on every line you're checking it's
-            # advantageous to avoid doing a lot of work
-            if len(line) > max_chars:
-                potential_line_length_warning = True
-                break
+        # This check is purposefully simple and doesn't rstrip since this is running
+        # on every line you're checking it's advantageous to avoid doing a lot of work
+        potential_line_length_warning = any(
+            len(line) > max_chars for line in split_lines
+        )
 
         # if there were no lines passing the max_chars config, we don't bother
         # running the full line check (as we've met an even more strict condition)

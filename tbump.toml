@@ -1,14 +1,14 @@
-github_url = "https://github.com/PyCQA/pylint"
+github_url = "https://github.com/pylint-dev/pylint"
 
 [version]
-current = "2.16.0-dev"
+current = "3.0.0a8-dev0"
 regex = '''
 ^(?P<major>0|[1-9]\d*)
 \.
 (?P<minor>0|[1-9]\d*)
 \.
 (?P<patch>0|[1-9]\d*)
-(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
+(?:-?(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
 '''
 
 [git]
@@ -24,6 +24,11 @@ src = "pylint/__pkginfo__.py"
 # You can specify a list of commands to
 # run after the files have been patched
 # and before the git commit is made
+
+[[before_commit]]
+name = "Normalize file ending"
+cmd = "git add --renormalize ."
+
 [[before_commit]]
 name = "Upgrade changelog"
 cmd = "python3 script/bump_changelog.py {new_version}"
@@ -51,6 +56,10 @@ cmd = "python3 script/create_contributor_list.py"
 [[before_commit]]
 name = "Apply pre-commit"
 cmd = "pre-commit run --all-files||echo 'Hack so this command does not fail'"
+
+[[before_commit]]
+name = "Confirm changes"
+cmd = "read -p 'Continue (y)? ' -n 1 -r; echo; [[ ! $REPLY =~ ^[Yy]$ ]] && exit 1 || exit 0"
 
 # Or run some commands after the git tag and the branch
 # have been pushed:

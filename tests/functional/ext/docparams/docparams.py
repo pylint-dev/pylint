@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+# pylint: disable=broad-exception-raised
+
 
 def _private_func1(  # [missing-return-doc, missing-return-type-doc, missing-any-param-doc]
     param1,
@@ -142,3 +144,8 @@ def regression_6211(number: int = 0) -> None:
     """
 
     print(number)
+
+
+# Only check raise nodes within FunctionDefs
+raise Exception()
+

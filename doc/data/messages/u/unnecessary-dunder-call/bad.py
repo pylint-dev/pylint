@@ -1,4 +1,4 @@
-three = 3.0.__str__()  # [unnecessary-dunder-call]
+three = (3.0).__str__()  # [unnecessary-dunder-call]
 twelve = "1".__add__("2")  # [unnecessary-dunder-call]
 
 

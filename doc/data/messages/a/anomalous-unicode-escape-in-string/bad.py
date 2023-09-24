@@ -1,1 +1,1 @@
-print(b"\u{0}".format("0394"))  # [anomalous-unicode-escape-in-string]
+print(b"\u%b" % b"0394")  # [anomalous-unicode-escape-in-string]

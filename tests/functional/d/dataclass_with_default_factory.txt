@@ -1,2 +1,0 @@
-not-an-iterable:40:9:40:23::Non-iterable value Test2.int_prop is used in an iterating context:UNDEFINED
-unsupported-assignment-operation:44:0:44:14::'Test2.int_prop' does not support item assignment:UNDEFINED

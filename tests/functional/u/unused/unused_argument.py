@@ -94,7 +94,7 @@ class BBBB:
         self.spam = 1
 
 
-# Regression test for https://github.com/PyCQA/pylint/issues/5771
+# Regression test for https://github.com/pylint-dev/pylint/issues/5771
 # involving keyword-only arguments
 class Ancestor:
     def __init__(self):
@@ -107,3 +107,24 @@ class Descendant(Ancestor):
     def set_thing(self, thing, *, other=None):
         """Subclass does not raise unused-argument"""
         self.thing = thing
+
+
+# Test that Class with both `__init__` and `__new__` don't check
+# on `__new__` for unused arguments
+
+# pylint: disable=invalid-name
+
+class TestClassWithInitAndNew:
+    def __init__(self, argA, argB):
+        self.argA = argA
+        self.argB = argB
+
+    def __new__(cls, argA, argB):
+        return object.__new__(cls)
+
+# Test that `__new__` method is checked for unused arguments
+# when `__init__` is not in the Class
+
+class TestClassWithOnlyNew:
+    def __new__(cls, argA, argB): # [unused-argument, unused-argument]
+        return object.__new__(cls)

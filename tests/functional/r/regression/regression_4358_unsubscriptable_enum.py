@@ -1,5 +1,5 @@
 # pylint: disable=pointless-statement,missing-docstring
-# https://github.com/PyCQA/pylint/issues/4358
+# https://github.com/pylint-dev/pylint/issues/4358
 
 from enum import Enum
 

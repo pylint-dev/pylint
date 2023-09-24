@@ -2,8 +2,9 @@ If you are getting the dreaded ``no-member`` error, there is a possibility that
 either:
 
 - pylint found a bug in your code
-- You're launching pylint without the dependencies installed in its environment.
-- pylint would need to lint a C extension module and is refraining to do so.
+- You're launching pylint without the dependencies installed in its environment
+- pylint would need to lint a C extension module and is refraining to do so
+- pylint does not understand dynamically generated code
 
 Linting C extension modules is not supported out of the box, especially since
 pylint has no way to get an AST object out of the extension module.
@@ -27,3 +28,10 @@ build AST objects from all the C extensions that pylint encounters::
 Alternatively, since pylint emits a separate error for attributes that cannot be
 found in C extensions, ``c-extension-no-member``, you can disable this error for
 your project.
+
+If something is generated dynamically, pylint won't be able to understand the code
+from your library (c-extension or not). You can then specify generated attributes
+with the ``generated-members`` option. For example if ``cv2.LINE_AA`` and
+``sphinx.generated_member`` create false positives for ``no-member``, you can do::
+
+   $ pylint --generated-member=cv2.LINE_AA,sphinx.generated_member

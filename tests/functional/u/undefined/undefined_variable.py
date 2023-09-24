@@ -203,7 +203,7 @@ def dec(inp):
 # referencing parent class do not raise undefined variable
 # because at the time of their calling, the class name will
 # be populated
-# See https://github.com/PyCQA/pylint/issues/704
+# See https://github.com/pylint-dev/pylint/issues/704
 class LambdaClass:
     myattr = 1
     mylambda = lambda: LambdaClass.myattr
@@ -346,7 +346,7 @@ def decorated4(x):
     print(x)
 
 
-# https://github.com/PyCQA/pylint/issues/5111
+# https://github.com/pylint-dev/pylint/issues/5111
 # AssignAttr in orelse block of 'TYPE_CHECKING' shouldn't crash
 # Name being assigned must be imported in orelse block
 if TYPE_CHECKING:

@@ -39,6 +39,8 @@ async def complex_function(this, function, has, more, arguments, than,
         return than
     try:
         return one
+    except TypeError:
+        pass
     finally:
         pass
     if 2:

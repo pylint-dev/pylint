@@ -87,7 +87,7 @@ Path(FILENAME).open("w", encoding=LOCALE_ENCODING)
 
 # Tests for storing data about open calls.
 # Most of these are regression tests for a crash
-# reported in https://github.com/PyCQA/pylint/issues/5321
+# reported in https://github.com/pylint-dev/pylint/issues/5321
 
 # -- Constants
 MODE = "wb"
@@ -126,7 +126,7 @@ open(FILENAME, mode=IOData.mode)
 open(FILENAME, mode=IOData().my_mode)
 open(FILENAME, mode=IOData().my_mode_method())
 open(FILENAME, mode=IOData().my_mode_method_returner("wb"))
-# Invalid value but shouldn't crash, reported in https://github.com/PyCQA/pylint/issues/5321
+# Invalid value but shouldn't crash, reported in https://github.com/pylint-dev/pylint/issues/5321
 open(FILENAME, mode=IOData)
 
 
@@ -141,7 +141,7 @@ class IOArgs:
 
 args_good_one = IOArgs(encoding=None, mode="wb")
 
-# Test for crash reported in https://github.com/PyCQA/pylint/issues/5321
+# Test for crash reported in https://github.com/pylint-dev/pylint/issues/5321
 open(FILENAME, args_good_one.mode, encoding=args_good_one.encoding)
 
 # Positional arguments
@@ -157,8 +157,40 @@ Path(FILENAME).read_text()  # [unspecified-encoding]
 Path(FILENAME).write_text("string", "utf-8")
 Path(FILENAME).write_text("string")  # [unspecified-encoding]
 
-# Test for crash reported in https://github.com/PyCQA/pylint/issues/5731
+# Test for crash reported in https://github.com/pylint-dev/pylint/issues/5731
 open(FILENAME, mode=None)  # [bad-open-mode, unspecified-encoding]
 
-# Test for crash reported in https://github.com/PyCQA/pylint/issues/6414
+# Test for crash reported in https://github.com/pylint-dev/pylint/issues/6414
 open('foo', mode=2)  # [bad-open-mode, unspecified-encoding]
+
+# Infer kwargs
+KWARGS = {"mode": "rb"}
+open(FILENAME, **KWARGS)
+
+KWARGS = {"mode": "w", "encoding": "utf-8"}
+open(FILENAME, **KWARGS)
+io.open(FILENAME, **KWARGS)
+Path(FILENAME).open(**KWARGS)
+
+KWARGS = {"mode": 5}
+open(FILENAME, **KWARGS)  # [bad-open-mode, unspecified-encoding]
+io.open(FILENAME, **KWARGS)  # [bad-open-mode, unspecified-encoding]
+
+KWARGS = {"mode": "wt", "encoding": None}
+with open(FILENAME, **KWARGS) as fd:  # [unspecified-encoding]
+    pass
+
+Path(FILENAME).open(**KWARGS)  # [unspecified-encoding]
+
+KWARGS = {"encoding": None}
+Path(FILENAME).write_text("hello", **KWARGS)  # [unspecified-encoding]
+
+KWARGS = {"encoding": "utf-8"}
+Path(FILENAME).write_text("goodbye", **KWARGS)
+
+# No one does it this way, but it is a possibility
+KWARGS = {"encoding": None}
+Path(FILENAME).read_text(**KWARGS)  # [unspecified-encoding]
+
+KWARGS = {"encoding": "utf-8"}
+Path(FILENAME).read_text(**KWARGS)

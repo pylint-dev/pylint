@@ -1,7 +1,7 @@
 """Test that unused-import is not emitted here when everything else is disabled
 
-https://github.com/PyCQA/pylint/issues/3445
-https://github.com/PyCQA/pylint/issues/6089
+https://github.com/pylint-dev/pylint/issues/3445
+https://github.com/pylint-dev/pylint/issues/6089
 """
 from math import e, pi
 from os import environ
