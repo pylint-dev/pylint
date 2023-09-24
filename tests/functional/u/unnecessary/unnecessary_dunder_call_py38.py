@@ -1,6 +1,7 @@
 """Checks for unnecessary-dunder-call."""
 # pylint: disable=too-few-public-methods, undefined-variable
 # pylint: disable=missing-class-docstring, missing-function-docstring
+# pylint: disable=protected-access, unnecessary-lambda-assignment, unnecessary-lambda
 from collections import OrderedDict
 from typing import Any
 
@@ -128,3 +129,16 @@ class MyString(str):
     def rjust(self, width, fillchar= ' '):
         """Acceptable call to __index__"""
         width = width.__index__()
+
+# Test no lint raised for these dunders within lambdas
+lambda1 = lambda x: x.__setitem__(1,2)
+lambda2 = lambda x: x.__del__(1)
+lambda3 = lambda x,y: x.__ipow__(y)
+lambda4 = lambda u,v: u.__setitem__(v())
+
+# Test lint raised for these dunders within lambdas
+lambda5 = lambda x: x.__gt__(3) # [unnecessary-dunder-call]
+lambda6 = lambda x,y: x.__or__(y) # [unnecessary-dunder-call]
+lambda7 = lambda x: x.__iter__() # [unnecessary-dunder-call]
+lambda8 = lambda z: z.__hash__() # [unnecessary-dunder-call]
+lambda9 = lambda n: (4).__rmul__(n) # [unnecessary-dunder-call]
