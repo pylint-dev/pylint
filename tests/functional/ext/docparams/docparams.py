@@ -148,4 +148,3 @@ def regression_6211(number: int = 0) -> None:
 
 # Only check raise nodes within FunctionDefs
 raise Exception()
-
