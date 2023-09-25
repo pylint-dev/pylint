@@ -29,6 +29,45 @@ so we find problems before the actual release.
 
 .. towncrier release notes start
 
+What's new in Pylint 2.17.6?
+----------------------------
+Release date: 2023-09-24
+
+
+Other Bug Fixes
+---------------
+
+- When parsing comma-separated lists of regular expressions in the config,
+  ignore
+  commas that are inside braces since those indicate quantifiers, not
+  delineation
+  between expressions.
+
+  Closes #7229 (`#7229 <https://github.com/pylint-dev/pylint/issues/7229>`_)
+
+- ``sys.argv`` is now always correctly considered as impossible to infer
+  (instead of
+  using the actual values given to pylint).
+
+  Closes #7710 (`#7710 <https://github.com/pylint-dev/pylint/issues/7710>`_)
+
+- Don't show class fields more than once in Pyreverse diagrams.
+
+  Closes #8189 (`#8189 <https://github.com/pylint-dev/pylint/issues/8189>`_)
+
+- Don't show arrows more than once in Pyreverse diagrams.
+
+  Closes #8522 (`#8522 <https://github.com/pylint-dev/pylint/issues/8522>`_)
+
+- Don't show duplicate type annotations in Pyreverse diagrams.
+
+  Closes #8888 (`#8888 <https://github.com/pylint-dev/pylint/issues/8888>`_)
+
+- Don't add `Optional` to `|` annotations with `None` in Pyreverse diagrams.
+
+  Closes #9014 (`#9014 <https://github.com/pylint-dev/pylint/issues/9014>`_)
+
+
 What's new in Pylint 2.17.5?
 ----------------------------
 Release date: 2023-07-26
