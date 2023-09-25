@@ -81,7 +81,7 @@ def _get_enchant_dict_help(
         enchant_help = "No available dictionaries : You need to install "
         if not pyenchant_available:
             enchant_help += "both the python package and "
-        enchant_help += "the system dependency for enchant to work."
+        enchant_help += "the system dependency for enchant to work"
     return f"Spelling dictionary name. {enchant_help}."
 
 
