@@ -1,0 +1,4 @@
+Following a deprecation period, ``pylint.config.PYLINTRC`` was removed.
+Use the ``pylint.config.find_default_config_files`` generator instead.
+
+Closes #8862
