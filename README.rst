@@ -122,7 +122,7 @@ ecosystem of existing plugins for popular frameworks and third-party libraries.
 
 .. _`plugins`: https://pylint.readthedocs.io/en/latest/development_guide/how_tos/plugins.html#plugins
 .. _`pylint-pydantic`: https://pypi.org/project/pylint-pydantic
-.. _`pylint-django`: https://github.com/PyCQA/pylint-django
+.. _`pylint-django`: https://github.com/pylint-dev/pylint-django
 .. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
 
 Advised linters alongside pylint
