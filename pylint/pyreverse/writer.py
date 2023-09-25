@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import itertools
 import os
+from collections import defaultdict
 from collections.abc import Iterable
 
 from astroid import modutils, nodes
@@ -133,8 +134,10 @@ class DiagramWriter:
                 rel.to_object.fig_id,
                 type_=EdgeType.INHERITS,
             )
+        associations: dict[str, set[str]] = defaultdict(set)
         # generate associations
         for rel in diagram.get_relationships("association"):
+            associations[rel.from_object.fig_id].add(rel.to_object.fig_id)
             self.printer.emit_edge(
                 rel.from_object.fig_id,
                 rel.to_object.fig_id,
@@ -143,6 +146,8 @@ class DiagramWriter:
             )
         # generate aggregations
         for rel in diagram.get_relationships("aggregation"):
+            if rel.to_object.fig_id in associations[rel.from_object.fig_id]:
+                continue
             self.printer.emit_edge(
                 rel.from_object.fig_id,
                 rel.to_object.fig_id,
