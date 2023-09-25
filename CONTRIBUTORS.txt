@@ -564,6 +564,7 @@ contributors:
 - Arun Persaud <arun@nubati.net>
 - Arthur Lutz <arthur.lutz@logilab.fr>
 - Antonio Ossa <aaossa@uc.cl>
+- Antonio <antonio@zoftko.com>
 - Anthony VEREZ <anthony.verez.external@cassidian.com>
 - Anthony Tan <tanant@users.noreply.github.com>
 - Anthony Foglia <afoglia@users.noreply.github.com> (Google): Added simple string slots check.
