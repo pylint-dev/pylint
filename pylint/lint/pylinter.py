@@ -658,13 +658,14 @@ class PyLinter(
         files_or_modules is either a string or list of strings presenting modules to check.
         """
         self.initialize()
+        if not files_or_modules and not self.config.from_stdin:
+            files_or_modules = (str(Path(".").resolve()),)
         if self.config.recursive:
             files_or_modules = tuple(self._discover_files(files_or_modules))
         if self.config.from_stdin:
             if len(files_or_modules) != 1:
-                raise exceptions.InvalidArgsError(
-                    "Missing filename required for --from-stdin"
-                )
+                print("Missing filename required for --from-stdin")
+                sys.exit(32)
 
         extra_packages_paths = list(
             {
@@ -989,7 +990,14 @@ class PyLinter(
                 confidence=HIGH,
             )
         except astroid.AstroidBuildingError as ex:
-            self.add_message("parse-error", args=ex)
+            msg = str(ex)
+            if "Unable to load file" in msg and "__init__.py" in msg:
+                msg = (
+                    "No '__init__.py' in the given directory, give a python module, "
+                    "or use '--recursive=y' with the proper ignore option (in order"
+                    " to not lint your virtualenv)"
+                )
+            self.add_message("parse-error", args=msg)
         except Exception as ex:
             traceback.print_exc()
             # We raise BuildingError here as this is essentially an astroid issue
