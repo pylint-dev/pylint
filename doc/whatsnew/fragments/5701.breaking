@@ -1,0 +1,4 @@
+``pylint`` is now equivalent to ``pylint .`` and won't show the help by default anymore.
+The help is still available with ``pylint --help`` or ``pylint --long-help``.
+
+Closes #5701
