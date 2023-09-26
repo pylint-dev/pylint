@@ -1,0 +1,1 @@
+invalid-name:16:4:16:14:Color:"Class constant name ""aquamarine"" doesn't conform to UPPER_CASE naming style":HIGH

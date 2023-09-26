@@ -2266,3 +2266,20 @@ def clear_lru_caches() -> None:
     ]
     for lru in caches_holding_node_references:
         lru.cache_clear()
+
+
+def is_enum_member(node: nodes.AssignName) -> bool:
+    """Return `True` if `node` is an Enum member (is an item of the
+    `__members__` container).
+    """
+
+    frame = node.frame()
+    if (
+        not isinstance(frame, nodes.ClassDef)
+        or not frame.is_subtype_of("enum.Enum")
+        or frame.root().qname() == "enum"
+    ):
+        return False
+
+    enum_member_objects = frame.locals.get("__members__")[0].items
+    return node.name in [name_obj.name for value, name_obj in enum_member_objects]
