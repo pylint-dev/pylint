@@ -2362,7 +2362,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if (
             isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute))
             or isinstance(node, nodes.UnaryOp)
-            and isinstance(node.operand, nodes.Attribute)
+            and isinstance(node.operand, (nodes.Attribute, nodes.Name))
         ):
             inferred = utils.safe_infer(node)
             start_val = inferred.value if inferred else None
