@@ -1,4 +1,0 @@
-Fix a regression in pylint 2.17.6 / astroid 2.15.7 causing various
-messages for code involving ``TypeVar``.
-
-Closes #9069

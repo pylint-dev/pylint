@@ -1,7 +1,7 @@
 github_url = "https://github.com/pylint-dev/pylint"
 
 [version]
-current = "2.17.6"
+current = "2.17.7"
 regex = '''
 ^(?P<major>0|[1-9]\d*)
 \.
