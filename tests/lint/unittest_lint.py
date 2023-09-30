@@ -41,7 +41,12 @@ from pylint.reporters import text
 from pylint.testutils import create_files
 from pylint.testutils._run import _Run as Run
 from pylint.typing import MessageLocationTuple
-from pylint.utils import FileState, print_full_documentation, tokenize_module
+from pylint.utils import (
+    FileState,
+    LinterStats,
+    print_full_documentation,
+    tokenize_module,
+)
 
 if os.name == "java":
     if os.name == "nt":
@@ -1030,6 +1035,8 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
     by_module_stats = linter.stats.by_module
     for module, module_stats in by_module_stats.items():
         linter2 = initialized_linter
+        linter2.stats = LinterStats()
+
         if module == "data":
             linter2.check([os.path.join(os.path.dirname(__file__), "data/__init__.py")])
         else:
