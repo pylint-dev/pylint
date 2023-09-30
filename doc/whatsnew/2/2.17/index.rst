@@ -29,6 +29,30 @@ so we find problems before the actual release.
 
 .. towncrier release notes start
 
+What's new in Pylint 2.17.7?
+----------------------------
+Release date: 2023-09-30
+
+
+False Positives Fixed
+---------------------
+
+- Fix a regression in pylint 2.17.6 / astroid 2.15.7 causing various
+  messages for code involving ``TypeVar``.
+
+  Closes #9069 (`#9069 <https://github.com/pylint-dev/pylint/issues/9069>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix crash in refactoring checker when unary operand used with variable in for
+  loop.
+
+  Closes #9074 (`#9074 <https://github.com/pylint-dev/pylint/issues/9074>`_)
+
+
 What's new in Pylint 2.17.6?
 ----------------------------
 Release date: 2023-09-24
