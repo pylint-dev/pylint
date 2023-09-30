@@ -24,9 +24,9 @@ Maintainers
 - Dani Alcala <112832187+clavedeluna@users.noreply.github.com>
 - Łukasz Rogalski <rogalski.91@gmail.com>
 - Ashley Whetter <ashley@awhetter.co.uk>
+- Nick Drozd <nicholasdrozd@gmail.com>: performance improvements to astroid
 - Bryce Guinta <bryce.paul.guinta@gmail.com>
 - Yu Shao, Pang <36848472+yushao2@users.noreply.github.com>
-- Nick Drozd <nicholasdrozd@gmail.com>: performance improvements to astroid
 - Dimitri Prybysh <dmand@yandex.ru>
   * multiple-imports, not-iterable, not-a-mapping, various patches.
 - Roy Williams <roy.williams.iii@gmail.com> (Lyft)
@@ -157,6 +157,8 @@ contributors:
   * Added new useless-return checker,
   * Added new try-except-raise checker
 - Téo Bouvard <teobouvard@gmail.com>
+- Stavros Ntentos <133706+stdedos@users.noreply.github.com>
+- Nicolas Boulenguez <nicolas@debian.org>
 - Mihai Balint <balint.mihai@gmail.com>
 - Mark Bell <mark00bell@googlemail.com>
 - Levi Gruspe <mail.levig@gmail.com>
@@ -170,9 +172,9 @@ contributors:
 - Andreas Freimuth <andreas.freimuth@united-bits.de>: fix indentation checking with tabs
 - Alexandru Coman <fcoman@bitdefender.com>
 - jpkotta <jpkotta@gmail.com>
+- crazybolillo <antonio@zoftko.com>
 - Takahide Nojima <nozzy123nozzy@gmail.com>
 - Taewon D. Kim <kimt33@mcmaster.ca>
-- Stavros Ntentos <133706+stdedos@users.noreply.github.com>
 - Sneaky Pete <sneakypete81@gmail.com>
 - Sergey B Kirpichev <skirpichev@gmail.com>
 - Sandro Tosi <sandro.tosi@gmail.com>: Debian packaging
@@ -245,7 +247,6 @@ contributors:
 - xmo-odoo <xmo-odoo@users.noreply.github.com>
 - tbennett0 <tbennett0@users.noreply.github.com>
 - omarandlorraine <64254276+omarandlorraine@users.noreply.github.com>
-- crazybolillo <antonio@zoftko.com>
 - craig-sh <craig-sh@users.noreply.github.com>
 - bernie gray <bfgray3@users.noreply.github.com>
 - Wes Turner <westurner@google.com> (Google): added new check 'inconsistent-quotes'
@@ -378,9 +379,11 @@ contributors:
 - Tim Gates <tim.gates@iress.com>
 - Théo Battrel <theo.util@protonmail.ch>
 - Thomas Benhamou <thomas@lightricks.com>
+- Theodore Ni <3806110+tjni@users.noreply.github.com>
 - Tanvi Moharir <74228962+tanvimoharir@users.noreply.github.com>: Fix for invalid toml config
 - T.Rzepka <Tobias.Rzepka@gmail.com>
 - Svetoslav Neykov <svet@hyperscience.com>
+- SubaruArai <78188579+SubaruArai@users.noreply.github.com>
 - Stéphane Wirtel <stephane@wirtel.be>: nonlocal-without-binding
 - Stephen Longofono <8992396+SLongofono@users.noreply.github.com>
 - Stephane Odul <1504511+sodul@users.noreply.github.com>
@@ -429,6 +432,7 @@ contributors:
 - Niko Wenselowski <niko@nerdno.de>
 - Nikita Sobolev <mail@sobolevn.me>
 - Nick Smith <clickthisnick@users.noreply.github.com>
+- Neowizard <Neowizard@users.noreply.github.com>
 - Ned Batchelder <ned@nedbatchelder.com>
 - Natalie Serebryakova <natalie.serebryakova@Natalies-MacBook-Pro.local>
 - Moody <mooodyhunter@outlook.com>
@@ -503,6 +507,7 @@ contributors:
 - Hayden Richards <62866982+SupImDos@users.noreply.github.com>
   * Fixed "no-self-use" for async methods
   * Fixed "docparams" extension for async functions and methods
+- Hashem Nasarat <Hnasar@users.noreply.github.com>
 - Harshil <37377066+harshil21@users.noreply.github.com>
 - Harry <harrymcwinters@gmail.com>
 - Grégoire <96051754+gregoire-mullvad@users.noreply.github.com>
@@ -532,6 +537,7 @@ contributors:
 - Daniele Procida <daniele@vurt.org>
 - Daniela Plascencia <daplascen@gmail.com>
 - Daniel Werner <daniel.werner@scalableminds.com>
+- Daniel Wang <danielwang405@gmail.com>
 - Daniel R. Neal <dan.r.neal@gmail.com> (danrneal)
 - Daniel Draper <Germandrummer92@users.noreply.github.com>
 - Daniel Dorani <ddandd@gmail.com> (doranid)
@@ -564,7 +570,6 @@ contributors:
 - Arun Persaud <arun@nubati.net>
 - Arthur Lutz <arthur.lutz@logilab.fr>
 - Antonio Ossa <aaossa@uc.cl>
-- Antonio <antonio@zoftko.com>
 - Anthony VEREZ <anthony.verez.external@cassidian.com>
 - Anthony Tan <tanant@users.noreply.github.com>
 - Anthony Foglia <afoglia@users.noreply.github.com> (Google): Added simple string slots check.
@@ -581,11 +586,13 @@ contributors:
 - Alex Mor <5476113+nashcontrol@users.noreply.github.com>
 - Alex Jurkiewicz <alex@jurkiewi.cz>
 - Alex Hearn <alex.d.hearn@gmail.com>
+- Aleksander Mamla <alek.mamla@gmail.com>
 - Alan Evangelista <alanoe@linux.vnet.ibm.com>
 - Alan Chan <achan961117@gmail.com>
 - Aivar Annamaa <aivarannamaa@users.noreply.github.com>
 - Aidan Haase <44787650+haasea@users.noreply.github.com>
 - Ahirnish Pareek <ahirnish@gmail.com>: 'keyword-arg-before-var-arg' check
+- Agustin Marquez <agusdmb@gmail.com>
 - Adrian Chirieac <chirieacam@gmail.com>
 - Aditya Gupta <adityagupta1089@users.noreply.github.com> (adityagupta1089)
   * Added ignore_signatures to duplicate checker
