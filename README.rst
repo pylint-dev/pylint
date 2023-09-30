@@ -187,7 +187,7 @@ You can place this badge in your README to let others know your project uses pyl
     .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
         :target: https://github.com/pylint-dev/pylint
 
-Learn how to add a badge to your documentation in the `the badge documentation`_.
+Learn how to add a badge to your documentation in `the badge documentation`_.
 
 .. _the badge documentation: https://pylint.readthedocs.io/en/latest/user_guide/installation/badge.html
 
