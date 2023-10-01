@@ -151,6 +151,7 @@ select = [
     "B",  # bugbear
     "I",  # isort
     "RUF", # ruff
+    "UP", # pyupgrade
 ]
 
 ignore = [
@@ -165,4 +166,5 @@ fixable = [
     "B",  # bugbear
     "I",  # isort
     "RUF", # ruff
+    "UP", # pyupgrade
 ]

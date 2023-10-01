@@ -914,15 +914,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         if operator in {"<", "<="}:
-            reduced_to = "{target} = max({target}, {item})".format(
-                target=target_assignation, item=body_value
+            reduced_to = (
+                f"{target_assignation} = max({target_assignation}, {body_value})"
             )
             self.add_message(
                 "consider-using-max-builtin", node=node, args=(reduced_to,)
             )
         elif operator in {">", ">="}:
-            reduced_to = "{target} = min({target}, {item})".format(
-                target=target_assignation, item=body_value
+            reduced_to = (
+                f"{target_assignation} = min({target_assignation}, {body_value})"
             )
             self.add_message(
                 "consider-using-min-builtin", node=node, args=(reduced_to,)
