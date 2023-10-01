@@ -768,6 +768,15 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             (["--disable=C0116", "--fail-on=C0116"], 16),
             # Ensure order does not matter
             (["--fail-on=C0116", "--disable=C0116"], 16),
+            # Message emitted by PyLinter itself
+            (
+                [
+                    "--fail-on=unknown-option-value",
+                    "--disable=all",
+                    "--enable=unknown-option-value, trigger",
+                ],
+                4,
+            ),
         ],
     )
     def test_fail_on_edge_case(self, opts: list[str], out: int) -> None:

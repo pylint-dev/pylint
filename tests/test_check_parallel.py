@@ -382,6 +382,7 @@ class TestCheckParallel:
         # now run the regular mode of checking files and check that, in this proc, we
         # collect the right data
         filepath = [single_file_container[0][1]]  # get the filepath element
+        linter.stats = LinterStats()
         linter.check(filepath)
         assert {
             "input.similar1": {  # module is the only change from previous

@@ -1,0 +1,5 @@
+Prevented data loss in the linter stats for messages relating
+to the linter itself (e.g. ``unknown-option-value``), fixing
+problems with score, fail-on, etc.
+
+Closes #9059
