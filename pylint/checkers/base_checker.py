@@ -134,9 +134,7 @@ class BaseChecker(_ArgumentsProvider):
         if reports:
             result += get_rst_title(f"{checker_title} Reports", "^")
             for report in reports:
-                result += ":{}: {}\n".format(  # pylint: disable=consider-using-f-string
-                    *report[:2]
-                )
+                result += f":{report[0]}: {report[1]}\n"
             result += "\n"
         result += "\n"
         return result
