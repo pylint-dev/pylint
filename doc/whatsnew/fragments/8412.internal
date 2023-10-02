@@ -1,3 +1,0 @@
-``colorize_ansi`` now only accepts a ``MessageStyle`` object.
-
-Refs #8412

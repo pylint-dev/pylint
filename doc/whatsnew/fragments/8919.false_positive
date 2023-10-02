@@ -1,3 +1,0 @@
-Fix false positive for ``arguments-differ`` when overriding `__init_subclass__`.
-
-Closes #8919

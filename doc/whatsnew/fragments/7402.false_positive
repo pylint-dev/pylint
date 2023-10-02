@@ -1,3 +1,0 @@
-Fix a false positive for ``invalid-name`` when a type-annotated class variable in an ``enum.Enum`` class has no assigned value.
-
-Refs #7402

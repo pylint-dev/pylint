@@ -1,3 +1,0 @@
-Added ``DataclassChecker`` module and ``invalid-field-call`` checker to check for invalid dataclasses.field() usage.
-
-Refs #5159
