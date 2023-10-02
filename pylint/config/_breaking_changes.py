@@ -30,8 +30,7 @@ class Condition(enum.Enum):
 
 
 class Information(NamedTuple):
-    symbol: str
-    msgid: str
+    msgid_or_symbol: str
     extension: str | None
 
 
@@ -62,14 +61,13 @@ BreakingChangeWithSolution = tuple[
 ]
 
 NO_SELF_USE = Information(
-    msgid="R6301", symbol="no-self-use", extension="pylint.extensions.no_self_use"
+    msgid_or_symbol="no-self-use", extension="pylint.extensions.no_self_use"
 )
 COMPARE_TO_ZERO = Information(
-    msgid="C2001", symbol="compare-to-zero", extension="pylint.extensions.comparetozero"
+    msgid_or_symbol="compare-to-zero", extension="pylint.extensions.comparetozero"
 )
 COMPARE_TO_EMPTY_STRING = Information(
-    msgid="C1901",
-    symbol="compare-to-empty-string",
+    msgid_or_symbol="compare-to-empty-string",
     extension="pylint.extensions.emptystring",
 )
 
