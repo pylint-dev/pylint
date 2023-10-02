@@ -8,7 +8,7 @@ on:
 env:
   CACHE_VERSION: 1
   KEY_PREFIX: base-venv
-  DEFAULT_PYTHON: "3.11"
+  DEFAULT_PYTHON: "3.12"
 
 permissions:
   contents: read
