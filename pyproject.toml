@@ -158,13 +158,3 @@ ignore = [
     "B905",  # `zip()` without an explicit `strict=` parameter
     "RUF012",  # mutable default values in class attributes
 ]
-
-fixable = [
-    "E",  # pycodestyle
-    "F",  # pyflakes
-    "W",  # pycodestyle
-    "B",  # bugbear
-    "I",  # isort
-    "RUF", # ruff
-    "UP", # pyupgrade
-]
