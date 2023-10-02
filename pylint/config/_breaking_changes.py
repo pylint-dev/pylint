@@ -73,23 +73,27 @@ COMPARE_TO_EMPTY_STRING = Information(
     extension="pylint.extensions.emptystring",
 )
 
-CONFIGURATION_BREAKING_CHANGES: list[BreakingChangeWithSolution] = [
-    (
-        BreakingChange.MESSAGE_MOVED_TO_EXTENSION,
-        NO_SELF_USE,
-        [Condition.MESSAGE_IS_ENABLED, Condition.EXTENSION_IS_NOT_LOADED],
-        [[Solution.ADD_EXTENSION], [Solution.DISABLE_MESSAGE_IMPLICITLY]],
-    ),
-    (
-        BreakingChange.EXTENSION_REMOVED,
-        COMPARE_TO_ZERO,
-        [Condition.MESSAGE_IS_NOT_DISABLED, Condition.EXTENSION_IS_LOADED],
-        [[Solution.REMOVE_EXTENSION, Solution.ENABLE_MESSAGE_EXPLICITLY]],
-    ),
-    (
-        BreakingChange.EXTENSION_REMOVED,
-        COMPARE_TO_EMPTY_STRING,
-        [Condition.MESSAGE_IS_NOT_DISABLED, Condition.EXTENSION_IS_LOADED],
-        [[Solution.REMOVE_EXTENSION, Solution.ENABLE_MESSAGE_EXPLICITLY]],
-    ),
-]
+CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
+    "2.14.0": [
+        (
+            BreakingChange.MESSAGE_MOVED_TO_EXTENSION,
+            NO_SELF_USE,
+            [Condition.MESSAGE_IS_ENABLED, Condition.EXTENSION_IS_NOT_LOADED],
+            [[Solution.ADD_EXTENSION], [Solution.DISABLE_MESSAGE_IMPLICITLY]],
+        ),
+    ],
+    "3.0.0": [
+        (
+            BreakingChange.EXTENSION_REMOVED,
+            COMPARE_TO_ZERO,
+            [Condition.MESSAGE_IS_NOT_DISABLED, Condition.EXTENSION_IS_LOADED],
+            [[Solution.REMOVE_EXTENSION, Solution.ENABLE_MESSAGE_EXPLICITLY]],
+        ),
+        (
+            BreakingChange.EXTENSION_REMOVED,
+            COMPARE_TO_EMPTY_STRING,
+            [Condition.MESSAGE_IS_NOT_DISABLED, Condition.EXTENSION_IS_LOADED],
+            [[Solution.REMOVE_EXTENSION, Solution.ENABLE_MESSAGE_EXPLICITLY]],
+        ),
+    ],
+}
