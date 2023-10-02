@@ -1,5 +1,0 @@
-``modname`` and ``msg_store`` are now required to be given in ``FileState``.
-``collect_block_lines`` has also been removed. ``Pylinter.current_name``
-cannot be null anymore.
-
-Refs #8407

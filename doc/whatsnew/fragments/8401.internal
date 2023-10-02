@@ -1,4 +1,0 @@
-``get_message_definition`` was removed from the base checker API. You can access
-message definitions through the ``MessageStore``.
-
-Refs #8401

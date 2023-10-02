@@ -1,8 +1,0 @@
-Everything related to the ``__implements__`` construct was removed. It was based on PEP245
-that was proposed in 2001 and rejected in 2006.
-
-All the classes inheriting ``Interface`` in ``pylint.interfaces`` were removed.
-``Checker`` should only inherit ``BaseChecker`` or any of the other checker types
-from ``pylint.checkers``. ``Reporter`` should only inherit ``BaseReporter``.
-
-Refs #8404

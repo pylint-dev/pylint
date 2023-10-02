@@ -1,3 +1,0 @@
-Emit ``used-before-assignment`` when calling module-level functions before definition.
-
-Closes #1144

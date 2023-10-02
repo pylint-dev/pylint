@@ -1,3 +1,0 @@
-Fix crash in refactoring checker when unary operand used with variable in for loop.
-
-Closes #9074

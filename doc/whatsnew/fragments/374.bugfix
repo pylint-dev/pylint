@@ -1,3 +1,0 @@
-Support ``duplicate-code`` message when parallelizing with ``--jobs``.
-
-Closes #374

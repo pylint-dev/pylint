@@ -1,3 +1,0 @@
-Dunder methods defined in lambda do not trigger ``unnecessary-dunder-call`` anymore, if they cannot be replaced by the non-dunder call.
-
-Closes #8769
