@@ -1,5 +1,5 @@
 """ Tests for invalid-name checker in the context of enums. """
-# pylint: disable=too-few-public-methods, missing-class-docstring
+# pylint: disable=too-few-public-methods
 
 
 from dataclasses import dataclass
@@ -33,4 +33,7 @@ class Color(Enum):
 
 @dataclass
 class Something(str, Enum):
-    asd: str = 'sdf'
+    """ A false positive for ``invalid-name``
+    which should be fixed by https://github.com/pylint-dev/astroid/issues/2317
+    """
+    ASD: str = 1  # [invalid-name]
