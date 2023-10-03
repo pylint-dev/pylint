@@ -2281,8 +2281,9 @@ def is_enum_member(node: nodes.AssignName) -> bool:
     ):
         return False
 
-    try:
-        enum_member_objects = frame.locals.get("__members__")[0].items
-    except TypeError:
+    members = frame.locals.get("__members__")
+    # A dataclass is one known case for when `members` can be `None`
+    if members is None:
         return False
+    enum_member_objects = members[0].items
     return node.name in [name_obj.name for value, name_obj in enum_member_objects]
