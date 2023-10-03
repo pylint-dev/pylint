@@ -2281,5 +2281,8 @@ def is_enum_member(node: nodes.AssignName) -> bool:
     ):
         return False
 
-    enum_member_objects = frame.locals.get("__members__")[0].items
+    try:
+        enum_member_objects = frame.locals.get("__members__")[0].items
+    except TypeError:
+        return False
     return node.name in [name_obj.name for value, name_obj in enum_member_objects]
