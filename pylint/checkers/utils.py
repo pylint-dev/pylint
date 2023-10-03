@@ -2285,5 +2285,4 @@ def is_enum_member(node: nodes.AssignName) -> bool:
     # A dataclass is one known case for when `members` can be `None`
     if members is None:
         return False
-    enum_member_objects = members[0].items
-    return node.name in [name_obj.name for value, name_obj in enum_member_objects]
+    return node.name in [name_obj.name for value, name_obj in members[0].items]
