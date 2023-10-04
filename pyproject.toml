@@ -59,7 +59,7 @@ spelling = ["pyenchant~=3.2"]
 "Docs: User Guide"  = "https://pylint.readthedocs.io/en/latest/"
 "Source Code"       = "https://github.com/pylint-dev/pylint"
 "homepage"          = "https://github.com/pylint-dev/pylint"
-"What's New"        = "https://pylint.readthedocs.io/en/latest/whatsnew/2/"
+"What's New"        = "https://pylint.readthedocs.io/en/latest/whatsnew/3/"
 "Bug Tracker"       = "https://github.com/pylint-dev/pylint/issues"
 "Discord Server"    = "https://discord.com/invite/Egy6P8AMB5"
 "Docs: Contributor Guide" = "https://pylint.readthedocs.io/en/latest/development_guide/contributor_guide/index.html"
