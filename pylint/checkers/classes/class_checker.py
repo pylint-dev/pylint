@@ -957,8 +957,9 @@ a metaclass class method.",
             ancestor = safe_infer(base)
             if not ancestor:
                 continue
-            if isinstance(ancestor, astroid.Instance) and ancestor.is_subtype_of(
-                "builtins.type"
+            if isinstance(ancestor, astroid.Instance) and (
+                ancestor.is_subtype_of("builtins.type")
+                or ancestor.is_subtype_of(".Protocol")
             ):
                 continue
 
