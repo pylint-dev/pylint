@@ -1,0 +1,3 @@
+Fixed false positive for ``inherit-non-class`` for generic Protocols.
+
+Closes #9106
