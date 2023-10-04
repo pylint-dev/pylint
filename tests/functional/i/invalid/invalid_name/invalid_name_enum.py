@@ -2,6 +2,7 @@
 # pylint: disable=too-few-public-methods
 
 
+from dataclasses import dataclass
 from enum import Enum
 
 
@@ -28,3 +29,11 @@ class Color(Enum):
     def as_hex(self) -> str:
         """Get hex 'abcdef' representation for a color."""
         return f'{self.red:0{2}x}{self.green:0{2}x}{self.blue:0{2}x}'
+
+
+@dataclass
+class Something(str, Enum):
+    """ A false positive for ``invalid-name``
+    which should be fixed by https://github.com/pylint-dev/astroid/issues/2317
+    """
+    ASD: str = 1  # [invalid-name]
