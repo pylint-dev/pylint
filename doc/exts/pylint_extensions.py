@@ -145,9 +145,9 @@ def get_plugins_info(
     return by_checker
 
 
-def setup(app: Sphinx) -> dict[str, str]:
+def setup(app: Sphinx) -> dict[str, str | bool]:
     app.connect("builder-inited", builder_inited)
-    return {"version": sphinx.__display_version__}
+    return {"version": sphinx.__display_version__, "parallel_read_safe": True}
 
 
 if __name__ == "__main__":
