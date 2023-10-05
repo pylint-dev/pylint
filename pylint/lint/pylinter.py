@@ -1080,7 +1080,7 @@ class PyLinter(
             )
         self.stats.reset_message_count()
 
-    def generate_reports(self) -> int | None:
+    def generate_reports(self, verbose: bool = False) -> int | None:
         """Close the whole package /module, it's time to make reports !
 
         if persistent run, pickle results for later comparison
@@ -1098,7 +1098,7 @@ class PyLinter(
 
             if self.config.reports:
                 self.reporter.display_reports(sect)
-            score_value = self._report_evaluation()
+            score_value = self._report_evaluation(verbose)
             # save results if persistent run
             if self.config.persistent:
                 save_results(self.stats, self.file_state.base_name)
@@ -1107,7 +1107,7 @@ class PyLinter(
             score_value = None
         return score_value
 
-    def _report_evaluation(self) -> int | None:
+    def _report_evaluation(self, verbose: bool = False) -> int | None:
         """Make the global evaluation report."""
         # check with at least a statement (usually 0 when there is a
         # syntax error preventing pylint from further processing)
@@ -1138,6 +1138,11 @@ class PyLinter(
                 pnote = previous_stats.global_note
                 if pnote is not None:
                     msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
+
+            if verbose:
+                checked_files_count = self.stats.node_count["module"]
+                unchecked_files_count = self.stats.undocumented["module"]
+                msg += f"\nChecked {checked_files_count} files, skipped {unchecked_files_count} files"
 
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)
