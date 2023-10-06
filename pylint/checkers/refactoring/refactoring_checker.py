@@ -851,6 +851,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     # pylint: disable = too-many-branches
     def _check_consider_using_min_max_builtin(self, node: nodes.If) -> None:
         """Check if the given if node can be refactored as a min/max python builtin."""
+        # This function is written expecting a test condition of form:
+        #  if a < b: # [consider-using-max-builtin]
+        #    a = b
+        #  if a > b: # [consider-using-min-builtin]
+        #    a = b
         if self._is_actual_elif(node) or node.orelse:
             # Not interested in if statements with multiple branches.
             return
@@ -872,14 +877,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             return
 
-        # Check that the assignation is on the same variable.
-        if hasattr(node.test.left, "name"):
-            left_operand = node.test.left.name
-        elif hasattr(node.test.left, "attrname"):
-            left_operand = node.test.left.attrname
-        else:
-            return
-
         if hasattr(target, "name"):
             target_assignation = target.name
         elif hasattr(target, "attrname"):
@@ -887,20 +884,24 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
 
-        if not (left_operand == target_assignation):
+        if isinstance(body.value, nodes.Name):
+            body_value = body.value.name
+        elif isinstance(body.value, nodes.Const):
+            body_value = body.value.value
+        else:
+            return
+
+        if hasattr(node.test.left, "name"):
+            left_operand = node.test.left.name
+        elif hasattr(node.test.left, "attrname"):
+            left_operand = node.test.left.attrname
+        else:
             return
 
         if len(node.test.ops) > 1:
             return
 
-        if not isinstance(body.value, (nodes.Name, nodes.Const)):
-            return
-
         operator, right_statement = node.test.ops[0]
-        if isinstance(body.value, nodes.Name):
-            body_value = body.value.name
-        else:
-            body_value = body.value.value
 
         if isinstance(right_statement, nodes.Name):
             right_statement_value = right_statement.name
@@ -909,8 +910,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
 
-        # Verify the right part of the statement is the same.
-        if right_statement_value != body_value:
+        if left_operand == target_assignation:
+            # statement is in expected form
+            pass
+        elif right_statement_value == target_assignation:
+            # statement is in reverse form
+            operator = utils.get_inverse_comparator(operator)
+        else:
+            return
+
+        if not (right_statement_value == body_value or left_operand == body_value):
             return
 
         if operator in {"<", "<="}:
