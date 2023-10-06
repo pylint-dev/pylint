@@ -23,6 +23,11 @@ if value < value2:  # [consider-using-max-builtin]
 if value > value2:  # [consider-using-min-builtin]
     value = value2
 
+if value2 > value3:  # [consider-using-max-builtin]
+    value3 = value2
+
+if value < value2:  # [consider-using-min-builtin]
+    value2 = value
 
 class A:
     def __init__(self):
@@ -68,6 +73,12 @@ if A2 <= A1:  # [consider-using-max-builtin]
 
 # Negative
 if value > 10:
+    value = 2
+
+if 10 < value:
+    value = 2
+
+if 10 > value:
     value = 2
 
 if value > 10:
