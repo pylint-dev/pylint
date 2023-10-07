@@ -876,6 +876,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(body, nodes.Assign)
         ):
             return
+        # Assign body line has one requirement and that is the assign target
+        # is of type name or attribute. Attribute referring to NamedTuple.x perse.
+        # So we have to check that target is of these types
 
         if hasattr(target, "name"):
             target_assignation = target.name
@@ -884,29 +887,45 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
 
+        # Then let's take the actual code version (string) of the body value
+        # and the test left operand
+        # Since a test could be of form float(x) < value, we just need to call
+        # left_operand = node.test.left.as_string()
+        # right_statement_value = right_statement.as_string()
+        # and body_value = body.value.as_string()
+
         if isinstance(body.value, nodes.Name):
             body_value = body.value.name
         elif isinstance(body.value, nodes.Const):
             body_value = body.value.value
+        elif isinstance(body.value, (nodes.Call, nodes.BinOp)):
+            body_value = body.value.as_string()
         else:
             return
 
+        # Originally this block stops all Call nodes from being checked
         if hasattr(node.test.left, "name"):
             left_operand = node.test.left.name
         elif hasattr(node.test.left, "attrname"):
             left_operand = node.test.left.attrname
+        elif isinstance(node.test.left, (nodes.Call, nodes.BinOp)):
+            left_operand = node.test.left.as_string()
         else:
             return
+
+        # left_operand = node.test.left.as_string()
 
         if len(node.test.ops) > 1:
             return
 
         operator, right_statement = node.test.ops[0]
-
+        # right_statement_value = right_statement.as_string()
         if isinstance(right_statement, nodes.Name):
             right_statement_value = right_statement.name
         elif isinstance(right_statement, nodes.Const):
             right_statement_value = right_statement.value
+        elif isinstance(right_statement, (nodes.Call, nodes.BinOp)):
+            right_statement_value = right_statement.as_string()
         else:
             return
 

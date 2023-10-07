@@ -1,5 +1,5 @@
 # pylint: disable=invalid-name,too-many-public-methods,attribute-defined-outside-init
-# pylint: disable=too-few-public-methods,deprecated-module
+# pylint: disable=too-few-public-methods,deprecated-module,consider-using-max-builtin
 """This module demonstrates a possible problem of pyLint with calling __init__ s
 from inherited classes.
 Initializations done there are not considered, which results in Error E0203 for
@@ -33,6 +33,7 @@ class SeeTelnet(telnetlib.Telnet):
         self.process_rawq()
         maxLength = 0
         for match in matches:
+            # newly matched consider-using-max-builtin
             if len(match) > maxLength:
                 maxLength = len(match)
 
