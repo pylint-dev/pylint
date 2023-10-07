@@ -848,7 +848,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_get(node)
         self._check_consider_using_min_max_builtin(node)
 
-    # pylint: disable = too-many-branches
     def _check_consider_using_min_max_builtin(self, node: nodes.If) -> None:
         """Check if the given if node can be refactored as a min/max python builtin."""
         # This function is written expecting a test condition of form:
@@ -862,6 +861,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         if len(node.body) != 1:
             return
+
+        def get_node_name(node: nodes.NodeNG) -> str:
+            """Obtain simplest representation of a node as a string."""
+            if isinstance(node, nodes.Name):
+                return node.name  # type: ignore[no-any-return]
+            if isinstance(node, nodes.Attribute):
+                return node.attrname  # type: ignore[no-any-return]
+            if isinstance(node, nodes.Const):
+                return str(node.value)
+            # this is a catch-all for nodes that are not of type Name or Attribute
+            # extremely helpful for Call or BinOp
+            return node.as_string()  # type: ignore[no-any-return]
 
         body = node.body[0]
         # Check if condition can be reduced.
@@ -887,46 +898,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
 
-        # Then let's take the actual code version (string) of the body value
-        # and the test left operand
-        # Since a test could be of form float(x) < value, we just need to call
-        # left_operand = node.test.left.as_string()
-        # right_statement_value = right_statement.as_string()
-        # and body_value = body.value.as_string()
-
-        if isinstance(body.value, nodes.Name):
-            body_value = body.value.name
-        elif isinstance(body.value, nodes.Const):
-            body_value = body.value.value
-        elif isinstance(body.value, (nodes.Call, nodes.BinOp)):
-            body_value = body.value.as_string()
-        else:
-            return
-
-        # Originally this block stops all Call nodes from being checked
-        if hasattr(node.test.left, "name"):
-            left_operand = node.test.left.name
-        elif hasattr(node.test.left, "attrname"):
-            left_operand = node.test.left.attrname
-        elif isinstance(node.test.left, (nodes.Call, nodes.BinOp)):
-            left_operand = node.test.left.as_string()
-        else:
-            return
-
-        # left_operand = node.test.left.as_string()
-
         if len(node.test.ops) > 1:
             return
-
         operator, right_statement = node.test.ops[0]
-        # right_statement_value = right_statement.as_string()
-        if isinstance(right_statement, nodes.Name):
-            right_statement_value = right_statement.name
-        elif isinstance(right_statement, nodes.Const):
-            right_statement_value = right_statement.value
-        elif isinstance(right_statement, (nodes.Call, nodes.BinOp)):
-            right_statement_value = right_statement.as_string()
-        else:
+
+        body_value = get_node_name(body.value)
+        left_operand = get_node_name(node.test.left)
+        right_statement_value = get_node_name(right_statement)
+
+        if not right_statement_value or not body_value or not left_operand:
+            # nodes in test or Assign are not of a handle-able type
             return
 
         if left_operand == target_assignation:
@@ -938,7 +919,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
 
-        if not (right_statement_value == body_value or left_operand == body_value):
+        if body_value not in (right_statement_value, left_operand):
             return
 
         if operator in {"<", "<="}:
