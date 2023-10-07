@@ -33,7 +33,6 @@ class SeeTelnet(telnetlib.Telnet):
         self.process_rawq()
         maxLength = 0
         for match in matches:
-            # newly matched consider-using-max-builtin
             if len(match) > maxLength:
                 maxLength = len(match)
 
