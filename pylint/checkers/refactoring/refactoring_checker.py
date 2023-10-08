@@ -906,10 +906,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         left_operand = get_node_name(node.test.left)
         right_statement_value = get_node_name(right_statement)
 
-        if not right_statement_value or not body_value or not left_operand:
-            # nodes in test or Assign are not of a handle-able type
-            return
-
         if left_operand == target_assignation:
             # statement is in expected form
             pass
