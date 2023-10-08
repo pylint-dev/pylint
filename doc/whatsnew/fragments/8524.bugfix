@@ -1,0 +1,3 @@
+Fixes suggestion for ``nested-min-max`` for expressions with additive operators, list and dict comprehensions.
+
+Closes #8524
