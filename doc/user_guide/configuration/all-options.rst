@@ -886,10 +886,17 @@ Standard Checkers
 
 --indent-string
 """""""""""""""
-*String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab).*
+*String used as indentation unit. This is usually*
 
-**Default:**  ``    ``
+::
 
+"    " (4 spaces) or "\t" (1 tab).
+
+**Default:**
+
+::
+
+``    ``
 
 --max-line-length
 """""""""""""""""
