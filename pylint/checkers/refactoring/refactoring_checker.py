@@ -506,6 +506,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "and no message will be printed.",
             },
         ),
+        (
+            "suggest-join-with-non-empty-separator",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": (
+                    "Suggest using join for consider-using-join "
+                    "when a non-empty item separator is used."
+                ),
+            },
+        ),
     )
 
     def __init__(self, linter: PyLinter) -> None:
@@ -514,6 +526,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._consider_using_with_stack = ConsiderUsingWithStack()
         self._init()
         self._never_returning_functions: set[str] = set()
+        self._suggest_join_with_non_empty_separator: bool = False
 
     def _init(self) -> None:
         self._nested_blocks: list[NodesWithNestedBlocks] = []
@@ -526,6 +539,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # do this in open since config not fully initialized in __init__
         self._never_returning_functions = set(
             self.linter.config.never_returning_functions
+        )
+        self._suggest_join_with_non_empty_separator = (
+            self.linter.config.suggest_join_with_non_empty_separator
         )
 
     @cached_property
@@ -1667,8 +1683,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         suggestion = ", ".join(elements)
         return f"{{{suggestion}{', ... '  if len(suggestion) > 64 else ''}}}"
 
-    @staticmethod
-    def _name_to_concatenate(node: nodes.NodeNG) -> str | None:
+    def _name_to_concatenate(self, node: nodes.NodeNG) -> str | None:
         """Try to extract the name used in a concatenation loop."""
         if isinstance(node, nodes.Name):
             return cast("str | None", node.name)
@@ -1679,6 +1694,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             value for value in node.values if isinstance(value, nodes.FormattedValue)
         ]
         if len(values) != 1 or not isinstance(values[0].value, nodes.Name):
+            return None
+        # If there are more values in joined string than formatted values,
+        # they are probably separators.
+        # Allow them only if the option `suggest-join-with-non-empty-separator` is set
+        with_separators = len(node.values) > len(values)
+        if with_separators and not self._suggest_join_with_non_empty_separator:
             return None
         return cast("str | None", values[0].value.name)
 
