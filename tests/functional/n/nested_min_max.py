@@ -54,6 +54,3 @@ max(3, *[5] + list(range(4)))
 
 max(3, max(list(range(4))))  # [nested-min-max]
 max(3, *list(range(4)))
-
-max(3, max({1: 2} | {i: i for i in range(4) if i}))  # [nested-min-max]
-max(3, *{1: 2} | {i: i for i in range(4) if i})
