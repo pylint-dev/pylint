@@ -124,7 +124,7 @@ class NestedMinMaxChecker(BaseChecker):
         )
 
     def _is_splattable_expression(self, arg: nodes.NodeNG) -> bool:
-        """Returns true if expression under minmax could be converted to splat
+        """Returns true if expression under min/max could be converted to splat
         expression.
         """
         # Support sequence addition (operator __add__)
