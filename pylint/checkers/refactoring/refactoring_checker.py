@@ -513,8 +513,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": (
-                    "Suggest using join for consider-using-join "
-                    "when a non-empty item separator is used."
+                    "Let 'consider-using-join' be raised when the separator to "
+                    "join on would be non-empty (resulting in expected fixes "
+                    "of the type: ``"- " + "\n- ".join(items)``)"
                 ),
             },
         ),
