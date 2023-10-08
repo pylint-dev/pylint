@@ -515,7 +515,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 "help": (
                     "Let 'consider-using-join' be raised when the separator to "
                     "join on would be non-empty (resulting in expected fixes "
-                    "of the type: ``"- " + "\n- ".join(items)``)"
+                    'of the type: ``"- " + "\n- ".join(items)``)'
                 ),
             },
         ),
