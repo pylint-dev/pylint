@@ -509,7 +509,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         (
             "suggest-join-with-non-empty-separator",
             {
-                "default": False,
+                "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": (
