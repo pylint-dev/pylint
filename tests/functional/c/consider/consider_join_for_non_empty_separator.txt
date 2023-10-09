@@ -1,4 +1,0 @@
-consider-using-join:5:4:5:26::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
-consider-using-join:11:4:11:26::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
-consider-using-join:17:4:17:27::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED
-consider-using-join:23:4:23:27::Consider using str.join(sequence) for concatenating strings from an iterable:UNDEFINED

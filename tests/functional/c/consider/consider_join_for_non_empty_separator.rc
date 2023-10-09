@@ -1,2 +1,2 @@
 [variables]
-suggest-join-with-non-empty-separator=yes
+suggest-join-with-non-empty-separator=no
