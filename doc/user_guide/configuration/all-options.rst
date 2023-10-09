@@ -1201,7 +1201,7 @@ Standard Checkers
 *Let 'consider-using-join' be raised when the separator to join on would be non-empty (resulting in expected fixes of the type: ``"- " + "
 - ".join(items)``)*
 
-**Default:**  ``False``
+**Default:**  ``True``
 
 
 
@@ -1219,7 +1219,7 @@ Standard Checkers
 
    never-returning-functions = ["sys.exit", "argparse.parse_error"]
 
-   suggest-join-with-non-empty-separator = false
+   suggest-join-with-non-empty-separator = true
 
 
 

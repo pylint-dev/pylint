@@ -1,3 +1,3 @@
-Skip ``consider-using-join`` check for non-empty separators unless a ``suggest-join-with-non-empty-separator`` option is set to ``yes``.
+Skip ``consider-using-join`` check for non-empty separators if an ``suggest-join-with-non-empty-separator`` option is set to ``no``.
 
 Closes #8701
