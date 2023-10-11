@@ -42,3 +42,15 @@ max(3, *nums.values())
 
 lst2 = [3, 7, 10]
 max(3, max(nums), max(lst2))  # [nested-min-max]
+
+max(3, max([5] + [6, 7]))  # [nested-min-max]
+max(3, *[5] + [6, 7])
+
+max(3, max([5] + [i for i in range(4) if i]))  # [nested-min-max]
+max(3, *[5] + [i for i in range(4) if i])
+
+max(3, max([5] + list(range(4))))  # [nested-min-max]
+max(3, *[5] + list(range(4)))
+
+max(3, max(list(range(4))))  # [nested-min-max]
+max(3, *list(range(4)))
