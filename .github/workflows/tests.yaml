@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.9, "3.10", "3.11", "3.12-dev"]
+        python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -89,11 +89,11 @@ jobs:
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v4.1.0
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         id: python
         uses: actions/setup-python@v4.7.1
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
@@ -125,7 +125,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.12"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v4.1.0
@@ -175,7 +175,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.9, "3.10", "3.11", "3.12-dev"]
+        python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
     steps:
       - name: Set temp directory
         run: echo "TEMP=$env:USERPROFILE\AppData\Local\Temp" >> $env:GITHUB_ENV
