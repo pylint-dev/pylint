@@ -14,6 +14,7 @@ from astroid.const import Context
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import only_required_for_messages, safe_infer
+from pylint.constants import PY39_PLUS
 from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
@@ -93,13 +94,10 @@ class NestedMinMaxChecker(BaseChecker):
 
         for idx, arg in enumerate(fixed_node.args):
             if not isinstance(arg, nodes.Const):
-                inferred = safe_infer(arg)
-                if isinstance(
-                    inferred, (nodes.List, nodes.Tuple, nodes.Set, *DICT_TYPES)
-                ):
+                if self._is_splattable_expression(arg):
                     splat_node = nodes.Starred(
                         ctx=Context.Load,
-                        lineno=inferred.lineno,
+                        lineno=arg.lineno,
                         col_offset=0,
                         parent=nodes.NodeNG(
                             lineno=None,
@@ -124,6 +122,39 @@ class NestedMinMaxChecker(BaseChecker):
             args=(node.func.name, fixed_node.as_string()),
             confidence=INFERENCE,
         )
+
+    def _is_splattable_expression(self, arg: nodes.NodeNG) -> bool:
+        """Returns true if expression under min/max could be converted to splat
+        expression.
+        """
+        # Support sequence addition (operator __add__)
+        if isinstance(arg, nodes.BinOp) and arg.op == "+":
+            return self._is_splattable_expression(
+                arg.left
+            ) and self._is_splattable_expression(arg.right)
+        # Support dict merge (operator __or__ in Python 3.9)
+        if isinstance(arg, nodes.BinOp) and arg.op == "|" and PY39_PLUS:
+            return self._is_splattable_expression(
+                arg.left
+            ) and self._is_splattable_expression(arg.right)
+
+        inferred = safe_infer(arg)
+        if inferred and inferred.pytype() in {"builtins.list", "builtins.tuple"}:
+            return True
+        if isinstance(
+            inferred or arg,
+            (
+                nodes.List,
+                nodes.Tuple,
+                nodes.Set,
+                nodes.ListComp,
+                nodes.DictComp,
+                *DICT_TYPES,
+            ),
+        ):
+            return True
+
+        return False
 
 
 def register(linter: PyLinter) -> None:
