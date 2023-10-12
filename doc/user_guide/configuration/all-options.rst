@@ -1196,6 +1196,14 @@ Standard Checkers
 **Default:**  ``('sys.exit', 'argparse.parse_error')``
 
 
+--suggest-join-with-non-empty-separator
+"""""""""""""""""""""""""""""""""""""""
+*Let 'consider-using-join' be raised when the separator to join on would be non-empty (resulting in expected fixes of the type: ``"- " + "
+- ".join(items)``)*
+
+**Default:**  ``True``
+
+
 
 .. raw:: html
 
@@ -1210,6 +1218,8 @@ Standard Checkers
    max-nested-blocks = 5
 
    never-returning-functions = ["sys.exit", "argparse.parse_error"]
+
+   suggest-join-with-non-empty-separator = true
 
 
 
