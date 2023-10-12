@@ -890,7 +890,6 @@ Standard Checkers
 
 **Default:**  ``    ``
 
-
 --max-line-length
 """""""""""""""""
 *Maximum number of characters on a single line.*
