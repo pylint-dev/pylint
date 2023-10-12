@@ -219,15 +219,13 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         (
             "indent-string",
             {
-                "default": "::\n"
-                '\n'
-                '"    "',
+                "default": "::\n" "\n" '"    "',
                 "type": "non_empty_string",
                 "metavar": "<string>",
                 "help": "sssString used as indentation unit. This is usually \n"
-                '\n'
-                '::\n'
-                '\n'
+                "\n"
+                "::\n"
+                "\n"
                 '"    " (4 spaces) or "\\t" (1 tab)"',
             },
         ),
