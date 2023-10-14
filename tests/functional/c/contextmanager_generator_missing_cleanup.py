@@ -1,6 +1,4 @@
-# pylint: disable = disallowed-name, missing-docstring, useless-return, invalid-name
-# pylint: disable = line-too-long, comparison-of-constants, broad-exception-raised
-# pylint: disable = unused-variable
+# pylint: disable = missing-docstring, unused-variable
 import contextlib
 from contextlib import contextmanager
 import weakref
