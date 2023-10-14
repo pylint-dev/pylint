@@ -6,15 +6,10 @@
 
 from __future__ import annotations
 
-from collections import deque
-from typing import Union
-
 from astroid import nodes
 
 from pylint.checkers import utils
 from pylint.checkers.base.basic_checker import _BasicChecker
-
-_GeneratorTree = Union[nodes.Try, nodes.Assign, nodes.Expr]
 
 
 class FunctionChecker(_BasicChecker):
@@ -22,8 +17,8 @@ class FunctionChecker(_BasicChecker):
 
     name = "function"
     msgs = {
-        "W9999": (  # TODO: change this warning code number
-            "Unhandled generator cleanup in contextmanager function %s",
+        "W0135": (
+            "The code after line %s will never be executed ('GeneratorExit' needs to be handled)",
             "contextmanager-generator-missing-cleanup",
             "Used when a generator is used in a contextmanager"
             " and the cleanup is not handled.",
@@ -80,11 +75,16 @@ class FunctionChecker(_BasicChecker):
         # A ``yield`` statement can either be Expr or Assign, but the value is always of Yield
         # Additionally a good function could be input where the yield is already wrapped by a Try
         # but not have the required Handler or Finally
-        body_nodes = self._find_yield_nodes(node)
+        body_nodes: list[nodes.Yield | nodes.Try] = list(
+            node.nodes_of_class((nodes.Yield, nodes.Try))
+        )
         yield_nodes: list[nodes.Yield] = []
         for n in body_nodes:
             if not isinstance(n, nodes.Try):
                 yield_nodes.append(n)
+                continue
+            if not n.nodes_of_class(nodes.Yield):
+                # if Try has no Yield inside it, ignore
                 continue
             # This Try Node has a Yield inside of it, making this a generator function wrapped
             # by contextlib.contextmanager. See if handlers or finally is present
@@ -92,6 +92,7 @@ class FunctionChecker(_BasicChecker):
                 any(
                     self._get_name(handler.type) == "GeneratorExit"
                     for handler in n.handlers
+                    if handler.type is not None
                 )
                 or n.finalbody
             ):
@@ -99,14 +100,32 @@ class FunctionChecker(_BasicChecker):
 
             # this Try block doesn't properly handle GeneratorExit, add warning
             self.add_message(
-                "contextmanager-generator-missing-cleanup", node=node, args=(node.name,)
+                "contextmanager-generator-missing-cleanup",
+                node=node,
+                args=(node.end_lineno,),
             )
             return
 
-        if yield_nodes:
+        # if there are yield nodes in function and nodes that could be cleanup after it
+        # add the warning
+        # if the last statement is the yield, there is no cleanup to be done
+        if yield_nodes and not self._check_node_has_yield(node.body[-1]):
             self.add_message(
-                "contextmanager-generator-missing-cleanup", node=node, args=(node.name,)
+                "contextmanager-generator-missing-cleanup",
+                node=node,
+                args=(node.end_lineno,),
             )
+
+    @staticmethod
+    def _check_node_has_yield(node: nodes.NodeNG) -> bool:
+        """Return whether a given node has a Yield node in it.
+
+        :param node: Node to check
+        :type node: nodes.NodeNG
+        :return: True if Yield contained, False otherwise
+        :rtype: bool
+        """
+        return any(node.nodes_of_class(nodes.Yield))
 
     @staticmethod
     def _get_name(node: nodes.NodeNG) -> str:
@@ -119,45 +138,8 @@ class FunctionChecker(_BasicChecker):
         :return: string name
         :rtype: str
         """
-        if hasattr(node, "name"):
-            return node.name  # type: ignore[no-untype-def]
-        if hasattr(node, "attrname"):
-            return node.attrname  # type: ignore[no-untype-def]
-        return node.as_string()  # type: ignore[no-untype-def]
-
-    @staticmethod
-    def _find_yield_nodes(node: nodes.FunctionDef) -> list[_GeneratorTree]:
-        """Return all yield statements, possibly wrapped by a Try node.
-
-        If a yield keyword is used inside a Try block, return the Try node.
-        Otherwise return the node of the yield.
-        Returns all such occurrences.
-
-        :param node: Function root to check
-        :type node: nodes.FunctionDef
-        :return: List of found nodes
-        :rtype: list[_GeneratorTree]
-        """
-
-        def get_body_nodes(n: nodes.NodeNG) -> list[nodes.NodeNG]:
-            if hasattr(n, "body"):
-                return n.body  # type: ignore[no-any-return]
-            return []
-
-        found_nodes: list[_GeneratorTree] = []
-        # keep track of (current_node, TryParent | None)
-        queue: deque[tuple[nodes.NodeNG, nodes.Try | None]] = deque([(node, None)])
-        while queue:
-            curr_node, try_parent = queue.popleft()
-            if hasattr(curr_node, "value") and isinstance(curr_node.value, nodes.Yield):
-                # If current node is a Expr/Assign etc, with a Yield add to output
-                found_nodes.append(curr_node if try_parent is None else try_parent)
-            if isinstance(curr_node, nodes.Try) and try_parent is None:
-                # TODO: should this change Try block parent in the not None case?
-                # isn't it code smell to try: try: try: ...
-                try_parent = curr_node
-            queue.extend(
-                (body_node, curr_node) for body_node in get_body_nodes(curr_node)
-            )
-
-        return found_nodes
+        if isinstance(node, nodes.Name):
+            return node.name  # type: ignore[no-any-return]
+        if isinstance(node, nodes.Attribute):
+            return node.attrname  # type: ignore[no-any-return]
+        return node.as_string()  # type: ignore[no-any-return]
