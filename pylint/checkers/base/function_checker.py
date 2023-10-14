@@ -15,7 +15,6 @@ from pylint.checkers.base.basic_checker import _BasicChecker
 class FunctionChecker(_BasicChecker):
     """Check if a function definition handles possible side effects."""
 
-    name = "function"
     msgs = {
         "W0135": (
             "The code after line %s will never be executed ('GeneratorExit' needs to be handled)",
