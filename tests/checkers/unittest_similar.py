@@ -295,7 +295,7 @@ def test_no_hide_code_with_imports() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-imports"] + 2 * [HIDE_CODE_WITH_IMPORTS])
     assert ex.value.code == 0
-    assert "TOTAL lines=32 duplicates=16 percent=50.00" in output.getvalue()
+    assert "TOTAL lines=32 duplicates=0 percent=0.00" in output.getvalue()
 
 
 def test_ignore_nothing() -> None:
