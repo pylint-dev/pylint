@@ -601,10 +601,13 @@ def stripped_lines(
         line_begins_import = {
             node.lineno: True
             for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom))
-        } | {
-            node.lineno: isinstance(node, (nodes.Import, nodes.ImportFrom))
-            for node in tree.body
         }
+        line_begins_import.update(
+            {
+                node.lineno: isinstance(node, (nodes.Import, nodes.ImportFrom))
+                for node in tree.body
+            }
+        )
         current_line_is_import = False
     if ignore_signatures:
 
