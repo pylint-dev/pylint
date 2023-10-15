@@ -841,6 +841,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         # First, figure out which quote character predominates in the module
         for tok_type, token, _, _, _ in tokens:
             if sys.version_info[:2] >= (3, 12):
+                # pylint: disable=no-member,useless-suppression
                 if tok_type == tokenize.FSTRING_START:
                     inside_fstring = True
                 elif tok_type == tokenize.FSTRING_END:
