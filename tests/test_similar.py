@@ -268,7 +268,14 @@ class TestSimilarCodeChecker:
     def test_conditional_imports(self) -> None:
         """Tests enabling ignore-imports with conditional imports works correctly."""
         path = join(DATA, "ignore_conditional_imports")
-        self._runtest(
-            [path, "-e=duplicate-code", "-d=unused-import,C", "--ignore-imports=y"],
-            code=0,
+        expected_output = "==ignore_conditional_imports.file_one:[2:4]"
+        self._test_output(
+            [
+                path,
+                "-e=duplicate-code",
+                "-d=unused-import,C",
+                "--ignore-imports=y",
+                "--min-similarity-lines=1",
+            ],
+            expected_output=expected_output,
         )
