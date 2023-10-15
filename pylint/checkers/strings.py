@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import collections
 import re
+import sys
 import tokenize
 from collections import Counter
 from collections.abc import Iterable, Sequence
@@ -19,7 +20,6 @@ from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import only_required_for_messages
-from pylint.constants import PY312_PLUS
 from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
@@ -840,7 +840,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
 
         # First, figure out which quote character predominates in the module
         for tok_type, token, _, _, _ in tokens:
-            if PY312_PLUS:
+            if sys.version_info[:2] >= (3, 12):
                 if tok_type == tokenize.FSTRING_START:
                     inside_fstring = True
                 elif tok_type == tokenize.FSTRING_END:
