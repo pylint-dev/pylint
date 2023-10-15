@@ -41,7 +41,7 @@ from collections import defaultdict
 from collections.abc import Callable, Generator, Iterable, Sequence
 from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
-from itertools import chain, groupby
+from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -59,7 +59,6 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, table_lines_from_stats
-from pylint.checkers.utils import safe_infer
 from pylint.reporters.ureports.nodes import Section, Table
 from pylint.typing import MessageDefinitionTuple, Options
 from pylint.utils import LinterStats, decoding_stream
@@ -599,23 +598,12 @@ def stripped_lines(
     if ignore_imports or ignore_signatures:
         tree = astroid.parse("".join(lines))
     if ignore_imports:
-
-        def _get_imports(root: list[nodes.NodeNG]) -> Iterable[tuple[int, bool]]:
-            """Find import nodes under given node."""
-            for node in root:
-                if isinstance(node, astroid.If) and isinstance(
-                    safe_infer(node.test), nodes.Const
-                ):
-                    # Check for imports in a body of a constant condition
-                    yield from _get_imports(node.body)
-                yield node.lineno, isinstance(node, (nodes.Import, nodes.ImportFrom))
-
-        node_is_import_by_lineno = _get_imports(tree.body)
         line_begins_import = {
-            lineno: all(is_import for _, is_import in node_is_import_group)
-            for lineno, node_is_import_group in groupby(
-                node_is_import_by_lineno, key=lambda x: x[0]
-            )
+            node.lineno: True
+            for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom))
+        } | {
+            node.lineno: isinstance(node, (nodes.Import, nodes.ImportFrom))
+            for node in tree.body
         }
         current_line_is_import = False
     if ignore_signatures:
