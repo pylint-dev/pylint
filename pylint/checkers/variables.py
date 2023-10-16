@@ -120,6 +120,7 @@ NODES_WITH_VALUE_ATTR = (
     nodes.Expr,
     nodes.Return,
     nodes.Match,
+    nodes.TypeAlias,
 )
 
 
@@ -2328,6 +2329,8 @@ class VariablesChecker(BaseChecker):
         if isinstance(defstmt, nodes.Match):
             return any(case.guard for case in defstmt.cases)
         if isinstance(defstmt, nodes.IfExp):
+            return True
+        if isinstance(defstmt, nodes.TypeAlias):
             return True
         if isinstance(defstmt.value, nodes.BaseContainer):
             return any(
