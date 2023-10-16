@@ -112,7 +112,7 @@ repos:
         files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: [Sphinx==5.0.1]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.5.1
+    rev: v1.6.0
     hooks:
       - id: mypy
         name: mypy
