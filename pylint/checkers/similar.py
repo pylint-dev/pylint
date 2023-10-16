@@ -600,7 +600,7 @@ def stripped_lines(
     if ignore_imports:
         import_lines = {}
         for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom)):
-            for lineno in range(node.lineno, node.end_lineno + 1):
+            for lineno in range(node.lineno, (node.end_lineno or node.lineno) + 1):
                 import_lines[lineno] = True
     if ignore_signatures:
 
