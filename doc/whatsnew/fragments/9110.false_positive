@@ -1,0 +1,3 @@
+Fix ``used-before-assignment`` false positive for generic type syntax (PEP 695, Python 3.12).
+
+Closes #9110
