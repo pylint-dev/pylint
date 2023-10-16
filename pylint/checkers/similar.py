@@ -598,17 +598,10 @@ def stripped_lines(
     if ignore_imports or ignore_signatures:
         tree = astroid.parse("".join(lines))
     if ignore_imports:
-        line_begins_import = {
-            node.lineno: True
-            for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom))
-        }
-        line_begins_import.update(
-            {
-                node.lineno: isinstance(node, (nodes.Import, nodes.ImportFrom))
-                for node in tree.body
-            }
-        )
-        current_line_is_import = False
+        import_lines = {}
+        for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom)):
+            for lineno in range(node.lineno, node.end_lineno + 1):
+                import_lines[lineno] = True
     if ignore_signatures:
 
         def _get_functions(
@@ -664,9 +657,7 @@ def stripped_lines(
                     docstring = None
                 line = ""
         if ignore_imports:
-            current_line_is_import = line_begins_import.get(
-                lineno, current_line_is_import
-            )
+            current_line_is_import = import_lines.get(lineno, False)
             if current_line_is_import:
                 line = ""
         if ignore_comments:
