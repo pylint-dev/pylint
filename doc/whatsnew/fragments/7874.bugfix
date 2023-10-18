@@ -1,0 +1,3 @@
+Escape special symbols and newlines in messages.
+
+Closes #7874
