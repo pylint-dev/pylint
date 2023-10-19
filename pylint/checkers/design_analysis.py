@@ -87,6 +87,7 @@ DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
 TYPING_TYPEDDICT = "typing.TypedDict"
+TYPING_EXTENSIONS_TYPEDDICT = "typing_extensions.TypedDict"
 
 # Set of stdlib classes to ignore when calculating number of ancestors
 STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
@@ -168,6 +169,7 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
         "typing.Sized",
         TYPING_NAMEDTUPLE,
         TYPING_TYPEDDICT,
+        TYPING_EXTENSIONS_TYPEDDICT
     )
 )
 
@@ -179,7 +181,7 @@ def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
     for ancestor in node.ancestors():
         if is_enum(ancestor):
             return True
-        if ancestor.qname() in (TYPING_NAMEDTUPLE, TYPING_TYPEDDICT):
+        if ancestor.qname() in (TYPING_NAMEDTUPLE, TYPING_TYPEDDICT, TYPING_EXTENSIONS_TYPEDDICT):
             return True
 
     # Or if it's a dataclass
