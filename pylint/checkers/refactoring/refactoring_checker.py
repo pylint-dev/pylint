@@ -392,7 +392,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "raise statement.",
         ),
         "R1721": (
-            "Unnecessary use of a comprehension, use %s instead.",
+            "Unnecessary use of a comprehension, use list(%s) instead.",
             "unnecessary-comprehension",
             "Instead of using an identity comprehension, "
             "consider using the list, dict or set constructor. "
