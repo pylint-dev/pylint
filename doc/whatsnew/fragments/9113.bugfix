@@ -1,3 +1,0 @@
-Emit ``inconsistent-quotes`` for f-strings with 3.12 interpreter only if targeting pre-3.12 versions.
-
-Closes #9113
