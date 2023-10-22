@@ -41,7 +41,7 @@ from collections import defaultdict
 from collections.abc import Callable, Generator, Iterable, Sequence
 from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
-from itertools import chain, groupby
+from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -598,17 +598,10 @@ def stripped_lines(
     if ignore_imports or ignore_signatures:
         tree = astroid.parse("".join(lines))
     if ignore_imports:
-        node_is_import_by_lineno = (
-            (node.lineno, isinstance(node, (nodes.Import, nodes.ImportFrom)))
-            for node in tree.body
-        )
-        line_begins_import = {
-            lineno: all(is_import for _, is_import in node_is_import_group)
-            for lineno, node_is_import_group in groupby(
-                node_is_import_by_lineno, key=lambda x: x[0]
-            )
-        }
-        current_line_is_import = False
+        import_lines = {}
+        for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom)):
+            for lineno in range(node.lineno, (node.end_lineno or node.lineno) + 1):
+                import_lines[lineno] = True
     if ignore_signatures:
 
         def _get_functions(
@@ -664,9 +657,7 @@ def stripped_lines(
                     docstring = None
                 line = ""
         if ignore_imports:
-            current_line_is_import = line_begins_import.get(
-                lineno, current_line_is_import
-            )
+            current_line_is_import = import_lines.get(lineno, False)
             if current_line_is_import:
                 line = ""
         if ignore_comments:
