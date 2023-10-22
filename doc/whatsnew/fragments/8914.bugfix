@@ -1,0 +1,3 @@
+Fixes ignoring conditional imports with ``ignore-imports=y``.
+
+Closes #8914
