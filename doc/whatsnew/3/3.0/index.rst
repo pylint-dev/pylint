@@ -65,6 +65,40 @@ easier to parse and provides more info, here's a sample output.
 
 .. towncrier release notes start
 
+What's new in Pylint 3.0.2?
+---------------------------
+Release date: 2023-10-22
+
+
+False Positives Fixed
+---------------------
+
+- Fix ``used-before-assignment`` false positive for generic type syntax (PEP 695, Python 3.12).
+
+  Closes #9110 (`#9110 <https://github.com/pylint-dev/pylint/issues/9110>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Escape special symbols and newlines in messages.
+
+  Closes #7874 (`#7874 <https://github.com/pylint-dev/pylint/issues/7874>`_)
+
+- Fixes suggestion for ``nested-min-max`` for expressions with additive operators, list and dict comprehensions.
+
+  Closes #8524 (`#8524 <https://github.com/pylint-dev/pylint/issues/8524>`_)
+
+- Fixes ignoring conditional imports with ``ignore-imports=y``.
+
+  Closes #8914 (`#8914 <https://github.com/pylint-dev/pylint/issues/8914>`_)
+
+- Emit ``inconsistent-quotes`` for f-strings with 3.12 interpreter only if targeting pre-3.12 versions.
+
+  Closes #9113 (`#9113 <https://github.com/pylint-dev/pylint/issues/9113>`_)
+
+
 What's new in Pylint 3.0.1?
 ---------------------------
 Release date: 2023-10-05
