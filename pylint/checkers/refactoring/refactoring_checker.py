@@ -392,7 +392,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "raise statement.",
         ),
         "R1721": (
-            "Unnecessary use of a comprehension, use list(%s) instead.",
+            "Unnecessary use of a comprehension, use %s instead.",
             "unnecessary-comprehension",
             "Instead of using an identity comprehension, "
             "consider using the list, dict or set constructor. "
@@ -1801,15 +1801,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if isinstance(node.parent, nodes.DictComp) and isinstance(
                 inferred, astroid.objects.DictItems
             ):
-                args = (f"{node.iter.func.expr.as_string()}",)
+                args = (f"dict({node.iter.func.expr.as_string()})",)
             elif (
                 isinstance(node.parent, nodes.ListComp)
                 and isinstance(inferred, nodes.List)
-            ) or (
+            ):
+                args = (f"list({node.iter.as_string()})",)
+            elif (
                 isinstance(node.parent, nodes.SetComp)
                 and isinstance(inferred, nodes.Set)
             ):
-                args = (f"{node.iter.as_string()}",)
+                args = (f"set({node.iter.as_string()})",)
             if args:
                 self.add_message(
                     "unnecessary-comprehension", node=node.parent, args=args

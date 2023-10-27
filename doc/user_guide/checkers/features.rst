@@ -899,7 +899,7 @@ Refactoring checker Messages
 :unnecessary-list-index-lookup (R1736): *Unnecessary list index lookup, use '%s' instead*
   Emitted when iterating over an enumeration and accessing the value by index
   lookup. The value can be accessed directly instead.
-:unnecessary-comprehension (R1721): *Unnecessary use of a comprehension, use list(%s) instead.*
+:unnecessary-comprehension (R1721): *Unnecessary use of a comprehension, use %s instead.*
   Instead of using an identity comprehension, consider using the list, dict or
   set constructor. It is faster and simpler.
 :use-a-generator (R1729): *Use a generator instead '%s(%s)'*
