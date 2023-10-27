@@ -1802,14 +1802,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 inferred, astroid.objects.DictItems
             ):
                 args = (f"dict({node.iter.func.expr.as_string()})",)
-            elif (
-                isinstance(node.parent, nodes.ListComp)
-                and isinstance(inferred, nodes.List)
+            elif isinstance(node.parent, nodes.ListComp) and isinstance(
+                inferred, nodes.List
             ):
                 args = (f"list({node.iter.as_string()})",)
-            elif (
-                isinstance(node.parent, nodes.SetComp)
-                and isinstance(inferred, nodes.Set)
+            elif isinstance(node.parent, nodes.SetComp) and isinstance(
+                inferred, nodes.Set
             ):
                 args = (f"set({node.iter.as_string()})",)
             if args:
