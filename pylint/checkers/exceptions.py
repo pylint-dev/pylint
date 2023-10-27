@@ -556,6 +556,83 @@ class ExceptionsChecker(checkers.BaseChecker):
         "catching-non-exception",
         "duplicate-except",
     )
+    def visit_trystar(self, node: nodes.TryStar) -> None:
+        """Check for empty except*."""
+        self._check_try_except_raise(node)
+        exceptions_classes: list[Any] = []
+        nb_handlers = len(node.handlers)
+        for index, handler in enumerate(node.handlers):
+            if handler.type is None:  # TODO - create tests for each of these also?
+                if not _is_raising(handler.body):
+                    self.add_message("bare-except", node=handler, confidence=HIGH)
+
+                # check if an "except:" is followed by some other
+                # except
+                if index < (nb_handlers - 1):
+                    msg = "empty except clause should always appear last"
+                    self.add_message(
+                        "bad-except-order", node=node, args=msg, confidence=HIGH
+                    )
+
+            elif isinstance(handler.type, nodes.BoolOp):
+                self.add_message(
+                    "binary-op-exception",
+                    node=handler,
+                    args=handler.type.op,
+                    confidence=HIGH,
+                )
+            else:
+                try:
+                    exceptions = list(_annotated_unpack_infer(handler.type))
+                except astroid.InferenceError:
+                    continue
+
+                for part, exception in exceptions:
+                    if isinstance(
+                        exception, astroid.Instance
+                    ) and utils.inherit_from_std_ex(exception):
+                        exception = exception._proxied
+
+                    self._check_catching_non_exception(handler, exception, part)
+
+                    if not isinstance(exception, nodes.ClassDef):
+                        continue
+
+                    exc_ancestors = [
+                        anc
+                        for anc in exception.ancestors()
+                        if isinstance(anc, nodes.ClassDef)
+                    ]
+
+                    for previous_exc in exceptions_classes:
+                        if previous_exc in exc_ancestors:
+                            msg = f"{previous_exc.name} is an ancestor class of {exception.name}"
+                            self.add_message(
+                                "bad-except-order",
+                                node=handler.type,
+                                args=msg,
+                                confidence=INFERENCE,
+                            )
+                    if self._is_overgeneral_exception(exception) and not _is_raising(
+                        handler.body
+                    ):
+                        self.add_message(
+                            "broad-exception-caught",
+                            args=exception.name,
+                            node=handler.type,
+                            confidence=INFERENCE,
+                        )
+
+                    if exception in exceptions_classes:
+                        self.add_message(
+                            "duplicate-except",
+                            args=exception.name,
+                            node=handler.type,
+                            confidence=INFERENCE,
+                        )
+
+                exceptions_classes += [exc for _, exc in exceptions]
+
     def visit_try(self, node: nodes.Try) -> None:
         """Check for empty except."""
         self._check_try_except_raise(node)
