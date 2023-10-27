@@ -479,6 +479,7 @@ class BasicChecker(_BasicChecker):
         if (
             isinstance(expr, (nodes.Yield, nodes.Await))
             or (isinstance(node.parent, nodes.Try) and node.parent.body == [node])
+            or (isinstance(node.parent, nodes.TryStar) and node.parent.body == [node])
             or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):
             return
