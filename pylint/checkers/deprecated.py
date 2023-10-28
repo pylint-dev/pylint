@@ -205,12 +205,8 @@ class DeprecatedMixin(BaseChecker):
         # pylint: disable=unused-argument
         return ()
 
-    def deprecated_attributes(self) -> Container[str]:
-        """Callback returning the deprecated attributes.
-
-        Returns:
-            collections.abc.Container of deprecated attribute names.
-        """
+    def deprecated_attributes(self) -> Iterable[str]:
+        """Callback returning the deprecated attributes."""
         return ()
 
     def check_deprecated_attribute(self, node: astroid.Attribute) -> None:
@@ -224,7 +220,7 @@ class DeprecatedMixin(BaseChecker):
                 self.add_message(
                     "deprecated-attribute",
                     node=node,
-                    args=(node.attrname,),
+                    args=(attribute_qname,),
                     confidence=INFERENCE,
                 )
 
