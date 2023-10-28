@@ -39,6 +39,7 @@ class DeprecatedMixin(BaseChecker):
             "Using deprecated attribute %r",
             "deprecated-attribute",
             "The attribute is marked as deprecated and will be removed in the future.",
+            {"shared": True},
         ),
     }
 
