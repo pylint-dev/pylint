@@ -1,0 +1,3 @@
+Added a ``deprecated-attribute`` message to check deprecated attributes in the stdlib.
+
+Closes #8855
