@@ -478,7 +478,7 @@ class BasicChecker(_BasicChecker):
         # side effects), else pointless-statement
         if (
             isinstance(expr, (nodes.Yield, nodes.Await))
-            or (isinstance(node.parent, (nodes.Try, nodes.TryStar) and node.parent.body == [node])
+            or (isinstance(node.parent, (nodes.Try, nodes.TryStar)) and node.parent.body == [node])
             or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):
             return
