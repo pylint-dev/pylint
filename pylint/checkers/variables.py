@@ -1738,9 +1738,8 @@ class VariablesChecker(BaseChecker):
         elif consumer.scope_type == "function" and self._defined_in_function_definition(
             node, consumer.node
         ):
-            for param in consumer.node.type_params:
-                if node.name == param.name.name:
-                    return False
+            if any(node.name == param.name.name for param in consumer.node.type_params):
+                return False
 
             # If the name node is used as a function default argument's value or as
             # a decorator, then start from the parent frame of the function instead
