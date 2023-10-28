@@ -2041,6 +2041,23 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         return True
 
 
+def subscript_chain_is_equal(left: nodes.Subscript, right: nodes.Subscript) -> bool:
+    while isinstance(left, nodes.Subscript) and isinstance(right, nodes.Subscript):
+        try:
+            if (
+                get_subscript_const_value(left).value
+                != get_subscript_const_value(right).value
+            ):
+                return False
+
+            left = left.value
+            right = right.value
+        except InferredTypeError:
+            return False
+
+    return left.as_string() == right.as_string()  # type: ignore[no-any-return]
+
+
 def _is_target_name_in_binop_side(
     target: nodes.AssignName | nodes.AssignAttr, side: nodes.NodeNG | None
 ) -> bool:
@@ -2051,6 +2068,9 @@ def _is_target_name_in_binop_side(
         return False
     if isinstance(side, nodes.Attribute) and isinstance(target, nodes.AssignAttr):
         return target.as_string() == side.as_string()  # type: ignore[no-any-return]
+    if isinstance(side, nodes.Subscript) and isinstance(target, nodes.Subscript):
+        return subscript_chain_is_equal(target, side)
+
     return False
 
 
@@ -2065,7 +2085,7 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
     binop = node.value
     target = node.targets[0]
 
-    if not isinstance(target, (nodes.AssignName, nodes.AssignAttr)):
+    if not isinstance(target, (nodes.AssignName, nodes.AssignAttr, nodes.Subscript)):
         return False, ""
 
     # We don't want to catch x = "1" + x or x = "%s" % x
@@ -2246,3 +2266,23 @@ def clear_lru_caches() -> None:
     ]
     for lru in caches_holding_node_references:
         lru.cache_clear()
+
+
+def is_enum_member(node: nodes.AssignName) -> bool:
+    """Return `True` if `node` is an Enum member (is an item of the
+    `__members__` container).
+    """
+
+    frame = node.frame()
+    if (
+        not isinstance(frame, nodes.ClassDef)
+        or not frame.is_subtype_of("enum.Enum")
+        or frame.root().qname() == "enum"
+    ):
+        return False
+
+    members = frame.locals.get("__members__")
+    # A dataclass is one known case for when `members` can be `None`
+    if members is None:
+        return False
+    return node.name in [name_obj.name for value, name_obj in members[0].items]

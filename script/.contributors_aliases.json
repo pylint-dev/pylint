@@ -132,6 +132,10 @@
     "mails": ["Github@pheanex.de"],
     "name": "Konstantin"
   },
+  "Hnasar@users.noreply.github.com": {
+    "mails": ["Hnasar@users.noreply.github.com", "hashem@hudson-trading.com"],
+    "name": "Hashem Nasarat"
+  },
   "Humetsky@gmail.com": {
     "comment": " (mhumetskyi)\n  * Fixed ignored empty functions by similarities checker with \"ignore-signatures\" option enabled\n  * Ignore function decorators signatures as well by similarities checker with \"ignore-signatures\" option enabled\n  * Ignore class methods and nested functions signatures as well by similarities checker with \"ignore-signatures\" option enabled",
     "mails": ["Humetsky@gmail.com"],
@@ -188,6 +192,10 @@
   "anjsimmo@gmail.com": {
     "mails": ["anjsimmo@gmail.com", "a.simmons@deakin.edu.au"],
     "name": "Andrew J. Simmons"
+  },
+  "antonio@zoftko.com": {
+    "mails": ["antonio@zoftko.com", "antonioglez-23@hotmail.com"],
+    "name": "crazybolillo"
   },
   "areveny@protonmail.com": {
     "mails": [

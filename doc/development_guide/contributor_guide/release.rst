@@ -19,9 +19,6 @@ patch release first. See ``Releasing a patch version``.**
    ``tbump 2.4.0 --no-push --no-tag``)
 -  Check the commit created with ``git show`` amend the commit if
    required.
--  Create a new ``What's new in Pylint X.Y+1`` document. Add it to
-   ``doc/index.rst``. Take a look at the examples from ``doc/whatsnew``.
-   Commit that with ``git commit -am "wip"``.
 -  Move the ``main`` branch up to a dev version with ``tbump``:
 
 .. code:: bash
@@ -36,11 +33,12 @@ For example:
    tbump 2.5.0-dev0 --no-tag --no-push
    git commit -am "Upgrade the version to 2.5.0-dev0 following 2.4.0 release"
 
-Check the commit, fixup the ‘wip’ commit with the what’s new then push
-to a release branch
-
--  Open a merge request with the two commits (no one can push directly
-   on ``main``)
+-  tbump will have created a new ``What's new in Pylint X.Y+1`` document.
+   Add it to ``doc/whatsnew/3/index.rst``. Take a look at the examples from ``doc/whatsnew``.
+   Commit that with ``git commit -a --amend``.
+- Push to a release branch
+- Open a merge request with the two commits (no one can push directly
+  on ``main``)
 -  After the merge, recover the merged commits on ``main`` and tag the
    first one (the version should be ``X.Y.Z``) as ``vX.Y.Z`` (For
    example: ``v2.4.0``)

@@ -1,1 +1,2 @@
-You can help us make the doc better `by contributing <https://github.com/pylint-dev/pylint/issues/5953>`_ !
+There's no need to use end-of-string characters. String objects maintain their
+own length.

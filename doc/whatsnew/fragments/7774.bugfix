@@ -1,4 +1,0 @@
-Avoid duplicative warnings for unqualified exception names in the ``overgeneral-exceptions``
-setting when running with ``--jobs``.
-
-Closes #7774

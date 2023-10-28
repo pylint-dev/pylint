@@ -3,7 +3,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: trailing-whitespace
         exclude: tests(/\w*)*/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html|doc/data/messages/t/trailing-whitespace/bad.py
@@ -13,10 +13,11 @@ repos:
             tests(/\w*)*/functional/m/missing/missing_final_newline.py|
             tests/functional/t/trailing_newlines.py|
             doc/data/messages/t/trailing-newlines/bad.py|
-            doc/data/messages/m/missing-final-newline/bad.py|
+            doc/data/messages/m/missing-final-newline/bad/lf.py|
+            doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.0.277"
+    rev: "v0.1.1"
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -32,19 +33,13 @@ repos:
         args: ["--notice=script/copyright.txt", "--enforce-all"]
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.9.0
-    hooks:
-      - id: pyupgrade
-        args: [--py38-plus]
-        exclude: *fixtures
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
       - id: isort
         exclude: doc/data/messages/
   - repo: https://github.com/psf/black
-    rev: 23.7.0
+    rev: 23.10.1
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -59,10 +54,11 @@ repos:
             doc/data/messages/i/inconsistent-quotes/bad.py|
             doc/data/messages/i/invalid-format-index/bad.py|
             doc/data/messages/l/line-too-long/bad.py|
-            doc/data/messages/m/missing-final-newline/bad.py|
+            doc/data/messages/m/missing-final-newline/bad/crlf.py|
+            doc/data/messages/m/missing-final-newline/bad/lf.py|
             doc/data/messages/m/multiple-statements/bad.py|
             doc/data/messages/r/redundant-u-string-prefix/bad.py|
-            doc/data/messages/s/superfluous-parens/bad.py|
+            doc/data/messages/s/superfluous-parens/bad/example_1.py|
             doc/data/messages/s/syntax-error/bad.py|
             doc/data/messages/t/too-many-ancestors/bad.py|
             doc/data/messages/t/trailing-comma-tuple/bad.py|
@@ -94,6 +90,13 @@ repos:
         args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I", "--spelling-dict=en"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/\w*)*data/|doc/
         stages: [manual]
+      - id: sphinx-generated-doc
+        alias: sphinx-generated-doc
+        name: sphinx-generated-doc
+        entry: make -C doc/ html
+        pass_filenames: false
+        language: system
+        stages: [push]
       - id: check-newsfragments
         name: Check newsfragments
         entry: python3 -m script.check_newsfragments
@@ -102,14 +105,14 @@ repos:
         files: ^(doc/whatsnew/fragments)
         exclude: doc/whatsnew/fragments/_.*.rst
   - repo: https://github.com/rstcheck/rstcheck
-    rev: "v6.1.2"
+    rev: "v6.2.0"
     hooks:
       - id: rstcheck
         args: ["--report-level=warning"]
         files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: [Sphinx==5.0.1]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.4.1
+    rev: v1.6.1
     hooks:
       - id: mypy
         name: mypy
@@ -128,7 +131,7 @@ repos:
           ]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0
+    rev: v3.0.3
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]

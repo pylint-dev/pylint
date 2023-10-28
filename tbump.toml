@@ -1,7 +1,7 @@
 github_url = "https://github.com/pylint-dev/pylint"
 
 [version]
-current = "3.0.0b1"
+current = "3.1.0-dev0"
 regex = '''
 ^(?P<major>0|[1-9]\d*)
 \.
@@ -24,6 +24,11 @@ src = "pylint/__pkginfo__.py"
 # You can specify a list of commands to
 # run after the files have been patched
 # and before the git commit is made
+
+[[before_commit]]
+name = "Normalize file ending"
+cmd = "git add --renormalize ."
+
 [[before_commit]]
 name = "Upgrade changelog"
 cmd = "python3 script/bump_changelog.py {new_version}"

@@ -8,9 +8,6 @@ import os
 import sys
 from datetime import datetime
 
-from pylint import __version__
-from pylint.__pkginfo__ import numversion
-
 # Pylint documentation build configuration file, created by
 # sphinx-quickstart on Thu Apr  4 20:31:25 2013.
 #
@@ -27,6 +24,13 @@ from pylint.__pkginfo__ import numversion
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use 'os.path.abspath' to make it absolute, like shown here.
 sys.path.append(os.path.abspath("exts"))
+sys.path.append(os.path.abspath(".."))
+
+# pylint: disable=wrong-import-position
+from pylint import __version__  # noqa: E402
+from pylint.__pkginfo__ import numversion  # noqa: E402
+
+# pylint: enable=wrong-import-position
 
 # -- General configuration -----------------------------------------------------
 

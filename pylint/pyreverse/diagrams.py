@@ -121,16 +121,19 @@ class ClassDiagram(Figure, FilterMixIn):
     def get_attrs(self, node: nodes.ClassDef) -> list[str]:
         """Return visible attributes, possibly with class name."""
         attrs = []
-        properties = [
-            (n, m)
-            for n, m in node.items()
-            if isinstance(m, nodes.FunctionDef) and decorated_with_property(m)
-        ]
-        for node_name, associated_nodes in (
-            list(node.instance_attrs_type.items())
-            + list(node.locals_type.items())
-            + properties
+        properties = {
+            local_name: local_node
+            for local_name, local_node in node.items()
+            if isinstance(local_node, nodes.FunctionDef)
+            and decorated_with_property(local_node)
+        }
+        for attr_name, attr_type in list(node.locals_type.items()) + list(
+            node.instance_attrs_type.items()
         ):
+            if attr_name not in properties:
+                properties[attr_name] = attr_type
+
+        for node_name, associated_nodes in properties.items():
             if not self.show_attr(node_name):
                 continue
             names = self.class_names(associated_nodes)
@@ -174,7 +177,12 @@ class ClassDiagram(Figure, FilterMixIn):
                 if node.name not in names:
                     node_name = node.name
                     names.append(node_name)
-        return names
+        # sorted to get predictable (hence testable) results
+        return sorted(
+            name
+            for name in names
+            if all(name not in other or name == other for other in names)
+        )
 
     def has_node(self, node: nodes.NodeNG) -> bool:
         """Return true if the given node is included in the diagram."""
@@ -217,9 +225,13 @@ class ClassDiagram(Figure, FilterMixIn):
                         value, obj, name, "aggregation"
                     )
 
-            for name, values in list(node.associations_type.items()) + list(
-                node.locals_type.items()
-            ):
+            associations = node.associations_type.copy()
+
+            for name, values in node.locals_type.items():
+                if name not in associations:
+                    associations[name] = values
+
+            for name, values in associations.items():
                 for value in values:
                     self.assign_association_relationship(
                         value, obj, name, "association"

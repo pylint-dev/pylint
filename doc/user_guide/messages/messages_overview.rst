@@ -432,7 +432,7 @@ All messages in the convention category:
    convention/unnecessary-direct-lambda-call
    convention/unnecessary-dunder-call
    convention/unnecessary-lambda-assignment
-   convention/unneeded-not
+   convention/unnecessary-negation
    convention/use-implicit-booleaness-not-comparison
    convention/use-implicit-booleaness-not-comparison-to-string
    convention/use-implicit-booleaness-not-comparison-to-zero
@@ -458,6 +458,7 @@ All renamed messages in the convention category:
    convention/missing-docstring
    convention/old-misplaced-comparison-constant
    convention/old-non-ascii-name
+   convention/unneeded-not
 
 .. _refactor-category:
 

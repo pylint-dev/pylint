@@ -1,5 +1,5 @@
-def foo(x, y):  # [differing-param-doc]
-    """A dummy string.
+def add(x, y):  # [differing-param-doc]
+    """Add two numbers.
 
     :param int x: x value.
     :param int z: z value.

@@ -1,3 +1,0 @@
-'Reporter.set_output' was removed in favor of 'reporter.out = stream'.
-
-Refs #8408

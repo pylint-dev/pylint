@@ -135,8 +135,7 @@ class BasicErrorChecker(_BasicChecker):
             "Return with argument inside generator",
             "return-arg-in-generator",
             'Used when a "return" statement with an argument is found '
-            "outside in a generator function or method (e.g. with some "
-            '"yield" statements).',
+            'in a generator function or method (e.g. with some "yield" statements).',
             {"maxversion": (3, 3)},
         ),
         "E0107": (

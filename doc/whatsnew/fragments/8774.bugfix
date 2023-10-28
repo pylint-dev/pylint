@@ -1,3 +1,0 @@
-Fixed a crash when calling ``copy.copy()`` without arguments.
-
-Closes #8774

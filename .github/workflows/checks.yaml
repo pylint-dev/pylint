@@ -33,10 +33,10 @@ jobs:
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.1
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.1
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -49,7 +49,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: venv
           key: >-
@@ -63,6 +63,7 @@ jobs:
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
           pip install -U -r doc/requirements.txt
+          pip install pre-commit
       - name: Generate pre-commit restore key
         id: generate-pre-commit-key
         run: >-
@@ -70,7 +71,7 @@ jobs:
             hashFiles('.pre-commit-config.yaml') }}" >> $GITHUB_OUTPUT
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           key: >-
@@ -88,16 +89,16 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.1
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.1
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: venv
           fail-on-cache-miss: true
@@ -106,7 +107,7 @@ jobs:
             needs.prepare-base.outputs.python-key }}
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           fail-on-cache-miss: true
@@ -118,7 +119,7 @@ jobs:
       - name: Run pylint checks
         run: |
           . venv/bin/activate
-          pip install -e .
+          pip install .
           pip list | grep 'astroid\|pylint'
           pre-commit run --hook-stage manual pylint-with-spelling --all-files
 
@@ -129,16 +130,16 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.1
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.1
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: venv
           fail-on-cache-miss: true
@@ -157,30 +158,32 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4.1.1
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v4.6.1
+        uses: actions/setup-python@v4.7.1
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: venv
           fail-on-cache-miss: true
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.prepare-base.outputs.python-key }}
-      - name: Install tox
-        run: |
-          pip install -U tox
       - name: Run checks on documentation code examples
         run: |
+          . venv/bin/activate
           tox -e test_doc
       - name: Check documentation build and links
         run: |
           . venv/bin/activate
           cd doc
-          make html
+          pre-commit run --hook-stage push sphinx-generated-doc --all-files || {
+            git diff ; \
+            echo "Make sure that there are no modifications locally when launching 'make html'" ; \
+            exit 1; \
+          }

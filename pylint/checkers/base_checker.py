@@ -52,17 +52,20 @@ class BaseChecker(_ArgumentsProvider):
         _ArgumentsProvider.__init__(self, linter)
 
     def __gt__(self, other: Any) -> bool:
-        """Sorting of checkers."""
+        """Permits sorting checkers for stable doc and tests.
+
+        The main checker is always the first one, then builtin checkers in alphabetical
+        order, then extension checkers in alphabetical order.
+        """
         if not isinstance(other, BaseChecker):
             return False
         if self.name == MAIN_CHECKER_NAME:
             return False
         if other.name == MAIN_CHECKER_NAME:
             return True
-        if type(self).__module__.startswith("pylint.checkers") and not type(
-            other
-        ).__module__.startswith("pylint.checkers"):
-            return False
+        self_is_builtin = type(self).__module__.startswith("pylint.checkers")
+        if self_is_builtin ^ type(other).__module__.startswith("pylint.checkers"):
+            return not self_is_builtin
         return self.name > other.name
 
     def __eq__(self, other: Any) -> bool:
@@ -131,9 +134,7 @@ class BaseChecker(_ArgumentsProvider):
         if reports:
             result += get_rst_title(f"{checker_title} Reports", "^")
             for report in reports:
-                result += (
-                    ":%s: %s\n" % report[:2]  # pylint: disable=consider-using-f-string
-                )
+                result += f":{report[0]}: {report[1]}\n"
             result += "\n"
         result += "\n"
         return result
@@ -187,7 +188,8 @@ class BaseChecker(_ArgumentsProvider):
             default_scope = WarningScope.NODE
         options: ExtraMessageOptions = {}
         if len(msg_tuple) == 4:
-            (msg, symbol, descr, options) = msg_tuple  # type: ignore[misc]
+            (msg, symbol, descr, msg_options) = msg_tuple  # type: ignore[misc]
+            options = ExtraMessageOptions(**msg_options)
         elif len(msg_tuple) == 3:
             (msg, symbol, descr) = msg_tuple  # type: ignore[misc]
         else:

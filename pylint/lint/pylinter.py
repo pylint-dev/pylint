@@ -1071,7 +1071,6 @@ class PyLinter(
 
     def open(self) -> None:
         """Initialize counters."""
-        self.stats = LinterStats()
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.max_inferable_values = self.config.limit_inference_results
         MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)

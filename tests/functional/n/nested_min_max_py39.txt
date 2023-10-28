@@ -1,0 +1,1 @@
+nested-min-max:5:0:5:51::"Do not use nested call of 'max'; it's possible to do 'max(3, *{1: 2} | {i: i for i in range(4) if i})' instead":INFERENCE

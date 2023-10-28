@@ -347,12 +347,10 @@ class SphinxDocstring(Docstring):
         [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
     """
 
-    re_multiple_simple_type = r"""
-        (?:{container_type}|{type})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}))*
-    """.format(
-        type=re_type, container_type=re_simple_container_type
-    )
+    re_multiple_simple_type = rf"""
+        (?:{re_simple_container_type}|{re_type})
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{re_simple_container_type}|{re_type}))*
+    """
 
     re_xref = rf"""
         (?::\w+:)?                    # optional tag
@@ -549,12 +547,10 @@ class GoogleDocstring(Docstring):
         [\(\[] [^\n]+ [\)\]]          # with the contents of the container
     """
 
-    re_multiple_type = r"""
-        (?:{container_type}|{type}|{xref})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}|{xref}))*
-    """.format(
-        type=re_type, xref=re_xref, container_type=re_container_type
-    )
+    re_multiple_type = rf"""
+        (?:{re_container_type}|{re_type}|{re_xref})
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{re_container_type}|{re_type}|{re_xref}))*
+    """
 
     _re_section_template = r"""
         ^([ ]*)   {0} \s*:   \s*$     # Google parameter header

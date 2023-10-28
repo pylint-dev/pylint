@@ -155,7 +155,7 @@ Standard Checkers
 
 --output-format
 """""""""""""""
-*Set the output format. Available formats are text, parseable, colorized, json and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
+*Set the output format. Available formats are: text, parseable, colorized, json2 (improved json format), json (old json format) and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
 
 **Default:**  ``text``
 
@@ -171,7 +171,7 @@ Standard Checkers
 """"""""""""
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
 
-**Default:**  ``(3, 11)``
+**Default:**  ``sys.version_info[:2]``
 
 
 --recursive
@@ -233,7 +233,7 @@ Standard Checkers
 
    confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
 
-   disable = ["raw-checker-failed", "bad-inline-option", "locally-disabled", "file-ignored", "suppressed-message", "useless-suppression", "deprecated-pragma", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "consider-using-augmented-assign", "prefer-typing-namedtuple"]
+   disable = ["bad-inline-option", "consider-using-augmented-assign", "deprecated-pragma", "file-ignored", "locally-disabled", "prefer-typing-namedtuple", "raw-checker-failed", "suppressed-message", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead", "useless-suppression"]
 
    enable = []
 
@@ -271,7 +271,7 @@ Standard Checkers
 
    persistent = true
 
-   py-version = [3, 11]
+   py-version = "sys.version_info[:2]"
 
    recursive = false
 
@@ -538,10 +538,12 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.basic]
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    argument-naming-style = "snake_case"
 
    # argument-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    attr-naming-style = "snake_case"
 
    # attr-rgx =
@@ -550,24 +552,29 @@ Standard Checkers
 
    bad-names-rgxs = []
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    class-attribute-naming-style = "any"
 
    # class-attribute-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    class-const-naming-style = "UPPER_CASE"
 
    # class-const-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    class-naming-style = "PascalCase"
 
    # class-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    const-naming-style = "UPPER_CASE"
 
    # const-rgx =
 
    docstring-min-length = -1
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    function-naming-style = "snake_case"
 
    # function-rgx =
@@ -578,14 +585,17 @@ Standard Checkers
 
    include-naming-hint = false
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    inlinevar-naming-style = "any"
 
    # inlinevar-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    method-naming-style = "snake_case"
 
    # method-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    module-naming-style = "snake_case"
 
    # module-rgx =
@@ -600,6 +610,7 @@ Standard Checkers
 
    # typevar-rgx =
 
+   # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    variable-naming-style = "snake_case"
 
    # variable-rgx =
@@ -919,6 +930,7 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.format]
+   # Possible choices: ['', 'LF', 'CRLF']
    expected-line-ending-format = ""
 
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
@@ -1083,6 +1095,7 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.logging]
+   # Possible choices: ['old', 'new']
    logging-format-style = "old"
 
    logging-modules = ["logging"]
@@ -1183,6 +1196,14 @@ Standard Checkers
 **Default:**  ``('sys.exit', 'argparse.parse_error')``
 
 
+--suggest-join-with-non-empty-separator
+"""""""""""""""""""""""""""""""""""""""
+*Let 'consider-using-join' be raised when the separator to join on would be non-empty (resulting in expected fixes of the type: ``"- " + "
+- ".join(items)``)*
+
+**Default:**  ``True``
+
+
 
 .. raw:: html
 
@@ -1197,6 +1218,8 @@ Standard Checkers
    max-nested-blocks = 5
 
    never-returning-functions = ["sys.exit", "argparse.parse_error"]
+
+   suggest-join-with-non-empty-separator = true
 
 
 
@@ -1285,7 +1308,7 @@ Standard Checkers
 
 --spelling-dict
 """""""""""""""
-*Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell), en_CA (aspell), en_GB (aspell), en_US (aspell).*
+*Spelling dictionary name. Available dictionaries depends on your local enchant installation*
 
 **Default:** ``""``
 
@@ -1331,6 +1354,7 @@ Standard Checkers
    [tool.pylint.spelling]
    max-spelling-suggestions = 4
 
+   # Possible choices: Values from 'enchant.Broker().list_dicts()' depending on your local enchant installation
    spelling-dict = ""
 
    spelling-ignore-comment-directives = "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:"
@@ -1829,6 +1853,7 @@ Extensions
 
    accept-no-yields-doc = true
 
+   # Possible choices: ['sphinx', 'epytext', 'google', 'numpy', 'default']
    default-docstring-type = "default"
 
 

@@ -100,7 +100,7 @@ if TYPE_CHECKING:
 
 
 class WithMetaclass(six.with_metaclass(ABCMeta)):
-    """Regression test for https://github.com/PyCQA/pylint/issues/7506.
+    """Regression test for https://github.com/pylint-dev/pylint/issues/7506.
 
     Requires six."""
 

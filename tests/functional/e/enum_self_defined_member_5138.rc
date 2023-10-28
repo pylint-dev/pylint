@@ -1,3 +1,0 @@
-[testoptions]
-# https://github.com/python/cpython/issues/106762
-max_pyver=3.12

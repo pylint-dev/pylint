@@ -320,3 +320,14 @@ name3(43)
 name4(1, param2=False)
 name5()
 name6(param1=43)
+
+
+# https://github.com/pylint-dev/pylint/issues/9036
+# No value for argument 'string' in staticmethod call (no-value-for-parameter)
+class Foo:
+    @staticmethod
+    def func(string):
+        return string
+
+    func(42)
+    a = func(42)

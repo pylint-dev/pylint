@@ -1,4 +1,0 @@
-Following a deprecation period, the ``location`` argument of the
-``Message`` class must now be a ``MessageLocationTuple``.
-
-Refs #8477

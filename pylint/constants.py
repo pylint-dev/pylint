@@ -249,3 +249,28 @@ DUNDER_PROPERTIES = [
     "__subclasshook__",
     "__weakref__",
 ]
+
+# C2801 rule exceptions as their corresponding function/method/operator
+# is not valid python syntax in a lambda definition
+UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS = [
+    "__init__",
+    "__del__",
+    "__delattr__",
+    "__set__",
+    "__delete__",
+    "__setitem__",
+    "__delitem__",
+    "__iadd__",
+    "__isub__",
+    "__imul__",
+    "__imatmul__",
+    "__itruediv__",
+    "__ifloordiv__",
+    "__imod__",
+    "__ipow__",
+    "__ilshift__",
+    "__irshift__",
+    "__iand__",
+    "__ixor__",
+    "__ior__",
+]

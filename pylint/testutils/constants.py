@@ -23,7 +23,7 @@ _MESSAGE = {"msg": r"[a-z][a-z\-]+"}
 _EXPECTED_RE = re.compile(
     r"\s*#\s*(?:(?P<line>[+-]?[0-9]+):)?"  # pylint: disable=consider-using-f-string
     r"(?:(?P<op>[><=]+) *(?P<version>[0-9.]+):)?"
-    r"\s*\[(?P<msgs>%(msg)s(?:,\s*%(msg)s)*)]" % _MESSAGE
+    r"\s*\[(?P<msgs>{msg}(?:,\s*{msg})*)]".format(**_MESSAGE)
 )
 
 _OPERATORS = {">": operator.gt, "<": operator.lt, ">=": operator.ge, "<=": operator.le}

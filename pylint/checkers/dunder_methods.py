@@ -11,7 +11,7 @@ from astroid.util import UninferableBase
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import safe_infer
-from pylint.constants import DUNDER_METHODS
+from pylint.constants import DUNDER_METHODS, UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
@@ -52,7 +52,7 @@ class DunderCallChecker(BaseChecker):
                 self._dunder_methods.update(dunder_methods)
 
     @staticmethod
-    def within_dunder_def(node: nodes.NodeNG) -> bool:
+    def within_dunder_or_lambda_def(node: nodes.NodeNG) -> bool:
         """Check if dunder method call is within a dunder method definition."""
         parent = node.parent
         while parent is not None:
@@ -60,17 +60,25 @@ class DunderCallChecker(BaseChecker):
                 isinstance(parent, nodes.FunctionDef)
                 and parent.name.startswith("__")
                 and parent.name.endswith("__")
+                or DunderCallChecker.is_lambda_rule_exception(parent, node)
             ):
                 return True
             parent = parent.parent
         return False
+
+    @staticmethod
+    def is_lambda_rule_exception(ancestor: nodes.NodeNG, node: nodes.NodeNG) -> bool:
+        return (
+            isinstance(ancestor, nodes.Lambda)
+            and node.func.attrname in UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS
+        )
 
     def visit_call(self, node: nodes.Call) -> None:
         """Check if method being called is an unnecessary dunder method."""
         if (
             isinstance(node.func, nodes.Attribute)
             and node.func.attrname in self._dunder_methods
-            and not self.within_dunder_def(node)
+            and not self.within_dunder_or_lambda_def(node)
             and not (
                 isinstance(node.func.expr, nodes.Call)
                 and isinstance(node.func.expr.func, nodes.Name)

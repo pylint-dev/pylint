@@ -122,18 +122,18 @@ ecosystem of existing plugins for popular frameworks and third-party libraries.
 
 .. _`plugins`: https://pylint.readthedocs.io/en/latest/development_guide/how_tos/plugins.html#plugins
 .. _`pylint-pydantic`: https://pypi.org/project/pylint-pydantic
-.. _`pylint-django`: https://github.com/PyCQA/pylint-django
+.. _`pylint-django`: https://github.com/pylint-dev/pylint-django
 .. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
 
 Advised linters alongside pylint
 --------------------------------
 
 Projects that you might want to use alongside pylint include ruff_ (**really** fast,
-with builtin auto-fix and a growing number of checks taken from popular
-linters but implemented in ``rust``) or flake8_ (faster and simpler checks with very few false positives),
-mypy_, pyright_ or pyre_ (typing checks), bandit_ (security oriented checks), black_ and
-isort_ (auto-formatting), autoflake_ (automated removal of unused imports or variables),
-pyupgrade_ (automated upgrade to newer python syntax) and pydocstringformatter_ (automated pep257).
+with builtin auto-fix and a large number of checks taken from popular linters, but
+implemented in ``rust``) or flake8_ (a framework to implement your own checks in python using ``ast`` directly),
+mypy_, pyright_ / pylance or pyre_ (typing checks), bandit_ (security oriented checks), black_ and
+isort_ (auto-formatting), autoflake_ (automated removal of unused imports or variables), pyupgrade_
+(automated upgrade to newer python syntax) and pydocstringformatter_ (automated pep257).
 
 .. _ruff: https://github.com/charliermarsh/ruff
 .. _flake8: https://github.com/PyCQA/flake8
@@ -187,7 +187,7 @@ You can place this badge in your README to let others know your project uses pyl
     .. image:: https://img.shields.io/badge/linting-pylint-yellowgreen
         :target: https://github.com/pylint-dev/pylint
 
-Learn how to add a badge to your documentation in the `the badge documentation`_.
+Learn how to add a badge to your documentation in `the badge documentation`_.
 
 .. _the badge documentation: https://pylint.readthedocs.io/en/latest/user_guide/installation/badge.html
 

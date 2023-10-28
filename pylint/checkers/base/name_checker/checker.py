@@ -485,15 +485,12 @@ class NameChecker(_BasicChecker):
 
         # Check names defined in class scopes
         elif isinstance(frame, nodes.ClassDef):
-            if not list(frame.local_attr_ancestors(node.name)):
-                for ancestor in frame.ancestors():
-                    if utils.is_enum(ancestor) or utils.is_assign_name_annotated_with(
-                        node, "Final"
-                    ):
-                        self._check_name("class_const", node.name, node)
-                        break
-                else:
-                    self._check_name("class_attribute", node.name, node)
+            if utils.is_enum_member(node) or utils.is_assign_name_annotated_with(
+                node, "Final"
+            ):
+                self._check_name("class_const", node.name, node)
+            else:
+                self._check_name("class_attribute", node.name, node)
 
     def _recursive_check_names(self, args: list[nodes.AssignName]) -> None:
         """Check names in a possibly recursive list <arg>."""

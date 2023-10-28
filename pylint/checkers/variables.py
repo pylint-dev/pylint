@@ -9,6 +9,7 @@ from __future__ import annotations
 import collections
 import copy
 import itertools
+import math
 import os
 import re
 from collections import defaultdict
@@ -119,6 +120,7 @@ NODES_WITH_VALUE_ATTR = (
     nodes.Expr,
     nodes.Return,
     nodes.Match,
+    nodes.TypeAlias,
 )
 
 
@@ -1326,9 +1328,29 @@ class VariablesChecker(BaseChecker):
             if any(isinstance(target, nodes.Starred) for target in targets):
                 return
 
-        if len(targets) != len(values):
-            details = _get_unpacking_extra_info(node, inferred)
-            self._report_unbalanced_unpacking(node, inferred, targets, values, details)
+        if isinstance(inferred, nodes.Dict):
+            if isinstance(node.iter, nodes.Name):
+                # If this a case of 'dict-items-missing-iter', we don't want to
+                # report it as an 'unbalanced-dict-unpacking' as well
+                # TODO (performance), merging both checks would streamline this
+                if len(targets) == 2:
+                    return
+
+        else:
+            is_starred_targets = any(
+                isinstance(target, nodes.Starred) for target in targets
+            )
+            for value in values:
+                value_length = self._get_value_length(value)
+                is_valid_star_unpack = is_starred_targets and value_length >= len(
+                    targets
+                )
+                if len(targets) != value_length and not is_valid_star_unpack:
+                    details = _get_unpacking_extra_info(node, inferred)
+                    self._report_unbalanced_unpacking(
+                        node, inferred, targets, value_length, details
+                    )
+                    break
 
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
@@ -2308,6 +2330,8 @@ class VariablesChecker(BaseChecker):
             return any(case.guard for case in defstmt.cases)
         if isinstance(defstmt, nodes.IfExp):
             return True
+        if isinstance(defstmt, nodes.TypeAlias):
+            return True
         if isinstance(defstmt.value, nodes.BaseContainer):
             return any(
                 VariablesChecker._maybe_used_and_assigned_at_once(elt)
@@ -2957,16 +2981,32 @@ class VariablesChecker(BaseChecker):
         if values is not None:
             if len(targets) != len(values):
                 self._report_unbalanced_unpacking(
-                    node, inferred, targets, values, details
+                    node, inferred, targets, len(values), details
                 )
         # attempt to check unpacking may be possible (i.e. RHS is iterable)
         elif not utils.is_iterable(inferred):
             self._report_unpacking_non_sequence(node, details)
 
     @staticmethod
+    def _get_value_length(value_node: nodes.NodeNG) -> int:
+        value_subnodes = VariablesChecker._nodes_to_unpack(value_node)
+        if value_subnodes is not None:
+            return len(value_subnodes)
+        if isinstance(value_node, nodes.Const) and isinstance(
+            value_node.value, (str, bytes)
+        ):
+            return len(value_node.value)
+        if isinstance(value_node, nodes.Subscript):
+            step = value_node.slice.step or 1
+            splice_range = value_node.slice.upper.value - value_node.slice.lower.value
+            splice_length = int(math.ceil(splice_range / step))
+            return splice_length
+        return 1
+
+    @staticmethod
     def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:
         """Return the list of values of the `Assign` node."""
-        if isinstance(node, (nodes.Tuple, nodes.List, *DICT_TYPES)):
+        if isinstance(node, (nodes.Tuple, nodes.List, nodes.Set, *DICT_TYPES)):
             return node.itered()  # type: ignore[no-any-return]
         if isinstance(node, astroid.Instance) and any(
             ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
@@ -2979,15 +3019,15 @@ class VariablesChecker(BaseChecker):
         node: nodes.NodeNG,
         inferred: InferenceResult,
         targets: list[nodes.NodeNG],
-        values: list[nodes.NodeNG],
+        values_count: int,
         details: str,
     ) -> None:
         args = (
             details,
             len(targets),
             "" if len(targets) == 1 else "s",
-            len(values),
-            "" if len(values) == 1 else "s",
+            values_count,
+            "" if values_count == 1 else "s",
         )
 
         symbol = (

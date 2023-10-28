@@ -1,3 +1,0 @@
-Improve output of ``consider-using-generator`` message for ``min()`` calls with ``default`` keyword.
-
-Closes #8563

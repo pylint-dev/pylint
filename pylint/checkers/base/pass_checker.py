@@ -15,7 +15,8 @@ class PassChecker(_BasicChecker):
         "W0107": (
             "Unnecessary pass statement",
             "unnecessary-pass",
-            'Used when a "pass" statement that can be avoided is encountered.',
+            'Used when a "pass" statement can be removed without affecting '
+            "the behaviour of the code.",
         )
     }
 

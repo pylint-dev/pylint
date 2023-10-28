@@ -62,7 +62,7 @@
     "branch": "master",
     "directories": ["coverage"],
     "url": "https://github.com/nedbat/coveragepy",
-    "pylintrc_relpath": "pylintrc"
+    "pylintrc_relpath": "pyproject.toml"
   },
   "poetry-core": {
     "branch": "main",
