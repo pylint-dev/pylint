@@ -74,7 +74,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-attribute",
-                args=("deprecated_attribute",),
+                args=(".DeprecatedClass.deprecated_attribute",),
                 node=node,
                 confidence=INFERENCE,
                 line=6,
