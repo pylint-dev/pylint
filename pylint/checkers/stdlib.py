@@ -84,7 +84,9 @@ DEPRECATED_ARGUMENTS: dict[
     },
     (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
     (3, 12, 0): {
+        "argparse.BooleanOptionalAction": ((3, "type"), (4, "choices"), (7, "metavar")),
         "coroutine.throw": ((1, "value"), (2, "traceback")),
+        "email.utils.localtime": ((1, "isdst"),),
         "shutil.rmtree": ((2, "onerror"),),
     },
 }
@@ -261,6 +263,10 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "builtins.bool.__invert__",
             "datetime.datetime.utcfromtimestamp",
             "datetime.datetime.utcnow",
+            "pkgutil.find_loader",
+            "pkgutil.get_loader",
+            "pty.master_open",
+            "pty.slave_open",
             "xml.etree.ElementTree.Element.__bool__",
         },
     },
@@ -324,7 +330,29 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
         },
     },
     (3, 12, 0): {
+        "ast": {
+            "Bytes",
+            "Ellipsis",
+            "NameConstant",
+            "Num",
+            "Str",
+        },
+        "asyncio": {
+            "AbstractChildWatcher",
+            "MultiLoopChildWatcher",
+            "FastChildWatcher",
+            "SafeChildWatcher",
+        },
+        "collections.abc": {
+            "ByteString",
+        },
+        "importlib.abc": {
+            "ResourceReader",
+            "Traversable",
+            "TraversableResources",
+        },
         "typing": {
+            "ByteString",
             "Hashable",
             "Sized",
         },
@@ -335,6 +363,10 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
 DEPRECATED_ATTRIBUTES: DeprecationDict = {
     (3, 12, 0): {
         "calendar.January",
+        "calendar.February",
+        "sys.last_traceback",
+        "sys.last_type",
+        "sys.last_value",
     },
 }
 
