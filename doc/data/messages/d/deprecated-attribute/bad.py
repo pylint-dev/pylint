@@ -1,3 +1,3 @@
 import calendar
 
-month = calendar.January
+month = calendar.January  # [deprecated-attribute]
