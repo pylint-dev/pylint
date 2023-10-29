@@ -230,6 +230,13 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "binascii.a2b_hqx",
             "binascii.rlecode_hqx",
             "binascii.rledecode_hqx",
+            "importlib.resources.contents",
+            "importlib.resources.is_resource",
+            "importlib.resources.open_binary",
+            "importlib.resources.open_text",
+            "importlib.resources.path",
+            "importlib.resources.read_binary",
+            "importlib.resources.read_text",
         },
         (3, 10, 0): {
             "_sqlite3.enable_shared_cache",
@@ -258,6 +265,7 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "unittest.TestLoader.loadTestsFromModule",
             "unittest.TestLoader.loadTestsFromTestCase",
             "unittest.TestLoader.getTestCaseNames",
+            "unittest.TestProgram.usageExit",
         },
         (3, 12, 0): {
             "builtins.bool.__invert__",
@@ -361,6 +369,9 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
 
 
 DEPRECATED_ATTRIBUTES: DeprecationDict = {
+    (3, 2, 0): {
+        "configparser.ParsingError.filename",
+    },
     (3, 12, 0): {
         "calendar.January",
         "calendar.February",
