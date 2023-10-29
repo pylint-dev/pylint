@@ -11,10 +11,12 @@ from itertools import chain
 
 import astroid
 from astroid import nodes
+from astroid.bases import Instance
 
 from pylint.checkers import utils
 from pylint.checkers.base_checker import BaseChecker
 from pylint.checkers.utils import get_import_name, infer_all, safe_infer
+from pylint.interfaces import INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
 ACCEPTABLE_NODES = (
@@ -22,6 +24,7 @@ ACCEPTABLE_NODES = (
     astroid.UnboundMethod,
     nodes.FunctionDef,
     nodes.ClassDef,
+    astroid.Attribute,
 )
 
 
@@ -30,6 +33,15 @@ class DeprecatedMixin(BaseChecker):
 
     A class implementing mixin must define "deprecated-method" Message.
     """
+
+    DEPRECATED_ATTRIBUTE_MESSAGE: dict[str, MessageDefinitionTuple] = {
+        "W4906": (
+            "Using deprecated attribute %r",
+            "deprecated-attribute",
+            "The attribute is marked as deprecated and will be removed in the future.",
+            {"shared": True},
+        ),
+    }
 
     DEPRECATED_MODULE_MESSAGE: dict[str, MessageDefinitionTuple] = {
         "W4901": (
@@ -75,6 +87,11 @@ class DeprecatedMixin(BaseChecker):
             {"old_names": [("W1513", "old-deprecated-decorator")], "shared": True},
         ),
     }
+
+    @utils.only_required_for_messages("deprecated-attribute")
+    def visit_attribute(self, node: astroid.Attribute) -> None:
+        """Called when an `astroid.Attribute` node is visited."""
+        self.check_deprecated_attribute(node)
 
     @utils.only_required_for_messages(
         "deprecated-method",
@@ -188,6 +205,25 @@ class DeprecatedMixin(BaseChecker):
         """
         # pylint: disable=unused-argument
         return ()
+
+    def deprecated_attributes(self) -> Iterable[str]:
+        """Callback returning the deprecated attributes."""
+        return ()
+
+    def check_deprecated_attribute(self, node: astroid.Attribute) -> None:
+        """Checks if the attribute is deprecated."""
+        inferred_expr = safe_infer(node.expr)
+        if not isinstance(inferred_expr, (nodes.ClassDef, Instance, nodes.Module)):
+            return
+        attribute_qname = ".".join((inferred_expr.qname(), node.attrname))
+        for deprecated_name in self.deprecated_attributes():
+            if attribute_qname == deprecated_name:
+                self.add_message(
+                    "deprecated-attribute",
+                    node=node,
+                    args=(attribute_qname,),
+                    confidence=INFERENCE,
+                )
 
     def check_deprecated_module(self, node: nodes.Import, mod_path: str | None) -> None:
         """Checks if the module is deprecated."""
