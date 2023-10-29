@@ -1,3 +1,4 @@
-import calendar
+from configparser import ParsingError
 
-month = calendar.January  # [deprecated-attribute]
+err = ParsingError("filename")
+source = err.filename  # [deprecated-attribute]

@@ -1,3 +1,4 @@
-import calendar
+from configparser import ParsingError
 
-month = calendar.JANUARY
+err = ParsingError("filename")
+source = err.source
