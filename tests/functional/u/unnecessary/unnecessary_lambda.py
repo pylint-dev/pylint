@@ -52,6 +52,10 @@ _ = lambda: _ANYARGS(**{'three': 3})
 _ = lambda: _ANYARGS(*[3], **{'three': 3})
 _ = lambda: _ANYARGS(func=42)
 
+# pylint: disable=missing-function-docstring
+def f(d):
+    print(lambda x: str(x, **d))
+
 # Don't warn about this.
 _ = lambda: code().analysis()
 
