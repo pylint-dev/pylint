@@ -1,0 +1,3 @@
+Fixed false positive for ``unnecessary-lambda`` when the call has keyword arguments but not the lambda.
+
+Closes #9148
