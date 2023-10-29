@@ -1864,12 +1864,6 @@ class VariablesChecker(BaseChecker):
                 or annotation_return
                 or isinstance(defstmt, nodes.Delete)
             ):
-                if (
-                    defined_by_stmt
-                    and isinstance(defstmt, nodes.ClassDef)
-                    and node.parent in defstmt.type_params
-                ):
-                    return (VariableVisitConsumerAction.RETURN, None)
                 if not utils.node_ignores_exception(node, NameError):
                     # Handle postponed evaluation of annotations
                     if not (
