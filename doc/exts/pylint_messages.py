@@ -319,6 +319,14 @@ def _generate_single_message_body(message: MessageData) -> str:
   This message is disabled by default. To enable it, add ``{message.name}`` to the ``enable`` option.
 
 """
+    if message.id.startswith("I"):
+        body += f"""
+.. caution::
+  By default, this message will not fail the execution (pylint will return 0).
+  To make pylint fail for this message use the ``--fail-on={message.id}`` option
+  or ``--fail-on=I`` to fail on all enabled informational messages.
+
+"""
 
     body += "\n" + message.example_code + "\n"
 
