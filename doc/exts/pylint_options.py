@@ -209,11 +209,12 @@ def build_options_page(app: Sphinx | None) -> None:
     _write_options_page(options, linter)
 
 
-def setup(app: Sphinx) -> None:
+def setup(app: Sphinx) -> dict[str, bool]:
     """Connects the extension to the Sphinx process."""
     # Register callback at the builder-inited Sphinx event
     # See https://www.sphinx-doc.org/en/master/extdev/appapi.html
     app.connect("builder-inited", build_options_page)
+    return {"parallel_read_safe": True}
 
 
 if __name__ == "__main__":

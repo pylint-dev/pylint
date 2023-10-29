@@ -481,11 +481,12 @@ def build_messages_pages(app: Sphinx | None) -> None:
     _write_redirect_pages(old_messages)
 
 
-def setup(app: Sphinx) -> None:
+def setup(app: Sphinx) -> dict[str, bool]:
     """Connects the extension to the Sphinx process."""
     # Register callback at the builder-inited Sphinx event
     # See https://www.sphinx-doc.org/en/master/extdev/appapi.html
     app.connect("builder-inited", build_messages_pages)
+    return {"parallel_read_safe": True}
 
 
 if __name__ == "__main__":
