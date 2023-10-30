@@ -839,7 +839,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         stream must implement the readlines method
         """
         if self.linter.current_name is None:
-            # TODO: 3.0 Fix current_name
+            # TODO: 4.0 Fix current_name
             warnings.warn(
                 (
                     "In pylint 3.0 the current_name attribute of the linter object should be a string. "

@@ -110,13 +110,14 @@ def _config_initialization(
             "unrecognized-option", args=unrecognized_options_message, line=0
         )
 
-    # TODO 3.1: Change this to emit unknown-option-value
+    # TODO: Change this to be checked only when upgrading the configuration
     for exc_name in linter.config.overgeneral_exceptions:
         if "." not in exc_name:
             warnings.warn_explicit(
                 f"'{exc_name}' is not a proper value for the 'overgeneral-exceptions' option. "
                 f"Use fully qualified name (maybe 'builtins.{exc_name}' ?) instead. "
-                "This will cease to be checked at runtime in 3.1.0.",
+                "This will cease to be checked at runtime when the configuration "
+                "upgrader is released.",
                 category=UserWarning,
                 filename="pylint: Command line or configuration file",
                 lineno=1,

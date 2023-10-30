@@ -315,7 +315,7 @@ def format_section(
 ) -> None:
     """Format an option's section using the INI format."""
     warnings.warn(
-        "format_section has been deprecated. It will be removed in pylint 3.0.",
+        "format_section has been deprecated. It will be removed in pylint 4.0.",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -330,7 +330,7 @@ def format_section(
 def _ini_format(stream: TextIO, options: list[tuple[str, OptionDict, Any]]) -> None:
     """Format options using the INI format."""
     warnings.warn(
-        "_ini_format has been deprecated. It will be removed in pylint 3.0.",
+        "_ini_format has been deprecated. It will be removed in pylint 4.0.",
         DeprecationWarning,
         stacklevel=2,
     )
