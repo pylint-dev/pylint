@@ -269,7 +269,7 @@ class TestCheckParallelFramework:
         linter.load_plugin_modules(["pylint.extensions.overlapping_exceptions"])
         try:
             dill.dumps(linter)
-            # TODO: 3.0: Fix this test by raising this assertion again
+            # TODO: 4.0: Fix this test by raising this assertion again
             # raise AssertionError(
             #     "Plugins loaded were pickle-safe! This test needs altering"
             # )
