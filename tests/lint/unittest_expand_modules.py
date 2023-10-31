@@ -136,8 +136,8 @@ def _list_expected_package_modules_relative() -> tuple[dict[str, object], ...]:
     for item in abs_result:
         assert isinstance(item["basepath"], str)
         assert isinstance(item["path"], str)
-        item["basepath"] = os.path.relpath(item["basepath"],  str(Path(__file__).parent))
-        item["path"] = os.path.relpath(item["path"],  str(Path(__file__).parent))
+        item["basepath"] = os.path.relpath(item["basepath"], str(Path(__file__).parent))
+        item["path"] = os.path.relpath(item["path"], str(Path(__file__).parent))
     return abs_result
 
 
