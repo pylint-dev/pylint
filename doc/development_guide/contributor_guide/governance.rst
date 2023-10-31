@@ -19,6 +19,10 @@ Reporting a bug is being a contributor already.
 How to become a triager ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- Create a pylint plugin, then migrate it to the 'pylint-dev' github organization.
+
+Or:
+
 - Contribute for more than 3 releases consistently.
 - Do not be too opinionated, follow the code of conduct without requiring emotional
   works from the maintainers. It does not mean that disagreements are impossible,
@@ -30,7 +34,7 @@ How to become a triager ?
 How to become a maintainer ?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Create a pylint plugin, then migrate it to the 'pylint-dev' github organization.
+
 - Take ownership of a part of the code that is not maintained well at the moment
   or that you contributed personally (if we feel we can't merge something without
   your review, you're going to be able to merge those yourself soon).
