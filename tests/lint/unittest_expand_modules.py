@@ -4,11 +4,11 @@
 
 from __future__ import annotations
 
-from contextlib import contextmanager
 import copy
 import os
-from pathlib import Path
 import re
+from contextlib import contextmanager
+from pathlib import Path
 from typing import Iterator
 
 import pytest
@@ -134,13 +134,15 @@ def _list_expected_package_modules_relative() -> tuple[dict[str, object], ...]:
     """Generates reusable list of modules for our package with relative path input."""
     abs_result = copy.deepcopy(_list_expected_package_modules())
     for item in abs_result:
+        assert isinstance(item["basepath"], str)
+        assert isinstance(item["path"], str)
         item["basepath"] = os.path.relpath(item["basepath"],  str(Path(__file__).parent))
         item["path"] = os.path.relpath(item["path"],  str(Path(__file__).parent))
     return abs_result
 
 
 @contextmanager
-def pushd(path: Path) -> Iterator[str]:
+def pushd(path: Path) -> Iterator[None]:
     prev = os.getcwd()
     os.chdir(path)
     try:
@@ -194,11 +196,12 @@ class TestExpandModules(CheckerTestCase):
     @pytest.mark.parametrize(
         "files_or_modules,expected",
         [
-            ([Path(__file__).name], {
-                this_file_relative_to_parent["path"]: this_file_relative_to_parent
-            }),
             (
-                ['./'],
+                [Path(__file__).name],
+                {this_file_relative_to_parent["path"]: this_file_relative_to_parent},
+            ),
+            (
+                ["./"],
                 {
                     module["path"]: module  # pylint: disable=unsubscriptable-object
                     for module in _list_expected_package_modules_relative()
