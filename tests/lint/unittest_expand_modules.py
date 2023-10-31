@@ -4,8 +4,12 @@
 
 from __future__ import annotations
 
-import re
+from contextlib import contextmanager
+import copy
+import os
 from pathlib import Path
+import re
+from typing import Iterator
 
 import pytest
 
@@ -28,13 +32,22 @@ def test__is_in_ignore_list_re_match() -> None:
 
 TEST_DIRECTORY = Path(__file__).parent.parent
 INIT_PATH = str(TEST_DIRECTORY / "lint/__init__.py")
-EXPAND_MODULES = str(TEST_DIRECTORY / "lint/unittest_expand_modules.py")
+EXPAND_MODULES_BASE = "unittest_expand_modules.py"
+EXPAND_MODULES = str(TEST_DIRECTORY / "lint" / EXPAND_MODULES_BASE)
 this_file = {
     "basename": "lint.unittest_expand_modules",
     "basepath": EXPAND_MODULES,
     "isarg": True,
     "name": "lint.unittest_expand_modules",
     "path": EXPAND_MODULES,
+}
+
+this_file_relative_to_parent = {
+    "basename": "lint.unittest_expand_modules",
+    "basepath": EXPAND_MODULES_BASE,
+    "isarg": True,
+    "name": "lint.unittest_expand_modules",
+    "path": EXPAND_MODULES_BASE,
 }
 
 this_file_from_init = {
@@ -117,6 +130,25 @@ def _list_expected_package_modules(
     )
 
 
+def _list_expected_package_modules_relative() -> tuple[dict[str, object], ...]:
+    """Generates reusable list of modules for our package with relative path input."""
+    abs_result = copy.deepcopy(_list_expected_package_modules())
+    for item in abs_result:
+        item["basepath"] = os.path.relpath(item["basepath"],  str(Path(__file__).parent))
+        item["path"] = os.path.relpath(item["path"],  str(Path(__file__).parent))
+    return abs_result
+
+
+@contextmanager
+def pushd(path: Path) -> Iterator[str]:
+    prev = os.getcwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(prev)
+
+
 class TestExpandModules(CheckerTestCase):
     """Test the expand_modules function while allowing options to be set."""
 
@@ -158,6 +190,41 @@ class TestExpandModules(CheckerTestCase):
         )
         assert modules == expected
         assert not errors
+
+    @pytest.mark.parametrize(
+        "files_or_modules,expected",
+        [
+            ([Path(__file__).name], {
+                this_file_relative_to_parent["path"]: this_file_relative_to_parent
+            }),
+            (
+                ['./'],
+                {
+                    module["path"]: module  # pylint: disable=unsubscriptable-object
+                    for module in _list_expected_package_modules_relative()
+                },
+            ),
+        ],
+    )
+    @set_config(ignore_paths="")
+    def test_expand_modules_relative_path(
+        self, files_or_modules: list[str], expected: dict[str, ModuleDescriptionDict]
+    ) -> None:
+        """Test expand_modules with the default value of ignore-paths and relative path as input."""
+        ignore_list: list[str] = []
+        ignore_list_re: list[re.Pattern[str]] = []
+        with pushd(Path(__file__).parent):
+            modules, errors = expand_modules(
+                files_or_modules,
+                [],
+                ignore_list,
+                ignore_list_re,
+                self.linter.config.ignore_paths,
+            )
+            print(modules)
+            print(expected)
+            assert modules == expected
+            assert not errors
 
     @pytest.mark.parametrize(
         "files_or_modules,expected",
