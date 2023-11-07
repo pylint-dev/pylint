@@ -6,7 +6,3 @@ broad-exception-raised:46:8:46:40:raise_catch_raise_using_alias:"Raising too gen
 broad-exception-raised:48:0:48:17::"Raising too general exception: Exception":INFERENCE
 broad-exception-raised:49:0:49:21::"Raising too general exception: BaseException":INFERENCE
 broad-exception-raised:50:0:50:28::"Raising too general exception: CustomBroadException":INFERENCE
-broad-exception-raised:57:8:57:34:raise_and_catch_star:"Raising too general exception: Exception":INFERENCE
-broad-exception-caught:58:12:58:21:raise_and_catch_star:Catching too general exception Exception:INFERENCE
-broad-exception-raised:75:8:75:35:raise_catch_raise_star:"Raising too general exception: Exception":INFERENCE
-broad-exception-raised:83:8:83:40:raise_catch_raise_using_alias_star:"Raising too general exception: Exception":INFERENCE

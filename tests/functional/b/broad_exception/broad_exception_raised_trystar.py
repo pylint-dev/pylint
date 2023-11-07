@@ -15,43 +15,6 @@ def exploding_apple(apple):
     raise Exception("{apple} exploded !")  # [broad-exception-raised]
 
 
-def raise_and_catch():
-    try:
-        raise Exception("Oh No!!")  # [broad-exception-raised]
-    except Exception as ex:  # [broad-exception-caught]
-        print(ex)
-
-
-def raise_catch_reraise():
-    try:
-        exploding_apple("apple")
-    except Exception as ex:
-        print(ex)
-        raise ex
-
-
-def raise_catch_raise():
-    try:
-        exploding_apple("apple")
-    except Exception as ex:
-        print(ex)
-        raise Exception() from None  # [broad-exception-raised]
-
-
-def raise_catch_raise_using_alias():
-    try:
-        exploding_apple("apple")
-    except Exception as ex:
-        print(ex)
-        raise ExceptionAlias() from None  # [broad-exception-raised]
-
-raise Exception()  # [broad-exception-raised]
-raise BaseException()  # [broad-exception-raised]
-raise CustomBroadException()  # [broad-exception-raised]
-raise IndexError from None
-raise CustomNarrowException() from None
-
-
 def raise_and_catch_star():
     try:
         raise Exception("Oh No!!")  # [broad-exception-raised]
@@ -81,3 +44,9 @@ def raise_catch_raise_using_alias_star():
     except* Exception as ex:
         print(ex)
         raise ExceptionAlias() from None  # [broad-exception-raised]
+
+raise Exception()  # [broad-exception-raised]
+raise BaseException()  # [broad-exception-raised]
+raise CustomBroadException()  # [broad-exception-raised]
+raise IndexError from None
+raise CustomNarrowException() from None
