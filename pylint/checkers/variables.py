@@ -1738,6 +1738,9 @@ class VariablesChecker(BaseChecker):
         elif consumer.scope_type == "function" and self._defined_in_function_definition(
             node, consumer.node
         ):
+            if any(node.name == param.name.name for param in consumer.node.type_params):
+                return False
+
             # If the name node is used as a function default argument's value or as
             # a decorator, then start from the parent frame of the function instead
             # of the function frame - and thus open an inner class scope
@@ -2262,10 +2265,13 @@ class VariablesChecker(BaseChecker):
                     isinstance(defframe, nodes.FunctionDef)
                     and frame is defframe
                     and defframe.parent_of(node)
-                    and stmt is not defstmt
+                    and (
+                        defnode in defframe.type_params
+                        # Single statement function, with the statement on the
+                        # same line as the function definition
+                        or stmt is not defstmt
+                    )
                 ):
-                    # Single statement function, with the statement on the
-                    # same line as the function definition
                     maybe_before_assign = False
                 elif (
                     isinstance(defstmt, NODES_WITH_VALUE_ATTR)
@@ -2565,7 +2571,7 @@ class VariablesChecker(BaseChecker):
                 else_stmt, (nodes.Return, nodes.Raise, nodes.Break, nodes.Continue)
             ):
                 return
-            # TODO: 3.0: Consider using RefactoringChecker._is_function_def_never_returning
+            # TODO: 4.0: Consider using RefactoringChecker._is_function_def_never_returning
             if isinstance(else_stmt, nodes.Expr) and isinstance(
                 else_stmt.value, nodes.Call
             ):

@@ -1044,6 +1044,8 @@ Stdlib checker Messages
   emitted when using Python >= 3.5.
 :deprecated-argument (W4903): *Using deprecated argument %s of method %s()*
   The argument is marked as deprecated and will be removed in the future.
+:deprecated-attribute (W4906): *Using deprecated attribute %r*
+  The attribute is marked as deprecated and will be removed in the future.
 :deprecated-class (W4904): *Using deprecated class %s of module %s*
   The class is marked as deprecated and will be removed in the future.
 :deprecated-decorator (W4905): *Using deprecated decorator %s()*

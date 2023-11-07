@@ -56,7 +56,7 @@ class FunctionalTestFile:
     def __init__(self, directory: str, filename: str) -> None:
         self._directory = directory
         self.base = filename.replace(".py", "")
-        # TODO: 3.0: Deprecate FunctionalTestFile.options and related code
+        # TODO:4.0: Deprecate FunctionalTestFile.options and related code
         # We should just parse these options like a normal configuration file.
         self.options: TestFileOptions = {
             "min_pyver": (2, 5),

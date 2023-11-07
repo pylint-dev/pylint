@@ -229,6 +229,7 @@ All messages in the warning category:
    warning/consider-ternary-expression
    warning/dangerous-default-value
    warning/deprecated-argument
+   warning/deprecated-attribute
    warning/deprecated-class
    warning/deprecated-decorator
    warning/deprecated-method
