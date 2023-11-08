@@ -34,7 +34,3 @@ Other Changes
 - Fix a crash when an enum class which is also decorated with a ``dataclasses.dataclass`` decorator is defined.
 
   Closes #9100 (`#9100 <https://github.com/pylint-dev/pylint/issues/9100>`_)
-
-- Printing how many files were checked in verbose.
-
-  Closes #8935 (`#8935 <https://github.com/pylint-dev/pylint/issues/8935>`_)
