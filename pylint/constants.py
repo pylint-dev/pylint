@@ -274,3 +274,5 @@ UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS = [
     "__ixor__",
     "__ior__",
 ]
+
+MAX_NUMBER_OF_IMPORT_SHOWN = 6
