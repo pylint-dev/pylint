@@ -1,0 +1,3 @@
+Exempt ``TypedDict`` from ``typing_extensions`` from ``too-many-ancestor`` checks.
+
+Refs #9167
