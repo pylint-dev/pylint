@@ -21,6 +21,7 @@ class "ExceptionsChecker" as pylint.checkers.exceptions.ExceptionsChecker #44BB9
   visit_compare(node: nodes.Compare) -> None
   visit_raise(node: nodes.Raise) -> None
   visit_try(node: nodes.Try) -> None
+  visit_trystar(node: nodes.TryStar) -> None
 }
 class "StdlibChecker" as pylint.checkers.stdlib.StdlibChecker #44BB99 {
   msgs : dict[str, MessageDefinitionTuple]

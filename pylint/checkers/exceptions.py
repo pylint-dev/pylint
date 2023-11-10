@@ -556,6 +556,10 @@ class ExceptionsChecker(checkers.BaseChecker):
         "catching-non-exception",
         "duplicate-except",
     )
+    def visit_trystar(self, node: nodes.TryStar) -> None:
+        """Check for empty except*."""
+        self.visit_try(node)
+
     def visit_try(self, node: nodes.Try) -> None:
         """Check for empty except."""
         self._check_try_except_raise(node)
