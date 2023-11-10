@@ -203,13 +203,13 @@ group are mutually exclusive.",
                 with open(self._output, "w", encoding="utf-8") as output:
                     linter.reporter.out = output
                     linter.check(args)
-                    score_value = linter.generate_reports()
+                    score_value = linter.generate_reports(verbose=self.verbose)
             except OSError as ex:
                 print(ex, file=sys.stderr)
                 sys.exit(32)
         else:
             linter.check(args)
-            score_value = linter.generate_reports()
+            score_value = linter.generate_reports(verbose=self.verbose)
         if linter.config.clear_cache_post_run:
             clear_lru_caches()
             MANAGER.clear_cache()

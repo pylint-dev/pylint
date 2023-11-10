@@ -218,6 +218,11 @@ class TestRunTC:
         self._runtest([UNNECESSARY_LAMBDA, "--disable=all"], out=out, code=32)
         assert "No files to lint: exiting." in out.getvalue().strip()
 
+    def test_output_with_verbose(self) -> None:
+        out = StringIO()
+        self._runtest([UNNECESSARY_LAMBDA, "--verbose"], out=out, code=4)
+        assert "Checked 1 files, skipped 0 files" in out.getvalue().strip()
+
     def test_no_out_encoding(self) -> None:
         """Test redirection of stdout with non ascii characters."""
         # This test reproduces bug #48066 ; it happens when stdout is redirected
