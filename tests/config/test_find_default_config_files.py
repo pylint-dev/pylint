@@ -130,6 +130,41 @@ def test_pylintrc_parentdir() -> None:
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
+def test_pylintrc_toml_parentdir() -> None:
+    """Test that the first pylintrc.toml we find is the first parent directory."""
+    # pylint: disable=duplicate-code
+    with tempdir() as chroot:
+        chroot_path = Path(chroot)
+        files = [
+            "a/pylintrc.toml",
+            "a/b/__init__.py",
+            "a/b/pylintrc.toml",
+            "a/b/c/__init__.py",
+            "a/b/c/d/__init__.py",
+            "a/b/c/d/e/.pylintrc.toml",
+        ]
+        testutils.create_files(files)
+        for config_file in files:
+            if config_file.endswith("pylintrc.toml"):
+                with open(config_file, "w", encoding="utf-8") as fd:
+                    fd.write('[tool.pylint."messages control"]\n')
+
+        with fake_home():
+            assert not list(config.find_default_config_files())
+
+        results = {
+            "a": chroot_path / "a" / "pylintrc.toml",
+            "a/b": chroot_path / "a" / "b" / "pylintrc.toml",
+            "a/b/c": chroot_path / "a" / "b" / "pylintrc.toml",
+            "a/b/c/d": chroot_path / "a" / "b" / "pylintrc.toml",
+            "a/b/c/d/e": chroot_path / "a" / "b" / "c" / "d" / "e" / ".pylintrc.toml",
+        }
+        for basedir, expected in results.items():
+            os.chdir(chroot_path / basedir)
+            assert next(config.find_default_config_files()) == expected
+
+
+@pytest.mark.usefixtures("pop_pylintrc")
 def test_pyproject_toml_parentdir() -> None:
     """Test the search of pyproject.toml file in parent directories"""
     with tempdir() as chroot:
