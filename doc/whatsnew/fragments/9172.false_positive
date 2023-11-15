@@ -1,6 +1,6 @@
-Fixed `unnecessary-comprehension provides incorrect suggestion`
+Fixed incorrect suggestion for shallow copy in unnecessary-comprehension
 
-Example of the suggetion:
+Example of the suggestion:
 #pylint: disable=missing-module-docstring
 a = [1, 2, 3]
 b = [x for x in a]
