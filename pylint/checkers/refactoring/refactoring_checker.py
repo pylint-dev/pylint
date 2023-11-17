@@ -1801,15 +1801,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if isinstance(node.parent, nodes.DictComp) and isinstance(
                 inferred, astroid.objects.DictItems
             ):
-                args = (f"{node.iter.func.expr.as_string()}",)
-            elif (
-                isinstance(node.parent, nodes.ListComp)
-                and isinstance(inferred, nodes.List)
-            ) or (
-                isinstance(node.parent, nodes.SetComp)
-                and isinstance(inferred, nodes.Set)
+                args = (f"dict({node.iter.func.expr.as_string()})",)
+            elif isinstance(node.parent, nodes.ListComp) and isinstance(
+                inferred, nodes.List
             ):
-                args = (f"{node.iter.as_string()}",)
+                args = (f"list({node.iter.as_string()})",)
+            elif isinstance(node.parent, nodes.SetComp) and isinstance(
+                inferred, nodes.Set
+            ):
+                args = (f"set({node.iter.as_string()})",)
             if args:
                 self.add_message(
                     "unnecessary-comprehension", node=node.parent, args=args
