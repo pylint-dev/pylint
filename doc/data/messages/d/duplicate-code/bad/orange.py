@@ -4,7 +4,7 @@ class Orange:  # [duplicate-code]
 
     def take_bite(self):
         if self.remaining_bites > 0:
-            print("You take a bite of the apple.")
+            print("You take a bite of the orange.")
             self.remaining_bites -= 1
         else:
             print("The orange is already eaten up!")
