@@ -116,8 +116,7 @@ for i in 8.5:  # [not-an-iterable]
 for i in 10:  # [not-an-iterable]
     pass
 
-
-# skip uninferable instances
+# skip uninferable bases
 from some_missing_module import Iterable
 
 class MyClass(Iterable):
@@ -126,6 +125,11 @@ class MyClass(Iterable):
 m = MyClass()
 for i in m:
     print(i)
+
+# skip uninferable instances
+ambiguous = range(i) or range(i)
+for j in ambiguous:
+    print(j)
 
 # skip checks if statement is inside mixin/base/abstract class
 class ManagedAccessViewMixin:
