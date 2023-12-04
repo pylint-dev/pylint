@@ -108,6 +108,7 @@ disable=
     format,
     # We anticipate #3512 where it will become optional
     fixme,
+    fixme-in-docstring,
     consider-using-assignment-expr,
 
 

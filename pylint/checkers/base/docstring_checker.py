@@ -73,6 +73,11 @@ class DocStringChecker(_BasicChecker):
             "docstring.",
             {"old_names": [("C0111", "missing-docstring")]},
         ),
+        "C0150": (
+            "%s",
+            "fixme-in-docstring",
+            "Used when a warning note as FIXME or XXX is detected in docstring.",
+        ),
     }
     options = (
         (
@@ -156,7 +161,7 @@ class DocStringChecker(_BasicChecker):
         report_missing: bool = True,
         confidence: interfaces.Confidence = interfaces.HIGH,
     ) -> None:
-        """Check if the node has a non-empty docstring."""
+        """Check if the node has a non-empty docstring and check for fixme words."""
         docstring = node.doc_node.value if node.doc_node else None
         if docstring is None:
             docstring = _infer_dunder_doc_attribute(node)
@@ -206,3 +211,11 @@ class DocStringChecker(_BasicChecker):
             self.add_message(
                 "empty-docstring", node=node, args=(node_type,), confidence=confidence
             )
+        else:
+            fixme_words = self.linter.config.notes
+            for word in fixme_words:
+                if word in docstring:
+                    self.add_message(
+                        "fixme-in-docstring", node=node, args=(word,), confidence=confidence
+                    )
+                    break
