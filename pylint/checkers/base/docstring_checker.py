@@ -216,6 +216,9 @@ class DocStringChecker(_BasicChecker):
             for word in fixme_words:
                 if word in docstring:
                     self.add_message(
-                        "fixme-in-docstring", node=node, args=(word,), confidence=confidence
+                        "fixme-in-docstring",
+                        node=node,
+                        args=(word,),
+                        confidence=confidence,
                     )
                     break
