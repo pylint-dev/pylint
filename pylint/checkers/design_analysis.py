@@ -81,6 +81,13 @@ MSGS: dict[
         "too-many-boolean-expressions",
         "Used when an if statement contains too many boolean expressions.",
     ),
+    "R0917": (
+        "Too many positional arguments in a function call.",
+        "too-many-positional",
+        "Will be implemented in https://github.com/pylint-dev/pylint/issues/9099,"
+        "msgid/symbol pair reserved for compatibility with ruff, "
+        "see https://github.com/astral-sh/ruff/issues/8946.",
+    ),
 }
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
