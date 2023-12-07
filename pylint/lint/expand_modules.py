@@ -144,8 +144,9 @@ def expand_modules(
         )
         if has_init or is_namespace or is_directory:
             for subfilepath in modutils.get_module_files(
-                os.path.dirname(filepath), ignore_list, list_all=is_namespace
+                os.path.dirname(filepath) or ".", ignore_list, list_all=is_namespace
             ):
+                subfilepath = os.path.normpath(subfilepath)
                 if filepath == subfilepath:
                     continue
                 if _is_in_ignore_list_re(
