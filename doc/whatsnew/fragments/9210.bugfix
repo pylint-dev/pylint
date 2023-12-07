@@ -1,4 +1,4 @@
-Fix bug for not being able to walk through files when work on `./` as input
-at a directory with a `__init__.py` file.
+Fix a bug where pylint was unable to walk recursively through a directory if the
+directory has an `__init__.py` file.
 
 Closes #9210
