@@ -224,8 +224,6 @@ class TestExpandModules(CheckerTestCase):
                 ignore_list_re,
                 self.linter.config.ignore_paths,
             )
-            print(modules)
-            print(expected)
             assert modules == expected
             assert not errors
 
