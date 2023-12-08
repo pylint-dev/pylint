@@ -446,7 +446,9 @@ class BasicChecker(_BasicChecker):
                     if (
                         sibling is not None
                         and sibling.scope() is scope
-                        and isinstance(sibling, (nodes.Assign, nodes.AnnAssign))
+                        and isinstance(
+                            sibling, (nodes.Assign, nodes.AnnAssign, nodes.TypeAlias)
+                        )
                     ):
                         return
             self.add_message("pointless-string-statement", node=node)
