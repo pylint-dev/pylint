@@ -533,8 +533,19 @@ class ExceptionsChecker(checkers.BaseChecker):
     @utils.only_required_for_messages("wrong-exception-operation")
     def visit_binop(self, node: nodes.BinOp) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
+            both_sides_tuple_or_uninferable = isinstance(
+                utils.safe_infer(node.left), (nodes.Tuple, util.UninferableBase)
+            ) and isinstance(
+                utils.safe_infer(node.right), (nodes.Tuple, util.UninferableBase)
+            )
+            # Tuple concatenation allowed
+            if both_sides_tuple_or_uninferable:
+                if node.op == "+":
+                    return
+                suggestion = f"Did you mean '({node.left.as_string()} + {node.right.as_string()})' instead?"
             # except (V | A)
-            suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
+            else:
+                suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
     @utils.only_required_for_messages("wrong-exception-operation")
