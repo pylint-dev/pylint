@@ -1,0 +1,4 @@
+Fix false positive for ``invalid-exception-operation`` when concatenating tuples
+of exception types.
+
+Closes #9288
