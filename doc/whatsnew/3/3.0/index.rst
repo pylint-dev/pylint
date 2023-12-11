@@ -65,6 +65,58 @@ easier to parse and provides more info, here's a sample output.
 
 .. towncrier release notes start
 
+What's new in Pylint 3.0.3?
+---------------------------
+Release date: 2023-12-11
+
+
+False Positives Fixed
+---------------------
+
+- Fixed false positive for ``unnecessary-lambda`` when the call has keyword arguments but not the lambda.
+
+  Closes #9148 (`#9148 <https://github.com/pylint-dev/pylint/issues/9148>`_)
+
+- Fixed incorrect suggestion for shallow copy in unnecessary-comprehension
+
+  Example of the suggestion:
+  #pylint: disable=missing-module-docstring
+  a = [1, 2, 3]
+  b = [x for x in a]
+  b[0] = 0
+  print(a) # [1, 2, 3]
+
+  After changing b = [x for x in a] to b = a based on the suggestion, the script now prints [0, 2, 3]. The correct suggestion should be use list(a) to preserve the original behavior.
+
+  Closes #9172 (`#9172 <https://github.com/pylint-dev/pylint/issues/9172>`_)
+
+- Fix false positives for ``undefined-variable`` and ``unused-argument`` for
+  classes and functions using Python 3.12 generic type syntax.
+
+  Closes #9193 (`#9193 <https://github.com/pylint-dev/pylint/issues/9193>`_)
+
+- Fixed ``pointless-string-statement`` false positive for docstrings
+  on Python 3.12 type aliases.
+
+  Closes #9268 (`#9268 <https://github.com/pylint-dev/pylint/issues/9268>`_)
+
+- Fix false positive for ``invalid-exception-operation`` when concatenating tuples
+  of exception types.
+
+  Closes #9288 (`#9288 <https://github.com/pylint-dev/pylint/issues/9288>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix a bug where pylint was unable to walk recursively through a directory if the
+  directory has an `__init__.py` file.
+
+  Closes #9210 (`#9210 <https://github.com/pylint-dev/pylint/issues/9210>`_)
+
+
+
 What's new in Pylint 3.0.2?
 ---------------------------
 Release date: 2023-10-22

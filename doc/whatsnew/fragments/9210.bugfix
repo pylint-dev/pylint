@@ -1,4 +1,0 @@
-Fix a bug where pylint was unable to walk recursively through a directory if the
-directory has an `__init__.py` file.
-
-Closes #9210

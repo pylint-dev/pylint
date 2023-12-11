@@ -1,4 +1,0 @@
-Fixed ``pointless-string-statement`` false positive for docstrings
-on Python 3.12 type aliases.
-
-Closes #9268
