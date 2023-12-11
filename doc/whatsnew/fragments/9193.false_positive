@@ -1,4 +1,0 @@
-Fix false positives for ``undefined-variable`` and ``unused-argument`` for
-classes and functions using Python 3.12 generic type syntax.
-
-Closes #9193
