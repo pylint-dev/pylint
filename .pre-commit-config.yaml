@@ -34,7 +34,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
+    rev: 5.13.1
     hooks:
       - id: isort
         exclude: doc/data/messages/
@@ -131,7 +131,7 @@ repos:
           ]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.3-1
+    rev: v4.0.0-alpha.4
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
@@ -158,7 +158,7 @@ repos:
               setup.cfg
           )$
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
+    rev: 1.7.6
     hooks:
       - id: bandit
         args: ["-r", "-lll"]
