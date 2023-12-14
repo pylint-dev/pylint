@@ -2547,8 +2547,12 @@ class VariablesChecker(BaseChecker):
         else:
             _astmts = astmts[:1]
         for i, stmt in enumerate(astmts[1:]):
-            if astmts[i].statement().parent_of(stmt) and not utils.in_for_else_branch(
-                astmts[i].statement(), stmt
+            try:
+                astmt_statement = astmts[i].statement()
+            except astroid.exceptions.ParentMissingError:
+                continue
+            if astmt_statement.parent_of(stmt) and not utils.in_for_else_branch(
+                astmt_statement, stmt
             ):
                 continue
             _astmts.append(stmt)
@@ -2596,23 +2600,24 @@ class VariablesChecker(BaseChecker):
                     ):
                         return
 
-        maybe_walrus = utils.get_node_first_ancestor_of_type(node, nodes.NamedExpr)
-        if maybe_walrus:
-            maybe_comprehension = utils.get_node_first_ancestor_of_type(
-                maybe_walrus, nodes.Comprehension
+        if (
+            walrus := utils.get_node_first_ancestor_of_type(node, nodes.NamedExpr)
+        ) and (
+            comprehension := utils.get_node_first_ancestor_of_type(
+                walrus, nodes.Comprehension
             )
-            if maybe_comprehension:
-                comprehension_scope = utils.get_node_first_ancestor_of_type(
-                    maybe_comprehension, nodes.ComprehensionScope
-                )
-                if comprehension_scope is None:
-                    # Should not be possible.
-                    pass
-                elif (
-                    comprehension_scope.parent.scope() is scope
-                    and node.name in comprehension_scope.locals
-                ):
-                    return
+        ):
+            comprehension_scope = utils.get_node_first_ancestor_of_type(
+                comprehension, nodes.ComprehensionScope
+            )
+            if comprehension_scope is None:
+                # Should not be possible.
+                pass
+            elif (
+                comprehension_scope.parent.scope() is scope
+                and node.name in comprehension_scope.locals
+            ):
+                return
 
         # For functions we can do more by inferring the length of the itered object
         try:
@@ -2649,8 +2654,7 @@ class VariablesChecker(BaseChecker):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
                 return
 
-            elements = getattr(inferred, "elts", getattr(inferred, "items", []))
-            if not elements:
+            if not getattr(inferred, "elts", getattr(inferred, "items", [])):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
 
     # pylint: disable = too-many-branches
