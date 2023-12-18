@@ -17,7 +17,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.1.7"
+    rev: "v0.1.8"
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -34,12 +34,12 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/PyCQA/isort
-    rev: 5.13.1
+    rev: 5.13.2
     hooks:
       - id: isort
         exclude: doc/data/messages/
   - repo: https://github.com/psf/black
-    rev: 23.11.0
+    rev: 23.12.0
     hooks:
       - id: black
         args: [--safe, --quiet]
