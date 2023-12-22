@@ -26,13 +26,17 @@ def test_simplify_chained_comparison_3():
         pass
     elif a > 1 and a <= 10: # [chained-comparison]
         pass
+    elif a > 1 and a == 10: # [chained-comparison]
+        pass
+    elif a > 1 and a > 10: # [chained-comparison]
+        pass
+    elif a < 100 and a < 10: # [chained-comparison]
+        pass
+    elif a < b and a == 1 and a < c: # [chained-comparison]
+        pass
     elif a > 1 and a < 10 and b == 2: # [chained-comparison]
         pass
     elif a > 1 and c == b and a < 10: # [chained-comparison]
-        pass
-    elif a > 100 and c == b and a < 10: # [chained-comparison]
-        # In this comparison we are not checking whether left bound is actually
-        # lower than right bound or not.
         pass
     elif a < b and b < c: # [chained-comparison]
         pass
@@ -54,6 +58,8 @@ def test_simplify_chained_comparison_3():
         pass
     elif a < b < c and a < b and b < c: # [chained-comparison]
         pass
+    elif a < b < c and a < c: # [chained-comparison]
+        pass
 
 
 def test_not_simplify_chained_comparison_1():
@@ -65,17 +71,9 @@ def test_not_simplify_chained_comparison_1():
         pass
     elif a > 1 and b < 10:
         pass
-    elif a > 1 and a == 10:
-        pass
     elif a == 1 and b == 2:
         pass
-    elif a > 1 and a > 10:
-        pass
-    elif a < 100 and a < 10:
-        pass
     elif a < b and a < c:
-        pass
-    elif a < b and a == 1 and a < c:
         pass
     elif a < b and a < c and c == 786:
         pass
@@ -86,4 +84,32 @@ def test_not_simplify_chained_comparison_1():
     elif b < c < d and a < c:
         pass
     elif b < c < d and a < d:
+        pass
+
+def test_impossible_comparison():
+    a = 1
+    b = 2
+    c = 3
+    d = 4
+    if a > b and b > a: # [impossible-comparison]
+        pass
+    elif a > 100 and a < b and b < 15: # [impossible-comparison]
+        pass
+    elif a > b and b > c and c > a: # [impossible-comparison]
+        pass
+    elif a > b and b > c and c > d and d >= a: # [impossible-comparison]
+        pass
+    elif a > 100 and c == b and a < 10: # [impossible-comparison]
+        pass
+
+def test_all_equal():
+    a = 1
+    b = 2
+    c = 3
+    d = 4
+    if a >= b and b >= a: # [comparison-all-equal]
+        pass
+    elif a >= b and b >= c and c >= a: # [comparison-all-equal]
+        pass
+    elif a <= b and b <= c and c <= d and d <= a: # [comparison-all-equal]
         pass
