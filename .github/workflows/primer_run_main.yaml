@@ -107,8 +107,7 @@ jobs:
         uses: actions/upload-artifact@v4.0.0
         with:
           name:
-            primer_output_main_${{ steps.python.outputs.python-version }}_batch${{
-            matrix.batchIdx }}
+            primer_output_main_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
           path: >-
-            tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
-            }}_main_batch${{ matrix.batchIdx }}.txt
+            tests/.pylint_primer_tests/output_${{ matrix.python-version }}_main_batch${{
+            matrix.batchIdx }}.txt
