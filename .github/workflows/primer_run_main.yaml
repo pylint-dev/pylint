@@ -86,7 +86,7 @@ jobs:
         uses: actions/upload-artifact@v4.0.0
         if: matrix.batchIdx == 0
         with:
-          name: primer_commitstring
+          name: primer_commitstring_${{ matrix.python-version }}
           path:
             tests/.pylint_primer_tests/commit_string_${{ matrix.python-version }}.txt
 
