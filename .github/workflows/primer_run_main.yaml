@@ -82,8 +82,9 @@ jobs:
         run: |
           . venv/bin/activate
           python tests/primer/__main__.py prepare --clone
-      - name: Upload output diff
+      - name: Upload commit string
         uses: actions/upload-artifact@v4.0.0
+        if: matrix.batchIdx == 0
         with:
           name: primer_commitstring
           path:
@@ -105,7 +106,9 @@ jobs:
       - name: Upload output
         uses: actions/upload-artifact@v4.0.0
         with:
-          name: primer_output
+          name:
+            primer_output_main_${{ steps.python.outputs.python-version }}_batch${{
+            matrix.batchIdx }}
           path: >-
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
             }}_main_batch${{ matrix.batchIdx }}.txt

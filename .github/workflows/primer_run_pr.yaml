@@ -174,14 +174,18 @@ jobs:
       - name: Upload output of PR
         uses: actions/upload-artifact@v4.0.0
         with:
-          name: primer_output_pr
+          name:
+            primer_output_pr_${{ steps.python.outputs.python-version }}_batch${{
+            matrix.batchIdx }}
           path:
             tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
             }}_pr_batch${{ matrix.batchIdx }}.txt
       - name: Upload output of 'main'
         uses: actions/upload-artifact@v4.0.0
         with:
-          name: primer_output_main
+          name:
+            primer_output_main_${{ steps.python.outputs.python-version }}_batch${{
+            matrix.batchIdx }}
           path:
             output_${{ steps.python.outputs.python-version }}_main_batch${{
             matrix.batchIdx }}.txt
@@ -191,6 +195,8 @@ jobs:
         run: |
           echo ${{ github.event.pull_request.number }} | tee pr_number.txt
       - name: Upload PR number
+        if:
+          startsWith(steps.python.outputs.python-version, '3.8') && matrix.batchIdx == 0
         uses: actions/upload-artifact@v4.0.0
         with:
           name: pr_number
