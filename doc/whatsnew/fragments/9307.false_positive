@@ -1,0 +1,7 @@
+Fixed false positive nested-min-max for nested lists
+
+Nesting is useful for finding the maximum in a matrix.
+Therefore, pylint now allows nesting of the form:
+max(max([[1, 2, 3], [4, 5, 6]]))
+
+Closes #9307
