@@ -67,7 +67,7 @@ class NestedMinMaxChecker(BaseChecker):
                 and arg.func.name == node.func.name
                 # Nesting is useful for finding the maximum in a matrix.
                 # Allow: max(max([[1, 2, 3], [4, 5, 6]]))
-                # Meaning, redunant call only if parent max call has more than 1 arg.
+                # Meaning, redundant call only if parent max call has more than 1 arg.
                 and len(arg.parent.args) > 1
             )
         ]
