@@ -77,8 +77,13 @@ jobs:
       - name: Download last 'main' run info
         id: download-main-run
         uses: actions/github-script@v7.0.1
+        env:
+          COMMIT_STRING_ARTIFACT: primer_commitstring_${{ matrix.python-version }}
+          OUTPUT_ARTIFACT:
+            primer_output_main_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
         with:
           script: |
+            const { COMMIT_STRING_ARTIFACT, OUTPUT_ARTIFACT } = process.env
             // Download 'main' pylint output
             const fs = require('fs');
             const runs = await github.rest.actions.listWorkflowRuns({
@@ -100,32 +105,33 @@ jobs:
 
             // Get commitstring
             const [matchArtifactMain] = artifacts_main.data.artifacts.filter((artifact) =>
-              artifact.name == "primer_commitstring");
+              artifact.name === COMMIT_STRING_ARTIFACT);
             const downloadWorkflow = await github.rest.actions.downloadArtifact({
                owner: context.repo.owner,
                repo: context.repo.repo,
                artifact_id: matchArtifactMain.id,
                archive_format: "zip",
             });
-            fs.writeFileSync("primer_commitstring.zip", Buffer.from(downloadWorkflow.data));
+            fs.writeFileSync(`${COMMIT_STRING_ARTIFACT}.zip`, Buffer.from(downloadWorkflow.data));
 
             // Get output
             const [matchArtifactMainOutput] = artifacts_main.data.artifacts.filter((artifact) =>
-              artifact.name == "primer_output");
+              artifact.name === OUTPUT_ARTIFACT);
             const downloadWorkflowTwo = await github.rest.actions.downloadArtifact({
                owner: context.repo.owner,
                repo: context.repo.repo,
                artifact_id: matchArtifactMainOutput.id,
                archive_format: "zip",
             });
-            fs.writeFileSync("primer_output_main.zip", Buffer.from(downloadWorkflowTwo.data));
+            fs.writeFileSync(`${OUTPUT_ARTIFACT}.zip`, Buffer.from(downloadWorkflowTwo.data));
             return lastRunMain.head_sha;
       - name: Copy and unzip the commit string
         run: |
-          unzip primer_commitstring.zip
+          unzip primer_commitstring_${{ matrix.python-version }}.zip
           cp commit_string_${{ matrix.python-version }}.txt tests/.pylint_primer_tests/commit_string_${{ matrix.python-version }}.txt
       - name: Unzip the output of 'main'
-        run: unzip primer_output_main.zip
+        run: |
+          unzip primer_output_main_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}.zip
       - name: Get commit string
         id: commitstring
         run: |
@@ -175,20 +181,16 @@ jobs:
         uses: actions/upload-artifact@v4.0.0
         with:
           name:
-            primer_output_pr_${{ steps.python.outputs.python-version }}_batch${{
-            matrix.batchIdx }}
+            primer_output_pr_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
           path:
-            tests/.pylint_primer_tests/output_${{ steps.python.outputs.python-version
-            }}_pr_batch${{ matrix.batchIdx }}.txt
+            tests/.pylint_primer_tests/output_${{ matrix.python-version }}_pr_batch${{
+            matrix.batchIdx }}.txt
       - name: Upload output of 'main'
         uses: actions/upload-artifact@v4.0.0
         with:
           name:
-            primer_output_main_${{ steps.python.outputs.python-version }}_batch${{
-            matrix.batchIdx }}
-          path:
-            output_${{ steps.python.outputs.python-version }}_main_batch${{
-            matrix.batchIdx }}.txt
+            primer_output_main_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
+          path: output_${{ matrix.python-version }}_main_batch${{ matrix.batchIdx }}.txt
 
       # Save PR number so we know which PR to comment on
       - name: Save PR number
