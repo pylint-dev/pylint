@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 _LIST_MODIFIER_METHODS = {"append", "remove"}
-_SET_MODIFIER_METHODS = {"add", "remove"}
+_SET_MODIFIER_METHODS = {"add", "clear", "discard", "pop", "remove"}
 
 
 class ModifiedIterationChecker(checkers.BaseChecker):
