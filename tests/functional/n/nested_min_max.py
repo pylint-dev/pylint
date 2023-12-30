@@ -54,3 +54,11 @@ max(3, *[5] + list(range(4)))
 
 max(3, max(list(range(4))))  # [nested-min-max]
 max(3, *list(range(4)))
+
+# Nesting is useful for finding the maximum in a matrix
+# No message if external call has exactly 1 argument
+matrix = [[1, 2, 3], [4, 5, 6]]
+max(max(matrix))
+max(max(max(matrix)))
+max(3, max(max(matrix)))  # [nested-min-max]
+max(max(3, max(matrix)))  # [nested-min-max]

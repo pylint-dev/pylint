@@ -1,0 +1,3 @@
+Fixed false positive nested-min-max for nested lists.
+
+Closes #9307
