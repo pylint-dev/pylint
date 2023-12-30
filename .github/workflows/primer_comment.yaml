@@ -95,8 +95,8 @@ jobs:
           . venv/bin/activate
           python tests/primer/__main__.py compare \
           --commit=${{ github.event.workflow_run.head_sha }} \
-          --base-file=primer_output_main_${{ env.DEFAULT_PYTHON }}_BATCHIDX.txt \
-          --new-file=primer_output_pr_${{ env.DEFAULT_PYTHON }}_BATCHIDX.txt \
+          --base-file=output_${{ env.DEFAULT_PYTHON }}_main_BATCHIDX.txt \
+          --new-file=output_${{ env.DEFAULT_PYTHON }}_pr_BATCHIDX.txt \
           --batches=4
       - name: Post comment
         id: post-comment
