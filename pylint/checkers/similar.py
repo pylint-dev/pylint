@@ -907,7 +907,7 @@ def Run(argv: Sequence[str] | None = None) -> NoReturn:
     if argv is None:
         argv = sys.argv[1:]
 
-    s_opts = "hdi"
+    s_opts = "hd:i"
     l_opts = [
         "help",
         "duplicates=",
