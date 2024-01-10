@@ -1,0 +1,4 @@
+Avoid false positives for ``no-member`` involving function
+attributes supplied by decorators.
+
+Closes #9246
