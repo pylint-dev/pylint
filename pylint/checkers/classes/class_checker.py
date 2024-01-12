@@ -14,7 +14,7 @@ from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, Union
 
 import astroid
-from astroid import bases, nodes, util
+from astroid import bases, nodes, util, Name
 from astroid.nodes import LocalsDictNodeNG
 from astroid.typing import SuccessfulInferenceResult
 
@@ -1595,7 +1595,7 @@ a metaclass class method.",
         methods overridden from a parent class.
         """
         if node.is_method():
-            if node.args.args is not None:
+            if node.args.args is not None and self._first_attrs:
                 self._first_attrs.pop()
 
     leave_asyncfunctiondef = leave_functiondef

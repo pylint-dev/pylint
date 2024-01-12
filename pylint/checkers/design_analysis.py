@@ -12,7 +12,7 @@ from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 import astroid
-from astroid import nodes
+from astroid import nodes, Name
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_enum, only_required_for_messages
@@ -87,6 +87,11 @@ MSGS: dict[
         "Will be implemented in https://github.com/pylint-dev/pylint/issues/9099,"
         "msgid/symbol pair reserved for compatibility with ruff, "
         "see https://github.com/astral-sh/ruff/issues/8946.",
+    ),
+    "R0918": (
+        "Method could be a function",
+        "unused-self",
+        "Used when a method doesn't use its bound instance, and so could be written as a function.",
     ),
 }
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
@@ -563,6 +568,14 @@ class MisdesignChecker(BaseChecker):
             )
         # init new statements counter
         self._stmts.append(1)
+
+        # Check if 'self' is an argument but it's not being used
+        if 'self' in node.argnames():
+            # Check if 'self' is used in the function
+            print("self in node.argnames()")
+            if not any(isinstance(n, Name) and n.name == 'self' for n in node.nodes_of_class(Name)):
+                self.add_message('unused-self', line=node.lineno)
+                return
 
     visit_asyncfunctiondef = visit_functiondef
 
