@@ -249,6 +249,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when we detect an option that we do not recognize.",
         {"scope": WarningScope.LINE},
     ),
+    "E0016": (
+        "Method could be a function",
+        "unused-self",
+        "Used when a method has 'self' as a parameter but doesn't use it.",
+        {"scope": WarningScope.LINE},
+    ),
 }
 
 

@@ -14,7 +14,7 @@ from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, Union
 
 import astroid
-from astroid import bases, nodes, util
+from astroid import bases, nodes, util, Name
 from astroid.nodes import LocalsDictNodeNG
 from astroid.typing import SuccessfulInferenceResult
 
@@ -1225,6 +1225,12 @@ a metaclass class method.",
         if not node.is_method():
             return
 
+        # Check if 'self' is an argument but it's not being used
+        if 'self' in node.argnames():
+            # Check if 'self' is used in the function
+            if not any(isinstance(n, Name) and n.name == 'self' for n in node.nodes_of_class(Name)):
+                self.add_message('unused-self', line=node.lineno)
+                return
         self._check_useless_super_delegation(node)
         self._check_property_with_parameters(node)
 
@@ -1595,7 +1601,7 @@ a metaclass class method.",
         methods overridden from a parent class.
         """
         if node.is_method():
-            if node.args.args is not None:
+            if node.args.args is not None and self._first_attrs:
                 self._first_attrs.pop()
 
     leave_asyncfunctiondef = leave_functiondef
