@@ -5,7 +5,7 @@
 import astroid
 
 from pylint.checkers import design_analysis
-from pylint.testutils import CheckerTestCase, set_config
+from pylint.testutils import CheckerTestCase, set_config, MessageTest
 
 
 class TestDesignChecker(CheckerTestCase):
@@ -53,3 +53,59 @@ class TestDesignChecker(CheckerTestCase):
         options = self.linter.config.exclude_too_few_public_methods
 
         assert options == []
+
+
+class TestUnusedSelfChecker(CheckerTestCase):
+    CHECKER_CLASS = design_analysis.MisdesignChecker
+
+    def test_method_with_unused_self(self):
+        module_node = astroid.parse(
+            """
+            class MyClass:
+                def my_method(self, arg):
+                    return
+        """
+        )
+        self.linter.config.ignored_argument_names = None
+        self.walk(module_node)
+        method_node = module_node.body[0].body[0]
+        class_node = module_node.body[0]
+
+        expected_messages = [
+            MessageTest(
+                msg_id="unused-self",
+                line=3,
+                node=method_node,
+                col_offset=4,
+                end_line=3,
+                end_col_offset=17,
+            ),
+            MessageTest(
+                msg_id="too-few-public-methods",
+                line=2,
+                node=class_node,
+                args=(1, 2),
+                end_col_offset=13,
+                col_offset=0,
+                end_line=2,
+            ),
+        ]
+
+        with self.assertAddsMessages(*expected_messages):
+            pass
+
+    def test_method_using_self(self):
+        # This method should not trigger the 'unused-self' warning
+        module_node = astroid.parse(
+            """
+            class MyClass:
+                def my_method(self, arg):  #@
+                    print(self)
+                    return arg
+            """
+        )
+        class_node = module_node.body[0]
+        # Manually visit the class definition node
+        self.checker.visit_classdef(class_node)
+        with self.assertNoMessages():
+            pass

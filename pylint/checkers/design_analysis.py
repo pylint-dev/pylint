@@ -572,9 +572,8 @@ class MisdesignChecker(BaseChecker):
         # Check if 'self' is an argument but it's not being used
         if 'self' in node.argnames():
             # Check if 'self' is used in the function
-            print("self in node.argnames()")
             if not any(isinstance(n, Name) and n.name == 'self' for n in node.nodes_of_class(Name)):
-                self.add_message('unused-self', line=node.lineno)
+                self.add_message('unused-self', node=node)
                 return
 
     visit_asyncfunctiondef = visit_functiondef
