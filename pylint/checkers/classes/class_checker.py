@@ -1225,6 +1225,12 @@ a metaclass class method.",
         if not node.is_method():
             return
 
+        # Check if 'self' is an argument but it's not being used
+        if 'self' in node.argnames():
+            # Check if 'self' is used in the function
+            if not any(isinstance(n, Name) and n.name == 'self' for n in node.nodes_of_class(Name)):
+                self.add_message('unused-self', line=node.lineno)
+                return
         self._check_useless_super_delegation(node)
         self._check_property_with_parameters(node)
 
