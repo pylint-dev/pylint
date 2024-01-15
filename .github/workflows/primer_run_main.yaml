@@ -83,7 +83,7 @@ jobs:
           . venv/bin/activate
           python tests/primer/__main__.py prepare --clone
       - name: Upload commit string
-        uses: actions/upload-artifact@v4.0.0
+        uses: actions/upload-artifact@v4.1.0
         if: matrix.batchIdx == 0
         with:
           name: primer_commitstring_${{ matrix.python-version }}
@@ -104,7 +104,7 @@ jobs:
           then echo "::warning ::$WARNINGS"
           fi
       - name: Upload output
-        uses: actions/upload-artifact@v4.0.0
+        uses: actions/upload-artifact@v4.1.0
         with:
           name:
             primer_output_main_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
