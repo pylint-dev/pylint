@@ -571,6 +571,11 @@ class MisdesignChecker(BaseChecker):
 
         # Check if 'self' is an argument but it's not being used
         if 'self' in node.argnames():
+            # Check if the function is nested inside another function
+            if isinstance(node.parent, nodes.FunctionDef):
+                # This is a nested function, so 'self' might be a legitimate argument
+                return
+
             # Check if 'self' is used in the function
             if not any(isinstance(n, Name) and n.name == 'self' for n in node.nodes_of_class(Name)):
                 self.add_message('unused-self', node=node)
