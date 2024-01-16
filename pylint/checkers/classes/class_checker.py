@@ -14,7 +14,7 @@ from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, Union
 
 import astroid
-from astroid import bases, nodes, util, Name
+from astroid import bases, nodes, util
 from astroid.nodes import LocalsDictNodeNG
 from astroid.typing import SuccessfulInferenceResult
 

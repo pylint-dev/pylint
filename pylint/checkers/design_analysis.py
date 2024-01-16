@@ -12,7 +12,7 @@ from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 import astroid
-from astroid import nodes, Name
+from astroid import Name, nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_enum, only_required_for_messages
@@ -570,15 +570,18 @@ class MisdesignChecker(BaseChecker):
         self._stmts.append(1)
 
         # Check if 'self' is an argument but it's not being used
-        if 'self' in node.argnames():
+        if "self" in node.argnames():
             # Check if the function is nested inside another function
             if isinstance(node.parent, nodes.FunctionDef):
                 # This is a nested function, so 'self' might be a legitimate argument
                 return
 
             # Check if 'self' is used in the function
-            if not any(isinstance(n, Name) and n.name == 'self' for n in node.nodes_of_class(Name)):
-                self.add_message('unused-self', node=node)
+            if not any(
+                isinstance(n, Name) and n.name == "self"
+                for n in node.nodes_of_class(Name)
+            ):
+                self.add_message("unused-self", node=node)
                 return
 
     visit_asyncfunctiondef = visit_functiondef

@@ -5,7 +5,7 @@
 import astroid
 
 from pylint.checkers import design_analysis
-from pylint.testutils import CheckerTestCase, set_config, MessageTest
+from pylint.testutils import CheckerTestCase, MessageTest, set_config
 
 
 class TestDesignChecker(CheckerTestCase):
