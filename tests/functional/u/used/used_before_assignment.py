@@ -70,7 +70,7 @@ elif VAR2:
         VAR5 = True
     else:
         VAR5 = True
-if VAR5:
+if VAR5:  # [used-before-assignment]
     pass
 
 if FALSE:
@@ -116,7 +116,7 @@ for num in [0, 1]:
     VAR11 = num
     if VAR11:
         VAR12 = False
-print(VAR12)
+print(VAR12)  # [used-before-assignment]
 
 def turn_on2(**kwargs):
     """https://github.com/pylint-dev/pylint/issues/7873"""

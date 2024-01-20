@@ -1,5 +1,19 @@
 undefined-variable:69:21:69:28:MyClass.incorrect_typing_method:Undefined variable 'MyClass':UNDEFINED
 undefined-variable:74:26:74:33:MyClass.incorrect_nested_typing_method:Undefined variable 'MyClass':UNDEFINED
 undefined-variable:79:20:79:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED
-used-before-assignment:140:35:140:39:MyFourthClass.is_close:Using variable 'math' before assignment:CONTROL_FLOW
-used-before-assignment:153:20:153:28:VariableAnnotationsGuardedByTypeChecking:Using variable 'datetime' before assignment:CONTROL_FLOW
+used-before-assignment:140:35:140:39:MyFourthClass.is_close:Using variable 'math' before assignment:INFERENCE
+used-before-assignment:153:20:153:28:VariableAnnotationsGuardedByTypeChecking:Using variable 'datetime' before assignment:INFERENCE
+used-before-assignment:170:40:170:48:TypeCheckingMultiBranch.defined_in_elif_branch:Using variable 'calendar' before assignment:INFERENCE
+used-before-assignment:171:14:171:20:TypeCheckingMultiBranch.defined_in_elif_branch:Using variable 'bisect' before assignment:INFERENCE
+used-before-assignment:175:14:175:22:TypeCheckingMultiBranch.defined_in_else_branch:Using variable 'zoneinfo' before assignment:INFERENCE
+used-before-assignment:180:43:180:48:TypeCheckingMultiBranch.defined_in_nested_if_else:Using variable 'heapq' before assignment:INFERENCE
+used-before-assignment:184:39:184:44:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'array' before assignment:INFERENCE
+used-before-assignment:185:14:185:19:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'types' before assignment:INFERENCE
+used-before-assignment:186:14:186:18:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'copy' before assignment:INFERENCE
+used-before-assignment:187:14:187:21:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'numbers' before assignment:INFERENCE
+used-before-assignment:190:34:190:38:TypeCheckingMultiBranch.defined_in_loops:Using variable 'json' before assignment:INFERENCE
+used-before-assignment:191:14:191:19:TypeCheckingMultiBranch.defined_in_loops:Using variable 'email' before assignment:INFERENCE
+used-before-assignment:192:14:192:21:TypeCheckingMultiBranch.defined_in_loops:Using variable 'mailbox' before assignment:INFERENCE
+used-before-assignment:193:14:193:23:TypeCheckingMultiBranch.defined_in_loops:Using variable 'mimetypes' before assignment:INFERENCE
+used-before-assignment:196:33:196:39:TypeCheckingMultiBranch.defined_in_with:Using variable 'base64' before assignment:INFERENCE
+used-before-assignment:197:14:197:22:TypeCheckingMultiBranch.defined_in_with:Using variable 'binascii' before assignment:INFERENCE
