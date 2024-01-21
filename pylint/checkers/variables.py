@@ -883,6 +883,16 @@ scope_type : {self._atomic.scope_type}
                 and utils.is_terminating_func(else_statement.value)
                 for else_statement in closest_try_except.orelse
             )
+            else_block_continues = any(
+                isinstance(else_statement, nodes.Continue)
+                for else_statement in closest_try_except.orelse
+            )
+            if (
+                else_block_continues
+                and isinstance(node_statement.parent, (nodes.For, nodes.While))
+                and closest_try_except.parent.parent_of(node_statement)
+            ):
+                continue
 
             if try_block_returns or else_block_returns or else_block_exits:
                 # Exception: if this node is in the final block of the other_node_statement,
