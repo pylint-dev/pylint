@@ -26,7 +26,7 @@ def halfway_safe():
             continue
 
         print(error)
-    print(error)  # could emit here...
+    print(error)  # Should raise used-before-assignment see https://github.com/pylint-dev/pylint/pull/9374#discussion_r1460984807
 
 
 def unsafe():
