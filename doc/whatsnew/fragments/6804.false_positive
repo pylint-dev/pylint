@@ -1,0 +1,5 @@
+``used-before-assignment`` is no longer emitted when using a name in a loop and
+depending on an earlier name assignment in an ``except`` block paired with
+``else: continue``.
+
+Closes #6804
