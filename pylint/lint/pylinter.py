@@ -355,7 +355,6 @@ class PyLinter(
         self.current_file: str | None = None
         self._ignore_file = False
         self._ignore_paths: list[Pattern[str]] = []
-        self._files_checked = set()
 
         self.register_checker(self)
 
@@ -750,7 +749,7 @@ class PyLinter(
                 continue
             try:
                 self._lint_file(fileitem, module, check_astroid_module)
-                self._files_checked.add(fileitem.filepath)
+                self.stats.modules_names.add(fileitem.filepath)
             except Exception as ex:  # pylint: disable=broad-except
                 template_path = prepare_crash_report(
                     ex, fileitem.filepath, self.crash_file_path
@@ -1143,7 +1142,7 @@ class PyLinter(
             if verbose:
                 checked_files_count = self.stats.node_count["module"]
                 unchecked_files_count = self.stats.undocumented["module"]
-                checked_files = ', '.join(self._files_checked)
+                checked_files = ", ".join(self.stats.modules_names)
                 msg += f"\nChecked {checked_files_count} files ({checked_files}), skipped {unchecked_files_count} files"
 
         if self.config.score:

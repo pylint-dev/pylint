@@ -109,6 +109,7 @@ class LinterStats:
         self.code_type_count = code_type_count or CodeTypeCount(
             code=0, comment=0, docstring=0, empty=0, total=0
         )
+        self.modules_names: set[str] = set()
 
         self.dependencies: dict[str, set[str]] = dependencies or {}
         self.duplicated_lines = duplicated_lines or DuplicatedLines(
