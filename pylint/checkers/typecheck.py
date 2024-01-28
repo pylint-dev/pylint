@@ -21,6 +21,7 @@ import astroid
 import astroid.exceptions
 import astroid.helpers
 from astroid import arguments, bases, nodes, util
+from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, utils
@@ -660,7 +661,7 @@ def _determine_callable(
 def _has_parent_of_type(
     node: nodes.Call,
     node_type: nodes.Keyword | nodes.Starred,
-    statement: nodes.Statement,
+    statement: _base_nodes.Statement,
 ) -> bool:
     """Check if the given node has a parent of the given type."""
     parent = node.parent

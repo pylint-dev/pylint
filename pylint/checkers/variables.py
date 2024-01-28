@@ -850,7 +850,7 @@ scope_type : {self._atomic.scope_type}
     def _uncertain_nodes_in_except_blocks(
         found_nodes: list[nodes.NodeNG],
         node: nodes.NodeNG,
-        node_statement: nodes.Statement,
+        node_statement: _base_nodes.Statement,
     ) -> list[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain
         because they are in an except block.
@@ -1071,7 +1071,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _recursive_search_for_continue_before_break(
-        stmt: nodes.Statement, break_stmt: nodes.Break
+        stmt: _base_nodes.Statement, break_stmt: nodes.Break
     ) -> bool:
         """Return True if any Continue node can be found in descendants of `stmt`
         before encountering `break_stmt`, ignoring any nested loops.
@@ -1091,7 +1091,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
-        found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
+        found_nodes: list[nodes.NodeNG], node_statement: _base_nodes.Statement
     ) -> list[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain.
 
@@ -1139,7 +1139,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-        found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
+        found_nodes: list[nodes.NodeNG], node_statement: _base_nodes.Statement
     ) -> list[nodes.NodeNG]:
         uncertain_nodes: list[nodes.NodeNG] = []
         (
@@ -2183,8 +2183,8 @@ class VariablesChecker(BaseChecker):
     def _is_variable_violation(
         node: nodes.Name,
         defnode: nodes.NodeNG,
-        stmt: nodes.Statement,
-        defstmt: nodes.Statement,
+        stmt: _base_nodes.Statement,
+        defstmt: _base_nodes.Statement,
         frame: nodes.LocalsDictNodeNG,  # scope of statement of node
         defframe: nodes.LocalsDictNodeNG,
         base_scope_type: str,
@@ -2338,7 +2338,7 @@ class VariablesChecker(BaseChecker):
         return maybe_before_assign, annotation_return, use_outer_definition
 
     @staticmethod
-    def _maybe_used_and_assigned_at_once(defstmt: nodes.Statement) -> bool:
+    def _maybe_used_and_assigned_at_once(defstmt: _base_nodes.Statement) -> bool:
         """Check if `defstmt` has the potential to use and assign a name in the
         same statement.
         """
@@ -2380,7 +2380,9 @@ class VariablesChecker(BaseChecker):
         return name in self.linter.config.additional_builtins or utils.is_builtin(name)
 
     @staticmethod
-    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
+    def _is_only_type_assignment(
+        node: nodes.Name, defstmt: _base_nodes.Statement
+    ) -> bool:
         """Check if variable only gets assigned a type and never a value."""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
