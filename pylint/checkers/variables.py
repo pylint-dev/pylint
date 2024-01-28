@@ -2512,7 +2512,7 @@ class VariablesChecker(BaseChecker):
             and name in frame_locals
         )
 
-    # pylint: disable = too-many-branches, too-many-statements
+    # pylint: disable-next=too-many-branches,too-many-statements
     def _loopvar_name(self, node: astroid.Name) -> None:
         # filter variables according to node's scope
         astmts = [s for s in node.lookup(node.name)[1] if hasattr(s, "assign_type")]
