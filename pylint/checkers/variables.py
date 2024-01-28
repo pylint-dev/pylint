@@ -19,6 +19,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
+import astroid.exceptions
 from astroid import bases, extract_node, nodes, util
 from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult
@@ -2521,7 +2522,7 @@ class VariablesChecker(BaseChecker):
             and name in frame_locals
         )
 
-    # pylint: disable = too-many-branches
+    # pylint: disable-next=too-many-branches,too-many-statements
     def _loopvar_name(self, node: astroid.Name) -> None:
         # filter variables according to node's scope
         astmts = [s for s in node.lookup(node.name)[1] if hasattr(s, "assign_type")]
@@ -2557,8 +2558,12 @@ class VariablesChecker(BaseChecker):
         else:
             _astmts = astmts[:1]
         for i, stmt in enumerate(astmts[1:]):
-            if astmts[i].statement().parent_of(stmt) and not utils.in_for_else_branch(
-                astmts[i].statement(), stmt
+            try:
+                astmt_statement = astmts[i].statement()
+            except astroid.exceptions.ParentMissingError:
+                continue
+            if astmt_statement.parent_of(stmt) and not utils.in_for_else_branch(
+                astmt_statement, stmt
             ):
                 continue
             _astmts.append(stmt)
