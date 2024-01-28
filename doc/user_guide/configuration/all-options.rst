@@ -216,6 +216,20 @@ Standard Checkers
 **Default:**  ``False``
 
 
+--use-local-configs
+"""""""""""""""""""
+*When some of the linted files or modules have pylint config in the same directory, use their local configs for checking these files.*
+
+**Default:**  ``False``
+
+
+--use-parent-configs
+""""""""""""""""""""
+*Search for local pylint configs up until current working directory or root.*
+
+**Default:**  ``False``
+
+
 
 .. raw:: html
 
@@ -284,6 +298,10 @@ Standard Checkers
    suggestion-mode = true
 
    unsafe-load-any-extension = false
+
+   use-local-configs = false
+
+   use-parent-configs = false
 
 
 
