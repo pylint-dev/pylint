@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
+# pylint: disable = too-many-statements
 def _config_initialization(
     linter: PyLinter,
     args_list: list[str],
@@ -141,7 +142,8 @@ def _config_initialization(
     linter._parse_error_mode()
 
     # Link the base Namespace object on the current directory
-    linter._directory_namespaces[Path(".").resolve()] = (linter.config, {})
+    if Path(".").resolve() not in linter._directory_namespaces:
+        linter._directory_namespaces[Path(".").resolve()] = (linter.config, {})
 
     # parsed_args_list should now only be a list of inputs to lint.
     # All other options have been removed from the list.
