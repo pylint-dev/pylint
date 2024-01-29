@@ -3,8 +3,7 @@ class Fruit:
         print(f"Brewing a {type(self)} with {ingredient_name}")
 
 
-class Apple(Fruit):
-    ...
+class Apple(Fruit): ...
 
 
 class Orange(Fruit):

@@ -406,9 +406,9 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
             for char in BAD_CHARS:
                 # Some characters might not exist in all encodings
                 with contextlib.suppress(UnicodeDecodeError):
-                    search_dict_byte[
-                        _cached_encode_search(char.unescaped, codec)
-                    ] = char
+                    search_dict_byte[_cached_encode_search(char.unescaped, codec)] = (
+                        char
+                    )
 
             return _map_positions_to_result(
                 line_search_byte,

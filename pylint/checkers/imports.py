@@ -448,9 +448,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self.import_graph: defaultdict[str, set[str]] = defaultdict(set)
         self._imports_stack: list[tuple[ImportNode, str]] = []
         self._first_non_import_node = None
-        self._module_pkg: dict[
-            Any, Any
-        ] = {}  # mapping of modules to the pkg they belong in
+        self._module_pkg: dict[Any, Any] = (
+            {}
+        )  # mapping of modules to the pkg they belong in
         self._allow_any_import_level: set[Any] = set()
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
@@ -612,13 +612,15 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def compute_first_non_import_node(
         self,
-        node: nodes.If
-        | nodes.Expr
-        | nodes.Comprehension
-        | nodes.IfExp
-        | nodes.Assign
-        | nodes.AssignAttr
-        | nodes.Try,
+        node: (
+            nodes.If
+            | nodes.Expr
+            | nodes.Comprehension
+            | nodes.IfExp
+            | nodes.Assign
+            | nodes.AssignAttr
+            | nodes.Try
+        ),
     ) -> None:
         # if the node does not contain an import instruction, and if it is the
         # first node of the module, keep a track of it (all the import positions
@@ -645,13 +647,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 return
         self._first_non_import_node = node
 
-    visit_try = (
-        visit_assignattr
-    ) = (
-        visit_assign
-    ) = (
-        visit_ifexp
-    ) = visit_comprehension = visit_expr = visit_if = compute_first_non_import_node
+    visit_try = visit_assignattr = visit_assign = visit_ifexp = visit_comprehension = (
+        visit_expr
+    ) = visit_if = compute_first_non_import_node
 
     def visit_functiondef(
         self, node: nodes.FunctionDef | nodes.While | nodes.For | nodes.ClassDef
@@ -750,9 +748,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
     # pylint: disable = too-many-statements
-    def _check_imports_order(
-        self, _module_node: nodes.Module
-    ) -> tuple[
+    def _check_imports_order(self, _module_node: nodes.Module) -> tuple[
         list[tuple[ImportNode, str]],
         list[tuple[ImportNode, str]],
         list[tuple[ImportNode, str]],
@@ -1242,9 +1238,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             return
 
         module_names = [
-            f"{node.modname}.{name[0]}"
-            if isinstance(node, nodes.ImportFrom)
-            else name[0]
+            (
+                f"{node.modname}.{name[0]}"
+                if isinstance(node, nodes.ImportFrom)
+                else name[0]
+            )
             for name in node.names
         ]
 

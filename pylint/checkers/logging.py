@@ -21,71 +21,71 @@ from pylint.typing import MessageDefinitionTuple
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS: dict[
-    str, MessageDefinitionTuple
-] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
-    "W1201": (
-        "Use %s formatting in logging functions",
-        "logging-not-lazy",
-        "Used when a logging statement has a call form of "
-        '"logging.<logging method>(format_string % (format_args...))". '
-        "Use another type of string formatting instead. "
-        "You can use % formatting but leave interpolation to "
-        "the logging function by passing the parameters as arguments. "
-        "If logging-fstring-interpolation is disabled then "
-        "you can use fstring formatting. "
-        "If logging-format-interpolation is disabled then "
-        "you can use str.format.",
-    ),
-    "W1202": (
-        "Use %s formatting in logging functions",
-        "logging-format-interpolation",
-        "Used when a logging statement has a call form of "
-        '"logging.<logging method>(format_string.format(format_args...))". '
-        "Use another type of string formatting instead. "
-        "You can use % formatting but leave interpolation to "
-        "the logging function by passing the parameters as arguments. "
-        "If logging-fstring-interpolation is disabled then "
-        "you can use fstring formatting. "
-        "If logging-not-lazy is disabled then "
-        "you can use % formatting as normal.",
-    ),
-    "W1203": (
-        "Use %s formatting in logging functions",
-        "logging-fstring-interpolation",
-        "Used when a logging statement has a call form of "
-        '"logging.<logging method>(f"...")".'
-        "Use another type of string formatting instead. "
-        "You can use % formatting but leave interpolation to "
-        "the logging function by passing the parameters as arguments. "
-        "If logging-format-interpolation is disabled then "
-        "you can use str.format. "
-        "If logging-not-lazy is disabled then "
-        "you can use % formatting as normal.",
-    ),
-    "E1200": (
-        "Unsupported logging format character %r (%#02x) at index %d",
-        "logging-unsupported-format",
-        "Used when an unsupported format character is used in a logging "
-        "statement format string.",
-    ),
-    "E1201": (
-        "Logging format string ends in middle of conversion specifier",
-        "logging-format-truncated",
-        "Used when a logging statement format string terminates before "
-        "the end of a conversion specifier.",
-    ),
-    "E1205": (
-        "Too many arguments for logging format string",
-        "logging-too-many-args",
-        "Used when a logging format string is given too many arguments.",
-    ),
-    "E1206": (
-        "Not enough arguments for logging format string",
-        "logging-too-few-args",
-        "Used when a logging format string is given too few arguments.",
-    ),
-}
+MSGS: dict[str, MessageDefinitionTuple] = (
+    {  # pylint: disable=consider-using-namedtuple-or-dataclass
+        "W1201": (
+            "Use %s formatting in logging functions",
+            "logging-not-lazy",
+            "Used when a logging statement has a call form of "
+            '"logging.<logging method>(format_string % (format_args...))". '
+            "Use another type of string formatting instead. "
+            "You can use % formatting but leave interpolation to "
+            "the logging function by passing the parameters as arguments. "
+            "If logging-fstring-interpolation is disabled then "
+            "you can use fstring formatting. "
+            "If logging-format-interpolation is disabled then "
+            "you can use str.format.",
+        ),
+        "W1202": (
+            "Use %s formatting in logging functions",
+            "logging-format-interpolation",
+            "Used when a logging statement has a call form of "
+            '"logging.<logging method>(format_string.format(format_args...))". '
+            "Use another type of string formatting instead. "
+            "You can use % formatting but leave interpolation to "
+            "the logging function by passing the parameters as arguments. "
+            "If logging-fstring-interpolation is disabled then "
+            "you can use fstring formatting. "
+            "If logging-not-lazy is disabled then "
+            "you can use % formatting as normal.",
+        ),
+        "W1203": (
+            "Use %s formatting in logging functions",
+            "logging-fstring-interpolation",
+            "Used when a logging statement has a call form of "
+            '"logging.<logging method>(f"...")".'
+            "Use another type of string formatting instead. "
+            "You can use % formatting but leave interpolation to "
+            "the logging function by passing the parameters as arguments. "
+            "If logging-format-interpolation is disabled then "
+            "you can use str.format. "
+            "If logging-not-lazy is disabled then "
+            "you can use % formatting as normal.",
+        ),
+        "E1200": (
+            "Unsupported logging format character %r (%#02x) at index %d",
+            "logging-unsupported-format",
+            "Used when an unsupported format character is used in a logging "
+            "statement format string.",
+        ),
+        "E1201": (
+            "Logging format string ends in middle of conversion specifier",
+            "logging-format-truncated",
+            "Used when a logging statement format string terminates before "
+            "the end of a conversion specifier.",
+        ),
+        "E1205": (
+            "Too many arguments for logging format string",
+            "logging-too-many-args",
+            "Used when a logging format string is given too many arguments.",
+        ),
+        "E1206": (
+            "Not enough arguments for logging format string",
+            "logging-too-few-args",
+            "Used when a logging format string is given too few arguments.",
+        ),
+    }
+)
 
 
 CHECKED_CONVENIENCE_FUNCTIONS = {

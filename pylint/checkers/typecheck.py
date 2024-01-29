@@ -1493,9 +1493,9 @@ accessed. Python regular expressions are accepted.",
                 node, node_scope
             )
         else:
-            has_no_context_positional_variadic = (
-                has_no_context_keywords_variadic
-            ) = False
+            has_no_context_positional_variadic = has_no_context_keywords_variadic = (
+                False
+            )
 
         # These are coming from the functools.partial implementation in astroid
         already_filled_positionals = getattr(called, "filled_positionals", 0)

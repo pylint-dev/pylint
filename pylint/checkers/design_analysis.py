@@ -21,74 +21,74 @@ from pylint.typing import MessageDefinitionTuple
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS: dict[
-    str, MessageDefinitionTuple
-] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
-    "R0901": (
-        "Too many ancestors (%s/%s)",
-        "too-many-ancestors",
-        "Used when class has too many parent classes, try to reduce "
-        "this to get a simpler (and so easier to use) class.",
-    ),
-    "R0902": (
-        "Too many instance attributes (%s/%s)",
-        "too-many-instance-attributes",
-        "Used when class has too many instance attributes, try to reduce "
-        "this to get a simpler (and so easier to use) class.",
-    ),
-    "R0903": (
-        "Too few public methods (%s/%s)",
-        "too-few-public-methods",
-        "Used when class has too few public methods, so be sure it's "
-        "really worth it.",
-    ),
-    "R0904": (
-        "Too many public methods (%s/%s)",
-        "too-many-public-methods",
-        "Used when class has too many public methods, try to reduce "
-        "this to get a simpler (and so easier to use) class.",
-    ),
-    "R0911": (
-        "Too many return statements (%s/%s)",
-        "too-many-return-statements",
-        "Used when a function or method has too many return statement, "
-        "making it hard to follow.",
-    ),
-    "R0912": (
-        "Too many branches (%s/%s)",
-        "too-many-branches",
-        "Used when a function or method has too many branches, "
-        "making it hard to follow.",
-    ),
-    "R0913": (
-        "Too many arguments (%s/%s)",
-        "too-many-arguments",
-        "Used when a function or method takes too many arguments.",
-    ),
-    "R0914": (
-        "Too many local variables (%s/%s)",
-        "too-many-locals",
-        "Used when a function or method has too many local variables.",
-    ),
-    "R0915": (
-        "Too many statements (%s/%s)",
-        "too-many-statements",
-        "Used when a function or method has too many statements. You "
-        "should then split it in smaller functions / methods.",
-    ),
-    "R0916": (
-        "Too many boolean expressions in if statement (%s/%s)",
-        "too-many-boolean-expressions",
-        "Used when an if statement contains too many boolean expressions.",
-    ),
-    "R0917": (
-        "Too many positional arguments in a function call.",
-        "too-many-positional",
-        "Will be implemented in https://github.com/pylint-dev/pylint/issues/9099,"
-        "msgid/symbol pair reserved for compatibility with ruff, "
-        "see https://github.com/astral-sh/ruff/issues/8946.",
-    ),
-}
+MSGS: dict[str, MessageDefinitionTuple] = (
+    {  # pylint: disable=consider-using-namedtuple-or-dataclass
+        "R0901": (
+            "Too many ancestors (%s/%s)",
+            "too-many-ancestors",
+            "Used when class has too many parent classes, try to reduce "
+            "this to get a simpler (and so easier to use) class.",
+        ),
+        "R0902": (
+            "Too many instance attributes (%s/%s)",
+            "too-many-instance-attributes",
+            "Used when class has too many instance attributes, try to reduce "
+            "this to get a simpler (and so easier to use) class.",
+        ),
+        "R0903": (
+            "Too few public methods (%s/%s)",
+            "too-few-public-methods",
+            "Used when class has too few public methods, so be sure it's "
+            "really worth it.",
+        ),
+        "R0904": (
+            "Too many public methods (%s/%s)",
+            "too-many-public-methods",
+            "Used when class has too many public methods, try to reduce "
+            "this to get a simpler (and so easier to use) class.",
+        ),
+        "R0911": (
+            "Too many return statements (%s/%s)",
+            "too-many-return-statements",
+            "Used when a function or method has too many return statement, "
+            "making it hard to follow.",
+        ),
+        "R0912": (
+            "Too many branches (%s/%s)",
+            "too-many-branches",
+            "Used when a function or method has too many branches, "
+            "making it hard to follow.",
+        ),
+        "R0913": (
+            "Too many arguments (%s/%s)",
+            "too-many-arguments",
+            "Used when a function or method takes too many arguments.",
+        ),
+        "R0914": (
+            "Too many local variables (%s/%s)",
+            "too-many-locals",
+            "Used when a function or method has too many local variables.",
+        ),
+        "R0915": (
+            "Too many statements (%s/%s)",
+            "too-many-statements",
+            "Used when a function or method has too many statements. You "
+            "should then split it in smaller functions / methods.",
+        ),
+        "R0916": (
+            "Too many boolean expressions in if statement (%s/%s)",
+            "too-many-boolean-expressions",
+            "Used when an if statement contains too many boolean expressions.",
+        ),
+        "R0917": (
+            "Too many positional arguments in a function call.",
+            "too-many-positional",
+            "Will be implemented in https://github.com/pylint-dev/pylint/issues/9099,"
+            "msgid/symbol pair reserved for compatibility with ruff, "
+            "see https://github.com/astral-sh/ruff/issues/8946.",
+        ),
+    }
+)
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"

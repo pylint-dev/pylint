@@ -166,9 +166,9 @@ class PrivateImportChecker(BaseChecker):
                     )
             if private_name is not None:
                 # Found a new private annotation, make sure we are not accessing it elsewhere
-                all_used_type_annotations[
-                    private_name
-                ] = self._assignments_call_private_name(name_assignments, private_name)
+                all_used_type_annotations[private_name] = (
+                    self._assignments_call_private_name(name_assignments, private_name)
+                )
 
     def _populate_type_annotations_function(
         self, node: nodes.FunctionDef, all_used_type_annotations: dict[str, bool]

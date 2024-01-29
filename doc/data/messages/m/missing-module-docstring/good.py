@@ -1,4 +1,5 @@
 """Module providing a function printing python version."""
+
 import sys
 
 

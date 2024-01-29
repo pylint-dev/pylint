@@ -38,9 +38,9 @@ class FileState:
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
         self._raw_module_msgs_state: MessageStateDict = {}
-        self._ignored_msgs: defaultdict[
-            tuple[str, int], set[int]
-        ] = collections.defaultdict(set)
+        self._ignored_msgs: defaultdict[tuple[str, int], set[int]] = (
+            collections.defaultdict(set)
+        )
         self._suppression_mapping: dict[tuple[str, int], int] = {}
         self._module = node
         if node:
