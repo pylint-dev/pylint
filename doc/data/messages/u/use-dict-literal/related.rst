@@ -1,0 +1,1 @@
+- `Builtin function type() <https://docs.python.org/3/library/functions.html#type>`_
