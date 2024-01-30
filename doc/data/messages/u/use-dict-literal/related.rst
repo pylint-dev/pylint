@@ -1,1 +1,1 @@
-- `Builtin function type() <https://docs.python.org/3/library/functions.html#type>`_
+- `Performance Analysis of Python’s dict() vs dict litteral <https://madebyme.today/blog/python-dict-vs-curly-brackets/>`_
