@@ -334,9 +334,9 @@ class NameChecker(_BasicChecker):
         for all_groups in self._bad_names.values():
             if len(all_groups) < 2:
                 continue
-            groups: collections.defaultdict[
-                int, list[list[_BadNamesTuple]]
-            ] = collections.defaultdict(list)
+            groups: collections.defaultdict[int, list[list[_BadNamesTuple]]] = (
+                collections.defaultdict(list)
+            )
             min_warnings = sys.maxsize
             prevalent_group, _ = max(all_groups.items(), key=lambda item: len(item[1]))
             for group in all_groups.values():

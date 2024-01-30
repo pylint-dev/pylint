@@ -143,9 +143,9 @@ def check_parallel(
     ) as executor:
         linter.open()
         all_stats = []
-        all_mapreduce_data: defaultdict[
-            int, list[defaultdict[str, list[Any]]]
-        ] = defaultdict(list)
+        all_mapreduce_data: defaultdict[int, list[defaultdict[str, list[Any]]]] = (
+            defaultdict(list)
+        )
 
         # Maps each file to be worked on by a single _worker_check_single_file() call,
         # collecting any map/reduce data by checker module so that we can 'reduce' it

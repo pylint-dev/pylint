@@ -1,1 +1,1 @@
-cats: (int | str)
+cats: int | str

@@ -1389,10 +1389,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             uses[value]["lower_bound"].add(comparison_node)
                 left_operand = right_operand
 
-        uses: collections.defaultdict[
-            str, dict[str, set[nodes.Compare]]
-        ] = collections.defaultdict(
-            lambda: {"lower_bound": set(), "upper_bound": set()}
+        uses: collections.defaultdict[str, dict[str, set[nodes.Compare]]] = (
+            collections.defaultdict(
+                lambda: {"lower_bound": set(), "upper_bound": set()}
+            )
         )
         for comparison_node in node.values:
             if isinstance(comparison_node, nodes.Compare):
@@ -1443,9 +1443,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """
         children = list(bool_op.get_children())
         intermediate = [
-            self._simplify_boolean_operation(child)
-            if isinstance(child, nodes.BoolOp)
-            else child
+            (
+                self._simplify_boolean_operation(child)
+                if isinstance(child, nodes.BoolOp)
+                else child
+            )
             for child in children
         ]
         result = self._apply_boolean_simplification_rules(bool_op.op, intermediate)

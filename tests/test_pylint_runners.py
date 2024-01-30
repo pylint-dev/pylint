@@ -24,8 +24,7 @@ from pylint.testutils.utils import _test_cwd
 
 
 class _RunCallable(Protocol):  # pylint: disable=too-few-public-methods
-    def __call__(self, argv: Sequence[str] | None = None) -> NoReturn | None:
-        ...
+    def __call__(self, argv: Sequence[str] | None = None) -> NoReturn | None: ...
 
 
 @pytest.mark.parametrize("runner", [run_pylint, run_pyreverse, run_symilar])
