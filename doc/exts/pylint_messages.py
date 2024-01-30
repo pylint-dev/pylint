@@ -334,7 +334,7 @@ def _generate_single_message_body(message: MessageData) -> str:
         body += f"""
 .. note::
   This message is emitted by the optional :ref:`'{message.checker}'<{message.checker_module_name}>`
-   checker which requires the ``{message.checker_module_name}`` plugin to be loaded.
+  checker, which requires the ``{message.checker_module_name}`` plugin to be loaded.
 
 """
     return body
