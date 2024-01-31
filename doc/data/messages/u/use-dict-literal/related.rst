@@ -1,1 +1,1 @@
-- `Performance Analysis of Python’s dict() vs dict litteral <https://madebyme.today/blog/python-dict-vs-curly-brackets/>`_
+- `Performance Analysis of Python’s dict() vs dict literal <https://madebyme.today/blog/python-dict-vs-curly-brackets/>`_
