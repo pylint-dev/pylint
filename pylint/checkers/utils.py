@@ -22,7 +22,7 @@ import astroid.objects
 from astroid import TooManyLevelsError, nodes, util
 from astroid.context import InferenceContext
 from astroid.exceptions import AstroidError
-from astroid.nodes._base_nodes import ImportNode
+from astroid.nodes._base_nodes import ImportNode, Statement
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 if TYPE_CHECKING:
@@ -1986,7 +1986,7 @@ def is_typing_member(node: nodes.NodeNG, names_to_check: tuple[str, ...]) -> boo
 
 
 @lru_cache
-def in_for_else_branch(parent: nodes.NodeNG, stmt: nodes.Statement) -> bool:
+def in_for_else_branch(parent: nodes.NodeNG, stmt: Statement) -> bool:
     """Returns True if stmt is inside the else branch for a parent For stmt."""
     return isinstance(parent, nodes.For) and any(
         else_stmt.parent_of(stmt) or else_stmt == stmt for else_stmt in parent.orelse
