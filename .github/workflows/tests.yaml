@@ -111,7 +111,7 @@ jobs:
           . venv/bin/activate
           coverage combine coverage*/.coverage
           coverage xml
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
