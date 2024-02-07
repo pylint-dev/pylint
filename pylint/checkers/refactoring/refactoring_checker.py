@@ -483,6 +483,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "value by index lookup. "
             "The value can be accessed directly instead.",
         ),
+        "R1737": (
+            "Consider directly using 'yield from %s' instead",
+            "use-yield-from",
+            "Emitted when yielding from a loop can be replaced by yield from.",
+        ),
     }
     options = (
         (
@@ -1122,6 +1127,24 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_using_with(node)
         self._check_use_list_literal(node)
         self._check_use_dict_literal(node)
+
+    @utils.only_required_for_messages("use-yield-from")
+    def visit_yield(self, node: nodes.Yield) -> None:
+        parent = node.parent.parent
+        if not isinstance(parent, nodes.For):
+            return
+
+        if len(parent.body) != 1:
+            return
+
+        if parent.target.name == node.value.name:
+            gen = ""
+            if isinstance(parent.iter, nodes.Name):
+                gen = parent.iter.name
+            elif isinstance(parent.iter, nodes.Call):
+                gen = f"{parent.iter.func.name}()"
+
+            self.add_message("use-yield-from", node.lineno, node, gen)
 
     @staticmethod
     def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:

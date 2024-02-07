@@ -1,0 +1,2 @@
+use-yield-from:8:8:8:18:bad:Consider directly using 'yield from generator' instead:UNDEFINED
+use-yield-from:13:8:13:18:out_of_names:Consider directly using 'yield from turbogen()' instead:UNDEFINED
