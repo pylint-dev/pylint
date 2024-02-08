@@ -1144,7 +1144,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             elif isinstance(parent.iter, nodes.Call):
                 gen = f"{parent.iter.func.name}()"
 
-            self.add_message("use-yield-from", node.lineno, node, gen)
+            self.add_message("use-yield-from", node.lineno, node, gen, confidence=HIGH)
 
     @staticmethod
     def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
