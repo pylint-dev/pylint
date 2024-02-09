@@ -1,6 +1,6 @@
 """Emit a message for iteration through range and len is encountered."""
 
-# pylint: disable=missing-docstring, import-error, unsubscriptable-object, too-few-public-methods, unnecessary-list-index-lookup
+# pylint: disable=missing-docstring, import-error, unsubscriptable-object, too-few-public-methods, unnecessary-list-index-lookup, use-yield-from
 
 def bad():
     iterable = [1, 2, 3]

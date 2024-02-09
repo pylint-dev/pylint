@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring, import-error
 
+import factory
 from magic import shazam, turbogen
 
 
@@ -21,3 +22,13 @@ def good(generator):
 
 def yield_something():
     yield 5
+
+
+def yield_attr():
+    for item in factory.gen():
+        yield item  # [use-yield-from]
+
+
+def yield_attr_nested():
+    for item in factory.kiwi.gen():
+        yield item  # [use-yield-from]

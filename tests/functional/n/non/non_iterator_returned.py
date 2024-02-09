@@ -1,6 +1,6 @@
 """Check non-iterators returned by __iter__ """
 
-# pylint: disable=too-few-public-methods, missing-docstring, consider-using-with, import-error
+# pylint: disable=too-few-public-methods, missing-docstring, consider-using-with, import-error, use-yield-from
 from uninferable import UNINFERABLE
 
 class FirstGoodIterator:
