@@ -1130,6 +1130,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @utils.only_required_for_messages("use-yield-from")
     def visit_yield(self, node: nodes.Yield) -> None:
+        if not isinstance(node.value, nodes.Name):
+            return
+
         parent = node.parent.parent
         if not isinstance(parent, nodes.For):
             return
@@ -1138,13 +1141,30 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         if parent.target.name == node.value.name:
-            gen = ""
+            generator_name = ""
             if isinstance(parent.iter, nodes.Name):
-                gen = parent.iter.name
+                generator_name = parent.iter.name
             elif isinstance(parent.iter, nodes.Call):
-                gen = f"{parent.iter.func.name}()"
+                if isinstance(parent.iter.func, nodes.Attribute):
+                    generator_name = self._get_full_name_from_attribute(
+                        parent.iter.func
+                    )
+                else:
+                    generator_name = f"{parent.iter.func.name}()"
 
-            self.add_message("use-yield-from", node.lineno, node, gen, confidence=HIGH)
+            self.add_message(
+                "use-yield-from", node.lineno, node, generator_name, confidence=HIGH
+            )
+
+    @staticmethod
+    def _get_full_name_from_attribute(node: nodes.Attribute) -> str:
+        name = f"{node.attrname}()"
+        current_node = node.expr
+        while isinstance(current_node, nodes.Attribute):
+            name = f"{current_node.attrname}.{name}"
+            current_node = current_node.expr
+
+        return f"{current_node.name}.{name}"
 
     @staticmethod
     def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
