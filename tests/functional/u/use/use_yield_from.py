@@ -1,8 +1,8 @@
-# pylint: disable=missing-docstring, import-error
-
+# pylint: disable=missing-docstring, import-error, yield-outside-function
 import factory
 from magic import shazam, turbogen
 
+yield 1
 
 def bad(generator):
     for item in generator:
@@ -37,3 +37,11 @@ def yield_attr_nested():
 def yield_expr():
     for item in [1, 2, 3]:
         yield item  # [use-yield-from]
+
+
+def for_else_yield(gen, something):
+    for item in gen():
+        if shazam(item):
+            break
+    else:
+        yield something

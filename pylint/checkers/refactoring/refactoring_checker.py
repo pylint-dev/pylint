@@ -1137,6 +1137,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not isinstance(parent, nodes.For) or len(parent.body) != 1:
             return
 
+        if parent.target.name != node.value.name:
+            return
+
         self.add_message("use-yield-from", node.lineno, node, confidence=HIGH)
 
     @staticmethod
