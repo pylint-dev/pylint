@@ -45,3 +45,15 @@ def for_else_yield(gen, something):
             break
     else:
         yield something
+
+
+# yield from is not supported in async functions, so the following are fine
+
+async def async_for_yield(agen):
+    async for item in agen:
+        yield item
+
+
+async def async_yield(agen):
+    for item in agen:
+        yield item

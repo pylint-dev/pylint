@@ -1134,10 +1134,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         parent = node.parent.parent
-        if not isinstance(parent, nodes.For) or len(parent.body) != 1:
+        if (
+            not isinstance(parent, nodes.For)
+            or isinstance(parent, nodes.AsyncFor)
+            or len(parent.body) != 1
+        ):
             return
 
         if parent.target.name != node.value.name:
+            return
+
+        if isinstance(node.frame(), nodes.AsyncFunctionDef):
             return
 
         self.add_message("use-yield-from", node.lineno, node, confidence=HIGH)
