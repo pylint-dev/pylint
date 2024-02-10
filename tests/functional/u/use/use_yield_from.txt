@@ -1,5 +1,5 @@
-use-yield-from:9:8:9:18:bad:Consider directly using 'yield from' instead:HIGH
-use-yield-from:14:8:14:18:out_of_names:Consider directly using 'yield from' instead:HIGH
-use-yield-from:29:8:29:18:yield_attr:Consider directly using 'yield from' instead:HIGH
-use-yield-from:34:8:34:18:yield_attr_nested:Consider directly using 'yield from' instead:HIGH
-use-yield-from:39:8:39:18:yield_expr:Consider directly using 'yield from' instead:HIGH
+use-yield-from:8:4:9:18:bad:Use 'yield from' directly instead of yielding each element one by one:HIGH
+use-yield-from:13:4:14:18:out_of_names:Use 'yield from' directly instead of yielding each element one by one:HIGH
+use-yield-from:28:4:29:18:yield_attr:Use 'yield from' directly instead of yielding each element one by one:HIGH
+use-yield-from:33:4:34:18:yield_attr_nested:Use 'yield from' directly instead of yielding each element one by one:HIGH
+use-yield-from:38:4:39:18:yield_expr:Use 'yield from' directly instead of yielding each element one by one:HIGH

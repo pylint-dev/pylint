@@ -5,13 +5,13 @@ from magic import shazam, turbogen
 yield 1
 
 def bad(generator):
-    for item in generator:
-        yield item  # [use-yield-from]
+    for item in generator:  # [use-yield-from]
+        yield item
 
 
 def out_of_names():
-    for item in turbogen():
-        yield item  # [use-yield-from]
+    for item in turbogen():  # [use-yield-from]
+        yield item
 
 
 def good(generator):
@@ -25,18 +25,18 @@ def yield_something():
 
 
 def yield_attr():
-    for item in factory.gen():
-        yield item  # [use-yield-from]
+    for item in factory.gen():  # [use-yield-from]
+        yield item
 
 
 def yield_attr_nested():
-    for item in factory.kiwi.gen():
-        yield item  # [use-yield-from]
+    for item in factory.kiwi.gen():  # [use-yield-from]
+        yield item
 
 
 def yield_expr():
-    for item in [1, 2, 3]:
-        yield item  # [use-yield-from]
+    for item in [1, 2, 3]:  # [use-yield-from]
+        yield item
 
 
 def for_else_yield(gen, something):

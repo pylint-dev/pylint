@@ -484,9 +484,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "The value can be accessed directly instead.",
         ),
         "R1737": (
-            "Consider directly using 'yield from' instead",
+            "Use 'yield from' directly instead of yielding each element one by one",
             "use-yield-from",
-            "Emitted when yielding from a loop can be replaced by yielding from the iterator directly.",
+            "Yielding directly from the iterator is faster and arguably cleaner code than yielding each element "
+            "in the loop.",
         ),
     }
     options = (
@@ -1147,7 +1148,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if isinstance(node.frame(), nodes.AsyncFunctionDef):
             return
 
-        self.add_message("use-yield-from", node.lineno, node, confidence=HIGH)
+        self.add_message("use-yield-from", node=parent, confidence=HIGH)
 
     @staticmethod
     def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
