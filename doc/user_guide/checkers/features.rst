@@ -797,6 +797,9 @@ Refactoring checker Messages
   Emitted when a boolean condition can be simplified to a constant value.
 :simplify-boolean-expression (R1709): *Boolean expression may be simplified to %s*
   Emitted when redundant pre-python 2.5 ternary syntax is used.
+:use-yield-from (R1737): *Consider directly using 'yield from' instead*
+  Emitted when yielding from a loop can be replaced by yield from the iterator
+  directly.
 :consider-using-in (R1714): *Consider merging these comparisons with 'in' by using '%s %sin (%s)'. Use a set instead if elements are hashable.*
   To check if a variable is equal to one of many values, combine the values
   into a set or tuple and check if the variable is contained "in" it instead of

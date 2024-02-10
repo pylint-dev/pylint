@@ -544,6 +544,7 @@ All messages in the refactor category:
    refactor/use-dict-literal
    refactor/use-list-literal
    refactor/use-set-for-membership
+   refactor/use-yield-from
    refactor/useless-object-inheritance
    refactor/useless-option-value
    refactor/useless-return

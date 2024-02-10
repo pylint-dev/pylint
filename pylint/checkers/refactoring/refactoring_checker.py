@@ -486,7 +486,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "R1737": (
             "Consider directly using 'yield from' instead",
             "use-yield-from",
-            "Emitted when yielding from a loop can be replaced by yield from.",
+            "Emitted when yielding from a loop can be replaced by yielding from the iterator directly.",
         ),
     }
     options = (
