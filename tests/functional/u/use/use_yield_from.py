@@ -32,3 +32,8 @@ def yield_attr():
 def yield_attr_nested():
     for item in factory.kiwi.gen():
         yield item  # [use-yield-from]
+
+
+def yield_expr():
+    for item in [1, 2, 3]:
+        yield item  # [use-yield-from]

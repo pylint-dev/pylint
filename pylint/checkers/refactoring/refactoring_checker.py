@@ -484,7 +484,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "The value can be accessed directly instead.",
         ),
         "R1737": (
-            "Consider directly using 'yield from %s' instead",
+            "Consider directly using 'yield from' instead",
             "use-yield-from",
             "Emitted when yielding from a loop can be replaced by yield from.",
         ),
@@ -1134,37 +1134,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         parent = node.parent.parent
-        if not isinstance(parent, nodes.For):
+        if not isinstance(parent, nodes.For) or len(parent.body) != 1:
             return
 
-        if len(parent.body) != 1:
-            return
-
-        if parent.target.name == node.value.name:
-            generator_name = ""
-            if isinstance(parent.iter, nodes.Name):
-                generator_name = parent.iter.name
-            elif isinstance(parent.iter, nodes.Call):
-                if isinstance(parent.iter.func, nodes.Attribute):
-                    generator_name = self._get_full_name_from_attribute(
-                        parent.iter.func
-                    )
-                else:
-                    generator_name = f"{parent.iter.func.name}()"
-
-            self.add_message(
-                "use-yield-from", node.lineno, node, generator_name, confidence=HIGH
-            )
-
-    @staticmethod
-    def _get_full_name_from_attribute(node: nodes.Attribute) -> str:
-        name = f"{node.attrname}()"
-        current_node = node.expr
-        while isinstance(current_node, nodes.Attribute):
-            name = f"{current_node.attrname}.{name}"
-            current_node = current_node.expr
-
-        return f"{current_node.name}.{name}"
+        self.add_message("use-yield-from", node.lineno, node, confidence=HIGH)
 
     @staticmethod
     def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
