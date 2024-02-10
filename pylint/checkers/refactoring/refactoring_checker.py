@@ -487,7 +487,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "Use 'yield from' directly instead of yielding each element one by one",
             "use-yield-from",
             "Yielding directly from the iterator is faster and arguably cleaner code than yielding each element "
-            "in the loop.",
+            "one by one in the loop.",
         ),
     }
     options = (

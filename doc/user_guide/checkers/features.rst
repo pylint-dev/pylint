@@ -908,7 +908,7 @@ Refactoring checker Messages
   set constructor. It is faster and simpler.
 :use-yield-from (R1737): *Use 'yield from' directly instead of yielding each element one by one*
   Yielding directly from the iterator is faster and arguably cleaner code than
-  yielding each element in the loop.
+  yielding each element one by one in the loop.
 :use-a-generator (R1729): *Use a generator instead '%s(%s)'*
   Comprehension inside of 'any', 'all', 'max', 'min' or 'sum' is unnecessary. A
   generator would be sufficient and faster.
