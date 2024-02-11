@@ -483,6 +483,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "value by index lookup. "
             "The value can be accessed directly instead.",
         ),
+        "R1737": (
+            "Use 'yield from' directly instead of yielding each element one by one",
+            "use-yield-from",
+            "Yielding directly from the iterator is faster and arguably cleaner code than yielding each element "
+            "one by one in the loop.",
+        ),
     }
     options = (
         (
@@ -1122,6 +1128,27 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_using_with(node)
         self._check_use_list_literal(node)
         self._check_use_dict_literal(node)
+
+    @utils.only_required_for_messages("use-yield-from")
+    def visit_yield(self, node: nodes.Yield) -> None:
+        if not isinstance(node.value, nodes.Name):
+            return
+
+        parent = node.parent.parent
+        if (
+            not isinstance(parent, nodes.For)
+            or isinstance(parent, nodes.AsyncFor)
+            or len(parent.body) != 1
+        ):
+            return
+
+        if parent.target.name != node.value.name:
+            return
+
+        if isinstance(node.frame(), nodes.AsyncFunctionDef):
+            return
+
+        self.add_message("use-yield-from", node=parent, confidence=HIGH)
 
     @staticmethod
     def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
