@@ -1,10 +1,10 @@
 :code:`yield from` can be thought of as removing the intermediary (your for loop) between the function caller and the
-requested generator. This enables the caller to directly communicate with the generator (e.g. :code:`send()`).
+requested generator. This enables the caller to directly communicate with the generator (e.g. using :code:`send()`).
 This communication is not possible when manually yielding each element one by one in a loop.
 
-PEP 380 describes the possibility of adding optimizations specific to :code:`yield from`, as of the time of writing,
-it can't be confirmed that such optimizations have been implemented. The following snippet still shows that while
-probably negligible, a performance improvement can exist simply because of the removed overhead.
+PEP 380 describes the possibility of adding optimizations specific to :code:`yield from`. It looks like said
+implementations have not been implemented as of the time of writing. Even without said optimizations, the following
+snippets shows that :code:`yield from` is marginally faster.
 
 .. code-block:: sh
 
