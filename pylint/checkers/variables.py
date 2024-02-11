@@ -3080,9 +3080,11 @@ class VariablesChecker(BaseChecker):
                 module = None
                 break
             try:
-                module = next(module.getattr(name)[0].infer())
+                module = module.getattr(name)[0]
                 if not isinstance(module, nodes.Module):
-                    return None
+                    module = next(module.infer())
+                    if not isinstance(module, nodes.Module):
+                        return None
             except astroid.NotFoundError:
                 # Unable to import `name` from `module`. Since `name` may itself be a
                 # module, we first check if it matches the ignored modules.
