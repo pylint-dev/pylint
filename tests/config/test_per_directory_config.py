@@ -62,10 +62,9 @@ def _create_subconfig_test_fs(tmp_path: Path) -> tuple[Path, ...]:
     return level1_dir, test_file1, test_file2, test_file3, test_file4
 
 
-# check that use-parent-configs doesn't break anything
 @pytest.mark.parametrize(
     "local_config_args",
-    [["--use-local-configs=y"], ["--use-local-configs=y", "--use-parent-configs=y"]],
+    [["--use-local-configs=y"]],
 )
 # check modules and use of configuration files from top-level package or subpackage
 @pytest.mark.parametrize("test_file_index", [0, 1, 2])
@@ -119,10 +118,9 @@ def test_subconfig_vs_root_config(
         assert "LEVEL1" not in output[2], assert_message
 
 
-# check that use-parent-configs doesn't break anything
 @pytest.mark.parametrize(
     "local_config_args",
-    [["--use-local-configs=y"], ["--use-local-configs=y", "--use-parent-configs=y"]],
+    [["--use-local-configs=y"]],
 )
 # check cases when test_file without local config belongs to cwd subtree or not
 @pytest.mark.parametrize(
@@ -203,9 +201,7 @@ def test_subconfig_in_parent(tmp_path: Path, capsys: CaptureFixture) -> None:
     test_file = _create_parent_subconfig_fs(tmp_path)
     orig_cwd = os.getcwd()
     os.chdir(tmp_path)
-    LintRun(
-        ["--use-parent-configs=y", "--use-local-configs=y", str(test_file)], exit=False
-    )
+    LintRun(["--use-local-configs=y", str(test_file)], exit=False)
     output1 = capsys.readouterr().out.replace("\\n", "\n")
     os.chdir(orig_cwd)
 
@@ -226,4 +222,4 @@ def test_register_local_config_accepts_directory(
     # call register_local_config with directory as argument
     assert level1_dir.is_dir()
     linter.register_local_config(str(level1_dir))
-    assert level1_dir in linter._directory_namespaces
+    assert level1_dir in linter._directory_namespaces.keys()
