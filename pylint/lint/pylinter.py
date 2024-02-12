@@ -624,10 +624,7 @@ class PyLinter(
         else:
             basedir = Path(os.path.dirname(file_or_dir))
 
-        if self.config.use_parent_configs is False:
-            # exit loop after first iteration
-            scan_root_dir = basedir
-        elif _is_relative_to(basedir, Path(os.getcwd())):
+        if _is_relative_to(basedir, Path(os.getcwd())):
             scan_root_dir = Path(os.getcwd())
         else:
             scan_root_dir = Path(basedir.parts[0])
