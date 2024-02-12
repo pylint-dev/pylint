@@ -630,7 +630,7 @@ class PyLinter(
         elif _is_relative_to(basedir, Path(os.getcwd())):
             scan_root_dir = Path(os.getcwd())
         else:
-            scan_root_dir = Path("/")
+            scan_root_dir = Path(basedir.parts[0])
 
         while basedir.resolve() not in self._directory_namespaces and _is_relative_to(
             basedir, scan_root_dir
