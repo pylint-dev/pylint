@@ -1,0 +1,3 @@
+Add extension checker for enforcing variables of boolean names to have one of a configurable prefix.
+
+Refs #9409
