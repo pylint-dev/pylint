@@ -258,6 +258,7 @@ All messages in the warning category:
    warning/implicit-str-concat
    warning/import-self
    warning/inconsistent-quotes
+   warning/invalid-boolean-variable-name
    warning/invalid-envvar-default
    warning/invalid-format-index
    warning/invalid-overridden-method

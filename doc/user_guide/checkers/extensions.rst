@@ -7,6 +7,7 @@ Optional checkers
 Pylint provides the following optional plugins:
 
 - :ref:`pylint.extensions.bad_builtin`
+- :ref:`pylint.extensions.boolean_naming`
 - :ref:`pylint.extensions.broad_try_clause`
 - :ref:`pylint.extensions.check_elif`
 - :ref:`pylint.extensions.code_style`
@@ -35,6 +36,22 @@ Pylint provides the following optional plugins:
 You can activate any or all of these extensions by adding a ``load-plugins`` line to the ``MAIN`` section of your ``.pylintrc``, for example::
 
     load-plugins=pylint.extensions.docparams,pylint.extensions.docstyle
+
+.. _pylint.extensions.boolean_naming:
+
+Boolean-Naming checker
+~~~~~~~~~~~~~~~~~~~~~~
+
+This checker is provided by ``pylint.extensions.boolean_naming``.
+Verbatim name of the checker is ``boolean-naming``.
+
+See also :ref:`boolean-naming checker's options' documentation <boolean-naming-options>`
+
+Boolean-Naming checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:invalid-boolean-variable-name (W9901): *Invalid boolean variable name '%s'*
+  Use a prefix to indicate that the variable is a boolean.
+
 
 .. _pylint.extensions.broad_try_clause:
 

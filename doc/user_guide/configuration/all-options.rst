@@ -1640,6 +1640,37 @@ Extensions
 ^^^^^^^^^^
 
 
+.. _boolean-naming-options:
+
+``Boolean-naming`` **Checker**
+------------------------------
+--valid-prefixes
+""""""""""""""""
+*List of valid prefixes for boolean variables.*
+
+**Default:**  ``('is', 'has', 'can')``
+
+
+
+.. raw:: html
+
+   <details>
+   <summary><a>Example configuration section</a></summary>
+
+**Note:** Only ``tool.pylint`` is required, the section title is not. These are the default values.
+
+.. code-block:: toml
+
+   [tool.pylint.boolean-naming]
+   valid-prefixes = ["is", "has", "can"]
+
+
+
+.. raw:: html
+
+   </details>
+
+
 .. _broad_try_clause-options:
 
 ``Broad_try_clause`` **Checker**
