@@ -2,20 +2,15 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 # Standard Library
-import platform
-from typing import TYPE_CHECKING, Final, Union
+from __future__ import annotations
+
+from collections.abc import Generator
+from typing import TYPE_CHECKING
 
 # External Party
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-
-if platform.python_version_tuple() < ("3", "9"):
-    # Standard Library
-    from typing import Generator
-else:
-    # Standard Library
-    from collections.abc import Generator
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
@@ -27,7 +22,7 @@ class BooleanNamingChecker(BaseChecker):
     """Checks for boolean variable names that do not start with a valid prefix."""
 
     name = "boolean-naming"
-    msgs: Final = {
+    msgs = {
         "W9901": (
             "Invalid boolean variable name '%s'",
             "invalid-boolean-variable-name",
@@ -61,7 +56,7 @@ class BooleanNamingChecker(BaseChecker):
         )
 
     def _individual_assign_check(
-        self, node: Union[nodes.List, nodes.Tuple, nodes.AssignName], index: int
+        self, node: nodes.List | nodes.Tuple | nodes.AssignName, index: int
     ) -> None:
         assign_target = (
             node.elts[index] if isinstance(node, (nodes.Tuple, nodes.List)) else node
