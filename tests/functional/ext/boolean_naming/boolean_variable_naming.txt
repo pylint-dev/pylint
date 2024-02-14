@@ -1,0 +1,6 @@
+invalid-boolean-variable-name:4:0:4:1::Invalid boolean variable name 'a':UNDEFINED
+invalid-boolean-variable-name:7:0:7:1::Invalid boolean variable name 'b':UNDEFINED
+invalid-boolean-variable-name:7:3:7:4::Invalid boolean variable name 'c':UNDEFINED
+invalid-boolean-variable-name:9:0:9:1::Invalid boolean variable name 'd':UNDEFINED
+invalid-boolean-variable-name:10:0:10:1::Invalid boolean variable name 'e':UNDEFINED
+invalid-boolean-variable-name:16:0:16:4::Invalid boolean variable name 'flew':UNDEFINED
