@@ -61,8 +61,6 @@ class BooleanNamingChecker(BaseChecker):
         assign_target = (
             node.elts[index] if isinstance(node, (nodes.Tuple, nodes.List)) else node
         )
-        if not isinstance(assign_target, nodes.AssignName):
-            return
         if not self._name_starts_with_prefix(assign_target.name):
             self.add_message(
                 "invalid-boolean-variable-name",
