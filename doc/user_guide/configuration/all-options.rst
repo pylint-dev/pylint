@@ -1640,9 +1640,9 @@ Extensions
 ^^^^^^^^^^
 
 
-.. _boolean-naming-options:
+.. _boolean_naming-options:
 
-``Boolean-naming`` **Checker**
+``Boolean_naming`` **Checker**
 ------------------------------
 --valid-prefixes
 """"""""""""""""
@@ -1661,7 +1661,7 @@ Extensions
 
 .. code-block:: toml
 
-   [tool.pylint.boolean-naming]
+   [tool.pylint.boolean_naming]
    valid-prefixes = ["is", "has", "can"]
 
 

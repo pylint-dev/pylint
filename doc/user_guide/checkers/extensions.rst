@@ -39,15 +39,15 @@ You can activate any or all of these extensions by adding a ``load-plugins`` lin
 
 .. _pylint.extensions.boolean_naming:
 
-Boolean-Naming checker
+Boolean Naming checker
 ~~~~~~~~~~~~~~~~~~~~~~
 
 This checker is provided by ``pylint.extensions.boolean_naming``.
-Verbatim name of the checker is ``boolean-naming``.
+Verbatim name of the checker is ``boolean_naming``.
 
-See also :ref:`boolean-naming checker's options' documentation <boolean-naming-options>`
+See also :ref:`boolean_naming checker's options' documentation <boolean_naming-options>`
 
-Boolean-Naming checker Messages
+Boolean Naming checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :invalid-boolean-variable-name (W9901): *Invalid boolean variable name '%s'*
   Use a prefix to indicate that the variable is a boolean.

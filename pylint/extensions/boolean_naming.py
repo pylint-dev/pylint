@@ -21,7 +21,7 @@ default_boolean_variable_prefixes = ("is", "has", "can")
 class BooleanNamingChecker(BaseChecker):
     """Checks for boolean variable names that do not start with a valid prefix."""
 
-    name = "boolean-naming"
+    name = "boolean_naming"
     msgs = {
         "W9901": (
             "Invalid boolean variable name '%s'",
