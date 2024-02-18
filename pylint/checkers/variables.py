@@ -141,7 +141,7 @@ def _is_from_future_import(stmt: nodes.ImportFrom, name: str) -> bool | None:
     """Check if the name is a future import from another module."""
     try:
         module = stmt.do_import_module(stmt.modname)
-    except astroid.AstroidBuildingException:
+    except astroid.AstroidBuildingError:
         return None
 
     for local_node in module.locals.get(name, []):
@@ -2059,7 +2059,7 @@ class VariablesChecker(BaseChecker):
         name_parts = node.modname.split(".")
         try:
             module = node.do_import_module(name_parts[0])
-        except astroid.AstroidBuildingException:
+        except astroid.AstroidBuildingError:
             return
         module = self._check_module_attrs(node, module, name_parts[1:])
         if not module:
