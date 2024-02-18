@@ -35,7 +35,7 @@ def _astroid_wrapper(
         print(f"parsing {modname}...")
     try:
         return func(modname)
-    except astroid.exceptions.AstroidBuildingException as exc:
+    except astroid.exceptions.AstroidBuildingError as exc:
         print(exc)
     except Exception:  # pylint: disable=broad-except
         traceback.print_exc()
