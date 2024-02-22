@@ -95,7 +95,7 @@ def modify_sys_path() -> None:
         sys.path.pop(1)
 
 
-def _catch_valueerror(unraisable: sys.UnraisableHookArgs) -> None:
+def _catch_valueerror(unraisable: sys.UnraisableHookArgs) -> None:  # pragma: no cover
     """Overwrite sys.unraisablehook to catch incorrect ValueError.
 
     Python 3.12 introduced changes that sometimes cause astroid to emit ValueErrors
