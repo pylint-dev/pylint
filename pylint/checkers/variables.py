@@ -667,7 +667,7 @@ scope_type : {self._atomic.scope_type}
         if found_nodes:
             uncertain_nodes = (
                 self._uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-                    found_nodes, node_statement
+                    found_nodes, node_statement, name
                 )
             )
             self.consumed_uncertain[node.name] += uncertain_nodes
@@ -1140,7 +1140,9 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-        found_nodes: list[nodes.NodeNG], node_statement: _base_nodes.Statement
+        found_nodes: list[nodes.NodeNG],
+        node_statement: _base_nodes.Statement,
+        name: str,
     ) -> list[nodes.NodeNG]:
         uncertain_nodes: list[nodes.NodeNG] = []
         (
@@ -1185,6 +1187,12 @@ scope_type : {self._atomic.scope_type}
                     )
                     for other_node_final_statement in other_node_try_finally_ancestor.finalbody
                 )
+            ):
+                continue
+            # Is the name defined in all exception clauses?
+            if other_node_try_finally_ancestor.handlers and all(
+                NamesConsumer._defines_name_raises_or_returns_recursive(name, handler)
+                for handler in other_node_try_finally_ancestor.handlers
             ):
                 continue
             # Passed all tests for uncertain execution
