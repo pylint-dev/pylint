@@ -1,0 +1,4 @@
+Catch incorrect ValueError ``"generator already executing"`` for Python 3.12.0 - 3.12.2.
+This is fixed upstream in Python 3.12.3.
+
+Closes #9138
