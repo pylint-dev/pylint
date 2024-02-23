@@ -65,6 +65,46 @@ easier to parse and provides more info, here's a sample output.
 
 .. towncrier release notes start
 
+What's new in Pylint 3.0.4?
+---------------------------
+Release date: 2024-02-23
+
+
+False Positives Fixed
+---------------------
+
+- ``used-before-assignment`` is no longer emitted when using a name in a loop and
+  depending on an earlier name assignment in an ``except`` block paired with
+  ``else: continue``.
+
+  Closes #6804 (`#6804 <https://github.com/pylint-dev/pylint/issues/6804>`_)
+
+- Avoid false positives for ``no-member`` involving function
+  attributes supplied by decorators.
+
+  Closes #9246 (`#9246 <https://github.com/pylint-dev/pylint/issues/9246>`_)
+
+- Fixed false positive nested-min-max for nested lists.
+
+  Closes #9307 (`#9307 <https://github.com/pylint-dev/pylint/issues/9307>`_)
+
+- Fix false positive for ``used-before-assignment`` in a ``finally`` block
+  when assignments took place in both the ``try`` block and each exception handler.
+
+  Closes #9451 (`#9451 <https://github.com/pylint-dev/pylint/issues/9451>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Catch incorrect ValueError ``"generator already executing"`` for Python 3.12.0 - 3.12.2.
+  This is fixed upstream in Python 3.12.3.
+
+  Closes #9138 (`#9138 <https://github.com/pylint-dev/pylint/issues/9138>`_)
+
+
+
 What's new in Pylint 3.0.3?
 ---------------------------
 Release date: 2023-12-11
