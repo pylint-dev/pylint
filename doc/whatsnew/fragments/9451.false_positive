@@ -1,4 +1,0 @@
-Fix false positive for ``used-before-assignment`` in a ``finally`` block
-when assignments took place in both the ``try`` block and each exception handler.
-
-Closes #9451
