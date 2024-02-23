@@ -372,7 +372,7 @@ class TestRunTC:
             assert message[key] == value
         msg = message["message"].lower()
         assert any(x in msg for x in ("expected ':'", "invalid syntax"))
-        assert "<unknown>" in msg
+        assert "syntax_error" in msg
         assert "line 1" in msg
 
     def test_json_report_when_file_is_missing(self) -> None:
@@ -610,7 +610,7 @@ class TestRunTC:
 
     def test_stdin_syntax_error(self) -> None:
         expected_output = """************* Module a
-a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-error)"""
+a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         with mock.patch(
             "pylint.lint.pylinter._read_stdin", return_value="for\n"
         ) as mock_stdin:
