@@ -261,6 +261,7 @@ proc
 py
 pyenchant
 pyfile
+pyi
 pylint
 pylintdict
 pylintrc

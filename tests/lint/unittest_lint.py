@@ -1047,6 +1047,28 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
         assert module_stats["statement"] == linter2.stats.statement
 
 
+def test_finds_pyi_file() -> None:
+    run = Run(
+        [join(REGRTEST_DATA_DIR, "pyi")],
+        exit=False,
+    )
+    assert run.linter.current_file is not None
+    assert run.linter.current_file.endswith("foo.pyi")
+
+
+def test_recursive_finds_pyi_file() -> None:
+    run = Run(
+        [
+            "--recursive",
+            "y",
+            join(REGRTEST_DATA_DIR, "pyi"),
+        ],
+        exit=False,
+    )
+    assert run.linter.current_file is not None
+    assert run.linter.current_file.endswith("foo.pyi")
+
+
 @pytest.mark.parametrize(
     "ignore_parameter,ignore_parameter_value",
     [
