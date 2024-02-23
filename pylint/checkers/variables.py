@@ -718,8 +718,8 @@ scope_type : {self._atomic.scope_type}
         if not isinstance(node, nodes.If):
             return False
 
-        # Be permissive if there is a break
-        if any(node.nodes_of_class(nodes.Break)):
+        # Be permissive if there is a break or continue
+        if any(node.nodes_of_class(nodes.Break, nodes.Continue)):
             return True
 
         # Is there an assignment in this node itself, e.g. in named expression?
