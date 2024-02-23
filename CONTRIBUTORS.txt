@@ -156,6 +156,8 @@ contributors:
   * Added new extension which detects comparing integers to zero,
   * Added new useless-return checker,
   * Added new try-except-raise checker
+- theirix <theirix@gmail.com>
+- crazybolillo <antonio@zoftko.com>
 - Téo Bouvard <teobouvard@gmail.com>
 - Stavros Ntentos <133706+stdedos@users.noreply.github.com>
 - Nicolas Boulenguez <nicolas@debian.org>
@@ -172,7 +174,6 @@ contributors:
 - Andreas Freimuth <andreas.freimuth@united-bits.de>: fix indentation checking with tabs
 - Alexandru Coman <fcoman@bitdefender.com>
 - jpkotta <jpkotta@gmail.com>
-- crazybolillo <antonio@zoftko.com>
 - Takahide Nojima <nozzy123nozzy@gmail.com>
 - Taewon D. Kim <kimt33@mcmaster.ca>
 - Sneaky Pete <sneakypete81@gmail.com>
@@ -249,6 +250,7 @@ contributors:
 - omarandlorraine <64254276+omarandlorraine@users.noreply.github.com>
 - craig-sh <craig-sh@users.noreply.github.com>
 - bernie gray <bfgray3@users.noreply.github.com>
+- azinneck0485 <123660683+azinneck0485@users.noreply.github.com>
 - Wes Turner <westurner@google.com> (Google): added new check 'inconsistent-quotes'
 - Tyler Thieding <tyler@thieding.com>
 - Tobias Hernstig <30827238+thernstig@users.noreply.github.com>
@@ -364,12 +366,14 @@ contributors:
 - Yann Dirson <ydirson@free.fr>
 - Yang Yang <y4n9squared@gmail.com>
 - Xi Shen <davidshen84@gmail.com>
+- Winston H <56998716+winstxnhdw@users.noreply.github.com>
 - Will Shanks <wsha@posteo.net>
 - Viorel Știrbu <viorels@gmail.com>: intern-builtin warning.
 - VictorT <victor.taix@gmail.com>
 - Victor Jiajunsu <16359131+jiajunsu@users.noreply.github.com>
 - ViRuSTriNiTy <cradle-of-mail@gmx.de>
 - Val Lorentz <progval+github@progval.net>
+- Udi Fuchs <udifuchs@gmail.com>
 - Trevor Bekolay <tbekolay@gmail.com>
   * Added --list-msgs-enabled command
 - Tomer Chachamu <tomer.chachamu@gmail.com>: simplifiable-if-expression
@@ -394,11 +398,13 @@ contributors:
 - Sigurd Spieckermann <2206639+sisp@users.noreply.github.com>
 - Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
 - Sebastian Müller <mueller.seb@posteo.de>
+- Sayyed Faisal Ali <80758388+C0DE-SLAYER@users.noreply.github.com>
 - Sasha Bagan <pnlbagan@gmail.com>
 - Sardorbek Imomaliev <sardorbek.imomaliev@gmail.com>
 - Santiago Castro <bryant@montevideo.com.uy>
 - Samuel Freilich <sfreilich@google.com> (sfreilich)
 - Sam Vermeiren <88253337+PaaEl@users.noreply.github.com>
+- Ryan Ozawa <ryan.ozawa21@gmail.com>
 - Ryan McGuire <ryan@enigmacurry.com>
 - Ry4an Brase <ry4an-hg@ry4an.org>
 - Ruro <ruro.ruro@ya.ru>
@@ -435,22 +441,28 @@ contributors:
 - Neowizard <Neowizard@users.noreply.github.com>
 - Ned Batchelder <ned@nedbatchelder.com>
 - Natalie Serebryakova <natalie.serebryakova@Natalies-MacBook-Pro.local>
+- Naglis Jonaitis <827324+naglis@users.noreply.github.com>
 - Moody <mooodyhunter@outlook.com>
 - Mitchell Young <mitchelly@gmail.com>: minor adjustment to docparams
 - Mitar <mitar.github@tnode.com>
+- Ming Lyu <CareF.Lm@gmail.com>
 - Mikhail f. Shiryaev <mr.felixoid@gmail.com>
 - Mike Fiedler <miketheman@gmail.com> (miketheman)
 - Mike Bryant <leachim@leachim.info>
+- Mike Bernard <mdbernard@pm.me>
 - Michka Popoff <michkapopoff@gmail.com>
 - Michal Vasilek <michal@vasilek.cz>
 - Michael Scott Cuthbert <cuthbert@mit.edu>
 - Michael Kefeder <oss@multiwave.ch>
+- Michael K <michael-k@users.noreply.github.com>
 - Michael Hudson-Doyle <michael.hudson@canonical.com>
 - Michael Giuffrida <mgiuffrida@users.noreply.github.com>
 - Melvin Hazeleger <31448155+melvio@users.noreply.github.com>
+- Meltem Kenis <meltem.kenis@plentific.com>
 - Mehdi Drissi <mdrissi@hmc.edu>
 - Matěj Grabovský <mgrabovs@redhat.com>
 - Matthijs Blom <19817960+MatthijsBlom@users.noreply.github.com>
+- Matej Spiller Muys <matej.spiller-muys@bitstamp.net>
 - Matej Marušák <marusak.matej@gmail.com>
 - Markus Siebenhaar <41283549+siehar@users.noreply.github.com>
 - Marco Edward Gorelli <marcogorelli@protonmail.com>: Documented Jupyter integration
@@ -529,6 +541,7 @@ contributors:
 - Dr. Nick <das-intensity@users.noreply.github.com>
 - Don Jayamanne <don.jayamanne@yahoo.com>
 - Dmytro Kyrychuk <dmytro.kyrychuck@gmail.com>
+- Dionisio E Alonso <baco@users.noreply.github.com>
 - DetachHead <57028336+DetachHead@users.noreply.github.com>
 - Denis Laxalde <denis.laxalde@logilab.fr>
 - David Lawson <dmrlawson@gmail.com>
@@ -547,6 +560,7 @@ contributors:
 - Cubicpath <Cubicpath@protonmail.com>
 - Craig Citro <craigcitro@gmail.com>
 - Cosmo <cosmo@cosmo.red>
+- Clément Schreiner <clement@mux.me>
 - Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 - Christopher Zurcher <zurcher@users.noreply.github.com>
 - Christian Clauss <cclauss@me.com>
@@ -580,6 +594,7 @@ contributors:
 - Andrew Howe <howeaj@users.noreply.github.com>
 - Andres Perez Hortal <andresperezcba@gmail.com>
 - Andre Hora <andrehora@users.noreply.github.com>
+- Aman Salwan <121633121+AmanSal1@users.noreply.github.com>
 - Alok Singh <8325708+alok@users.noreply.github.com>
 - Allan Chandler <95424144+allanc65@users.noreply.github.com> (allanc65)
   * Fixed issue 5452, false positive missing-param-doc for multi-line Google-style params
