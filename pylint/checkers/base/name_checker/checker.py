@@ -409,6 +409,12 @@ class NameChecker(_BasicChecker):
         if isinstance(assign_type, nodes.Comprehension):
             self._check_name("inlinevar", node.name, node)
 
+        elif isinstance(assign_type, nodes.TypeVar):
+            self._check_name("typevar", node.name, node)
+
+        elif isinstance(assign_type, nodes.TypeAlias):
+            self._check_name("typealias", node.name, node)
+
         # Check names defined in module scope
         elif isinstance(frame, nodes.Module):
             # Check names defined in Assign nodes
@@ -625,6 +631,9 @@ class NameChecker(_BasicChecker):
                 node.assign_type().value.elts[node.parent.elts.index(node)].keywords
             )
             args = node.assign_type().value.elts[node.parent.elts.index(node)].args
+        else:  # PEP 695 generic type nodes
+            keywords = ()
+            args = ()
 
         variance = TypeVarVariance.invariant
         name_arg = None

@@ -132,15 +132,15 @@ def turn_on2(**kwargs):
 # Variables guarded by the same test when used.
 
 # Always false
-if __name__ == "__main__":
+if 1 in []:
     PERCENT = 20
     SALE = True
 
-if __name__ == "__main__":
+if 1 in []:
     print(PERCENT)
 
 # Different test
-if __name__ is None:
+if 1 in [1]:
     print(SALE)  # [used-before-assignment]
 
 
