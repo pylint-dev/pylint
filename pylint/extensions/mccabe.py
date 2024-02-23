@@ -94,27 +94,9 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[mis
     def visitSimpleStatement(self, node: _StatementNodes) -> None:
         self._append_node(node)
 
-    visitAssert = (
-        visitAssign
-    ) = (
-        visitAugAssign
-    ) = (
-        visitDelete
-    ) = (
-        visitRaise
-    ) = (
+    visitAssert = visitAssign = visitAugAssign = visitDelete = visitRaise = (
         visitYield
-    ) = (
-        visitImport
-    ) = (
-        visitCall
-    ) = (
-        visitSubscript
-    ) = (
-        visitPass
-    ) = (
-        visitContinue
-    ) = (
+    ) = visitImport = visitCall = visitSubscript = visitPass = visitContinue = (
         visitBreak
     ) = visitGlobal = visitReturn = visitExpr = visitAwait = visitSimpleStatement
 

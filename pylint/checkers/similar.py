@@ -393,9 +393,11 @@ class Similar:
                 self.namespace.ignore_docstrings,
                 self.namespace.ignore_imports,
                 self.namespace.ignore_signatures,
-                line_enabled_callback=self.linter._is_one_message_enabled
-                if hasattr(self, "linter")
-                else None,
+                line_enabled_callback=(
+                    self.linter._is_one_message_enabled
+                    if hasattr(self, "linter")
+                    else None
+                ),
             )
         )
 
@@ -519,12 +521,12 @@ class Similar:
             ):
                 index_1 = indices_in_linesets[0]
                 index_2 = indices_in_linesets[1]
-                all_couples[
-                    LineSetStartCouple(index_1, index_2)
-                ] = CplSuccessiveLinesLimits(
-                    copy.copy(index_to_lines_1[index_1]),
-                    copy.copy(index_to_lines_2[index_2]),
-                    effective_cmn_lines_nb=self.namespace.min_similarity_lines,
+                all_couples[LineSetStartCouple(index_1, index_2)] = (
+                    CplSuccessiveLinesLimits(
+                        copy.copy(index_to_lines_1[index_1]),
+                        copy.copy(index_to_lines_2[index_2]),
+                        effective_cmn_lines_nb=self.namespace.min_similarity_lines,
+                    )
                 )
 
         remove_successive(all_couples)

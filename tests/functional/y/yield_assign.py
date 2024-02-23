@@ -1,3 +1,4 @@
+# pylint: disable=use-yield-from
 """https://www.logilab.org/ticket/8771"""
 
 

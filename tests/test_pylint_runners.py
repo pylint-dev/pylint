@@ -12,7 +12,7 @@ import shlex
 import sys
 from collections.abc import Sequence
 from io import BufferedReader
-from typing import Any, NoReturn, Protocol
+from typing import Any, Protocol
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
@@ -24,8 +24,7 @@ from pylint.testutils.utils import _test_cwd
 
 
 class _RunCallable(Protocol):  # pylint: disable=too-few-public-methods
-    def __call__(self, argv: Sequence[str] | None = None) -> NoReturn | None:
-        ...
+    def __call__(self, argv: Sequence[str] | None = None) -> None: ...
 
 
 @pytest.mark.parametrize("runner", [run_pylint, run_pyreverse, run_symilar])

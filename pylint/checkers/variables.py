@@ -19,6 +19,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
+import astroid.exceptions
 from astroid import bases, extract_node, nodes, util
 from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult
@@ -140,7 +141,7 @@ def _is_from_future_import(stmt: nodes.ImportFrom, name: str) -> bool | None:
     """Check if the name is a future import from another module."""
     try:
         module = stmt.do_import_module(stmt.modname)
-    except astroid.AstroidBuildingException:
+    except astroid.AstroidBuildingError:
         return None
 
     for local_node in module.locals.get(name, []):
@@ -667,7 +668,7 @@ scope_type : {self._atomic.scope_type}
         if found_nodes:
             uncertain_nodes = (
                 self._uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-                    found_nodes, node_statement
+                    found_nodes, node_statement, name
                 )
             )
             self.consumed_uncertain[node.name] += uncertain_nodes
@@ -847,7 +848,7 @@ scope_type : {self._atomic.scope_type}
     def _uncertain_nodes_in_except_blocks(
         found_nodes: list[nodes.NodeNG],
         node: nodes.NodeNG,
-        node_statement: nodes.Statement,
+        node_statement: _base_nodes.Statement,
     ) -> list[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain
         because they are in an except block.
@@ -880,6 +881,16 @@ scope_type : {self._atomic.scope_type}
                 and utils.is_terminating_func(else_statement.value)
                 for else_statement in closest_try_except.orelse
             )
+            else_block_continues = any(
+                isinstance(else_statement, nodes.Continue)
+                for else_statement in closest_try_except.orelse
+            )
+            if (
+                else_block_continues
+                and isinstance(node_statement.parent, (nodes.For, nodes.While))
+                and closest_try_except.parent.parent_of(node_statement)
+            ):
+                continue
 
             if try_block_returns or else_block_returns or else_block_exits:
                 # Exception: if this node is in the final block of the other_node_statement,
@@ -1008,9 +1019,9 @@ scope_type : {self._atomic.scope_type}
         """
         if not other_node_try_except.orelse:
             return False
-        closest_loop: None | (
-            nodes.For | nodes.While
-        ) = utils.get_node_first_ancestor_of_type(node, (nodes.For, nodes.While))
+        closest_loop: None | (nodes.For | nodes.While) = (
+            utils.get_node_first_ancestor_of_type(node, (nodes.For, nodes.While))
+        )
         if closest_loop is None:
             return False
         if not any(
@@ -1058,7 +1069,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _recursive_search_for_continue_before_break(
-        stmt: nodes.Statement, break_stmt: nodes.Break
+        stmt: _base_nodes.Statement, break_stmt: nodes.Break
     ) -> bool:
         """Return True if any Continue node can be found in descendants of `stmt`
         before encountering `break_stmt`, ignoring any nested loops.
@@ -1078,7 +1089,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
-        found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
+        found_nodes: list[nodes.NodeNG], node_statement: _base_nodes.Statement
     ) -> list[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain.
 
@@ -1126,7 +1137,9 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-        found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
+        found_nodes: list[nodes.NodeNG],
+        node_statement: _base_nodes.Statement,
+        name: str,
     ) -> list[nodes.NodeNG]:
         uncertain_nodes: list[nodes.NodeNG] = []
         (
@@ -1171,6 +1184,12 @@ scope_type : {self._atomic.scope_type}
                     )
                     for other_node_final_statement in other_node_try_finally_ancestor.finalbody
                 )
+            ):
+                continue
+            # Is the name defined in all exception clauses?
+            if other_node_try_finally_ancestor.handlers and all(
+                NamesConsumer._defines_name_raises_or_returns_recursive(name, handler)
+                for handler in other_node_try_finally_ancestor.handlers
             ):
                 continue
             # Passed all tests for uncertain execution
@@ -2048,7 +2067,7 @@ class VariablesChecker(BaseChecker):
         name_parts = node.modname.split(".")
         try:
             module = node.do_import_module(name_parts[0])
-        except astroid.AstroidBuildingException:
+        except astroid.AstroidBuildingError:
             return
         module = self._check_module_attrs(node, module, name_parts[1:])
         if not module:
@@ -2173,8 +2192,8 @@ class VariablesChecker(BaseChecker):
     def _is_variable_violation(
         node: nodes.Name,
         defnode: nodes.NodeNG,
-        stmt: nodes.Statement,
-        defstmt: nodes.Statement,
+        stmt: _base_nodes.Statement,
+        defstmt: _base_nodes.Statement,
         frame: nodes.LocalsDictNodeNG,  # scope of statement of node
         defframe: nodes.LocalsDictNodeNG,
         base_scope_type: str,
@@ -2328,7 +2347,7 @@ class VariablesChecker(BaseChecker):
         return maybe_before_assign, annotation_return, use_outer_definition
 
     @staticmethod
-    def _maybe_used_and_assigned_at_once(defstmt: nodes.Statement) -> bool:
+    def _maybe_used_and_assigned_at_once(defstmt: _base_nodes.Statement) -> bool:
         """Check if `defstmt` has the potential to use and assign a name in the
         same statement.
         """
@@ -2370,7 +2389,9 @@ class VariablesChecker(BaseChecker):
         return name in self.linter.config.additional_builtins or utils.is_builtin(name)
 
     @staticmethod
-    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
+    def _is_only_type_assignment(
+        node: nodes.Name, defstmt: _base_nodes.Statement
+    ) -> bool:
         """Check if variable only gets assigned a type and never a value."""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
@@ -2511,7 +2532,7 @@ class VariablesChecker(BaseChecker):
             and name in frame_locals
         )
 
-    # pylint: disable = too-many-branches
+    # pylint: disable-next=too-many-branches,too-many-statements
     def _loopvar_name(self, node: astroid.Name) -> None:
         # filter variables according to node's scope
         astmts = [s for s in node.lookup(node.name)[1] if hasattr(s, "assign_type")]
@@ -2547,8 +2568,12 @@ class VariablesChecker(BaseChecker):
         else:
             _astmts = astmts[:1]
         for i, stmt in enumerate(astmts[1:]):
-            if astmts[i].statement().parent_of(stmt) and not utils.in_for_else_branch(
-                astmts[i].statement(), stmt
+            try:
+                astmt_statement = astmts[i].statement()
+            except astroid.exceptions.ParentMissingError:
+                continue
+            if astmt_statement.parent_of(stmt) and not utils.in_for_else_branch(
+                astmt_statement, stmt
             ):
                 continue
             _astmts.append(stmt)
@@ -3063,9 +3088,11 @@ class VariablesChecker(BaseChecker):
                 module = None
                 break
             try:
-                module = next(module.getattr(name)[0].infer())
+                module = module.getattr(name)[0]
                 if not isinstance(module, nodes.Module):
-                    return None
+                    module = next(module.infer())
+                    if not isinstance(module, nodes.Module):
+                        return None
             except astroid.NotFoundError:
                 # Unable to import `name` from `module`. Since `name` may itself be a
                 # module, we first check if it matches the ignored modules.

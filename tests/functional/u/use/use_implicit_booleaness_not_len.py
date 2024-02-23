@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,import-error, missing-docstring
+# pylint: disable=too-few-public-methods,import-error, missing-docstring, use-yield-from
 # pylint: disable=useless-super-delegation,wrong-import-position,invalid-name, wrong-import-order, condition-evals-to-constant
 
 if len('TEST'):  # [use-implicit-booleaness-not-len]

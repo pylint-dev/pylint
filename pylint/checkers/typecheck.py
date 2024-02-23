@@ -21,6 +21,7 @@ import astroid
 import astroid.exceptions
 import astroid.helpers
 from astroid import arguments, bases, nodes, util
+from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, utils
@@ -660,7 +661,7 @@ def _determine_callable(
 def _has_parent_of_type(
     node: nodes.Call,
     node_type: nodes.Keyword | nodes.Starred,
-    statement: nodes.Statement,
+    statement: _base_nodes.Statement,
 ) -> bool:
     """Check if the given node has a parent of the given type."""
     parent = node.parent
@@ -1493,9 +1494,9 @@ accessed. Python regular expressions are accepted.",
                 node, node_scope
             )
         else:
-            has_no_context_positional_variadic = (
-                has_no_context_keywords_variadic
-            ) = False
+            has_no_context_positional_variadic = has_no_context_keywords_variadic = (
+                False
+            )
 
         # These are coming from the functools.partial implementation in astroid
         already_filled_positionals = getattr(called, "filled_positionals", 0)

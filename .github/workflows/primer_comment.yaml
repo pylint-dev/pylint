@@ -41,10 +41,9 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.3.3
+        uses: actions/cache@v4.0.0
         with:
           path: venv
-          fail-on-cache-miss: true
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',

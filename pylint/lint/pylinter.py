@@ -74,8 +74,7 @@ MANAGER = astroid.MANAGER
 class GetAstProtocol(Protocol):
     def __call__(
         self, filepath: str, modname: str, data: str | None = None
-    ) -> nodes.Module:
-        ...
+    ) -> nodes.Module: ...
 
 
 def _read_stdin() -> str:
@@ -309,9 +308,9 @@ class PyLinter(
         """Dictionary of possible but non-initialized reporters."""
 
         # Attributes for checkers and plugins
-        self._checkers: defaultdict[
-            str, list[checkers.BaseChecker]
-        ] = collections.defaultdict(list)
+        self._checkers: defaultdict[str, list[checkers.BaseChecker]] = (
+            collections.defaultdict(list)
+        )
         """Dictionary of registered and initialized checkers."""
         self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
