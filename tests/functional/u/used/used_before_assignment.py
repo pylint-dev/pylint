@@ -180,3 +180,16 @@ attr = 'test'  # pylint: disable=invalid-name
 class T:  # pylint: disable=invalid-name, too-few-public-methods, undefined-variable
     '''Issue #8754, no crash from unexpected assignment between attribute and variable'''
     T.attr = attr
+
+
+def inner_if_continues_outer_if_has_no_other_statements():
+    for i in range(5):
+        if isinstance(i, int):
+            # Testing no assignment here, before the inner if
+            if i % 2 == 0:
+                order = None
+            else:
+                continue
+        else:
+            order = None
+        print(order)

@@ -927,7 +927,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
-        if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return)):
+        if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return, nodes.Continue)):
             return True
         if (
             isinstance(node, nodes.AnnAssign)
