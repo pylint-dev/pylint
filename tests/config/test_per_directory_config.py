@@ -13,6 +13,7 @@ from pytest import CaptureFixture
 
 from pylint.lint import Run as LintRun
 from pylint.testutils._run import _Run as Run
+from pylint.testutils.utils import _test_cwd
 
 
 def test_fall_back_on_base_config(tmp_path: Path) -> None:
@@ -86,16 +87,13 @@ def test_subconfig_vs_root_config(
     test_file = tmp_files[test_file_index]
     start_dir = (level1_dir / start_dir_modificator).resolve()
 
-    orig_cwd = os.getcwd()
     output = [f"{start_dir = }\n{test_file = }\n"]
-    os.chdir(start_dir)
-    for _ in range(2):
-        # _Run adds --rcfile, which overrides config from cwd, so we need original Run here
-        LintRun([*local_config_args, str(test_file)], exit=False)
-        output.append(capsys.readouterr().out.replace("\\n", "\n"))
-
-        test_file = test_file.parent
-    os.chdir(orig_cwd)
+    with _test_cwd(start_dir):
+        for _ in range(2):
+            # _Run adds --rcfile, which overrides config from cwd, so we need original Run here
+            LintRun([*local_config_args, str(test_file)], exit=False)
+            output.append(capsys.readouterr().out.replace("\\n", "\n"))
+            test_file = test_file.parent
 
     expected_note = "LEVEL1"
     if test_file_index == 1:
@@ -140,16 +138,14 @@ def test_missing_local_config(
     test_file = tmp_files[3]
     start_dir = (level1_dir / start_dir_modificator).resolve()
 
-    orig_cwd = os.getcwd()
     output = [f"{start_dir = }\n{test_file = }\n"]
-    os.chdir(start_dir)
-    for _ in range(2):
-        # _Run adds --rcfile, which overrides config from cwd, so we need original Run here
-        LintRun([*local_config_args, str(test_file)], exit=False)
-        output.append(capsys.readouterr().out.replace("\\n", "\n"))
+    with _test_cwd(start_dir):
+        for _ in range(2):
+            # _Run adds --rcfile, which overrides config from cwd, so we need original Run here
+            LintRun([*local_config_args, str(test_file)], exit=False)
+            output.append(capsys.readouterr().out.replace("\\n", "\n"))
 
-        test_file = test_file.parent
-    os.chdir(orig_cwd)
+            test_file = test_file.parent
 
     # from default config
     expected_note = "TODO"
@@ -171,11 +167,9 @@ def test_subconfig_vs_cli_arg(
     """Test that CLI arguments have priority over subconfigs."""
     test_root, *tmp_files = _create_subconfig_test_fs
     test_file = tmp_files[test_file_index]
-    orig_cwd = os.getcwd()
-    os.chdir(test_root)
-    LintRun(["--notes=FIXME", "--use-local-configs=y", str(test_file)], exit=False)
-    output = capsys.readouterr().out.replace("\\n", "\n")
-    os.chdir(orig_cwd)
+    with _test_cwd(test_root):
+        LintRun(["--notes=FIXME", "--use-local-configs=y", str(test_file)], exit=False)
+        output = capsys.readouterr().out.replace("\\n", "\n")
 
     # check that CLI argument overrides default value
     assert "TODO" not in output
@@ -199,11 +193,9 @@ def _create_parent_subconfig_fs(tmp_path: Path) -> Path:
 def test_subconfig_in_parent(tmp_path: Path, capsys: CaptureFixture) -> None:
     """Test that searching local configs in parent directories works."""
     test_file = _create_parent_subconfig_fs(tmp_path)
-    orig_cwd = os.getcwd()
-    os.chdir(tmp_path)
-    LintRun(["--use-local-configs=y", str(test_file)], exit=False)
-    output1 = capsys.readouterr().out.replace("\\n", "\n")
-    os.chdir(orig_cwd)
+    with _test_cwd(tmp_path):
+        LintRun(["--use-local-configs=y", str(test_file)], exit=False)
+        output1 = capsys.readouterr().out.replace("\\n", "\n")
 
     # check that file is linted with config from ../, which is not a cwd
     assert "TODO" not in output1
