@@ -394,6 +394,10 @@ max-nested-blocks = 5
 # considered as an explicit return statement and no message will be printed.
 never-returning-functions = ["sys.exit", "argparse.parse_error"]
 
+# Let 'consider-using-join' be raised when the separator to join on would be non-
+# empty (resulting in expected fixes of the type: ``"- " + " - ".join(items)``)
+suggest-join-with-non-empty-separator = true
+
 [tool.pylint.reports]
 # Python expression which should return a score less than or equal to 10. You
 # have access to the variables 'fatal', 'error', 'warning', 'refactor',
