@@ -182,6 +182,11 @@ class T:  # pylint: disable=invalid-name, too-few-public-methods, undefined-vari
     T.attr = attr
 
 
+if outer():
+    NOT_ALWAYS_DEFINED = True
+print(NOT_ALWAYS_DEFINED)  # [used-before-assignment]
+
+
 def inner_if_continues_outer_if_has_no_other_statements():
     for i in range(5):
         if isinstance(i, int):

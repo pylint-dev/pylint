@@ -12,3 +12,4 @@ used-before-assignment:113:6:113:11::Using variable 'VAR10' before assignment:CO
 used-before-assignment:119:6:119:11::Using variable 'VAR12' before assignment:CONTROL_FLOW
 used-before-assignment:144:10:144:14::Using variable 'SALE' before assignment:CONTROL_FLOW
 used-before-assignment:176:10:176:18::Using variable 'ALL_DONE' before assignment:CONTROL_FLOW
+used-before-assignment:187:6:187:24::Using variable 'NOT_ALWAYS_DEFINED' before assignment:CONTROL_FLOW
