@@ -1,8 +1,0 @@
-Improve the message provided for wrong-import-order check.  Instead of the import statement ("import x"), the message now specifies the import that is out of order and which imports should come after it.  As reported in the issue, this is particularly helpful if there are multiple imports on a single line that do not follow the PEP8 convention.
-
-The message will report imports as follows:
-For "import X", it will report "(standard/third party/first party/local) import X"
-For "import X.Y" and "from X import Y", it will report "(standard/third party/first party/local) import X.Y"
-The import category is specified to provide explanation as to why pylint has issued the message and guidence to the developer on how to fix the problem.
-
-Closes #8808

@@ -1,3 +1,0 @@
-Fix a crash when an enum class which is also decorated with a ``dataclasses.dataclass`` decorator is defined.
-
-Closes #9100

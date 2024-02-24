@@ -1,3 +1,0 @@
-Fix a false-negative for unnecessary if blocks using a different than expected ordering of arguments.
-
-Closes #8947.
