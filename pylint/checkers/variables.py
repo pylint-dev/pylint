@@ -1993,7 +1993,7 @@ class VariablesChecker(BaseChecker):
         confidence = HIGH
         if node.name in current_consumer.consumed_uncertain:
             confidence = CONTROL_FLOW
-        if node.name in current_consumer.names_under_always_false_test:
+        elif node.name in current_consumer.names_under_always_false_test:
             confidence = INFERENCE
 
         self.add_message(

@@ -27,7 +27,7 @@ undefined-variable:166:4:166:13::Undefined variable 'unicode_2':UNDEFINED
 undefined-variable:171:4:171:13::Undefined variable 'unicode_3':UNDEFINED
 undefined-variable:226:25:226:37:LambdaClass4.<lambda>:Undefined variable 'LambdaClass4':UNDEFINED
 undefined-variable:234:25:234:37:LambdaClass5.<lambda>:Undefined variable 'LambdaClass5':UNDEFINED
-used-before-assignment:255:26:255:34:func_should_fail:Using variable 'datetime' before assignment:INFERENCE
+used-before-assignment:255:26:255:34:func_should_fail:Using variable 'datetime' before assignment:CONTROL_FLOW
 undefined-variable:291:18:291:24:not_using_loop_variable_accordingly:Undefined variable 'iteree':UNDEFINED
 undefined-variable:308:27:308:28:undefined_annotation:Undefined variable 'x':UNDEFINED
 used-before-assignment:309:7:309:8:undefined_annotation:Using variable 'x' before assignment:HIGH
