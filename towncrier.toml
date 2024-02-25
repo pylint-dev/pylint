@@ -1,7 +1,7 @@
 [tool.towncrier]
-version = "3.1.0"
+version = "3.2.0"
 directory = "doc/whatsnew/fragments"
-filename = "doc/whatsnew/3/3.1/index.rst"
+filename = "doc/whatsnew/3/3.2/index.rst"
 template = "doc/whatsnew/fragments/_template.rst"
 issue_format = "`#{issue} <https://github.com/pylint-dev/pylint/issues/{issue}>`_"
 wrap = false  # doesn't wrap links correctly if beginning with indentation
