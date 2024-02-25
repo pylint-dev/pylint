@@ -34,7 +34,7 @@
   },
   "pandas": {
     "branch": "main",
-    "directories": ["pandas"],
+    "directories": ["pandas/core"],
     "pylint_additional_args": ["--ignore-patterns=\"test_"],
     "url": "https://github.com/pandas-dev/pandas"
   },
