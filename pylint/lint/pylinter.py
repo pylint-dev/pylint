@@ -638,7 +638,9 @@ class PyLinter(
                 # existing self.config, so we need to save original self.config to restore it later
                 original_config_ref = self.config
                 self.config = copy.deepcopy(self.config)
-                _config_initialization(self, self._cli_args, config_file=local_conf)
+                _config_initialization(
+                    self, self._cli_args, reporter=self.reporter, config_file=local_conf
+                )
                 self._directory_namespaces[basedir.resolve()] = (self.config, {})
                 # keep dict keys reverse-sorted so that
                 # iteration over keys in _get_namespace_for_file gets the most nested path first
@@ -775,6 +777,7 @@ class PyLinter(
 
         initialize() should be called before calling this method
         """
+        self.set_current_module(file.name, file.filepath)
         with self._astroid_module_checker() as check_astroid_module:
             self._check_file(self.get_ast, check_astroid_module, file)
 

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 import os.path
+from io import StringIO
 from pathlib import Path
 
 import pytest
@@ -13,7 +14,7 @@ from pytest import CaptureFixture
 
 from pylint.lint import Run as LintRun
 from pylint.testutils._run import _Run as Run
-from pylint.testutils.utils import _test_cwd
+from pylint.testutils.utils import _patch_streams, _test_cwd
 
 
 def test_fall_back_on_base_config(tmp_path: Path) -> None:
@@ -65,7 +66,7 @@ def _create_subconfig_test_fs(tmp_path: Path) -> tuple[Path, ...]:
 
 @pytest.mark.parametrize(
     "local_config_args",
-    [["--use-local-configs=y"]],
+    [["--use-local-configs=y"], ["--use-local-configs=y", "--jobs=2"]],
 )
 # check modules and use of configuration files from top-level package or subpackage
 @pytest.mark.parametrize("test_file_index", [0, 1, 2])
@@ -75,7 +76,6 @@ def _create_subconfig_test_fs(tmp_path: Path) -> tuple[Path, ...]:
 )
 def test_subconfig_vs_root_config(
     _create_subconfig_test_fs: tuple[Path, ...],
-    capsys: CaptureFixture,
     test_file_index: int,
     local_config_args: list[str],
     start_dir_modificator: str,
@@ -87,38 +87,56 @@ def test_subconfig_vs_root_config(
     test_file = tmp_files[test_file_index]
     start_dir = (level1_dir / start_dir_modificator).resolve()
 
-    output = [f"{start_dir = }\n{test_file = }\n"]
+    output = [f"{start_dir = }"]
     with _test_cwd(start_dir):
         for _ in range(2):
-            # _Run adds --rcfile, which overrides config from cwd, so we need original Run here
-            LintRun([*local_config_args, str(test_file)], exit=False)
-            output.append(capsys.readouterr().out.replace("\\n", "\n"))
+            out = StringIO()
+            with _patch_streams(out):
+                # _Run adds --rcfile, which overrides config from cwd, so we need original Run here
+                LintRun([*local_config_args, str(test_file)], exit=False)
+                current_file_output = f"{test_file = }\n" + out.getvalue()
+                output.append(current_file_output)
             test_file = test_file.parent
 
     expected_note = "LEVEL1"
     if test_file_index == 1:
         expected_note = "LEVEL2"
-    assert_message = f"Wrong note after checking FILE. Readable debug output:\n{output[0]}\n{output[1]}"
+    assert_message = (
+        "local pylintrc was not used for checking FILE. "
+        f"Readable debug output:\n{output[0]}\n{output[1]}"
+    )
     assert expected_note in output[1], assert_message
-    assert_message = f"Wrong note after checking DIRECTORY. Readable debug output:\n{output[0]}\n{output[2]}"
+    assert_message = (
+        "local pylintrc was not used for checking DIRECTORY. "
+        f"Readable debug output:\n{output[0]}\n{output[2]}"
+    )
     assert expected_note in output[2], assert_message
 
     if test_file_index == 0:
         # 'pylint level1_dir/' should use config from subpackage when checking level1_dir/sub/b.py
-        assert_message = f"Wrong note after checking DIRECTORY. Readable debug output:\n{output[0]}\n{output[2]}"
+        assert_message = (
+            "local pylintrc was not used for checking DIRECTORY. "
+            f"Readable debug output:\n{output[0]}\n{output[2]}"
+        )
         assert "LEVEL2" in output[2], assert_message
     if test_file_index == 1:
         # 'pylint level1_dir/sub/b.py' and 'pylint level1_dir/sub/' should use
         # level1_dir/sub/pylintrc, not level1_dir/pylintrc
-        assert_message = f"Wrong note after checking FILE. Readable debug output:\n{output[0]}\n{output[1]}"
+        assert_message = (
+            "parent config was used instead of local for checking FILE. "
+            f"Readable debug output:\n{output[0]}\n{output[1]}"
+        )
         assert "LEVEL1" not in output[1], assert_message
-        assert_message = f"Wrong note after checking DIRECTORY. Readable debug output:\n{output[0]}\n{output[2]}"
+        assert_message = (
+            "parent config was used instead of local for checking DIRECTORY. "
+            f"Readable debug output:\n{output[0]}\n{output[2]}"
+        )
         assert "LEVEL1" not in output[2], assert_message
 
 
 @pytest.mark.parametrize(
     "local_config_args",
-    [["--use-local-configs=y"]],
+    [["--use-local-configs=y"], ["--use-local-configs=y", "--jobs=2"]],
 )
 # check cases when test_file without local config belongs to cwd subtree or not
 @pytest.mark.parametrize(
@@ -126,7 +144,6 @@ def test_subconfig_vs_root_config(
 )
 def test_missing_local_config(
     _create_subconfig_test_fs: tuple[Path, ...],
-    capsys: CaptureFixture,
     local_config_args: list[str],
     start_dir_modificator: str,
 ) -> None:
@@ -138,13 +155,15 @@ def test_missing_local_config(
     test_file = tmp_files[3]
     start_dir = (level1_dir / start_dir_modificator).resolve()
 
-    output = [f"{start_dir = }\n{test_file = }\n"]
+    output = [f"{start_dir = }"]
     with _test_cwd(start_dir):
         for _ in range(2):
-            # _Run adds --rcfile, which overrides config from cwd, so we need original Run here
-            LintRun([*local_config_args, str(test_file)], exit=False)
-            output.append(capsys.readouterr().out.replace("\\n", "\n"))
-
+            out = StringIO()
+            with _patch_streams(out):
+                # _Run adds --rcfile, which overrides config from cwd, so we need original Run here
+                LintRun([*local_config_args, str(test_file)], exit=False)
+                current_file_output = f"{test_file = }\n" + out.getvalue()
+                output.append(current_file_output)
             test_file = test_file.parent
 
     # from default config
@@ -152,9 +171,15 @@ def test_missing_local_config(
     if start_dir_modificator == ".":
         # from config in level1_dir
         expected_note = "LEVEL1"
-    assert_message = f"Wrong note after checking FILE. Readable debug output:\n{output[0]}\n{output[1]}"
+    assert_message = (
+        "wrong config was used for checking FILE. "
+        f"Readable debug output:\n{output[0]}\n{output[1]}"
+    )
     assert expected_note in output[1], assert_message
-    assert_message = f"Wrong note after checking DIRECTORY. Readable debug output:\n{output[0]}\n{output[2]}"
+    assert_message = (
+        "wrong config was used for checking DIRECTORY. "
+        f"Readable debug output:\n{output[0]}\n{output[2]}"
+    )
     assert expected_note in output[2], assert_message
 
 
