@@ -27,7 +27,7 @@ class ConfusingConsecutiveElifChecker(BaseChecker):
             " elif",
             "confusing-consecutive-elif",
             "Used when an elif statement follows right after an indented block which itself ends with if or elif. "
-            "It may not be ovious if the elif statement was willingly or mistakenly unindented. "
+            "It may not be obvious if the elif statement was willingly or mistakenly unindented. "
             "Extracting the indented if statement into a separate function might avoid confusion and prevent "
             "errors.",
         )
