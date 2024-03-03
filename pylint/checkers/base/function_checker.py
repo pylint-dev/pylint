@@ -28,7 +28,7 @@ class FunctionChecker(_BasicChecker):
     }
 
     def __init__(self, linter: PyLinter) -> None:
-        """Initialize the checker and container to store contextmanagers."""
+        """Initialize the checker and container to store context-managers."""
         super().__init__(linter)
         # as this walks FunctionDef nodes, if it is wrapped in a contextmanager
         # add it here for checking in generator functions
@@ -66,8 +66,9 @@ class FunctionChecker(_BasicChecker):
 
         If the used contextmanager for this generator has already been added, add a message.
 
+        # pylint: disable-next=wrong-spelling-in-comment
         :param with_node: The With or AsyncWith node to add that the generator function uses
-        :type with_node: nodes.With | nodes.AsyncWith
+        :type with_node: nodes.With | nodes.AsyncWith # pylint: disable=wrong-spelling-in-comment
         :param node: The function node to possible add messages about
         :type node: nodes.FunctionDef
         """
@@ -97,7 +98,7 @@ class FunctionChecker(_BasicChecker):
     def _check_contextmanager_generator_missing_cleanup(
         self, node: nodes.FunctionDef
     ) -> None:
-        """Check a FunctionDef to find contextmanagers and generators used in a no
+        """Check a FunctionDef to find context-managers and generators used in a no
         cleanup pattern.
 
         :param node: FunctionDef node to check
@@ -159,7 +160,7 @@ class FunctionChecker(_BasicChecker):
             for yield_node in yield_nodes
         ):
             return False
-        # if function body has multiple Trys, filter down to the ones that have a yield node
+        # if function body has multiple Try, filter down to the ones that have a yield node
         try_with_yield_nodes = [
             try_node
             for try_node in node.nodes_of_class(nodes.Try)
@@ -194,7 +195,7 @@ class FunctionChecker(_BasicChecker):
             - only if the val in `with cm() as val` is not discarded, e.g. not for uses like with cm():
 
         :param node: Node to check
-        :type node: nodes.With | nodes.AsyncWith
+        :type node: nodes.With | nodes.AsyncWith  # pylint: disable=wrong-spelling-in-comment
         :return: True if fails, False otherwise
         :rtype: bool
         """
