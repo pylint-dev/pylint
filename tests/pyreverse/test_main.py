@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unittest for the main module."""
+# pylint: disable = contextmanager-generator-missing-cleanup
 
 from __future__ import annotations
 
