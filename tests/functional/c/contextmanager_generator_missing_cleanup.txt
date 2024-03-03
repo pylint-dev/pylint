@@ -1,2 +1,2 @@
-contextmanager-generator-missing-cleanup:10:0:10:6:cm:The code after line 13 will never be executed ('GeneratorExit' needs to be handled):UNDEFINED
-contextmanager-generator-missing-cleanup:17:0:17:24:bad_error_handler_cm:The code after line 23 will never be executed ('GeneratorExit' needs to be handled):UNDEFINED
+contextmanager-generator-missing-cleanup:16:0:16:19:genfunc_with_cm:The code after line 16 will never be executed ('GeneratorExit' needs to be handled):UNDEFINED
+contextmanager-generator-missing-cleanup:29:0:29:24:genfunc_with_name_cm:The code after line 29 will never be executed ('GeneratorExit' needs to be handled):UNDEFINED

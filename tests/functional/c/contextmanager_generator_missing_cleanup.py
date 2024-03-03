@@ -44,7 +44,7 @@ def good_cm_except():
         print("good cm exit")
 
 
-def genfunc_with_cm():
+def good_genfunc_with_cm():
     with good_cm_except() as context:
         yield context * 2
 
