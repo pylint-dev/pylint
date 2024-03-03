@@ -1,4 +1,5 @@
 # pylint: disable = missing-docstring, unused-variable
+from collections import namedtuple
 import contextlib
 from contextlib import contextmanager
 
@@ -31,7 +32,58 @@ def genfunc_with_name_cm():  # [contextmanager-generator-missing-cleanup]
         yield context * 2
 
 
+def genfunc_with_cm_after():  # [contextmanager-generator-missing-cleanup]
+    with after_cm() as context:
+        yield context * 2
+
+
+@contextlib.contextmanager
+def after_cm():
+    contextvar = "acquired context"
+    print("cm enter")
+    yield contextvar
+    print("cm exit")
+
+
+@contextmanager
+def cm_with_improper_handling():
+    contextvar = "acquired context"
+    print("cm enter")
+    try:
+        yield contextvar
+    except ValueError:
+        pass
+    print("cm exit")
+
+
+def genfunc_with_cm_improper():  # [contextmanager-generator-missing-cleanup]
+    with cm_with_improper_handling() as context:
+        yield context * 2
+
+
 # Negative
+
+
+class Enterable:
+    def __enter__(self):
+        print("enter")
+        return self
+
+    def __exit__(self, *args):
+        print("exit")
+
+
+def genfunc_with_enterable():
+    enter = Enterable()
+    with enter as context:
+        yield context * 2
+
+
+def genfunc_with_enterable_attr():
+    EnterableTuple = namedtuple("EnterableTuple", ["attr"])
+    t = EnterableTuple(Enterable())
+    with t.attr as context:
+        yield context.attr * 2
 
 
 @contextlib.contextmanager
