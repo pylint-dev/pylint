@@ -3,7 +3,6 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Function checker for Python code."""
-# pylint: disable=wrong-spelling-in-comment
 
 from __future__ import annotations
 
@@ -39,7 +38,7 @@ class FunctionChecker(_BasicChecker):
         # as this walks FunctionDef nodes, if it is a generator that uses a With/AsyncWith node
         # add it here for checking against contextmanager, in case order of visiting is reversed
         # key is the contextmanager string name, value is the generator FunctionDef node to be used in the message
-        self._generator_with_contextmanager: dict[str, nodes.FunctionDef] = {}
+        self._generator_with_possible_contextmanager: dict[str, nodes.FunctionDef] = {}
 
     def _add_node_to_contextmanagers(self, node: nodes.FunctionDef) -> None:
         """Add a node to the internal contextmanager set.
@@ -50,15 +49,15 @@ class FunctionChecker(_BasicChecker):
         :type node: nodes.FunctionDef
         """
         simple_name = node.name
-        if simple_name not in self._contextmanagers:
-            self._contextmanagers.add(simple_name)
-        else:
-            err_node = self._generator_with_contextmanager[simple_name]
-            self.add_message(
-                "contextmanager-generator-missing-cleanup",
-                node=err_node,
-                args=(err_node.lineno,),
-            )
+        self._contextmanagers.add(simple_name)
+        if simple_name not in self._generator_with_possible_contextmanager:
+            return
+        err_node = self._generator_with_possible_contextmanager[simple_name]
+        self.add_message(
+            "contextmanager-generator-missing-cleanup",
+            node=err_node,
+            args=(err_node.lineno,),
+        )
 
     def _add_node_to_generators(
         self, with_node: nodes.With | nodes.AsyncWith, node: nodes.FunctionDef
@@ -68,7 +67,7 @@ class FunctionChecker(_BasicChecker):
         If the used contextmanager for this generator has already been added, add a message.
 
         :param with_node: The With or AsyncWith node to add that the generator function uses
-        :type with_node: nodes.With | nodes.AsyncWith
+        :type with_node: nodes.With
         :param node: The function node to possible add messages about
         :type node: nodes.FunctionDef
         """
@@ -84,8 +83,7 @@ class FunctionChecker(_BasicChecker):
                     args=(node.lineno,),
                 )
             else:
-                self._generator_with_contextmanager[contextmgr_name] = node
-                self._contextmanagers.add(contextmgr_name)
+                self._generator_with_possible_contextmanager[contextmgr_name] = node
 
     @utils.only_required_for_messages("contextmanager-generator-missing-cleanup")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
@@ -164,9 +162,7 @@ class FunctionChecker(_BasicChecker):
         try_with_yield_nodes = [
             try_node
             for try_node in node.nodes_of_class(nodes.Try)
-            if any(
-                try_body_node.value in yield_nodes for try_body_node in try_node.body
-            )
+            if list(try_node.nodes_of_class(nodes.Yield))
         ]
         if not try_with_yield_nodes:
             # no try blocks at all, so checks after this line do not apply
@@ -195,7 +191,7 @@ class FunctionChecker(_BasicChecker):
             - only if the val in `with cm() as val` is not discarded, e.g. not for uses like with cm():
 
         :param node: Node to check
-        :type node: nodes.With | nodes.AsyncWith
+        :type node: nodes.With
         :return: True if fails, False otherwise
         :rtype: bool
         """
