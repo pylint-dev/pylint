@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Function checker for Python code."""
+# pylint: disable=wrong-spelling-in-comment
 
 from __future__ import annotations
 
@@ -66,9 +67,8 @@ class FunctionChecker(_BasicChecker):
 
         If the used contextmanager for this generator has already been added, add a message.
 
-        # pylint: disable-next=wrong-spelling-in-comment
         :param with_node: The With or AsyncWith node to add that the generator function uses
-        :type with_node: nodes.With | nodes.AsyncWith # pylint: disable=wrong-spelling-in-comment
+        :type with_node: nodes.With | nodes.AsyncWith
         :param node: The function node to possible add messages about
         :type node: nodes.FunctionDef
         """
@@ -195,7 +195,7 @@ class FunctionChecker(_BasicChecker):
             - only if the val in `with cm() as val` is not discarded, e.g. not for uses like with cm():
 
         :param node: Node to check
-        :type node: nodes.With | nodes.AsyncWith  # pylint: disable=wrong-spelling-in-comment
+        :type node: nodes.With | nodes.AsyncWith
         :return: True if fails, False otherwise
         :rtype: bool
         """
