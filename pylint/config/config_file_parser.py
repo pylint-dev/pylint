@@ -106,7 +106,7 @@ class _RawConfParser:
             raise OSError(f"The config file {file_path} doesn't exist!")
 
         if verbose:
-            print(f"Using config file {file_path}", file=sys.stderr)
+            print(f"Loading config file {file_path}", file=sys.stderr)
 
         if file_path.suffix == ".toml":
             return _RawConfParser.parse_toml_file(file_path)

@@ -639,7 +639,11 @@ class PyLinter(
                 original_config_ref = self.config
                 self.config = copy.deepcopy(self.config)
                 _config_initialization(
-                    self, self._cli_args, reporter=self.reporter, config_file=local_conf
+                    self,
+                    self._cli_args,
+                    reporter=self.reporter,
+                    config_file=local_conf,
+                    verbose_mode=self.config.verbose,
                 )
                 self._directory_namespaces[basedir.resolve()] = (self.config, {})
                 # keep dict keys reverse-sorted so that
@@ -958,24 +962,29 @@ class PyLinter(
         # If there is an actual filepath we might need to update the config attribute
         if filepath and self.config.use_local_configs:
             self.register_local_config(filepath)
-            namespace = self._get_namespace_for_file(
+            config_path, namespace = self._get_namespace_for_file(
                 Path(filepath), self._directory_namespaces
             )
             if namespace:
-                self.config = namespace or self._base_config
+                self.config = namespace
+                if self.config.verbose:
+                    print(
+                        f"Using config from {config_path} for {filepath}",
+                        file=sys.stderr,
+                    )
 
     def _get_namespace_for_file(
         self, filepath: Path, namespaces: DirectoryNamespaceDict
-    ) -> argparse.Namespace | None:
+    ) -> tuple[Path | None, argparse.Namespace | None]:
         filepath = filepath.resolve()
         for directory in namespaces:
             if _is_relative_to(filepath, directory):
-                namespace = self._get_namespace_for_file(
+                _, namespace = self._get_namespace_for_file(
                     filepath, namespaces[directory][1]
                 )
                 if namespace is None:
-                    return namespaces[directory][0]
-        return None
+                    return directory, namespaces[directory][0]
+        return None, None
 
     @contextlib.contextmanager
     def _astroid_module_checker(
