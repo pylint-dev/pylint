@@ -240,3 +240,13 @@ def test_register_local_config_accepts_directory(
     assert level1_dir.is_dir()
     linter.register_local_config(str(level1_dir))
     assert level1_dir in linter._directory_namespaces.keys()
+
+
+def test_local_config_verbose(
+    _create_subconfig_test_fs: tuple[Path, ...], capsys: CaptureFixture
+) -> None:
+    """Check --verbose flag prints message about current config for each file."""
+    level1_dir, *tmp_files = _create_subconfig_test_fs
+    LintRun(["--verbose", "--use-local-configs=y", str(tmp_files[1])], exit=False)
+    output = capsys.readouterr()
+    assert f"Using config from {level1_dir / 'sub'}" in output.err

@@ -178,7 +178,7 @@ def test_short_verbose(capsys: CaptureFixture) -> None:
     """Check that we correctly handle the -v flag."""
     Run([str(EMPTY_MODULE), "-v"], exit=False)
     output = capsys.readouterr()
-    assert "Using config file" in output.err
+    assert "Loading config file" in output.err
 
 
 def test_argument_separator() -> None:
