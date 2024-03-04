@@ -132,3 +132,11 @@ def good_cm_finally():
 def good_cm_finally_genfunc():
     with good_cm_finally() as context:
         yield context * 2
+
+
+def genfunc_with_cm_finally_odd_body():
+    with good_cm_finally() as context:
+        if context:
+            yield context * 2
+        else:
+            yield context * 3
