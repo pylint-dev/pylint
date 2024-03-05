@@ -33,7 +33,7 @@ from pylint.lint.pylinter import PyLinter
 from pylint.message import Message
 from pylint.reporters import BaseReporter
 from pylint.reporters.json_reporter import JSON2Reporter
-from pylint.reporters.text import ColorizedTextReporter, TextReporter
+from pylint.reporters.text import ColorizedTextReporter, GithubReporter, TextReporter
 from pylint.testutils._run import _add_rcfile_default_pylintrc
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import (
@@ -189,6 +189,7 @@ class TestRunTC:
             TextReporter(StringIO()),
             ColorizedTextReporter(StringIO()),
             JSON2Reporter(StringIO()),
+            GithubReporter(StringIO()),
         ]
         self._runtest(
             [join(HERE, "functional", "a", "arguments.py")],
