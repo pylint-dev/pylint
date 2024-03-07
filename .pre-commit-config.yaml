@@ -77,8 +77,7 @@ repos:
         entry: pylint
         language: system
         types: [python]
-        args:
-          ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I", "--output-format=github"]
+        args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/\w*)*data/|doc/
       # We define an additional manual step to allow running pylint with a spelling
       # checker in CI.

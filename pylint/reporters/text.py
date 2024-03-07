@@ -276,7 +276,7 @@ class GithubReporter(TextReporter):
         for key in ("end_line", "end_column"):
             self_dict[key] = self_dict[key] or ""
 
-        self_dict["category"] = self.category_map.get(msg.msg_id[:1]) or "error"
+        self_dict["category"] = self.category_map.get(msg.C) or "error"
         self.writeln(self._fixed_template.format(**self_dict))
 
 
