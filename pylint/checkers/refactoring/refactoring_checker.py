@@ -2078,12 +2078,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Per its implementation and PEP8 we can have a "return None" at the end
         of the function body if there are other return statements before that!
         """
-        if len(self._return_nodes[node.name]) > 1:
+        if len(self._return_nodes[node.name]) != 1:
             return
-        if len(node.body) <= 1:
+        if not node.body:
             return
 
         last = node.body[-1]
+        if isinstance(last, nodes.Return) and len(node.body) == 1:
+            return
+
+        while isinstance(last, (nodes.If, nodes.Try, nodes.ExceptHandler)):
+            last = last.last_child()
+
         if isinstance(last, nodes.Return):
             # e.g. "return"
             if last.value is None:

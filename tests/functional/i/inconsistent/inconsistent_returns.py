@@ -1,5 +1,5 @@
 #pylint: disable=missing-docstring, no-else-return, no-else-break, invalid-name, unused-variable, superfluous-parens, try-except-raise
-#pylint: disable=disallowed-name,too-few-public-methods,no-member,useless-else-on-loop
+#pylint: disable=disallowed-name,too-few-public-methods,no-member,useless-else-on-loop,useless-return
 """Testing inconsistent returns"""
 import math
 import sys
