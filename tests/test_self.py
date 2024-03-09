@@ -220,8 +220,13 @@ class TestRunTC:
 
     def test_disable_all_enable_invalid(self) -> None:
         out = StringIO()
-        self._runtest([UNNECESSARY_LAMBDA, "--disable=all", "--enable=foo"], out=out, code=0)
-        assert "W0012: Unknown option value for '--enable', expected a valid pylint message and got 'foo'" in out.getvalue().strip()
+        self._runtest(
+            [UNNECESSARY_LAMBDA, "--disable=all", "--enable=foo"], out=out, code=0
+        )
+        assert (
+            "W0012: Unknown option value for '--enable', expected a valid pylint message and got 'foo'"
+            in out.getvalue().strip()
+        )
 
     def test_output_with_verbose(self) -> None:
         out = StringIO()
