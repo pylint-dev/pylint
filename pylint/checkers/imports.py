@@ -686,7 +686,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     isinstance(prev, nodes.ImportFrom) and prev.modname == "__future__"
                 ):
                     self.add_message("misplaced-future", node=node)
-            return
 
     def _check_same_line_imports(self, node: nodes.ImportFrom) -> None:
         # Detect duplicate imports on the same line.
