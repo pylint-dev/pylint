@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 from pytest import CaptureFixture
 
-from pylint.lint.pylinter import PyLinter
+from pylint.lint.pylinter import MANAGER, PyLinter
 from pylint.utils import FileState
 
 
@@ -48,3 +48,14 @@ def test_crash_during_linting(
         assert len(files) == 1
         assert "pylint-crash-20" in str(files[0])
         assert any(m.symbol == "astroid-error" for m in linter.reporter.messages)
+
+
+def test_open_pylinter_denied_modules(linter: PyLinter) -> None:
+    """Test PyLinter open() adds ignored modules to Astroid manager deny list."""
+    MANAGER.module_denylist = {"mod1"}
+    try:
+        linter.config.ignored_modules = ["mod2", "mod3"]
+        linter.open()
+        assert MANAGER.module_denylist == {"mod1", "mod2", "mod3"}
+    finally:
+        MANAGER.module_denylist = set()

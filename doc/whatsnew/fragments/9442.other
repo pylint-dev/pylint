@@ -1,0 +1,5 @@
+Ignored modules are now not checked at all, instead of being checked and then
+ignored. This should speed up the analysis of large codebases which have
+ignored modules.
+
+Closes #9442 (`#9442 <https://github.com/pylint-dev/pylint/issues/9442>`_)
