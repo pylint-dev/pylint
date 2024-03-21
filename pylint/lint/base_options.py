@@ -154,7 +154,7 @@ def _make_linter_options(linter: PyLinter) -> Options:
             "fail-under",
             {
                 "default": 10,
-                "type": "float",
+                "type": "string",
                 "metavar": "<score>",
                 "help": "Specify a score threshold under which the program will exit with error.",
             },

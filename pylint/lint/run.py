@@ -222,7 +222,18 @@ group are mutually exclusive.",
                 # So we use self.linter.msg_status if that is non-zero, otherwise we just return 1.
                 sys.exit(self.linter.msg_status or 1)
             elif score_value is not None:
-                if score_value >= linter.config.fail_under:
+                # Convert fail_under from str to a float
+                fail_under = float(linter.config.fail_under)
+                if "." not in linter.config.fail_under:
+                    # If there is no decimal place, do not round score to the same precision as the
+                    # fail_under comparison
+                    rounded_score_value = score_value
+                else:
+                    # Round the score to the number of decimal places given in the fail_under option
+                    decimal_places = len(linter.config.fail_under.split(".")[1])
+                    # Round the score to the number of decimal places
+                    rounded_score_value = round(score_value, decimal_places)
+                if rounded_score_value >= fail_under:
                     sys.exit(0)
                 else:
                     # We need to make sure we return a failing exit code in this case.
