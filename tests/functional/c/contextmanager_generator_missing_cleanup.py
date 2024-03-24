@@ -1,4 +1,4 @@
-# pylint: disable = missing-docstring, unused-variable
+# pylint: disable = missing-docstring, unused-variable, bare-except, broad-exception-caught
 from collections import namedtuple
 import contextlib
 from contextlib import contextmanager
@@ -145,3 +145,33 @@ def genfunc_with_cm_finally_odd_body():
 @cm_with_improper_handling
 def genfunc_wrapped():
     yield "wrapped"
+
+
+@contextmanager
+def cm_bare_handler():
+    contextvar = "acquired context"
+    print("cm enter")
+    try:
+        yield contextvar
+    except:
+        print("cm exit")
+
+
+@contextmanager
+def cm_base_exception_handler():
+    contextvar = "acquired context"
+    print("cm enter")
+    try:
+        yield contextvar
+    except Exception:
+        print("cm exit")
+
+
+def genfunc_with_cm_bare_handler():
+    with cm_bare_handler() as context:
+        yield context * 2
+
+
+def genfunc_with_cm_base_exception_handler():
+    with cm_base_exception_handler() as context:
+        yield context * 2

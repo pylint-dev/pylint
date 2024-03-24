@@ -96,10 +96,17 @@ class FunctionChecker(_BasicChecker):
         :rtype: bool
         """
 
-        def check_handles_generator_exit(try_node: nodes.Try) -> bool:
+        def check_handles_generator_exceptions(try_node: nodes.Try) -> bool:
+            # needs to handle either GeneratorExit, Exception, or bare except
             for handler in try_node.handlers:
+                if handler.type is None:
+                    # handles all exceptions (bare except)
+                    return True
                 inferred = utils.safe_infer(handler.type)
-                if inferred and inferred.qname() == "builtins.GeneratorExit":
+                if inferred and inferred.qname() in {
+                    "builtins.GeneratorExit",
+                    "builtins.Exception",
+                }:
                     return True
             return False
 
@@ -123,7 +130,8 @@ class FunctionChecker(_BasicChecker):
             return False
         # if the contextmanager catches GeneratorExit, then it is fine
         if all(
-            check_handles_generator_exit(try_node) for try_node in try_with_yield_nodes
+            check_handles_generator_exceptions(try_node)
+            for try_node in try_with_yield_nodes
         ):
             return False
         return True
