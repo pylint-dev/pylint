@@ -140,3 +140,8 @@ def genfunc_with_cm_finally_odd_body():
             yield context * 2
         else:
             yield context * 3
+
+
+@cm_with_improper_handling
+def genfunc_wrapped():
+    yield "wrapped"
