@@ -95,6 +95,14 @@ class FunctionChecker(_BasicChecker):
         :type yield_nodes: list[nodes.Yield]
         :rtype: bool
         """
+
+        def check_handles_generator_exit(try_node: nodes.Try) -> bool:
+            for handler in try_node.handlers:
+                inferred = utils.safe_infer(handler.type)
+                if inferred and inferred.qname() == "builtins.GeneratorExit":
+                    return True
+            return False
+
         # if context manager yields a non-constant value, then continue checking
         if any(
             yield_node.value is None or isinstance(yield_node.value, nodes.Const)
@@ -115,12 +123,7 @@ class FunctionChecker(_BasicChecker):
             return False
         # if the contextmanager catches GeneratorExit, then it is fine
         if all(
-            any(
-                isinstance(handler.type, nodes.Name)
-                and handler.type.name == "GeneratorExit"
-                for handler in try_node.handlers
-            )
-            for try_node in try_with_yield_nodes
+            check_handles_generator_exit(try_node) for try_node in try_with_yield_nodes
         ):
             return False
         return True
