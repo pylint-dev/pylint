@@ -31,7 +31,7 @@ def good_cm_yield_none():
 def genfunc_with_none_yield():
     with good_cm_yield_none() as var:
         print(var)
-        yield "discarded"
+        yield "constant yield"
 
 
 @contextlib.contextmanager
