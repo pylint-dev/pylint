@@ -414,6 +414,16 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "Useful if running pylint in a server-like mode.",
             },
         ),
+        (
+            "use-local-configs",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "When some of the linted modules have a pylint config in the same directory "
+                "(or one of the parent directories), use this config for checking these files.",
+            },
+        ),
     )
 
 

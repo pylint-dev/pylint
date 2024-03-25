@@ -61,6 +61,7 @@ codecs
 col's
 conf
 config
+configs
 const
 Const
 contextlib
@@ -310,11 +311,13 @@ str
 stringified
 subclasses
 subcommands
+subconfigs
 subdicts
 subgraphs
 sublists
 submodule
 submodules
+subpackage
 subparsers
 subparts
 subprocess
