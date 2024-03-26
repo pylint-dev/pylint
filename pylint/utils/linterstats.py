@@ -294,7 +294,7 @@ class LinterStats:
 
     def get_module_message_count(self, modname: str, type_name: str) -> int:
         """Get a module message count."""
-        return getattr(self.by_module[modname], type_name, 0)
+        return self.by_module[modname].get(type_name, 0)
 
     def increase_single_message_count(self, type_name: str, increase: int) -> None:
         """Increase the message type count of an individual message type."""
