@@ -8,6 +8,9 @@ import dataclasses
 import typing
 from dataclasses import dataclass
 
+import attrs  # pylint: disable=import-error
+from attrs import define, frozen  # pylint: disable=import-error
+
 
 @dataclasses.dataclass
 class ScheduledTxSearchModel:
@@ -40,3 +43,27 @@ class Point:
     def to_array(self):
         """Convert to a NumPy array `np.array((x, y, z))`."""
         return self.attr1
+
+
+@define
+class AttrsBarePoint:
+    x: float
+    y: float
+
+
+@frozen
+class AttrsBareFrozenPoint:
+    x: float
+    y: float
+
+
+@attrs.define
+class AttrsQualifiedPoint:
+    x: float
+    y: float
+
+
+@attrs.frozen
+class AttrsQualifiedFrozenPoint:
+    x: float
+    y: float

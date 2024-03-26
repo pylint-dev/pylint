@@ -92,6 +92,8 @@ MSGS: dict[str, MessageDefinitionTuple] = (
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
+ATTRS_DECORATORS = frozenset({"define", "frozen"})
+ATTRS_IMPORT = "attrs"
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
 TYPING_TYPEDDICT = "typing.TypedDict"
 TYPING_EXTENSIONS_TYPEDDICT = "typing_extensions.TypedDict"
@@ -212,6 +214,10 @@ def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
         if name in DATACLASSES_DECORATORS and (
             root_locals.intersection(DATACLASSES_DECORATORS)
             or DATACLASS_IMPORT in root_locals
+        ):
+            return True
+        if name in ATTRS_DECORATORS and (
+            root_locals.intersection(ATTRS_DECORATORS) or ATTRS_IMPORT in root_locals
         ):
             return True
     return False
