@@ -1,7 +1,7 @@
-consider-using-with:10:9:10:43::Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:14:9:14:43:test_open:Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:44:4:44:33:test_open_outside_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:45:14:45:43:test_open_outside_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:50:8:50:37:test_open_inside_with_block:Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:118:26:120:13:TestControlFlow.test_triggers_if_reassigned_after_if_else:Consider using 'with' for resource-allocating operations:UNDEFINED
-used-before-assignment:139:12:139:23:TestControlFlow.test_defined_in_try_and_finally:Using variable 'file_handle' before assignment:CONTROL_FLOW
+consider-using-with:11:9:11:43::Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:15:9:15:43:test_open:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:47:4:47:33:test_open_outside_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:48:14:48:43:test_open_outside_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:53:8:53:37:test_open_inside_with_block:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:126:26:126:54:TestControlFlow.test_triggers_if_reassigned_after_if_else:Consider using 'with' for resource-allocating operations:UNDEFINED
+used-before-assignment:145:12:145:23:TestControlFlow.test_defined_in_try_and_finally:Using variable 'file_handle' before assignment:CONTROL_FLOW
