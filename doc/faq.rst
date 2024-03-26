@@ -67,6 +67,22 @@ to not be included as default messages.
 You can see the plugin you need to explicitly :ref:`load in the technical reference
 <user_guide/checkers/extensions:optional checkers>`.
 
+I want to use pylint on save in my IDE, how can I do that ?
+-----------------------------------------------------------
+
+Don't do it, pylint is not fast enough for that and never will be. pylint is best suited
+for a continuous integration job or a git ``pre-push`` hook, especially if your repository
+is large.
+
+Why do I have non deterministic result when I try to parallelize pylint ?
+-------------------------------------------------------------------------
+
+pylint should analyses all your code at once in order to best infer the
+actual values that are passed in calls. If only some of the files are given pylint might
+miss a particular value's type and produce inferior inference for the subset. Parallelization
+of pylint is not easy, we also discourage the use of the ``-j`` option if this matter to you.
+
+
 Which messages should I disable to avoid duplicates if I use other popular linters ?
 ------------------------------------------------------------------------------------
 

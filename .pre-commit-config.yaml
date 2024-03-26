@@ -77,6 +77,9 @@ repos:
         entry: pylint
         language: system
         types: [python]
+        # Not that problematic to run in parallel see Pre-commit
+        # integration in the doc for details
+        # require_serial: true
         args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/\w*)*data/|doc/
       # We define an additional manual step to allow running pylint with a spelling

@@ -55,7 +55,7 @@ For example:
    scratch.
 -  Delete the ``maintenance/X.Y-1.x`` branch. (For example:
    ``maintenance/2.3.x``)
--  Select all the issues labelled ``backport maintenance/X.Y-1.x`` and
+-  Select all the *closed* issues labelled ``backport maintenance/X.Y-1.x`` and
    label them ``backported``, then rename the
    ``backport maintenance/X.Y-1.x`` label to
    ``backport maintenance/X.Y.x`` (for example rename
