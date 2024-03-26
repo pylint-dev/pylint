@@ -16,6 +16,7 @@ from astroid.typing import InferenceResult
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import infer_all
+from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -369,7 +370,7 @@ class LoggingChecker(checkers.BaseChecker):
                 self.add_message("logging-format-truncated", node=node)
                 return
         if num_args > required_num_args:
-            self.add_message("logging-too-many-args", node=node)
+            self.add_message("logging-too-many-args", node=node, confidence=HIGH)
         elif num_args < required_num_args:
             self.add_message("logging-too-few-args", node=node)
 
