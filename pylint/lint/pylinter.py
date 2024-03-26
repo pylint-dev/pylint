@@ -749,6 +749,7 @@ class PyLinter(
                 continue
             try:
                 self._lint_file(fileitem, module, check_astroid_module)
+                self.stats.modules_names.add(fileitem.filepath)
             except Exception as ex:  # pylint: disable=broad-except
                 template_path = prepare_crash_report(
                     ex, fileitem.filepath, self.crash_file_path
@@ -1141,7 +1142,8 @@ class PyLinter(
             if verbose:
                 checked_files_count = self.stats.node_count["module"]
                 unchecked_files_count = self.stats.undocumented["module"]
-                msg += f"\nChecked {checked_files_count} files, skipped {unchecked_files_count} files"
+                checked_files = ", ".join(self.stats.modules_names)
+                msg += f"\nChecked {checked_files_count} files ({checked_files}), skipped {unchecked_files_count} files"
 
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)
