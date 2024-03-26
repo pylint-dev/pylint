@@ -1,0 +1,3 @@
+Added a ``fixme-in-docstring`` message to check TODO, FIXME inside doc strings
+
+Closes #9255
