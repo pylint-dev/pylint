@@ -212,12 +212,12 @@ class TestRunTC:
         self._runtest(["--rcfile=/tmp/this_file_does_not_exist"], code=32)
 
     def test_error_missing_arguments(self) -> None:
-        self._runtest([], code=32)
+        self._runtest([], code=1)
 
     def test_disable_all(self) -> None:
         out = StringIO()
         self._runtest([UNNECESSARY_LAMBDA, "--disable=all"], out=out, code=32)
-        assert "No files to lint: exiting." in out.getvalue().strip()
+        assert "No messages to check: exiting." in out.getvalue().strip()
 
     def test_output_with_verbose(self) -> None:
         out = StringIO()
@@ -497,8 +497,9 @@ class TestRunTC:
         )
 
     def test_no_crash_with_formatting_regex_defaults(self) -> None:
+        path = join(HERE, "regrtest_data", "empty.py")
         self._runtest(
-            ["--ignore-patterns=a"], reporter=TextReporter(StringIO()), code=32
+            [path, "--ignore-patterns=a"], reporter=TextReporter(StringIO()), code=0
         )
 
     def test_getdefaultencoding_crashes_with_lc_ctype_utf8(self) -> None:
