@@ -1,5 +1,6 @@
-# pylint: disable=missing-docstring, use-list-literal, use-dict-literal
+# pylint: disable=missing-docstring, use-list-literal, use-dict-literal, unnecessary-direct-lambda-call, too-few-public-methods
 import collections
+from datetime import datetime
 
 HEHE = {}
 
@@ -110,6 +111,44 @@ def function24(*, value=[]): # [dangerous-default-value]
     """dangerous default value in kwarg."""
     return value
 
+def function25(value=datetime.date.today()): # [dangerous-default-value]
+    return value
+
+def function26(*, value=datetime.date.today()): # [dangerous-default-value]
+    return value
+
+def function27(value=str()):
+    return value
+
+def function28(value=tuple()):
+    return value
+
+def function29(value=bytes()):
+    return value
+
+def function30(value=int()):
+    return value
+
+def function31(value=float()):
+    return value
+
+def function32(value=complex()):
+    return value
+
+def function33(value=range()):
+    return value
+
+class MyClass:
+    def try_with_a_method(self, arg):
+        return arg
+
+def function34(value=MyClass().try_with_a_method("beta")): # [dangerous-default-value]
+    """docstring"""
+    return value
+
+def function35(value=(lambda x: x+1)(2)): # [dangerous-default-value]
+    """docstring"""
+    return value
 
 class Clazz:
     # pylint: disable=too-few-public-methods
