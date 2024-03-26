@@ -1124,9 +1124,7 @@ accessed. Python regular expressions are accepted.",
 
             try:
                 attr_nodes = owner.getattr(node.attrname)
-            except AttributeError:
-                continue
-            except astroid.DuplicateBasesError:
+            except (AttributeError, astroid.DuplicateBasesError):
                 continue
             except astroid.NotFoundError:
                 # Avoid false positive in case a decorator supplies member.
@@ -1158,6 +1156,15 @@ accessed. Python regular expressions are accepted.",
             else:
                 for attr_node in attr_nodes:
                     attr_parent = attr_node.parent
+
+                    # If an annotation exists for this attribute, we don't emit `no-member`.
+                    if (
+                        isinstance(owner, astroid.Instance)
+                        and utils.is_attribute_typed_annotation(owner, node.attrname)
+                        and not isinstance(attr_node.statement(), nodes.AugAssign)
+                    ):
+                        break
+
                     # Skip augmented assignments
                     try:
                         if isinstance(attr_node.statement(), nodes.AugAssign) or (
