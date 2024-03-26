@@ -120,7 +120,7 @@ Standard Checkers
 
 --ignored-modules
 """""""""""""""""
-*List of module names for which member attributes should not be checked (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis). It supports qualified module names, as well as Unix pattern matching.*
+*List of module names for which member attributes should not be checked and will not be imported (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis). It supports qualified module names, as well as Unix pattern matching.*
 
 **Default:**  ``()``
 
