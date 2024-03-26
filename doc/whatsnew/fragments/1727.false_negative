@@ -1,0 +1,4 @@
+Emit ``used-before-assignment`` when relying on names after an ``if/else``
+switch when one branch failed to define the name, raise, or return.
+
+Closes #1727

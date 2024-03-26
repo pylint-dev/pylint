@@ -167,32 +167,32 @@ class ConditionalImportGuardedWhenUsed:  # pylint: disable=too-few-public-method
 
 class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-variable
     """Test for defines in TYPE_CHECKING if/elif/else branching"""
-    def defined_in_elif_branch(self) -> calendar.Calendar:
-        print(bisect)
+    def defined_in_elif_branch(self) -> calendar.Calendar:  # [used-before-assignment]
+        print(bisect)  # [used-before-assignment]
         return calendar.Calendar()
 
     def defined_in_else_branch(self) -> urlopen:
-        print(zoneinfo)
+        print(zoneinfo)  # [used-before-assignment]
         print(pprint())
         print(collections())
         return urlopen
 
-    def defined_in_nested_if_else(self) -> heapq:
+    def defined_in_nested_if_else(self) -> heapq:  # [used-before-assignment]
         print(heapq)
         return heapq
 
-    def defined_in_try_except(self) -> array:
-        print(types)
-        print(copy)
-        print(numbers)
+    def defined_in_try_except(self) -> array:  # [used-before-assignment]
+        print(types)  # [used-before-assignment]
+        print(copy)  # [used-before-assignment]
+        print(numbers)  # [used-before-assignment]
         return array
 
-    def defined_in_loops(self) -> json:
-        print(email)
-        print(mailbox)
-        print(mimetypes)
+    def defined_in_loops(self) -> json:  # [used-before-assignment]
+        print(email)  # [used-before-assignment]
+        print(mailbox)  # [used-before-assignment]
+        print(mimetypes)  # [used-before-assignment]
         return json
 
-    def defined_in_with(self) -> base64:
-        print(binascii)
+    def defined_in_with(self) -> base64:  # [used-before-assignment]
+        print(binascii)  # [used-before-assignment]
         return base64
