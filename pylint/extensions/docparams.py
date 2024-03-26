@@ -253,7 +253,9 @@ class DocstringParameterChecker(BaseChecker):
     def check_functiondef_returns(
         self, node: nodes.FunctionDef, node_doc: Docstring
     ) -> None:
-        if (not node_doc.supports_yields and node.is_generator()) or node.is_abstract():
+        if (not node_doc.supports_yields and node.is_generator()) or node.is_abstract(
+            pass_is_abstract=False
+        ):
             return
 
         return_nodes = node.nodes_of_class(astroid.Return)
@@ -265,7 +267,7 @@ class DocstringParameterChecker(BaseChecker):
     def check_functiondef_yields(
         self, node: nodes.FunctionDef, node_doc: Docstring
     ) -> None:
-        if not node_doc.supports_yields or node.is_abstract():
+        if not node_doc.supports_yields or node.is_abstract(pass_is_abstract=False):
             return
 
         if (
