@@ -145,21 +145,61 @@ def test_is_subclass_of_not_classdefs() -> None:
 
 
 def test_parse_format_method_string() -> None:
+    result_type = utils.parse_format_method_string_result
     samples = [
-        ("{}", 1),
-        ("{}:{}", 2),
-        ("{field}", 1),
-        ("{:5}", 1),
-        ("{:10}", 1),
-        ("{field:10}", 1),
-        ("{field:10}{{}}", 1),
-        ("{:5}{!r:10}", 2),
-        ("{:5}{}{{}}{}", 3),
-        ("{0}{1}{0}", 2),
-        ("Coordinates: {latitude}, {longitude}", 2),
-        ("X: {0[0]};  Y: {0[1]}", 1),
-        ("{:*^30}", 1),
-        ("{!r:}", 1),
+        ("{}", result_type([], 1, {}, {}, [(None, None)], {})),
+        ("{}:{}", result_type([], 2, {}, {}, [(None, None), (None, None)], {})),
+        (
+            "{field}",
+            result_type([("field", [])], 0, {}, {"field": (None, None)}, [], {}),
+        ),
+        ("{:5}", result_type([], 1, {}, {}, [(None, None)], {})),
+        ("{:10}", result_type([], 1, {}, {}, [(None, None)], {})),
+        (
+            "{field:10}",
+            result_type([("field", [])], 0, {}, {"field": (None, None)}, [], {}),
+        ),
+        (
+            "{field:10}{{}}",
+            result_type([("field", [])], 0, {}, {"field": (None, None)}, [], {}),
+        ),
+        ("{:5}{!r:10}", result_type([], 2, {}, {}, [(None, None), ("r", None)], {})),
+        (
+            "{:5}{}{{}}{}",
+            result_type([], 3, {}, {}, [(None, None), (None, None), (None, None)], {}),
+        ),
+        (
+            "{0}{1}{0}",
+            result_type(
+                [],
+                0,
+                {"0": [], "1": []},
+                {},
+                [],
+                {"0": (None, None), "1": (None, None)},
+            ),
+        ),
+        (
+            "Coordinates: {latitude}, {longitude}",
+            result_type(
+                [("latitude", []), ("longitude", [])],
+                0,
+                {},
+                {"latitude": (None, None), "longitude": (None, None)},
+                [],
+                {},
+            ),
+        ),
+        (
+            "X: {0[0]};  Y: {0[1]}",
+            result_type([], 0, {"0": [(False, 1)]}, {}, [], {"0": (None, None)}),
+        ),
+        ("{:*^30}", result_type([], 1, {}, {}, [(None, None)], {})),
+        ("{!r:}", result_type([], 1, {}, {}, [("r", None)], {})),
+        (
+            "{0.missing}",
+            result_type([], 0, {"0": [(True, "missing")]}, {}, [], {"0": (None, None)}),
+        ),
     ]
     for fmt, count in samples:
         keys, num_args, pos_args = utils.parse_format_method_string(fmt)

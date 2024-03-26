@@ -324,6 +324,7 @@ class LoggingChecker(checkers.BaseChecker):
           node: AST node to be checked.
           format_arg: Index of the format string in the node arguments.
         """
+
         num_args = _count_supplied_tokens(node.args[format_arg + 1 :])
         if not num_args:
             # If no args were supplied the string is not interpolated and can contain
@@ -345,17 +346,16 @@ class LoggingChecker(checkers.BaseChecker):
                         # special keywords - out of scope.
                         return
                 elif self._format_style == "new":
-                    (
-                        keyword_arguments,
-                        implicit_pos_args,
-                        explicit_pos_args,
-                    ) = utils.parse_format_method_string(format_string)
-
+                    parse = utils.parse_format_method_string(format_string)
                     keyword_args_cnt = len(
+                        # <<<<<<< format-parsing2
+                        # { f[0] for f in parse.keyword_arguments if isinstance(f[0], str) }
                         {k for k, _ in keyword_arguments if not isinstance(k, int)}
                     )
                     required_num_args = (
-                        keyword_args_cnt + implicit_pos_args + explicit_pos_args
+                        keyword_args_cnt
+                        + parse.implicit_pos_args_cnt
+                        + len(parse.explicit_pos_args)
                     )
             except utils.UnsupportedFormatCharacter as ex:
                 char = format_string[ex.index]
