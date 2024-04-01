@@ -25,3 +25,4 @@ class RequestsSessionTimeoutChecker(BaseChecker):
 
 def register(linter):
     linter.register_checker(RequestsSessionTimeoutChecker(linter))
+
