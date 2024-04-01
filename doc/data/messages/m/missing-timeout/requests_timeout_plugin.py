@@ -1,17 +1,14 @@
 import astroid
 from pylint.checkers import BaseChecker
-from pylint.interfaces import IAstroidChecker
 
 class RequestsSessionTimeoutChecker(BaseChecker):
-    __implements__ = (IAstroidChecker,)
-
     name = 'requests-session-timeout-checker'
     msgs = {
-        'W3102': {
-            'msg': 'No timeout set for requests.Session() object.',
-            'symbol': 'missing-timeout-session',
-            'desc': 'You should set a timeout for requests.Session() object creation.'
-        }
+        'W3102': (
+            'No timeout set for requests.Session() object.',
+            'missing-timeout-session',
+            'You should set a timeout for requests.Session() object creation.'
+        ),
     }
 
     def visit_call(self, node):
@@ -25,4 +22,3 @@ class RequestsSessionTimeoutChecker(BaseChecker):
 
 def register(linter):
     linter.register_checker(RequestsSessionTimeoutChecker(linter))
-
