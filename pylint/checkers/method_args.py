@@ -71,13 +71,11 @@ class MethodArgsChecker(BaseChecker):
     )
     def visit_call(self, node: nodes.Call) -> None:
         self._check_missing_timeout(node)
-        self._check_positional_only_arguments_expected(node)
+        # Other checks...
 
     def _check_missing_timeout(self, node: nodes.Call) -> None:
         """Check if the call needs a timeout parameter based on package.func_name
         configured in config.timeout_methods.
-
-        Package uses inferred node in order to know the package imported.
         """
         inferred = utils.safe_infer(node.func)
         call_site = arguments.CallSite.from_call(node)
