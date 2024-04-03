@@ -1831,7 +1831,11 @@ def is_sys_guard(node: nodes.If) -> bool:
             and value.as_string() == "sys.version_info"
         ):
             return True
-
+    elif isinstance(node.test, nodes.Attribute) and node.test.as_string() in {
+        "six.PY2",
+        "six.PY3",
+    }:
+        return True
     return False
 
 
