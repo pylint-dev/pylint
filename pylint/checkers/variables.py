@@ -403,6 +403,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "invalid-all-format",
         "Used when __all__ has an invalid format.",
     ),
+    "E0606": (
+        "Possibly using variable %r before assignment",
+        "possibly-used-before-assignment",
+        "Emitted when a local variable is accessed before its assignment took place "
+        "in both branches of an if/else switch.",
+    ),
     "E0611": (
         "No name %r in module %r",
         "no-name-in-module",
@@ -538,6 +544,7 @@ class NamesConsumer:
         )
         self.node = node
         self.names_under_always_false_test: set[str] = set()
+        self.names_defined_under_one_branch_only: set[str] = set()
 
     def __repr__(self) -> str:
         _to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
@@ -744,9 +751,13 @@ scope_type : {self._atomic.scope_type}
             self.names_under_always_false_test.add(name)
             return self._branch_handles_name(name, node.orelse)
         # Search both if and else branches
-        return self._branch_handles_name(name, node.body) and self._branch_handles_name(
-            name, node.orelse
-        )
+        if_branch_handles = self._branch_handles_name(name, node.body)
+        else_branch_handles = self._branch_handles_name(name, node.orelse)
+        if if_branch_handles ^ else_branch_handles:
+            self.names_defined_under_one_branch_only.add(name)
+        elif name in self.names_defined_under_one_branch_only:
+            self.names_defined_under_one_branch_only.remove(name)
+        return if_branch_handles and else_branch_handles
 
     def _branch_handles_name(self, name: str, body: Iterable[nodes.NodeNG]) -> bool:
         return any(
@@ -1996,8 +2007,13 @@ class VariablesChecker(BaseChecker):
         elif node.name in current_consumer.consumed_uncertain:
             confidence = CONTROL_FLOW
 
+        if node.name in current_consumer.names_defined_under_one_branch_only:
+            msg = "possibly-used-before-assignment"
+        else:
+            msg = "used-before-assignment"
+
         self.add_message(
-            "used-before-assignment",
+            msg,
             args=node.name,
             node=node,
             confidence=confidence,

@@ -167,8 +167,8 @@ class ConditionalImportGuardedWhenUsed:  # pylint: disable=too-few-public-method
 
 class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-variable
     """Test for defines in TYPE_CHECKING if/elif/else branching"""
-    def defined_in_elif_branch(self) -> calendar.Calendar:  # [used-before-assignment]
-        print(bisect)  # [used-before-assignment]
+    def defined_in_elif_branch(self) -> calendar.Calendar:  # [possibly-used-before-assignment]
+        print(bisect)  # [possibly-used-before-assignment]
         return calendar.Calendar()
 
     def defined_in_else_branch(self) -> urlopen:
@@ -177,7 +177,7 @@ class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-
         print(collections())
         return urlopen
 
-    def defined_in_nested_if_else(self) -> heapq:  # [used-before-assignment]
+    def defined_in_nested_if_else(self) -> heapq:  # [possibly-used-before-assignment]
         print(heapq)
         return heapq
 
