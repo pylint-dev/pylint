@@ -1991,10 +1991,10 @@ class VariablesChecker(BaseChecker):
             return
 
         confidence = HIGH
-        if node.name in current_consumer.consumed_uncertain:
-            confidence = CONTROL_FLOW
-        elif node.name in current_consumer.names_under_always_false_test:
+        if node.name in current_consumer.names_under_always_false_test:
             confidence = INFERENCE
+        elif node.name in current_consumer.consumed_uncertain:
+            confidence = CONTROL_FLOW
 
         self.add_message(
             "used-before-assignment",
