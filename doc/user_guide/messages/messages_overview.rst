@@ -139,6 +139,7 @@ All messages in the error category:
    error/not-in-loop
    error/notimplemented-raised
    error/positional-only-arguments-expected
+   error/possibly-used-before-assignment
    error/potential-index-error
    error/raising-bad-type
    error/raising-non-exception
