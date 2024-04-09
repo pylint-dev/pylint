@@ -44,6 +44,7 @@ class LintTestUsingModule:
     output: str | None = None
 
     def _test_functionality(self) -> None:
+        tocheck = []
         if self.module:
             tocheck = [self.package + "." + self.module]
         if self.depends:
