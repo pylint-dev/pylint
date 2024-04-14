@@ -6,13 +6,17 @@ from __future__ import annotations
 
 import os
 import os.path
+from argparse import Namespace
 from io import StringIO
 from pathlib import Path
+from typing import Any
+from unittest.mock import patch
 
 import pytest
 from pytest import CaptureFixture
 
 from pylint.lint import Run as LintRun
+from pylint.lint.pylinter import PyLinter
 from pylint.testutils._run import _Run as Run
 from pylint.testutils.utils import _patch_streams, _test_cwd
 
@@ -52,7 +56,7 @@ def _create_subconfig_test_fs(tmp_path: Path) -> tuple[Path, ...]:
     level1_init.touch()
     level1_init2.touch()
     level2_init.touch()
-    test_file_text = "#LEVEL1\n#LEVEL2\n#ALL_LEVELS\n#TODO\n"
+    test_file_text = "#LEVEL1\n#LEVEL2\n#ALL_LEVELS\n#TODO\nassert (1, None)\ns = 'statement without warnings'\n"
     test_file1.write_text(test_file_text)
     test_file2.write_text(test_file_text)
     test_file3.write_text(test_file_text)
@@ -250,3 +254,54 @@ def test_local_config_verbose(
     LintRun(["--verbose", "--use-local-configs=y", str(tmp_files[1])], exit=False)
     output = capsys.readouterr()
     assert f"Using config from {level1_dir / 'sub'}" in output.err
+
+
+def ns_diff(ns1: Namespace, ns2: Namespace) -> str:
+    msg = "Namespaces not equal\n"
+    for k, v in ns1.__dict__.items():
+        if v != ns2.__dict__[k]:
+            msg += f"{v} != {ns2.__dict__[k]}\n"
+    return msg
+
+
+generate_reports_orig = PyLinter.generate_reports
+
+
+def generate_reports_spy(self: PyLinter, *args: Any, **kwargs: Any) -> int:
+    score = generate_reports_orig(self, *args, **kwargs)
+    # check that generate_reports() worked with base config, not config from most recent module
+    assert self.config == self._base_config, ns_diff(self.config, self._base_config)
+    # level1_dir.a, level1_dir.z, level1_dir.sub.b from _create_subconfig_test_fs
+    # each has 2 statements, one of which is warning => score should be 5
+    assert score is not None
+    assert 0 < score < 10
+    return score
+
+
+@pytest.mark.parametrize(
+    "local_config_args",
+    [["--use-local-configs=y"], ["--use-local-configs=y", "--jobs=2"]],
+)
+def test_subconfigs_score(
+    _create_subconfig_test_fs: tuple[Path, ...],
+    local_config_args: list[str],
+) -> None:
+    """Check that statements from all checked modules are accounted in score:
+    given stats from many modules such that
+    total # of messages > statements in last module,
+    check that score is >0 and <10.
+    """
+    level1_dir, *_ = _create_subconfig_test_fs
+    out = StringIO()
+    with patch(
+        "pylint.lint.run.Run.LinterClass.generate_reports",
+        side_effect=generate_reports_spy,
+        autospec=True,
+    ) as reports_patch, _patch_streams(out):
+        linter = LintRun([*local_config_args, str(level1_dir)], exit=False).linter
+        reports_patch.assert_called_once()
+
+    # level1_dir.a, level1_dir.z, level1_dir.sub.b from _create_subconfig_test_fs
+    # each has 2 statements, one of which is warning, so 3 warnings total
+    assert linter.stats.statement == 6
+    assert linter.stats.warning == 3

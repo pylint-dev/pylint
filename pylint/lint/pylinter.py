@@ -69,7 +69,7 @@ from pylint.typing import (
     ModuleDescriptionDict,
     Options,
 )
-from pylint.utils import ASTWalker, FileState, LinterStats, utils
+from pylint.utils import ASTWalker, FileState, LinterStats, merge_stats, utils
 
 MANAGER = astroid.MANAGER
 
@@ -320,6 +320,7 @@ class PyLinter(
 
         # Attributes related to stats
         self.stats = LinterStats()
+        self.all_stats: list[LinterStats] = []
 
         # Attributes related to (command-line) options and their parsing
         self.options: Options = options + _make_linter_options(self)
@@ -807,6 +808,11 @@ class PyLinter(
                     )
                 else:
                     self.add_message("fatal", args=msg, confidence=HIGH)
+        # current self.stats is needed in merge - it contains stats from last module
+        finished_run_stats = merge_stats([*self.all_stats, self.stats])
+        # after _lint_files linter.stats is aggregate stats from all modules, like after check_parallel
+        self.all_stats = []
+        self.stats = finished_run_stats
 
     def _lint_file(
         self,
@@ -951,12 +957,17 @@ class PyLinter(
     def set_current_module(self, modname: str, filepath: str | None = None) -> None:
         """Set the name of the currently analyzed module and
         init statistics for it.
+
+        Save current stats before init to make sure no counters for
+        error, statement, etc are missed.
         """
         if not modname and filepath is None:
             return
         self.reporter.on_set_current_module(modname or "", filepath)
         self.current_name = modname
         self.current_file = filepath or modname
+        self.all_stats.append(self.stats)
+        self.stats = LinterStats()
         self.stats.init_single_module(modname or "")
 
         # If there is an actual filepath we might need to update the config attribute
@@ -1013,7 +1024,7 @@ class PyLinter(
             rawcheckers=rawcheckers,
         )
 
-        # notify global end
+        # notify end of module if jobs>1 or use-local-configs=y, global end otherwise
         self.stats.statement = walker.nbstatements
         for checker in reversed(_checkers):
             checker.close()
@@ -1147,6 +1158,7 @@ class PyLinter(
 
         if persistent run, pickle results for later comparison
         """
+        self.config = self._base_config
         # Display whatever messages are left on the reporter.
         self.reporter.display_messages(report_nodes.Section())
         if not self.file_state._is_base_filestate:
