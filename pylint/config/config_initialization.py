@@ -83,7 +83,7 @@ def _config_initialization(
     args_list = _order_all_first(args_list, joined=True)
     parsed_args_list = linter._parse_command_line_configuration(args_list)
 
-    # save preprocessed Runner.verbose to config
+    # save Runner.verbose to make this preprocessed option visible from other modules
     linter.config.verbose = verbose_mode
 
     # Remove the positional arguments separator from the list of arguments if it exists

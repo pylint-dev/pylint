@@ -1,6 +1,6 @@
 Add new command line option: use-local-configs.
 
-use-local-configs enables searching for local pylint configurations in the same directory where linted file is located and upwards until $PWD or root.
+use-local-configs enables loading of local pylint configurations in addition to the base pylint config from $PWD. Local configurations are searched in the same directories where linted files are located and upwards until $PWD or root.
 For example:
 if there exists package/pylintrc, then
 pylint --use-local-configs=y package/file.py
