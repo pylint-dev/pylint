@@ -1,4 +1,4 @@
-def func(value):
-    if value:
-        has_value = True
-    print(has_value)  # [possibly-used-before-assignment]
+def check_lunchbox(items: list[str]):
+    if not items:
+        empty = True
+    print(empty)  # [possibly-used-before-assignment]

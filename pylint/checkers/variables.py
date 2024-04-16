@@ -725,7 +725,7 @@ scope_type : {self._atomic.scope_type}
         if not isinstance(node, nodes.If):
             return False
 
-        # Be permissive if there is a break or continue
+        # Be permissive if there is a break or a continue
         if any(node.nodes_of_class(nodes.Break, nodes.Continue)):
             return True
 
