@@ -16,7 +16,7 @@ def used_before_assignment_2(a):
 
 
 def used_before_assignment_3(a):
-    if x == a:  # [used-before-assignment]
+    if x == a:  # [possibly-used-before-assignment]
         if x > 3:
             x = 2  # [redefined-outer-name]
 
