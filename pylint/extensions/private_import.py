@@ -156,12 +156,8 @@ class PrivateImportChecker(BaseChecker):
                     elif isinstance(assign_parent, nodes.Assign):
                         name_assignments.append(assign_parent)
 
-                if isinstance(usage_node, nodes.FunctionDef):
+                if isinstance(usage_node, (nodes.FunctionDef, nodes.LocalsDictNodeNG)):
                     self._populate_type_annotations_function(
-                        usage_node, all_used_type_annotations
-                    )
-                if isinstance(usage_node, nodes.LocalsDictNodeNG):
-                    self._populate_type_annotations(
                         usage_node, all_used_type_annotations
                     )
             if private_name is not None:
