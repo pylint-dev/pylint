@@ -927,7 +927,7 @@ class PyLinter(
         # If there is an actual filepath we might need to update the config attribute
         if filepath:
             config_path, namespace = self._get_namespace_for_file(
-                Path(filepath), self._directory_namespaces
+                Path(filepath).resolve(), self._directory_namespaces
             )
             if namespace:
                 self.config = namespace
@@ -940,7 +940,6 @@ class PyLinter(
     def _get_namespace_for_file(
         self, filepath: Path, namespaces: DirectoryNamespaceDict
     ) -> tuple[Path | None, argparse.Namespace | None]:
-        filepath = filepath.resolve()
         for directory in namespaces:
             if _is_relative_to(filepath, directory):
                 _, namespace = self._get_namespace_for_file(

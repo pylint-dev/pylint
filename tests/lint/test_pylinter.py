@@ -9,8 +9,10 @@ from unittest import mock
 from unittest.mock import patch
 
 from pytest import CaptureFixture
+from test_regr import REGR_DATA
 
 from pylint.lint.pylinter import PyLinter
+from pylint.typing import FileItem
 from pylint.utils import FileState
 
 
@@ -48,3 +50,21 @@ def test_crash_during_linting(
         assert len(files) == 1
         assert "pylint-crash-20" in str(files[0])
         assert any(m.symbol == "astroid-error" for m in linter.reporter.messages)
+
+
+def test_global_vs_local_astroid_module() -> None:
+    fileitems = iter(
+        [
+            FileItem("filename", __file__, "modname"),
+            FileItem("name2", str(Path(REGR_DATA, "decimal_inference.py")), "mod2"),
+        ]
+    )
+    linter1 = PyLinter()
+    ast_mapping = linter1._get_asts(fileitems, None)
+    with linter1._astroid_module_checker() as check_astroid_module:
+        linter1._lint_files(ast_mapping, check_astroid_module)
+        stats1 = linter1.stats
+    linter2 = PyLinter()
+    linter2._lint_files(ast_mapping, None)
+    stats2 = linter2.stats
+    assert str(stats1) == str(stats2)

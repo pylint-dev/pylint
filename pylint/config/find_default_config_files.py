@@ -64,7 +64,7 @@ def _cfg_has_config(path: Path | str) -> bool:
     return any(section.startswith("pylint.") for section in parser.sections())
 
 
-def _yield_default_files(basedir: Path | str = ".") -> Iterator[Path]:
+def _yield_default_files(basedir: Path = Path(".")) -> Iterator[Path]:
     """Iterate over the default config file names and see if they exist."""
     basedir = Path(basedir)
     for config_name in CONFIG_NAMES:
@@ -144,8 +144,3 @@ def find_default_config_files() -> Iterator[Path]:
             yield Path("/etc/pylintrc").resolve()
     except OSError:
         pass
-
-
-def find_subdirectory_config_files(basedir: Path | str) -> Iterator[Path]:
-    """Find config file in arbitrary subdirectory."""
-    yield from _yield_default_files(basedir)
