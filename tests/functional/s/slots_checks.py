@@ -128,3 +128,56 @@ class Parent:
 
 class ChildNotAffectedByValueInSlot(Parent):
     __slots__ = ('first', )
+
+
+class ClassTypeHintNotInSlotsWithoutDict:
+    __slots__ = ("a", "b")
+
+    a: int
+    b: str
+    c: bool # [declare-non-slot]
+
+
+class ClassTypeHintNotInSlotsWithDict:
+    __slots__ = ("a", "b", "__dict__")
+
+    a: int
+    b: str
+    c: bool
+
+
+class BaseNoSlots:
+    pass
+
+
+class DerivedWithSlots(BaseNoSlots):
+    __slots__ = ("age",)
+
+    price: int
+
+
+class BaseWithSlots:
+    __slots__ = ("a", "b",)
+
+
+class DerivedWithMoreSlots(BaseWithSlots):
+    __slots__ = ("c",)
+
+    # Is in base __slots__
+    a: int
+
+    # Not in any base __slots__
+    d: int # [declare-non-slot]
+
+
+class BaseWithSlotsDict:
+    __slots__ = ("__dict__", )
+
+class DerivedTypeHintNotInSlots(BaseWithSlotsDict):
+    __slots__ = ("other", )
+
+    a: int
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.a = 42
