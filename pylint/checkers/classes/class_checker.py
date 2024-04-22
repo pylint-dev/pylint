@@ -730,12 +730,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when we detect that a property also has parameters, which are useless, "
         "given that properties cannot be called with additional arguments.",
     ),
-    "E0245" : (
+    "E0245": (
         "No such name %r in __slots__",
         "declare-non-slot",
         "Used when a type annotation on a class is absent from the list of names in __slots__, "
-        "and __slots__ does not contain a __dict__ entry."
-    )
+        "and __slots__ does not contain a __dict__ entry.",
+    ),
 }
 
 
@@ -894,7 +894,7 @@ a metaclass class method.",
             return
 
         slot_names = self._get_classdef_slots_names(node)
-        
+
         for base in node.bases:
             ancestor = safe_infer(base)
             if not isinstance(ancestor, nodes.ClassDef):
@@ -915,7 +915,11 @@ a metaclass class method.",
                     continue
                 if isinstance(child.target, nodes.AssignName):
                     if child.target.name not in slot_names:
-                        self.add_message("declare-non-slot", args=child.target.name, node=child.target)
+                        self.add_message(
+                            "declare-non-slot",
+                            args=child.target.name,
+                            node=child.target,
+                        )
 
     def _check_consistent_mro(self, node: nodes.ClassDef) -> None:
         """Detect that a class has a consistent mro or duplicate bases."""
@@ -1520,7 +1524,7 @@ a metaclass class method.",
             return False
 
         return "functools" in dict(import_node.names)
-    
+
     def _has_valid_slots(self, node: nodes.ClassDef) -> bool:
         if "__slots__" not in node.locals:
             return False
@@ -1536,8 +1540,8 @@ a metaclass class method.",
             if not hasattr(slots, "itered"):
                 # we can't obtain the values, maybe a .deque?
                 return False
-        
-        return True            
+
+        return True
 
     def _check_slots(self, node: nodes.ClassDef) -> None:
         if "__slots__" not in node.locals:
@@ -1584,7 +1588,7 @@ a metaclass class method.",
             else:
                 values = slots.itered()
             slots_names.extend(self._get_slots_names(values))
-        
+
         return slots_names
 
     def _get_slots_names(self, slots_list: list[nodes.NodeNG]):
@@ -1598,7 +1602,6 @@ a metaclass class method.",
                 if isinstance(inferred_slot_value, str):
                     slots_names.append(inferred_slot_value)
         return slots_names
-
 
     def _check_redefined_slots(
         self,
