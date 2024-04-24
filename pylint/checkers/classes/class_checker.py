@@ -902,7 +902,10 @@ a metaclass class method.",
             if not self._has_valid_slots(ancestor):
                 return
             else:
-                slot_names.extend(self._get_classdef_slots_names(ancestor))
+                for slot_name in self._get_classdef_slots_names(ancestor):
+                    if slot_name == "__dict__":
+                        return
+                    slot_names.append(slot_name)
 
         # Every class in bases has __slots__
 
