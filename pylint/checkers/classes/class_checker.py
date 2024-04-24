@@ -731,7 +731,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "given that properties cannot be called with additional arguments.",
     ),
     "E0245": (
-        "No such name %r in __slots__",
+        "No such name '%r' in __slots__",
         "declare-non-slot",
         "Used when a type annotation on a class is absent from the list of names in __slots__, "
         "and __slots__ does not contain a __dict__ entry.",
