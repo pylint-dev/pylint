@@ -3193,6 +3193,8 @@ class VariablesChecker(BaseChecker):
             for node in node_lst:
                 if in_type_checking_block(node):
                     continue
+                if self._is_name_ignored(node_lst, name):
+                    continue
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches
