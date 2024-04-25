@@ -13,4 +13,18 @@ Summary -- Release highlights
 =============================
 
 
-.. towncrier release notes start
+.. only:: not is_release
+
+   *To be included in the next release*
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+   .. towncrier-draft-entries:: |release| :sub:`/UNRELEASED DRAFT/`
+
+   Released versions
+   ^^^^^^^^^^^^^^^^^
+
+   .. towncrier release notes start
+
+.. only:: is_release
+
+   .. towncrier release notes start
