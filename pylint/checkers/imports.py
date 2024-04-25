@@ -461,7 +461,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     def open(self) -> None:
         """Called before visiting project (i.e set of modules)."""
         self.linter.stats.dependencies = {}
-        self.linter.stats = self.linter.stats
         self.import_graph = defaultdict(set)
         self._module_pkg = {}  # mapping of modules to the pkg they belong in
         self._current_module_package = False
