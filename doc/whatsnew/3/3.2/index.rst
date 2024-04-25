@@ -6,7 +6,7 @@
 .. toctree::
    :maxdepth: 2
 
-:Release:3.2
+:Release: 3.2
 :Date: TBA
 
 Summary -- Release highlights
