@@ -12,7 +12,7 @@
 Summary -- Release highlights
 =============================
 
-Two new checks--``use-yield-from``, ``deprecated-attribute``--
+Two new checks -- ``use-yield-from``, ``deprecated-attribute`` --
 and a smattering of bug fixes.
 
 .. towncrier release notes start
