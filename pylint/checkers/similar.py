@@ -349,23 +349,11 @@ class Similar:
 
     def __init__(
         self,
-        min_lines: int = DEFAULT_MIN_SIMILARITY_LINE,
-        ignore_comments: bool = False,
-        ignore_docstrings: bool = False,
-        ignore_imports: bool = False,
-        ignore_signatures: bool = False,
+        config: argparse.Namespace,
+        line_enabled_callback: Callable[[str, int], bool] | None=None
     ) -> None:
-        # If we run in pylint mode we link the namespace objects
-        if isinstance(self, BaseChecker):
-            self.namespace = self.linter.config
-        else:
-            self.namespace = argparse.Namespace()
-
-        self.namespace.min_similarity_lines = min_lines
-        self.namespace.ignore_comments = ignore_comments
-        self.namespace.ignore_docstrings = ignore_docstrings
-        self.namespace.ignore_imports = ignore_imports
-        self.namespace.ignore_signatures = ignore_signatures
+        self._config = config
+        self._line_enabled_callback = line_enabled_callback
         self.linesets: list[LineSet] = []
 
     def append_stream(
@@ -389,21 +377,17 @@ class Similar:
             LineSet(
                 streamid,
                 lines,
-                self.namespace.ignore_comments,
-                self.namespace.ignore_docstrings,
-                self.namespace.ignore_imports,
-                self.namespace.ignore_signatures,
-                line_enabled_callback=(
-                    self.linter._is_one_message_enabled
-                    if hasattr(self, "linter")
-                    else None
-                ),
+                self._config.ignore_comments,
+                self._config.ignore_docstrings,
+                self._config.ignore_imports,
+                self._config.ignore_signatures,
+                line_enabled_callback=self._line_enabled_callback,
             )
         )
 
     def run(self) -> None:
         """Start looking for similarities and display results on stdout."""
-        if self.namespace.min_similarity_lines == 0:
+        if self._config.min_similarity_lines == 0:
             return
         self._display_sims(self._compute_sims())
 
@@ -498,10 +482,10 @@ class Similar:
         index_to_lines_1: IndexToLines_T
         index_to_lines_2: IndexToLines_T
         hash_to_index_1, index_to_lines_1 = hash_lineset(
-            lineset1, self.namespace.min_similarity_lines
+            lineset1, self._config.min_similarity_lines
         )
         hash_to_index_2, index_to_lines_2 = hash_lineset(
-            lineset2, self.namespace.min_similarity_lines
+            lineset2, self._config.min_similarity_lines
         )
 
         hash_1: frozenset[LinesChunk] = frozenset(hash_to_index_1.keys())
@@ -525,7 +509,7 @@ class Similar:
                     CplSuccessiveLinesLimits(
                         copy.copy(index_to_lines_1[index_1]),
                         copy.copy(index_to_lines_2[index_2]),
-                        effective_cmn_lines_nb=self.namespace.min_similarity_lines,
+                        effective_cmn_lines_nb=self._config.min_similarity_lines,
                     )
                 )
 
@@ -550,7 +534,7 @@ class Similar:
                 lineset1, start_index_1, lineset2, start_index_2, nb_common_lines
             )
 
-            if eff_cmn_nb > self.namespace.min_similarity_lines:
+            if eff_cmn_nb > self._config.min_similarity_lines:
                 yield com
 
     def _iter_sims(self) -> Generator[Commonality, None, None]:
@@ -821,11 +805,8 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         BaseRawFileChecker.__init__(self, linter)
         Similar.__init__(
             self,
-            min_lines=self.linter.config.min_similarity_lines,
-            ignore_comments=self.linter.config.ignore_comments,
-            ignore_docstrings=self.linter.config.ignore_docstrings,
-            ignore_imports=self.linter.config.ignore_imports,
-            ignore_signatures=self.linter.config.ignore_signatures,
+            linter.config,
+            linter._is_one_message_enabled,
         )
 
     def open(self) -> None:
@@ -939,9 +920,16 @@ def Run(argv: Sequence[str] | None = None) -> NoReturn:
             ignore_signatures = True
     if not args:
         usage(1)
-    sim = Similar(
-        min_lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
+
+    config = argparse.Namespace(
+        min_similarity_lines=min_lines,
+        ignore_comments=ignore_comments,
+        ignore_docstrings=ignore_docstrings,
+        ignore_imports=ignore_imports,
+        ignore_signatures=ignore_signatures,
     )
+
+    sim = Similar(config)
     for filename in args:
         with open(filename, encoding="utf-8") as stream:
             sim.append_stream(filename, stream)
