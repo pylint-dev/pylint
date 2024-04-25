@@ -6,7 +6,7 @@
 .. toctree::
    :maxdepth: 2
 
-:Release:3.1
+:Release: 3.1
 :Date: 2024-02-25
 
 Summary -- Release highlights
