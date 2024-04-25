@@ -488,13 +488,12 @@ class PyLinter(
         self._checkers[checker.name].append(checker)
         for r_id, r_title, r_cb in checker.reports:
             self.register_report(r_id, r_title, r_cb, checker)
-        if hasattr(checker, "msgs"):
-            self.msgs_store.register_messages_from_checker(checker)
-            for message in checker.messages:
-                if not message.default_enabled:
-                    self.disable(message.msgid)
+        self.msgs_store.register_messages_from_checker(checker)
+        for message in checker.messages:
+            if not message.default_enabled:
+                self.disable(message.msgid)
         # Register the checker, but disable all of its messages.
-        if not getattr(checker, "enabled", True):
+        if not checker.enabled:
             self.disable(checker.name)
 
     def enable_fail_on_messages(self) -> None:
