@@ -26,10 +26,6 @@ class SetMembershipChecker(BaseChecker):
         ),
     }
 
-    def __init__(self, linter: PyLinter) -> None:
-        """Initialize checker instance."""
-        super().__init__(linter=linter)
-
     @only_required_for_messages("use-set-for-membership")
     def visit_compare(self, node: nodes.Compare) -> None:
         for op, comparator in node.ops:
