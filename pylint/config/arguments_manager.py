@@ -48,6 +48,9 @@ if TYPE_CHECKING:
 class _ArgumentsManager:
     """Arguments manager class used to handle command-line arguments and options."""
 
+    _config: argparse.Namespace
+    _base_config: argparse.Namespace
+
     def __init__(
         self, prog: str, usage: str | None = None, description: str | None = None
     ) -> None:
