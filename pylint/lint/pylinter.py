@@ -322,11 +322,6 @@ class PyLinter(
         self.options: Options = options + _make_linter_options(self)
         for opt_group in option_groups:
             self.option_groups_descs[opt_group[0]] = opt_group[1]
-        self._option_groups: tuple[tuple[str, str], ...] = (
-            *option_groups,
-            ("Messages control", "Options controlling analysis messages"),
-            ("Reports", "Options related to output formatting and reporting"),
-        )
         self.fail_on_symbols: list[str] = []
         """List of message symbols on which pylint should fail, set by --fail-on."""
         self._error_mode = False
