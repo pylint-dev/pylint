@@ -35,8 +35,6 @@ if TYPE_CHECKING:
 class BaseChecker(_ArgumentsProvider):
     # checker name (you may reuse an existing one)
     name: str = ""
-    # ordered list of options to control the checker behaviour
-    options: Options = ()
     # messages issued by this checker
     msgs: dict[str, MessageDefinitionTuple] = {}
     # reports issued by this checker
