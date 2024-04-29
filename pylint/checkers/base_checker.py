@@ -22,7 +22,6 @@ from pylint.typing import (
     ExtraMessageOptions,
     MessageDefinitionTuple,
     OptionDict,
-    Options,
     ReportsCallable,
 )
 from pylint.utils import get_rst_section, get_rst_title

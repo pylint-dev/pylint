@@ -58,7 +58,7 @@ from typing import (
 import astroid
 from astroid import nodes
 
-from pylint.checkers import BaseChecker, BaseRawFileChecker, table_lines_from_stats
+from pylint.checkers import BaseRawFileChecker, table_lines_from_stats
 from pylint.reporters.ureports.nodes import Section, Table
 from pylint.typing import MessageDefinitionTuple, Options
 from pylint.utils import LinterStats, decoding_stream
@@ -350,7 +350,7 @@ class Similar:
     def __init__(
         self,
         config: argparse.Namespace,
-        line_enabled_callback: Callable[[str, int], bool] | None=None
+        line_enabled_callback: Callable[[str, int], bool] | None = None,
     ) -> None:
         self._config = config
         self._line_enabled_callback = line_enabled_callback
