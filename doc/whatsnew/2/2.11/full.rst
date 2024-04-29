@@ -14,7 +14,7 @@ What's New in Pylint 2.11.0?
 ----------------------------
 Release date: 2021-09-16
 
-* The python3 porting mode checker and it's ``py3k`` option were removed. You can still find it in older pylint
+* The python3 porting mode checker and its ``py3k`` option were removed. You can still find it in older pylint
   versions.
 
 * ``raising-bad-type`` is now properly emitted when  raising a string

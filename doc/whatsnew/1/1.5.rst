@@ -349,7 +349,7 @@ Release date: 2015-11-29
 
 * Remove the rest of interface checks: interface-is-not-class,
   missing-interface-method, unresolved-interface. The reason is that
-  its better to start recommending ABCs instead of the old Zope era
+  it's better to start recommending ABCs instead of the old Zope era
   of interfaces. One side effect of this change is that ignore-iface-methods
   becomes a noop, it's deprecated and it will be removed at some time.
 
