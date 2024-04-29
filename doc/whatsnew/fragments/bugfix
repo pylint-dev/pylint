@@ -1,0 +1,3 @@
+`--allow-global-unused-variables` respects `--dummy-variables-rgx` now
+
+Closes #8174
