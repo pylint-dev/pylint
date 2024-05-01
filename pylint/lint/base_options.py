@@ -414,6 +414,23 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "Useful if running pylint in a server-like mode.",
             },
         ),
+        (
+            "use-local-configs",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "When some of the modules to be linted have a pylint config in their directory "
+                "or any of their parent directories, all checkers use this local config to check "
+                "those modules. "
+                "If present, local config replaces entirely a config from current working directory (cwd). "
+                "Modules that don't have local pylint config are still checked using config from cwd. "
+                "When pylint starts, it always loads base config from the cwd first. Some options in "
+                "base config can prevent local configs from loading (e.g. disable=all). "
+                "Some options for Main checker will work only in base config: "
+                "evaluation, exit_zero, fail_under, from_stdin, jobs, persistent, recursive, reports, score.",
+            },
+        ),
     )
 
 

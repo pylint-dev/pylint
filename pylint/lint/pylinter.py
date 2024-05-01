@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import collections
 import contextlib
+import copy
 import functools
 import os
 import sys
@@ -26,6 +27,8 @@ from astroid import nodes
 from pylint import checkers, exceptions, interfaces, reporters
 from pylint.checkers.base_checker import BaseChecker
 from pylint.config.arguments_manager import _ArgumentsManager
+from pylint.config.config_initialization import _config_initialization
+from pylint.config.find_default_config_files import find_subdirectory_config_files
 from pylint.constants import (
     MAIN_CHECKER_NAME,
     MSG_TYPES,
@@ -66,7 +69,7 @@ from pylint.typing import (
     ModuleDescriptionDict,
     Options,
 )
-from pylint.utils import ASTWalker, FileState, LinterStats, utils
+from pylint.utils import ASTWalker, FileState, LinterStats, merge_stats, utils
 
 MANAGER = astroid.MANAGER
 
@@ -317,6 +320,7 @@ class PyLinter(
 
         # Attributes related to stats
         self.stats = LinterStats()
+        self.all_stats: list[LinterStats] = []
 
         # Attributes related to (command-line) options and their parsing
         self.options: Options = options + _make_linter_options(self)
@@ -615,6 +619,46 @@ class PyLinter(
             if not msg.may_be_emitted(self.config.py_version):
                 self._msgs_state[msg.msgid] = False
 
+    def register_local_config(self, file_or_dir: str) -> None:
+        if os.path.isdir(file_or_dir):
+            basedir = Path(file_or_dir)
+        else:
+            basedir = Path(os.path.dirname(file_or_dir))
+
+        if _is_relative_to(basedir, Path(os.getcwd())):
+            scan_root_dir = Path(os.getcwd())
+        else:
+            scan_root_dir = Path(basedir.parts[0])
+
+        while basedir.resolve() not in self._directory_namespaces and _is_relative_to(
+            basedir, scan_root_dir
+        ):
+            local_conf = next(find_subdirectory_config_files(basedir), None)
+            if local_conf is not None:
+                # in order to avoid creating new PyLinter objects, _config_initialization modifies
+                # existing self.config, so we need to save original self.config to restore it later
+                original_config_ref = self.config
+                self.config = copy.deepcopy(self.config)
+                _config_initialization(
+                    self,
+                    self._cli_args,
+                    reporter=self.reporter,
+                    config_file=local_conf,
+                    verbose_mode=self.config.verbose,
+                )
+                self._directory_namespaces[basedir.resolve()] = (self.config, {})
+                # keep dict keys reverse-sorted so that
+                # iteration over keys in _get_namespace_for_file gets the most nested path first
+                self._directory_namespaces = dict(
+                    sorted(self._directory_namespaces.items(), reverse=True)
+                )
+                self.config = original_config_ref
+                break
+            if basedir.parent != basedir:
+                basedir = basedir.parent
+            else:
+                break
+
     def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
         """Discover python modules and packages in sub-directory.
 
@@ -665,12 +709,12 @@ class PyLinter(
                     "Missing filename required for --from-stdin"
                 )
 
-        extra_packages_paths = list(
-            {
+        extra_packages_paths_set = set()
+        for file_or_module in files_or_modules:
+            extra_packages_paths_set.add(
                 discover_package_path(file_or_module, self.config.source_roots)
-                for file_or_module in files_or_modules
-            }
-        )
+            )
+        extra_packages_paths = list(extra_packages_paths_set)
 
         # TODO: Move the parallel invocation into step 3 of the checking process
         if not self.config.from_stdin and self.config.jobs > 1:
@@ -693,14 +737,16 @@ class PyLinter(
                 fileitems = self._iterate_file_descrs(files_or_modules)
                 data = None
 
-        # The contextmanager also opens all checkers and sets up the PyLinter class
         with augmented_sys_path(extra_packages_paths):
-            with self._astroid_module_checker() as check_astroid_module:
-                # 2) Get the AST for each FileItem
-                ast_per_fileitem = self._get_asts(fileitems, data)
-
-                # 3) Lint each ast
-                self._lint_files(ast_per_fileitem, check_astroid_module)
+            # 2) Get the AST for each FileItem
+            ast_per_fileitem = self._get_asts(fileitems, data)
+            # 3) Lint each ast
+            if self.config.use_local_configs is False:
+                # The contextmanager also opens all checkers and sets up the PyLinter class
+                with self._astroid_module_checker() as check_astroid_module:
+                    self._lint_files(ast_per_fileitem, check_astroid_module)
+            else:
+                self._lint_files(ast_per_fileitem, None)
 
     def _get_asts(
         self, fileitems: Iterator[FileItem], data: str | None
@@ -710,6 +756,7 @@ class PyLinter(
 
         for fileitem in fileitems:
             self.set_current_module(fileitem.name, fileitem.filepath)
+            self._set_astroid_options()
 
             try:
                 ast_per_fileitem[fileitem] = self.get_ast(
@@ -735,13 +782,14 @@ class PyLinter(
 
         initialize() should be called before calling this method
         """
+        self.set_current_module(file.name, file.filepath)
         with self._astroid_module_checker() as check_astroid_module:
             self._check_file(self.get_ast, check_astroid_module, file)
 
     def _lint_files(
         self,
         ast_mapping: dict[FileItem, nodes.Module | None],
-        check_astroid_module: Callable[[nodes.Module], bool | None],
+        check_astroid_module: Callable[[nodes.Module], bool | None] | None,
     ) -> None:
         """Lint all AST modules from a mapping.."""
         for fileitem, module in ast_mapping.items():
@@ -760,12 +808,17 @@ class PyLinter(
                     )
                 else:
                     self.add_message("fatal", args=msg, confidence=HIGH)
+        # current self.stats is needed in merge - it contains stats from last module
+        finished_run_stats = merge_stats([*self.all_stats, self.stats])
+        # after _lint_files linter.stats is aggregate stats from all modules, like after check_parallel
+        self.all_stats = []
+        self.stats = finished_run_stats
 
     def _lint_file(
         self,
         file: FileItem,
         module: nodes.Module,
-        check_astroid_module: Callable[[nodes.Module], bool | None],
+        check_astroid_module: Callable[[nodes.Module], bool | None] | None,
     ) -> None:
         """Lint a file using the passed utility function check_astroid_module).
 
@@ -784,7 +837,13 @@ class PyLinter(
         self.current_file = module.file
 
         try:
-            check_astroid_module(module)
+            # call _astroid_module_checker after set_current_module, when
+            # self.config is the right config for current module
+            if check_astroid_module is None:
+                with self._astroid_module_checker() as local_check_astroid_module:
+                    local_check_astroid_module(module)
+            else:
+                check_astroid_module(module)
         except Exception as e:
             raise astroid.AstroidError from e
 
@@ -898,33 +957,45 @@ class PyLinter(
     def set_current_module(self, modname: str, filepath: str | None = None) -> None:
         """Set the name of the currently analyzed module and
         init statistics for it.
+
+        Save current stats before init to make sure no counters for
+        error, statement, etc are missed.
         """
         if not modname and filepath is None:
             return
         self.reporter.on_set_current_module(modname or "", filepath)
         self.current_name = modname
         self.current_file = filepath or modname
+        self.all_stats.append(self.stats)
+        self.stats = LinterStats()
         self.stats.init_single_module(modname or "")
 
         # If there is an actual filepath we might need to update the config attribute
-        if filepath:
-            namespace = self._get_namespace_for_file(
+        if filepath and self.config.use_local_configs:
+            self.register_local_config(filepath)
+            config_path, namespace = self._get_namespace_for_file(
                 Path(filepath), self._directory_namespaces
             )
             if namespace:
-                self.config = namespace or self._base_config
+                self.config = namespace
+                if self.config.verbose:
+                    print(
+                        f"Using config from {config_path} for {filepath}",
+                        file=sys.stderr,
+                    )
 
     def _get_namespace_for_file(
         self, filepath: Path, namespaces: DirectoryNamespaceDict
-    ) -> argparse.Namespace | None:
+    ) -> tuple[Path | None, argparse.Namespace | None]:
+        filepath = filepath.resolve()
         for directory in namespaces:
             if _is_relative_to(filepath, directory):
-                namespace = self._get_namespace_for_file(
+                _, namespace = self._get_namespace_for_file(
                     filepath, namespaces[directory][1]
                 )
                 if namespace is None:
-                    return namespaces[directory][0]
-        return None
+                    return directory, namespaces[directory][0]
+        return None, None
 
     @contextlib.contextmanager
     def _astroid_module_checker(
@@ -953,7 +1024,7 @@ class PyLinter(
             rawcheckers=rawcheckers,
         )
 
-        # notify global end
+        # notify end of module if jobs>1 or use-local-configs=y, global end otherwise
         self.stats.statement = walker.nbstatements
         for checker in reversed(_checkers):
             checker.close()
@@ -1068,8 +1139,8 @@ class PyLinter(
         walker.walk(node)
         return True
 
-    def open(self) -> None:
-        """Initialize counters."""
+    def _set_astroid_options(self) -> None:
+        """Pass some config values to astroid.MANAGER object."""
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.max_inferable_values = self.config.limit_inference_results
         MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)
@@ -1077,13 +1148,17 @@ class PyLinter(
             MANAGER.extension_package_whitelist.update(
                 self.config.extension_pkg_whitelist
             )
-        self.stats.reset_message_count()
+
+    def open(self) -> None:
+        """Initialize self as main checker for one or more modules."""
+        self._set_astroid_options()
 
     def generate_reports(self, verbose: bool = False) -> int | None:
         """Close the whole package /module, it's time to make reports !
 
         if persistent run, pickle results for later comparison
         """
+        self.config = self._base_config
         # Display whatever messages are left on the reporter.
         self.reporter.display_messages(report_nodes.Section())
         if not self.file_state._is_base_filestate:
