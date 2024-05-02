@@ -912,11 +912,10 @@ a metaclass class method.",
             # if any base doesn't have __slots__, attributes can be set dynamically, so stop
             if not self._has_valid_slots(ancestor):
                 return
-            else:
-                for slot_name in self._get_classdef_slots_names(ancestor):
-                    if slot_name == "__dict__":
-                        return
-                    slot_names.append(slot_name)
+            for slot_name in self._get_classdef_slots_names(ancestor):
+                if slot_name == "__dict__":
+                    return
+                slot_names.append(slot_name)
 
         # Every class in bases has __slots__, our __slots__ is non-empty and there is no __dict__
 
