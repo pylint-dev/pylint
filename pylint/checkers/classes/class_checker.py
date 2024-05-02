@@ -929,7 +929,7 @@ a metaclass class method.",
                             "declare-non-slot",
                             args=child.target.name,
                             node=child.target,
-                            confidence=INFERENCE
+                            confidence=INFERENCE,
                         )
 
     def _check_consistent_mro(self, node: nodes.ClassDef) -> None:
