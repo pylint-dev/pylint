@@ -703,6 +703,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a class tries to extend an inherited Enum class. "
         "Doing so will raise a TypeError at runtime.",
     ),
+    "E0245": (
+        "No such name %r in __slots__",
+        "declare-non-slot",
+        "Raised when a type annotation on a class is absent from the list of names in __slots__, "
+        "and __slots__ does not contain a __dict__ entry.",
+    ),
     "R0202": (
         "Consider using a decorator instead of calling classmethod",
         "no-classmethod-decorator",
@@ -729,12 +735,6 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "property-with-parameters",
         "Used when we detect that a property also has parameters, which are useless, "
         "given that properties cannot be called with additional arguments.",
-    ),
-    "E0245": (
-        "No such name '%r' in __slots__",
-        "declare-non-slot",
-        "Raised when a type annotation on a class is absent from the list of names in __slots__, "
-        "and __slots__ does not contain a __dict__ entry.",
     ),
 }
 
@@ -895,10 +895,21 @@ a metaclass class method.",
 
         slot_names = self._get_classdef_slots_names(node)
 
+        # Stop if empty __slots__ in the class body, this likely indicates that
+        # this class takes part in multiple inheritance with other slotted classes.
+        if not slot_names:
+            return
+
+        # Stop if we find __dict__, since this means attributes can be set
+        # dynamically
+        if "__dict__" in slot_names:
+            return
+
         for base in node.bases:
             ancestor = safe_infer(base)
             if not isinstance(ancestor, nodes.ClassDef):
                 continue
+            # if any base doesn't have __slots__, attributes can be set dynamically, so stop
             if not self._has_valid_slots(ancestor):
                 return
             else:
@@ -907,10 +918,7 @@ a metaclass class method.",
                         return
                     slot_names.append(slot_name)
 
-        # Every class in bases has __slots__
-
-        if "__dict__" in slot_names:
-            return
+        # Every class in bases has __slots__, our __slots__ is non-empty and there is no __dict__
 
         for child in node.body:
             if isinstance(child, nodes.AnnAssign):
@@ -1581,9 +1589,6 @@ a metaclass class method.",
             self._check_redefined_slots(node, slots, values)
 
     def _get_classdef_slots_names(self, node: nodes.ClassDef):
-
-        if not self._has_valid_slots(node):
-            return []
 
         slots_names = []
         for slots in node.ilookup("__slots__"):
