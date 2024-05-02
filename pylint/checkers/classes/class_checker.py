@@ -1587,7 +1587,7 @@ a metaclass class method.",
                     continue
             self._check_redefined_slots(node, slots, values)
 
-    def _get_classdef_slots_names(self, node: nodes.ClassDef):
+    def _get_classdef_slots_names(self, node: nodes.ClassDef) -> list[str]:
 
         slots_names = []
         for slots in node.ilookup("__slots__"):
@@ -1599,7 +1599,7 @@ a metaclass class method.",
 
         return slots_names
 
-    def _get_slots_names(self, slots_list: list[nodes.NodeNG]):
+    def _get_slots_names(self, slots_list: list[nodes.NodeNG]) -> list[str]:
         slots_names: list[str] = []
         for slot in slots_list:
             if isinstance(slot, nodes.Const):
