@@ -1,5 +1,6 @@
 """Emit a message for iteration through dict keys and subscripting dict with key."""
 # pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,redefined-outer-name,use-dict-literal,modified-iterating-dict
+# pylint: disable=wrong-import-position
 
 def bad():
     a_dict = {1: 1, 2: 2, 3: 3}
@@ -103,3 +104,11 @@ for k in d:  # if this gets rewritten to d.items(), we are back to the above pro
 for k in d:  # [consider-using-dict-items]
     if '1' in d[k]:  # index lookup necessary here, do not emit error
         print('found 1')
+
+
+# False positive in issue #9554
+# https://github.com/pylint-dev/pylint/issues/9554
+import os
+for var in os.environ.keys():  # [consider-iterating-dictionary]
+    if var.startswith('foo_'):
+        del os.environ[var]  # index lookup necessary here, do not emit error
