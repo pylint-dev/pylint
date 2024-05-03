@@ -688,7 +688,7 @@ class NameChecker(_BasicChecker):
                 confidence=interfaces.INFERENCE,
             )
         elif variance == TypeVarVariance.invariant and (
-            name.endswith("_co") or name.endswith("_contra")
+            name.endswith(("_co", "_contra"))
         ):
             suggest_name = re.sub("_contra$|_co$", "", name)
             self.add_message(

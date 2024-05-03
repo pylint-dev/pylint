@@ -150,6 +150,7 @@ select = [
     "E",  # pycodestyle
     "F",  # pyflakes
     "I",  # isort
+    "PIE", # flake8-pie
     "PYI", # flake8-pyi
     "UP", # pyupgrade
     "RUF", # ruff

@@ -375,7 +375,7 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
 
     @staticmethod
     def _is_invalid_codec(codec: str) -> bool:
-        return codec.startswith("utf-16") or codec.startswith("utf-32")
+        return codec.startswith(("utf-16", "utf-32"))
 
     @staticmethod
     def _is_unicode(codec: str) -> bool:
