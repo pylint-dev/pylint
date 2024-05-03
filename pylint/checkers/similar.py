@@ -44,7 +44,6 @@ from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
-    Any,
     Dict,
     List,
     NamedTuple,
@@ -136,7 +135,7 @@ class LinesChunk:
         self._hash: int = sum(hash(lin) for lin in lines)
         """The hash of some consecutive lines."""
 
-    def __eq__(self, o: Any) -> bool:
+    def __eq__(self, o: object) -> bool:
         if not isinstance(o, LinesChunk):
             return NotImplemented
         return self._hash == o._hash
@@ -195,7 +194,7 @@ class LineSetStartCouple(NamedTuple):
             f"<LineSetStartCouple <{self.fst_lineset_index};{self.snd_lineset_index}>>"
         )
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, LineSetStartCouple):
             return NotImplemented
         return (
@@ -717,7 +716,7 @@ class LineSet:
     def __hash__(self) -> int:
         return id(self)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, LineSet):
             return False
         return self.__dict__ == other.__dict__
