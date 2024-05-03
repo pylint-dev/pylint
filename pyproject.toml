@@ -147,6 +147,7 @@ line-length = 115
 [tool.ruff.lint]
 select = [
     "B",  # bugbear
+    "D",  # pydocstyle
     "E",  # pycodestyle
     "F",  # pyflakes
     "I",  # isort
@@ -159,5 +160,19 @@ select = [
 
 ignore = [
     "B905",  # `zip()` without an explicit `strict=` parameter
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "D102",  # Missing docstring in public method
+    "D103",  # Missing docstring in public function
+    "D104",  # Missing docstring in public package
+    "D105",  # Missing docstring in magic method
+    "D106",  # Missing docstring in public nested class
+    "D107",  # Missing docstring in `__init__`
+    "D205",  # 1 blank line required between summary line and description
+    "D400",  # First line should end with a period
+    "D401",  # First line of docstring should be in imperative mood
     "RUF012",  # mutable default values in class attributes
 ]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"

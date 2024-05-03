@@ -586,7 +586,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         the result of the statement's test, then this can be reduced
         to `bool(test)` without losing any functionality.
         """
-
         if self._is_actual_elif(node):
             # Not interested in if statements with multiple branches.
             return

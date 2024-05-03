@@ -454,7 +454,6 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
     Returns ``True`` if the name is a property in the given klass,
     ``False`` otherwise.
     """
-
     try:
         attributes = klass.getattr(name)
     except astroid.NotFoundError:
@@ -748,7 +747,6 @@ class ScopeAccessMap:
 
     def set_accessed(self, node: _AccessNodes) -> None:
         """Set the given node as accessed."""
-
         frame = node_frame_class(node)
         if frame is None:
             # The node does not live in a class.
@@ -1946,7 +1944,6 @@ a metaclass class method.",
         Returns ``True`` if the name is a property in the given klass,
         ``False`` otherwise.
         """
-
         if utils.is_class_attr(name, klass):
             return True
 

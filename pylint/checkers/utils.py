@@ -1484,7 +1484,6 @@ def node_type(node: nodes.NodeNG) -> SuccessfulInferenceResult | None:
 
 def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
     """Check if the given function node is a singledispatch function."""
-
     singledispatch_qnames = (
         "functools.singledispatch",
         "singledispatch.singledispatch",
@@ -1540,7 +1539,6 @@ def find_inferred_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | No
 
 def is_registered_in_singledispatchmethod_function(node: nodes.FunctionDef) -> bool:
     """Check if the given function node is a singledispatchmethod function."""
-
     singledispatchmethod_qnames = (
         "functools.singledispatchmethod",
         "singledispatch.singledispatchmethod",
@@ -2276,7 +2274,6 @@ def is_enum_member(node: nodes.AssignName) -> bool:
     """Return `True` if `node` is an Enum member (is an item of the
     `__members__` container).
     """
-
     frame = node.frame()
     if (
         not isinstance(frame, nodes.ClassDef)

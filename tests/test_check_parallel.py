@@ -263,7 +263,7 @@ class TestCheckParallelFramework:
         assert stats.warning == 0
 
     def test_linter_with_unpickleable_plugins_is_pickleable(self) -> None:
-        """The linter needs to be pickle-able in order to be passed between workers"""
+        """The linter needs to be pickle-able in order to be passed between workers."""
         linter = PyLinter(reporter=Reporter())
         # We load an extension that we know is not pickle-safe
         linter.load_plugin_modules(["pylint.extensions.overlapping_exceptions"])
@@ -479,7 +479,6 @@ class TestCheckParallel:
         This test becomes more important if we want to change how we parameterize the
         checkers, for example if we aim to batch the files across jobs.
         """
-
         # define the stats we expect to get back from the runs, these should only vary
         # with the number of files.
         expected_stats = LinterStats(
@@ -572,7 +571,6 @@ class TestCheckParallel:
 
         Checks regression of https://github.com/pylint-dev/pylint/issues/4118
         """
-
         # define the stats we expect to get back from the runs, these should only vary
         # with the number of files.
         file_infos = _gen_file_datas(num_files)

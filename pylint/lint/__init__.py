@@ -4,15 +4,15 @@
 
 """Pylint [options] modules_or_packages.
 
-  Check that module(s) satisfy a coding standard (and more !).
+Check that module(s) satisfy a coding standard (and more !).
 
-    pylint --help
+pylint --help
 
-  Display this help message and exit.
+Display this help message and exit.
 
-    pylint --help-msg <msg-id>[,<msg-id>]
+pylint --help-msg <msg-id>[,<msg-id>]
 
-  Display help messages about given message identifiers and exit.
+Display help messages about given message identifiers and exit.
 """
 import sys
 

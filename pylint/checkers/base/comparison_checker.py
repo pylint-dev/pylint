@@ -89,7 +89,6 @@ class ComparisonChecker(_BasicChecker):
         checking_for_absence: bool = False,
     ) -> None:
         """Check if == or != is being used to compare a singleton value."""
-
         if utils.is_singleton_const(left_value):
             singleton, other_value = left_value.value, right_value
         elif utils.is_singleton_const(right_value):

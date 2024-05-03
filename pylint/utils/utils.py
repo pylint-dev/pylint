@@ -209,7 +209,7 @@ def register_plugins(linter: PyLinter, directory: str) -> None:
 
 
 def _splitstrip(string: str, sep: str = ",") -> list[str]:
-    """Return a list of stripped string by splitting the string given as
+    r"""Return a list of stripped string by splitting the string given as
     argument on `sep` (',' by default), empty strings are discarded.
 
     >>> _splitstrip('a, b, c   ,  4,,')
@@ -254,7 +254,8 @@ def _check_csv(value: list[str] | tuple[str] | str) -> Sequence[str]:
 
 def _check_regexp_csv(value: list[str] | tuple[str] | str) -> Iterable[str]:
     r"""Split a comma-separated list of regexps, taking care to avoid splitting
-    a regex employing a comma as quantifier, as in `\d{1,2}`."""
+    a regex employing a comma as quantifier, as in `\d{1,2}`.
+    """
     if isinstance(value, (list, tuple)):
         yield from value
     else:

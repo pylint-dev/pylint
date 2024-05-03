@@ -1171,7 +1171,7 @@ def test_globbing() -> None:
 
 
 def test_relative_imports(initialized_linter: PyLinter) -> None:
-    """Regression test for https://github.com/pylint-dev/pylint/issues/3651"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/3651."""
     linter = initialized_linter
     with tempdir() as tmpdir:
         create_files(["x/y/__init__.py", "x/y/one.py", "x/y/two.py"], tmpdir)
@@ -1204,7 +1204,8 @@ TWO = ONE + ONE
 
 def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> None:
     """If the parent directory above `namespace` is on sys.path, ensure that
-    modules under `namespace` can import each other without raising `import-error`."""
+    modules under `namespace` can import each other without raising `import-error`.
+    """
     linter = initialized_linter
     with tempdir() as tmpdir:
         create_files(["namespace/submodule1.py", "namespace/submodule2.py"])
@@ -1226,7 +1227,7 @@ print(submodule1)
 
 
 def test_lint_namespace_package_under_dir(initialized_linter: PyLinter) -> None:
-    """Regression test for https://github.com/pylint-dev/pylint/issues/1667"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/1667."""
     linter = initialized_linter
     with tempdir():
         create_files(["outer/namespace/__init__.py", "outer/namespace/module.py"])
@@ -1236,7 +1237,8 @@ def test_lint_namespace_package_under_dir(initialized_linter: PyLinter) -> None:
 
 def test_lint_namespace_package_under_dir_on_path(initialized_linter: PyLinter) -> None:
     """If the directory above a namespace package is on sys.path,
-    the namespace module under it is linted."""
+    the namespace module under it is linted.
+    """
     linter = initialized_linter
     with tempdir() as tmpdir:
         create_files(["namespace_on_path/submodule1.py"])

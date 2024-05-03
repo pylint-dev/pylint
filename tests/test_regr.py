@@ -3,7 +3,7 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Non regression tests for pylint, which requires a too specific configuration
-to be incorporated in the automatic functional test framework
+to be incorporated in the automatic functional test framework.
 """
 
 # pylint: disable=redefined-outer-name

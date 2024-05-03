@@ -29,7 +29,7 @@ def exception_str(
     self: Exception, ex: Exception  # pylint: disable=unused-argument
 ) -> str:
     """Function used to replace default __str__ method of exception instances
-    This function is not typed because it is legacy code
+    This function is not typed because it is legacy code.
     """
     return f"in {ex.file}\n:: {', '.join(ex.args)}"  # type: ignore[attr-defined] # Defined in the caller
 

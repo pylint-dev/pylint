@@ -19,7 +19,6 @@ class TestDesignChecker(CheckerTestCase):
         """Make sure that classes listed in ``ignored-parents`` aren't counted
         by the too-many-ancestors message.
         """
-
         node = astroid.extract_node(
             """
         class Aaaa(object):

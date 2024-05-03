@@ -165,7 +165,6 @@ def _map_positions_to_result(
     Also takes care of encodings for which the length of an encoded code point does not
     default to 8 Bit.
     """
-
     result: dict[int, _BadChar] = {}
 
     for search_for, char in search_dict.items():
@@ -248,7 +247,7 @@ def _cached_encode_search(string: str, encoding: str) -> bytes:
 
 
 def _fix_utf16_32_line_stream(steam: Iterable[bytes], codec: str) -> Iterable[bytes]:
-    """Handle line ending for UTF16 and UTF32 correctly.
+    r"""Handle line ending for UTF16 and UTF32 correctly.
 
     Currently, Python simply strips the required zeros after \n after the
     line ending. Leading to lines that can't be decoded properly
