@@ -146,13 +146,13 @@ line-length = 115
 
 [tool.ruff.lint]
 select = [
+    "B",  # bugbear
     "E",  # pycodestyle
     "F",  # pyflakes
-    "W",  # pycodestyle
-    "B",  # bugbear
     "I",  # isort
-    "RUF", # ruff
     "UP", # pyupgrade
+    "RUF", # ruff
+    "W",  # pycodestyle
 ]
 
 ignore = [
