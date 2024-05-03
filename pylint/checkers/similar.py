@@ -647,10 +647,10 @@ def stripped_lines(
         line = line.strip()
         if ignore_docstrings:
             if not docstring:
-                if line.startswith('"""') or line.startswith("'''"):
+                if line.startswith(('"""', "'''")):
                     docstring = line[:3]
                     line = line[3:]
-                elif line.startswith('r"""') or line.startswith("r'''"):
+                elif line.startswith(('r"""', "r'''")):
                     docstring = line[1:4]
                     line = line[4:]
             if docstring:
