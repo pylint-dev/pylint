@@ -1414,7 +1414,7 @@ a metaclass class method.",
             and decorated_with_property(node)
             and not is_property_setter(node)
         ):
-            self.add_message("property-with-parameters", node=node)
+            self.add_message("property-with-parameters", node=node, confidence=HIGH)
 
     def _check_invalid_overridden_method(
         self,
