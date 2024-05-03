@@ -97,14 +97,12 @@ CMPS = ["=", "-", "+"]
 
 
 # py3k has no more cmp builtin
-def cmp(a: int | float, b: int | float) -> int:
+def cmp(a: float, b: float) -> int:
     return (a > b) - (a < b)
 
 
-def diff_string(old: int | float, new: int | float) -> str:
-    """Given an old and new int value, return a string representing the
-    difference.
-    """
+def diff_string(old: float, new: float) -> str:
+    """Given an old and new value, return a string representing the difference."""
     diff = abs(old - new)
     diff_str = f"{CMPS[cmp(old, new)]}{diff and f'{diff:.2f}' or ''}"
     return diff_str
