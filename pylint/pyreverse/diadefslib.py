@@ -222,7 +222,6 @@ class DiadefsHandler:
         :returns: The list of diagram definitions
         :rtype: list(:class:`pylint.pyreverse.diagrams.ClassDiagram`)
         """
-
         #  read and interpret diagram definitions (Diadefs)
         diagrams = []
         generator = ClassDiadefGenerator(linker, self)

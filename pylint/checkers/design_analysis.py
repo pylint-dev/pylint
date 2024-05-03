@@ -183,7 +183,6 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
 
 def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
     """Check if a class is exempt from too-few-public-methods."""
-
     # If it's a typing.Namedtuple, typing.TypedDict or an Enum
     for ancestor in node.ancestors():
         if is_enum(ancestor):

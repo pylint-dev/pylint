@@ -1228,7 +1228,6 @@ accessed. Python regular expressions are accepted.",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
         """Process assignments in the AST."""
-
         self._check_assignment_from_function_call(node)
         self._check_dundername_is_string(node)
 
@@ -1309,7 +1308,6 @@ accessed. Python regular expressions are accepted.",
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
-
         # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
         if not isinstance(lhs, nodes.AssignAttr):
@@ -1926,7 +1924,6 @@ accessed. Python regular expressions are accepted.",
     @only_required_for_messages("invalid-unary-operand-type")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """Detect TypeErrors for unary operands."""
-
         for error in node.type_errors():
             # Let the error customize its output.
             self.add_message("invalid-unary-operand-type", args=str(error), node=node)

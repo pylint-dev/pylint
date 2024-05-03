@@ -885,7 +885,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
     @staticmethod
     def test_plugin_that_imports_from_open() -> None:
         """Test that a plugin that imports a source file from a checker open()
-        function (ala pylint_django) does not raise an exception."""
+        function (ala pylint_django) does not raise an exception.
+        """
         with _test_sys_path():
             # Enable --load-plugins=importing_plugin
             sys.path.append(join(HERE, "regrtest_data", "importing_plugin"))
@@ -1140,7 +1141,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
     def test_regex_paths_csv_validator() -> None:
         """Test to see if _regexp_paths_csv_validator works.
         Previously the validator crashed when encountering already validated values.
-        Reported in https://github.com/pylint-dev/pylint/issues/5437
+        Reported in https://github.com/pylint-dev/pylint/issues/5437.
         """
         with pytest.raises(SystemExit) as ex:
             args = _add_rcfile_default_pylintrc(
@@ -1165,14 +1166,14 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         assert not ex.value.code % 2
 
     def test_recursive(self) -> None:
-        """Tests if running linter over directory using --recursive=y"""
+        """Tests if running linter over directory using --recursive=y."""
         self._runtest(
             [join(HERE, "regrtest_data", "directory", "subdirectory"), "--recursive=y"],
             code=0,
         )
 
     def test_recursive_globbing(self) -> None:
-        """Tests if running linter over directory using --recursive=y and globbing"""
+        """Tests if running linter over directory using --recursive=y and globbing."""
         self._runtest(
             [join(HERE, "regrtest_data", "d?rectory", "subd*"), "--recursive=y"],
             code=0,
@@ -1244,7 +1245,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
                 )
 
     def test_ignore_path_recursive_current_dir(self) -> None:
-        """Tests that path is normalized before checked that is ignored. GitHub issue #6964"""
+        """Tests that path is normalized before checked that is ignored. GitHub issue #6964."""
         with _test_sys_path():
             # pytest is including directory HERE/regrtest_data to sys.path which causes
             # astroid to believe that directory is a package.
@@ -1284,7 +1285,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         )
 
     def test_line_too_long_useless_suppression(self) -> None:
-        """A test that demonstrates a known false positive for useless-suppression
+        """A test that demonstrates a known false positive for useless-suppression.
 
         See https://github.com/pylint-dev/pylint/issues/3368
 
@@ -1315,7 +1316,8 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
 
     def test_no_name_in_module(self) -> None:
         """Test that a package with both a variable name `base` and a module `base`
-        does not emit a no-name-in-module msg."""
+        does not emit a no-name-in-module msg.
+        """
         module = join(HERE, "regrtest_data", "test_no_name_in_module.py")
         unexpected = "No name 'errors' in module 'list' (no-name-in-module)"
         self._test_output(
@@ -1509,7 +1511,8 @@ class TestCallbackOptions:
     @staticmethod
     def test_errors_only_functions_as_disable() -> None:
         """--errors-only functions as a shortcut for --disable=W,C,R,I;
-        it no longer enables any messages."""
+        it no longer enables any messages.
+        """
         run = Run(
             [str(UNNECESSARY_LAMBDA), "--disable=import-error", "--errors-only"],
             exit=False,

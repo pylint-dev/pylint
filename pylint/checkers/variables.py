@@ -1017,7 +1017,6 @@ scope_type : {self._atomic.scope_type}
         the loop can depend on it being assigned.
 
         Example:
-
         for _ in range(3):
             try:
                 do_something()

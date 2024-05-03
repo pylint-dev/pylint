@@ -611,7 +611,6 @@ def stripped_lines(
             """Recursively get all functions including nested in the classes from the
             tree.
             """
-
             for node in tree.body:
                 if isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
                     functions.append(node)

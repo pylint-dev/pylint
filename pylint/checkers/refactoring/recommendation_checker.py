@@ -113,7 +113,6 @@ class RecommendationChecker(checkers.BaseChecker):
         """Add message when accessing first or last elements of a str.split() or
         str.rsplit().
         """
-
         # Check if call is split() or rsplit()
         if not (
             isinstance(node.func, nodes.Attribute)
