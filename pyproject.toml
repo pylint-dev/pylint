@@ -144,6 +144,7 @@ module = [
 # (for docstrings, strings and comments in particular).
 line-length = 115
 
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle
     "F",  # pyflakes
