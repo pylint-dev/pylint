@@ -1,0 +1,4 @@
+Treat `attrs.define` and `attrs.frozen` as dataclass decorators in
+`too-few-public-methods` check.
+
+Closes #9345
