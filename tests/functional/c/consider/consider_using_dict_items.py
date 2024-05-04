@@ -1,6 +1,5 @@
 """Emit a message for iteration through dict keys and subscripting dict with key."""
 # pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,redefined-outer-name,use-dict-literal,modified-iterating-dict
-# pylint: disable=wrong-import-position
 
 import os
 
