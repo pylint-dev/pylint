@@ -2,6 +2,9 @@
 # pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,redefined-outer-name,use-dict-literal,modified-iterating-dict
 # pylint: disable=wrong-import-position
 
+import os
+
+
 def bad():
     a_dict = {1: 1, 2: 2, 3: 3}
     for k in a_dict:  # [consider-using-dict-items]
