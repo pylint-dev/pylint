@@ -108,7 +108,6 @@ for k in d:  # [consider-using-dict-items]
 
 # False positive in issue #9554
 # https://github.com/pylint-dev/pylint/issues/9554
-import os
 for var in os.environ.keys():  # [consider-iterating-dictionary]
     if var.startswith('foo_'):
         del os.environ[var]  # index lookup necessary here, do not emit error
