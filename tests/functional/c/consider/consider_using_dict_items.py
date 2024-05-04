@@ -1,4 +1,5 @@
 """Emit a message for iteration through dict keys and subscripting dict with key."""
+
 # pylint: disable=line-too-long,missing-docstring,unsubscriptable-object,too-few-public-methods,redefined-outer-name,use-dict-literal,modified-iterating-dict
 
 import os
@@ -18,11 +19,14 @@ def good():
     for k in a_dict:
         print(k)
 
+
 out_of_scope_dict = dict()
+
 
 def another_bad():
     for k in out_of_scope_dict:  # [consider-using-dict-items]
         print(out_of_scope_dict[k])
+
 
 def another_good():
     for k in out_of_scope_dict:
@@ -50,8 +54,10 @@ for k3 in b_dict:  # [consider-using-dict-items]
 for k4 in b_dict.keys():  # [consider-iterating-dictionary,consider-using-dict-items]
     val = b_dict[k4]
 
+
 class Foo:
     c_dict = {}
+
 
 # Should emit warning when iterating over a dict attribute of a class
 for k5 in Foo.c_dict:  # [consider-using-dict-items]
@@ -86,30 +92,32 @@ val = [(k7, c_dict[k7]) for k7 in Foo.c_dict]
 val = any(True for k8 in Foo.c_dict if c_dict[k8])
 
 # Should emit warning, using .keys() of Foo.c_dict
-val = any(True for k8 in Foo.c_dict.keys() if Foo.c_dict[k8])  # [consider-iterating-dictionary,consider-using-dict-items]
+val = any(
+    True for k8 in Foo.c_dict.keys() if Foo.c_dict[k8]
+)  # [consider-iterating-dictionary,consider-using-dict-items]
 
 # Test false positive described in #4630
 # (https://github.com/pylint-dev/pylint/issues/4630)
 
-d = {'key': 'value'}
+d = {"key": "value"}
 
 for k in d:  # this is fine, with the reassignment of d[k], d[k] is necessary
-    d[k] += '123'
-    if '1' in d[k]:  # index lookup necessary here, do not emit error
-        print('found 1')
+    d[k] += "123"
+    if "1" in d[k]:  # index lookup necessary here, do not emit error
+        print("found 1")
 
 for k in d:  # if this gets rewritten to d.items(), we are back to the above problem
     d[k] = d[k] + 1
-    if '1' in d[k]:  # index lookup necessary here, do not emit error
-        print('found 1')
+    if "1" in d[k]:  # index lookup necessary here, do not emit error
+        print("found 1")
 
 for k in d:  # [consider-using-dict-items]
-    if '1' in d[k]:  # index lookup necessary here, do not emit error
-        print('found 1')
+    if "1" in d[k]:  # index lookup necessary here, do not emit error
+        print("found 1")
 
 
 # False positive in issue #9554
 # https://github.com/pylint-dev/pylint/issues/9554
 for var in os.environ.keys():  # [consider-iterating-dictionary]
-    if var.startswith('foo_'):
+    if var.startswith("foo_"):
         del os.environ[var]  # index lookup necessary here, do not emit error
