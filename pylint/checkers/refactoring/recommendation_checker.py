@@ -308,6 +308,10 @@ class RecommendationChecker(checkers.BaseChecker):
                     # Ignore this subscript if it is the target of an assignment
                     # Early termination as dict index lookup is necessary
                     return
+                if isinstance(subscript.parent, nodes.Delete):
+                    # Ignore this subscript if the index is used to delete a
+                    # dictionary item.
+                    return
 
                 self.add_message("consider-using-dict-items", node=node)
                 return
