@@ -1045,9 +1045,12 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         base = os.path.splitext(os.path.basename(module_file))[0]
 
         try:
-            importedmodname = astroid.modutils.get_module_part(
-                importedmodname, module_file
-            )
+            if isinstance(node, nodes.ImportFrom) and node.level:
+                importedmodname = astroid.modutils.get_module_part(
+                    importedmodname, module_file
+                )
+            else:
+                importedmodname = astroid.modutils.get_module_part(importedmodname)
         except ImportError:
             pass
 

@@ -1,0 +1,4 @@
+ImportChecker's logic has been modified to avoid context files when possible. This makes it possible
+to cache module searches on astroid and reduce execution times.
+
+Refs #9310.
