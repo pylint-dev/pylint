@@ -19,9 +19,9 @@ class FunctionChecker(_BasicChecker):
 
     msgs = {
         "W0135": (
-            "The code after line %s will never be executed ('GeneratorExit' needs to be handled)",
+            "The context used in function %r will not be exited.",
             "contextmanager-generator-missing-cleanup",
-            "Used when a generator is used in a contextmanager"
+            "Used when a contextmanager is used inside a generator function"
             " and the cleanup is not handled.",
         )
     }
@@ -75,7 +75,7 @@ class FunctionChecker(_BasicChecker):
                     self.add_message(
                         "contextmanager-generator-missing-cleanup",
                         node=node,
-                        args=(node.lineno,),
+                        args=(node.name,),
                     )
 
     @staticmethod
