@@ -46,12 +46,10 @@ class FunctionChecker(_BasicChecker):
         :type node: nodes.FunctionDef
         """
         # if function does not use a Yield statement, it cant be a generator
-        # TODO: AsyncWith also captured here?
         with_nodes = list(node.nodes_of_class(nodes.With))
         if not with_nodes:
             return
         # check for Yield inside the With statement
-        # TODO: should this also capture YieldFrom?
         yield_nodes = list(
             chain.from_iterable(
                 with_node.nodes_of_class(nodes.Yield) for with_node in with_nodes
