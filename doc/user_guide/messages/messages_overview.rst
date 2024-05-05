@@ -227,6 +227,7 @@ All messages in the warning category:
    warning/comparison-with-callable
    warning/confusing-with-statement
    warning/consider-ternary-expression
+   warning/contextmanager-generator-missing-cleanup
    warning/dangerous-default-value
    warning/deprecated-argument
    warning/deprecated-class
