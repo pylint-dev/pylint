@@ -1,5 +1,4 @@
 # pylint: disable=missing-function-docstring, missing-module-docstring, invalid-name, import-outside-toplevel
-# pylint: disable=contextmanager-generator-missing-cleanup
 import codecs
 import contextlib
 import multiprocessing
