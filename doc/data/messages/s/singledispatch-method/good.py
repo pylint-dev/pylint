@@ -1,19 +1,15 @@
 from functools import singledispatch
 
 
-class Board:
-    @singledispatch
-    @staticmethod
-    def convert_position(position):
-        pass
+@singledispatch
+def convert_position(position):
+    print(position)
 
-    @convert_position.register
-    @staticmethod
-    def _(position: str) -> tuple:
-        position_a, position_b = position.split(",")
-        return (int(position_a), int(position_b))
+@convert_position.register
+def _(position: str) -> tuple:
+    position_a, position_b = position.split(",")
+    return (int(position_a), int(position_b))
 
-    @convert_position.register
-    @staticmethod
-    def _(position: tuple) -> str:
-        return f"{position[0]},{position[1]}"
+@convert_position.register
+def _(position: tuple) -> str:
+    return f"{position[0]},{position[1]}"
