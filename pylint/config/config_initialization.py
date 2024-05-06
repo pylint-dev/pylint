@@ -141,7 +141,7 @@ def _config_initialization(
     linter._parse_error_mode()
 
     # Link the base Namespace object on the current directory
-    linter._directory_namespaces[Path(".").resolve()] = (linter.config, {})
+    linter._directory_namespaces[Path().resolve()] = (linter.config, {})
 
     # parsed_args_list should now only be a list of inputs to lint.
     # All other options have been removed from the list.

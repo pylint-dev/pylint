@@ -152,6 +152,7 @@ select = [
     "F",  # pyflakes
     "I",  # isort
     "PIE", # flake8-pie
+    "PTH",  # flake8-pathlib
     "PYI", # flake8-pyi
     "UP", # pyupgrade
     "RUF", # ruff
@@ -171,6 +172,21 @@ ignore = [
     "D205",  # 1 blank line required between summary line and description
     "D400",  # First line should end with a period
     "D401",  # First line of docstring should be in imperative mood
+    "PTH100",  # `os.path.abspath()` should be replaced by `Path.resolve()`
+    "PTH103",  # `os.makedirs()` should be replaced by `Path.mkdir(parents=True)`
+    "PTH107",  # `os.remove()` should be replaced by `Path.unlink()`
+    "PTH108",  # `os.unlink()` should be replaced by `Path.unlink()`
+    "PTH109",  # `os.getcwd()` should be replaced by `Path.cwd()`
+    "PTH110",  # `os.path.exists()` should be replaced by `Path.exists()`
+    "PTH111",  # `os.path.expanduser()` should be replaced by `Path.expanduser()`
+    "PTH112",  # `os.path.isdir()` should be replaced by `Path.is_dir()`
+    "PTH113",  # `os.path.isfile()` should be replaced by `Path.is_file()`
+    "PTH118",  # `os.path.join()` should be replaced by `Path` with `/` operator
+    "PTH119",  # `os.path.basename()` should be replaced by `Path.name`
+    "PTH120",  # `os.path.dirname()` should be replaced by `Path.parent`
+    "PTH122",  # `os.path.splitext()` should be replaced by `Path.suffix`, `Path.stem`, and `Path.parent`
+    "PTH123",  # `open()` should be replaced by `Path.open()`
+    "PTH207",  # Replace `glob` with `Path.glob` or `Path.rglob`
     "RUF012",  # mutable default values in class attributes
 ]
 
