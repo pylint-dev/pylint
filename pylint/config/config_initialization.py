@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
+# pylint: disable = too-many-statements
 def _config_initialization(
     linter: PyLinter,
     args_list: list[str],
@@ -81,6 +82,9 @@ def _config_initialization(
     # the configuration file
     args_list = _order_all_first(args_list, joined=True)
     parsed_args_list = linter._parse_command_line_configuration(args_list)
+
+    # save Runner.verbose to make this preprocessed option visible from other modules
+    linter.config.verbose = verbose_mode
 
     # Remove the positional arguments separator from the list of arguments if it exists
     try:
@@ -141,7 +145,8 @@ def _config_initialization(
     linter._parse_error_mode()
 
     # Link the base Namespace object on the current directory
-    linter._directory_namespaces[Path(".").resolve()] = (linter.config, {})
+    if len(linter._directory_namespaces) == 0:
+        linter._directory_namespaces[Path(".").resolve()] = (linter.config, {})
 
     # parsed_args_list should now only be a list of inputs to lint.
     # All other options have been removed from the list.

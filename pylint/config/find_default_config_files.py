@@ -64,17 +64,19 @@ def _cfg_has_config(path: Path | str) -> bool:
     return any(section.startswith("pylint.") for section in parser.sections())
 
 
-def _yield_default_files() -> Iterator[Path]:
+def _yield_default_files(basedir: Path = Path(".")) -> Iterator[Path]:
     """Iterate over the default config file names and see if they exist."""
+    basedir = Path(basedir)
     for config_name in CONFIG_NAMES:
+        config_file = basedir / config_name
         try:
-            if config_name.is_file():
-                if config_name.suffix == ".toml" and not _toml_has_config(config_name):
+            if config_file.is_file():
+                if config_file.suffix == ".toml" and not _toml_has_config(config_file):
                     continue
-                if config_name.suffix == ".cfg" and not _cfg_has_config(config_name):
+                if config_file.suffix == ".cfg" and not _cfg_has_config(config_file):
                     continue
 
-                yield config_name.resolve()
+                yield config_file.resolve()
         except OSError:
             pass
 

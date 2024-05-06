@@ -81,6 +81,9 @@ class _ArgumentsManager:
         self._directory_namespaces: DirectoryNamespaceDict = {}
         """Mapping of directories and their respective namespace objects."""
 
+        self._cli_args: list[str] = []
+        """Options that were passed as command line arguments and have highest priority."""
+
     @property
     def config(self) -> argparse.Namespace:
         """Namespace for all options."""
@@ -226,6 +229,8 @@ class _ArgumentsManager:
     ) -> list[str]:
         """Parse the arguments found on the command line into the namespace."""
         arguments = sys.argv[1:] if arguments is None else arguments
+        if not self._cli_args:
+            self._cli_args = list(arguments)
 
         self.config, parsed_args = self._arg_parser.parse_known_args(
             arguments, self.config
