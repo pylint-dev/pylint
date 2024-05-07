@@ -1,0 +1,3 @@
+Fix a false positive with ``singledispatchmethod-function`` when a method is decorated with both ``functools.singledispatchmethod`` and ``staticmethod``.
+
+Closes #9531
