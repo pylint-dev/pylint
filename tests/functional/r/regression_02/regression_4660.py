@@ -14,7 +14,6 @@ def my_print(*args: Any) -> None:
     return
 
 
-# ---- This is OK ----
 class MyClass:
     def my_method(self, option: Literal["mandatory"]) -> Callable[..., Any]:
         return my_print
@@ -23,7 +22,6 @@ class MyClass:
 c = MyClass().my_method("mandatory")
 c(1, "foo")
 
-# ---- This runs OK but pylint reports an error ----
 class MyClass1:
     @overload
     def my_method(self, option: Literal["mandatory"]) -> Callable[..., Any]:
@@ -42,4 +40,4 @@ class MyClass1:
 
 
 d = MyClass1().my_method("mandatory")
-d(1, "bar")  # [not-callable]
+d(1, "bar")
