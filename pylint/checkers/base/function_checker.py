@@ -118,7 +118,7 @@ class FunctionChecker(_BasicChecker):
         try_with_yield_nodes = [
             try_node
             for try_node in node.nodes_of_class(nodes.Try)
-            if list(try_node.nodes_of_class(nodes.Yield))
+            if any(try_node.nodes_of_class(nodes.Yield))
         ]
         if not try_with_yield_nodes:
             # no try blocks at all, so checks after this line do not apply
