@@ -27,9 +27,7 @@ def test_open_in_enter():
             self.file_handle = None
 
         def __enter__(self):
-            self.file_handle = open(
-                "foo.txt", "w", encoding="utf-8"
-            )  # must not trigger
+            self.file_handle = open("foo.txt", "w", encoding="utf-8")  # must not trigger
 
         def __exit__(self, exc_type, exc_value, traceback):
             self.file_handle.close()
@@ -55,22 +53,17 @@ def test_open_inside_with_block():
 
 def test_ternary_if_in_with_block(file1, file2, which):
     """Regression test for issue #4676 (false positive)"""
-    with (
-        open(file1, encoding="utf-8") if which else open(file2, encoding="utf-8")
-    ) as input_file:  # must not trigger
+    with (open(file1, encoding="utf-8") if which else open(file2, encoding="utf-8")) as input_file:  # must not trigger
         return input_file.read()
 
 
 def test_single_line_with(file1):
-    with open(file1, encoding="utf-8"):
-        return file1.read()  # must not trigger
+    with open(file1, encoding="utf-8"): return file1.read()  # must not trigger
 
 
 def test_multiline_with_items(file1, file2, which):
-    with (
-        open(file1, encoding="utf-8") if which else open(file2, encoding="utf-8")
-    ) as input_file:
-        return input_file.read()
+    with (open(file1, encoding="utf-8") if which
+        else open(file2, encoding="utf-8")) as input_file: return input_file.read()
 
 
 def test_suppress_on_return():
@@ -123,7 +116,9 @@ class TestControlFlow:
         if predicate:
             file_handle = open("foo", encoding="utf8")
         else:
-            file_handle = open("bar", encoding="utf8")  # [consider-using-with]
+            file_handle = open(  # [consider-using-with]
+                "bar", encoding="utf8"
+            )
         file_handle = None
         return file_handle
 
@@ -142,15 +137,13 @@ class TestControlFlow:
             Path("foo").touch()
         finally:
             # +1: [used-before-assignment]
-            file_handle.open(
-                "foo", encoding="utf"
-            )  # must not trigger consider-using-with
+            file_handle.open("foo", encoding="utf")  # must not trigger consider-using-with
         with file_handle:
             return file_handle.read()
 
     def test_defined_in_different_except_handlers(self, a, b):
         try:
-            result = a / b
+            result = a/b
         except ZeroDivisionError:
             logfile = open("math_errors.txt", encoding="utf8")  # must not trigger
             result = "Can't divide by zero"
