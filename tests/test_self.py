@@ -222,7 +222,10 @@ class TestRunTC:
     def test_output_with_verbose(self) -> None:
         out = StringIO()
         self._runtest([UNNECESSARY_LAMBDA, "--verbose"], out=out, code=4)
-        assert "Checked 1 files, skipped 0 files" in out.getvalue().strip()
+        stripped = out.getvalue().strip()
+        assert "Checked 1 files" in stripped
+        assert "unnecessary_lambda.py" in stripped
+        assert "Skipped 0 files" in stripped
 
     def test_no_out_encoding(self) -> None:
         """Test redirection of stdout with non ascii characters."""
