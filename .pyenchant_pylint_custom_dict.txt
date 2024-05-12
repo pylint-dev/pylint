@@ -300,6 +300,7 @@ spammy
 sqlalchemy
 src
 starargs
+stateful
 staticmethod
 stderr
 stdin
