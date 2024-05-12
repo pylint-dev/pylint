@@ -7,13 +7,16 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Iterator
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from _pytest.config import Config
 
 from pylint import testutils
 from pylint.constants import PY312_PLUS
+from pylint.lint.pylinter import MANAGER
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.functional import (
     FunctionalTestFile,
@@ -21,6 +24,9 @@ from pylint.testutils.functional import (
     get_functional_test_files_from_directory,
 )
 from pylint.utils import HAS_ISORT_5
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 FUNCTIONAL_DIR = Path(__file__).parent.resolve() / "functional"
 
@@ -40,6 +46,14 @@ TEST_WITH_EXPECTED_DEPRECATION = [
 ]
 
 
+@pytest.fixture
+def revert_stateful_config_changes(linter: PyLinter) -> Iterator[PyLinter]:
+    yield linter
+    # Revert any stateful configuration changes.
+    MANAGER.brain["module_denylist"] = set()
+
+
+@pytest.mark.usefixtures("revert_stateful_config_changes")
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
 def test_functional(test_file: FunctionalTestFile, pytestconfig: Config) -> None:
     __tracebackhide__ = True  # pylint: disable=unused-variable
