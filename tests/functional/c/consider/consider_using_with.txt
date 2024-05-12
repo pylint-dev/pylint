@@ -20,9 +20,9 @@ consider-using-with:140:8:140:30:test_multiprocessing:Consider using 'with' for 
 consider-using-with:145:4:145:19:test_multiprocessing:Consider using 'with' for resource-allocating operations:UNDEFINED
 consider-using-with:150:4:150:19:test_multiprocessing:Consider using 'with' for resource-allocating operations:UNDEFINED
 consider-using-with:156:8:156:30:test_popen:Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:212:4:212:26::Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:213:4:213:26::Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:218:4:218:26::Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:224:4:224:26::Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:240:18:240:40:test_subscript_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
-consider-using-with:242:24:242:46:test_subscript_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:210:4:210:26::Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:211:4:211:26::Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:216:4:216:26::Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:222:4:222:26::Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:238:18:238:40:test_subscript_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
+consider-using-with:240:24:240:46:test_subscript_assignment:Consider using 'with' for resource-allocating operations:UNDEFINED
