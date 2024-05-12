@@ -1661,6 +1661,7 @@ accessed. Python regular expressions are accepted.",
                     confidence=INFERENCE,
                 )
 
+    # pylint: disable=too-many-try-statements
     @staticmethod
     def _keyword_argument_is_in_all_decorator_returns(
         func: nodes.FunctionDef, keyword: str

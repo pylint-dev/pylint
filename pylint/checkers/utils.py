@@ -1344,7 +1344,7 @@ def _get_python_type_of_node(node: nodes.NodeNG) -> str | None:
     return None
 
 
-def warn_on_recursion_error():
+def warn_on_recursion_error() -> None:
     warnings.warn(
         "Inference failed due to recursion limit. Retry with "
         "--init-hook='import sys; sys.setrecursionlimit(2000)' or higher.",

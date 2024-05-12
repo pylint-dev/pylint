@@ -1232,7 +1232,7 @@ a metaclass class method.",
                                 "attribute-defined-outside-init", args=attr, node=node
                             )
 
-    # pylint: disable = too-many-branches
+    # pylint: disable = too-many-branches, too-many-return-statements
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Check method arguments, overriding."""
         # ignore actual functions
