@@ -16,6 +16,7 @@ from pylint.checkers.utils import (
     has_known_bases,
     node_frame_class,
     only_required_for_messages,
+    warn_on_recursion_error,
 )
 from pylint.typing import MessageDefinitionTuple
 
@@ -106,6 +107,9 @@ class NewStyleConflictChecker(BaseChecker):
                 try:
                     supcls = call.args and next(call.args[0].infer(), None)
                 except astroid.InferenceError:
+                    continue
+                except RecursionError:
+                    warn_on_recursion_error()
                     continue
 
                 # If the supcls is in the ancestors of klass super can be used to skip

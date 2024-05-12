@@ -12,6 +12,7 @@ import itertools
 import numbers
 import re
 import string
+import warnings
 from collections.abc import Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
@@ -803,6 +804,8 @@ def decorated_with_property(node: nodes.FunctionDef) -> bool:
                 return True
         except astroid.InferenceError:
             pass
+        except RecursionError:
+            warn_on_recursion_error()
     return False
 
 
@@ -878,6 +881,9 @@ def decorated_with(
             ):
                 return True
         except astroid.InferenceError:
+            continue
+        except RecursionError:
+            warn_on_recursion_error()
             continue
     return False
 
@@ -1338,6 +1344,15 @@ def _get_python_type_of_node(node: nodes.NodeNG) -> str | None:
     return None
 
 
+def warn_on_recursion_error():
+    warnings.warn(
+        "Inference failed due to recursion limit. Retry with "
+        "--init-hook='import sys; sys.setrecursionlimit(2000)' or higher.",
+        UserWarning,
+        stacklevel=3,
+    )
+
+
 @lru_cache(maxsize=1024)
 def safe_infer(
     node: nodes.NodeNG,
@@ -1359,6 +1374,8 @@ def safe_infer(
         value = next(infer_gen)
     except astroid.InferenceError:
         return None
+    except RecursionError:
+        warn_on_recursion_error()
     except Exception as e:  # pragma: no cover
         raise AstroidError from e
 
@@ -1388,6 +1405,8 @@ def safe_infer(
         return None  # There is some kind of ambiguity
     except StopIteration:
         return value
+    except RecursionError:
+        warn_on_recursion_error()
     except Exception as e:  # pragma: no cover
         raise AstroidError from e
     return value if len(inferred_types) <= 1 else None
@@ -1400,6 +1419,9 @@ def infer_all(
     try:
         return list(node.infer(context=context))
     except astroid.InferenceError:
+        return []
+    except RecursionError:
+        warn_on_recursion_error()
         return []
     except Exception as e:  # pragma: no cover
         raise AstroidError from e
@@ -1479,6 +1501,9 @@ def node_type(node: nodes.NodeNG) -> SuccessfulInferenceResult | None:
                 return None
     except astroid.InferenceError:
         return None
+    except RecursionError:
+        warn_on_recursion_error()
+        return None
     return types.pop() if types else None
 
 
@@ -1509,6 +1534,9 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
         try:
             func_def = next(func.expr.infer())
         except astroid.InferenceError:
+            continue
+        except RecursionError:
+            warn_on_recursion_error()
             continue
 
         if isinstance(func_def, nodes.FunctionDef):
@@ -1662,6 +1690,9 @@ def is_protocol_class(cls: nodes.NodeNG) -> bool:
                 if inf_base.qname() in TYPING_PROTOCOLS:
                     return True
         except astroid.InferenceError:
+            continue
+        except RecursionError:
+            warn_on_recursion_error()
             continue
     return False
 
@@ -2041,6 +2072,9 @@ def is_hashable(node: nodes.NodeNG) -> bool:
         return False
     except astroid.InferenceError:
         return True
+    except RecursionError:
+        warn_on_recursion_error()
+        return True
 
 
 def subscript_chain_is_equal(left: nodes.Subscript, right: nodes.Subscript) -> bool:
@@ -2165,6 +2199,8 @@ def is_terminating_func(node: nodes.Call) -> bool:
                 and inferred.qname() in TERMINATING_FUNCS_QNAMES
             ):
                 return True
+    except RecursionError:
+        warn_on_recursion_error()
     except (StopIteration, astroid.InferenceError):
         pass
 

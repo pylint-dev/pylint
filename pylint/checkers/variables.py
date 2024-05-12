@@ -2667,6 +2667,9 @@ class VariablesChecker(BaseChecker):
                     likely_call = assign.iter.body
                 if isinstance(likely_call, nodes.Call):
                     inferred = next(likely_call.args[0].infer())
+        except RecursionError:
+            utils.warn_on_recursion_error()
+            self.add_message("undefined-loop-variable", args=node.name, node=node)
         except astroid.InferenceError:
             self.add_message("undefined-loop-variable", args=node.name, node=node)
         else:
@@ -3117,6 +3120,9 @@ class VariablesChecker(BaseChecker):
                     "no-name-in-module", args=(name, module.name), node=node
                 )
                 return None
+            except RecursionError:
+                utils.warn_on_recursion_error()
+                return None
             except astroid.InferenceError:
                 return None
         if module_names:
@@ -3136,6 +3142,9 @@ class VariablesChecker(BaseChecker):
             assigned = next(node.igetattr("__all__"))
         except astroid.InferenceError:
             return
+        except RecursionError:
+            utils.warn_on_recursion_error()
+            return
         if isinstance(assigned, util.UninferableBase):
             return
         if assigned.pytype() not in {"builtins.list", "builtins.tuple"}:
@@ -3146,6 +3155,9 @@ class VariablesChecker(BaseChecker):
             try:
                 elt_name = next(elt.infer())
             except astroid.InferenceError:
+                continue
+            except RecursionError:
+                utils.warn_on_recursion_error()
                 continue
             if isinstance(elt_name, util.UninferableBase):
                 continue

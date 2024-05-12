@@ -1,0 +1,3 @@
+Log RecursionError out as warning during inference.
+
+Closes #9139

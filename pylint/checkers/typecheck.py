@@ -48,6 +48,7 @@ from pylint.checkers.utils import (
     supports_getitem,
     supports_membership_test,
     supports_setitem,
+    warn_on_recursion_error,
 )
 from pylint.constants import PY310_PLUS
 from pylint.interfaces import HIGH, INFERENCE
@@ -793,6 +794,9 @@ def _infer_from_metaclass_constructor(
         inferred = next(func.infer_call_result(func, context), None)
     except astroid.InferenceError:
         return None
+    except RecursionError:
+        utils.warn_on_recursion_error()
+        return None
     return inferred or None
 
 
@@ -1087,6 +1091,9 @@ accessed. Python regular expressions are accepted.",
 
         try:
             inferred = list(node.expr.infer())
+        except RecursionError:
+            warn_on_recursion_error()
+            return
         except astroid.InferenceError:
             return
 
@@ -1358,6 +1365,9 @@ accessed. Python regular expressions are accepted.",
                 try:
                     call_results = list(attr.infer_call_result(node))
                 except astroid.InferenceError:
+                    continue
+                except RecursionError:
+                    utils.warn_on_recursion_error()
                     continue
 
                 if all(
@@ -1673,21 +1683,24 @@ accessed. Python regular expressions are accepted.",
             if not isinstance(inferred, nodes.FunctionDef):
                 return False
 
-            for return_value in inferred.infer_call_result(caller=None):
-                # infer_call_result() returns nodes.Const.None for None return values
-                # so this also catches non-returning decorators
-                if not isinstance(return_value, nodes.FunctionDef):
+            try:
+                for return_value in inferred.infer_call_result(caller=None):
+                    # infer_call_result() returns nodes.Const.None for None return values
+                    # so this also catches non-returning decorators
+                    if not isinstance(return_value, nodes.FunctionDef):
+                        return False
+
+                    # If the return value uses a kwarg the keyword will be consumed
+                    if return_value.args.kwarg:
+                        continue
+
+                    # Check if the keyword is another type of argument
+                    if return_value.args.is_argument(keyword):
+                        continue
+
                     return False
-
-                # If the return value uses a kwarg the keyword will be consumed
-                if return_value.args.kwarg:
-                    continue
-
-                # Check if the keyword is another type of argument
-                if return_value.args.is_argument(keyword):
-                    continue
-
-                return False
+            except RecursionError:
+                utils.warn_on_recursion_error()
 
         return True
 

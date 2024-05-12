@@ -17,6 +17,8 @@ import astroid
 from astroid import nodes
 from astroid.typing import InferenceResult
 
+from pylint.checkers.utils import warn_on_recursion_error
+
 if TYPE_CHECKING:
     from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
 
@@ -192,6 +194,9 @@ def get_annotation(
         default, *_ = node.infer()
     except astroid.InferenceError:
         default = ""
+    except RecursionError:
+        warn_on_recursion_error()
+        default = ""
 
     label = get_annotation_label(ann)
 
@@ -228,6 +233,9 @@ def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set[InferenceResult
             return set(ann.infer())
         return set(node.infer())
     except astroid.InferenceError:
+        return {ann} if ann else set()
+    except RecursionError:
+        warn_on_recursion_error()
         return {ann} if ann else set()
 
 

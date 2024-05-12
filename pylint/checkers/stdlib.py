@@ -592,6 +592,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             confidence = INFERENCE
         try:
             inferred_args = arg.inferred()
+        except RecursionError:
+            utils.warn_on_recursion_error()
         except astroid.InferenceError:
             return
         for inferred in inferred_args:
@@ -713,6 +715,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                         break
             except astroid.InferenceError:
                 pass
+            except RecursionError:
+                utils.warn_on_recursion_error()
         for lru_cache_node in lru_cache_nodes:
             self.add_message(
                 "method-cache-max-size-none",
@@ -766,6 +770,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         try:
             inferred = next(node.infer())
         except astroid.InferenceError:
+            return
+        except RecursionError:
+            utils.warn_on_recursion_error()
             return
         if isinstance(inferred, astroid.Instance) and inferred.qname() in {
             "_pydatetime.time",

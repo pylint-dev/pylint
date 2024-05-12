@@ -20,7 +20,7 @@ from astroid.util import UninferableBase
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.base.basic_error_checker import _loop_exits_early
-from pylint.checkers.utils import node_frame_class
+from pylint.checkers.utils import node_frame_class, safe_infer
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
@@ -1997,7 +1997,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return True
         if isinstance(node, nodes.Call):
             try:
-                funcdef_node = node.func.inferred()[0]
+                funcdef_node = safe_infer(node.func)
                 if self._is_function_def_never_returning(funcdef_node):
                     return True
             except astroid.InferenceError:

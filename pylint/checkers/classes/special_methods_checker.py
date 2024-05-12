@@ -21,6 +21,7 @@ from pylint.checkers.utils import (
     is_function_body_ellipsis,
     only_required_for_messages,
     safe_infer,
+    warn_on_recursion_error,
 )
 from pylint.lint.pylinter import PyLinter
 
@@ -44,12 +45,18 @@ def _safe_infer_call_result(
         return None  # inference failed
     except StopIteration:
         return None  # no values inferred
+    except RecursionError:
+        warn_on_recursion_error()
+        return None
     try:
         next(inferit)
         return None  # there is ambiguity on the inferred node
     except astroid.InferenceError:
         return None  # there is some kind of ambiguity
     except StopIteration:
+        return value
+    except RecursionError:
+        warn_on_recursion_error()
         return value
 
 

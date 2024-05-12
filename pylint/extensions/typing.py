@@ -16,6 +16,7 @@ from pylint.checkers.utils import (
     is_postponed_evaluation_enabled,
     only_required_for_messages,
     safe_infer,
+    warn_on_recursion_error,
 )
 from pylint.constants import TYPING_NORETURN
 from pylint.interfaces import HIGH, INFERENCE
@@ -435,18 +436,22 @@ class TypingChecker(BaseChecker):
         ):
             return
 
-        for inferred in node.infer():
-            # To deal with typing_extensions, don't use safe_infer
-            if (
-                isinstance(inferred, (nodes.FunctionDef, nodes.ClassDef))
-                and inferred.qname() in TYPING_NORETURN
-                # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
-                or isinstance(inferred, astroid.bases.BaseInstance)
-                and isinstance(inferred._proxied, nodes.ClassDef)
-                and inferred._proxied.qname() == "typing._SpecialForm"
-            ):
-                self.add_message("broken-noreturn", node=node, confidence=INFERENCE)
-                break
+        try:
+            for inferred in node.infer():
+                # To deal with typing_extensions, don't use safe_infer
+                if (
+                    isinstance(inferred, (nodes.FunctionDef, nodes.ClassDef))
+                    and inferred.qname() in TYPING_NORETURN
+                    # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
+                    or isinstance(inferred, astroid.bases.BaseInstance)
+                    and isinstance(inferred._proxied, nodes.ClassDef)
+                    and inferred._proxied.qname() == "typing._SpecialForm"
+                ):
+                    self.add_message("broken-noreturn", node=node, confidence=INFERENCE)
+                    break
+        except RecursionError:
+            warn_on_recursion_error()
+            return
 
     def _check_broken_callable(self, node: nodes.Name | nodes.Attribute) -> None:
         """Check for 'collections.abc.Callable' inside Optional and Union."""

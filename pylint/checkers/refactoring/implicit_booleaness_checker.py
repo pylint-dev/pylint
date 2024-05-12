@@ -144,6 +144,9 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         except astroid.InferenceError:
             # Probably undefined-variable, abort check
             return
+        except RecursionError:
+            utils.warn_on_recursion_error()
+            return
         mother_classes = self.base_names_of_instance(instance)
         affected_by_pep8 = any(
             t in mother_classes for t in ("str", "tuple", "list", "set")

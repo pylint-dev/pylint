@@ -374,6 +374,9 @@ class BasicChecker(_BasicChecker):
                     call_inferred = list(inferred.infer_call_result(node))
             except astroid.InferenceError:
                 call_inferred = None
+            except RecursionError:
+                utils.warn_on_recursion_error()
+                call_inferred = None
             if call_inferred:
                 self.add_message(
                     "missing-parentheses-for-call-in-test",
@@ -608,6 +611,9 @@ class BasicChecker(_BasicChecker):
                 value = next(default.infer())
             except astroid.InferenceError:
                 continue
+            except RecursionError:
+                utils.warn_on_recursion_error()
+                continue
 
             if (
                 isinstance(value, astroid.Instance)
@@ -838,6 +844,9 @@ class BasicChecker(_BasicChecker):
                     try:
                         func = next(node.args[0].func.infer())
                     except astroid.InferenceError:
+                        return
+                    except RecursionError:
+                        utils.warn_on_recursion_error()
                         return
                     if getattr(
                         func, "name", None

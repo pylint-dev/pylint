@@ -470,6 +470,9 @@ class StringFormatChecker(BaseChecker):
             strnode = next(func.bound.infer())
         except astroid.InferenceError:
             return
+        except RecursionError:
+            utils.warn_on_recursion_error()
+            return
         if not (isinstance(strnode, nodes.Const) and isinstance(strnode.value, str)):
             return
         try:
@@ -633,6 +636,9 @@ class StringFormatChecker(BaseChecker):
                     previous = next(previous.infer())
                 except astroid.InferenceError:
                     # can't check further if we can't infer it
+                    break
+                except RecursionError:
+                    utils.warn_on_recursion_error()
                     break
 
 

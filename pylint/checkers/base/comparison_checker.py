@@ -148,7 +148,7 @@ class ComparisonChecker(_BasicChecker):
                 if isinstance(node, nodes.Call) and len(node.args) == 1:
                     if (
                         node.args[0].value.lower() == "nan"
-                        and node.inferred()[0].pytype() == "builtins.float"
+                        and utils.safe_infer(node).pytype() == "builtins.float"
                     ):
                         return True
                 return False

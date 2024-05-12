@@ -252,9 +252,12 @@ def _has_different_parameters_default_value(
         if is_same_fn is None:
             # If the default value comparison is unhandled, assume the value is different
             return True
-        if not is_same_fn(original_default, overridden_default):
-            # Two args with same type but different values
-            return True
+        try:
+            if not is_same_fn(original_default, overridden_default):
+                # Two args with same type but different values
+                return True
+        except RecursionError:
+            utils.warn_on_recursion_error()
     return False
 
 
@@ -409,6 +412,9 @@ def _has_data_descriptor(cls: nodes.ClassDef, attr: str) -> bool:
         except astroid.InferenceError:
             # Can't infer, avoid emitting a false positive in this case.
             return True
+        except RecursionError:
+            utils.warn_on_recursion_error()
+            return True
     return False
 
 
@@ -434,6 +440,9 @@ def _called_in_methods(
                 try:
                     bound = next(call.func.infer())
                 except (astroid.InferenceError, StopIteration):
+                    continue
+                except RecursionError:
+                    utils.warn_on_recursion_error()
                     continue
                 if not isinstance(bound, astroid.BoundMethod):
                     continue
@@ -466,6 +475,9 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
             inferred = next(attr.infer())
         except astroid.InferenceError:
             continue
+        except RecursionError:
+            utils.warn_on_recursion_error()
+            continue
         if isinstance(inferred, nodes.FunctionDef) and decorated_with_property(
             inferred
         ):
@@ -483,7 +495,11 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
 def _has_same_layout_slots(
     slots: list[nodes.Const | None], assigned_value: nodes.Name
 ) -> bool:
-    inferred = next(assigned_value.infer())
+    try:
+        inferred = next(assigned_value.infer())
+    except RecursionError:
+        utils.warn_on_recursion_error()
+        return False
     if isinstance(inferred, nodes.ClassDef):
         other_slots = inferred.slots()
         if all(
@@ -1278,6 +1294,9 @@ a metaclass class method.",
                         inferred = next(inferred.infer_call_result(inferred))
                     except astroid.InferenceError:
                         return
+                    except RecursionError:
+                        utils.warn_on_recursion_error()
+                        return
                 try:
                     if (
                         isinstance(inferred, (astroid.Instance, nodes.ClassDef))
@@ -1512,6 +1531,9 @@ a metaclass class method.",
                 try:
                     self._check_slots_elt(elt, node)
                 except astroid.InferenceError:
+                    continue
+                except RecursionError:
+                    utils.warn_on_recursion_error()
                     continue
             self._check_redefined_slots(node, slots, values)
 
@@ -2196,6 +2218,9 @@ a metaclass class method.",
                             )
             except astroid.InferenceError:
                 continue
+            except RecursionError:
+                utils.warn_on_recursion_error()
+                continue
         for klass, method in not_called_yet.items():
             # Check if the init of the class that defines this init has already
             # been called.
@@ -2349,5 +2374,8 @@ def _ancestors_to_call(
                 continue
             to_call[base_node] = init_node
         except astroid.InferenceError:
+            continue
+        except RecursionError:
+            utils.warn_on_recursion_error()
             continue
     return to_call
