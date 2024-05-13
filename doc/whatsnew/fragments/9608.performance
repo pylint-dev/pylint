@@ -1,4 +1,0 @@
-An internal check for ``trailing-comma-tuple`` being globally enabled or not is now
-done once per file instead of once for each token.
-
-Refs #9608.
