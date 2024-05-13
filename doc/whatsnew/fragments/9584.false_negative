@@ -1,3 +1,0 @@
-Fix false negative for ``property-with-parameters`` in the case of parameters which are ``positional-only``, ``keyword-only``, ``variadic positional`` or ``variadic keyword``.
-
-Closes #9584

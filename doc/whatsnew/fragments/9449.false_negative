@@ -1,3 +1,0 @@
-If and Try nodes are now checked for useless return statements as well.
-
-Closes #9449.
