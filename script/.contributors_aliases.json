@@ -772,6 +772,10 @@
     "mails": ["pedro@algarvio.me"],
     "name": "Pedro Algarvio"
   },
+  "perrinjerome@gmail.com": {
+    "mails": ["jerome@nexedi.com", "perrinjerome@gmail.com"],
+    "name": "Jérome Perrin"
+  },
   "peter.kolbus@gmail.com": {
     "comment": " (Garmin)",
     "mails": ["peter.kolbus@gmail.com", "peter.kolbus@garmin.com"],
