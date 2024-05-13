@@ -648,6 +648,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message("simplifiable-if-statement", node=node, args=(reduced_to,))
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
+        # Optimization flag because '_is_trailing_comma' is costly
+        trailing_comma_tuple_enabled_for_file = self.linter.is_message_enabled(
+            "trailing-comma-tuple"
+        )
         # Process tokens and look for 'if' or 'elif'
         for index, token in enumerate(tokens):
             token_string = token[1]
@@ -659,9 +663,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # token[2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
-            elif self.linter.is_message_enabled(
-                "trailing-comma-tuple"
-            ) and _is_trailing_comma(tokens, index):
+            elif trailing_comma_tuple_enabled_for_file and _is_trailing_comma(
+                tokens, index
+            ):
                 self.add_message("trailing-comma-tuple", line=token.start[0])
 
     @utils.only_required_for_messages("consider-using-with")
