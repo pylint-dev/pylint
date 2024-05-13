@@ -1,3 +1,0 @@
-Fix a false positive for ``consider-using-dict-items`` when iterating using ``keys()`` and then deleting an item using the key as a lookup.
-
-Closes #9554
