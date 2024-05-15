@@ -59,3 +59,12 @@ def test_open_pylinter_denied_modules(linter: PyLinter) -> None:
         assert MANAGER.module_denylist == {"mod1", "mod2", "mod3"}
     finally:
         MANAGER.module_denylist = set()
+
+
+def test_open_pylinter_prefer_stubs(linter: PyLinter) -> None:
+    try:
+        linter.config.prefer_stubs = True
+        linter.open()
+        assert MANAGER.prefer_stubs
+    finally:
+        MANAGER.prefer_stubs = False
