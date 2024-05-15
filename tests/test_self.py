@@ -1203,7 +1203,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         )
 
     @pytest.mark.parametrize("ignore_pattern_value", ["^\\.", "^\\..+", "^\\..*"])
-    def test_ignore_pattern_recursive_rel_path(self, ignore_pattern_value) -> None:
+    def test_ignore_pattern_recursive_rel_path(self, ignore_pattern_value: str) -> None:
         """Test that ``--ignore-patterns`` strictly only ignores files
         whose names begin with a "." when a dot is used to specify the
         current directory.
