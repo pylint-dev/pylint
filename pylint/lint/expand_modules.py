@@ -8,6 +8,7 @@ import os
 import sys
 from collections.abc import Sequence
 from re import Pattern
+from pathlib import Path
 
 from astroid import modutils
 
@@ -58,7 +59,7 @@ def _is_ignored_file(
     ignore_list_paths_re: list[Pattern[str]],
 ) -> bool:
     element = os.path.normpath(element)
-    basename = os.path.basename(element)
+    basename = Path(element).absolute().name
     return (
         basename in ignore_list
         or _is_in_ignore_list_re(basename, ignore_list_re)
