@@ -7,3 +7,5 @@ trailing-comma-tuple:34:0:None:None::Disallow trailing comma tuple:HIGH
 trailing-comma-tuple:38:0:None:None::Disallow trailing comma tuple:HIGH
 trailing-comma-tuple:41:0:None:None::Disallow trailing comma tuple:HIGH
 trailing-comma-tuple:47:0:None:None::Disallow trailing comma tuple:HIGH
+trailing-comma-tuple:54:0:None:None::Disallow trailing comma tuple:HIGH
+trailing-comma-tuple:60:0:None:None::Disallow trailing comma tuple:HIGH
