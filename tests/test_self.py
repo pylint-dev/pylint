@@ -1202,6 +1202,27 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             code=0,
         )
 
+    @pytest.mark.parametrize("ignore_pattern_value", ["^\\.", "^\\..+", "^\\..*"])
+    def test_ignore_pattern_recursive_rel_path(self, ignore_pattern_value: str) -> None:
+        """Test that ``--ignore-patterns`` strictly only ignores files
+        whose names begin with a "." when a dot is used to specify the
+        current directory.
+        """
+        expected = "module.py:1:0: W0611: Unused import os (unused-import)"
+        unexpected = ".hidden/module.py:1:0: W0611: Unused import os (unused-import)"
+
+        with _test_cwd():
+            os.chdir(join(HERE, "regrtest_data", "ignore_pattern"))
+            self._test_output(
+                [
+                    ".",
+                    "--recursive=y",
+                    f"--ignore-patterns={ignore_pattern_value}",
+                ],
+                expected_output=expected,
+                unexpected_output=unexpected,
+            )
+
     def test_ignore_pattern_from_stdin(self) -> None:
         """Test if linter ignores standard input if the filename matches the ignore pattern."""
         with mock.patch("pylint.lint.pylinter._read_stdin", return_value="import os\n"):
