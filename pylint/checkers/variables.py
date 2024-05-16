@@ -941,6 +941,12 @@ scope_type : {self._atomic.scope_type}
         if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return, nodes.Continue)):
             return True
         if (
+            isinstance(node, nodes.Expr)
+            and isinstance(node.value, nodes.Call)
+            and utils.is_terminating_func(node.value)
+        ):
+            return True
+        if (
             isinstance(node, nodes.AnnAssign)
             and node.value
             and isinstance(node.target, nodes.AssignName)
