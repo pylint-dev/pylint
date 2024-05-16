@@ -666,7 +666,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             elif trailing_comma_tuple_enabled_for_file and _is_trailing_comma(
                 tokens, index
             ):
-                self.add_message("trailing-comma-tuple", line=token.start[0])
+                self.add_message(
+                    "trailing-comma-tuple", line=token.start[0], confidence=HIGH
+                )
 
     @utils.only_required_for_messages("consider-using-with")
     def leave_module(self, _: nodes.Module) -> None:
