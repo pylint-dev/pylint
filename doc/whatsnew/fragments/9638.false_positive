@@ -1,0 +1,5 @@
+Don't emit ``typevar-name-incorrect-variance`` warnings for PEP 695 style TypeVars.
+The variance is inferred automatically by the type checker.
+Adding ``_co`` or ``_contra`` suffix can help to reason about TypeVar.
+
+Refs #9638
