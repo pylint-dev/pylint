@@ -596,45 +596,46 @@ def stripped_lines(
            the line
     :return: the collection of line/line number/line type tuples
     """
+    signature_lines: set | None = None
     if ignore_imports or ignore_signatures:
         tree = astroid.parse("".join(lines))
-    if ignore_imports:
-        import_lines = {}
-        for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom)):
-            for lineno in range(node.lineno, (node.end_lineno or node.lineno) + 1):
-                import_lines[lineno] = True
-    if ignore_signatures:
+        if ignore_imports:
+            import_lines = {}
+            for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom)):
+                for lineno in range(node.lineno, (node.end_lineno or node.lineno) + 1):
+                    import_lines[lineno] = True
+        if ignore_signatures:
 
-        def _get_functions(
-            functions: list[nodes.NodeNG], tree: nodes.NodeNG
-        ) -> list[nodes.NodeNG]:
-            """Recursively get all functions including nested in the classes from the
-            tree.
-            """
-            for node in tree.body:
-                if isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
-                    functions.append(node)
+            def _get_functions(
+                functions: list[nodes.NodeNG], tree: nodes.NodeNG
+            ) -> list[nodes.NodeNG]:
+                """Recursively get all functions including nested in the classes from the
+                tree.
+                """
+                for node in tree.body:
+                    if isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
+                        functions.append(node)
 
-                if isinstance(
-                    node,
-                    (nodes.ClassDef, nodes.FunctionDef, nodes.AsyncFunctionDef),
-                ):
-                    _get_functions(functions, node)
+                    if isinstance(
+                        node,
+                        (nodes.ClassDef, nodes.FunctionDef, nodes.AsyncFunctionDef),
+                    ):
+                        _get_functions(functions, node)
 
-            return functions
+                return functions
 
-        functions = _get_functions([], tree)
-        signature_lines = set(
-            chain(
-                *(
-                    range(
-                        func.lineno,
-                        func.body[0].lineno if func.body else func.tolineno + 1,
+            functions = _get_functions([], tree)
+            signature_lines = set(
+                chain(
+                    *(
+                        range(
+                            func.lineno,
+                            func.body[0].lineno if func.body else func.tolineno + 1,
+                        )
+                        for func in functions
                     )
-                    for func in functions
                 )
             )
-        )
 
     strippedlines = []
     docstring = None
@@ -662,7 +663,7 @@ def stripped_lines(
                 line = ""
         if ignore_comments:
             line = line.split("#", 1)[0].strip()
-        if ignore_signatures and lineno in signature_lines:
+        if signature_lines and lineno in signature_lines:
             line = ""
         if line:
             strippedlines.append(
