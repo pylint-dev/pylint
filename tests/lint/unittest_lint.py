@@ -1049,7 +1049,11 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
 
 def test_finds_pyi_file() -> None:
     run = Run(
-        ["--prefer-stubs=y", join(REGRTEST_DATA_DIR, "pyi")],
+        [
+            "--prefer-stubs=y",
+            "--clear-cache-post-run=y",
+            join(REGRTEST_DATA_DIR, "pyi"),
+        ],
         exit=False,
     )
     assert run.linter.current_file is not None
@@ -1059,10 +1063,9 @@ def test_finds_pyi_file() -> None:
 def test_recursive_finds_pyi_file() -> None:
     run = Run(
         [
-            "--recursive",
-            "y",
-            "--prefer-stubs",
-            "y",
+            "--recursive=y",
+            "--prefer-stubs=y",
+            "--clear-cache-post-run=y",
             join(REGRTEST_DATA_DIR, "pyi"),
         ],
         exit=False,
