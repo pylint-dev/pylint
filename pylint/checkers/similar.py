@@ -596,14 +596,16 @@ def stripped_lines(
            the line
     :return: the collection of line/line number/line type tuples
     """
-    signature_lines: set | None = None
+    ignore_lines = set()
     if ignore_imports or ignore_signatures:
         tree = astroid.parse("".join(lines))
         if ignore_imports:
-            import_lines = {}
-            for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom)):
-                for lineno in range(node.lineno, (node.end_lineno or node.lineno) + 1):
-                    import_lines[lineno] = True
+            ignore_lines.update(
+                chain.from_iterable(
+                    range(node.lineno, (node.end_lineno or node.lineno) + 1)
+                    for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom))
+                )
+            )
         if ignore_signatures:
 
             def _get_functions(
@@ -625,15 +627,13 @@ def stripped_lines(
                 return functions
 
             functions = _get_functions([], tree)
-            signature_lines = set(
-                chain(
-                    *(
-                        range(
-                            func.lineno,
-                            func.body[0].lineno if func.body else func.tolineno + 1,
-                        )
-                        for func in functions
+            ignore_lines.update(
+                chain.from_iterable(
+                    range(
+                        func.lineno,
+                        func.body[0].lineno if func.body else func.tolineno + 1
                     )
+                    for func in functions
                 )
             )
 
@@ -657,13 +657,9 @@ def stripped_lines(
                 if line.endswith(docstring):
                     docstring = None
                 line = ""
-        if ignore_imports:
-            current_line_is_import = import_lines.get(lineno, False)
-            if current_line_is_import:
-                line = ""
         if ignore_comments:
             line = line.split("#", 1)[0].strip()
-        if signature_lines and lineno in signature_lines:
+        if lineno in ignore_lines:
             line = ""
         if line:
             strippedlines.append(
