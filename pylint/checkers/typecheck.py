@@ -12,10 +12,10 @@ import operator
 import re
 import shlex
 import sys
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from functools import cached_property, singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Literal, Union
 
 import astroid
 import astroid.exceptions
@@ -2110,7 +2110,6 @@ accessed. Python regular expressions are accepted.",
     def visit_subscript(self, node: nodes.Subscript) -> None:
         self._check_invalid_sequence_index(node)
 
-        supported_protocol: Callable[[Any, Any], bool] | None = None
         if isinstance(node.value, (nodes.ListComp, nodes.DictComp)):
             return
 
@@ -2133,6 +2132,8 @@ accessed. Python regular expressions are accepted.",
         elif node.ctx == astroid.Context.Del:
             supported_protocol = supports_delitem
             msg = "unsupported-delete-operation"
+        else:
+            raise ValueError(node.ctx)
 
         if isinstance(node.value, nodes.SetComp):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
@@ -2155,8 +2156,7 @@ accessed. Python regular expressions are accepted.",
                 # decorators, but let's start slow.
 
         if (
-            supported_protocol
-            and not supported_protocol(inferred, node)
+            not supported_protocol(inferred, node)
             and not utils.in_type_checking_block(node)
         ):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
