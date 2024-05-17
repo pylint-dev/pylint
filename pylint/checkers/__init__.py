@@ -109,6 +109,8 @@ def table_lines_from_stats(
                 ("warning", "NC"),
                 ("error", "NC"),
             ]
+    else:
+        raise ValueError(stat_type)
 
     for index, value in enumerate(new):
         new_value = value[1]
