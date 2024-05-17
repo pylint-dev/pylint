@@ -105,6 +105,8 @@ class Primer:
             command_class = RunCommand
         elif self.config.command == "compare":
             command_class = CompareCommand
+        else:
+            raise ValueError(self.config.command)
         self.command = command_class(self.primer_directory, self.packages, self.config)
 
     def run(self) -> None:
