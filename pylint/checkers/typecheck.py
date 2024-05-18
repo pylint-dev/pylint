@@ -12,7 +12,7 @@ import operator
 import re
 import shlex
 import sys
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from functools import cached_property, singledispatch
 from re import Pattern
 from typing import TYPE_CHECKING, Literal, Union
@@ -2123,6 +2123,7 @@ accessed. Python regular expressions are accepted.",
                     confidence=INFERENCE,
                 )
 
+        supported_protocol: Callable[[nodes.NodeNG, nodes.NodeNG], bool]
         if node.ctx == astroid.Context.Load:
             supported_protocol = supports_getitem
             msg = "unsubscriptable-object"

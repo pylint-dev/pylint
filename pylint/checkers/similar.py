@@ -596,7 +596,7 @@ def stripped_lines(
            the line
     :return: the collection of line/line number/line type tuples
     """
-    ignore_lines = set()
+    ignore_lines: set[int] = set()
     if ignore_imports or ignore_signatures:
         tree = astroid.parse("".join(lines))
         if ignore_imports:
