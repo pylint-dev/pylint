@@ -981,6 +981,11 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (<unknown>, line 1)' (syntax-er
             stderr=subprocess.PIPE,
         )
 
+    def test_warnings_by_module(self) -> None:
+        path = join(HERE, "regrtest_data", "unused_variable.py")
+        expected = "errors / warnings by module"
+        self._test_output([path, "-ry"], expected_output=expected)
+
     @pytest.mark.needs_two_cores
     def test_jobs_score(self) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
