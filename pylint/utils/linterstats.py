@@ -292,7 +292,9 @@ class LinterStats:
         """Get a global message count."""
         return getattr(self, type_name, 0)
 
-    def get_module_message_count(self, modname: str, type_name: str) -> int:
+    def get_module_message_count(
+        self, modname: str, type_name: MessageTypesFullName
+    ) -> int:
         """Get a module message count."""
         return self.by_module[modname].get(type_name, 0)
 
