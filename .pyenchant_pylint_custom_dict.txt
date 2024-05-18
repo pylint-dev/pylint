@@ -336,6 +336,7 @@ testoptions
 tmp
 tokencheckers
 tokeninfo
+tokenization
 tokenize
 tokenizer
 toml
