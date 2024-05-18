@@ -51,6 +51,7 @@ def revert_stateful_config_changes(linter: PyLinter) -> Iterator[PyLinter]:
     yield linter
     # Revert any stateful configuration changes.
     MANAGER.brain["module_denylist"] = set()
+    MANAGER.brain["prefer_stubs"] = False
 
 
 @pytest.mark.usefixtures("revert_stateful_config_changes")

@@ -1049,7 +1049,7 @@ def test_by_module_statement_value(initialized_linter: PyLinter) -> None:
 
 def test_finds_pyi_file() -> None:
     run = Run(
-        [join(REGRTEST_DATA_DIR, "pyi")],
+        ["--prefer-stubs=y", join(REGRTEST_DATA_DIR, "pyi")],
         exit=False,
     )
     assert run.linter.current_file is not None
@@ -1061,12 +1061,28 @@ def test_recursive_finds_pyi_file() -> None:
         [
             "--recursive",
             "y",
+            "--prefer-stubs",
+            "y",
             join(REGRTEST_DATA_DIR, "pyi"),
         ],
         exit=False,
     )
     assert run.linter.current_file is not None
     assert run.linter.current_file.endswith("foo.pyi")
+
+
+def test_no_false_positive_from_pyi_stub() -> None:
+    run = Run(
+        [
+            "--recursive",
+            "y",
+            "--prefer-stubs",
+            "n",
+            join(REGRTEST_DATA_DIR, "uses_module_with_stub.py"),
+        ],
+        exit=False,
+    )
+    assert not run.linter.stats.by_msg
 
 
 @pytest.mark.parametrize(
