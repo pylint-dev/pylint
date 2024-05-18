@@ -603,6 +603,7 @@ class TestCheckParallel:
                     files=file_infos,
                 )
                 stats_check_parallel = linter.stats
+        # pylint: disable=possibly-used-before-assignment
         assert str(stats_single_proc.by_msg) == str(
             stats_check_parallel.by_msg
         ), "Single-proc and check_parallel() should return the same thing"

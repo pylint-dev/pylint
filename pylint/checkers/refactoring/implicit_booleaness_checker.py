@@ -222,6 +222,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     error_detected = True
                     op = op_1
                 if error_detected:
+                    # pylint: disable=possibly-used-before-assignment
                     original = f"{op_1.as_string()} {op_2} {op_3.as_string()}"
                     suggestion = (
                         op.as_string()
