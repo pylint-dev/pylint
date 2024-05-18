@@ -1081,11 +1081,11 @@ def test_no_false_positive_from_pyi_stub() -> None:
             "y",
             "--prefer-stubs",
             "n",
-            join(REGRTEST_DATA_DIR, "pyi"),
+            join(REGRTEST_DATA_DIR, "uses_module_with_stub.py"),
         ],
         exit=False,
     )
-    assert run._output is None
+    assert not run.linter.stats.by_msg
 
 
 @pytest.mark.parametrize(
