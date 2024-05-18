@@ -1,0 +1,4 @@
+``trailing-comma-tuple`` should now be correctly emitted when it was disabled globally
+but enabled via local message control, after removal of an over-optimisation.
+
+Refs #9608.
