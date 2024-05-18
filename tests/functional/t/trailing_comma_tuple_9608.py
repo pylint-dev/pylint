@@ -13,7 +13,7 @@ def some_func(first, second):
         return (first, second,)
     return first, second,
 
-# pylint: enable=trailing-comma-tuple
+#pylint:enable = trailing-comma-tuple
 AAA = 1,  # [trailing-comma-tuple]
 BBB = "aaaa", # [trailing-comma-tuple]
 # pylint: disable=trailing-comma-tuple

@@ -660,8 +660,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 not trailing_comma_tuple_enabled_once
                 and token_string.startswith("#")
                 # We have at least 1 '#' (one char) at the start of the token
-                and all(c in token_string[1:] for c in ("pylint:", "enable="))
-                # We have at least '#' 'pylint'  / 'enable' (15 chars) at the start of the token
+                and "pylint:" in token_string[1:]
+                # We have at least '#' 'pylint' ( + ':') (8 chars) at the start of the token
+                and "enable" in token_string[8:]
+                # We have at least '#', 'pylint', ( + ':'), 'enable' (+ '=') (15 chars) at
+                # the start of the token
                 and any(
                     c in token_string[15:] for c in ("trailing-comma-tuple", "R1707")
                 )
