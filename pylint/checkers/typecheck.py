@@ -2135,6 +2135,7 @@ accessed. Python regular expressions are accepted.",
             msg = "unsupported-delete-operation"
 
         if isinstance(node.value, nodes.SetComp):
+            # pylint: disable-next=possibly-used-before-assignment
             self.add_message(msg, args=node.value.as_string(), node=node.value)
             return
 
