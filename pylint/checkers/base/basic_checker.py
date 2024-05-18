@@ -446,7 +446,9 @@ class BasicChecker(_BasicChecker):
                     if (
                         sibling is not None
                         and sibling.scope() is scope
-                        and isinstance(sibling, (nodes.Assign, nodes.AnnAssign))
+                        and isinstance(
+                            sibling, (nodes.Assign, nodes.AnnAssign, nodes.TypeAlias)
+                        )
                     ):
                         return
             self.add_message("pointless-string-statement", node=node)
@@ -478,7 +480,10 @@ class BasicChecker(_BasicChecker):
         # side effects), else pointless-statement
         if (
             isinstance(expr, (nodes.Yield, nodes.Await))
-            or (isinstance(node.parent, nodes.Try) and node.parent.body == [node])
+            or (
+                isinstance(node.parent, (nodes.Try, nodes.TryStar))
+                and node.parent.body == [node]
+            )
             or (isinstance(expr, nodes.Const) and expr.value is Ellipsis)
         ):
             return
@@ -519,7 +524,6 @@ class BasicChecker(_BasicChecker):
         )
 
     @utils.only_required_for_messages("unnecessary-lambda")
-    # pylint: disable-next=too-many-return-statements
     def visit_lambda(self, node: nodes.Lambda) -> None:
         """Check whether the lambda is suspicious."""
         # if the body of the lambda is a call expression with the same
@@ -544,28 +548,19 @@ class BasicChecker(_BasicChecker):
             # return something else (but we don't check that, yet).
             return
 
-        call_site = astroid.arguments.CallSite.from_call(call)
         ordinary_args = list(node.args.args)
         new_call_args = list(self._filter_vararg(node, call.args))
         if node.args.kwarg:
-            if self._has_variadic_argument(call.kwargs, node.args.kwarg):
+            if self._has_variadic_argument(call.keywords, node.args.kwarg):
                 return
+        elif call.keywords:
+            return
 
         if node.args.vararg:
             if self._has_variadic_argument(call.starargs, node.args.vararg):
                 return
         elif call.starargs:
             return
-
-        if call.keywords:
-            # Look for additional keyword arguments that are not part
-            # of the lambda's signature
-            lambda_kwargs = {keyword.name for keyword in node.args.defaults}
-            if len(lambda_kwargs) != len(call_site.keyword_arguments):
-                # Different lengths, so probably not identical
-                return
-            if set(call_site.keyword_arguments).difference(lambda_kwargs):
-                return
 
         # The "ordinary" arguments must be in a correspondence such that:
         # ordinary_args[i].name == call.args[i].name.

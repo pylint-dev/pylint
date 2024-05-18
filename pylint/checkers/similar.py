@@ -41,10 +41,9 @@ from collections import defaultdict
 from collections.abc import Callable, Generator, Iterable, Sequence
 from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
-from itertools import chain, groupby
+from itertools import chain
 from typing import (
     TYPE_CHECKING,
-    Any,
     Dict,
     List,
     NamedTuple,
@@ -136,7 +135,7 @@ class LinesChunk:
         self._hash: int = sum(hash(lin) for lin in lines)
         """The hash of some consecutive lines."""
 
-    def __eq__(self, o: Any) -> bool:
+    def __eq__(self, o: object) -> bool:
         if not isinstance(o, LinesChunk):
             return NotImplemented
         return self._hash == o._hash
@@ -195,7 +194,7 @@ class LineSetStartCouple(NamedTuple):
             f"<LineSetStartCouple <{self.fst_lineset_index};{self.snd_lineset_index}>>"
         )
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, LineSetStartCouple):
             return NotImplemented
         return (
@@ -393,9 +392,11 @@ class Similar:
                 self.namespace.ignore_docstrings,
                 self.namespace.ignore_imports,
                 self.namespace.ignore_signatures,
-                line_enabled_callback=self.linter._is_one_message_enabled
-                if hasattr(self, "linter")
-                else None,
+                line_enabled_callback=(
+                    self.linter._is_one_message_enabled
+                    if hasattr(self, "linter")
+                    else None
+                ),
             )
         )
 
@@ -519,12 +520,12 @@ class Similar:
             ):
                 index_1 = indices_in_linesets[0]
                 index_2 = indices_in_linesets[1]
-                all_couples[
-                    LineSetStartCouple(index_1, index_2)
-                ] = CplSuccessiveLinesLimits(
-                    copy.copy(index_to_lines_1[index_1]),
-                    copy.copy(index_to_lines_2[index_2]),
-                    effective_cmn_lines_nb=self.namespace.min_similarity_lines,
+                all_couples[LineSetStartCouple(index_1, index_2)] = (
+                    CplSuccessiveLinesLimits(
+                        copy.copy(index_to_lines_1[index_1]),
+                        copy.copy(index_to_lines_2[index_2]),
+                        effective_cmn_lines_nb=self.namespace.min_similarity_lines,
+                    )
                 )
 
         remove_successive(all_couples)
@@ -598,17 +599,10 @@ def stripped_lines(
     if ignore_imports or ignore_signatures:
         tree = astroid.parse("".join(lines))
     if ignore_imports:
-        node_is_import_by_lineno = (
-            (node.lineno, isinstance(node, (nodes.Import, nodes.ImportFrom)))
-            for node in tree.body
-        )
-        line_begins_import = {
-            lineno: all(is_import for _, is_import in node_is_import_group)
-            for lineno, node_is_import_group in groupby(
-                node_is_import_by_lineno, key=lambda x: x[0]
-            )
-        }
-        current_line_is_import = False
+        import_lines = {}
+        for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom)):
+            for lineno in range(node.lineno, (node.end_lineno or node.lineno) + 1):
+                import_lines[lineno] = True
     if ignore_signatures:
 
         def _get_functions(
@@ -617,7 +611,6 @@ def stripped_lines(
             """Recursively get all functions including nested in the classes from the
             tree.
             """
-
             for node in tree.body:
                 if isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
                     functions.append(node)
@@ -653,10 +646,10 @@ def stripped_lines(
         line = line.strip()
         if ignore_docstrings:
             if not docstring:
-                if line.startswith('"""') or line.startswith("'''"):
+                if line.startswith(('"""', "'''")):
                     docstring = line[:3]
                     line = line[3:]
-                elif line.startswith('r"""') or line.startswith("r'''"):
+                elif line.startswith(('r"""', "r'''")):
                     docstring = line[1:4]
                     line = line[4:]
             if docstring:
@@ -664,9 +657,7 @@ def stripped_lines(
                     docstring = None
                 line = ""
         if ignore_imports:
-            current_line_is_import = line_begins_import.get(
-                lineno, current_line_is_import
-            )
+            current_line_is_import = import_lines.get(lineno, False)
             if current_line_is_import:
                 line = ""
         if ignore_comments:
@@ -724,7 +715,7 @@ class LineSet:
     def __hash__(self) -> int:
         return id(self)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, LineSet):
             return False
         return self.__dict__ == other.__dict__
@@ -848,7 +839,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         stream must implement the readlines method
         """
         if self.linter.current_name is None:
-            # TODO: 3.0 Fix current_name
+            # TODO: 4.0 Fix current_name
             warnings.warn(
                 (
                     "In pylint 3.0 the current_name attribute of the linter object should be a string. "

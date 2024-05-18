@@ -95,7 +95,11 @@ command line using the ``--rcfile`` option.  Otherwise, Pylint searches for a
 configuration file in the following order and uses the first one it finds:
 
 #. ``pylintrc`` in the current working directory
+#. ``pylintrc.toml`` in the current working directory,
+   providing it has at least one ``tool.pylint.`` section.
 #. ``.pylintrc`` in the current working directory
+#. ``.pylintrc.toml`` in the current working directory,
+   providing it has at least one ``tool.pylint.`` section.
 #. ``pyproject.toml`` in the current working directory,
    providing it has at least one ``tool.pylint.`` section.
    The ``pyproject.toml`` must prepend section names with ``tool.pylint.``,

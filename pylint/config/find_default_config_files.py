@@ -15,7 +15,12 @@ if sys.version_info >= (3, 11):
 else:
     import tomli as tomllib
 
-RC_NAMES = (Path("pylintrc"), Path(".pylintrc"))
+RC_NAMES = (
+    Path("pylintrc"),
+    Path("pylintrc.toml"),
+    Path(".pylintrc"),
+    Path(".pylintrc.toml"),
+)
 PYPROJECT_NAME = Path("pyproject.toml")
 CONFIG_NAMES = (*RC_NAMES, PYPROJECT_NAME, Path("setup.cfg"))
 

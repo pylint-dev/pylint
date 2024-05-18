@@ -20,7 +20,6 @@ class DunderChecker(BaseChecker):
     """Checks related to dunder methods."""
 
     name = "dunder"
-    priority = -1
     msgs = {
         "W3201": (
             "Bad or misspelled dunder method name %s.",

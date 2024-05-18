@@ -126,6 +126,7 @@ class CamelCasedWord(RegExFilter):
 
     That is, any words that are camelCasedWords.
     """
+
     _pattern = re.compile(r"^([a-z]+(\d|[A-Z])(?:\w+)?)")
 
 
@@ -137,6 +138,7 @@ class SphinxDirectives(RegExFilter):
 
     That is, for example, :class:`BaseQuery`
     """
+
     # The final ` in the pattern is optional because enchant strips it out
     _pattern = re.compile(r"^(:([a-z]+)){1,2}:`([^`]+)(`)?")
 
@@ -453,10 +455,9 @@ class SpellingChecker(BaseTokenChecker):
 
     def _check_docstring(
         self,
-        node: nodes.FunctionDef
-        | nodes.AsyncFunctionDef
-        | nodes.ClassDef
-        | nodes.Module,
+        node: (
+            nodes.FunctionDef | nodes.AsyncFunctionDef | nodes.ClassDef | nodes.Module
+        ),
     ) -> None:
         """Check if the node has any spelling errors."""
         if not self.initialized:

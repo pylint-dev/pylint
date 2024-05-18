@@ -30,10 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.1.0
+        uses: actions/checkout@v4.1.5
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v4.7.1
+        uses: actions/setup-python@v5.1.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -41,10 +41,9 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.3.2
+        uses: actions/cache@v4.0.2
         with:
           path: venv
-          fail-on-cache-miss: true
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
@@ -52,7 +51,7 @@ jobs:
             'requirements_test_pre_commit.txt') }}
 
       - name: Download outputs
-        uses: actions/github-script@v6.4.1
+        uses: actions/github-script@v7.0.1
         with:
           script: |
             // Download workflow pylint output
@@ -63,52 +62,44 @@ jobs:
                run_id: ${{ github.event.workflow_run.id }},
             });
 
-            // Get 'main' output
-            const [matchArtifactWorkflowMain] = artifacts_workflow.data.artifacts.filter((artifact) =>
-              artifact.name == "primer_output_main");
-            const downloadOne = await github.rest.actions.downloadArtifact({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               artifact_id: matchArtifactWorkflowMain.id,
-               archive_format: "zip",
-            });
-            fs.writeFileSync("primer_main_output.zip", Buffer.from(downloadOne.data));
+            // Get 'main' and 'PR' outputs and PR number
+            const artifacts = artifacts_workflow.data.artifacts.filter((artifact) =>
+              artifact.name.startsWith(`primer_output_main_${process.env.DEFAULT_PYTHON}`)
+              || artifact.name.startsWith(`primer_output_pr_${process.env.DEFAULT_PYTHON}`)
+              || artifact.name === 'pr_number'
+            );
+            for (const artifact of artifacts) {
+              const downloaded = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+                archive_format: "zip",
+              });
+              fs.writeFileSync(`${artifact.name}.zip`, Buffer.from(downloaded.data));
+            }
 
-            // Get PR output
-            const [matchArtifactWorkflowPR] = artifacts_workflow.data.artifacts.filter((artifact) =>
-              artifact.name == "primer_output_pr");
-            const downloadTwo = await github.rest.actions.downloadArtifact({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               artifact_id: matchArtifactWorkflowPR.id,
-               archive_format: "zip",
-            });
-            fs.writeFileSync("primer_pr_output.zip", Buffer.from(downloadTwo.data));
-
-            // Get PR number
-            const [matchArtifactWorkflowNumber] = artifacts_workflow.data.artifacts.filter((artifact) =>
-              artifact.name == "pr_number");
-            const downloadThree = await github.rest.actions.downloadArtifact({
-               owner: context.repo.owner,
-               repo: context.repo.repo,
-               artifact_id: matchArtifactWorkflowNumber.id,
-               archive_format: "zip",
-            });
-            fs.writeFileSync("primer_pr_number.zip", Buffer.from(downloadThree.data));
-      - run: unzip primer_main_output.zip
-      - run: unzip primer_pr_output.zip
-      - run: unzip primer_pr_number.zip
+      - name: Unzip outputs
+        run: |
+          unzip primer_output_main_${{ env.DEFAULT_PYTHON }}_batch0.zip
+          unzip primer_output_main_${{ env.DEFAULT_PYTHON }}_batch1.zip
+          unzip primer_output_main_${{ env.DEFAULT_PYTHON }}_batch2.zip
+          unzip primer_output_main_${{ env.DEFAULT_PYTHON }}_batch3.zip
+          unzip primer_output_pr_${{ env.DEFAULT_PYTHON }}_batch0.zip
+          unzip primer_output_pr_${{ env.DEFAULT_PYTHON }}_batch1.zip
+          unzip primer_output_pr_${{ env.DEFAULT_PYTHON }}_batch2.zip
+          unzip primer_output_pr_${{ env.DEFAULT_PYTHON }}_batch3.zip
+          unzip pr_number.zip
       - name: Compare outputs
         run: |
           . venv/bin/activate
           python tests/primer/__main__.py compare \
           --commit=${{ github.event.workflow_run.head_sha }} \
-          --base-file=output_${{ steps.python.outputs.python-version }}_main_BATCHIDX.txt \
-          --new-file=output_${{ steps.python.outputs.python-version }}_pr_BATCHIDX.txt \
+          --base-file=output_${{ env.DEFAULT_PYTHON }}_main_BATCHIDX.txt \
+          --new-file=output_${{ env.DEFAULT_PYTHON }}_pr_BATCHIDX.txt \
           --batches=4
       - name: Post comment
         id: post-comment
-        uses: actions/github-script@v6.4.1
+        uses: actions/github-script@v7.0.1
         with:
           script: |
             const fs = require('fs')

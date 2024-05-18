@@ -186,9 +186,7 @@ with pool:
     pass
 
 
-global_pool = (
-    multiprocessing.Pool()
-)  # must not trigger, will be used in nested scope
+global_pool = multiprocessing.Pool()  # must not trigger, will be used in nested scope
 
 
 def my_nested_function():

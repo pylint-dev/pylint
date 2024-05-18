@@ -39,6 +39,22 @@ item_set = {1, 2, 3}
 for item in item_set:
     item_set.add(item + 10)  # [modified-iterating-set]
 
+item_set = {1, 2, 3}
+for item in item_set:
+    item_set.clear()  # [modified-iterating-set]
+
+item_set = {1, 2, 3}
+for item in item_set:
+    item_set.discard(1)  # [modified-iterating-set]
+
+item_set = {1, 2, 3}
+for item in item_set:
+    item_set.pop()  # [modified-iterating-set]
+
+item_set = {1, 2, 3}
+for item in item_set:
+    item_set.remove()  # [modified-iterating-set]
+
 for item in item_set.copy():
     item_set.add(item + 10)
 

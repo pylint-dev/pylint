@@ -49,10 +49,11 @@ ignore = ["CVS"]
 # file locks
 ignore-patterns = ["^\\.#"]
 
-# List of module names for which member attributes should not be checked (useful
-# for modules/projects where namespaces are manipulated during runtime and thus
-# existing member attributes cannot be deduced by static analysis). It supports
-# qualified module names, as well as Unix pattern matching.
+# List of module names for which member attributes should not be checked and will
+# not be imported (useful for modules/projects where namespaces are manipulated
+# during runtime and thus existing member attributes cannot be deduced by static
+# analysis). It supports qualified module names, as well as Unix pattern
+# matching.
 # ignored-modules =
 
 # Python code to execute, usually for sys.path manipulation such as
@@ -75,6 +76,10 @@ limit-inference-results = 100
 
 # Pickle collected data for later comparisons.
 persistent = true
+
+# Resolve imports to .pyi stubs if available. May reduce no-member messages
+# and increase not-an-iterable messages.
+prefer-stubs = false
 
 # Minimum Python version to use for version dependent checks. Will default to the
 # version used to run pylint.
@@ -393,6 +398,10 @@ max-nested-blocks = 5
 # return-statements if a never returning function is called then it will be
 # considered as an explicit return statement and no message will be printed.
 never-returning-functions = ["sys.exit", "argparse.parse_error"]
+
+# Let 'consider-using-join' be raised when the separator to join on would be non-
+# empty (resulting in expected fixes of the type: ``"- " + " - ".join(items)``)
+suggest-join-with-non-empty-separator = true
 
 [tool.pylint.reports]
 # Python expression which should return a score less than or equal to 10. You

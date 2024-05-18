@@ -400,9 +400,19 @@ def test_if_sys_guard() -> None:
 
     if sys.some_other_function > (3, 8):  #@
         pass
+
+    import six
+    if six.PY2:  #@
+        pass
+
+    if six.PY3:  #@
+        pass
+
+    if six.something_else:  #@
+        pass
     """
     )
-    assert isinstance(code, list) and len(code) == 3
+    assert isinstance(code, list) and len(code) == 6
 
     assert isinstance(code[0], nodes.If)
     assert utils.is_sys_guard(code[0]) is True
@@ -411,6 +421,14 @@ def test_if_sys_guard() -> None:
 
     assert isinstance(code[2], nodes.If)
     assert utils.is_sys_guard(code[2]) is False
+
+    assert isinstance(code[3], nodes.If)
+    assert utils.is_sys_guard(code[3]) is True
+    assert isinstance(code[4], nodes.If)
+    assert utils.is_sys_guard(code[4]) is True
+
+    assert isinstance(code[5], nodes.If)
+    assert utils.is_sys_guard(code[5]) is False
 
 
 def test_if_typing_guard() -> None:

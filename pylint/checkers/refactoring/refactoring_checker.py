@@ -483,6 +483,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             "value by index lookup. "
             "The value can be accessed directly instead.",
         ),
+        "R1737": (
+            "Use 'yield from' directly instead of yielding each element one by one",
+            "use-yield-from",
+            "Yielding directly from the iterator is faster and arguably cleaner code than yielding each element "
+            "one by one in the loop.",
+        ),
     }
     options = (
         (
@@ -580,7 +586,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         the result of the statement's test, then this can be reduced
         to `bool(test)` without losing any functionality.
         """
-
         if self._is_actual_elif(node):
             # Not interested in if statements with multiple branches.
             return
@@ -643,6 +648,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message("simplifiable-if-statement", node=node, args=(reduced_to,))
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
+        # Optimization flag because '_is_trailing_comma' is costly
+        trailing_comma_tuple_enabled_for_file = self.linter.is_message_enabled(
+            "trailing-comma-tuple"
+        )
         # Process tokens and look for 'if' or 'elif'
         for index, token in enumerate(tokens):
             token_string = token[1]
@@ -654,9 +663,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # token[2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
-            elif self.linter.is_message_enabled(
-                "trailing-comma-tuple"
-            ) and _is_trailing_comma(tokens, index):
+            elif trailing_comma_tuple_enabled_for_file and _is_trailing_comma(
+                tokens, index
+            ):
                 self.add_message("trailing-comma-tuple", line=token.start[0])
 
     @utils.only_required_for_messages("consider-using-with")
@@ -865,15 +874,31 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_get(node)
         self._check_consider_using_min_max_builtin(node)
 
-    # pylint: disable = too-many-branches
     def _check_consider_using_min_max_builtin(self, node: nodes.If) -> None:
         """Check if the given if node can be refactored as a min/max python builtin."""
+        # This function is written expecting a test condition of form:
+        #  if a < b: # [consider-using-max-builtin]
+        #    a = b
+        #  if a > b: # [consider-using-min-builtin]
+        #    a = b
         if self._is_actual_elif(node) or node.orelse:
             # Not interested in if statements with multiple branches.
             return
 
         if len(node.body) != 1:
             return
+
+        def get_node_name(node: nodes.NodeNG) -> str:
+            """Obtain simplest representation of a node as a string."""
+            if isinstance(node, nodes.Name):
+                return node.name  # type: ignore[no-any-return]
+            if isinstance(node, nodes.Attribute):
+                return node.attrname  # type: ignore[no-any-return]
+            if isinstance(node, nodes.Const):
+                return str(node.value)
+            # this is a catch-all for nodes that are not of type Name or Attribute
+            # extremely helpful for Call or BinOp
+            return node.as_string()  # type: ignore[no-any-return]
 
         body = node.body[0]
         # Check if condition can be reduced.
@@ -888,14 +913,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(body, nodes.Assign)
         ):
             return
-
-        # Check that the assignation is on the same variable.
-        if hasattr(node.test.left, "name"):
-            left_operand = node.test.left.name
-        elif hasattr(node.test.left, "attrname"):
-            left_operand = node.test.left.attrname
-        else:
-            return
+        # Assign body line has one requirement and that is the assign target
+        # is of type name or attribute. Attribute referring to NamedTuple.x perse.
+        # So we have to check that target is of these types
 
         if hasattr(target, "name"):
             target_assignation = target.name
@@ -904,30 +924,24 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
 
-        if not (left_operand == target_assignation):
-            return
-
         if len(node.test.ops) > 1:
             return
-
-        if not isinstance(body.value, (nodes.Name, nodes.Const)):
-            return
-
         operator, right_statement = node.test.ops[0]
-        if isinstance(body.value, nodes.Name):
-            body_value = body.value.name
-        else:
-            body_value = body.value.value
 
-        if isinstance(right_statement, nodes.Name):
-            right_statement_value = right_statement.name
-        elif isinstance(right_statement, nodes.Const):
-            right_statement_value = right_statement.value
+        body_value = get_node_name(body.value)
+        left_operand = get_node_name(node.test.left)
+        right_statement_value = get_node_name(right_statement)
+
+        if left_operand == target_assignation:
+            # statement is in expected form
+            pass
+        elif right_statement_value == target_assignation:
+            # statement is in reverse form
+            operator = utils.get_inverse_comparator(operator)
         else:
             return
 
-        # Verify the right part of the statement is the same.
-        if right_statement_value != body_value:
+        if body_value not in (right_statement_value, left_operand):
             return
 
         if operator in {"<", "<="}:
@@ -1122,6 +1136,27 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_using_with(node)
         self._check_use_list_literal(node)
         self._check_use_dict_literal(node)
+
+    @utils.only_required_for_messages("use-yield-from")
+    def visit_yield(self, node: nodes.Yield) -> None:
+        if not isinstance(node.value, nodes.Name):
+            return
+
+        parent = node.parent.parent
+        if (
+            not isinstance(parent, nodes.For)
+            or isinstance(parent, nodes.AsyncFor)
+            or len(parent.body) != 1
+        ):
+            return
+
+        if parent.target.name != node.value.name:
+            return
+
+        if isinstance(node.frame(), nodes.AsyncFunctionDef):
+            return
+
+        self.add_message("use-yield-from", node=parent, confidence=HIGH)
 
     @staticmethod
     def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
@@ -1389,10 +1424,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                             uses[value]["lower_bound"].add(comparison_node)
                 left_operand = right_operand
 
-        uses: collections.defaultdict[
-            str, dict[str, set[nodes.Compare]]
-        ] = collections.defaultdict(
-            lambda: {"lower_bound": set(), "upper_bound": set()}
+        uses: collections.defaultdict[str, dict[str, set[nodes.Compare]]] = (
+            collections.defaultdict(
+                lambda: {"lower_bound": set(), "upper_bound": set()}
+            )
         )
         for comparison_node in node.values:
             if isinstance(comparison_node, nodes.Compare):
@@ -1443,9 +1478,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """
         children = list(bool_op.get_children())
         intermediate = [
-            self._simplify_boolean_operation(child)
-            if isinstance(child, nodes.BoolOp)
-            else child
+            (
+                self._simplify_boolean_operation(child)
+                if isinstance(child, nodes.BoolOp)
+                else child
+            )
             for child in children
         ]
         result = self._apply_boolean_simplification_rules(bool_op.op, intermediate)
@@ -1801,15 +1838,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if isinstance(node.parent, nodes.DictComp) and isinstance(
                 inferred, astroid.objects.DictItems
             ):
-                args = (f"{node.iter.func.expr.as_string()}",)
-            elif (
-                isinstance(node.parent, nodes.ListComp)
-                and isinstance(inferred, nodes.List)
-            ) or (
-                isinstance(node.parent, nodes.SetComp)
-                and isinstance(inferred, nodes.Set)
+                args = (f"dict({node.iter.func.expr.as_string()})",)
+            elif isinstance(node.parent, nodes.ListComp) and isinstance(
+                inferred, nodes.List
             ):
-                args = (f"{node.iter.as_string()}",)
+                args = (f"list({node.iter.as_string()})",)
+            elif isinstance(node.parent, nodes.SetComp) and isinstance(
+                inferred, nodes.Set
+            ):
+                args = (f"set({node.iter.as_string()})",)
             if args:
                 self.add_message(
                     "unnecessary-comprehension", node=node.parent, args=args
@@ -2044,12 +2081,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Per its implementation and PEP8 we can have a "return None" at the end
         of the function body if there are other return statements before that!
         """
-        if len(self._return_nodes[node.name]) > 1:
+        if len(self._return_nodes[node.name]) != 1:
             return
-        if len(node.body) <= 1:
+        if not node.body:
             return
 
         last = node.body[-1]
+        if isinstance(last, nodes.Return) and len(node.body) == 1:
+            return
+
+        while isinstance(last, (nodes.If, nodes.Try, nodes.ExceptHandler)):
+            last = last.last_child()
+
         if isinstance(last, nodes.Return):
             # e.g. "return"
             if last.value is None:

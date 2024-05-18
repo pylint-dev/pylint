@@ -65,6 +65,132 @@ easier to parse and provides more info, here's a sample output.
 
 .. towncrier release notes start
 
+What's new in Pylint 3.0.4?
+---------------------------
+Release date: 2024-02-23
+
+
+False Positives Fixed
+---------------------
+
+- ``used-before-assignment`` is no longer emitted when using a name in a loop and
+  depending on an earlier name assignment in an ``except`` block paired with
+  ``else: continue``.
+
+  Closes #6804 (`#6804 <https://github.com/pylint-dev/pylint/issues/6804>`_)
+
+- Avoid false positives for ``no-member`` involving function
+  attributes supplied by decorators.
+
+  Closes #9246 (`#9246 <https://github.com/pylint-dev/pylint/issues/9246>`_)
+
+- Fixed false positive nested-min-max for nested lists.
+
+  Closes #9307 (`#9307 <https://github.com/pylint-dev/pylint/issues/9307>`_)
+
+- Fix false positive for ``used-before-assignment`` in a ``finally`` block
+  when assignments took place in both the ``try`` block and each exception handler.
+
+  Closes #9451 (`#9451 <https://github.com/pylint-dev/pylint/issues/9451>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Catch incorrect ValueError ``"generator already executing"`` for Python 3.12.0 - 3.12.2.
+  This is fixed upstream in Python 3.12.3.
+
+  Closes #9138 (`#9138 <https://github.com/pylint-dev/pylint/issues/9138>`_)
+
+
+
+What's new in Pylint 3.0.3?
+---------------------------
+Release date: 2023-12-11
+
+
+False Positives Fixed
+---------------------
+
+- Fixed false positive for ``unnecessary-lambda`` when the call has keyword arguments but not the lambda.
+
+  Closes #9148 (`#9148 <https://github.com/pylint-dev/pylint/issues/9148>`_)
+
+- Fixed incorrect suggestion for shallow copy in unnecessary-comprehension
+
+  Example of the suggestion:
+  #pylint: disable=missing-module-docstring
+  a = [1, 2, 3]
+  b = [x for x in a]
+  b[0] = 0
+  print(a) # [1, 2, 3]
+
+  After changing b = [x for x in a] to b = a based on the suggestion, the script now prints [0, 2, 3]. The correct suggestion should be use list(a) to preserve the original behavior.
+
+  Closes #9172 (`#9172 <https://github.com/pylint-dev/pylint/issues/9172>`_)
+
+- Fix false positives for ``undefined-variable`` and ``unused-argument`` for
+  classes and functions using Python 3.12 generic type syntax.
+
+  Closes #9193 (`#9193 <https://github.com/pylint-dev/pylint/issues/9193>`_)
+
+- Fixed ``pointless-string-statement`` false positive for docstrings
+  on Python 3.12 type aliases.
+
+  Closes #9268 (`#9268 <https://github.com/pylint-dev/pylint/issues/9268>`_)
+
+- Fix false positive for ``invalid-exception-operation`` when concatenating tuples
+  of exception types.
+
+  Closes #9288 (`#9288 <https://github.com/pylint-dev/pylint/issues/9288>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix a bug where pylint was unable to walk recursively through a directory if the
+  directory has an `__init__.py` file.
+
+  Closes #9210 (`#9210 <https://github.com/pylint-dev/pylint/issues/9210>`_)
+
+
+
+What's new in Pylint 3.0.2?
+---------------------------
+Release date: 2023-10-22
+
+
+False Positives Fixed
+---------------------
+
+- Fix ``used-before-assignment`` false positive for generic type syntax (PEP 695, Python 3.12).
+
+  Closes #9110 (`#9110 <https://github.com/pylint-dev/pylint/issues/9110>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Escape special symbols and newlines in messages.
+
+  Closes #7874 (`#7874 <https://github.com/pylint-dev/pylint/issues/7874>`_)
+
+- Fixes suggestion for ``nested-min-max`` for expressions with additive operators, list and dict comprehensions.
+
+  Closes #8524 (`#8524 <https://github.com/pylint-dev/pylint/issues/8524>`_)
+
+- Fixes ignoring conditional imports with ``ignore-imports=y``.
+
+  Closes #8914 (`#8914 <https://github.com/pylint-dev/pylint/issues/8914>`_)
+
+- Emit ``inconsistent-quotes`` for f-strings with 3.12 interpreter only if targeting pre-3.12 versions.
+
+  Closes #9113 (`#9113 <https://github.com/pylint-dev/pylint/issues/9113>`_)
+
+
 What's new in Pylint 3.0.1?
 ---------------------------
 Release date: 2023-10-05

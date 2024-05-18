@@ -35,10 +35,10 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.1.0
+        uses: actions/checkout@v4.1.5
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.7.1
+        uses: actions/setup-python@v5.1.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -51,7 +51,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.3.2
+        uses: actions/cache@v4.0.2
         with:
           path: venv
           key: >-
@@ -75,16 +75,16 @@ jobs:
         python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.1.0
+        uses: actions/checkout@v4.1.5
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v4.7.1
+        uses: actions/setup-python@v5.1.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v3.3.2
+        uses: actions/cache@v4.0.2
         with:
           path: venv
           fail-on-cache-miss: true

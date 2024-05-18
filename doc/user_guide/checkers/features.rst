@@ -166,6 +166,9 @@ Basic checker Messages
   This is a particular case of W0104 with its own message so you can easily
   disable it if you're using those strings as documentation, instead of
   comments.
+:contextmanager-generator-missing-cleanup (W0135): *The context used in function %r will not be exited.*
+  Used when a contextmanager is used inside a generator function and the
+  cleanup is not handled.
 :unnecessary-pass (W0107): *Unnecessary pass statement*
   Used when a "pass" statement can be removed without affecting the behaviour
   of the code.
@@ -431,6 +434,10 @@ Design checker Messages
   simpler (and so easier to use) class.
 :too-many-locals (R0914): *Too many local variables (%s/%s)*
   Used when a function or method has too many local variables.
+:too-many-positional (R0917): *Too many positional arguments in a function call.*
+  Will be implemented in https://github.com/pylint-
+  dev/pylint/issues/9099,msgid/symbol pair reserved for compatibility with
+  ruff, see https://github.com/astral-sh/ruff/issues/8946.
 :too-many-public-methods (R0904): *Too many public methods (%s/%s)*
   Used when class has too many public methods, try to reduce this to get a
   simpler (and so easier to use) class.
@@ -902,6 +909,9 @@ Refactoring checker Messages
 :unnecessary-comprehension (R1721): *Unnecessary use of a comprehension, use %s instead.*
   Instead of using an identity comprehension, consider using the list, dict or
   set constructor. It is faster and simpler.
+:use-yield-from (R1737): *Use 'yield from' directly instead of yielding each element one by one*
+  Yielding directly from the iterator is faster and arguably cleaner code than
+  yielding each element one by one in the loop.
 :use-a-generator (R1729): *Use a generator instead '%s(%s)'*
   Comprehension inside of 'any', 'all', 'max', 'min' or 'sum' is unnecessary. A
   generator would be sufficient and faster.
@@ -1044,6 +1054,8 @@ Stdlib checker Messages
   emitted when using Python >= 3.5.
 :deprecated-argument (W4903): *Using deprecated argument %s of method %s()*
   The argument is marked as deprecated and will be removed in the future.
+:deprecated-attribute (W4906): *Using deprecated attribute %r*
+  The attribute is marked as deprecated and will be removed in the future.
 :deprecated-class (W4904): *Using deprecated class %s of module %s*
   The class is marked as deprecated and will be removed in the future.
 :deprecated-decorator (W4905): *Using deprecated decorator %s()*
@@ -1365,6 +1377,9 @@ Variables checker Messages
   Used when an invalid (non-string) object occurs in __all__.
 :no-name-in-module (E0611): *No name %r in module %r*
   Used when a name cannot be found in a module.
+:possibly-used-before-assignment (E0606): *Possibly using variable %r before assignment*
+  Emitted when a local variable is accessed before its assignment took place in
+  both branches of an if/else switch.
 :undefined-variable (E0602): *Undefined variable %r*
   Used when an undefined variable is accessed.
 :undefined-all-variable (E0603): *Undefined variable name %r in __all__*

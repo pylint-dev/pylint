@@ -84,9 +84,9 @@ class MagicValueChecker(BaseChecker):
 
         operand_value = None
         if const_operands[LEFT_OPERAND] and self._is_magic_value(left_operand):
-            operand_value = left_operand.value
+            operand_value = left_operand.as_string()
         elif const_operands[RIGHT_OPERAND] and self._is_magic_value(right_operand):
-            operand_value = right_operand.value
+            operand_value = right_operand.as_string()
         if operand_value is not None:
             self.add_message(
                 "magic-value-comparison",

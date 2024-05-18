@@ -7,6 +7,7 @@ from __future__ import annotations
 import os
 import sys
 from collections.abc import Sequence
+from pathlib import Path
 from re import Pattern
 
 from astroid import modutils
@@ -58,7 +59,7 @@ def _is_ignored_file(
     ignore_list_paths_re: list[Pattern[str]],
 ) -> bool:
     element = os.path.normpath(element)
-    basename = os.path.basename(element)
+    basename = Path(element).absolute().name
     return (
         basename in ignore_list
         or _is_in_ignore_list_re(basename, ignore_list_re)
@@ -144,8 +145,9 @@ def expand_modules(
         )
         if has_init or is_namespace or is_directory:
             for subfilepath in modutils.get_module_files(
-                os.path.dirname(filepath), ignore_list, list_all=is_namespace
+                os.path.dirname(filepath) or ".", ignore_list, list_all=is_namespace
             ):
+                subfilepath = os.path.normpath(subfilepath)
                 if filepath == subfilepath:
                     continue
                 if _is_in_ignore_list_re(

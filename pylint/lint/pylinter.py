@@ -74,8 +74,7 @@ MANAGER = astroid.MANAGER
 class GetAstProtocol(Protocol):
     def __call__(
         self, filepath: str, modname: str, data: str | None = None
-    ) -> nodes.Module:
-        ...
+    ) -> nodes.Module: ...
 
 
 def _read_stdin() -> str:
@@ -309,9 +308,9 @@ class PyLinter(
         """Dictionary of possible but non-initialized reporters."""
 
         # Attributes for checkers and plugins
-        self._checkers: defaultdict[
-            str, list[checkers.BaseChecker]
-        ] = collections.defaultdict(list)
+        self._checkers: defaultdict[str, list[checkers.BaseChecker]] = (
+            collections.defaultdict(list)
+        )
         """Dictionary of registered and initialized checkers."""
         self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
@@ -585,8 +584,8 @@ class PyLinter(
     def should_analyze_file(modname: str, path: str, is_argument: bool = False) -> bool:
         """Returns whether a module should be checked.
 
-        This implementation returns True for all python source file, indicating
-        that all files should be linted.
+        This implementation returns True for all python source files (.py and .pyi),
+        indicating that all files should be linted.
 
         Subclasses may override this method to indicate that modules satisfying
         certain conditions should not be linted.
@@ -600,7 +599,7 @@ class PyLinter(
         """
         if is_argument:
             return True
-        return path.endswith(".py")
+        return path.endswith((".py", ".pyi"))
 
     # pylint: enable=unused-argument
 
@@ -647,7 +646,7 @@ class PyLinter(
                         yield from (
                             os.path.join(root, file)
                             for file in files
-                            if file.endswith(".py")
+                            if file.endswith((".py", ".pyi"))
                         )
             else:
                 yield something
@@ -1074,13 +1073,15 @@ class PyLinter(
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.max_inferable_values = self.config.limit_inference_results
         MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)
+        MANAGER.module_denylist.update(self.config.ignored_modules)
+        MANAGER.prefer_stubs = self.config.prefer_stubs
         if self.config.extension_pkg_whitelist:
             MANAGER.extension_package_whitelist.update(
                 self.config.extension_pkg_whitelist
             )
         self.stats.reset_message_count()
 
-    def generate_reports(self) -> int | None:
+    def generate_reports(self, verbose: bool = False) -> int | None:
         """Close the whole package /module, it's time to make reports !
 
         if persistent run, pickle results for later comparison
@@ -1098,7 +1099,7 @@ class PyLinter(
 
             if self.config.reports:
                 self.reporter.display_reports(sect)
-            score_value = self._report_evaluation()
+            score_value = self._report_evaluation(verbose)
             # save results if persistent run
             if self.config.persistent:
                 save_results(self.stats, self.file_state.base_name)
@@ -1107,7 +1108,7 @@ class PyLinter(
             score_value = None
         return score_value
 
-    def _report_evaluation(self) -> int | None:
+    def _report_evaluation(self, verbose: bool = False) -> int | None:
         """Make the global evaluation report."""
         # check with at least a statement (usually 0 when there is a
         # syntax error preventing pylint from further processing)
@@ -1138,6 +1139,11 @@ class PyLinter(
                 pnote = previous_stats.global_note
                 if pnote is not None:
                     msg += f" (previous run: {pnote:.2f}/10, {note - pnote:+.2f})"
+
+            if verbose:
+                checked_files_count = self.stats.node_count["module"]
+                unchecked_files_count = self.stats.undocumented["module"]
+                msg += f"\nChecked {checked_files_count} files, skipped {unchecked_files_count} files"
 
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)

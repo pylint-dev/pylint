@@ -225,7 +225,8 @@ class TestSimilarCodeChecker:
 
     def test_duplicate_code_raw_strings_disable_scope_function(self) -> None:
         """Tests disabling duplicate-code at an inner scope level with another scope with
-        similarity."""
+        similarity.
+        """
         path = join(DATA, "raw_strings_disable_scope_second_function")
         expected_output = "Similar lines in 2 files"
         self._test_output(
@@ -264,3 +265,18 @@ class TestSimilarCodeChecker:
             exit=False,
         )
         assert not runner.linter.stats.by_msg
+
+    def test_conditional_imports(self) -> None:
+        """Tests enabling ignore-imports with conditional imports works correctly."""
+        path = join(DATA, "ignore_conditional_imports")
+        expected_output = "==ignore_conditional_imports.file_one:[2:4]"
+        self._test_output(
+            [
+                path,
+                "-e=duplicate-code",
+                "-d=unused-import,C",
+                "--ignore-imports=y",
+                "--min-similarity-lines=1",
+            ],
+            expected_output=expected_output,
+        )

@@ -4,7 +4,9 @@
 # List comprehensions
 [x for x in iterable]  # [unnecessary-comprehension]
 [y for x in iterable]  # expression != target_list
+[x for x in iterable] # [unnecessary-comprehension] use list(iterable)
 [x for x,y,z in iterable]  # expression != target_list
+[(x, y) for x, y in iterable]  # [unnecessary-comprehension]
 [(x,y,z) for x,y,z in iterable]  # [unnecessary-comprehension]
 [(x,y,z) for (x,y,z) in iterable]  # [unnecessary-comprehension]
 [x for x, *y in iterable]  # expression != target_list

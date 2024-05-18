@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 
 
 class ByIdManagedMessagesChecker(BaseRawFileChecker):
-
     """Checks for messages that are enabled or disabled by id instead of symbol."""
 
     name = "miscellaneous"
@@ -52,7 +51,6 @@ class ByIdManagedMessagesChecker(BaseRawFileChecker):
 
 
 class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
-
     """BaseChecker for encoding issues.
 
     Checks for:

@@ -19,6 +19,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import astroid
+import astroid.exceptions
 from astroid import bases, extract_node, nodes, util
 from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult
@@ -31,7 +32,7 @@ from pylint.checkers.utils import (
     is_sys_guard,
     overridden_method,
 )
-from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
+from pylint.constants import PY39_PLUS, PY311_PLUS, TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
 
@@ -120,6 +121,7 @@ NODES_WITH_VALUE_ATTR = (
     nodes.Expr,
     nodes.Return,
     nodes.Match,
+    nodes.TypeAlias,
 )
 
 
@@ -139,7 +141,7 @@ def _is_from_future_import(stmt: nodes.ImportFrom, name: str) -> bool | None:
     """Check if the name is a future import from another module."""
     try:
         module = stmt.do_import_module(stmt.modname)
-    except astroid.AstroidBuildingException:
+    except astroid.AstroidBuildingError:
         return None
 
     for local_node in module.locals.get(name, []):
@@ -401,6 +403,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "invalid-all-format",
         "Used when __all__ has an invalid format.",
     ),
+    "E0606": (
+        "Possibly using variable %r before assignment",
+        "possibly-used-before-assignment",
+        "Emitted when a local variable is accessed before its assignment took place "
+        "in both branches of an if/else switch.",
+    ),
     "E0611": (
         "No name %r in module %r",
         "no-name-in-module",
@@ -535,6 +543,8 @@ class NamesConsumer:
             copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
         )
         self.node = node
+        self.names_under_always_false_test: set[str] = set()
+        self.names_defined_under_one_branch_only: set[str] = set()
 
     def __repr__(self) -> str:
         _to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
@@ -634,13 +644,6 @@ scope_type : {self._atomic.scope_type}
         if VariablesChecker._comprehension_between_frame_and_node(node):
             return found_nodes
 
-        # Filter out assignments guarded by always false conditions
-        if found_nodes:
-            uncertain_nodes = self._uncertain_nodes_in_false_tests(found_nodes, node)
-            self.consumed_uncertain[node.name] += uncertain_nodes
-            uncertain_nodes_set = set(uncertain_nodes)
-            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
-
         # Filter out assignments in ExceptHandlers that node is not contained in
         if found_nodes:
             found_nodes = [
@@ -649,6 +652,13 @@ scope_type : {self._atomic.scope_type}
                 if not isinstance(n.statement(), nodes.ExceptHandler)
                 or n.statement().parent_of(node)
             ]
+
+        # Filter out assignments guarded by always false conditions
+        if found_nodes:
+            uncertain_nodes = self._uncertain_nodes_if_tests(found_nodes, node)
+            self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_set = set(uncertain_nodes)
+            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
         # Filter out assignments in an Except clause that the node is not
         # contained in, assuming they may fail
@@ -665,7 +675,7 @@ scope_type : {self._atomic.scope_type}
         if found_nodes:
             uncertain_nodes = (
                 self._uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-                    found_nodes, node_statement
+                    found_nodes, node_statement, name
                 )
             )
             self.consumed_uncertain[node.name] += uncertain_nodes
@@ -686,8 +696,9 @@ scope_type : {self._atomic.scope_type}
 
         return found_nodes
 
-    @staticmethod
-    def _inferred_to_define_name_raise_or_return(name: str, node: nodes.NodeNG) -> bool:
+    def _inferred_to_define_name_raise_or_return(
+        self, name: str, node: nodes.NodeNG
+    ) -> bool:
         """Return True if there is a path under this `if_node`
         that is inferred to define `name`, raise, or return.
         """
@@ -714,8 +725,8 @@ scope_type : {self._atomic.scope_type}
         if not isinstance(node, nodes.If):
             return False
 
-        # Be permissive if there is a break
-        if any(node.nodes_of_class(nodes.Break)):
+        # Be permissive if there is a break or a continue
+        if any(node.nodes_of_class(nodes.Break, nodes.Continue)):
             return True
 
         # Is there an assignment in this node itself, e.g. in named expression?
@@ -737,17 +748,18 @@ scope_type : {self._atomic.scope_type}
 
         # Only search else branch when test condition is inferred to be false
         if all_inferred and only_search_else:
-            return NamesConsumer._branch_handles_name(name, node.orelse)
-        # Only search if branch when test condition is inferred to be true
-        if all_inferred and only_search_if:
-            return NamesConsumer._branch_handles_name(name, node.body)
+            self.names_under_always_false_test.add(name)
+            return self._branch_handles_name(name, node.orelse)
         # Search both if and else branches
-        return NamesConsumer._branch_handles_name(
-            name, node.body
-        ) or NamesConsumer._branch_handles_name(name, node.orelse)
+        if_branch_handles = self._branch_handles_name(name, node.body)
+        else_branch_handles = self._branch_handles_name(name, node.orelse)
+        if if_branch_handles ^ else_branch_handles:
+            self.names_defined_under_one_branch_only.add(name)
+        elif name in self.names_defined_under_one_branch_only:
+            self.names_defined_under_one_branch_only.remove(name)
+        return if_branch_handles and else_branch_handles
 
-    @staticmethod
-    def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
+    def _branch_handles_name(self, name: str, body: Iterable[nodes.NodeNG]) -> bool:
         return any(
             NamesConsumer._defines_name_raises_or_returns(name, if_body_stmt)
             or isinstance(
@@ -760,17 +772,15 @@ scope_type : {self._atomic.scope_type}
                     nodes.While,
                 ),
             )
-            and NamesConsumer._inferred_to_define_name_raise_or_return(
-                name, if_body_stmt
-            )
+            and self._inferred_to_define_name_raise_or_return(name, if_body_stmt)
             for if_body_stmt in body
         )
 
-    def _uncertain_nodes_in_false_tests(
+    def _uncertain_nodes_if_tests(
         self, found_nodes: list[nodes.NodeNG], node: nodes.NodeNG
     ) -> list[nodes.NodeNG]:
-        """Identify nodes of uncertain execution because they are defined under
-        tests that evaluate false.
+        """Identify nodes of uncertain execution because they are defined under if
+        tests.
 
         Don't identify a node if there is a path that is inferred to
         define the name, raise, or return (e.g. any executed if/elif/else branch).
@@ -806,7 +816,7 @@ scope_type : {self._atomic.scope_type}
                 continue
 
             # Name defined in the if/else control flow
-            if NamesConsumer._inferred_to_define_name_raise_or_return(name, outer_if):
+            if self._inferred_to_define_name_raise_or_return(name, outer_if):
                 continue
 
             uncertain_nodes.append(other_node)
@@ -849,7 +859,7 @@ scope_type : {self._atomic.scope_type}
     def _uncertain_nodes_in_except_blocks(
         found_nodes: list[nodes.NodeNG],
         node: nodes.NodeNG,
-        node_statement: nodes.Statement,
+        node_statement: _base_nodes.Statement,
     ) -> list[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain
         because they are in an except block.
@@ -882,6 +892,16 @@ scope_type : {self._atomic.scope_type}
                 and utils.is_terminating_func(else_statement.value)
                 for else_statement in closest_try_except.orelse
             )
+            else_block_continues = any(
+                isinstance(else_statement, nodes.Continue)
+                for else_statement in closest_try_except.orelse
+            )
+            if (
+                else_block_continues
+                and isinstance(node_statement.parent, (nodes.For, nodes.While))
+                and closest_try_except.parent.parent_of(node_statement)
+            ):
+                continue
 
             if try_block_returns or else_block_returns or else_block_exits:
                 # Exception: if this node is in the final block of the other_node_statement,
@@ -918,8 +938,17 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
-        if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return)):
+        if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return, nodes.Continue)):
             return True
+        if isinstance(node, nodes.Expr) and isinstance(node.value, nodes.Call):
+            if utils.is_terminating_func(node.value):
+                return True
+            if (
+                PY311_PLUS
+                and isinstance(node.value.func, nodes.Name)
+                and node.value.func.name == "assert_never"
+            ):
+                return True
         if (
             isinstance(node, nodes.AnnAssign)
             and node.value
@@ -997,7 +1026,6 @@ scope_type : {self._atomic.scope_type}
         the loop can depend on it being assigned.
 
         Example:
-
         for _ in range(3):
             try:
                 do_something()
@@ -1010,9 +1038,9 @@ scope_type : {self._atomic.scope_type}
         """
         if not other_node_try_except.orelse:
             return False
-        closest_loop: None | (
-            nodes.For | nodes.While
-        ) = utils.get_node_first_ancestor_of_type(node, (nodes.For, nodes.While))
+        closest_loop: None | (nodes.For | nodes.While) = (
+            utils.get_node_first_ancestor_of_type(node, (nodes.For, nodes.While))
+        )
         if closest_loop is None:
             return False
         if not any(
@@ -1060,7 +1088,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _recursive_search_for_continue_before_break(
-        stmt: nodes.Statement, break_stmt: nodes.Break
+        stmt: _base_nodes.Statement, break_stmt: nodes.Break
     ) -> bool:
         """Return True if any Continue node can be found in descendants of `stmt`
         before encountering `break_stmt`, ignoring any nested loops.
@@ -1080,7 +1108,7 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
-        found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
+        found_nodes: list[nodes.NodeNG], node_statement: _base_nodes.Statement
     ) -> list[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain.
 
@@ -1128,7 +1156,9 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-        found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
+        found_nodes: list[nodes.NodeNG],
+        node_statement: _base_nodes.Statement,
+        name: str,
     ) -> list[nodes.NodeNG]:
         uncertain_nodes: list[nodes.NodeNG] = []
         (
@@ -1173,6 +1203,12 @@ scope_type : {self._atomic.scope_type}
                     )
                     for other_node_final_statement in other_node_try_finally_ancestor.finalbody
                 )
+            ):
+                continue
+            # Is the name defined in all exception clauses?
+            if other_node_try_finally_ancestor.handlers and all(
+                NamesConsumer._defines_name_raises_or_returns_recursive(name, handler)
+                for handler in other_node_try_finally_ancestor.handlers
             ):
                 continue
             # Passed all tests for uncertain execution
@@ -1737,6 +1773,9 @@ class VariablesChecker(BaseChecker):
         elif consumer.scope_type == "function" and self._defined_in_function_definition(
             node, consumer.node
         ):
+            if any(node.name == param.name.name for param in consumer.node.type_params):
+                return False
+
             # If the name node is used as a function default argument's value or as
             # a decorator, then start from the parent frame of the function instead
             # of the function frame - and thus open an inner class scope
@@ -1970,11 +2009,19 @@ class VariablesChecker(BaseChecker):
         ):
             return
 
-        confidence = (
-            CONTROL_FLOW if node.name in current_consumer.consumed_uncertain else HIGH
-        )
+        confidence = HIGH
+        if node.name in current_consumer.names_under_always_false_test:
+            confidence = INFERENCE
+        elif node.name in current_consumer.consumed_uncertain:
+            confidence = CONTROL_FLOW
+
+        if node.name in current_consumer.names_defined_under_one_branch_only:
+            msg = "possibly-used-before-assignment"
+        else:
+            msg = "used-before-assignment"
+
         self.add_message(
-            "used-before-assignment",
+            msg,
             args=node.name,
             node=node,
             confidence=confidence,
@@ -2044,7 +2091,7 @@ class VariablesChecker(BaseChecker):
         name_parts = node.modname.split(".")
         try:
             module = node.do_import_module(name_parts[0])
-        except astroid.AstroidBuildingException:
+        except astroid.AstroidBuildingError:
             return
         module = self._check_module_attrs(node, module, name_parts[1:])
         if not module:
@@ -2169,8 +2216,8 @@ class VariablesChecker(BaseChecker):
     def _is_variable_violation(
         node: nodes.Name,
         defnode: nodes.NodeNG,
-        stmt: nodes.Statement,
-        defstmt: nodes.Statement,
+        stmt: _base_nodes.Statement,
+        defstmt: _base_nodes.Statement,
         frame: nodes.LocalsDictNodeNG,  # scope of statement of node
         defframe: nodes.LocalsDictNodeNG,
         base_scope_type: str,
@@ -2261,10 +2308,13 @@ class VariablesChecker(BaseChecker):
                     isinstance(defframe, nodes.FunctionDef)
                     and frame is defframe
                     and defframe.parent_of(node)
-                    and stmt is not defstmt
+                    and (
+                        defnode in defframe.type_params
+                        # Single statement function, with the statement on the
+                        # same line as the function definition
+                        or stmt is not defstmt
+                    )
                 ):
-                    # Single statement function, with the statement on the
-                    # same line as the function definition
                     maybe_before_assign = False
                 elif (
                     isinstance(defstmt, NODES_WITH_VALUE_ATTR)
@@ -2321,13 +2371,15 @@ class VariablesChecker(BaseChecker):
         return maybe_before_assign, annotation_return, use_outer_definition
 
     @staticmethod
-    def _maybe_used_and_assigned_at_once(defstmt: nodes.Statement) -> bool:
+    def _maybe_used_and_assigned_at_once(defstmt: _base_nodes.Statement) -> bool:
         """Check if `defstmt` has the potential to use and assign a name in the
         same statement.
         """
         if isinstance(defstmt, nodes.Match):
             return any(case.guard for case in defstmt.cases)
         if isinstance(defstmt, nodes.IfExp):
+            return True
+        if isinstance(defstmt, nodes.TypeAlias):
             return True
         if isinstance(defstmt.value, nodes.BaseContainer):
             return any(
@@ -2361,7 +2413,9 @@ class VariablesChecker(BaseChecker):
         return name in self.linter.config.additional_builtins or utils.is_builtin(name)
 
     @staticmethod
-    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
+    def _is_only_type_assignment(
+        node: nodes.Name, defstmt: _base_nodes.Statement
+    ) -> bool:
         """Check if variable only gets assigned a type and never a value."""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
             return False
@@ -2502,7 +2556,7 @@ class VariablesChecker(BaseChecker):
             and name in frame_locals
         )
 
-    # pylint: disable = too-many-branches
+    # pylint: disable-next=too-many-branches,too-many-statements
     def _loopvar_name(self, node: astroid.Name) -> None:
         # filter variables according to node's scope
         astmts = [s for s in node.lookup(node.name)[1] if hasattr(s, "assign_type")]
@@ -2538,8 +2592,12 @@ class VariablesChecker(BaseChecker):
         else:
             _astmts = astmts[:1]
         for i, stmt in enumerate(astmts[1:]):
-            if astmts[i].statement().parent_of(stmt) and not utils.in_for_else_branch(
-                astmts[i].statement(), stmt
+            try:
+                astmt_statement = astmts[i].statement()
+            except astroid.exceptions.ParentMissingError:
+                continue
+            if astmt_statement.parent_of(stmt) and not utils.in_for_else_branch(
+                astmt_statement, stmt
             ):
                 continue
             _astmts.append(stmt)
@@ -2562,7 +2620,7 @@ class VariablesChecker(BaseChecker):
                 else_stmt, (nodes.Return, nodes.Raise, nodes.Break, nodes.Continue)
             ):
                 return
-            # TODO: 3.0: Consider using RefactoringChecker._is_function_def_never_returning
+            # TODO: 4.0: Consider using RefactoringChecker._is_function_def_never_returning
             if isinstance(else_stmt, nodes.Expr) and isinstance(
                 else_stmt.value, nodes.Call
             ):
@@ -3054,9 +3112,11 @@ class VariablesChecker(BaseChecker):
                 module = None
                 break
             try:
-                module = next(module.getattr(name)[0].infer())
+                module = module.getattr(name)[0]
                 if not isinstance(module, nodes.Module):
-                    return None
+                    module = next(module.infer())
+                    if not isinstance(module, nodes.Module):
+                        return None
             except astroid.NotFoundError:
                 # Unable to import `name` from `module`. Since `name` may itself be a
                 # module, we first check if it matches the ignored modules.

@@ -21,6 +21,7 @@ import astroid
 import astroid.exceptions
 import astroid.helpers
 from astroid import arguments, bases, nodes, util
+from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, utils
@@ -660,7 +661,7 @@ def _determine_callable(
 def _has_parent_of_type(
     node: nodes.Call,
     node_type: nodes.Keyword | nodes.Starred,
-    statement: nodes.Statement,
+    statement: _base_nodes.Statement,
 ) -> bool:
     """Check if the given node has a parent of the given type."""
     parent = node.parent
@@ -1060,7 +1061,7 @@ accessed. Python regular expressions are accepted.",
     def visit_delattr(self, node: nodes.DelAttr) -> None:
         self.visit_attribute(node)
 
-    # pylint: disable = too-many-branches
+    # pylint: disable = too-many-branches, too-many-statements
     @only_required_for_messages("no-member", "c-extension-no-member")
     def visit_attribute(
         self, node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr
@@ -1128,6 +1129,12 @@ accessed. Python regular expressions are accepted.",
             except astroid.DuplicateBasesError:
                 continue
             except astroid.NotFoundError:
+                # Avoid false positive in case a decorator supplies member.
+                if (
+                    isinstance(owner, (astroid.FunctionDef, astroid.BoundMethod))
+                    and owner.decorators
+                ):
+                    continue
                 # This can't be moved before the actual .getattr call,
                 # because there can be more values inferred and we are
                 # stopping after the first one which has the attribute in question.
@@ -1221,7 +1228,6 @@ accessed. Python regular expressions are accepted.",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
         """Process assignments in the AST."""
-
         self._check_assignment_from_function_call(node)
         self._check_dundername_is_string(node)
 
@@ -1302,7 +1308,6 @@ accessed. Python regular expressions are accepted.",
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
-
         # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
         if not isinstance(lhs, nodes.AssignAttr):
@@ -1487,9 +1492,9 @@ accessed. Python regular expressions are accepted.",
                 node, node_scope
             )
         else:
-            has_no_context_positional_variadic = (
-                has_no_context_keywords_variadic
-            ) = False
+            has_no_context_positional_variadic = has_no_context_keywords_variadic = (
+                False
+            )
 
         # These are coming from the functools.partial implementation in astroid
         already_filled_positionals = getattr(called, "filled_positionals", 0)
@@ -1919,7 +1924,6 @@ accessed. Python regular expressions are accepted.",
     @only_required_for_messages("invalid-unary-operand-type")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """Detect TypeErrors for unary operands."""
-
         for error in node.type_errors():
             # Let the error customize its output.
             self.add_message("invalid-unary-operand-type", args=str(error), node=node)

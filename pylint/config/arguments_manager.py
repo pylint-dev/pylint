@@ -149,7 +149,7 @@ class _ArgumentsManager:
                 metavar=argument.metavar,
                 choices=argument.choices,
             )
-            # We add the old name as hidden option to make it's default value gets loaded when
+            # We add the old name as hidden option to make its default value get loaded when
             # argparse initializes all options from the checker
             assert argument.kwargs["old_names"]
             for old_name in argument.kwargs["old_names"]:

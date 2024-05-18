@@ -319,6 +319,14 @@ def _generate_single_message_body(message: MessageData) -> str:
   This message is disabled by default. To enable it, add ``{message.name}`` to the ``enable`` option.
 
 """
+    if message.id.startswith("I"):
+        body += f"""
+.. caution::
+  By default, this message will not fail the execution (pylint will return 0).
+  To make pylint fail for this message use the ``--fail-on={message.id}`` option
+  or ``--fail-on=I`` to fail on all enabled informational messages.
+
+"""
 
     body += "\n" + message.example_code + "\n"
 
@@ -326,7 +334,7 @@ def _generate_single_message_body(message: MessageData) -> str:
         body += f"""
 .. note::
   This message is emitted by the optional :ref:`'{message.checker}'<{message.checker_module_name}>`
-   checker which requires the ``{message.checker_module_name}`` plugin to be loaded.
+  checker, which requires the ``{message.checker_module_name}`` plugin to be loaded.
 
 """
     return body
@@ -481,11 +489,12 @@ def build_messages_pages(app: Sphinx | None) -> None:
     _write_redirect_pages(old_messages)
 
 
-def setup(app: Sphinx) -> None:
+def setup(app: Sphinx) -> dict[str, bool]:
     """Connects the extension to the Sphinx process."""
     # Register callback at the builder-inited Sphinx event
     # See https://www.sphinx-doc.org/en/master/extdev/appapi.html
     app.connect("builder-inited", build_messages_pages)
+    return {"parallel_read_safe": True}
 
 
 if __name__ == "__main__":

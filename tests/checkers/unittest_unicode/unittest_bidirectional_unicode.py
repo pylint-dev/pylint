@@ -27,11 +27,10 @@ class TestBidirectionalUnicodeChecker(pylint.testutils.CheckerTestCase):
 
     def test_finds_bidirectional_unicode_that_currently_not_parsed(self) -> None:
         """Test an example from https://github.com/nickboucher/trojan-source/tree/main/Python
-        that is currently not working Python but producing a syntax error
+        that is currently not working Python but producing a syntax error.
 
         So we test this to make sure it stays like this
         """
-
         test_file = UNICODE_TESTS / "invisible_function.txt"
 
         with pytest.raises(astroid.AstroidSyntaxError):

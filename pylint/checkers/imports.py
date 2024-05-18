@@ -28,6 +28,7 @@ from pylint.checkers.utils import (
     is_sys_guard,
     node_ignores_exception,
 )
+from pylint.constants import MAX_NUMBER_OF_IMPORT_SHOWN
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import HIGH
@@ -447,9 +448,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self.import_graph: defaultdict[str, set[str]] = defaultdict(set)
         self._imports_stack: list[tuple[ImportNode, str]] = []
         self._first_non_import_node = None
-        self._module_pkg: dict[
-            Any, Any
-        ] = {}  # mapping of modules to the pkg they belong in
+        self._module_pkg: dict[Any, Any] = (
+            {}
+        )  # mapping of modules to the pkg they belong in
         self._allow_any_import_level: set[Any] = set()
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
@@ -611,13 +612,15 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def compute_first_non_import_node(
         self,
-        node: nodes.If
-        | nodes.Expr
-        | nodes.Comprehension
-        | nodes.IfExp
-        | nodes.Assign
-        | nodes.AssignAttr
-        | nodes.Try,
+        node: (
+            nodes.If
+            | nodes.Expr
+            | nodes.Comprehension
+            | nodes.IfExp
+            | nodes.Assign
+            | nodes.AssignAttr
+            | nodes.Try
+        ),
     ) -> None:
         # if the node does not contain an import instruction, and if it is the
         # first node of the module, keep a track of it (all the import positions
@@ -644,13 +647,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 return
         self._first_non_import_node = node
 
-    visit_try = (
-        visit_assignattr
-    ) = (
-        visit_assign
-    ) = (
-        visit_ifexp
-    ) = visit_comprehension = visit_expr = visit_if = compute_first_non_import_node
+    visit_try = visit_assignattr = visit_assign = visit_ifexp = visit_comprehension = (
+        visit_expr
+    ) = visit_if = compute_first_non_import_node
 
     def visit_functiondef(
         self, node: nodes.FunctionDef | nodes.While | nodes.For | nodes.ClassDef
@@ -687,7 +686,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     isinstance(prev, nodes.ImportFrom) and prev.modname == "__future__"
                 ):
                     self.add_message("misplaced-future", node=node)
-            return
 
     def _check_same_line_imports(self, node: nodes.ImportFrom) -> None:
         # Detect duplicate imports on the same line.
@@ -749,9 +747,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
     # pylint: disable = too-many-statements
-    def _check_imports_order(
-        self, _module_node: nodes.Module
-    ) -> tuple[
+    def _check_imports_order(self, _module_node: nodes.Module) -> tuple[
         list[tuple[ImportNode, str]],
         list[tuple[ImportNode, str]],
         list[tuple[ImportNode, str]],
@@ -781,6 +777,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             )
             import_category = isort_driver.place_module(package)
             node_and_package_import = (node, package)
+
             if import_category in {"FUTURE", "STDLIB"}:
                 std_imports.append(node_and_package_import)
                 wrong_import = (
@@ -794,9 +791,13 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     self.add_message(
                         "wrong-import-order",
                         node=node,
-                        args=(
-                            f'standard import "{node.as_string()}"',
-                            f'"{wrong_import[0][0].as_string()}"',
+                        args=(  ## TODO - this isn't right for multiple on the same line...
+                            f'standard import "{self._get_full_import_name((node, package))}"',
+                            self._get_out_of_order_string(
+                                third_party_not_ignored,
+                                first_party_not_ignored,
+                                local_not_ignored,
+                            ),
                         ),
                     )
             elif import_category == "THIRDPARTY":
@@ -815,8 +816,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                         "wrong-import-order",
                         node=node,
                         args=(
-                            f'third party import "{node.as_string()}"',
-                            f'"{wrong_import[0][0].as_string()}"',
+                            f'third party import "{self._get_full_import_name((node, package))}"',
+                            self._get_out_of_order_string(
+                                None, first_party_not_ignored, local_not_ignored
+                            ),
                         ),
                     )
             elif import_category == "FIRSTPARTY":
@@ -835,8 +838,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                         "wrong-import-order",
                         node=node,
                         args=(
-                            f'first party import "{node.as_string()}"',
-                            f'"{wrong_import[0][0].as_string()}"',
+                            f'first party import "{self._get_full_import_name((node, package))}"',
+                            self._get_out_of_order_string(
+                                None, None, local_not_ignored
+                            ),
                         ),
                     )
             elif import_category == "LOCALFOLDER":
@@ -849,6 +854,157 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                             "wrong-import-order", node.fromlineno, node
                         )
         return std_imports, external_imports, local_imports
+
+    def _get_out_of_order_string(
+        self,
+        third_party_imports: list[tuple[ImportNode, str]] | None,
+        first_party_imports: list[tuple[ImportNode, str]] | None,
+        local_imports: list[tuple[ImportNode, str]] | None,
+    ) -> str:
+        # construct the string listing out of order imports used in the message
+        # for wrong-import-order
+        if third_party_imports:
+            plural = "s" if len(third_party_imports) > 1 else ""
+            if len(third_party_imports) > MAX_NUMBER_OF_IMPORT_SHOWN:
+                imports_list = (
+                    ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in third_party_imports[
+                                : int(MAX_NUMBER_OF_IMPORT_SHOWN // 2)
+                            ]
+                        ]
+                    )
+                    + " (...) "
+                    + ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in third_party_imports[
+                                int(-MAX_NUMBER_OF_IMPORT_SHOWN // 2) :
+                            ]
+                        ]
+                    )
+                )
+            else:
+                imports_list = ", ".join(
+                    [
+                        f'"{self._get_full_import_name(tpi)}"'
+                        for tpi in third_party_imports
+                    ]
+                )
+            third_party = f"third party import{plural} {imports_list}"
+        else:
+            third_party = ""
+
+        if first_party_imports:
+            plural = "s" if len(first_party_imports) > 1 else ""
+            if len(first_party_imports) > MAX_NUMBER_OF_IMPORT_SHOWN:
+                imports_list = (
+                    ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in first_party_imports[
+                                : int(MAX_NUMBER_OF_IMPORT_SHOWN // 2)
+                            ]
+                        ]
+                    )
+                    + " (...) "
+                    + ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in first_party_imports[
+                                int(-MAX_NUMBER_OF_IMPORT_SHOWN // 2) :
+                            ]
+                        ]
+                    )
+                )
+            else:
+                imports_list = ", ".join(
+                    [
+                        f'"{self._get_full_import_name(fpi)}"'
+                        for fpi in first_party_imports
+                    ]
+                )
+            first_party = f"first party import{plural} {imports_list}"
+        else:
+            first_party = ""
+
+        if local_imports:
+            plural = "s" if len(local_imports) > 1 else ""
+            if len(local_imports) > MAX_NUMBER_OF_IMPORT_SHOWN:
+                imports_list = (
+                    ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in local_imports[
+                                : int(MAX_NUMBER_OF_IMPORT_SHOWN // 2)
+                            ]
+                        ]
+                    )
+                    + " (...) "
+                    + ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in local_imports[
+                                int(-MAX_NUMBER_OF_IMPORT_SHOWN // 2) :
+                            ]
+                        ]
+                    )
+                )
+            else:
+                imports_list = ", ".join(
+                    [f'"{self._get_full_import_name(li)}"' for li in local_imports]
+                )
+            local = f"local import{plural} {imports_list}"
+        else:
+            local = ""
+
+        delimiter_third_party = (
+            (
+                ", "
+                if (first_party and local)
+                else (" and " if (first_party or local) else "")
+            )
+            if third_party
+            else ""
+        )
+        delimiter_first_party1 = (
+            (", " if (third_party and local) else " ") if first_party else ""
+        )
+        delimiter_first_party2 = ("and " if local else "") if first_party else ""
+        delimiter_first_party = f"{delimiter_first_party1}{delimiter_first_party2}"
+        msg = (
+            f"{third_party}{delimiter_third_party}"
+            f"{first_party}{delimiter_first_party}"
+            f'{local if local else ""}'
+        )
+
+        return msg
+
+    def _get_full_import_name(self, importNode: ImportNode) -> str:
+        # construct a more descriptive name of the import
+        # for: import X, this returns X
+        # for: import X.Y this returns X.Y
+        # for: from X import Y, this returns X.Y
+
+        try:
+            # this will only succeed for ImportFrom nodes, which in themselves
+            # contain the information needed to reconstruct the package
+            return f"{importNode[0].modname}.{importNode[0].names[0][0]}"
+        except AttributeError:
+            # in all other cases, the import will either be X or X.Y
+            node: str = importNode[0].names[0][0]
+            package: str = importNode[1]
+
+            if node.split(".")[0] == package:
+                # this is sufficient with one import per line, since package = X
+                # and node = X.Y or X
+                return node
+
+            # when there is a node that contains multiple imports, the "current"
+            # import being analyzed is specified by package (node is the first
+            # import on the line and therefore != package in this case)
+            return package
 
     def _get_imported_module(
         self, importnode: ImportNode, modname: str
@@ -889,9 +1045,12 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         base = os.path.splitext(os.path.basename(module_file))[0]
 
         try:
-            importedmodname = astroid.modutils.get_module_part(
-                importedmodname, module_file
-            )
+            if isinstance(node, nodes.ImportFrom) and node.level:
+                importedmodname = astroid.modutils.get_module_part(
+                    importedmodname, module_file
+                )
+            else:
+                importedmodname = astroid.modutils.get_module_part(importedmodname)
         except ImportError:
             pass
 
@@ -920,7 +1079,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
         """Check if the module has a preferred replacement."""
-
         mod_compare = [mod_path]
         # build a comparison list of possible names using importfrom
         if isinstance(node, astroid.nodes.node_classes.ImportFrom):
@@ -1081,9 +1239,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             return
 
         module_names = [
-            f"{node.modname}.{name[0]}"
-            if isinstance(node, nodes.ImportFrom)
-            else name[0]
+            (
+                f"{node.modname}.{name[0]}"
+                if isinstance(node, nodes.ImportFrom)
+                else name[0]
+            )
             for name in node.names
         ]
 

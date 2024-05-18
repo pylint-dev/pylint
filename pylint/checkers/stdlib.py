@@ -84,7 +84,9 @@ DEPRECATED_ARGUMENTS: dict[
     },
     (3, 9, 0): {"random.Random.shuffle": ((1, "random"),)},
     (3, 12, 0): {
+        "argparse.BooleanOptionalAction": ((3, "type"), (4, "choices"), (7, "metavar")),
         "coroutine.throw": ((1, "value"), (2, "traceback")),
+        "email.utils.localtime": ((1, "isdst"),),
         "shutil.rmtree": ((2, "onerror"),),
     },
 }
@@ -228,6 +230,13 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "binascii.a2b_hqx",
             "binascii.rlecode_hqx",
             "binascii.rledecode_hqx",
+            "importlib.resources.contents",
+            "importlib.resources.is_resource",
+            "importlib.resources.open_binary",
+            "importlib.resources.open_text",
+            "importlib.resources.path",
+            "importlib.resources.read_binary",
+            "importlib.resources.read_text",
         },
         (3, 10, 0): {
             "_sqlite3.enable_shared_cache",
@@ -256,11 +265,16 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "unittest.TestLoader.loadTestsFromModule",
             "unittest.TestLoader.loadTestsFromTestCase",
             "unittest.TestLoader.getTestCaseNames",
+            "unittest.TestProgram.usageExit",
         },
         (3, 12, 0): {
             "builtins.bool.__invert__",
             "datetime.datetime.utcfromtimestamp",
             "datetime.datetime.utcnow",
+            "pkgutil.find_loader",
+            "pkgutil.get_loader",
+            "pty.master_open",
+            "pty.slave_open",
             "xml.etree.ElementTree.Element.__bool__",
         },
     },
@@ -324,10 +338,46 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
         },
     },
     (3, 12, 0): {
+        "ast": {
+            "Bytes",
+            "Ellipsis",
+            "NameConstant",
+            "Num",
+            "Str",
+        },
+        "asyncio": {
+            "AbstractChildWatcher",
+            "MultiLoopChildWatcher",
+            "FastChildWatcher",
+            "SafeChildWatcher",
+        },
+        "collections.abc": {
+            "ByteString",
+        },
+        "importlib.abc": {
+            "ResourceReader",
+            "Traversable",
+            "TraversableResources",
+        },
         "typing": {
+            "ByteString",
             "Hashable",
             "Sized",
         },
+    },
+}
+
+
+DEPRECATED_ATTRIBUTES: DeprecationDict = {
+    (3, 2, 0): {
+        "configparser.ParsingError.filename",
+    },
+    (3, 12, 0): {
+        "calendar.January",
+        "calendar.February",
+        "sys.last_traceback",
+        "sys.last_type",
+        "sys.last_value",
     },
 }
 
@@ -370,6 +420,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         **DeprecatedMixin.DEPRECATED_ARGUMENT_MESSAGE,
         **DeprecatedMixin.DEPRECATED_CLASS_MESSAGE,
         **DeprecatedMixin.DEPRECATED_DECORATOR_MESSAGE,
+        **DeprecatedMixin.DEPRECATED_ATTRIBUTE_MESSAGE,
         "W1501": (
             '"%s" is not a valid mode for open.',
             "bad-open-mode",
@@ -489,6 +540,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         self._deprecated_arguments: dict[str, tuple[tuple[int | None, str], ...]] = {}
         self._deprecated_classes: dict[str, set[str]] = {}
         self._deprecated_decorators: set[str] = set()
+        self._deprecated_attributes: set[str] = set()
 
         for since_vers, func_list in DEPRECATED_METHODS[sys.version_info[0]].items():
             if since_vers <= sys.version_info:
@@ -502,6 +554,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         for since_vers, decorator_list in DEPRECATED_DECORATORS.items():
             if since_vers <= sys.version_info:
                 self._deprecated_decorators.update(decorator_list)
+        for since_vers, attribute_list in DEPRECATED_ATTRIBUTES.items():
+            if since_vers <= sys.version_info:
+                self._deprecated_attributes.update(attribute_list)
         # Modules are checked by the ImportsChecker, because the list is
         # synced with the config argument deprecated-modules
 
@@ -618,8 +673,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "singledispatchmethod-function",
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        if node.decorators and isinstance(node.parent, nodes.ClassDef):
-            self._check_lru_cache_decorators(node)
+        if node.decorators:
+            if isinstance(node.parent, nodes.ClassDef):
+                self._check_lru_cache_decorators(node)
             self._check_dispatch_decorators(node)
 
     def _check_lru_cache_decorators(self, node: nodes.FunctionDef) -> None:
@@ -678,16 +734,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     interfaces.INFERENCE,
                 )
 
-        if "singledispatch" in decorators_map and "classmethod" in decorators_map:
-            self.add_message(
-                "singledispatch-method",
-                node=decorators_map["singledispatch"][0],
-                confidence=decorators_map["singledispatch"][1],
-            )
-        elif (
-            "singledispatchmethod" in decorators_map
-            and "staticmethod" in decorators_map
-        ):
+        if node.is_method():
+            if "singledispatch" in decorators_map:
+                self.add_message(
+                    "singledispatch-method",
+                    node=decorators_map["singledispatch"][0],
+                    confidence=decorators_map["singledispatch"][1],
+                )
+        elif "singledispatchmethod" in decorators_map:
             self.add_message(
                 "singledispatchmethod-function",
                 node=decorators_map["singledispatchmethod"][0],
@@ -867,6 +921,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
     def deprecated_decorators(self) -> Iterable[str]:
         return self._deprecated_decorators
+
+    def deprecated_attributes(self) -> Iterable[str]:
+        return self._deprecated_attributes
 
 
 def register(linter: PyLinter) -> None:

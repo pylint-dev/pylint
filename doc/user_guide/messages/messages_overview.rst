@@ -139,6 +139,7 @@ All messages in the error category:
    error/not-in-loop
    error/notimplemented-raised
    error/positional-only-arguments-expected
+   error/possibly-used-before-assignment
    error/potential-index-error
    error/raising-bad-type
    error/raising-non-exception
@@ -227,8 +228,10 @@ All messages in the warning category:
    warning/comparison-with-callable
    warning/confusing-with-statement
    warning/consider-ternary-expression
+   warning/contextmanager-generator-missing-cleanup
    warning/dangerous-default-value
    warning/deprecated-argument
+   warning/deprecated-attribute
    warning/deprecated-class
    warning/deprecated-decorator
    warning/deprecated-method
@@ -531,6 +534,7 @@ All messages in the refactor category:
    refactor/too-many-instance-attributes
    refactor/too-many-locals
    refactor/too-many-nested-blocks
+   refactor/too-many-positional
    refactor/too-many-public-methods
    refactor/too-many-return-statements
    refactor/too-many-statements
@@ -542,6 +546,7 @@ All messages in the refactor category:
    refactor/use-dict-literal
    refactor/use-list-literal
    refactor/use-set-for-membership
+   refactor/use-yield-from
    refactor/useless-object-inheritance
    refactor/useless-option-value
    refactor/useless-return

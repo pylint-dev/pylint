@@ -113,7 +113,6 @@ class RecommendationChecker(checkers.BaseChecker):
         """Add message when accessing first or last elements of a str.split() or
         str.rsplit().
         """
-
         # Check if call is split() or rsplit()
         if not (
             isinstance(node.func, nodes.Attribute)
@@ -307,6 +306,10 @@ class RecommendationChecker(checkers.BaseChecker):
                 ):
                     # Ignore this subscript if it is the target of an assignment
                     # Early termination as dict index lookup is necessary
+                    return
+                if isinstance(subscript.parent, nodes.Delete):
+                    # Ignore this subscript if the index is used to delete a
+                    # dictionary item.
                     return
 
                 self.add_message("consider-using-dict-items", node=node)

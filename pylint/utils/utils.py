@@ -52,6 +52,7 @@ GLOBAL_OPTION_BOOL = Literal[
     "suggestion-mode",
     "analyse-fallback-blocks",
     "allow-global-unused-variables",
+    "prefer-stubs",
 ]
 GLOBAL_OPTION_INT = Literal["max-line-length", "docstring-min-length"]
 GLOBAL_OPTION_LIST = Literal["ignored-modules"]
@@ -97,14 +98,12 @@ CMPS = ["=", "-", "+"]
 
 
 # py3k has no more cmp builtin
-def cmp(a: int | float, b: int | float) -> int:
+def cmp(a: float, b: float) -> int:
     return (a > b) - (a < b)
 
 
-def diff_string(old: int | float, new: int | float) -> str:
-    """Given an old and new int value, return a string representing the
-    difference.
-    """
+def diff_string(old: float, new: float) -> str:
+    """Given an old and new value, return a string representing the difference."""
     diff = abs(old - new)
     diff_str = f"{CMPS[cmp(old, new)]}{diff and f'{diff:.2f}' or ''}"
     return diff_str
@@ -211,7 +210,7 @@ def register_plugins(linter: PyLinter, directory: str) -> None:
 
 
 def _splitstrip(string: str, sep: str = ",") -> list[str]:
-    """Return a list of stripped string by splitting the string given as
+    r"""Return a list of stripped string by splitting the string given as
     argument on `sep` (',' by default), empty strings are discarded.
 
     >>> _splitstrip('a, b, c   ,  4,,')
@@ -256,7 +255,8 @@ def _check_csv(value: list[str] | tuple[str] | str) -> Sequence[str]:
 
 def _check_regexp_csv(value: list[str] | tuple[str] | str) -> Iterable[str]:
     r"""Split a comma-separated list of regexps, taking care to avoid splitting
-    a regex employing a comma as quantifier, as in `\d{1,2}`."""
+    a regex employing a comma as quantifier, as in `\d{1,2}`.
+    """
     if isinstance(value, (list, tuple)):
         yield from value
     else:
@@ -315,7 +315,7 @@ def format_section(
 ) -> None:
     """Format an option's section using the INI format."""
     warnings.warn(
-        "format_section has been deprecated. It will be removed in pylint 3.0.",
+        "format_section has been deprecated. It will be removed in pylint 4.0.",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -330,7 +330,7 @@ def format_section(
 def _ini_format(stream: TextIO, options: list[tuple[str, OptionDict, Any]]) -> None:
     """Format options using the INI format."""
     warnings.warn(
-        "_ini_format has been deprecated. It will be removed in pylint 3.0.",
+        "_ini_format has been deprecated. It will be removed in pylint 4.0.",
         DeprecationWarning,
         stacklevel=2,
     )

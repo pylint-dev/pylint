@@ -65,7 +65,6 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
 
     def _check_name(self, node_type: str, name: str | None, node: nodes.NodeNG) -> None:
         """Check whether a name is using non-ASCII characters."""
-
         if name is None:
             # For some nodes i.e. *kwargs from a dict, the name will be empty
             return

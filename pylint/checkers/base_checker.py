@@ -68,7 +68,7 @@ class BaseChecker(_ArgumentsProvider):
             return not self_is_builtin
         return self.name > other.name
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Permit to assert Checkers are equal."""
         if not isinstance(other, BaseChecker):
             return False
@@ -188,10 +188,10 @@ class BaseChecker(_ArgumentsProvider):
             default_scope = WarningScope.NODE
         options: ExtraMessageOptions = {}
         if len(msg_tuple) == 4:
-            (msg, symbol, descr, msg_options) = msg_tuple  # type: ignore[misc]
+            (msg, symbol, descr, msg_options) = msg_tuple
             options = ExtraMessageOptions(**msg_options)
         elif len(msg_tuple) == 3:
-            (msg, symbol, descr) = msg_tuple  # type: ignore[misc]
+            (msg, symbol, descr) = msg_tuple
         else:
             error_msg = """Messages should have a msgid, a symbol and a description. Something like this :
 
