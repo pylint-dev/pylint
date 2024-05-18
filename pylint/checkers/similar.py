@@ -611,7 +611,9 @@ def stripped_lines(
             def _get_functions(
                 functions: list[nodes.NodeNG], tree: nodes.NodeNG
             ) -> list[nodes.NodeNG]:
-                """Recursively get all functions including nested in the classes from the
+                """Recursively get all functions including nested in the classes from
+                the.
+
                 tree.
                 """
                 for node in tree.body:
@@ -631,7 +633,7 @@ def stripped_lines(
                 chain.from_iterable(
                     range(
                         func.lineno,
-                        func.body[0].lineno if func.body else func.tolineno + 1
+                        func.body[0].lineno if func.body else func.tolineno + 1,
                     )
                     for func in functions
                 )

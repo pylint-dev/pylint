@@ -2156,9 +2156,8 @@ accessed. Python regular expressions are accepted.",
                 return  # It would be better to handle function
                 # decorators, but let's start slow.
 
-        if (
-            not supported_protocol(inferred, node)
-            and not utils.in_type_checking_block(node)
+        if not supported_protocol(inferred, node) and not utils.in_type_checking_block(
+            node
         ):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
 
