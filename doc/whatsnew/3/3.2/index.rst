@@ -14,6 +14,71 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.2.1?
+---------------------------
+Release date: 2024-05-18
+
+
+False Positives Fixed
+---------------------
+
+- Exclude if/else branches containing terminating functions (e.g. `sys.exit()`)
+  from `possibly-used-before-assignment` checks.
+
+  Closes #9627 (`#9627 <https://github.com/pylint-dev/pylint/issues/9627>`_)
+
+- Don't emit ``typevar-name-incorrect-variance`` warnings for PEP 695 style TypeVars.
+  The variance is inferred automatically by the type checker.
+  Adding ``_co`` or ``_contra`` suffix can help to reason about TypeVar.
+
+  Refs #9638 (`#9638 <https://github.com/pylint-dev/pylint/issues/9638>`_)
+
+- Fix a false positive for `possibly-used-before-assignment` when using
+  `typing.assert_never()` (3.11+) to indicate exhaustiveness.
+
+  Closes #9643 (`#9643 <https://github.com/pylint-dev/pylint/issues/9643>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix a false negative for ``--ignore-patterns`` when the directory to be linted is specified using a dot(``.``) and all files are ignored instead of only the files whose name begin with a dot.
+
+  Closes #9273 (`#9273 <https://github.com/pylint-dev/pylint/issues/9273>`_)
+
+- Restore "errors / warnings by module" section to report output (with `-ry`).
+
+  Closes #9145 (`#9145 <https://github.com/pylint-dev/pylint/issues/9145>`_)
+
+- ``trailing-comma-tuple`` should now be correctly emitted when it was disabled globally
+  but enabled via local message control, after removal of an over-optimisation.
+
+  Refs #9608. (`#9608 <https://github.com/pylint-dev/pylint/issues/9608>`_)
+
+- Add `--prefer-stubs=yes` option to opt-in to the astroid 3.2 feature
+  that prefers `.pyi` stubs over same-named `.py` files. This has the
+  potential to reduce `no-member` errors but at the cost of more errors
+  such as `not-an-iterable` from function bodies appearing as `...`.
+
+  Defaults to `no`.
+
+  Closes #9626
+  Closes #9623 (`#9626 <https://github.com/pylint-dev/pylint/issues/9626>`_)
+
+
+
+Internal Changes
+----------------
+
+- Update astroid version to 3.2.1. This solves some reports of ``RecursionError``
+  and also makes the *prefer .pyi stubs* feature in astroid 3.2.0 *opt-in*
+  with the aforementioned ``--prefer-stubs=y`` option.
+
+  Refs #9139 (`#9139 <https://github.com/pylint-dev/pylint/issues/9139>`_)
+
+
+
 What's new in Pylint 3.2.0?
 ---------------------------
 Release date: 2024-05-14
