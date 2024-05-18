@@ -415,6 +415,17 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "Useful if running pylint in a server-like mode.",
             },
         ),
+        (
+            "prefer-stubs",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Resolve imports to .pyi stubs if available. May "
+                "reduce no-member messages and increase not-an-iterable "
+                "messages.",
+            },
+        ),
     )
 
 
