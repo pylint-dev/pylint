@@ -167,6 +167,13 @@ Standard Checkers
 **Default:**  ``True``
 
 
+--prefer-stubs
+""""""""""""""
+*Resolve imports to .pyi stubs if available. May reduce no-member messages and increase not-an-iterable messages.*
+
+**Default:**  ``False``
+
+
 --py-version
 """"""""""""
 *Minimum Python version to use for version dependent checks. Will default to the version used to run pylint.*
@@ -270,6 +277,8 @@ Standard Checkers
    # output-format =
 
    persistent = true
+
+   prefer-stubs = false
 
    py-version = "sys.version_info[:2]"
 
