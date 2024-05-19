@@ -1,11 +1,11 @@
 # pylint: disable=missing-docstring,too-few-public-methods
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Optional
 
 _T = TypeVar("_T")
 
 
 class Entity(Generic[_T]):
-    last_update: int | None = None
+    last_update: Optional[int] = None
 
     def __init__(self, data: _T) -> None:
         self.data = data
