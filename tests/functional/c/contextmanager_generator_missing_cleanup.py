@@ -175,3 +175,15 @@ def genfunc_with_cm_bare_handler():
 def genfunc_with_cm_base_exception_handler():
     with cm_base_exception_handler() as context:
         yield context * 2
+
+
+@contextlib.contextmanager
+def good_cm_no_cleanup():
+    contextvar = "acquired context"
+    print("cm enter")
+    yield contextvar
+
+
+def good_cm_no_cleanup_genfunc():
+    with good_cm_no_cleanup() as context:
+        yield context * 2
