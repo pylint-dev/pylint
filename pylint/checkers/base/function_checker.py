@@ -72,7 +72,7 @@ class FunctionChecker(_BasicChecker):
                 if self._node_fails_contextmanager_cleanup(inferred_node, yield_nodes):
                     self.add_message(
                         "contextmanager-generator-missing-cleanup",
-                        node=node,
+                        node=with_node,
                         args=(node.name,),
                     )
 
@@ -85,6 +85,7 @@ class FunctionChecker(_BasicChecker):
         Current checks for a contextmanager:
             - only if the context manager yields a non-constant value
             - only if the context manager lacks a finally, or does not catch GeneratorExit
+            - only if some statement follows the yield, some manually cleanup happens
 
         :param node: Node to check
         :type node: nodes.FunctionDef
@@ -114,6 +115,19 @@ class FunctionChecker(_BasicChecker):
             for yield_node in yield_nodes
         ):
             return False
+
+        # Check if yield expression is last statement
+        yield_nodes = list(node.nodes_of_class(nodes.Yield))
+        if len(yield_nodes) == 1:
+            n = yield_nodes[0].parent
+            while n is not node:
+                if n.next_sibling() is not None:
+                    break
+                n = n.parent
+            else:
+                # No next statement found
+                return False
+
         # if function body has multiple Try, filter down to the ones that have a yield node
         try_with_yield_nodes = [
             try_node
