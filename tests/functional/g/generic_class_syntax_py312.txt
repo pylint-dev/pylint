@@ -1,0 +1,2 @@
+undefined-variable:5:29:5:31:Entity.__init__:Undefined variable '_T':UNDEFINED
+undefined-variable:31:23:31:25:Child:Undefined variable '_T':UNDEFINED
