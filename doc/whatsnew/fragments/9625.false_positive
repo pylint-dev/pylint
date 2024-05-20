@@ -1,4 +1,0 @@
-Exclude context manager without cleanup from
-``contextmanager-generator-missing-cleanup`` checks.
-
-Closes #9625

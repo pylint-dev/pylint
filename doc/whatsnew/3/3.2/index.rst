@@ -14,6 +14,25 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.2.2?
+---------------------------
+Release date: 2024-05-20
+
+
+False Positives Fixed
+---------------------
+
+- Fix multiple false positives for generic class syntax added in Python 3.12 (PEP 695).
+
+  Closes #9406 (`#9406 <https://github.com/pylint-dev/pylint/issues/9406>`_)
+
+- Exclude context manager without cleanup from
+  ``contextmanager-generator-missing-cleanup`` checks.
+
+  Closes #9625 (`#9625 <https://github.com/pylint-dev/pylint/issues/9625>`_)
+
+
+
 What's new in Pylint 3.2.1?
 ---------------------------
 Release date: 2024-05-18
