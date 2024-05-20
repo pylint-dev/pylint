@@ -47,3 +47,15 @@ def good_cm_finally():
 def good_cm_finally_genfunc():
     with good_cm_finally() as context:
         yield context * 2
+
+
+@contextlib.contextmanager
+def good_cm_no_cleanup():
+    contextvar = "acquired context"
+    print("cm enter")
+    yield contextvar
+
+
+def good_cm_no_cleanup_genfunc():
+    with good_cm_no_cleanup() as context:
+        yield context * 2

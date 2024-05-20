@@ -9,6 +9,6 @@ def cm():
     print("cm exit")
 
 
-def genfunc_with_cm():  # [contextmanager-generator-missing-cleanup]
-    with cm() as context:
+def genfunc_with_cm():
+    with cm() as context:  # [contextmanager-generator-missing-cleanup]
         yield context * 2
