@@ -14,8 +14,8 @@ def cm():
     print("cm exit")
 
 
-def genfunc_with_cm():  # [contextmanager-generator-missing-cleanup]
-    with cm() as context:
+def genfunc_with_cm():
+    with cm() as context:  # [contextmanager-generator-missing-cleanup]
         yield context * 2
 
 
@@ -27,13 +27,13 @@ def name_cm():
     print("cm exit")
 
 
-def genfunc_with_name_cm():  # [contextmanager-generator-missing-cleanup]
-    with name_cm() as context:
+def genfunc_with_name_cm():
+    with name_cm() as context:  # [contextmanager-generator-missing-cleanup]
         yield context * 2
 
 
-def genfunc_with_cm_after():  # [contextmanager-generator-missing-cleanup]
-    with after_cm() as context:
+def genfunc_with_cm_after():
+    with after_cm() as context:  # [contextmanager-generator-missing-cleanup]
         yield context * 2
 
 
@@ -56,8 +56,8 @@ def cm_with_improper_handling():
     print("cm exit")
 
 
-def genfunc_with_cm_improper():  # [contextmanager-generator-missing-cleanup]
-    with cm_with_improper_handling() as context:
+def genfunc_with_cm_improper():
+    with cm_with_improper_handling() as context:  # [contextmanager-generator-missing-cleanup]
         yield context * 2
 
 
@@ -174,4 +174,16 @@ def genfunc_with_cm_bare_handler():
 
 def genfunc_with_cm_base_exception_handler():
     with cm_base_exception_handler() as context:
+        yield context * 2
+
+
+@contextlib.contextmanager
+def good_cm_no_cleanup():
+    contextvar = "acquired context"
+    print("cm enter")
+    yield contextvar
+
+
+def good_cm_no_cleanup_genfunc():
+    with good_cm_no_cleanup() as context:
         yield context * 2
