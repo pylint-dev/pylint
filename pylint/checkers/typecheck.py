@@ -2197,7 +2197,7 @@ accessed. Python regular expressions are accepted.",
         while not isinstance(node_scope, nodes.Module):
             if isinstance(node_scope, nodes.AsyncFunctionDef):
                 return
-            if isinstance(node_scope, nodes.FunctionDef):
+            if isinstance(node_scope, (nodes.FunctionDef, nodes.Lambda)):
                 break
             node_scope = node_scope.parent.scope()
         self.add_message("await-outside-async", node=node)

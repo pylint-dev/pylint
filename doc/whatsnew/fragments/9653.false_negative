@@ -1,0 +1,3 @@
+Fix a false positive for `await-outside-async` when await is inside Lambda.
+
+Refs #9653
