@@ -4,7 +4,6 @@ duplicate-argument-name:12:12:12:13:foo3:Duplicate argument name '_' in function
 duplicate-argument-name:15:15:15:16:foo4:Duplicate argument name '_' in function definition:HIGH
 duplicate-argument-name:18:13:18:14:foo5:Duplicate argument name '_' in function definition:HIGH
 duplicate-argument-name:18:16:18:17:foo5:Duplicate argument name '_' in function definition:HIGH
-duplicate-argument-name:22:15:22:16:foo6:Duplicate argument name '_' in function definition:HIGH
-duplicate-argument-name:22:19:22:20:foo6:Duplicate argument name '_' in function definition:HIGH
-duplicate-argument-name:22:22:22:23:foo6:Duplicate argument name '_' in function definition:HIGH
-duplicate-argument-name:22:31:22:32:foo6:Duplicate argument name '_' in function definition:HIGH
+duplicate-argument-name:21:13:21:14:foo6:Duplicate argument name 'a' in function definition:HIGH
+duplicate-argument-name:24:15:24:16:foo7:Duplicate argument name 'a' in function definition:HIGH
+duplicate-argument-name:27:14:27:15:foo8:Duplicate argument name 'a' in function definition:HIGH
