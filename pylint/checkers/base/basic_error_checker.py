@@ -285,8 +285,7 @@ class BasicErrorChecker(_BasicChecker):
                     self.add_message("return-in-init", node=node)
         # Check for duplicate names by clustering args with same name for detailed report
         arg_clusters = {}
-        arguments: Iterator[Any] = node.args.arguments
-        for arg in arguments:
+        for arg in node.args.arguments:
             if arg.name in arg_clusters:
                 self.add_message(
                     "duplicate-argument-name",
