@@ -65,7 +65,7 @@ Basic checker Messages
   methods and is instantiated.
 :star-needs-assignment-target (E0114): *Can use starred expression only in assignment target*
   Emitted when a star expression is not used in an assignment target.
-:duplicate-argument-name (E0108): *Duplicate argument name %s in function definition*
+:duplicate-argument-name (E0108): *Duplicate argument name %r in function definition*
   Duplicate argument names in function definitions are syntax errors.
 :return-in-init (E0101): *Explicit return in __init__*
   Used when the special class method __init__ has an explicit return value.
