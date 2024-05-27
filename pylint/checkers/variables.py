@@ -1520,6 +1520,8 @@ class VariablesChecker(BaseChecker):
                     continue
 
                 line = definition.fromlineno
+                if line > stmt.lineno:
+                    continue
                 if not self._is_name_ignored(stmt, name):
                     self.add_message(
                         "redefined-outer-name", args=(name, line), node=stmt
