@@ -2,8 +2,6 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-# pylint: disable=redefined-outer-name
-
 from __future__ import annotations
 
 import os
