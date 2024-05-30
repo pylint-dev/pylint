@@ -72,10 +72,9 @@ def func():
         pass
 
 
+# https://github.com/pylint-dev/pylint/issues/9671
 def function_before():
-    """https://github.com/pylint-dev/pylint/issues/9671
-
-       The local variable `e` should not trigger `redefined-outer-name`
+    """The local variable `e` should not trigger `redefined-outer-name`
        when `e` is also defined in the subsequent exception handling block.
     """
     e = 42
@@ -85,3 +84,12 @@ try:
     raise ValueError('outer')
 except ValueError as e:
     print(e)
+
+
+def function_after():
+    """function defined after exception handler at module level
+       The local variable `e` should not trigger `redefined-outer-name`
+       when `e` is also defined in the subsequent exception handling block.
+    """
+    e = 42
+    return e

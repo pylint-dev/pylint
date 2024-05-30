@@ -1519,9 +1519,16 @@ class VariablesChecker(BaseChecker):
                 ):
                     continue
 
-                line = definition.fromlineno
-                if line > stmt.lineno:
+                # Suppress emitting the message if the outer name is in the
+                # scope of an exception assignment.
+                # For example: the `e` in `except ValueError as e`
+                global_node = globs[name][0]
+                if isinstance(global_node, nodes.AssignName) and isinstance(
+                    global_node.parent, nodes.ExceptHandler
+                ):
                     continue
+
+                line = definition.fromlineno
                 if not self._is_name_ignored(stmt, name):
                     self.add_message(
                         "redefined-outer-name", args=(name, line), node=stmt
