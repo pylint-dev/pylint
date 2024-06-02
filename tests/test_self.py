@@ -215,8 +215,8 @@ class TestRunTC:
 
     def test_disable_all(self) -> None:
         out = StringIO()
-        self._runtest([UNNECESSARY_LAMBDA, "--disable=all"], out=out, code=0)
-        assert "Your code has been rated at 10.00/10" in out.getvalue().strip()
+        self._runtest([UNNECESSARY_LAMBDA, "--disable=all"], out=out, code=32)
+        assert "No files to lint: exiting." in out.getvalue().strip()
 
     def test_disable_all_enable_invalid(self) -> None:
         out = StringIO()

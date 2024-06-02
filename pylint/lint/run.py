@@ -20,7 +20,7 @@ from pylint.config._pylint_config import (
 from pylint.config.config_initialization import _config_initialization
 from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
-from pylint.constants import full_version
+from pylint.constants import full_version, PYLINT_MSGS
 from pylint.lint.base_options import _make_run_options
 from pylint.lint.pylinter import MANAGER, PyLinter
 from pylint.reporters.base_reporter import BaseReporter
@@ -175,10 +175,8 @@ group are mutually exclusive.",
                 sys.exit(code)
             return
 
-        # Display help if there are no files to lint or no checks enabled
-        if not args or len(linter.config.disable) == len(
-            linter.msgs_store._messages_definitions
-        ):
+        # Display help if there are no files to lint or only internal checks enabled (`--disable=all`)
+        if not args or set([m.msgid for m in linter.messages]) == set(PYLINT_MSGS):
             print("No files to lint: exiting.")
             sys.exit(32)
 
