@@ -1,0 +1,3 @@
+singledispatchmethod-function:9:1:9:21:convert_position2:singledispatchmethod decorator should not be used with functions, use singledispatch instead.:HIGH
+singledispatchmethod-function:13:1:13:27:_:singledispatchmethod decorator should not be used with functions, use singledispatch instead.:INFERENCE
+singledispatchmethod-function:18:1:18:27:_:singledispatchmethod decorator should not be used with functions, use singledispatch instead.:INFERENCE

@@ -23,6 +23,7 @@ from pylint.checkers.base.basic_checker import BasicChecker
 from pylint.checkers.base.basic_error_checker import BasicErrorChecker
 from pylint.checkers.base.comparison_checker import ComparisonChecker
 from pylint.checkers.base.docstring_checker import DocStringChecker
+from pylint.checkers.base.function_checker import FunctionChecker
 from pylint.checkers.base.name_checker import (
     KNOWN_NAME_TYPES_WITH_STYLE,
     AnyStyle,
@@ -46,3 +47,4 @@ def register(linter: PyLinter) -> None:
     linter.register_checker(DocStringChecker(linter))
     linter.register_checker(PassChecker(linter))
     linter.register_checker(ComparisonChecker(linter))
+    linter.register_checker(FunctionChecker(linter))

@@ -584,8 +584,8 @@ class PyLinter(
     def should_analyze_file(modname: str, path: str, is_argument: bool = False) -> bool:
         """Returns whether a module should be checked.
 
-        This implementation returns True for all python source file, indicating
-        that all files should be linted.
+        This implementation returns True for all python source files (.py and .pyi),
+        indicating that all files should be linted.
 
         Subclasses may override this method to indicate that modules satisfying
         certain conditions should not be linted.
@@ -599,7 +599,7 @@ class PyLinter(
         """
         if is_argument:
             return True
-        return path.endswith(".py")
+        return path.endswith((".py", ".pyi"))
 
     # pylint: enable=unused-argument
 
@@ -646,7 +646,7 @@ class PyLinter(
                         yield from (
                             os.path.join(root, file)
                             for file in files
-                            if file.endswith(".py")
+                            if file.endswith((".py", ".pyi"))
                         )
             else:
                 yield something
@@ -1073,6 +1073,8 @@ class PyLinter(
         MANAGER.always_load_extensions = self.config.unsafe_load_any_extension
         MANAGER.max_inferable_values = self.config.limit_inference_results
         MANAGER.extension_package_whitelist.update(self.config.extension_pkg_allow_list)
+        MANAGER.module_denylist.update(self.config.ignored_modules)
+        MANAGER.prefer_stubs = self.config.prefer_stubs
         if self.config.extension_pkg_whitelist:
             MANAGER.extension_package_whitelist.update(
                 self.config.extension_pkg_whitelist

@@ -32,7 +32,7 @@ from pylint.checkers.utils import (
     is_sys_guard,
     overridden_method,
 )
-from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
+from pylint.constants import PY39_PLUS, PY311_PLUS, TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
 
@@ -141,7 +141,7 @@ def _is_from_future_import(stmt: nodes.ImportFrom, name: str) -> bool | None:
     """Check if the name is a future import from another module."""
     try:
         module = stmt.do_import_module(stmt.modname)
-    except astroid.AstroidBuildingException:
+    except astroid.AstroidBuildingError:
         return None
 
     for local_node in module.locals.get(name, []):
@@ -403,6 +403,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "invalid-all-format",
         "Used when __all__ has an invalid format.",
     ),
+    "E0606": (
+        "Possibly using variable %r before assignment",
+        "possibly-used-before-assignment",
+        "Emitted when a local variable is accessed before its assignment took place "
+        "in both branches of an if/else switch.",
+    ),
     "E0611": (
         "No name %r in module %r",
         "no-name-in-module",
@@ -537,6 +543,8 @@ class NamesConsumer:
             copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
         )
         self.node = node
+        self.names_under_always_false_test: set[str] = set()
+        self.names_defined_under_one_branch_only: set[str] = set()
 
     def __repr__(self) -> str:
         _to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
@@ -636,13 +644,6 @@ scope_type : {self._atomic.scope_type}
         if VariablesChecker._comprehension_between_frame_and_node(node):
             return found_nodes
 
-        # Filter out assignments guarded by always false conditions
-        if found_nodes:
-            uncertain_nodes = self._uncertain_nodes_in_false_tests(found_nodes, node)
-            self.consumed_uncertain[node.name] += uncertain_nodes
-            uncertain_nodes_set = set(uncertain_nodes)
-            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
-
         # Filter out assignments in ExceptHandlers that node is not contained in
         if found_nodes:
             found_nodes = [
@@ -651,6 +652,13 @@ scope_type : {self._atomic.scope_type}
                 if not isinstance(n.statement(), nodes.ExceptHandler)
                 or n.statement().parent_of(node)
             ]
+
+        # Filter out assignments guarded by always false conditions
+        if found_nodes:
+            uncertain_nodes = self._uncertain_nodes_if_tests(found_nodes, node)
+            self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_set = set(uncertain_nodes)
+            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
         # Filter out assignments in an Except clause that the node is not
         # contained in, assuming they may fail
@@ -667,7 +675,7 @@ scope_type : {self._atomic.scope_type}
         if found_nodes:
             uncertain_nodes = (
                 self._uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-                    found_nodes, node_statement
+                    found_nodes, node_statement, name
                 )
             )
             self.consumed_uncertain[node.name] += uncertain_nodes
@@ -688,8 +696,9 @@ scope_type : {self._atomic.scope_type}
 
         return found_nodes
 
-    @staticmethod
-    def _inferred_to_define_name_raise_or_return(name: str, node: nodes.NodeNG) -> bool:
+    def _inferred_to_define_name_raise_or_return(
+        self, name: str, node: nodes.NodeNG
+    ) -> bool:
         """Return True if there is a path under this `if_node`
         that is inferred to define `name`, raise, or return.
         """
@@ -716,8 +725,8 @@ scope_type : {self._atomic.scope_type}
         if not isinstance(node, nodes.If):
             return False
 
-        # Be permissive if there is a break
-        if any(node.nodes_of_class(nodes.Break)):
+        # Be permissive if there is a break or a continue
+        if any(node.nodes_of_class(nodes.Break, nodes.Continue)):
             return True
 
         # Is there an assignment in this node itself, e.g. in named expression?
@@ -739,17 +748,18 @@ scope_type : {self._atomic.scope_type}
 
         # Only search else branch when test condition is inferred to be false
         if all_inferred and only_search_else:
-            return NamesConsumer._branch_handles_name(name, node.orelse)
-        # Only search if branch when test condition is inferred to be true
-        if all_inferred and only_search_if:
-            return NamesConsumer._branch_handles_name(name, node.body)
+            self.names_under_always_false_test.add(name)
+            return self._branch_handles_name(name, node.orelse)
         # Search both if and else branches
-        return NamesConsumer._branch_handles_name(
-            name, node.body
-        ) or NamesConsumer._branch_handles_name(name, node.orelse)
+        if_branch_handles = self._branch_handles_name(name, node.body)
+        else_branch_handles = self._branch_handles_name(name, node.orelse)
+        if if_branch_handles ^ else_branch_handles:
+            self.names_defined_under_one_branch_only.add(name)
+        elif name in self.names_defined_under_one_branch_only:
+            self.names_defined_under_one_branch_only.remove(name)
+        return if_branch_handles and else_branch_handles
 
-    @staticmethod
-    def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
+    def _branch_handles_name(self, name: str, body: Iterable[nodes.NodeNG]) -> bool:
         return any(
             NamesConsumer._defines_name_raises_or_returns(name, if_body_stmt)
             or isinstance(
@@ -762,17 +772,15 @@ scope_type : {self._atomic.scope_type}
                     nodes.While,
                 ),
             )
-            and NamesConsumer._inferred_to_define_name_raise_or_return(
-                name, if_body_stmt
-            )
+            and self._inferred_to_define_name_raise_or_return(name, if_body_stmt)
             for if_body_stmt in body
         )
 
-    def _uncertain_nodes_in_false_tests(
+    def _uncertain_nodes_if_tests(
         self, found_nodes: list[nodes.NodeNG], node: nodes.NodeNG
     ) -> list[nodes.NodeNG]:
-        """Identify nodes of uncertain execution because they are defined under
-        tests that evaluate false.
+        """Identify nodes of uncertain execution because they are defined under if
+        tests.
 
         Don't identify a node if there is a path that is inferred to
         define the name, raise, or return (e.g. any executed if/elif/else branch).
@@ -808,7 +816,7 @@ scope_type : {self._atomic.scope_type}
                 continue
 
             # Name defined in the if/else control flow
-            if NamesConsumer._inferred_to_define_name_raise_or_return(name, outer_if):
+            if self._inferred_to_define_name_raise_or_return(name, outer_if):
                 continue
 
             uncertain_nodes.append(other_node)
@@ -930,8 +938,17 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
-        if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return)):
+        if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return, nodes.Continue)):
             return True
+        if isinstance(node, nodes.Expr) and isinstance(node.value, nodes.Call):
+            if utils.is_terminating_func(node.value):
+                return True
+            if (
+                PY311_PLUS
+                and isinstance(node.value.func, nodes.Name)
+                and node.value.func.name == "assert_never"
+            ):
+                return True
         if (
             isinstance(node, nodes.AnnAssign)
             and node.value
@@ -1009,7 +1026,6 @@ scope_type : {self._atomic.scope_type}
         the loop can depend on it being assigned.
 
         Example:
-
         for _ in range(3):
             try:
                 do_something()
@@ -1140,7 +1156,9 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-        found_nodes: list[nodes.NodeNG], node_statement: _base_nodes.Statement
+        found_nodes: list[nodes.NodeNG],
+        node_statement: _base_nodes.Statement,
+        name: str,
     ) -> list[nodes.NodeNG]:
         uncertain_nodes: list[nodes.NodeNG] = []
         (
@@ -1185,6 +1203,12 @@ scope_type : {self._atomic.scope_type}
                     )
                     for other_node_final_statement in other_node_try_finally_ancestor.finalbody
                 )
+            ):
+                continue
+            # Is the name defined in all exception clauses?
+            if other_node_try_finally_ancestor.handlers and all(
+                NamesConsumer._defines_name_raises_or_returns_recursive(name, handler)
+                for handler in other_node_try_finally_ancestor.handlers
             ):
                 continue
             # Passed all tests for uncertain execution
@@ -1985,11 +2009,19 @@ class VariablesChecker(BaseChecker):
         ):
             return
 
-        confidence = (
-            CONTROL_FLOW if node.name in current_consumer.consumed_uncertain else HIGH
-        )
+        confidence = HIGH
+        if node.name in current_consumer.names_under_always_false_test:
+            confidence = INFERENCE
+        elif node.name in current_consumer.consumed_uncertain:
+            confidence = CONTROL_FLOW
+
+        if node.name in current_consumer.names_defined_under_one_branch_only:
+            msg = "possibly-used-before-assignment"
+        else:
+            msg = "used-before-assignment"
+
         self.add_message(
-            "used-before-assignment",
+            msg,
             args=node.name,
             node=node,
             confidence=confidence,
@@ -2059,7 +2091,7 @@ class VariablesChecker(BaseChecker):
         name_parts = node.modname.split(".")
         try:
             module = node.do_import_module(name_parts[0])
-        except astroid.AstroidBuildingException:
+        except astroid.AstroidBuildingError:
             return
         module = self._check_module_attrs(node, module, name_parts[1:])
         if not module:

@@ -1,6 +1,7 @@
 """Miscellaneous used-before-assignment cases"""
 # pylint: disable=consider-using-f-string, missing-function-docstring
 import datetime
+import sys
 
 MSG = "hello %s" % MSG  # [used-before-assignment]
 
@@ -60,7 +61,7 @@ elif VAR2:
     pass
 else:
     VAR4 = False
-if VAR4:  # [used-before-assignment]
+if VAR4:  # [possibly-used-before-assignment]
     pass
 
 if FALSE:
@@ -70,7 +71,7 @@ elif VAR2:
         VAR5 = True
     else:
         VAR5 = True
-if VAR5:
+if VAR5:  # [possibly-used-before-assignment]
     pass
 
 if FALSE:
@@ -116,7 +117,13 @@ for num in [0, 1]:
     VAR11 = num
     if VAR11:
         VAR12 = False
-print(VAR12)
+print(VAR12)  # [possibly-used-before-assignment]
+
+if input("This tests terminating functions: "):
+    sys.exit()
+else:
+    VAR13 = 1
+print(VAR13)
 
 def turn_on2(**kwargs):
     """https://github.com/pylint-dev/pylint/issues/7873"""
@@ -132,15 +139,15 @@ def turn_on2(**kwargs):
 # Variables guarded by the same test when used.
 
 # Always false
-if __name__ == "__main__":
+if 1 in []:
     PERCENT = 20
     SALE = True
 
-if __name__ == "__main__":
+if 1 in []:
     print(PERCENT)
 
 # Different test
-if __name__ is None:
+if 1 in [1]:
     print(SALE)  # [used-before-assignment]
 
 
@@ -180,3 +187,21 @@ attr = 'test'  # pylint: disable=invalid-name
 class T:  # pylint: disable=invalid-name, too-few-public-methods, undefined-variable
     '''Issue #8754, no crash from unexpected assignment between attribute and variable'''
     T.attr = attr
+
+
+if outer():
+    NOT_ALWAYS_DEFINED = True
+print(NOT_ALWAYS_DEFINED)  # [used-before-assignment]
+
+
+def inner_if_continues_outer_if_has_no_other_statements():
+    for i in range(5):
+        if isinstance(i, int):
+            # Testing no assignment here, before the inner if
+            if i % 2 == 0:
+                order = None
+            else:
+                continue
+        else:
+            order = None
+        print(order)

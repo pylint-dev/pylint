@@ -55,7 +55,7 @@ For example:
    scratch.
 -  Delete the ``maintenance/X.Y-1.x`` branch. (For example:
    ``maintenance/2.3.x``)
--  Select all the issues labelled ``backport maintenance/X.Y-1.x`` and
+-  Select all the *closed* issues labelled ``backport maintenance/X.Y-1.x`` and
    label them ``backported``, then rename the
    ``backport maintenance/X.Y-1.x`` label to
    ``backport maintenance/X.Y.x`` (for example rename
@@ -64,7 +64,7 @@ For example:
    close ``2.4.0``, create ``2.4.1`` and ``2.6.0``)
 -  Hide and deactivate all the patch releases for the previous minor
    release on
-   `readthedoc <https://readthedocs.org/projects/pylint/versions/>`__,
+   `readthedocs <https://readthedocs.org/projects/pylint/versions/>`__,
    except the last one. (For example: hide ``v2.4.0``, ``v2.4.1``,
    ``v2.4.2`` and keep only ``v2.4.3``)
 

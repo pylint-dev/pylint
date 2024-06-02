@@ -261,6 +261,7 @@ proc
 py
 pyenchant
 pyfile
+pyi
 pylint
 pylintdict
 pylintrc
@@ -299,6 +300,7 @@ spammy
 sqlalchemy
 src
 starargs
+stateful
 staticmethod
 stderr
 stdin
@@ -334,6 +336,7 @@ testoptions
 tmp
 tokencheckers
 tokeninfo
+tokenization
 tokenize
 tokenizer
 toml
@@ -361,6 +364,7 @@ unicode
 Uninferable
 uninferable
 unittest
+unraisablehook
 untriggered
 # prefix for string
 ur

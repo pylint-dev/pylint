@@ -139,6 +139,7 @@ All messages in the error category:
    error/not-in-loop
    error/notimplemented-raised
    error/positional-only-arguments-expected
+   error/possibly-used-before-assignment
    error/potential-index-error
    error/raising-bad-type
    error/raising-non-exception
@@ -227,6 +228,7 @@ All messages in the warning category:
    warning/comparison-with-callable
    warning/confusing-with-statement
    warning/consider-ternary-expression
+   warning/contextmanager-generator-missing-cleanup
    warning/dangerous-default-value
    warning/deprecated-argument
    warning/deprecated-attribute

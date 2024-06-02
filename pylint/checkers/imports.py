@@ -686,7 +686,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     isinstance(prev, nodes.ImportFrom) and prev.modname == "__future__"
                 ):
                     self.add_message("misplaced-future", node=node)
-            return
 
     def _check_same_line_imports(self, node: nodes.ImportFrom) -> None:
         # Detect duplicate imports on the same line.
@@ -1046,9 +1045,12 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         base = os.path.splitext(os.path.basename(module_file))[0]
 
         try:
-            importedmodname = astroid.modutils.get_module_part(
-                importedmodname, module_file
-            )
+            if isinstance(node, nodes.ImportFrom) and node.level:
+                importedmodname = astroid.modutils.get_module_part(
+                    importedmodname, module_file
+                )
+            else:
+                importedmodname = astroid.modutils.get_module_part(importedmodname)
         except ImportError:
             pass
 
@@ -1077,7 +1079,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
         """Check if the module has a preferred replacement."""
-
         mod_compare = [mod_path]
         # build a comparison list of possible names using importfrom
         if isinstance(node, astroid.nodes.node_classes.ImportFrom):

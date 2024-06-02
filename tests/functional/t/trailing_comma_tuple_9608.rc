@@ -1,0 +1,5 @@
+[MAIN]
+disable=trailing-comma-tuple
+
+[testoptions]
+exclude_from_minimal_messages_config=True

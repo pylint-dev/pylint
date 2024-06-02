@@ -311,12 +311,14 @@ class _MessageStateHandler:
         line: int | None = None,
         confidence: interfaces.Confidence | None = None,
     ) -> bool:
-        """Return whether this message is enabled for the current file, line and
-        confidence level.
+        """Is this message enabled for the current file ?
 
-        This function can't be cached right now as the line is the line of
-        the currently analysed file (self.file_state), if it changes, then the
-        result for the same msg_descr/line might need to change.
+        Optionally, is it enabled for this line and confidence level ?
+
+        The current file is implicit and mandatory. As a result this function
+        can't be cached right now as the line is the line of the currently
+        analysed file (self.file_state), if it changes, then the result for
+        the same msg_descr/line might need to change.
 
         :param msg_descr: Either the msgid or the symbol for a MessageDefinition
         :param line: The line of the currently analysed file

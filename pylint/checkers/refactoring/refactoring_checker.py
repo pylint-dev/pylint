@@ -586,7 +586,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         the result of the statement's test, then this can be reduced
         to `bool(test)` without losing any functionality.
         """
-
         if self._is_actual_elif(node):
             # Not interested in if statements with multiple branches.
             return
@@ -649,9 +648,33 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message("simplifiable-if-statement", node=node, args=(reduced_to,))
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
+        # Optimization flag because '_is_trailing_comma' is costly
+        trailing_comma_tuple_enabled_for_file = self.linter.is_message_enabled(
+            "trailing-comma-tuple"
+        )
+        trailing_comma_tuple_enabled_once: bool = trailing_comma_tuple_enabled_for_file
         # Process tokens and look for 'if' or 'elif'
         for index, token in enumerate(tokens):
             token_string = token[1]
+            if (
+                not trailing_comma_tuple_enabled_once
+                and token_string.startswith("#")
+                # We have at least 1 '#' (one char) at the start of the token
+                and "pylint:" in token_string[1:]
+                # We have at least '#' 'pylint' ( + ':') (8 chars) at the start of the token
+                and "enable" in token_string[8:]
+                # We have at least '#', 'pylint', ( + ':'), 'enable' (+ '=') (15 chars) at
+                # the start of the token
+                and any(
+                    c in token_string[15:] for c in ("trailing-comma-tuple", "R1707")
+                )
+            ):
+                # Way to not have to check if "trailing-comma-tuple" is enabled or
+                # disabled on each line: Any enable for it during tokenization and
+                # we'll start using the costly '_is_trailing_comma' to check if we
+                # need to raise the message. We still won't raise if it's disabled
+                # again due to the usual generic message control handling later.
+                trailing_comma_tuple_enabled_once = True
             if token_string == "elif":
                 # AST exists by the time process_tokens is called, so
                 # it's safe to assume tokens[index+1] exists.
@@ -660,10 +683,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # token[2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
-            elif self.linter.is_message_enabled(
-                "trailing-comma-tuple"
+            elif (
+                trailing_comma_tuple_enabled_for_file
+                or trailing_comma_tuple_enabled_once
             ) and _is_trailing_comma(tokens, index):
-                self.add_message("trailing-comma-tuple", line=token.start[0])
+                # If "trailing-comma-tuple" is enabled globally we always check _is_trailing_comma
+                # it might be for nothing if there's a local disable, or if the message control is
+                # not enabling 'trailing-comma-tuple', but the alternative is having to check if
+                # it's enabled for a line each line (just to avoid calling '_is_trailing_comma').
+                self.add_message(
+                    "trailing-comma-tuple", line=token.start[0], confidence=HIGH
+                )
 
     @utils.only_required_for_messages("consider-using-with")
     def leave_module(self, _: nodes.Module) -> None:
@@ -871,15 +901,31 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_get(node)
         self._check_consider_using_min_max_builtin(node)
 
-    # pylint: disable = too-many-branches
     def _check_consider_using_min_max_builtin(self, node: nodes.If) -> None:
         """Check if the given if node can be refactored as a min/max python builtin."""
+        # This function is written expecting a test condition of form:
+        #  if a < b: # [consider-using-max-builtin]
+        #    a = b
+        #  if a > b: # [consider-using-min-builtin]
+        #    a = b
         if self._is_actual_elif(node) or node.orelse:
             # Not interested in if statements with multiple branches.
             return
 
         if len(node.body) != 1:
             return
+
+        def get_node_name(node: nodes.NodeNG) -> str:
+            """Obtain simplest representation of a node as a string."""
+            if isinstance(node, nodes.Name):
+                return node.name  # type: ignore[no-any-return]
+            if isinstance(node, nodes.Attribute):
+                return node.attrname  # type: ignore[no-any-return]
+            if isinstance(node, nodes.Const):
+                return str(node.value)
+            # this is a catch-all for nodes that are not of type Name or Attribute
+            # extremely helpful for Call or BinOp
+            return node.as_string()  # type: ignore[no-any-return]
 
         body = node.body[0]
         # Check if condition can be reduced.
@@ -894,14 +940,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(body, nodes.Assign)
         ):
             return
-
-        # Check that the assignation is on the same variable.
-        if hasattr(node.test.left, "name"):
-            left_operand = node.test.left.name
-        elif hasattr(node.test.left, "attrname"):
-            left_operand = node.test.left.attrname
-        else:
-            return
+        # Assign body line has one requirement and that is the assign target
+        # is of type name or attribute. Attribute referring to NamedTuple.x perse.
+        # So we have to check that target is of these types
 
         if hasattr(target, "name"):
             target_assignation = target.name
@@ -910,30 +951,24 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
 
-        if not (left_operand == target_assignation):
-            return
-
         if len(node.test.ops) > 1:
             return
-
-        if not isinstance(body.value, (nodes.Name, nodes.Const)):
-            return
-
         operator, right_statement = node.test.ops[0]
-        if isinstance(body.value, nodes.Name):
-            body_value = body.value.name
-        else:
-            body_value = body.value.value
 
-        if isinstance(right_statement, nodes.Name):
-            right_statement_value = right_statement.name
-        elif isinstance(right_statement, nodes.Const):
-            right_statement_value = right_statement.value
+        body_value = get_node_name(body.value)
+        left_operand = get_node_name(node.test.left)
+        right_statement_value = get_node_name(right_statement)
+
+        if left_operand == target_assignation:
+            # statement is in expected form
+            pass
+        elif right_statement_value == target_assignation:
+            # statement is in reverse form
+            operator = utils.get_inverse_comparator(operator)
         else:
             return
 
-        # Verify the right part of the statement is the same.
-        if right_statement_value != body_value:
+        if body_value not in (right_statement_value, left_operand):
             return
 
         if operator in {"<", "<="}:
@@ -2073,12 +2108,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Per its implementation and PEP8 we can have a "return None" at the end
         of the function body if there are other return statements before that!
         """
-        if len(self._return_nodes[node.name]) > 1:
+        if len(self._return_nodes[node.name]) != 1:
             return
-        if len(node.body) <= 1:
+        if not node.body:
             return
 
         last = node.body[-1]
+        if isinstance(last, nodes.Return) and len(node.body) == 1:
+            return
+
+        while isinstance(last, (nodes.If, nodes.Try, nodes.ExceptHandler)):
+            last = last.last_child()
+
         if isinstance(last, nodes.Return):
             # e.g. "return"
             if last.value is None:

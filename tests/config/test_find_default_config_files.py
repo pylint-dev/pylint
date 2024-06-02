@@ -24,7 +24,7 @@ from pylint.lint.run import Run
 
 @pytest.fixture
 def pop_pylintrc() -> None:
-    """Remove the PYLINTRC environment variable"""
+    """Remove the PYLINTRC environment variable."""
     os.environ.pop("PYLINTRC", None)
 
 
@@ -166,7 +166,7 @@ def test_pylintrc_toml_parentdir() -> None:
 
 @pytest.mark.usefixtures("pop_pylintrc")
 def test_pyproject_toml_parentdir() -> None:
-    """Test the search of pyproject.toml file in parent directories"""
+    """Test the search of pyproject.toml file in parent directories."""
     with tempdir() as chroot:
         with fake_home():
             chroot_path = Path(chroot)

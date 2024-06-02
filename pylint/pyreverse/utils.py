@@ -218,7 +218,6 @@ def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set[InferenceResult
     """Return a set containing the node annotation if it exists
     otherwise return a set of the inferred types using the NodeNG.infer method.
     """
-
     ann = get_annotation(node)
     try:
         if ann:

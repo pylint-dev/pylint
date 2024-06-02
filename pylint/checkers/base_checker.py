@@ -68,7 +68,7 @@ class BaseChecker(_ArgumentsProvider):
             return not self_is_builtin
         return self.name > other.name
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Permit to assert Checkers are equal."""
         if not isinstance(other, BaseChecker):
             return False

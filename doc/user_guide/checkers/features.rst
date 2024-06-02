@@ -166,6 +166,9 @@ Basic checker Messages
   This is a particular case of W0104 with its own message so you can easily
   disable it if you're using those strings as documentation, instead of
   comments.
+:contextmanager-generator-missing-cleanup (W0135): *The context used in function %r will not be exited.*
+  Used when a contextmanager is used inside a generator function and the
+  cleanup is not handled.
 :unnecessary-pass (W0107): *Unnecessary pass statement*
   Used when a "pass" statement can be removed without affecting the behaviour
   of the code.
@@ -1374,6 +1377,9 @@ Variables checker Messages
   Used when an invalid (non-string) object occurs in __all__.
 :no-name-in-module (E0611): *No name %r in module %r*
   Used when a name cannot be found in a module.
+:possibly-used-before-assignment (E0606): *Possibly using variable %r before assignment*
+  Emitted when a local variable is accessed before its assignment took place in
+  both branches of an if/else switch.
 :undefined-variable (E0602): *Undefined variable %r*
   Used when an undefined variable is accessed.
 :undefined-all-variable (E0603): *Undefined variable name %r in __all__*

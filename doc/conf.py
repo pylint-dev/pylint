@@ -27,8 +27,8 @@ sys.path.append(os.path.abspath("exts"))
 sys.path.append(os.path.abspath(".."))
 
 # pylint: disable=wrong-import-position
-from pylint import __version__  # noqa: E402
-from pylint.__pkginfo__ import numversion  # noqa: E402
+from pylint import __version__
+from pylint.__pkginfo__ import numversion
 
 # pylint: enable=wrong-import-position
 
@@ -106,8 +106,8 @@ source_suffix = ".rst"
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
 
-# The master toctree document.
-master_doc = "index"
+# The root toctree document.
+root_doc = "index"
 
 # General information about the project.
 project = "Pylint"

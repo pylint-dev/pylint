@@ -29,7 +29,7 @@ def exception_str(
     self: Exception, ex: Exception  # pylint: disable=unused-argument
 ) -> str:
     """Function used to replace default __str__ method of exception instances
-    This function is not typed because it is legacy code
+    This function is not typed because it is legacy code.
     """
     return f"in {ex.file}\n:: {', '.join(ex.args)}"  # type: ignore[attr-defined] # Defined in the caller
 
@@ -44,8 +44,7 @@ class LintTestUsingModule:
     output: str | None = None
 
     def _test_functionality(self) -> None:
-        if self.module:
-            tocheck = [self.package + "." + self.module]
+        tocheck = [self.package + "." + self.module] if self.module else []
         if self.depends:
             tocheck += [
                 self.package + f".{name.replace('.py', '')}" for name, _ in self.depends
