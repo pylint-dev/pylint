@@ -20,7 +20,7 @@ from pylint.config._pylint_config import (
 from pylint.config.config_initialization import _config_initialization
 from pylint.config.exceptions import ArgumentPreprocessingError
 from pylint.config.utils import _preprocess_options
-from pylint.constants import full_version, PYLINT_MSGS
+from pylint.constants import PYLINT_MSGS, full_version
 from pylint.lint.base_options import _make_run_options
 from pylint.lint.pylinter import MANAGER, PyLinter
 from pylint.reporters.base_reporter import BaseReporter
