@@ -12,7 +12,6 @@ import logging
 import unittest
 from pathlib import Path
 from typing import Any, Dict
-from unittest.mock import Mock
 
 from pylint.lint import Run
 
