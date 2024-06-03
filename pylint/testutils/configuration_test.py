@@ -135,18 +135,15 @@ def get_expected_output(
 
 def run_using_a_configuration_file(
     configuration_path: Path | str, file_to_lint: str = __file__
-) -> tuple[Mock, Mock, Run]:
+) -> Run:
     """Simulate a run with a configuration without really launching the checks."""
     configuration_path = str(configuration_path)
     args = ["--rcfile", configuration_path, file_to_lint]
-    # We do not capture the `SystemExit` as then the `runner` variable
-    # would not be accessible outside the `with` block.
-    with unittest.mock.patch("sys.exit") as mocked_exit:
-        # Do not actually run checks, that could be slow. We don't mock
-        # `PyLinter.check`: it calls `PyLinter.initialize` which is
-        # needed to properly set up messages inclusion/exclusion
-        # in `_msg_states`, used by `is_message_enabled`.
-        check = "pylint.lint.pylinter.check_parallel"
-        with unittest.mock.patch(check) as mocked_check_parallel:
-            runner = Run(args)
-    return mocked_exit, mocked_check_parallel, runner
+    # Do not actually run checks, that could be slow. We don't mock
+    # `PyLinter.check`: it calls `PyLinter.initialize` which is
+    # needed to properly set up messages inclusion/exclusion
+    # in `_msg_states`, used by `is_message_enabled`.
+    check = "pylint.lint.pylinter.check_parallel"
+    with unittest.mock.patch(check):
+        runner = Run(args, exit=False)
+    return runner
