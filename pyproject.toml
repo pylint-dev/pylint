@@ -107,6 +107,7 @@ markers = [
 [tool.isort]
 profile = "black"
 known_third_party = ["platformdirs", "astroid", "sphinx", "isort", "pytest", "mccabe", "six", "toml"]
+extra_standard_library = ["_string"]
 skip_glob = ["tests/functional/**", "tests/input/**", "tests/extensions/data/**", "tests/regrtest_data/**", "tests/data/**", "astroid/**", "venv/**"]
 src_paths = ["pylint"]
 

@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import _string
 import builtins
 import fnmatch
 import itertools
@@ -17,7 +18,6 @@ from functools import lru_cache, partial
 from re import Match
 from typing import TYPE_CHECKING, Any, Callable, TypeVar
 
-import _string
 import astroid.objects
 from astroid import TooManyLevelsError, nodes, util
 from astroid.context import InferenceContext
