@@ -6,7 +6,7 @@
 import abc
 
 
-class Abstract:
+class Abstract(abc.ABC):
     def aaaa(self):
         """should be overridden in concrete class"""
         raise NotImplementedError()
@@ -16,7 +16,7 @@ class Abstract:
         raise NotImplementedError()
 
 
-class AbstractB(Abstract):
+class AbstractB(Abstract, abc.ABC):
     """Abstract class.
 
     this class is checking that it does not output an error msg for
@@ -49,7 +49,7 @@ class ConcreteA(AbstractC):  # [abstract-method]
     Incomplete concrete class.
 
     Should trigger a warning for unimplemented abstract
-    methods while not directly inheriting from abc.ABC.
+    methods, for lack of explicit abc.ABC inheritance.
     """
 
 
@@ -58,7 +58,7 @@ class ConcreteB(Abstract):  # [abstract-method]
     Incomplete concrete class.
 
     Should trigger a warning for unimplemented abstract
-    methods while not directly inheriting from abc.ABC.
+    methods, for lack of explicit abc.ABC inheritance.
     """
 
     def aaaa(self):
@@ -69,7 +69,8 @@ class ConcreteC(AbstractC):
     """
     Complete concrete class
 
-    Should not trigger a warning as all abstract methods are implemented.
+    Should not trigger a warning as all
+    abstract methods are implemented.
     """
     def aaaa(self):
         """overridden form Abstract"""
