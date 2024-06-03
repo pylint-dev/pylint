@@ -44,11 +44,41 @@ class AbstractD(AbstractB, metaclass=abc.ABCMeta):
     """
 
 
-class Concrete(Abstract): # [abstract-method]
-    """Concrete class"""
+class ConcreteA(AbstractC):  # [abstract-method]
+    """
+    Incomplete concrete class.
+
+    Should trigger a warning for unimplemented abstract
+    methods while not directly inheriting from abc.ABC.
+    """
+
+
+class ConcreteB(Abstract):  # [abstract-method]
+    """
+    Incomplete concrete class.
+
+    Should trigger a warning for unimplemented abstract
+    methods while not directly inheriting from abc.ABC.
+    """
 
     def aaaa(self):
         """overridden form Abstract"""
+
+
+class ConcreteC(AbstractC):
+    """
+    Complete concrete class
+
+    Should not trigger a warning as all abstract methods are implemented.
+    """
+    def aaaa(self):
+        """overridden form Abstract"""
+
+    def bbbb(self):
+        """overridden form Abstract"""
+
+    def cccc(self):
+        """overridden form AbstractB"""
 
 
 class Structure(metaclass=abc.ABCMeta):
