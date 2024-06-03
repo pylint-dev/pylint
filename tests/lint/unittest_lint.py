@@ -20,6 +20,7 @@ from pathlib import Path
 from shutil import copy, rmtree
 from unittest import mock
 
+import astroid
 import platformdirs
 import pytest
 from astroid import nodes
@@ -1130,6 +1131,9 @@ def test_recursive_ignore(ignore_parameter: str, ignore_parameter_value: str) ->
     ):
         module = os.path.abspath(join(REGRTEST_DATA_DIR, *regrtest_data_module))
     assert module in linted_file_paths
+    # We lint the modules in `regrtest` in other tests as well. Prevent test polluting by
+    # explictly clearing the astroid caches.
+    astroid.MANAGER.clear_cache()
 
 
 def test_source_roots_globbing() -> None:
