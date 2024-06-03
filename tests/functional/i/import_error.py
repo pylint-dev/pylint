@@ -80,8 +80,14 @@ import foo, bar # [multiple-imports]
 import foo
 import bar
 
+import mymodule_ignored
+import mymodule.something_ignored
+from mymodule.something_ignored import anything
+import sys.something_ignored
+from sys.something_ignored import anything
+
 # Issues with contextlib.suppress reported in
-# https://github.com/PyCQA/pylint/issues/7270
+# https://github.com/pylint-dev/pylint/issues/7270
 import contextlib
 with contextlib.suppress(ImportError):
     import foo2

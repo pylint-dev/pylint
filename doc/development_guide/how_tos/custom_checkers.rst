@@ -3,11 +3,11 @@
 How to Write a Checker
 ======================
 You can find some simple examples in the distribution
-(`custom.py <https://github.com/PyCQA/pylint/blob/main/examples/custom.py>`_
+(`custom.py <https://github.com/pylint-dev/pylint/blob/main/examples/custom.py>`_
 ,
-`custom_raw.py <https://github.com/PyCQA/pylint/blob/main/examples/custom_raw.py>`_
+`custom_raw.py <https://github.com/pylint-dev/pylint/blob/main/examples/custom_raw.py>`_
 and
-`deprecation_checker.py <https://github.com/PyCQA/pylint/blob/main/examples/deprecation_checker.py>`_).
+`deprecation_checker.py <https://github.com/pylint-dev/pylint/blob/main/examples/deprecation_checker.py>`_).
 
 .. TODO Create custom_token.py
 
@@ -128,7 +128,7 @@ which is called with an ``.astroid.nodes.Return`` node.
 .. TODO We can shorten/remove this bit once astroid has API docs.
 
 We'll need to be able to figure out what attributes an
-``.astroid.nodes.Return` node has available.
+``.astroid.nodes.Return`` node has available.
 We can use ``astroid.extract_node`` for this::
 
   >>> node = astroid.extract_node("return 5")
@@ -156,7 +156,7 @@ We could also construct a more complete example::
 For ``astroid.extract_node``, you can use ``#@`` at the end of a line to choose which statements will be extracted into nodes.
 
 For more information on ``astroid.extract_node``,
-see the `astroid documentation <https://pylint.pycqa.org/projects/astroid/en/latest/>`_.
+see the `astroid documentation <https://pylint.readthedocs.io/projects/astroid/en/latest/>`_.
 
 Now we know how to use the astroid node, we can implement our check.
 
@@ -167,7 +167,7 @@ Now we know how to use the astroid node, we can implement our check.
           return
       for other_return in self._function_stack[-1]:
           if node.value.value == other_return.value.value and not (
-              self.config.ignore_ints and node.value.pytype() == int
+              self.linter.config.ignore_ints and node.value.pytype() == int
           ):
               self.add_message("non-unique-returns", node=node)
 
@@ -320,6 +320,7 @@ We can use the example code that we used for debugging as our test cases.
 
 .. code-block:: python
 
+  import astroid
   import my_plugin
   import pylint.testutils
 

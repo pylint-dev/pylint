@@ -1,9 +1,9 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Non regression tests for pylint, which requires a too specific configuration
-to be incorporated in the automatic functional test framework
+to be incorporated in the automatic functional test framework.
 """
 
 # pylint: disable=redefined-outer-name
@@ -16,11 +16,11 @@ from collections.abc import Callable, Iterator
 from os.path import abspath, dirname, join
 from typing import cast
 
-import astroid
 import pytest
 
 from pylint import testutils
 from pylint.lint.pylinter import PyLinter
+from pylint.utils.linterstats import LinterStats
 
 REGR_DATA = join(dirname(abspath(__file__)), "regrtest_data")
 sys.path.insert(1, REGR_DATA)
@@ -117,31 +117,10 @@ def test_check_package___init__(finalize_linter: PyLinter) -> None:
     assert sorted(checked) == sorted(filename)
 
     os.chdir(join(REGR_DATA, "package"))
+    finalize_linter.stats = LinterStats()
     finalize_linter.check(["__init__"])
     checked = list(finalize_linter.stats.by_module.keys())
     assert checked == ["__init__"]
-
-
-# TODO: 3.0: Test are broken because of property shenanigans of config attribute
-# Re-enable after some of the old attributes have been removed after deprecation period
-@pytest.mark.xfail
-def test_pylint_config_attr() -> None:
-    mod = astroid.MANAGER.ast_from_module_name("pylint.lint.pylinter")
-    pylinter = mod["PyLinter"]
-    expect = [
-        "_ArgumentsManager",
-        "object",
-        "ReportsHandlerMixIn",
-        "BaseTokenChecker",
-        "BaseChecker",
-        "_ArgumentsProvider",
-    ]
-    assert [c.name for c in pylinter.ancestors()] == expect
-    assert list(astroid.Instance(pylinter).getattr("config"))
-    inferred = list(astroid.Instance(pylinter).igetattr("config"))
-    assert len(inferred) >= 1
-    assert inferred[0].root().name == "argparse"
-    assert inferred[0].name == "Namespace"
 
 
 @pytest.mark.timeout(30)

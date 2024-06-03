@@ -1,7 +1,8 @@
 """Small script to get a new unused message id category."""
+
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -13,7 +14,6 @@ from pylint.message._deleted_message_ids import DELETED_MSGID_PREFIXES
 
 def register_all_checkers_and_plugins(linter: PyLinter) -> None:
     """Registers all checkers and plugins."""
-    linter.cmdline_parser.set_conflict_handler("resolve")
     initialize_checkers(linter)
     initialize_extensions(linter)
 

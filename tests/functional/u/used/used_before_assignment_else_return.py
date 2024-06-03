@@ -1,9 +1,9 @@
 """If the else block returns, it is generally safe to rely on assignments in the except."""
-# pylint: disable=missing-function-docstring, invalid-name
+# pylint: disable=missing-function-docstring, invalid-name, useless-return
 import sys
 
 def valid():
-    """https://github.com/PyCQA/pylint/issues/6790"""
+    """https://github.com/pylint-dev/pylint/issues/6790"""
     try:
         pass
     except ValueError:

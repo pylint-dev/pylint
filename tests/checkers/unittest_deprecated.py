@@ -1,13 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import astroid
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
-from pylint.interfaces import UNDEFINED
+from pylint.interfaces import INFERENCE, UNDEFINED
 from pylint.testutils import CheckerTestCase, MessageTest
 
 
@@ -52,9 +52,38 @@ class _DeprecatedChecker(DeprecatedMixin, BaseChecker):
     def deprecated_decorators(self) -> set[str]:
         return {".deprecated_decorator"}
 
+    def deprecated_attributes(self) -> set[str]:
+        return {".DeprecatedClass.deprecated_attribute"}
 
+
+# pylint: disable-next = too-many-public-methods
 class TestDeprecatedChecker(CheckerTestCase):
     CHECKER_CLASS = _DeprecatedChecker
+
+    def test_deprecated_attribute(self) -> None:
+        # Tests detecting deprecated attribute
+        node = astroid.extract_node(
+            """
+        class DeprecatedClass:
+            deprecated_attribute = 42
+
+        obj = DeprecatedClass()
+        obj.deprecated_attribute
+        """
+        )
+        with self.assertAddsMessages(
+            MessageTest(
+                msg_id="deprecated-attribute",
+                args=(".DeprecatedClass.deprecated_attribute",),
+                node=node,
+                confidence=INFERENCE,
+                line=6,
+                col_offset=0,
+                end_line=6,
+                end_col_offset=24,
+            )
+        ):
+            self.checker.visit_attribute(node)
 
     def test_deprecated_function(self) -> None:
         # Tests detecting deprecated function

@@ -2,7 +2,7 @@
 # pylint: disable=invalid-name, import-error
 
 # Ensure attribute lookups in type comments are accounted for.
-# Reported in https://github.com/PyCQA/pylint/issues/4603
+# Reported in https://github.com/pylint-dev/pylint/issues/4603
 
 from typing import TYPE_CHECKING, Any, Dict
 
@@ -16,12 +16,12 @@ c = ...  # type: Bar.Boo
 
 if TYPE_CHECKING:
     __additional_builtin__: Dict[str, Any]
-    # For why this would emit redefined-builtin: https://github.com/PyCQA/pylint/pull/3643
+    # For why this would emit redefined-builtin: https://github.com/pylint-dev/pylint/pull/3643
     # pylint: disable-next=redefined-builtin
     repr: Any
 
 
 def run():
-    """https://github.com/PyCQA/pylint/issues/6388"""
+    """https://github.com/pylint-dev/pylint/issues/6388"""
     print(repr)
     return __additional_builtin__["test"]

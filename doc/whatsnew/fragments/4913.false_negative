@@ -1,3 +1,0 @@
-Emit ``used-before-assignment`` when relying on names only defined under conditions always testing false.
-
-Closes #4913

@@ -1,16 +1,17 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from astroid import Instance, Uninferable, nodes
+from astroid import Instance, nodes
+from astroid.util import UninferableBase
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import safe_infer
-from pylint.constants import DUNDER_METHODS
+from pylint.constants import DUNDER_METHODS, UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
@@ -22,7 +23,7 @@ class DunderCallChecker(BaseChecker):
 
     Docs: https://docs.python.org/3/reference/datamodel.html#basic-customization
     We exclude names in list pylint.constants.EXTRA_DUNDER_METHODS such as
-    __index__ (see https://github.com/PyCQA/pylint/issues/6795)
+    __index__ (see https://github.com/pylint-dev/pylint/issues/6795)
     since these either have no alternative method of being called or
     have a genuine use case for being called manually.
 
@@ -33,7 +34,6 @@ class DunderCallChecker(BaseChecker):
     """
 
     name = "unnecessary-dunder-call"
-    priority = -1
     msgs = {
         "C2801": (
             "Unnecessarily calls dunder method %s. %s.",
@@ -51,7 +51,7 @@ class DunderCallChecker(BaseChecker):
                 self._dunder_methods.update(dunder_methods)
 
     @staticmethod
-    def within_dunder_def(node: nodes.NodeNG) -> bool:
+    def within_dunder_or_lambda_def(node: nodes.NodeNG) -> bool:
         """Check if dunder method call is within a dunder method definition."""
         parent = node.parent
         while parent is not None:
@@ -59,17 +59,25 @@ class DunderCallChecker(BaseChecker):
                 isinstance(parent, nodes.FunctionDef)
                 and parent.name.startswith("__")
                 and parent.name.endswith("__")
+                or DunderCallChecker.is_lambda_rule_exception(parent, node)
             ):
                 return True
             parent = parent.parent
         return False
+
+    @staticmethod
+    def is_lambda_rule_exception(ancestor: nodes.NodeNG, node: nodes.NodeNG) -> bool:
+        return (
+            isinstance(ancestor, nodes.Lambda)
+            and node.func.attrname in UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS
+        )
 
     def visit_call(self, node: nodes.Call) -> None:
         """Check if method being called is an unnecessary dunder method."""
         if (
             isinstance(node.func, nodes.Attribute)
             and node.func.attrname in self._dunder_methods
-            and not self.within_dunder_def(node)
+            and not self.within_dunder_or_lambda_def(node)
             and not (
                 isinstance(node.func.expr, nodes.Call)
                 and isinstance(node.func.expr.func, nodes.Name)
@@ -77,7 +85,9 @@ class DunderCallChecker(BaseChecker):
             )
         ):
             inf_expr = safe_infer(node.func.expr)
-            if not (inf_expr in {None, Uninferable} or isinstance(inf_expr, Instance)):
+            if not (
+                inf_expr is None or isinstance(inf_expr, (Instance, UninferableBase))
+            ):
                 # Skip dunder calls to non instantiated classes.
                 return
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Script used to generate the features file before building the actual
 documentation.
@@ -40,9 +40,9 @@ def builder_inited(app: Sphinx | None) -> None:
         print_full_documentation(linter, stream, False)
 
 
-def setup(app: Sphinx) -> dict[str, str]:
+def setup(app: Sphinx) -> dict[str, str | bool]:
     app.connect("builder-inited", builder_inited)
-    return {"version": sphinx.__display_version__}
+    return {"version": sphinx.__display_version__, "parallel_read_safe": True}
 
 
 if __name__ == "__main__":

@@ -1,3 +1,0 @@
-Fix false positive ``assigning-non-slot`` when a class attribute is re-assigned.
-
-Closes #6001

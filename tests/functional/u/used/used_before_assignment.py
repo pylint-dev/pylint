@@ -1,6 +1,7 @@
 """Miscellaneous used-before-assignment cases"""
 # pylint: disable=consider-using-f-string, missing-function-docstring
-
+import datetime
+import sys
 
 MSG = "hello %s" % MSG  # [used-before-assignment]
 
@@ -12,6 +13,17 @@ def outer():
         pass
 
 outer()
+
+
+class ClassWithProperty:  # pylint: disable=too-few-public-methods
+    """This test depends on earlier and later defined module-level functions."""
+    prop = property(redefine_time_import)  # [used-before-assignment]
+    prop_defined_earlier = property(outer)
+
+
+calculate(1.01, 2)  # [used-before-assignment]
+def calculate(value1: int, value2: float) -> int:
+    return value1 + value2
 
 
 # pylint: disable=unused-import, wrong-import-position, import-outside-toplevel, reimported, redefined-outer-name, global-statement
@@ -49,7 +61,7 @@ elif VAR2:
     pass
 else:
     VAR4 = False
-if VAR4:  # [used-before-assignment]
+if VAR4:  # [possibly-used-before-assignment]
     pass
 
 if FALSE:
@@ -59,7 +71,7 @@ elif VAR2:
         VAR5 = True
     else:
         VAR5 = True
-if VAR5:
+if VAR5:  # [possibly-used-before-assignment]
     pass
 
 if FALSE:
@@ -105,10 +117,16 @@ for num in [0, 1]:
     VAR11 = num
     if VAR11:
         VAR12 = False
-print(VAR12)
+print(VAR12)  # [possibly-used-before-assignment]
+
+if input("This tests terminating functions: "):
+    sys.exit()
+else:
+    VAR13 = 1
+print(VAR13)
 
 def turn_on2(**kwargs):
-    """https://github.com/PyCQA/pylint/issues/7873"""
+    """https://github.com/pylint-dev/pylint/issues/7873"""
     if "brightness" in kwargs:
         brightness = kwargs["brightness"]
         var, *args = (1, "set_dimmer_state", brightness)
@@ -116,3 +134,74 @@ def turn_on2(**kwargs):
         var, *args = (1, "restore_dimmer_state")
 
     print(var, *args)
+
+
+# Variables guarded by the same test when used.
+
+# Always false
+if 1 in []:
+    PERCENT = 20
+    SALE = True
+
+if 1 in []:
+    print(PERCENT)
+
+# Different test
+if 1 in [1]:
+    print(SALE)  # [used-before-assignment]
+
+
+# Ambiguous, but same test
+if not datetime.date.today():
+    WAS_TODAY = True
+
+if not datetime.date.today():
+    print(WAS_TODAY)
+
+
+# Different tests but same inferred values
+# Need falsy values here
+def give_me_zero():
+    return 0
+
+def give_me_nothing():
+    return 0
+
+if give_me_zero():
+    WE_HAVE_ZERO = True
+    ALL_DONE = True
+
+if give_me_nothing():
+    print(WE_HAVE_ZERO)
+
+
+# Different tests, different values
+def give_me_none():
+    return None
+
+if give_me_none():
+    print(ALL_DONE)  # [used-before-assignment]
+
+
+attr = 'test'  # pylint: disable=invalid-name
+class T:  # pylint: disable=invalid-name, too-few-public-methods, undefined-variable
+    '''Issue #8754, no crash from unexpected assignment between attribute and variable'''
+    T.attr = attr
+
+
+if outer():
+    NOT_ALWAYS_DEFINED = True
+print(NOT_ALWAYS_DEFINED)  # [used-before-assignment]
+
+
+def inner_if_continues_outer_if_has_no_other_statements():
+    for i in range(5):
+        if isinstance(i, int):
+            # Testing no assignment here, before the inner if
+            if i % 2 == 0:
+                order = None
+            else:
+                continue
+        else:
+            order = None
+        print(order)

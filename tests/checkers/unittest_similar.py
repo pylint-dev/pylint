@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from contextlib import redirect_stdout
 from io import StringIO
@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from pylint.checkers import similar
+from pylint.constants import IS_PYPY, PY39_PLUS
 from pylint.lint import PyLinter
 from pylint.testutils import GenericTestReporter as Reporter
 
@@ -130,6 +131,10 @@ TOTAL lines=16 duplicates=8 percent=50.00
     )
 
 
+@pytest.mark.skipif(
+    IS_PYPY and not PY39_PLUS,
+    reason="Requires accurate 'end_lineno' value",
+)
 def test_ignore_multiline_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
@@ -295,7 +300,7 @@ def test_no_hide_code_with_imports() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["--ignore-imports"] + 2 * [HIDE_CODE_WITH_IMPORTS])
     assert ex.value.code == 0
-    assert "TOTAL lines=32 duplicates=16 percent=50.00" in output.getvalue()
+    assert "TOTAL lines=32 duplicates=0 percent=0.00" in output.getvalue()
 
 
 def test_ignore_nothing() -> None:

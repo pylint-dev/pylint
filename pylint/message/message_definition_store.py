@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
 
 class MessageDefinitionStore:
-
     """The messages store knows information about every possible message definition but
     has no particular state during analysis.
     """
@@ -58,7 +57,7 @@ class MessageDefinitionStore:
     # Since MessageDefinitionStore is only initialized once
     # and the arguments are relatively small we do not run the
     # risk of creating a large memory leak.
-    # See discussion in: https://github.com/PyCQA/pylint/pull/5673
+    # See discussion in: https://github.com/pylint-dev/pylint/pull/5673
     @functools.lru_cache(  # pylint: disable=method-cache-max-size-none # noqa: B019
         maxsize=None
     )

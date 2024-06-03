@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Module to add McCabe checker class for pylint."""
 
@@ -39,7 +39,7 @@ _StatementNodes = Union[
     nodes.Await,
 ]
 
-_SubGraphNodes = Union[nodes.If, nodes.TryExcept, nodes.For, nodes.While]
+_SubGraphNodes = Union[nodes.If, nodes.Try, nodes.For, nodes.While]
 _AppendableNodeT = TypeVar(
     "_AppendableNodeT", bound=Union[_StatementNodes, nodes.While, nodes.FunctionDef]
 )
@@ -94,27 +94,9 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[mis
     def visitSimpleStatement(self, node: _StatementNodes) -> None:
         self._append_node(node)
 
-    visitAssert = (
-        visitAssign
-    ) = (
-        visitAugAssign
-    ) = (
-        visitDelete
-    ) = (
-        visitRaise
-    ) = (
+    visitAssert = visitAssign = visitAugAssign = visitDelete = visitRaise = (
         visitYield
-    ) = (
-        visitImport
-    ) = (
-        visitCall
-    ) = (
-        visitSubscript
-    ) = (
-        visitPass
-    ) = (
-        visitContinue
-    ) = (
+    ) = visitImport = visitCall = visitSubscript = visitPass = visitContinue = (
         visitBreak
     ) = visitGlobal = visitReturn = visitExpr = visitAwait = visitSimpleStatement
 

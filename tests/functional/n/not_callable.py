@@ -128,7 +128,7 @@ UnknownBaseCallable()()
 
 # Regression test for #4426
 # If property is inferable we shouldn't double emit the message
-# See: https://github.com/PyCQA/pylint/issues/4426
+# See: https://github.com/pylint-dev/pylint/issues/4426
 class ClassWithProperty:
     @property
     def value(self):
@@ -137,15 +137,15 @@ class ClassWithProperty:
 CLASS_WITH_PROP = ClassWithProperty().value()  # [not-callable]
 
 # Test typing.Namedtuple is callable
-# See: https://github.com/PyCQA/pylint/issues/1295
+# See: https://github.com/pylint-dev/pylint/issues/1295
 import typing
 
 Named = typing.NamedTuple("Named", [("foo", int), ("bar", int)])
 named = Named(1, 2)
 
 
-# NamedTuple is callable, even if it aliased to a attribute
-# See https://github.com/PyCQA/pylint/issues/1730
+# NamedTuple is callable, even if it aliased to an attribute
+# See https://github.com/pylint-dev/pylint/issues/1730
 class TestNamedTuple:
     def __init__(self, field: str) -> None:
         self.my_tuple = typing.NamedTuple("Tuple", [(field, int)])
@@ -178,7 +178,7 @@ AggregateCls().a()
 # pylint needs to ignore not-callable for them
 # right now
 
-# Test for https://github.com/PyCQA/pylint/issues/1699
+# Test for https://github.com/pylint-dev/pylint/issues/1699
 
 import multiprocessing
 
@@ -226,7 +226,7 @@ obj2 = Klass2()
 obj2.something()
 
 
-# Regression test for https://github.com/PyCQA/pylint/issues/7109
+# Regression test for https://github.com/pylint-dev/pylint/issues/7109
 instance_or_cls = MyClass  # pylint:disable=invalid-name
 instance_or_cls = MyClass()
 if not isinstance(instance_or_cls, MyClass):
@@ -234,7 +234,7 @@ if not isinstance(instance_or_cls, MyClass):
     new()
 
 
-# Regression test for https://github.com/PyCQA/pylint/issues/5113.
+# Regression test for https://github.com/pylint-dev/pylint/issues/5113.
 # Do not emit `not-callable`.
 ATTRIBUTES = {
     'DOMAIN': ("domain", str),

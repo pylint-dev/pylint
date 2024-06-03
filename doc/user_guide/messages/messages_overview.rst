@@ -91,6 +91,7 @@ All messages in the error category:
    error/invalid-class-object
    error/invalid-enum-extension
    error/invalid-envvar-value
+   error/invalid-field-call
    error/invalid-format-returned
    error/invalid-getnewargs-ex-returned
    error/invalid-getnewargs-returned
@@ -137,6 +138,8 @@ All messages in the error category:
    error/not-context-manager
    error/not-in-loop
    error/notimplemented-raised
+   error/positional-only-arguments-expected
+   error/possibly-used-before-assignment
    error/potential-index-error
    error/raising-bad-type
    error/raising-non-exception
@@ -208,6 +211,7 @@ All messages in the warning category:
    warning/assert-on-tuple
    warning/attribute-defined-outside-init
    warning/bad-builtin
+   warning/bad-chained-comparison
    warning/bad-dunder-name
    warning/bad-format-string
    warning/bad-format-string-key
@@ -224,8 +228,10 @@ All messages in the warning category:
    warning/comparison-with-callable
    warning/confusing-with-statement
    warning/consider-ternary-expression
+   warning/contextmanager-generator-missing-cleanup
    warning/dangerous-default-value
    warning/deprecated-argument
+   warning/deprecated-attribute
    warning/deprecated-class
    warning/deprecated-decorator
    warning/deprecated-method
@@ -250,6 +256,7 @@ All messages in the warning category:
    warning/global-statement
    warning/global-variable-not-assigned
    warning/global-variable-undefined
+   warning/implicit-flag-alias
    warning/implicit-str-concat
    warning/import-self
    warning/inconsistent-quotes
@@ -258,6 +265,7 @@ All messages in the warning category:
    warning/invalid-overridden-method
    warning/isinstance-second-argument-not-valid-type
    warning/keyword-arg-before-vararg
+   warning/kwarg-superseded-by-positional-arg
    warning/logging-format-interpolation
    warning/logging-fstring-interpolation
    warning/logging-not-lazy
@@ -286,8 +294,8 @@ All messages in the warning category:
    warning/non-str-assignment-to-dunder-name
    warning/overlapping-except
    warning/overridden-final-method
-   warning/pointless-statement
    warning/pointless-exception-statement
+   warning/pointless-statement
    warning/pointless-string-statement
    warning/possibly-unused-variable
    warning/preferred-module
@@ -304,6 +312,7 @@ All messages in the warning category:
    warning/redundant-unittest-assert
    warning/redundant-yields-doc
    warning/reimported
+   warning/return-in-finally
    warning/self-assigning-variable
    warning/self-cls-assignment
    warning/shadowed-import
@@ -387,8 +396,6 @@ All messages in the convention category:
    convention/bad-file-encoding
    convention/bad-mcs-classmethod-argument
    convention/bad-mcs-method-argument
-   convention/compare-to-empty-string
-   convention/compare-to-zero
    convention/consider-iterating-dictionary
    convention/consider-using-any-or-all
    convention/consider-using-dict-items
@@ -428,8 +435,10 @@ All messages in the convention category:
    convention/unnecessary-direct-lambda-call
    convention/unnecessary-dunder-call
    convention/unnecessary-lambda-assignment
-   convention/unneeded-not
+   convention/unnecessary-negation
    convention/use-implicit-booleaness-not-comparison
+   convention/use-implicit-booleaness-not-comparison-to-string
+   convention/use-implicit-booleaness-not-comparison-to-zero
    convention/use-implicit-booleaness-not-len
    convention/use-maxsplit-arg
    convention/use-sequence-for-iteration
@@ -446,10 +455,13 @@ All renamed messages in the convention category:
    :titlesonly:
 
    convention/blacklisted-name
+   convention/compare-to-empty-string
+   convention/compare-to-zero
    convention/len-as-condition
    convention/missing-docstring
    convention/old-misplaced-comparison-constant
    convention/old-non-ascii-name
+   convention/unneeded-not
 
 .. _refactor-category:
 
@@ -469,6 +481,7 @@ All messages in the refactor category:
    refactor/confusing-consecutive-elif
    refactor/consider-alternative-union-syntax
    refactor/consider-merging-isinstance
+   refactor/consider-refactoring-into-while-condition
    refactor/consider-swap-variables
    refactor/consider-using-alias
    refactor/consider-using-assignment-expr
@@ -501,6 +514,7 @@ All messages in the refactor category:
    refactor/no-else-return
    refactor/no-self-use
    refactor/no-staticmethod-decorator
+   refactor/prefer-typing-namedtuple
    refactor/property-with-parameters
    refactor/redefined-argument-from-local
    refactor/redefined-variable-type
@@ -520,6 +534,7 @@ All messages in the refactor category:
    refactor/too-many-instance-attributes
    refactor/too-many-locals
    refactor/too-many-nested-blocks
+   refactor/too-many-positional
    refactor/too-many-public-methods
    refactor/too-many-return-statements
    refactor/too-many-statements
@@ -531,6 +546,7 @@ All messages in the refactor category:
    refactor/use-dict-literal
    refactor/use-list-literal
    refactor/use-set-for-membership
+   refactor/use-yield-from
    refactor/useless-object-inheritance
    refactor/useless-option-value
    refactor/useless-return

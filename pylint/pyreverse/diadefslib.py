@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Handle diagram generation options for class diagram or default diagrams."""
 
@@ -12,6 +12,7 @@ from typing import Any
 
 import astroid
 from astroid import nodes
+from astroid.modutils import is_stdlib_module
 
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
 from pylint.pyreverse.inspector import Linker, Project
@@ -67,10 +68,14 @@ class DiaDefGenerator:
         return self.anc_level, self.association_level
 
     def show_node(self, node: nodes.ClassDef) -> bool:
-        """True if builtins and not show_builtins."""
-        if self.config.show_builtin:
-            return True
-        return node.root().name != "builtins"  # type: ignore[no-any-return]
+        """Determine if node should be shown based on config."""
+        if node.root().name == "builtins":
+            return self.config.show_builtin  # type: ignore[no-any-return]
+
+        if is_stdlib_module(node.root().name):
+            return self.config.show_stdlib  # type: ignore[no-any-return]
+
+        return True
 
     def add_class(self, node: nodes.ClassDef) -> None:
         """Visit one class and add it to diagram."""
@@ -217,7 +222,6 @@ class DiadefsHandler:
         :returns: The list of diagram definitions
         :rtype: list(:class:`pylint.pyreverse.diagrams.ClassDiagram`)
         """
-
         #  read and interpret diagram definitions (Diadefs)
         diagrams = []
         generator = ClassDiadefGenerator(linker, self)

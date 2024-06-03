@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,import-error, missing-docstring
+# pylint: disable=too-few-public-methods,import-error, missing-docstring, use-yield-from
 # pylint: disable=useless-super-delegation,wrong-import-position,invalid-name, wrong-import-order, condition-evals-to-constant
 
 if len('TEST'):  # [use-implicit-booleaness-not-len]
@@ -158,28 +158,28 @@ def github_issue_1879():
             return 1
         return 2
 
-    # def function_returning_generator(r):
-    #     for i in [r, 1, 2, 3]:
-    #         yield i
+    def function_returning_generator(r):
+        for i in [r, 1, 2, 3]:
+            yield i
 
-    # def function_returning_comprehension(r):
-    #     return [x+1 for x in [r, 1, 2, 3]]
+    def function_returning_comprehension(r):
+        return [x+1 for x in [r, 1, 2, 3]]
 
-    # def function_returning_function(r):
-    #     return function_returning_generator(r)
+    def function_returning_function(r):
+        return function_returning_generator(r)
 
     assert len(function_returning_list(z))  # [use-implicit-booleaness-not-len]
     assert len(function_returning_int(z))
     # This should raise a use-implicit-booleaness-not-len once astroid can infer it
-    # See https://github.com/PyCQA/pylint/pull/3821#issuecomment-743771514
-    # assert len(function_returning_generator(z))
-    # assert len(function_returning_comprehension(z))
-    # assert len(function_returning_function(z))
+    # See https://github.com/pylint-dev/pylint/pull/3821#issuecomment-743771514
+    assert len(function_returning_generator(z))
+    assert len(function_returning_comprehension(z))
+    assert len(function_returning_function(z))
 
 
 def github_issue_4215():
     # Test undefined variables
-    # https://github.com/PyCQA/pylint/issues/4215
+    # https://github.com/pylint-dev/pylint/issues/4215
     if len(undefined_var):  # [undefined-variable]
         pass
     if len(undefined_var2[0]):  # [undefined-variable]

@@ -29,6 +29,8 @@ name is found in, and not the type of object assigned.
 +--------------------+---------------------------------------------------------------------------------------------------+
 | ``typevar``        | Type variable declared with ``TypeVar``.                                                          |
 +--------------------+---------------------------------------------------------------------------------------------------+
+| ``typealias``      | Type alias declared with ``TypeAlias`` or assignments of ``Union``.                               |
++--------------------+---------------------------------------------------------------------------------------------------+
 
 Default behavior
 ~~~~~~~~~~~~~~~~
@@ -78,14 +80,27 @@ Pylint provides predefined naming patterns for some names. These patterns are of
 based on a Naming Style but there is no option to choose one of the styles mentioned above.
 The pattern can be overwritten with the options discussed below.
 
-The following type of names are checked with a predefined pattern:
+The following types of names are checked with a predefined pattern:
 
-+--------------------+---------------------------------------------------+------------------------------------------------------------+
-| Name type          | Good names                                        | Bad names                                                  |
-+====================+===================================================+============================================================+
-| ``typevar``        | ``T``, ``_CallableT``, ``_T_co``, ``AnyStr``,     | ``DICT_T``, ``CALLABLE_T``, ``ENUM_T``, ``DeviceType``,    |
-|                    | ``DeviceTypeT``, ``IPAddressT``                   | ``_StrType``, ``TAnyStr``                                  |
-+--------------------+---------------------------------------------------+------------------------------------------------------------+
++--------------------+-------------------------------------------------------+------------------------------------------------------------+
+| Name type          | Good names                                            | Bad names                                                  |
++====================+=======================================================+============================================================+
+| ``typevar``        | ``T``, ``_CallableT``, ``_T_co``, ``AnyStr``,         | ``DICT_T``, ``CALLABLE_T``, ``ENUM_T``, ``DeviceType``,    |
+|                    | ``DeviceTypeT``, ``IPAddressT``                       | ``_StrType``                                               |
++--------------------+-------------------------------------------------------+------------------------------------------------------------+
+| ``typealias``      | ``GoodName``, ``_GoodName``, ``IPAddressType``,       | ``BadNameT``, ``badName``, ``TBadName``, ``TypeBadName``,  |
+|                    |  ``GoodName2`` and other PascalCase variants that     |  ``_1BadName``                                             |
+|                    |  don't start with ``T`` or ``Type``. This is to       |                                                            |
+|                    |  distinguish them from ``typevars``. Note that        |                                                            |
+|                    |  ``TopName`` is allowed but ``TTopName`` isn't.       |                                                            |
++--------------------+-------------------------------------------------------+------------------------------------------------------------+
+
+Before pylint 3.0, most predefined patterns also enforced a minimum length
+of three characters. If this behavior is desired in versions 3.0 and following,
+it can be had by providing custom regular expressions as described next. (Or,
+if the ``disallowed-name`` check is sufficient instead of ``invalid-name``,
+providing the single option ``bad-names-rgxs="^..?$"`` will suffice to fail 1-2
+character names.
 
 Custom regular expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -123,6 +138,8 @@ expression will lead to an instance of ``invalid-name``.
 .. option:: --inlinevar-rgx=<regex>
 
 .. option:: --typevar-rgx=<regex>
+
+.. option:: --typealias-rgx=<regex>
 
 Multiple naming styles for custom regular expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

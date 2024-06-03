@@ -21,6 +21,33 @@ class D(C):
     x = 3
 
 
+# Similarly, items that are only type annotations are okay.
+class ColorEnum(Enum):
+    red: int
+    green: int
+    blue: int
+
+    def __init__(self, red: int, green: int, blue: int) -> None:
+        self.red = red
+        self.green = green
+        self.blue = blue
+
+
+class Pastel(ColorEnum):
+    SAGE = (170, 200, 167)
+
+
+class IncorrectColorEnum(Enum):
+    red: None = None
+
+    def __init__(self, red: None) -> None:
+        self.red = red
+
+
+class IncorrectPastel(IncorrectColorEnum):  # [invalid-enum-extension]
+    SOME_COLOR = 170
+
+
 class CustomFlags(IntFlag):
     SUPPORT_OPEN = 1
     SUPPORT_CLOSE = 2

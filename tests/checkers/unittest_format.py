@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check format checker helper functions."""
 
@@ -148,15 +148,16 @@ class TestCheckSpace(CheckerTestCase):
             encoding_token = tokenize.TokenInfo(
                 tokenize.ENCODING, "utf-8", (0, 0), (0, 0), ""
             )
-            tokens = [encoding_token] + _tokenize_str(
-                "if (\n        None):\n    pass\n"
-            )
+            tokens = [
+                encoding_token,
+                *_tokenize_str("if (\n        None):\n    pass\n"),
+            ]
             self.checker.process_tokens(tokens)
 
 
 def test_disable_global_option_end_of_line() -> None:
     """Test for issue with disabling tokenizer messages
-    that extend beyond the scope of the ast tokens
+    that extend beyond the scope of the ast tokens.
     """
     file_ = tempfile.NamedTemporaryFile("w", delete=False)
     with file_:
@@ -165,6 +166,7 @@ def test_disable_global_option_end_of_line() -> None:
 1
     """
         )
+    # pylint: disable = too-many-try-statements
     try:
         linter = lint.PyLinter()
         checker = BasicChecker(linter)

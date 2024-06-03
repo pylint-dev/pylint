@@ -6,8 +6,8 @@
 import abc
 
 
-def custom_prop(f): # [invalid-name]
-    return property(f)
+def custom_prop(F): # [invalid-name]
+    return property(F)
 
 
 class FooClass:

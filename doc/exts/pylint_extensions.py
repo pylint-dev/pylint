@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Script used to generate the extensions file before building the actual documentation."""
 
@@ -11,8 +11,7 @@ from __future__ import annotations
 import os
 import re
 import sys
-import warnings
-from typing import Any
+from typing import Any, TypedDict
 
 import sphinx
 from sphinx.application import Sphinx
@@ -22,11 +21,6 @@ from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import PyLinter
 from pylint.typing import MessageDefinitionTuple, OptionDict, ReportsCallable
 from pylint.utils import get_rst_title
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
 
 
 class _CheckerInfo(TypedDict):
@@ -134,30 +128,26 @@ def get_plugins_info(
                 doc = f.read()
         try:
             by_checker[checker]["checker"] = checker
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                by_checker[checker]["options"] += checker.options_and_values()
+            by_checker[checker]["options"] += checker._options_and_values()
             by_checker[checker]["msgs"].update(checker.msgs)
             by_checker[checker]["reports"] += checker.reports
             by_checker[checker]["doc"] += doc
             by_checker[checker]["module"] += module
         except KeyError:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                by_checker[checker] = _CheckerInfo(
-                    checker=checker,
-                    options=list(checker.options_and_values()),
-                    msgs=dict(checker.msgs),
-                    reports=list(checker.reports),
-                    doc=doc,
-                    module=module,
-                )
+            by_checker[checker] = _CheckerInfo(
+                checker=checker,
+                options=list(checker._options_and_values()),
+                msgs=dict(checker.msgs),
+                reports=list(checker.reports),
+                doc=doc,
+                module=module,
+            )
     return by_checker
 
 
-def setup(app: Sphinx) -> dict[str, str]:
+def setup(app: Sphinx) -> dict[str, str | bool]:
     app.connect("builder-inited", builder_inited)
-    return {"version": sphinx.__display_version__}
+    return {"version": sphinx.__display_version__, "parallel_read_safe": True}
 
 
 if __name__ == "__main__":

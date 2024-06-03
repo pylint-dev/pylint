@@ -1,0 +1,1 @@
+used-before-assignment:10:6:10:9::Using variable 'var' before assignment:INFERENCE

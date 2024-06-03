@@ -1,14 +1,14 @@
-github_url = "https://github.com/PyCQA/pylint"
+github_url = "https://github.com/pylint-dev/pylint"
 
 [version]
-current = "2.16.0-dev"
+current = "3.3.0-dev0"
 regex = '''
 ^(?P<major>0|[1-9]\d*)
 \.
 (?P<minor>0|[1-9]\d*)
 \.
 (?P<patch>0|[1-9]\d*)
-(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
+(?:-?(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$
 '''
 
 [git]
@@ -24,6 +24,11 @@ src = "pylint/__pkginfo__.py"
 # You can specify a list of commands to
 # run after the files have been patched
 # and before the git commit is made
+
+[[before_commit]]
+name = "Normalize file ending"
+cmd = "git add --renormalize ."
+
 [[before_commit]]
 name = "Upgrade changelog"
 cmd = "python3 script/bump_changelog.py {new_version}"

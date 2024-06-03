@@ -2,7 +2,7 @@
 Test that no StopIteration is raised inside a generator
 """
 # pylint: disable=missing-docstring,invalid-name,import-error, try-except-raise, wrong-import-position
-# pylint: disable=not-callable,raise-missing-from,broad-exception-raised
+# pylint: disable=not-callable,raise-missing-from,broad-exception-raised,use-yield-from
 import asyncio
 
 class RebornStopIteration(StopIteration):
@@ -100,25 +100,25 @@ def gen_dont_crash_on_no_exception():
 
 
 def gen_dont_crash_on_uninferable():
-    # https://github.com/PyCQA/pylint/issues/1779
+    # https://github.com/pylint-dev/pylint/issues/1779
     yield from iter()
     raise asyncio.TimeoutError()
 
 
-# https://github.com/PyCQA/pylint/issues/1830
+# https://github.com/pylint-dev/pylint/issues/1830
 def gen_next_with_sentinel():
     yield next([], 42)  # No bad return
 
 
 from itertools import count, cycle
 
-# https://github.com/PyCQA/pylint/issues/2158
+# https://github.com/pylint-dev/pylint/issues/2158
 def generator_using_next():
     counter = count()
     number = next(counter)
     yield number * 2
 
-# https://github.com/PyCQA/pylint/issues/7765
+# https://github.com/pylint-dev/pylint/issues/7765
 def infinite_iterator_itertools_cycle():
     counter = cycle('ABCD')
     val = next(counter)
@@ -179,7 +179,7 @@ def other_safeiter(it):
 def data(filename):
     """
     Ensure pylint doesn't crash if `next` is incorrectly called without args
-    See https://github.com/PyCQA/pylint/issues/7828
+    See https://github.com/pylint-dev/pylint/issues/7828
     """
     with open(filename, encoding="utf8") as file:
         next() # attempt to skip header but this is incorrect code

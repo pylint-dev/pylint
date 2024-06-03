@@ -1,4 +1,4 @@
-"""https://github.com/PyCQA/pylint/issues/3675"""
+"""https://github.com/pylint-dev/pylint/issues/3675"""
 
 
 def noop(x):  # pylint: disable=invalid-name

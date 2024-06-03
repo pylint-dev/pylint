@@ -1,10 +1,10 @@
 [tool.towncrier]
-version = "2.16.0"
+version = "3.3.0"
 directory = "doc/whatsnew/fragments"
-filename = "doc/whatsnew/2/2.16/index.rst"
+filename = "doc/whatsnew/3/3.3/index.rst"
 template = "doc/whatsnew/fragments/_template.rst"
-issue_format = "`#{issue} <https://github.com/PyCQA/pylint/issues/{issue}>`_"
-wrap = true
+issue_format = "`#{issue} <https://github.com/pylint-dev/pylint/issues/{issue}>`_"
+wrap = false  # doesn't wrap links correctly if beginning with indentation
 
 # Definition of fragment types.
 # We want the changelog to show in the same order as the fragment types
@@ -64,4 +64,9 @@ showcontent = true
 [[tool.towncrier.type]]
 directory = "internal"
 name = "Internal Changes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "performance"
+name = "Performance Improvements"
 showcontent = true

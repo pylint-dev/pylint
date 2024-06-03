@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 import astroid
 
@@ -19,7 +19,6 @@ class TestDesignChecker(CheckerTestCase):
         """Make sure that classes listed in ``ignored-parents`` aren't counted
         by the too-many-ancestors message.
         """
-
         node = astroid.extract_node(
             """
         class Aaaa(object):

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 import os
 import re
@@ -151,7 +151,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         # Undefined-method in class def
 
         # Issue 1824
-        # https://github.com/PyCQA/pylint/issues/1824
+        # https://github.com/pylint-dev/pylint/issues/1824
         node = astroid.parse(
             """
         class MyObject(object):
@@ -164,9 +164,9 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
     def test_nested_lambda(self) -> None:
         """Make sure variables from parent lambdas
-        aren't noted as undefined
+        aren't noted as undefined.
 
-        https://github.com/PyCQA/pylint/issues/760
+        https://github.com/pylint-dev/pylint/issues/760
         """
         node = astroid.parse(
             """
@@ -179,7 +179,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
     @set_config(ignored_argument_names=re.compile("arg"))
     def test_ignored_argument_names_no_message(self) -> None:
         """Make sure is_ignored_argument_names properly ignores
-        function arguments
+        function arguments.
         """
         node = astroid.parse(
             """

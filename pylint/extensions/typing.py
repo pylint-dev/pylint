@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -127,7 +127,8 @@ class TypingChecker(BaseChecker):
         "R6006": (
             "Type `%s` is used more than once in union type annotation. Remove redundant typehints.",
             "redundant-typehint-argument",
-            "Duplicated type arguments will be skipped by `mypy` tool, therefore should be removed to avoid confusion.",
+            "Duplicated type arguments will be skipped by `mypy` tool, therefore should be "
+            "removed to avoid confusion.",
         ),
     }
     options = (

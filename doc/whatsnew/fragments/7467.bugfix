@@ -1,3 +1,0 @@
-``invalid-class-object`` does not crash anymore when ``__class__`` is assigned alongside another variable.
-
-Closes #7467

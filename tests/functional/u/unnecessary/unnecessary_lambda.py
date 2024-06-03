@@ -24,6 +24,12 @@ _ = lambda *args, **kwargs: _ANYARGS(*args, **kwargs)
 # +1: [unnecessary-lambda]
 _ = lambda x, y, z, *args, **kwargs: _ANYARGS(x, y, z, *args, **kwargs)
 
+# These don't use their parameters in their body
+# +1: [unnecessary-lambda]
+_ = lambda x: z(lambda x: x)(x)
+# +1: [unnecessary-lambda]
+_ = lambda x, y: z(lambda x, y: x + y)(x, y)
+
 # Lambdas that are *not* unnecessary and should *not* trigger warnings.
 _ = lambda x: x
 _ = lambda x: x()
@@ -46,7 +52,16 @@ _ = lambda: _ANYARGS(**{'three': 3})
 _ = lambda: _ANYARGS(*[3], **{'three': 3})
 _ = lambda: _ANYARGS(func=42)
 
+# pylint: disable=missing-function-docstring
+def f(d):
+    print(lambda x: str(x, **d))
+
 # Don't warn about this.
 _ = lambda: code().analysis()
 
 _ = lambda **kwargs: dict(bar=42, **kwargs)
+
+# These use the lambda parameters in their body
+_ = lambda x: x(x)
+_ = lambda x, y: x(x, y)
+_ = lambda x: z(lambda y: x + y)(x)

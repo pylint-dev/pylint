@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -63,7 +63,7 @@ def test_primer_stdlib_no_crash(
             disables = ["--disable=duplicate-code", "--ignore=test"]
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", category=UserWarning)
-                Run([test_module_name] + enables + disables)
+                Run([test_module_name, *enables, *disables])
         except SystemExit as ex:
             out, err = capsys.readouterr()
             assert not err, err

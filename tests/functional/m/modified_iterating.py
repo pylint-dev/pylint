@@ -39,6 +39,22 @@ item_set = {1, 2, 3}
 for item in item_set:
     item_set.add(item + 10)  # [modified-iterating-set]
 
+item_set = {1, 2, 3}
+for item in item_set:
+    item_set.clear()  # [modified-iterating-set]
+
+item_set = {1, 2, 3}
+for item in item_set:
+    item_set.discard(1)  # [modified-iterating-set]
+
+item_set = {1, 2, 3}
+for item in item_set:
+    item_set.pop()  # [modified-iterating-set]
+
+item_set = {1, 2, 3}
+for item in item_set:
+    item_set.remove()  # [modified-iterating-set]
+
 for item in item_set.copy():
     item_set.add(item + 10)
 
@@ -97,7 +113,7 @@ def update_existing_key():
 
 
 class MyClass:
-    """Regression test for https://github.com/PyCQA/pylint/issues/7380"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/7380"""
 
     def __init__(self) -> None:
         self.attribute = [1, 2, 3]
@@ -109,7 +125,7 @@ class MyClass:
 
 
 class MyClass2:
-    """Regression test for https://github.com/PyCQA/pylint/issues/7461"""
+    """Regression test for https://github.com/pylint-dev/pylint/issues/7461"""
     def __init__(self) -> None:
         self.attribute = {}
 
@@ -118,6 +134,13 @@ class MyClass2:
         for key in self.attribute:
             tmp = self.attribute.copy()
             tmp[key] = None
+
+
+def my_call():
+    """Regression test for https://github.com/pylint-dev/pylint/issues/7461"""
+    for var in {}.copy():
+        del var  # [modified-iterating-dict]
+
 
 class MyEnum(Enum):
     FOO = 1

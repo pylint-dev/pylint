@@ -1,0 +1,5 @@
+invalid-name:13:0:13:9::"Type variable name ""GoodNameT"" doesn't conform to 'TypeVarsShouldBeLikeThis(_co(ntra)?)?$' pattern":HIGH
+invalid-name:14:0:14:12::"Type variable name ""GoodNameT_co"" doesn't conform to 'TypeVarsShouldBeLikeThis(_co(ntra)?)?$' pattern":HIGH
+invalid-name:15:0:15:16::"Type variable name ""GoodNameT_contra"" doesn't conform to 'TypeVarsShouldBeLikeThis(_co(ntra)?)?$' pattern":HIGH
+invalid-name:20:0:20:9::"Type variable name ""GoodNameT"" doesn't conform to 'TypeVarsShouldBeLikeThis(_co(ntra)?)?$' pattern":HIGH
+invalid-name:21:0:21:12::"Type variable name ""GoodNameT_co"" doesn't conform to 'TypeVarsShouldBeLikeThis(_co(ntra)?)?$' pattern":HIGH

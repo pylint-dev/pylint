@@ -25,7 +25,7 @@ def func4():
     return 1 / 0 # [unreachable]
 
 
-# https://github.com/PyCQA/pylint/issues/4698
+# https://github.com/pylint-dev/pylint/issues/4698
 def func5():
     """Empty generator functions should be allowed."""
     return

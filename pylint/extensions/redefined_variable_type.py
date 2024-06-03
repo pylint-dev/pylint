@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -46,8 +46,8 @@ class MultipleTypesChecker(BaseChecker):
     def leave_classdef(self, _: nodes.ClassDef) -> None:
         self._check_and_add_messages()
 
-    visit_functiondef = visit_classdef
-    leave_functiondef = leave_module = leave_classdef
+    visit_functiondef = visit_asyncfunctiondef = visit_classdef
+    leave_functiondef = leave_asyncfunctiondef = leave_module = leave_classdef
 
     def visit_module(self, _: nodes.Module) -> None:
         self._assigns: list[dict[str, list[tuple[nodes.Assign, str]]]] = [{}]

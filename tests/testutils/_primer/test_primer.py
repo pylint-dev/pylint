@@ -1,8 +1,8 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Test the primer commands. """
+"""Test the primer commands."""
 from __future__ import annotations
 
 import sys
@@ -21,7 +21,7 @@ PRIMER_DIRECTORY = TEST_DIR_ROOT / ".pylint_primer_tests/"
 PACKAGES_TO_PRIME_PATH = TEST_DIR_ROOT / "primer/packages_to_prime.json"
 FIXTURES_PATH = HERE / "fixtures"
 
-PRIMER_CURRENT_INTERPRETER = (3, 10)
+PRIMER_CURRENT_INTERPRETER = (3, 11)
 
 DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"]
 
@@ -29,7 +29,7 @@ DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"
 @pytest.mark.parametrize("args", [[], ["wrong_command"]])
 def test_primer_launch_bad_args(args: list[str], capsys: CaptureFixture) -> None:
     with pytest.raises(SystemExit):
-        with patch("sys.argv", ["python tests/primer/__main__.py"] + args):
+        with patch("sys.argv", ["python tests/primer/__main__.py", *args]):
             Primer(PRIMER_DIRECTORY, PACKAGES_TO_PRIME_PATH).run()
     out, err = capsys.readouterr()
     assert not out
@@ -49,14 +49,24 @@ class TestPrimer:
         [
             pytest.param(p, id=str(p.relative_to(FIXTURES_PATH)))
             for p in FIXTURES_PATH.iterdir()
-            if p.is_dir()
+            if p.is_dir() and p.name != "batched"  # tested separately
         ],
     )
     def test_compare(self, directory: Path) -> None:
         """Test for the standard case.
 
-        Directory in 'fixtures/' with 'main.json', 'pr.json' and 'expected.txt'."""
+        Directory in 'fixtures/' with 'main.json', 'pr.json' and 'expected.txt'.
+        """
         self.__assert_expected(directory)
+
+    def test_compare_batched(self) -> None:
+        fixture = FIXTURES_PATH / "batched"
+        self.__assert_expected(
+            fixture,
+            fixture / "main_BATCHIDX.json",
+            fixture / "pr_BATCHIDX.json",
+            batches=2,
+        )
 
     def test_truncated_compare(self) -> None:
         """Test for the truncation of comments that are too long."""
@@ -77,6 +87,7 @@ class TestPrimer:
         main: Path | None = None,
         pr: Path | None = None,
         expected_file: Path | None = None,
+        batches: int = 0,
     ) -> str:
         if main is None:
             main = directory / "main.json"
@@ -84,7 +95,9 @@ class TestPrimer:
             pr = directory / "pr.json"
         if expected_file is None:
             expected_file = directory / "expected.txt"
-        new_argv = DEFAULT_ARGS + [f"--base-file={main}", f"--new-file={pr}"]
+        new_argv = [*DEFAULT_ARGS, f"--base-file={main}", f"--new-file={pr}"]
+        if batches:
+            new_argv.append(f"--batches={batches}")
         with patch("sys.argv", new_argv):
             Primer(PRIMER_DIRECTORY, PACKAGES_TO_PRIME_PATH).run()
         with open(PRIMER_DIRECTORY / "comment.txt", encoding="utf8") as f:

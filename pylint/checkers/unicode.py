@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Unicode and some other ASCII characters can be used to create programs that run
 much different compared to what a human reader would expect from them.
@@ -165,7 +165,6 @@ def _map_positions_to_result(
     Also takes care of encodings for which the length of an encoded code point does not
     default to 8 Bit.
     """
-
     result: dict[int, _BadChar] = {}
 
     for search_for, char in search_dict.items():
@@ -248,7 +247,7 @@ def _cached_encode_search(string: str, encoding: str) -> bytes:
 
 
 def _fix_utf16_32_line_stream(steam: Iterable[bytes], codec: str) -> Iterable[bytes]:
-    """Handle line ending for UTF16 and UTF32 correctly.
+    r"""Handle line ending for UTF16 and UTF32 correctly.
 
     Currently, Python simply strips the required zeros after \n after the
     line ending. Leading to lines that can't be decoded properly
@@ -330,7 +329,7 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
                 "For compatibility use UTF-8 instead of UTF-16/UTF-32. "
                 "See also https://bugs.python.org/issue1503789 for a history "
                 "of this issue. And "
-                "https://softwareengineering.stackexchange.com/questions/102205/should-utf-16-be-considered-harmful "
+                "https://softwareengineering.stackexchange.com/questions/102205/ "
                 "for some possible problems when using UTF-16 for instance."
             ),
         ),
@@ -347,7 +346,8 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
                 "So can you trust this code? "
                 "Are you sure it displayed correctly in all editors? "
                 "If you did not write it or your language is not RTL,"
-                " remove the special characters, as they could be used to trick you into executing code, "
+                " remove the special characters, as they could be used to trick you into "
+                "executing code, "
                 "that does something else than what it looks like.\n"
                 "More Information:\n"
                 "https://en.wikipedia.org/wiki/Bidirectional_text\n"
@@ -374,7 +374,7 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
 
     @staticmethod
     def _is_invalid_codec(codec: str) -> bool:
-        return codec.startswith("utf-16") or codec.startswith("utf-32")
+        return codec.startswith(("utf-16", "utf-32"))
 
     @staticmethod
     def _is_unicode(codec: str) -> bool:
@@ -405,9 +405,9 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
             for char in BAD_CHARS:
                 # Some characters might not exist in all encodings
                 with contextlib.suppress(UnicodeDecodeError):
-                    search_dict_byte[
-                        _cached_encode_search(char.unescaped, codec)
-                    ] = char
+                    search_dict_byte[_cached_encode_search(char.unescaped, codec)] = (
+                        char
+                    )
 
             return _map_positions_to_result(
                 line_search_byte,

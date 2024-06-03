@@ -1,8 +1,8 @@
 """Tests for consider-using-augmented-assign."""
 
-# pylint: disable=invalid-name,too-few-public-methods,import-error,consider-using-f-string
+# pylint: disable=invalid-name,too-few-public-methods,import-error,consider-using-f-string,missing-docstring
 
-from unknown import Unknown
+from unknown import Unknown, elixir, random_object
 
 x = 1
 
@@ -119,3 +119,37 @@ x = 3 >= x
 
 x = x <= 3
 x = 3 <= x
+
+# Should also apply to dictionaries when subscripts are the same
+my_dict = {"count": 5}
+my_dict["count"] = my_dict["count"] + 2  # [consider-using-augmented-assign]
+my_dict["apples"] = my_dict["count"] + 1
+
+my_dict = {"msg": {"title": "Hello"}}
+my_dict["msg"]["title"] = my_dict["msg"]["title"] + " world!"  # [consider-using-augmented-assign]
+my_dict["msg"]["body"] = my_dict["msg"]["title"] + " everyone, this should not raise messages"
+
+# Applies to lists as well
+test_list = [1, 2]
+test_list[0] = test_list[0] - 1  # [consider-using-augmented-assign]
+test_list[1] = test_list[0] + 10
+
+# Can't infer, don't mark message
+random_object[elixir] = random_object[elixir] + 1
+
+# https://github.com/pylint-dev/pylint/issues/8086
+# consider-using-augmented-assign should only be flagged
+# if names attribute names match exactly.
+
+class A:
+    def __init__(self) -> None:
+        self.a = 1
+        self.b = A()
+        self.c = [1, 2, 3]
+
+    def test(self) -> None:
+        self.a = self.a + 1  # [consider-using-augmented-assign]
+        self.b.a = self.a + 1  # Names don't match!
+
+    def line(self) -> None:
+        self.c[1] = self.c[1] + 1  # [consider-using-augmented-assign]

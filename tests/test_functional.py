@@ -1,18 +1,22 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Functional full-module tests for PyLint."""
 
 from __future__ import annotations
 
 import sys
+from collections.abc import Iterator
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from _pytest.config import Config
 
 from pylint import testutils
+from pylint.constants import PY312_PLUS
+from pylint.lint.pylinter import MANAGER
 from pylint.testutils import UPDATE_FILE, UPDATE_OPTION
 from pylint.testutils.functional import (
     FunctionalTestFile,
@@ -20,6 +24,9 @@ from pylint.testutils.functional import (
     get_functional_test_files_from_directory,
 )
 from pylint.utils import HAS_ISORT_5
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 FUNCTIONAL_DIR = Path(__file__).parent.resolve() / "functional"
 
@@ -39,6 +46,15 @@ TEST_WITH_EXPECTED_DEPRECATION = [
 ]
 
 
+@pytest.fixture
+def revert_stateful_config_changes(linter: PyLinter) -> Iterator[PyLinter]:
+    yield linter
+    # Revert any stateful configuration changes.
+    MANAGER.brain["module_denylist"] = set()
+    MANAGER.brain["prefer_stubs"] = False
+
+
+@pytest.mark.usefixtures("revert_stateful_config_changes")
 @pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
 def test_functional(test_file: FunctionalTestFile, pytestconfig: Config) -> None:
     __tracebackhide__ = True  # pylint: disable=unused-variable
@@ -50,7 +66,8 @@ def test_functional(test_file: FunctionalTestFile, pytestconfig: Config) -> None
     lint_test.setUp()
 
     if test_file.base in TEST_WITH_EXPECTED_DEPRECATION:
-        with pytest.warns(DeprecationWarning, match="invalid escape sequence"):
+        exception_type = SyntaxWarning if PY312_PLUS else DeprecationWarning
+        with pytest.warns(exception_type, match="invalid escape sequence"):
             lint_test.runTest()
     else:
         lint_test.runTest()

@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Comparison checker from the basic checker."""
 
@@ -89,7 +89,6 @@ class ComparisonChecker(_BasicChecker):
         checking_for_absence: bool = False,
     ) -> None:
         """Check if == or != is being used to compare a singleton value."""
-
         if utils.is_singleton_const(left_value):
             singleton, other_value = left_value.value, right_value
         elif utils.is_singleton_const(right_value):

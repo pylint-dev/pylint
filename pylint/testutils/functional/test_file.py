@@ -1,13 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import configparser
-import sys
 from collections.abc import Callable
 from os.path import basename, exists, join
+from typing import TypedDict
 
 
 def parse_python_version(ver_str: str) -> tuple[int, ...]:
@@ -17,12 +17,6 @@ def parse_python_version(ver_str: str) -> tuple[int, ...]:
 
 class NoFileError(Exception):
     pass
-
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
 
 
 class TestFileOptions(TypedDict):
@@ -62,7 +56,7 @@ class FunctionalTestFile:
     def __init__(self, directory: str, filename: str) -> None:
         self._directory = directory
         self.base = filename.replace(".py", "")
-        # TODO: 2.x: Deprecate FunctionalTestFile.options and related code
+        # TODO:4.0: Deprecate FunctionalTestFile.options and related code
         # We should just parse these options like a normal configuration file.
         self.options: TestFileOptions = {
             "min_pyver": (2, 5),

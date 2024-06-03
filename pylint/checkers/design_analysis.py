@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for signs of poor design."""
 
@@ -21,72 +21,82 @@ from pylint.typing import MessageDefinitionTuple
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS: dict[
-    str, MessageDefinitionTuple
-] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
-    "R0901": (
-        "Too many ancestors (%s/%s)",
-        "too-many-ancestors",
-        "Used when class has too many parent classes, try to reduce "
-        "this to get a simpler (and so easier to use) class.",
-    ),
-    "R0902": (
-        "Too many instance attributes (%s/%s)",
-        "too-many-instance-attributes",
-        "Used when class has too many instance attributes, try to reduce "
-        "this to get a simpler (and so easier to use) class.",
-    ),
-    "R0903": (
-        "Too few public methods (%s/%s)",
-        "too-few-public-methods",
-        "Used when class has too few public methods, so be sure it's "
-        "really worth it.",
-    ),
-    "R0904": (
-        "Too many public methods (%s/%s)",
-        "too-many-public-methods",
-        "Used when class has too many public methods, try to reduce "
-        "this to get a simpler (and so easier to use) class.",
-    ),
-    "R0911": (
-        "Too many return statements (%s/%s)",
-        "too-many-return-statements",
-        "Used when a function or method has too many return statement, "
-        "making it hard to follow.",
-    ),
-    "R0912": (
-        "Too many branches (%s/%s)",
-        "too-many-branches",
-        "Used when a function or method has too many branches, "
-        "making it hard to follow.",
-    ),
-    "R0913": (
-        "Too many arguments (%s/%s)",
-        "too-many-arguments",
-        "Used when a function or method takes too many arguments.",
-    ),
-    "R0914": (
-        "Too many local variables (%s/%s)",
-        "too-many-locals",
-        "Used when a function or method has too many local variables.",
-    ),
-    "R0915": (
-        "Too many statements (%s/%s)",
-        "too-many-statements",
-        "Used when a function or method has too many statements. You "
-        "should then split it in smaller functions / methods.",
-    ),
-    "R0916": (
-        "Too many boolean expressions in if statement (%s/%s)",
-        "too-many-boolean-expressions",
-        "Used when an if statement contains too many boolean expressions.",
-    ),
-}
+MSGS: dict[str, MessageDefinitionTuple] = (
+    {  # pylint: disable=consider-using-namedtuple-or-dataclass
+        "R0901": (
+            "Too many ancestors (%s/%s)",
+            "too-many-ancestors",
+            "Used when class has too many parent classes, try to reduce "
+            "this to get a simpler (and so easier to use) class.",
+        ),
+        "R0902": (
+            "Too many instance attributes (%s/%s)",
+            "too-many-instance-attributes",
+            "Used when class has too many instance attributes, try to reduce "
+            "this to get a simpler (and so easier to use) class.",
+        ),
+        "R0903": (
+            "Too few public methods (%s/%s)",
+            "too-few-public-methods",
+            "Used when class has too few public methods, so be sure it's "
+            "really worth it.",
+        ),
+        "R0904": (
+            "Too many public methods (%s/%s)",
+            "too-many-public-methods",
+            "Used when class has too many public methods, try to reduce "
+            "this to get a simpler (and so easier to use) class.",
+        ),
+        "R0911": (
+            "Too many return statements (%s/%s)",
+            "too-many-return-statements",
+            "Used when a function or method has too many return statement, "
+            "making it hard to follow.",
+        ),
+        "R0912": (
+            "Too many branches (%s/%s)",
+            "too-many-branches",
+            "Used when a function or method has too many branches, "
+            "making it hard to follow.",
+        ),
+        "R0913": (
+            "Too many arguments (%s/%s)",
+            "too-many-arguments",
+            "Used when a function or method takes too many arguments.",
+        ),
+        "R0914": (
+            "Too many local variables (%s/%s)",
+            "too-many-locals",
+            "Used when a function or method has too many local variables.",
+        ),
+        "R0915": (
+            "Too many statements (%s/%s)",
+            "too-many-statements",
+            "Used when a function or method has too many statements. You "
+            "should then split it in smaller functions / methods.",
+        ),
+        "R0916": (
+            "Too many boolean expressions in if statement (%s/%s)",
+            "too-many-boolean-expressions",
+            "Used when an if statement contains too many boolean expressions.",
+        ),
+        "R0917": (
+            "Too many positional arguments in a function call.",
+            "too-many-positional",
+            "Will be implemented in https://github.com/pylint-dev/pylint/issues/9099,"
+            "msgid/symbol pair reserved for compatibility with ruff, "
+            "see https://github.com/astral-sh/ruff/issues/8946.",
+        ),
+    }
+)
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
+ATTRS_DECORATORS = frozenset({"define", "frozen"})
+ATTRS_IMPORT = "attrs"
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
 TYPING_TYPEDDICT = "typing.TypedDict"
+TYPING_EXTENSIONS_TYPEDDICT = "typing_extensions.TypedDict"
 
 # Set of stdlib classes to ignore when calculating number of ancestors
 STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
@@ -166,18 +176,24 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
         "typing.AsyncContextManager",
         "typing.Hashable",
         "typing.Sized",
+        TYPING_NAMEDTUPLE,
+        TYPING_TYPEDDICT,
+        TYPING_EXTENSIONS_TYPEDDICT,
     )
 )
 
 
 def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
     """Check if a class is exempt from too-few-public-methods."""
-
     # If it's a typing.Namedtuple, typing.TypedDict or an Enum
     for ancestor in node.ancestors():
         if is_enum(ancestor):
             return True
-        if ancestor.qname() in (TYPING_NAMEDTUPLE, TYPING_TYPEDDICT):
+        if ancestor.qname() in (
+            TYPING_NAMEDTUPLE,
+            TYPING_TYPEDDICT,
+            TYPING_EXTENSIONS_TYPEDDICT,
+        ):
             return True
 
     # Or if it's a dataclass
@@ -197,6 +213,10 @@ def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
         if name in DATACLASSES_DECORATORS and (
             root_locals.intersection(DATACLASSES_DECORATORS)
             or DATACLASS_IMPORT in root_locals
+        ):
+            return True
+        if name in ATTRS_DECORATORS and (
+            root_locals.intersection(ATTRS_DECORATORS) or ATTRS_IMPORT in root_locals
         ):
             return True
     return False
@@ -438,11 +458,20 @@ class MisdesignChecker(BaseChecker):
                 args=(nb_parents, self.linter.config.max_parents),
             )
 
-        if len(node.instance_attrs) > self.linter.config.max_attributes:
+        # Something at inference time is modifying instance_attrs to add
+        # properties from parent classes. Given how much we cache inference
+        # results, mutating instance_attrs can become a real mess. Filter
+        # them out here until the root cause is solved.
+        # https://github.com/pylint-dev/astroid/issues/2273
+        root = node.root()
+        filtered_attrs = [
+            k for (k, v) in node.instance_attrs.items() if v[0].root() is root
+        ]
+        if len(filtered_attrs) > self.linter.config.max_attributes:
             self.add_message(
                 "too-many-instance-attributes",
                 node=node,
-                args=(len(node.instance_attrs), self.linter.config.max_attributes),
+                args=(len(filtered_attrs), self.linter.config.max_attributes),
             )
 
     @only_required_for_messages("too-few-public-methods", "too-many-public-methods")
@@ -506,7 +535,7 @@ class MisdesignChecker(BaseChecker):
         # init branch and returns counters
         self._returns.append(0)
         # check number of arguments
-        args = node.args.args
+        args = node.args.args + node.args.posonlyargs + node.args.kwonlyargs
         ignored_argument_names = self.linter.config.ignored_argument_names
         if args is not None:
             ignored_args_num = 0
@@ -591,18 +620,15 @@ class MisdesignChecker(BaseChecker):
         if node.is_statement:
             self._inc_all_stmts(1)
 
-    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
+    def visit_try(self, node: nodes.Try) -> None:
         """Increments the branches counter."""
         branches = len(node.handlers)
         if node.orelse:
             branches += 1
+        if node.finalbody:
+            branches += 1
         self._inc_branch(node, branches)
         self._inc_all_stmts(branches)
-
-    def visit_tryfinally(self, node: nodes.TryFinally) -> None:
-        """Increments the branches counter."""
-        self._inc_branch(node, 2)
-        self._inc_all_stmts(2)
 
     @only_required_for_messages("too-many-boolean-expressions", "too-many-branches")
     def visit_if(self, node: nodes.If) -> None:

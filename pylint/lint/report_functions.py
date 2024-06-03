@@ -1,14 +1,16 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
 import collections
 from collections import defaultdict
+from typing import cast
 
 from pylint import checkers, exceptions
 from pylint.reporters.ureports.nodes import Section, Table
+from pylint.typing import MessageTypesFullName
 from pylint.utils import LinterStats
 
 
@@ -54,6 +56,7 @@ def report_messages_by_module_stats(
         raise exceptions.EmptyReportError()
     by_mod: defaultdict[str, dict[str, int | float]] = collections.defaultdict(dict)
     for m_type in ("fatal", "error", "warning", "refactor", "convention"):
+        m_type = cast(MessageTypesFullName, m_type)
         total = stats.get_global_message_count(m_type)
         for module in module_stats.keys():
             mod_total = stats.get_module_message_count(module, m_type)

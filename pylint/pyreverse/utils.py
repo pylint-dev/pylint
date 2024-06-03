@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Generic classes/functions for pyreverse core/extensions."""
 
@@ -70,11 +70,6 @@ def get_visibility(name: str) -> str:
     else:
         visibility = "public"
     return visibility
-
-
-def is_interface(node: nodes.ClassDef) -> bool:
-    # bw compatibility
-    return node.type == "interface"  # type: ignore[no-any-return]
 
 
 def is_exception(node: nodes.ClassDef) -> bool:
@@ -199,14 +194,22 @@ def get_annotation(
         default = ""
 
     label = get_annotation_label(ann)
-    if ann:
-        label = (
-            rf"Optional[{label}]"
-            if getattr(default, "value", "value") is None
-            and not label.startswith("Optional")
-            else label
+
+    if (
+        ann
+        and getattr(default, "value", "value") is None
+        and not label.startswith("Optional")
+        and (
+            not isinstance(ann, nodes.BinOp)
+            or not any(
+                isinstance(child, nodes.Const) and child.value is None
+                for child in ann.get_children()
+            )
         )
-    if label:
+    ):
+        label = rf"Optional[{label}]"
+
+    if label and ann:
         ann.name = label
     return ann
 
@@ -215,7 +218,6 @@ def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set[InferenceResult
     """Return a set containing the node annotation if it exists
     otherwise return a set of the inferred types using the NodeNG.infer method.
     """
-
     ann = get_annotation(node)
     try:
         if ann:

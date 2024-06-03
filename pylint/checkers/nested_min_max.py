@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for use of nested min/max functions."""
 
@@ -9,14 +9,23 @@ from __future__ import annotations
 import copy
 from typing import TYPE_CHECKING
 
-from astroid import nodes
+from astroid import nodes, objects
+from astroid.const import Context
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import only_required_for_messages, safe_infer
+from pylint.constants import PY39_PLUS
 from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+DICT_TYPES = (
+    objects.DictValues,
+    objects.DictKeys,
+    objects.DictItems,
+    nodes.node_classes.Dict,
+)
 
 
 class NestedMinMaxChecker(BaseChecker):
@@ -53,7 +62,14 @@ class NestedMinMaxChecker(BaseChecker):
         return [
             arg
             for arg in node.args
-            if cls.is_min_max_call(arg) and arg.func.name == node.func.name
+            if (
+                cls.is_min_max_call(arg)
+                and arg.func.name == node.func.name
+                # Nesting is useful for finding the maximum in a matrix.
+                # Allow: max(max([[1, 2, 3], [4, 5, 6]]))
+                # Meaning, redundant call only if parent max call has more than 1 arg.
+                and len(arg.parent.args) > 1
+            )
         ]
 
     @only_required_for_messages("nested-min-max")
@@ -83,12 +99,69 @@ class NestedMinMaxChecker(BaseChecker):
 
             redundant_calls = self.get_redundant_calls(fixed_node)
 
+        for idx, arg in enumerate(fixed_node.args):
+            if not isinstance(arg, nodes.Const):
+                if self._is_splattable_expression(arg):
+                    splat_node = nodes.Starred(
+                        ctx=Context.Load,
+                        lineno=arg.lineno,
+                        col_offset=0,
+                        parent=nodes.NodeNG(
+                            lineno=None,
+                            col_offset=None,
+                            end_lineno=None,
+                            end_col_offset=None,
+                            parent=None,
+                        ),
+                        end_lineno=0,
+                        end_col_offset=0,
+                    )
+                    splat_node.value = arg
+                    fixed_node.args = (
+                        fixed_node.args[:idx]
+                        + [splat_node]
+                        + fixed_node.args[idx + 1 : idx]
+                    )
+
         self.add_message(
             "nested-min-max",
             node=node,
             args=(node.func.name, fixed_node.as_string()),
             confidence=INFERENCE,
         )
+
+    def _is_splattable_expression(self, arg: nodes.NodeNG) -> bool:
+        """Returns true if expression under min/max could be converted to splat
+        expression.
+        """
+        # Support sequence addition (operator __add__)
+        if isinstance(arg, nodes.BinOp) and arg.op == "+":
+            return self._is_splattable_expression(
+                arg.left
+            ) and self._is_splattable_expression(arg.right)
+        # Support dict merge (operator __or__ in Python 3.9)
+        if isinstance(arg, nodes.BinOp) and arg.op == "|" and PY39_PLUS:
+            return self._is_splattable_expression(
+                arg.left
+            ) and self._is_splattable_expression(arg.right)
+
+        inferred = safe_infer(arg)
+        if inferred and inferred.pytype() in {"builtins.list", "builtins.tuple"}:
+            return True
+        if isinstance(
+            inferred or arg,
+            (
+                nodes.List,
+                nodes.Tuple,
+                nodes.Set,
+                nodes.ListComp,
+                nodes.DictComp,
+                *DICT_TYPES,
+            ),
+        ):
+            return True
+
+        return False
 
 
 def register(linter: PyLinter) -> None:

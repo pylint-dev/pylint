@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 from __future__ import annotations
 
@@ -9,9 +9,10 @@ import sys
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from pylint import config
+from pylint.checkers.utils import clear_lru_caches
 from pylint.config._pylint_config import (
     _handle_pylint_config_commands,
     _register_generate_config_options,
@@ -56,7 +57,8 @@ def _query_cpu() -> int | None:
     ):
         with open("/sys/fs/cgroup/cpu/cpu.cfs_period_us", encoding="utf-8") as file:
             cpu_period = int(file.read().rstrip())
-        # Divide quota by period and you should get num of allotted CPU to the container, rounded down if fractional.
+        # Divide quota by period and you should get num of allotted CPU to the container,
+        # rounded down if fractional.
         avail_cpu = int(cpu_quota / cpu_period)
     elif Path("/sys/fs/cgroup/cpu/cpu.shares").is_file():
         with open("/sys/fs/cgroup/cpu/cpu.shares", encoding="utf-8") as file:
@@ -95,9 +97,6 @@ def _cpu_count() -> int:
     return cpu_count
 
 
-UNUSED_PARAM_SENTINEL = object()
-
-
 class Run:
     """Helper class to use as main for pylint with 'run(*sys.argv[1:])'."""
 
@@ -115,12 +114,12 @@ group are mutually exclusive.",
     Used by _PylintConfigRun to make the 'pylint-config' command work.
     """
 
+    # pylint: disable = too-many-statements, too-many-branches
     def __init__(
         self,
         args: Sequence[str],
         reporter: BaseReporter | None = None,
         exit: bool = True,  # pylint: disable=redefined-builtin
-        do_exit: Any = UNUSED_PARAM_SENTINEL,
     ) -> None:
         # Immediately exit if user asks for version
         if "--version" in args:
@@ -155,9 +154,6 @@ group are mutually exclusive.",
         # load command line plugins
         linter.load_plugin_modules(self._plugins)
 
-        linter.disable("I")
-        linter.enable("c-extension-no-member")
-
         # Register the options needed for 'pylint-config'
         # By not registering them by default they don't show up in the normal usage message
         if self._is_pylint_config:
@@ -172,15 +168,18 @@ group are mutually exclusive.",
             warnings.warn(
                 "NOTE: The 'pylint-config' command is experimental and usage can change",
                 UserWarning,
+                stacklevel=2,
             )
             code = _handle_pylint_config_commands(linter)
             if exit:
                 sys.exit(code)
             return
 
-        # Display help messages if there are no files to lint
-        if not args:
-            print(linter.help())
+        # Display help if there are no files to lint or no checks enabled
+        if not args or len(linter.config.disable) == len(
+            linter.msgs_store._messages_definitions
+        ):
+            print("No files to lint: exiting.")
             sys.exit(32)
 
         if linter.config.jobs < 0:
@@ -204,22 +203,15 @@ group are mutually exclusive.",
                 with open(self._output, "w", encoding="utf-8") as output:
                     linter.reporter.out = output
                     linter.check(args)
-                    score_value = linter.generate_reports()
+                    score_value = linter.generate_reports(verbose=self.verbose)
             except OSError as ex:
                 print(ex, file=sys.stderr)
                 sys.exit(32)
         else:
             linter.check(args)
-            score_value = linter.generate_reports()
-
-        if do_exit is not UNUSED_PARAM_SENTINEL:
-            warnings.warn(
-                "do_exit is deprecated and it is going to be removed in a future version.",
-                DeprecationWarning,
-            )
-            exit = do_exit
-
+            score_value = linter.generate_reports(verbose=self.verbose)
         if linter.config.clear_cache_post_run:
+            clear_lru_caches()
             MANAGER.clear_cache()
 
         if exit:

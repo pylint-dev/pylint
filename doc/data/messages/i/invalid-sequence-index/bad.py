@@ -1,2 +1,2 @@
-fruits = ['apple', 'banana', 'orange']
-print(fruits['apple'])  # [invalid-sequence-index]
+fruits = ["apple", "banana", "orange"]
+print(fruits["apple"])  # [invalid-sequence-index]

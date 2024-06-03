@@ -1,3 +1,0 @@
-Don't warn about ``stop-iteration-return`` when using ``next()`` over ``itertools.cycle``.
-
-Closes #7765

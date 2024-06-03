@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 from __future__ import annotations
 
 import sys
@@ -15,20 +15,21 @@ class PrepareCommand(PrimerCommand):
     def run(self) -> None:
         commit_string = ""
         version_string = ".".join(str(x) for x in sys.version_info[:2])
+        # Shorten the SHA to avoid exceeding GitHub's 512 char ceiling
         if self.config.clone:
             for package, data in self.packages.items():
                 local_commit = data.lazy_clone()
                 print(f"Cloned '{package}' at commit '{local_commit}'.")
-                commit_string += local_commit + "_"
+                commit_string += local_commit[:8] + "_"
         elif self.config.check:
             for package, data in self.packages.items():
                 local_commit = Repo(data.clone_directory).head.object.hexsha
                 print(f"Found '{package}' at commit '{local_commit}'.")
-                commit_string += local_commit + "_"
+                commit_string += local_commit[:8] + "_"
         elif self.config.make_commit_string:
             for package, data in self.packages.items():
                 remote_sha1_commit = (
-                    Git().ls_remote(data.url, data.branch).split("\t")[0]
+                    Git().ls_remote(data.url, data.branch).split("\t")[0][:8]
                 )
                 print(f"'{package}' remote is at commit '{remote_sha1_commit}'.")
                 commit_string += remote_sha1_commit + "_"

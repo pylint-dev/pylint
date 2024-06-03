@@ -6,7 +6,7 @@ Summary -- Release highlights
 
 In 2.11, we added a new default checker to advise using f-string as it's
 the most efficient way of formatting strings right now. You can use
-`pyupgrade`_ or `flynt`_ to migrate your old ``%`` and ``format()`` automatically.
+`pyupgrade`_, `ruff`_ or `flynt`_ to migrate your old ``%`` and ``format()`` automatically.
 
 We added a new extension ``SetMembershipChecker`` that will advise the
 use of set for membership test, as it's more performant than lists or tuples.
@@ -26,10 +26,10 @@ The future ``possible-forgotten-f-prefix`` check still had too much false positi
 and is delayed again. Check the `possible-forgotten-f-prefix`_ issue if you want
 to provide knowledge or use case :)
 
-.. _possible-forgotten-f-prefix: https://github.com/PyCQA/pylint/pull/4787
+.. _possible-forgotten-f-prefix: https://github.com/pylint-dev/pylint/pull/4787
 .. _pyupgrade: https://github.com/asottile/pyupgrade
 .. _flynt: https://github.com/ikamensh/flynt
-
+.. _ruff: https://docs.astral.sh/ruff/
 
 New checkers
 ============
@@ -41,7 +41,7 @@ New checkers
 Removed checkers
 ================
 
-* The python3 porting mode checker and it's ``py3k`` option were removed. You can still find it in older pylint
+* The python3 porting mode checker and its ``py3k`` option were removed. You can still find it in older pylint
   versions.
 
 Extensions

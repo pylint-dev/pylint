@@ -1,20 +1,30 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """A similarities / code duplication command line tool and pylint checker.
 
 The algorithm is based on comparing the hash value of n successive lines of a file.
-First the files are read and any line that doesn't fulfill requirement are removed (comments, docstrings...)
+First the files are read and any line that doesn't fulfill requirement are removed
+(comments, docstrings...)
+
 Those stripped lines are stored in the LineSet class which gives access to them.
-Then each index of the stripped lines collection is associated with the hash of n successive entries of the stripped lines starting at the current index
-(n is the minimum common lines option).
-The common hashes between both linesets are then looked for. If there are matches, then the match indices in both linesets are stored and associated
-with the corresponding couples (start line number/end line number) in both files.
-This association is then post-processed to handle the case of successive matches. For example if the minimum common lines setting is set to four, then
-the hashes are computed with four lines. If one of match indices couple (12, 34) is the successor of another one (11, 33) then it means that there are
-in fact five lines which are common.
-Once post-processed the values of association table are the result looked for, i.e start and end lines numbers of common lines in both files.
+Then each index of the stripped lines collection is associated with the hash of n
+successive entries of the stripped lines starting at the current index (n is the
+minimum common lines option).
+
+The common hashes between both linesets are then looked for. If there are matches, then
+the match indices in both linesets are stored and associated with the corresponding
+couples (start line number/end line number) in both files.
+
+This association is then post-processed to handle the case of successive matches. For
+example if the minimum common lines setting is set to four, then the hashes are
+computed with four lines. If one of match indices couple (12, 34) is the
+successor of another one (11, 33) then it means that there are in fact five lines which
+are common.
+
+Once post-processed the values of association table are the result looked for, i.e.
+start and end lines numbers of common lines in both files.
 """
 
 from __future__ import annotations
@@ -31,10 +41,9 @@ from collections import defaultdict
 from collections.abc import Callable, Generator, Iterable, Sequence
 from getopt import getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
-from itertools import chain, groupby
+from itertools import chain
 from typing import (
     TYPE_CHECKING,
-    Any,
     Dict,
     List,
     NamedTuple,
@@ -126,7 +135,7 @@ class LinesChunk:
         self._hash: int = sum(hash(lin) for lin in lines)
         """The hash of some consecutive lines."""
 
-    def __eq__(self, o: Any) -> bool:
+    def __eq__(self, o: object) -> bool:
         if not isinstance(o, LinesChunk):
             return NotImplemented
         return self._hash == o._hash
@@ -185,7 +194,7 @@ class LineSetStartCouple(NamedTuple):
             f"<LineSetStartCouple <{self.fst_lineset_index};{self.snd_lineset_index}>>"
         )
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, LineSetStartCouple):
             return NotImplemented
         return (
@@ -367,7 +376,8 @@ class Similar:
                 raise ValueError
             readlines = decoding_stream(stream, encoding).readlines
         else:
-            readlines = stream.readlines  # type: ignore[assignment] # hint parameter is incorrectly typed as non-optional
+            # hint parameter is incorrectly typed as non-optional
+            readlines = stream.readlines  # type: ignore[assignment]
 
         try:
             lines = readlines()
@@ -382,9 +392,11 @@ class Similar:
                 self.namespace.ignore_docstrings,
                 self.namespace.ignore_imports,
                 self.namespace.ignore_signatures,
-                line_enabled_callback=self.linter._is_one_message_enabled
-                if hasattr(self, "linter")
-                else None,
+                line_enabled_callback=(
+                    self.linter._is_one_message_enabled
+                    if hasattr(self, "linter")
+                    else None
+                ),
             )
         )
 
@@ -457,20 +469,28 @@ class Similar:
                     report += f"   {line.rstrip()}\n" if line.rstrip() else "\n"
             duplicated_line_number += number * (len(couples_l) - 1)
         total_line_number: int = sum(len(lineset) for lineset in self.linesets)
-        report += f"TOTAL lines={total_line_number} duplicates={duplicated_line_number} percent={duplicated_line_number * 100.0 / total_line_number:.2f}\n"
+        report += (
+            f"TOTAL lines={total_line_number} "
+            f"duplicates={duplicated_line_number} "
+            f"percent={duplicated_line_number * 100.0 / total_line_number:.2f}\n"
+        )
         return report
 
+    # pylint: disable = too-many-locals
     def _find_common(
         self, lineset1: LineSet, lineset2: LineSet
     ) -> Generator[Commonality, None, None]:
         """Find similarities in the two given linesets.
 
-        This the core of the algorithm.
-        The idea is to compute the hashes of a minimal number of successive lines of each lineset and then compare the hashes.
-        Every match of such comparison is stored in a dict that links the couple of starting indices in both linesets to
-        the couple of corresponding starting and ending lines in both files.
-        Last regroups all successive couples in a bigger one. It allows to take into account common chunk of lines that have more
-        than the minimal number of successive lines required.
+        This the core of the algorithm. The idea is to compute the hashes of a
+        minimal number of successive lines of each lineset and then compare the
+        hashes. Every match of such comparison is stored in a dict that links the
+        couple of starting indices in both linesets to the couple of corresponding
+        starting and ending lines in both files.
+
+        Last regroups all successive couples in a bigger one. It allows to take into
+        account common chunk of lines that have more than the minimal number of
+        successive lines required.
         """
         hash_to_index_1: HashToIndex_T
         hash_to_index_2: HashToIndex_T
@@ -500,12 +520,12 @@ class Similar:
             ):
                 index_1 = indices_in_linesets[0]
                 index_2 = indices_in_linesets[1]
-                all_couples[
-                    LineSetStartCouple(index_1, index_2)
-                ] = CplSuccessiveLinesLimits(
-                    copy.copy(index_to_lines_1[index_1]),
-                    copy.copy(index_to_lines_2[index_2]),
-                    effective_cmn_lines_nb=self.namespace.min_similarity_lines,
+                all_couples[LineSetStartCouple(index_1, index_2)] = (
+                    CplSuccessiveLinesLimits(
+                        copy.copy(index_to_lines_1[index_1]),
+                        copy.copy(index_to_lines_2[index_2]),
+                        effective_cmn_lines_nb=self.namespace.min_similarity_lines,
+                    )
                 )
 
         remove_successive(all_couples)
@@ -572,48 +592,45 @@ def stripped_lines(
     :param ignore_docstrings: if true, any line that is a docstring is removed from the result
     :param ignore_imports: if true, any line that is an import is removed from the result
     :param ignore_signatures: if true, any line that is part of a function signature is removed from the result
-    :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard the line
+    :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard
+           the line
     :return: the collection of line/line number/line type tuples
     """
+    ignore_lines: set[int] = set()
     if ignore_imports or ignore_signatures:
         tree = astroid.parse("".join(lines))
-    if ignore_imports:
-        node_is_import_by_lineno = (
-            (node.lineno, isinstance(node, (nodes.Import, nodes.ImportFrom)))
-            for node in tree.body
-        )
-        line_begins_import = {
-            lineno: all(is_import for _, is_import in node_is_import_group)
-            for lineno, node_is_import_group in groupby(
-                node_is_import_by_lineno, key=lambda x: x[0]  # type: ignore[no-any-return]
+        if ignore_imports:
+            ignore_lines.update(
+                chain.from_iterable(
+                    range(node.lineno, (node.end_lineno or node.lineno) + 1)
+                    for node in tree.nodes_of_class((nodes.Import, nodes.ImportFrom))
+                )
             )
-        }
-        current_line_is_import = False
-    if ignore_signatures:
+        if ignore_signatures:
 
-        def _get_functions(
-            functions: list[nodes.NodeNG], tree: nodes.NodeNG
-        ) -> list[nodes.NodeNG]:
-            """Recursively get all functions including nested in the classes from the
-            tree.
-            """
+            def _get_functions(
+                functions: list[nodes.NodeNG], tree: nodes.NodeNG
+            ) -> list[nodes.NodeNG]:
+                """Recursively get all functions including nested in the classes from
+                the.
 
-            for node in tree.body:
-                if isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
-                    functions.append(node)
+                tree.
+                """
+                for node in tree.body:
+                    if isinstance(node, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
+                        functions.append(node)
 
-                if isinstance(
-                    node,
-                    (nodes.ClassDef, nodes.FunctionDef, nodes.AsyncFunctionDef),
-                ):
-                    _get_functions(functions, node)
+                    if isinstance(
+                        node,
+                        (nodes.ClassDef, nodes.FunctionDef, nodes.AsyncFunctionDef),
+                    ):
+                        _get_functions(functions, node)
 
-            return functions
+                return functions
 
-        functions = _get_functions([], tree)
-        signature_lines = set(
-            chain(
-                *(
+            functions = _get_functions([], tree)
+            ignore_lines.update(
+                chain.from_iterable(
                     range(
                         func.lineno,
                         func.body[0].lineno if func.body else func.tolineno + 1,
@@ -621,7 +638,6 @@ def stripped_lines(
                     for func in functions
                 )
             )
-        )
 
     strippedlines = []
     docstring = None
@@ -633,25 +649,19 @@ def stripped_lines(
         line = line.strip()
         if ignore_docstrings:
             if not docstring:
-                if line.startswith('"""') or line.startswith("'''"):
+                if line.startswith(('"""', "'''")):
                     docstring = line[:3]
                     line = line[3:]
-                elif line.startswith('r"""') or line.startswith("r'''"):
+                elif line.startswith(('r"""', "r'''")):
                     docstring = line[1:4]
                     line = line[4:]
             if docstring:
                 if line.endswith(docstring):
                     docstring = None
                 line = ""
-        if ignore_imports:
-            current_line_is_import = line_begins_import.get(
-                lineno, current_line_is_import
-            )
-            if current_line_is_import:
-                line = ""
         if ignore_comments:
             line = line.split("#", 1)[0].strip()
-        if ignore_signatures and lineno in signature_lines:
+        if lineno in ignore_lines:
             line = ""
         if line:
             strippedlines.append(
@@ -704,7 +714,7 @@ class LineSet:
     def __hash__(self) -> int:
         return id(self)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, LineSet):
             return False
         return self.__dict__ == other.__dict__
@@ -828,15 +838,17 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         stream must implement the readlines method
         """
         if self.linter.current_name is None:
+            # TODO: 4.0 Fix current_name
             warnings.warn(
                 (
                     "In pylint 3.0 the current_name attribute of the linter object should be a string. "
                     "If unknown it should be initialized as an empty string."
                 ),
                 DeprecationWarning,
+                stacklevel=2,
             )
         with node.stream() as stream:
-            self.append_stream(self.linter.current_name, stream, node.file_encoding)  # type: ignore[arg-type]
+            self.append_stream(self.linter.current_name, stream, node.file_encoding)
 
     def close(self) -> None:
         """Compute and display similarities on closing (i.e. end of parsing)."""
@@ -867,8 +879,11 @@ class SimilarChecker(BaseRawFileChecker, Similar):
         """Reduces and recombines data into a format that we can report on.
 
         The partner function of get_map_data()
+
+        Calls self.close() to actually calculate and report duplicate code.
         """
         Similar.combine_mapreduce_data(self, linesets_collection=data)
+        self.close()
 
 
 def register(linter: PyLinter) -> None:

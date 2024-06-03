@@ -1,12 +1,15 @@
 # pylint: disable=missing-docstring
 
 # Disabled because of a bug with pypy 3.8 see
-# https://github.com/PyCQA/pylint/pull/7918#issuecomment-1352737369
+# https://github.com/pylint-dev/pylint/pull/7918#issuecomment-1352737369
 # pylint: disable=multiple-statements
 
 import dataclasses
 import typing
 from dataclasses import dataclass
+
+import attrs  # pylint: disable=import-error
+from attrs import define, frozen  # pylint: disable=import-error
 
 
 @dataclasses.dataclass
@@ -40,3 +43,27 @@ class Point:
     def to_array(self):
         """Convert to a NumPy array `np.array((x, y, z))`."""
         return self.attr1
+
+
+@define
+class AttrsBarePoint:
+    x: float
+    y: float
+
+
+@frozen
+class AttrsBareFrozenPoint:
+    x: float
+    y: float
+
+
+@attrs.define
+class AttrsQualifiedPoint:
+    x: float
+    y: float
+
+
+@attrs.frozen
+class AttrsQualifiedFrozenPoint:
+    x: float
+    y: float

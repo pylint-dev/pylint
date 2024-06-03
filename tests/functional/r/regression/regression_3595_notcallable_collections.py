@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,unused-import
-# https://github.com/PyCQA/pylint/issues/3595
+# https://github.com/pylint-dev/pylint/issues/3595
 
 import collections
 

@@ -1,0 +1,3 @@
+Restore "errors / warnings by module" section to report output (with `-ry`).
+
+Closes #9145

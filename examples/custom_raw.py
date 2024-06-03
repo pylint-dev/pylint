@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -9,8 +11,8 @@ if TYPE_CHECKING:
 
 
 class MyRawChecker(BaseRawFileChecker):
-    """Check for line continuations with '\' instead of using triple
-    quoted string or parenthesis
+    r"""Check for line continuations with '\' instead of using triple
+    quoted string or parenthesis.
     """
 
     name = "custom_raw"
@@ -37,7 +39,7 @@ class MyRawChecker(BaseRawFileChecker):
                     self.add_message("backslash-line-continuation", line=lineno)
 
 
-def register(linter: "PyLinter") -> None:
+def register(linter: PyLinter) -> None:
     """This required method auto registers the checker during initialization.
 
     :param linter: The linter to register the checker to.

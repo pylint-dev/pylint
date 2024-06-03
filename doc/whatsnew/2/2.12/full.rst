@@ -83,7 +83,7 @@ Release date: 2021-11-24
   and allows it to be checked against actual output in a test.
 
 * Fix a crash in the ``check_elif`` extensions where an undetected if in a comprehension
-  with an if statement within a f-string resulted in an out of range error. The checker no
+  with an if statement within an f-string resulted in an out of range error. The checker no
   longer relies on counting if statements anymore and uses known if statements locations instead.
   It should not crash on badly parsed if statements anymore.
 

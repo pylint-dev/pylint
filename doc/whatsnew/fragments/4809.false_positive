@@ -1,3 +1,0 @@
-Fix false positive for ``global-variable-not-assigned`` when a global variable is re-assigned via an ``ImportFrom`` node.
-
-Closes #4809

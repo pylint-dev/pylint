@@ -226,7 +226,7 @@ class MyDescriptor:
         pass
 
 
-# Regression test from https://github.com/PyCQA/pylint/issues/6001
+# Regression test from https://github.com/pylint-dev/pylint/issues/6001
 class Base:
     __slots__ = ()
 

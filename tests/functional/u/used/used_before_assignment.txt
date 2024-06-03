@@ -1,8 +1,15 @@
-used-before-assignment:5:19:5:22::Using variable 'MSG' before assignment:HIGH
-used-before-assignment:7:20:7:24::Using variable 'MSG2' before assignment:HIGH
-used-before-assignment:10:4:10:9:outer:Using variable 'inner' before assignment:HIGH
-used-before-assignment:20:10:20:14:redefine_time_import:Using variable 'time' before assignment:HIGH
-used-before-assignment:34:3:34:7::Using variable 'VAR2' before assignment:CONTROL_FLOW
-used-before-assignment:52:3:52:7::Using variable 'VAR4' before assignment:CONTROL_FLOW
-used-before-assignment:67:3:67:7::Using variable 'VAR6' before assignment:CONTROL_FLOW
-used-before-assignment:102:6:102:11::Using variable 'VAR10' before assignment:CONTROL_FLOW
+used-before-assignment:6:19:6:22::Using variable 'MSG' before assignment:HIGH
+used-before-assignment:8:20:8:24::Using variable 'MSG2' before assignment:HIGH
+used-before-assignment:11:4:11:9:outer:Using variable 'inner' before assignment:HIGH
+used-before-assignment:20:20:20:40:ClassWithProperty:Using variable 'redefine_time_import' before assignment:HIGH
+used-before-assignment:24:0:24:9::Using variable 'calculate' before assignment:HIGH
+used-before-assignment:32:10:32:14:redefine_time_import:Using variable 'time' before assignment:HIGH
+used-before-assignment:46:3:46:7::Using variable 'VAR2' before assignment:INFERENCE
+possibly-used-before-assignment:64:3:64:7::Possibly using variable 'VAR4' before assignment:INFERENCE
+possibly-used-before-assignment:74:3:74:7::Possibly using variable 'VAR5' before assignment:INFERENCE
+used-before-assignment:79:3:79:7::Using variable 'VAR6' before assignment:INFERENCE
+used-before-assignment:114:6:114:11::Using variable 'VAR10' before assignment:INFERENCE
+possibly-used-before-assignment:120:6:120:11::Possibly using variable 'VAR12' before assignment:CONTROL_FLOW
+used-before-assignment:151:10:151:14::Using variable 'SALE' before assignment:INFERENCE
+used-before-assignment:183:10:183:18::Using variable 'ALL_DONE' before assignment:INFERENCE
+used-before-assignment:194:6:194:24::Using variable 'NOT_ALWAYS_DEFINED' before assignment:INFERENCE

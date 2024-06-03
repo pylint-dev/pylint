@@ -1,5 +1,5 @@
 # pylint:disable=missing-docstring, unreachable, bad-except-order, bare-except, unnecessary-pass
-# pylint: disable=undefined-variable, broad-except, raise-missing-from
+# pylint: disable=undefined-variable, broad-except, raise-missing-from, too-few-public-methods
 try:
     int("9a")
 except:  # [try-except-raise]
@@ -79,6 +79,18 @@ try:
 except (FileNotFoundError, PermissionError):
     raise
 except OSError:
+    print("a failure")
+
+class NameSpace:
+    error1 = FileNotFoundError
+    error2 = PermissionError
+    parent_error=OSError
+
+try:
+    pass
+except (NameSpace.error1, NameSpace.error2):
+    raise
+except NameSpace.parent_error:
     print("a failure")
 
 # also consider tuples for subsequent exception handler instead of just bare except handler

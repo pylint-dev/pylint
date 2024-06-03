@@ -1,15 +1,18 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Script used to generate the messages files."""
 
+from __future__ import annotations
+
 import os
 from collections import defaultdict
+from enum import Enum
 from inspect import getmodule
 from itertools import chain, groupby
 from pathlib import Path
-from typing import DefaultDict, Dict, List, NamedTuple, Optional, Tuple
+from typing import DefaultDict, Dict, List, NamedTuple, Tuple
 
 from sphinx.application import Sphinx
 
@@ -37,14 +40,16 @@ class MessageData(NamedTuple):
     id: str
     name: str
     definition: MessageDefinition
-    good_code: str
-    bad_code: str
-    details: str
-    related_links: str
+    example_code: str
     checker_module_name: str
     checker_module_path: str
     shared: bool = False
     default_enabled: bool = True
+
+
+class ExampleType(str, Enum):
+    GOOD = "good"
+    BAD = "bad"
 
 
 MessagesDict = Dict[str, List[MessageData]]
@@ -60,39 +65,89 @@ def _register_all_checkers_and_extensions(linter: PyLinter) -> None:
     initialize_extensions(linter)
 
 
-def _get_message_data(data_path: Path) -> Tuple[str, str, str, str]:
-    """Get the message data from the specified path."""
-    good_py_path = data_path / "good.py"
-    bad_py_path = data_path / "bad.py"
-    details_rst_path = data_path / "details.rst"
-    related_rst_path = data_path / "related.rst"
+def _get_example_code(data_path: Path) -> str:
+    """Get the example code from the specified path."""
     if not data_path.exists():
-        _create_placeholders(data_path, details_rst_path, good_py_path)
-    good_code = _get_titled_rst(
-        title="Correct code", text=_get_python_code_as_rst(good_py_path)
-    )
-    bad_code = _get_titled_rst(
-        title="Problematic code", text=_get_python_code_as_rst(bad_py_path)
-    )
+        raise AssertionError(
+            f"Documentation examples path {data_path} does not exist. "
+            "Please create it and add an example."
+        )
+
+    good_code = _get_demo_code_for(data_path, ExampleType.GOOD)
+    bad_code = _get_demo_code_for(data_path, ExampleType.BAD)
+    pylintrc = _get_pylintrc_code(data_path)
     details = _get_titled_rst(
-        title="Additional details", text=_get_rst_as_str(details_rst_path)
+        title="Additional details", text=_get_rst_as_str(data_path / "details.rst")
     )
     related = _get_titled_rst(
-        title="Related links", text=_get_rst_as_str(related_rst_path)
+        title="Related links", text=_get_rst_as_str(data_path / "related.rst")
     )
-    _check_placeholders(bad_code, details, good_py_path, related)
-    return good_code, bad_code, details, related
+
+    _check_placeholders(data_path, bad_code, details, related)
+    return "\n".join((bad_code, good_code, pylintrc, details, related)) + "\n"
+
+
+def _get_pylintrc_code(data_path: Path) -> str:
+    if (data_path / "pylintrc").exists():
+        pylintrc = _get_titled_rst(
+            title="Configuration file", text=_get_ini_as_rst(data_path / "pylintrc")
+        )
+    else:
+        pylintrc = ""
+    return pylintrc
+
+
+def _get_demo_code_for(data_path: Path, example_type: ExampleType) -> str:
+    """Get code examples while handling multi-file code templates."""
+    single_file_path = data_path / f"{example_type.value}.py"
+    multiple_code_path = data_path / f"{example_type.value}"
+
+    if single_file_path.exists() and multiple_code_path.exists():
+        raise ValueError(
+            f"You cannot have a single file '{example_type.value}.py' and multiple files "
+            f"example '{multiple_code_path}' existing at the same time."
+        )
+
+    title = "Problematic code" if example_type is ExampleType.BAD else "Correct code"
+    if single_file_path.exists():
+        return _get_titled_rst(
+            title=title, text=_get_python_code_as_rst(single_file_path)
+        )
+
+    if multiple_code_path.exists():
+        files: list[str] = []
+        # Sort so the order of the files makes sense
+        for file_as_str in sorted([str(p) for p in multiple_code_path.iterdir()]):
+            file = Path(file_as_str)
+            if file.suffix == ".py":
+                files.append(
+                    f"""\
+``{file.name}``:
+
+.. literalinclude:: /{file.relative_to(Path.cwd())}
+    :language: python
+
+"""
+                )
+        return _get_titled_rst(title=title, text="\n".join(files))
+
+    return ""
 
 
 def _check_placeholders(
-    bad_code: str, details: str, good_py_path: Path, related: str
+    data_path: Path, bad_code: str, details: str, related: str
 ) -> None:
+    # Check if the placeholder file can even be presented by checking if its path exists
+    good_path = data_path / "good.py"
+    if not good_path.exists():
+        return
+
     if bad_code or related:
         placeholder_details = "help us make the doc better" in details
-        with open(good_py_path) as f:
+        with open(good_path, encoding="utf-8") as f:
             placeholder_good = "placeholder" in f.read()
         assert_msg = (
-            f"Please remove placeholders in '{good_py_path.parent}' "
+            f"Please remove placeholders in '{data_path}' "
             f"as you started completing the documentation"
         )
         assert not placeholder_good and not placeholder_details, assert_msg
@@ -125,27 +180,16 @@ def _get_python_code_as_rst(code_path: Path) -> str:
 """
 
 
-def _create_placeholders(
-    data_path: Path, details_rst_path: Path, good_py_path: Path
-) -> None:
-    data_path.mkdir(parents=True)
-    with open(good_py_path, "w", encoding="utf-8") as file:
-        file.write(
-            """\
-# This is a placeholder for correct code for this message.
+def _get_ini_as_rst(code_path: Path) -> str:
+    return f"""\
+.. literalinclude:: /{code_path.relative_to(Path.cwd())}
+    :language: ini
 """
-        )
-    with open(details_rst_path, "w", encoding="utf-8") as file:
-        file.write(
-            """\
-You can help us make the doc better `by contributing <https://github.com/PyCQA/pylint/issues/5953>`_ !
-"""
-        )
 
 
 def _get_all_messages(
     linter: PyLinter,
-) -> Tuple[MessagesDict, OldMessagesDict]:
+) -> tuple[MessagesDict, OldMessagesDict]:
     """Get all messages registered to a linter and return a dictionary indexed by
     message type.
 
@@ -173,9 +217,7 @@ def _get_all_messages(
     )
 
     for checker, message in checker_message_mapping:
-        good_code, bad_code, details, related = _get_message_data(
-            _get_message_data_path(message)
-        )
+        example_code = _get_example_code(_get_message_data_path(message))
 
         checker_module = getmodule(checker)
 
@@ -188,10 +230,7 @@ def _get_all_messages(
             message.msgid,
             message.symbol,
             message,
-            good_code,
-            bad_code,
-            details,
-            related,
+            example_code,
             checker_module.__name__,
             checker_module.__file__,
             message.shared,
@@ -268,7 +307,7 @@ def _generate_single_message_body(message: MessageData) -> str:
 {get_rst_title(f"{message.name} / {message.id}", "=")}
 **Message emitted:**
 
-{message.definition.msg}
+``{message.definition.msg}``
 
 **Description:**
 
@@ -280,18 +319,22 @@ def _generate_single_message_body(message: MessageData) -> str:
   This message is disabled by default. To enable it, add ``{message.name}`` to the ``enable`` option.
 
 """
+    if message.id.startswith("I"):
+        body += f"""
+.. caution::
+  By default, this message will not fail the execution (pylint will return 0).
+  To make pylint fail for this message use the ``--fail-on={message.id}`` option
+  or ``--fail-on=I`` to fail on all enabled informational messages.
 
-    body += f"""
-{message.bad_code}
-{message.good_code}
-{message.details}
-{message.related_links}
 """
+
+    body += "\n" + message.example_code + "\n"
+
     if message.checker_module_name.startswith("pylint.extensions."):
         body += f"""
 .. note::
-  This message is emitted by the optional :ref:`'{message.checker}'<{message.checker_module_name}>` checker which requires the ``{message.checker_module_name}``
-  plugin to be loaded.
+  This message is emitted by the optional :ref:`'{message.checker}'<{message.checker_module_name}>`
+  checker, which requires the ``{message.checker_module_name}`` plugin to be loaded.
 
 """
     return body
@@ -301,11 +344,11 @@ def _generate_checker_url(message: MessageData) -> str:
     checker_module_rel_path = os.path.relpath(
         message.checker_module_path, PYLINT_BASE_PATH
     )
-    return f"https://github.com/PyCQA/pylint/blob/main/{checker_module_rel_path}"
+    return f"https://github.com/pylint-dev/pylint/blob/main/{checker_module_rel_path}"
 
 
 def _write_single_shared_message_page(
-    category_dir: Path, messages: List[MessageData]
+    category_dir: Path, messages: list[MessageData]
 ) -> None:
     message = messages[0]
     with open(category_dir / f"{message.name}.rst", "w", encoding="utf-8") as stream:
@@ -405,8 +448,8 @@ def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
 
 def _write_redirect_old_page(
     category_dir: Path,
-    old_name: Tuple[str, str],
-    new_names: List[Tuple[str, str]],
+    old_name: tuple[str, str],
+    new_names: list[tuple[str, str]],
 ) -> None:
     old_name_file = os.path.join(category_dir, f"{old_name[0]}.rst")
     new_names_string = "".join(
@@ -414,8 +457,8 @@ def _write_redirect_old_page(
     )
     content = f""".. _{old_name[0]}:
 
-{get_rst_title("/".join(old_name), "=")}
-"{old_name[0]} has been renamed. The new message can be found at:
+{get_rst_title(" / ".join(old_name), "=")}
+'{old_name[0]}' has been renamed. The new message can be found at:
 
 .. toctree::
    :maxdepth: 2
@@ -428,7 +471,7 @@ def _write_redirect_old_page(
 
 
 # pylint: disable-next=unused-argument
-def build_messages_pages(app: Optional[Sphinx]) -> None:
+def build_messages_pages(app: Sphinx | None) -> None:
     """Overwrite messages files by printing the documentation to a stream.
 
     Documentation is written in ReST format.
@@ -446,11 +489,12 @@ def build_messages_pages(app: Optional[Sphinx]) -> None:
     _write_redirect_pages(old_messages)
 
 
-def setup(app: Sphinx) -> None:
+def setup(app: Sphinx) -> dict[str, bool]:
     """Connects the extension to the Sphinx process."""
     # Register callback at the builder-inited Sphinx event
     # See https://www.sphinx-doc.org/en/master/extdev/appapi.html
     app.connect("builder-inited", build_messages_pages)
+    return {"parallel_read_safe": True}
 
 
 if __name__ == "__main__":

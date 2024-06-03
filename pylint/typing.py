@@ -1,13 +1,12 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """A collection of typing utilities."""
 
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -15,18 +14,16 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    Literal,
     NamedTuple,
     Optional,
     Pattern,
+    Protocol,
     Tuple,
     Type,
+    TypedDict,
     Union,
 )
-
-if sys.version_info >= (3, 8):
-    from typing import Literal, Protocol, TypedDict
-else:
-    from typing_extensions import Literal, Protocol, TypedDict
 
 if TYPE_CHECKING:
     from pylint.config.callback_actions import _CallbackAction
@@ -136,5 +133,6 @@ DirectoryNamespaceDict = Dict[Path, Tuple[argparse.Namespace, "DirectoryNamespac
 
 
 class GetProjectCallable(Protocol):
-    def __call__(self, module: str, name: str | None = "No Name") -> Project:
-        ...  # pragma: no cover
+    def __call__(
+        self, module: str, name: str | None = "No Name"
+    ) -> Project: ...  # pragma: no cover

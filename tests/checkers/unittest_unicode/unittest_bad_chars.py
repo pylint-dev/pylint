@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=redefined-outer-name
 
@@ -219,7 +219,7 @@ class TestBadCharsChecker(pylint.testutils.CheckerTestCase):
         codec_and_msg: tuple[str, tuple[pylint.testutils.MessageTest]],
     ) -> None:
         """Special test for a file containing chars that lead to
-        Python or Astroid crashes (which causes Pylint to exit early)
+        Python or Astroid crashes (which causes Pylint to exit early).
         """
         codec, start_msg = codec_and_msg
         # Create file that will fail loading in astroid.

@@ -1,0 +1,2 @@
+used-before-assignment:10:13:10:21:func_two:Using variable 'datetime' before assignment:INFERENCE
+used-before-assignment:16:12:16:20:func:Using variable 'datetime' before assignment:INFERENCE

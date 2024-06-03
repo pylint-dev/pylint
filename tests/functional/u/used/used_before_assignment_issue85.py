@@ -1,4 +1,4 @@
-"""https://github.com/PyCQA/pylint/issues/85"""
+"""https://github.com/pylint-dev/pylint/issues/85"""
 def main():
     """When evaluating finally blocks, assume try statements fail."""
     try:
@@ -34,6 +34,16 @@ def try_except_finally_assignment_in_final_block():
     print(res)
 
 
+def try_except_finally_assignment_in_both_try_and_except():
+    """Assignment of the name in both try and except blocks is fine."""
+    try:
+        res = 1 / 0
+    except ZeroDivisionError:
+        res = 0
+    finally:
+        print(res)
+
+
 def try_except_finally_nested_try_finally_in_try():
     """Don't confuse assignments in different finally statements where
     one is nested inside a try.
@@ -54,7 +64,7 @@ def try_except_finally_nested_try_finally_in_try():
 
 def try_except_finally_nested_in_finally():
     """Until Pylint comes to a consensus on requiring all except handlers to
-    define a name, raise, or return (https://github.com/PyCQA/pylint/issues/5524),
+    define a name, raise, or return (https://github.com/pylint-dev/pylint/issues/5524),
     Pylint assumes statements in try blocks succeed when accessed *after*
     except or finally blocks and fail when accessed *in* except or finally
     blocks.)

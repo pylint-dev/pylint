@@ -155,7 +155,7 @@ def func4():
 
 
 def main(lst):
-    """https://github.com/PyCQA/astroid/pull/1111#issuecomment-890367609"""
+    """https://github.com/pylint-dev/astroid/pull/1111#issuecomment-890367609"""
     try:
         raise ValueError
     except ValueError as e:  # [unused-variable]
@@ -199,3 +199,20 @@ def func6():
     nonlocal_writer()
 
     assert a == 9, a
+
+def test_regression_8595():
+    # pylint: disable=broad-exception-caught
+    import logging
+    def compute():
+        pass
+    try:
+        compute()
+        error = False
+    except Exception as e:
+        logging.error(e)
+        error = True
+    if error:
+        try:
+            compute()
+        except Exception as e:  # [unused-variable]
+            pass

@@ -1,14 +1,13 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checker for use of Python logging."""
 
 from __future__ import annotations
 
 import string
-import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import astroid
 from astroid import bases, nodes
@@ -19,79 +18,74 @@ from pylint.checkers import utils
 from pylint.checkers.utils import infer_all
 from pylint.typing import MessageDefinitionTuple
 
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS: dict[
-    str, MessageDefinitionTuple
-] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
-    "W1201": (
-        "Use %s formatting in logging functions",
-        "logging-not-lazy",
-        "Used when a logging statement has a call form of "
-        '"logging.<logging method>(format_string % (format_args...))". '
-        "Use another type of string formatting instead. "
-        "You can use % formatting but leave interpolation to "
-        "the logging function by passing the parameters as arguments. "
-        "If logging-fstring-interpolation is disabled then "
-        "you can use fstring formatting. "
-        "If logging-format-interpolation is disabled then "
-        "you can use str.format.",
-    ),
-    "W1202": (
-        "Use %s formatting in logging functions",
-        "logging-format-interpolation",
-        "Used when a logging statement has a call form of "
-        '"logging.<logging method>(format_string.format(format_args...))". '
-        "Use another type of string formatting instead. "
-        "You can use % formatting but leave interpolation to "
-        "the logging function by passing the parameters as arguments. "
-        "If logging-fstring-interpolation is disabled then "
-        "you can use fstring formatting. "
-        "If logging-not-lazy is disabled then "
-        "you can use % formatting as normal.",
-    ),
-    "W1203": (
-        "Use %s formatting in logging functions",
-        "logging-fstring-interpolation",
-        "Used when a logging statement has a call form of "
-        '"logging.<logging method>(f"...")".'
-        "Use another type of string formatting instead. "
-        "You can use % formatting but leave interpolation to "
-        "the logging function by passing the parameters as arguments. "
-        "If logging-format-interpolation is disabled then "
-        "you can use str.format. "
-        "If logging-not-lazy is disabled then "
-        "you can use % formatting as normal.",
-    ),
-    "E1200": (
-        "Unsupported logging format character %r (%#02x) at index %d",
-        "logging-unsupported-format",
-        "Used when an unsupported format character is used in a logging "
-        "statement format string.",
-    ),
-    "E1201": (
-        "Logging format string ends in middle of conversion specifier",
-        "logging-format-truncated",
-        "Used when a logging statement format string terminates before "
-        "the end of a conversion specifier.",
-    ),
-    "E1205": (
-        "Too many arguments for logging format string",
-        "logging-too-many-args",
-        "Used when a logging format string is given too many arguments.",
-    ),
-    "E1206": (
-        "Not enough arguments for logging format string",
-        "logging-too-few-args",
-        "Used when a logging format string is given too few arguments.",
-    ),
-}
+MSGS: dict[str, MessageDefinitionTuple] = (
+    {  # pylint: disable=consider-using-namedtuple-or-dataclass
+        "W1201": (
+            "Use %s formatting in logging functions",
+            "logging-not-lazy",
+            "Used when a logging statement has a call form of "
+            '"logging.<logging method>(format_string % (format_args...))". '
+            "Use another type of string formatting instead. "
+            "You can use % formatting but leave interpolation to "
+            "the logging function by passing the parameters as arguments. "
+            "If logging-fstring-interpolation is disabled then "
+            "you can use fstring formatting. "
+            "If logging-format-interpolation is disabled then "
+            "you can use str.format.",
+        ),
+        "W1202": (
+            "Use %s formatting in logging functions",
+            "logging-format-interpolation",
+            "Used when a logging statement has a call form of "
+            '"logging.<logging method>(format_string.format(format_args...))". '
+            "Use another type of string formatting instead. "
+            "You can use % formatting but leave interpolation to "
+            "the logging function by passing the parameters as arguments. "
+            "If logging-fstring-interpolation is disabled then "
+            "you can use fstring formatting. "
+            "If logging-not-lazy is disabled then "
+            "you can use % formatting as normal.",
+        ),
+        "W1203": (
+            "Use %s formatting in logging functions",
+            "logging-fstring-interpolation",
+            "Used when a logging statement has a call form of "
+            '"logging.<logging method>(f"...")".'
+            "Use another type of string formatting instead. "
+            "You can use % formatting but leave interpolation to "
+            "the logging function by passing the parameters as arguments. "
+            "If logging-format-interpolation is disabled then "
+            "you can use str.format. "
+            "If logging-not-lazy is disabled then "
+            "you can use % formatting as normal.",
+        ),
+        "E1200": (
+            "Unsupported logging format character %r (%#02x) at index %d",
+            "logging-unsupported-format",
+            "Used when an unsupported format character is used in a logging "
+            "statement format string.",
+        ),
+        "E1201": (
+            "Logging format string ends in middle of conversion specifier",
+            "logging-format-truncated",
+            "Used when a logging statement format string terminates before "
+            "the end of a conversion specifier.",
+        ),
+        "E1205": (
+            "Too many arguments for logging format string",
+            "logging-too-many-args",
+            "Used when a logging format string is given too many arguments.",
+        ),
+        "E1206": (
+            "Not enough arguments for logging format string",
+            "logging-too-few-args",
+            "Used when a logging format string is given too few arguments.",
+        ),
+    }
+)
 
 
 CHECKED_CONVENIENCE_FUNCTIONS = {
@@ -246,7 +240,7 @@ class LoggingChecker(checkers.BaseChecker):
         if isinstance(format_arg, nodes.BinOp):
             binop = format_arg
             emit = binop.op == "%"
-            if binop.op == "+":
+            if binop.op == "+" and not self._is_node_explicit_str_concatenation(binop):
                 total_number_of_strings = sum(
                     1
                     for operand in (binop.left, binop.right)
@@ -293,6 +287,19 @@ class LoggingChecker(checkers.BaseChecker):
     def _is_operand_literal_str(operand: InferenceResult | None) -> bool:
         """Return True if the operand in argument is a literal string."""
         return isinstance(operand, nodes.Const) and operand.name == "str"
+
+    @staticmethod
+    def _is_node_explicit_str_concatenation(node: nodes.NodeNG) -> bool:
+        """Return True if the node represents an explicitly concatenated string."""
+        if not isinstance(node, nodes.BinOp):
+            return False
+        return (
+            LoggingChecker._is_operand_literal_str(node.left)
+            or LoggingChecker._is_node_explicit_str_concatenation(node.left)
+        ) and (
+            LoggingChecker._is_operand_literal_str(node.right)
+            or LoggingChecker._is_node_explicit_str_concatenation(node.right)
+        )
 
     def _check_call_func(self, node: nodes.Call) -> None:
         """Checks that function call is not format_string.format()."""
@@ -345,7 +352,7 @@ class LoggingChecker(checkers.BaseChecker):
                     ) = utils.parse_format_method_string(format_string)
 
                     keyword_args_cnt = len(
-                        {k for k, l in keyword_arguments if not isinstance(k, int)}
+                        {k for k, _ in keyword_arguments if not isinstance(k, int)}
                     )
                     required_num_args = (
                         keyword_args_cnt + implicit_pos_args + explicit_pos_args

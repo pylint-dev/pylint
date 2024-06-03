@@ -1,24 +1,18 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 # pylint: disable=duplicate-code
 
 from __future__ import annotations
 
-import sys
-from typing import Any
+from typing import Any, Literal
 
 from astroid import nodes
 
 from pylint.interfaces import UNDEFINED, Confidence
 from pylint.lint import PyLinter
 from pylint.testutils.output_line import MessageTest
-
-if sys.version_info >= (3, 8):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
 
 
 class UnittestLinter(PyLinter):

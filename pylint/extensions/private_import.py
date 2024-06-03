@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for imports on private external modules and names."""
 
@@ -39,7 +39,7 @@ class PrivateImportChecker(BaseChecker):
 
     @utils.only_required_for_messages("import-private-name")
     def visit_import(self, node: nodes.Import) -> None:
-        if utils.is_node_in_typing_guarded_import_block(node):
+        if utils.in_type_checking_block(node):
             return
         names = [name[0] for name in node.names]
         private_names = self._get_private_imports(names)
@@ -56,7 +56,7 @@ class PrivateImportChecker(BaseChecker):
 
     @utils.only_required_for_messages("import-private-name")
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        if utils.is_node_in_typing_guarded_import_block(node):
+        if utils.in_type_checking_block(node):
             return
         # Only check imported names if the module is external
         if self.same_root_dir(node, node.modname):
@@ -64,7 +64,8 @@ class PrivateImportChecker(BaseChecker):
 
         names = [n[0] for n in node.names]
 
-        # Check the imported objects first. If they are all valid type annotations, the package can be private
+        # Check the imported objects first. If they are all valid type annotations,
+        # the package can be private
         private_names = self._get_type_annotation_names(node, names)
         if not private_names:
             return
@@ -139,7 +140,8 @@ class PrivateImportChecker(BaseChecker):
         for name in node.locals:
             # If we find a private type annotation, make sure we do not mask illegal usages
             private_name = None
-            # All the assignments using this variable that we might have to check for illegal usages later
+            # All the assignments using this variable that we might have to check for
+            # illegal usages later
             name_assignments = []
             for usage_node in node.locals[name]:
                 if isinstance(usage_node, nodes.AssignName) and isinstance(
@@ -164,9 +166,9 @@ class PrivateImportChecker(BaseChecker):
                     )
             if private_name is not None:
                 # Found a new private annotation, make sure we are not accessing it elsewhere
-                all_used_type_annotations[
-                    private_name
-                ] = self._assignments_call_private_name(name_assignments, private_name)
+                all_used_type_annotations[private_name] = (
+                    self._assignments_call_private_name(name_assignments, private_name)
+                )
 
     def _populate_type_annotations_function(
         self, node: nodes.FunctionDef, all_used_type_annotations: dict[str, bool]
@@ -205,7 +207,8 @@ class PrivateImportChecker(BaseChecker):
                 node.value, all_used_type_annotations
             )
         if isinstance(node, nodes.Attribute):
-            # An attribute is a type like `pylint.lint.pylinter`. node.expr is the next level up, could be another attribute
+            # An attribute is a type like `pylint.lint.pylinter`. node.expr is the next level
+            # up, could be another attribute
             return self._populate_type_annotations_annotation(
                 node.expr, all_used_type_annotations
             )

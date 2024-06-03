@@ -1,6 +1,6 @@
 """Emit a message for iteration through range and len is encountered."""
 
-# pylint: disable=missing-docstring, import-error, unsubscriptable-object, too-few-public-methods, unnecessary-list-index-lookup
+# pylint: disable=missing-docstring, import-error, unsubscriptable-object, too-few-public-methods, unnecessary-list-index-lookup, use-yield-from
 
 def bad():
     iterable = [1, 2, 3]
@@ -73,7 +73,7 @@ def does_not_crash_on_range_without_args():
         print(elem)
 
 # False negative described in #3657
-# https://github.com/PyCQA/pylint/issues/3657
+# https://github.com/pylint-dev/pylint/issues/3657
 class MyClass:
     def __init__(self):
         self.my_list = []

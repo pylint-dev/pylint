@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring,too-many-ancestors, broad-except
 import collections.abc
-from typing import TYPE_CHECKING, Sized
+from typing import TYPE_CHECKING, Sized  # pylint: disable=deprecated-class
 
 if TYPE_CHECKING:
     BaseClass = Sized

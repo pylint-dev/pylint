@@ -53,3 +53,45 @@ def bug_pylint_4122_bis(s):
         return n
     except ValueError:
         parser_error_name('parser error')
+
+class ClassUnderTest:
+    def _no_return_method(self) -> typing.NoReturn:
+        sys.exit(1)
+
+    def _falsely_no_return_method(self) -> typing.NoReturn:
+        return 1
+
+    def _does_return_method(self) -> int:
+        return 1
+
+    def bug_pylint_8747(self, s: str) -> int:
+        """Every return is consistent because self._no_return_method hints NoReturn"""
+        try:
+            n = int(s)
+            if n < 1:
+                raise ValueError
+            return n
+        except ValueError:
+            self._no_return_method()
+
+    def bug_pylint_8747_wrong(self, s: str) -> int:  # [inconsistent-return-statements]
+        """Every return is not consistent because self._does_return_method() returns a value"""
+        try:
+            n = int(s)
+            if n < 1:
+                raise ValueError
+            return n
+        except ValueError:
+            self._does_return_method()
+
+    def bug_pylint_8747_incorrect_annotation(self, s: str) -> int:
+        """Every return is consistent since pylint does not attempt to detect that the
+        NoReturn annotation is incorrect and the function actually returns
+        """
+        try:
+            n = int(s)
+            if n < 1:
+                raise ValueError
+            return n
+        except ValueError:
+            self._falsely_no_return_method()

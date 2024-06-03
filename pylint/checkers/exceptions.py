@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Checks for various exception related errors."""
 
@@ -8,12 +8,11 @@ from __future__ import annotations
 
 import builtins
 import inspect
-import warnings
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Any
 
 import astroid
-from astroid import nodes, objects
+from astroid import nodes, objects, util
 from astroid.context import InferenceContext
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
@@ -46,11 +45,11 @@ def _annotated_unpack_infer(
     if isinstance(stmt, (nodes.List, nodes.Tuple)):
         for elt in stmt.elts:
             inferred = utils.safe_infer(elt)
-            if inferred and inferred is not astroid.Uninferable:
+            if inferred and not isinstance(inferred, util.UninferableBase):
                 yield elt, inferred
         return
     for inferred in stmt.infer(context):
-        if inferred is astroid.Uninferable:
+        if isinstance(inferred, util.UninferableBase):
             continue
         yield stmt, inferred
 
@@ -112,13 +111,18 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0702": (
         "No exception type(s) specified",
         "bare-except",
-        "Used when an except clause doesn't specify exceptions type to catch.",
+        "A bare ``except:`` clause will catch ``SystemExit`` and "
+        "``KeyboardInterrupt`` exceptions, making it harder to interrupt a program "
+        "with ``Control-C``, and can disguise other problems. If you want to catch "
+        "all exceptions that signal program errors, use ``except Exception:`` (bare "
+        "except is equivalent to ``except BaseException:``).",
     ),
     "W0718": (
         "Catching too general exception %s",
         "broad-exception-caught",
-        "Used when an except catches a too general exception, "
-        "possibly burying unrelated errors.",
+        "If you use a naked ``except Exception:`` clause, you might end up catching "
+        "exceptions other than the ones you expect to catch. This can hide bugs or "
+        "make it harder to debug programs when unrelated errors are hidden.",
         {"old_names": [("W0703", "broad-except")]},
     ),
     "W0705": (
@@ -168,7 +172,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "W0719": (
         "Raising too general exception: %s",
         "broad-exception-raised",
-        "Used when an except raises a too general exception.",
+        "Raising exceptions that are too generic force you to catch exceptions "
+        "generically too. It will force you to use a naked ``except Exception:`` "
+        "clause. You might then end up catching exceptions other than the ones "
+        "you expect to catch. This can hide bugs or make it harder to debug programs "
+        "when unrelated errors are hidden.",
     ),
 }
 
@@ -201,16 +209,17 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
                 "notimplemented-raised", node=self._node, confidence=HIGH
             )
             return
-
         try:
-            exceptions = list(_annotated_unpack_infer(node))
+            exceptions = [
+                c
+                for _, c in _annotated_unpack_infer(node)
+                if isinstance(c, nodes.ClassDef)
+            ]
         except astroid.InferenceError:
             return
 
-        for _, exception in exceptions:
-            if isinstance(
-                exception, nodes.ClassDef
-            ) and self._checker._is_overgeneral_exception(exception):
+        for exception in exceptions:
+            if self._checker._is_overgeneral_exception(exception):
                 self._checker.add_message(
                     "broad-exception-raised",
                     args=exception.name,
@@ -297,18 +306,6 @@ class ExceptionsChecker(checkers.BaseChecker):
 
     def open(self) -> None:
         self._builtin_exceptions = _builtin_exceptions()
-        for exc_name in self.linter.config.overgeneral_exceptions:
-            if "." not in exc_name:
-                warnings.warn_explicit(
-                    "Specifying exception names in the overgeneral-exceptions option"
-                    " without module name is deprecated and support for it"
-                    " will be removed in pylint 3.0."
-                    f" Use fully qualified name (maybe 'builtins.{exc_name}' ?) instead.",
-                    category=UserWarning,
-                    filename="pylint: Command line or configuration file",
-                    lineno=1,
-                    module="pylint",
-                )
         super().open()
 
     @utils.only_required_for_messages(
@@ -335,7 +332,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         ExceptionRaiseRefVisitor(self, node).visit(expr)
 
         inferred = utils.safe_infer(expr)
-        if inferred is None or inferred is astroid.Uninferable:
+        if inferred is None or isinstance(inferred, util.UninferableBase):
             return
         ExceptionRaiseLeafVisitor(self, node).visit(inferred)
 
@@ -351,7 +348,7 @@ class ExceptionsChecker(checkers.BaseChecker):
 
         current = node
         # Stop when a new scope is generated or when the raise
-        # statement is found inside a TryFinally.
+        # statement is found inside a Try.
         ignores = (nodes.ExceptHandler, nodes.FunctionDef)
         while current and not isinstance(current.parent, ignores):
             current = current.parent
@@ -366,7 +363,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         An exception cause can be only `None` or an exception.
         """
         cause = utils.safe_infer(node.cause)
-        if cause in (astroid.Uninferable, None):
+        if cause is None or isinstance(cause, util.UninferableBase):
             return
 
         if isinstance(cause, nodes.Const):
@@ -432,7 +429,7 @@ class ExceptionsChecker(checkers.BaseChecker):
         if isinstance(exc, nodes.Tuple):
             # Check if it is a tuple of exceptions.
             inferred = [utils.safe_infer(elt) for elt in exc.elts]
-            if any(node is astroid.Uninferable for node in inferred):
+            if any(isinstance(node, util.UninferableBase) for node in inferred):
                 # Don't emit if we don't know every component.
                 return
             if all(
@@ -476,7 +473,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                     "catching-non-exception", node=handler.type, args=(exc.name,)
                 )
 
-    def _check_try_except_raise(self, node: nodes.TryExcept) -> None:
+    def _check_try_except_raise(self, node: nodes.Try) -> None:
         def gather_exceptions_from_handler(
             handler: nodes.ExceptHandler,
         ) -> list[InferenceResult] | None:
@@ -488,7 +485,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                         {
                             exception
                             for exception in exceptions_in_handler.elts
-                            if isinstance(exception, nodes.Name)
+                            if isinstance(exception, (nodes.Name, nodes.Attribute))
                         }
                     )
                 elif exceptions_in_handler:
@@ -536,15 +533,29 @@ class ExceptionsChecker(checkers.BaseChecker):
     @utils.only_required_for_messages("wrong-exception-operation")
     def visit_binop(self, node: nodes.BinOp) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
+            both_sides_tuple_or_uninferable = isinstance(
+                utils.safe_infer(node.left), (nodes.Tuple, util.UninferableBase)
+            ) and isinstance(
+                utils.safe_infer(node.right), (nodes.Tuple, util.UninferableBase)
+            )
+            # Tuple concatenation allowed
+            if both_sides_tuple_or_uninferable:
+                if node.op == "+":
+                    return
+                suggestion = f"Did you mean '({node.left.as_string()} + {node.right.as_string()})' instead?"
             # except (V | A)
-            suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
+            else:
+                suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
     @utils.only_required_for_messages("wrong-exception-operation")
     def visit_compare(self, node: nodes.Compare) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
             # except (V < A)
-            suggestion = f"Did you mean '({node.left.as_string()}, {', '.join(operand.as_string() for _, operand in node.ops)})' instead?"
+            suggestion = (
+                f"Did you mean '({node.left.as_string()}, "
+                f"{', '.join(o.as_string() for _, o in node.ops)})' instead?"
+            )
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
     @utils.only_required_for_messages(
@@ -556,7 +567,11 @@ class ExceptionsChecker(checkers.BaseChecker):
         "catching-non-exception",
         "duplicate-except",
     )
-    def visit_tryexcept(self, node: nodes.TryExcept) -> None:
+    def visit_trystar(self, node: nodes.TryStar) -> None:
+        """Check for empty except*."""
+        self.visit_try(node)
+
+    def visit_try(self, node: nodes.Try) -> None:
         """Check for empty except."""
         self._check_try_except_raise(node)
         exceptions_classes: list[Any] = []
@@ -634,13 +649,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 exceptions_classes += [exc for _, exc in exceptions]
 
     def _is_overgeneral_exception(self, exception: nodes.ClassDef) -> bool:
-        return (
-            exception.qname() in self.linter.config.overgeneral_exceptions
-            # TODO: 3.0: not a qualified name, deprecated
-            or "." not in exception.name
-            and exception.name in self.linter.config.overgeneral_exceptions
-            and exception.root().name == utils.EXCEPTIONS_MODULE
-        )
+        return exception.qname() in self.linter.config.overgeneral_exceptions
 
 
 def register(linter: PyLinter) -> None:

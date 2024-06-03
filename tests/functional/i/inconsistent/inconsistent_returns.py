@@ -1,5 +1,5 @@
 #pylint: disable=missing-docstring, no-else-return, no-else-break, invalid-name, unused-variable, superfluous-parens, try-except-raise
-#pylint: disable=disallowed-name
+#pylint: disable=disallowed-name,too-few-public-methods,no-member,useless-else-on-loop,useless-return
 """Testing inconsistent returns"""
 import math
 import sys
@@ -336,7 +336,7 @@ def bug_pylint_3873_2():
         nothing_to_do()
     return False
 
-# https://github.com/PyCQA/pylint/issues/4019
+# https://github.com/pylint-dev/pylint/issues/4019
 def bug_pylint_4019(x):
     """
     assert False is equivalent to a return
@@ -353,3 +353,52 @@ def bug_pylint_4019_wrong(x):  # [inconsistent-return-statements]
     if x == 1:
         return 42
     assert True
+
+
+# https://github.com/pylint-dev/pylint/issues/8280
+class A:
+    def get_the_answer(self):  # [inconsistent-return-statements]
+        while self.is_running:
+            self.read_message()
+            if self.comunication_finished():
+                return "done"
+
+
+def bug_1772_break():  # [inconsistent-return-statements]
+    counter = 1
+    while True:
+        counter += 1
+        if counter == 100:
+            return 7
+        if counter is None:
+            break
+
+
+def while_break_in_for():
+    counter = 1
+    while True:
+        counter += 1
+        if counter == 100:
+            return 7
+        for i in range(10):
+            if i == 5:
+                break
+
+
+def while_break_in_while():
+    counter = 1
+    while True:
+        counter += 1
+        if counter == 100:
+            return 7
+        while True:
+            if counter == 5:
+                break
+
+
+def wait_for_apps_ready(event, main_thread):
+    while main_thread.is_alive():
+        if event.wait(timeout=0.1):
+            return True
+    else:
+        return False

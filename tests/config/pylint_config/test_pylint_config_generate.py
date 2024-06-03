@@ -1,6 +1,6 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Test for the 'pylint-config generate' command."""
 
@@ -186,7 +186,15 @@ def test_writing_minimal_file(
         assert any(line.startswith("#") for line in captured.out.splitlines())
 
         # Check minimal doesn't have comments and no default values
-        Run(["--accept-no-return-doc=y", "generate", "--interactive"], exit=False)
+        Run(
+            [
+                "--load-plugins=pylint.extensions.docparams",
+                "--accept-no-return-doc=y",
+                "generate",
+                "--interactive",
+            ],
+            exit=False,
+        )
         captured = capsys.readouterr()
         assert not any(i.startswith("#") for i in captured.out.split("\n"))
         assert "accept-no-return-doc" not in captured.out

@@ -1,16 +1,18 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/main/LICENSE
-# Copyright (c) https://github.com/PyCQA/pylint/blob/main/CONTRIBUTORS.txt
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Utility methods for docstring checking."""
 
 from __future__ import annotations
 
+import itertools
 import re
+from collections.abc import Iterable
 
 import astroid
 from astroid import nodes
-from astroid.util import Uninferable
+from astroid.util import UninferableBase
 
 from pylint.checkers import utils
 
@@ -89,7 +91,7 @@ def returns_something(return_node: nodes.Return) -> bool:
     return not (isinstance(returns, nodes.Const) and returns.value is None)
 
 
-def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | Uninferable | None:
+def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | UninferableBase | None:
     if isinstance(node.exc, nodes.Call):
         func = node.exc.func
         if isinstance(func, (nodes.Name, nodes.Attribute)):
@@ -126,7 +128,7 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
         if handler and handler.type:
             try:
                 for exception in astroid.unpack_infer(handler.type):
-                    if exception is not astroid.Uninferable:
+                    if not isinstance(exception, UninferableBase):
                         exceptions.append(exception)
             except astroid.InferenceError:
                 pass
@@ -138,7 +140,7 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
             for ret in target.nodes_of_class(nodes.Return):
                 if ret.value is None:
                     continue
-                if ret.frame(future=True) != target:
+                if ret.frame() != target:
                     # return from inner function - ignore it
                     continue
 
@@ -157,6 +159,106 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
         }
     except astroid.InferenceError:
         return set()
+
+
+def _is_ellipsis(node: nodes.NodeNG) -> bool:
+    return isinstance(node, nodes.Const) and node.value == Ellipsis
+
+
+def _merge_annotations(
+    annotations: Iterable[nodes.NodeNG], comment_annotations: Iterable[nodes.NodeNG]
+) -> Iterable[nodes.NodeNG | None]:
+    for ann, comment_ann in itertools.zip_longest(annotations, comment_annotations):
+        if ann and not _is_ellipsis(ann):
+            yield ann
+        elif comment_ann and not _is_ellipsis(comment_ann):
+            yield comment_ann
+        else:
+            yield None
+
+
+def _annotations_list(args_node: nodes.Arguments) -> list[nodes.NodeNG]:
+    """Get a merged list of annotations.
+
+    The annotations can come from:
+
+    * Real type annotations.
+    * A type comment on the function.
+    * A type common on the individual argument.
+
+    :param args_node: The node to get the annotations for.
+    :returns: The annotations.
+    """
+    plain_annotations = args_node.annotations or ()
+    func_comment_annotations = args_node.parent.type_comment_args or ()
+    comment_annotations = args_node.type_comment_posonlyargs
+    comment_annotations += args_node.type_comment_args or []
+    comment_annotations += args_node.type_comment_kwonlyargs
+    return list(
+        _merge_annotations(
+            plain_annotations,
+            _merge_annotations(func_comment_annotations, comment_annotations),
+        )
+    )
+
+
+def args_with_annotation(args_node: nodes.Arguments) -> set[str]:
+    result = set()
+    annotations = _annotations_list(args_node)
+    annotation_offset = 0
+
+    if args_node.posonlyargs:
+        posonlyargs_annotations = args_node.posonlyargs_annotations
+        if not any(args_node.posonlyargs_annotations):
+            num_args = len(args_node.posonlyargs)
+            posonlyargs_annotations = annotations[
+                annotation_offset : annotation_offset + num_args
+            ]
+            annotation_offset += num_args
+
+        for arg, annotation in zip(args_node.posonlyargs, posonlyargs_annotations):
+            if annotation:
+                result.add(arg.name)
+
+    if args_node.args:
+        num_args = len(args_node.args)
+        for arg, annotation in zip(
+            args_node.args,
+            annotations[annotation_offset : annotation_offset + num_args],
+        ):
+            if annotation:
+                result.add(arg.name)
+
+        annotation_offset += num_args
+
+    if args_node.vararg:
+        if args_node.varargannotation:
+            result.add(args_node.vararg)
+        elif len(annotations) > annotation_offset and annotations[annotation_offset]:
+            result.add(args_node.vararg)
+            annotation_offset += 1
+
+    if args_node.kwonlyargs:
+        kwonlyargs_annotations = args_node.kwonlyargs_annotations
+        if not any(args_node.kwonlyargs_annotations):
+            num_args = len(args_node.kwonlyargs)
+            kwonlyargs_annotations = annotations[
+                annotation_offset : annotation_offset + num_args
+            ]
+            annotation_offset += num_args
+
+        for arg, annotation in zip(args_node.kwonlyargs, kwonlyargs_annotations):
+            if annotation:
+                result.add(arg.name)
+
+    if args_node.kwarg:
+        if args_node.kwargannotation:
+            result.add(args_node.kwarg)
+        elif len(annotations) > annotation_offset and annotations[annotation_offset]:
+            result.add(args_node.kwarg)
+            annotation_offset += 1
+
+    return result
 
 
 def docstringify(
@@ -245,12 +347,10 @@ class SphinxDocstring(Docstring):
         [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
     """
 
-    re_multiple_simple_type = r"""
-        (?:{container_type}|{type})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}))*
-    """.format(
-        type=re_type, container_type=re_simple_container_type
-    )
+    re_multiple_simple_type = rf"""
+        (?:{re_simple_container_type}|{re_type})
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{re_simple_container_type}|{re_type}))*
+    """
 
     re_xref = rf"""
         (?::\w+:)?                    # optional tag
@@ -447,12 +547,10 @@ class GoogleDocstring(Docstring):
         [\(\[] [^\n]+ [\)\]]          # with the contents of the container
     """
 
-    re_multiple_type = r"""
-        (?:{container_type}|{type}|{xref})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}|{xref}))*
-    """.format(
-        type=re_type, xref=re_xref, container_type=re_container_type
-    )
+    re_multiple_type = rf"""
+        (?:{re_container_type}|{re_type}|{re_xref})
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{re_container_type}|{re_type}|{re_xref}))*
+    """
 
     _re_section_template = r"""
         ^([ ]*)   {0} \s*:   \s*$     # Google parameter header

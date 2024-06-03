@@ -1,0 +1,2 @@
+- `Rationale <https://discuss.python.org/t/preventing-yield-inside-certain-context-managers/1091>`_
+- `CPython Issue <https://github.com/python/cpython/issues/81924#issuecomment-1093830682>`_
