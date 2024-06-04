@@ -1,5 +1,5 @@
-# This module is named in a particular way to prevent test pollution by resolving all mentions of
-# foo to this stub file.
+# This module is named in a particular way to prevent test pollution. It was previously named 'foo' and
+# all mentions of 'foo' were wrongly resolved to this stub file.
 foo = 1
 
 def three_item_iterable(): ...
