@@ -20,6 +20,7 @@ from pathlib import Path
 from shutil import copy, rmtree
 from unittest import mock
 
+import astroid
 import platformdirs
 import pytest
 from astroid import nodes
@@ -1053,7 +1054,9 @@ def test_finds_pyi_file() -> None:
         exit=False,
     )
     assert run.linter.current_file is not None
-    assert run.linter.current_file.endswith("foo.pyi")
+    assert run.linter.current_file.endswith(
+        "a_module_that_we_definitely_dont_use_in_the_functional_tests.pyi"
+    )
 
 
 def test_recursive_finds_pyi_file() -> None:
@@ -1068,7 +1071,9 @@ def test_recursive_finds_pyi_file() -> None:
         exit=False,
     )
     assert run.linter.current_file is not None
-    assert run.linter.current_file.endswith("foo.pyi")
+    assert run.linter.current_file.endswith(
+        "a_module_that_we_definitely_dont_use_in_the_functional_tests.pyi"
+    )
 
 
 def test_no_false_positive_from_pyi_stub() -> None:
@@ -1126,6 +1131,9 @@ def test_recursive_ignore(ignore_parameter: str, ignore_parameter_value: str) ->
     ):
         module = os.path.abspath(join(REGRTEST_DATA_DIR, *regrtest_data_module))
     assert module in linted_file_paths
+    # We lint the modules in `regrtest` in other tests as well. Prevent test pollution by
+    # explicitly clearing the astroid caches.
+    astroid.MANAGER.clear_cache()
 
 
 def test_source_roots_globbing() -> None:

@@ -55,10 +55,8 @@ reports = "yes"
     )
     env_var = "tmp_path_env"
     os.environ[env_var] = str(config_file)
-    mock_exit, _, runner = run_using_a_configuration_file(
-        f"${env_var}", file_to_lint_path
-    )
-    mock_exit.assert_called_once_with(0)
+    runner = run_using_a_configuration_file(f"${env_var}", file_to_lint_path)
+    assert runner.linter.msg_status == 0
     check_configuration_file_reader(runner)
 
 
@@ -226,7 +224,7 @@ def test_disable_before_enable_all_takes_effect() -> None:
     runner = Run(["--disable=fixme", "--enable=all", str(FIXME_MODULE)], exit=False)
     assert not runner.linter.stats.by_msg
 
-    _, _, toml_runner = run_using_a_configuration_file(
+    toml_runner = run_using_a_configuration_file(
         HERE
         / "functional"
         / "toml"
@@ -239,7 +237,7 @@ def test_enable_before_disable_all_takes_effect() -> None:
     runner = Run(["--enable=fixme", "--disable=all", str(FIXME_MODULE)], exit=False)
     assert runner.linter.stats.by_msg
 
-    _, _, toml_runner = run_using_a_configuration_file(
+    toml_runner = run_using_a_configuration_file(
         HERE
         / "functional"
         / "toml"
