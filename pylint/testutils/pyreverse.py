@@ -110,6 +110,35 @@ def get_functional_test_files(
     return test_files
 
 
+def get_functional_test_modules(
+    root_directory: Path,
+) -> list[FunctionalPyreverseTestfile]:
+    """Get all functional test files from the given directory."""
+    test_files = []
+    for path in root_directory.rglob("__init__.py"):
+        module_directory = path.parent
+        module_name = module_directory.name
+        config_file = module_directory / f"{module_name}.rc"
+        if config_file.exists():
+            test_files.append(
+                FunctionalPyreverseTestfile(
+                    source=module_directory, options=_read_config(config_file)
+                )
+            )
+        else:
+            test_files.append(
+                FunctionalPyreverseTestfile(
+                    source=module_directory,
+                    options={
+                        "source_roots": [],
+                        "output_formats": ["mmd"],
+                        "command_line_args": [],
+                    },
+                )
+            )
+    return test_files
+
+
 def _read_config(config_file: Path) -> TestFileOptions:
     config = configparser.ConfigParser()
     config.read(str(config_file))
