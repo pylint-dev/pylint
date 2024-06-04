@@ -28,6 +28,6 @@ class Playtypus(Mammal):
     beaver_tailed = True
     can_swim = True
     has_beak = True
-    lays_egg = False
+    lays_egg = True
     protected_specie = True
     venomous = True
