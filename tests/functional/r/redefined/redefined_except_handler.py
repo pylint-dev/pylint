@@ -70,3 +70,25 @@ def func():
     # pylint:disable-next=invalid-name, unused-variable
     except IOError as CustomException:  # [redefined-outer-name]
         pass
+
+
+# https://github.com/pylint-dev/pylint/issues/9671
+def function_before_exception():
+    """The local variable `e` should not trigger `redefined-outer-name`
+       when `e` is also defined in the subsequent exception handling block.
+    """
+    e = 42
+    return e
+
+try:
+    raise ValueError('outer')
+except ValueError as e:
+    print(e)
+
+
+def function_after_exception():
+    """The local variable `e` should not trigger `redefined-outer-name`
+       when `e` is also defined in the preceding exception handling block.
+    """
+    e = 42
+    return e

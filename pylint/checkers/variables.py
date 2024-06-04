@@ -1519,6 +1519,15 @@ class VariablesChecker(BaseChecker):
                 ):
                     continue
 
+                # Suppress emitting the message if the outer name is in the
+                # scope of an exception assignment.
+                # For example: the `e` in `except ValueError as e`
+                global_node = globs[name][0]
+                if isinstance(global_node, nodes.AssignName) and isinstance(
+                    global_node.parent, nodes.ExceptHandler
+                ):
+                    continue
+
                 line = definition.fromlineno
                 if not self._is_name_ignored(stmt, name):
                     self.add_message(
