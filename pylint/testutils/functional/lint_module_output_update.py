@@ -24,20 +24,19 @@ class LintModuleOutputUpdate(LintModuleTest):
 
     csv.register_dialect("test", TestDialect)
 
-    def _check_output_text(
-        self,
-        _: MessageCounter,
-        expected_output: list[OutputLine],
-        actual_output: list[OutputLine],
-    ) -> None:
+    def _runTest(self) -> None:
         """Overwrite or remove the expected output file based on actual output."""
-        # Remove the expected file if no output is actually emitted and a file exists
-        if not actual_output:
-            if os.path.exists(self._test_file.expected_output):
-                os.remove(self._test_file.expected_output)
-            return
-        # Write file with expected output
-        with open(self._test_file.expected_output, "w", encoding="utf-8") as f:
-            writer = csv.writer(f, dialect="test")
-            for line in actual_output:
-                writer.writerow(line.to_csv())
+        try:
+            super()._runTest()
+        finally:
+            actual_messages, actual_output = self._get_actual()
+            # Remove the expected file if no output is actually emitted and a file exists
+            if not actual_output:
+                if os.path.exists(self._test_file.expected_output):
+                    os.remove(self._test_file.expected_output)
+                return
+            # Write file with expected output
+            with open(self._test_file.expected_output, "w", encoding="utf-8") as f:
+                writer = csv.writer(f, dialect="test")
+                for line in actual_output:
+                    writer.writerow(line.to_csv())
