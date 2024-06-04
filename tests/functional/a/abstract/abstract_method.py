@@ -49,7 +49,7 @@ class ConcreteA(AbstractC):  # [abstract-method, abstract-method, abstract-metho
     Incomplete concrete class.
 
     Should trigger a warning for unimplemented abstract
-    methods, for lack of explicit abc.ABC inheritance.
+    methods due to lack of explicit abc.ABC inheritance.
     """
 
 
@@ -58,7 +58,7 @@ class ConcreteB(Abstract):  # [abstract-method]
     Incomplete concrete class.
 
     Should trigger a warning for unimplemented abstract
-    methods, for lack of explicit abc.ABC inheritance.
+    methods due to lack of explicit abc.ABC inheritance.
     """
 
     def aaaa(self):
