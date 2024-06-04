@@ -272,10 +272,15 @@ class LintModuleTest:
         )
         if missing:
             msg.append("\nExpected in testdata:")
-            msg.extend(f" {msg[0]:3}: {msg[1]} ({cnt})" for msg, cnt in sorted(missing.items()))
+            msg.extend(
+                f" {msg[0]:3}: {msg[1]} ({cnt})" for msg, cnt in sorted(missing.items())
+            )
         if unexpected:
             msg.append("\nUnexpected in testdata:")
-            msg.extend(f" {msg[0]:3}: {msg[1]} ({cnt})" for msg, cnt in sorted(unexpected.items()))
+            msg.extend(
+                f" {msg[0]:3}: {msg[1]} ({cnt})"
+                for msg, cnt in sorted(unexpected.items())
+            )
         error_msg = "\n".join(msg)
         if self._config and self._config.getoption("verbose") > 0:
             error_msg += "\n\nActual pylint output for this file:\n"
