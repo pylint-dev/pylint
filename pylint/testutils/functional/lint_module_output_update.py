@@ -7,8 +7,7 @@ from __future__ import annotations
 import csv
 import os
 
-from pylint.testutils.lint_module_test import LintModuleTest, MessageCounter
-from pylint.testutils.output_line import OutputLine
+from pylint.testutils.lint_module_test import LintModuleTest
 
 
 class LintModuleOutputUpdate(LintModuleTest):
