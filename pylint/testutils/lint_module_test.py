@@ -253,17 +253,12 @@ class LintModuleTest:
         self._linter.check(modules_to_check)
         expected_messages, expected_output = self._get_expected()
         actual_messages, actual_output = self._get_actual()
-        try:
-            assert (
-                expected_messages == actual_messages
-            ), self.error_msg_for_unequal_messages(
-                actual_messages, expected_messages, actual_output
-            )
-        except AssertionError:
-            raise
-        finally:
-            # _check_output_text is always ran in case we are updating expected output file
-            self._check_output_text(expected_messages, expected_output, actual_output)
+        self._check_output_text(expected_messages, expected_output, actual_output)
+        assert (
+            expected_messages == actual_messages
+        ), self.error_msg_for_unequal_messages(
+            actual_messages, expected_messages, actual_output
+        )
 
     def error_msg_for_unequal_messages(
         self,
