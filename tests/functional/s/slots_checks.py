@@ -177,7 +177,7 @@ class DerivedTypeHintNotInSlots(BaseWithSlotsDict):
     __slots__ = ("other", )
 
     a: int
-
+    b: str
     def __init__(self) -> None:
         super().__init__()
         self.a = 42
