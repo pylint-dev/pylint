@@ -181,6 +181,7 @@ class DerivedTypeHintNotInSlots(BaseWithSlotsDict):
     def __init__(self) -> None:
         super().__init__()
         self.a = 42
+        self.b : str = "AnnAssign.value is not None"
 
 
 class ClassWithEmptySlotsAndAnnotation:
