@@ -69,6 +69,7 @@ All messages in the error category:
    error/catching-non-exception
    error/class-variable-slots-conflict
    error/continue-in-finally
+   error/declare-non-slot
    error/dict-iter-missing-items
    error/duplicate-argument-name
    error/duplicate-bases
