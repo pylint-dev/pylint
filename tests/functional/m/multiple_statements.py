@@ -25,7 +25,7 @@ else:
 # (only for classes, not for the examples above)
 class MyException(Exception): print("Golfing sure is nice")  # [multiple-statements]
 class MyError(Exception): pass  # [multiple-statements]
-class DebugTrueDetected(Exception): ...  # [multiple-statements]
+class DebugTrueDetected(Exception): ...
 
 class MyError(Exception): a='a'  # [multiple-statements]
 
