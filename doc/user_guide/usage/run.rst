@@ -153,6 +153,7 @@ Parallel execution
 It is possible to speed up the execution of Pylint. If the running computer
 has more CPUs than one, then the work for checking all files could be spread across all
 cores via Pylints's sub-processes.
+
 This functionality is exposed via the ``-j`` command-line parameter.
 If the provided number is 0, then the total number of CPUs will be autodetected and used.
 
@@ -163,6 +164,15 @@ Example::
 This will spawn 4 parallel Pylint sub-process, where each provided module will
 be checked in parallel. Discovered problems by checkers are not displayed
 immediately. They are shown just after checking a module is complete.
+
+You can also do your own parallelization by launching pylint multiple times on subsets
+of your files (like ``pre-commit`` with the default ``require_serial=false`` does).
+Be aware, though: pylint should analyse all your code at once in order to best infer
+the actual values that result from calls. If only some of the files are given, pylint
+might miss a particular value's type and produce inferior inference for the subset.
+It can also be unexpectedly different when the file set changes because the new
+slicing can change the inference. So, don't do this if correctness and determinism
+are important to you.
 
 Exit codes
 ----------

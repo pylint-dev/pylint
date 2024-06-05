@@ -33,7 +33,7 @@ jobs:
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.6
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v5.1.0
@@ -89,7 +89,7 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.6
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v5.1.0
@@ -130,7 +130,7 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.6
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v5.1.0
@@ -158,7 +158,7 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.6
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v5.1.0
@@ -183,7 +183,9 @@ jobs:
           . venv/bin/activate
           cd doc
           pre-commit run --hook-stage push sphinx-generated-doc --all-files || {
+            echo "git diff:" ; \
             git diff ; \
-            echo "Make sure that there are no modifications locally when launching 'make html'" ; \
+            echo "End of 'git diff'" ; \
+            echo "Make sure that 'make html' succeed without any modifications locally." ; \
             exit 1; \
           }

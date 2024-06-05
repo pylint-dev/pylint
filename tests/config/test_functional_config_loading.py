@@ -57,10 +57,8 @@ def default_configuration(
 ) -> PylintConfiguration:
     empty_pylintrc = tmp_path / "pylintrc"
     empty_pylintrc.write_text("")
-    mock_exit, _, runner = run_using_a_configuration_file(
-        str(empty_pylintrc), file_to_lint_path
-    )
-    mock_exit.assert_called_once_with(0)
+    runner = run_using_a_configuration_file(str(empty_pylintrc), file_to_lint_path)
+    assert runner.linter.msg_status == 0
     return runner.linter.config.__dict__
 
 
@@ -88,10 +86,8 @@ def test_functional_config_loading(
         warnings.filterwarnings(
             "ignore", message="The use of 'MASTER'.*", category=UserWarning
         )
-        mock_exit, _, runner = run_using_a_configuration_file(
-            configuration_path, file_to_lint_path
-        )
-    mock_exit.assert_called_once_with(expected_code)
+        runner = run_using_a_configuration_file(configuration_path, file_to_lint_path)
+    assert runner.linter.msg_status == expected_code
     out, err = capsys.readouterr()
     # 'rstrip()' applied, so we can have a final newline in the expected test file
     assert expected_output.rstrip() == out.rstrip(), msg

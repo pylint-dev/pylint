@@ -109,7 +109,6 @@ disable=
     # We anticipate #3512 where it will become optional
     fixme,
     consider-using-assignment-expr,
-    possibly-used-before-assignment,
 
 
 [REPORTS]
@@ -342,10 +341,11 @@ property-classes=abc.abstractproperty
 # members is set to 'yes'
 mixin-class-rgx=.*MixIn
 
-# List of module names for which member attributes should not be checked
-# (useful for modules/projects where namespaces are manipulated during runtime
-# and thus existing member attributes cannot be deduced by static analysis). It
-# supports qualified module names, as well as Unix pattern matching.
+# List of module names for which member attributes should not be checked and
+# will not be imported (useful for modules/projects where namespaces are
+# manipulated during runtime and thus existing member attributes cannot be
+# deduced by static analysis). It supports qualified module names, as well
+# as Unix pattern matching.
 ignored-modules=
 
 # List of class names for which member attributes should not be checked (useful
@@ -485,7 +485,7 @@ int-import-graph=
 
 # Force import order to recognize a module as part of the standard
 # compatibility libraries.
-known-standard-library=
+known-standard-library=_string
 
 # Force import order to recognize a module as part of a third party library.
 known-third-party=enchant

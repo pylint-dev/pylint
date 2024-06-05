@@ -32,7 +32,7 @@ from pylint.checkers.utils import (
     is_sys_guard,
     overridden_method,
 )
-from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
+from pylint.constants import PY39_PLUS, PY311_PLUS, TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
 
@@ -940,6 +940,15 @@ scope_type : {self._atomic.scope_type}
     def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
         if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return, nodes.Continue)):
             return True
+        if isinstance(node, nodes.Expr) and isinstance(node.value, nodes.Call):
+            if utils.is_terminating_func(node.value):
+                return True
+            if (
+                PY311_PLUS
+                and isinstance(node.value.func, nodes.Name)
+                and node.value.func.name == "assert_never"
+            ):
+                return True
         if (
             isinstance(node, nodes.AnnAssign)
             and node.value
@@ -1017,7 +1026,6 @@ scope_type : {self._atomic.scope_type}
         the loop can depend on it being assigned.
 
         Example:
-
         for _ in range(3):
             try:
                 do_something()
@@ -1508,6 +1516,15 @@ class VariablesChecker(BaseChecker):
                 # of type checking.:
                 if any(
                     in_type_checking_block(definition) for definition in globs[name]
+                ):
+                    continue
+
+                # Suppress emitting the message if the outer name is in the
+                # scope of an exception assignment.
+                # For example: the `e` in `except ValueError as e`
+                global_node = globs[name][0]
+                if isinstance(global_node, nodes.AssignName) and isinstance(
+                    global_node.parent, nodes.ExceptHandler
                 ):
                     continue
 

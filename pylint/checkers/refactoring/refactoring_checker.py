@@ -586,7 +586,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         the result of the statement's test, then this can be reduced
         to `bool(test)` without losing any functionality.
         """
-
         if self._is_actual_elif(node):
             # Not interested in if statements with multiple branches.
             return
@@ -649,9 +648,33 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message("simplifiable-if-statement", node=node, args=(reduced_to,))
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
+        # Optimization flag because '_is_trailing_comma' is costly
+        trailing_comma_tuple_enabled_for_file = self.linter.is_message_enabled(
+            "trailing-comma-tuple"
+        )
+        trailing_comma_tuple_enabled_once: bool = trailing_comma_tuple_enabled_for_file
         # Process tokens and look for 'if' or 'elif'
         for index, token in enumerate(tokens):
             token_string = token[1]
+            if (
+                not trailing_comma_tuple_enabled_once
+                and token_string.startswith("#")
+                # We have at least 1 '#' (one char) at the start of the token
+                and "pylint:" in token_string[1:]
+                # We have at least '#' 'pylint' ( + ':') (8 chars) at the start of the token
+                and "enable" in token_string[8:]
+                # We have at least '#', 'pylint', ( + ':'), 'enable' (+ '=') (15 chars) at
+                # the start of the token
+                and any(
+                    c in token_string[15:] for c in ("trailing-comma-tuple", "R1707")
+                )
+            ):
+                # Way to not have to check if "trailing-comma-tuple" is enabled or
+                # disabled on each line: Any enable for it during tokenization and
+                # we'll start using the costly '_is_trailing_comma' to check if we
+                # need to raise the message. We still won't raise if it's disabled
+                # again due to the usual generic message control handling later.
+                trailing_comma_tuple_enabled_once = True
             if token_string == "elif":
                 # AST exists by the time process_tokens is called, so
                 # it's safe to assume tokens[index+1] exists.
@@ -660,10 +683,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # token[2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
-            elif self.linter.is_message_enabled(
-                "trailing-comma-tuple"
+            elif (
+                trailing_comma_tuple_enabled_for_file
+                or trailing_comma_tuple_enabled_once
             ) and _is_trailing_comma(tokens, index):
-                self.add_message("trailing-comma-tuple", line=token.start[0])
+                # If "trailing-comma-tuple" is enabled globally we always check _is_trailing_comma
+                # it might be for nothing if there's a local disable, or if the message control is
+                # not enabling 'trailing-comma-tuple', but the alternative is having to check if
+                # it's enabled for a line each line (just to avoid calling '_is_trailing_comma').
+                self.add_message(
+                    "trailing-comma-tuple", line=token.start[0], confidence=HIGH
+                )
 
     @utils.only_required_for_messages("consider-using-with")
     def leave_module(self, _: nodes.Module) -> None:

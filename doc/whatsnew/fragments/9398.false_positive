@@ -1,0 +1,4 @@
+Classes with only an Ellipsis (``...``) in their body do not trigger 'multiple-statements'
+anymore if they are inlined (in accordance with black's 2024 style).
+
+Closes #9398

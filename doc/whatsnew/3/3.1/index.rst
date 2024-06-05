@@ -6,16 +6,39 @@
 .. toctree::
    :maxdepth: 2
 
-:Release:3.1
+:Release: 3.1
 :Date: 2024-02-25
 
 Summary -- Release highlights
 =============================
 
-Two new checks--``use-yield-from``, ``deprecated-attribute``--
+Two new checks -- ``use-yield-from``, ``deprecated-attribute`` --
 and a smattering of bug fixes.
 
 .. towncrier release notes start
+
+What's new in Pylint 3.1.1?
+---------------------------
+Release date: 2024-05-13
+
+
+False Positives Fixed
+---------------------
+
+- Treat `attrs.define` and `attrs.frozen` as dataclass decorators in
+  `too-few-public-methods` check.
+
+  Closes #9345 (`#9345 <https://github.com/pylint-dev/pylint/issues/9345>`_)
+
+- Fix a false positive with ``singledispatchmethod-function`` when a method is decorated with both ``functools.singledispatchmethod`` and ``staticmethod``.
+
+  Closes #9531 (`#9531 <https://github.com/pylint-dev/pylint/issues/9531>`_)
+
+- Fix a false positive for ``consider-using-dict-items`` when iterating using ``keys()`` and then deleting an item using the key as a lookup.
+
+  Closes #9554 (`#9554 <https://github.com/pylint-dev/pylint/issues/9554>`_)
+
+
 
 What's new in Pylint 3.1.0?
 ---------------------------

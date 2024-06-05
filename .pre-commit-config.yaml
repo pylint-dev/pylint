@@ -17,7 +17,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.3.7"
+    rev: "v0.4.7"
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -39,7 +39,7 @@ repos:
       - id: isort
         exclude: doc/data/messages/
   - repo: https://github.com/psf/black
-    rev: 24.4.0
+    rev: 24.4.2
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -77,6 +77,9 @@ repos:
         entry: pylint
         language: system
         types: [python]
+        # Not that problematic to run in parallel see Pre-commit
+        # integration in the doc for details
+        # require_serial: true
         args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/\w*)*data/|doc/
       # We define an additional manual step to allow running pylint with a spelling
@@ -120,7 +123,7 @@ repos:
         files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: [Sphinx==5.0.1]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
       - id: mypy
         name: mypy
@@ -138,8 +141,8 @@ repos:
             "types-pkg_resources==0.1.3",
           ]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.3.0
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]

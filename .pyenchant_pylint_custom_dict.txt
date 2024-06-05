@@ -300,6 +300,7 @@ spammy
 sqlalchemy
 src
 starargs
+stateful
 staticmethod
 stderr
 stdin
@@ -335,6 +336,7 @@ testoptions
 tmp
 tokencheckers
 tokeninfo
+tokenization
 tokenize
 tokenizer
 toml

@@ -67,6 +67,28 @@ to not be included as default messages.
 You can see the plugin you need to explicitly :ref:`load in the technical reference
 <user_guide/checkers/extensions:optional checkers>`.
 
+I want to use pylint on each keystroke in my IDE, how can I do that ?
+---------------------------------------------------------------------
+
+Don't do it: pylint's full suite of checks is not fast enough for that and never
+will be. pylint is best suited for linting on save for small projects, or for a continuous
+integration job or a git ``pre-push`` hook for big projects. The larger your repository
+is, the slower pylint will be.
+
+If you want to make pylint faster for this type of use case, you can use the ``--errors-only``
+option, which will remove all the refactor, convention, and warning checks. You can also disable
+checks with inherently high complexity that need to analyse the full code base like
+``duplicate-code`` or ``cyclic-import`` (this list is not exhaustive).
+
+Why do I have non-deterministic results when I try to parallelize pylint ?
+--------------------------------------------------------------------------
+
+pylint should analyse all your code at once in order to best infer the
+actual values that result from calls. If only some of the files are given, pylint might
+miss a particular value's type and produce inferior inference for the subset. Parallelization
+of pylint is not easy; we also discourage the use of the ``-j`` option if this matters to you.
+
+
 Which messages should I disable to avoid duplicates if I use other popular linters ?
 ------------------------------------------------------------------------------------
 

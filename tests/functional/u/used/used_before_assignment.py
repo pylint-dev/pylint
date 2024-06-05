@@ -1,6 +1,7 @@
 """Miscellaneous used-before-assignment cases"""
 # pylint: disable=consider-using-f-string, missing-function-docstring
 import datetime
+import sys
 
 MSG = "hello %s" % MSG  # [used-before-assignment]
 
@@ -117,6 +118,12 @@ for num in [0, 1]:
     if VAR11:
         VAR12 = False
 print(VAR12)  # [possibly-used-before-assignment]
+
+if input("This tests terminating functions: "):
+    sys.exit()
+else:
+    VAR13 = 1
+print(VAR13)
 
 def turn_on2(**kwargs):
     """https://github.com/pylint-dev/pylint/issues/7873"""

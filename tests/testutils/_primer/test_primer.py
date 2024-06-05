@@ -2,7 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Test the primer commands. """
+"""Test the primer commands."""
 from __future__ import annotations
 
 import sys
@@ -55,7 +55,8 @@ class TestPrimer:
     def test_compare(self, directory: Path) -> None:
         """Test for the standard case.
 
-        Directory in 'fixtures/' with 'main.json', 'pr.json' and 'expected.txt'."""
+        Directory in 'fixtures/' with 'main.json', 'pr.json' and 'expected.txt'.
+        """
         self.__assert_expected(directory)
 
     def test_compare_batched(self) -> None:
