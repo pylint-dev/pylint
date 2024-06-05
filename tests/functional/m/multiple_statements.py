@@ -4,13 +4,28 @@
 
 from typing import overload
 
+if True: print("Golfing sure is nice")  # [multiple-statements]
 if True: pass  # [multiple-statements]
+if True: ...  # [multiple-statements]
+
+if True: print("Golfing sure is nice")  # [multiple-statements]
+else:
+    pass
 
 if True: pass  # [multiple-statements]
 else:
     pass
 
+if True: ...  # [multiple-statements]
+else:
+    pass
+
+# The following difference in behavior is due to black 2024's style
+# that reformat pass on multiple line but reformat "..." on a single line
+# (only for classes, not for the examples above)
+class MyException(Exception): print("Golfing sure is nice")  # [multiple-statements]
 class MyError(Exception): pass  # [multiple-statements]
+class DebugTrueDetected(Exception): ...
 
 class MyError(Exception): a='a'  # [multiple-statements]
 
