@@ -548,7 +548,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         ):
             return
 
-        self.add_message("multiple-statements", node=node)
+        self.add_message("multiple-statements", node=node, confidence=HIGH)
         self._visited_lines[line] = 2
 
     def check_trailing_whitespace_ending(self, line: str, i: int) -> None:
