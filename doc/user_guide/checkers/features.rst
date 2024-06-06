@@ -282,6 +282,9 @@ Classes checker Messages
   Used when a method has an attribute different the "self" as first argument.
   This is considered as an error since this is a so common convention that you
   shouldn't break it!
+:declare-non-slot (E0245): *No such name %r in __slots__*
+  Raised when a type annotation on a class is absent from the list of names in
+  __slots__, and __slots__ does not contain a __dict__ entry.
 :unexpected-special-method-signature (E0302): *The special method %r expects %s param(s), %d %s given*
   Emitted when a special method was defined with an invalid number of
   parameters. If it has too few or too many, it might not work at all.
