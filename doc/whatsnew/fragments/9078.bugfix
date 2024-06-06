@@ -1,0 +1,4 @@
+Fixed a crash when the ``start`` value in an ``enumerate`` was non-constant and impossible to infer
+(like in``enumerate(apples, start=int(random_apple_index)``) for ``unnecessary-list-index-lookup``.
+
+Closes #9078
