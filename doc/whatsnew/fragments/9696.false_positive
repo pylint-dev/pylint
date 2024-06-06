@@ -1,0 +1,3 @@
+Fix a false positive for ``use-yield-from`` when using the return value from the ``yield`` atom.
+
+Closes #9696
