@@ -380,3 +380,7 @@ class RepeatedReturnAnnotations:
         pass
     def z(self) -> RepeatedReturnAnnotations:  # [undefined-variable]
         pass
+
+class A:
+    def say_hello(self) -> __module__:  # [undefined-variable]
+        ...
