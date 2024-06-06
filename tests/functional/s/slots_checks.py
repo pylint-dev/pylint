@@ -168,6 +168,7 @@ class DerivedWithMoreSlots(BaseWithSlots):
 
     # Not in any base __slots__
     d: int # [declare-non-slot]
+    e: str= "AnnAssign.value is not None"
 
 
 class BaseWithSlotsDict:
@@ -177,11 +178,9 @@ class DerivedTypeHintNotInSlots(BaseWithSlotsDict):
     __slots__ = ("other", )
 
     a: int
-    b: str
     def __init__(self) -> None:
         super().__init__()
         self.a = 42
-        self.b : str = "AnnAssign.value is not None"
 
 
 class ClassWithEmptySlotsAndAnnotation:
