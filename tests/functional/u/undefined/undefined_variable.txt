@@ -37,3 +37,4 @@ undefined-variable:365:10:365:20:global_var_mixed_assignment:Undefined variable 
 undefined-variable:377:19:377:44:RepeatedReturnAnnotations.x:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED
 undefined-variable:379:19:379:44:RepeatedReturnAnnotations.y:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED
 undefined-variable:381:19:381:44:RepeatedReturnAnnotations.z:Undefined variable 'RepeatedReturnAnnotations':UNDEFINED
+undefined-variable:385:27:385:37:A.say_hello:Undefined variable '__module__':UNDEFINED
