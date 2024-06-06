@@ -4,7 +4,6 @@ deprecated-typing-alias:16:6:16:24::'typing.OrderedDict' is deprecated, use 'col
 deprecated-typing-alias:17:6:17:22::'typing.Awaitable' is deprecated, use 'collections.abc.Awaitable' instead:INFERENCE
 deprecated-typing-alias:18:6:18:21::'typing.Iterable' is deprecated, use 'collections.abc.Iterable' instead:INFERENCE
 deprecated-typing-alias:19:6:19:21::'typing.Hashable' is deprecated, use 'collections.abc.Hashable' instead:INFERENCE
-deprecated-typing-alias:20:6:20:27::'typing.ContextManager' is deprecated, use 'contextlib.AbstractContextManager' instead:INFERENCE
 deprecated-typing-alias:21:6:21:20::'typing.Pattern' is deprecated, use 're.Pattern' instead:INFERENCE
 deprecated-typing-alias:22:7:22:22::'typing.Match' is deprecated, use 're.Match' instead:INFERENCE
 deprecated-typing-alias:28:9:28:12::'typing.Set' is deprecated, use 'set' instead:INFERENCE

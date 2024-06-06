@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 class TypingAlias(NamedTuple):
     name: str
     name_collision: bool
+    version: tuple[int, int] | None = None
 
 
 DEPRECATED_TYPING_ALIASES: dict[str, TypingAlias] = {
@@ -45,10 +46,12 @@ DEPRECATED_TYPING_ALIASES: dict[str, TypingAlias] = {
     "typing.Coroutine": TypingAlias("collections.abc.Coroutine", True),
     "typing.AsyncIterable": TypingAlias("collections.abc.AsyncIterable", True),
     "typing.AsyncIterator": TypingAlias("collections.abc.AsyncIterator", True),
-    "typing.AsyncGenerator": TypingAlias("collections.abc.AsyncGenerator", True),
+    "typing.AsyncGenerator": TypingAlias(
+        "collections.abc.AsyncGenerator", True, (3, 13)
+    ),
     "typing.Iterable": TypingAlias("collections.abc.Iterable", True),
     "typing.Iterator": TypingAlias("collections.abc.Iterator", True),
-    "typing.Generator": TypingAlias("collections.abc.Generator", True),
+    "typing.Generator": TypingAlias("collections.abc.Generator", True, (3, 13)),
     "typing.Reversible": TypingAlias("collections.abc.Reversible", True),
     "typing.Container": TypingAlias("collections.abc.Container", True),
     "typing.Collection": TypingAlias("collections.abc.Collection", True),
@@ -64,9 +67,11 @@ DEPRECATED_TYPING_ALIASES: dict[str, TypingAlias] = {
     "typing.KeysView": TypingAlias("collections.abc.KeysView", True),
     "typing.ItemsView": TypingAlias("collections.abc.ItemsView", True),
     "typing.ValuesView": TypingAlias("collections.abc.ValuesView", True),
-    "typing.ContextManager": TypingAlias("contextlib.AbstractContextManager", False),
+    "typing.ContextManager": TypingAlias(
+        "contextlib.AbstractContextManager", False, (3, 13)
+    ),
     "typing.AsyncContextManager": TypingAlias(
-        "contextlib.AbstractAsyncContextManager", False
+        "contextlib.AbstractAsyncContextManager", False, (3, 13)
     ),
     "typing.Pattern": TypingAlias("re.Pattern", True),
     "typing.Match": TypingAlias("re.Match", True),
@@ -85,6 +90,7 @@ class DeprecatedTypingAliasMsg(NamedTuple):
     parent_subscript: bool = False
 
 
+# pylint: disable=too-many-instance-attributes
 class TypingChecker(BaseChecker):
     """Find issue specifically related to type annotations."""
 
@@ -170,10 +176,10 @@ class TypingChecker(BaseChecker):
         self._consider_using_alias_msgs: list[DeprecatedTypingAliasMsg] = []
 
     def open(self) -> None:
-        py_version = self.linter.config.py_version
-        self._py37_plus = py_version >= (3, 7)
-        self._py39_plus = py_version >= (3, 9)
-        self._py310_plus = py_version >= (3, 10)
+        self._py_version = self.linter.config.py_version
+        self._py37_plus = self._py_version >= (3, 7)
+        self._py39_plus = self._py_version >= (3, 9)
+        self._py310_plus = self._py_version >= (3, 10)
 
         self._should_check_typing_alias = self._py39_plus or (
             self._py37_plus and self.linter.config.runtime_typing is False
@@ -182,8 +188,8 @@ class TypingChecker(BaseChecker):
             self._py37_plus and self.linter.config.runtime_typing is False
         )
 
-        self._should_check_noreturn = py_version < (3, 7, 2)
-        self._should_check_callable = py_version < (3, 9, 2)
+        self._should_check_noreturn = self._py_version < (3, 7, 2)
+        self._should_check_callable = self._py_version < (3, 9, 2)
 
     def _msg_postponed_eval_hint(self, node: nodes.NodeNG) -> str:
         """Message hint if postponed evaluation isn't enabled."""
@@ -334,7 +340,8 @@ class TypingChecker(BaseChecker):
         """Check if typing alias is deprecated or could be replaced.
 
         Requires
-        - Python 3.9
+        - Alias version
+        - OR: Python 3.9
         - OR: Python 3.7+ with postponed evaluation in
               a type annotation context
 
@@ -347,6 +354,10 @@ class TypingChecker(BaseChecker):
             return
         alias = DEPRECATED_TYPING_ALIASES.get(inferred.qname(), None)
         if alias is None:
+            return
+
+        # Alias was deprecated after 3.9 but py_version isn't set high enough yet
+        if alias.version is not None and self._py_version < alias.version:
             return
 
         if self._py39_plus:

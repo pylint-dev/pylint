@@ -4,7 +4,6 @@ consider-using-alias:23:6:23:24::'typing.OrderedDict' will be deprecated with PY
 consider-using-alias:24:6:24:22::'typing.Awaitable' will be deprecated with PY39, consider using 'collections.abc.Awaitable' instead. Add 'from __future__ import annotations' as well:INFERENCE
 consider-using-alias:25:6:25:21::'typing.Iterable' will be deprecated with PY39, consider using 'collections.abc.Iterable' instead. Add 'from __future__ import annotations' as well:INFERENCE
 consider-using-alias:26:6:26:21::'typing.Hashable' will be deprecated with PY39, consider using 'collections.abc.Hashable' instead:INFERENCE
-consider-using-alias:27:6:27:27::'typing.ContextManager' will be deprecated with PY39, consider using 'contextlib.AbstractContextManager' instead. Add 'from __future__ import annotations' as well:INFERENCE
 consider-using-alias:28:6:28:20::'typing.Pattern' will be deprecated with PY39, consider using 're.Pattern' instead. Add 'from __future__ import annotations' as well:INFERENCE
 consider-using-alias:29:7:29:22::'typing.Match' will be deprecated with PY39, consider using 're.Match' instead. Add 'from __future__ import annotations' as well:INFERENCE
 consider-using-alias:38:9:38:13::'typing.List' will be deprecated with PY39, consider using 'list' instead:INFERENCE

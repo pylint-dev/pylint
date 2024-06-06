@@ -1,0 +1,8 @@
+[main]
+py-version=3.13
+load-plugins=pylint.extensions.typing
+
+[testoptions]
+min_pyver=3.9
+
+[typing]

@@ -26,7 +26,7 @@ var4: typing.OrderedDict[str, int]  # [consider-using-alias]
 var5: typing.Awaitable[None]  # [consider-using-alias]
 var6: typing.Iterable[int]  # [consider-using-alias]
 var7: typing.Hashable  # [consider-using-alias]
-var8: typing.ContextManager[str]  # [consider-using-alias]
+var8: typing.ContextManager[str]  # only deprecated with 3.13
 var9: typing.Pattern[str]  # [consider-using-alias]
 var10: typing.re.Match[str]  # [consider-using-alias]
 var11: list[int]

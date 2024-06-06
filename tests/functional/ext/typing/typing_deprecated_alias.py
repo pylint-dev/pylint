@@ -2,7 +2,7 @@
 
 'py-version' needs to be set to >= '3.9'.
 """
-# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long,unsubscriptable-object,unnecessary-direct-lambda-call
+# pylint: disable=missing-docstring,invalid-name,unused-argument,line-too-long,unsubscriptable-object,unnecessary-direct-lambda-call,wrong-import-position
 import collections
 import collections.abc
 import typing
@@ -17,7 +17,7 @@ var4: typing.OrderedDict[str, int]  # [deprecated-typing-alias]
 var5: typing.Awaitable[None]  # [deprecated-typing-alias]
 var6: typing.Iterable[int]  # [deprecated-typing-alias]
 var7: typing.Hashable  # [deprecated-typing-alias]
-var8: typing.ContextManager[str]  # [deprecated-typing-alias]
+var8: typing.ContextManager[str]  # only deprecated with 3.13
 var9: typing.Pattern[str]  # [deprecated-typing-alias]
 var10: typing.re.Match[str]  # [deprecated-typing-alias]
 var11: list[int]
@@ -64,3 +64,11 @@ class CustomTypedDict2(TypedDict):
 @dataclass
 class CustomDataClass:
     my_var: List[int]  # [deprecated-typing-alias]
+
+
+import typing_extensions
+
+var40: typing_extensions.AsyncContextManager[int]
+var41: typing_extensions.ContextManager[str]
+var42: typing_extensions.AsyncGenerator[int]
+var43: typing_extensions.Generator[str]

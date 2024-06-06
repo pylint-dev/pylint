@@ -1,0 +1,3 @@
+Don't emit ``deprecated-typing-alias`` warning for ``typing.Generator``, ``typing.AsyncGenerator``, ``typing.ContextManager``, and ``typing.AsyncContextManger`` until ``py-version`` is set to ``3.13`` or higher.
+
+Refs #9708
