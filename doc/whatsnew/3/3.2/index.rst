@@ -14,6 +14,29 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.2.3?
+---------------------------
+Release date: 2024-06-06
+
+
+False Positives Fixed
+---------------------
+
+- Classes with only an Ellipsis (``...``) in their body do not trigger 'multiple-statements'
+  anymore if they are inlined (in accordance with black's 2024 style).
+
+  Closes #9398 (`#9398 <https://github.com/pylint-dev/pylint/issues/9398>`_)
+
+- Fix a false positive for ``redefined-outer-name`` when there is a name defined in an exception-handling block which shares the same name as a local variable that has been defined in a function body.
+
+  Closes #9671 (`#9671 <https://github.com/pylint-dev/pylint/issues/9671>`_)
+
+- Fix a false positive for ``use-yield-from`` when using the return value from the ``yield`` atom.
+
+  Closes #9696 (`#9696 <https://github.com/pylint-dev/pylint/issues/9696>`_)
+
+
+
 What's new in Pylint 3.2.2?
 ---------------------------
 Release date: 2024-05-20

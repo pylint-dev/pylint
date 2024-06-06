@@ -77,9 +77,9 @@ limit-inference-results = 100
 # Pickle collected data for later comparisons.
 persistent = true
 
-# Resolve imports to .pyi stubs if available. May reduce no-member messages
-# and increase not-an-iterable messages.
-prefer-stubs = false
+# Resolve imports to .pyi stubs if available. May reduce no-member messages and
+# increase not-an-iterable messages.
+# prefer-stubs =
 
 # Minimum Python version to use for version dependent checks. Will default to the
 # version used to run pylint.
