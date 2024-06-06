@@ -1169,21 +1169,24 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not isinstance(node.value, nodes.Name):
             return
 
-        parent = node.parent.parent
+        loop_node = node.parent.parent
         if (
-            not isinstance(parent, nodes.For)
-            or isinstance(parent, nodes.AsyncFor)
-            or len(parent.body) != 1
+            not isinstance(loop_node, nodes.For)
+            or isinstance(loop_node, nodes.AsyncFor)
+            or len(loop_node.body) != 1
+            # Avoid a false positive if the return value from `yield` is used,
+            # (such as via Assign, AugAssign, etc).
+            or not isinstance(node.parent, nodes.Expr)
         ):
             return
 
-        if parent.target.name != node.value.name:
+        if loop_node.target.name != node.value.name:
             return
 
         if isinstance(node.frame(), nodes.AsyncFunctionDef):
             return
 
-        self.add_message("use-yield-from", node=parent, confidence=HIGH)
+        self.add_message("use-yield-from", node=loop_node, confidence=HIGH)
 
     @staticmethod
     def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
