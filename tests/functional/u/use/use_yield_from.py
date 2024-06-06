@@ -57,3 +57,13 @@ async def async_for_yield(agen):
 async def async_yield(agen):
     for item in agen:
         yield item
+
+
+# If the return from `yield` is used inline, don't suggest delegation.
+
+def yield_use_send():
+    for item in (1, 2, 3):
+        _ = yield item
+    total = 0
+    for item in (1, 2, 3):
+        total += yield item
