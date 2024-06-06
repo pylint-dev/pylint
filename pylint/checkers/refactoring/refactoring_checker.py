@@ -2454,7 +2454,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(node.operand, (nodes.Attribute, nodes.Name))
         ):
             inferred = utils.safe_infer(node)
-            start_val = inferred.value if inferred else None
+            # inferred can be an astroid.base.Instance as in 'enumerate(x, int(y))' or
+            # not correctly inferred (None)
+            start_val = inferred.value if isinstance(inferred, nodes.Const) else None
             return start_val, INFERENCE
         if isinstance(node, nodes.UnaryOp):
             return node.operand.value, HIGH
