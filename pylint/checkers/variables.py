@@ -2295,13 +2295,14 @@ class VariablesChecker(BaseChecker):
             # using a name defined earlier in the class containing the function.
             if node is frame.returns and defframe.parent_of(frame.returns):
                 annotation_return = True
-                if (
-                    frame.returns.name in defframe.locals
-                    and defframe.locals[node.name][0].lineno < frame.lineno
-                ):
-                    # Detect class assignments with a name defined earlier in the
-                    # class. In this case, no warning should be raised.
-                    maybe_before_assign = False
+                if frame.returns.name in defframe.locals:
+                    definition = defframe.locals[node.name][0]
+                    if definition.lineno is None or definition.lineno < frame.lineno:
+                        # Detect class assignments with a name defined earlier in the
+                        # class. In this case, no warning should be raised.
+                        maybe_before_assign = False
+                    else:
+                        maybe_before_assign = True
                 else:
                     maybe_before_assign = True
             if isinstance(node.parent, nodes.Arguments):
