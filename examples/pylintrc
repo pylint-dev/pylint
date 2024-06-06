@@ -87,8 +87,8 @@ load-plugins=
 # Pickle collected data for later comparisons.
 persistent=yes
 
-# Resolve imports to .pyi stubs if available. May reduce no-member messages
-# and increase not-an-iterable messages.
+# Resolve imports to .pyi stubs if available. May reduce no-member messages and
+# increase not-an-iterable messages.
 prefer-stubs=no
 
 # Minimum Python version to use for version dependent checks. Will default to
