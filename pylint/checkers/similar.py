@@ -39,7 +39,7 @@ import sys
 import warnings
 from collections import defaultdict
 from collections.abc import Callable, Generator, Iterable, Sequence
-from getopt import getopt
+from getopt import GetoptError, getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain
 from typing import (
@@ -920,10 +920,18 @@ def Run(argv: Sequence[str] | None = None) -> NoReturn:
     ignore_docstrings = False
     ignore_imports = False
     ignore_signatures = False
-    opts, args = getopt(list(argv), s_opts, l_opts)
+    try:
+        opts, args = getopt(list(argv), s_opts, l_opts)
+    except GetoptError as e:
+        print(e)
+        usage(2)
     for opt, val in opts:
         if opt in {"-d", "--duplicates"}:
-            min_lines = int(val)
+            try:
+                min_lines = int(val)
+            except ValueError as e:
+                print(e)
+                usage(2)
         elif opt in {"-h", "--help"}:
             usage()
         elif opt in {"-i", "--ignore-comments"}:
