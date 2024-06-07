@@ -1,3 +1,4 @@
-Fixed a crash in ``symilar`` when the ``-d`` option was not properly recognized.
+Fixed a crash in ``symilar`` when the ``-d`` or ``-i`` short option were not properly recognized.
+It's still impossible to do ``-d=1`` (you must do ``-d 1``).
 
 Closes #9343
