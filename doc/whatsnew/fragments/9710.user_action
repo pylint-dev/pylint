@@ -2,4 +2,4 @@ We migrated ``symilar`` to argparse, from getopt, so the error and help output c
 for the better). We exit with 2 instead of sometime 1, sometime 2, and the error output
 is not captured by the runner anymore.
 
-Refs #9999
+Refs #9710
