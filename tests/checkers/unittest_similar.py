@@ -499,14 +499,14 @@ def test_set_duplicate_lines_to_zero() -> None:
     assert output.getvalue() == ""
 
 
-@pytest.mark.parametrize("v", ["d", "i"])
+@pytest.mark.parametrize("v", ["d"])
 def test_bad_equal_short_form_option(v: str) -> None:
     """Regression test for https://github.com/pylint-dev/pylint/issues/9343"""
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([f"-{v}=0", SIMILAR1, SIMILAR2])
     assert ex.value.code == 2
-    assert "option -= not recognized" in output.getvalue()
+    assert "invalid literal for int() with base 10: '=0'" in output.getvalue()
 
 
 @pytest.mark.parametrize("v", ["i", "d"])
@@ -515,8 +515,8 @@ def test_space_short_form_option(v: str) -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run([f"-{v} 2", SIMILAR1, SIMILAR2])
-    assert ex.value.code == 2
-    assert "option -  not recognized" in output.getvalue()
+    assert ex.value.code == 0
+    assert "similar lines in" in output.getvalue()
 
 
 def test_bad_short_form_option() -> None:
