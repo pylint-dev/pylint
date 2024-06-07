@@ -7,6 +7,7 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
+from _pytest.capture import CaptureFixture
 
 from pylint.checkers import similar
 from pylint.constants import IS_PYPY, PY39_PLUS
@@ -369,13 +370,16 @@ def test_help() -> None:
             pytest.fail("not system exit")
 
 
-def test_no_args() -> None:
+def test_no_args(capsys: CaptureFixture) -> None:
     output = StringIO()
     with redirect_stdout(output):
         try:
             similar.Run([])
         except SystemExit as ex:
-            assert ex.code == 1
+            assert ex.code == 2
+            out, err = capsys.readouterr()
+            assert not out
+            assert "the following arguments are required: files" in err
         else:
             pytest.fail("not system exit")
 
@@ -499,14 +503,14 @@ def test_set_duplicate_lines_to_zero() -> None:
     assert output.getvalue() == ""
 
 
-@pytest.mark.parametrize("v", ["d"])
-def test_bad_equal_short_form_option(v: str) -> None:
+@pytest.mark.parametrize("v", ["d", "i"])
+def test_equal_short_form_option(v: str) -> None:
     """Regression test for https://github.com/pylint-dev/pylint/issues/9343"""
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run([f"-{v}=0", SIMILAR1, SIMILAR2])
-    assert ex.value.code == 2
-    assert "invalid literal for int() with base 10: '=0'" in output.getvalue()
+        similar.Run([f"-{v}=2", SIMILAR1, SIMILAR2])
+    assert ex.value.code == 0
+    assert "similar lines in" in output.getvalue()
 
 
 @pytest.mark.parametrize("v", ["i", "d"])
@@ -519,10 +523,12 @@ def test_space_short_form_option(v: str) -> None:
     assert "similar lines in" in output.getvalue()
 
 
-def test_bad_short_form_option() -> None:
+def test_bad_short_form_option(capsys: CaptureFixture) -> None:
     """Regression test for https://github.com/pylint-dev/pylint/issues/9343"""
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         similar.Run(["-j=0", SIMILAR1, SIMILAR2])
+    out, err = capsys.readouterr()
     assert ex.value.code == 2
-    assert "option -j not recognized" in output.getvalue()
+    assert not out
+    assert "unrecognized arguments: -j=0" in err

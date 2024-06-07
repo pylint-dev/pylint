@@ -33,13 +33,13 @@ import argparse
 import copy
 import functools
 import itertools
+import logging
 import operator
 import re
 import sys
 import warnings
 from collections import defaultdict
 from collections.abc import Callable, Generator, Iterable, Sequence
-from getopt import GetoptError, getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain
 from typing import (
@@ -890,67 +890,34 @@ def register(linter: PyLinter) -> None:
     linter.register_checker(SimilarChecker(linter))
 
 
-def usage(status: int = 0) -> NoReturn:
-    """Display command line usage information."""
-    print("finds copy pasted blocks in a set of files")
-    print()
-    print(
-        "Usage: symilar [-d|--duplicates min_duplicated_lines] \
-[-i|--ignore-comments] [--ignore-docstrings] [--ignore-imports] [--ignore-signatures] file1..."
-    )
-    sys.exit(status)
-
-
 def Run(argv: Sequence[str] | None = None) -> NoReturn:
     """Standalone command line access point."""
-    if argv is None:
-        argv = sys.argv[1:]
-
-    s_opts = "hd:i:"
-    l_opts = [
-        "help",
-        "duplicates=",
-        "ignore-comments",
-        "ignore-imports",
-        "ignore-docstrings",
-        "ignore-signatures",
-    ]
-    min_lines = DEFAULT_MIN_SIMILARITY_LINE
-    ignore_comments = False
-    ignore_docstrings = False
-    ignore_imports = False
-    ignore_signatures = False
-    try:
-        opts, args = getopt(list(argv), s_opts, l_opts)
-    except GetoptError as e:
-        print(e)
-        usage(2)
-    for opt, val in opts:
-        if opt in {"-d", "--duplicates"}:
-            try:
-                min_lines = int(val)
-            except ValueError as e:
-                print(e)
-                usage(2)
-        elif opt in {"-h", "--help"}:
-            usage()
-        elif opt in {"-i", "--ignore-comments"}:
-            ignore_comments = True
-        elif opt in {"--ignore-docstrings"}:
-            ignore_docstrings = True
-        elif opt in {"--ignore-imports"}:
-            ignore_imports = True
-        elif opt in {"--ignore-signatures"}:
-            ignore_signatures = True
-    if not args:
-        usage(1)
-    sim = Similar(
-        min_lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
+    logging.error(argv)
+    parser = argparse.ArgumentParser(
+        prog="symilar", description="Finds copy pasted blocks in a set of files."
     )
-    for filename in args:
+    parser.add_argument("files", nargs="+")
+    parser.add_argument(
+        "-d", "--duplicates", type=int, default=DEFAULT_MIN_SIMILARITY_LINE
+    )
+    parser.add_argument("-i", "--ignore-comments", default=False)
+    parser.add_argument("--ignore-docstrings", default=False)
+    parser.add_argument("--ignore-imports", default=False)
+    parser.add_argument("--ignore-signatures", default=False)
+    parsed_args = parser.parse_args(args=argv)
+    similar_runner = Similar(
+        min_lines=parsed_args.duplicates,
+        ignore_comments=parsed_args.ignore_comments,
+        ignore_docstrings=parsed_args.ignore_docstrings,
+        ignore_imports=parsed_args.ignore_imports,
+        ignore_signatures=parsed_args.ignore_signatures,
+    )
+    logging.error(parsed_args.files)
+    for filename in parsed_args.files:
         with open(filename, encoding="utf-8") as stream:
-            sim.append_stream(filename, stream)
-    sim.run()
+            similar_runner.append_stream(filename, stream)
+    similar_runner.run()
+    # the sys exit must be kept because of the unit tests that rely on it
     sys.exit(0)
 
 
