@@ -103,7 +103,7 @@ def _py_version_transformer(value: str) -> tuple[int, ...]:
 
 
 def _regex_transformer(value: str) -> Pattern[str]:
-    """Return `re.compile(value)`."""
+    """Prevents 're.error' from propagating and crash pylint."""
     try:
         return re.compile(value)
     except re.error as e:
@@ -124,7 +124,7 @@ def _regexp_paths_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     patterns: list[Pattern[str]] = []
     for pattern in _csv_transformer(value):
         patterns.append(
-            re.compile(
+            _regex_transformer(
                 str(pathlib.PureWindowsPath(pattern)).replace("\\", "\\\\")
                 + "|"
                 + pathlib.PureWindowsPath(pattern).as_posix()
