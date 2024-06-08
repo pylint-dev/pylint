@@ -25,6 +25,8 @@ from astroid.exceptions import AstroidError
 from astroid.nodes._base_nodes import ImportNode, Statement
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
+from pylint.constants import TYPING_NEVER, TYPING_NORETURN
+
 if TYPE_CHECKING:
     from functools import _lru_cache_wrapper
 
@@ -2150,7 +2152,9 @@ def is_singleton_const(node: nodes.NodeNG) -> bool:
 
 
 def is_terminating_func(node: nodes.Call) -> bool:
-    """Detect call to exit(), quit(), os._exit(), or sys.exit()."""
+    """Detect call to exit(), quit(), os._exit(), sys.exit(), or
+    functions annotated with `typing.NoReturn` or `typing.Never`.
+    """
     if (
         not isinstance(node.func, nodes.Attribute)
         and not (isinstance(node.func, nodes.Name))
@@ -2163,6 +2167,25 @@ def is_terminating_func(node: nodes.Call) -> bool:
             if (
                 hasattr(inferred, "qname")
                 and inferred.qname() in TERMINATING_FUNCS_QNAMES
+            ):
+                return True
+            # Unwrap to get the actual function node object
+            if isinstance(inferred, astroid.BoundMethod) and isinstance(
+                inferred._proxied, astroid.UnboundMethod
+            ):
+                inferred = inferred._proxied._proxied
+            if (
+                isinstance(inferred, nodes.FunctionDef)
+                and isinstance(inferred.returns, nodes.Name)
+                and (inferred_func := safe_infer(inferred.returns))
+                and hasattr(inferred_func, "qname")
+                and inferred_func.qname()
+                in (
+                    *TYPING_NEVER,
+                    *TYPING_NORETURN,
+                    # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
+                    "typing._SpecialForm",
+                )
             ):
                 return True
     except (StopIteration, astroid.InferenceError):
