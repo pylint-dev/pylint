@@ -1,0 +1,2 @@
+usage: pylint [options]
+pylint: error: argument --ignore-paths: Error in provided regular expression: project\\tooling_context\\**|project/tooling_context/** beginning at index 27: multiple repeat
