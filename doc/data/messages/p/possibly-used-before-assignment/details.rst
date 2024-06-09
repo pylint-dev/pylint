@@ -39,7 +39,7 @@ This warns:
         var = 1
 
     if guarded() or other_condition:
-        print(var)
+        print(var)  # [possibly-used-before-assignment]
 
 If you find this surprising, consider that pylint, as a static analysis
 tool, does not know if ``guarded()`` is deterministic or talks to
