@@ -25,7 +25,7 @@ lets some error cases through, as pylint does not assess the intervening code:
     if guarded():
         var = 1
 
-    # what if code here affects the reuslt of guarded()?
+    # what if code here affects the result of guarded()?
 
     if guarded():
         print(var)
