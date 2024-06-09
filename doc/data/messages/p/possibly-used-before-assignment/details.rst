@@ -17,7 +17,21 @@ You can use ``assert_never`` to mark exhaustive choices:
     if suffix in "dmy":
         handle_date_suffix(suffix)
 
-If you rely on a pattern like:
+Pylint currently allows repeating the same test like this, even though this
+lets some error cases through, as pylint does not assess the intervening code:
+
+.. sourcecode:: python
+
+    if guarded():
+        var = 1
+
+    # what if code here affects the reuslt of guarded()?
+
+    if guarded():
+        print(var)
+
+But this exception is limited to the repeating the exact same test.
+This warns:
 
 .. sourcecode:: python
 
@@ -25,10 +39,11 @@ If you rely on a pattern like:
         var = 1
 
     if guarded() or other_condition:
-        print(var)  # emits possibly-used-before-assignment
+        print(var)
 
-you may be concerned that ``possibly-used-before-assignment`` is not totally useful
-in this instance. However, consider that pylint, as a static analysis tool, does
-not know if ``guarded()`` is deterministic or talks to
-a database. (Likewise, for ``guarded`` instead of ``guarded()``, any other
-part of your program may have changed its value in the meantime.)
+If you find this surprising, consider that pylint, as a static analysis
+tool, does not know if ``guarded()`` is deterministic or talks to
+a database. For constants (e.g. ``guarded`` versus ``guarded()``),
+this is less of an issue, so in this case,
+``possibly-used-before-assignment`` acts more like a future-proofing style
+preference than an error, per se.
