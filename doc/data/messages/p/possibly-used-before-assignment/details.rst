@@ -1,3 +1,22 @@
+You can use ``assert_never`` to mark exhaustive choices:
+
+.. sourcecode:: python
+
+    from typing import assert_never
+
+    def handle_date_suffix(suffix):
+        if suffix == "d":
+            ...
+        elif suffix == "m":
+            ...
+        elif suffix == "y":
+            ...
+        else:
+            assert_never(suffix)
+
+    if suffix in "dmy":
+        handle_date_suffix(suffix)
+
 If you rely on a pattern like:
 
 .. sourcecode:: python
@@ -5,7 +24,7 @@ If you rely on a pattern like:
     if guarded():
         var = 1
 
-    if guarded():
+    if guarded() or other_condition:
         print(var)  # emits possibly-used-before-assignment
 
 you may be concerned that ``possibly-used-before-assignment`` is not totally useful
