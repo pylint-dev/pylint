@@ -36,12 +36,12 @@ _worker_linter: PyLinter | None = None
 
 
 def _worker_initialize(
-    linter: bytes, extra_packages_paths: Sequence[str] | None = None
+    linter: bytes, extra_sys_paths: Sequence[str] | None = None
 ) -> None:
     """Function called to initialize a worker for a Process within a concurrent Pool.
 
     :param linter: A linter-class (PyLinter) instance pickled with dill
-    :param extra_packages_paths: Extra entries to be added to `sys.path`
+    :param extra_sys_paths: Extra entries to be added to `sys.path`
     """
     global _worker_linter  # pylint: disable=global-statement
     _worker_linter = dill.loads(linter)
@@ -57,8 +57,8 @@ def _worker_initialize(
     _worker_linter.load_plugin_modules(_worker_linter._dynamic_plugins, force=True)
     _worker_linter.load_plugin_configuration()
 
-    if extra_packages_paths:
-        _augment_sys_path(extra_packages_paths)
+    if extra_sys_paths:
+        _augment_sys_path(extra_sys_paths)
 
 
 def _worker_check_single_file(
@@ -125,7 +125,7 @@ def check_parallel(
     linter: PyLinter,
     jobs: int,
     files: Iterable[FileItem],
-    extra_packages_paths: Sequence[str] | None = None,
+    extra_sys_paths: Sequence[str] | None = None,
 ) -> None:
     """Use the given linter to lint the files with given amount of workers (jobs).
 
@@ -135,9 +135,7 @@ def check_parallel(
     # The linter is inherited by all the pool's workers, i.e. the linter
     # is identical to the linter object here. This is required so that
     # a custom PyLinter object can be used.
-    initializer = functools.partial(
-        _worker_initialize, extra_packages_paths=extra_packages_paths
-    )
+    initializer = functools.partial(_worker_initialize, extra_sys_paths=extra_sys_paths)
     with ProcessPoolExecutor(
         max_workers=jobs, initializer=initializer, initargs=(dill.dumps(linter),)
     ) as executor:

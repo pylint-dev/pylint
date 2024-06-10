@@ -186,9 +186,7 @@ class TestCheckParallelFramework:
     def test_worker_initialize_with_package_paths(self) -> None:
         linter = PyLinter(reporter=Reporter())
         with augmented_sys_path([]):
-            worker_initialize(
-                linter=dill.dumps(linter), extra_packages_paths=["fake-path"]
-            )
+            worker_initialize(linter=dill.dumps(linter), extra_sys_paths=["fake-path"])
             assert "fake-path" in sys.path
 
     def test_worker_initialize_reregisters_custom_plugins(self) -> None:
@@ -629,7 +627,7 @@ class TestCheckParallel:
                 files=iter(single_file_container),
                 # This will trigger an exception in the initializer for the parallel jobs
                 # because arguments has to be an Iterable.
-                extra_packages_paths=1,  # type: ignore[arg-type]
+                extra_sys_paths=1,  # type: ignore[arg-type]
             )
 
     @pytest.mark.needs_two_cores

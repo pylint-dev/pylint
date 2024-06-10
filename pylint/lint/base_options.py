@@ -378,6 +378,16 @@ def _make_linter_options(linter: PyLinter) -> Options:
             },
         ),
         (
+            "pythonpath",
+            {
+                "type": "glob_paths_csv",
+                "metavar": "<path>[,<path>...]",
+                "default": (),
+                "help": "Add paths to sys.path. Supports globbing patterns. Paths are absolute "
+                "or relative to the current working directory.",
+            },
+        ),
+        (
             "ignored-modules",
             {
                 "default": (),

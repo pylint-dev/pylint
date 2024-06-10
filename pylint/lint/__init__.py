@@ -27,7 +27,11 @@ from pylint.lint.report_functions import (
     report_total_messages_stats,
 )
 from pylint.lint.run import Run
-from pylint.lint.utils import _augment_sys_path, augmented_sys_path
+from pylint.lint.utils import (
+    _augment_sys_path,
+    augmented_sys_path,
+    realpath_transformer,
+)
 
 __all__ = [
     "check_parallel",
@@ -39,6 +43,7 @@ __all__ = [
     "ArgumentPreprocessingError",
     "_augment_sys_path",
     "augmented_sys_path",
+    "realpath_transformer",
     "discover_package_path",
     "save_results",
     "load_results",
