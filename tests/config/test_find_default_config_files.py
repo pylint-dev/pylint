@@ -309,10 +309,11 @@ disable = logging-not-lazy,logging-format-interpolation
 )
 def test_has_config(content: str, expected: bool, tmp_path: Path) -> None:
     """Test that a .cfg file or .ini file has a pylint config."""
-    fake_cfg = tmp_path / "fake.cfg"
-    with open(fake_cfg, "w", encoding="utf8") as f:
-        f.write(content)
-    assert _cfg_has_config(fake_cfg) == expected
+    for file_name in ("fake.cfg", "tox.ini"):
+        fake_conf = tmp_path / file_name 
+        with open(fake_conf, "w", encoding="utf8") as f:
+            f.write(content)
+        assert _cfg_has_config(fake_conf) == expected
 
     fake_ini = tmp_path / "tox.ini"
     with open(fake_ini, "w", encoding="utf8") as f:
