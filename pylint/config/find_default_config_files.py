@@ -61,7 +61,10 @@ def _cfg_has_config(path: Path | str) -> bool:
         parser.read(path, encoding="utf-8")
     except configparser.Error:
         return False
-    return any(section.startswith("pylint.") for section in parser.sections())
+    return any(
+        section == "pylint" or section.startswith("pylint.")
+        for section in parser.sections()
+    )
 
 
 def _yield_default_files() -> Iterator[Path]:
