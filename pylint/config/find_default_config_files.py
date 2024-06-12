@@ -22,8 +22,7 @@ RC_NAMES = (
     Path(".pylintrc.toml"),
 )
 PYPROJECT_NAME = Path("pyproject.toml")
-TOX_NAME = Path("tox.ini")
-CONFIG_NAMES = (*RC_NAMES, PYPROJECT_NAME, Path("setup.cfg"), TOX_NAME)
+CONFIG_NAMES = (*RC_NAMES, PYPROJECT_NAME, Path("setup.cfg"), Path("tox.ini"))
 
 
 def _find_pyproject() -> Path:
