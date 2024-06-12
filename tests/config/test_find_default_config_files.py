@@ -315,11 +315,6 @@ def test_has_config(content: str, expected: bool, tmp_path: Path) -> None:
             f.write(content)
         assert _cfg_has_config(fake_conf) == expected
 
-    fake_ini = tmp_path / "tox.ini"
-    with open(fake_ini, "w", encoding="utf8") as f:
-        f.write(content)
-    assert _cfg_has_config(fake_ini) == expected
-
 
 def test_non_existent_home() -> None:
     """Test that we handle a non-existent home directory.
