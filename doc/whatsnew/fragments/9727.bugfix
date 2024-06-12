@@ -1,0 +1,3 @@
+Fix a bug where a ``tox.ini`` file with pylint configuration was ignored and it exists in the current directory.
+
+Closes #9727

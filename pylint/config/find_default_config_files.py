@@ -22,7 +22,8 @@ RC_NAMES = (
     Path(".pylintrc.toml"),
 )
 PYPROJECT_NAME = Path("pyproject.toml")
-CONFIG_NAMES = (*RC_NAMES, PYPROJECT_NAME, Path("setup.cfg"))
+TOX_NAME = Path("tox.ini")
+CONFIG_NAMES = (*RC_NAMES, PYPROJECT_NAME, Path("setup.cfg"), TOX_NAME)
 
 
 def _find_pyproject() -> Path:
@@ -71,7 +72,7 @@ def _yield_default_files() -> Iterator[Path]:
             if config_name.is_file():
                 if config_name.suffix == ".toml" and not _toml_has_config(config_name):
                     continue
-                if config_name.suffix == ".cfg" and not _cfg_has_config(config_name):
+                if config_name.suffix in (".cfg", ".ini") and not _cfg_has_config(config_name):
                     continue
 
                 yield config_name.resolve()

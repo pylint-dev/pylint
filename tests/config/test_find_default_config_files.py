@@ -307,12 +307,17 @@ disable = logging-not-lazy,logging-format-interpolation
         ],
     ],
 )
-def test_cfg_has_config(content: str, expected: bool, tmp_path: Path) -> None:
-    """Test that a cfg file has a pylint config."""
+def test_has_config(content: str, expected: bool, tmp_path: Path) -> None:
+    """Test that a .cfg file or .ini file has a pylint config."""
     fake_cfg = tmp_path / "fake.cfg"
     with open(fake_cfg, "w", encoding="utf8") as f:
         f.write(content)
     assert _cfg_has_config(fake_cfg) == expected
+
+    fake_ini = tmp_path / "tox.ini"
+    with open(fake_ini, "w", encoding="utf8") as f:
+        f.write(content)
+    assert _cfg_has_config(fake_ini) == expected
 
 
 def test_non_existent_home() -> None:
