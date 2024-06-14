@@ -11,7 +11,7 @@ import sys
 from collections import Counter
 from io import StringIO
 from pathlib import Path
-from typing import TextIO
+from typing import TYPE_CHECKING, TextIO
 
 import pytest
 from _pytest.config import Config
@@ -20,6 +20,7 @@ from pylint import checkers
 from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
 from pylint.message.message import Message
+from pylint.reporters import BaseReporter
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
 
 # need to import from functional.test_file to avoid cyclic import
@@ -31,6 +32,8 @@ from pylint.testutils.functional.test_file import (
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 
+if TYPE_CHECKING:
+    import _csv
 MessageCounter = Counter[tuple[int, str]]
 
 PYLINTRC = Path(__file__).parent / "testing_pylintrc"
@@ -309,9 +312,21 @@ class LintModuleTest:
             expected_csv = StringIO()
             writer = csv.writer(expected_csv, dialect="test")
             for line in sorted(received_lines, key=sort_by_line_number):
-                writer.writerow(line.to_csv())
+                self.safe_write_output_line(writer, line)
             error_msg += expected_csv.getvalue()
         return error_msg
+
+    def safe_write_output_line(self, writer: _csv._writer, line: OutputLine) -> None:
+        """Write an OutputLine to the CSV writer, handling UnicodeEncodeError."""
+        try:
+            writer.writerow(line.to_csv())
+        except UnicodeEncodeError:
+            writer.writerow(
+                [
+                    BaseReporter.reencode_output_after_unicode_error(s)
+                    for s in line.to_csv()
+                ]
+            )
 
     def _check_output_text(
         self,
