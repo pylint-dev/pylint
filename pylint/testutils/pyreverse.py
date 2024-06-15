@@ -110,25 +110,24 @@ def get_functional_test_files(
     return test_files
 
 
-def get_functional_test_modules(
+def get_functional_test_packages(
     root_directory: Path,
 ) -> list[FunctionalPyreverseTestfile]:
-    """Get all functional test files from the given directory."""
+    """Treat every subdirectory as a package and get all functional test files."""
     test_files = []
-    for path in root_directory.rglob("__init__.py"):
-        module_directory = path.parent
-        module_name = module_directory.name
-        config_file = module_directory / f"{module_name}.rc"
+    for package_directory in root_directory.iterdir():
+        package_name = package_directory.name
+        config_file = package_directory / f"{package_name}.rc"
         if config_file.exists():
             test_files.append(
                 FunctionalPyreverseTestfile(
-                    source=module_directory, options=_read_config(config_file)
+                    source=package_directory, options=_read_config(config_file)
                 )
             )
         else:
             test_files.append(
                 FunctionalPyreverseTestfile(
-                    source=module_directory,
+                    source=package_directory,
                     options={
                         "source_roots": [],
                         "output_formats": ["mmd"],

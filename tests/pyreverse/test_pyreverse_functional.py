@@ -10,17 +10,17 @@ from pylint.pyreverse.main import Run
 from pylint.testutils.pyreverse import (
     FunctionalPyreverseTestfile,
     get_functional_test_files,
-    get_functional_test_modules,
+    get_functional_test_packages,
 )
 
 FUNCTIONAL_DIR = Path(__file__).parent / "functional"
 CLASS_DIAGRAMS_DIR = FUNCTIONAL_DIR / "class_diagrams"
 CLASS_DIAGRAM_TESTS = get_functional_test_files(CLASS_DIAGRAMS_DIR)
 CLASS_DIAGRAM_TEST_IDS = [testfile.source.stem for testfile in CLASS_DIAGRAM_TESTS]
-MODULE_DIAGRAMS_DIR = FUNCTIONAL_DIR / "modules"
-MODULE_DIAGRAM_TESTS = get_functional_test_modules(MODULE_DIAGRAMS_DIR)
-MODULE_DIAGRAM_TEST_IDS = [
-    testmodule.source.name for testmodule in MODULE_DIAGRAM_TESTS
+PACKAGE_DIAGRAMS_DIR = FUNCTIONAL_DIR / "packages"
+PACKAGE_DIAGRAM_TESTS = get_functional_test_packages(PACKAGE_DIAGRAMS_DIR)
+PACKAGE_DIAGRAM_TEST_IDS = [
+    test_package.source.name for test_package in PACKAGE_DIAGRAM_TESTS
 ]
 
 
@@ -58,30 +58,30 @@ def test_class_diagrams(testfile: FunctionalPyreverseTestfile, tmp_path: Path) -
 
 
 @pytest.mark.parametrize(
-    "testmodule",
-    MODULE_DIAGRAM_TESTS,
-    ids=MODULE_DIAGRAM_TEST_IDS,
+    "test_package",
+    PACKAGE_DIAGRAM_TESTS,
+    ids=PACKAGE_DIAGRAM_TEST_IDS,
 )
-def test_modules(testmodule: FunctionalPyreverseTestfile, tmp_path: Path) -> None:
-    input_path = testmodule.source
-    if testmodule.options["source_roots"]:
+def test_packages(test_package: FunctionalPyreverseTestfile, tmp_path: Path) -> None:
+    input_path = test_package.source
+    if test_package.options["source_roots"]:
         source_roots = ",".join(
             [
                 os.path.realpath(
                     os.path.expanduser(os.path.join(input_path, source_root))
                 )
-                for source_root in testmodule.options["source_roots"]
+                for source_root in test_package.options["source_roots"]
             ]
         )
     else:
         source_roots = ""
-    for output_format in testmodule.options["output_formats"]:
+    for output_format in test_package.options["output_formats"]:
         output_file = input_path / f"{input_path.name}.{output_format}"
         with pytest.raises(SystemExit) as sys_exit:
             args = ["-o", f"{output_format}", "-d", str(tmp_path)]
             if source_roots:
                 args += ["--source-roots", source_roots]
-            args.extend(testmodule.options["command_line_args"])
+            args.extend(test_package.options["command_line_args"])
             args += [str(input_path)]
             Run(args)
         assert sys_exit.value.code == 0
