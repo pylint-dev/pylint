@@ -3,8 +3,8 @@
 Symilar
 -------
 
-The console script ``symilar`` finds copy pasted blocks in a set of files. It provides a command line interface to the ``Similar`` class, which includes the logic for
-Pylint's ``duplicate-code`` message.
+The console script ``symilar`` finds copy pasted block of text in a set of files. It provides a command line interface to check only the ``duplicate-code`` message.
+
 It can be invoked with::
 
   symilar [-d|--duplicates min_duplicated_lines] [-i|--ignore-comments] [--ignore-docstrings] [--ignore-imports] [--ignore-signatures] file1...
