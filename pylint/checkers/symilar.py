@@ -343,7 +343,7 @@ class Commonality(NamedTuple):
     snd_file_end: LineNumber
 
 
-class Similar:
+class Symilar:
     """Finds copy-pasted lines of code in a project."""
 
     def __init__(
@@ -751,18 +751,15 @@ def report_similarities(
 
 
 # wrapper to get a pylint checker from the similar class
-class SimilarChecker(BaseRawFileChecker, Similar):
+class SimilaritiesChecker(BaseRawFileChecker, Symilar):
     """Checks for similarities and duplicated code.
 
     This computation may be memory / CPU intensive, so you
     should disable it if you experience some problems.
     """
 
-    # configuration section name
     name = "similarities"
-    # messages
     msgs = MSGS
-    # configuration options
     # for available dict keys/values see the optik parser 'add_option' method
     options: Options = (
         (
@@ -811,12 +808,11 @@ class SimilarChecker(BaseRawFileChecker, Similar):
             },
         ),
     )
-    # reports
     reports = (("RP0801", "Duplication", report_similarities),)
 
     def __init__(self, linter: PyLinter) -> None:
         BaseRawFileChecker.__init__(self, linter)
-        Similar.__init__(
+        Symilar.__init__(
             self,
             min_lines=self.linter.config.min_similarity_lines,
             ignore_comments=self.linter.config.ignore_comments,
@@ -873,7 +869,7 @@ class SimilarChecker(BaseRawFileChecker, Similar):
 
     def get_map_data(self) -> list[LineSet]:
         """Passthru override."""
-        return Similar.get_map_data(self)
+        return Symilar.get_map_data(self)
 
     def reduce_map_data(self, linter: PyLinter, data: list[list[LineSet]]) -> None:
         """Reduces and recombines data into a format that we can report on.
@@ -882,12 +878,12 @@ class SimilarChecker(BaseRawFileChecker, Similar):
 
         Calls self.close() to actually calculate and report duplicate code.
         """
-        Similar.combine_mapreduce_data(self, linesets_collection=data)
+        Symilar.combine_mapreduce_data(self, linesets_collection=data)
         self.close()
 
 
 def register(linter: PyLinter) -> None:
-    linter.register_checker(SimilarChecker(linter))
+    linter.register_checker(SimilaritiesChecker(linter))
 
 
 def usage(status: int = 0) -> NoReturn:
@@ -944,7 +940,7 @@ def Run(argv: Sequence[str] | None = None) -> NoReturn:
             ignore_signatures = True
     if not args:
         usage(1)
-    sim = Similar(
+    sim = Symilar(
         min_lines, ignore_comments, ignore_docstrings, ignore_imports, ignore_signatures
     )
     for filename in args:

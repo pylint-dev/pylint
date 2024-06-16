@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from pylint.checkers import similar
+from pylint.checkers import symilar
 from pylint.constants import IS_PYPY, PY39_PLUS
 from pylint.lint import PyLinter
 from pylint.testutils import GenericTestReporter as Reporter
@@ -31,7 +31,7 @@ HIDE_CODE_WITH_IMPORTS = str(INPUT / "hide_code_with_imports.py")
 def test_ignore_comments() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(["--ignore-comments", SIMILAR1, SIMILAR2])
+        symilar.Run(["--ignore-comments", SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -60,7 +60,7 @@ TOTAL lines=62 duplicates=10 percent=16.13
 def test_ignore_docstrings() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(["--ignore-docstrings", SIMILAR1, SIMILAR2])
+        symilar.Run(["--ignore-docstrings", SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -95,7 +95,7 @@ TOTAL lines=62 duplicates=10 percent=16.13
 def test_ignore_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(["--ignore-imports", SIMILAR1, SIMILAR2])
+        symilar.Run(["--ignore-imports", SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -108,7 +108,7 @@ TOTAL lines=62 duplicates=0 percent=0.00
 def test_multiline_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run([MULTILINE, MULTILINE])
+        symilar.Run([MULTILINE, MULTILINE])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -138,7 +138,7 @@ TOTAL lines=16 duplicates=8 percent=50.00
 def test_ignore_multiline_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(["--ignore-imports", MULTILINE, MULTILINE])
+        symilar.Run(["--ignore-imports", MULTILINE, MULTILINE])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -151,7 +151,7 @@ TOTAL lines=16 duplicates=0 percent=0.00
 def test_ignore_signatures_fail() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run([SIMILAR5, SIMILAR6])
+        symilar.Run([SIMILAR5, SIMILAR6])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -189,7 +189,7 @@ TOTAL lines=35 duplicates=15 percent=42.86
 def test_ignore_signatures_pass() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(["--ignore-signatures", SIMILAR5, SIMILAR6])
+        symilar.Run(["--ignore-signatures", SIMILAR5, SIMILAR6])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -202,7 +202,7 @@ TOTAL lines=35 duplicates=0 percent=0.00
 def test_ignore_signatures_class_methods_fail() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run([SIMILAR_CLS_B, SIMILAR_CLS_A])
+        symilar.Run([SIMILAR_CLS_B, SIMILAR_CLS_A])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -248,7 +248,7 @@ TOTAL lines=54 duplicates=22 percent=40.74
 def test_ignore_signatures_class_methods_pass() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(["--ignore-signatures", SIMILAR_CLS_B, SIMILAR_CLS_A])
+        symilar.Run(["--ignore-signatures", SIMILAR_CLS_B, SIMILAR_CLS_A])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -261,7 +261,7 @@ TOTAL lines=54 duplicates=0 percent=0.00
 def test_ignore_signatures_empty_functions_fail() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run([EMPTY_FUNCTION_1, EMPTY_FUNCTION_2])
+        symilar.Run([EMPTY_FUNCTION_1, EMPTY_FUNCTION_2])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -285,7 +285,7 @@ TOTAL lines=14 duplicates=6 percent=42.86
 def test_ignore_signatures_empty_functions_pass() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(["--ignore-signatures", EMPTY_FUNCTION_1, EMPTY_FUNCTION_2])
+        symilar.Run(["--ignore-signatures", EMPTY_FUNCTION_1, EMPTY_FUNCTION_2])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -298,7 +298,7 @@ TOTAL lines=14 duplicates=0 percent=0.00
 def test_no_hide_code_with_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(["--ignore-imports"] + 2 * [HIDE_CODE_WITH_IMPORTS])
+        symilar.Run(["--ignore-imports"] + 2 * [HIDE_CODE_WITH_IMPORTS])
     assert ex.value.code == 0
     assert "TOTAL lines=32 duplicates=0 percent=0.00" in output.getvalue()
 
@@ -306,7 +306,7 @@ def test_no_hide_code_with_imports() -> None:
 def test_ignore_nothing() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run([SIMILAR1, SIMILAR2])
+        symilar.Run([SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -329,7 +329,7 @@ TOTAL lines=62 duplicates=5 percent=8.06
 def test_lines_without_meaningful_content_do_not_trigger_similarity() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run([SIMILAR3, SIMILAR4])
+        symilar.Run([SIMILAR3, SIMILAR4])
     assert ex.value.code == 0
     assert (
         output.getvalue().strip()
@@ -362,7 +362,7 @@ def test_help() -> None:
     output = StringIO()
     with redirect_stdout(output):
         try:
-            similar.Run(["--help"])
+            symilar.Run(["--help"])
         except SystemExit as ex:
             assert ex.code == 0
         else:
@@ -373,7 +373,7 @@ def test_no_args() -> None:
     output = StringIO()
     with redirect_stdout(output):
         try:
-            similar.Run([])
+            symilar.Run([])
         except SystemExit as ex:
             assert ex.code == 1
         else:
@@ -381,10 +381,10 @@ def test_no_args() -> None:
 
 
 def test_get_map_data() -> None:
-    """Tests that a SimilarChecker can return and reduce mapped data."""
+    """Tests that a SymilarChecker can return and reduce mapped data."""
     linter = PyLinter(reporter=Reporter())
     # Add a parallel checker to ensure it can map and reduce
-    linter.register_checker(similar.SimilarChecker(linter))
+    linter.register_checker(symilar.SimilaritiesChecker(linter))
     source_streams = (
         str(INPUT / "similar_lines_a.py"),
         str(INPUT / "similar_lines_b.py"),
@@ -473,7 +473,7 @@ def test_get_map_data() -> None:
 
     # Manually perform a 'map' type function
     for source_fname in source_streams:
-        sim = similar.SimilarChecker(PyLinter())
+        sim = symilar.SimilaritiesChecker(PyLinter())
         sim.linter.set_option("ignore-imports", False)
         sim.linter.set_option("ignore-signatures", False)
         with open(source_fname, encoding="utf-8") as stream:
@@ -494,7 +494,7 @@ def test_get_map_data() -> None:
 def test_set_duplicate_lines_to_zero() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(["--duplicates=0", SIMILAR1, SIMILAR2])
+        symilar.Run(["--duplicates=0", SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
     assert output.getvalue() == ""
 
@@ -504,7 +504,7 @@ def test_bad_equal_short_form_option(v: str) -> None:
     """Regression test for https://github.com/pylint-dev/pylint/issues/9343"""
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run([f"-{v}=0", SIMILAR1, SIMILAR2])
+        symilar.Run([f"-{v}=0", SIMILAR1, SIMILAR2])
     assert ex.value.code == 2
     assert "invalid literal for int() with base 10: '=0'" in output.getvalue()
 
@@ -514,7 +514,7 @@ def test_space_short_form_option(v: str) -> None:
     """Regression test for https://github.com/pylint-dev/pylint/issues/9343"""
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run([f"-{v} 2", SIMILAR1, SIMILAR2])
+        symilar.Run([f"-{v} 2", SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
     assert "similar lines in" in output.getvalue()
 
@@ -523,6 +523,6 @@ def test_bad_short_form_option() -> None:
     """Regression test for https://github.com/pylint-dev/pylint/issues/9343"""
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
-        similar.Run(["-j=0", SIMILAR1, SIMILAR2])
+        symilar.Run(["-j=0", SIMILAR1, SIMILAR2])
     assert ex.value.code == 2
     assert "option -j not recognized" in output.getvalue()

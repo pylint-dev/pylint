@@ -22,7 +22,7 @@ DATA = join(HERE, "regrtest_data", "duplicate_code")
 CLEAN_PATH = re.escape(dirname(dirname(__file__)) + os.path.sep)
 
 
-class TestSimilarCodeChecker:
+class TestSymilarCodeChecker:
     def _runtest(self, args: list[str], code: int) -> None:
         """Runs the tests and sees if output code is as expected."""
         out = StringIO()
