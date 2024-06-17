@@ -55,7 +55,7 @@ def _toml_has_config(path: Path | str) -> bool:
     return "pylint" in content.get("tool", [])
 
 
-def _cfg_has_config(path: Path | str) -> bool:
+def _cfg_or_ini_has_config(path: Path | str) -> bool:
     parser = configparser.ConfigParser()
     try:
         parser.read(path, encoding="utf-8")
@@ -74,7 +74,7 @@ def _yield_default_files() -> Iterator[Path]:
             if config_name.is_file():
                 if config_name.suffix == ".toml" and not _toml_has_config(config_name):
                     continue
-                if config_name.suffix in {".cfg", ".ini"} and not _cfg_has_config(
+                if config_name.suffix in {".cfg", ".ini"} and not _cfg_or_ini_has_config(
                     config_name
                 ):
                     continue

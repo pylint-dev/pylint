@@ -18,7 +18,7 @@ import pytest
 from pytest import CaptureFixture
 
 from pylint import config, testutils
-from pylint.config.find_default_config_files import _cfg_has_config, _toml_has_config
+from pylint.config.find_default_config_files import _cfg_or_ini_has_config, _toml_has_config
 from pylint.lint.run import Run
 
 
@@ -313,7 +313,7 @@ def test_has_config(content: str, expected: bool, tmp_path: Path) -> None:
         fake_conf = tmp_path / file_name
         with open(fake_conf, "w", encoding="utf8") as f:
             f.write(content)
-        assert _cfg_has_config(fake_conf) == expected
+        assert _cfg_or_ini_has_config(fake_conf) == expected
 
 
 def test_non_existent_home() -> None:
