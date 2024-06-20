@@ -1,4 +1,8 @@
-#pylint: disable=missing-module-docstring
+#pylint: disable=missing-module-docstring, too-few-public-methods
+
+
+from typing import overload, Union
+
 
 def foobar1(arg1, arg2): #[missing-any-param-doc]
     """function foobar ...
@@ -207,3 +211,31 @@ def foobar19(one, two, **kwargs):
     """
     print(one, two, kwargs)
     return 1
+
+
+class Word:
+    """
+    Methods decorated with `typing.overload` are excluded
+    from the docstring checks. For example: `missing-param-doc` and
+    `missing-type-doc`.
+    """
+    def __init__(self, word):
+        self.word = word
+
+    @overload
+    def starts_with(self, letter: None) -> None: ...
+
+    @overload
+    def starts_with(self, letter: str) -> bool: ...
+
+    def starts_with(self, letter: Union[str, None]) -> Union[bool, None]:
+        """
+        Returns:
+            True if `self.word` begins with `letter`
+
+        Args:
+            letter: str
+        """
+        if self.word:
+            return self.word.startswith(letter)
+        return None
