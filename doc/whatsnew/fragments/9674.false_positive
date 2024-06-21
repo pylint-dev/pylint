@@ -1,0 +1,5 @@
+Prevent emitting ``possibly-used-before-assignment`` when relying on names
+only potentially not defined in conditional blocks guarded by functions
+annotated with ``typing.Never`` or ``typing.NoReturn``.
+
+Closes #9674
