@@ -3,6 +3,7 @@
 
 import sys
 import typing
+import typing_extensions
 
 def parser_error(msg) -> typing.NoReturn:  # pylint: disable=unused-argument
     sys.exit(1)
@@ -11,7 +12,7 @@ def parser_error_nortype(msg):  # pylint: disable=unused-argument
     sys.exit(2)
 
 
-from typing import NoReturn  # pylint: disable=wrong-import-position
+from typing import NoReturn  # pylint: disable=wrong-import-position,wrong-import-order
 
 def parser_error_name(msg) -> NoReturn:  # pylint: disable=unused-argument
     sys.exit(3)
@@ -95,3 +96,22 @@ class ClassUnderTest:
             return n
         except ValueError:
             self._falsely_no_return_method()
+
+# https://github.com/pylint-dev/pylint/issues/7565
+def never_is_handled_like_noreturn(arg: typing.Union[int, str]) -> int:
+    if isinstance(arg, int):
+        return 1
+    if isinstance(arg, str):
+        return 2
+    typing_extensions.assert_never(arg)
+
+
+def declared_to_not_return() -> None:
+    return
+
+def config_takes_precedence_over_inference(arg: typing.Union[int, str]) -> int:
+    if isinstance(arg, int):
+        return 1
+    if isinstance(arg, str):
+        return 2
+    declared_to_not_return()
