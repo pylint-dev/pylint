@@ -116,3 +116,128 @@ class TestFixme(CheckerTestCase):
         """
         with self.assertNoMessages():
             self.checker.process_tokens(_tokenize_str(code))
+
+    @set_config(check_fixme_in_docstring=True)
+    def test_docstring_with_message(self) -> None:
+        code = """
+        \"\"\"FIXME message\"\"\"
+        """
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=2, args="FIXME message", col_offset=9)
+            
+        ):
+            self.checker.process_tokens(_tokenize_str(code))
+
+    @set_config(check_fixme_in_docstring=True)
+    def test_docstring_with_nl_message(self) -> None:
+        code = """
+        \"\"\"
+        FIXME message
+        \"\"\"
+        """
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=3, args="FIXME message", col_offset=9)
+        ):
+            self.checker.process_tokens(_tokenize_str(code))
+
+    @set_config(check_fixme_in_docstring=True)
+    def test_docstring_with_nl_message_multi(self) -> None:
+        code = """
+        \"\"\"
+        FIXME this
+        TODO: that
+        \"\"\"
+        """
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=3, args="FIXME this", col_offset=9),
+            MessageTest(msg_id="fixme", line=4, args="TODO: that", col_offset=9)
+        ):
+            self.checker.process_tokens(_tokenize_str(code))
+
+    @set_config(check_fixme_in_docstring=True)
+    def test_docstring_with_comment(self) -> None:
+        code = """
+        # XXX message1
+        \"\"\"
+        FIXME message2
+        TODO message3
+        \"\"\"
+        """
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=2, args="XXX message1", col_offset=9),
+            MessageTest(msg_id="fixme", line=4, args="FIXME message2", col_offset=9),
+            MessageTest(msg_id="fixme", line=5, args="TODO message3", col_offset=9)
+        ):
+            self.checker.process_tokens(_tokenize_str(code))
+
+    @set_config(check_fixme_in_docstring=True)
+    def test_docstring_with_comment_prefix(self) -> None:
+        code = """
+        # \"\"\" XXX should not trigger
+        \"\"\" # XXX should not trigger \"\"\"
+        """
+        with self.assertNoMessages():
+            self.checker.process_tokens(_tokenize_str(code))
+
+    @set_config(check_fixme_in_docstring=True)
+    def test_docstring_todo_middle_nl(self) -> None:
+        code = """
+        \"\"\"
+        something FIXME message
+        \"\"\"
+        """
+        with self.assertNoMessages():
+            self.checker.process_tokens(_tokenize_str(code))
+
+    @set_config(check_fixme_in_docstring=True)
+    def test_docstring_todo_middle(self) -> None:
+        code = """
+        \"\"\"something FIXME message
+        \"\"\"
+        """
+        with self.assertNoMessages():
+            self.checker.process_tokens(_tokenize_str(code))
+
+    @set_config(check_fixme_in_docstring=True)
+    def test_docstring_todo_mult(self) -> None:
+        code = """
+        \"\"\"
+        FIXME this TODO that
+        \"\"\"
+        """
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=3, args="FIXME this TODO that", col_offset=9),
+        ):
+            self.checker.process_tokens(_tokenize_str(code))
+    
+    @set_config(
+            check_fixme_in_docstring=True,
+            notes=["CODETAG"]
+    )
+    def test_docstring_custom_note(self) -> None:
+        code = """
+        \"\"\"
+        CODETAG implement this
+        \"\"\"
+        """
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=3, args="CODETAG implement this", col_offset=9),
+        ):
+            self.checker.process_tokens(_tokenize_str(code))
+    
+    @set_config(
+            check_fixme_in_docstring=True,
+            notes_rgx="FIX.*"
+    )
+    def test_docstring_custom_rgx(self) -> None:
+        code = """
+        \"\"\"
+        FIXME implement this
+        FIXTHIS also implement this
+        \"\"\"
+        """
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=3, args="FIXME implement this", col_offset=9),
+            MessageTest(msg_id="fixme", line=4, args="FIXTHIS also implement this", col_offset=9),
+        ):
+            self.checker.process_tokens(_tokenize_str(code))

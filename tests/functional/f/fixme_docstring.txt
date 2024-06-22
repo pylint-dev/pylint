@@ -1,0 +1,10 @@
+fixme:5:1:None:None::TODO resolve this:UNDEFINED
+fixme:8:1:None:None::FIXME don't forget this # [fixme]:UNDEFINED
+fixme:9:1:None:None::XXX also remember this # [fixme]:UNDEFINED
+fixme:12:1:None:None::TODO yes this # [fixme]:UNDEFINED
+fixme:13:1:None:None::"FIXME: and this line, but treat it as one FIXME TODO # [fixme]":UNDEFINED
+fixme:16:1:None:None::XXX spaces are okay though  # [fixme]:UNDEFINED
+fixme:20:1:None:None::FIXME should still work:UNDEFINED
+fixme:23:1:None:None::"TODO """""" should work":UNDEFINED
+fixme:32:1:None:None::"TO make something DO: look a regex":UNDEFINED
+fixme:40:5:None:None::./TODO implement this:UNDEFINED

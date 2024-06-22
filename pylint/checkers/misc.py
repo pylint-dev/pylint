@@ -90,6 +90,15 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
                 "default": "",
             },
         ),
+        (
+            "check-fixme-in-docstring",
+            {
+                "type": "yn",
+                "metavar": "<y or n>",
+                "default": False,
+                "help": "Whether or not to search for fixme's in docstrings."
+            }
+        )
     )
 
     def open(self) -> None:
@@ -97,11 +106,17 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
 
         notes = "|".join(re.escape(note) for note in self.linter.config.notes)
         if self.linter.config.notes_rgx:
-            regex_string = rf"#\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
+            comment_regex = rf"#\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
+            self._comment_fixme_pattern = re.compile(comment_regex, re.I)
+            if self.linter.config.check_fixme_in_docstring:
+                docstring_regex = rf"\"\"\"\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
+                self._docstring_fixme_pattern = re.compile(docstring_regex, re.I)
         else:
-            regex_string = rf"#\s*({notes})(?=(:|\s|\Z))"
-
-        self._fixme_pattern = re.compile(regex_string, re.I)
+            comment_regex = rf"#\s*({notes})(?=(:|\s|\Z))"
+            self._comment_fixme_pattern = re.compile(comment_regex, re.I)
+            if self.linter.config.check_fixme_in_docstring:
+                docstring_regex = rf"\"\"\"\s*({notes})(?=(:|\s|\Z))"
+                self._docstring_fixme_pattern = re.compile(docstring_regex, re.I)
 
     def _check_encoding(
         self, lineno: int, line: bytes, file_encoding: str
@@ -133,16 +148,29 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
         if not self.linter.config.notes:
             return
         for token_info in tokens:
-            if token_info.type != tokenize.COMMENT:
-                continue
-            comment_text = token_info.string[1:].lstrip()  # trim '#' and white-spaces
-            if self._fixme_pattern.search("#" + comment_text.lower()):
-                self.add_message(
-                    "fixme",
-                    col_offset=token_info.start[1] + 1,
-                    args=comment_text,
-                    line=token_info.start[0],
-                )
+            if token_info.type == tokenize.COMMENT:
+                comment_text = token_info.string[1:].lstrip()  # trim '#' and white-spaces
+                if self._comment_fixme_pattern.search("#" + comment_text.lower()):
+                    self.add_message(
+                        "fixme",
+                        col_offset=token_info.start[1] + 1,
+                        args=comment_text,
+                        line=token_info.start[0],
+                    )
+            elif self.linter.config.check_fixme_in_docstring and self._is_docstring_comment(token_info):
+                docstring_lines = token_info.string.split("\n")
+                for line_no, line in enumerate(docstring_lines):
+                    comment_text = line.removeprefix('"""').lstrip().removesuffix('"""')  # trim '""""' and whitespace
+                    if self._docstring_fixme_pattern.search('"""' + comment_text.lower()):
+                        self.add_message(
+                            "fixme",
+                            col_offset=token_info.start[1] + 1,
+                            args=comment_text,
+                            line=token_info.start[0] + line_no,
+                        )
+
+    def _is_docstring_comment(self, token_info: tokenize.TokenInfo) -> bool:
+        return token_info.type == tokenize.STRING and token_info.line.lstrip().startswith('"""')
 
 
 def register(linter: PyLinter) -> None:
