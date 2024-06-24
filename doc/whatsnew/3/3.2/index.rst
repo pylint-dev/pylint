@@ -14,6 +14,41 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.2.4?
+---------------------------
+Release date: 2024-06-24
+
+
+False Positives Fixed
+---------------------
+
+- Prevent emitting ``possibly-used-before-assignment`` when relying on names
+  only potentially not defined in conditional blocks guarded by functions
+  annotated with ``typing.Never`` or ``typing.NoReturn``.
+
+  Closes #9674 (`#9674 <https://github.com/pylint-dev/pylint/issues/9674>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fixed a crash when the lineno of a variable used as an annotation wasn't available for ``undefined-variable``.
+
+  Closes #8866 (`#8866 <https://github.com/pylint-dev/pylint/issues/8866>`_)
+
+- Fixed a crash when the ``start`` value in an ``enumerate`` was non-constant and impossible to infer
+  (like in``enumerate(apples, start=int(random_apple_index)``) for ``unnecessary-list-index-lookup``.
+
+  Closes #9078 (`#9078 <https://github.com/pylint-dev/pylint/issues/9078>`_)
+
+- Fixed a crash in ``symilar`` when the ``-d`` or ``-i`` short option were not properly recognized.
+  It's still impossible to do ``-d=1`` (you must do ``-d 1``).
+
+  Closes #9343 (`#9343 <https://github.com/pylint-dev/pylint/issues/9343>`_)
+
+
+
 What's new in Pylint 3.2.3?
 ---------------------------
 Release date: 2024-06-06
