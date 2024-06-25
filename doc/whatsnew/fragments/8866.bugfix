@@ -1,3 +1,0 @@
-Fixed a crash when the lineno of a variable used as an annotation wasn't available for ``undefined-variable``.
-
-Closes #8866
