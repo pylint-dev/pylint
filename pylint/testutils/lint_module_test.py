@@ -308,7 +308,15 @@ class LintModuleTest:
             expected_csv = StringIO()
             writer = csv.writer(expected_csv, dialect="test")
             for line in sorted(received_lines, key=sort_by_line_number):
-                writer.writerow(line.to_csv())
+                try:
+                    writer.writerow(line.to_csv())
+                except UnicodeEncodeError:
+                    writer.writerow(
+                        [
+                            s.encode("utf8", "ignore").decode("utf8")
+                            for s in line.to_csv()
+                        ]
+                    )
             error_msg += expected_csv.getvalue()
         return error_msg
 
