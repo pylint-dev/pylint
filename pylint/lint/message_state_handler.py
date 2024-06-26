@@ -15,6 +15,7 @@ from pylint.constants import (
     MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
     MSG_TYPES_LONG,
+    PYLINT_MSGS,
 )
 from pylint.interfaces import HIGH
 from pylint.message import MessageDefinition
@@ -83,6 +84,11 @@ class _MessageStateHandler:
             for _msgid in MSG_TYPES:
                 message_definitions.extend(
                     self._get_messages_to_set(_msgid, enable, ignore_unknown)
+                )
+            if not enable:
+                # "all" should not disable pylint's own warnings
+                message_definitions = list(
+                    filter(lambda m: m.msgid not in PYLINT_MSGS, message_definitions)
                 )
             return message_definitions
 
