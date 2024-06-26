@@ -16,7 +16,7 @@ Summary -- Release highlights
 
 What's new in Pylint 3.2.4?
 ---------------------------
-Release date: 2024-06-25
+Release date: 2024-06-26
 
 
 False Positives Fixed
