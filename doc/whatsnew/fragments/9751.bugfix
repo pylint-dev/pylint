@@ -1,0 +1,4 @@
+Fixed a false positive ``unreachable-code`` when using ``typing.Any`` as return type in python
+3.8, the ``typing.NoReturn`` are not taken into account anymore for python 3.8 however.
+
+Closes #9751
