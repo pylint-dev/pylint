@@ -1,0 +1,3 @@
+Fix a false positive for ``missing-param-doc`` where a method which is decorated with ``typing.overload`` was expected to have a docstring specifying its parameters.
+
+Closes #9739
