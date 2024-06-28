@@ -39,7 +39,7 @@ you can give it a file name if it's possible to guess a module name from the fil
 path using the python path. Some examples:
 
 ``pylint mymodule.py`` should always work since the current working
-directory is automatically added on top of the python path
+directory is automatically added on top of the python path.
 
 ``pylint directory/mymodule.py`` will work if: ``directory`` is a python
 package (i.e. has an ``__init__.py`` file), an implicit namespace package
@@ -51,6 +51,19 @@ With implicit namespace packages
 If the analyzed sources use implicit namespace packages (PEP 420), the source root(s) should
 be specified using the ``--source-roots`` option. Otherwise, the package names are
 detected incorrectly, since implicit namespace packages don't contain an ``__init__.py``.
+
+In out-of-source directories
+----------------------------
+
+If you are analyzing a file that is not located under the main source directory of your
+project but needs to import modules from there, for instance and most prominantly a test
+file in ``tests/``, you can use ``--pythonpath`` to add the main source directory to the
+python path.
+For example, if your project features a directory layout with a dedicated source
+directory ``src/`` and a test directory ``tests/`` at the top level, you can use
+``--pythonpath=src`` (or the appropriate configuration setting) to successfully lint
+your tests.
+
 
 Globbing support
 ----------------
