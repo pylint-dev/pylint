@@ -2,7 +2,7 @@
 # pylint: disable=consider-using-f-string, missing-function-docstring
 import datetime
 import sys
-from typing import NoReturn
+# from typing import NoReturn   # uncomment when we reunite with used_before_assignment_py38.py
 
 MSG = "hello %s" % MSG  # [used-before-assignment]
 
@@ -206,19 +206,3 @@ def inner_if_continues_outer_if_has_no_other_statements():
         else:
             order = None
         print(order)
-
-
-class PlatformChecks:
-    """https://github.com/pylint-dev/pylint/issues/9674"""
-    def skip(self, msg) -> NoReturn:
-        raise Exception(msg)  # pylint: disable=broad-exception-raised
-
-    def print_platform_specific_command(self):
-        if sys.platform == "linux":
-            cmd = "ls"
-        elif sys.platform == "win32":
-            cmd = "dir"
-        else:
-            self.skip("only runs on Linux/Windows")
-
-        print(cmd)
