@@ -2184,7 +2184,9 @@ def is_terminating_func(node: nodes.Call) -> bool:
                     *TYPING_NEVER,
                     *TYPING_NORETURN,
                     # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
-                    "typing._SpecialForm",
+                    # "typing._SpecialForm",
+                    # But 'typing.Any' also inherits _SpecialForm
+                    # See #9751
                 )
             ):
                 return True
