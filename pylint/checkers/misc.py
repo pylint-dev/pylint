@@ -96,9 +96,9 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
                 "type": "yn",
                 "metavar": "<y or n>",
                 "default": False,
-                "help": "Whether or not to search for fixme's in docstrings."
-            }
-        )
+                "help": "Whether or not to search for fixme's in docstrings.",
+            },
+        ),
     )
 
     def open(self) -> None:
@@ -106,7 +106,9 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
 
         notes = "|".join(re.escape(note) for note in self.linter.config.notes)
         if self.linter.config.notes_rgx:
-            comment_regex = rf"#\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
+            comment_regex = (
+                rf"#\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
+            )
             self._comment_fixme_pattern = re.compile(comment_regex, re.I)
             if self.linter.config.check_fixme_in_docstring:
                 docstring_regex = rf"((\"\"\")|(\'\'\'))\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
@@ -149,7 +151,9 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
             return
         for token_info in tokens:
             if token_info.type == tokenize.COMMENT:
-                comment_text = token_info.string[1:].lstrip()  # trim '#' and white-spaces
+                comment_text = token_info.string[
+                    1:
+                ].lstrip()  # trim '#' and white-spaces
                 if self._comment_fixme_pattern.search("#" + comment_text.lower()):
                     self.add_message(
                         "fixme",
@@ -157,14 +161,17 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
                         args=comment_text,
                         line=token_info.start[0],
                     )
-            elif self.linter.config.check_fixme_in_docstring and self._is_docstring_comment(token_info):
+            elif (
+                self.linter.config.check_fixme_in_docstring
+                and self._is_docstring_comment(token_info)
+            ):
                 docstring_lines = token_info.string.split("\n")
                 for line_no, line in enumerate(docstring_lines):
                     # trim '"""' at beginning or end and whitespace
-                    if line.startswith('"""') or line.startswith("'''"):
+                    if line.startswith(('"""', "'''")):
                         line = line[3:]
                     line = line.lstrip()
-                    if line.endswith('"""') or line.endswith("'''"):
+                    if line.endswith(('"""', "'''")):
                         line = line[:-3]
                     if self._docstring_fixme_pattern.search(
                         '"""' + line.lower()
@@ -178,8 +185,7 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
 
     def _is_docstring_comment(self, token_info: tokenize.TokenInfo) -> bool:
         return token_info.type == tokenize.STRING and (
-            token_info.line.lstrip().startswith('"""')
-            or token_info.line.lstrip().startswith("'''")
+            token_info.line.lstrip().startswith(('"""', "'''"))
         )
 
 

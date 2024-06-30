@@ -8,6 +8,7 @@ from pylint.checkers import misc
 from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str, set_config
 
 
+# pylint: disable=too-many-public-methods
 class TestFixme(CheckerTestCase):
     CHECKER_CLASS = misc.EncodingChecker
 
@@ -124,7 +125,6 @@ class TestFixme(CheckerTestCase):
         """
         with self.assertAddsMessages(
             MessageTest(msg_id="fixme", line=2, args="FIXME message", col_offset=9)
-            
         ):
             self.checker.process_tokens(_tokenize_str(code))
 
@@ -135,7 +135,6 @@ class TestFixme(CheckerTestCase):
         """
         with self.assertAddsMessages(
             MessageTest(msg_id="fixme", line=2, args="FIXME message", col_offset=9)
-            
         ):
             self.checker.process_tokens(_tokenize_str(code))
 
@@ -173,7 +172,7 @@ class TestFixme(CheckerTestCase):
         """
         with self.assertAddsMessages(
             MessageTest(msg_id="fixme", line=3, args="FIXME this", col_offset=9),
-            MessageTest(msg_id="fixme", line=4, args="TODO: that", col_offset=9)
+            MessageTest(msg_id="fixme", line=4, args="TODO: that", col_offset=9),
         ):
             self.checker.process_tokens(_tokenize_str(code))
 
@@ -189,7 +188,7 @@ class TestFixme(CheckerTestCase):
         with self.assertAddsMessages(
             MessageTest(msg_id="fixme", line=2, args="XXX message1", col_offset=9),
             MessageTest(msg_id="fixme", line=4, args="FIXME message2", col_offset=9),
-            MessageTest(msg_id="fixme", line=5, args="TODO message3", col_offset=9)
+            MessageTest(msg_id="fixme", line=5, args="TODO message3", col_offset=9),
         ):
             self.checker.process_tokens(_tokenize_str(code))
 
@@ -229,14 +228,13 @@ class TestFixme(CheckerTestCase):
         \"\"\"
         """
         with self.assertAddsMessages(
-            MessageTest(msg_id="fixme", line=3, args="FIXME this TODO that", col_offset=9),
+            MessageTest(
+                msg_id="fixme", line=3, args="FIXME this TODO that", col_offset=9
+            ),
         ):
             self.checker.process_tokens(_tokenize_str(code))
-    
-    @set_config(
-            check_fixme_in_docstring=True,
-            notes=["CODETAG"]
-    )
+
+    @set_config(check_fixme_in_docstring=True, notes=["CODETAG"])
     def test_docstring_custom_note(self) -> None:
         code = """
         \"\"\"
@@ -244,14 +242,13 @@ class TestFixme(CheckerTestCase):
         \"\"\"
         """
         with self.assertAddsMessages(
-            MessageTest(msg_id="fixme", line=3, args="CODETAG implement this", col_offset=9),
+            MessageTest(
+                msg_id="fixme", line=3, args="CODETAG implement this", col_offset=9
+            ),
         ):
             self.checker.process_tokens(_tokenize_str(code))
-    
-    @set_config(
-            check_fixme_in_docstring=True,
-            notes_rgx="FIX.*"
-    )
+
+    @set_config(check_fixme_in_docstring=True, notes_rgx="FIX.*")
     def test_docstring_custom_rgx(self) -> None:
         code = """
         \"\"\"
@@ -260,7 +257,11 @@ class TestFixme(CheckerTestCase):
         \"\"\"
         """
         with self.assertAddsMessages(
-            MessageTest(msg_id="fixme", line=3, args="FIXME implement this", col_offset=9),
-            MessageTest(msg_id="fixme", line=4, args="FIXTHIS also implement this", col_offset=9),
+            MessageTest(
+                msg_id="fixme", line=3, args="FIXME implement this", col_offset=9
+            ),
+            MessageTest(
+                msg_id="fixme", line=4, args="FIXTHIS also implement this", col_offset=9
+            ),
         ):
             self.checker.process_tokens(_tokenize_str(code))
