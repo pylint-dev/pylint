@@ -51,7 +51,7 @@ class ByIdManagedMessagesChecker(BaseRawFileChecker):
 
 
 class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
-    """BaseChecker for encoding issues.
+    """BaseChecker for encoding issues and fixme notes.
 
     Checks for:
     * warning notes in the code like FIXME, XXX
