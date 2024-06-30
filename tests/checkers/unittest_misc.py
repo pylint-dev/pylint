@@ -129,11 +129,34 @@ class TestFixme(CheckerTestCase):
             self.checker.process_tokens(_tokenize_str(code))
 
     @set_config(check_fixme_in_docstring=True)
+    def test_docstring_with_message_single_quote(self) -> None:
+        code = """
+        \'\'\'FIXME message\'\'\'
+        """
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=2, args="FIXME message", col_offset=9)
+            
+        ):
+            self.checker.process_tokens(_tokenize_str(code))
+
+    @set_config(check_fixme_in_docstring=True)
     def test_docstring_with_nl_message(self) -> None:
         code = """
         \"\"\"
         FIXME message
         \"\"\"
+        """
+        with self.assertAddsMessages(
+            MessageTest(msg_id="fixme", line=3, args="FIXME message", col_offset=9)
+        ):
+            self.checker.process_tokens(_tokenize_str(code))
+
+    @set_config(check_fixme_in_docstring=True)
+    def test_docstring_with_nl_message_single_quote(self) -> None:
+        code = """
+        \'\'\'
+        FIXME message
+        \'\'\'
         """
         with self.assertAddsMessages(
             MessageTest(msg_id="fixme", line=3, args="FIXME message", col_offset=9)

@@ -38,3 +38,14 @@ TO make something DO: look a regex
 # +2: [fixme]
 def function():
     """./TODO implement this"""
+
+
+'''
+  XXX single quotes should be no different # [fixme]
+'''
+def function2():
+    '''./TODO implement this''' # [fixme]
+    '''
+    ./TODO some more work # [fixme]
+    FIXME as well as this # [fixme]
+    '''

@@ -109,13 +109,13 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
             comment_regex = rf"#\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
             self._comment_fixme_pattern = re.compile(comment_regex, re.I)
             if self.linter.config.check_fixme_in_docstring:
-                docstring_regex = rf"\"\"\"\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
+                docstring_regex = rf"((\"\"\")|(\'\'\'))\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
                 self._docstring_fixme_pattern = re.compile(docstring_regex, re.I)
         else:
             comment_regex = rf"#\s*({notes})(?=(:|\s|\Z))"
             self._comment_fixme_pattern = re.compile(comment_regex, re.I)
             if self.linter.config.check_fixme_in_docstring:
-                docstring_regex = rf"\"\"\"\s*({notes})(?=(:|\s|\Z))"
+                docstring_regex = rf"((\"\"\")|(\'\'\'))\s*({notes})(?=(:|\s|\Z))"
                 self._docstring_fixme_pattern = re.compile(docstring_regex, re.I)
 
     def _check_encoding(
@@ -160,12 +160,15 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
             elif self.linter.config.check_fixme_in_docstring and self._is_docstring_comment(token_info):
                 docstring_lines = token_info.string.split("\n")
                 for line_no, line in enumerate(docstring_lines):
-                    if line.startswith('"""'):
+                    # trim '"""' at beginning or end and whitespace
+                    if line.startswith('"""') or line.startswith("'''"):
                         line = line[3:]
                     line = line.lstrip()
-                    if line.endswith('"""'):
+                    if line.endswith('"""') or line.endswith("'''"):
                         line = line[:-3]
-                    if self._docstring_fixme_pattern.search('"""' + line.lower()):
+                    if self._docstring_fixme_pattern.search(
+                        '"""' + line.lower()
+                    ) or self._docstring_fixme_pattern.search("'''" + line.lower()):
                         self.add_message(
                             "fixme",
                             col_offset=token_info.start[1] + 1,
@@ -174,7 +177,10 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
                         )
 
     def _is_docstring_comment(self, token_info: tokenize.TokenInfo) -> bool:
-        return token_info.type == tokenize.STRING and token_info.line.lstrip().startswith('"""')
+        return token_info.type == tokenize.STRING and (
+            token_info.line.lstrip().startswith('"""')
+            or token_info.line.lstrip().startswith("'''")
+        )
 
 
 def register(linter: PyLinter) -> None:
