@@ -1,5 +1,5 @@
 """Tests for fixme and its disabling and enabling."""
-# pylint: disable=missing-function-docstring, unused-variable
+# pylint: disable=missing-function-docstring, unused-variable, pointless-string-statement
 
 # +1: [fixme]
 # FIXME: beep
@@ -34,6 +34,8 @@ def function():
 
 # pylint: disable-next=fixme
 # FIXME: Don't raise when the message is disabled
+
+"""TODO: Don't raise when docstring fixmes are disabled"""
 
 # This line needs to be at the end of the file to make sure it doesn't end with a comment
 # Pragma's compare against the 'lineno' attribute of the respective nodes which
