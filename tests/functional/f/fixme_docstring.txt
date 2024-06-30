@@ -9,6 +9,6 @@ fixme:23:1:None:None::"TODO """""" should work":UNDEFINED
 fixme:32:1:None:None::"TO make something DO: look a regex":UNDEFINED
 fixme:40:5:None:None::./TODO implement this:UNDEFINED
 fixme:44:1:None:None::XXX single quotes should be no different # [fixme]:UNDEFINED
-fixme:47:5:None:None::./TODO implement this:UNDEFINED
-fixme:49:5:None:None::./TODO some more work # [fixme]:UNDEFINED
-fixme:50:5:None:None::FIXME as well as this # [fixme]:UNDEFINED
+fixme:48:5:None:None::./TODO implement this # [fixme]:UNDEFINED
+fixme:49:5:None:None::FIXME and this # [fixme]:UNDEFINED
+fixme:51:5:None:None::FIXME one more for good measure:UNDEFINED

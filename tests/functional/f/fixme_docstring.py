@@ -44,8 +44,8 @@ def function():
   XXX single quotes should be no different # [fixme]
 '''
 def function2():
-    '''./TODO implement this''' # [fixme]
     '''
-    ./TODO some more work # [fixme]
-    FIXME as well as this # [fixme]
+    ./TODO implement this # [fixme]
+    FIXME and this # [fixme]
     '''
+    '''FIXME one more for good measure''' # [fixme]
