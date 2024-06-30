@@ -160,12 +160,16 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
             elif self.linter.config.check_fixme_in_docstring and self._is_docstring_comment(token_info):
                 docstring_lines = token_info.string.split("\n")
                 for line_no, line in enumerate(docstring_lines):
-                    comment_text = line.removeprefix('"""').lstrip().removesuffix('"""')  # trim '""""' and whitespace
-                    if self._docstring_fixme_pattern.search('"""' + comment_text.lower()):
+                    if line.startswith('"""'):
+                        line = line[3:]
+                    line = line.lstrip()
+                    if line.endswith('"""'):
+                        line = line[:-3]
+                    if self._docstring_fixme_pattern.search('"""' + line.lower()):
                         self.add_message(
                             "fixme",
                             col_offset=token_info.start[1] + 1,
-                            args=comment_text,
+                            args=line,
                             line=token_info.start[0] + line_no,
                         )
 
