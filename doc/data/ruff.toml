@@ -7,7 +7,7 @@ ignore = []
 select = ["E501", "I"]
 
 
-[per-file-ignores]
+[lint.per-file-ignores]
 "doc/data/messages/r/reimported/bad.py" = ["I"]
 "doc/data/messages/w/wrong-import-order/bad.py" = ["I"]
 "doc/data/messages/u/ungrouped-imports/bad.py" = ["I"]
