@@ -1,3 +1,5 @@
+[ruff.lint]
+
 ignore = []
 # Reading ease is drastically reduced on read the doc after 103 chars
 # (Because of horizontal scrolling)
