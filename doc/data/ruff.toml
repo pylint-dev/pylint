@@ -1,9 +1,9 @@
-[lint]
-
-ignore = []
 # Reading ease is drastically reduced on read the doc after 103 chars
 # (Because of horizontal scrolling)
 line-length = 103
+
+[lint]
+ignore = []
 select = ["E501", "I"]
 
 
