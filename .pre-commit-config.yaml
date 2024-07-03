@@ -25,6 +25,12 @@ repos:
       - id: ruff
         name: ruff-doc
         files: doc/data/messages
+        exclude: |
+          (?x)^(
+            doc/data/messages/d/duplicate-argument-name/bad.py|
+            doc/data/messages/s/syntax-error/bad.py
+          )$
+
         args: ["--config", "doc/data/ruff.toml"]
   - repo: https://github.com/Pierre-Sassoulas/copyright_notice_precommit
     rev: 0.1.2
