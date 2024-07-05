@@ -122,7 +122,7 @@ def expand_modules(
             )
         except ImportError:
             # Might not be acceptable, don't crash.
-            is_namespace = False
+            is_namespace = not os.path.exists(filepath)
             is_directory = os.path.isdir(something)
         else:
             is_namespace = modutils.is_namespace(spec)
