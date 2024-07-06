@@ -14,6 +14,21 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.2.5?
+---------------------------
+Release date: 2024-06-28
+
+
+Other Bug Fixes
+---------------
+
+- Fixed a false positive ``unreachable-code`` when using ``typing.Any`` as return type in python
+  3.8, the ``typing.NoReturn`` are not taken into account anymore for python 3.8 however.
+
+  Closes #9751 (`#9751 <https://github.com/pylint-dev/pylint/issues/9751>`_)
+
+
+
 What's new in Pylint 3.2.4?
 ---------------------------
 Release date: 2024-06-26
