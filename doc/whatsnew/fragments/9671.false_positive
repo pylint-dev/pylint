@@ -1,3 +1,0 @@
-Fix a false positive for ``redefined-outer-name`` when there is a name defined in an exception-handling block which shares the same name as a local variable that has been defined in a function body.
-
-Closes #9671
