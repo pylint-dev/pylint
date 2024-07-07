@@ -19,7 +19,7 @@ def unused_variable_example():
 
 
 # pylint shouldn't crash with the following strings in a type annotation context
-example3: Lit["", " ", "?"] = "?"
+EXAMPLE3: Lit["", " ", "?"] = "?"
 
 
 # See https://peps.python.org/pep-0586/#literals-enums-and-forward-references
