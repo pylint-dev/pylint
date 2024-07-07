@@ -13,7 +13,8 @@ import collections
 import os
 import traceback
 from abc import ABC, abstractmethod
-from typing import Callable, Optional
+from collections.abc import Callable
+from typing import Optional
 
 import astroid
 from astroid import nodes
