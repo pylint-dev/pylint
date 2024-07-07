@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-import sys
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -248,7 +247,6 @@ def test_known_values4(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires dataclasses")
 def test_regression_dataclasses_inference(
     HANDLER: DiadefsHandler, get_project: GetProjectCallable
 ) -> None:
