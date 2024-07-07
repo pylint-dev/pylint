@@ -25,17 +25,8 @@ import warnings
 from collections import deque
 from collections.abc import Iterable, Sequence
 from io import BufferedReader, BytesIO
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    List,
-    Literal,
-    Pattern,
-    TextIO,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from re import Pattern
+from typing import TYPE_CHECKING, Any, Literal, TextIO, TypeVar, Union
 
 from astroid import Module, modutils, nodes
 
@@ -76,10 +67,10 @@ T_GlobalOptionReturnTypes = TypeVar(
     "T_GlobalOptionReturnTypes",
     bool,
     int,
-    List[str],
+    list[str],
     Pattern[str],
-    List[Pattern[str]],
-    Tuple[int, ...],
+    list[Pattern[str]],
+    tuple[int, ...],
 )
 
 

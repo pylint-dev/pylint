@@ -42,17 +42,7 @@ from collections.abc import Callable, Generator, Iterable, Sequence
 from getopt import GetoptError, getopt
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    List,
-    NamedTuple,
-    NewType,
-    NoReturn,
-    TextIO,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, NamedTuple, NewType, NoReturn, TextIO, Union
 
 import astroid
 from astroid import nodes
@@ -84,10 +74,10 @@ class LineSpecifs(NamedTuple):
 
 # Links LinesChunk object to the starting indices (in lineset's stripped lines)
 # of the different chunk of lines that are used to compute the hash
-HashToIndex_T = Dict["LinesChunk", List[Index]]
+HashToIndex_T = dict["LinesChunk", list[Index]]
 
 # Links index in the lineset's stripped lines to the real lines in the file
-IndexToLines_T = Dict[Index, "SuccessiveLinesLimits"]
+IndexToLines_T = dict[Index, "SuccessiveLinesLimits"]
 
 # The types the streams read by pylint can take. Originating from astroid.nodes.Module.stream() and open()
 STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
@@ -113,7 +103,7 @@ class CplSuccessiveLinesLimits:
 
 # Links the indices to the starting line in both lineset's stripped lines to
 # the start and end lines in both files
-CplIndexToCplLines_T = Dict["LineSetStartCouple", CplSuccessiveLinesLimits]
+CplIndexToCplLines_T = dict["LineSetStartCouple", CplSuccessiveLinesLimits]
 
 
 class LinesChunk:
@@ -212,7 +202,7 @@ class LineSetStartCouple(NamedTuple):
         )
 
 
-LinesChunkLimits_T = Tuple["LineSet", LineNumber, LineNumber]
+LinesChunkLimits_T = tuple["LineSet", LineNumber, LineNumber]
 
 
 def hash_lineset(

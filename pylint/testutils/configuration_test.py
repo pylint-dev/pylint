@@ -11,14 +11,14 @@ import json
 import logging
 import unittest
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from pylint.lint import Run
 
 # We use Any in this typing because the configuration contains real objects and constants
 # that could be a lot of things.
 ConfigurationValue = Any
-PylintConfiguration = Dict[str, ConfigurationValue]
+PylintConfiguration = dict[str, ConfigurationValue]
 
 
 def get_expected_or_default(

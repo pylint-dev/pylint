@@ -11,7 +11,7 @@ import re
 import shutil
 import subprocess
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union
 
 import astroid
 from astroid import nodes
@@ -22,9 +22,9 @@ if TYPE_CHECKING:
 
     _CallbackT = Callable[
         [nodes.NodeNG],
-        Union[Tuple[ClassDiagram], Tuple[PackageDiagram, ClassDiagram], None],
+        Union[tuple[ClassDiagram], tuple[PackageDiagram, ClassDiagram], None],
     ]
-    _CallbackTupleT = Tuple[Optional[_CallbackT], Optional[_CallbackT]]
+    _CallbackTupleT = tuple[Optional[_CallbackT], Optional[_CallbackT]]
 
 
 RCFILE = ".pyreverserc"

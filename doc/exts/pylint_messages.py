@@ -12,7 +12,7 @@ from enum import Enum
 from inspect import getmodule
 from itertools import chain, groupby
 from pathlib import Path
-from typing import DefaultDict, Dict, List, NamedTuple, Tuple
+from typing import NamedTuple
 
 from sphinx.application import Sphinx
 
@@ -52,8 +52,8 @@ class ExampleType(str, Enum):
     BAD = "bad"
 
 
-MessagesDict = Dict[str, List[MessageData]]
-OldMessagesDict = Dict[str, DefaultDict[Tuple[str, str], List[Tuple[str, str]]]]
+MessagesDict = dict[str, list[MessageData]]
+OldMessagesDict = dict[str, defaultdict[tuple[str, str], list[tuple[str, str]]]]
 """DefaultDict is indexed by tuples of (old name symbol, old name id) and values are
 tuples of (new name symbol, new name category).
 """
