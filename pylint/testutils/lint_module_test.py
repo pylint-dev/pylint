@@ -11,15 +11,13 @@ import sys
 from collections import Counter
 from io import StringIO
 from pathlib import Path
-from typing import Counter as CounterType
-from typing import TextIO, Tuple
+from typing import TextIO
 
 import pytest
 from _pytest.config import Config
 
 from pylint import checkers
 from pylint.config.config_initialization import _config_initialization
-from pylint.constants import IS_PYPY
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
@@ -33,7 +31,7 @@ from pylint.testutils.functional.test_file import (
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 
-MessageCounter = CounterType[Tuple[int, str]]
+MessageCounter = Counter[tuple[int, str]]
 
 PYLINTRC = Path(__file__).parent / "testing_pylintrc"
 
@@ -104,13 +102,6 @@ class LintModuleTest:
         _config_initialization(
             self._linter, args_list=args, config_file=rc_file, reporter=_test_reporter
         )
-
-        self._check_end_position = (
-            sys.version_info >= self._linter.config.min_pyver_end_position
-        )
-        # TODO: PY3.9: PyPy supports end_lineno from 3.9 and above
-        if self._check_end_position and IS_PYPY:
-            self._check_end_position = sys.version_info >= (3, 9)  # pragma: no cover
 
         self._config = config
 
@@ -227,8 +218,7 @@ class LintModuleTest:
             expected_msgs = Counter()
         with self._open_expected_file() as f:
             expected_output_lines = [
-                OutputLine.from_csv(row, self._check_end_position)
-                for row in csv.reader(f, "test")
+                OutputLine.from_csv(row) for row in csv.reader(f, "test")
             ]
         return expected_msgs, expected_output_lines
 
@@ -242,9 +232,7 @@ class LintModuleTest:
                 msg.symbol != "fatal"
             ), f"Pylint analysis failed because of '{msg.msg}'"
             received_msgs[msg.line, msg.symbol] += 1
-            received_output_lines.append(
-                OutputLine.from_msg(msg, self._check_end_position)
-            )
+            received_output_lines.append(OutputLine.from_msg(msg))
         return received_msgs, received_output_lines
 
     def _runTest(self) -> None:
