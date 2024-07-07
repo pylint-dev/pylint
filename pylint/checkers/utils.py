@@ -13,10 +13,10 @@ import itertools
 import numbers
 import re
 import string
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import astroid.objects
 from astroid import TooManyLevelsError, nodes, util
