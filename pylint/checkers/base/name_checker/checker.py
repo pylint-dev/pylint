@@ -14,7 +14,7 @@ import sys
 from collections.abc import Iterable
 from enum import Enum, auto
 from re import Pattern
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -34,7 +34,7 @@ from pylint.typing import Options
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
-_BadNamesTuple = Tuple[nodes.NodeNG, str, str, interfaces.Confidence]
+_BadNamesTuple = tuple[nodes.NodeNG, str, str, interfaces.Confidence]
 
 # Default patterns for name types that do not have styles
 DEFAULT_PATTERNS = {
