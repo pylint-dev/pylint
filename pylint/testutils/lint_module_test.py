@@ -80,9 +80,6 @@ class LintModuleTest:
             "--max_pyver", type=parse_python_version, default=(4, 0)
         )
         self._linter._arg_parser.add_argument(
-            "--min_pyver_end_position", type=parse_python_version, default=(3, 8)
-        )
-        self._linter._arg_parser.add_argument(
             "--requires", type=lambda s: [i.strip() for i in s.split(",")], default=[]
         )
         self._linter._arg_parser.add_argument(
