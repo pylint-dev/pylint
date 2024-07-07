@@ -9,7 +9,6 @@ from pathlib import Path
 import pytest
 
 from pylint.checkers import symilar
-from pylint.constants import IS_PYPY, PY39_PLUS
 from pylint.lint import PyLinter
 from pylint.testutils import GenericTestReporter as Reporter
 
@@ -131,10 +130,6 @@ TOTAL lines=16 duplicates=8 percent=50.00
     )
 
 
-@pytest.mark.skipif(
-    IS_PYPY and not PY39_PLUS,
-    reason="Requires accurate 'end_lineno' value",
-)
 def test_ignore_multiline_imports() -> None:
     output = StringIO()
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
