@@ -1,0 +1,4 @@
+Fix a regression that raised ``invalid-name`` on class attributes merely
+overriding invalid names from an ancestor.
+
+Closes #9765
