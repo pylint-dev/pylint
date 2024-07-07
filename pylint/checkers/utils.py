@@ -1817,10 +1817,7 @@ def is_sys_guard(node: nodes.If) -> bool:
     """Return True if IF stmt is a sys.version_info guard.
 
     >>> import sys
-    >>> if sys.version_info > (3, 8):
-    >>>     from typing import Literal
-    >>> else:
-    >>>     from typing_extensions import Literal
+    >>> from typing import Literal
     """
     if isinstance(node.test, nodes.Compare):
         value = node.test.left
