@@ -7,4 +7,4 @@ from pathlib import Path  # [unused-import]
 import typing as t
 
 
-example: t.Annotated[str, "Path"] = "/foo/bar"
+EXAMPLE: t.Annotated[str, "Path"] = "/foo/bar"

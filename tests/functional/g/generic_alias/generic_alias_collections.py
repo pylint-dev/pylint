@@ -110,7 +110,7 @@ class CustomImplementation(CustomAbstractCls2):  # [abstract-method,abstract-met
 # Type annotations
 var_tuple: tuple[int, int]
 var_dict: dict[int, str]
-var_orderedDict: collections.OrderedDict[int, str]
+var_ordereddict: collections.OrderedDict[int, str]
 var_container: collections.abc.Container[int]
 var_sequence: collections.abc.Sequence[int]
 var_iterable: collections.abc.Iterable[int]

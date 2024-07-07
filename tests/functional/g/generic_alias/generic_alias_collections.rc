@@ -1,2 +1,5 @@
 [testoptions]
 min_pyver=3.9
+
+[MAIN]
+const-naming-style=snake_case
