@@ -11,7 +11,8 @@ import re
 import shutil
 import subprocess
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import astroid
 from astroid import nodes
