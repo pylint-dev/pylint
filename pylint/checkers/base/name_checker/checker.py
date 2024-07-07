@@ -491,7 +491,9 @@ class NameChecker(_BasicChecker):
                         self._check_name("variable", node.name, node)
 
         # Check names defined in class scopes
-        elif isinstance(frame, nodes.ClassDef):
+        elif isinstance(frame, nodes.ClassDef) and not any(
+            frame.local_attr_ancestors(node.name)
+        ):
             if utils.is_enum_member(node) or utils.is_assign_name_annotated_with(
                 node, "Final"
             ):
