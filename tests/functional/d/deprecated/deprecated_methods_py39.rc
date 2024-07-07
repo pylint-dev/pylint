@@ -1,3 +1,2 @@
 [testoptions]
-min_pyver=3.9
 max_pyver=3.10
