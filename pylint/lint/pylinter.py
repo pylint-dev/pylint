@@ -48,7 +48,6 @@ from pylint.lint.report_functions import (
     report_total_messages_stats,
 )
 from pylint.lint.utils import (
-    _is_relative_to,
     augmented_sys_path,
     get_fatal_error_message,
     prepare_crash_report,
@@ -918,7 +917,7 @@ class PyLinter(
         self, filepath: Path, namespaces: DirectoryNamespaceDict
     ) -> argparse.Namespace | None:
         for directory in namespaces:
-            if _is_relative_to(filepath, directory):
+            if Path.is_relative_to(filepath, directory):
                 namespace = self._get_namespace_for_file(
                     filepath, namespaces[directory][1]
                 )
