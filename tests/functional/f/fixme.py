@@ -3,7 +3,9 @@
 
 # +1: [fixme]
 # FIXME: beep
-
+# +1: [fixme]
+#   # TODO: don't forget indented ones should trigger
+# but not TODO: this
 
 def function():
     variable = "FIXME: Ignore me!"

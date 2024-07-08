@@ -108,7 +108,7 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
         if self.linter.config.notes_rgx:
             notes += f"|{self.linter.config.notes_rgx}"
 
-        comment_regex = rf"#\s*(?P<msg>({notes})(?=(:|\s|\Z)).*$)"
+        comment_regex = rf"(#\s*)+(?P<msg>({notes})(?=(:|\s|\Z)).*$)"
         self._comment_fixme_pattern = re.compile(comment_regex, re.I)
 
         # single line docstring like '''this''' or """this"""
