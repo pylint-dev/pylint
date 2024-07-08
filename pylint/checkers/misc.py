@@ -108,7 +108,7 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
         if self.linter.config.notes_rgx:
             notes += f"|{self.linter.config.notes_rgx}"
 
-        comment_regex = rf"(#\s*)+(?P<msg>({notes})(?=(:|\s|\Z)).*$)"
+        comment_regex = rf"#\s*({notes})(?=(:|\s|\Z))"
         self._comment_fixme_pattern = re.compile(comment_regex, re.I)
 
         # single line docstring like '''this''' or """this"""
@@ -153,11 +153,14 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
             return
         for token_info in tokens:
             if token_info.type == tokenize.COMMENT:
-                if match := self._comment_fixme_pattern.match(token_info.string):
+                comment_text = token_info.string[
+                    1:
+                ].lstrip()  # trim '#' and white-spaces
+                if self._comment_fixme_pattern.search("#" + comment_text.lower()):
                     self.add_message(
                         "fixme",
                         col_offset=token_info.start[1] + 1,
-                        args=match.group("msg"),
+                        args=comment_text,
                         line=token_info.start[0],
                     )
             elif self.linter.config.check_fixme_in_docstring:
