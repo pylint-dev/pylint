@@ -17,7 +17,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.5.0"
+    rev: "v0.5.1"
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -122,7 +122,7 @@ repos:
         files: ^(doc/whatsnew/fragments)
         exclude: doc/whatsnew/fragments/_.*.rst
   - repo: https://github.com/rstcheck/rstcheck
-    rev: "v6.2.0"
+    rev: "v6.2.4"
     hooks:
       - id: rstcheck
         args: ["--report-level=warning"]
