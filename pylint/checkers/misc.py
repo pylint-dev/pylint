@@ -106,19 +106,21 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
 
         notes = "|".join(re.escape(note) for note in self.linter.config.notes)
         if self.linter.config.notes_rgx:
-            comment_regex = (
-                rf"#\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
-            )
-            self._comment_fixme_pattern = re.compile(comment_regex, re.I)
-            if self.linter.config.check_fixme_in_docstring:
-                docstring_regex = rf"((\"\"\")|(\'\'\'))\s*({notes}|{self.linter.config.notes_rgx})(?=(:|\s|\Z))"
-                self._docstring_fixme_pattern = re.compile(docstring_regex, re.I)
-        else:
-            comment_regex = rf"#\s*({notes})(?=(:|\s|\Z))"
-            self._comment_fixme_pattern = re.compile(comment_regex, re.I)
-            if self.linter.config.check_fixme_in_docstring:
-                docstring_regex = rf"((\"\"\")|(\'\'\'))\s*({notes})(?=(:|\s|\Z))"
-                self._docstring_fixme_pattern = re.compile(docstring_regex, re.I)
+            notes += f"|{self.linter.config.notes_rgx}"
+
+        comment_regex = rf"#\s*(?P<msg>({notes})(?=(:|\s|\Z)).*$)"
+        self._comment_fixme_pattern = re.compile(comment_regex, re.I)
+
+        # single line docstring like '''this''' or """this"""
+        docstring_regex = rf"((\"\"\")|(\'\'\'))\s*(?P<msg>({notes})(?=(:|\s|\Z)).*?)((\"\"\")|(\'\'\'))"
+        self._docstring_fixme_pattern = re.compile(docstring_regex, re.I)
+
+        # multiline docstrings which will be split into newlines
+        # so we do not need to look for quotes/doublequotes
+        multiline_docstring_regex = rf"^\s*(?P<msg>({notes})(?=(:|\s|\Z)).*$)"
+        self._multiline_docstring_fixme_pattern = re.compile(
+            multiline_docstring_regex, re.I
+        )
 
     def _check_encoding(
         self, lineno: int, line: bytes, file_encoding: str
@@ -151,41 +153,37 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
             return
         for token_info in tokens:
             if token_info.type == tokenize.COMMENT:
-                comment_text = token_info.string[
-                    1:
-                ].lstrip()  # trim '#' and white-spaces
-                if self._comment_fixme_pattern.search("#" + comment_text.lower()):
+                if match := self._comment_fixme_pattern.match(token_info.string):
                     self.add_message(
                         "fixme",
                         col_offset=token_info.start[1] + 1,
-                        args=comment_text,
+                        args=match.group("msg"),
                         line=token_info.start[0],
                     )
-            elif (
-                self.linter.config.check_fixme_in_docstring
-                and self._is_docstring_comment(token_info)
-            ):
-                docstring_lines = token_info.string.split("\n")
-                for line_no, line in enumerate(docstring_lines):
-                    # trim '"""' at beginning or end and whitespace
-                    if line.startswith(('"""', "'''")):
-                        line = line[3:]
-                    line = line.lstrip()
-                    if line.endswith(('"""', "'''")):
-                        line = line[:-3]
-                    if self._docstring_fixme_pattern.search(
-                        '"""' + line.lower()
-                    ) or self._docstring_fixme_pattern.search("'''" + line.lower()):
-                        self.add_message(
-                            "fixme",
-                            col_offset=token_info.start[1] + 1,
-                            args=line,
-                            line=token_info.start[0] + line_no,
-                        )
+            elif self.linter.config.check_fixme_in_docstring:
+                if self._is_multiline_docstring(token_info):
+                    docstring_lines = token_info.string.split("\n")
+                    for line_no, line in enumerate(docstring_lines):
+                        if match := self._multiline_docstring_fixme_pattern.match(line):
+                            self.add_message(
+                                "fixme",
+                                col_offset=token_info.start[1] + 1,
+                                args=match.group("msg"),
+                                line=token_info.start[0] + line_no,
+                            )
+                elif match := self._docstring_fixme_pattern.match(token_info.string):
+                    self.add_message(
+                        "fixme",
+                        col_offset=token_info.start[1] + 1,
+                        args=match.group("msg"),
+                        line=token_info.start[0],
+                    )
 
-    def _is_docstring_comment(self, token_info: tokenize.TokenInfo) -> bool:
-        return token_info.type == tokenize.STRING and (
-            token_info.line.lstrip().startswith(('"""', "'''"))
+    def _is_multiline_docstring(self, token_info: tokenize.TokenInfo) -> bool:
+        return (
+            token_info.type == tokenize.STRING
+            and (token_info.line.lstrip().startswith(('"""', "'''")))
+            and "\n" in token_info.line.rstrip()
         )
 
 
