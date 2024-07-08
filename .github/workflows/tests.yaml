@@ -269,7 +269,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["pypy-3.8", "pypy-3.9"]
+        python-version: ["pypy-3.8", "pypy-3.9", "pypy-3.10"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v4.1.7
