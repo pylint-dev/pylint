@@ -116,7 +116,7 @@ class EncodingChecker(BaseTokenChecker, BaseRawFileChecker):
         self._docstring_fixme_pattern = re.compile(docstring_regex, re.I)
 
         # multiline docstrings which will be split into newlines
-        # so we do not need to look for quotes/doublequotes
+        # so we do not need to look for quotes/double-quotes
         multiline_docstring_regex = rf"^\s*(?P<msg>({notes})(?=(:|\s|\Z)).*$)"
         self._multiline_docstring_fixme_pattern = re.compile(
             multiline_docstring_regex, re.I
