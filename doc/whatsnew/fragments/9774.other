@@ -1,6 +1,4 @@
 Remove support for launching pylint with Python 3.8.
 Code that supports Python 3.8 can still be linted with the ``--py-version=3.8`` setting.
 
-``--min_pyver_end_position`` in the functional test runner is no longer relevant and is removed.
-
 Refs #9774
