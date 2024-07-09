@@ -3,7 +3,7 @@ from enum import Enum
 
 from pylint.constants import PY311_PLUS
 
-if PY311_PLUS:
+if PY311_PLUS:  # pylint: disable=no-name-in-module
     from typing import assert_never
 else:
     from typing_extensions import assert_never
