@@ -32,7 +32,7 @@ from pylint.checkers.utils import (
     is_sys_guard,
     overridden_method,
 )
-from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
+from pylint.constants import TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
 
@@ -2349,23 +2349,6 @@ class VariablesChecker(BaseChecker):
                             and defnode.col_offset < node.col_offset
                         )
                         or (defnode.lineno < node.lineno)
-                        or (
-                            # Issue in the `ast` module until py39
-                            # Nodes in a multiline string have the same lineno
-                            # Could be false-positive without check
-                            not PY39_PLUS
-                            and defnode.lineno == node.lineno
-                            and isinstance(
-                                defstmt,
-                                (
-                                    nodes.Assign,
-                                    nodes.AnnAssign,
-                                    nodes.AugAssign,
-                                    nodes.Return,
-                                ),
-                            )
-                            and isinstance(defstmt.value, nodes.JoinedStr)
-                        )
                     )
                 ):
                     # Relation of a name to the same name in a named expression

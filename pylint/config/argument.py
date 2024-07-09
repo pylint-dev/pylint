@@ -13,9 +13,10 @@ import argparse
 import os
 import pathlib
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from glob import glob
-from typing import Any, Literal, Pattern, Sequence, Tuple, Union
+from re import Pattern
+from typing import Any, Literal, Union
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
@@ -30,7 +31,7 @@ _ArgumentTypes = Union[
     Pattern[str],
     Sequence[str],
     Sequence[Pattern[str]],
-    Tuple[int, ...],
+    tuple[int, ...],
 ]
 """List of possible argument types."""
 

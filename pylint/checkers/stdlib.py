@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Dict, Set, Tuple
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes, util
@@ -22,7 +22,7 @@ from pylint.typing import MessageDefinitionTuple
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-DeprecationDict = Dict[Tuple[int, int, int], Set[str]]
+DeprecationDict = dict[tuple[int, int, int], set[str]]
 
 OPEN_FILES_MODE = ("open", "file")
 OPEN_FILES_FUNCS = (*OPEN_FILES_MODE, "read_text", "write_text")

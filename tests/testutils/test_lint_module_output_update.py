@@ -12,7 +12,6 @@ from pathlib import Path
 
 import pytest
 
-from pylint.constants import IS_PYPY, PY39_PLUS
 from pylint.testutils import FunctionalTestFile, LintModuleTest
 from pylint.testutils.functional import LintModuleOutputUpdate
 
@@ -72,10 +71,6 @@ def test_lint_module_output_update_remove_useless_txt(
     assert not expected_output_file.exists()
 
 
-@pytest.mark.skipif(
-    IS_PYPY and not PY39_PLUS,
-    reason="Requires accurate 'end_col' value to update output",
-)
 @pytest.mark.parametrize(
     "directory_path", DIRECTORIES, ids=[str(p) for p in DIRECTORIES]
 )

@@ -39,6 +39,8 @@ if t.TYPE_CHECKING:
     import xml
 
 
+example: t.Annotated[str, "Path"] = "/foo/bar"
+
 def get_ordered_dict() -> "collections.OrderedDict":
     return []
 

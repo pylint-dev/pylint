@@ -70,33 +70,13 @@ def test_output_line_from_message(message: _MessageCallable) -> None:
     assert output_line.msg == "msg"
     assert output_line.confidence == "HIGH"
 
-    output_line_with_end = OutputLine.from_msg(message(), True)
-    assert output_line_with_end.symbol == "missing-docstring"
-    assert output_line_with_end.lineno == 1
-    assert output_line_with_end.column == 2
-    assert output_line_with_end.end_lineno == 1
-    assert output_line_with_end.end_column == 3
-    assert output_line_with_end.object == "obj"
-    assert output_line_with_end.msg == "msg"
-    assert output_line_with_end.confidence == "HIGH"
-
-    output_line_without_end = OutputLine.from_msg(message(), False)
-    assert output_line_without_end.symbol == "missing-docstring"
-    assert output_line_without_end.lineno == 1
-    assert output_line_without_end.column == 2
-    assert output_line_without_end.end_lineno is None
-    assert output_line_without_end.end_column is None
-    assert output_line_without_end.object == "obj"
-    assert output_line_without_end.msg == "msg"
-    assert output_line_without_end.confidence == "HIGH"
-
 
 @pytest.mark.parametrize("confidence", [HIGH, INFERENCE])
 def test_output_line_to_csv(confidence: Confidence, message: _MessageCallable) -> None:
     """Test that the OutputLine NamedTuple is instantiated correctly with from_msg
     and then converted to csv.
     """
-    output_line = OutputLine.from_msg(message(confidence), True)
+    output_line = OutputLine.from_msg(message(confidence))
     csv = output_line.to_csv()
     assert csv == (
         "missing-docstring",
@@ -104,19 +84,6 @@ def test_output_line_to_csv(confidence: Confidence, message: _MessageCallable) -
         "2",
         "1",
         "3",
-        "obj",
-        "msg",
-        confidence.name,
-    )
-
-    output_line_without_end = OutputLine.from_msg(message(confidence), False)
-    csv = output_line_without_end.to_csv()
-    assert csv == (
-        "missing-docstring",
-        "1",
-        "2",
-        "None",
-        "None",
         "obj",
         "msg",
         confidence.name,
@@ -135,28 +102,6 @@ def test_output_line_from_csv() -> None:
         lineno=1,
         column=2,
         end_lineno=1,
-        end_column=None,
-        object="obj",
-        msg="msg",
-        confidence="HIGH",
-    )
-    output_line_with_end = OutputLine.from_csv(proper_csv, True)
-    assert output_line_with_end == OutputLine(
-        symbol="missing-docstring",
-        lineno=1,
-        column=2,
-        end_lineno=1,
-        end_column=None,
-        object="obj",
-        msg="msg",
-        confidence="HIGH",
-    )
-    output_line_without_end = OutputLine.from_csv(proper_csv, False)
-    assert output_line_without_end == OutputLine(
-        symbol="missing-docstring",
-        lineno=1,
-        column=2,
-        end_lineno=None,
         end_column=None,
         object="obj",
         msg="msg",
