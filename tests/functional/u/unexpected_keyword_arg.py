@@ -177,7 +177,8 @@ else:
 
 
 AmbiguousClass(feeling="so-so")
-AmbiguousClass(worrying="little")
+AmbiguousClass(thinking="carefully")
+AmbiguousClass(worrying="little")  # we could raise here if we infer_all()
 
 
 if do_something():
