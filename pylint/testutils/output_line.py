@@ -5,12 +5,14 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, TypeVar
 
 from astroid import nodes
 
 from pylint.interfaces import UNDEFINED, Confidence
 from pylint.message.message import Message
+
+_T = TypeVar("_T")
 
 
 class MessageTest(NamedTuple):
@@ -39,15 +41,17 @@ class OutputLine(NamedTuple):
     confidence: str
 
     @classmethod
-    def from_msg(cls, msg: Message) -> OutputLine:
+    def from_msg(cls, msg: Message, check_endline: bool = True) -> OutputLine:
         """Create an OutputLine from a Pylint Message."""
         column = cls._get_column(msg.column)
+        end_line = cls._get_py38_none_value(msg.end_line, check_endline)
+        end_column = cls._get_py38_none_value(msg.end_column, check_endline)
         return cls(
             msg.symbol,
             msg.line,
             column,
-            msg.end_line,
-            msg.end_column,
+            end_line,
+            end_column,
             msg.obj or "",
             msg.msg.replace("\r\n", "\n"),
             msg.confidence.name,
@@ -58,8 +62,19 @@ class OutputLine(NamedTuple):
         """Handle column numbers."""
         return int(column)
 
+    @staticmethod
+    def _get_py38_none_value(value: _T, check_endline: bool) -> _T | None:
+        """Used to make end_line and end_column None as indicated by our version
+        compared to `min_pyver_end_position`.
+        """
+        if not check_endline:
+            return None  # pragma: no cover
+        return value
+
     @classmethod
-    def from_csv(cls, row: Sequence[str] | str) -> OutputLine:
+    def from_csv(
+        cls, row: Sequence[str] | str, check_endline: bool = True
+    ) -> OutputLine:
         """Create an OutputLine from a comma separated list (the functional tests
         expected output .txt files).
         """
@@ -68,8 +83,12 @@ class OutputLine(NamedTuple):
         try:
             line = int(row[1])
             column = cls._get_column(row[2])
-            end_line = cls._value_to_optional_int(row[3])
-            end_column = cls._value_to_optional_int(row[4])
+            end_line = cls._value_to_optional_int(
+                cls._get_py38_none_value(row[3], check_endline)
+            )
+            end_column = cls._value_to_optional_int(
+                cls._get_py38_none_value(row[4], check_endline)
+            )
             # symbol, line, column, end_line, end_column, node, msg, confidences
             assert len(row) == 8
             return cls(
