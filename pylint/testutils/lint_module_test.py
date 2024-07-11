@@ -80,6 +80,9 @@ class LintModuleTest:
             "--max_pyver", type=parse_python_version, default=(4, 0)
         )
         self._linter._arg_parser.add_argument(
+            "--min_pyver_end_position", type=parse_python_version, default=(3, 8)
+        )
+        self._linter._arg_parser.add_argument(
             "--requires", type=lambda s: [i.strip() for i in s.split(",")], default=[]
         )
         self._linter._arg_parser.add_argument(
@@ -98,6 +101,10 @@ class LintModuleTest:
 
         _config_initialization(
             self._linter, args_list=args, config_file=rc_file, reporter=_test_reporter
+        )
+
+        self._check_end_position = (
+            sys.version_info >= self._linter.config.min_pyver_end_position
         )
 
         self._config = config
@@ -215,7 +222,8 @@ class LintModuleTest:
             expected_msgs = Counter()
         with self._open_expected_file() as f:
             expected_output_lines = [
-                OutputLine.from_csv(row) for row in csv.reader(f, "test")
+                OutputLine.from_csv(row, self._check_end_position)
+                for row in csv.reader(f, "test")
             ]
         return expected_msgs, expected_output_lines
 
@@ -229,7 +237,9 @@ class LintModuleTest:
                 msg.symbol != "fatal"
             ), f"Pylint analysis failed because of '{msg.msg}'"
             received_msgs[msg.line, msg.symbol] += 1
-            received_output_lines.append(OutputLine.from_msg(msg))
+            received_output_lines.append(
+                OutputLine.from_msg(msg, self._check_end_position)
+            )
         return received_msgs, received_output_lines
 
     def _runTest(self) -> None:

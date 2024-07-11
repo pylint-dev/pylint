@@ -22,6 +22,7 @@ class NoFileError(Exception):
 class TestFileOptions(TypedDict):
     min_pyver: tuple[int, ...]
     max_pyver: tuple[int, ...]
+    min_pyver_end_position: tuple[int, ...]
     requires: list[str]
     except_implementations: list[str]
     exclude_platforms: list[str]
@@ -32,6 +33,7 @@ class TestFileOptions(TypedDict):
 POSSIBLE_TEST_OPTIONS = {
     "min_pyver",
     "max_pyver",
+    "min_pyver_end_position",
     "requires",
     "except_implementations",
     "exclude_platforms",
@@ -45,6 +47,7 @@ class FunctionalTestFile:
     _CONVERTERS: dict[str, Callable[[str], tuple[int, ...] | list[str]]] = {
         "min_pyver": parse_python_version,
         "max_pyver": parse_python_version,
+        "min_pyver_end_position": parse_python_version,
         "requires": lambda s: [i.strip() for i in s.split(",")],
         "except_implementations": lambda s: [i.strip() for i in s.split(",")],
         "exclude_platforms": lambda s: [i.strip() for i in s.split(",")],
@@ -58,6 +61,7 @@ class FunctionalTestFile:
         self.options: TestFileOptions = {
             "min_pyver": (2, 5),
             "max_pyver": (4, 0),
+            "min_pyver_end_position": (3, 8),
             "requires": [],
             "except_implementations": [],
             "exclude_platforms": [],
