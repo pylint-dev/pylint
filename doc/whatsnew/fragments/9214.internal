@@ -1,4 +1,0 @@
-Bump `astroid` to 3.2.3. This resolves an `AssertionError` arising
-from properties that return partial functions.
-
-Closes #9214
