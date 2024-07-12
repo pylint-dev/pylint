@@ -1,0 +1,3 @@
+Treat `assert_never()` the same way when imported from `typing_extensions`.
+
+Closes #9780
