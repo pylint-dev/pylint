@@ -1,0 +1,4 @@
+Quiet false positives for `unexpected-keyword-arg` when pylint cannot
+determine which of two or more dynamically defined classes are being instantiated.
+
+Closes #9672

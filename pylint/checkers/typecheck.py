@@ -1437,7 +1437,7 @@ accessed. Python regular expressions are accepted.",
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.
         """
-        called = safe_infer(node.func)
+        called = safe_infer(node.func, compare_constructors=True)
 
         self._check_not_callable(node, called)
 
