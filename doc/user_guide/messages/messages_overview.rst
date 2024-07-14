@@ -349,8 +349,10 @@ All messages in the warning category:
    warning/useless-type-doc
    warning/useless-with-lock
    warning/using-constant-test
+   warning/using-exception-groups-in-unsupported-version
    warning/using-f-string-in-unsupported-version
    warning/using-final-decorator-in-unsupported-version
+   warning/using-generic-type-syntax-in-unsupported-version
    warning/while-used
    warning/wildcard-import
    warning/wrong-exception-operation
