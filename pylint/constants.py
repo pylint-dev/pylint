@@ -43,19 +43,6 @@ MSG_TYPES: dict[str, MessageTypesFullName] = {
 MSG_TYPES_LONG: dict[str, str] = {v: k for k, v in MSG_TYPES.items()}
 
 MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
-PYLINT_MSGS = [
-    "F0001",
-    "F0002",
-    "F0010",
-    "F0011",
-    "E0001",
-    "E0011",
-    "W0012",
-    "R0022",
-    "E0013",
-    "E0014",
-    "E0015",
-]
 
 # You probably don't want to change the MAIN_CHECKER_NAME
 # This would affect rcfile generation and retro-compatibility

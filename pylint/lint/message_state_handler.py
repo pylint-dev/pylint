@@ -15,11 +15,10 @@ from pylint.constants import (
     MSG_STATE_SCOPE_MODULE,
     MSG_TYPES,
     MSG_TYPES_LONG,
-    PYLINT_MSGS,
 )
 from pylint.interfaces import HIGH
 from pylint.message import MessageDefinition
-from pylint.typing import ManagedMessage
+from pylint.typing import ManagedMessage, MessageDefinitionTuple
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,
@@ -38,6 +37,11 @@ class _MessageStateHandler:
 
     def __init__(self, linter: PyLinter) -> None:
         self.linter = linter
+        self.default_enabled_messages: dict[str, MessageDefinitionTuple] = {
+            k: v
+            for k, v in self.linter.msgs.items()
+            if len(v) == 3 or v[3].get("default_enabled", True)
+        }
         self._msgs_state: dict[str, bool] = {}
         self._options_methods = {
             "enable": self.enable,
@@ -88,7 +92,10 @@ class _MessageStateHandler:
             if not enable:
                 # "all" should not disable pylint's own warnings
                 message_definitions = list(
-                    filter(lambda m: m.msgid not in PYLINT_MSGS, message_definitions)
+                    filter(
+                        lambda m: m.msgid not in self.default_enabled_messages,
+                        message_definitions,
+                    )
                 )
             return message_definitions
 
