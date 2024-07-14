@@ -4,7 +4,13 @@
 # +1: [fixme]
 # FIXME: beep
 # +1: [fixme]
-#   # TODO: don't forget indented ones should trigger
+    # TODO: don't forget indented ones should trigger
+# +1: [fixme]
+# TODO: that precedes another TODO: is treated as one and the message starts after the first
+# +1: [fixme]
+#           TODO: large indentations after hash are okay
+
+# but things cannot precede the TODO: do this
 
 def function():
     variable = "FIXME: Ignore me!"

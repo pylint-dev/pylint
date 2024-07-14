@@ -3,17 +3,22 @@
 
 # +1: [fixme]
 """TODO resolve this"""
+# +1: [fixme]
+""" TODO: indentations are permitted """
+# +1: [fixme]
+''' TODO: indentations are permitted '''
+# +1: [fixme]
+"""    TODO: indentations are permitted"""
+
+""" preceding text TODO: is not permitted"""
 
 """
 FIXME don't forget this # [fixme]
 XXX also remember this # [fixme]
-??? but not this
-
-    TODO yes this # [fixme]
-    FIXME: and this line, but treat it as one FIXME TODO # [fixme]
-# TODO not this, however, even though it looks like a comment
-also not if there's stuff in front TODO
-  XXX spaces are okay though  # [fixme]
+FIXME: and this line, but treat it as one FIXME TODO # [fixme]
+text cannot precede the TODO: it must be at the start
+      XXX indentations are okay # [fixme]
+??? the codetag must be recognized
 """
 
 # +1: [fixme]
@@ -22,8 +27,8 @@ also not if there's stuff in front TODO
 # +1: [fixme]
 # TODO """ should work
 
-# """ TODO should not work
-"""# TODO neither should this"""
+# """ TODO will not work
+"""# TODO will not work"""
 
 """TODOist API should not result in a message"""
 
