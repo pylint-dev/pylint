@@ -46,13 +46,13 @@ class UnsupportedVersionChecker(BaseChecker):
             "Exception groups are not supported by all versions included in the py-version setting",
             "using-exception-groups-in-unsupported-version",
             "Used when the py-version set by the user is lower than 3.11 and pylint encounters "
-            "``except*`` or ``except ExceptionGroup``.",
+            "``except*`` or `ExceptionGroup``.",
         ),
         "W2604": (
             "Generic type syntax (PEP 695) is not supported by all versions included in the py-version setting",
             "using-generic-type-syntax-in-unsupported-version",
             "Used when the py-version set by the user is lower than 3.11 and pylint encounters "
-            "``except*`` or ``except ExceptionGroup``.",
+            "generic type syntax.",
         ),
     }
 
