@@ -51,7 +51,7 @@ class UnsupportedVersionChecker(BaseChecker):
         "W2604": (
             "Generic type syntax (PEP 695) is not supported by all versions included in the py-version setting",
             "using-generic-type-syntax-in-unsupported-version",
-            "Used when the py-version set by the user is lower than 3.11 and pylint encounters "
+            "Used when the py-version set by the user is lower than 3.12 and pylint encounters "
             "generic type syntax.",
         ),
     }
