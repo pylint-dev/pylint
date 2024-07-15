@@ -216,7 +216,7 @@ def foobar19(one, two, **kwargs):
 class Word:
     """
     Methods decorated with `typing.overload` are excluded
-    from the docstring checks. For example: `missing-param-doc` and
+    from the docparam checks. For example: `missing-param-doc` and
     `missing-type-doc`.
     """
     def __init__(self, word):
