@@ -123,3 +123,14 @@ def config_takes_precedence_over_inference(arg: typing.Union[int, str]) -> int:
     if isinstance(arg, str):
         return 2
     declared_to_not_return()
+
+
+def unrelated() -> None:
+    return
+
+
+# +1: [inconsistent-return-statements]
+def ensure_message(arg: typing.Union[int, str]) -> int:
+    if isinstance(arg, int):
+        return 1
+    unrelated()
