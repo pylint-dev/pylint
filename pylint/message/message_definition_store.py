@@ -5,9 +5,9 @@
 from __future__ import annotations
 
 import collections
-import functools
 import sys
 from collections.abc import Sequence, ValuesView
+from functools import cache
 from typing import TYPE_CHECKING
 
 from pylint.exceptions import UnknownMessageError
@@ -58,9 +58,7 @@ class MessageDefinitionStore:
     # and the arguments are relatively small we do not run the
     # risk of creating a large memory leak.
     # See discussion in: https://github.com/pylint-dev/pylint/pull/5673
-    @functools.lru_cache(  # pylint: disable=method-cache-max-size-none # noqa: B019
-        maxsize=None
-    )
+    @cache  # pylint: disable=method-cache-max-size-none # noqa: B019
     def get_message_definitions(self, msgid_or_symbol: str) -> list[MessageDefinition]:
         """Returns the Message definition for either a numeric or symbolic id.
 

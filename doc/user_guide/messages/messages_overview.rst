@@ -69,6 +69,7 @@ All messages in the error category:
    error/catching-non-exception
    error/class-variable-slots-conflict
    error/continue-in-finally
+   error/declare-non-slot
    error/dict-iter-missing-items
    error/duplicate-argument-name
    error/duplicate-bases
@@ -228,6 +229,7 @@ All messages in the warning category:
    warning/comparison-with-callable
    warning/confusing-with-statement
    warning/consider-ternary-expression
+   warning/contextmanager-generator-missing-cleanup
    warning/dangerous-default-value
    warning/deprecated-argument
    warning/deprecated-attribute

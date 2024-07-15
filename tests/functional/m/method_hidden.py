@@ -134,3 +134,9 @@ class ParentTwo:
 class ChildTwo(ParentTwo):
     def __private(self):
         pass
+
+
+class ChildHidingAncestorAttribute(Parent):
+    @functools().cached_property
+    def _protected(self):
+        pass

@@ -65,7 +65,7 @@ Basic checker Messages
   methods and is instantiated.
 :star-needs-assignment-target (E0114): *Can use starred expression only in assignment target*
   Emitted when a star expression is not used in an assignment target.
-:duplicate-argument-name (E0108): *Duplicate argument name %s in function definition*
+:duplicate-argument-name (E0108): *Duplicate argument name %r in function definition*
   Duplicate argument names in function definitions are syntax errors.
 :return-in-init (E0101): *Explicit return in __init__*
   Used when the special class method __init__ has an explicit return value.
@@ -166,6 +166,9 @@ Basic checker Messages
   This is a particular case of W0104 with its own message so you can easily
   disable it if you're using those strings as documentation, instead of
   comments.
+:contextmanager-generator-missing-cleanup (W0135): *The context used in function %r will not be exited.*
+  Used when a contextmanager is used inside a generator function and the
+  cleanup is not handled.
 :unnecessary-pass (W0107): *Unnecessary pass statement*
   Used when a "pass" statement can be removed without affecting the behaviour
   of the code.
@@ -279,6 +282,9 @@ Classes checker Messages
   Used when a method has an attribute different the "self" as first argument.
   This is considered as an error since this is a so common convention that you
   shouldn't break it!
+:declare-non-slot (E0245): *No such name %r in __slots__*
+  Raised when a type annotation on a class is absent from the list of names in
+  __slots__, and __slots__ does not contain a __dict__ entry.
 :unexpected-special-method-signature (E0302): *The special method %r expects %s param(s), %d %s given*
   Emitted when a special method was defined with an invalid number of
   parameters. If it has too few or too many, it might not work at all.
@@ -681,8 +687,7 @@ Method Args checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :positional-only-arguments-expected (E3102): *`%s()` got some positional-only arguments passed as keyword arguments: %s*
   Emitted when positional-only arguments have been passed as keyword arguments.
-  Remove the keywords for the affected arguments in the function call. This
-  message can't be emitted when using Python < 3.8.
+  Remove the keywords for the affected arguments in the function call.
 :missing-timeout (W3101): *Missing timeout argument for method '%s' can cause your program to hang indefinitely*
   Used when a method needs a 'timeout' parameter in order to avoid waiting for
   a long time. If no timeout is specified explicitly the default value is used.

@@ -156,3 +156,14 @@ for y, x in enumerate(nums, start=Y_START + 1):
 for idx, val in enumerate(my_list):
     if (val := 42) and my_list[idx] == 'b':
         print(1)
+
+def regression_9078(apples, cant_infer_this):
+    """Regression test for https://github.com/pylint-dev/pylint/issues/9078."""
+    for _, _ in enumerate(apples, int(cant_infer_this)):
+        ...
+
+def random_uninferrable_start(pears):
+    import random # pylint: disable=import-outside-toplevel
+
+    for _, _ in enumerate(pears, random.choice([5, 42])):
+        ...

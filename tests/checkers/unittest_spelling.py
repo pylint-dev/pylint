@@ -335,7 +335,8 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     )
     def test_tool_directives_handling(self, prefix: str, suffix: str) -> None:
         """We're not raising when the directive is at the beginning of comments,
-        but we raise if a directive appears later in comment."""
+        but we raise if a directive appears later in comment.
+        """
         full_comment = f"# {prefix}{suffix} {prefix}"
         args = (
             prefix,

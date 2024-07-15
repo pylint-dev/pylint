@@ -1228,7 +1228,6 @@ accessed. Python regular expressions are accepted.",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
         """Process assignments in the AST."""
-
         self._check_assignment_from_function_call(node)
         self._check_dundername_is_string(node)
 
@@ -1309,7 +1308,6 @@ accessed. Python regular expressions are accepted.",
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
-
         # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
         if not isinstance(lhs, nodes.AssignAttr):
@@ -1439,7 +1437,7 @@ accessed. Python regular expressions are accepted.",
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.
         """
-        called = safe_infer(node.func)
+        called = safe_infer(node.func, compare_constructors=True)
 
         self._check_not_callable(node, called)
 
@@ -1926,7 +1924,6 @@ accessed. Python regular expressions are accepted.",
     @only_required_for_messages("invalid-unary-operand-type")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """Detect TypeErrors for unary operands."""
-
         for error in node.type_errors():
             # Let the error customize its output.
             self.add_message("invalid-unary-operand-type", args=str(error), node=node)
@@ -2138,6 +2135,7 @@ accessed. Python regular expressions are accepted.",
             msg = "unsupported-delete-operation"
 
         if isinstance(node.value, nodes.SetComp):
+            # pylint: disable-next=possibly-used-before-assignment
             self.add_message(msg, args=node.value.as_string(), node=node.value)
             return
 
@@ -2200,7 +2198,7 @@ accessed. Python regular expressions are accepted.",
         while not isinstance(node_scope, nodes.Module):
             if isinstance(node_scope, nodes.AsyncFunctionDef):
                 return
-            if isinstance(node_scope, nodes.FunctionDef):
+            if isinstance(node_scope, (nodes.FunctionDef, nodes.Lambda)):
                 break
             node_scope = node_scope.parent.scope()
         self.add_message("await-outside-async", node=node)

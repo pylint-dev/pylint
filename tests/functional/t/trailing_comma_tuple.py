@@ -48,3 +48,13 @@ III = some_func(0,
 
 JJJ = some_func(0,
     0)
+
+# pylint: disable-next=trailing-comma-tuple
+AAA = 1,
+BBB = "aaaa", # [trailing-comma-tuple]
+# pylint: disable=trailing-comma-tuple
+CCC="aaa",
+III = some_func(0,
+    0),
+# pylint: enable=trailing-comma-tuple
+FFF=['f'], # [trailing-comma-tuple]

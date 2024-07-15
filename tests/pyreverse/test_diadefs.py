@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-import sys
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -160,7 +159,7 @@ class TestDefaultDiadefGenerator:
         self, default_config: PyreverseConfig, get_project: GetProjectCallable
     ) -> None:
         """Functional test of relations extraction;
-        different classes possibly in different modules
+        different classes possibly in different modules.
         """
         # XXX should be catching pyreverse environment problem but doesn't
         # pyreverse doesn't extract the relations but this test ok
@@ -248,7 +247,6 @@ def test_known_values4(HANDLER: DiadefsHandler, PROJECT: Project) -> None:
     ]
 
 
-@pytest.mark.skipif(sys.version_info < (3, 8), reason="Requires dataclasses")
 def test_regression_dataclasses_inference(
     HANDLER: DiadefsHandler, get_project: GetProjectCallable
 ) -> None:

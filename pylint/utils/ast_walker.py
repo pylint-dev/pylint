@@ -7,8 +7,8 @@ from __future__ import annotations
 import sys
 import traceback
 from collections import defaultdict
-from collections.abc import Sequence
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 

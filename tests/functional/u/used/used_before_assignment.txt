@@ -1,15 +1,15 @@
-used-before-assignment:5:19:5:22::Using variable 'MSG' before assignment:HIGH
-used-before-assignment:7:20:7:24::Using variable 'MSG2' before assignment:HIGH
-used-before-assignment:10:4:10:9:outer:Using variable 'inner' before assignment:HIGH
-used-before-assignment:19:20:19:40:ClassWithProperty:Using variable 'redefine_time_import' before assignment:HIGH
-used-before-assignment:23:0:23:9::Using variable 'calculate' before assignment:HIGH
-used-before-assignment:31:10:31:14:redefine_time_import:Using variable 'time' before assignment:HIGH
-used-before-assignment:45:3:45:7::Using variable 'VAR2' before assignment:INFERENCE
-possibly-used-before-assignment:63:3:63:7::Possibly using variable 'VAR4' before assignment:INFERENCE
-possibly-used-before-assignment:73:3:73:7::Possibly using variable 'VAR5' before assignment:INFERENCE
-used-before-assignment:78:3:78:7::Using variable 'VAR6' before assignment:INFERENCE
-used-before-assignment:113:6:113:11::Using variable 'VAR10' before assignment:INFERENCE
-possibly-used-before-assignment:119:6:119:11::Possibly using variable 'VAR12' before assignment:CONTROL_FLOW
-used-before-assignment:144:10:144:14::Using variable 'SALE' before assignment:INFERENCE
-used-before-assignment:176:10:176:18::Using variable 'ALL_DONE' before assignment:INFERENCE
-used-before-assignment:187:6:187:24::Using variable 'NOT_ALWAYS_DEFINED' before assignment:INFERENCE
+used-before-assignment:7:19:7:22::Using variable 'MSG' before assignment:HIGH
+used-before-assignment:9:20:9:24::Using variable 'MSG2' before assignment:HIGH
+used-before-assignment:12:4:12:9:outer:Using variable 'inner' before assignment:HIGH
+used-before-assignment:21:20:21:40:ClassWithProperty:Using variable 'redefine_time_import' before assignment:HIGH
+used-before-assignment:25:0:25:9::Using variable 'calculate' before assignment:HIGH
+used-before-assignment:33:10:33:14:redefine_time_import:Using variable 'time' before assignment:HIGH
+used-before-assignment:47:3:47:7::Using variable 'VAR2' before assignment:INFERENCE
+possibly-used-before-assignment:65:3:65:7::Possibly using variable 'VAR4' before assignment:INFERENCE
+possibly-used-before-assignment:75:3:75:7::Possibly using variable 'VAR5' before assignment:INFERENCE
+used-before-assignment:80:3:80:7::Using variable 'VAR6' before assignment:INFERENCE
+used-before-assignment:115:6:115:11::Using variable 'VAR10' before assignment:INFERENCE
+possibly-used-before-assignment:121:6:121:11::Possibly using variable 'VAR12' before assignment:CONTROL_FLOW
+used-before-assignment:152:10:152:14::Using variable 'SALE' before assignment:INFERENCE
+used-before-assignment:184:10:184:18::Using variable 'ALL_DONE' before assignment:INFERENCE
+used-before-assignment:195:6:195:24::Using variable 'NOT_ALWAYS_DEFINED' before assignment:INFERENCE

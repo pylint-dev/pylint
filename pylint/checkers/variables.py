@@ -32,7 +32,7 @@ from pylint.checkers.utils import (
     is_sys_guard,
     overridden_method,
 )
-from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
+from pylint.constants import TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 from pylint.typing import MessageDefinitionTuple
 
@@ -940,6 +940,14 @@ scope_type : {self._atomic.scope_type}
     def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
         if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return, nodes.Continue)):
             return True
+        if isinstance(node, nodes.Expr) and isinstance(node.value, nodes.Call):
+            if utils.is_terminating_func(node.value):
+                return True
+            if (
+                isinstance(node.value.func, nodes.Name)
+                and node.value.func.name == "assert_never"
+            ):
+                return True
         if (
             isinstance(node, nodes.AnnAssign)
             and node.value
@@ -1017,7 +1025,6 @@ scope_type : {self._atomic.scope_type}
         the loop can depend on it being assigned.
 
         Example:
-
         for _ in range(3):
             try:
                 do_something()
@@ -1508,6 +1515,15 @@ class VariablesChecker(BaseChecker):
                 # of type checking.:
                 if any(
                     in_type_checking_block(definition) for definition in globs[name]
+                ):
+                    continue
+
+                # Suppress emitting the message if the outer name is in the
+                # scope of an exception assignment.
+                # For example: the `e` in `except ValueError as e`
+                global_node = globs[name][0]
+                if isinstance(global_node, nodes.AssignName) and isinstance(
+                    global_node.parent, nodes.ExceptHandler
                 ):
                     continue
 
@@ -2278,13 +2294,14 @@ class VariablesChecker(BaseChecker):
             # using a name defined earlier in the class containing the function.
             if node is frame.returns and defframe.parent_of(frame.returns):
                 annotation_return = True
-                if (
-                    frame.returns.name in defframe.locals
-                    and defframe.locals[node.name][0].lineno < frame.lineno
-                ):
-                    # Detect class assignments with a name defined earlier in the
-                    # class. In this case, no warning should be raised.
-                    maybe_before_assign = False
+                if frame.returns.name in defframe.locals:
+                    definition = defframe.locals[node.name][0]
+                    if definition.lineno is None or definition.lineno < frame.lineno:
+                        # Detect class assignments with a name defined earlier in the
+                        # class. In this case, no warning should be raised.
+                        maybe_before_assign = False
+                    else:
+                        maybe_before_assign = True
                 else:
                     maybe_before_assign = True
             if isinstance(node.parent, nodes.Arguments):
@@ -2332,23 +2349,6 @@ class VariablesChecker(BaseChecker):
                             and defnode.col_offset < node.col_offset
                         )
                         or (defnode.lineno < node.lineno)
-                        or (
-                            # Issue in the `ast` module until py39
-                            # Nodes in a multiline string have the same lineno
-                            # Could be false-positive without check
-                            not PY39_PLUS
-                            and defnode.lineno == node.lineno
-                            and isinstance(
-                                defstmt,
-                                (
-                                    nodes.Assign,
-                                    nodes.AnnAssign,
-                                    nodes.AugAssign,
-                                    nodes.Return,
-                                ),
-                            )
-                            and isinstance(defstmt.value, nodes.JoinedStr)
-                        )
                     )
                 ):
                     # Relation of a name to the same name in a named expression

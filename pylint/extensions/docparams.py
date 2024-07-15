@@ -196,6 +196,9 @@ class DocstringParameterChecker(BaseChecker):
         :param node: Node for a function or method definition in the AST
         :type node: :class:`astroid.scoped_nodes.Function`
         """
+        if checker_utils.is_overload_stub(node):
+            return
+
         node_doc = utils.docstringify(
             node.doc_node, self.linter.config.default_docstring_type
         )

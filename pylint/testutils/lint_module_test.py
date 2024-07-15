@@ -11,15 +11,13 @@ import sys
 from collections import Counter
 from io import StringIO
 from pathlib import Path
-from typing import Counter as CounterType
-from typing import TextIO, Tuple
+from typing import TextIO
 
 import pytest
 from _pytest.config import Config
 
 from pylint import checkers
 from pylint.config.config_initialization import _config_initialization
-from pylint.constants import IS_PYPY
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
@@ -33,7 +31,7 @@ from pylint.testutils.functional.test_file import (
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 
-MessageCounter = CounterType[Tuple[int, str]]
+MessageCounter = Counter[tuple[int, str]]
 
 PYLINTRC = Path(__file__).parent / "testing_pylintrc"
 
@@ -108,9 +106,6 @@ class LintModuleTest:
         self._check_end_position = (
             sys.version_info >= self._linter.config.min_pyver_end_position
         )
-        # TODO: PY3.9: PyPy supports end_lineno from 3.9 and above
-        if self._check_end_position and IS_PYPY:
-            self._check_end_position = sys.version_info >= (3, 9)  # pragma: no cover
 
         self._config = config
 
@@ -172,7 +167,7 @@ class LintModuleTest:
             line = match.group("line")
             if line is None:
                 lineno = i + 1
-            elif line.startswith("+") or line.startswith("-"):
+            elif line.startswith(("+", "-")):
                 lineno = i + 1 + int(line)
             else:
                 lineno = int(line)

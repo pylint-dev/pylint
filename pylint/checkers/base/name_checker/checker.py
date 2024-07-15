@@ -14,7 +14,7 @@ import sys
 from collections.abc import Iterable
 from enum import Enum, auto
 from re import Pattern
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -34,7 +34,7 @@ from pylint.typing import Options
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
-_BadNamesTuple = Tuple[nodes.NodeNG, str, str, interfaces.Confidence]
+_BadNamesTuple = tuple[nodes.NodeNG, str, str, interfaces.Confidence]
 
 # Default patterns for name types that do not have styles
 DEFAULT_PATTERNS = {
@@ -60,6 +60,7 @@ class TypeVarVariance(Enum):
     covariant = auto()
     contravariant = auto()
     double_variant = auto()
+    inferred = auto()
 
 
 def _get_properties(config: argparse.Namespace) -> tuple[set[str], set[str]]:
@@ -490,7 +491,9 @@ class NameChecker(_BasicChecker):
                         self._check_name("variable", node.name, node)
 
         # Check names defined in class scopes
-        elif isinstance(frame, nodes.ClassDef):
+        elif isinstance(frame, nodes.ClassDef) and not any(
+            frame.local_attr_ancestors(node.name)
+        ):
             if utils.is_enum_member(node) or utils.is_assign_name_annotated_with(
                 node, "Final"
             ):
@@ -623,6 +626,7 @@ class NameChecker(_BasicChecker):
 
     def _check_typevar(self, name: str, node: nodes.AssignName) -> None:
         """Check for TypeVar lint violations."""
+        variance: TypeVarVariance = TypeVarVariance.invariant
         if isinstance(node.parent, nodes.Assign):
             keywords = node.assign_type().value.keywords
             args = node.assign_type().value.args
@@ -634,8 +638,8 @@ class NameChecker(_BasicChecker):
         else:  # PEP 695 generic type nodes
             keywords = ()
             args = ()
+            variance = TypeVarVariance.inferred
 
-        variance = TypeVarVariance.invariant
         name_arg = None
         for kw in keywords:
             if variance == TypeVarVariance.double_variant:
@@ -659,7 +663,12 @@ class NameChecker(_BasicChecker):
         if name_arg is None and args and isinstance(args[0], nodes.Const):
             name_arg = args[0].value
 
-        if variance == TypeVarVariance.double_variant:
+        if variance == TypeVarVariance.inferred:
+            # Ignore variance check for PEP 695 type parameters.
+            # The variance is inferred by the type checker.
+            # Adding _co or _contra suffix can help to reason about TypeVar.
+            pass
+        elif variance == TypeVarVariance.double_variant:
             self.add_message(
                 "typevar-double-variance",
                 node=node,
@@ -688,7 +697,7 @@ class NameChecker(_BasicChecker):
                 confidence=interfaces.INFERENCE,
             )
         elif variance == TypeVarVariance.invariant and (
-            name.endswith("_co") or name.endswith("_contra")
+            name.endswith(("_co", "_contra"))
         ):
             suggest_name = re.sub("_contra$|_co$", "", name)
             self.add_message(

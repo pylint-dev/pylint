@@ -117,9 +117,7 @@ class TestImportsChecker(CheckerTestCase):
 
     @staticmethod
     def test_preferred_module(capsys: CaptureFixture[str]) -> None:
-        """
-        Tests preferred-module configuration option
-        """
+        """Tests preferred-module configuration option."""
         # test preferred-modules case with base module import
         Run(
             [
@@ -212,7 +210,6 @@ class TestImportsChecker(CheckerTestCase):
     @staticmethod
     def test_allow_reexport_package(capsys: CaptureFixture[str]) -> None:
         """Test --allow-reexport-from-package option."""
-
         # Option disabled - useless-import-alias should always be emitted
         Run(
             [

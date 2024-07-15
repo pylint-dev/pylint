@@ -1,6 +1,8 @@
 """Miscellaneous used-before-assignment cases"""
 # pylint: disable=consider-using-f-string, missing-function-docstring
 import datetime
+import sys
+from typing import NoReturn
 
 MSG = "hello %s" % MSG  # [used-before-assignment]
 
@@ -118,6 +120,12 @@ for num in [0, 1]:
         VAR12 = False
 print(VAR12)  # [possibly-used-before-assignment]
 
+if input("This tests terminating functions: "):
+    sys.exit()
+else:
+    VAR13 = 1
+print(VAR13)
+
 def turn_on2(**kwargs):
     """https://github.com/pylint-dev/pylint/issues/7873"""
     if "brightness" in kwargs:
@@ -198,3 +206,19 @@ def inner_if_continues_outer_if_has_no_other_statements():
         else:
             order = None
         print(order)
+
+
+class PlatformChecks:  # pylint: disable=missing-docstring
+    """https://github.com/pylint-dev/pylint/issues/9674"""
+    def skip(self, msg) -> NoReturn:
+        raise Exception(msg)  # pylint: disable=broad-exception-raised
+
+    def print_platform_specific_command(self):
+        if sys.platform == "linux":
+            cmd = "ls"
+        elif sys.platform == "win32":
+            cmd = "dir"
+        else:
+            self.skip("only runs on Linux/Windows")
+
+        print(cmd)

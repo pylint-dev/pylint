@@ -13,9 +13,10 @@ import argparse
 import os
 import pathlib
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from glob import glob
-from typing import Any, Literal, Pattern, Sequence, Tuple, Union
+from re import Pattern
+from typing import Any, Literal, Union
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
@@ -30,7 +31,7 @@ _ArgumentTypes = Union[
     Pattern[str],
     Sequence[str],
     Sequence[Pattern[str]],
-    Tuple[int, ...],
+    tuple[int, ...],
 ]
 """List of possible argument types."""
 
@@ -103,7 +104,7 @@ def _py_version_transformer(value: str) -> tuple[int, ...]:
 
 
 def _regex_transformer(value: str) -> Pattern[str]:
-    """Return `re.compile(value)`."""
+    """Prevents 're.error' from propagating and crash pylint."""
     try:
         return re.compile(value)
     except re.error as e:
@@ -124,7 +125,7 @@ def _regexp_paths_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     patterns: list[Pattern[str]] = []
     for pattern in _csv_transformer(value):
         patterns.append(
-            re.compile(
+            _regex_transformer(
                 str(pathlib.PureWindowsPath(pattern)).replace("\\", "\\\\")
                 + "|"
                 + pathlib.PureWindowsPath(pattern).as_posix()

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Dict, Set, Tuple
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes, util
@@ -22,7 +22,7 @@ from pylint.typing import MessageDefinitionTuple
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-DeprecationDict = Dict[Tuple[int, int, int], Set[str]]
+DeprecationDict = dict[tuple[int, int, int], set[str]]
 
 OPEN_FILES_MODE = ("open", "file")
 OPEN_FILES_FUNCS = (*OPEN_FILES_MODE, "read_text", "write_text")
@@ -673,8 +673,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         "singledispatchmethod-function",
     )
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        if node.decorators and isinstance(node.parent, nodes.ClassDef):
-            self._check_lru_cache_decorators(node)
+        if node.decorators:
+            if isinstance(node.parent, nodes.ClassDef):
+                self._check_lru_cache_decorators(node)
             self._check_dispatch_decorators(node)
 
     def _check_lru_cache_decorators(self, node: nodes.FunctionDef) -> None:
@@ -733,16 +734,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     interfaces.INFERENCE,
                 )
 
-        if "singledispatch" in decorators_map and "classmethod" in decorators_map:
-            self.add_message(
-                "singledispatch-method",
-                node=decorators_map["singledispatch"][0],
-                confidence=decorators_map["singledispatch"][1],
-            )
-        elif (
-            "singledispatchmethod" in decorators_map
-            and "staticmethod" in decorators_map
-        ):
+        if node.is_method():
+            if "singledispatch" in decorators_map:
+                self.add_message(
+                    "singledispatch-method",
+                    node=decorators_map["singledispatch"][0],
+                    confidence=decorators_map["singledispatch"][1],
+                )
+        elif "singledispatchmethod" in decorators_map:
             self.add_message(
                 "singledispatchmethod-function",
                 node=decorators_map["singledispatchmethod"][0],
