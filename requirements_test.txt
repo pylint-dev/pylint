@@ -1,5 +1,5 @@
 -r requirements_test_min.txt
-coverage~=7.5
+coverage~=7.6
 tbump~=6.11.0
 contributors-txt>=1.0.0
 pytest-cov~=5.0
