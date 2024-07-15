@@ -1351,9 +1351,15 @@ Verbatim name of the checker is ``unsupported_version``.
 
 Unsupported Version checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:using-exception-groups-in-unsupported-version (W2603): *Exception groups are not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.11 and pylint
+  encounters ``except*`` or `ExceptionGroup``.
 :using-f-string-in-unsupported-version (W2601): *F-strings are not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.6 and pylint
   encounters an f-string.
+:using-generic-type-syntax-in-unsupported-version (W2604): *Generic type syntax (PEP 695) is not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.12 and pylint
+  encounters generic type syntax.
 :using-final-decorator-in-unsupported-version (W2602): *typing.final is not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.8 and pylint
   encounters a ``typing.final`` decorator.
