@@ -4,10 +4,10 @@
 import sys
 import typing
 
-from pylint.constants import PY312_PLUS
+from pylint.constants import PY311_PLUS
 
-if PY312_PLUS:
-    from typing import assert_never
+if PY311_PLUS:
+    from typing import assert_never  # pylint: disable=no-name-in-module
 else:
     from typing_extensions import assert_never
 
