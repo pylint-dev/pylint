@@ -2030,12 +2030,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if isinstance(node, nodes.Return):
             return True
         if isinstance(node, nodes.Call):
-            try:
-                funcdef_node = node.func.inferred()[0]
-                if self._is_function_def_never_returning(funcdef_node):
-                    return True
-            except astroid.InferenceError:
-                pass
+            return any(
+                (
+                    isinstance(maybe_func, (nodes.FunctionDef, bases.BoundMethod))
+                    and self._is_function_def_never_returning(maybe_func)
+                )
+                for maybe_func in utils.infer_all(node.func)
+            )
         if isinstance(node, nodes.While):
             # A while-loop is considered return-ended if it has a
             # truthy test and no break statements
@@ -2087,17 +2088,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the function never returns, False otherwise.
         """
-        if isinstance(node, (nodes.FunctionDef, astroid.BoundMethod)) and node.returns:
-            return (
-                isinstance(node.returns, nodes.Attribute)
-                and node.returns.attrname == "NoReturn"
-                or isinstance(node.returns, nodes.Name)
-                and node.returns.name == "NoReturn"
-            )
         try:
-            return node.qname() in self._never_returning_functions
+            if node.qname() in self._never_returning_functions:
+                return True
         except (TypeError, AttributeError):
-            return False
+            pass
+        return (
+            isinstance(node, (nodes.FunctionDef, astroid.BoundMethod))
+            and node.returns
+            and (
+                isinstance(node.returns, nodes.Attribute)
+                and node.returns.attrname in {"NoReturn", "Never"}
+                or isinstance(node.returns, nodes.Name)
+                and node.returns.name in {"NoReturn", "Never"}
+            )
+        )
 
     def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:
         """Check for presence of a *single* return statement at the end of a
