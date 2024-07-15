@@ -3,7 +3,14 @@
 
 import sys
 import typing
-import typing_extensions
+
+from pylint.constants import PY312_PLUS
+
+if PY312_PLUS:
+    from typing import assert_never
+else:
+    from typing_extensions import assert_never
+
 
 def parser_error(msg) -> typing.NoReturn:  # pylint: disable=unused-argument
     sys.exit(1)
@@ -103,11 +110,12 @@ def never_is_handled_like_noreturn(arg: typing.Union[int, str]) -> int:
         return 1
     if isinstance(arg, str):
         return 2
-    typing_extensions.assert_never(arg)
+    assert_never(arg)
 
 
 def declared_to_not_return() -> None:
     return
+
 
 def config_takes_precedence_over_inference(arg: typing.Union[int, str]) -> int:
     if isinstance(arg, int):

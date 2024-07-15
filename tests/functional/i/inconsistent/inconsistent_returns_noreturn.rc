@@ -1,4 +1,2 @@
-[testoptions]
-min_pyver=3.12
 [REFACTORING]
-never-returning-functions=sys.exit,sys.getdefaultencoding
+never-returning-functions=sys.exit,sys.getdefaultencoding,inconsistent_returns_noreturn.declared_to_not_return
