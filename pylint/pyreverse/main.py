@@ -295,7 +295,9 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
         if not args:
             print(self.help())
             return 1
-        extra_packages_paths = list({discover_package_path(arg, self.config.source_roots) for arg in args})
+        extra_packages_paths = list(
+            {discover_package_path(arg, self.config.source_roots) for arg in args}
+        )
         with augmented_sys_path(extra_packages_paths):
             project = project_from_files(
                 args,
