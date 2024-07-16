@@ -56,15 +56,11 @@ OPTIONS: Options = (
             "type": "string",
             "action": "store",
             "metavar": "<mode>",
-            "help": """filter attributes and functions according to
-    <mode>. Correct modes are :
-                            'PUB_ONLY' filter all non public attributes
-                                [DEFAULT], equivalent to PRIVATE+SPECIAL_A
-                            'ALL' no filter
-                            'SPECIAL' filter Python special functions
-                                except constructor
-                            'OTHER' filter protected and private
-                                attributes""",
+            "help": "filter attributes and functions according to <mode>. Correct modes are:"
+            "'PUB_ONLY' - filter all non public attributes;"
+            "'ALL' - no filter;"
+            "'SPECIAL' - filter Python special functions except constructor;"
+            "'OTHER' - filter protected and private attributes, but not special functions;",
         },
     ),
     (
@@ -76,8 +72,8 @@ OPTIONS: Options = (
             "type": "csv",
             "dest": "classes",
             "default": None,
-            "help": "create a class diagram with all classes related to <class>;\
- this uses by default the options -ASmy",
+            "help": "create a class diagram with all classes related to <class>;"
+            "this uses by default the options -ASmy",
         },
     ),
     (
@@ -174,12 +170,10 @@ OPTIONS: Options = (
             "default": "dot",
             "metavar": "<format>",
             "type": "string",
-            "help": (
-                "create a *.<format> output file if format is available. Available "
-                f"formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. Any other "
-                f"format will be tried to create by means of the 'dot' command line "
-                f"tool, which requires a graphviz installation."
-            ),
+            "help": "create a *.<format> output file if format is available. Available "
+            f"formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. Any other "
+            f"format will be tried to create by means of the 'dot' command line "
+            f"tool, which requires a graphviz installation.",
         },
     ),
     (
@@ -301,9 +295,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
         if not args:
             print(self.help())
             return 1
-        extra_packages_paths = list(
-            {discover_package_path(arg, self.config.source_roots) for arg in args}
-        )
+        extra_packages_paths = list({discover_package_path(arg, self.config.source_roots) for arg in args})
         with augmented_sys_path(extra_packages_paths):
             project = project_from_files(
                 args,
