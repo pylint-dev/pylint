@@ -1,0 +1,4 @@
+Improved clarity for pyreverse help docs after some trouble with usage, more details in linked issue
+
+Refs #9805
+Closes #9805
