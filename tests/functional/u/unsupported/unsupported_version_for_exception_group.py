@@ -11,3 +11,11 @@ except* OSError as e:
     print("There were OSErrors")
 except* SystemError as e:
     print("There were SystemErrors")
+
+
+try:
+    f()
+except ExceptionGroup as group:  # [using-exception-groups-in-unsupported-version]
+    # https://github.com/pylint-dev/pylint/issues/8985
+    for exc in group.exceptions:  # pylint: disable=not-an-iterable
+        print("ERROR: ", exc)
