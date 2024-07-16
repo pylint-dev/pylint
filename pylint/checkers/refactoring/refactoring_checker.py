@@ -919,11 +919,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             """Obtain simplest representation of a node as a string."""
             if isinstance(node, nodes.Name):
                 return node.name  # type: ignore[no-any-return]
-            if isinstance(node, nodes.Attribute):
-                return node.attrname  # type: ignore[no-any-return]
             if isinstance(node, nodes.Const):
                 return str(node.value)
-            # this is a catch-all for nodes that are not of type Name or Attribute
+            # this is a catch-all for nodes that are not of type Name or Const
             # extremely helpful for Call or BinOp
             return node.as_string()  # type: ignore[no-any-return]
 
@@ -944,12 +942,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # is of type name or attribute. Attribute referring to NamedTuple.x perse.
         # So we have to check that target is of these types
 
-        if hasattr(target, "name"):
-            target_assignation = target.name
-        elif hasattr(target, "attrname"):
-            target_assignation = target.attrname
-        else:
+        if not (hasattr(target, "name") or hasattr(target, "attrname")):
             return
+
+        target_assignation = get_node_name(target)
 
         if len(node.test.ops) > 1:
             return
