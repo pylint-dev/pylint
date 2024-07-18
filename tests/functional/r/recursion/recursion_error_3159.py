@@ -13,8 +13,7 @@ class AnyCommand(Command):
     def finalize_options(self):
         pass
 
-    @staticmethod
-    def run():
+    def run(self):
         print("Do anything")
 
 
