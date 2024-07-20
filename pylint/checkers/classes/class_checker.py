@@ -1486,7 +1486,11 @@ a metaclass class method.",
         if "__slots__" not in node.locals:
             return
 
-        for slots in node.ilookup("__slots__"):
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:
+            return
+        for slots in inferred_slots:
             # check if __slots__ is a valid type
             if isinstance(slots, util.UninferableBase):
                 continue

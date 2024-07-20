@@ -128,3 +128,17 @@ class Parent:
 
 class ChildNotAffectedByValueInSlot(Parent):
     __slots__ = ('first', )
+
+
+# https://github.com/pylint-dev/pylint/issues/9814
+class SlotsManipulationTest:
+    __slots__ = ["a", "b", "c"]
+
+
+class TestChild(SlotsManipulationTest):
+    __slots__ += ["d", "e", "f"]  # pylint: disable=undefined-variable
+
+
+t = TestChild()
+
+print(t.__slots__)
