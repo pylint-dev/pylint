@@ -1537,7 +1537,11 @@ a metaclass class method.",
         if "__slots__" not in node.locals:
             return False
 
-        for slots in node.ilookup("__slots__"):
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:
+            return False
+        for slots in inferred_slots:
             # check if __slots__ is a valid type
             if isinstance(slots, util.UninferableBase):
                 return False
@@ -1555,7 +1559,11 @@ a metaclass class method.",
         if "__slots__" not in node.locals:
             return
 
-        for slots in node.ilookup("__slots__"):
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:
+            return
+        for slots in inferred_slots:
             # check if __slots__ is a valid type
             if isinstance(slots, util.UninferableBase):
                 continue
@@ -1586,8 +1594,12 @@ a metaclass class method.",
 
     def _get_classdef_slots_names(self, node: nodes.ClassDef) -> list[str]:
 
-        slots_names = []
-        for slots in node.ilookup("__slots__"):
+        slots_names: list[str] = []
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:  # pragma: no cover
+            return slots_names
+        for slots in inferred_slots:
             if isinstance(slots, nodes.Dict):
                 values = [item[0] for item in slots.items]
             else:
