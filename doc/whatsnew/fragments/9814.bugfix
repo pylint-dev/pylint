@@ -1,0 +1,3 @@
+Fix a crash when a subclass extends ``__slots__``.
+
+Closes #9814
