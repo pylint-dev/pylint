@@ -9,4 +9,4 @@ pytest-timeout~=2.3
 towncrier~=23.11
 requests
 # Voluntary for test purpose, not actually used in prod, see #8904
-setuptools==41.6.0
+setuptools;python_version>='3.12'
