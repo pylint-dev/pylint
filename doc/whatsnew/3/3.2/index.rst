@@ -14,6 +14,51 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.2.6?
+---------------------------
+Release date: 2024-07-21
+
+
+False Positives Fixed
+---------------------
+
+- Quiet false positives for `unexpected-keyword-arg` when pylint cannot
+  determine which of two or more dynamically defined classes is being instantiated.
+
+  Closes #9672 (`#9672 <https://github.com/pylint-dev/pylint/issues/9672>`_)
+
+- Fix a false positive for ``missing-param-doc`` where a method which is decorated with ``typing.overload`` was expected to have a docstring specifying its parameters.
+
+  Closes #9739 (`#9739 <https://github.com/pylint-dev/pylint/issues/9739>`_)
+
+- Fix a regression that raised ``invalid-name`` on class attributes merely
+  overriding invalid names from an ancestor.
+
+  Closes #9765 (`#9765 <https://github.com/pylint-dev/pylint/issues/9765>`_)
+
+- Treat `assert_never()` the same way when imported from `typing_extensions`.
+
+  Closes #9780 (`#9780 <https://github.com/pylint-dev/pylint/issues/9780>`_)
+
+- Fix a false positive for `consider-using-min-max-builtin` when the assignment target is an attribute.
+
+  Refs #9800 (`#9800 <https://github.com/pylint-dev/pylint/issues/9800>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix an `AssertionError` arising from properties that return partial functions.
+
+  Closes #9214 (`#9214 <https://github.com/pylint-dev/pylint/issues/9214>`_)
+
+- Fix a crash when a subclass extends ``__slots__``.
+
+  Closes #9814 (`#9814 <https://github.com/pylint-dev/pylint/issues/9814>`_)
+
+
+
 What's new in Pylint 3.2.5?
 ---------------------------
 Release date: 2024-06-28

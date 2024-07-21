@@ -1,3 +1,0 @@
-Fix an `AssertionError` arising from properties that return partial functions.
-
-Closes #9214
