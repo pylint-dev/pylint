@@ -1,3 +1,0 @@
-Fix a false positive for `consider-using-min-max-builtin` when the assignment target is an attribute.
-
-Refs #9800
