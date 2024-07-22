@@ -3,7 +3,7 @@
 astroid==3.2.4  # Pinned to a specific version for tests
 typing-extensions~=4.12
 py~=1.11.0
-pytest~=8.2
+pytest~=8.3
 pytest-benchmark~=4.0
 pytest-timeout~=2.3
 towncrier~=23.11
