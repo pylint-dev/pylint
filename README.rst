@@ -12,7 +12,7 @@
     :target: https://codecov.io/gh/pylint-dev/pylint
 
 .. image:: https://img.shields.io/pypi/v/pylint.svg
-    :alt: Pypi Package version
+    :alt: PyPI Package version
     :target: https://pypi.python.org/pypi/pylint
 
 .. image:: https://readthedocs.org/projects/pylint/badge/?version=latest
@@ -81,7 +81,7 @@ It can also be integrated in most editors or IDEs. More information can be found
 What differentiates Pylint?
 ---------------------------
 
-Pylint is not trusting your typing and is inferring the actual value of nodes (for a
+Pylint is not trusting your typing and is inferring the actual values of nodes (for a
 start because there was no typing when pylint started off) using its internal code
 representation (astroid). If your code is ``import logging as argparse``, Pylint
 can check and know that ``argparse.error(...)`` is in fact a logging call and not an
@@ -123,7 +123,7 @@ ecosystem of existing plugins for popular frameworks and third-party libraries.
 .. _`plugins`: https://pylint.readthedocs.io/en/latest/development_guide/how_tos/plugins.html#plugins
 .. _`pylint-pydantic`: https://pypi.org/project/pylint-pydantic
 .. _`pylint-django`: https://github.com/pylint-dev/pylint-django
-.. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
+.. _`pylint-sonarjson`: https://github.com/cnescatlab/pylint-sonarjson-catlab
 
 Advised linters alongside pylint
 --------------------------------
