@@ -219,6 +219,26 @@ class TestRunTC:
         self._runtest([UNNECESSARY_LAMBDA, "--disable=all"], out=out, code=32)
         assert "No files to lint: exiting." in out.getvalue().strip()
 
+    def test_disable_all_enable_invalid(self) -> None:
+        # Reproduces issue #9403. If disable=all is used no error was raised for invalid messages unless
+        # unknown-option-value was manually enabled.
+        out = StringIO()
+        self._runtest(
+            # Enable one valid message to not run into "No files to lint: exiting."
+            [
+                UNNECESSARY_LAMBDA,
+                "--disable=all",
+                "--enable=import-error",
+                "--enable=foo",
+            ],
+            out=out,
+            code=0,
+        )
+        assert (
+            "W0012: Unknown option value for '--enable', expected a valid pylint message and got 'foo'"
+            in out.getvalue().strip()
+        )
+
     def test_output_with_verbose(self) -> None:
         out = StringIO()
         self._runtest([UNNECESSARY_LAMBDA, "--verbose"], out=out, code=4)
