@@ -225,12 +225,9 @@ class _ArgumentsManager:
         self, arguments: Sequence[str] | None = None
     ) -> list[str]:
         """Parse the arguments found on the command line into the namespace."""
-        arguments = sys.argv[1:] if arguments is None else arguments
-
         self.config, parsed_args = self._arg_parser.parse_known_args(
             arguments, self.config
         )
-
         return parsed_args
 
     def _generate_config(
