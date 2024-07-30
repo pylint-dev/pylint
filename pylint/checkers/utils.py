@@ -2212,7 +2212,9 @@ def is_terminating_func(node: nodes.Call) -> bool:
                     # See #9751
                 )
             ):
-                return True
+                return not isinstance(inferred, nodes.AsyncFunctionDef) or isinstance(
+                    node.parent, nodes.Await
+                )
     except (StopIteration, astroid.InferenceError):
         pass
 
