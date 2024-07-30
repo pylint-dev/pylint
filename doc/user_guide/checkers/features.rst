@@ -437,10 +437,8 @@ Design checker Messages
   simpler (and so easier to use) class.
 :too-many-locals (R0914): *Too many local variables (%s/%s)*
   Used when a function or method has too many local variables.
-:too-many-positional (R0917): *Too many positional arguments in a function call.*
-  Will be implemented in https://github.com/pylint-
-  dev/pylint/issues/9099,msgid/symbol pair reserved for compatibility with
-  ruff, see https://github.com/astral-sh/ruff/issues/8946.
+:too-many-positional (R0917): *Too many positional arguments (%s/%s)*
+  Used when a function has too many positional arguments.
 :too-many-public-methods (R0904): *Too many public methods (%s/%s)*
   Used when class has too many public methods, try to reduce this to get a
   simpler (and so easier to use) class.
