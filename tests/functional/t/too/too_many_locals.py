@@ -29,7 +29,8 @@ def too_many_locals_function(): # [too-many-locals]
     args15 = args14 * 15
     return args15
 
-def too_many_arguments_function(arga, argu, argi, arge, argt, args): # [too-many-arguments]
+# +1: [too-many-arguments, too-many-positional]
+def too_many_arguments_function(arga, argu, argi, arge, argt, args):
     """pylint will complain about too many arguments."""
     arga = argu
     arga += argi

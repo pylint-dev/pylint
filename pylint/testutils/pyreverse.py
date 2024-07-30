@@ -25,6 +25,7 @@ class PyreverseConfig(
 
     def __init__(
         self,
+        *,
         mode: str = "PUB_ONLY",
         classes: list[str] | None = None,
         show_ancestors: int | None = None,

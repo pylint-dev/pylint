@@ -74,6 +74,7 @@ class Valid:
     def __new__(cls, test, multiple, args):
         pass
 
+    # pylint: disable-next-line=too-many-positional
     def __init__(self, this, can, have, multiple, args, as_well):
         pass
 

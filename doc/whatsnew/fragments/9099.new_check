@@ -2,4 +2,7 @@ Added `too-many-positional` to allow distinguishing the configuration for too ma
 total arguments (with keyword-only params specified after `*`) from the configuration
 for too many positional-or-keyword or positional-only arguments.
 
+As part of evaluating whether this check makes sense for your project, ensure you
+adjust the value of `--max-positional`.
+
 Closes #9099

@@ -433,6 +433,9 @@ max-attributes=11
 # Maximum number of statements in a try-block
 max-try-statements = 7
 
+# Maximum number of positional arguments (see R0917).
+max-positional = 12
+
 [CLASSES]
 
 # List of method names used to declare (i.e. assign) instance attributes.

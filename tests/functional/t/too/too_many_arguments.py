@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring,wrong-import-position,unnecessary-dunder-call
 
-def stupid_function(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9): # [too-many-arguments]
+# +1: [too-many-arguments, too-many-positional]
+def stupid_function(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9):
     return arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9
 
 
