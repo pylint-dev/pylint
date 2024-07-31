@@ -1,0 +1,3 @@
+Fixed a false positive `unreachable` for `NoReturn` coroutine functions.
+
+Closes #9840.
