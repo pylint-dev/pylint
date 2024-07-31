@@ -22,6 +22,7 @@ class Class:
         super(OtherClass, self).test() # [bad-super-call]
 
 
+# +1: [line-too-long]
 # +1: [too-many-arguments, too-many-positional-arguments, too-many-return-statements, too-many-branches]
 async def complex_function(this, function, has, more, arguments, than,
                            one, _, should, have):
