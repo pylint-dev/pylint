@@ -311,7 +311,7 @@ class MisdesignChecker(BaseChecker):
             },
         ),
         (
-            "max-positional",
+            "max-positional-arguments",
             {
                 "default": 5,
                 "type": "int",
@@ -570,11 +570,11 @@ class MisdesignChecker(BaseChecker):
             pos_args_count = (
                 len(args) - len(node.args.kwonlyargs) - ignored_pos_args_num
             )
-            if pos_args_count > self.linter.config.max_positional:
+            if pos_args_count > self.linter.config.max_positional_arguments:
                 self.add_message(
                     "too-many-positional-arguments",
                     node=node,
-                    args=(pos_args_count, self.linter.config.max_positional),
+                    args=(pos_args_count, self.linter.config.max_positional_arguments),
                     confidence=HIGH,
                 )
         else:

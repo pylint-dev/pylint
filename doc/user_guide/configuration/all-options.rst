@@ -765,8 +765,8 @@ Standard Checkers
 **Default:**  ``7``
 
 
---max-positional
-""""""""""""""""
+--max-positional-arguments
+""""""""""""""""""""""""""
 *Maximum number of positional arguments for function / method.*
 
 **Default:**  ``5``
@@ -829,7 +829,7 @@ Standard Checkers
 
    max-parents = 7
 
-   max-positional = 5
+   max-positional-arguments = 5
 
    max-public-methods = 20
 

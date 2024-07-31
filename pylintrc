@@ -434,7 +434,7 @@ max-attributes=11
 max-try-statements = 7
 
 # Maximum number of positional arguments (see R0917).
-max-positional = 12
+max-positional-arguments = 12
 
 [CLASSES]
 
