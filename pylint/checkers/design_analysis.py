@@ -83,7 +83,7 @@ MSGS: dict[str, MessageDefinitionTuple] = (
         ),
         "R0917": (
             "Too many positional arguments (%s/%s)",
-            "too-many-positional",
+            "too-many-positional-arguments",
             "Used when a function has too many positional arguments.",
         ),
     }
@@ -533,7 +533,7 @@ class MisdesignChecker(BaseChecker):
         "too-many-branches",
         "too-many-arguments",
         "too-many-locals",
-        "too-many-positional",
+        "too-many-positional-arguments",
         "too-many-statements",
         "keyword-arg-before-vararg",
     )
@@ -572,7 +572,7 @@ class MisdesignChecker(BaseChecker):
             )
             if pos_args_count > self.linter.config.max_positional:
                 self.add_message(
-                    "too-many-positional",
+                    "too-many-positional-arguments",
                     node=node,
                     args=(pos_args_count, self.linter.config.max_positional),
                     confidence=HIGH,

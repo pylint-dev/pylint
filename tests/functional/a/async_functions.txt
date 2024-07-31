@@ -3,7 +3,7 @@ unused-argument:8:30:8:34:some_function:Unused argument 'arg2':HIGH
 bad-super-call:22:8:22:31:Class.some_method:Bad first argument 'OtherClass' given to super():UNDEFINED
 too-many-arguments:26:0:26:26:complex_function:Too many arguments (10/5):UNDEFINED
 too-many-branches:26:0:26:26:complex_function:Too many branches (13/12):UNDEFINED
-too-many-positional:26:0:26:26:complex_function:Too many positional arguments (9/5):HIGH
+too-many-positional-arguments:26:0:26:26:complex_function:Too many positional arguments (9/5):HIGH
 too-many-return-statements:26:0:26:26:complex_function:Too many return statements (10/6):UNDEFINED
 dangerous-default-value:59:0:59:14:func:Dangerous default value [] as argument:UNDEFINED
 duplicate-argument-name:59:18:59:19:func:Duplicate argument name 'a' in function definition:HIGH

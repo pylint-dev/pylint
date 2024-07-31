@@ -1,4 +1,4 @@
-Added `too-many-positional` to allow distinguishing the configuration for too many
+Added `too-many-positional-arguments` to allow distinguishing the configuration for too many
 total arguments (with keyword-only params specified after `*`) from the configuration
 for too many positional-or-keyword or positional-only arguments.
 

@@ -383,7 +383,7 @@ def test_finds_args_with_xref_type_google(named_arg, **kwargs):
 
 def test_ignores_optional_specifier_google(
     param1, param2, param3=(), param4=[], param5=[], param6=True
-):  # pylint: disable=too-many-positional
+):  # pylint: disable=too-many-positional-arguments
     """Do something.
 
     Args:
@@ -411,7 +411,7 @@ def test_finds_multiple_complex_types_google(
     named_arg_eight,
     named_arg_nine,
     named_arg_ten,
-):  # pylint: disable=too-many-positional
+):  # pylint: disable=too-many-positional-arguments
     """The google docstring
 
     Args:

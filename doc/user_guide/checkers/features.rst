@@ -437,7 +437,7 @@ Design checker Messages
   simpler (and so easier to use) class.
 :too-many-locals (R0914): *Too many local variables (%s/%s)*
   Used when a function or method has too many local variables.
-:too-many-positional (R0917): *Too many positional arguments (%s/%s)*
+:too-many-positional-arguments (R0917): *Too many positional arguments (%s/%s)*
   Used when a function has too many positional arguments.
 :too-many-public-methods (R0904): *Too many public methods (%s/%s)*
   Used when class has too many public methods, try to reduce this to get a
