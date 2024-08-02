@@ -539,7 +539,7 @@ All messages in the refactor category:
    refactor/too-many-instance-attributes
    refactor/too-many-locals
    refactor/too-many-nested-blocks
-   refactor/too-many-positional
+   refactor/too-many-positional-arguments
    refactor/too-many-public-methods
    refactor/too-many-return-statements
    refactor/too-many-statements

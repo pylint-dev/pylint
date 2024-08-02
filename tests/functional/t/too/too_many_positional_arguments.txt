@@ -1,0 +1,5 @@
+too-many-arguments:4:4:4:13:FiveArgumentMethods.fail1:Too many arguments (6/5):UNDEFINED
+too-many-positional-arguments:4:4:4:13:FiveArgumentMethods.fail1:Too many positional arguments (6/5):HIGH
+too-many-arguments:6:4:6:13:FiveArgumentMethods.fail2:Too many arguments (6/5):UNDEFINED
+too-many-positional-arguments:6:4:6:13:FiveArgumentMethods.fail2:Too many positional arguments (6/5):HIGH
+too-many-arguments:8:4:8:13:FiveArgumentMethods.okay1:Too many arguments (6/5):UNDEFINED

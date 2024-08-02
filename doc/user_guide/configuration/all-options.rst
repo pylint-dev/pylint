@@ -765,6 +765,13 @@ Standard Checkers
 **Default:**  ``7``
 
 
+--max-positional-arguments
+""""""""""""""""""""""""""
+*Maximum number of positional arguments for function / method.*
+
+**Default:**  ``5``
+
+
 --max-public-methods
 """"""""""""""""""""
 *Maximum number of public methods for a class (see R0904).*
@@ -821,6 +828,8 @@ Standard Checkers
    max-locals = 15
 
    max-parents = 7
+
+   max-positional-arguments = 5
 
    max-public-methods = 20
 
