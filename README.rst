@@ -135,7 +135,7 @@ mypy_, pyright_ / pylance or pyre_ (typing checks), bandit_ (security oriented c
 isort_ (auto-formatting), autoflake_ (automated removal of unused imports or variables), pyupgrade_
 (automated upgrade to newer python syntax) and pydocstringformatter_ (automated pep257).
 
-.. _ruff: https://github.com/charliermarsh/ruff
+.. _ruff: https://github.com/astral-sh/ruff
 .. _flake8: https://github.com/PyCQA/flake8
 .. _bandit: https://github.com/PyCQA/bandit
 .. _mypy: https://github.com/python/mypy
