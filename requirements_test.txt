@@ -3,7 +3,6 @@ coverage~=7.6
 tbump~=6.11.0
 contributors-txt>=1.0.0
 pytest-cov~=5.0
-pytest-profiling~=1.7
 pytest-xdist~=3.6
 six
 # Type packages for mypy
