@@ -44,6 +44,7 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
     (
         "_io.open",  # regular 'open()' call
         "pathlib.Path.open",
+        "pathlib._local.Path.open",  # Python 3.13
         "codecs.open",
         "urllib.request.urlopen",
         "tempfile.NamedTemporaryFile",
@@ -1691,7 +1692,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
         inferred = utils.safe_infer(node.func)
         if not inferred or not isinstance(
-            inferred, (nodes.FunctionDef, nodes.ClassDef, bases.UnboundMethod)
+            inferred, (nodes.FunctionDef, nodes.ClassDef, bases.BoundMethod)
         ):
             return
         could_be_used_in_with = (
