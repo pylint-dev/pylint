@@ -181,6 +181,13 @@ Standard Checkers
 **Default:**  ``sys.version_info[:2]``
 
 
+--pythonpath
+""""""""""""
+*Add paths to sys.path. Supports globbing patterns. Paths are absolute or relative to the current working directory.*
+
+**Default:**  ``()``
+
+
 --recursive
 """""""""""
 *Discover python modules and packages in the file system subtree.*
@@ -281,6 +288,8 @@ Standard Checkers
    prefer-stubs = false
 
    py-version = "sys.version_info[:2]"
+
+   pythonpath = []
 
    recursive = false
 

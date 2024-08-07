@@ -1250,6 +1250,33 @@ print(submodule1)
     assert not linter.stats.by_msg
 
 
+def test_import_external_module_with_relative_pythonpath_config(
+    initialized_linter: PyLinter,
+) -> None:
+    """Given a module that imports an external module, ensure that the external module
+    is found when the path to the external module is configured in `main.pythonpath`.
+
+    Note: The setup is similar to `test_import_sibling_module_from_namespace` but the
+    manual sys.path setup is replaced with a `main.pythonpath` configuration.
+    """
+    linter = initialized_linter
+    with tempdir() as tmpdir:
+        create_files(["namespace_main/module.py", "namespace_ext/ext_module.py"])
+        main_path = Path("namespace_main/module.py")
+        with open(main_path, "w", encoding="utf-8") as f:
+            f.write(
+                """\"\"\"This module imports ext_module.\"\"\"
+import ext_module
+print(ext_module)
+"""
+            )
+
+        os.chdir(tmpdir)
+        linter.config.pythonpath = ["namespace_ext"]
+        linter.check(["namespace_main/module.py"])
+    assert not linter.stats.by_msg
+
+
 def test_lint_namespace_package_under_dir(initialized_linter: PyLinter) -> None:
     """Regression test for https://github.com/pylint-dev/pylint/issues/1667."""
     linter = initialized_linter
