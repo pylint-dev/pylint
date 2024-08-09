@@ -10,4 +10,4 @@ missing-raises-doc:90:0:90:55:test_find_missing_sphinx_raises_infer_from_instanc
 unreachable:97:4:97:25:test_find_missing_sphinx_raises_infer_from_instance:Unreachable code:HIGH
 missing-raises-doc:100:0:100:55:test_find_missing_sphinx_raises_infer_from_function:"""RuntimeError"" not documented as being raised":HIGH
 unreachable:110:4:110:25:test_find_missing_sphinx_raises_infer_from_function:Unreachable code:HIGH
-missing-raises-doc:133:0:133:46:test_find_valid_missing_sphinx_attr_raises:"""PatternError"" not documented as being raised":HIGH
+missing-raises-doc:133:0:133:46:test_find_valid_missing_sphinx_attr_raises:"""IllegalMonthError"" not documented as being raised":HIGH
