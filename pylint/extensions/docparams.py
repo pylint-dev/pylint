@@ -321,6 +321,9 @@ class DocstringParameterChecker(BaseChecker):
             for found_exc in found_excs_class_names:
                 if found_exc == expected.name:
                     break
+                if found_exc == "error" and expected.name == "PatternError":
+                    # Python 3.13: re.error aliases re.PatternError
+                    break
                 if any(found_exc == ancestor.name for ancestor in expected.ancestors()):
                     break
             else:
@@ -653,7 +656,7 @@ class DocstringParameterChecker(BaseChecker):
         """Adds a message on :param:`node` for the missing exception type.
 
         :param missing_exceptions: A list of missing exception types.
-        :param node: The node show the message on.
+        :param node: The node to show the message on.
         """
         if node.is_abstract():
             try:

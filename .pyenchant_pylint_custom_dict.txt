@@ -249,6 +249,7 @@ paren
 parens
 passthru
 pathlib
+patternerror
 positionals
 png
 pragma
