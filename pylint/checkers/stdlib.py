@@ -33,7 +33,8 @@ OS_ENVIRON = "os._Environ"
 ENV_GETTERS = ("os.getenv",)
 SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
-OPEN_MODULE = {"_io", "pathlib"}
+OPEN_MODULE = {"_io", "pathlib", "pathlib._local"}
+PATHLIB_MODULE = {"pathlib", "pathlib._local"}
 DEBUG_BREAKPOINTS = ("builtins.breakpoint", "sys.breakpointhook", "pdb.set_trace")
 LRU_CACHE = {
     "functools.lru_cache",  # Inferred for @lru_cache
@@ -784,7 +785,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 mode_arg = utils.get_argument_from_call(
                     node, position=1, keyword="mode"
                 )
-            elif open_module == "pathlib":
+            elif open_module in PATHLIB_MODULE:
                 mode_arg = utils.get_argument_from_call(
                     node, position=0, keyword="mode"
                 )
@@ -814,7 +815,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         ):
             confidence = HIGH
             try:
-                if open_module == "pathlib":
+                if open_module in PATHLIB_MODULE:
                     if node.func.attrname == "read_text":
                         encoding_arg = utils.get_argument_from_call(
                             node, position=0, keyword="encoding"
