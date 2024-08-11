@@ -255,7 +255,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a function call passes too few arguments.",
     ),
     "E1121": (
-        "Too many positional arguments for %s call",
+        "Too many positional arguments (%s/%s)",
         "too-many-function-args",
         "Used when a function call passes too many positional arguments.",
     ),
@@ -376,6 +376,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "invalid-slice-step",
         "Used when a slice step is 0 and the object doesn't implement "
         "a custom __getitem__ method.",
+    ),
+    "E1145": (
+        "Too few positional arguments (%s/%s)",
+        "too-few-function-args",
+        "Used when a function or method has fewer arguments than expected.",
     ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
@@ -1420,8 +1425,21 @@ accessed. Python regular expressions are accepted.",
             self.add_message("arguments-out-of-order", node=node, args=())
 
     def _check_isinstance_args(self, node: nodes.Call) -> None:
-        if len(node.args) != 2:
-            # isinstance called with wrong number of args
+        if len(node.args) > 2:
+            # for when isinstance called with too many args
+            self.add_message(
+                "too-many-function-args",
+                node=node,
+                args=(len(node.args), 2),
+                confidence=HIGH,
+            )
+        elif len(node.args) < 2:
+            self.add_message(
+                "too-few-function-args",
+                node=node,
+                args=(len(node.args), 2),
+                confidence=HIGH,
+            )
             return
 
         second_arg = node.args[1]
@@ -1554,7 +1572,9 @@ accessed. Python regular expressions are accepted.",
             elif not overload_function:
                 # Too many positional arguments.
                 self.add_message(
-                    "too-many-function-args", node=node, args=(callable_name,)
+                    "too-many-function-args",
+                    node=node,
+                    args=(len(parameters), num_positional_args),
                 )
                 break
 

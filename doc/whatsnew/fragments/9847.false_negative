@@ -1,0 +1,4 @@
+Fix a false negative when `isinstance` has too many arguments.
+Change now provides a `too-many-arguments` output with behavior similar to other `too-many-arguments` calls.
+
+Closes #9847
