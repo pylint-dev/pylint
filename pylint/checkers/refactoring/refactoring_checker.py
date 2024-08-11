@@ -2089,15 +2089,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 return True
         except (TypeError, AttributeError):
             pass
+
+        try:
+            returns: nodes.NodeNG | None = node.returns
+        except AttributeError:
+            return False  # the BoundMethod proxy may be a lambda without a returns
+
         return (
-            isinstance(node, (nodes.FunctionDef, astroid.BoundMethod))
-            and node.returns
-            and (
-                isinstance(node.returns, nodes.Attribute)
-                and node.returns.attrname in {"NoReturn", "Never"}
-                or isinstance(node.returns, nodes.Name)
-                and node.returns.name in {"NoReturn", "Never"}
-            )
+            isinstance(returns, nodes.Attribute)
+            and returns.attrname in {"NoReturn", "Never"}
+            or isinstance(returns, nodes.Name)
+            and returns.name in {"NoReturn", "Never"}
         )
 
     def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:
