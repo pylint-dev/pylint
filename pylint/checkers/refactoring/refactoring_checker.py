@@ -2083,13 +2083,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the function never returns, False otherwise.
         """
-        if isinstance(node, (nodes.FunctionDef, astroid.BoundMethod)) and node.returns:
-            return (
-                isinstance(node.returns, nodes.Attribute)
-                and node.returns.attrname == "NoReturn"
-                or isinstance(node.returns, nodes.Name)
-                and node.returns.name == "NoReturn"
-            )
+        if isinstance(node, (nodes.FunctionDef, astroid.BoundMethod)):
+            try:
+                returns: nodes.NodeNG | None = node.returns
+            except AttributeError:
+                return False  # the BoundMethod proxy may be a lambda without a returns
+            if returns is not None:
+                return (
+                    isinstance(returns, nodes.Attribute)
+                    and returns.attrname == "NoReturn"
+                    or isinstance(returns, nodes.Name)
+                    and returns.name == "NoReturn"
+                )
         try:
             return node.qname() in self._never_returning_functions
         except (TypeError, AttributeError):
