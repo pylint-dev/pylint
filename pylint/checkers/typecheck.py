@@ -255,7 +255,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a function call passes too few arguments.",
     ),
     "E1121": (
-        "Too many positional arguments (%s/%s)",
+        "Too many positional arguments for function `%s` (%s/%s)",
         "too-many-function-args",
         "Used when a function call passes too many positional arguments.",
     ),
@@ -378,7 +378,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "a custom __getitem__ method.",
     ),
     "E1145": (
-        "Too few positional arguments (%s/%s)",
+        "Too few positional arguments for function `%s` (%s/%s)",
         "too-few-function-args",
         "Used when a function or method has fewer arguments than expected.",
     ),
@@ -1430,14 +1430,14 @@ accessed. Python regular expressions are accepted.",
             self.add_message(
                 "too-many-function-args",
                 node=node,
-                args=(len(node.args), 2),
+                args=("isinstance", len(node.args), 2),
                 confidence=HIGH,
             )
         elif len(node.args) < 2:
             self.add_message(
                 "too-few-function-args",
                 node=node,
-                args=(len(node.args), 2),
+                args=("isinstance", len(node.args), 2),
                 confidence=HIGH,
             )
             return
@@ -1574,7 +1574,7 @@ accessed. Python regular expressions are accepted.",
                 self.add_message(
                     "too-many-function-args",
                     node=node,
-                    args=(len(parameters), num_positional_args),
+                    args=(callable_name, len(parameters), num_positional_args),
                 )
                 break
 
