@@ -255,7 +255,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a function call passes too few arguments.",
     ),
     "E1121": (
-        "Too many positional arguments for function `%s` (%s/%s)",
+        "Too many positional arguments for %s call",
         "too-many-function-args",
         "Used when a function call passes too many positional arguments.",
     ),
@@ -378,7 +378,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "a custom __getitem__ method.",
     ),
     "E1145": (
-        "Too few positional arguments for function `%s` (%s/%s)",
+        "Too few positional arguments for %s call",
         "too-few-function-args",
         "Used when a function or method has fewer arguments than expected.",
     ),
@@ -1424,20 +1424,20 @@ accessed. Python regular expressions are accepted.",
         if calling_parg_names != called_param_names[: len(calling_parg_names)]:
             self.add_message("arguments-out-of-order", node=node, args=())
 
-    def _check_isinstance_args(self, node: nodes.Call) -> None:
+    def _check_isinstance_args(self, node: nodes.Call, callable_name: str) -> None:
         if len(node.args) > 2:
             # for when isinstance called with too many args
             self.add_message(
                 "too-many-function-args",
                 node=node,
-                args=("isinstance", len(node.args), 2),
+                args=(callable_name,),
                 confidence=HIGH,
             )
         elif len(node.args) < 2:
             self.add_message(
                 "too-few-function-args",
                 node=node,
-                args=("isinstance", len(node.args), 2),
+                args=(callable_name,),
                 confidence=HIGH,
             )
             return
@@ -1469,7 +1469,7 @@ accessed. Python regular expressions are accepted.",
         if called.args.args is None:
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
-                self._check_isinstance_args(node)
+                self._check_isinstance_args(node, callable_name)
             # Built-in functions have no argument information.
             return
 
@@ -1574,7 +1574,7 @@ accessed. Python regular expressions are accepted.",
                 self.add_message(
                     "too-many-function-args",
                     node=node,
-                    args=(callable_name, len(parameters), num_positional_args),
+                    args=(callable_name,),
                 )
                 break
 

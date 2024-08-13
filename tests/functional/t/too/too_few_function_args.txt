@@ -1,1 +1,1 @@
-too-few-function-args:3:0:3:13::Too few positional arguments for function `isinstance` (1/2):HIGH
+too-few-function-args:3:0:3:13::Too few positional arguments for function call:HIGH
