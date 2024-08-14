@@ -4,4 +4,6 @@ consider-merging-isinstance:19:13:19:73:isinstances:Consider merging these isins
 consider-merging-isinstance:22:13:22:127:isinstances:Consider merging these isinstance calls to isinstance(var[6], (float, int)):UNDEFINED
 consider-merging-isinstance:23:13:23:158:isinstances:Consider merging these isinstance calls to isinstance(var[10], (list, str)):UNDEFINED
 consider-merging-isinstance:24:13:24:95:isinstances:Consider merging these isinstance calls to isinstance(var[11], (float, int)):UNDEFINED
+too-few-function-args:26:13:26:32:isinstances:Too few positional arguments for function call:HIGH
+too-few-function-args:27:13:27:25:isinstances:Too few positional arguments for function call:HIGH
 consider-merging-isinstance:30:13:30:75:isinstances:Consider merging these isinstance calls to isinstance(var[12], (float, int, list)):UNDEFINED
