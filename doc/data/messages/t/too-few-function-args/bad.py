@@ -1,7 +1,2 @@
-class Fruit:
-    def __init__(self, color, name):
-        self.color = color
-        self.name = name
-
-
-apple = Fruit("red")  # [too-few-function-args]
+# As of 2024-08-13, `too-few-function-args` is only implemented for `isinstance`
+isinstance(1)  # [too-few-function-args]
