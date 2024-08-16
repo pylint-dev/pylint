@@ -1,0 +1,3 @@
+Fix a crash in ``undefined-loop-variable`` when providing the ``iterable`` argument to ``enumerate()``.
+
+Closes #9875

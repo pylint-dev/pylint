@@ -2667,7 +2667,7 @@ class VariablesChecker(BaseChecker):
                 likely_call = assign.iter
                 if isinstance(assign.iter, nodes.IfExp):
                     likely_call = assign.iter.body
-                if isinstance(likely_call, nodes.Call):
+                if isinstance(likely_call, nodes.Call) and likely_call.args:
                     inferred = next(likely_call.args[0].infer())
         except astroid.InferenceError:
             self.add_message("undefined-loop-variable", args=node.name, node=node)
