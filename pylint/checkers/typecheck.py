@@ -380,7 +380,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "E1145": (
         "Too few positional arguments for %s call",
         "too-few-function-args",
-        "Used when a function or method has fewer arguments than expected.",
+        "Used when a function or method call has fewer arguments than expected.",
     ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
