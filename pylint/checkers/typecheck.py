@@ -377,6 +377,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a slice step is 0 and the object doesn't implement "
         "a custom __getitem__ method.",
     ),
+    "E1145": (
+        "Too few positional arguments for %s call",
+        "too-few-function-args",
+        "Used when a function or method call has fewer arguments than expected.",
+    ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
         "in the definition of %s function",
@@ -1419,9 +1424,22 @@ accessed. Python regular expressions are accepted.",
         if calling_parg_names != called_param_names[: len(calling_parg_names)]:
             self.add_message("arguments-out-of-order", node=node, args=())
 
-    def _check_isinstance_args(self, node: nodes.Call) -> None:
-        if len(node.args) != 2:
-            # isinstance called with wrong number of args
+    def _check_isinstance_args(self, node: nodes.Call, callable_name: str) -> None:
+        if len(node.args) > 2:
+            # for when isinstance called with too many args
+            self.add_message(
+                "too-many-function-args",
+                node=node,
+                args=(callable_name,),
+                confidence=HIGH,
+            )
+        elif len(node.args) < 2:
+            self.add_message(
+                "too-few-function-args",
+                node=node,
+                args=(callable_name,),
+                confidence=HIGH,
+            )
             return
 
         second_arg = node.args[1]
@@ -1451,7 +1469,7 @@ accessed. Python regular expressions are accepted.",
         if called.args.args is None:
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
-                self._check_isinstance_args(node)
+                self._check_isinstance_args(node, callable_name)
             # Built-in functions have no argument information.
             return
 
@@ -1554,7 +1572,9 @@ accessed. Python regular expressions are accepted.",
             elif not overload_function:
                 # Too many positional arguments.
                 self.add_message(
-                    "too-many-function-args", node=node, args=(callable_name,)
+                    "too-many-function-args",
+                    node=node,
+                    args=(callable_name,),
                 )
                 break
 

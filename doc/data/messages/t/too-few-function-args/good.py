@@ -1,0 +1,1 @@
+isinstance("foo", str)

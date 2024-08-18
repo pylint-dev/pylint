@@ -1,0 +1,5 @@
+Add `too-few-function-args` for when fewer arguments than expected are provided for a
+function or method call.
+As of this PR, `too-few-function-args` only applies to the built-in function `isinstance`.
+
+Closes #9847
