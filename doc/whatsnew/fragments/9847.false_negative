@@ -1,5 +1,6 @@
-Fix a false negative when `isinstance` has too many arguments.
-Change now emits a `too-many-function-args` output with behavior similar to other
-`too-many-function-args` calls.
+Fix a false negative when `isinstance` does not have exactly two arguments.
+Change now emits a `too-many-function-args` when there are too many arguments
+in the `isinstance` call or `no-value-for-parameter` when there are too few
+arguments in the `isinstance` call.
 
 Closes #9847
