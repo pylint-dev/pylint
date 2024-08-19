@@ -39,3 +39,4 @@ no-value-for-parameter:217:0:217:30::No value for argument 'second' in function 
 unexpected-keyword-arg:218:0:218:43::Unexpected keyword argument 'fourth' in function call:UNDEFINED
 redundant-keyword-arg:308:0:308:79::Argument 'banana' passed by position and keyword in function call:UNDEFINED
 no-value-for-parameter:318:0:318:16::No value for argument 'param1' in function call:UNDEFINED
+no-value-for-parameter:335:0:335:13::No value for argument '__class_or_tuple' in function call:HIGH

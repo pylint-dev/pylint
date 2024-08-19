@@ -1241,8 +1241,6 @@ Typecheck checker Messages
 :invalid-slice-step (E1144): *Slice step cannot be 0*
   Used when a slice step is 0 and the object doesn't implement a custom
   __getitem__ method.
-:too-few-function-args (E1145): *Too few positional arguments for %s call*
-  Used when a function or method call has fewer arguments than expected.
 :too-many-function-args (E1121): *Too many positional arguments for %s call*
   Used when a function call passes too many positional arguments.
 :unexpected-keyword-arg (E1123): *Unexpected keyword argument %r in %s call*

@@ -377,11 +377,6 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a slice step is 0 and the object doesn't implement "
         "a custom __getitem__ method.",
     ),
-    "E1145": (
-        "Too few positional arguments for %s call",
-        "too-few-function-args",
-        "Used when a function or method call has fewer arguments than expected.",
-    ),
     "W1113": (
         "Keyword argument before variable positional arguments list "
         "in the definition of %s function",
@@ -1434,12 +1429,17 @@ accessed. Python regular expressions are accepted.",
                 confidence=HIGH,
             )
         elif len(node.args) < 2:
-            self.add_message(
-                "too-few-function-args",
-                node=node,
-                args=(callable_name,),
-                confidence=HIGH,
-            )
+            # NOTE: Hard-coding the parameters for `isinstance` is fragile,
+            # but as noted elsewhere, built-in functions do not provide
+            # argument info, making this necessary for now.
+            parameters = ("'_obj'", "'__class_or_tuple'")
+            for parameter in parameters[len(node.args) :]:
+                self.add_message(
+                    "no-value-for-parameter",
+                    node=node,
+                    args=(parameter, callable_name),
+                    confidence=HIGH,
+                )
             return
 
         second_arg = node.args[1]
