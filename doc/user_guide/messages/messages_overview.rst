@@ -155,7 +155,6 @@ All messages in the error category:
    error/star-needs-assignment-target
    error/syntax-error
    error/too-few-format-args
-   error/too-few-function-args
    error/too-many-format-args
    error/too-many-function-args
    error/too-many-star-expressions

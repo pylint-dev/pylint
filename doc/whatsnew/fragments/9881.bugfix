@@ -1,0 +1,3 @@
+Remove `too-few-function-args` in favor of the incumbent message `no-value-for-parameter`.
+
+Closes #9881
