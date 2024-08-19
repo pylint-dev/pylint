@@ -1,6 +1,5 @@
-Fix a false negative when `isinstance` does not have exactly two arguments.
-Change now emits a `too-many-function-args` when there are too many arguments
-in the `isinstance` call or `no-value-for-parameter` when there are too few
-arguments in the `isinstance` call.
+Fix false negatives when `isinstance` does not have exactly two arguments.
+pylint now emits a `too-many-function-args` or `no-value-for-parameter`
+appropriately for `isinstance` calls.
 
 Closes #9847
