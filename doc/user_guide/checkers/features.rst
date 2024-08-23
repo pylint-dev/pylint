@@ -328,7 +328,7 @@ Classes checker Messages
   interface or in an overridden method.
 :protected-access (W0212): *Access to a protected member %s of a client class*
   Used when a protected member (i.e. class member with a name beginning with an
-  underscore) is access outside the class or a descendant of the class where
+  underscore) is accessed outside the class or a descendant of the class where
   it's defined.
 :attribute-defined-outside-init (W0201): *Attribute %r defined outside __init__*
   Used when an instance attribute is defined outside the __init__ method.
