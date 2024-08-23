@@ -523,7 +523,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Access to a protected member %s of a client class",  # E0214
         "protected-access",
         "Used when a protected member (i.e. class member with a name "
-        "beginning with an underscore) is access outside the class or a "
+        "beginning with an underscore) is accessed outside the class or a "
         "descendant of the class where it's defined.",
     ),
     "W0213": (
