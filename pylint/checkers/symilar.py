@@ -33,7 +33,6 @@ import argparse
 import copy
 import functools
 import itertools
-import logging
 import operator
 import re
 import sys
@@ -878,7 +877,6 @@ def register(linter: PyLinter) -> None:
 
 def Run(argv: Sequence[str] | None = None) -> NoReturn:
     """Standalone command line access point."""
-    logging.error(argv)
     parser = argparse.ArgumentParser(
         prog="symilar", description="Finds copy pasted blocks in a set of files."
     )
@@ -898,7 +896,6 @@ def Run(argv: Sequence[str] | None = None) -> NoReturn:
         ignore_imports=parsed_args.ignore_imports,
         ignore_signatures=parsed_args.ignore_signatures,
     )
-    logging.error(parsed_args.files)
     for filename in parsed_args.files:
         with open(filename, encoding="utf-8") as stream:
             similar_runner.append_stream(filename, stream)
