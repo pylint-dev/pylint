@@ -750,6 +750,11 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
     name = "similarities"
     msgs = MSGS
     # for available dict keys/values see the optik parser 'add_option' method
+    MIN_SIMILARITY_HELP = "Minimum lines number of a similarity."
+    IGNORE_COMMENTS_HELP = "Comments are removed from the similarity computation"
+    IGNORE_DOCSTRINGS_HELP = "Docstrings are removed from the similarity computation"
+    IGNORE_IMPORTS_HELP = "Imports are removed from the similarity computation"
+    IGNORE_SIGNATURES_HELP = "Signatures are removed from the similarity computation"
     options: Options = (
         (
             "min-similarity-lines",
@@ -757,7 +762,7 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 "default": DEFAULT_MIN_SIMILARITY_LINE,
                 "type": "int",
                 "metavar": "<int>",
-                "help": "Minimum lines number of a similarity.",
+                "help": MIN_SIMILARITY_HELP,
             },
         ),
         (
@@ -766,7 +771,7 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
-                "help": "Comments are removed from the similarity computation",
+                "help": IGNORE_COMMENTS_HELP,
             },
         ),
         (
@@ -775,7 +780,7 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
-                "help": "Docstrings are removed from the similarity computation",
+                "help": IGNORE_DOCSTRINGS_HELP,
             },
         ),
         (
@@ -784,7 +789,7 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
-                "help": "Imports are removed from the similarity computation",
+                "help": IGNORE_IMPORTS_HELP,
             },
         ),
         (
@@ -793,7 +798,7 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 "default": True,
                 "type": "yn",
                 "metavar": "<y or n>",
-                "help": "Signatures are removed from the similarity computation",
+                "help": IGNORE_SIGNATURES_HELP,
             },
         ),
     )
@@ -882,12 +887,33 @@ def Run(argv: Sequence[str] | None = None) -> NoReturn:
     )
     parser.add_argument("files", nargs="+")
     parser.add_argument(
-        "-d", "--duplicates", type=int, default=DEFAULT_MIN_SIMILARITY_LINE
+        "-d",
+        "--duplicates",
+        type=int,
+        default=DEFAULT_MIN_SIMILARITY_LINE,
+        help=SimilaritiesChecker.MIN_SIMILARITY_HELP,
     )
-    parser.add_argument("-i", "--ignore-comments", action="store_true")
-    parser.add_argument("--ignore-docstrings", action="store_true")
-    parser.add_argument("--ignore-imports", action="store_true")
-    parser.add_argument("--ignore-signatures", action="store_true")
+    parser.add_argument(
+        "-i",
+        "--ignore-comments",
+        action="store_true",
+        help=SimilaritiesChecker.IGNORE_COMMENTS_HELP,
+    )
+    parser.add_argument(
+        "--ignore-docstrings",
+        action="store_true",
+        help=SimilaritiesChecker.IGNORE_DOCSTRINGS_HELP,
+    )
+    parser.add_argument(
+        "--ignore-imports",
+        action="store_true",
+        help=SimilaritiesChecker.IGNORE_IMPORTS_HELP,
+    )
+    parser.add_argument(
+        "--ignore-signatures",
+        action="store_true",
+        help=SimilaritiesChecker.IGNORE_SIGNATURES_HELP,
+    )
     parsed_args = parser.parse_args(args=argv)
     similar_runner = Symilar(
         min_lines=parsed_args.duplicates,
