@@ -749,12 +749,12 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
 
     name = "similarities"
     msgs = MSGS
-    # for available dict keys/values see the optik parser 'add_option' method
     MIN_SIMILARITY_HELP = "Minimum lines number of a similarity."
     IGNORE_COMMENTS_HELP = "Comments are removed from the similarity computation"
     IGNORE_DOCSTRINGS_HELP = "Docstrings are removed from the similarity computation"
     IGNORE_IMPORTS_HELP = "Imports are removed from the similarity computation"
     IGNORE_SIGNATURES_HELP = "Signatures are removed from the similarity computation"
+    # for available dict keys/values see the option parser 'add_option' method
     options: Options = (
         (
             "min-similarity-lines",
