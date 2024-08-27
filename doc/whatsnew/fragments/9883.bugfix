@@ -1,0 +1,3 @@
+Fix to address indeterminacy of error message in case a module name is same as another in a separate namespace.
+
+Refs #9883
