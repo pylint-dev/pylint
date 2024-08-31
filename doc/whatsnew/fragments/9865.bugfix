@@ -1,3 +1,0 @@
-Fix crash in refactoring checker when calling a lambda bound as a method.
-
-Closes #9865

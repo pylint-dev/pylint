@@ -14,6 +14,37 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.2.7?
+---------------------------
+Release date: 2024-08-31
+
+
+False Positives Fixed
+---------------------
+
+- Fixed a false positive `unreachable` for `NoReturn` coroutine functions.
+
+  Closes #9840. (`#9840 <https://github.com/pylint-dev/pylint/issues/9840>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix crash in refactoring checker when calling a lambda bound as a method.
+
+  Closes #9865 (`#9865 <https://github.com/pylint-dev/pylint/issues/9865>`_)
+
+- Fix a crash in ``undefined-loop-variable`` when providing the ``iterable`` argument to ``enumerate()``.
+
+  Closes #9875 (`#9875 <https://github.com/pylint-dev/pylint/issues/9875>`_)
+
+- Fix to address indeterminacy of error message in case a module name is same as another in a separate namespace.
+
+  Refs #9883 (`#9883 <https://github.com/pylint-dev/pylint/issues/9883>`_)
+
+
+
 What's new in Pylint 3.2.6?
 ---------------------------
 Release date: 2024-07-21
