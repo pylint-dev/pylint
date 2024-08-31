@@ -6,7 +6,7 @@ py~=1.11.0
 pytest~=8.3
 pytest-benchmark~=4.0
 pytest-timeout~=2.3
-towncrier~=24.7
+towncrier~=24.8
 requests
 # Voluntary for test purpose, not actually used in prod, see #8904
 setuptools;python_version>='3.12'
