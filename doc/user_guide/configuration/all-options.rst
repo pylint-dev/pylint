@@ -931,7 +931,7 @@ Standard Checkers
 """""""""""""""
 *String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1 tab).*
 
-**Default:**  ``"    "``
+**Default:**  ``"    "``
 
 
 --max-line-length
@@ -982,7 +982,7 @@ Standard Checkers
 
    indent-after-paren = 4
 
-   indent-string = "    "
+   indent-string = "    "
 
    max-line-length = 100
 
