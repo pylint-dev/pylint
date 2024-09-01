@@ -219,7 +219,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         (
             "indent-string",
             {
-                "default": '"    "',
+                "default": '"    "',
                 "type": "non_empty_string",
                 "metavar": "<string>",
                 "help": "String used as indentation unit. This is usually "
