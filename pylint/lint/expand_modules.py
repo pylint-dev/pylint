@@ -36,6 +36,18 @@ def discover_package_path(modulepath: str, source_roots: Sequence[str]) -> str:
         if os.path.commonpath([source_root, dirname]) == source_root:
             return source_root
 
+    # Logic if source_roots are not specified.
+    # This is inline with how python treats scripts and modules.
+    # See https://docs.python.org/3/library/sys_path_init.html
+    # If input is a script(ie file), the directory of the script is first in sys.path.
+    # Otherwise, the current directory is first in sys.path
+    if len(source_roots) == 0:
+        if os.path.isfile(modulepath):
+            return dirname
+        else:
+            return os.getcwd()
+
+    # TODO: Is this still needed?
     # Fall back to legacy discovery by looking for __init__.py upwards as
     # it's the only way given that source root was not found or was not provided
     while True:
