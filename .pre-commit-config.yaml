@@ -173,3 +173,15 @@ repos:
       - id: bandit
         args: ["-r", "-lll"]
         exclude: *fixtures
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
+        args: ["--toml=pyproject.toml", "-I", ".pyenchant_pylint_custom_dict.txt"]
+        exclude: |
+          (?x)^(
+            tests/checkers/unittest_spelling.py|
+            tests/functional/m/member/member_checks.py
+          )$
+        additional_dependencies:
+          - tomli

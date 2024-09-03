@@ -918,16 +918,16 @@ Refactoring checker Messages
   Emitted when a single "return" or "return None" statement is found at the end
   of function or method definition. This statement can safely be removed
   because Python will implicitly return None
-:use-implicit-booleaness-not-comparison-to-string (C1804): *"%s" can be simplified to "%s", if it is striclty a string, as an empty string is falsey*
-  Empty string are considered false in a boolean context. Following this check
-  blindly in weakly typed code base can create hard to debug issues. If the
-  value can be something else that is falsey but not a string (for example
-  ``None``, an empty sequence, or ``0``) the code will not be equivalent.
 :use-implicit-booleaness-not-comparison (C1803): *"%s" can be simplified to "%s", if it is strictly a sequence, as an empty %s is falsey*
   Empty sequences are considered false in a boolean context. Following this
   check blindly in weakly typed code base can create hard to debug issues. If
   the value can be something else that is falsey but not a sequence (for
   example ``None``, an empty string, or ``0``) the code will not be equivalent.
+:use-implicit-booleaness-not-comparison-to-string (C1804): *"%s" can be simplified to "%s", if it is strictly a string, as an empty string is falsey*
+  Empty string are considered false in a boolean context. Following this check
+  blindly in weakly typed code base can create hard to debug issues. If the
+  value can be something else that is falsey but not a string (for example
+  ``None``, an empty sequence, or ``0``) the code will not be equivalent.
 :use-implicit-booleaness-not-comparison-to-zero (C1805): *"%s" can be simplified to "%s", if it is strictly an int, as 0 is falsey*
   0 is considered false in a boolean context. Following this check blindly in
   weakly typed code base can create hard to debug issues. If the value can be
