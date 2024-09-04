@@ -181,6 +181,8 @@ repos:
         exclude: |
           (?x)^(
             tests/checkers/unittest_spelling.py|
+            CODE_OF_CONDUCT.md|
+            CONTRIBUTORS.txt|
             tests/functional/m/member/member_checks.py
           )$
         additional_dependencies:

@@ -299,6 +299,7 @@ singledispatch
 singledispatchmethod
 spammy
 sqlalchemy
+iTerm
 src
 starargs
 stateful
