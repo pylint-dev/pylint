@@ -1001,7 +1001,7 @@ Release date: 2004-10-19
 * avoid importing analyzed modules !
 
 * new Refactor and Convention message categories. Some Warnings have been
-  remaped into those new categories
+  remapped into those new categories
 
 * added "similar", a tool to find copied and pasted lines of code,
   both using a specific command line tool and integrated as a
