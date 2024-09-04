@@ -3,7 +3,7 @@
 """test for call to __init__ from a non ancestor class
 """
 from . import non_init_parent_called
-import nonexistant  # [import-error]
+import nonexistent  # [import-error]
 
 
 class AAAA:
@@ -19,13 +19,13 @@ class BBBBMixin:
     def __init__(self):
         print('init', self)
 
-class CCC(BBBBMixin, non_init_parent_called.AAAA, non_init_parent_called.BBBB, nonexistant.AClass):  # [no-member]
+class CCC(BBBBMixin, non_init_parent_called.AAAA, non_init_parent_called.BBBB, nonexistent.AClass):  # [no-member]
     """mix different things, some inferable some not"""
     def __init__(self):
         BBBBMixin.__init__(self)
         non_init_parent_called.AAAA.__init__(self)
         non_init_parent_called.BBBB.__init__(self)  # [no-member]
-        nonexistant.AClass.__init__(self)
+        nonexistent.AClass.__init__(self)
 
 class DDDD(AAAA):
     """call superclass constructor in disjunct branches"""
