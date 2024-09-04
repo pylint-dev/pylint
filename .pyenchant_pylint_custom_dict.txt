@@ -295,6 +295,7 @@ seaborn
 sep
 setcomp
 shortstrings
+re-usable
 singledispatch
 singledispatchmethod
 spammy

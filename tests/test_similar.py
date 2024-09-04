@@ -161,7 +161,7 @@ class TestSymilarCodeChecker:
             code=0,
         )
 
-    def test_duplicate_code_raw_strings_disable_line_midle(self) -> None:
+    def test_duplicate_code_raw_strings_disable_line_middle(self) -> None:
         """Tests disabling duplicate-code at a line in the middle of a piece of similar code."""
         path = join(DATA, "raw_strings_disable_line_middle")
         self._runtest(

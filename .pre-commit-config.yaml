@@ -183,7 +183,8 @@ repos:
             tests/checkers/unittest_spelling.py|
             CODE_OF_CONDUCT.md|
             CONTRIBUTORS.txt|
-            tests/functional/m/member/member_checks.py
+            tests/functional/m/member/member_checks.py|
+            tests/functional/t/type/typevar_naming_style_default.py
           )$
         additional_dependencies:
           - tomli
