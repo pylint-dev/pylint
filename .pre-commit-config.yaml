@@ -7,6 +7,9 @@ repos:
     hooks:
       - id: trailing-whitespace
         exclude: tests(/\w*)*/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html|doc/data/messages/t/trailing-whitespace/bad.py
+      #      - id: file-contents-sorter # commented out because it does not preserve comments order
+      #        args: ["--ignore-case", "--unique"]
+      #        files: "custom_dict.txt"
       - id: end-of-file-fixer
         exclude: |
           (?x)^(

@@ -16,8 +16,8 @@ ascii
 asend
 assignattr
 assignname
-ast
 AST
+ast
 astroid
 async
 asynccontextmanager
@@ -62,8 +62,8 @@ codecs
 col's
 conf
 config
-Const
 const
+Const
 contextlib
 contextmanager
 contravariance
@@ -150,8 +150,8 @@ importfrom
 importnode
 importschecker
 InferenceError
-INI
 ini
+INI
 init
 initializer
 inlinevar
@@ -365,8 +365,8 @@ unary
 unflattens
 unhandled
 unicode
-Uninferable
 uninferable
+Uninferable
 unittest
 unraisablehook
 untriggered

@@ -400,7 +400,7 @@ spelling-ignore-words=
 spelling-ignore-comment-directives=fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:,pragma:,# noinspection
 
 # A path to a file that contains private dictionary; one word per line.
-spelling-private-dict-file=.pyenchant_pylint_custom_dict.txt
+spelling-private-dict-file=custom_dict.txt
 
 # Tells whether to store unknown words to indicated private dictionary in
 # --spelling-private-dict-file option instead of raising a message.
