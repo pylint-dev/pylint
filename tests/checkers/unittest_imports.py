@@ -5,7 +5,6 @@
 """Unit tests for the imports checker."""
 
 import os
-import sys
 
 import astroid
 from pytest import CaptureFixture
