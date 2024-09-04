@@ -307,6 +307,9 @@ max-locals=15
 # Maximum number of parents for a class (see R0901).
 max-parents=7
 
+# Maximum number of positional arguments for function / method.
+max-positional-arguments=5
+
 # Maximum number of public methods for a class (see R0904).
 max-public-methods=20
 
@@ -319,8 +322,6 @@ max-statements=50
 # Minimum number of public methods for a class (see R0903).
 min-public-methods=2
 
-# Minimum number of public methods for a class (see R0903).
-max-positional-arguments=5
 
 [EXCEPTIONS]
 
