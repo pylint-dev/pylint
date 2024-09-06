@@ -75,10 +75,6 @@ class ASTWalker:
         """
         cid = astroid.__class__.__name__.lower()
 
-        # Detect if the node is a new name for a deprecated alias.
-        # In this case, favour the methods for the deprecated
-        # alias if any,  in order to maintain backwards
-        # compatibility.
         visit_events: Sequence[AstCallback] = self.visit_events.get(cid, ())
         leave_events: Sequence[AstCallback] = self.leave_events.get(cid, ())
 
