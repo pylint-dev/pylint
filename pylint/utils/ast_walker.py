@@ -7,7 +7,7 @@ from __future__ import annotations
 import sys
 import traceback
 from collections import defaultdict
-from collections.abc import Callable, Sequence
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -75,8 +75,8 @@ class ASTWalker:
         """
         cid = astroid.__class__.__name__.lower()
 
-        visit_events: Sequence[AstCallback] = self.visit_events.get(cid, ())
-        leave_events: Sequence[AstCallback] = self.leave_events.get(cid, ())
+        visit_events = self.visit_events[cid]
+        leave_events = self.leave_events[cid]
 
         # pylint: disable = too-many-try-statements
         try:
