@@ -8,3 +8,7 @@ multiple-statements:26:30:26:59:MyException:More than one statement on a single 
 multiple-statements:27:26:27:30:MyError:More than one statement on a single line:HIGH
 multiple-statements:30:26:30:31:MyError:More than one statement on a single line:HIGH
 multiple-statements:32:26:32:31:MyError:More than one statement on a single line:HIGH
+multiple-statements:50:9:50:13::More than one statement on a single line:HIGH
+multiple-statements:57:6:57:10::More than one statement on a single line:HIGH
+multiple-statements:64:6:64:10::More than one statement on a single line:HIGH
+multiple-statements:65:9:65:13::More than one statement on a single line:HIGH

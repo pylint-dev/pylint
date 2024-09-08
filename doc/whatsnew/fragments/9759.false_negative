@@ -1,0 +1,3 @@
+Fix false negative for `multiple-statements` when multiple statements are present on `else` and `finally` lines of `try`.
+
+Refs #9759
