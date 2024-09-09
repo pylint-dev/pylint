@@ -17,7 +17,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.6.3"
+    rev: "v0.6.4"
     hooks:
       - id: ruff
         args: ["--fix"]
