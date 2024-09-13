@@ -12,11 +12,7 @@ import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import (
-    has_known_bases,
-    node_frame_class,
-    only_required_for_messages,
-)
+from pylint.checkers.utils import node_frame_class, only_required_for_messages
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -96,9 +92,7 @@ class NewStyleConflictChecker(BaseChecker):
                 and isinstance(arg0, nodes.Attribute)
                 and arg0.attrname == "__class__"
             ):
-                self.add_message(
-                    "bad-super-call", node=call, args=("self.__class__",)
-                )
+                self.add_message("bad-super-call", node=call, args=("self.__class__",))
                 continue
 
             try:
