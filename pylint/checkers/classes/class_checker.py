@@ -1778,7 +1778,7 @@ a metaclass class method.",
         klass = inferred._proxied
         if not has_known_bases(klass):
             return
-        if "__slots__" not in klass.locals or not klass.newstyle:
+        if "__slots__" not in klass.locals:
             return
         # If `__setattr__` is defined on the class, then we can't reason about
         # what will happen when assigning to an attribute.

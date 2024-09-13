@@ -92,9 +92,9 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         {"old_names": [("E0703", "bad-exception-context")]},
     ),
     "E0710": (
-        "Raising a new style class which doesn't inherit from BaseException",
+        "Raising a class which doesn't inherit from BaseException",
         "raising-non-exception",
-        "Used when a new style class which doesn't inherit from "
+        "Used when a class which doesn't inherit from "
         "BaseException is raised.",
     ),
     "E0711": (
@@ -262,12 +262,11 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         if not utils.inherit_from_std_ex(node) and utils.has_known_bases(node):
-            if node.newstyle:
-                self._checker.add_message(
-                    "raising-non-exception",
-                    node=self._node,
-                    confidence=INFERENCE,
-                )
+            self._checker.add_message(
+                "raising-non-exception",
+                node=self._node,
+                confidence=INFERENCE,
+            )
 
     def visit_tuple(self, _: nodes.Tuple) -> None:
         self._checker.add_message(
