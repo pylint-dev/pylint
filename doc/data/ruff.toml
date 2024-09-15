@@ -2,14 +2,19 @@
 # (Because of horizontal scrolling)
 line-length = 103
 
+extend-exclude = [
+    "messages/d/duplicate-argument-name/bad.py",
+    "messages/s/syntax-error/bad.py",
+]
+
 [lint]
 ignore = []
 select = ["E501", "I"]
 
 
 [lint.per-file-ignores]
-"doc/data/messages/r/reimported/bad.py" = ["I"]
-"doc/data/messages/w/wrong-import-order/bad.py" = ["I"]
-"doc/data/messages/u/ungrouped-imports/bad.py" = ["I"]
-"doc/data/messages/m/misplaced-future/bad.py" = ["I"]
-"doc/data/messages/m/multiple-imports/bad.py" = ["I"]
+"messages/m/misplaced-future/bad.py" = ["I"]
+"messages/m/multiple-imports/bad.py" = ["I"]
+"messages/r/reimported/bad.py" = ["I"]
+"messages/u/ungrouped-imports/bad.py" = ["I"]
+"messages/w/wrong-import-order/bad.py" = ["I"]

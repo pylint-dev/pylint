@@ -145,6 +145,13 @@ module = [
 # (for docstrings, strings and comments in particular).
 line-length = 115
 
+extend-exclude = [
+    "tests/**/data/",
+    "tests/**/functional/",
+    "tests/input/",
+    "tests/regrtest_data/",
+]
+
 [tool.ruff.lint]
 select = [
     "B",  # bugbear
