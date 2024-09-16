@@ -94,7 +94,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "E0710": (
         "Raising a class which doesn't inherit from BaseException",
         "raising-non-exception",
-        "Used when a class which doesn't inherit from " "BaseException is raised.",
+        "Used when a class which doesn't inherit from BaseException is raised.",
     ),
     "E0711": (
         "NotImplemented raised - should raise NotImplementedError",
