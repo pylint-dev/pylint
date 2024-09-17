@@ -293,7 +293,6 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "pathlib.PurePath.is_reserved",
             "platform.java_ver",
             "pydoc.is_package",
-            "symtable.Class.get_methods",
             "sys._enablelegacywindowsfsencoding",
             "wave.Wave_read.getmark",
             "wave.Wave_read.getmarkers",
