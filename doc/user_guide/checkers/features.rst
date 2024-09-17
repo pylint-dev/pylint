@@ -474,9 +474,8 @@ Exceptions checker Messages
 :raising-bad-type (E0702): *Raising %s while only classes or instances are allowed*
   Used when something which is neither a class nor an instance is raised (i.e.
   a `TypeError` will be raised).
-:raising-non-exception (E0710): *Raising a new style class which doesn't inherit from BaseException*
-  Used when a new style class which doesn't inherit from BaseException is
-  raised.
+:raising-non-exception (E0710): *Raising a class which doesn't inherit from BaseException*
+  Used when a class which doesn't inherit from BaseException is raised.
 :misplaced-bare-raise (E0704): *The raise statement is not inside an except clause*
   Used when a bare raise is not used inside an except clause. This generates an
   error, since there are no active exceptions to be reraised. An exception to
