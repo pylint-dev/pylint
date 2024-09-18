@@ -43,9 +43,9 @@ jobs:
           check-latest: true
 
       # Create a re-usable virtual environment
-      - name: Create Python virtual environment cache
+      - name: Restore Python virtual environment cache
         id: cache-venv
-        uses: actions/cache@v4.0.2
+        uses: actions/cache/restore@v4.0.2
         with:
           path: venv
           key:
@@ -60,6 +60,18 @@ jobs:
           . venv/bin/activate
           python -m pip install -U pip setuptools wheel
           pip install -U -r requirements_test.txt
+      # Save cached Python environment (explicit because cancel-in-progress: true)
+      - name: Save Python virtual environment to cache
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        id: cache-venv
+        uses: actions/cache/save@v4.0.2
+        with:
+          path: venv
+          key:
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt',
+            'requirements_test_pre_commit.txt') }}
 
       # Cache primer packages
       - name: Get commit string
@@ -71,7 +83,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache@v4.0.2
+        uses: actions/cache/restore@v4.0.2
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -82,6 +94,15 @@ jobs:
         run: |
           . venv/bin/activate
           python tests/primer/__main__.py prepare --clone
+      - name: Save projects cache
+        if: steps.cache-projects.outputs.cache-hit != 'true'
+        id: cache-projects
+        uses: actions/cache/save@v4.0.2
+        with:
+          path: tests/.pylint_primer_tests/
+          key: >-
+            ${{ runner.os }}-${{ matrix.python-version }}-${{
+            steps.commitstring.outputs.commitstring }}-primer
       - name: Upload commit string
         uses: actions/upload-artifact@v4.4.0
         if: matrix.batchIdx == 0
