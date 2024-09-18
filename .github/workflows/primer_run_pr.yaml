@@ -147,10 +147,16 @@ jobs:
             ${{ runner.os }}-${{ matrix.python-version }}-${{
             steps.commitstring.outputs.commitstring }}-primer
       - name: Regenerate cache
-        if: steps.cache-projects.outputs.cache-hit != 'true'
+        # Presence of colorama is a heuristic for the env having all packages
         run: |
           . venv/bin/activate
-          python tests/primer/__main__.py prepare --clone
+          if echo ${{ steps.cache-projects.outputs.cache-hit }} | grep -c "true" && python -m pip show colorama
+          then
+            echo "Cache hit: skipping primer clone command"
+          else
+            python tests/primer/__main__.py prepare --clone
+          fi
+        shell: bash
       - name: Check cache
         run: |
           . venv/bin/activate
