@@ -54,6 +54,9 @@ DEPRECATED_ARGUMENTS: dict[
         "bool": ((None, "x"),),
         "float": ((None, "x"),),
     },
+    (3, 5, 0): {
+        "importlib._bootstrap_external.cache_from_source": ((1, "debug_override"),),
+    },
     (3, 8, 0): {
         "asyncio.tasks.sleep": ((None, "loop"),),
         "asyncio.tasks.gather": ((None, "loop"),),
@@ -90,6 +93,9 @@ DEPRECATED_ARGUMENTS: dict[
         "email.utils.localtime": ((1, "isdst"),),
         "shutil.rmtree": ((2, "onerror"),),
     },
+    (3, 13, 0): {
+        "dis.get_instructions": ((2, "show_caches"),),
+    },
 }
 
 DEPRECATED_DECORATORS: DeprecationDict = {
@@ -100,6 +106,7 @@ DEPRECATED_DECORATORS: DeprecationDict = {
         "abc.abstractproperty",
     },
     (3, 4, 0): {"importlib.util.module_for_loader"},
+    (3, 13, 0): {"typing.no_type_check_decorator"},
 }
 
 
@@ -269,6 +276,10 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "unittest.TestProgram.usageExit",
         },
         (3, 12, 0): {
+            "asyncio.get_child_watcher",
+            "asyncio.set_child_watcher",
+            "asyncio.AbstractEventLoopPolicy.get_child_watcher",
+            "asyncio.AbstractEventLoopPolicy.set_child_watcher",
             "builtins.bool.__invert__",
             "datetime.datetime.utcfromtimestamp",
             "datetime.datetime.utcnow",
@@ -277,6 +288,19 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "pty.master_open",
             "pty.slave_open",
             "xml.etree.ElementTree.Element.__bool__",
+        },
+        (3, 13, 0): {
+            "ctypes.SetPointerType",
+            "pathlib.PurePath.is_reserved",
+            "platform.java_ver",
+            "pydoc.is_package",
+            "sys._enablelegacywindowsfsencoding",
+            "wave.Wave_read.getmark",
+            "wave.Wave_read.getmarkers",
+            "wave.Wave_read.setmark",
+            "wave.Wave_write.getmark",
+            "wave.Wave_write.getmarkers",
+            "wave.Wave_write.setmark",
         },
     },
 }
@@ -334,6 +358,9 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
         "typing": {
             "Text",
         },
+        "urllib.parse": {
+            "Quoter",
+        },
         "webbrowser": {
             "MacOSX",
         },
@@ -366,6 +393,15 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
             "Sized",
         },
     },
+    (3, 13, 0): {
+        "glob": {
+            "glob.glob0",
+            "glob.glob1",
+        },
+        "http.server": {
+            "CGIHTTPRequestHandler",
+        },
+    },
 }
 
 
@@ -376,9 +412,17 @@ DEPRECATED_ATTRIBUTES: DeprecationDict = {
     (3, 12, 0): {
         "calendar.January",
         "calendar.February",
+        "sqlite3.version",
+        "sqlite3.version_info",
         "sys.last_traceback",
         "sys.last_type",
         "sys.last_value",
+    },
+    (3, 13, 0): {
+        "dis.HAVE_ARGUMENT",
+        "tarfile.TarFile.tarfile",
+        "traceback.TracebackException.exc_type",
+        "typing.AnyStr",
     },
 }
 
