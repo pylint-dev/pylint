@@ -326,7 +326,7 @@ def _generate_single_message_body(message: MessageData) -> str:
 
 """
 
-    body += "\n" + message.example_code + "\n"
+    body += f"\n{message.example_code}\n"
 
     if message.checker_module_name.startswith("pylint.extensions."):
         body += f"""
