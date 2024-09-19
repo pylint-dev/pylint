@@ -13,10 +13,11 @@ argumentparser
 argumentsparser
 argv
 ascii
+asend
 assignattr
 assignname
-ast
 AST
+ast
 astroid
 async
 asynccontextmanager
@@ -67,8 +68,8 @@ contextlib
 contextmanager
 contravariance
 contravariant
-cpython
 CPython
+cpython
 csv
 CVE
 cwd
@@ -126,8 +127,8 @@ formfeed
 fromlineno
 fullname
 func
-functiøn
 functiondef
+functiøn
 functools
 genexpr
 getattr
@@ -160,10 +161,11 @@ isfile
 isinstance
 isort
 iter
-itered
 iterable
 iterables
+itered
 iteritems
+iTerm
 jn
 jpg
 json
@@ -206,10 +208,10 @@ monkeypatch
 mro
 # Used so much that we need the abbreviation
 msg
+msg-template
 msgid
 msgids
 msgs
-msg-template
 mult
 multiline
 multiset
@@ -250,8 +252,8 @@ parens
 passthru
 pathlib
 patternerror
-positionals
 png
+positionals
 pragma
 pragma's
 pragmas
@@ -264,9 +266,9 @@ pyenchant
 pyfile
 pyi
 pylint
+pylint's
 pylintdict
 pylintrc
-pylint's
 pyproject
 pypy
 pyreverse
@@ -275,6 +277,7 @@ qname
 rawcheckers
 rc
 rcfile
+re-usable
 readlines
 recognise
 recurse
@@ -345,9 +348,9 @@ tomlkit
 toplevel
 towncrier
 tp
+truthey
 truthness
 truthy
-truthey
 tryexcept
 txt
 typecheck
@@ -362,8 +365,8 @@ unary
 unflattens
 unhandled
 unicode
-Uninferable
 uninferable
+Uninferable
 unittest
 unraisablehook
 untriggered

@@ -137,7 +137,7 @@ Release date: 2019-09-24
   Closes #2925
 
 * ``useless-suppression`` check now ignores ``cyclic-import`` suppressions,
-  which could lead to false postiives due to incomplete context at the time
+  which could lead to false positives due to incomplete context at the time
   of the check.
 
   Closes #3064

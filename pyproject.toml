@@ -200,3 +200,32 @@ ignore = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"
+
+[tool.codespell]
+ignore-words = ["custom_dict.txt"]
+
+# Disabled the spelling files for obvious reason, but also,
+# the test file with typing extension imported as 'te' and:
+# tests/functional/i/implicit/implicit_str_concat_latin1.py:
+#   - bad encoding
+# pylint/pyreverse/diagrams.py and tests/pyreverse/test_diagrams.py:
+#   - An API from pyreverse use 'classe', and would need to be deprecated
+# pylint/checkers/imports.py:
+#   - 'THIRDPARTY' is a value from isort that would need to be handled even
+#   if isort fix the typo in newer versions
+# tests/functional/m/member/member_checks.py:
+#   - typos are voluntary to create credible 'no-member'
+
+skip = """
+tests/checkers/unittest_spelling.py,\
+CODE_OF_CONDUCT.md,\
+CONTRIBUTORS.txt,\
+pylint/checkers/imports.py,\
+pylint/pyreverse/diagrams.py,\
+tests/pyreverse/test_diagrams.py,\
+tests/functional/i/implicit/implicit_str_concat_latin1.py,\
+tests/functional/m/member/member_checks.py,\
+tests/functional/t/type/typevar_naming_style_rgx.py,\
+tests/functional/t/type/typevar_naming_style_default.py,\
+tests/functional/m/member/member_checks_async.py,\
+"""
