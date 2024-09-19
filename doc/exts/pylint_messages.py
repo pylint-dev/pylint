@@ -187,9 +187,7 @@ def _get_ini_as_rst(code_path: Path) -> str:
 """
 
 
-def _get_all_messages(
-    linter: PyLinter,
-) -> tuple[MessagesDict, OldMessagesDict]:
+def _get_all_messages(linter: PyLinter) -> tuple[MessagesDict, OldMessagesDict]:
     """Get all messages registered to a linter and return a dictionary indexed by
     message type.
 
@@ -241,8 +239,8 @@ def _get_all_messages(
         if message.old_names:
             for old_name in message.old_names:
                 category = MSG_TYPES_DOC[old_name[0][0]]
-                # We check if the message is already in old_messages so
-                # we don't duplicate shared messages.
+                # We check if the message is already in old_messages, so we don't
+                # duplicate shared messages.
                 if (message.symbol, msg_type) not in old_messages[category][
                     (old_name[1], old_name[0])
                 ]:
