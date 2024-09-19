@@ -2,7 +2,9 @@ One of your options is not recognized. There's nothing to change in
 your code, but your pylint configuration or the way you launch
 pylint needs to be modified.
 
-For example you might be launching pylint with the following ``toml`` configuration::
+For example, this message would be raised when invoking pylint with
+``pylint --unknown-option=yes test.py``. Or you might be launching
+pylint with the following ``toml`` configuration::
 
     [tool.pylint]
     jars = "10"

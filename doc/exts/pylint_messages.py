@@ -34,6 +34,27 @@ PYLINT_MESSAGES_DATA_PATH = PYLINT_BASE_PATH / "doc" / "data" / "messages"
 
 MSG_TYPES_DOC = {k: v if v != "info" else "information" for k, v in MSG_TYPES.items()}
 
+MESSAGES_WITHOUT_EXAMPLES = {
+    "astroid-error",  # internal
+    "bad-configuration-section",  # configuration
+    "bad-plugin-value",  # internal
+    "c-extension-no-member",  # not easy to implement in the current doc framework
+    "config-parse-error",  # configuration
+    "fatal",  # internal
+    "import-self",  # not easy to implement in the current doc framework
+    "invalid-character-nul",  # not easy to implement in the current doc framework
+    "invalid-characters-in-docstring",  # internal in py-enchant
+    "invalid-unicode-codec",  # placeholder (not implemented yet)
+    "method-check-failed",  # internal
+    "parse-error",  # internal
+    "raw-checker-failed",  # internal
+    "unrecognized-option",  # configuration
+}
+MESSAGES_WITHOUT_BAD_EXAMPLES = {
+    "invalid-character-carriage-return",  # can't be raised in normal pylint use
+    "return-arg-in-generator",  # can't be raised in modern python
+}
+
 
 class MessageData(NamedTuple):
     checker: str
@@ -99,6 +120,11 @@ def _get_pylintrc_code(data_path: Path) -> str:
 
 def _get_demo_code_for(data_path: Path, example_type: ExampleType) -> str:
     """Get code examples while handling multi-file code templates."""
+    if data_path.name in MESSAGES_WITHOUT_EXAMPLES or (
+        data_path.name in MESSAGES_WITHOUT_BAD_EXAMPLES
+        and example_type is ExampleType.BAD
+    ):
+        return ""
     single_file_path = data_path / f"{example_type.value}.py"
     multiple_code_path = data_path / f"{example_type.value}"
 
@@ -130,8 +156,9 @@ def _get_demo_code_for(data_path: Path, example_type: ExampleType) -> str:
 """
                 )
         return _get_titled_rst(title=title, text="\n".join(files))
-
-    return ""
+    raise AssertionError(
+        f"Please add a {example_type.value} code example for {data_path}"
+    )
 
 
 def _check_placeholders(
