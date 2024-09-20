@@ -34,6 +34,27 @@ PYLINT_MESSAGES_DATA_PATH = PYLINT_BASE_PATH / "doc" / "data" / "messages"
 
 MSG_TYPES_DOC = {k: v if v != "info" else "information" for k, v in MSG_TYPES.items()}
 
+MESSAGES_WITHOUT_EXAMPLES = {
+    "astroid-error",  # internal
+    "bad-configuration-section",  # configuration
+    "bad-plugin-value",  # internal
+    "c-extension-no-member",  # not easy to implement in the current doc framework
+    "config-parse-error",  # configuration
+    "fatal",  # internal
+    "import-self",  # not easy to implement in the current doc framework
+    "invalid-character-nul",  # not easy to implement in the current doc framework
+    "invalid-characters-in-docstring",  # internal in py-enchant
+    "invalid-unicode-codec",  # placeholder (not implemented yet)
+    "method-check-failed",  # internal
+    "parse-error",  # internal
+    "raw-checker-failed",  # internal
+    "unrecognized-option",  # configuration
+}
+MESSAGES_WITHOUT_BAD_EXAMPLES = {
+    "invalid-character-carriage-return",  # can't be raised in normal pylint use
+    "return-arg-in-generator",  # can't be raised in modern python
+}
+
 
 class MessageData(NamedTuple):
     checker: str
@@ -99,6 +120,11 @@ def _get_pylintrc_code(data_path: Path) -> str:
 
 def _get_demo_code_for(data_path: Path, example_type: ExampleType) -> str:
     """Get code examples while handling multi-file code templates."""
+    if data_path.name in MESSAGES_WITHOUT_EXAMPLES or (
+        data_path.name in MESSAGES_WITHOUT_BAD_EXAMPLES
+        and example_type is ExampleType.BAD
+    ):
+        return ""
     single_file_path = data_path / f"{example_type.value}.py"
     multiple_code_path = data_path / f"{example_type.value}"
 
@@ -130,8 +156,9 @@ def _get_demo_code_for(data_path: Path, example_type: ExampleType) -> str:
 """
                 )
         return _get_titled_rst(title=title, text="\n".join(files))
-
-    return ""
+    raise AssertionError(
+        f"Please add a {example_type.value} code example for {data_path}"
+    )
 
 
 def _check_placeholders(
@@ -187,9 +214,7 @@ def _get_ini_as_rst(code_path: Path) -> str:
 """
 
 
-def _get_all_messages(
-    linter: PyLinter,
-) -> tuple[MessagesDict, OldMessagesDict]:
+def _get_all_messages(linter: PyLinter) -> tuple[MessagesDict, OldMessagesDict]:
     """Get all messages registered to a linter and return a dictionary indexed by
     message type.
 
@@ -241,8 +266,8 @@ def _get_all_messages(
         if message.old_names:
             for old_name in message.old_names:
                 category = MSG_TYPES_DOC[old_name[0][0]]
-                # We check if the message is already in old_messages so
-                # we don't duplicate shared messages.
+                # We check if the message is already in old_messages, so we don't
+                # duplicate shared messages.
                 if (message.symbol, msg_type) not in old_messages[category][
                     (old_name[1], old_name[0])
                 ]:
@@ -328,7 +353,7 @@ def _generate_single_message_body(message: MessageData) -> str:
 
 """
 
-    body += "\n" + message.example_code + "\n"
+    body += f"\n{message.example_code}\n"
 
     if message.checker_module_name.startswith("pylint.extensions."):
         body += f"""
