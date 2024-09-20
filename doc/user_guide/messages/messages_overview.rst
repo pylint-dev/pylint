@@ -545,6 +545,7 @@ All messages in the refactor category:
    refactor/too-many-statements
    refactor/trailing-comma-tuple
    refactor/unnecessary-comprehension
+   refactor/unnecessary-default-type-args
    refactor/unnecessary-dict-index-lookup
    refactor/unnecessary-list-index-lookup
    refactor/use-a-generator

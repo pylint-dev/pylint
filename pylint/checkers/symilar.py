@@ -468,7 +468,7 @@ class Symilar:
     # pylint: disable = too-many-locals
     def _find_common(
         self, lineset1: LineSet, lineset2: LineSet
-    ) -> Generator[Commonality, None, None]:
+    ) -> Generator[Commonality]:
         """Find similarities in the two given linesets.
 
         This the core of the algorithm. The idea is to compute the hashes of a
@@ -541,7 +541,7 @@ class Symilar:
             if eff_cmn_nb > self.namespace.min_similarity_lines:
                 yield com
 
-    def _iter_sims(self) -> Generator[Commonality, None, None]:
+    def _iter_sims(self) -> Generator[Commonality]:
         """Iterate on similarities among all files, by making a Cartesian
         product.
         """

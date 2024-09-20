@@ -27,7 +27,7 @@ def _patch_streams(out: TextIO) -> Iterator[None]:
 @contextlib.contextmanager
 def _test_sys_path(
     replacement_sys_path: list[str] | None = None,
-) -> Generator[None, None, None]:
+) -> Generator[None]:
     original_path = sys.path
     try:
         if replacement_sys_path is not None:
@@ -40,7 +40,7 @@ def _test_sys_path(
 @contextlib.contextmanager
 def _test_cwd(
     current_working_directory: str | Path | None = None,
-) -> Generator[None, None, None]:
+) -> Generator[None]:
     original_dir = os.getcwd()
     try:
         if current_working_directory is not None:
@@ -53,7 +53,7 @@ def _test_cwd(
 @contextlib.contextmanager
 def _test_environ_pythonpath(
     new_pythonpath: str | None = None,
-) -> Generator[None, None, None]:
+) -> Generator[None]:
     original_pythonpath = os.environ.get("PYTHONPATH")
     if new_pythonpath:
         os.environ["PYTHONPATH"] = new_pythonpath

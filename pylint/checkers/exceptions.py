@@ -35,7 +35,7 @@ def _builtin_exceptions() -> set[str]:
 
 def _annotated_unpack_infer(
     stmt: nodes.NodeNG, context: InferenceContext | None = None
-) -> Generator[tuple[nodes.NodeNG, SuccessfulInferenceResult], None, None]:
+) -> Generator[tuple[nodes.NodeNG, SuccessfulInferenceResult]]:
     """Recursively generate nodes inferred by the given statement.
 
     If the inferred value is a list or a tuple, recurse on the elements.
