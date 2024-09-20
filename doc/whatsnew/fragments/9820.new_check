@@ -1,4 +1,0 @@
-Add `using-assignment-expression-in-unsupported-version` for uses of `:=` (walrus operator)
-on Python versions below 3.8 provided with `--py-version`.
-
-Closes #9820

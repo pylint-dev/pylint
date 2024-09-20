@@ -1,6 +1,0 @@
-We migrated ``symilar`` to argparse, from getopt, so the error and help output changed
-(for the better). We exit with 2 instead of sometime 1, sometime 2. The error output
-is not captured by the runner anymore. It's not possible to use a value for the
-boolean options anymore (``--ignore-comments 1`` should become ``--ignore-comments``).
-
-Refs #9731

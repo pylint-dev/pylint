@@ -1,3 +1,0 @@
-Remove old-style classes (Python 2) code and remove check for new-style class since everything is new-style in Python 3. Updated doc for exception checker to remove reference to new style class.
-
-Refs #9925

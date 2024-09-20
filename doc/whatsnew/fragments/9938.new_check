@@ -1,4 +1,0 @@
-Add ``unnecessary-default-type-args`` to the ``typing`` extension to detect the use
-of unnecessary default type args for ``typing.Generator`` and ``typing.AsyncGenerator``.
-
-Refs #9938
