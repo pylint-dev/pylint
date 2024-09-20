@@ -1,3 +1,0 @@
-`--enable` with `--disable=all` now produces an error, when an unknown msg code is used. Internal `pylint` messages are no longer affected by `--disable=all`.
-
-Closes #9403

@@ -1,4 +1,0 @@
-Remove support for launching pylint with Python 3.8.
-Code that supports Python 3.8 can still be linted with the ``--py-version=3.8`` setting.
-
-Refs #9774
