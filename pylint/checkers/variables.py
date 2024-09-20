@@ -249,9 +249,7 @@ def _detect_global_scope(
     return frame.lineno < defframe.lineno  # type: ignore[no-any-return]
 
 
-def _infer_name_module(
-    node: nodes.Import, name: str
-) -> Generator[InferenceResult, None, None]:
+def _infer_name_module(node: nodes.Import, name: str) -> Generator[InferenceResult]:
     context = astroid.context.InferenceContext()
     context.lookupname = name
     return node.infer(context, asname=False)  # type: ignore[no-any-return]
