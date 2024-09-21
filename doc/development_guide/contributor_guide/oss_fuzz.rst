@@ -109,7 +109,7 @@ Bug reports
 ^^^^^^^^^^^
 
 Bug reports for new failures are automatically filed in the OSS-Fuzz bug tracker with an
-`astroid label <https://bugs.chromium.org/p/oss-fuzz/issues/list?q=label:Proj-astroid>`_.
+`astroid label <https://issues.oss-fuzz.com/issues?q=project:astroid%20status:open>`_.
 Make sure you are logged in to view all existing issues.
 
 Build maintenance
@@ -161,5 +161,5 @@ Quick links
 
 - `OSS-Fuzz dashboard <https://oss-fuzz.com/>`_
 - `OSS-Fuzz configuration files, build scripts, and fuzz targets for astroid <https://github.com/google/oss-fuzz/tree/master/projects/astroid>`_
-- `All open OSS-Fuzz bugs for astroid <https://bugs.chromium.org/p/oss-fuzz/issues/list?q=label:Proj-astroid>`_
+- `All open OSS-Fuzz bugs for astroid <https://issues.oss-fuzz.com/issues?q=project:astroid%20status:open>`_
 - `Google's OSS-Fuzz documentation <https://google.github.io/oss-fuzz/>`_
