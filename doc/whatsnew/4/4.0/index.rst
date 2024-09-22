@@ -1,12 +1,12 @@
 
 ***************************
- What's New in Pylint 3.4
+ What's New in Pylint 4.0
 ***************************
 
 .. toctree::
    :maxdepth: 2
 
-:Release:3.4
+:Release:4.0
 :Date: TBA
 
 Summary -- Release highlights
