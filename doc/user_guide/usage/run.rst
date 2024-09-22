@@ -196,7 +196,7 @@ and at least one convention message (16) and nothing else.
 Import discovery and qualified module names
 -------------------------------------------
 
-Pylint module discovery is different from how module discovery works in python. If ``source-roots`` isn't specified, when a file or a directory is passed as an argument, pylint will start with the directory of the file or the directory provided and walk up the directory structure until it finds the first directory without ``__init__.py``. This directory is added to the beginning of ``sys.path`` for the module discovery process. If no such directory is found, then the current directory is used. This is repeated for each argument passed to pylint. This is done before linting of the files and directories containing files starts.  
+Pylint module discovery is different from how module discovery works in python. If ``source-roots`` isn't specified, when a file or a directory is passed as an argument, pylint will start with the directory of the file or the directory provided and walk up the directory structure until it finds the first directory without ``__init__.py``. This directory is added to the beginning of ``sys.path`` for the module discovery process. If no such directory is found, then the current directory is used. This is repeated for each argument passed to pylint. This is done before linting of the files and directories containing files starts.
 
 If qualified module name (ie. ``a.b.c``) is passed as an argument, the process is similar to above except the directory discovery path starts with the current directory before the walk up process starts.
 
@@ -229,5 +229,4 @@ Say you have the following directory structure::
 
 This is similar to example 1 except that ``dir1`` doesn't have the ``__init__.py`` file. If you run ``pylint dir1/a.py b.py``, the module search path will be ``dir1`` and directory containing ``b.py`` prepended to ``sys.path``.
 
-One important point to keep in mind the role of caching and its impact on module discovery and qualified names. In order to speed up the linting process, pylint caches modules that have been discovered and processed. If subsequent arguments make references to the same qualified module name, the cached module is used. While this is not a problem in general, it may sometimes lead to unexpected name shadowing surprises. 
-
+One important point to keep in mind the role of caching and its impact on module discovery and qualified names. In order to speed up the linting process, pylint caches modules that have been discovered and processed. If subsequent arguments make references to the same qualified module name, the cached module is used. While this is not a problem in general, it may sometimes lead to unexpected name shadowing surprises.
