@@ -192,3 +192,42 @@ exit code  meaning
 
 For example, an exit code of ``20`` means there was at least one warning message (4)
 and at least one convention message (16) and nothing else.
+
+Import discovery and qualified module names
+-------------------------------------------
+
+Pylint module discovery is different from how module discovery works in python. If ``source-roots`` isn't specified, when a file or a directory is passed as an argument, pylint will start with the directory of the file or the directory provided and walk up the directory structure until it finds the first directory without ``__init__.py``. This directory is added to the beginning of ``sys.path`` for the module discovery process. If no such directory is found, then the current directory is used. This is repeated for each argument passed to pylint. This is done before linting of the files and directories containing files starts.  
+
+If qualified module name (ie. ``a.b.c``) is passed as an argument, the process is similar to above except the directory discovery path starts with the current directory before the walk up process starts.
+
+If ``source-roots`` is specified, the first directory found in ``source-roots`` that overlaps with the argument gets added to the search path. If none of the directories in ``source-roots`` meets this criteria, then the search discovery selection falls back to the process described above.
+
+The qualified module names for files are determined relative to the above search paths. So if you run ``pylint a/b/c.py``, assuming  the search path was determined to be directory ``a``, then the qualified module for ``c.py`` would be ``b.c``.
+
+Let's look at a few examples.
+
+Example 1:
+
+Say you have the following directory structure::
+
+    .
+    ├── dir1
+    │   ├── a.py
+    │   ├── __init__.py
+    ├── b.py
+
+If you run ``pylint dir1/a.py b.py``, the module search path will be parent of ``dir1`` and ``b.py`` prepended to ``sys.path``. The qualified module names for ``a.py`` and ``b.py`` would be ``dir1.a`` and ``b`` respectively
+
+Example 2:
+
+Say you have the following directory structure::
+
+    .
+    ├── dir1
+    │   ├── a.py
+    ├── b.py
+
+This is similar to example 1 except that ``dir1`` doesn't have the ``__init__.py`` file. If you run ``pylint dir1/a.py b.py``, the module search path will be ``dir1`` and directory containing ``b.py`` prepended to ``sys.path``.
+
+One important point to keep in mind the role of caching and its impact on module discovery and qualified names. In order to speed up the linting process, pylint caches modules that have been discovered and processed. If subsequent arguments make references to the same qualified module name, the cached module is used. While this is not a problem in general, it may sometimes lead to unexpected name shadowing surprises. 
+
