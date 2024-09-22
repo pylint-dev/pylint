@@ -6,7 +6,6 @@ This is the full list of change in pylint 3.x minors, by categories.
 .. toctree::
    :maxdepth: 2
 
-   3.4/index
    3.3/index
    3.2/index
    3.1/index
