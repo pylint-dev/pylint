@@ -1,3 +1,0 @@
-Fix regression causing some f-strings to not be inferred as strings.
-
-Closes #9947
