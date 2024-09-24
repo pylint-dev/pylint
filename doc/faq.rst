@@ -67,13 +67,14 @@ to not be included as default messages.
 You can see the plugin you need to explicitly :ref:`load in the technical reference
 <user_guide/checkers/extensions:optional checkers>`.
 
-I want to use run pylint automatically in my IDE. How do I do that?
+I want to run pylint on each keystroke in my IDE. How do I do that?
 ---------------------------------------------------------------------------
 
 Pylint will never be fast enough to run on every keystroke.
+However, some IDEs can run pylint  when the IDE opens or saves files.
+See, for example, the
+[Microsoft plugin for vs-code](https://github.com/microsoft/vscode-pylint?tab=readme-ov-file#pylint-extension-for-visual-studio-code).
 
-However, IDEs could run pylint automatically *in the background*
-when the IDE saves changed Python files. Contact your IDE with a support request :-)
 
 That said, pylint is best suited for linting on save for small projects, for continuous
 integration jobs, or a git ``pre-push`` hook for big projects. The larger your repository
