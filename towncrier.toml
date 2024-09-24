@@ -1,5 +1,5 @@
 [tool.towncrier]
-version = "3.3.0"
+version = "3.3.1"
 directory = "doc/whatsnew/fragments"
 filename = "doc/whatsnew/3/3.3/index.rst"
 template = "doc/whatsnew/fragments/_template.rst"
