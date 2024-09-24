@@ -67,12 +67,17 @@ to not be included as default messages.
 You can see the plugin you need to explicitly :ref:`load in the technical reference
 <user_guide/checkers/extensions:optional checkers>`.
 
-I want to use pylint on each keystroke in my IDE, how can I do that ?
+I want to run pylint on each keystroke in my IDE. How do I do that?
 ---------------------------------------------------------------------
 
-Don't do it: pylint's full suite of checks is not fast enough for that and never
-will be. pylint is best suited for linting on save for small projects, or for a continuous
-integration job or a git ``pre-push`` hook for big projects. The larger your repository
+Pylint full suite of checks will never be fast enough to run on every keystroke.
+However, some IDEs can run pylint  when the IDE opens or saves files.
+See, for example, the
+[Microsoft plugin for vs-code](https://github.com/microsoft/vscode-pylint?tab=readme-ov-file#pylint-extension-for-visual-studio-code).
+
+
+That said, pylint is best suited for linting on save for small projects, for continuous
+integration jobs, or a git ``pre-push`` hook for big projects. The larger your repository
 is, the slower pylint will be.
 
 If you want to make pylint faster for this type of use case, you can use the ``--errors-only``
