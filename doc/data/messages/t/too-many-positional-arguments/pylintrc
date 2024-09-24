@@ -1,2 +1,2 @@
-[MESSAGES CONTROL]
-disable=too-many-arguments
+[DESIGN]
+max-positional-arguments=3
