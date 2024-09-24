@@ -68,9 +68,9 @@ You can see the plugin you need to explicitly :ref:`load in the technical refere
 <user_guide/checkers/extensions:optional checkers>`.
 
 I want to run pylint on each keystroke in my IDE. How do I do that?
----------------------------------------------------------------------------
+---------------------------------------------------------------------
 
-Pylint will never be fast enough to run on every keystroke.
+Pylint full suite of checks will never be fast enough to run on every keystroke.
 However, some IDEs can run pylint  when the IDE opens or saves files.
 See, for example, the
 [Microsoft plugin for vs-code](https://github.com/microsoft/vscode-pylint?tab=readme-ov-file#pylint-extension-for-visual-studio-code).
