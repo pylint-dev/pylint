@@ -11,13 +11,15 @@ from __future__ import annotations
 import abc
 import argparse
 import sys
-from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pylint import exceptions, extensions, interfaces, utils
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from typing import Any
+
     from pylint.config.help_formatter import _HelpFormatter
     from pylint.lint import PyLinter
     from pylint.lint.run import Run

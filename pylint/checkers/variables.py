@@ -6,23 +6,19 @@
 
 from __future__ import annotations
 
-import collections
 import copy
 import itertools
 import math
 import os
 import re
 from collections import defaultdict
-from collections.abc import Generator, Iterable, Iterator
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import astroid
 import astroid.exceptions
 from astroid import bases, extract_node, nodes, util
-from astroid.nodes import _base_nodes
-from astroid.typing import InferenceResult
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -34,10 +30,17 @@ from pylint.checkers.utils import (
 )
 from pylint.constants import TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
-from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Iterable, Iterator
+    from typing import Any
+
+    from astroid.nodes import _base_nodes
+    from astroid.typing import InferenceResult
+
     from pylint.lint import PyLinter
+    from pylint.typing import MessageDefinitionTuple
+
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
@@ -538,7 +541,7 @@ class NamesConsumer:
 
     def __init__(self, node: nodes.NodeNG, scope_type: str) -> None:
         self._atomic = ScopeConsumer(
-            copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
+            copy.copy(node.locals), {}, defaultdict(list), scope_type
         )
         self.node = node
         self.names_under_always_false_test: set[str] = set()
@@ -3200,7 +3203,7 @@ class VariablesChecker(BaseChecker):
         checked = set()
         unused_wildcard_imports: defaultdict[
             tuple[str, nodes.ImportFrom], list[str]
-        ] = collections.defaultdict(list)
+        ] = defaultdict(list)
         for name, stmt in local_names:
             for imports in stmt.names:
                 real_name = imported_name = imports[0]

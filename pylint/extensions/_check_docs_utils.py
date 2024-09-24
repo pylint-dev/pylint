@@ -8,13 +8,16 @@ from __future__ import annotations
 
 import itertools
 import re
-from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
 from astroid.util import UninferableBase
 
 from pylint.checkers import utils
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 def space_indentation(s: str) -> int:

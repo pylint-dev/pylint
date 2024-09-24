@@ -8,11 +8,14 @@ import contextlib
 import platform
 import sys
 import traceback
-from collections.abc import Iterator, Sequence
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pylint.constants import PYLINT_HOME, full_version
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
 
 
 def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> Path:

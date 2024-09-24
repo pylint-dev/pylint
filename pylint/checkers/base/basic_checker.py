@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import collections
 import itertools
-from collections.abc import Iterator
 from typing import TYPE_CHECKING, Literal, cast
 
 import astroid
@@ -16,12 +15,15 @@ from astroid import nodes, objects, util
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
-from pylint.interfaces import HIGH, INFERENCE, Confidence
+from pylint.interfaces import HIGH, INFERENCE
 from pylint.reporters.ureports import nodes as reporter_nodes
-from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from pylint.interfaces import Confidence
     from pylint.lint.pylinter import PyLinter
+    from pylint.utils import LinterStats
 
 
 class _BasicChecker(BaseChecker):

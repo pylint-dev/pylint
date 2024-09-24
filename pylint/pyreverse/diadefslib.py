@@ -6,17 +6,21 @@
 
 from __future__ import annotations
 
-import argparse
-from collections.abc import Generator
-from typing import Any
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
 from astroid.modutils import is_stdlib_module
 
 from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
-from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.utils import LocalsVisitor
+
+if TYPE_CHECKING:
+    import argparse
+    from collections.abc import Generator
+    from typing import Any
+
+    from pylint.pyreverse.inspector import Linker, Project
 
 # diagram generators ##########################################################
 

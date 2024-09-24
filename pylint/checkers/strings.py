@@ -6,25 +6,28 @@
 
 from __future__ import annotations
 
-import collections
 import re
 import sys
 import tokenize
 from collections import Counter
-from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import astroid
-from astroid import bases, nodes, util
-from astroid.typing import SuccessfulInferenceResult
+from astroid import nodes, util
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import only_required_for_messages
 from pylint.interfaces import HIGH
-from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+    from typing import Literal
+
+    from astroid import bases
+    from astroid.typing import SuccessfulInferenceResult
+
     from pylint.lint import PyLinter
+    from pylint.typing import MessageDefinitionTuple
 
 
 _AST_NODE_STR_TYPES = ("__builtin__.unicode", "__builtin__.str", "builtins.str")
@@ -439,7 +442,7 @@ class StringFormatChecker(BaseChecker):
     def _detect_vacuous_formatting(
         self, node: nodes.Call, positional_arguments: list[SuccessfulInferenceResult]
     ) -> None:
-        counter = collections.Counter(
+        counter = Counter(
             arg.name for arg in positional_arguments if isinstance(arg, nodes.Name)
         )
         for name, count in counter.items():
@@ -833,7 +836,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         Args:
           tokens: The tokens to be checked against for consistent usage.
         """
-        string_delimiters: Counter[str] = collections.Counter()
+        string_delimiters: Counter[str] = Counter()
 
         inside_fstring = False  # whether token is inside f-string (since 3.12)
         target_py312 = self.linter.config.py_version >= (3, 12)

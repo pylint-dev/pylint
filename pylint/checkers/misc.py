@@ -10,13 +10,13 @@ import re
 import tokenize
 from typing import TYPE_CHECKING
 
-from astroid import nodes
-
 from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
-from pylint.typing import ManagedMessage
 
 if TYPE_CHECKING:
+    from astroid import nodes
+
     from pylint.lint import PyLinter
+    from pylint.typing import ManagedMessage
 
 
 class ByIdManagedMessagesChecker(BaseRawFileChecker):

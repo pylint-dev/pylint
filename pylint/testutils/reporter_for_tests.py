@@ -8,10 +8,10 @@ from io import StringIO
 from os import getcwd, sep
 from typing import TYPE_CHECKING
 
-from pylint.message import Message
 from pylint.reporters import BaseReporter
 
 if TYPE_CHECKING:
+    from pylint.message import Message
     from pylint.reporters.ureports.nodes import Section
 
 

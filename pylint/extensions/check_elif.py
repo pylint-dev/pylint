@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import tokenize
-from tokenize import TokenInfo
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -15,6 +13,9 @@ from pylint.checkers.utils import only_required_for_messages
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
+    import tokenize
+    from tokenize import TokenInfo
+
     from pylint.lint import PyLinter
 
 

@@ -6,12 +6,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.interfaces import HIGH
-from pylint.lint import PyLinter
+
+if TYPE_CHECKING:
+    from pylint.lint import PyLinter
 
 
 class RedefinedLoopNameChecker(checkers.BaseChecker):

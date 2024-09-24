@@ -7,20 +7,25 @@
 from __future__ import annotations
 
 import string
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import astroid
-from astroid import bases, nodes
-from astroid.typing import InferenceResult
+from astroid import nodes
 
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import infer_all
 from pylint.interfaces import HIGH
-from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
+    from typing import Literal
+
+    from astroid import bases
+    from astroid.typing import InferenceResult
+
     from pylint.lint import PyLinter
+    from pylint.typing import MessageDefinitionTuple
+
 
 MSGS: dict[str, MessageDefinitionTuple] = (
     {  # pylint: disable=consider-using-namedtuple-or-dataclass

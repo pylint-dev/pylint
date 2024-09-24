@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from astroid import nodes
-
 from pylint.checkers import BaseChecker
 from pylint.constants import DUNDER_METHODS, DUNDER_PROPERTIES, EXTRA_DUNDER_METHODS
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
+    from astroid import nodes
+
     from pylint.lint import PyLinter
 
 

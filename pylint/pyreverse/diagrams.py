@@ -6,14 +6,17 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import Any
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes, util
 
 from pylint.checkers.utils import decorated_with_property, in_type_checking_block
 from pylint.pyreverse.utils import FilterMixIn
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Any
 
 
 class Figure:

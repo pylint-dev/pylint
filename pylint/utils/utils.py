@@ -14,7 +14,6 @@ except ImportError:  # isort < 5
 
     HAS_ISORT_5 = False
 
-import argparse
 import codecs
 import os
 import re
@@ -23,18 +22,24 @@ import textwrap
 import tokenize
 import warnings
 from collections import deque
-from collections.abc import Iterable, Sequence
-from io import BufferedReader, BytesIO
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Literal, TextIO, TypeVar, Union
+from typing import TYPE_CHECKING, Literal, TypeVar, Union
 
-from astroid import Module, modutils, nodes
+from astroid import Module, modutils
 
 from pylint.constants import PY_EXTS
-from pylint.typing import OptionDict
 
 if TYPE_CHECKING:
+    import argparse
+    from collections.abc import Iterable, Sequence
+    from io import BufferedReader, BytesIO
+    from typing import Any, TextIO
+
+    from astroid import nodes
+
     from pylint.lint import PyLinter
+    from pylint.typing import OptionDict
+
 
 DEFAULT_LINE_LENGTH = 79
 

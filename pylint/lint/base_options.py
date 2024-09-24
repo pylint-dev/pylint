@@ -28,9 +28,9 @@ from pylint.config.callback_actions import (
     _MessageHelpAction,
     _OutputFormatAction,
 )
-from pylint.typing import Options
 
 if TYPE_CHECKING:
+    from pylint.typing import Options
     from pylint.lint import PyLinter, Run
 
 

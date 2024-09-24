@@ -8,10 +8,8 @@ import collections
 import copy
 import itertools
 import tokenize
-from collections.abc import Iterator
 from functools import cached_property, reduce
-from re import Pattern
-from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
+from typing import TYPE_CHECKING, NamedTuple, Union, cast
 
 import astroid
 from astroid import bases, nodes
@@ -21,9 +19,14 @@ from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.base.basic_error_checker import _loop_exits_early
 from pylint.checkers.utils import node_frame_class
-from pylint.interfaces import HIGH, INFERENCE, Confidence
+from pylint.interfaces import HIGH, INFERENCE
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from re import Pattern
+    from typing import Any
+
+    from pylint.interfaces import Confidence
     from pylint.lint import PyLinter
 
 

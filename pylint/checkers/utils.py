@@ -13,28 +13,31 @@ import itertools
 import numbers
 import re
 import string
-from collections.abc import Callable, Iterable, Iterator
 from functools import lru_cache, partial
-from re import Match
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING
 
 import astroid.objects
 from astroid import TooManyLevelsError, nodes, util
-from astroid.context import InferenceContext
 from astroid.exceptions import AstroidError
-from astroid.nodes._base_nodes import ImportNode, Statement
-from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
 from pylint.constants import TYPING_NEVER, TYPING_NORETURN
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
     from functools import _lru_cache_wrapper
+    from re import Match
+    from typing import Any, TypeVar
+
+    from astroid.context import InferenceContext
+    from astroid.nodes._base_nodes import ImportNode, Statement
+    from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
     from pylint.checkers import BaseChecker
 
-_NodeT = TypeVar("_NodeT", bound=nodes.NodeNG)
-_CheckerT = TypeVar("_CheckerT", bound="BaseChecker")
-AstCallbackMethod = Callable[[_CheckerT, _NodeT], None]
+    _NodeT = TypeVar("_NodeT", bound=nodes.NodeNG)
+    _CheckerT = TypeVar("_CheckerT", bound="BaseChecker")
+    AstCallbackMethod = Callable[[_CheckerT, _NodeT], None]
+
 
 COMP_NODE_TYPES = (
     nodes.ListComp,

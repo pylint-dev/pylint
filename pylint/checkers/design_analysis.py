@@ -8,19 +8,22 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 import astroid
-from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_enum, only_required_for_messages
 from pylint.interfaces import HIGH
-from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from astroid import nodes
+
     from pylint.lint import PyLinter
+    from pylint.typing import MessageDefinitionTuple
+
 
 MSGS: dict[str, MessageDefinitionTuple] = (
     {  # pylint: disable=consider-using-namedtuple-or-dataclass

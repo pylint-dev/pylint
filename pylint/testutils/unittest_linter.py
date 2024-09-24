@@ -6,13 +6,18 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import TYPE_CHECKING
 
-from astroid import nodes
-
-from pylint.interfaces import UNDEFINED, Confidence
+from pylint.interfaces import UNDEFINED
 from pylint.lint import PyLinter
 from pylint.testutils.output_line import MessageTest
+
+if TYPE_CHECKING:
+    from typing import Any, Literal
+
+    from astroid import nodes
+
+    from pylint.interfaces import Confidence
 
 
 class UnittestLinter(PyLinter):

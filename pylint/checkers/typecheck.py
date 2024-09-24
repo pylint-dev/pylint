@@ -12,17 +12,13 @@ import operator
 import re
 import shlex
 import sys
-from collections.abc import Callable, Iterable
 from functools import cached_property, singledispatch
-from re import Pattern
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING
 
 import astroid
 import astroid.exceptions
 import astroid.helpers
-from astroid import arguments, bases, nodes, util
-from astroid.nodes import _base_nodes
-from astroid.typing import InferenceResult, SuccessfulInferenceResult
+from astroid import bases, nodes, util
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -51,18 +47,27 @@ from pylint.checkers.utils import (
 )
 from pylint.constants import PY310_PLUS
 from pylint.interfaces import HIGH, INFERENCE
-from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
-    from pylint.lint import PyLinter
+    from collections.abc import Callable, Iterable
+    from re import Pattern
+    from typing import Any, Literal, Union
 
-CallableObjects = Union[
-    bases.BoundMethod,
-    bases.UnboundMethod,
-    nodes.FunctionDef,
-    nodes.Lambda,
-    nodes.ClassDef,
-]
+    from astroid import arguments
+    from astroid.nodes import _base_nodes
+    from astroid.typing import InferenceResult, SuccessfulInferenceResult
+
+    from pylint.lint import PyLinter
+    from pylint.typing import MessageDefinitionTuple
+
+    CallableObjects = Union[
+        bases.BoundMethod,
+        bases.UnboundMethod,
+        nodes.FunctionDef,
+        nodes.Lambda,
+        nodes.ClassDef,
+    ]
+
 
 STR_FORMAT = {"builtins.str.format"}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"

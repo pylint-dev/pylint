@@ -6,11 +6,15 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING
 
 from git import GitCommandError
 from git.cmd import Git
 from git.repo import Repo
+
+if TYPE_CHECKING:
+    from typing import Literal
+
 
 PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
 

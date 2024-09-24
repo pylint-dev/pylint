@@ -6,15 +6,17 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import TYPE_CHECKING, TextIO
+from typing import TYPE_CHECKING
 
-from pylint.message import Message
 from pylint.reporters.ureports.nodes import Text
-from pylint.utils import LinterStats
 
 if TYPE_CHECKING:
+    from typing import TextIO
+
     from pylint.lint.pylinter import PyLinter
+    from pylint.message import Message
     from pylint.reporters.ureports.nodes import Section
+    from pylint.utils import LinterStats
 
 
 class BaseReporter:

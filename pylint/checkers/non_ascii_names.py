@@ -12,10 +12,15 @@ The following checkers are intended to make users are aware of these issues.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from astroid import nodes
 
-from pylint import constants, interfaces, lint
+from pylint import constants, interfaces
 from pylint.checkers import base_checker, utils
+
+if TYPE_CHECKING:
+    from pylint import lint
 
 NON_ASCII_HELP = (
     "Used when the name contains at least one non-ASCII unicode character. "

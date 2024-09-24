@@ -5,10 +5,14 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from typing import TYPE_CHECKING
 
 from pylint.constants import MSG_TYPES
-from pylint.interfaces import UNDEFINED, Confidence
+from pylint.interfaces import UNDEFINED
 from pylint.typing import MessageLocationTuple
+
+if TYPE_CHECKING:
+    from pylint.interfaces import Confidence
 
 
 @dataclass(unsafe_hash=True)

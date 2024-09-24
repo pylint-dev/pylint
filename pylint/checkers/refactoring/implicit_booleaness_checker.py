@@ -5,13 +5,17 @@
 from __future__ import annotations
 
 import itertools
+from typing import TYPE_CHECKING
 
 import astroid
-from astroid import bases, nodes, util
+from astroid import bases, nodes
 
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.interfaces import HIGH, INFERENCE
+
+if TYPE_CHECKING:
+    from astroid import util
 
 
 def _is_constant_zero(node: str | nodes.NodeNG) -> bool:

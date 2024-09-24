@@ -5,15 +5,19 @@
 from __future__ import annotations
 
 import contextlib
-from collections.abc import Generator, Iterator
-from typing import Any
-
-from astroid import nodes
+from typing import TYPE_CHECKING
 
 from pylint.testutils.global_test_linter import linter
-from pylint.testutils.output_line import MessageTest
 from pylint.testutils.unittest_linter import UnittestLinter
 from pylint.utils import ASTWalker
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
+    from typing import Any
+
+    from astroid import nodes
+
+    from pylint.testutils.output_line import MessageTest
 
 
 class CheckerTestCase:

@@ -4,14 +4,17 @@
 
 from __future__ import annotations
 
-import collections
 from collections import defaultdict
 from typing import cast
+from typing import TYPE_CHECKING
 
 from pylint import checkers, exceptions
-from pylint.reporters.ureports.nodes import Section, Table
+from pylint.reporters.ureports.nodes import Table
 from pylint.typing import MessageTypesFullName
-from pylint.utils import LinterStats
+
+if TYPE_CHECKING:
+    from pylint.utils import LinterStats
+    from pylint.reporters.ureports.nodes import Section
 
 
 def report_total_messages_stats(
@@ -54,7 +57,7 @@ def report_messages_by_module_stats(
     if len(module_stats) == 1:
         # don't print this report when we are analysing a single module
         raise exceptions.EmptyReportError()
-    by_mod: defaultdict[str, dict[str, int | float]] = collections.defaultdict(dict)
+    by_mod: defaultdict[str, dict[str, int | float]] = defaultdict(dict)
     for m_type in ("fatal", "error", "warning", "refactor", "convention"):
         m_type = cast(MessageTypesFullName, m_type)
         total = stats.get_global_message_count(m_type)

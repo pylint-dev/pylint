@@ -6,7 +6,10 @@ from __future__ import annotations
 
 import tokenize
 from io import StringIO
-from tokenize import TokenInfo
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from tokenize import TokenInfo
 
 
 def _tokenize_str(code: str) -> list[TokenInfo]:

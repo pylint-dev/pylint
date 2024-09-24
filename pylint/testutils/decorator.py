@@ -5,10 +5,13 @@
 from __future__ import annotations
 
 import functools
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING
 
-from pylint.testutils.checker_test_case import CheckerTestCase
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
+
+    from pylint.testutils.checker_test_case import CheckerTestCase
 
 
 def set_config(**kwargs: Any) -> Callable[[Callable[..., None]], Callable[..., None]]:

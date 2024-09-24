@@ -7,9 +7,8 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pylint import extensions, utils
 from pylint.config.argument import (
@@ -24,6 +23,9 @@ from pylint.config.callback_actions import _CallbackAction
 from pylint.config.exceptions import ArgumentPreprocessingError
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from typing import Any
+
     from pylint.lint.run import Run
 
 

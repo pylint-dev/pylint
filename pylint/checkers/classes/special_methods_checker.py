@@ -6,12 +6,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import bases, nodes, util
-from astroid.context import InferenceContext
-from astroid.typing import InferenceResult
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -22,7 +20,15 @@ from pylint.checkers.utils import (
     only_required_for_messages,
     safe_infer,
 )
-from pylint.lint.pylinter import PyLinter
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from astroid.context import InferenceContext
+    from astroid.typing import InferenceResult
+
+    from pylint.lint.pylinter import PyLinter
+
 
 NEXT_METHOD = "__next__"
 

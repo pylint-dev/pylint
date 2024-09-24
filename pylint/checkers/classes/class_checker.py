@@ -7,16 +7,12 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Callable, Sequence
 from functools import cached_property
 from itertools import chain, zip_longest
-from re import Pattern
-from typing import TYPE_CHECKING, Any, NamedTuple, Union
+from typing import TYPE_CHECKING, NamedTuple
 
 import astroid
-from astroid import bases, nodes, util
-from astroid.nodes import LocalsDictNodeNG
-from astroid.typing import SuccessfulInferenceResult
+from astroid import nodes, util
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -40,13 +36,21 @@ from pylint.checkers.utils import (
     uninferable_final_decorators,
 )
 from pylint.interfaces import HIGH, INFERENCE
-from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from re import Pattern
+    from typing import Any, Union
+
+    from astroid import bases
+    from astroid.nodes import LocalsDictNodeNG
+    from astroid.typing import SuccessfulInferenceResult
+
     from pylint.lint.pylinter import PyLinter
+    from pylint.typing import MessageDefinitionTuple
 
+    _AccessNodes = Union[nodes.Attribute, nodes.AssignAttr]
 
-_AccessNodes = Union[nodes.Attribute, nodes.AssignAttr]
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 ALLOWED_PROPERTIES = {"bultins.property", "functools.cached_property"}

@@ -13,27 +13,31 @@ import argparse
 import os
 import pathlib
 import re
-from collections.abc import Callable, Sequence
 from glob import glob
 from re import Pattern
-from typing import Any, Literal, Union
+from typing import TYPE_CHECKING
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
-from pylint.config.callback_actions import _CallbackAction
 from pylint.config.deprecation_actions import _NewNamesAction, _OldNamesAction
 
-_ArgumentTypes = Union[
-    str,
-    int,
-    float,
-    bool,
-    Pattern[str],
-    Sequence[str],
-    Sequence[Pattern[str]],
-    tuple[int, ...],
-]
-"""List of possible argument types."""
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from typing import Any, Literal, Union
+
+    from pylint.config.callback_actions import _CallbackAction
+
+    _ArgumentTypes = Union[
+        str,
+        int,
+        float,
+        bool,
+        Pattern[str],
+        Sequence[str],
+        Sequence[Pattern[str]],
+        tuple[int, ...],
+    ]
+    """List of possible argument types."""
 
 
 def _confidence_transformer(value: str) -> Sequence[str]:

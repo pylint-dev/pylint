@@ -11,14 +11,17 @@ import re
 import shutil
 import subprocess
 import sys
-from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
-from astroid.typing import InferenceResult
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any, Optional, Union
+
+    from astroid.typing import InferenceResult
+
     from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
 
     _CallbackT = Callable[
