@@ -24,6 +24,7 @@ from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
     in_type_checking_block,
     is_module_ignored,
+    is_node_in_type_annotation_context,
     is_postponed_evaluation_enabled,
     is_sys_guard,
     overridden_method,
@@ -409,6 +410,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when an imported module or variable is not used from a "
         "`'from X import *'` style import.",
     ),
+    "R0615": (
+        "`%s` used only for typechecking but imported outside of a typechecking block",
+        "unguarded-typing-import",
+        "Used when an import is used only for typechecking but imported outside of a typechecking block.",
+        {
+            "default_enabled": False,
+        },
+    ),
     "W0621": (
         "Redefining name %r from outer scope (line %s)",
         "redefined-outer-name",
@@ -482,6 +491,7 @@ class NamesConsumer:
 
     to_consume: Consumption
     consumed: Consumption
+    consumed_as_type: Consumption
     consumed_uncertain: Consumption
     """Retrieves nodes filtered out by get_next_to_consume() that may not
     have executed.
@@ -498,6 +508,7 @@ class NamesConsumer:
 
         self.to_consume = copy.copy(node.locals)
         self.consumed = {}
+        self.consumed_as_type = {}
         self.consumed_uncertain = defaultdict(list)
 
         self.names_under_always_false_test: set[str] = set()
@@ -506,30 +517,46 @@ class NamesConsumer:
     def __repr__(self) -> str:
         _to_consumes = [f"{k}->{v}" for k, v in self.to_consume.items()]
         _consumed = [f"{k}->{v}" for k, v in self.consumed.items()]
+        _consumed_as_type = [f"{k}->{v}" for k, v in self.consumed_as_type.items()]
         _consumed_uncertain = [f"{k}->{v}" for k, v in self.consumed_uncertain.items()]
         to_consumes = ", ".join(_to_consumes)
         consumed = ", ".join(_consumed)
+        consumed_as_type = ", ".join(_consumed_as_type)
         consumed_uncertain = ", ".join(_consumed_uncertain)
         return f"""
 to_consume : {to_consumes}
 consumed : {consumed}
+consumed_as_type : {consumed_as_type}
 consumed_uncertain: {consumed_uncertain}
 scope_type : {self.scope_type}
 """
 
-    def mark_as_consumed(self, name: str, consumed_nodes: list[nodes.NodeNG]) -> None:
+    def mark_as_consumed(
+        self,
+        name: str,
+        consumed_nodes: list[nodes.NodeNG],
+        consumed_as_type: bool = False,
+    ) -> None:
         """Mark the given nodes as consumed for the name.
 
         If all of the nodes for the name were consumed, delete the name from
         the to_consume dictionary
         """
-        unconsumed = [n for n in self.to_consume[name] if n not in set(consumed_nodes)]
-        self.consumed[name] = consumed_nodes
+        consumed = self.consumed_as_type if consumed_as_type else self.consumed
+        consumed[name] = consumed_nodes
 
-        if unconsumed:
-            self.to_consume[name] = unconsumed
-        else:
-            del self.to_consume[name]
+        if name in self.to_consume:
+            unconsumed = [
+                n for n in self.to_consume[name] if n not in set(consumed_nodes)
+            ]
+
+            if unconsumed:
+                self.to_consume[name] = unconsumed
+            else:
+                del self.to_consume[name]
+
+        if not consumed_as_type and name in self.consumed_as_type:
+            del self.consumed_as_type[name]
 
     def get_next_to_consume(self, node: nodes.Name) -> list[nodes.NodeNG] | None:
         """Return a list of the nodes that define `node` from this scope.
@@ -571,6 +598,9 @@ scope_type : {self.scope_type}
         # And no comprehension is under the node's frame
         if VariablesChecker._comprehension_between_frame_and_node(node):
             return found_nodes
+
+        if found_nodes is None:
+            found_nodes = self.consumed_as_type.get(name)
 
         # Filter out assignments in ExceptHandlers that node is not contained in
         if found_nodes:
@@ -1356,7 +1386,8 @@ class VariablesChecker(BaseChecker):
         assert len(self._to_consume) == 1
 
         self._check_metaclasses(node)
-        not_consumed = self._to_consume.pop().to_consume
+        consumer = self._to_consume.pop()
+        not_consumed = consumer.to_consume
         # attempt to check for __all__ if defined
         if "__all__" in node.locals:
             self._check_all(node, not_consumed)
@@ -1368,7 +1399,7 @@ class VariablesChecker(BaseChecker):
         if not self.linter.config.init_import and node.package:
             return
 
-        self._check_imports(not_consumed)
+        self._check_imports(not_consumed, consumer.consumed_as_type)
         self._type_annotation_names = []
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
@@ -1672,7 +1703,11 @@ class VariablesChecker(BaseChecker):
                 # They will have already had a chance to emit used-before-assignment.
                 # We check here instead of before every single return in _check_consumer()
                 nodes_to_consume += current_consumer.consumed_uncertain[node.name]
-                current_consumer.mark_as_consumed(node.name, nodes_to_consume)
+                current_consumer.mark_as_consumed(
+                    node.name,
+                    nodes_to_consume,
+                    consumed_as_type=is_node_in_type_annotation_context(node),
+                )
             if action is VariableVisitConsumerAction.CONTINUE:
                 continue
             if action is VariableVisitConsumerAction.RETURN:
@@ -3163,7 +3198,11 @@ class VariablesChecker(BaseChecker):
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches
-    def _check_imports(self, not_consumed: Consumption) -> None:
+    def _check_imports(
+        self,
+        not_consumed: Consumption,
+        consumed_as_type: Consumption,
+    ) -> None:
         local_names = _fix_dot_imports(not_consumed)
         checked = set()
         unused_wildcard_imports: defaultdict[
@@ -3251,7 +3290,25 @@ class VariablesChecker(BaseChecker):
             self.add_message(
                 "unused-wildcard-import", args=(arg_string, module[0]), node=module[1]
             )
+
+        self._check_type_imports(consumed_as_type)
+
         del self._to_consume
+
+    def _check_type_imports(
+        self,
+        consumed_as_type: dict[str, list[nodes.NodeNG]],
+    ) -> None:
+        for name, import_node in _fix_dot_imports(consumed_as_type):
+            if import_node.names[0][0] == "*":
+                continue
+
+            if not in_type_checking_block(import_node):
+                self.add_message(
+                    "unguarded-typing-import",
+                    args=name,
+                    node=import_node,
+                )
 
     def _check_metaclasses(self, node: nodes.Module | nodes.FunctionDef) -> None:
         """Update consumption analysis for metaclasses."""
