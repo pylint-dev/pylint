@@ -14,6 +14,20 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.3.1?
+---------------------------
+Release date: 2024-09-24
+
+
+False Positives Fixed
+---------------------
+
+- Fix regression causing some f-strings to not be inferred as strings.
+
+  Closes #9947 (`#9947 <https://github.com/pylint-dev/pylint/issues/9947>`_)
+
+
+
 What's new in Pylint 3.3.0?
 ---------------------------
 Release date: 2024-09-20
