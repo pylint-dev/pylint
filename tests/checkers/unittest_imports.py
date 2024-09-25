@@ -95,7 +95,7 @@ class TestImportsChecker(CheckerTestCase):
     def test_wildcard_import_init(self) -> None:
         context_file = os.path.join(REGR_DATA, "dummy_wildcard.py")
 
-        with augmented_sys_path([discover_package_path(context_file, [])]):
+        with augmented_sys_path(discover_package_path(context_file, [])):
             module = astroid.MANAGER.ast_from_module_name("init_wildcard", context_file)
             import_from = module.body[0]
 
@@ -105,7 +105,7 @@ class TestImportsChecker(CheckerTestCase):
     def test_wildcard_import_non_init(self) -> None:
         context_file = os.path.join(REGR_DATA, "dummy_wildcard.py")
 
-        with augmented_sys_path([discover_package_path(context_file, [])]):
+        with augmented_sys_path(discover_package_path(context_file, [])):
             module = astroid.MANAGER.ast_from_module_name("wildcard", context_file)
             import_from = module.body[0]
             msg = MessageTest(

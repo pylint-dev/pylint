@@ -133,7 +133,8 @@ def test_one_arg(fake_path: list[str], case: list[str]) -> None:
         expected = [join(chroot, "a"), *fake_path]
 
         extra_sys_paths = [
-            expand_modules.discover_package_path(arg, []) for arg in case
+            path for arg in case
+            for path in expand_modules.discover_package_path(arg, [])
         ]
 
         assert sys.path == fake_path
@@ -157,7 +158,8 @@ def test_two_similar_args(fake_path: list[str], case: list[str]) -> None:
         expected = [join(chroot, "a"), *fake_path]
 
         extra_sys_paths = [
-            expand_modules.discover_package_path(arg, []) for arg in case
+            path for arg in case
+            for path in expand_modules.discover_package_path(arg, [])
         ]
 
         assert sys.path == fake_path
@@ -183,7 +185,8 @@ def test_more_args(fake_path: list[str], case: list[str]) -> None:
         ] + fake_path
 
         extra_sys_paths = [
-            expand_modules.discover_package_path(arg, []) for arg in case
+            path for arg in case
+            for path in expand_modules.discover_package_path(arg, [])
         ]
 
         assert sys.path == fake_path
@@ -1242,7 +1245,7 @@ print(submodule1)
 """
             )
         os.chdir("namespace")
-        extra_sys_paths = [expand_modules.discover_package_path(tmpdir, [])]
+        extra_sys_paths = expand_modules.discover_package_path(tmpdir, [])
 
         # Add the parent directory to sys.path
         with lint.augmented_sys_path(extra_sys_paths):
@@ -1267,7 +1270,7 @@ def test_lint_namespace_package_under_dir_on_path(initialized_linter: PyLinter) 
     with tempdir() as tmpdir:
         create_files(["namespace_on_path/submodule1.py"])
         os.chdir(tmpdir)
-        extra_sys_paths = [expand_modules.discover_package_path(tmpdir, [])]
+        extra_sys_paths = expand_modules.discover_package_path(tmpdir, [])
         with lint.augmented_sys_path(extra_sys_paths):
             linter.check(["namespace_on_path"])
     assert linter.file_state.base_name == "namespace_on_path"
