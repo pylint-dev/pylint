@@ -42,9 +42,9 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, TextIO
 
-    from pylint.typing import DirectoryNamespaceDict, OptionDict
-    from pylint.config.arguments_provider import _ArgumentsProvider
     from pylint.config.argument import _Argument
+    from pylint.config.arguments_provider import _ArgumentsProvider
+    from pylint.typing import DirectoryNamespaceDict, OptionDict
 
 
 class _ArgumentsManager:

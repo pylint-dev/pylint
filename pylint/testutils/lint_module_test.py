@@ -21,10 +21,7 @@ from pylint.lint import PyLinter
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
 
 # need to import from functional.test_file to avoid cyclic import
-from pylint.testutils.functional.test_file import (
-    NoFileError,
-    parse_python_version,
-)
+from pylint.testutils.functional.test_file import NoFileError, parse_python_version
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 

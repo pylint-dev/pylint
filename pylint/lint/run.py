@@ -24,8 +24,8 @@ from pylint.lint.base_options import _make_run_options
 from pylint.lint.pylinter import MANAGER, PyLinter
 
 if TYPE_CHECKING:
-    from typing import ClassVar
     from collections.abc import Sequence
+    from typing import ClassVar
 
     from pylint.reporters.base_reporter import BaseReporter
 

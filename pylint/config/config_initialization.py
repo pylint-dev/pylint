@@ -19,8 +19,8 @@ from pylint.config.exceptions import (
 from pylint.utils import utils
 
 if TYPE_CHECKING:
-    from pylint.lint import PyLinter
     from pylint import reporters
+    from pylint.lint import PyLinter
 
 
 def _config_initialization(

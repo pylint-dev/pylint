@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Literal, TypedDict, cast, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, TypedDict, cast
 
 if TYPE_CHECKING:
     from pylint.typing import MessageTypesFullName

@@ -14,10 +14,7 @@ from git.repo import Repo
 
 from pylint.lint import Run
 from pylint.reporters.json_reporter import JSONReporter
-from pylint.testutils._primer.primer_command import (
-    PackageData,
-    PrimerCommand,
-)
+from pylint.testutils._primer.primer_command import PackageData, PrimerCommand
 
 if TYPE_CHECKING:
     from pylint.message import Message

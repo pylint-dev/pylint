@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
     from pylint.lint import PyLinter
     from pylint.message import Message
-    from pylint.reporters.ureports.nodes import Section
     from pylint.reporters.base_reporter import BaseReporter
+    from pylint.reporters.ureports.nodes import Section
     from pylint.utils import LinterStats
 
 

@@ -9,11 +9,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Any
     from collections.abc import Iterator
+    from typing import Any
 
-    from pylint.typing import OptionDict, Options
     from pylint.config.arguments_manager import _ArgumentsManager
+    from pylint.typing import OptionDict, Options
 
 
 class _ArgumentsProvider:

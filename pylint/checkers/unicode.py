@@ -19,16 +19,15 @@ import re
 from collections import OrderedDict
 from functools import lru_cache
 from tokenize import detect_encoding
-from typing import TYPE_CHECKING
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import pylint.interfaces
 import pylint.lint
 from pylint import checkers
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
     import io
+    from collections.abc import Iterable
     from typing import TypeVar
 
     from astroid import nodes

@@ -23,8 +23,8 @@ if TYPE_CHECKING:
 
     from astroid import nodes
 
-    from pylint.lint import PyLinter
     from pylint.interfaces import Confidence
+    from pylint.lint import PyLinter
     from pylint.typing import (
         MessageDefinitionTuple,
         OptionDict,

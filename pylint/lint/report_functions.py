@@ -5,16 +5,15 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import cast
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pylint import checkers, exceptions
 from pylint.reporters.ureports.nodes import Table
 from pylint.typing import MessageTypesFullName
 
 if TYPE_CHECKING:
-    from pylint.utils import LinterStats
     from pylint.reporters.ureports.nodes import Section
+    from pylint.utils import LinterStats
 
 
 def report_total_messages_stats(

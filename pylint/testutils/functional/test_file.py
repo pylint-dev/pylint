@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import configparser
 from os.path import basename, exists, join
-from typing import TypedDict, TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
     from collections.abc import Callable

@@ -50,18 +50,15 @@ from pylint.message import Message, MessageDefinitionStore
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.typing import (
-    FileItem,
-    MessageLocationTuple,
-)
+from pylint.typing import FileItem, MessageLocationTuple
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
 
 if TYPE_CHECKING:
     import argparse
+    from collections.abc import Callable, Iterable, Iterator, Sequence
     from re import Pattern
     from types import ModuleType
     from typing import Any
-    from collections.abc import Callable, Iterable, Iterator, Sequence
 
     from astroid import nodes
 

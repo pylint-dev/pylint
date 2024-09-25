@@ -12,8 +12,8 @@ from typing import TYPE_CHECKING
 from astroid import modutils
 
 if TYPE_CHECKING:
-    from re import Pattern
     from collections.abc import Sequence
+    from re import Pattern
 
     from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 

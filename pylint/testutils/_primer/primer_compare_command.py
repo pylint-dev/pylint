@@ -7,13 +7,11 @@ import json
 from pathlib import PurePosixPath
 from typing import TYPE_CHECKING
 
-from pylint.testutils._primer.primer_command import (
-    PackageData,
-    PrimerCommand,
-)
+from pylint.testutils._primer.primer_command import PackageData, PrimerCommand
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from pylint.reporters.json_reporter import OldJsonExport
     from pylint.testutils._primer.primer_command import PackageMessages
 

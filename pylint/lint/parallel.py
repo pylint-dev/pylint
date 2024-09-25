@@ -25,8 +25,8 @@ except ImportError:
     ProcessPoolExecutor = None  # type: ignore[assignment,misc]
 
 if TYPE_CHECKING:
-    from typing import Any
     from collections.abc import Iterable, Sequence
+    from typing import Any
 
     from pylint.lint import PyLinter
     from pylint.message import Message
