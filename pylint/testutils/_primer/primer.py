@@ -9,6 +9,7 @@ import json
 import sys
 from typing import TYPE_CHECKING
 
+from pylint.testutils._primer import PackageToLint
 from pylint.testutils._primer.primer_compare_command import CompareCommand
 from pylint.testutils._primer.primer_prepare_command import PrepareCommand
 from pylint.testutils._primer.primer_run_command import RunCommand
@@ -16,7 +17,6 @@ from pylint.testutils._primer.primer_run_command import RunCommand
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from pylint.testutils._primer import PackageToLint
     from pylint.testutils._primer.primer_command import PrimerCommand
 
 
