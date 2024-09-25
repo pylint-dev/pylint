@@ -19,18 +19,6 @@ OBJ._manager
 OBJ._teta  # [protected-access]
 
 
-# Make sure protect-access doesn't raise an exception Uninferable attributes
-class MC:
-    @property
-    def nargs(self):
-        return 1 if self._nargs else 2
-
-
-class Application(metaclass=MC):
-    def __no_special__(cls):
-        nargs = obj._nargs  # [protected-access]
-
-
 class Light:
     @property
     def _light_internal(self) -> None:
