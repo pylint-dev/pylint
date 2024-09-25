@@ -66,7 +66,7 @@ New Checks
 
   Closes #9099 (`#9099 <https://github.com/pylint-dev/pylint/issues/9099>`_)
 
-- Add `using-exception-group-in-unsupported-version` and
+- Add `using-exception-groups-in-unsupported-version` and
   `using-generic-type-syntax-in-unsupported-version` for uses of Python 3.11+ or
   3.12+ features on lower supported versions provided with `--py-version`.
 
