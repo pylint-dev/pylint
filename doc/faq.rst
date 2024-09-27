@@ -107,7 +107,7 @@ pydocstyle_: missing-module-docstring, missing-class-docstring, missing-function
 
 pep8-naming_: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
 
-isort_ and flake8-import-order_: wrong-import-order
+isort_ and flake8-import-order_: ungrouped-imports, wrong-import-order
 
 .. _`pycodestyle`: https://github.com/PyCQA/pycodestyle
 .. _`pyflakes`: https://github.com/PyCQA/pyflakes
