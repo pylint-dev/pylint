@@ -41,6 +41,8 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
     from pylint.typing import MessageDefinitionTuple
 
+    Consumption = dict[str, list[nodes.NodeNG]]
+
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
@@ -261,7 +263,7 @@ def _infer_name_module(node: nodes.Import, name: str) -> Generator[InferenceResu
 
 
 def _fix_dot_imports(
-    not_consumed: dict[str, list[nodes.NodeNG]]
+    not_consumed: Consumption,
 ) -> list[tuple[str, _base_nodes.ImportNode]]:
     """Try to fix imports with multiple dots, by returning a dictionary
     with the import names expanded.
@@ -533,9 +535,9 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 class ScopeConsumer(NamedTuple):
     """Store nodes and their consumption states."""
 
-    to_consume: dict[str, list[nodes.NodeNG]]
-    consumed: dict[str, list[nodes.NodeNG]]
-    consumed_uncertain: defaultdict[str, list[nodes.NodeNG]]
+    to_consume: Consumption
+    consumed: Consumption
+    consumed_uncertain: Consumption
     scope_type: str
 
 
@@ -573,15 +575,15 @@ scope_type : {self._atomic.scope_type}
         return iter(self._atomic)
 
     @property
-    def to_consume(self) -> dict[str, list[nodes.NodeNG]]:
+    def to_consume(self) -> Consumption:
         return self._atomic.to_consume
 
     @property
-    def consumed(self) -> dict[str, list[nodes.NodeNG]]:
+    def consumed(self) -> Consumption:
         return self._atomic.consumed
 
     @property
-    def consumed_uncertain(self) -> defaultdict[str, list[nodes.NodeNG]]:
+    def consumed_uncertain(self) -> Consumption:
         """Retrieves nodes filtered out by get_next_to_consume() that may not
         have executed.
 
@@ -3171,7 +3173,7 @@ class VariablesChecker(BaseChecker):
     def _check_all(
         self,
         node: nodes.Module,
-        not_consumed: dict[str, list[nodes.NodeNG]],
+        not_consumed: Consumption,
     ) -> None:
         try:
             assigned = next(node.igetattr("__all__"))
@@ -3226,7 +3228,7 @@ class VariablesChecker(BaseChecker):
                             # when the file will be checked
                             pass
 
-    def _check_globals(self, not_consumed: dict[str, nodes.NodeNG]) -> None:
+    def _check_globals(self, not_consumed: Consumption) -> None:
         if self._allow_global_unused_variables:
             return
         for name, node_lst in not_consumed.items():
@@ -3236,7 +3238,7 @@ class VariablesChecker(BaseChecker):
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches
-    def _check_imports(self, not_consumed: dict[str, list[nodes.NodeNG]]) -> None:
+    def _check_imports(self, not_consumed: Consumption) -> None:
         local_names = _fix_dot_imports(not_consumed)
         checked = set()
         unused_wildcard_imports: defaultdict[
@@ -3328,7 +3330,7 @@ class VariablesChecker(BaseChecker):
 
     def _check_metaclasses(self, node: nodes.Module | nodes.FunctionDef) -> None:
         """Update consumption analysis for metaclasses."""
-        consumed: list[tuple[dict[str, list[nodes.NodeNG]], str]] = []
+        consumed: list[tuple[Consumption, str]] = []
 
         for child_node in node.get_children():
             if isinstance(child_node, nodes.ClassDef):
@@ -3343,12 +3345,12 @@ class VariablesChecker(BaseChecker):
         self,
         klass: nodes.ClassDef,
         parent_node: nodes.Module | nodes.FunctionDef,
-    ) -> list[tuple[dict[str, list[nodes.NodeNG]], str]]:
+    ) -> list[tuple[Consumption, str]]:
         if not klass._metaclass:
             # Skip if this class doesn't use explicitly a metaclass, but inherits it from ancestors
             return []
 
-        consumed: list[tuple[dict[str, list[nodes.NodeNG]], str]] = []
+        consumed: list[tuple[Consumption, str]] = []
         metaclass = klass.metaclass()
         name = ""
         if isinstance(klass._metaclass, nodes.Name):
