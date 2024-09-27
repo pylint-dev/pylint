@@ -12,6 +12,7 @@ import os
 import warnings
 from collections.abc import Generator
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import astroid
 import pytest
@@ -19,7 +20,10 @@ import pytest
 from pylint.pyreverse import inspector
 from pylint.pyreverse.inspector import Project
 from pylint.testutils.utils import _test_cwd
-from pylint.typing import GetProjectCallable
+
+if TYPE_CHECKING:
+    from pylint.testutils.pyreverse import GetProjectCallable
+
 
 HERE = Path(__file__)
 TESTS = HERE.parent.parent

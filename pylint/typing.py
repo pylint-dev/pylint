@@ -17,14 +17,12 @@ from typing import (
     Literal,
     NamedTuple,
     Optional,
-    Protocol,
     TypedDict,
     Union,
 )
 
 if TYPE_CHECKING:
     from pylint.config.callback_actions import _CallbackAction
-    from pylint.pyreverse.inspector import Project
     from pylint.reporters.ureports.nodes import Section
     from pylint.utils import LinterStats
 
@@ -127,9 +125,3 @@ MessageDefinitionTuple = Union[
     tuple[str, str, str, ExtraMessageOptions],
 ]
 DirectoryNamespaceDict = dict[Path, tuple[argparse.Namespace, "DirectoryNamespaceDict"]]
-
-
-class GetProjectCallable(Protocol):
-    def __call__(
-        self, module: str, name: str | None = "No Name"
-    ) -> Project: ...  # pragma: no cover

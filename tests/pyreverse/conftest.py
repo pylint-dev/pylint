@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 import pytest
 from astroid.nodes.scoped_nodes import Module
@@ -12,7 +13,9 @@ from astroid.nodes.scoped_nodes import Module
 from pylint.lint import augmented_sys_path, discover_package_path
 from pylint.pyreverse.inspector import Project, project_from_files
 from pylint.testutils.pyreverse import PyreverseConfig
-from pylint.typing import GetProjectCallable
+
+if TYPE_CHECKING:
+    from pylint.testutils.pyreverse import GetProjectCallable
 
 
 @pytest.fixture()
@@ -73,7 +76,9 @@ def get_project() -> GetProjectCallable:
         """Return an astroid project representation."""
 
         def _astroid_wrapper(
-            func: Callable[[str], Module], modname: str, _verbose: bool = False
+            func: Callable[[str], Module],
+            modname: str,
+            _verbose: bool = False,
         ) -> Module:
             return func(modname)
 

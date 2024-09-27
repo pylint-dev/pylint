@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from astroid import extract_node, nodes
@@ -24,7 +25,10 @@ from pylint.pyreverse.diagrams import DiagramEntity, Relationship
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.testutils.pyreverse import PyreverseConfig
 from pylint.testutils.utils import _test_cwd
-from pylint.typing import GetProjectCallable
+
+if TYPE_CHECKING:
+    from pylint.testutils.pyreverse import GetProjectCallable
+
 
 HERE = Path(__file__)
 TESTS = HERE.parent.parent

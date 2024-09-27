@@ -6,10 +6,14 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker
 from pylint.testutils.pyreverse import PyreverseConfig
-from pylint.typing import GetProjectCallable
+
+if TYPE_CHECKING:
+    from pylint.testutils.pyreverse import GetProjectCallable
 
 
 def test_property_handling(

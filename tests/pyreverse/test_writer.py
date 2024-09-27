@@ -12,6 +12,7 @@ from collections.abc import Iterator
 from difflib import unified_diff
 from pathlib import Path
 from unittest.mock import Mock
+from typing import TYPE_CHECKING
 
 import pytest
 from pytest import MonkeyPatch
@@ -20,7 +21,10 @@ from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.writer import DiagramWriter
 from pylint.testutils.pyreverse import PyreverseConfig
-from pylint.typing import GetProjectCallable
+
+if TYPE_CHECKING:
+    from pylint.testutils.pyreverse import GetProjectCallable
+
 
 _DEFAULTS = {
     "all_ancestors": None,
