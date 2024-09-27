@@ -72,8 +72,7 @@ I want to run pylint on each keystroke in my IDE. How do I do that?
 
 Pylint full suite of checks will never be fast enough to run on every keystroke.
 However, some IDEs can run pylint  when the IDE opens or saves files.
-See, for example, the
-[Microsoft plugin for vs-code](https://github.com/microsoft/vscode-pylint?tab=readme-ov-file#pylint-extension-for-visual-studio-code).
+See, for example, the `Microsoft plugin for VS Code`_.
 
 
 That said, pylint is best suited for linting on save for small projects, for continuous
@@ -84,6 +83,8 @@ If you want to make pylint faster for this type of use case, you can use the ``-
 option, which will remove all the refactor, convention, and warning checks. You can also disable
 checks with inherently high complexity that need to analyse the full code base like
 ``duplicate-code`` or ``cyclic-import`` (this list is not exhaustive).
+
+.. _`Microsoft plugin for VS Code`: https://github.com/microsoft/vscode-pylint#pylint-extension-for-visual-studio-code
 
 Why do I have non-deterministic results when I try to parallelize pylint ?
 --------------------------------------------------------------------------
