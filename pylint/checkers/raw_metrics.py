@@ -5,14 +5,18 @@
 from __future__ import annotations
 
 import tokenize
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 from pylint.checkers import BaseTokenChecker
-from pylint.reporters.ureports.nodes import Paragraph, Section, Table, Text
-from pylint.utils import LinterStats, diff_string
+from pylint.reporters.ureports.nodes import Paragraph, Table, Text
+from pylint.utils import diff_string
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from pylint.lint import PyLinter
+    from pylint.reporters.ureports.nodes import Section
+    from pylint.utils import LinterStats
 
 
 def report_raw_stats(

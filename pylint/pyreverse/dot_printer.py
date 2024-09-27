@@ -11,11 +11,13 @@ import subprocess
 import tempfile
 from enum import Enum
 from pathlib import Path
-
-from astroid import nodes
+from typing import TYPE_CHECKING
 
 from pylint.pyreverse.printer import EdgeType, Layout, NodeProperties, NodeType, Printer
 from pylint.pyreverse.utils import get_annotation_label
+
+if TYPE_CHECKING:
+    from astroid import nodes
 
 
 class HTMLLabels(Enum):

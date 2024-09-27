@@ -8,11 +8,14 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING
 
 from pylint.config._pylint_config.help_message import get_help
 from pylint.config.callback_actions import _AccessParserAction
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Any
 
 
 class _HelpAction(_AccessParserAction):

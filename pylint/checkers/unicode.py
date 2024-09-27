@@ -15,21 +15,24 @@ from __future__ import annotations
 
 import codecs
 import contextlib
-import io
 import re
 from collections import OrderedDict
-from collections.abc import Iterable
 from functools import lru_cache
 from tokenize import detect_encoding
-from typing import NamedTuple, TypeVar
-
-from astroid import nodes
+from typing import TYPE_CHECKING, NamedTuple
 
 import pylint.interfaces
 import pylint.lint
 from pylint import checkers
 
-_StrLike = TypeVar("_StrLike", str, bytes)
+if TYPE_CHECKING:
+    import io
+    from collections.abc import Iterable
+    from typing import TypeVar
+
+    from astroid import nodes
+
+    _StrLike = TypeVar("_StrLike", str, bytes)
 
 # Based on:
 # https://golangexample.com/go-linter-which-checks-for-dangerous-unicode-character-sequences/

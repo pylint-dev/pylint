@@ -7,9 +7,8 @@ from __future__ import annotations
 import os
 import sys
 import warnings
-from collections.abc import Sequence
 from pathlib import Path
-from typing import ClassVar
+from typing import TYPE_CHECKING
 
 from pylint import config
 from pylint.checkers.utils import clear_lru_caches
@@ -23,7 +22,13 @@ from pylint.config.utils import _preprocess_options
 from pylint.constants import full_version
 from pylint.lint.base_options import _make_run_options
 from pylint.lint.pylinter import MANAGER, PyLinter
-from pylint.reporters.base_reporter import BaseReporter
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import ClassVar
+
+    from pylint.reporters.base_reporter import BaseReporter
+
 
 try:
     import multiprocessing

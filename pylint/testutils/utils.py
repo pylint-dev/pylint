@@ -7,10 +7,13 @@ from __future__ import annotations
 import contextlib
 import os
 import sys
-from collections.abc import Generator, Iterator
 from copy import copy
-from pathlib import Path
-from typing import TextIO
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Iterator
+    from pathlib import Path
+    from typing import TextIO
 
 
 @contextlib.contextmanager

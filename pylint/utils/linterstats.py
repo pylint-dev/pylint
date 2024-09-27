@@ -4,9 +4,10 @@
 
 from __future__ import annotations
 
-from typing import Literal, TypedDict, cast
+from typing import TYPE_CHECKING, Literal, TypedDict, cast
 
-from pylint.typing import MessageTypesFullName
+if TYPE_CHECKING:
+    from pylint.typing import MessageTypesFullName
 
 
 class BadNames(TypedDict):

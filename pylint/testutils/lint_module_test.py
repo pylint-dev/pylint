@@ -11,27 +11,30 @@ import sys
 from collections import Counter
 from io import StringIO
 from pathlib import Path
-from typing import TextIO
+from typing import TYPE_CHECKING
 
 import pytest
-from _pytest.config import Config
 
 from pylint import checkers
 from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
-from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
 
 # need to import from functional.test_file to avoid cyclic import
-from pylint.testutils.functional.test_file import (
-    FunctionalTestFile,
-    NoFileError,
-    parse_python_version,
-)
+from pylint.testutils.functional.test_file import NoFileError, parse_python_version
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 
-MessageCounter = Counter[tuple[int, str]]
+if TYPE_CHECKING:
+    from typing import TextIO
+
+    from _pytest.config import Config
+
+    from pylint.message.message import Message
+    from pylint.testutils.functional.test_file import FunctionalTestFile
+
+    MessageCounter = Counter[tuple[int, str]]
+
 
 PYLINTRC = Path(__file__).parent / "testing_pylintrc"
 

@@ -11,13 +11,11 @@ import copy
 import os
 import sys
 from collections import defaultdict
-from collections.abc import ItemsView, Sequence
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Union
 
 import astroid
 from astroid import nodes
-from astroid.nodes._base_nodes import ImportNode
 
 from pylint.checkers import BaseChecker, DeprecatedMixin
 from pylint.checkers.utils import (
@@ -32,13 +30,18 @@ from pylint.constants import MAX_NUMBER_OF_IMPORT_SHOWN
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import HIGH
-from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
-from pylint.typing import MessageDefinitionTuple
+from pylint.reporters.ureports.nodes import Paragraph, VerbatimText
 from pylint.utils import IsortDriver
-from pylint.utils.linterstats import LinterStats
 
 if TYPE_CHECKING:
+    from collections.abc import ItemsView, Sequence
+
+    from astroid.nodes._base_nodes import ImportNode
+
     from pylint.lint import PyLinter
+    from pylint.reporters.ureports.nodes import Section
+    from pylint.typing import MessageDefinitionTuple
+    from pylint.utils.linterstats import LinterStats
 
 
 # The dictionary with Any should actually be a _ImportTree again

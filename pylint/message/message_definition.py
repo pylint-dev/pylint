@@ -4,16 +4,17 @@
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING
-
-from astroid import nodes
 
 from pylint.constants import _SCOPE_EXEMPT, MSG_TYPES, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.utils import normalize_text
 
 if TYPE_CHECKING:
+    import sys
+
+    from astroid import nodes
+
     from pylint.checkers import BaseChecker
 
 

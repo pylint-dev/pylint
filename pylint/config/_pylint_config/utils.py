@@ -7,17 +7,21 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Callable
 from pathlib import Path
-from typing import Literal, TypeVar
+from typing import TYPE_CHECKING
 
-if sys.version_info >= (3, 10):
-    from typing import ParamSpec
-else:
-    from typing_extensions import ParamSpec
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Literal, TypeVar
 
-_P = ParamSpec("_P")
-_ReturnValueT = TypeVar("_ReturnValueT", bool, str)
+    if sys.version_info >= (3, 10):
+        from typing import ParamSpec
+    else:
+        from typing_extensions import ParamSpec
+
+    _P = ParamSpec("_P")
+    _ReturnValueT = TypeVar("_ReturnValueT", bool, str)
+
 
 SUPPORTED_FORMATS = {"t", "toml", "i", "ini"}
 YES_NO_ANSWERS = {"y", "yes", "n", "no"}

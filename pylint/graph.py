@@ -14,8 +14,11 @@ import os
 import shutil
 import subprocess
 import tempfile
-from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Any
 
 
 def target_info_from_filename(filename: str) -> tuple[str, str, str]:

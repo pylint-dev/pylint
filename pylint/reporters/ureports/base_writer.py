@@ -11,11 +11,13 @@ formatted as text and html.
 from __future__ import annotations
 
 import sys
-from collections.abc import Iterator
 from io import StringIO
-from typing import TYPE_CHECKING, TextIO
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from typing import TextIO
+
     from pylint.reporters.ureports.nodes import (
         BaseLayout,
         EvaluationSection,

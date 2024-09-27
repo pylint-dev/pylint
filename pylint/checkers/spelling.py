@@ -8,15 +8,17 @@ from __future__ import annotations
 
 import re
 import tokenize
-from re import Pattern
-from typing import TYPE_CHECKING, Any, Literal
-
-from astroid import nodes
+from typing import TYPE_CHECKING
 
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import only_required_for_messages
 
 if TYPE_CHECKING:
+    from re import Pattern
+    from typing import Any, Literal
+
+    from astroid import nodes
+
     from pylint.lint import PyLinter
 
 try:

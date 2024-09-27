@@ -6,8 +6,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Container, Iterable
 from itertools import chain
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -17,7 +17,12 @@ from pylint.checkers import utils
 from pylint.checkers.base_checker import BaseChecker
 from pylint.checkers.utils import get_import_name, infer_all, safe_infer
 from pylint.interfaces import INFERENCE
-from pylint.typing import MessageDefinitionTuple
+
+if TYPE_CHECKING:
+    from collections.abc import Container, Iterable
+
+    from pylint.typing import MessageDefinitionTuple
+
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,

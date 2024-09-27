@@ -8,21 +8,25 @@ from __future__ import annotations
 
 import builtins
 import inspect
-from collections.abc import Generator
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import astroid
-from astroid import nodes, objects, util
-from astroid.context import InferenceContext
-from astroid.typing import InferenceResult, SuccessfulInferenceResult
+from astroid import nodes, util
 
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.interfaces import HIGH, INFERENCE
-from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+    from typing import Any
+
+    from astroid import objects
+    from astroid.context import InferenceContext
+    from astroid.typing import InferenceResult, SuccessfulInferenceResult
+
     from pylint.lint import PyLinter
+    from pylint.typing import MessageDefinitionTuple
 
 
 def _builtin_exceptions() -> set[str]:

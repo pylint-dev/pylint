@@ -5,12 +5,14 @@
 from __future__ import annotations
 
 import abc
-import argparse
-from pathlib import Path
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
-from pylint.reporters.json_reporter import OldJsonExport
-from pylint.testutils._primer import PackageToLint
+if TYPE_CHECKING:
+    import argparse
+    from pathlib import Path
+
+    from pylint.reporters.json_reporter import OldJsonExport
+    from pylint.testutils._primer import PackageToLint
 
 
 class PackageData(TypedDict):

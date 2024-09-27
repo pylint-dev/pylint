@@ -10,15 +10,16 @@ import re
 from typing import TYPE_CHECKING
 
 import astroid
-from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers import utils as checker_utils
 from pylint.extensions import _check_docs_utils as utils
-from pylint.extensions._check_docs_utils import Docstring
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
+    from astroid import nodes
+
+    from pylint.extensions._check_docs_utils import Docstring
     from pylint.lint import PyLinter
 
 

@@ -6,16 +6,13 @@ from __future__ import annotations
 
 import functools
 from collections import defaultdict
-from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import dill
 
 from pylint import reporters
 from pylint.lint.utils import _augment_sys_path
-from pylint.message import Message
-from pylint.typing import FileItem
-from pylint.utils import LinterStats, merge_stats
+from pylint.utils import merge_stats
 
 try:
     import multiprocessing
@@ -28,7 +25,13 @@ except ImportError:
     ProcessPoolExecutor = None  # type: ignore[assignment,misc]
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+    from typing import Any
+
     from pylint.lint import PyLinter
+    from pylint.message import Message
+    from pylint.typing import FileItem
+    from pylint.utils import LinterStats
 
 # PyLinter object used by worker processes when checking files using parallel mode
 # should only be used by the worker processes

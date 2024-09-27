@@ -4,10 +4,8 @@
 
 from __future__ import annotations
 
-import collections
 from collections import defaultdict
-from collections.abc import Iterator
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -18,6 +16,9 @@ from pylint.constants import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from typing import Literal
+
     from pylint.message import MessageDefinition, MessageDefinitionStore
 
 
@@ -38,9 +39,7 @@ class FileState:
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
         self._raw_module_msgs_state: MessageStateDict = {}
-        self._ignored_msgs: defaultdict[tuple[str, int], set[int]] = (
-            collections.defaultdict(set)
-        )
+        self._ignored_msgs: defaultdict[tuple[str, int], set[int]] = defaultdict(set)
         self._suppression_mapping: dict[tuple[str, int], int] = {}
         self._module = node
         if node:

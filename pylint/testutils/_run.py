@@ -9,11 +9,15 @@ This module is considered private and can change at any time.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from pylint.lint import Run as LintRun
-from pylint.reporters.base_reporter import BaseReporter
 from pylint.testutils.lint_module_test import PYLINTRC
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pylint.reporters.base_reporter import BaseReporter
 
 
 def _add_rcfile_default_pylintrc(args: list[str]) -> list[str]:

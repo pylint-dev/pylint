@@ -5,8 +5,10 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Generator
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 # Allow stopping after the first semicolon/hash encountered,
 # so that an option can be continued with the reasons

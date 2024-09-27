@@ -7,13 +7,13 @@ from __future__ import annotations
 import linecache
 from typing import TYPE_CHECKING
 
-from astroid import nodes
-
 from pylint import checkers
 from pylint.checkers.utils import only_required_for_messages
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
+    from astroid import nodes
+
     from pylint.lint import PyLinter
 
 

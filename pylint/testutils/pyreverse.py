@@ -7,10 +7,12 @@ from __future__ import annotations
 import argparse
 import configparser
 import shlex
-from pathlib import Path
-from typing import NamedTuple, TypedDict
+from typing import TYPE_CHECKING, NamedTuple, TypedDict
 
 from pylint.pyreverse.main import DEFAULT_COLOR_PALETTE
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 # This class could and should be replaced with a simple dataclass when support for Python < 3.7 is dropped.

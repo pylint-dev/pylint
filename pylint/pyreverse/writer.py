@@ -6,24 +6,29 @@
 
 from __future__ import annotations
 
-import argparse
 import itertools
 import os
 from collections import defaultdict
-from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 from astroid import modutils, nodes
 
-from pylint.pyreverse.diagrams import (
-    ClassDiagram,
-    ClassEntity,
-    DiagramEntity,
-    PackageDiagram,
-    PackageEntity,
-)
-from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType, Printer
+from pylint.pyreverse.diagrams import PackageDiagram
+from pylint.pyreverse.printer import EdgeType, NodeProperties, NodeType
 from pylint.pyreverse.printer_factory import get_printer_for_filetype
 from pylint.pyreverse.utils import is_exception
+
+if TYPE_CHECKING:
+    import argparse
+    from collections.abc import Iterable
+
+    from pylint.pyreverse.diagrams import (
+        ClassDiagram,
+        ClassEntity,
+        DiagramEntity,
+        PackageEntity,
+    )
+    from pylint.pyreverse.printer import Printer
 
 
 class DiagramWriter:

@@ -5,10 +5,14 @@
 from __future__ import annotations
 
 import os
-from collections.abc import Iterator
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pylint.testutils.functional.test_file import FunctionalTestFile
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
 
 REASONABLY_DISPLAYABLE_VERTICALLY = 49
 """'Wet finger' number of files that are reasonable to display by an IDE.

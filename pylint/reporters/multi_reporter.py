@@ -5,17 +5,18 @@
 from __future__ import annotations
 
 import os
-from collections.abc import Callable
 from copy import copy
-from typing import TYPE_CHECKING, TextIO
-
-from pylint.message import Message
-from pylint.reporters.base_reporter import BaseReporter
-from pylint.utils import LinterStats
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import TextIO
+
     from pylint.lint import PyLinter
+    from pylint.message import Message
+    from pylint.reporters.base_reporter import BaseReporter
     from pylint.reporters.ureports.nodes import Section
+    from pylint.utils import LinterStats
 
 
 class MultiReporter:

@@ -6,16 +6,20 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import astroid
-from astroid import nodes, util
+from astroid import util
 
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.exceptions import _annotated_unpack_infer
 
 if TYPE_CHECKING:
+    from typing import Any
+
+    from astroid import nodes
+
     from pylint.lint import PyLinter
 
 

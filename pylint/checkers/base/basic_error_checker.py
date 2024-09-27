@@ -7,15 +7,19 @@
 from __future__ import annotations
 
 import itertools
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
-from astroid.typing import InferenceResult
 
 from pylint.checkers import utils
 from pylint.checkers.base.basic_checker import _BasicChecker
 from pylint.checkers.utils import infer_all
 from pylint.interfaces import HIGH
+
+if TYPE_CHECKING:
+    from astroid.typing import InferenceResult
+
 
 ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 # List of methods which can be redefined

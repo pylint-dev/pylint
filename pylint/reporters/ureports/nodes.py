@@ -9,14 +9,17 @@ A micro report is a tree of layout and content objects.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Iterator
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING
 
-from pylint.reporters.ureports.base_writer import BaseWriter
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable, Iterator
+    from typing import Any, TypeVar
 
-_T = TypeVar("_T")
-_VNodeT = TypeVar("_VNodeT", bound="VNode")
-VisitLeaveFunction = Callable[[_T, Any, Any], None]
+    from pylint.reporters.ureports.base_writer import BaseWriter
+
+    _T = TypeVar("_T")
+    _VNodeT = TypeVar("_VNodeT", bound="VNode")
+    VisitLeaveFunction = Callable[[_T, Any, Any], None]
 
 
 class VNode:

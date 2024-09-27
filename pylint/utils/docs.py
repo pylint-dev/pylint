@@ -7,12 +7,14 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, TextIO
+from typing import TYPE_CHECKING
 
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.utils.utils import get_rst_section, get_rst_title
 
 if TYPE_CHECKING:
+    from typing import Any, TextIO
+
     from pylint.lint.pylinter import PyLinter
 
 

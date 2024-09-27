@@ -6,14 +6,11 @@
 
 from __future__ import annotations
 
-import argparse
 import collections
 import itertools
 import re
 import sys
-from collections.abc import Iterable
 from enum import Enum, auto
-from re import Pattern
 from typing import TYPE_CHECKING
 
 import astroid
@@ -29,10 +26,14 @@ from pylint.checkers.base.name_checker.naming_style import (
     _create_naming_options,
 )
 from pylint.checkers.utils import is_property_deleter, is_property_setter
-from pylint.typing import Options
 
 if TYPE_CHECKING:
+    import argparse
+    from collections.abc import Iterable
+    from re import Pattern
+
     from pylint.lint.pylinter import PyLinter
+    from pylint.typing import Options
 
 _BadNamesTuple = tuple[nodes.NodeNG, str, str, interfaces.Confidence]
 

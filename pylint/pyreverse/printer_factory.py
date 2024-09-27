@@ -4,10 +4,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pylint.pyreverse.dot_printer import DotPrinter
 from pylint.pyreverse.mermaidjs_printer import HTMLMermaidJSPrinter, MermaidJSPrinter
 from pylint.pyreverse.plantuml_printer import PlantUmlPrinter
-from pylint.pyreverse.printer import Printer
+
+if TYPE_CHECKING:
+    from pylint.pyreverse.printer import Printer
+
 
 filetype_to_printer: dict[str, type[Printer]] = {
     "plantuml": PlantUmlPrinter,

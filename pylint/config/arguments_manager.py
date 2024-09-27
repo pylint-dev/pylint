@@ -11,14 +11,12 @@ import re
 import sys
 import textwrap
 import warnings
-from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, TextIO
+from typing import TYPE_CHECKING
 
 import tomlkit
 
 from pylint import utils
 from pylint.config.argument import (
-    _Argument,
     _CallableArgument,
     _ExtendArgument,
     _StoreArgument,
@@ -33,7 +31,6 @@ from pylint.config.exceptions import (
 from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.utils import _convert_option_to_argument, _parse_rich_type_value
 from pylint.constants import MAIN_CHECKER_NAME
-from pylint.typing import DirectoryNamespaceDict, OptionDict
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -42,7 +39,12 @@ else:
 
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Any, TextIO
+
+    from pylint.config.argument import _Argument
     from pylint.config.arguments_provider import _ArgumentsProvider
+    from pylint.typing import DirectoryNamespaceDict, OptionDict
 
 
 class _ArgumentsManager:

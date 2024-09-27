@@ -7,8 +7,7 @@
 from __future__ import annotations
 
 import sys
-from collections.abc import Sequence
-from typing import NoReturn
+from typing import TYPE_CHECKING
 
 from pylint import constants
 from pylint.config.arguments_manager import _ArgumentsManager
@@ -23,7 +22,13 @@ from pylint.pyreverse.utils import (
     check_if_graphviz_supports_format,
     insert_default_options,
 )
-from pylint.typing import Options
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import NoReturn
+
+    from pylint.typing import Options
+
 
 DIRECTLY_SUPPORTED_FORMATS = (
     "dot",

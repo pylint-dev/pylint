@@ -28,10 +28,10 @@ from pylint.config.callback_actions import (
     _MessageHelpAction,
     _OutputFormatAction,
 )
-from pylint.typing import Options
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter, Run
+    from pylint.typing import Options
 
 
 def _make_linter_options(linter: PyLinter) -> Options:

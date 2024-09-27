@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import re
-from typing import Literal
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
@@ -20,6 +20,10 @@ from pylint.checkers.utils import (
     is_property_deleter,
     is_property_setter,
 )
+
+if TYPE_CHECKING:
+    from typing import Literal
+
 
 # do not require a doc string on private/system methods
 NO_REQUIRED_DOC_RGX = re.compile("^_")

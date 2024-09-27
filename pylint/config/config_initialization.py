@@ -11,7 +11,6 @@ from itertools import chain
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pylint import reporters
 from pylint.config.config_file_parser import _ConfigurationFileParser
 from pylint.config.exceptions import (
     ArgumentPreprocessingError,
@@ -20,6 +19,7 @@ from pylint.config.exceptions import (
 from pylint.utils import utils
 
 if TYPE_CHECKING:
+    from pylint import reporters
     from pylint.lint import PyLinter
 
 

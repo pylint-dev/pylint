@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import tokenize
 from collections import defaultdict
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from pylint import exceptions, interfaces
 from pylint.constants import (
@@ -17,8 +17,7 @@ from pylint.constants import (
     MSG_TYPES_LONG,
 )
 from pylint.interfaces import HIGH
-from pylint.message import MessageDefinition
-from pylint.typing import ManagedMessage, MessageDefinitionTuple
+from pylint.typing import ManagedMessage
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,
@@ -27,7 +26,11 @@ from pylint.utils.pragma_parser import (
 )
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from pylint.lint.pylinter import PyLinter
+    from pylint.message import MessageDefinition
+    from pylint.typing import MessageDefinitionTuple
 
 
 class _MessageStateHandler:

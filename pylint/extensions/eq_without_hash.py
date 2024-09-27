@@ -9,11 +9,17 @@ behind us, but some checks are still useful in python3 after all.
 See https://github.com/pylint-dev/pylint/issues/5025
 """
 
-from astroid import nodes
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
-from pylint.lint import PyLinter
+
+if TYPE_CHECKING:
+    from astroid import nodes
+
+    from pylint.lint import PyLinter
 
 
 class EqWithoutHash(checkers.BaseChecker):

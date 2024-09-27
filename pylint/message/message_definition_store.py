@@ -6,16 +6,17 @@ from __future__ import annotations
 
 import collections
 import sys
-from collections.abc import Sequence, ValuesView
 from functools import cache
 from typing import TYPE_CHECKING
 
 from pylint.exceptions import UnknownMessageError
-from pylint.message.message_definition import MessageDefinition
 from pylint.message.message_id_store import MessageIdStore
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence, ValuesView
+
     from pylint.checkers import BaseChecker
+    from pylint.message.message_definition import MessageDefinition
 
 
 class MessageDefinitionStore:

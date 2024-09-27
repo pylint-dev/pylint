@@ -4,15 +4,20 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import Any, NamedTuple, TypeVar
+from typing import TYPE_CHECKING, NamedTuple
 
-from astroid import nodes
+from pylint.interfaces import UNDEFINED
 
-from pylint.interfaces import UNDEFINED, Confidence
-from pylint.message.message import Message
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Any, TypeVar
 
-_T = TypeVar("_T")
+    from astroid import nodes
+
+    from pylint.interfaces import Confidence
+    from pylint.message.message import Message
+
+    _T = TypeVar("_T")
 
 
 class MessageTest(NamedTuple):

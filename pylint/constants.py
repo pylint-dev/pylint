@@ -7,12 +7,16 @@ from __future__ import annotations
 import os
 import platform
 import sys
+from typing import TYPE_CHECKING
 
 import astroid
 import platformdirs
 
 from pylint.__pkginfo__ import __version__
-from pylint.typing import MessageTypesFullName
+
+if TYPE_CHECKING:
+    from pylint.typing import MessageTypesFullName
+
 
 PY310_PLUS = sys.version_info[:2] >= (3, 10)
 PY311_PLUS = sys.version_info[:2] >= (3, 11)

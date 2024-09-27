@@ -5,10 +5,14 @@
 from __future__ import annotations
 
 import re
-from re import Pattern
+from typing import TYPE_CHECKING
 
 from pylint import constants
-from pylint.typing import OptionDict, Options
+
+if TYPE_CHECKING:
+    from re import Pattern
+
+    from pylint.typing import OptionDict, Options
 
 
 class NamingStyle:

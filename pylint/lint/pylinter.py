@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import argparse
-import collections
 import contextlib
 import functools
 import os
@@ -13,15 +11,11 @@ import sys
 import tokenize
 import traceback
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
-from re import Pattern
-from types import ModuleType
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Protocol
 
 import astroid
-from astroid import nodes
 
 from pylint import checkers, exceptions, interfaces, reporters
 from pylint.checkers.base_checker import BaseChecker
@@ -52,20 +46,31 @@ from pylint.lint.utils import (
     get_fatal_error_message,
     prepare_crash_report,
 )
-from pylint.message import Message, MessageDefinition, MessageDefinitionStore
+from pylint.message import Message, MessageDefinitionStore
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.typing import (
-    DirectoryNamespaceDict,
-    FileItem,
-    ManagedMessage,
-    MessageDefinitionTuple,
-    MessageLocationTuple,
-    ModuleDescriptionDict,
-    Options,
-)
+from pylint.typing import FileItem, MessageLocationTuple
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
+
+if TYPE_CHECKING:
+    import argparse
+    from collections.abc import Callable, Iterable, Iterator, Sequence
+    from re import Pattern
+    from types import ModuleType
+    from typing import Any
+
+    from astroid import nodes
+
+    from pylint.message import MessageDefinition
+    from pylint.typing import (
+        DirectoryNamespaceDict,
+        ManagedMessage,
+        MessageDefinitionTuple,
+        ModuleDescriptionDict,
+        Options,
+    )
+
 
 MANAGER = astroid.MANAGER
 
@@ -255,7 +260,7 @@ class PyLinter(
     _ArgumentsManager,
     _MessageStateHandler,
     reporters.ReportsHandlerMixIn,
-    checkers.BaseChecker,
+    BaseChecker,
 ):
     """Lint Python modules using external checkers.
 
@@ -307,9 +312,7 @@ class PyLinter(
         """Dictionary of possible but non-initialized reporters."""
 
         # Attributes for checkers and plugins
-        self._checkers: defaultdict[str, list[checkers.BaseChecker]] = (
-            collections.defaultdict(list)
-        )
+        self._checkers: defaultdict[str, list[BaseChecker]] = defaultdict(list)
         """Dictionary of registered and initialized checkers."""
         self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
@@ -331,7 +334,7 @@ class PyLinter(
         self._error_mode = False
 
         reporters.ReportsHandlerMixIn.__init__(self)
-        checkers.BaseChecker.__init__(self, self)
+        BaseChecker.__init__(self, self)
         # provided reports
         self.reports = (
             ("RP0001", "Messages by category", report_total_messages_stats),
@@ -482,7 +485,7 @@ class PyLinter(
 
     # checkers manipulation methods ############################################
 
-    def register_checker(self, checker: checkers.BaseChecker) -> None:
+    def register_checker(self, checker: BaseChecker) -> None:
         """This method auto registers the checker."""
         self._checkers[checker.name].append(checker)
         for r_id, r_title, r_cb in checker.reports:
@@ -1313,4 +1316,4 @@ class PyLinter(
                     line=0,
                     confidence=HIGH,
                 )
-        self._stashed_messages = collections.defaultdict(list)
+        self._stashed_messages = defaultdict(list)

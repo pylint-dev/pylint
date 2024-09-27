@@ -7,13 +7,17 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pylint.testutils._primer import PackageToLint
-from pylint.testutils._primer.primer_command import PrimerCommand
 from pylint.testutils._primer.primer_compare_command import CompareCommand
 from pylint.testutils._primer.primer_prepare_command import PrepareCommand
 from pylint.testutils._primer.primer_run_command import RunCommand
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pylint.testutils._primer.primer_command import PrimerCommand
 
 
 class Primer:

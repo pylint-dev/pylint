@@ -15,13 +15,15 @@ import re
 import sys
 import warnings
 from dataclasses import asdict, fields
-from typing import TYPE_CHECKING, NamedTuple, TextIO
+from typing import TYPE_CHECKING, NamedTuple
 
 from pylint.message import Message
 from pylint.reporters import BaseReporter
 from pylint.reporters.ureports.text_writer import TextWriter
 
 if TYPE_CHECKING:
+    from typing import TextIO
+
     from pylint.lint import PyLinter
     from pylint.reporters.ureports.nodes import Section
 

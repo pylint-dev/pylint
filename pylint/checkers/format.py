@@ -15,8 +15,7 @@ from __future__ import annotations
 
 import tokenize
 from functools import reduce
-from re import Match
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -24,11 +23,14 @@ from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
 from pylint.checkers.utils import only_required_for_messages
 from pylint.constants import WarningScope
 from pylint.interfaces import HIGH
-from pylint.typing import MessageDefinitionTuple
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 if TYPE_CHECKING:
+    from re import Match
+    from typing import Literal
+
     from pylint.lint import PyLinter
+    from pylint.typing import MessageDefinitionTuple
 
 
 _KEYWORD_TOKENS = {

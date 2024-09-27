@@ -8,18 +8,20 @@ import json
 import sys
 import warnings
 from io import StringIO
+from typing import TYPE_CHECKING
 
 from git.repo import Repo
 
 from pylint.lint import Run
-from pylint.message import Message
-from pylint.reporters.json_reporter import JSONReporter, OldJsonExport
-from pylint.testutils._primer.package_to_lint import PackageToLint
-from pylint.testutils._primer.primer_command import (
-    PackageData,
-    PackageMessages,
-    PrimerCommand,
-)
+from pylint.reporters.json_reporter import JSONReporter
+from pylint.testutils._primer.primer_command import PackageData, PrimerCommand
+
+if TYPE_CHECKING:
+    from pylint.message import Message
+    from pylint.reporters.json_reporter import OldJsonExport
+    from pylint.testutils._primer.package_to_lint import PackageToLint
+    from pylint.testutils._primer.primer_command import PackageMessages
+
 
 GITHUB_CRASH_TEMPLATE_LOCATION = "/home/runner/.cache"
 CRASH_TEMPLATE_INTRO = "There is a pre-filled template"

@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import NoReturn
+from typing import TYPE_CHECKING
 
 from pylint.exceptions import (
     DeletedMessageError,
@@ -18,6 +18,9 @@ from pylint.message._deleted_message_ids import (
     is_moved_msgid,
     is_moved_symbol,
 )
+
+if TYPE_CHECKING:
+    from typing import NoReturn
 
 
 class MessageIdStore:

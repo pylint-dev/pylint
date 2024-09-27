@@ -8,11 +8,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import NamedTuple
-
-from astroid import nodes
+from typing import TYPE_CHECKING, NamedTuple
 
 from pylint.pyreverse.utils import get_annotation_label
+
+if TYPE_CHECKING:
+    from astroid import nodes
 
 
 class NodeType(Enum):

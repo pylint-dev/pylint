@@ -6,29 +6,31 @@ from __future__ import annotations
 
 import abc
 import functools
-from collections.abc import Iterable, Sequence
 from inspect import cleandoc
-from tokenize import TokenInfo
-from typing import TYPE_CHECKING, Any
-
-from astroid import nodes
+from typing import TYPE_CHECKING
 
 from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
-from pylint.interfaces import Confidence
 from pylint.message.message_definition import MessageDefinition
-from pylint.typing import (
-    ExtraMessageOptions,
-    MessageDefinitionTuple,
-    OptionDict,
-    Options,
-    ReportsCallable,
-)
+from pylint.typing import ExtraMessageOptions
 from pylint.utils import get_rst_section, get_rst_title
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+    from tokenize import TokenInfo
+    from typing import Any
+
+    from astroid import nodes
+
+    from pylint.interfaces import Confidence
     from pylint.lint import PyLinter
+    from pylint.typing import (
+        MessageDefinitionTuple,
+        OptionDict,
+        Options,
+        ReportsCallable,
+    )
 
 
 @functools.total_ordering

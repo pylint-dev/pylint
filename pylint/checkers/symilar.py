@@ -38,21 +38,26 @@ import re
 import sys
 import warnings
 from collections import defaultdict
-from collections.abc import Callable, Generator, Iterable, Sequence
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain
-from typing import TYPE_CHECKING, NamedTuple, NewType, NoReturn, TextIO, Union
+from typing import TYPE_CHECKING, NamedTuple, NewType, TextIO, Union
 
 import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, table_lines_from_stats
-from pylint.reporters.ureports.nodes import Section, Table
-from pylint.typing import MessageDefinitionTuple, Options
-from pylint.utils import LinterStats, decoding_stream
+from pylint.reporters.ureports.nodes import Table
+from pylint.utils import decoding_stream
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Generator, Iterable, Sequence
+    from typing import NoReturn
+
     from pylint.lint import PyLinter
+    from pylint.reporters.ureports.nodes import Section
+    from pylint.typing import MessageDefinitionTuple, Options
+    from pylint.utils import LinterStats
+
 
 DEFAULT_MIN_SIMILARITY_LINE = 4
 

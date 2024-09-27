@@ -6,13 +6,16 @@ from __future__ import annotations
 
 import os
 import sys
-from collections.abc import Sequence
 from pathlib import Path
-from re import Pattern
+from typing import TYPE_CHECKING
 
 from astroid import modutils
 
-from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from re import Pattern
+
+    from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
 def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> list[str]:
