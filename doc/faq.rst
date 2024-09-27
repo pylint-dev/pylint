@@ -84,7 +84,7 @@ option, which will remove all the refactor, convention, and warning checks. You 
 checks with inherently high complexity that need to analyse the full code base like
 ``duplicate-code`` or ``cyclic-import`` (this list is not exhaustive).
 
-.. _`Microsoft plugin for VS Code`: https://github.com/microsoft/vscode-pylint#pylint-extension-for-visual-studio-code
+.. _`Microsoft plugin for VS Code`: https://github.com/microsoft/vscode-pylint#readme
 
 Why do I have non-deterministic results when I try to parallelize pylint ?
 --------------------------------------------------------------------------
