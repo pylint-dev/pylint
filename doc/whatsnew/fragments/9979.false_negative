@@ -1,0 +1,3 @@
+Fix a false negative for ``abstract-method`` when an abstract class is the direct ancestor of a derived class.
+
+Closes #9979

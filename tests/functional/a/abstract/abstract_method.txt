@@ -14,3 +14,4 @@ abstract-method:87:0:87:14:Iterator:Method '__len__' is abstract in class 'Struc
 abstract-method:106:0:106:19:BadComplexMro:Method '__hash__' is abstract in class 'Structure' but is not overridden in child class 'BadComplexMro':INFERENCE
 abstract-method:106:0:106:19:BadComplexMro:Method '__len__' is abstract in class 'AbstractSizable' but is not overridden in child class 'BadComplexMro':INFERENCE
 abstract-method:106:0:106:19:BadComplexMro:Method 'length' is abstract in class 'AbstractSizable' but is not overridden in child class 'BadComplexMro':INFERENCE
+abstract-method:117:0:117:13:Derived:Method 'do_something' is abstract in class 'Base' but is not overridden in child class 'Derived':INFERENCE
