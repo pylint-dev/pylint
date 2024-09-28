@@ -6,14 +6,16 @@
 
 # pylint: disable=missing-function-docstring
 
+from __future__ import annotations
+
 import os
 import pprint
 import time
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
 from astroid import nodes
-from pytest_benchmark.fixture import BenchmarkFixture
 
 from pylint.checkers import BaseRawFileChecker
 from pylint.lint import PyLinter, check_parallel
@@ -21,6 +23,9 @@ from pylint.testutils import GenericTestReporter as Reporter
 from pylint.testutils._run import _Run as Run
 from pylint.typing import FileItem
 from pylint.utils import register_plugins
+
+if TYPE_CHECKING:
+    from pytest_benchmark.fixture import BenchmarkFixture
 
 
 def _empty_filepath() -> str:
