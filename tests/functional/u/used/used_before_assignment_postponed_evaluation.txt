@@ -1,1 +1,2 @@
 used-before-assignment:10:6:10:9::Using variable 'var' before assignment:INFERENCE
+used-before-assignment:20:11:20:19:f:Using variable 'datetime' before assignment:INFERENCE

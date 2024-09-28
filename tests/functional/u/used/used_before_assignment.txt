@@ -13,3 +13,7 @@ possibly-used-before-assignment:121:6:121:11::Possibly using variable 'VAR12' be
 used-before-assignment:152:10:152:14::Using variable 'SALE' before assignment:INFERENCE
 used-before-assignment:184:10:184:18::Using variable 'ALL_DONE' before assignment:INFERENCE
 used-before-assignment:195:6:195:24::Using variable 'NOT_ALWAYS_DEFINED' before assignment:INFERENCE
+used-before-assignment:231:10:231:11::Using variable 'x' before assignment:CONTROL_FLOW
+possibly-used-before-assignment:245:10:245:15:__:Possibly using variable 'fail1' before assignment:CONTROL_FLOW
+used-before-assignment:259:18:259:19:outer_.inner_try:Using variable 'a' before assignment:HIGH
+used-before-assignment:270:18:270:19:outer_.inner_while:Using variable 'a' before assignment:HIGH

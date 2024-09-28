@@ -1,5 +1,5 @@
 """Miscellaneous used-before-assignment cases"""
-# pylint: disable=consider-using-f-string, missing-function-docstring
+# pylint: disable=consider-using-f-string, missing-function-docstring, bare-except
 import datetime
 import sys
 from typing import NoReturn
@@ -222,3 +222,62 @@ class PlatformChecks:  # pylint: disable=missing-docstring
             self.skip("only runs on Linux/Windows")
 
         print(cmd)
+
+
+# https://github.com/pylint-dev/pylint/issues/9941
+try:
+    x = 1 / 0
+except ZeroDivisionError:
+    print(x)  # [used-before-assignment]
+
+try:
+    y = 1 / 0
+    print(y)
+except ZeroDivisionError:
+    print(y)  # FALSE NEGATIVE
+
+
+# https://github.com/pylint-dev/pylint/issues/9642
+def __():
+    for i in []:
+        if i:
+            fail1 = 42
+    print(fail1)  # [possibly-used-before-assignment]
+
+    for i in []:
+        fail2 = 42
+    print(fail2)  # FALSE NEGATIVE
+
+
+# https://github.com/pylint-dev/pylint/issues/9689
+def outer_():
+    a = 1
+
+    def inner_try():
+        try:
+            nonlocal a
+            print(a)  # [used-before-assignment] FALSE POSITIVE
+            a = 2
+            print(a)
+        except:
+            pass
+
+    def inner_while():
+        i = 0
+        while i < 2:
+            i += 1
+            nonlocal a
+            print(a)  # [used-before-assignment] FALSE POSITIVE
+            a = 2
+            print(a)
+
+    def inner_for():
+        for _ in range(2):
+            nonlocal a
+            print(a)
+            a = 2
+            print(a)
+
+    inner_try()
+    inner_while()
+    inner_for()
