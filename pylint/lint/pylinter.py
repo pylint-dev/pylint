@@ -667,8 +667,11 @@ class PyLinter(
         extra_packages_paths = list(
             dict.fromkeys(
                 [
-                    path for file_or_module in files_or_modules
-                    for path in discover_package_path(file_or_module, self.config.source_roots)
+                    path
+                    for file_or_module in files_or_modules
+                    for path in discover_package_path(
+                        file_or_module, self.config.source_roots
+                    )
                 ]
             ).keys()
         )

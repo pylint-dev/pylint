@@ -133,7 +133,8 @@ def test_one_arg(fake_path: list[str], case: list[str]) -> None:
         expected = [join(chroot, "a"), *fake_path]
 
         extra_sys_paths = [
-            path for arg in case
+            path
+            for arg in case
             for path in expand_modules.discover_package_path(arg, [])
         ]
 
@@ -158,7 +159,8 @@ def test_two_similar_args(fake_path: list[str], case: list[str]) -> None:
         expected = [join(chroot, "a"), *fake_path]
 
         extra_sys_paths = [
-            path for arg in case
+            path
+            for arg in case
             for path in expand_modules.discover_package_path(arg, [])
         ]
 
@@ -185,7 +187,8 @@ def test_more_args(fake_path: list[str], case: list[str]) -> None:
         ] + fake_path
 
         extra_sys_paths = [
-            path for arg in case
+            path
+            for arg in case
             for path in expand_modules.discover_package_path(arg, [])
         ]
 

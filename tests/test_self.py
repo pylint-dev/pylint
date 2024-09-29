@@ -212,7 +212,7 @@ class TestRunTC:
         "repo", ["source_roots_src_layout", "source_roots_implicit_namespace_pkg"]
     )
     def test_source_roots_src_layout(self, repo: str) -> None:
-        repo = join(HERE, "regrtest_data",repo)
+        repo = join(HERE, "regrtest_data", repo)
         src_path = join(repo, "src")
         self._runtest(
             ["-d", "unused-import", f"--source-roots={src_path}", repo], code=0

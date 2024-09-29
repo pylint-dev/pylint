@@ -9,7 +9,6 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 from re import Pattern
-from typing import cast
 
 from astroid import modutils
 

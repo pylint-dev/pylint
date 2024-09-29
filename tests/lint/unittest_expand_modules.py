@@ -14,7 +14,11 @@ from pathlib import Path
 import pytest
 
 from pylint.checkers import BaseChecker
-from pylint.lint.expand_modules import _is_in_ignore_list_re, discover_package_path, expand_modules
+from pylint.lint.expand_modules import (
+    _is_in_ignore_list_re,
+    discover_package_path,
+    expand_modules,
+)
 from pylint.testutils import CheckerTestCase, set_config
 from pylint.typing import MessageDefinitionTuple, ModuleDescriptionDict
 
@@ -307,12 +311,13 @@ class TestExpandModules(CheckerTestCase):
         assert modules == expected
         assert not errors
 
+
 def test_discover_package_path_no_source_root_overlap(tmp_path):
     """Test whether source_roots is returned even if module doesn't overlap
-       with source_roots"""
+    with source_roots
+    """
     source_roots = [tmp_path]
     package_paths = discover_package_path(__file__, source_roots)
 
     expected = source_roots
-    assert(package_paths == expected)
-    
+    assert package_paths == expected
