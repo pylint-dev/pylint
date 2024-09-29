@@ -37,14 +37,13 @@ def discover_package_path(
     for source_root in source_roots:
         source_root = os.path.realpath(os.path.expanduser(source_root))
         if os.path.commonpath([source_root, dirname]) == source_root:
-            #return cast(Sequence[str], [source_root])
             return [source_root]
 
     if len(source_roots) != 0:
         return source_roots
 
     # Fall back to legacy discovery by looking for __init__.py upwards as
-    # it's the only way given that source root was not found or was not provided
+    # source_roots was not provided
     while True:
         if not os.path.exists(os.path.join(dirname, "__init__.py")):
             return [dirname]
