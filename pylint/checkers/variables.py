@@ -231,25 +231,26 @@ def _fix_dot_imports(
             if not isinstance(stmt, (nodes.ImportFrom, nodes.Import)):
                 continue
             for imports in stmt.names:
-                second_name = None
                 import_module_name = imports[0]
-                if import_module_name == "*":
+                second_name = (
                     # In case of wildcard imports,
                     # pick the name from inside the imported module.
-                    second_name = name
-                else:
-                    name_matches_dotted_import = False
-                    if (
-                        import_module_name.startswith(name)
-                        and import_module_name.find(".") > -1
-                    ):
-                        name_matches_dotted_import = True
-
-                    if name_matches_dotted_import or name in imports:
-                        # Most likely something like 'xml.etree',
-                        # which will appear in the .locals as 'xml'.
-                        # Only pick the name if it wasn't consumed.
-                        second_name = import_module_name
+                    name
+                    if import_module_name == "*"
+                    else
+                    # Most likely something like 'xml.etree',
+                    # which will appear in the .locals as 'xml'.
+                    # Only pick the name if it wasn't consumed.
+                    (
+                        import_module_name
+                        if (
+                            import_module_name.startswith(name)
+                            and import_module_name.find(".") > -1
+                        )
+                        or name in imports
+                        else None
+                    )
+                )
                 if second_name and second_name not in names:
                     names[second_name] = stmt
     return sorted(names.items(), key=lambda a: a[1].fromlineno)
@@ -264,8 +265,7 @@ def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
     if name in _flattened_scope_names(frame.nodes_of_class(nodes.Global)):
         return False
 
-    imports = frame.nodes_of_class((nodes.Import, nodes.ImportFrom))
-    for import_node in imports:
+    for import_node in frame.nodes_of_class((nodes.Import, nodes.ImportFrom)):
         for import_name, import_alias in import_node.names:
             # If the import uses an alias, check only that.
             # Otherwise, check only the import name.
@@ -689,8 +689,9 @@ scope_type : {self._atomic.scope_type}
         if _defines_name_raises_or_returns(name, node):
             return True
 
-        test = node.test.value if isinstance(node.test, nodes.NamedExpr) else node.test
-        all_inferred = utils.infer_all(test)
+        all_inferred = utils.infer_all(
+            node.test.value if isinstance(node.test, nodes.NamedExpr) else node.test
+        )
         only_search_if = False
         only_search_else = True
 
@@ -1591,22 +1592,25 @@ class VariablesChecker(BaseChecker):
         ):
             return
 
-        confidence = HIGH
-        if node.name in current_consumer.names_under_always_false_test:
-            confidence = INFERENCE
-        elif node.name in current_consumer.consumed_uncertain:
-            confidence = CONTROL_FLOW
-
-        if node.name in current_consumer.names_defined_under_one_branch_only:
-            msg = "possibly-used-before-assignment"
-        else:
-            msg = "used-before-assignment"
+        msg = (
+            "possibly-used-before-assignment"
+            if node.name in current_consumer.names_defined_under_one_branch_only
+            else "used-before-assignment"
+        )
 
         self.add_message(
             msg,
             args=node.name,
             node=node,
-            confidence=confidence,
+            confidence=(
+                INFERENCE
+                if node.name in current_consumer.names_under_always_false_test
+                else (
+                    CONTROL_FLOW
+                    if node.name in current_consumer.consumed_uncertain
+                    else HIGH
+                )
+            ),
         )
 
     def _filter_type_checking_import_from_consumption(
@@ -1778,10 +1782,11 @@ class VariablesChecker(BaseChecker):
             node, frame
         )
         in_ancestor_list = utils.is_ancestor_name(frame, node)
-        if in_annotation_or_default_or_decorator or in_ancestor_list:
-            frame_locals = frame.parent.scope().locals
-        else:
-            frame_locals = frame.locals
+        frame_locals = (
+            frame.parent.scope().locals
+            if in_annotation_or_default_or_decorator or in_ancestor_list
+            else frame.locals
+        )
         return not (
             (isinstance(frame, nodes.ClassDef) or in_annotation_or_default_or_decorator)
             and not _in_lambda_or_comprehension_body(node, frame)
@@ -1808,21 +1813,22 @@ class VariablesChecker(BaseChecker):
         # scope lookup rules would need to be changed to return the initial
         # assignment (which does not exist in code per se) as well as any later
         # modifications.
-        if (
-            not astmts  # pylint: disable=too-many-boolean-expressions
-            or (
-                astmts[0].parent == astmts[0].root()
-                and astmts[0].parent.parent_of(node)
+        _astmts = (
+            []
+            if (
+                not astmts
+                or (
+                    astmts[0].parent == astmts[0].root()
+                    and astmts[0].parent.parent_of(node)
+                )
+                or (
+                    astmts[0].is_statement
+                    or not isinstance(astmts[0].parent, nodes.Module)
+                    and astmts[0].statement().parent_of(node)
+                )
             )
-            or (
-                astmts[0].is_statement
-                or not isinstance(astmts[0].parent, nodes.Module)
-                and astmts[0].statement().parent_of(node)
-            )
-        ):
-            _astmts = []
-        else:
-            _astmts = astmts[:1]
+            else astmts[:1]
+        )
         for i, stmt in enumerate(astmts[1:]):
             try:
                 astmt_statement = astmts[i].statement()
@@ -1971,9 +1977,8 @@ class VariablesChecker(BaseChecker):
         if name in self._type_annotation_names:
             return
 
-        argnames = node.argnames()
         # Care about functions with unknown argument (builtins)
-        if name in argnames:
+        if name in (argnames := node.argnames()):
             if node.name == "__new__":
                 is_init_def = False
                 # Look for the `__init__` method in all the methods of the same class.
@@ -2009,18 +2014,26 @@ class VariablesChecker(BaseChecker):
                 message_name = "possibly-unused-variable"
             else:
                 if isinstance(stmt, nodes.Import):
-                    if asname is not None:
-                        msg = f"{qname} imported as {asname}"
-                    else:
-                        msg = f"import {name}"
-                    self.add_message("unused-import", args=msg, node=stmt)
+                    self.add_message(
+                        "unused-import",
+                        node=stmt,
+                        args=(
+                            f"import {name}"
+                            if asname is None
+                            else f"{qname} imported as {asname}"
+                        ),
+                    )
                     return
                 if isinstance(stmt, nodes.ImportFrom):
-                    if asname is not None:
-                        msg = f"{qname} imported from {stmt.modname} as {asname}"
-                    else:
-                        msg = f"{name} imported from {stmt.modname}"
-                    self.add_message("unused-import", args=msg, node=stmt)
+                    self.add_message(
+                        "unused-import",
+                        node=stmt,
+                        args=(
+                            f"{name} imported from {stmt.modname}"
+                            if asname is None
+                            else f"{qname} imported from {stmt.modname} as {asname}"
+                        ),
+                    )
                     return
                 message_name = "unused-variable"
 
@@ -2044,15 +2057,16 @@ class VariablesChecker(BaseChecker):
         stmt: nodes.NodeNG,
         name: str,
     ) -> re.Pattern[str] | re.Match[str] | None:
-        authorized_rgx = self.linter.config.dummy_variables_rgx
-        if (
-            isinstance(stmt, nodes.AssignName)
-            and isinstance(stmt.parent, nodes.Arguments)
-            or isinstance(stmt, nodes.Arguments)
-        ):
-            regex: re.Pattern[str] = self.linter.config.ignored_argument_names
-        else:
-            regex = authorized_rgx
+        regex: re.Pattern[str] = (
+            self.linter.config.ignored_argument_names
+            if (
+                isinstance(stmt, nodes.AssignName)
+                and isinstance(stmt.parent, nodes.Arguments)
+                or isinstance(stmt, nodes.Arguments)
+            )
+            else self.linter.config.dummy_variables_rgx
+        )
+
         # See https://stackoverflow.com/a/47007761/2519059 to
         # understand what this function return. Please do NOT use
         # this elsewhere, this is confusing for no benefit
@@ -2068,12 +2082,9 @@ class VariablesChecker(BaseChecker):
     ) -> None:
         is_method = node.is_method()
         klass = node.parent.frame()
-        if is_method and isinstance(klass, nodes.ClassDef):
-            confidence = (
-                INFERENCE if utils.has_known_bases(klass) else INFERENCE_FAILURE
-            )
-        else:
-            confidence = HIGH
+        has_known_bases = isinstance(klass, nodes.ClassDef) and utils.has_known_bases(
+            klass
+        )
 
         if is_method:
             # Don't warn for the first argument of a (non static) method
@@ -2109,7 +2120,16 @@ class VariablesChecker(BaseChecker):
         if name in nonlocal_names:
             return
 
-        self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
+        self.add_message(
+            "unused-argument",
+            args=name,
+            node=stmt,
+            confidence=(
+                HIGH
+                if not is_method or not has_known_bases
+                else (INFERENCE if has_known_bases else INFERENCE_FAILURE)
+            ),
+        )
 
     def _check_late_binding_closure(self, node: nodes.Name) -> None:
         """Check whether node is a cell var that is assigned within a containing loop.
@@ -2198,10 +2218,9 @@ class VariablesChecker(BaseChecker):
         self,
         node: nodes.For | nodes.Assign | nodes.With,
     ) -> None:
-        type_annotation = node.type_annotation
-        if not type_annotation:
+        if not (type_annotation := node.type_annotation):
             return
-        self._store_type_annotation_node(node.type_annotation)
+        self._store_type_annotation_node(type_annotation)
 
     def _check_self_cls_assign(self, node: nodes.Assign) -> None:
         """Check that self/cls don't get assigned."""
@@ -2257,10 +2276,9 @@ class VariablesChecker(BaseChecker):
             return
 
         # Attempt to check unpacking is properly balanced
-        values = _nodes_to_unpack(inferred)
         details = _get_unpacking_extra_info(node, inferred)
 
-        if values is not None:
+        if (values := _nodes_to_unpack(inferred)) is not None:
             if len(targets) != len(values):
                 self._report_unbalanced_unpacking(
                     node, inferred, targets, len(values), details
@@ -2485,12 +2503,11 @@ class VariablesChecker(BaseChecker):
 
         # Construct string for unused-wildcard-import message
         for module, unused_list in unused_wildcard_imports.items():
-            if len(unused_list) == 1:
-                arg_string = unused_list[0]
-            else:
-                arg_string = (
-                    f"{', '.join(i for i in unused_list[:-1])} and {unused_list[-1]}"
-                )
+            arg_string = (
+                unused_list[0]
+                if len(unused_list) == 1
+                else (f"{', '.join(i for i in unused_list[:-1])} and {unused_list[-1]}")
+            )
             self.add_message(
                 "unused-wildcard-import", args=(arg_string, module[0]), node=module[1]
             )
@@ -2616,8 +2633,7 @@ class VariablesChecker(BaseChecker):
                 return
 
         try:
-            annotation = extract_node(node.value)
-            self._store_type_annotation_node(annotation)
+            self._store_type_annotation_node(extract_node(node.value))
         except ValueError:
             # e.g. node.value is white space
             pass
@@ -2918,9 +2934,8 @@ def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
     if closest_except_handler is None:
         return uncertain_nodes
     for other_node in found_nodes:
-        other_node_statement = other_node.statement()
         # If the other statement is the except handler guarding `node`, it executes
-        if other_node_statement is closest_except_handler:
+        if (other_node_statement := other_node.statement()) is closest_except_handler:
             continue
         # Ensure other_node is in a try block
         (
@@ -2966,12 +2981,11 @@ def _uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
     ):
         return uncertain_nodes
     for other_node in found_nodes:
-        other_node_statement = other_node.statement()
         (
             other_node_try_finally_ancestor,
             child_of_other_node_try_finally_ancestor,
         ) = utils.get_node_first_ancestor_of_type_and_its_child(
-            other_node_statement, nodes.Try
+            other_node.statement(), nodes.Try
         )
         if other_node_try_finally_ancestor is None:
             continue
@@ -3009,9 +3023,10 @@ def _defined_in_function_definition(
     node: nodes.NodeNG,
     frame: nodes.NodeNG,
 ) -> bool:
-    in_annotation_or_default_or_decorator = False
-    if isinstance(frame, nodes.FunctionDef) and node.statement() is frame:
-        in_annotation_or_default_or_decorator = (
+    return (
+        isinstance(frame, nodes.FunctionDef)
+        and node.statement() is frame
+        and (
             (
                 node in frame.args.annotations
                 or node in frame.args.posonlyargs_annotations
@@ -3026,7 +3041,7 @@ def _defined_in_function_definition(
                 and (node is frame.returns or frame.returns.parent_of(node))
             )
         )
-    return in_annotation_or_default_or_decorator
+    )
 
 
 def _in_lambda_or_comprehension_body(
@@ -3303,9 +3318,11 @@ def _is_first_level_self_reference(
         # Check if used as type annotation
         # Break if postponed evaluation is enabled
         if utils.is_node_in_type_annotation_context(node):
-            if not utils.is_postponed_evaluation_enabled(node):
-                return (ConsumerAction.CONTINUE, None)
-            return (ConsumerAction.RETURN, None)
+            return (
+                ConsumerAction.RETURN
+                if utils.is_postponed_evaluation_enabled(node)
+                else ConsumerAction.CONTINUE
+            ), None
         # Check if used as default value by calling the class
         if isinstance(node.parent, nodes.Call) and isinstance(
             node.parent.parent, nodes.Arguments
@@ -3353,8 +3370,7 @@ def _comprehension_between_frame_and_node(node: nodes.Name) -> bool:
 
 
 def _get_value_length(value_node: nodes.NodeNG) -> int:
-    value_subnodes = _nodes_to_unpack(value_node)
-    if value_subnodes is not None:
+    if (value_subnodes := _nodes_to_unpack(value_node)) is not None:
         return len(value_subnodes)
     if isinstance(value_node, nodes.Const) and isinstance(
         value_node.value, (str, bytes)
