@@ -77,7 +77,7 @@ def register(linter: PyLinter) -> None:
     linter.register_checker(VariablesChecker(linter))
 
 
-class VariableVisitConsumerAction(Enum):
+class ConsumerAction(Enum):
     """Reported by _check_consumer() and its sub-methods to determine the
     subsequent action to take in _undefined_and_used_before_checker().
 
@@ -670,9 +670,7 @@ scope_type : {self._atomic.scope_type}
                     None,
                 )
             handlers = try_except_node.handlers if try_except_node else []
-            return _defines_name_raises_or_returns_recursive(
-                name, node
-            ) or all(
+            return _defines_name_raises_or_returns_recursive(name, node) or all(
                 _defines_name_raises_or_returns_recursive(name, handler)
                 for handler in handlers
             )
@@ -1303,9 +1301,9 @@ class VariablesChecker(BaseChecker):
                 # We check here instead of before every single return in _check_consumer()
                 nodes_to_consume += current_consumer.consumed_uncertain[node.name]
                 current_consumer.mark_as_consumed(node.name, nodes_to_consume)
-            if action is VariableVisitConsumerAction.CONTINUE:
+            if action is ConsumerAction.CONTINUE:
                 continue
-            if action is VariableVisitConsumerAction.RETURN:
+            if action is ConsumerAction.RETURN:
                 return
 
         # we have not found the name, if it isn't a builtin, that's an
@@ -1378,7 +1376,7 @@ class VariablesChecker(BaseChecker):
         frame: nodes.LocalsDictNodeNG,
         current_consumer: NamesConsumer,
         base_scope_type: str,
-    ) -> tuple[VariableVisitConsumerAction, list[nodes.NodeNG] | None]:
+    ) -> tuple[ConsumerAction, list[nodes.NodeNG] | None]:
         """Checks a consumer for conditions that should trigger messages."""
         # If the name has already been consumed, only check it's not a loop
         # variable used outside the loop.
@@ -1389,11 +1387,11 @@ class VariablesChecker(BaseChecker):
                 node, nodes.ComprehensionScope
             ):
                 self._check_late_binding_closure(node)
-                return (VariableVisitConsumerAction.RETURN, None)
+                return (ConsumerAction.RETURN, None)
 
         found_nodes = current_consumer.get_next_to_consume(node)
         if found_nodes is None:
-            return (VariableVisitConsumerAction.CONTINUE, None)
+            return (ConsumerAction.CONTINUE, None)
         if not found_nodes:
             self._report_unfound_name_definition(node, current_consumer)
             # Mark for consumption any nodes added to consumed_uncertain by
@@ -1403,7 +1401,7 @@ class VariablesChecker(BaseChecker):
                 node, nodes_to_consume
             )
             return (
-                VariableVisitConsumerAction.RETURN,
+                ConsumerAction.RETURN,
                 nodes_to_consume,
             )
 
@@ -1446,7 +1444,7 @@ class VariablesChecker(BaseChecker):
             # Also do not consume class name
             # (since consuming blocks subsequent checks)
             # -- quit
-            return (VariableVisitConsumerAction.RETURN, None)
+            return (ConsumerAction.RETURN, None)
 
         (
             maybe_before_assign,
@@ -1464,7 +1462,7 @@ class VariablesChecker(BaseChecker):
         )
 
         if use_outer_definition:
-            return (VariableVisitConsumerAction.CONTINUE, None)
+            return (ConsumerAction.CONTINUE, None)
 
         if (
             maybe_before_assign
@@ -1496,8 +1494,8 @@ class VariablesChecker(BaseChecker):
                         and node.name in node.root().locals
                     ):
                         if defined_by_stmt:
-                            return (VariableVisitConsumerAction.CONTINUE, [node])
-                        return (VariableVisitConsumerAction.CONTINUE, None)
+                            return (ConsumerAction.CONTINUE, [node])
+                        return (ConsumerAction.CONTINUE, None)
 
             elif base_scope_type != "lambda":
                 # E0601 may *not* occurs in lambda scope.
@@ -1517,7 +1515,7 @@ class VariablesChecker(BaseChecker):
                         node=node,
                         confidence=HIGH,
                     )
-                    return (VariableVisitConsumerAction.RETURN, found_nodes)
+                    return (ConsumerAction.RETURN, found_nodes)
 
             elif base_scope_type == "lambda":
                 # E0601 can occur in class-level scope in lambdas, as in
@@ -1552,7 +1550,7 @@ class VariablesChecker(BaseChecker):
                 self.add_message(
                     "undefined-variable", args=node.name, node=node, confidence=HIGH
                 )
-            return (VariableVisitConsumerAction.RETURN, found_nodes)
+            return (ConsumerAction.RETURN, found_nodes)
 
         elif isinstance(defstmt, nodes.ClassDef):
             return _is_first_level_self_reference(node, defstmt, found_nodes)
@@ -1566,9 +1564,9 @@ class VariablesChecker(BaseChecker):
                         node=node,
                         confidence=INFERENCE,
                     )
-                    return (VariableVisitConsumerAction.RETURN, found_nodes)
+                    return (ConsumerAction.RETURN, found_nodes)
 
-        return (VariableVisitConsumerAction.RETURN, found_nodes)
+        return (ConsumerAction.RETURN, found_nodes)
 
     def _report_unfound_name_definition(
         self,
@@ -2726,9 +2724,7 @@ def _uncertain_nodes_in_except_blocks(
             # Assume the except blocks execute, so long as each handler
             # defines the name, raises, or returns.
             elif all(
-                _defines_name_raises_or_returns_recursive(
-                    node.name, handler
-                )
+                _defines_name_raises_or_returns_recursive(node.name, handler)
                 for handler in closest_try_except.handlers
             ):
                 continue
@@ -2879,9 +2875,7 @@ def _check_loop_finishes_via_except(
             return False
 
     for loop_stmt in closest_loop.body:
-        if _recursive_search_for_continue_before_break(
-            loop_stmt, break_stmt
-        ):
+        if _recursive_search_for_continue_before_break(loop_stmt, break_stmt):
             break
     else:
         # No continue found, so we arrived at our special case!
@@ -3301,7 +3295,7 @@ def _is_first_level_self_reference(
     node: nodes.Name,
     defstmt: nodes.ClassDef,
     found_nodes: list[nodes.NodeNG],
-) -> tuple[VariableVisitConsumerAction, list[nodes.NodeNG] | None]:
+) -> tuple[ConsumerAction, list[nodes.NodeNG] | None]:
     """Check if a first level method's annotation or default values
     refers to its own class, and return a consumer action.
     """
@@ -3310,14 +3304,14 @@ def _is_first_level_self_reference(
         # Break if postponed evaluation is enabled
         if utils.is_node_in_type_annotation_context(node):
             if not utils.is_postponed_evaluation_enabled(node):
-                return (VariableVisitConsumerAction.CONTINUE, None)
-            return (VariableVisitConsumerAction.RETURN, None)
+                return (ConsumerAction.CONTINUE, None)
+            return (ConsumerAction.RETURN, None)
         # Check if used as default value by calling the class
         if isinstance(node.parent, nodes.Call) and isinstance(
             node.parent.parent, nodes.Arguments
         ):
-            return (VariableVisitConsumerAction.CONTINUE, None)
-    return (VariableVisitConsumerAction.RETURN, found_nodes)
+            return (ConsumerAction.CONTINUE, None)
+    return (ConsumerAction.RETURN, found_nodes)
 
 
 def _is_never_evaluated(
