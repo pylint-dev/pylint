@@ -35,8 +35,11 @@ def discover_package_path(
     # Look for a source root that contains the module directory
     for source_root in source_roots:
         source_root = os.path.realpath(os.path.expanduser(source_root))
-        if os.path.commonpath([source_root, dirname]) == source_root:
-            return [source_root]
+        try:
+            if os.path.commonpath([source_root, dirname]) == source_root:
+                return [source_root]
+        except ValueError:
+            continue
 
     if len(source_roots) != 0:
         return source_roots
