@@ -8,7 +8,7 @@ import argparse
 import configparser
 import shlex
 from pathlib import Path
-from typing import NamedTuple, TypedDict, Protocol, TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple, Protocol, TypedDict
 
 from pylint.pyreverse.main import DEFAULT_COLOR_PALETTE
 

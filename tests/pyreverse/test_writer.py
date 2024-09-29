@@ -11,8 +11,8 @@ import os
 from collections.abc import Iterator
 from difflib import unified_diff
 from pathlib import Path
-from unittest.mock import Mock
 from typing import TYPE_CHECKING
+from unittest.mock import Mock
 
 import pytest
 from pytest import MonkeyPatch
