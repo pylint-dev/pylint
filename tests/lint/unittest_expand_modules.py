@@ -322,9 +322,9 @@ def test_discover_package_path_no_source_root_overlap(tmp_path):
     expected = source_roots
     assert package_paths == expected
 
+
 def test_discover_package_path_legacy():
-    """Test for legacy path discovery when source_roots is empty
-    """
+    """Test for legacy path discovery when source_roots is empty"""
     source_roots = []
     package_paths = discover_package_path(__file__, source_roots)
 
@@ -333,9 +333,11 @@ def test_discover_package_path_legacy():
 
     assert package_paths == expected
 
+
 def test_discover_package_path_legacy_no_parent_without_init_py(tmp_path, monkeypatch):
     """Test to return current directory if no parent directory without
-       __init__.py is found"""
+    __init__.py is found
+    """
     source_roots = []
 
     monkeypatch.setattr(os.path, "exists", lambda path: True)
