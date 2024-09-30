@@ -1763,12 +1763,12 @@ class VariablesChecker(BaseChecker):
         if found_nodes is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
-            self._report_unfound_name_definition(node, current_consumer)
+            is_reported = self._report_unfound_name_definition(node, current_consumer)
             # Mark for consumption any nodes added to consumed_uncertain by
             # get_next_to_consume() because they might not have executed.
             nodes_to_consume = current_consumer.consumed_uncertain[node.name]
             nodes_to_consume = self._filter_type_checking_import_from_consumption(
-                node, nodes_to_consume
+                node, nodes_to_consume, is_reported
             )
             return (
                 VariableVisitConsumerAction.RETURN,
@@ -1942,7 +1942,7 @@ class VariablesChecker(BaseChecker):
         self,
         node: nodes.NodeNG,
         current_consumer: NamesConsumer,
-    ) -> None:
+    ) -> bool:
         """Reports used-before-assignment when all name definition nodes
         get filtered out by NamesConsumer.
         """
@@ -1950,16 +1950,16 @@ class VariablesChecker(BaseChecker):
             self._postponed_evaluation_enabled
             and utils.is_node_in_type_annotation_context(node)
         ):
-            return
+            return False
         if self._is_builtin(node.name):
-            return
+            return False
         if self._is_variable_annotation_in_function(node):
-            return
+            return False
         if (
             node.name in self._evaluated_type_checking_scopes
             and node.scope() in self._evaluated_type_checking_scopes[node.name]
         ):
-            return
+            return False
 
         confidence = HIGH
         if node.name in current_consumer.names_under_always_false_test:
@@ -1979,10 +1979,13 @@ class VariablesChecker(BaseChecker):
             confidence=confidence,
         )
 
+        return True
+
     def _filter_type_checking_import_from_consumption(
         self,
         node: nodes.NodeNG,
         nodes_to_consume: list[nodes.NodeNG],
+        is_reported: bool
     ) -> list[nodes.NodeNG]:
         """Do not consume type-checking import node as used-before-assignment
         may invoke in different scopes.
@@ -1998,7 +2001,7 @@ class VariablesChecker(BaseChecker):
         )
         # If used-before-assignment reported for usage of type checking import
         # keep track of its scope
-        if type_checking_import and not self._is_variable_annotation_in_function(node):
+        if type_checking_import and is_reported:
             self._evaluated_type_checking_scopes.setdefault(node.name, []).append(
                 node.scope()
             )
