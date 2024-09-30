@@ -348,11 +348,13 @@ All messages in the warning category:
    warning/useless-parent-delegation
    warning/useless-type-doc
    warning/useless-with-lock
+   warning/using-assignment-expression-in-unsupported-version
    warning/using-constant-test
    warning/using-exception-groups-in-unsupported-version
    warning/using-f-string-in-unsupported-version
    warning/using-final-decorator-in-unsupported-version
    warning/using-generic-type-syntax-in-unsupported-version
+   warning/using-positional-only-args-in-unsupported-version
    warning/while-used
    warning/wildcard-import
    warning/wrong-exception-operation
@@ -537,12 +539,13 @@ All messages in the refactor category:
    refactor/too-many-instance-attributes
    refactor/too-many-locals
    refactor/too-many-nested-blocks
-   refactor/too-many-positional
+   refactor/too-many-positional-arguments
    refactor/too-many-public-methods
    refactor/too-many-return-statements
    refactor/too-many-statements
    refactor/trailing-comma-tuple
    refactor/unnecessary-comprehension
+   refactor/unnecessary-default-type-args
    refactor/unnecessary-dict-index-lookup
    refactor/unnecessary-list-index-lookup
    refactor/use-a-generator

@@ -1,5 +1,0 @@
-Fix a bug where a ``tox.ini`` file with pylint configuration was ignored and it exists in the current directory.
-
-``.cfg`` and ``.ini`` files containing a ``Pylint`` configuration may now use a section named ``[pylint]``. This enhancement impacts the scenario where these file types are used as defaults when they are present and have not been explicitly referred to, using the ``--rcfile`` option.
-
-Closes #9727

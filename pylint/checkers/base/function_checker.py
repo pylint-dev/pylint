@@ -45,7 +45,7 @@ class FunctionChecker(_BasicChecker):
         :param node: FunctionDef node to check
         :type node: nodes.FunctionDef
         """
-        # if function does not use a Yield statement, it cant be a generator
+        # if function does not use a Yield statement, it can't be a generator
         with_nodes = list(node.nodes_of_class(nodes.With))
         if not with_nodes:
             return

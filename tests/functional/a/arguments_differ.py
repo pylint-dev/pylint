@@ -280,7 +280,7 @@ class ChildT3(ParentT3):
     def func(self, user_input: FooT1) -> None:
         pass
 
-# Keyword and positional overriddes
+# Keyword and positional overrides
 class AbstractFoo:
 
     def kwonly_1(self, first, *, second, third):

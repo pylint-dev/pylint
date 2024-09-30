@@ -7,6 +7,9 @@ repos:
     hooks:
       - id: trailing-whitespace
         exclude: tests(/\w*)*/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html|doc/data/messages/t/trailing-whitespace/bad.py
+      #      - id: file-contents-sorter # commented out because it does not preserve comments order
+      #        args: ["--ignore-case", "--unique"]
+      #        files: "custom_dict.txt"
       - id: end-of-file-fixer
         exclude: |
           (?x)^(
@@ -17,21 +20,14 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.5.4"
+    rev: "v0.6.7"
     hooks:
       - id: ruff
         args: ["--fix"]
-        exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
+        exclude: doc/data/messages
       - id: ruff
         name: ruff-doc
         files: doc/data/messages
-        exclude: |
-          (?x)^(
-            doc/data/messages/d/duplicate-argument-name/bad.py|
-            doc/data/messages/s/syntax-error/bad.py
-          )$
-
-        args: ["--config", "doc/data/ruff.toml"]
   - repo: https://github.com/Pierre-Sassoulas/copyright_notice_precommit
     rev: 0.1.2
     hooks:
@@ -45,11 +41,11 @@ repos:
       - id: isort
         exclude: doc/data/messages/
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 24.8.0
     hooks:
       - id: black
         args: [--safe, --quiet]
-        exclude: *fixtures
+        exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
       - id: black
         name: black-doc
         args: [--safe, --quiet]
@@ -129,7 +125,7 @@ repos:
         files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: [Sphinx==7.4.3]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.0
+    rev: v1.11.2
     hooks:
       - id: mypy
         name: mypy
@@ -175,8 +171,15 @@ repos:
               setup.cfg
           )$
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.9
+    rev: 1.7.10
     hooks:
       - id: bandit
         args: ["-r", "-lll"]
         exclude: *fixtures
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
+        args: ["--toml=pyproject.toml"]
+        additional_dependencies:
+          - tomli

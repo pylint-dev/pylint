@@ -1,5 +1,0 @@
-All variables, classes, functions and file names containing the word 'similar', when it was,
-in fact, referring to 'symilar' (the standalone program for the duplicate-code check) were renamed
-to 'symilar'.
-
-Closes #9734

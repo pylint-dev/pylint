@@ -85,6 +85,7 @@ class DeprecatedTypingAliasMsg(NamedTuple):
     parent_subscript: bool = False
 
 
+# pylint: disable-next=too-many-instance-attributes
 class TypingChecker(BaseChecker):
     """Find issue specifically related to type annotations."""
 
@@ -130,6 +131,12 @@ class TypingChecker(BaseChecker):
             "Duplicated type arguments will be skipped by `mypy` tool, therefore should be "
             "removed to avoid confusion.",
         ),
+        "R6007": (
+            "Type `%s` has unnecessary default type args. Change it to `%s`.",
+            "unnecessary-default-type-args",
+            "Emitted when types have default type args which can be omitted. "
+            "Mainly used for `typing.Generator` and `typing.AsyncGenerator`.",
+        ),
     }
     options = (
         (
@@ -174,6 +181,7 @@ class TypingChecker(BaseChecker):
         self._py37_plus = py_version >= (3, 7)
         self._py39_plus = py_version >= (3, 9)
         self._py310_plus = py_version >= (3, 10)
+        self._py313_plus = py_version >= (3, 13)
 
         self._should_check_typing_alias = self._py39_plus or (
             self._py37_plus and self.linter.config.runtime_typing is False
@@ -247,6 +255,33 @@ class TypingChecker(BaseChecker):
             return
 
         self._check_union_types(types, node)
+
+    @only_required_for_messages("unnecessary-default-type-args")
+    def visit_subscript(self, node: nodes.Subscript) -> None:
+        inferred = safe_infer(node.value)
+        if (  # pylint: disable=too-many-boolean-expressions
+            isinstance(inferred, nodes.ClassDef)
+            and (
+                inferred.qname() in {"typing.Generator", "typing.AsyncGenerator"}
+                and self._py313_plus
+                or inferred.qname()
+                in {"_collections_abc.Generator", "_collections_abc.AsyncGenerator"}
+            )
+            and isinstance(node.slice, nodes.Tuple)
+            and all(
+                (isinstance(el, nodes.Const) and el.value is None)
+                for el in node.slice.elts[1:]
+            )
+        ):
+            suggested_str = (
+                f"{node.value.as_string()}[{node.slice.elts[0].as_string()}]"
+            )
+            self.add_message(
+                "unnecessary-default-type-args",
+                args=(node.as_string(), suggested_str),
+                node=node,
+                confidence=HIGH,
+            )
 
     @staticmethod
     def _is_deprecated_union_annotation(

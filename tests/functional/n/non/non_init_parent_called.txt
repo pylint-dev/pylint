@@ -1,4 +1,4 @@
-import-error:6:0:6:18::Unable to import 'nonexistant':UNDEFINED
+import-error:6:0:6:18::Unable to import 'nonexistent':UNDEFINED
 non-parent-init-called:14:8:14:26:AAAA.__init__:__init__ method from a non direct base class 'BBBBMixin' is called:UNDEFINED
 no-member:22:50:22:77:CCC:Module 'functional.n.non.non_init_parent_called' has no 'BBBB' member:INFERENCE
 no-member:27:8:27:35:CCC.__init__:Module 'functional.n.non.non_init_parent_called' has no 'BBBB' member:INFERENCE

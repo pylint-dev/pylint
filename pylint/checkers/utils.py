@@ -2197,8 +2197,12 @@ def is_terminating_func(node: nodes.Call) -> bool:
                 inferred._proxied, astroid.UnboundMethod
             ):
                 inferred = inferred._proxied._proxied
-            if (
+            if (  # pylint: disable=too-many-boolean-expressions
                 isinstance(inferred, nodes.FunctionDef)
+                and (
+                    not isinstance(inferred, nodes.AsyncFunctionDef)
+                    or isinstance(node.parent, nodes.Await)
+                )
                 and isinstance(inferred.returns, nodes.Name)
                 and (inferred_func := safe_infer(inferred.returns))
                 and hasattr(inferred_func, "qname")

@@ -221,7 +221,7 @@ Other Changes
   ``pylint`` should be a bit faster as well.
 
   We added a new flag, ``max_inferable_values`` on ``astroid.MANAGER`` for
-  limitting the maximum amount of values that ``astroid`` can infer when inferring
+  limiting the maximum amount of values that ``astroid`` can infer when inferring
   values. This change should improve the performance when dealing with large frameworks
   such as ``django``.
   You can also control this behaviour with ``pylint --limit-inference-results``

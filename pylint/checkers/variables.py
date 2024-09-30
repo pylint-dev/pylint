@@ -6,23 +6,19 @@
 
 from __future__ import annotations
 
-import collections
 import copy
 import itertools
 import math
 import os
 import re
 from collections import defaultdict
-from collections.abc import Generator, Iterable, Iterator
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import astroid
 import astroid.exceptions
 from astroid import bases, extract_node, nodes, util
-from astroid.nodes import _base_nodes
-from astroid.typing import InferenceResult
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -34,10 +30,19 @@ from pylint.checkers.utils import (
 )
 from pylint.constants import TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
-from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Iterable, Iterator
+    from typing import Any
+
+    from astroid.nodes import _base_nodes
+    from astroid.typing import InferenceResult
+
     from pylint.lint import PyLinter
+    from pylint.typing import MessageDefinitionTuple
+
+    Consumption = dict[str, list[nodes.NodeNG]]
+
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
@@ -49,63 +54,6 @@ IGNORED_ARGUMENT_NAMES = re.compile("_.*|^ignored_|^unused_")
 METACLASS_NAME_TRANSFORMS = {"_py_abc": "abc"}
 BUILTIN_RANGE = "builtins.range"
 TYPING_MODULE = "typing"
-TYPING_NAMES = frozenset(
-    {
-        "Any",
-        "Callable",
-        "ClassVar",
-        "Generic",
-        "Optional",
-        "Tuple",
-        "Type",
-        "TypeVar",
-        "Union",
-        "AbstractSet",
-        "ByteString",
-        "Container",
-        "ContextManager",
-        "Hashable",
-        "ItemsView",
-        "Iterable",
-        "Iterator",
-        "KeysView",
-        "Mapping",
-        "MappingView",
-        "MutableMapping",
-        "MutableSequence",
-        "MutableSet",
-        "Sequence",
-        "Sized",
-        "ValuesView",
-        "Awaitable",
-        "AsyncIterator",
-        "AsyncIterable",
-        "Coroutine",
-        "Collection",
-        "AsyncGenerator",
-        "AsyncContextManager",
-        "Reversible",
-        "SupportsAbs",
-        "SupportsBytes",
-        "SupportsComplex",
-        "SupportsFloat",
-        "SupportsInt",
-        "SupportsRound",
-        "Counter",
-        "Deque",
-        "Dict",
-        "DefaultDict",
-        "List",
-        "Set",
-        "FrozenSet",
-        "NamedTuple",
-        "Generator",
-        "AnyStr",
-        "Text",
-        "Pattern",
-        "BinaryIO",
-    }
-)
 
 DICT_TYPES = (
     astroid.objects.DictValues,
@@ -174,7 +122,9 @@ def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> 
 
 
 def _detect_global_scope(
-    node: nodes.Name, frame: nodes.LocalsDictNodeNG, defframe: nodes.LocalsDictNodeNG
+    node: nodes.Name,
+    frame: nodes.LocalsDictNodeNG,
+    defframe: nodes.LocalsDictNodeNG,
 ) -> bool:
     """Detect that the given frames share a global scope.
 
@@ -249,16 +199,14 @@ def _detect_global_scope(
     return frame.lineno < defframe.lineno  # type: ignore[no-any-return]
 
 
-def _infer_name_module(
-    node: nodes.Import, name: str
-) -> Generator[InferenceResult, None, None]:
+def _infer_name_module(node: nodes.Import, name: str) -> Generator[InferenceResult]:
     context = astroid.context.InferenceContext()
     context.lookupname = name
     return node.infer(context, asname=False)  # type: ignore[no-any-return]
 
 
 def _fix_dot_imports(
-    not_consumed: dict[str, list[nodes.NodeNG]]
+    not_consumed: Consumption,
 ) -> list[tuple[str, _base_nodes.ImportNode]]:
     """Try to fix imports with multiple dots, by returning a dictionary
     with the import names expanded.
@@ -326,7 +274,8 @@ def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
 
 
 def _import_name_is_global(
-    stmt: nodes.Global | _base_nodes.ImportNode, global_names: set[str]
+    stmt: nodes.Global | _base_nodes.ImportNode,
+    global_names: set[str],
 ) -> bool:
     for import_name, import_alias in stmt.names:
         # If the import uses an alias, check only that.
@@ -529,9 +478,9 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 class ScopeConsumer(NamedTuple):
     """Store nodes and their consumption states."""
 
-    to_consume: dict[str, list[nodes.NodeNG]]
-    consumed: dict[str, list[nodes.NodeNG]]
-    consumed_uncertain: defaultdict[str, list[nodes.NodeNG]]
+    to_consume: Consumption
+    consumed: Consumption
+    consumed_uncertain: Consumption
     scope_type: str
 
 
@@ -540,7 +489,10 @@ class NamesConsumer:
 
     def __init__(self, node: nodes.NodeNG, scope_type: str) -> None:
         self._atomic = ScopeConsumer(
-            copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
+            copy.copy(node.locals),
+            {},
+            defaultdict(list),
+            scope_type,
         )
         self.node = node
         self.names_under_always_false_test: set[str] = set()
@@ -566,15 +518,15 @@ scope_type : {self._atomic.scope_type}
         return iter(self._atomic)
 
     @property
-    def to_consume(self) -> dict[str, list[nodes.NodeNG]]:
+    def to_consume(self) -> Consumption:
         return self._atomic.to_consume
 
     @property
-    def consumed(self) -> dict[str, list[nodes.NodeNG]]:
+    def consumed(self) -> Consumption:
         return self._atomic.consumed
 
     @property
-    def consumed_uncertain(self) -> defaultdict[str, list[nodes.NodeNG]]:
+    def consumed_uncertain(self) -> Consumption:
         """Retrieves nodes filtered out by get_next_to_consume() that may not
         have executed.
 
@@ -697,7 +649,9 @@ scope_type : {self._atomic.scope_type}
         return found_nodes
 
     def _inferred_to_define_name_raise_or_return(
-        self, name: str, node: nodes.NodeNG
+        self,
+        name: str,
+        node: nodes.NodeNG,
     ) -> bool:
         """Return True if there is a path under this `if_node`
         that is inferred to define `name`, raise, or return.
@@ -777,7 +731,9 @@ scope_type : {self._atomic.scope_type}
         )
 
     def _uncertain_nodes_if_tests(
-        self, found_nodes: list[nodes.NodeNG], node: nodes.NodeNG
+        self,
+        found_nodes: list[nodes.NodeNG],
+        node: nodes.NodeNG,
     ) -> list[nodes.NodeNG]:
         """Identify nodes of uncertain execution because they are defined under if
         tests.
@@ -990,7 +946,8 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _defines_name_raises_or_returns_recursive(
-        name: str, node: nodes.NodeNG
+        name: str,
+        node: nodes.NodeNG,
     ) -> bool:
         """Return True if some child of `node` defines the name `name`,
         raises, or returns.
@@ -1014,7 +971,8 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _check_loop_finishes_via_except(
-        node: nodes.NodeNG, other_node_try_except: nodes.Try
+        node: nodes.NodeNG,
+        other_node_try_except: nodes.Try,
     ) -> bool:
         """Check for a specific control flow scenario.
 
@@ -1057,7 +1015,8 @@ scope_type : {self._atomic.scope_type}
             return False
 
         def _try_in_loop_body(
-            other_node_try_except: nodes.Try, loop: nodes.For | nodes.While
+            other_node_try_except: nodes.Try,
+            loop: nodes.For | nodes.While,
         ) -> bool:
             """Return True if `other_node_try_except` is a descendant of `loop`."""
             return any(
@@ -1087,7 +1046,8 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _recursive_search_for_continue_before_break(
-        stmt: _base_nodes.Statement, break_stmt: nodes.Break
+        stmt: _base_nodes.Statement,
+        break_stmt: nodes.Break,
     ) -> bool:
         """Return True if any Continue node can be found in descendants of `stmt`
         before encountering `break_stmt`, ignoring any nested loops.
@@ -1107,7 +1067,8 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
-        found_nodes: list[nodes.NodeNG], node_statement: _base_nodes.Statement
+        found_nodes: list[nodes.NodeNG],
+        node_statement: _base_nodes.Statement,
     ) -> list[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain.
 
@@ -1707,7 +1668,9 @@ class VariablesChecker(BaseChecker):
         self._except_handler_names_queue.pop()
 
     def _undefined_and_used_before_checker(
-        self, node: nodes.Name, stmt: nodes.NodeNG
+        self,
+        node: nodes.Name,
+        stmt: nodes.NodeNG,
     ) -> None:
         frame = stmt.scope()
         start_index = len(self._to_consume) - 1
@@ -1755,7 +1718,10 @@ class VariablesChecker(BaseChecker):
             self.add_message("undefined-variable", args=node.name, node=node)
 
     def _should_node_be_skipped(
-        self, node: nodes.Name, consumer: NamesConsumer, is_start_index: bool
+        self,
+        node: nodes.Name,
+        consumer: NamesConsumer,
+        is_start_index: bool,
     ) -> bool:
         """Tests a consumer and node for various conditions in which the node shouldn't
         be checked for the undefined-variable and used-before-assignment checks.
@@ -1997,7 +1963,9 @@ class VariablesChecker(BaseChecker):
         return (VariableVisitConsumerAction.RETURN, found_nodes)
 
     def _report_unfound_name_definition(
-        self, node: nodes.NodeNG, current_consumer: NamesConsumer
+        self,
+        node: nodes.NodeNG,
+        current_consumer: NamesConsumer,
     ) -> None:
         """Reports used-before-assignment when all name definition nodes
         get filtered out by NamesConsumer.
@@ -2036,7 +2004,9 @@ class VariablesChecker(BaseChecker):
         )
 
     def _filter_type_checking_import_from_consumption(
-        self, node: nodes.NodeNG, nodes_to_consume: list[nodes.NodeNG]
+        self,
+        node: nodes.NodeNG,
+        nodes_to_consume: list[nodes.NodeNG],
     ) -> list[nodes.NodeNG]:
         """Do not consume type-checking import node as used-before-assignment
         may invoke in different scopes.
@@ -2171,7 +2141,8 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _defined_in_function_definition(
-        node: nodes.NodeNG, frame: nodes.NodeNG
+        node: nodes.NodeNG,
+        frame: nodes.NodeNG,
     ) -> bool:
         in_annotation_or_default_or_decorator = False
         if isinstance(frame, nodes.FunctionDef) and node.statement() is frame:
@@ -2194,7 +2165,8 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _in_lambda_or_comprehension_body(
-        node: nodes.NodeNG, frame: nodes.NodeNG
+        node: nodes.NodeNG,
+        frame: nodes.NodeNG,
     ) -> bool:
         """Return True if node within a lambda/comprehension body (or similar) and thus
         should not have access to class attributes in frame.
@@ -2406,7 +2378,8 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _is_only_type_assignment(
-        node: nodes.Name, defstmt: _base_nodes.Statement
+        node: nodes.Name,
+        defstmt: _base_nodes.Statement,
     ) -> bool:
         """Check if variable only gets assigned a type and never a value."""
         if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
@@ -2464,7 +2437,9 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _is_first_level_self_reference(
-        node: nodes.Name, defstmt: nodes.ClassDef, found_nodes: list[nodes.NodeNG]
+        node: nodes.Name,
+        defstmt: nodes.ClassDef,
+        found_nodes: list[nodes.NodeNG],
     ) -> tuple[VariableVisitConsumerAction, list[nodes.NodeNG] | None]:
         """Check if a first level method's annotation or default values
         refers to its own class, and return a consumer action.
@@ -2485,7 +2460,8 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _is_never_evaluated(
-        defnode: nodes.NamedExpr, defnode_parent: nodes.IfExp
+        defnode: nodes.NamedExpr,
+        defnode_parent: nodes.IfExp,
     ) -> bool:
         """Check if a NamedExpr is inside a side of if ... else that never
         gets evaluated.
@@ -2667,7 +2643,7 @@ class VariablesChecker(BaseChecker):
                 likely_call = assign.iter
                 if isinstance(assign.iter, nodes.IfExp):
                     likely_call = assign.iter.body
-                if isinstance(likely_call, nodes.Call):
+                if isinstance(likely_call, nodes.Call) and likely_call.args:
                     inferred = next(likely_call.args[0].infer())
         except astroid.InferenceError:
             self.add_message("undefined-loop-variable", args=node.name, node=node)
@@ -2800,7 +2776,9 @@ class VariablesChecker(BaseChecker):
             self.add_message(message_name, args=name, node=stmt)
 
     def _is_name_ignored(
-        self, stmt: nodes.NodeNG, name: str
+        self,
+        stmt: nodes.NodeNG,
+        name: str,
     ) -> re.Pattern[str] | re.Match[str] | None:
         authorized_rgx = self.linter.config.dummy_variables_rgx
         if (
@@ -2965,7 +2943,8 @@ class VariablesChecker(BaseChecker):
         )
 
     def _store_type_annotation_names(
-        self, node: nodes.For | nodes.Assign | nodes.With
+        self,
+        node: nodes.For | nodes.Assign | nodes.With,
     ) -> None:
         type_annotation = node.type_annotation
         if not type_annotation:
@@ -3003,7 +2982,10 @@ class VariablesChecker(BaseChecker):
             self.add_message("self-cls-assignment", node=node, args=(self_cls_name,))
 
     def _check_unpacking(
-        self, inferred: InferenceResult, node: nodes.Assign, targets: list[nodes.NodeNG]
+        self,
+        inferred: InferenceResult,
+        node: nodes.Assign,
+        targets: list[nodes.NodeNG],
     ) -> None:
         """Check for unbalanced tuple unpacking
         and unpacking non sequences.
@@ -3132,7 +3114,9 @@ class VariablesChecker(BaseChecker):
         return None
 
     def _check_all(
-        self, node: nodes.Module, not_consumed: dict[str, list[nodes.NodeNG]]
+        self,
+        node: nodes.Module,
+        not_consumed: Consumption,
     ) -> None:
         try:
             assigned = next(node.igetattr("__all__"))
@@ -3187,7 +3171,7 @@ class VariablesChecker(BaseChecker):
                             # when the file will be checked
                             pass
 
-    def _check_globals(self, not_consumed: dict[str, nodes.NodeNG]) -> None:
+    def _check_globals(self, not_consumed: Consumption) -> None:
         if self._allow_global_unused_variables:
             return
         for name, node_lst in not_consumed.items():
@@ -3197,12 +3181,13 @@ class VariablesChecker(BaseChecker):
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches
-    def _check_imports(self, not_consumed: dict[str, list[nodes.NodeNG]]) -> None:
+    def _check_imports(self, not_consumed: Consumption) -> None:
         local_names = _fix_dot_imports(not_consumed)
         checked = set()
         unused_wildcard_imports: defaultdict[
-            tuple[str, nodes.ImportFrom], list[str]
-        ] = collections.defaultdict(list)
+            tuple[str, nodes.ImportFrom],
+            list[str],
+        ] = defaultdict(list)
         for name, stmt in local_names:
             for imports in stmt.names:
                 real_name = imported_name = imports[0]
@@ -3288,7 +3273,7 @@ class VariablesChecker(BaseChecker):
 
     def _check_metaclasses(self, node: nodes.Module | nodes.FunctionDef) -> None:
         """Update consumption analysis for metaclasses."""
-        consumed: list[tuple[dict[str, list[nodes.NodeNG]], str]] = []
+        consumed: list[tuple[Consumption, str]] = []
 
         for child_node in node.get_children():
             if isinstance(child_node, nodes.ClassDef):
@@ -3300,13 +3285,15 @@ class VariablesChecker(BaseChecker):
             scope_locals.pop(name, None)
 
     def _check_classdef_metaclasses(
-        self, klass: nodes.ClassDef, parent_node: nodes.Module | nodes.FunctionDef
-    ) -> list[tuple[dict[str, list[nodes.NodeNG]], str]]:
+        self,
+        klass: nodes.ClassDef,
+        parent_node: nodes.Module | nodes.FunctionDef,
+    ) -> list[tuple[Consumption, str]]:
         if not klass._metaclass:
             # Skip if this class doesn't use explicitly a metaclass, but inherits it from ancestors
             return []
 
-        consumed: list[tuple[dict[str, list[nodes.NodeNG]], str]] = []
+        consumed: list[tuple[Consumption, str]] = []
         metaclass = klass.metaclass()
         name = ""
         if isinstance(klass._metaclass, nodes.Name):
@@ -3359,7 +3346,9 @@ class VariablesChecker(BaseChecker):
         self._check_potential_index_error(node, inferred_slice)
 
     def _check_potential_index_error(
-        self, node: nodes.Subscript, inferred_slice: nodes.NodeNG | None
+        self,
+        node: nodes.Subscript,
+        inferred_slice: nodes.NodeNG | None,
     ) -> None:
         """Check for the potential-index-error message."""
         # Currently we only check simple slices of a single integer

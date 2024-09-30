@@ -40,7 +40,7 @@ class CheckerTestCase:
     @contextlib.contextmanager
     def assertAddsMessages(
         self, *messages: MessageTest, ignore_position: bool = False
-    ) -> Generator[None, None, None]:
+    ) -> Generator[None]:
         """Assert that exactly the given method adds the given messages.
 
         The list of messages must exactly match *all* the messages added by the

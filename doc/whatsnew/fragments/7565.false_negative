@@ -1,3 +1,0 @@
-Fix computation of never-returning function: `Never` is handled in addition to `NoReturn`, and priority is given to the explicit `--never-returning-functions` option.
-
-Closes #7565.

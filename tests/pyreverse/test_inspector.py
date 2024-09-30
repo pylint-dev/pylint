@@ -26,7 +26,7 @@ TESTS = HERE.parent.parent
 
 
 @pytest.fixture
-def project(get_project: GetProjectCallable) -> Generator[Project, None, None]:
+def project(get_project: GetProjectCallable) -> Generator[Project]:
     with _test_cwd(TESTS):
         project = get_project("data", "data")
         linker = inspector.Linker(project)

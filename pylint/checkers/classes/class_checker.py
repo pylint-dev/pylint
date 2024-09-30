@@ -523,7 +523,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Access to a protected member %s of a client class",  # E0214
         "protected-access",
         "Used when a protected member (i.e. class member with a name "
-        "beginning with an underscore) is access outside the class or a "
+        "beginning with an underscore) is accessed outside the class or a "
         "descendant of the class where it's defined.",
     ),
     "W0213": (
@@ -1778,7 +1778,7 @@ a metaclass class method.",
         klass = inferred._proxied
         if not has_known_bases(klass):
             return
-        if "__slots__" not in klass.locals or not klass.newstyle:
+        if "__slots__" not in klass.locals:
             return
         # If `__setattr__` is defined on the class, then we can't reason about
         # what will happen when assigning to an attribute.

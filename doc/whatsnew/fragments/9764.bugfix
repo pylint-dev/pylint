@@ -1,3 +1,0 @@
-Improve file discovery for directories that are not python packages.
-
-Closes #9764

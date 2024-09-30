@@ -1,4 +1,0 @@
-Impossible to compile regexes for paths in the configuration or argument given to pylint won't crash anymore but
-raise an argparse error and display the error message from ``re.compile`` instead.
-
-Closes #9680

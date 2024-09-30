@@ -81,7 +81,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "equivalent.",
         ),
         "C1804": (
-            '"%s" can be simplified to "%s", if it is striclty a string, as an empty string is falsey',
+            '"%s" can be simplified to "%s", if it is strictly a string, as an empty string is falsey',
             "use-implicit-booleaness-not-comparison-to-string",
             "Empty string are considered false in a boolean context. Following this"
             " check blindly in weakly typed code base can create hard to debug issues."
