@@ -872,52 +872,63 @@ scope_type : {self.scope_type}
     def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
         if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return, nodes.Continue)):
             return True
-        if isinstance(node, nodes.Expr) and isinstance(node.value, nodes.Call):
-            if utils.is_terminating_func(node.value):
-                return True
-            if (
-                isinstance(node.value.func, nodes.Name)
-                and node.value.func.name == "assert_never"
-            ):
-                return True
-        if (
-            isinstance(node, nodes.AnnAssign)
-            and node.value
-            and isinstance(node.target, nodes.AssignName)
-            and node.target.name == name
-        ):
-            return True
+
+        if isinstance(node, nodes.Expr):
+            return isinstance(node.value, nodes.Call) and (
+                (
+                    isinstance(node.value.func, nodes.Name)
+                    and node.value.func.name == "assert_never"
+                )
+                or utils.is_terminating_func(node.value)
+            )
+
+        if isinstance(node, nodes.AnnAssign):
+            return (
+                node.value
+                and isinstance(node.target, nodes.AssignName)
+                and node.target.name == name
+            )
+
         if isinstance(node, nodes.Assign):
-            for target in node.targets:
-                for elt in utils.get_all_elements(target):
-                    if isinstance(elt, nodes.Starred):
-                        elt = elt.value
-                    if isinstance(elt, nodes.AssignName) and elt.name == name:
-                        return True
+            return any(
+                isinstance(
+                    elt_or_val := elt.value if isinstance(elt, nodes.Starred) else elt,
+                    nodes.AssignName,
+                )
+                and elt_or_val.name == name
+                for target in node.targets
+                for elt in utils.get_all_elements(target)
+            )
+
         if isinstance(node, nodes.If):
-            if any(
+            return any(
                 child_named_expr.target.name == name
                 for child_named_expr in node.nodes_of_class(nodes.NamedExpr)
-            ):
-                return True
-        if isinstance(node, (nodes.Import, nodes.ImportFrom)) and any(
-            (node_name[1] and node_name[1] == name) or (node_name[0] == name)
-            for node_name in node.names
-        ):
-            return True
-        if isinstance(node, nodes.With) and any(
-            isinstance(item[1], nodes.AssignName) and item[1].name == name
-            for item in node.items
-        ):
-            return True
-        if isinstance(node, (nodes.ClassDef, nodes.FunctionDef)) and node.name == name:
-            return True
-        if (
-            isinstance(node, nodes.ExceptHandler)
-            and node.name
-            and node.name.name == name
-        ):
-            return True
+            )
+
+        if isinstance(node, (nodes.Import, nodes.ImportFrom)):
+            return any(
+                (alias and alias == name) or (node_name == name)
+                for node_name, alias in node.names
+            )
+
+        if isinstance(node, nodes.With):
+            return any(
+                isinstance(item[1], nodes.AssignName) and item[1].name == name
+                for item in node.items
+            )
+
+        if isinstance(node, (nodes.ClassDef, nodes.FunctionDef)):
+            assert isinstance(node.name, str)
+            return node.name == name
+
+        if isinstance(node, nodes.ExceptHandler):
+            return (
+                node.name
+                and isinstance(node_name := node.name.name, str)
+                and node_name == name
+            )
+
         return False
 
     @staticmethod
@@ -925,24 +936,27 @@ scope_type : {self.scope_type}
         name: str,
         node: nodes.NodeNG,
     ) -> bool:
-        """Return True if some child of `node` defines the name `name`,
+        """Return whether some child of `node` defines the name `name`,
         raises, or returns.
         """
         for stmt in node.get_children():
             if NamesConsumer._defines_name_raises_or_returns(name, stmt):
                 return True
+
             if isinstance(stmt, (nodes.If, nodes.With)):
-                if any(
+                return any(
                     NamesConsumer._defines_name_raises_or_returns(name, nested_stmt)
                     for nested_stmt in stmt.get_children()
-                ):
-                    return True
-            if (
-                isinstance(stmt, nodes.Try)
-                and not stmt.finalbody
-                and NamesConsumer._defines_name_raises_or_returns_recursive(name, stmt)
-            ):
-                return True
+                )
+
+            if isinstance(stmt, nodes.Try):
+                return (
+                    not stmt.finalbody
+                    and NamesConsumer._defines_name_raises_or_returns_recursive(
+                        name, stmt
+                    )
+                )
+
         return False
 
     @staticmethod
