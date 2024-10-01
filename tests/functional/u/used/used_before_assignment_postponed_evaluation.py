@@ -20,7 +20,7 @@ def f():
     return datetime.datetime.now()  # [used-before-assignment]
 
 def g() -> datetime.datetime:
-    return datetime.datetime.now()  # FALSE NEGATIVE
+    return datetime.datetime.now()  # [used-before-assignment]
 
 if TYPE_CHECKING:
     class X:
