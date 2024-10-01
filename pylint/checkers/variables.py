@@ -1726,32 +1726,29 @@ class VariablesChecker(BaseChecker):
             # scope, ignore it. This prevents to access this scope instead of
             # the globals one in function members when there are some common
             # names.
-            if utils.is_ancestor_name(consumer.node, node) or (
-                not is_start_index and self._ignore_class_scope(node)
-            ):
-                return True
+            return (
+                utils.is_ancestor_name(consumer.node, node)
+                or (not is_start_index and self._ignore_class_scope(node))
+                # Ignore inner class scope for keywords in class definition
+                or (
+                    isinstance(node.parent, nodes.Keyword)
+                    and isinstance(node.parent.parent, nodes.ClassDef)
+                )
+            )
 
-            # Ignore inner class scope for keywords in class definition
-            if isinstance(node.parent, nodes.Keyword) and isinstance(
-                node.parent.parent, nodes.ClassDef
-            ):
-                return True
-
-        elif consumer.scope_type == "function" and self._defined_in_function_definition(
-            node, consumer.node
-        ):
-            if any(node.name == param.name.name for param in consumer.node.type_params):
-                return False
-
+        if consumer.scope_type == "function":
             # If the name node is used as a function default argument's value or as
             # a decorator, then start from the parent frame of the function instead
             # of the function frame - and thus open an inner class scope
-            return True
+            return self._defined_in_function_definition(
+                node,
+                consumer.node,
+            ) and not any(
+                node.name == param.name.name for param in consumer.node.type_params
+            )
 
-        elif consumer.scope_type == "lambda" and utils.is_default_argument(
-            node, consumer.node
-        ):
-            return True
+        if consumer.scope_type == "lambda":
+            return utils.is_default_argument(node, consumer.node)
 
         return False
 
