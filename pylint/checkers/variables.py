@@ -1985,7 +1985,7 @@ class VariablesChecker(BaseChecker):
         self,
         node: nodes.NodeNG,
         nodes_to_consume: list[nodes.NodeNG],
-        is_reported: bool
+        is_reported: bool,
     ) -> list[nodes.NodeNG]:
         """Do not consume type-checking import node as used-before-assignment
         may invoke in different scopes.
