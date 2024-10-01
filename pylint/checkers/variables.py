@@ -14,7 +14,7 @@ import re
 from collections import defaultdict
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING
 
 import astroid
 import astroid.exceptions
@@ -33,7 +33,6 @@ from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable, Iterator
-    from typing import Any
 
     from astroid.nodes import _base_nodes
     from astroid.typing import InferenceResult
@@ -475,35 +474,39 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 }
 
 
-class ScopeConsumer(NamedTuple):
-    """Store nodes and their consumption states."""
+class NamesConsumer:
+    """A simple class to handle consumed, to consume and scope type info of node locals."""
+
+    node: nodes.NodeNG
+    scope_type: str
 
     to_consume: Consumption
     consumed: Consumption
     consumed_uncertain: Consumption
-    scope_type: str
+    """Retrieves nodes filtered out by get_next_to_consume() that may not
+    have executed.
 
+    These include nodes such as statements in except blocks, or statements
+    in try blocks (when evaluating their corresponding except and finally
+    blocks). Checkers that want to treat the statements as executed
+    (e.g. for unused-variable) may need to add them back.
+    """
 
-class NamesConsumer:
-    """A simple class to handle consumed, to consume and scope type info of node locals."""
-
-    def __init__(self, node: nodes.NodeNG, scope_type: str) -> None:
-        self._atomic = ScopeConsumer(
-            copy.copy(node.locals),
-            {},
-            defaultdict(list),
-            scope_type,
-        )
+    def __init__(self, node: nodes.NodeNG, scope_type: str):
         self.node = node
+        self.scope_type = scope_type
+
+        self.to_consume = copy.copy(node.locals)
+        self.consumed = {}
+        self.consumed_uncertain = defaultdict(list)
+
         self.names_under_always_false_test: set[str] = set()
         self.names_defined_under_one_branch_only: set[str] = set()
 
     def __repr__(self) -> str:
-        _to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
-        _consumed = [f"{k}->{v}" for k, v in self._atomic.consumed.items()]
-        _consumed_uncertain = [
-            f"{k}->{v}" for k, v in self._atomic.consumed_uncertain.items()
-        ]
+        _to_consumes = [f"{k}->{v}" for k, v in self.to_consume.items()]
+        _consumed = [f"{k}->{v}" for k, v in self.consumed.items()]
+        _consumed_uncertain = [f"{k}->{v}" for k, v in self.consumed_uncertain.items()]
         to_consumes = ", ".join(_to_consumes)
         consumed = ", ".join(_consumed)
         consumed_uncertain = ", ".join(_consumed_uncertain)
@@ -511,35 +514,8 @@ class NamesConsumer:
 to_consume : {to_consumes}
 consumed : {consumed}
 consumed_uncertain: {consumed_uncertain}
-scope_type : {self._atomic.scope_type}
+scope_type : {self.scope_type}
 """
-
-    def __iter__(self) -> Iterator[Any]:
-        return iter(self._atomic)
-
-    @property
-    def to_consume(self) -> Consumption:
-        return self._atomic.to_consume
-
-    @property
-    def consumed(self) -> Consumption:
-        return self._atomic.consumed
-
-    @property
-    def consumed_uncertain(self) -> Consumption:
-        """Retrieves nodes filtered out by get_next_to_consume() that may not
-        have executed.
-
-        These include nodes such as statements in except blocks, or statements
-        in try blocks (when evaluating their corresponding except and finally
-        blocks). Checkers that want to treat the statements as executed
-        (e.g. for unused-variable) may need to add them back.
-        """
-        return self._atomic.consumed_uncertain
-
-    @property
-    def scope_type(self) -> str:
-        return self._atomic.scope_type
 
     def mark_as_consumed(self, name: str, consumed_nodes: list[nodes.NodeNG]) -> None:
         """Mark the given nodes as consumed for the name.
@@ -3314,7 +3290,8 @@ class VariablesChecker(BaseChecker):
         name = METACLASS_NAME_TRANSFORMS.get(name, name)
         if name:
             # check enclosing scopes starting from most local
-            for scope_locals, _, _, _ in self._to_consume[::-1]:
+            for to_consume in self._to_consume[::-1]:
+                scope_locals = to_consume.to_consume
                 found_nodes = scope_locals.get(name, [])
                 for found_node in found_nodes:
                     if found_node.lineno <= klass.lineno:
