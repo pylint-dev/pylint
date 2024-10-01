@@ -33,6 +33,7 @@ from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable, Iterator
+    from typing import Literal
 
     from astroid.nodes import _base_nodes
     from astroid.typing import InferenceResult
@@ -41,6 +42,8 @@ if TYPE_CHECKING:
     from pylint.typing import MessageDefinitionTuple
 
     Consumption = dict[str, list[nodes.NodeNG]]
+
+    Scope = Literal["class", "comprehension", "function", "lambda", "module"]
 
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
@@ -478,7 +481,7 @@ class NamesConsumer:
     """A simple class to handle consumed, to consume and scope type info of node locals."""
 
     node: nodes.NodeNG
-    scope_type: str
+    scope_type: Scope
 
     to_consume: Consumption
     consumed: Consumption
@@ -492,7 +495,7 @@ class NamesConsumer:
     (e.g. for unused-variable) may need to add them back.
     """
 
-    def __init__(self, node: nodes.NodeNG, scope_type: str):
+    def __init__(self, node: nodes.NodeNG, scope_type: Scope):
         self.node = node
         self.scope_type = scope_type
 
@@ -1759,7 +1762,7 @@ class VariablesChecker(BaseChecker):
         stmt: nodes.NodeNG,
         frame: nodes.LocalsDictNodeNG,
         current_consumer: NamesConsumer,
-        base_scope_type: str,
+        base_scope_type: Scope,
     ) -> tuple[VariableVisitConsumerAction, list[nodes.NodeNG] | None]:
         """Checks a consumer for conditions that should trigger messages."""
         # If the name has already been consumed, only check it's not a loop
@@ -2190,7 +2193,7 @@ class VariablesChecker(BaseChecker):
         defstmt: _base_nodes.Statement,
         frame: nodes.LocalsDictNodeNG,  # scope of statement of node
         defframe: nodes.LocalsDictNodeNG,
-        base_scope_type: str,
+        base_scope_type: Scope,
         is_recursive_klass: bool,
     ) -> tuple[bool, bool, bool]:
         maybe_before_assign = True
