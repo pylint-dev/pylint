@@ -1,0 +1,9 @@
+Commented out code blocks will no longer emit fixme's, such as the following:
+```
+# typical comment # TODO: will not emit!
+# if foo:
+#    bar() # TODO: will not emit!
+#    baz()
+```
+
+Refs #9255
