@@ -1,4 +1,4 @@
-# pylint: disable=undefined-variable, use-list-literal, unnecessary-lambda-assignment, use-dict-literal
+# pylint: disable=undefined-variable, use-list-literal, unnecessary-lambda-assignment, use-dict-literal, disallowed-name
 """test suspicious lambda expressions
 """
 
@@ -65,3 +65,23 @@ _ = lambda **kwargs: dict(bar=42, **kwargs)
 _ = lambda x: x(x)
 _ = lambda x, y: x(x, y)
 _ = lambda x: z(lambda y: x + y)(x)
+
+
+# https://github.com/pylint-dev/pylint/issues/8192
+
+# foo does not yet exist, so replacing lambda x: foo.get(x) with
+# foo.get will raise NameError
+g = lambda x: foo.get(x)  # [unnecessary-lambda]  FALSE POSITIVE
+
+# an object is created and given the name 'foo'
+foo = {1: 2}
+assert g(1) == 2
+
+# a new object is created and given the name 'foo'; first object is lost
+foo = {1: 3}
+assert g(1) == 3
+
+# the name 'foo' is deleted; second object is lost; there is no foo
+del foo
+
+assert g(1) == 3  # NameError: name 'foo' is not defined
