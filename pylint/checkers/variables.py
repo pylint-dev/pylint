@@ -33,7 +33,6 @@ from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterable, Iterator
-    from typing import Any
 
     from astroid.nodes import _base_nodes
     from astroid.typing import InferenceResult
