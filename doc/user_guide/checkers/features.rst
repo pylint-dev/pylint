@@ -891,13 +891,13 @@ Refactoring checker Messages
   containing a continue statement. As such, it will warn when it encounters an
   else following a chain of ifs, all of them containing a continue statement.
 :no-else-raise (R1720): *Unnecessary "%s" after "raise", %s*
-  Used in order to highlight an unnecessary block of code following an if (or a
-  try/except) containing a raise statement. As such, it will warn when it
+  Used in order to highlight an unnecessary block of code following an if, or a
+  try/except containing a raise statement. As such, it will warn when it
   encounters an else following a chain of ifs, all of them containing a raise
   statement.
 :no-else-return (R1705): *Unnecessary "%s" after "return", %s*
-  Used in order to highlight an unnecessary block of code following an if (or a
-  try/except) containing a return statement. As such, it will warn when it
+  Used in order to highlight an unnecessary block of code following an if, or a
+  try/except containing a return statement. As such, it will warn when it
   encounters an else following a chain of ifs, all of them containing a return
   statement.
 :unnecessary-dict-index-lookup (R1733): *Unnecessary dictionary index lookup, use '%s' instead*
