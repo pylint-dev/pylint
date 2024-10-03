@@ -72,6 +72,11 @@ symilar       = "pylint:run_symilar"
 
 [tool.setuptools]
 license-files = ["LICENSE", "CONTRIBUTORS.txt"]  # Keep in sync with setup.cfg
+data-files = [
+  ["/etc/bash_completion.d", ["completions/bash/pylint"]],
+  ["/usr/share/zsh/site-functions", ["completions/zsh/_pylint"]],
+  ["/usr/share/fish/vendor_completions.d", ["completions/fish/pylint.fish"]]
+]
 
 [tool.setuptools.packages.find]
 include = ["pylint*"]
