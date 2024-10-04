@@ -285,7 +285,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             'Unnecessary "%s" after "return", %s',
             "no-else-return",
             "Used in order to highlight an unnecessary block of "
-            "code following an if containing a return statement. "
+            "code following an if, or a try/except containing a return statement. "
             "As such, it will warn when it encounters an else "
             "following a chain of ifs, all of them containing a "
             "return statement.",
@@ -387,7 +387,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             'Unnecessary "%s" after "raise", %s',
             "no-else-raise",
             "Used in order to highlight an unnecessary block of "
-            "code following an if containing a raise statement. "
+            "code following an if, or a try/except containing a raise statement. "
             "As such, it will warn when it encounters an else "
             "following a chain of ifs, all of them containing a "
             "raise statement.",
