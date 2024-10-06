@@ -27,10 +27,10 @@ if TYPE_CHECKING:
         pass
 
 def h():
-    return X()  # FALSE NEGATIVE
+    return X()  # [used-before-assignment]
 
 def i() -> X:
-    return X()  # FALSE NEGATIVE
+    return X()  # [used-before-assignment]
 
 if TYPE_CHECKING:
     from mod import Y

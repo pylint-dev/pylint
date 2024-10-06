@@ -174,7 +174,7 @@ class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-
     def defined_in_else_branch(self) -> urlopen:
         print(zoneinfo)  # [used-before-assignment]
         print(pprint())
-        print(collections())
+        print(collections())  # [used-before-assignment]
         return urlopen
 
     def defined_in_nested_if_else(self) -> heapq:  # [possibly-used-before-assignment]
