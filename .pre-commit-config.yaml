@@ -3,7 +3,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
         exclude: tests(/\w*)*/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html|doc/data/messages/t/trailing-whitespace/bad.py
@@ -20,7 +20,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.6.8"
+    rev: "v0.6.9"
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -41,7 +41,7 @@ repos:
       - id: isort
         exclude: doc/data/messages/
   - repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 24.10.0
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -109,7 +109,7 @@ repos:
         entry: make -C doc/ html
         pass_filenames: false
         language: system
-        stages: [push]
+        stages: [pre-push]
       - id: check-newsfragments
         name: Check newsfragments
         entry: python3 -m script.check_newsfragments
