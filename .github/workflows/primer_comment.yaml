@@ -16,7 +16,7 @@ env:
   # This needs to be the SAME as in the Main and PR job
   CACHE_VERSION: 4
   KEY_PREFIX: venv-primer
-  DEFAULT_PYTHON: "3.12"
+  DEFAULT_PYTHON: "3.13"
 
 permissions:
   contents: read
