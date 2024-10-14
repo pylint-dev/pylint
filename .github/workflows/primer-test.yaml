@@ -35,7 +35,7 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.0
+        uses: actions/checkout@v4.2.1
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v5.2.0
@@ -75,7 +75,7 @@ jobs:
         python-version: [3.9, "3.10", "3.11", "3.12", "3.13"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.0
+        uses: actions/checkout@v4.2.1
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v5.2.0
