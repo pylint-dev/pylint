@@ -473,10 +473,10 @@ class NameChecker(_BasicChecker):
 
             # Check names defined in AnnAssign nodes
             elif isinstance(assign_type, nodes.AnnAssign):
-                if utils.is_assign_name_annotated_with(node, "Final"):
-                    self._check_name("const", node.name, node)
-                elif self._assigns_typealias(assign_type.annotation):
+                if self._assigns_typealias(assign_type.annotation):
                     self._check_name("typealias", node.name, node)
+                else:
+                    self._check_name("const", node.name, node)
 
         # Check names defined in function scopes
         elif isinstance(frame, nodes.FunctionDef):

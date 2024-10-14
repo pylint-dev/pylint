@@ -1,0 +1,4 @@
+Check module-level constants with type annotations for ``invalid-name``.
+Remember to adjust ``const-naming-style`` or ``const-rgx`` to your liking.
+
+Closes #9770

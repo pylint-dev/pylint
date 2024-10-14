@@ -14,4 +14,4 @@ class Subscriptable:
 Subscriptable[0]
 Subscriptable()[0]  # [unsubscriptable-object]
 
-a: typing.List[int]
+A: typing.List[int]
