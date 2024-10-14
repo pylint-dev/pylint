@@ -197,7 +197,7 @@ jobs:
           then echo "::warning ::$WARNINGS"
           fi
       - name: Upload output of PR
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4.4.3
         with:
           name:
             primer_output_pr_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
@@ -205,7 +205,7 @@ jobs:
             tests/.pylint_primer_tests/output_${{ matrix.python-version }}_pr_batch${{
             matrix.batchIdx }}.txt
       - name: Upload output of 'main'
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4.4.3
         with:
           name:
             primer_output_main_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
@@ -218,7 +218,7 @@ jobs:
       - name: Upload PR number
         if:
           startsWith(steps.python.outputs.python-version, '3.9') && matrix.batchIdx == 0
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: pr_number
           path: pr_number.txt
