@@ -201,26 +201,6 @@ def _similar_names(
     return sorted(picked)
 
 
-def _missing_member_hint(
-    owner: SuccessfulInferenceResult,
-    attrname: str | None,
-    distance_threshold: int,
-    max_choices: int,
-) -> str:
-    names = _similar_names(owner, attrname, distance_threshold, max_choices)
-    if not names:
-        # No similar name.
-        return ""
-
-    names = [repr(name) for name in names]
-    if len(names) == 1:
-        names_hint = ", ".join(names)
-    else:
-        names_hint = f"one of {', '.join(names[:-1])} or {names[-1]}"
-
-    return f"; maybe {names_hint}?"
-
-
 MSGS: dict[str, MessageDefinitionTuple] = {
     "E1101": (
         "%s %r has no %r member%s",
@@ -989,10 +969,6 @@ accessed. Python regular expressions are accepted.",
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
 
     @cached_property
-    def _suggestion_mode(self) -> bool:
-        return self.linter.config.suggestion_mode  # type: ignore[no-any-return]
-
-    @cached_property
     def _compiled_generated_members(self) -> tuple[Pattern[str], ...]:
         # do this lazily since config not fully initialized in __init__
         # generated_members may contain regular expressions
@@ -1202,24 +1178,24 @@ accessed. Python regular expressions are accepted.",
         node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
         owner: SuccessfulInferenceResult,
     ) -> tuple[Literal["c-extension-no-member", "no-member"], str]:
-        suggestions_are_possible = self._suggestion_mode and isinstance(
-            owner, nodes.Module
+        if isinstance(owner, nodes.Module) and _is_c_extension(owner):
+            return "c-extension-no-member", ""
+        if not self.linter.config.missing_member_hint:
+            return "no-member", ""
+        names = _similar_names(
+            owner,
+            node.attrname,
+            self.linter.config.missing_member_hint_distance,
+            self.linter.config.missing_member_max_choices,
         )
-        if suggestions_are_possible and _is_c_extension(owner):
-            msg = "c-extension-no-member"
-            hint = ""
+        if not names:
+            return "no-member", ""
+        names = [repr(name) for name in names]
+        if len(names) == 1:
+            names_hint = ", ".join(names)
         else:
-            msg = "no-member"
-            if self.linter.config.missing_member_hint:
-                hint = _missing_member_hint(
-                    owner,
-                    node.attrname,
-                    self.linter.config.missing_member_hint_distance,
-                    self.linter.config.missing_member_max_choices,
-                )
-            else:
-                hint = ""
-        return msg, hint  # type: ignore[return-value]
+            names_hint = f"one of {', '.join(names[:-1])} or {names[-1]}"
+        return "no-member", f"; maybe {names_hint}?"
 
     @only_required_for_messages(
         "assignment-from-no-return",
