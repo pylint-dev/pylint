@@ -105,3 +105,18 @@ class GoodComplexMRO(Container, Iterator, Sizable, Hashable):
 # +1: [abstract-method, abstract-method, abstract-method]
 class BadComplexMro(Container, Iterator, AbstractSizable):
     pass
+
+
+class Base(abc.ABC):
+    @abc.abstractmethod
+    def do_something(self):
+        pass
+
+
+# +1: [abstract-method]
+class Derived(Base):
+    """ Test that a class derived from an abstract class correctly triggers
+        `abstract-method`.
+    """
+    def do_something_else(self):
+        pass
