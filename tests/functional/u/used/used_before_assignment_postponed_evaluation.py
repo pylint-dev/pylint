@@ -20,17 +20,17 @@ def f():
     return datetime.datetime.now()  # [used-before-assignment]
 
 def g() -> datetime.datetime:
-    return datetime.datetime.now()  # FALSE NEGATIVE
+    return datetime.datetime.now()  # [used-before-assignment]
 
 if TYPE_CHECKING:
     class X:
         pass
 
 def h():
-    return X()  # FALSE NEGATIVE
+    return X()  # [used-before-assignment]
 
 def i() -> X:
-    return X()  # FALSE NEGATIVE
+    return X()  # [used-before-assignment]
 
 if TYPE_CHECKING:
     from mod import Y
