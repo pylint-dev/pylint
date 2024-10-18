@@ -1,0 +1,3 @@
+Add ``FunctionReturnNotAssignedChecker`` extension and new ``function-return-not-assigned`` message if return value not used.
+
+Refs #7935
