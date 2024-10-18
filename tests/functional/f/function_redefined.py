@@ -122,7 +122,7 @@ def func(callback1=None, callback2=None):
             return 24
     return callback1(), callback2()
 
-do_something: Callable[[], int]
+do_something: Callable[[], int]  # pylint: disable=invalid-name
 
 def do_something() -> int:
     return 1

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import NoReturn, Set
 
 # unused-import shouldn't be emitted for Path
-example1: Set["Path"] = set()
+EXAMPLE1: Set["Path"] = set()
 
 def example2(_: "ArgumentParser") -> "NoReturn":
     """unused-import shouldn't be emitted for ArgumentParser or NoReturn."""
@@ -22,9 +22,9 @@ def example4(_: "PathLike[str]") -> None:
     """unused-import shouldn't be emitted for PathLike."""
 
 # pylint shouldn't crash with the following strings in a type annotation context
-example5: Set[""]
-example6: Set[" "]
-example7: Set["?"]
+EXAMPLE5: Set[""]
+EXAMPLE6: Set[" "]
+EXAMPLE7: Set["?"]
 
 class Class:
     """unused-import shouldn't be emitted for Namespace"""
