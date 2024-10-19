@@ -426,6 +426,22 @@ def _make_linter_options(linter: PyLinter) -> Options:
                 "messages.",
             },
         ),
+        (
+            "config-list",
+            {
+                "action": "store_true",
+                "default": False,
+                "help": "Show current configuration values.",
+            },
+        ),
+        (
+            "config-list-show-origin",
+            {
+                "action": "store_true",
+                "default": False,
+                "help": "Show current configuration values along with their origin.",
+            },
+        ),
     )
 
 
