@@ -304,9 +304,7 @@ def _assigned_locally(name_node: nodes.Name) -> bool:
 
 
 def _is_before(node: nodes.NodeNG, reference_node: nodes.NodeNG) -> bool:
-    """
-    Returns True if node appears before reference_node, False otherwise.
-    """
+    """Returns True if node appears before reference_node, False otherwise."""
     if node.lineno < reference_node.lineno:
         return True
     if (
