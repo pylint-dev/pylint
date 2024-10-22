@@ -14,7 +14,11 @@ from pathlib import Path
 import pytest
 
 from pylint.checkers import BaseChecker
-from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
+from pylint.lint.expand_modules import (
+    _is_in_ignore_list_re,
+    discover_package_path,
+    expand_modules,
+)
 from pylint.testutils import CheckerTestCase, set_config
 from pylint.typing import MessageDefinitionTuple, ModuleDescriptionDict
 
@@ -306,3 +310,43 @@ class TestExpandModules(CheckerTestCase):
         )
         assert modules == expected
         assert not errors
+
+
+def test_discover_package_path_no_source_root_overlap(tmp_path: Path) -> None:
+    """Test whether source_roots is returned even if module doesn't overlap
+    with source_roots
+    """
+    source_roots = [str(tmp_path)]
+    package_paths = discover_package_path(__file__, source_roots)
+
+    expected = source_roots
+    assert package_paths == expected
+
+
+def test_discover_package_path_legacy() -> None:
+    """Test for legacy path discovery when source_roots is empty"""
+    source_roots: list[str] = []
+    package_paths = discover_package_path(__file__, source_roots)
+
+    # First ancestor directory without __init__.py
+    expected = [str(Path(__file__).parent.parent.absolute())]
+
+    assert package_paths == expected
+
+
+def test_discover_package_path_legacy_no_parent_without_init_py(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Test to return current directory if no parent directory without
+    __init__.py is found
+    """
+    source_roots: list[str] = []
+
+    monkeypatch.setattr(os.path, "exists", lambda path: True)
+    monkeypatch.setattr(os.path, "dirname", lambda path: path)
+
+    package_paths = discover_package_path(str(tmp_path), source_roots)
+
+    expected = [os.getcwd()]
+
+    assert package_paths == expected

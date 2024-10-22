@@ -302,7 +302,11 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
             print(self.help())
             return 1
         extra_packages_paths = list(
-            {discover_package_path(arg, self.config.source_roots) for arg in args}
+            {
+                path
+                for arg in args
+                for path in discover_package_path(arg, self.config.source_roots)
+            }
         )
         with augmented_sys_path(extra_packages_paths):
             project = project_from_files(
