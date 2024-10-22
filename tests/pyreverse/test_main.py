@@ -76,7 +76,7 @@ def test_discover_package_path_source_root_as_parent(tmp_path) -> None:
     package_dir = project_dir / "mypackage"
     package_dir.mkdir(parents=True)
     (package_dir / "__init__.py").touch()
-    
+
     # Test with project_dir as source root (parent of package)
     result = discover_package_path(str(package_dir), [str(project_dir)])
     assert result == str(project_dir)
@@ -95,7 +95,7 @@ def test_discover_package_path_source_root_as_child(tmp_path) -> None:
     package_dir = src_dir / "mypackage"
     package_dir.mkdir(parents=True)
     (package_dir / "__init__.py").touch()
-    
+
     # Test with src_dir as source root (child of project)
     result = discover_package_path(str(project_dir), [str(src_dir)])
     assert result == str(src_dir)
