@@ -303,6 +303,20 @@ def _assigned_locally(name_node: nodes.Name) -> bool:
     )
 
 
+def _is_before(node: nodes.NodeNG, reference_node: nodes.NodeNG) -> bool:
+    """
+    Returns True if node appears before reference_node, False otherwise.
+    """
+    if node.lineno < reference_node.lineno:
+        return True
+    if (
+        node.lineno == reference_node.lineno
+        and node.col_offset < reference_node.col_offset
+    ):
+        return True
+    return False
+
+
 def _has_locals_call_after_node(stmt: nodes.NodeNG, scope: nodes.FunctionDef) -> bool:
     skip_nodes = (
         nodes.FunctionDef,
@@ -531,7 +545,9 @@ scope_type : {self.scope_type}
         else:
             del self.to_consume[name]
 
-    def get_next_to_consume(self, node: nodes.Name) -> list[nodes.NodeNG] | None:
+    def get_next_to_consume(
+        self, node: nodes.Name, is_nonlocal: bool
+    ) -> list[nodes.NodeNG] | None:
         """Return a list of the nodes that define `node` from this scope.
 
         If it is uncertain whether a node will be consumed, such as for statements in
@@ -542,6 +558,12 @@ scope_type : {self.scope_type}
         parent_node = node.parent
         found_nodes = self.to_consume.get(name)
         node_statement = node.statement()
+
+        # Filter out all nodes that define `node`, as it is a nonlocal
+        if is_nonlocal:
+            self.consumed_uncertain[node.name] += found_nodes if found_nodes else []
+            return []
+
         if (
             found_nodes
             and isinstance(parent_node, nodes.Assign)
@@ -560,13 +582,6 @@ scope_type : {self.scope_type}
             and parent_node.target in found_nodes
         ):
             found_nodes = None
-
-        # Before filtering, check that this node's name is not a nonlocal
-        if any(
-            isinstance(child, nodes.Nonlocal) and node.name in child.names
-            for child in node.frame().get_children()
-        ):
-            return found_nodes
 
         # And no comprehension is under the node's frame
         if VariablesChecker._comprehension_between_frame_and_node(node):
@@ -723,7 +738,7 @@ scope_type : {self.scope_type}
                 name = other_node.name
             elif isinstance(other_node, (nodes.Import, nodes.ImportFrom)):
                 name = node.name
-            elif isinstance(other_node, nodes.ClassDef):
+            elif isinstance(other_node, (nodes.FunctionDef, nodes.ClassDef)):
                 name = other_node.name
             else:
                 continue
@@ -1268,6 +1283,7 @@ class VariablesChecker(BaseChecker):
         self._reported_type_checking_usage_scopes: dict[
             str, list[nodes.LocalsDictNodeNG]
         ] = {}
+        self._nonlocal_nodes_stack: list[list[nodes.Nonlocal]] = []
         self._postponed_evaluation_enabled = False
 
     @utils.only_required_for_messages(
@@ -1434,6 +1450,9 @@ class VariablesChecker(BaseChecker):
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Visit function: update consumption analysis variable and check locals."""
         self._to_consume.append(NamesConsumer(node, "function"))
+        self._nonlocal_nodes_stack.append(
+            [n for n in node.body if isinstance(n, nodes.Nonlocal)]
+        )
         if not (
             self.linter.is_message_enabled("redefined-outer-name")
             or self.linter.is_message_enabled("redefined-builtin")
@@ -1483,6 +1502,7 @@ class VariablesChecker(BaseChecker):
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """Leave function: check function's locals are consumed."""
         self._check_metaclasses(node)
+        self._nonlocal_nodes_stack.pop()
 
         if node.type_comment_returns:
             self._store_type_annotation_node(node.type_comment_returns)
@@ -1761,7 +1781,9 @@ class VariablesChecker(BaseChecker):
                 self._check_late_binding_closure(node)
                 return (VariableVisitConsumerAction.RETURN, None)
 
-        found_nodes = current_consumer.get_next_to_consume(node)
+        found_nodes = current_consumer.get_next_to_consume(
+            node, self._is_nonlocal(node)
+        )
         if found_nodes is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
@@ -1940,6 +1962,13 @@ class VariablesChecker(BaseChecker):
 
         return (VariableVisitConsumerAction.RETURN, found_nodes)
 
+    def _is_nonlocal(self, node: nodes.Name) -> bool:
+        return any(
+            node.name in nonlocal_node.names and _is_before(nonlocal_node, node)
+            for nonlocal_scope in self._nonlocal_nodes_stack
+            for nonlocal_node in nonlocal_scope
+        )
+
     def _report_unfound_name_definition(
         self,
         node: nodes.NodeNG,
@@ -1963,6 +1992,8 @@ class VariablesChecker(BaseChecker):
             node.name in self._reported_type_checking_usage_scopes
             and node.scope() in self._reported_type_checking_usage_scopes[node.name]
         ):
+            return False
+        if self._is_nonlocal(node):
             return False
 
         confidence = HIGH
@@ -2291,19 +2322,11 @@ class VariablesChecker(BaseChecker):
                     # x = b if (b := True) else False
                     maybe_before_assign = False
                 elif (
-                    isinstance(  # pylint: disable=too-many-boolean-expressions
-                        defnode, nodes.NamedExpr
-                    )
+                    isinstance(defnode, nodes.NamedExpr)
                     and frame is defframe
                     and defframe.parent_of(stmt)
                     and stmt is defstmt
-                    and (
-                        (
-                            defnode.lineno == node.lineno
-                            and defnode.col_offset < node.col_offset
-                        )
-                        or (defnode.lineno < node.lineno)
-                    )
+                    and _is_before(defnode, node)
                 ):
                     # Relation of a name to the same name in a named expression
                     # Could be used before assignment if self-referencing:
