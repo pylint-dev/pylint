@@ -173,7 +173,7 @@ class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-
 
     def defined_in_else_branch(self) -> urlopen:
         print(zoneinfo)  # [used-before-assignment]
-        print(pprint())
+        print(pprint())  # [used-before-assignment]
         print(collections())  # [used-before-assignment]
         return urlopen
 
