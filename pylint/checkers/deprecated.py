@@ -133,12 +133,12 @@ class DeprecatedMixin(BaseChecker):
         if not children:
             return
         if isinstance(children[0], nodes.Call):
-            infered = safe_infer(children[0].func)
+            inferred = safe_infer(children[0].func)
         else:
-            infered = safe_infer(children[0])
-        if not infered:
+            inferred = safe_infer(children[0])
+        if not inferred:
             return
-        qname = infered.qname()
+        qname = inferred.qname()
         if qname in self.deprecated_decorators():
             self.add_message("deprecated-decorator", node=node, args=qname)
 
