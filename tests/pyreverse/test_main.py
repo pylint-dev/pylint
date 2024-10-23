@@ -65,12 +65,12 @@ def test_project_root_in_sys_path() -> None:
         assert sys.path == [PROJECT_ROOT_DIR]
 
 
-def test_discover_package_path_source_root_as_parent(tmp_path) -> None:
+def test_discover_package_path_source_root_as_parent(tmp_path: Any) -> None:
     """Test discover_package_path when source root is a parent of the module."""
     # Create this temporary structure:
     # /tmp_path/
     # └── project/
-    #     └── mypackage/
+    #     └── my-package/
     #         └── __init__.py
     project_dir = tmp_path / "project"
     package_dir = project_dir / "mypackage"
@@ -82,13 +82,13 @@ def test_discover_package_path_source_root_as_parent(tmp_path) -> None:
     assert result == str(project_dir)
 
 
-def test_discover_package_path_source_root_as_child(tmp_path) -> None:
+def test_discover_package_path_source_root_as_child(tmp_path: Any) -> None:
     """Test discover_package_path when source root is a child of the module."""
     # Create this temporary structure:
     # /tmp_path/
     # └── project/
     #     └── src/
-    #         └── mypackage/
+    #         └── my-package/
     #             └── __init__.py
     project_dir = tmp_path / "project"
     src_dir = project_dir / "src"
