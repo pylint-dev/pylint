@@ -33,7 +33,7 @@ def discover_package_path(modulepath: str, source_roots: Sequence[str]) -> str:
     # Look for a source root that contains the module directory
     for source_root in source_roots:
         source_root = os.path.realpath(os.path.expanduser(source_root))
-        if os.path.commonpath([source_root, dirname]) == source_root:
+        if os.path.commonpath([source_root, dirname]) in [dirname, source_root]:
             return source_root
 
     # Fall back to legacy discovery by looking for __init__.py upwards as
