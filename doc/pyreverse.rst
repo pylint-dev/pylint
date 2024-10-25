@@ -23,6 +23,92 @@ To see a full list of the available options, run::
    pyreverse -h
 
 
+Command Line Options
+....................
+
+Pyreverse provides various options to control the output and appearance of your diagrams:
+
+Output Control
+~~~~~~~~~~~~~~
+
+``--output``, ``-o <format>``
+    Specify the output format (e.g., .dot, .puml, .plantuml, .mmd, .html).
+    Additional formats are available if Graphviz is installed (see `Graphviz output formats <https://graphviz.org/docs/outputs/>`_).
+
+``--output-directory``, ``-d <output_directory>``
+    Set the output directory path for generated diagrams.
+
+``--project``, ``-p <project name>``
+    Set the project name.
+
+Filtering and Scope
+~~~~~~~~~~~~~~~~~~~
+
+``--filter-mode``, ``-f <mode>``
+    Control which class members are shown:
+
+    * ``PUB_ONLY`` (default): Show only public attributes
+    * ``ALL``: Show all members
+    * ``SPECIAL``: Show all but Python special functions (except constructor)
+    * ``OTHER``: Show all but protected and private attributes
+
+``--class``, ``-c <class>``
+    Create a focused diagram showing a specific class and its relations.
+    Automatically enables -ASmy options.
+
+``--show-ancestors``, ``-a <ancestor>``
+    Include specified number of ancestor generations.
+
+``--all-ancestors``, ``-A``
+    Include all ancestor classes.
+
+``--show-associated``, ``-s <association_level>``
+    Include specified levels of associated classes.
+
+``--all-associated``, ``-S``
+    Include all associated classes recursively.
+
+``--show-builtin``, ``-b``
+    Include Python's builtin objects.
+
+``--show-stdlib``, ``-L``
+    Include standard library objects.
+
+Display Options
+~~~~~~~~~~~~~~~
+
+``--module-names``, ``-m <y or n>``
+    Show or hide module names in class representations.
+
+``--only-classnames``, ``-k``
+    Show only class names, hiding attributes and methods.
+
+``--no-standalone``
+    Only show connected classes.
+
+``--colorized``
+    Enable colored output. Classes/modules in the same package share colors.
+
+``--max-color-depth <depth>``
+    Control color distinction by package depth (default: 2).
+
+``--color-palette <color1,color2,...>``
+    Specify custom colors for the diagram.
+
+Project Configuration
+~~~~~~~~~~~~~~~~~~~~~
+
+``--ignore <file[,file...]>``
+    Exclude specific files or directories (use base names).
+
+``--source-roots <path>[,<path>...]>``
+    Define source roots for package namespace resolution.
+    Supports glob patterns.
+
+``--verbose``
+    Enable detailed output for debugging.
+
+
 Example Output
 ''''''''''''''
 
