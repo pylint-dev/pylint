@@ -104,10 +104,14 @@ class TypingChecker(BaseChecker):
             "Python 3.7 or 3.8.",
         ),
         "R6003": (
-            "Consider using alternative Union syntax instead of '%s'%s",
+            "Consider using alternative union syntax instead of '%s'%s",
             "consider-alternative-union-syntax",
-            "Emitted when 'typing.Union' or 'typing.Optional' is used "
-            "instead of the alternative Union syntax 'int | None'.",
+            "Emitted when ``typing.Union`` or ``typing.Optional`` is used "
+            "instead of the shorthand union syntax. For example, "
+            "``Union[int, float]`` instead of ``int | float``. Using "
+            "the shorthand for unions aligns with Python typing "
+            "recommendations, removes the need for imports, and avoids "
+            "confusion in function signatures.",
         ),
         "E6004": (
             "'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1",
