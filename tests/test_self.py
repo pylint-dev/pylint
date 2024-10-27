@@ -208,6 +208,16 @@ class TestRunTC:
             ["--exit-zero", join(HERE, "regrtest_data", "syntax_error.py")], code=0
         )
 
+    @pytest.mark.parametrize(
+        "repo", ["source_roots_src_layout", "source_roots_implicit_namespace_pkg"]
+    )
+    def test_source_roots_src_layout(self, repo: str) -> None:
+        repo = join(HERE, "regrtest_data", repo)
+        src_path = join(repo, "src")
+        self._runtest(
+            ["-d", "unused-import", f"--source-roots={src_path}", repo], code=0
+        )
+
     def test_nonexistent_config_file(self) -> None:
         self._runtest(["--rcfile=/tmp/this_file_does_not_exist"], code=32)
 

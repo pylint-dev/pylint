@@ -61,7 +61,7 @@ def test_project_root_in_sys_path() -> None:
     """Test the context manager adds the project root directory to sys.path.
     This should happen when pyreverse is run from any directory.
     """
-    with augmented_sys_path([discover_package_path(TEST_DATA_DIR, [])]):
+    with augmented_sys_path(discover_package_path(TEST_DATA_DIR, [])):
         assert sys.path == [PROJECT_ROOT_DIR]
 
 
