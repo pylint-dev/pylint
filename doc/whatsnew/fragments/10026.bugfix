@@ -1,0 +1,3 @@
+Fixes the issue with --source-root option not working when the source files are in a subdirectory of the source root (e.g. when using a /src layout).
+
+Closes #10026
