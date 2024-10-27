@@ -723,7 +723,7 @@ scope_type : {self.scope_type}
                 name = other_node.name
             elif isinstance(other_node, (nodes.Import, nodes.ImportFrom)):
                 name = node.name
-            elif isinstance(other_node, nodes.ClassDef):
+            elif isinstance(other_node, (nodes.FunctionDef, nodes.ClassDef)):
                 name = other_node.name
             else:
                 continue
