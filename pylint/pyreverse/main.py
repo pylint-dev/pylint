@@ -285,7 +285,7 @@ OPTIONS: Options = (
             "group": OPTIONS_GROUPS["PROJECT"],
             "help": "Add paths to the list of the source roots. Supports globbing patterns. The "
             "source root is an absolute path or a path relative to the current working directory "
-            "used to determine a package namespace for modules located under the source root."
+            "used to determine a package namespace for modules located under the source root.",
         },
     ),
     (
