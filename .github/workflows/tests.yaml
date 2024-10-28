@@ -36,7 +36,7 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v5.3.0
@@ -89,7 +89,7 @@ jobs:
     needs: tests-linux
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
       - name: Set up Python 3.12
         id: python
         uses: actions/setup-python@v5.3.0
@@ -129,7 +129,7 @@ jobs:
         python-version: ["3.13"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v5.3.0
@@ -184,7 +184,7 @@ jobs:
         # Workaround to set correct temp directory on Windows
         # https://github.com/actions/virtual-environments/issues/712
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v5.3.0
@@ -230,7 +230,7 @@ jobs:
         python-version: [3.9]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v5.3.0
@@ -274,7 +274,7 @@ jobs:
         python-version: ["pypy-3.9", "pypy-3.10"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v5.3.0
