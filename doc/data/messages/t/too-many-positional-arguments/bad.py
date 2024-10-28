@@ -1,5 +1,6 @@
 # +1: [too-many-positional-arguments]
 def calculate_drag_force(velocity, area, density, drag_coefficient):
+    """By default, a function is 'Positional or Keyword' for all args."""
     return 0.5 * drag_coefficient * density * area * velocity**2
 
 
