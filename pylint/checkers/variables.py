@@ -2072,21 +2072,36 @@ class VariablesChecker(BaseChecker):
         non-sequences as well as in case self/cls get assigned.
         """
         self._check_self_cls_assign(node)
+
+        if isinstance(node.targets[0], nodes.Subscript):
+            try:
+                if isinstance(node.value, nodes.Dict):
+                    return
+                else:
+                    return
+            except Exception as e:
+                print(f"Error in assignment: {e}")
+                return
+
         if not isinstance(node.targets[0], (nodes.Tuple, nodes.List)):
             return
 
         targets = node.targets[0].itered()
 
-        # Check if we have starred nodes.
         if any(isinstance(target, nodes.Starred) for target in targets):
             return
 
         try:
             inferred = utils.safe_infer(node.value)
+
+            if isinstance(node.value, nodes.Dict):
+                return
+
             if inferred is not None:
                 self._check_unpacking(inferred, node, targets)
         except astroid.InferenceError:
             return
+
 
     # listcomp have now also their scope
     def visit_listcomp(self, node: nodes.ListComp) -> None:
@@ -3326,7 +3341,12 @@ class VariablesChecker(BaseChecker):
     def visit_subscript(self, node: nodes.Subscript) -> None:
         inferred_slice = utils.safe_infer(node.slice)
 
+        inferred_value = utils.safe_infer(node.value)
+        if isinstance(inferred_value, nodes.Dict):
+            return
+
         self._check_potential_index_error(node, inferred_slice)
+
 
     def _check_potential_index_error(
         self,
