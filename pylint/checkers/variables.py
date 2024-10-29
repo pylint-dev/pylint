@@ -2102,7 +2102,6 @@ class VariablesChecker(BaseChecker):
         except astroid.InferenceError:
             return
 
-
     # listcomp have now also their scope
     def visit_listcomp(self, node: nodes.ListComp) -> None:
         """Visit listcomp: update consumption analysis variable."""
@@ -3346,7 +3345,6 @@ class VariablesChecker(BaseChecker):
             return
 
         self._check_potential_index_error(node, inferred_slice)
-
 
     def _check_potential_index_error(
         self,
