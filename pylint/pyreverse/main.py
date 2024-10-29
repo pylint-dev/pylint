@@ -234,9 +234,9 @@ OPTIONS: Options = (
             "group": OPTIONS_GROUPS["OUTPUT"],
             "help": (
                 "Create a *.<format> output file if format is available. Available "
-                f"formats are: {', '.join(["." + format for format in DIRECTLY_SUPPORTED_FORMATS])}. Any other "
-                f"format will be tried to be created by using the 'dot' command line "
-                f"tool, which requires a graphviz installation. In this case, these additional "
+                f"formats are: {', '.join('.' + fmt for fmt in DIRECTLY_SUPPORTED_FORMATS)}. Any other "
+                "format will be tried to be created by using the 'dot' command line "
+                "tool, which requires a graphviz installation. In this case, these additional "
                 "formats are available (see `Graphviz output formats <https://graphviz.org/docs/outputs/>`_)."
             ),
         },
