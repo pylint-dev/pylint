@@ -206,7 +206,7 @@ OPTIONS: Options = (
             "metavar": "<depth>",
             "type": "int",
             "group": OPTIONS_GROUPS["DISPLAY"],
-            "help": "Use separate colors up to package depth of <depth>. Higher depths wil reuse colors.",
+            "help": "Use separate colors up to package depth of <depth>. Higher depths will reuse colors.",
         },
     ),
     (
@@ -300,9 +300,8 @@ OPTIONS: Options = (
 )
 
 
+# Base class providing common behaviour for pyreverse commands
 class Run(_ArgumentsManager, _ArgumentsProvider):
-    """Base class providing common behaviour for pyreverse commands."""
-
     options = OPTIONS
     name = "pyreverse"
 
