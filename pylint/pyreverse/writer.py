@@ -171,10 +171,27 @@ class DiagramWriter:
 
     def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
         """Get label and shape for classes."""
+        attrs = obj.attrs if not self.config.only_classnames else None
+        methods = obj.methods if not self.config.only_classnames else None
+
+        if attrs and hasattr(obj.node, "properties"):
+            formatted_attrs = []
+            property_names = {prop.name for prop in obj.node.properties}
+
+            for attr in attrs:
+                name = attr.split(":")[0].strip()
+                if name in property_names:
+                    # Get type from instance_attrs_type
+                    prop_type = obj.node.instance_attrs_type.get(name, ["Unknown"])[0]
+                    formatted_attrs.append(f"{name} «property»: {prop_type}")
+                else:
+                    formatted_attrs.append(attr)
+            attrs = formatted_attrs
+
         properties = NodeProperties(
             label=obj.title,
-            attrs=obj.attrs if not self.config.only_classnames else None,
-            methods=obj.methods if not self.config.only_classnames else None,
+            attrs=attrs,
+            methods=methods,
             fontcolor="red" if is_exception(obj.node) else "black",
             color=self.get_shape_color(obj) if self.config.colorized else "black",
         )
