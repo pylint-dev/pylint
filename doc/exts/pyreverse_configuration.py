@@ -11,7 +11,7 @@ from typing import NamedTuple
 
 from sphinx.application import Sphinx
 
-from pylint.pyreverse.main import Run
+from pylint.pyreverse.main import OPTIONS_GROUPS, Run
 from pylint.typing import OptionDict
 from pylint.utils import get_rst_title
 
@@ -21,7 +21,9 @@ class OptionsData(NamedTuple):
     optdict: OptionDict
 
 
-PYREVERSE_PATH = Path(__file__).resolve().parent.parent / "pyreverse"
+PYREVERSE_PATH = (
+    Path(__file__).resolve().parent.parent / "additional_tools" / "pyreverse"
+)
 """Path to the pyreverse documentation folder."""
 
 
@@ -34,19 +36,26 @@ def _write_config_page(run: Run) -> None:
     ]
 
     options: list[OptionsData] = [OptionsData(name, info) for name, info in run.options]
+    option_groups: dict[str, list[str]] = {g: [] for g in OPTIONS_GROUPS.values()}
 
-    config_string = ""
     for option in sorted(options, key=lambda x: x.name):
-        config_string += get_rst_title(f"--{option.name}", '"')
-        config_string += f"*{option.optdict.get('help')}*\n\n"
+        option_string = get_rst_title(f"--{option.name}", '"')
+        option_string += f"*{option.optdict.get('help')}*\n\n"
 
         if option.optdict.get("default") == "":
-            config_string += '**Default:** ``""``\n\n\n'
+            option_string += '**Default:** ``""``\n\n\n'
         else:
-            config_string += f"**Default:**  ``{option.optdict.get('default')}``\n\n\n"
+            option_string += f"**Default:**  ``{option.optdict.get('default')}``\n\n\n"
 
-    sections.append(config_string)
-    final_page = "\n\n".join(sections)
+        option_groups[str(option.optdict.get("group"))].append(option_string)
+
+    for group_title in OPTIONS_GROUPS.values():
+        sections.append(
+            get_rst_title(group_title, "-") + "\n" + "".join(option_groups[group_title])
+        )
+
+    # Join all sections and remove the final two newlines
+    final_page = "\n\n".join(sections)[:-2]
 
     with open(PYREVERSE_PATH / "configuration.rst", "w", encoding="utf-8") as stream:
         stream.write(final_page)

@@ -322,7 +322,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
             )
             check_if_graphviz_supports_format(self.config.output_format)
 
-    def run(self, args: list[str]) -> int:
+    def run(self, args: Sequence[str]) -> int:
         """Checking arguments and run project."""
         if not args:
             print(self.help())
@@ -345,5 +345,5 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
 
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    Run(args).run(args)
+    arguments = sys.argv[1:]
+    Run(arguments).run(arguments)

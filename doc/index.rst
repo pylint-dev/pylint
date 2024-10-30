@@ -33,8 +33,8 @@
    :titlesonly:
    :hidden:
 
-   pyreverse/index
-   symilar
+   additional_tools/pyreverse/index
+   additional_tools/symilar/index
 
 .. toctree::
    :caption: Changelog

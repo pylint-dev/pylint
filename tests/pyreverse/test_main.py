@@ -164,7 +164,7 @@ def test_verbose(_: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
 @mock.patch("pylint.pyreverse.main.sys.exit", new=mock.MagicMock())
 def test_command_line_arguments_defaults(arg: str, expected_default: Any) -> None:
     """Test that the default arguments of all options are correct."""
-    run = main.Run([TEST_DATA_DIR])  # type: ignore[var-annotated]
+    run = main.Run([TEST_DATA_DIR])
     assert getattr(run.config, arg) == expected_default
 
 
@@ -191,7 +191,7 @@ def test_class_command(
 
     Make sure that we append multiple --class arguments to one option destination.
     """
-    runner = main.Run(  # type: ignore[var-annotated]
+    runner = main.Run(
         [
             "--class",
             "data.clientmodule_test.Ancestor",
