@@ -149,5 +149,3 @@ Pyreverse Configuration
 *Makes pyreverse more verbose/talkative. Mostly useful for debugging.*
 
 **Default:**  ``False``
-
-
