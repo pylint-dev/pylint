@@ -46,7 +46,7 @@ def _run_pylint_config(argv: Sequence[str] | None = None) -> None:
     _PylintConfigRun(argv or sys.argv[1:])
 
 
-def run_pyreverse(argv: Sequence[str] | None = None) -> None:
+def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:
     """Run pyreverse.
 
     argv can be a sequence of strings normally supplied as arguments on the command line
@@ -54,7 +54,7 @@ def run_pyreverse(argv: Sequence[str] | None = None) -> None:
     from pylint.pyreverse.main import Run as PyreverseRun
 
     args = argv or sys.argv[1:]
-    PyreverseRun(args).run(args)
+    sys.exit(PyreverseRun(args).run(args))
 
 
 def run_symilar(argv: Sequence[str] | None = None) -> NoReturn:
