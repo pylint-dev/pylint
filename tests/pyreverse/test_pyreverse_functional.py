@@ -44,7 +44,7 @@ def test_class_diagrams(testfile: FunctionalPyreverseTestfile, tmp_path: Path) -
                 args += ["--source-roots", source_roots]
             args.extend(testfile.options["command_line_args"])
             args += [str(input_file)]
-            Run(args).run(args)
+            Run(args).run()
         assert sys_exit.value.code == 0
         assert testfile.source.with_suffix(f".{output_format}").read_text(
             encoding="utf8"

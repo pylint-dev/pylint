@@ -53,8 +53,7 @@ def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:
     """
     from pylint.pyreverse.main import Run as PyreverseRun
 
-    args = argv or sys.argv[1:]
-    sys.exit(PyreverseRun(args).run(args))
+    sys.exit(PyreverseRun(argv or sys.argv[1:]).run())
 
 
 def run_symilar(argv: Sequence[str] | None = None) -> NoReturn:

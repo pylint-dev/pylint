@@ -312,7 +312,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
 
         # Parse options
         insert_default_options()
-        args = self._parse_command_line_configuration(args)
+        self.args = self._parse_command_line_configuration(args)
 
         if self.config.output_format not in DIRECTLY_SUPPORTED_FORMATS:
             check_graphviz_availability()
@@ -322,17 +322,17 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
             )
             check_if_graphviz_supports_format(self.config.output_format)
 
-    def run(self, args: Sequence[str]) -> int:
+    def run(self) -> int:
         """Checking arguments and run project."""
-        if not args:
+        if not self.args:
             print(self.help())
             return 1
         extra_packages_paths = list(
-            {discover_package_path(arg, self.config.source_roots) for arg in args}
+            {discover_package_path(arg, self.config.source_roots) for arg in self.args}
         )
         with augmented_sys_path(extra_packages_paths):
             project = project_from_files(
-                args,
+                self.args,
                 project_name=self.config.project,
                 black_list=self.config.ignore_list,
                 verbose=self.config.verbose,
@@ -346,4 +346,4 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
 
 if __name__ == "__main__":
     arguments = sys.argv[1:]
-    Run(arguments).run(arguments)
+    Run(arguments).run()
