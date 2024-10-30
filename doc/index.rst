@@ -33,7 +33,7 @@
    :titlesonly:
    :hidden:
 
-   pyreverse
+   pyreverse/index
    symilar
 
 .. toctree::

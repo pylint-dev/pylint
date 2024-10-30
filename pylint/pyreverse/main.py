@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Sequence
-from typing import NoReturn
 
 from pylint import constants
 from pylint.config.arguments_manager import _ArgumentsManager
@@ -67,15 +66,11 @@ OPTIONS: Options = (
             "action": "store",
             "metavar": "<mode>",
             "group": OPTIONS_GROUPS["FILTERING"],
-            "help": """Filter attributes and functions according to
-    <mode>. Correct modes are :
-                            'PUB_ONLY' filter all non public attributes
-                                [DEFAULT], equivalent to PRIVATE+SPECIAL_A
-                            'ALL' no filter
-                            'SPECIAL' filter Python special functions
-                                except constructor
-                            'OTHER' filter protected and private
-                                attributes""",
+            "help": """Filter attributes and functions according to <mode>. Correct modes are:
+'PUB_ONLY' filter all non public attributes [DEFAULT], equivalent to PRIVATE+SPECIAL
+'ALL' no filter
+'SPECIAL' filter Python special functions except constructor
+'OTHER' filter protected and private attributes""",
         },
     ),
     (
@@ -305,7 +300,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
     options = OPTIONS
     name = "pyreverse"
 
-    def __init__(self, args: Sequence[str]) -> NoReturn:
+    def __init__(self, args: Sequence[str]) -> None:
         # Immediately exit if user asks for version
         if "--version" in args:
             print("pyreverse is included in pylint:")
@@ -327,7 +322,6 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
             )
             check_if_graphviz_supports_format(self.config.output_format)
 
-        sys.exit(self.run(args))
 
     def run(self, args: list[str]) -> int:
         """Checking arguments and run project."""
@@ -352,4 +346,5 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
 
 
 if __name__ == "__main__":
-    Run(sys.argv[1:])
+    args = sys.argv[1:]
+    Run(args).run(args)
