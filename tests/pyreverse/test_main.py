@@ -75,7 +75,8 @@ def test_graphviz_supported_image_format(
     """Test that Graphviz is used if the image format is supported."""
     with pytest.raises(SystemExit) as wrapped_sysexit:
         # we have to catch the SystemExit so the test execution does not stop
-        main.Run(["-o", "png", TEST_DATA_DIR])
+        args = ["-o", "png", TEST_DATA_DIR]
+        main.Run(args).run(args)
     # Check that the right info message is shown to the user
     assert (
         "Format png is not supported natively. Pyreverse will try to generate it using Graphviz..."
@@ -97,7 +98,8 @@ def test_graphviz_cant_determine_supported_formats(
     mock_subprocess.run.return_value.stderr = "..."
     with pytest.raises(SystemExit) as wrapped_sysexit:
         # we have to catch the SystemExit so the test execution does not stop
-        main.Run(["-o", "png", TEST_DATA_DIR])
+        args = ["-o", "png", TEST_DATA_DIR]
+        main.Run(args).run(args)
     # Check that the right info message is shown to the user
     assert (
         "Unable to determine Graphviz supported output formats."
@@ -136,7 +138,8 @@ def test_verbose(_: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
     """Test the --verbose flag."""
     with pytest.raises(SystemExit):
         # we have to catch the SystemExit so the test execution does not stop
-        main.Run(["--verbose", TEST_DATA_DIR])
+        args = ["--verbose", TEST_DATA_DIR]
+        main.Run(args).run(args)
     assert "parsing" in capsys.readouterr().out
 
 
@@ -178,7 +181,8 @@ def test_command_line_arguments_yes_no(
     of using it as a flag.
     """
     with pytest.raises(SystemExit) as wrapped_sysexit:
-        main.Run(["--module-names=yes", TEST_DATA_DIR])
+        args = ["--module-names=yes", TEST_DATA_DIR]
+        main.Run(args).run(args)
     assert wrapped_sysexit.value.code == 0
 
 
