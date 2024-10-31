@@ -109,9 +109,7 @@ def test_graphviz_supported_image_format(
     mock_writer: mock.MagicMock, capsys: CaptureFixture[str]
 ) -> None:
     """Test that Graphviz is used if the image format is supported."""
-    with pytest.raises(SystemExit) as wrapped_sysexit:
-        # we have to catch the SystemExit so the test execution does not stop
-        main.Run(["-o", "png", TEST_DATA_DIR])
+    exit_code = main.Run(["-o", "png", TEST_DATA_DIR]).run()
     # Check that the right info message is shown to the user
     assert (
         "Format png is not supported natively. Pyreverse will try to generate it using Graphviz..."
@@ -119,7 +117,7 @@ def test_graphviz_supported_image_format(
     )
     # Check that pyreverse actually made the call to create the diagram and we exit cleanly
     mock_writer.DiagramWriter().write.assert_called_once()
-    assert wrapped_sysexit.value.code == 0
+    assert exit_code == 0
 
 
 @mock.patch("pylint.pyreverse.main.Linker", new=mock.MagicMock())
@@ -131,9 +129,7 @@ def test_graphviz_cant_determine_supported_formats(
 ) -> None:
     """Test that Graphviz is used if the image format is supported."""
     mock_subprocess.run.return_value.stderr = "..."
-    with pytest.raises(SystemExit) as wrapped_sysexit:
-        # we have to catch the SystemExit so the test execution does not stop
-        main.Run(["-o", "png", TEST_DATA_DIR])
+    exit_code = main.Run(["-o", "png", TEST_DATA_DIR]).run()
     # Check that the right info message is shown to the user
     assert (
         "Unable to determine Graphviz supported output formats."
@@ -141,7 +137,7 @@ def test_graphviz_cant_determine_supported_formats(
     )
     # Check that pyreverse actually made the call to create the diagram and we exit cleanly
     mock_writer.DiagramWriter().write.assert_called_once()
-    assert wrapped_sysexit.value.code == 0
+    assert exit_code == 0
 
 
 @mock.patch("pylint.pyreverse.main.Linker", new=mock.MagicMock())
@@ -170,9 +166,7 @@ def test_graphviz_unsupported_image_format(capsys: CaptureFixture) -> None:
 @pytest.mark.usefixtures("mock_graphviz")
 def test_verbose(_: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
     """Test the --verbose flag."""
-    with pytest.raises(SystemExit):
-        # we have to catch the SystemExit so the test execution does not stop
-        main.Run(["--verbose", TEST_DATA_DIR])
+    main.Run(["--verbose", TEST_DATA_DIR]).run()
     assert "parsing" in capsys.readouterr().out
 
 
@@ -200,7 +194,7 @@ def test_verbose(_: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
 @mock.patch("pylint.pyreverse.main.sys.exit", new=mock.MagicMock())
 def test_command_line_arguments_defaults(arg: str, expected_default: Any) -> None:
     """Test that the default arguments of all options are correct."""
-    run = main.Run([TEST_DATA_DIR])  # type: ignore[var-annotated]
+    run = main.Run([TEST_DATA_DIR])
     assert getattr(run.config, arg) == expected_default
 
 
@@ -213,9 +207,8 @@ def test_command_line_arguments_yes_no(
     Make sure that we support --module-names=yes syntax instead
     of using it as a flag.
     """
-    with pytest.raises(SystemExit) as wrapped_sysexit:
-        main.Run(["--module-names=yes", TEST_DATA_DIR])
-    assert wrapped_sysexit.value.code == 0
+    exit_code = main.Run(["--module-names=yes", TEST_DATA_DIR]).run()
+    assert exit_code == 0
 
 
 @mock.patch("pylint.pyreverse.main.writer")
@@ -227,7 +220,7 @@ def test_class_command(
 
     Make sure that we append multiple --class arguments to one option destination.
     """
-    runner = main.Run(  # type: ignore[var-annotated]
+    runner = main.Run(
         [
             "--class",
             "data.clientmodule_test.Ancestor",

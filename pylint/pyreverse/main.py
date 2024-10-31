@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Sequence
-from typing import NoReturn
 
 from pylint import constants
 from pylint.config.arguments_manager import _ArgumentsManager
@@ -46,7 +45,17 @@ DEFAULT_COLOR_PALETTE = (
     "#DDDDDD",  # pale grey
 )
 
+
+OPTIONS_GROUPS = {
+    "FILTERING": "Filtering and Scope",
+    "DISPLAY": "Display Options",
+    "OUTPUT": "Output Control",
+    "PROJECT": "Project Configuration",
+}
+
+
 OPTIONS: Options = (
+    # Filtering and Scope options
     (
         "filter-mode",
         {
@@ -56,15 +65,12 @@ OPTIONS: Options = (
             "type": "string",
             "action": "store",
             "metavar": "<mode>",
-            "help": """filter attributes and functions according to
-    <mode>. Correct modes are :
-                            'PUB_ONLY' filter all non public attributes
-                                [DEFAULT], equivalent to PRIVATE+SPECIAL_A
-                            'ALL' no filter
-                            'SPECIAL' filter Python special functions
-                                except constructor
-                            'OTHER' filter protected and private
-                                attributes""",
+            "group": OPTIONS_GROUPS["FILTERING"],
+            "help": """Filter attributes and functions according to <mode>. Correct modes are:
+'PUB_ONLY' filter all non public attributes [DEFAULT], equivalent to PRIVATE+SPECIAL
+'ALL' no filter
+'SPECIAL' filter Python special functions except constructor
+'OTHER' filter protected and private attributes""",
         },
     ),
     (
@@ -76,7 +82,8 @@ OPTIONS: Options = (
             "type": "csv",
             "dest": "classes",
             "default": None,
-            "help": "create a class diagram with all classes related to <class>;\
+            "group": OPTIONS_GROUPS["FILTERING"],
+            "help": "Create a class diagram with all classes related to <class>;\
  this uses by default the options -ASmy",
         },
     ),
@@ -88,7 +95,8 @@ OPTIONS: Options = (
             "metavar": "<ancestor>",
             "type": "int",
             "default": None,
-            "help": "show <ancestor> generations of ancestor classes not in <projects>",
+            "group": OPTIONS_GROUPS["FILTERING"],
+            "help": "Show <ancestor> generations of ancestor classes not in <projects>.",
         },
     ),
     (
@@ -97,7 +105,8 @@ OPTIONS: Options = (
             "short": "A",
             "default": None,
             "action": "store_true",
-            "help": "show all ancestors off all classes in <projects>",
+            "group": OPTIONS_GROUPS["FILTERING"],
+            "help": "Show all ancestors of all classes in <projects>.",
         },
     ),
     (
@@ -108,7 +117,8 @@ OPTIONS: Options = (
             "metavar": "<association_level>",
             "type": "int",
             "default": None,
-            "help": "show <association_level> levels of associated classes not in <projects>",
+            "group": OPTIONS_GROUPS["FILTERING"],
+            "help": "Show <association_level> levels of associated classes not in <projects>.",
         },
     ),
     (
@@ -117,7 +127,8 @@ OPTIONS: Options = (
             "short": "S",
             "default": None,
             "action": "store_true",
-            "help": "show recursively all associated off all associated classes",
+            "group": OPTIONS_GROUPS["FILTERING"],
+            "help": "Show all classes associated with the target classes, including indirect associations.",
         },
     ),
     (
@@ -126,7 +137,8 @@ OPTIONS: Options = (
             "short": "b",
             "action": "store_true",
             "default": False,
-            "help": "include builtin objects in representation of classes",
+            "group": OPTIONS_GROUPS["FILTERING"],
+            "help": "Include builtin objects in representation of classes.",
         },
     ),
     (
@@ -135,9 +147,11 @@ OPTIONS: Options = (
             "short": "L",
             "action": "store_true",
             "default": False,
-            "help": "include standard library objects in representation of classes",
+            "group": OPTIONS_GROUPS["FILTERING"],
+            "help": "Include standard library objects in representation of classes.",
         },
     ),
+    # Display Options
     (
         "module-names",
         {
@@ -145,7 +159,8 @@ OPTIONS: Options = (
             "default": None,
             "type": "yn",
             "metavar": "<y or n>",
-            "help": "include module name in representation of classes",
+            "group": OPTIONS_GROUPS["DISPLAY"],
+            "help": "Include module name in the representation of classes.",
         },
     ),
     (
@@ -154,7 +169,8 @@ OPTIONS: Options = (
             "short": "k",
             "action": "store_true",
             "default": False,
-            "help": "don't show attributes and methods in the class boxes; this disables -f values",
+            "group": OPTIONS_GROUPS["DISPLAY"],
+            "help": "Don't show attributes and methods in the class boxes; this disables -f values.",
         },
     ),
     (
@@ -162,24 +178,8 @@ OPTIONS: Options = (
         {
             "action": "store_true",
             "default": False,
-            "help": "only show nodes with connections",
-        },
-    ),
-    (
-        "output",
-        {
-            "short": "o",
-            "dest": "output_format",
-            "action": "store",
-            "default": "dot",
-            "metavar": "<format>",
-            "type": "string",
-            "help": (
-                "create a *.<format> output file if format is available. Available "
-                f"formats are: {', '.join(DIRECTLY_SUPPORTED_FORMATS)}. Any other "
-                f"format will be tried to create by means of the 'dot' command line "
-                f"tool, which requires a graphviz installation."
-            ),
+            "group": OPTIONS_GROUPS["DISPLAY"],
+            "help": "Only show nodes with connections.",
         },
     ),
     (
@@ -188,6 +188,7 @@ OPTIONS: Options = (
             "dest": "colorized",
             "action": "store_true",
             "default": False,
+            "group": OPTIONS_GROUPS["DISPLAY"],
             "help": "Use colored output. Classes/modules of the same package get the same color.",
         },
     ),
@@ -199,7 +200,8 @@ OPTIONS: Options = (
             "default": 2,
             "metavar": "<depth>",
             "type": "int",
-            "help": "Use separate colors up to package depth of <depth>",
+            "group": OPTIONS_GROUPS["DISPLAY"],
+            "help": "Use separate colors up to package depth of <depth>. Higher depths will reuse colors.",
         },
     ),
     (
@@ -210,27 +212,28 @@ OPTIONS: Options = (
             "default": DEFAULT_COLOR_PALETTE,
             "metavar": "<color1,color2,...>",
             "type": "csv",
-            "help": "Comma separated list of colors to use",
+            "group": OPTIONS_GROUPS["DISPLAY"],
+            "help": "Comma separated list of colors to use for the package depth coloring.",
         },
     ),
+    # Output Control options
     (
-        "ignore",
+        "output",
         {
-            "type": "csv",
-            "metavar": "<file[,file...]>",
-            "dest": "ignore_list",
-            "default": constants.DEFAULT_IGNORE_LIST,
-            "help": "Files or directories to be skipped. They should be base names, not paths.",
-        },
-    ),
-    (
-        "project",
-        {
-            "default": "",
+            "short": "o",
+            "dest": "output_format",
+            "action": "store",
+            "default": "dot",
+            "metavar": "<format>",
             "type": "string",
-            "short": "p",
-            "metavar": "<project name>",
-            "help": "set the project name.",
+            "group": OPTIONS_GROUPS["OUTPUT"],
+            "help": (
+                "Create a *.<format> output file if format is available. Available "
+                f"formats are: {', '.join('.' + fmt for fmt in DIRECTLY_SUPPORTED_FORMATS)}. Any other "
+                "format will be tried to be created by using the 'dot' command line "
+                "tool, which requires a graphviz installation. In this case, these additional "
+                "formats are available (see `Graphviz output formats <https://graphviz.org/docs/outputs/>`_)."
+            ),
         },
     ),
     (
@@ -241,7 +244,31 @@ OPTIONS: Options = (
             "short": "d",
             "action": "store",
             "metavar": "<output_directory>",
-            "help": "set the output directory path.",
+            "group": OPTIONS_GROUPS["OUTPUT"],
+            "help": "Set the output directory path.",
+        },
+    ),
+    # Project Configuration options
+    (
+        "ignore",
+        {
+            "type": "csv",
+            "metavar": "<file[,file...]>",
+            "dest": "ignore_list",
+            "default": constants.DEFAULT_IGNORE_LIST,
+            "group": OPTIONS_GROUPS["PROJECT"],
+            "help": "Files or directories to be skipped. They should be base names, not paths.",
+        },
+    ),
+    (
+        "project",
+        {
+            "default": "",
+            "type": "string",
+            "short": "p",
+            "metavar": "<project name>",
+            "group": OPTIONS_GROUPS["PROJECT"],
+            "help": "Set the project name. This will later be appended to the output file names.",
         },
     ),
     (
@@ -250,6 +277,7 @@ OPTIONS: Options = (
             "type": "glob_paths_csv",
             "metavar": "<path>[,<path>...]",
             "default": (),
+            "group": OPTIONS_GROUPS["PROJECT"],
             "help": "Add paths to the list of the source roots. Supports globbing patterns. The "
             "source root is an absolute path or a path relative to the current working directory "
             "used to determine a package namespace for modules located under the source root.",
@@ -260,19 +288,19 @@ OPTIONS: Options = (
         {
             "action": "store_true",
             "default": False,
+            "group": OPTIONS_GROUPS["PROJECT"],
             "help": "Makes pyreverse more verbose/talkative. Mostly useful for debugging.",
         },
     ),
 )
 
 
+# Base class providing common behaviour for pyreverse commands
 class Run(_ArgumentsManager, _ArgumentsProvider):
-    """Base class providing common behaviour for pyreverse commands."""
-
     options = OPTIONS
     name = "pyreverse"
 
-    def __init__(self, args: Sequence[str]) -> NoReturn:
+    def __init__(self, args: Sequence[str]) -> None:
         # Immediately exit if user asks for version
         if "--version" in args:
             print("pyreverse is included in pylint:")
@@ -284,7 +312,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
 
         # Parse options
         insert_default_options()
-        args = self._parse_command_line_configuration(args)
+        self.args = self._parse_command_line_configuration(args)
 
         if self.config.output_format not in DIRECTLY_SUPPORTED_FORMATS:
             check_graphviz_availability()
@@ -294,19 +322,17 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
             )
             check_if_graphviz_supports_format(self.config.output_format)
 
-        sys.exit(self.run(args))
-
-    def run(self, args: list[str]) -> int:
+    def run(self) -> int:
         """Checking arguments and run project."""
-        if not args:
+        if not self.args:
             print(self.help())
             return 1
         extra_packages_paths = list(
-            {discover_package_path(arg, self.config.source_roots) for arg in args}
+            {discover_package_path(arg, self.config.source_roots) for arg in self.args}
         )
         with augmented_sys_path(extra_packages_paths):
             project = project_from_files(
-                args,
+                self.args,
                 project_name=self.config.project,
                 black_list=self.config.ignore_list,
                 verbose=self.config.verbose,
@@ -319,4 +345,5 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
 
 
 if __name__ == "__main__":
-    Run(sys.argv[1:])
+    arguments = sys.argv[1:]
+    Run(arguments).run()

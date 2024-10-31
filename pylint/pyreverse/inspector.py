@@ -13,7 +13,7 @@ import collections
 import os
 import traceback
 from abc import ABC, abstractmethod
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from typing import Optional
 
 import astroid
@@ -346,7 +346,7 @@ class OtherAssociationsHandler(AbstractAssociationHandler):
 
 
 def project_from_files(
-    files: list[str],
+    files: Sequence[str],
     func_wrapper: _WrapperFuncT = _astroid_wrapper,
     project_name: str = "no name",
     black_list: tuple[str, ...] = constants.DEFAULT_IGNORE_LIST,
