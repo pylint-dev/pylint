@@ -35,6 +35,14 @@ if "%1" == "help" (
 	goto end
 )
 
+
+if "%1" == "install-dependencies" (
+    echo Installing dependencies...
+    cd .. && pip install -r doc/requirements.txt
+    goto end
+)
+
+
 if "%1" == "clean" (
 	for /d %%i in (%BUILDDIR%\*) do rmdir /q /s %%i
 	del /q /s %BUILDDIR%\*
