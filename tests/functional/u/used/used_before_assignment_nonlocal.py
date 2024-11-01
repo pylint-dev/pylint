@@ -106,3 +106,30 @@ def inner_function_ok(args):
         print(args)
     inner()
     print(args)
+
+
+def nonlocal_in_outer_frame_fail():
+    """nonlocal declared in outer frame, bad usage and assignation in inner frame"""
+    num = 1
+    def outer():
+        nonlocal num
+        def inner():
+            print(num)  # [used-before-assignment]
+            num = 2
+        inner()
+    outer()
+
+
+def nonlocal_in_outer_frame_ok(callback, condition_a, condition_b):
+    """nonlocal declared in outer frame, usage and definition in different frames"""
+    def outer():
+        nonlocal callback
+        if condition_a:
+            def inner():
+                callback()  # should not emit possibly-used-before-assignment
+            inner()
+        else:
+            if condition_b:
+                def callback():
+                    pass
+    outer()
