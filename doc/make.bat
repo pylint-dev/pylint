@@ -15,25 +15,37 @@ if "%1" == "" goto help
 
 if "%1" == "help" (
 	:help
-	echo.Please use `make ^<target^>` where ^<target^> is one of
-	echo.  html       to make standalone HTML files
-	echo.  dirhtml    to make HTML files named index.html in directories
-	echo.  singlehtml to make a single large HTML file
-	echo.  pickle     to make pickle files
-	echo.  json       to make JSON files
-	echo.  htmlhelp   to make HTML files and a HTML help project
-	echo.  qthelp     to make HTML files and a qthelp project
-	echo.  devhelp    to make HTML files and a Devhelp project
-	echo.  epub       to make an epub
-	echo.  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter
-	echo.  text       to make text files
-	echo.  man        to make manual pages
-	echo.  texinfo    to make Texinfo files
-	echo.  gettext    to make PO message catalogs
-	echo.  changes    to make an overview over all changed/added/deprecated items
-	echo.  linkcheck  to check all external links for integrity
+	echo. Please use `make ^<target^>` where ^<target^> is one of:
+	echo.
+	echo.  install-dependencies   to install required documentation dependencies
+	echo.  html                   to make standalone HTML files
+	echo.  dirhtml                to make HTML files with index.html in directories
+	echo.  singlehtml             to make a single large HTML file
+	echo.  pickle                 to make pickle files
+	echo.  json                   to make JSON files
+	echo.  htmlhelp               to make HTML files and a HTML help project
+	echo.  qthelp                 to make HTML files and a Qt help project
+	echo.  devhelp                to make HTML files and a Devhelp project
+	echo.  epub                   to make an EPUB file
+	echo.  latex                  to make LaTeX files (set PAPER=a4 or PAPER=letter)
+	echo.  text                   to make plain text files
+	echo.  man                    to make manual pages
+	echo.  texinfo                to make Texinfo files
+	echo.  gettext                to make PO message catalogs
+	echo.  changes                to generate an overview of changed/added/deprecated items
+	echo.  linkcheck              to check all external links for integrity
+	echo.  clean                  to remove all generated files
+	echo.
 	goto end
 )
+
+
+if "%1" == "install-dependencies" (
+    echo Installing dependencies...
+    cd .. && pip install -r doc/requirements.txt
+    goto end
+)
+
 
 if "%1" == "clean" (
 	for /d %%i in (%BUILDDIR%\*) do rmdir /q /s %%i
