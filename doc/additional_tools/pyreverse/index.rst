@@ -10,17 +10,33 @@ If Graphviz (or the ``dot`` command) is installed, all `output formats supported
 can be used as well. In this case, ``pyreverse`` first generates a temporary ``.gv`` file, which is then
 fed to Graphviz to generate the final image.
 
-Running Pyreverse
+Using Pyreverse
 '''''''''''''''''
 
 To run ``pyreverse``, use::
 
   pyreverse [options] <packages>
 
-<packages> can also be a single Python module.
-To see a full list of the available options, run::
+[options] can be specified to modify the behavior of pyreverse, and
+<packages> can either be a package or a list of modules separated by spaces.
+
+Configuration Options
+.....................
+
+To see a full list of the available [options], run::
 
    pyreverse -h
+
+For detailed descriptions of the command-line options available for Pyreverse, refer to the dedicated `Pyreverse Configuration Options <configuration.html>`_ page. This page includes sections on:
+
+* `Filtering and Scope <configuration.html#filtering-and-scope>`_ - Options for filtering classes and limiting the scope of the generated diagrams.
+* `Display Options <configuration.html#display-options>`_ - Customize how diagrams are rendered, including colors and module names.
+* `Output Control <configuration.html#output-control>`_ - Specify output formats and directory locations for generated files.
+* `Project Configuration <configuration.html#project-configuration>`_ - Configure project-specific settings such as ignored files and source roots.
+
+.. toctree::
+  :maxdepth: 1
+  :hidden:
 
 Example Output
 ''''''''''''''

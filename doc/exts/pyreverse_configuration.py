@@ -32,7 +32,7 @@ def _write_config_page(run: Run) -> None:
     sections: list[str] = [
         ".. This file is auto-generated. Make any changes to the associated\n"
         ".. docs extension in 'doc/exts/pyreverse_configuration.py'.\n\n",
-        get_rst_title("Pyreverse Configuration", "^"),
+        get_rst_title("Pyreverse Configuration Options", "^"),
     ]
 
     options: list[OptionsData] = [OptionsData(name, info) for name, info in run.options]

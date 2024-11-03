@@ -3,8 +3,8 @@
 
 
 
-Pyreverse Configuration
-^^^^^^^^^^^^^^^^^^^^^^^
+Pyreverse Configuration Options
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 Filtering and Scope
