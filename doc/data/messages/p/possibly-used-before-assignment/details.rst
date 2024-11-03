@@ -48,7 +48,7 @@ This warns:
 
 If you find this surprising, consider that pylint, as a static analysis
 tool, does not know if ``guarded()`` is deterministic or talks to
-a database. For constants (e.g. ``guarded`` versus ``guarded()``),
+a database. For variables (e.g. ``guarded`` versus ``guarded()``),
 this is less of an issue, so in this case,
 ``possibly-used-before-assignment`` acts more like a future-proofing style
 preference than an error, per se.

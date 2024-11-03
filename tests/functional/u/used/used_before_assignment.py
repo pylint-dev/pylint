@@ -147,6 +147,14 @@ if 1 in []:
 if 1 in []:
     print(PERCENT)
 
+
+# Always true
+if x := True:
+    y = 1
+
+print(y if x else 2)
+
+
 # Different test
 if 1 in [1]:
     print(SALE)  # [used-before-assignment]
