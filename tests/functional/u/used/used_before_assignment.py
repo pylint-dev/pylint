@@ -149,10 +149,10 @@ if 1 in []:
 
 
 # Always true
-if x := True:
-    y = 1
+if always_true := True:
+    ONE = 1
 
-print(y if x else 2)
+print(ONE if always_true else 2)
 
 
 # Different test
