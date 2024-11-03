@@ -765,10 +765,14 @@ scope_type : {self.scope_type}
         or if their inferred values consist only of constants and those constants
         are identical, and the if test guarding `node` is not a Name.
         """
-        other_if_test_as_string = other_if.test.as_string()
-        other_if_test_all_inferred = utils.infer_all(other_if.test)
+        if isinstance(other_if.test, nodes.NamedExpr):
+            other_if_test = other_if.test.target
+        else:
+            other_if_test = other_if.test
+        other_if_test_as_string = other_if_test.as_string()
+        other_if_test_all_inferred = utils.infer_all(other_if_test)
         for ancestor in node.node_ancestors():
-            if not isinstance(ancestor, nodes.If):
+            if not isinstance(ancestor, (nodes.If, nodes.IfExp)):
                 continue
             if ancestor.test.as_string() == other_if_test_as_string:
                 return True
