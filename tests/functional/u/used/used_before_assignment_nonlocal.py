@@ -109,7 +109,7 @@ def inner_function_ok(args):
 
 
 def nonlocal_in_outer_frame_fail():
-    """nonlocal declared in outer frame, bad usage and assignation in inner frame"""
+    """Nonlocal declared in outer frame, bad usage and assignment in inner frame."""
     num = 1
     def outer():
         nonlocal num
@@ -121,7 +121,7 @@ def nonlocal_in_outer_frame_fail():
 
 
 def nonlocal_in_outer_frame_ok(callback, condition_a, condition_b):
-    """nonlocal declared in outer frame, usage and definition in different frames"""
+    """Nonlocal declared in outer frame, usage and definition in different frames."""
     def outer():
         nonlocal callback
         if condition_a:
