@@ -6,6 +6,7 @@ used-before-assignment:153:20:153:28:VariableAnnotationsGuardedByTypeChecking:Us
 possibly-used-before-assignment:170:40:170:48:TypeCheckingMultiBranch.defined_in_elif_branch:Possibly using variable 'calendar' before assignment:INFERENCE
 possibly-used-before-assignment:171:14:171:20:TypeCheckingMultiBranch.defined_in_elif_branch:Possibly using variable 'bisect' before assignment:INFERENCE
 used-before-assignment:175:14:175:22:TypeCheckingMultiBranch.defined_in_else_branch:Using variable 'zoneinfo' before assignment:INFERENCE
+used-before-assignment:176:14:176:20:TypeCheckingMultiBranch.defined_in_else_branch:Using variable 'pprint' before assignment:INFERENCE
 used-before-assignment:177:14:177:25:TypeCheckingMultiBranch.defined_in_else_branch:Using variable 'collections' before assignment:INFERENCE
 possibly-used-before-assignment:180:43:180:48:TypeCheckingMultiBranch.defined_in_nested_if_else:Possibly using variable 'heapq' before assignment:INFERENCE
 used-before-assignment:184:39:184:44:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'array' before assignment:INFERENCE

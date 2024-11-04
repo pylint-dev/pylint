@@ -303,6 +303,31 @@ def _assigned_locally(name_node: nodes.Name) -> bool:
     )
 
 
+def _is_before(node: nodes.NodeNG, reference_node: nodes.NodeNG) -> bool:
+    """Checks if node appears before reference_node."""
+    if node.lineno < reference_node.lineno:
+        return True
+    if (
+        node.lineno == reference_node.lineno
+        and node.col_offset < reference_node.col_offset
+    ):
+        return True
+    return False
+
+
+def _is_nonlocal_name(node: nodes.Name, frame: nodes.LocalsDictNodeNG) -> bool:
+    """Checks if name node has a nonlocal declaration in the given frame."""
+    if not isinstance(frame, nodes.FunctionDef):
+        return False
+
+    return any(
+        isinstance(stmt, nodes.Nonlocal)
+        and node.name in stmt.names
+        and _is_before(stmt, node)
+        for stmt in frame.body
+    )
+
+
 def _has_locals_call_after_node(stmt: nodes.NodeNG, scope: nodes.FunctionDef) -> bool:
     skip_nodes = (
         nodes.FunctionDef,
@@ -562,10 +587,7 @@ scope_type : {self.scope_type}
             found_nodes = None
 
         # Before filtering, check that this node's name is not a nonlocal
-        if any(
-            isinstance(child, nodes.Nonlocal) and node.name in child.names
-            for child in node.frame().get_children()
-        ):
+        if _is_nonlocal_name(node, node.frame()):
             return found_nodes
 
         # And no comprehension is under the node's frame
@@ -723,7 +745,7 @@ scope_type : {self.scope_type}
                 name = other_node.name
             elif isinstance(other_node, (nodes.Import, nodes.ImportFrom)):
                 name = node.name
-            elif isinstance(other_node, nodes.ClassDef):
+            elif isinstance(other_node, (nodes.FunctionDef, nodes.ClassDef)):
                 name = other_node.name
             else:
                 continue
@@ -1963,6 +1985,8 @@ class VariablesChecker(BaseChecker):
             return False
         if self._is_variable_annotation_in_function(node):
             return False
+        if self._has_nonlocal_binding(node):
+            return False
         if (
             node.name in self._reported_type_checking_usage_scopes
             and node.scope() in self._reported_type_checking_usage_scopes[node.name]
@@ -2219,10 +2243,7 @@ class VariablesChecker(BaseChecker):
                 )
             # check if we have a nonlocal
             elif node.name in defframe.locals:
-                maybe_before_assign = not any(
-                    isinstance(child, nodes.Nonlocal) and node.name in child.names
-                    for child in defframe.get_children()
-                )
+                maybe_before_assign = not _is_nonlocal_name(node, defframe)
 
         if (
             base_scope_type == "lambda"
@@ -2295,19 +2316,11 @@ class VariablesChecker(BaseChecker):
                     # x = b if (b := True) else False
                     maybe_before_assign = False
                 elif (
-                    isinstance(  # pylint: disable=too-many-boolean-expressions
-                        defnode, nodes.NamedExpr
-                    )
+                    isinstance(defnode, nodes.NamedExpr)
                     and frame is defframe
                     and defframe.parent_of(stmt)
                     and stmt is defstmt
-                    and (
-                        (
-                            defnode.lineno == node.lineno
-                            and defnode.col_offset < node.col_offset
-                        )
-                        or (defnode.lineno < node.lineno)
-                    )
+                    and _is_before(defnode, node)
                 ):
                     # Relation of a name to the same name in a named expression
                     # Could be used before assignment if self-referencing:
@@ -2361,6 +2374,15 @@ class VariablesChecker(BaseChecker):
 
     def _is_builtin(self, name: str) -> bool:
         return name in self.linter.config.additional_builtins or utils.is_builtin(name)
+
+    def _has_nonlocal_binding(self, node: nodes.Name) -> bool:
+        """Checks if name node has a nonlocal binding in any enclosing frame."""
+        frame = node.frame()
+        while frame:
+            if _is_nonlocal_name(node, frame):
+                return True
+            frame = frame.parent.frame() if frame.parent else None
+        return False
 
     @staticmethod
     def _is_only_type_assignment(
