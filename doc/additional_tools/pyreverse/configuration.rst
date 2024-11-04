@@ -2,37 +2,54 @@
 .. docs extension in 'doc/exts/pyreverse_configuration.py'.
 
 
+Basic usage
+###########
 
-Pyreverse Configuration Options
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To run ``pyreverse``, use::
+
+  pyreverse [options] <packages>
+
+
+``<packages>`` can either be a package or a list of modules separated by spaces.
+
+For detailed descriptions of the command-line options read on. This page includes sections on:
+
+* :ref:`Filtering and Scope <filtering-and-scope>` - Options for filtering classes and limiting the scope of the generated diagrams.
+* :ref:`Display Options <display-options>` - Customize how diagrams are rendered, including colors and module names.
+* :ref:`Output Control <output-control>` - Specify output formats and directory locations for generated files.
+* :ref:`Project Configuration <project-configuration>` - Configure project-specific settings such as ignored files and source roots.
 
 
 Filtering and Scope
--------------------
+###################
+
+.. _filtering-and-scope:
+
 
 --all-ancestors
-"""""""""""""""
+...............
 *Show all ancestors of all classes in <projects>.*
 
 **Default:**  ``None``
 
 
 --all-associated
-""""""""""""""""
+................
 *Show all classes associated with the target classes, including indirect associations.*
 
 **Default:**  ``None``
 
 
 --class
-"""""""
+.......
 *Create a class diagram with all classes related to <class>; this uses by default the options -ASmy*
 
 **Default:**  ``None``
 
 
 --filter-mode
-"""""""""""""
+.............
 *Filter attributes and functions according to <mode>. Correct modes are:
 'PUB_ONLY' filter all non public attributes [DEFAULT], equivalent to PRIVATE+SPECIAL
 'ALL' no filter
@@ -43,28 +60,28 @@ Filtering and Scope
 
 
 --show-ancestors
-""""""""""""""""
+................
 *Show <ancestor> generations of ancestor classes not in <projects>.*
 
 **Default:**  ``None``
 
 
 --show-associated
-"""""""""""""""""
+.................
 *Show <association_level> levels of associated classes not in <projects>.*
 
 **Default:**  ``None``
 
 
 --show-builtin
-""""""""""""""
+..............
 *Include builtin objects in representation of classes.*
 
 **Default:**  ``False``
 
 
 --show-stdlib
-"""""""""""""
+.............
 *Include standard library objects in representation of classes.*
 
 **Default:**  ``False``
@@ -73,45 +90,48 @@ Filtering and Scope
 
 
 Display Options
----------------
+###############
+
+.. _display-options:
+
 
 --color-palette
-"""""""""""""""
+...............
 *Comma separated list of colors to use for the package depth coloring.*
 
 **Default:**  ``('#77AADD', '#99DDFF', '#44BB99', '#BBCC33', '#AAAA00', '#EEDD88', '#EE8866', '#FFAABB', '#DDDDDD')``
 
 
 --colorized
-"""""""""""
+...........
 *Use colored output. Classes/modules of the same package get the same color.*
 
 **Default:**  ``False``
 
 
 --max-color-depth
-"""""""""""""""""
+.................
 *Use separate colors up to package depth of <depth>. Higher depths will reuse colors.*
 
 **Default:**  ``2``
 
 
 --module-names
-""""""""""""""
+..............
 *Include module name in the representation of classes.*
 
 **Default:**  ``None``
 
 
 --no-standalone
-"""""""""""""""
+...............
 *Only show nodes with connections.*
 
 **Default:**  ``False``
 
 
 --only-classnames
-"""""""""""""""""
+.................
 *Don't show attributes and methods in the class boxes; this disables -f values.*
 
 **Default:**  ``False``
@@ -120,17 +140,20 @@ Display Options
 
 
 Output Control
---------------
+##############
+
+.. _output-control:
+
 
 --output
-""""""""
+........
 *Create a *.<format> output file if format is available. Available formats are: .dot, .puml, .plantuml, .mmd, .html. Any other format will be tried to be created by using the 'dot' command line tool, which requires a graphviz installation. In this case, these additional formats are available (see `Graphviz output formats <https://graphviz.org/docs/outputs/>`_).*
 
 **Default:**  ``dot``
 
 
 --output-directory
-""""""""""""""""""
+..................
 *Set the output directory path.*
 
 **Default:** ``""``
@@ -139,31 +162,34 @@ Output Control
 
 
 Project Configuration
----------------------
+#####################
+
+.. _project-configuration:
+
 
 --ignore
-""""""""
+........
 *Files or directories to be skipped. They should be base names, not paths.*
 
 **Default:**  ``('CVS',)``
 
 
 --project
-"""""""""
+.........
 *Set the project name. This will later be appended to the output file names.*
 
 **Default:** ``""``
 
 
 --source-roots
-""""""""""""""
+..............
 *Add paths to the list of the source roots. Supports globbing patterns. The source root is an absolute path or a path relative to the current working directory used to determine a package namespace for modules located under the source root.*
 
 **Default:**  ``()``
 
 
 --verbose
-"""""""""
+.........
 *Makes pyreverse more verbose/talkative. Mostly useful for debugging.*
 
 **Default:**  ``False``

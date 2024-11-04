@@ -30,16 +30,33 @@ PYREVERSE_PATH = (
 def _write_config_page(run: Run) -> None:
     """Create or overwrite the configuration page."""
     sections: list[str] = [
-        ".. This file is auto-generated. Make any changes to the associated\n"
-        ".. docs extension in 'doc/exts/pyreverse_configuration.py'.\n\n",
-        get_rst_title("Pyreverse Configuration Options", "^"),
-    ]
+        f"""\
+.. This file is auto-generated. Make any changes to the associated
+.. docs extension in 'doc/exts/pyreverse_configuration.py'.
 
+
+{get_rst_title("Basic usage", "#")}
+
+To run ``pyreverse``, use::
+
+  pyreverse [options] <packages>
+
+
+``<packages>`` can either be a package or a list of modules separated by spaces.
+
+For detailed descriptions of the command-line options read on. This page includes sections on:
+
+* :ref:`Filtering and Scope <filtering-and-scope>` - Options for filtering classes and limiting the scope of the generated diagrams.
+* :ref:`Display Options <display-options>` - Customize how diagrams are rendered, including colors and module names.
+* :ref:`Output Control <output-control>` - Specify output formats and directory locations for generated files.
+* :ref:`Project Configuration <project-configuration>` - Configure project-specific settings such as ignored files and source roots.
+"""  # noqa: E501
+    ]
     options: list[OptionsData] = [OptionsData(name, info) for name, info in run.options]
     option_groups: dict[str, list[str]] = {g: [] for g in OPTIONS_GROUPS.values()}
 
     for option in sorted(options, key=lambda x: x.name):
-        option_string = get_rst_title(f"--{option.name}", '"')
+        option_string = get_rst_title(f"--{option.name}", ".")
         option_string += f"*{option.optdict.get('help')}*\n\n"
 
         if option.optdict.get("default") == "":
@@ -50,8 +67,13 @@ def _write_config_page(run: Run) -> None:
         option_groups[str(option.optdict.get("group"))].append(option_string)
 
     for group_title in OPTIONS_GROUPS.values():
+        ref_title = group_title.lower().replace(" ", "-")
         sections.append(
-            get_rst_title(group_title, "-") + "\n" + "".join(option_groups[group_title])
+            f"""{get_rst_title(group_title, "#")}
+.. _{ref_title}:
+
+
+{"".join(option_groups[group_title])}"""
         )
 
     # Join all sections and remove the final two newlines
