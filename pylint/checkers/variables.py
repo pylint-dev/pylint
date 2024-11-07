@@ -2380,7 +2380,9 @@ class VariablesChecker(BaseChecker):
     def _has_nonlocal_in_enclosing_frame(
         self, node: nodes.Name, uncertain_definitions: list[nodes.NodeNG]
     ) -> bool:
-        """Check if there is a nonlocal declaration in the nearest frame that encloses both usage and definitions."""
+        """Check if there is a nonlocal declaration in the nearest frame that encloses
+        both usage and definitions.
+        """
         defining_frames = {definition.frame() for definition in uncertain_definitions}
         frame = node.frame()
         is_enclosing_frame = False

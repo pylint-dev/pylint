@@ -121,7 +121,9 @@ def nonlocal_in_outer_frame_fail():
 
 
 def nonlocal_in_outer_frame_ok(callback, condition_a, condition_b):
-    """Nonlocal declared in outer frame, usage and definition in different frames."""
+    """Nonlocal declared in outer frame, usage and definition in different frames,
+    both enclosed in outer frame.
+    """
     def outer():
         nonlocal callback
         if condition_a:
@@ -133,3 +135,31 @@ def nonlocal_in_outer_frame_ok(callback, condition_a, condition_b):
                 def callback():
                     pass
     outer()
+
+
+def nonlocal_in_distant_outer_frame_fail(callback, condition_a, condition_b):
+    """Nonlocal declared in outer frame, both usage and definition immediately enclosed
+    in intermediate frame.
+    """
+    def outer():
+        nonlocal callback
+        def intermediate():
+            if condition_a:
+                def inner():
+                    callback()  # [possibly-used-before-assignment]
+                inner()
+            else:
+                if condition_b:
+                    def callback():
+                        pass
+        intermediate()
+    outer()
+
+
+def nonlocal_after_bad_usage_fail():
+    """Nonlocal declared after used-before-assignment."""
+    num = 1
+    def inner():
+        num = num + 1  # [used-before-assignment]
+        nonlocal num
+    inner()
