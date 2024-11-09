@@ -1968,7 +1968,7 @@ class VariablesChecker(BaseChecker):
 
     def _report_unfound_name_definition(
         self,
-        node: nodes.NodeNG,
+        node: nodes.Name,
         current_consumer: NamesConsumer,
     ) -> bool:
         """Reports used-before-assignment error when all name definition nodes
@@ -1985,7 +1985,9 @@ class VariablesChecker(BaseChecker):
             return False
         if self._is_variable_annotation_in_function(node):
             return False
-        if self._has_nonlocal_binding(node):
+        if self._has_nonlocal_in_enclosing_frame(
+            node, current_consumer.consumed_uncertain.get(node.name, [])
+        ):
             return False
         if (
             node.name in self._reported_type_checking_usage_scopes
@@ -2375,11 +2377,21 @@ class VariablesChecker(BaseChecker):
     def _is_builtin(self, name: str) -> bool:
         return name in self.linter.config.additional_builtins or utils.is_builtin(name)
 
-    def _has_nonlocal_binding(self, node: nodes.Name) -> bool:
-        """Checks if name node has a nonlocal binding in any enclosing frame."""
+    def _has_nonlocal_in_enclosing_frame(
+        self, node: nodes.Name, uncertain_definitions: list[nodes.NodeNG]
+    ) -> bool:
+        """Check if there is a nonlocal declaration in the nearest frame that encloses
+        both usage and definitions.
+        """
+        defining_frames = {definition.frame() for definition in uncertain_definitions}
         frame = node.frame()
-        while frame:
-            if _is_nonlocal_name(node, frame):
+        is_enclosing_frame = False
+        while frame and not is_enclosing_frame:
+            is_enclosing_frame = all(
+                (frame is defining_frame) or frame.parent_of(defining_frame)
+                for defining_frame in defining_frames
+            )
+            if is_enclosing_frame and _is_nonlocal_name(node, frame):
                 return True
             frame = frame.parent.frame() if frame.parent else None
         return False
