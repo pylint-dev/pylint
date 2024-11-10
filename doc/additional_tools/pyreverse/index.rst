@@ -12,7 +12,10 @@ can be used as well. In this case, ``pyreverse`` first generates a temporary ``.
 fed to Graphviz to generate the final image.
 
 .. toctree::
-  :maxdepth: 1
+  :caption: Pyreverse
+  :maxdepth: 3
+  :titlesonly:
+  :hidden:
 
   configuration
   output_examples

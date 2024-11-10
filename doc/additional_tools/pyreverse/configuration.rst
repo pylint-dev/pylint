@@ -2,8 +2,8 @@
 .. docs extension in 'doc/exts/pyreverse_configuration.py'.
 
 
-Basic usage
-###########
+Usage
+#####
 
 
 To run ``pyreverse``, use::
@@ -22,7 +22,7 @@ For detailed descriptions of the command-line options read on. This page include
 
 
 Filtering and Scope
-###################
+'''''''''''''''''''
 
 .. _filtering-and-scope:
 
@@ -90,7 +90,7 @@ Filtering and Scope
 
 
 Display Options
-###############
+'''''''''''''''
 
 .. _display-options:
 
@@ -140,7 +140,7 @@ Display Options
 
 
 Output Control
-##############
+''''''''''''''
 
 .. _output-control:
 
@@ -162,7 +162,7 @@ Output Control
 
 
 Project Configuration
-#####################
+'''''''''''''''''''''
 
 .. _project-configuration:
 

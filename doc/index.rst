@@ -30,6 +30,7 @@
 
 .. toctree::
    :caption: Additional tools
+   :maxdepth: 3
    :titlesonly:
    :hidden:
 

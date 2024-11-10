@@ -35,7 +35,7 @@ def _write_config_page(run: Run) -> None:
 .. docs extension in 'doc/exts/pyreverse_configuration.py'.
 
 
-{get_rst_title("Basic usage", "#")}
+{get_rst_title("Usage", "#")}
 
 To run ``pyreverse``, use::
 
@@ -69,7 +69,7 @@ For detailed descriptions of the command-line options read on. This page include
     for group_title in OPTIONS_GROUPS.values():
         ref_title = group_title.lower().replace(" ", "-")
         sections.append(
-            f"""{get_rst_title(group_title, "#")}
+            f"""{get_rst_title(group_title, "'")}
 .. _{ref_title}:
 
 
