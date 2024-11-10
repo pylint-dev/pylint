@@ -37,26 +37,25 @@ def _write_config_page(run: Run) -> None:
 
 {get_rst_title("Usage", "#")}
 
-To run ``pyreverse``, use::
+``pyreverse`` is run from the command line using the following syntax::
 
   pyreverse [options] <packages>
 
+where ``<packages>`` is one or more Python packages or modules to analyze.
 
-``<packages>`` can either be a package or a list of modules separated by spaces.
+The available options are organized into the following categories:
 
-For detailed descriptions of the command-line options read on. This page includes sections on:
-
-* :ref:`Filtering and Scope <filtering-and-scope>` - Options for filtering classes and limiting the scope of the generated diagrams.
-* :ref:`Display Options <display-options>` - Customize how diagrams are rendered, including colors and module names.
-* :ref:`Output Control <output-control>` - Specify output formats and directory locations for generated files.
-* :ref:`Project Configuration <project-configuration>` - Configure project-specific settings such as ignored files and source roots.
-"""  # noqa: E501
+* :ref:`filtering-and-scope` - Control which classes and relationships appear in your diagrams
+* :ref:`display-options` - Customize the visual appearance including colors and labels
+* :ref:`output-control` - Select output formats and set the destination directory
+* :ref:`project-configuration` - Define project settings like source roots and ignored files
+"""
     ]
     options: list[OptionsData] = [OptionsData(name, info) for name, info in run.options]
     option_groups: dict[str, list[str]] = {g: [] for g in OPTIONS_GROUPS.values()}
 
     for option in sorted(options, key=lambda x: x.name):
-        option_string = get_rst_title(f"--{option.name}", ".")
+        option_string = get_rst_title(f"--{option.name}", "-")
         option_string += f"*{option.optdict.get('help')}*\n\n"
 
         if option.optdict.get("default") == "":
@@ -69,9 +68,10 @@ For detailed descriptions of the command-line options read on. This page include
     for group_title in OPTIONS_GROUPS.values():
         ref_title = group_title.lower().replace(" ", "-")
         sections.append(
-            f"""{get_rst_title(group_title, "'")}
+            f"""\
 .. _{ref_title}:
 
+{get_rst_title(group_title, "=")}
 
 {"".join(option_groups[group_title])}"""
         )
