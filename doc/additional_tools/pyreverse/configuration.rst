@@ -115,6 +115,13 @@ Display Options
 **Default:**  ``2``
 
 
+--max-depth
+-----------
+*Maximum depth in package/module hierarchy to display. A depth of 0 shows only top-level packages, 1 shows one level of subpackages, etc. If not specified, all packages/modules are shown.*
+
+**Default:**  ``None``
+
+
 --module-names
 --------------
 *Include module name in the representation of classes.*
