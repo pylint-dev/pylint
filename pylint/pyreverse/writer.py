@@ -54,12 +54,26 @@ class DiagramWriter:
                 self.write_classes(diagram)
             self.save()
 
-    def should_show_node(self, qualified_name: str) -> bool:
+    def should_show_node(self, qualified_name: str, is_class: bool = False) -> bool:
         """Determine if a node should be shown based on depth settings."""
         # If no depth limit is set ==> show all nodes
         if self.max_depth is None:
             return True
-        # Count dots to determine depth, subtract 1 since root counts as depth 0
+
+        # For classes, we want to measure depth from their containing module
+        if is_class:
+            # Get the module part (everything before the last dot)
+            last_dot = qualified_name.rfind(".")
+            if last_dot == -1:
+                module_path = ""
+            else:
+                module_path = qualified_name[:last_dot]
+
+            # Count module depth
+            module_depth = module_path.count(".")
+            return bool(module_depth <= self.max_depth)
+
+        # For packages/modules, count full depth
         node_depth = qualified_name.count(".")
         return bool(node_depth <= self.max_depth)
 
@@ -139,7 +153,7 @@ class DiagramWriter:
             obj.fig_id = obj.node.qname()
 
             # Filter class based on depth setting
-            if not self.should_show_node(obj.fig_id):
+            if not self.should_show_node(obj.fig_id, is_class=True):
                 continue
 
             if self.config.no_standalone and not any(
@@ -158,8 +172,8 @@ class DiagramWriter:
         for rel in diagram.get_relationships("specialization"):
             # Filter nodes based on depth setting
             if not self.should_show_node(
-                rel.from_object.fig_id
-            ) or not self.should_show_node(rel.to_object.fig_id):
+                rel.from_object.fig_id, is_class=True
+            ) or not self.should_show_node(rel.to_object.fig_id, is_class=True):
                 continue
 
             self.printer.emit_edge(
@@ -172,8 +186,8 @@ class DiagramWriter:
         for rel in diagram.get_relationships("association"):
             # Filter nodes based on depth setting
             if not self.should_show_node(
-                rel.from_object.fig_id
-            ) or not self.should_show_node(rel.to_object.fig_id):
+                rel.from_object.fig_id, is_class=True
+            ) or not self.should_show_node(rel.to_object.fig_id, is_class=True):
                 continue
 
             associations[rel.from_object.fig_id].add(rel.to_object.fig_id)
@@ -187,8 +201,8 @@ class DiagramWriter:
         for rel in diagram.get_relationships("aggregation"):
             # Filter nodes based on depth setting
             if not self.should_show_node(
-                rel.from_object.fig_id
-            ) or not self.should_show_node(rel.to_object.fig_id):
+                rel.from_object.fig_id, is_class=True
+            ) or not self.should_show_node(rel.to_object.fig_id, is_class=True):
                 continue
 
             if rel.to_object.fig_id in associations[rel.from_object.fig_id]:
