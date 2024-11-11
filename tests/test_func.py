@@ -113,7 +113,7 @@ def gen_tests(
     if filter_rgx:
         is_to_run = re.compile(filter_rgx).search
     else:
-        is_to_run = (  # noqa: E731, We're going to throw all this anyway
+        is_to_run = (  # noqa: E731're going to throw all this anyway
             lambda x: 1  # type: ignore[assignment] # pylint: disable=unnecessary-lambda-assignment
         )
     tests: list[tuple[str, str, list[tuple[str, str]]]] = []
