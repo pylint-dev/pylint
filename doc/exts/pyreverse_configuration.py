@@ -30,16 +30,32 @@ PYREVERSE_PATH = (
 def _write_config_page(run: Run) -> None:
     """Create or overwrite the configuration page."""
     sections: list[str] = [
-        ".. This file is auto-generated. Make any changes to the associated\n"
-        ".. docs extension in 'doc/exts/pyreverse_configuration.py'.\n\n",
-        get_rst_title("Pyreverse Configuration", "^"),
-    ]
+        f"""\
+.. This file is auto-generated. Make any changes to the associated
+.. docs extension in 'doc/exts/pyreverse_configuration.py'.
 
+
+{get_rst_title("Usage", "#")}
+
+``pyreverse`` is run from the command line using the following syntax::
+
+  pyreverse [options] <packages>
+
+where ``<packages>`` is one or more Python packages or modules to analyze.
+
+The available options are organized into the following categories:
+
+* :ref:`filtering-and-scope` - Control which classes and relationships appear in your diagrams
+* :ref:`display-options` - Customize the visual appearance including colors and labels
+* :ref:`output-control` - Select output formats and set the destination directory
+* :ref:`project-configuration` - Define project settings like source roots and ignored files
+"""
+    ]
     options: list[OptionsData] = [OptionsData(name, info) for name, info in run.options]
     option_groups: dict[str, list[str]] = {g: [] for g in OPTIONS_GROUPS.values()}
 
     for option in sorted(options, key=lambda x: x.name):
-        option_string = get_rst_title(f"--{option.name}", '"')
+        option_string = get_rst_title(f"--{option.name}", "-")
         option_string += f"*{option.optdict.get('help')}*\n\n"
 
         if option.optdict.get("default") == "":
@@ -50,8 +66,14 @@ def _write_config_page(run: Run) -> None:
         option_groups[str(option.optdict.get("group"))].append(option_string)
 
     for group_title in OPTIONS_GROUPS.values():
+        ref_title = group_title.lower().replace(" ", "-")
         sections.append(
-            get_rst_title(group_title, "-") + "\n" + "".join(option_groups[group_title])
+            f"""\
+.. _{ref_title}:
+
+{get_rst_title(group_title, "=")}
+
+{"".join(option_groups[group_title])}"""
         )
 
     # Join all sections and remove the final two newlines
