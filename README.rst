@@ -155,8 +155,8 @@ Pylint ships with two additional tools:
 - pyreverse_ (standalone tool that generates package and class diagrams.)
 - symilar_  (duplicate code finder that is also integrated in pylint)
 
-.. _pyreverse: https://pylint.readthedocs.io/en/latest/pyreverse.html
-.. _symilar: https://pylint.readthedocs.io/en/latest/symilar.html
+.. _pyreverse: https://pylint.readthedocs.io/en/latest/additional_tools/pyreverse/index.html
+.. _symilar: https://pylint.readthedocs.io/en/latest/additional_tools/symilar/index.html
 
 
 .. This is used inside the doc to recover the end of the introduction
