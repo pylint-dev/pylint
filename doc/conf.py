@@ -95,8 +95,8 @@ redirects: dict[str, str] = {
     "user_guide/output": "usage/output.html",
     "user_guide/pre-commit-integration": "installation/pre-commit-integration.html",
     "user_guide/run": "usage/run.html",
-    "pyreverse": "../additional_tools/pyreverse/index.html",
-    "symilar": "../additional_tools/symilar/index.html",
+    "pyreverse": "additional_tools/pyreverse/index.html",
+    "symilar": "additional_tools/symilar/index.html",
 }
 
 
