@@ -7,20 +7,17 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Iterable
 from pathlib import Path
+from re import Pattern
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    Iterable,
     Literal,
     NamedTuple,
     Optional,
-    Pattern,
     Protocol,
-    Tuple,
-    Type,
     TypedDict,
     Union,
 )
@@ -93,7 +90,7 @@ MessageTypesFullName = Literal[
 """All possible message categories."""
 
 
-OptionDict = Dict[
+OptionDict = dict[
     str,
     Union[
         None,
@@ -102,12 +99,12 @@ OptionDict = Dict[
         int,
         Pattern[str],
         Iterable[Union[str, int, Pattern[str]]],
-        Type["_CallbackAction"],
+        type["_CallbackAction"],
         Callable[[Any], Any],
         Callable[[Any, Any, Any, Any], Any],
     ],
 ]
-Options = Tuple[Tuple[str, OptionDict], ...]
+Options = tuple[tuple[str, OptionDict], ...]
 
 
 ReportsCallable = Callable[["Section", "LinterStats", Optional["LinterStats"]], None]
@@ -126,10 +123,10 @@ class ExtraMessageOptions(TypedDict, total=False):
 
 
 MessageDefinitionTuple = Union[
-    Tuple[str, str, str],
-    Tuple[str, str, str, ExtraMessageOptions],
+    tuple[str, str, str],
+    tuple[str, str, str, ExtraMessageOptions],
 ]
-DirectoryNamespaceDict = Dict[Path, Tuple[argparse.Namespace, "DirectoryNamespaceDict"]]
+DirectoryNamespaceDict = dict[Path, tuple[argparse.Namespace, "DirectoryNamespaceDict"]]
 
 
 class GetProjectCallable(Protocol):

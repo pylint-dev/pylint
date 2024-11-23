@@ -158,6 +158,7 @@ contributors:
   * Added new useless-return checker,
   * Added new try-except-raise checker
 - theirix <theirix@gmail.com>
+- correctmost <134317971+correctmost@users.noreply.github.com>
 - Téo Bouvard <teobouvard@gmail.com>
 - Stavros Ntentos <133706+stdedos@users.noreply.github.com>
 - Nicolas Boulenguez <nicolas@debian.org>
@@ -210,6 +211,7 @@ contributors:
 - wtracy <afishionado@gmail.com>
 - jessebrennan <jesse@jesse.computer>
 - chohner <mail@chohner.com>
+- aatle <168398276+aatle@users.noreply.github.com>
 - Tiago Honorato <61059243+tiagohonorato@users.noreply.github.com>
 - Steven M. Vascellaro <svascellaro@gmail.com>
 - Robin Tweedie <70587124+robin-wayve@users.noreply.github.com>
@@ -264,6 +266,7 @@ contributors:
 - Samuel FORESTIER <HorlogeSkynet@users.noreply.github.com>
 - Rémi Cardona <remi.cardona@polyconseil.fr>
 - Ryan Ozawa <ryan.ozawa21@gmail.com>
+- Roger Sheu <78449574+rogersheu@users.noreply.github.com>
 - Raphael Gaschignard <raphael@makeleaps.com>
 - Ram Rachum <ram@rachum.com> (cool-RR)
 - Radostin Stoyanov <rst0git@users.noreply.github.com>
@@ -287,9 +290,11 @@ contributors:
 - Justin Li <justinnhli@gmail.com>
 - John Kirkham <jakirkham@gmail.com>
 - Jens H. Nielsen <Jens.Nielsen@microsoft.com>
+- Jake Lishman <jake.lishman@ibm.com>
 - Ioana Tagirta <ioana.tagirta@gmail.com>: fix bad thread instantiation check
 - Ikraduya Edian <ikraduya@gmail.com>: Added new checks 'consider-using-generator' and 'use-a-generator'.
 - Hugues Bruant <hugues.bruant@affirm.com>
+- Hashem Nasarat <Hnasar@users.noreply.github.com>
 - Harut <yes@harutune.name>
 - Grygorii Iermolenko <gyermolenko@gmail.com>
 - Grizzly Nyo <grizzly.nyo@gmail.com>
@@ -317,9 +322,11 @@ contributors:
 - Ben Green <benhgreen@icloud.com>
 - Batuhan Taskaya <batuhanosmantaskaya@gmail.com>
 - Alexander Kapshuna <kapsh@kap.sh>
+- Akhil Kamat <akhil.kamat@gmail.com>
 - Adam Parkin <pzelnip@users.noreply.github.com>
 - 谭九鼎 <109224573@qq.com>
 - Łukasz Sznuk <ls@rdprojekt.pl>
+- zasca <gorstav@gmail.com>
 - y2kbugger <y2kbugger@users.noreply.github.com>
 - vinnyrose <vinnyrose@users.noreply.github.com>
 - ttenhoeve-aa <ttenhoeve@appannie.com>
@@ -382,10 +389,12 @@ contributors:
 - Trevor Bekolay <tbekolay@gmail.com>
   * Added --list-msgs-enabled command
 - Tomer Chachamu <tomer.chachamu@gmail.com>: simplifiable-if-expression
+- Tomasz Michalski <tomasz.michalski@rtbhouse.com>
 - Tomasz Magulski <tomasz@magullab.io>
 - Tom <tsarantis@proton.me>
 - Tim Hatch <tim@timhatch.com>
 - Tim Gates <tim.gates@iress.com>
+- Tianyu Chen <124018391+UTsweetyfish@users.noreply.github.com>
 - Théo Battrel <theo.util@protonmail.ch>
 - Thomas Benhamou <thomas@lightricks.com>
 - Theodore Ni <3806110+tjni@users.noreply.github.com>
@@ -412,6 +421,7 @@ contributors:
 - Ryan McGuire <ryan@enigmacurry.com>
 - Ry4an Brase <ry4an-hg@ry4an.org>
 - Ruro <ruro.ruro@ya.ru>
+- Roshan Shetty <roshan.shetty2816@gmail.com>
 - Roman Ivanov <me@roivanov.com>
 - Robert Schweizer <robert_schweizer@gmx.de>
 - Reverb Chu <reverbc@users.noreply.github.com>
@@ -438,6 +448,7 @@ contributors:
 - Oisín Moran <OisinMoran@users.noreply.github.com>
 - Obscuron <Abscuron@gmail.com>
 - Noam Yorav-Raphael <noamraph@gmail.com>
+- Noah-Agnel <138210920+Noah-Agnel@users.noreply.github.com>
 - Nir Soffer <nirsof@gmail.com>
 - Niko Wenselowski <niko@nerdno.de>
 - Nikita Sobolev <mail@sobolevn.me>
@@ -515,7 +526,6 @@ contributors:
 - James Broadhead <jamesbroadhead@gmail.com>
 - Jakub Kulík <Kulikjak@gmail.com>
 - Jakob Normark <jakobnormark@gmail.com>
-- Jake Lishman <jake@binhbar.com>
 - Jacques Kvam <jwkvam@gmail.com>
 - Jace Browning <jacebrowning@gmail.com>: updated default report format with clickable paths
 - JT Olds <jtolds@xnet5.com>
@@ -523,7 +533,6 @@ contributors:
 - Hayden Richards <62866982+SupImDos@users.noreply.github.com>
   * Fixed "no-self-use" for async methods
   * Fixed "docparams" extension for async functions and methods
-- Hashem Nasarat <Hnasar@users.noreply.github.com>
 - Harshil <37377066+harshil21@users.noreply.github.com>
 - Harry <harrymcwinters@gmail.com>
 - Grégoire <96051754+gregoire-mullvad@users.noreply.github.com>
@@ -537,6 +546,7 @@ contributors:
 - Eric Froemling <ericfroemling@gmail.com>
 - Emmanuel Chaudron <manu.chaud@hotmail.fr>
 - Elizabeth Bott <52465744+elizabethbott@users.noreply.github.com>
+- Ekin Dursun <ekindursun@gmail.com>
 - Eisuke Kawashima <e-kwsm@users.noreply.github.com>
 - Edward K. Ream <edreamleo@gmail.com>
 - Edgemaster <grand.edgemaster@gmail.com>
@@ -547,6 +557,7 @@ contributors:
 - Dmytro Kyrychuk <dmytro.kyrychuck@gmail.com>
 - Dionisio E Alonso <baco@users.noreply.github.com>
 - DetachHead <57028336+DetachHead@users.noreply.github.com>
+- Dennis Keck <26092524+fellhorn@users.noreply.github.com>
 - Denis Laxalde <denis.laxalde@logilab.fr>
 - David Lawson <dmrlawson@gmail.com>
 - David Cain <davidjosephcain@gmail.com>
@@ -582,12 +593,14 @@ contributors:
 - Benjamin Graham <benwilliamgraham@gmail.com>
 - Benedikt Morbach <benedikt.morbach@googlemail.com>
 - Ben Greiner <code@bnavigator.de>
+- Barak Shoshany <baraksh@gmail.com>
 - Banjamin Freeman <befreeman@users.noreply.github.com>
 - Avram Lubkin <avylove@rockhopper.net>
 - Athos Ribeiro <athoscr@fedoraproject.org>: Fixed dict-keys-not-iterating false positive for inverse containment checks
 - Arun Persaud <arun@nubati.net>
 - Arthur Lutz <arthur.lutz@logilab.fr>
 - Antonio Ossa <aaossa@uc.cl>
+- Antonio Gámiz Delgado <73933988+antoniogamizbadger@users.noreply.github.com>
 - Anthony VEREZ <anthony.verez.external@cassidian.com>
 - Anthony Tan <tanant@users.noreply.github.com>
 - Anthony Foglia <afoglia@users.noreply.github.com> (Google): Added simple string slots check.
@@ -617,6 +630,7 @@ contributors:
 - Adrian Chirieac <chirieacam@gmail.com>
 - Aditya Gupta <adityagupta1089@users.noreply.github.com> (adityagupta1089)
   * Added ignore_signatures to duplicate checker
+- Adam Tuft <73994535+adamtuft@users.noreply.github.com>
 - Adam Dangoor <adamdangoor@gmail.com>
 - 243f6a88 85a308d3 <33170174+243f6a8885a308d313198a2e037@users.noreply.github.com>
 

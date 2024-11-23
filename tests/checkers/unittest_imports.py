@@ -11,6 +11,7 @@ from pytest import CaptureFixture
 
 from pylint.checkers import imports
 from pylint.interfaces import UNDEFINED
+from pylint.lint import augmented_sys_path, discover_package_path
 from pylint.testutils import CheckerTestCase, MessageTest
 from pylint.testutils._run import _Run as Run
 
@@ -92,28 +93,33 @@ class TestImportsChecker(CheckerTestCase):
         assert errors == ""
 
     def test_wildcard_import_init(self) -> None:
-        module = astroid.MANAGER.ast_from_module_name("init_wildcard", REGR_DATA)
-        import_from = module.body[0]
+        context_file = os.path.join(REGR_DATA, "dummy_wildcard.py")
 
-        with self.assertNoMessages():
-            self.checker.visit_importfrom(import_from)
+        with augmented_sys_path([discover_package_path(context_file, [])]):
+            module = astroid.MANAGER.ast_from_module_name("init_wildcard", context_file)
+            import_from = module.body[0]
+
+            with self.assertNoMessages():
+                self.checker.visit_importfrom(import_from)
 
     def test_wildcard_import_non_init(self) -> None:
-        module = astroid.MANAGER.ast_from_module_name("wildcard", REGR_DATA)
-        import_from = module.body[0]
+        context_file = os.path.join(REGR_DATA, "dummy_wildcard.py")
 
-        msg = MessageTest(
-            msg_id="wildcard-import",
-            node=import_from,
-            args="empty",
-            confidence=UNDEFINED,
-            line=1,
-            col_offset=0,
-            end_line=1,
-            end_col_offset=19,
-        )
-        with self.assertAddsMessages(msg):
-            self.checker.visit_importfrom(import_from)
+        with augmented_sys_path([discover_package_path(context_file, [])]):
+            module = astroid.MANAGER.ast_from_module_name("wildcard", context_file)
+            import_from = module.body[0]
+            msg = MessageTest(
+                msg_id="wildcard-import",
+                node=import_from,
+                args="empty",
+                confidence=UNDEFINED,
+                line=1,
+                col_offset=0,
+                end_line=1,
+                end_col_offset=19,
+            )
+            with self.assertAddsMessages(msg):
+                self.checker.visit_importfrom(import_from)
 
     @staticmethod
     def test_preferred_module(capsys: CaptureFixture[str]) -> None:

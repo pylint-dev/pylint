@@ -23,7 +23,7 @@ name is found in, and not the type of object assigned.
 +--------------------+---------------------------------------------------------------------------------------------------+
 | ``class-attribute``| Attributes defined in class bodies.                                                               |
 +--------------------+---------------------------------------------------------------------------------------------------+
-| ``class-const``    | Enum constants and class variables annotated with ``ClassVar``                                    |
+| ``class-const``    | Enum constants and class variables annotated with ``Final``                                       |
 +--------------------+---------------------------------------------------------------------------------------------------+
 | ``inlinevar``      | Loop variables in list comprehensions and generator expressions.                                  |
 +--------------------+---------------------------------------------------------------------------------------------------+

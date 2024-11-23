@@ -14,7 +14,6 @@ from astroid.const import Context
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import only_required_for_messages, safe_infer
-from pylint.constants import PY39_PLUS
 from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
@@ -139,8 +138,8 @@ class NestedMinMaxChecker(BaseChecker):
             return self._is_splattable_expression(
                 arg.left
             ) and self._is_splattable_expression(arg.right)
-        # Support dict merge (operator __or__ in Python 3.9)
-        if isinstance(arg, nodes.BinOp) and arg.op == "|" and PY39_PLUS:
+        # Support dict merge (operator __or__)
+        if isinstance(arg, nodes.BinOp) and arg.op == "|":
             return self._is_splattable_expression(
                 arg.left
             ) and self._is_splattable_expression(arg.right)

@@ -102,3 +102,10 @@ class FooBar:
         """Invalid-name will still be raised for other arguments."""
         self.foo_bar = fooBar
         self.foo_bar2 = fooBar2
+
+    def tearDown(self): ...  # pylint: disable=invalid-name
+
+
+class FooBarSubclass(FooBar):
+    tearDown = FooBar.tearDown
+    tearDownNotInAncestor = None  # [invalid-name]

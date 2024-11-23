@@ -1,3 +1,0 @@
-Fix a false negative for ``duplicate-argument-name`` by including ``positional-only``, ``*args`` and ``**kwargs`` arguments in the check.
-
-Closes #9669

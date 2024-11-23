@@ -84,7 +84,7 @@ class DiaDefGenerator:
 
     def get_ancestors(
         self, node: nodes.ClassDef, level: int
-    ) -> Generator[nodes.ClassDef, None, None]:
+    ) -> Generator[nodes.ClassDef]:
         """Return ancestor nodes of a class node."""
         if level == 0:
             return
@@ -95,7 +95,7 @@ class DiaDefGenerator:
 
     def get_associated(
         self, klass_node: nodes.ClassDef, level: int
-    ) -> Generator[nodes.ClassDef, None, None]:
+    ) -> Generator[nodes.ClassDef]:
         """Return associated nodes of a class node."""
         if level == 0:
             return

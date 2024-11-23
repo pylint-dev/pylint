@@ -18,7 +18,10 @@ import pytest
 from pytest import CaptureFixture
 
 from pylint import config, testutils
-from pylint.config.find_default_config_files import _cfg_has_config, _toml_has_config
+from pylint.config.find_default_config_files import (
+    _cfg_or_ini_has_config,
+    _toml_has_config,
+)
 from pylint.lint.run import Run
 
 
@@ -307,12 +310,13 @@ disable = logging-not-lazy,logging-format-interpolation
         ],
     ],
 )
-def test_cfg_has_config(content: str, expected: bool, tmp_path: Path) -> None:
-    """Test that a cfg file has a pylint config."""
-    fake_cfg = tmp_path / "fake.cfg"
-    with open(fake_cfg, "w", encoding="utf8") as f:
-        f.write(content)
-    assert _cfg_has_config(fake_cfg) == expected
+def test_has_config(content: str, expected: bool, tmp_path: Path) -> None:
+    """Test that a .cfg file or .ini file has a pylint config."""
+    for file_name in ("fake.cfg", "tox.ini"):
+        fake_conf = tmp_path / file_name
+        with open(fake_conf, "w", encoding="utf8") as f:
+            f.write(content)
+        assert _cfg_or_ini_has_config(fake_conf) == expected
 
 
 def test_non_existent_home() -> None:

@@ -81,11 +81,11 @@ body:
       label: Pylint version
       description: >-
         Please copy and paste the result of `pylint --version` or specify the range of
-        version affected.
+        versions affected.
       placeholder: |
-        pylint 2.9.6
-        astroid 2.6.5
-        Python 3.8.10 (default, Jun  2 2021, 10:49:15) [GCC 9.4.0]
+        pylint 3.3.0
+        astroid 3.3.0
+        Python 3.12.0 (v3.12.0:0fb18b02c8, Oct  2 2023, 09:45:56)
       render: shell
     validations:
       required: true

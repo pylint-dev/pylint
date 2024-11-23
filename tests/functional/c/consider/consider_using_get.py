@@ -16,10 +16,10 @@ if key in dictionary:  # [consider-using-get]
 if 'key' in dictionary:  # not accessing the dictionary in assignment
     variable = "string"
 
-if 'key' in dictionary:  # is a match, but not obvious and we ignore it for now
+if 'key' in dictionary:  # is a match, but not obvious, and we ignore it for now
     variable = dictionary[key]
 
-if 'key1' in dictionary:  # dictionary querried for wrong key
+if 'key1' in dictionary:  # dictionary queried for wrong key
     variable = dictionary['key2']
 
 if 'key' in dictionary:  # body is not pure

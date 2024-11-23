@@ -1,3 +1,0 @@
-Fix multiple false positives for generic class syntax added in Python 3.12 (PEP 695).
-
-Closes #9406

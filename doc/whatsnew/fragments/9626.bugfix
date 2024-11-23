@@ -1,9 +1,0 @@
-Add `--prefer-stubs=yes` option to opt-in to the astroid 3.2 feature
-that prefers `.pyi` stubs over same-named `.py` files. This has the
-potential to reduce `no-member` errors but at the cost of more errors
-such as `not-an-iterable` from function bodies appearing as `...`.
-
-Defaults to `no`.
-
-Closes #9626
-Closes #9623

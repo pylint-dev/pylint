@@ -435,7 +435,7 @@ Release date: 2015-11-29
 * astroid.utils.LocalsVisitor was moved to pylint.pyreverse.LocalsVisitor.
 
 * pylint.checkers.utils.excepts_import_error was removed.
-  Use pylint.chekcers.utils.error_of_type instead.
+  Use pylint.checkers.utils.error_of_type instead.
 
 * Don't emit undefined-all-variables for nodes which can't be
   inferred (YES nodes).

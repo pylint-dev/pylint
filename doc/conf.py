@@ -44,6 +44,7 @@ extensions = [
     "pylint_extensions",
     "pylint_messages",
     "pylint_options",
+    "pyreverse_configuration",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
     "sphinx_reredirects",
@@ -94,6 +95,8 @@ redirects: dict[str, str] = {
     "user_guide/output": "usage/output.html",
     "user_guide/pre-commit-integration": "installation/pre-commit-integration.html",
     "user_guide/run": "usage/run.html",
+    "pyreverse": "additional_tools/pyreverse/index.html",
+    "symilar": "additional_tools/symilar/index.html",
 }
 
 

@@ -1,3 +1,0 @@
-Fix a false negative for ``--ignore-patterns`` when the directory to be linted is specified using a dot(``.``) and all files are ignored instead of only the files whose name begin with a dot.
-
-Closes #9273

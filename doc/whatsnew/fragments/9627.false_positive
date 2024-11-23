@@ -1,4 +1,0 @@
-Exclude if/else branches containing terminating functions (e.g. `sys.exit()`)
-from `possibly-used-before-assignment` checks.
-
-Closes #9627

@@ -41,7 +41,6 @@ class MethodArgsChecker(BaseChecker):
             "positional-only-arguments-expected",
             "Emitted when positional-only arguments have been passed as keyword arguments. "
             "Remove the keywords for the affected arguments in the function call.",
-            {"minversion": (3, 8)},
         ),
     }
     options = (

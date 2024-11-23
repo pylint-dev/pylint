@@ -87,12 +87,12 @@ def test_find_numpy_attr_raises_exact_exc(self):
 
     Raises
     ------
-    re.error
+    calendar.IllegalMonthError
         Sometimes
     """
-    import re
+    import calendar
 
-    raise re.error("hi")
+    raise calendar.IllegalMonthError(-1)
 
 
 def test_find_numpy_attr_raises_substr_exc(self):
@@ -100,12 +100,12 @@ def test_find_numpy_attr_raises_substr_exc(self):
 
     Raises
     ------
-    re.error
+    calendar.IllegalMonthError
         Sometimes
     """
-    from re import error
+    from calendar import IllegalMonthError
 
-    raise error("hi")
+    raise IllegalMonthError(-1)
 
 
 def test_find_valid_missing_numpy_attr_raises(self):  # [missing-raises-doc]
@@ -113,12 +113,12 @@ def test_find_valid_missing_numpy_attr_raises(self):  # [missing-raises-doc]
 
     Raises
     ------
-    re.anothererror
+    calendar.anothererror
         Sometimes
     """
-    from re import error
+    from calendar import IllegalMonthError
 
-    raise error("hi")
+    raise IllegalMonthError(-1)
 
 
 def test_find_invalid_missing_numpy_attr_raises(self):

@@ -685,9 +685,15 @@ Typing checker Messages
 :consider-using-alias (R6002): *'%s' will be deprecated with PY39, consider using '%s' instead%s*
   Only emitted if 'runtime-typing=no' and a deprecated typing alias is used in
   a type annotation context in Python 3.7 or 3.8.
-:consider-alternative-union-syntax (R6003): *Consider using alternative Union syntax instead of '%s'%s*
-  Emitted when 'typing.Union' or 'typing.Optional' is used instead of the
-  alternative Union syntax 'int | None'.
+:consider-alternative-union-syntax (R6003): *Consider using alternative union syntax instead of '%s'%s*
+  Emitted when ``typing.Union`` or ``typing.Optional`` is used instead of the
+  shorthand union syntax. For example, ``Union[int, float]`` instead of ``int |
+  float``. Using the shorthand for unions aligns with Python typing
+  recommendations, removes the need for imports, and avoids confusion in
+  function signatures.
+:unnecessary-default-type-args (R6007): *Type `%s` has unnecessary default type args. Change it to `%s`.*
+  Emitted when types have default type args which can be omitted. Mainly used
+  for `typing.Generator` and `typing.AsyncGenerator`.
 :redundant-typehint-argument (R6006): *Type `%s` is used more than once in union type annotation. Remove redundant typehints.*
   Duplicated type arguments will be skipped by `mypy` tool, therefore should be
   removed to avoid confusion.

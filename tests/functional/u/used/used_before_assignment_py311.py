@@ -1,6 +1,12 @@
 """assert_never() introduced in 3.11"""
 from enum import Enum
-from typing import assert_never
+
+from pylint.constants import PY311_PLUS
+
+if PY311_PLUS:
+    from typing import assert_never  # pylint: disable=no-name-in-module
+else:
+    from typing_extensions import assert_never
 
 
 class MyEnum(Enum):

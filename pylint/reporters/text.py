@@ -15,7 +15,7 @@ import re
 import sys
 import warnings
 from dataclasses import asdict, fields
-from typing import TYPE_CHECKING, Dict, NamedTuple, TextIO
+from typing import TYPE_CHECKING, NamedTuple, TextIO
 
 from pylint.message import Message
 from pylint.reporters import BaseReporter
@@ -65,7 +65,7 @@ class MessageStyle(NamedTuple):
         return msg
 
 
-ColorMappingDict = Dict[str, MessageStyle]
+ColorMappingDict = dict[str, MessageStyle]
 
 TITLE_UNDERLINES = ["", "=", "-", "."]
 

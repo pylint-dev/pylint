@@ -388,7 +388,7 @@ New Checks
 
   Closes #8260 (`#8260 <https://github.com/pylint-dev/pylint/issues/8260>`_)
 
-- Add a new checker ``kwarg-superseded-by-positional-arg`` to warn when a function is called with a keyword argument which shares a name with a positional-only parameter and the function contains a keyword variadic parameter dictionary. It may be surprising behaviour when the keyword argument is added to the keyword variadic parameter dictionary.
+- Add a new message ``kwarg-superseded-by-positional-arg`` to warn when a function is called with a keyword argument which shares a name with a positional-only parameter and the function contains a keyword variadic parameter dictionary. It may be surprising behaviour when the keyword argument is added to the keyword variadic parameter dictionary.
 
   Closes #8558 (`#8558 <https://github.com/pylint-dev/pylint/issues/8558>`_)
 

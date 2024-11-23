@@ -133,7 +133,7 @@ class _ArgumentsManager:
                 *argument.flags,
                 action=argument.action,
                 default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                type=argument.type,
                 help=argument.help,
                 metavar=argument.metavar,
                 choices=argument.choices,
@@ -144,7 +144,7 @@ class _ArgumentsManager:
                 **argument.kwargs,
                 action=argument.action,
                 default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                type=argument.type,
                 help=argument.help,
                 metavar=argument.metavar,
                 choices=argument.choices,
@@ -157,7 +157,7 @@ class _ArgumentsManager:
                     f"--{old_name}",
                     action="store",
                     default=argument.default,
-                    type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                    type=argument.type,
                     help=argparse.SUPPRESS,
                     metavar=argument.metavar,
                     choices=argument.choices,
@@ -168,7 +168,7 @@ class _ArgumentsManager:
                 **argument.kwargs,
                 action=argument.action,
                 default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                type=argument.type,
                 help=argument.help,
                 metavar=argument.metavar,
                 choices=argument.choices,
@@ -193,7 +193,7 @@ class _ArgumentsManager:
                 *argument.flags,
                 action=argument.action,
                 default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                type=argument.type,
                 help=argument.help,
                 metavar=argument.metavar,
                 choices=argument.choices,

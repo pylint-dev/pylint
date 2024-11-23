@@ -331,3 +331,5 @@ class Foo:
 
     func(42)
     a = func(42)
+
+isinstance(1) # [no-value-for-parameter]

@@ -1,4 +1,0 @@
-Fix a false positive for `possibly-used-before-assignment` when using
-`typing.assert_never()` (3.11+) to indicate exhaustiveness.
-
-Closes #9643

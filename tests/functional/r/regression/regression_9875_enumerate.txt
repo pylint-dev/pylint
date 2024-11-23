@@ -1,0 +1,2 @@
+undefined-loop-variable:6:38:6:43::Using possibly undefined loop variable 'value':UNDEFINED
+undefined-loop-variable:6:47:6:52::Using possibly undefined loop variable 'value':UNDEFINED

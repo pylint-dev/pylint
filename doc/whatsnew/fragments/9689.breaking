@@ -1,0 +1,7 @@
+`pyreverse` `Run` was changed to no longer call `sys.exit()` in its `__init__`.
+You should now call `Run(args).run()` which will return the exit code instead.
+Having a class that always raised a `SystemExit` exception was considered a bug.
+
+Normal usage of pyreverse through the CLI will not be affected by this change.
+
+Refs #9689

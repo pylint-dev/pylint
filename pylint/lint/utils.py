@@ -152,3 +152,4 @@ def _is_relative_to(self: Path, *other: Path) -> bool:
 def _is_env_set_and_non_empty(env_var: str) -> bool:
     """Checks if env_var is set and non-empty."""
     return bool(os.environ.get(env_var))
+

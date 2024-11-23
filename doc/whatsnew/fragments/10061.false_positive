@@ -1,0 +1,5 @@
+Fix a false positive for `used-before-assignment` when a variable defined under
+an `if` and via a named expression (walrus operator) is used later when guarded
+under the same `if` test.
+
+Closes #10061

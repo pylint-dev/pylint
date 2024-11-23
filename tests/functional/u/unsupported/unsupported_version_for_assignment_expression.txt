@@ -1,0 +1,1 @@
+using-assignment-expression-in-unsupported-version:3:3:3:38::Assignment expression is not supported by all versions included in the py-version setting:HIGH

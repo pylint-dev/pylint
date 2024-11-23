@@ -1,16 +1,12 @@
 # pylint:disable=too-few-public-methods,import-error,missing-docstring, not-callable, import-outside-toplevel
-"""test pb with exceptions and old/new style classes"""
+"""test pb with exceptions and classes"""
 
 
 class ValidException(Exception):
     """Valid Exception."""
 
-class OldStyleClass:
-    """Not an exception."""
-
 class NewStyleClass:
     """Not an exception."""
-
 
 def good_case():
     """raise"""
@@ -31,21 +27,9 @@ def good_case3():
     import io
     raise io.BlockingIOError
 
-def bad_case0():
-    """raise"""
-    # +2:<3.0:[nonstandard-exception]
-    # +1:>=3.0:[raising-non-exception]
-    raise OldStyleClass('hop')
-
 def bad_case1():
     """raise"""
     raise NewStyleClass()  # [raising-non-exception]
-
-def bad_case2():
-    """raise"""
-    # +2:<3.0:[nonstandard-exception]
-    # +1:>=3.0:[raising-non-exception]
-    raise OldStyleClass('hop')
 
 def bad_case3():
     """raise"""

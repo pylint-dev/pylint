@@ -12,7 +12,7 @@
     :target: https://codecov.io/gh/pylint-dev/pylint
 
 .. image:: https://img.shields.io/pypi/v/pylint.svg
-    :alt: Pypi Package version
+    :alt: PyPI Package version
     :target: https://pypi.python.org/pypi/pylint
 
 .. image:: https://readthedocs.org/projects/pylint/badge/?version=latest
@@ -45,7 +45,7 @@ What is Pylint?
 ---------------
 
 Pylint is a `static code analyser`_ for Python 2 or 3. The latest version supports Python
-3.8.0 and above.
+3.9.0 and above.
 
 .. _`static code analyser`: https://en.wikipedia.org/wiki/Static_code_analysis
 
@@ -81,7 +81,7 @@ It can also be integrated in most editors or IDEs. More information can be found
 What differentiates Pylint?
 ---------------------------
 
-Pylint is not trusting your typing and is inferring the actual value of nodes (for a
+Pylint is not trusting your typing and is inferring the actual values of nodes (for a
 start because there was no typing when pylint started off) using its internal code
 representation (astroid). If your code is ``import logging as argparse``, Pylint
 can check and know that ``argparse.error(...)`` is in fact a logging call and not an
@@ -123,7 +123,7 @@ ecosystem of existing plugins for popular frameworks and third-party libraries.
 .. _`plugins`: https://pylint.readthedocs.io/en/latest/development_guide/how_tos/plugins.html#plugins
 .. _`pylint-pydantic`: https://pypi.org/project/pylint-pydantic
 .. _`pylint-django`: https://github.com/pylint-dev/pylint-django
-.. _`pylint-sonarjson`: https://github.com/omegacen/pylint-sonarjson
+.. _`pylint-sonarjson`: https://github.com/cnescatlab/pylint-sonarjson-catlab
 
 Advised linters alongside pylint
 --------------------------------
@@ -135,7 +135,7 @@ mypy_, pyright_ / pylance or pyre_ (typing checks), bandit_ (security oriented c
 isort_ (auto-formatting), autoflake_ (automated removal of unused imports or variables), pyupgrade_
 (automated upgrade to newer python syntax) and pydocstringformatter_ (automated pep257).
 
-.. _ruff: https://github.com/charliermarsh/ruff
+.. _ruff: https://github.com/astral-sh/ruff
 .. _flake8: https://github.com/PyCQA/flake8
 .. _bandit: https://github.com/PyCQA/bandit
 .. _mypy: https://github.com/python/mypy
@@ -155,8 +155,8 @@ Pylint ships with two additional tools:
 - pyreverse_ (standalone tool that generates package and class diagrams.)
 - symilar_  (duplicate code finder that is also integrated in pylint)
 
-.. _pyreverse: https://pylint.readthedocs.io/en/latest/pyreverse.html
-.. _symilar: https://pylint.readthedocs.io/en/latest/symilar.html
+.. _pyreverse: https://pylint.readthedocs.io/en/latest/additional_tools/pyreverse/index.html
+.. _symilar: https://pylint.readthedocs.io/en/latest/additional_tools/symilar/index.html
 
 
 .. This is used inside the doc to recover the end of the introduction

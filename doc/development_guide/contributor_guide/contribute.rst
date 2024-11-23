@@ -130,7 +130,7 @@ documentation. To test smaller changes you can consider ``build-html``, which sk
 
   $ cd doc
   $ make install-dependencies
-  $ make build-html
+  $ make html
 
 We're reusing generated files for speed, use ``make clean`` when you want to start from scratch.
 

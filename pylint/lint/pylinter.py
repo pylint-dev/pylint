@@ -741,10 +741,12 @@ class PyLinter(
                 )
 
         extra_packages_paths = list(
-            {
-                discover_package_path(file_or_module, self.config.source_roots)
-                for file_or_module in files_or_modules
-            }
+            dict.fromkeys(
+                [
+                    discover_package_path(file_or_module, self.config.source_roots)
+                    for file_or_module in files_or_modules
+                ]
+            ).keys()
         )
 
         # TODO: Move the parallel invocation into step 3 of the checking process
@@ -993,7 +995,7 @@ class PyLinter(
         self, filepath: Path, namespaces: DirectoryNamespaceDict
     ) -> argparse.Namespace | None:
         for directory in namespaces:
-            if _is_relative_to(filepath, directory):
+            if Path.is_relative_to(filepath, directory):
                 namespace = self._get_namespace_for_file(
                     filepath, namespaces[directory][1]
                 )

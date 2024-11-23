@@ -114,6 +114,25 @@ init_of_package = {
     "path": INIT_PATH,
 }
 
+# A directory that is not a python package.
+REPORTERS_PATH = Path(__file__).parent.parent / "reporters"
+test_reporters = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+    str(REPORTERS_PATH / "unittest_json_reporter.py"): {
+        "path": str(REPORTERS_PATH / "unittest_json_reporter.py"),
+        "name": "reporters.unittest_json_reporter",
+        "isarg": False,
+        "basepath": str(REPORTERS_PATH / "__init__.py"),
+        "basename": "reporters",
+    },
+    str(REPORTERS_PATH / "unittest_reporting.py"): {
+        "path": str(REPORTERS_PATH / "unittest_reporting.py"),
+        "name": "reporters.unittest_reporting",
+        "isarg": False,
+        "basepath": str(REPORTERS_PATH / "__init__.py"),
+        "basename": "reporters",
+    },
+}
+
 
 def _list_expected_package_modules(
     deduplicating: bool = False,
@@ -174,6 +193,7 @@ class TestExpandModules(CheckerTestCase):
                     for module in _list_expected_package_modules()
                 },
             ),
+            ([str(Path(__file__).parent.parent / "reporters")], test_reporters),
         ],
     )
     @set_config(ignore_paths="")

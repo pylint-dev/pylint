@@ -567,6 +567,10 @@
     "mails": ["jaehoonhwang@users.noreply.github.com"],
     "name": "Jaehoon Hwang"
   },
+  "jake.lishman@ibm.com": {
+    "mails": ["jake.lishman@ibm.com", "jake@binhbar.com"],
+    "name": "Jake Lishman"
+  },
   "james.morgensen@gmail.com": {
     "comment": ": ignored-modules option applies to import errors.",
     "mails": ["james.morgensen@gmail.com"],

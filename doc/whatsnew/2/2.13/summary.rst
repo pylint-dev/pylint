@@ -81,7 +81,7 @@ New checkers
   creates memory leaks by never letting the instance get garbage collected.
 
   Closes #5670
-  Clsoes #6180
+  Closes #6180
 
 Removed checkers
 ================

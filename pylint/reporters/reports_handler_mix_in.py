@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import collections
 from collections.abc import MutableSequence
-from typing import TYPE_CHECKING, DefaultDict, List, Tuple
+from typing import TYPE_CHECKING
 
 from pylint.exceptions import EmptyReportError
 from pylint.reporters.ureports.nodes import Section
@@ -17,7 +17,9 @@ if TYPE_CHECKING:
     from pylint.checkers import BaseChecker
     from pylint.lint.pylinter import PyLinter
 
-ReportsDict = DefaultDict["BaseChecker", List[Tuple[str, str, ReportsCallable]]]
+ReportsDict = collections.defaultdict[
+    "BaseChecker", list[tuple[str, str, ReportsCallable]]
+]
 
 
 class ReportsHandlerMixIn:

@@ -6,7 +6,7 @@ print('value: {}').format(123)  # [misplaced-format-function]
 print("value: {}").format(123)  # [misplaced-format-function]
 print('value: {}'.format(123))
 print('{} Come Forth!'.format('Lazarus'))
-print('Der Hem ist mein Licht und mein Heil, vor wem sollte ich mich furchten? => {}'.format('Psalm 27, 1'))
+print('He is my light and my salvation, of whom should I be afraid? => {}'.format('Psalm 27, 1'))
 print('123')
 print()
 s = 'value: {}'.format(123)

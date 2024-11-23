@@ -44,8 +44,8 @@ class OutputLine(NamedTuple):
     def from_msg(cls, msg: Message, check_endline: bool = True) -> OutputLine:
         """Create an OutputLine from a Pylint Message."""
         column = cls._get_column(msg.column)
-        end_line = cls._get_py38_none_value(msg.end_line, check_endline)
-        end_column = cls._get_py38_none_value(msg.end_column, check_endline)
+        end_line = cls._get_end_line_and_end_col(msg.end_line, check_endline)
+        end_column = cls._get_end_line_and_end_col(msg.end_column, check_endline)
         return cls(
             msg.symbol,
             msg.line,
@@ -63,7 +63,7 @@ class OutputLine(NamedTuple):
         return int(column)
 
     @staticmethod
-    def _get_py38_none_value(value: _T, check_endline: bool) -> _T | None:
+    def _get_end_line_and_end_col(value: _T, check_endline: bool) -> _T | None:
         """Used to make end_line and end_column None as indicated by our version
         compared to `min_pyver_end_position`.
         """
@@ -84,10 +84,10 @@ class OutputLine(NamedTuple):
             line = int(row[1])
             column = cls._get_column(row[2])
             end_line = cls._value_to_optional_int(
-                cls._get_py38_none_value(row[3], check_endline)
+                cls._get_end_line_and_end_col(row[3], check_endline)
             )
             end_column = cls._value_to_optional_int(
-                cls._get_py38_none_value(row[4], check_endline)
+                cls._get_end_line_and_end_col(row[4], check_endline)
             )
             # symbol, line, column, end_line, end_column, node, msg, confidences
             assert len(row) == 8

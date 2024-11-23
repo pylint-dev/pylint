@@ -765,6 +765,13 @@ Standard Checkers
 **Default:**  ``7``
 
 
+--max-positional-arguments
+""""""""""""""""""""""""""
+*Maximum number of positional arguments for function / method.*
+
+**Default:**  ``5``
+
+
 --max-public-methods
 """"""""""""""""""""
 *Maximum number of public methods for a class (see R0904).*
@@ -821,6 +828,8 @@ Standard Checkers
    max-locals = 15
 
    max-parents = 7
+
+   max-positional-arguments = 5
 
    max-public-methods = 20
 
@@ -1151,6 +1160,13 @@ Standard Checkers
 
 ``Miscellaneous`` **Checker**
 -----------------------------
+--check-fixme-in-docstring
+""""""""""""""""""""""""""
+*Whether or not to search for fixme's in docstrings.*
+
+**Default:**  ``False``
+
+
 --notes
 """""""
 *List of note tags to take in consideration, separated by a comma.*
@@ -1176,6 +1192,8 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.miscellaneous]
+   check-fixme-in-docstring = false
+
    notes = ["FIXME", "XXX", "TODO"]
 
    notes-rgx = ""

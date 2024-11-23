@@ -86,7 +86,7 @@ class InvalidPragmaError(PragmaParserError):
     """Thrown in case the pragma is invalid."""
 
 
-def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter, None, None]:
+def parse_pragma(pylint_pragma: str) -> Generator[PragmaRepresenter]:
     action: str | None = None
     messages: list[str] = []
     assignment_required = False
