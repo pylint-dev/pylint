@@ -50,7 +50,6 @@ from pylint.lint.report_functions import (
 )
 from pylint.lint.utils import (
     _is_env_set_and_non_empty,
-    _is_relative_to,
     augmented_sys_path,
     get_fatal_error_message,
     prepare_crash_report,
