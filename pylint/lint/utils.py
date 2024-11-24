@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import contextlib
+import os
 import platform
 import sys
 import traceback
@@ -133,3 +134,21 @@ def augmented_sys_path(additional_paths: Sequence[str]) -> Iterator[None]:
         yield
     finally:
         sys.path[:] = original
+
+
+def _is_relative_to(self: Path, *other: Path) -> bool:
+    """Checks if self is relative to other.
+
+    Backport of pathlib.Path.is_relative_to for Python <3.9
+    TODO: py39: Remove this backport and use stdlib function.
+    """
+    try:
+        self.relative_to(*other)
+        return True
+    except ValueError:
+        return False
+
+
+def _is_env_set_and_non_empty(env_var: str) -> bool:
+    """Checks if env_var is set and non-empty."""
+    return bool(os.environ.get(env_var))

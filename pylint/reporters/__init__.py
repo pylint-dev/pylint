@@ -19,6 +19,10 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 
+class ReporterWarning(Warning):
+    """Warning class for reporters."""
+
+
 def initialize(linter: PyLinter) -> None:
     """Initialize linter with reporters in this package."""
     utils.register_plugins(linter, __path__[0])
