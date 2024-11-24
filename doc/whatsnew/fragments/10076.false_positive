@@ -1,0 +1,4 @@
+Fix a false positive for `potential-index-error` when an indexed iterable
+contains a starred element that evaluates to more than one item.
+
+Closes #10076
