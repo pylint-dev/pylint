@@ -519,10 +519,8 @@ def _emit_no_member(
                 isinstance(inferred, nodes.Const)
                 and inferred.bool_value() is False
                 and (
-                    isinstance(parent, nodes.If)
-                    and node_origin in parent.body
-                    or isinstance(parent, nodes.IfExp)
-                    and node_origin == parent.body
+                    (isinstance(parent, nodes.If) and node_origin in parent.body)
+                    or (isinstance(parent, nodes.IfExp) and node_origin == parent.body)
                 )
             ):
                 return False
@@ -675,10 +673,8 @@ def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool
     variadics = []
 
     if (
-        isinstance(scope, nodes.Lambda)
-        and not isinstance(scope, nodes.FunctionDef)
-        or isinstance(statement, nodes.With)
-    ):
+        isinstance(scope, nodes.Lambda) and not isinstance(scope, nodes.FunctionDef)
+    ) or isinstance(statement, nodes.With):
         variadics = list(node.keywords or []) + node.kwargs
     elif isinstance(statement, (nodes.Return, nodes.Expr, nodes.Assign)) and isinstance(
         statement.value, nodes.Call
@@ -1276,8 +1272,10 @@ accessed. Python regular expressions are accepted.",
         else:
             for ret_node in return_nodes:
                 if not (
-                    isinstance(ret_node.value, nodes.Const)
-                    and ret_node.value.value is None
+                    (
+                        isinstance(ret_node.value, nodes.Const)
+                        and ret_node.value.value is None
+                    )
                     or ret_node.value is None
                 ):
                     break
@@ -1862,10 +1860,14 @@ accessed. Python regular expressions are accepted.",
             )
             if not (
                 isinstance(inferred, known_objects)
-                or isinstance(inferred, nodes.Const)
-                and inferred.pytype() in {"builtins.str", "builtins.bytes"}
-                or isinstance(inferred, astroid.bases.Instance)
-                and inferred.pytype() == "builtins.range"
+                or (
+                    isinstance(inferred, nodes.Const)
+                    and inferred.pytype() in {"builtins.str", "builtins.bytes"}
+                )
+                or (
+                    isinstance(inferred, astroid.bases.Instance)
+                    and inferred.pytype() == "builtins.range"
+                )
             ):
                 # Might be an instance that knows how to handle this slice object
                 return

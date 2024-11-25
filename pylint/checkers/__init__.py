@@ -132,9 +132,9 @@ def initialize(linter: PyLinter) -> None:
 
 __all__ = [
     "BaseChecker",
-    "BaseTokenChecker",
     "BaseRawFileChecker",
-    "initialize",
+    "BaseTokenChecker",
     "DeprecatedMixin",
+    "initialize",
     "register_plugins",
 ]

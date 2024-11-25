@@ -138,11 +138,15 @@ class CodeStyleChecker(BaseChecker):
     def _check_dict_consider_namedtuple_dataclass(self, node: nodes.Dict) -> None:
         """Check if dictionary values can be replaced by Namedtuple or Dataclass."""
         if not (
-            isinstance(node.parent, (nodes.Assign, nodes.AnnAssign))
-            and isinstance(node.parent.parent, nodes.Module)
-            or isinstance(node.parent, nodes.AnnAssign)
-            and isinstance(node.parent.target, nodes.AssignName)
-            and utils.is_assign_name_annotated_with(node.parent.target, "Final")
+            (
+                isinstance(node.parent, (nodes.Assign, nodes.AnnAssign))
+                and isinstance(node.parent.parent, nodes.Module)
+            )
+            or (
+                isinstance(node.parent, nodes.AnnAssign)
+                and isinstance(node.parent.target, nodes.AssignName)
+                and utils.is_assign_name_annotated_with(node.parent.target, "Final")
+            )
         ):
             # If dict is not part of an 'Assign' or 'AnnAssign' node in
             # a module context OR 'AnnAssign' with 'Final' annotation, skip check.
@@ -264,8 +268,7 @@ class CodeStyleChecker(BaseChecker):
             if (
                 node.col_offset is not None
                 and len(suggestion) + node.col_offset > self._max_length
-                or len(suggestion) > self._max_length
-            ):
+            ) or len(suggestion) > self._max_length:
                 return
 
             self.add_message(
@@ -322,11 +325,15 @@ class CodeStyleChecker(BaseChecker):
             if (  # pylint: disable=too-many-boolean-expressions
                 next_if_node is not None
                 and (
-                    isinstance(next_if_node.test, nodes.Compare)
-                    and isinstance(next_if_node.test.left, nodes.Name)
-                    and next_if_node.test.left.name == name
-                    or isinstance(next_if_node.test, nodes.Name)
-                    and next_if_node.test.name == name
+                    (
+                        isinstance(next_if_node.test, nodes.Compare)
+                        and isinstance(next_if_node.test.left, nodes.Name)
+                        and next_if_node.test.left.name == name
+                    )
+                    or (
+                        isinstance(next_if_node.test, nodes.Name)
+                        and next_if_node.test.name == name
+                    )
                 )
             ):
                 return True

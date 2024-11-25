@@ -5,20 +5,20 @@
 """Functional/non regression tests for pylint."""
 
 __all__ = [
-    "_get_tests_info",
-    "_tokenize_str",
+    "UPDATE_FILE",
+    "UPDATE_OPTION",
     "CheckerTestCase",
     "FunctionalTestFile",
-    "linter",
+    "GenericTestReporter",
     "LintModuleTest",
     "MessageTest",
     "MinimalTestReporter",
-    "set_config",
-    "GenericTestReporter",
-    "UPDATE_FILE",
-    "UPDATE_OPTION",
     "UnittestLinter",
+    "_get_tests_info",
+    "_tokenize_str",
     "create_files",
+    "linter",
+    "set_config",
 ]
 
 from pylint.testutils.checker_test_case import CheckerTestCase
