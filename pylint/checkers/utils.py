@@ -1621,19 +1621,25 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
     current_node, parent_node = node, node.parent
     while True:
         if (
-            isinstance(parent_node, nodes.AnnAssign)
-            and parent_node.annotation == current_node
-            or isinstance(parent_node, nodes.Arguments)
-            and current_node
-            in (
-                *parent_node.annotations,
-                *parent_node.posonlyargs_annotations,
-                *parent_node.kwonlyargs_annotations,
-                parent_node.varargannotation,
-                parent_node.kwargannotation,
+            (
+                isinstance(parent_node, nodes.AnnAssign)
+                and parent_node.annotation == current_node
             )
-            or isinstance(parent_node, nodes.FunctionDef)
-            and parent_node.returns == current_node
+            or (
+                isinstance(parent_node, nodes.Arguments)
+                and current_node
+                in (
+                    *parent_node.annotations,
+                    *parent_node.posonlyargs_annotations,
+                    *parent_node.kwonlyargs_annotations,
+                    parent_node.varargannotation,
+                    parent_node.kwargannotation,
+                )
+            )
+            or (
+                isinstance(parent_node, nodes.FunctionDef)
+                and parent_node.returns == current_node
+            )
         ):
             return True
         current_node, parent_node = parent_node, parent_node.parent
@@ -1762,11 +1768,8 @@ def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> b
     annotation = node.parent.annotation
     if isinstance(annotation, nodes.Subscript):
         annotation = annotation.value
-    if (
-        isinstance(annotation, nodes.Name)
-        and annotation.name == typing_name
-        or isinstance(annotation, nodes.Attribute)
-        and annotation.attrname == typing_name
+    if (isinstance(annotation, nodes.Name) and annotation.name == typing_name) or (
+        isinstance(annotation, nodes.Attribute) and annotation.attrname == typing_name
     ):
         return True
     return False
@@ -2181,8 +2184,7 @@ def is_terminating_func(node: nodes.Call) -> bool:
     if (
         not isinstance(node.func, nodes.Attribute)
         and not (isinstance(node.func, nodes.Name))
-        or isinstance(node.parent, nodes.Lambda)
-    ):
+    ) or isinstance(node.parent, nodes.Lambda):
         return False
 
     try:

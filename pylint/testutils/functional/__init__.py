@@ -3,12 +3,12 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 __all__ = [
-    "FunctionalTestFile",
     "REASONABLY_DISPLAYABLE_VERTICALLY",
-    "get_functional_test_files_from_directory",
-    "NoFileError",
-    "parse_python_version",
+    "FunctionalTestFile",
     "LintModuleOutputUpdate",
+    "NoFileError",
+    "get_functional_test_files_from_directory",
+    "parse_python_version",
 ]
 
 from pylint.testutils.functional.find_functional_tests import (

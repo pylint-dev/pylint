@@ -2099,9 +2099,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return (
             isinstance(returns, nodes.Attribute)
             and returns.attrname in {"NoReturn", "Never"}
-            or isinstance(returns, nodes.Name)
-            and returns.name in {"NoReturn", "Never"}
-        )
+        ) or (isinstance(returns, nodes.Name) and returns.name in {"NoReturn", "Never"})
 
     def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:
         """Check for presence of a *single* return statement at the end of a
@@ -2452,9 +2450,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False, confidence
 
     def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
-        if (
-            isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute))
-            or isinstance(node, nodes.UnaryOp)
+        if isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute)) or (
+            isinstance(node, nodes.UnaryOp)
             and isinstance(node.operand, (nodes.Attribute, nodes.Name))
         ):
             inferred = utils.safe_infer(node)

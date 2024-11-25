@@ -87,7 +87,7 @@ class CplSuccessiveLinesLimits:
     of common lines between both stripped lines collections extracted from both files.
     """
 
-    __slots__ = ("first_file", "second_file", "effective_cmn_lines_nb")
+    __slots__ = ("effective_cmn_lines_nb", "first_file", "second_file")
 
     def __init__(
         self,
@@ -110,7 +110,7 @@ class LinesChunk:
     lines of a lineset.
     """
 
-    __slots__ = ("_fileid", "_index", "_hash")
+    __slots__ = ("_fileid", "_hash", "_index")
 
     def __init__(self, fileid: str, num_line: int, *lines: Iterable[str]) -> None:
         self._fileid: str = fileid
@@ -150,7 +150,7 @@ class SuccessiveLinesLimits:
     :note: Only the end line number can be updated.
     """
 
-    __slots__ = ("_start", "_end")
+    __slots__ = ("_end", "_start")
 
     def __init__(self, start: LineNumber, end: LineNumber) -> None:
         self._start: LineNumber = start

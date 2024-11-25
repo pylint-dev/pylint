@@ -96,7 +96,7 @@ def cmp(a: float, b: float) -> int:
 def diff_string(old: float, new: float) -> str:
     """Given an old and new value, return a string representing the difference."""
     diff = abs(old - new)
-    diff_str = f"{CMPS[cmp(old, new)]}{diff and f'{diff:.2f}' or ''}"
+    diff_str = f"{CMPS[cmp(old, new)]}{(diff and f'{diff:.2f}') or ''}"
     return diff_str
 
 
@@ -176,14 +176,10 @@ def register_plugins(linter: PyLinter, directory: str) -> None:
         base, extension = os.path.splitext(filename)
         if base in imported or base == "__pycache__":
             continue
-        if (
-            extension in PY_EXTS
-            and base != "__init__"
-            or (
-                not extension
-                and os.path.isdir(os.path.join(directory, base))
-                and not filename.startswith(".")
-            )
+        if (extension in PY_EXTS and base != "__init__") or (
+            not extension
+            and os.path.isdir(os.path.join(directory, base))
+            and not filename.startswith(".")
         ):
             try:
                 module = modutils.load_module_from_file(

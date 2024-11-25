@@ -90,9 +90,8 @@ class RecommendationChecker(checkers.BaseChecker):
             return
 
         comp_ancestor = utils.get_node_first_ancestor_of_type(node, nodes.Compare)
-        if (
-            isinstance(node.parent, (nodes.For, nodes.Comprehension))
-            or comp_ancestor
+        if isinstance(node.parent, (nodes.For, nodes.Comprehension)) or (
+            comp_ancestor
             and any(
                 op
                 for op, comparator in comp_ancestor.ops
@@ -257,10 +256,14 @@ class RecommendationChecker(checkers.BaseChecker):
                     # name for the iterating object was used.
                     continue
                 if value.name == node.target.name and (
-                    isinstance(subscript.value, nodes.Name)
-                    and iterating_object.name == subscript.value.name
-                    or isinstance(subscript.value, nodes.Attribute)
-                    and iterating_object.attrname == subscript.value.attrname
+                    (
+                        isinstance(subscript.value, nodes.Name)
+                        and iterating_object.name == subscript.value.name
+                    )
+                    or (
+                        isinstance(subscript.value, nodes.Attribute)
+                        and iterating_object.attrname == subscript.value.attrname
+                    )
                 ):
                     self.add_message("consider-using-enumerate", node=node)
                     return
@@ -301,7 +304,8 @@ class RecommendationChecker(checkers.BaseChecker):
                 if (
                     isinstance(subscript.parent, nodes.Assign)
                     and subscript in subscript.parent.targets
-                    or isinstance(subscript.parent, nodes.AugAssign)
+                ) or (
+                    isinstance(subscript.parent, nodes.AugAssign)
                     and subscript == subscript.parent.target
                 ):
                     # Ignore this subscript if it is the target of an assignment

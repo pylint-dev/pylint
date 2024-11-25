@@ -1195,7 +1195,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             for importer in importers:
                 package = self._module_pkg.get(importer, importer)
                 is_inside = importee.startswith(package)
-                if is_inside and internal or not is_inside and not internal:
+                if (is_inside and internal) or (not is_inside and not internal):
                     graph[importee].add(importer)
         return graph
 

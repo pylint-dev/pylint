@@ -7,14 +7,14 @@
 from __future__ import annotations
 
 __all__ = [
+    "KNOWN_NAME_TYPES_WITH_STYLE",
+    "AnyStyle",
+    "CamelCaseStyle",
     "NameChecker",
     "NamingStyle",
-    "KNOWN_NAME_TYPES_WITH_STYLE",
-    "SnakeCaseStyle",
-    "CamelCaseStyle",
-    "UpperCaseStyle",
     "PascalCaseStyle",
-    "AnyStyle",
+    "SnakeCaseStyle",
+    "UpperCaseStyle",
 ]
 
 from typing import TYPE_CHECKING

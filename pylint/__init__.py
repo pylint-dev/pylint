@@ -6,11 +6,11 @@ from __future__ import annotations
 
 __all__ = [
     "__version__",
-    "version",
     "modify_sys_path",
     "run_pylint",
-    "run_symilar",
     "run_pyreverse",
+    "run_symilar",
+    "version",
 ]
 
 import os

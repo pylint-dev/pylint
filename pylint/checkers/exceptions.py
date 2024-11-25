@@ -405,9 +405,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                 confidence=HIGH,
             )
         elif (
-            isinstance(node.exc, nodes.Call)
-            and isinstance(node.exc.func, nodes.Name)
-            or isinstance(node.exc, nodes.Name)
+            isinstance(node.exc, nodes.Call) and isinstance(node.exc.func, nodes.Name)
+        ) or (
+            isinstance(node.exc, nodes.Name)
             and node.exc.name != containing_except_node.name.name
         ):
             # We have a `raise SomeException(whatever)` or a `raise SomeException`

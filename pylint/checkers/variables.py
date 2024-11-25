@@ -714,17 +714,19 @@ scope_type : {self.scope_type}
     def _branch_handles_name(self, name: str, body: Iterable[nodes.NodeNG]) -> bool:
         return any(
             NamesConsumer._defines_name_raises_or_returns(name, if_body_stmt)
-            or isinstance(
-                if_body_stmt,
-                (
-                    nodes.If,
-                    nodes.Try,
-                    nodes.With,
-                    nodes.For,
-                    nodes.While,
-                ),
+            or (
+                isinstance(
+                    if_body_stmt,
+                    (
+                        nodes.If,
+                        nodes.Try,
+                        nodes.With,
+                        nodes.For,
+                        nodes.While,
+                    ),
+                )
+                and self._inferred_to_define_name_raise_or_return(name, if_body_stmt)
             )
-            and self._inferred_to_define_name_raise_or_return(name, if_body_stmt)
             for if_body_stmt in body
         )
 
@@ -2572,8 +2574,10 @@ class VariablesChecker(BaseChecker):
             )
             or (
                 astmts[0].is_statement
-                or not isinstance(astmts[0].parent, nodes.Module)
-                and astmts[0].statement().parent_of(node)
+                or (
+                    not isinstance(astmts[0].parent, nodes.Module)
+                    and astmts[0].statement().parent_of(node)
+                )
             )
         ):
             _astmts = []
@@ -2804,8 +2808,7 @@ class VariablesChecker(BaseChecker):
         if (
             isinstance(stmt, nodes.AssignName)
             and isinstance(stmt.parent, nodes.Arguments)
-            or isinstance(stmt, nodes.Arguments)
-        ):
+        ) or isinstance(stmt, nodes.Arguments):
             regex: re.Pattern[str] = self.linter.config.ignored_argument_names
         else:
             regex = authorized_rgx

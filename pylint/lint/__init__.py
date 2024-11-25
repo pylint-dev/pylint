@@ -30,18 +30,18 @@ from pylint.lint.run import Run
 from pylint.lint.utils import _augment_sys_path, augmented_sys_path
 
 __all__ = [
-    "check_parallel",
+    "ArgumentPreprocessingError",
     "PyLinter",
+    "Run",
+    "_augment_sys_path",
+    "augmented_sys_path",
+    "check_parallel",
+    "discover_package_path",
+    "load_results",
     "report_messages_by_module_stats",
     "report_messages_stats",
     "report_total_messages_stats",
-    "Run",
-    "ArgumentPreprocessingError",
-    "_augment_sys_path",
-    "augmented_sys_path",
-    "discover_package_path",
     "save_results",
-    "load_results",
 ]
 
 if __name__ == "__main__":

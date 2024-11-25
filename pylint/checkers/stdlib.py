@@ -852,9 +852,8 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     confidence=confidence,
                 )
 
-        if (
-            not mode_arg
-            or isinstance(mode_arg, nodes.Const)
+        if not mode_arg or (
+            isinstance(mode_arg, nodes.Const)
             and (not mode_arg.value or "b" not in str(mode_arg.value))
         ):
             confidence = HIGH
