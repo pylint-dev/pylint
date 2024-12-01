@@ -483,9 +483,7 @@ class TestCheckParallel:
         # with the number of files.
         expected_stats = LinterStats(
             by_module={
-                # pylint: disable-next=consider-using-f-string
-                "--test-file_data-name-%d--"
-                % idx: ModuleStats(
+                f"--test-file_data-name-{idx}--": ModuleStats(
                     convention=0,
                     error=0,
                     fatal=0,
