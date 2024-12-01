@@ -1174,7 +1174,7 @@ accessed. Python regular expressions are accepted.",
         node: nodes.Attribute | nodes.AssignAttr | nodes.DelAttr,
         owner: SuccessfulInferenceResult,
     ) -> tuple[Literal["c-extension-no-member", "no-member"], str]:
-        if isinstance(owner, nodes.Module) and _is_c_extension(owner):
+        if _is_c_extension(owner):
             return "c-extension-no-member", ""
         if not self.linter.config.missing_member_hint:
             return "no-member", ""
