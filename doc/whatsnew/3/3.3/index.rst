@@ -14,6 +14,30 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.3.2?
+---------------------------
+Release date: 2024-12-01
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for `potential-index-error` when an indexed iterable
+  contains a starred element that evaluates to more than one item.
+
+  Closes #10076 (`#10076 <https://github.com/pylint-dev/pylint/issues/10076>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fixes the issue with --source-root option not working when the source files are in a subdirectory of the source root (e.g. when using a /src layout).
+
+  Closes #10026 (`#10026 <https://github.com/pylint-dev/pylint/issues/10026>`_)
+
+
+
 What's new in Pylint 3.3.1?
 ---------------------------
 Release date: 2024-09-24
