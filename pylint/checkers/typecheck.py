@@ -1188,7 +1188,7 @@ accessed. Python regular expressions are accepted.",
             return "no-member", ""
         names = [repr(name) for name in names]
         if len(names) == 1:
-            names_hint = ", ".join(names)
+            names_hint = names[0]
         else:
             names_hint = f"one of {', '.join(names[:-1])} or {names[-1]}"
         return "no-member", f"; maybe {names_hint}?"
