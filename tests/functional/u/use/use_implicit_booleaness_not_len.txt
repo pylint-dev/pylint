@@ -18,7 +18,6 @@ use-implicit-booleaness-not-len:124:11:124:34:github_issue_1879:Do not use `len(
 use-implicit-booleaness-not-len:125:11:125:39:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:INFERENCE
 use-implicit-booleaness-not-len:126:11:126:24:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:INFERENCE
 use-implicit-booleaness-not-len:127:11:127:35:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
-use-implicit-booleaness-not-len:128:11:128:33:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
 use-implicit-booleaness-not-len:129:11:129:41:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:HIGH
 use-implicit-booleaness-not-len:130:11:130:43:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:INFERENCE
 use-implicit-booleaness-not-len:171:11:171:42:github_issue_1879:Do not use `len(SEQUENCE)` without comparison to determine if a sequence is empty:INFERENCE
