@@ -130,8 +130,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             (
                 nodes.ListComp,
                 nodes.SetComp,
-                nodes.DictComp,
-            ),
+                nodes.DictComp
+            )
         ):
             # The node is a comprehension as in len([x for x in ...])
             self.add_message(
