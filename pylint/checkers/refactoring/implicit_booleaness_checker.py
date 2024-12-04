@@ -125,14 +125,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         if not utils.is_test_condition(node, parent):
             return
         len_arg = node.args[0]
-        generator_or_comprehension = (
-            nodes.ListComp,
-            nodes.SetComp,
-            nodes.DictComp,
-            nodes.GeneratorExp,
-        )
-        if isinstance(len_arg, generator_or_comprehension):
-            # The node is a generator or comprehension as in len([x for x in ...])
+        if isinstance(len_arg, (nodes.ListComp, nodes.SetComp, nodes.DictComp)):
+            # The node is a comprehension as in len([x for x in ...])
             self.add_message(
                 "use-implicit-booleaness-not-len",
                 node=node,
