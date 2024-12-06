@@ -340,10 +340,6 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_return_doc:
             return
 
-        # skip functions smaller than 'docstring-min-length'
-        if self._is_shorter_than_min_length(node):
-            return
-
         func_node: astroid.FunctionDef = node.frame()
 
         # skip functions that match the 'no-docstring-rgx' config option
