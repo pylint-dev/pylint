@@ -22,7 +22,7 @@ class TestVariablesChecker(CheckerTestCase):
 
     def test_all_elements_without_parent(self) -> None:
         node = astroid.extract_node("__all__ = []")
-        node.value.elts.append(astroid.Const("test"))
+        node.value.elts.append(astroid.Const("test", parent=None))
         root = node.root()
         with self.assertNoMessages():
             self.checker.visit_module(root)
