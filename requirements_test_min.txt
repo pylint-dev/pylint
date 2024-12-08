@@ -1,6 +1,6 @@
 .[testutils,spelling]
 # astroid dependency is also defined in pyproject.toml
-astroid==3.3.5  # Pinned to a specific version for tests
+astroid @ git+https://github.com/pylint-dev/astroid@backport-313-fix
 typing-extensions~=4.12
 py~=1.11.0
 pytest~=8.3
