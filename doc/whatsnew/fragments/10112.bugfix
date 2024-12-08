@@ -1,0 +1,3 @@
+Fix ``Unable to import 'collections.abc' (import-error)`` on Python 3.13.1.
+
+Closes #10112
