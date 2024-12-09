@@ -56,7 +56,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache/restore@v4.1.2
+        uses: actions/cache/restore@v4.2.0
         with:
           path: venv
           key:
@@ -75,7 +75,7 @@ jobs:
       # Save cached Python environment (explicit because cancel-in-progress: true)
       - name: Save Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4.1.2
+        uses: actions/cache/save@v4.2.0
         with:
           path: venv
           key:
@@ -151,7 +151,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache/restore@v4.1.2
+        uses: actions/cache/restore@v4.2.0
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -164,7 +164,7 @@ jobs:
           python tests/primer/__main__.py prepare --clone
       - name: Save projects cache
         if: steps.cache-projects.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4.1.2
+        uses: actions/cache/save@v4.2.0
         with:
           path: tests/.pylint_primer_tests/
           key: >-
