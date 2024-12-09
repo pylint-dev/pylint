@@ -15,6 +15,8 @@ try:
 except ValueError:
     time = None # [invalid-name]
 
+bbb: int = 42  # [invalid-name]
+
 try:
     from sys import argv, executable as python
 except ImportError:
