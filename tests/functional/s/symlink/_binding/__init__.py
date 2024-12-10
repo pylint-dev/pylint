@@ -1,1 +1,3 @@
-../symlink_module/__init__.py
+"""Example taken from issue #1470"""
+
+from symlinked_module import func
