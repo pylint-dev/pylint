@@ -67,7 +67,7 @@ class PlantUmlPrinter(Printer):
             for func in properties.methods:
                 args = self._get_method_arguments(func)
                 line = "{abstract}" if func.is_abstract() else ""
-                line += f"{func.name}({', '.join(args)})"
+                line += f"{func_name}({', '.join(args)})"
                 if func.returns:
                     line += " -> " + get_annotation_label(func.returns)
                 body.append(line)
@@ -80,7 +80,6 @@ class PlantUmlPrinter(Printer):
             self.emit(line)
         self._dec_indent()
         self.emit("}")
-
     def emit_edge(
         self,
         from_node: str,
@@ -93,7 +92,6 @@ class PlantUmlPrinter(Printer):
         if label:
             edge += f" : {label}"
         self.emit(edge)
-
     def _close_graph(self) -> None:
         """Emit the lines needed to properly close the graph."""
         self.emit("@enduml")
