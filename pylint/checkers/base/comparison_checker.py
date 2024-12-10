@@ -196,10 +196,10 @@ class ComparisonChecker(_BasicChecker):
         if is_const or is_other_literal:
             incorrect_node_str = node.as_string()
             if "is not" in incorrect_node_str:
-                equal_or_not_equal = "!="
+                equal_or_not_equal = "=="
                 is_or_is_not = "is not"
             else:
-                equal_or_not_equal = "=="
+                equal_or_not_equal = "!="
                 is_or_is_not = "is"
             fixed_node_str = incorrect_node_str.replace(
                 is_or_is_not, equal_or_not_equal
@@ -215,14 +215,12 @@ class ComparisonChecker(_BasicChecker):
                 node=node,
                 confidence=HIGH,
             )
-
     def _check_logical_tautology(self, node: nodes.Compare) -> None:
         """Check if identifier is compared against itself.
-
         :param node: Compare node
         :Example:
         val = 786
-        if val == val:  # [comparison-with-itself]
+        if val == val:
             pass
         """
         left_operand = node.left
@@ -233,8 +231,7 @@ class ComparisonChecker(_BasicChecker):
         ):
             left_operand = left_operand.value
             right_operand = right_operand.value
-        elif isinstance(left_operand, nodes.Name) and isinstance(
-            right_operand, nodes.Name
+        elif isinstance(left_operand, nodes.Name) and isinstance(            right_operand, nodes.Name
         ):
             left_operand = left_operand.name
             right_operand = right_operand.name

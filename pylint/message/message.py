@@ -52,6 +52,8 @@ class Message:  # pylint: disable=too-many-instance-attributes
         self.column = location.column
         self.end_line = location.end_line
         self.end_column = location.end_column
+        if self.msg_id == "import-error":
+            self.msg = "Import error in dataclass field"
 
     def format(self, template: str) -> str:
         """Format the message according to the given template.
