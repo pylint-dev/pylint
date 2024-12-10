@@ -939,35 +939,23 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             and isinstance(body, nodes.Assign)
         ):
             return
-        # Assign body line has one requirement and that is the assign target
-        # is of type name or attribute. Attribute referring to NamedTuple.x perse.
-        # So we have to check that target is of these types
-
         if not (hasattr(target, "name") or hasattr(target, "attrname")):
             return
-
         target_assignation = get_node_name(target)
-
-        if len(node.test.ops) > 1:
+        if len(node.test.ops) != 1:
             return
         operator, right_statement = node.test.ops[0]
-
         body_value = get_node_name(body.value)
         left_operand = get_node_name(node.test.left)
         right_statement_value = get_node_name(right_statement)
-
         if left_operand == target_assignation:
-            # statement is in expected form
             pass
         elif right_statement_value == target_assignation:
-            # statement is in reverse form
             operator = utils.get_inverse_comparator(operator)
         else:
             return
-
         if body_value not in (right_statement_value, left_operand):
             return
-
         if operator in {"<", "<="}:
             reduced_to = (
                 f"{target_assignation} = max({target_assignation}, {body_value})"
@@ -982,36 +970,29 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self.add_message(
                 "consider-using-min-builtin", node=node, args=(reduced_to,)
             )
-
     @utils.only_required_for_messages("simplifiable-if-expression")
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_simplifiable_ifexp(node)
-
     def _check_simplifiable_ifexp(self, node: nodes.IfExp) -> None:
         if not isinstance(node.body, nodes.Const) or not isinstance(
             node.orelse, nodes.Const
         ):
             return
-
         if not isinstance(node.body.value, bool) or not isinstance(
             node.orelse.value, bool
         ):
             return
-
         if isinstance(node.test, nodes.Compare):
             test_reduced_to = "test"
         else:
             test_reduced_to = "bool(test)"
-
         if (node.body.value, node.orelse.value) == (True, False):
             reduced_to = f"'{test_reduced_to}'"
         elif (node.body.value, node.orelse.value) == (False, True):
             reduced_to = "'not test'"
         else:
             return
-
         self.add_message("simplifiable-if-expression", node=node, args=(reduced_to,))
-
     @utils.only_required_for_messages(
         "too-many-nested-blocks",
         "inconsistent-return-statements",
@@ -1019,33 +1000,24 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-using-with",
     )
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
-        # check left-over nested blocks stack
         self._emit_nested_blocks_message_if_needed(self._nested_blocks)
-        # new scope = reinitialize the stack of nested blocks
         self._nested_blocks = []
-        # check consistent return statements
         self._check_consistent_returns(node)
-        # check for single return or return None at the end
         self._check_return_at_the_end(node)
         self._return_nodes[node.name] = []
-        # check for context managers that have been created but not used
         self._emit_consider_using_with_if_needed(
             self._consider_using_with_stack.function_scope
         )
         self._consider_using_with_stack.function_scope.clear()
-
     @utils.only_required_for_messages("consider-using-with")
     def leave_classdef(self, _: nodes.ClassDef) -> None:
-        # check for context managers that have been created but not used
         self._emit_consider_using_with_if_needed(
             self._consider_using_with_stack.class_scope
         )
         self._consider_using_with_stack.class_scope.clear()
-
     @utils.only_required_for_messages("stop-iteration-return")
     def visit_raise(self, node: nodes.Raise) -> None:
         self._check_stop_iteration_inside_generator(node)
-
     def _check_stop_iteration_inside_generator(self, node: nodes.Raise) -> None:
         """Check if an exception of type StopIteration is raised inside a generator."""
         frame = node.frame()
@@ -1060,7 +1032,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
         if self._check_exception_inherit_from_stopiteration(exc):
             self.add_message("stop-iteration-return", node=node, confidence=INFERENCE)
-
     @staticmethod
     def _check_exception_inherit_from_stopiteration(
         exc: nodes.ClassDef | bases.Instance,
@@ -1068,7 +1039,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """Return True if the exception node in argument inherit from StopIteration."""
         stopiteration_qname = f"{utils.EXCEPTIONS_MODULE}.StopIteration"
         return any(_class.qname() == stopiteration_qname for _class in exc.mro())
-
     def _check_consider_using_comprehension_constructor(self, node: nodes.Call) -> None:
         if (
             isinstance(node.func, nodes.Name)
@@ -1078,10 +1048,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if node.func.name == "dict":
                 element = node.args[0].elt
                 if isinstance(element, nodes.Call):
-                    return
-
-                # If we have an `IfExp` here where both the key AND value
-                # are different, then don't raise the issue. See #5588
+                    return                # are different, then don't raise the issue. See #5588
                 if (
                     isinstance(element, nodes.IfExp)
                     and isinstance(element.body, (nodes.Tuple, nodes.List))

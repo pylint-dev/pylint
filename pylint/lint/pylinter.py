@@ -372,8 +372,11 @@ class PyLinter(
         reloaded regardless if an entry exists in self._dynamic_plugins.
         """
         for modname in modnames:
-            if modname in self._dynamic_plugins and not force:
-                continue
+            if modname in self._dynamic_plugins:
+                if not force:
+                    continue
+                # If forced, remove the previous entry to reload
+                del self._dynamic_plugins[modname]
             try:
                 module = astroid.modutils.load_module_from_name(modname)
                 module.register(self)
@@ -402,7 +405,7 @@ class PyLinter(
                 self.add_message(
                     "bad-plugin-value", args=(modname, module_or_error), line=0
                 )
-            elif hasattr(module_or_error, "load_configuration"):
+            if hasattr(module_or_error, "load_configuration"):
                 module_or_error.load_configuration(self)
 
         # We re-set all the dictionary values to True here to make sure the dict
