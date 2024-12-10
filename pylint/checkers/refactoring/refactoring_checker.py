@@ -970,9 +970,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self.add_message(
                 "consider-using-min-builtin", node=node, args=(reduced_to,)
             )
+
     @utils.only_required_for_messages("simplifiable-if-expression")
     def visit_ifexp(self, node: nodes.IfExp) -> None:
         self._check_simplifiable_ifexp(node)
+
     def _check_simplifiable_ifexp(self, node: nodes.IfExp) -> None:
         if not isinstance(node.body, nodes.Const) or not isinstance(
             node.orelse, nodes.Const
@@ -993,6 +995,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             return
         self.add_message("simplifiable-if-expression", node=node, args=(reduced_to,))
+
     @utils.only_required_for_messages(
         "too-many-nested-blocks",
         "inconsistent-return-statements",
@@ -1009,15 +1012,18 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             self._consider_using_with_stack.function_scope
         )
         self._consider_using_with_stack.function_scope.clear()
+
     @utils.only_required_for_messages("consider-using-with")
     def leave_classdef(self, _: nodes.ClassDef) -> None:
         self._emit_consider_using_with_if_needed(
             self._consider_using_with_stack.class_scope
         )
         self._consider_using_with_stack.class_scope.clear()
+
     @utils.only_required_for_messages("stop-iteration-return")
     def visit_raise(self, node: nodes.Raise) -> None:
         self._check_stop_iteration_inside_generator(node)
+
     def _check_stop_iteration_inside_generator(self, node: nodes.Raise) -> None:
         """Check if an exception of type StopIteration is raised inside a generator."""
         frame = node.frame()
@@ -1032,6 +1038,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
         if self._check_exception_inherit_from_stopiteration(exc):
             self.add_message("stop-iteration-return", node=node, confidence=INFERENCE)
+
     @staticmethod
     def _check_exception_inherit_from_stopiteration(
         exc: nodes.ClassDef | bases.Instance,
@@ -1039,6 +1046,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """Return True if the exception node in argument inherit from StopIteration."""
         stopiteration_qname = f"{utils.EXCEPTIONS_MODULE}.StopIteration"
         return any(_class.qname() == stopiteration_qname for _class in exc.mro())
+
     def _check_consider_using_comprehension_constructor(self, node: nodes.Call) -> None:
         if (
             isinstance(node.func, nodes.Name)
@@ -1048,7 +1056,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if node.func.name == "dict":
                 element = node.args[0].elt
                 if isinstance(element, nodes.Call):
-                    return                # are different, then don't raise the issue. See #5588
+                    return  # are different, then don't raise the issue. See #5588
                 if (
                     isinstance(element, nodes.IfExp)
                     and isinstance(element.body, (nodes.Tuple, nodes.List))
