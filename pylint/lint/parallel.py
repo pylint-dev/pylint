@@ -147,6 +147,18 @@ def check_parallel(
             defaultdict(list)
         )
 
+        # NOTE: for progress reporting here, I *guess* the right
+        # approach would be to materialize the Iterable[FileItem] to a
+        # list, to get the current count.  Then, the
+        # _worker_check_single_file() function would also get a
+        # thread-safe lock on a multiprocessing.Value() object, and
+        # within the lock, increment a progress counter, and print out
+        # the filename.  I haven't tried this yet as a) some of the
+        # code comments imply that the parallel processing will be
+        # merged in with the other "step 3" code, and b) maybe giving
+        # status reporting for single core linting will be good enough
+        # for many people
+
         # Maps each file to be worked on by a single _worker_check_single_file() call,
         # collecting any map/reduce data by checker module so that we can 'reduce' it
         # later.
