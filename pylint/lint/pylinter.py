@@ -324,7 +324,7 @@ class PyLinter(
             self.option_groups_descs[opt_group[0]] = opt_group[1]
         self._option_groups: tuple[tuple[str, str], ...] = (
             *option_groups,
-            *PyLinter.option_groups_descs.items()
+            *PyLinter.option_groups_descs.items(),
         )
         self.fail_on_symbols: list[str] = []
         """List of message symbols on which pylint should fail, set by --fail-on."""
@@ -745,7 +745,6 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
     ) -> None:
         """Lint all AST modules from a mapping.."""
-
         # NOTE: this progress stuff could be extracted to a separate class
         # to keep progress reporting noise out of this code.
         if self.config.show_progress:

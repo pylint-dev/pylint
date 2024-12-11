@@ -334,7 +334,7 @@ class TestRunTC:
         # report output.  I'm just printing the progress output to STDOUT,
         # maybe something else is preferred.
         expected_output = textwrap.dedent(
-            f"""
+            """
         Checking 2 modules.
         1 of 2
         ************* Module wrong_import_position
@@ -365,7 +365,7 @@ class TestRunTC:
 
         # NOTE: same notes about interleaving, STDOUT usage here.
         expected_output = textwrap.dedent(
-            f"""
+            """
         Checking 2 modules.
         1 of 2
         tests/regrtest_data/wrong_import_position.py
