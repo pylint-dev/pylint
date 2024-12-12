@@ -334,11 +334,11 @@ class TestRunTC:
         # report output.  I'm just printing the progress output to STDOUT,
         # maybe something else is preferred.
         expected_output = textwrap.dedent(
-            """
+            f"""
         Checking 2 modules.
         1 of 2
         ************* Module wrong_import_position
-        tests/regrtest_data/wrong_import_position.py:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
+        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
         2 of 2
         """
         )
@@ -356,7 +356,7 @@ class TestRunTC:
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue().strip())
 
-        assert expected_output.strip() == actual_output.strip()
+        assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     # NOTE: this test's code is pretty much identical to the above, should refactor.
     def test_progress_reporting_show_file(self) -> None:
@@ -365,12 +365,12 @@ class TestRunTC:
 
         # NOTE: same notes about interleaving, STDOUT usage here.
         expected_output = textwrap.dedent(
-            """
+            f"""
         Checking 2 modules.
         1 of 2
         tests/regrtest_data/wrong_import_position.py
         ************* Module wrong_import_position
-        tests/regrtest_data/wrong_import_position.py:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
+        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
         2 of 2
         tests/regrtest_data/import_something.py
         """
@@ -390,7 +390,7 @@ class TestRunTC:
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue().strip())
 
-        assert expected_output.strip() == actual_output.strip()
+        assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     def test_type_annotation_names(self) -> None:
         """Test resetting the `_type_annotation_names` list to `[]` when leaving a module.
