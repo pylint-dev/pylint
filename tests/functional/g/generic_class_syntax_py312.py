@@ -2,7 +2,7 @@
 class Entity[_T: float]:
     last_update: int | None = None
 
-    def __init__(self, data: _T) -> None:  # [undefined-variable]  # false-positive
+    def __init__(self, data: _T) -> None:
         self.data = data
 
 
@@ -28,6 +28,6 @@ class Parent[_T]:
         self.update_interval = 0
 
 
-class Child[_T](Parent[_T]):  # [undefined-variable]  # false-positive
+class Child[_T](Parent[_T]):
     def func(self):
         self.update_interval = None
