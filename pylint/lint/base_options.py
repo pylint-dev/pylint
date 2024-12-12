@@ -140,6 +140,26 @@ def _make_linter_options(linter: PyLinter) -> Options:
             },
         ),
         (
+            "show-progress",
+            {
+                "action": "store_true",
+                "default": False,
+                "metavar": "<flag>",
+                "group": "Progress",
+                "help": "Show progress bar.",
+            },
+        ),
+        (
+            "show-current-file",
+            {
+                "action": "store_true",
+                "default": False,
+                "metavar": "<flag>",
+                "group": "Progress",
+                "help": "Show name of current file being processed.",
+            },
+        ),
+        (
             "score",
             {
                 "default": True,

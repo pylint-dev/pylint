@@ -281,6 +281,7 @@ class PyLinter(
     option_groups_descs = {
         "Messages control": "Options controlling analysis messages",
         "Reports": "Options related to output formatting and reporting",
+        "Progress": "Options related to progress reporting",
     }
 
     def __init__(
@@ -323,8 +324,7 @@ class PyLinter(
             self.option_groups_descs[opt_group[0]] = opt_group[1]
         self._option_groups: tuple[tuple[str, str], ...] = (
             *option_groups,
-            ("Messages control", "Options controlling analysis messages"),
-            ("Reports", "Options related to output formatting and reporting"),
+            *PyLinter.option_groups_descs.items(),
         )
         self.fail_on_symbols: list[str] = []
         """List of message symbols on which pylint should fail, set by --fail-on."""
@@ -745,7 +745,20 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
     ) -> None:
         """Lint all AST modules from a mapping.."""
+        # NOTE: this progress stuff could be extracted to a separate class
+        # to keep progress reporting noise out of this code.
+        if self.config.show_progress:
+            print(f"Checking {len(ast_mapping)} modules.", flush=True)
+        modulecount = 0
         for fileitem, module in ast_mapping.items():
+            # NOTE: This currently just prints each increment, would probably
+            # be better to output every, say 5 or 10% of the total count.
+            modulecount += 1
+            if self.config.show_progress:
+                print(f"{modulecount} of {len(ast_mapping)}", flush=True)
+            if self.config.show_current_file:
+                print(fileitem.filepath, flush=True)
+
             if module is None:
                 continue
             try:
