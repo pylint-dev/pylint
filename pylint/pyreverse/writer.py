@@ -59,8 +59,8 @@ class DiagramWriter:
 
         Depth is calculated by counting dots in the qualified name:
         - depth 0: top-level packages (no dots)
-        - depth 1: first level subpackages (one dot)
-        - depth 2: second level subpackages (two dots)
+        - depth 1: first level sub-packages (one dot)
+        - depth 2: second level sub-packages (two dots)
 
         For classes, depth is measured from their containing module, excluding
         the class name itself from the depth calculation.
