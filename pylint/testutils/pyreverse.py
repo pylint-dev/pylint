@@ -23,6 +23,7 @@ class PyreverseConfig(
     The default values correspond to the defaults of the options' parser.
     """
 
+    # pylint: disable=too-many-locals
     def __init__(
         self,
         *,
@@ -40,6 +41,7 @@ class PyreverseConfig(
         output_format: str = "dot",
         colorized: bool = False,
         max_color_depth: int = 2,
+        max_depth: int | None = None,
         color_palette: tuple[str, ...] = DEFAULT_COLOR_PALETTE,
         ignore_list: tuple[str, ...] = tuple(),
         project: str = "",
@@ -62,11 +64,14 @@ class PyreverseConfig(
         self.only_classnames = only_classnames
         self.output_format = output_format
         self.colorized = colorized
+        self.max_depth = max_depth
         self.max_color_depth = max_color_depth
         self.color_palette = color_palette
         self.ignore_list = ignore_list
         self.project = project
         self.output_directory = output_directory
+
+    # pylint: enable=too-many-locals
 
 
 class TestFileOptions(TypedDict):
