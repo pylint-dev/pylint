@@ -55,7 +55,16 @@ class DiagramWriter:
             self.save()
 
     def should_show_node(self, qualified_name: str, is_class: bool = False) -> bool:
-        """Determine if a node should be shown based on depth settings."""
+        """Determine if a node should be shown based on depth settings.
+
+        Depth is calculated by counting dots in the qualified name:
+        - depth 0: top-level packages (no dots)
+        - depth 1: first level subpackages (one dot)
+        - depth 2: second level subpackages (two dots)
+
+        For classes, depth is measured from their containing module, excluding
+        the class name itself from the depth calculation.
+        """
         # If no depth limit is set ==> show all nodes
         if self.max_depth is None:
             return True
