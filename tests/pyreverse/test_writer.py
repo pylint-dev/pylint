@@ -257,3 +257,84 @@ def test_package_name_with_slash(default_config: PyreverseConfig) -> None:
     writer.write([obj])
 
     assert os.path.exists("test_package_name_with_slash_.dot")
+
+
+def test_should_show_node_no_depth_limit(default_config: PyreverseConfig) -> None:
+    """Test that nodes are shown when no depth limit is set."""
+    writer = DiagramWriter(default_config)
+    writer.max_depth = None
+
+    assert writer.should_show_node("pkg")
+    assert writer.should_show_node("pkg.subpkg")
+    assert writer.should_show_node("pkg.subpkg.module")
+    assert writer.should_show_node("pkg.subpkg.module.submodule")
+
+
+@pytest.mark.parametrize("max_depth", range(5))
+def test_should_show_node_with_depth_limit(
+    default_config: PyreverseConfig, max_depth: int
+) -> None:
+    """Test that nodes are filtered correctly when depth limit is set.
+
+    Depth counting is zero-based, determined by number of dots in path:
+    - pkg                   -> depth 0 (0 dots)
+    - pkg.subpkg           -> depth 1 (1 dot)
+    - pkg.subpkg.module    -> depth 2 (2 dots)
+    - pkg.subpkg.module.submodule -> depth 3 (3 dots)
+    """
+    writer = DiagramWriter(default_config)
+    print("max_depth:", max_depth)
+    writer.max_depth = max_depth
+
+    # Test cases for different depths
+    test_cases = [
+        "pkg",
+        "pkg.subpkg",
+        "pkg.subpkg.module",
+        "pkg.subpkg.module.submodule",
+    ]
+
+    # Test if nodes are shown based on their depth and max_depth setting
+    for i, path in enumerate(test_cases):
+        should_show = i <= max_depth
+        print(
+            f"Path {path} (depth {i}) with max_depth={max_depth} "
+            f"{'should show' if should_show else 'should not show'}:"
+            f"{writer.should_show_node(path, is_class=True)}"
+        )
+        assert writer.should_show_node(path) == should_show
+
+
+@pytest.mark.parametrize("max_depth", range(5))
+def test_should_show_node_classes(
+    default_config: PyreverseConfig, max_depth: int
+) -> None:
+    """Test class visibility based on their containing module depth.
+
+     Classes are filtered based on their containing module's depth:
+    - MyClass -> depth 0 (no module)
+    - pkg.MyClass -> depth 0 (module has no dots)
+    - pkg.subpkg.MyClass -> depth 1 (module has 1 dot)
+    - pkg.subpkg.mod.MyClass -> depth 2 (module has 2 dots)
+    """
+    writer = DiagramWriter(default_config)
+    print("max_depth:", max_depth)
+    writer.max_depth = max_depth
+
+    # Test cases for different depths
+    test_cases = [
+        "MyClass",
+        "pkg.MyClass",
+        "pkg.subpkg.MyClass",
+        "pkg.subpkg.mod.MyClass",
+    ]
+
+    # Test if nodes are shown based on their depth and max_depth setting
+    for i, path in enumerate(test_cases):
+        should_show = i - 1 <= max_depth  # Subtract 1 to account for the class name
+        print(
+            f"Path {path} (depth {i}) with max_depth={max_depth} "
+            f"{'should show' if should_show else 'should not show'}:"
+            f"{writer.should_show_node(path, is_class=True)}"
+        )
+        assert writer.should_show_node(path, is_class=True) == should_show
