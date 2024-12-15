@@ -257,7 +257,7 @@ class TestRunTC:
             out=out,
             code=4,
         )
-        assert "Checked 1 files, skipped 1 files" in out.getvalue().strip()
+        assert "Checked 1 files, skipped 1 files/modules" in out.getvalue().strip()
 
     def test_no_out_encoding(self) -> None:
         """Test redirection of stdout with non ascii characters."""
