@@ -20,7 +20,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.8.1"
+    rev: "v0.8.3"
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -144,7 +144,7 @@ repos:
           ]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.4.1
+    rev: v3.4.2
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
