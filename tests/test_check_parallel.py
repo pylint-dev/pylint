@@ -353,7 +353,7 @@ class TestCheckParallel:
         check_parallel(
             linter,
             jobs=1,
-            files=iter(single_file_container),
+            files=single_file_container,
         )
         assert len(linter.get_checkers()) == 2, (
             "We should only have the 'main' and 'sequential-checker' "
@@ -422,7 +422,7 @@ class TestCheckParallel:
         check_parallel(
             linter,
             jobs=1,
-            files=iter(single_file_container),
+            files=single_file_container,
         )
 
         assert {
@@ -523,7 +523,7 @@ class TestCheckParallel:
                 assert (
                     linter.config.jobs == 1
                 ), "jobs>1 are ignored when calling _lint_files"
-                ast_mapping = linter._get_asts(iter(file_infos), None)
+                ast_mapping = linter._get_asts(file_infos, None)
                 with linter._astroid_module_checker() as check_astroid_module:
                     linter._lint_files(ast_mapping, check_astroid_module)
                 assert linter.msg_status == 0, "We should not fail the lint"
@@ -590,7 +590,7 @@ class TestCheckParallel:
                 assert (
                     linter.config.jobs == 1
                 ), "jobs>1 are ignored when calling _lint_files"
-                ast_mapping = linter._get_asts(iter(file_infos), None)
+                ast_mapping = linter._get_asts(file_infos, None)
                 with linter._astroid_module_checker() as check_astroid_module:
                     linter._lint_files(ast_mapping, check_astroid_module)
                 stats_single_proc = linter.stats
@@ -624,7 +624,7 @@ class TestCheckParallel:
             check_parallel(
                 linter,
                 jobs=1,
-                files=iter(single_file_container),
+                files=single_file_container,
                 # This will trigger an exception in the initializer for the parallel jobs
                 # because arguments has to be an Iterable.
                 extra_packages_paths=1,  # type: ignore[arg-type]
