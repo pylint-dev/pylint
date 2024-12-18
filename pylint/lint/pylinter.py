@@ -42,6 +42,7 @@ from pylint.lint.expand_modules import (
 )
 from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
+from pylint.lint.progress_reporters import get_progress_reporter
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
     report_messages_stats,
@@ -353,6 +354,7 @@ class PyLinter(
         self.current_file: str | None = None
         self._ignore_file = False
         self._ignore_paths: list[Pattern[str]] = []
+        self.verbose = False
 
         self.register_checker(self)
 
@@ -708,7 +710,15 @@ class PyLinter(
         """Get the AST for all given FileItems."""
         ast_per_fileitem: dict[FileItem, nodes.Module | None] = {}
 
+        # For progress reports, it would be nice to say "item 1 of N",
+        # but we can't get the total count of filenames without
+        # materializing the list, or creating a second iterator and
+        # iterating.
+        progress_reporter = get_progress_reporter(self.verbose)
+        progress_reporter.print_message(f"Get ASTs.")
+
         for fileitem in fileitems:
+            progress_reporter.increment(fileitem.filepath)
             self.set_current_module(fileitem.name, fileitem.filepath)
 
             try:
@@ -744,7 +754,10 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
     ) -> None:
         """Lint all AST modules from a mapping.."""
+        progress_reporter = get_progress_reporter(self.verbose, len(ast_mapping))
+        progress_reporter.print_message(f"Linting {len(ast_mapping)} modules.")
         for fileitem, module in ast_mapping.items():
+            progress_reporter.increment(fileitem.filepath)
             if module is None:
                 continue
             try:
