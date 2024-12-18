@@ -42,6 +42,7 @@ from pylint.lint.expand_modules import (
 )
 from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
+from pylint.lint.progress_reporters import get_progress_reporter
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
     report_messages_stats,
@@ -281,6 +282,7 @@ class PyLinter(
     option_groups_descs = {
         "Messages control": "Options controlling analysis messages",
         "Reports": "Options related to output formatting and reporting",
+        "Progress": "Options related to progress reporting",
     }
 
     def __init__(
@@ -708,7 +710,11 @@ class PyLinter(
         """Get the AST for all given FileItems."""
         ast_per_fileitem: dict[FileItem, nodes.Module | None] = {}
 
+        progress_reporter = get_progress_reporter(self.config, len(fileitems))
+        progress_reporter.print_message(f"Get ASTs for {len(fileitems)} files.")
+
         for fileitem in fileitems:
+            progress_reporter.increment(fileitem.filepath)
             self.set_current_module(fileitem.name, fileitem.filepath)
 
             try:
@@ -744,7 +750,10 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
     ) -> None:
         """Lint all AST modules from a mapping.."""
+        progress_reporter = get_progress_reporter(self.config, len(ast_mapping))
+        progress_reporter.print_message(f"Linting {len(ast_mapping)} modules.")
         for fileitem, module in ast_mapping.items():
+            progress_reporter.increment(fileitem.filepath)
             if module is None:
                 continue
             try:
