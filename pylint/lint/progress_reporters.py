@@ -2,6 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+
 class BaseProgressReporter:
     """Progress reporter.
 
