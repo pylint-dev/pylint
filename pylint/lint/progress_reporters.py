@@ -2,9 +2,6 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-from argparse import Namespace
-
-
 class BaseProgressReporter:
     """Progress reporter.
 
@@ -45,11 +42,10 @@ class NullProgressReporter(BaseProgressReporter):
         """Do nothing."""
 
 
-def get_progress_reporter(config: Namespace, item_count: int) -> BaseProgressReporter:
+def get_progress_reporter(verbose: bool, item_count: int) -> BaseProgressReporter:
     """Get progress reporter as requested by command line args."""
     p: BaseProgressReporter = NullProgressReporter()
-    if config.verbose:
+    if verbose:
         p = StdoutProgressReporter()
     p.item_count = item_count
-    p.output_filenames = config.show_current_file
     return p

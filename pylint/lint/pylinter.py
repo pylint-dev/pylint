@@ -354,6 +354,7 @@ class PyLinter(
         self.current_file: str | None = None
         self._ignore_file = False
         self._ignore_paths: list[Pattern[str]] = []
+        self.verbose = False
 
         self.register_checker(self)
 
@@ -709,7 +710,7 @@ class PyLinter(
         """Get the AST for all given FileItems."""
         ast_per_fileitem: dict[FileItem, nodes.Module | None] = {}
 
-        progress_reporter = get_progress_reporter(self.config, len(fileitems))
+        progress_reporter = get_progress_reporter(self.verbose, len(fileitems))
         progress_reporter.print_message(f"Get ASTs for {len(fileitems)} files.")
 
         for fileitem in fileitems:
@@ -749,7 +750,7 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
     ) -> None:
         """Lint all AST modules from a mapping.."""
-        progress_reporter = get_progress_reporter(self.config, len(ast_mapping))
+        progress_reporter = get_progress_reporter(self.verbose, len(ast_mapping))
         progress_reporter.print_message(f"Linting {len(ast_mapping)} modules.")
         for fileitem, module in ast_mapping.items():
             progress_reporter.increment(fileitem.filepath)
