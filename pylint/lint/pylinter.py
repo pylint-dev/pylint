@@ -282,7 +282,6 @@ class PyLinter(
     option_groups_descs = {
         "Messages control": "Options controlling analysis messages",
         "Reports": "Options related to output formatting and reporting",
-        "Progress": "Options related to progress reporting",
     }
 
     def __init__(

@@ -15,7 +15,6 @@ class BaseProgressReporter:
 
     def __init__(self) -> None:
         self.item_count = 0
-        self.output_filenames = False
         self.current_count = 0
 
     def increment(self, filename: str) -> None:
@@ -23,9 +22,7 @@ class BaseProgressReporter:
         # NOTE: This currently just prints each increment, perhaps would
         # be better to output every, say 5 or 10% of the total count.
         self.current_count += 1
-        msg = f"{self.current_count} of {self.item_count}"
-        if self.output_filenames:
-            msg = f"{filename} ({msg})"
+        msg = f"{filename} ({self.current_count} of {self.item_count})"
         self.print_message(msg)
 
     def print_message(self, msg: str) -> None:
@@ -51,7 +48,7 @@ class NullProgressReporter(BaseProgressReporter):
 def get_progress_reporter(config: Namespace, item_count: int) -> BaseProgressReporter:
     """Get progress reporter as requested by command line args."""
     p: BaseProgressReporter = NullProgressReporter()
-    if config.show_progress:
+    if config.verbose:
         p = StdoutProgressReporter()
     p.item_count = item_count
     p.output_filenames = config.show_current_file

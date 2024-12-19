@@ -330,45 +330,10 @@ class TestRunTC:
         module1 = join(HERE, "regrtest_data", "import_something.py")
         module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
 
-        # NOTE: the progress counter messages are interleaved with the
-        # report output.  I'm just printing the progress output to STDOUT,
-        # maybe something else is preferred.
-        expected_output = textwrap.dedent(
-            f"""
-        Get ASTs for 2 files.
-        1 of 2
-        2 of 2
-        Linting 2 modules.
-        1 of 2
-        ************* Module wrong_import_position
-        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
-        2 of 2
-        """
-        )
-        print(expected_output)
-        args = [
-            module2,
-            module1,
-            "--disable=all",
-            "--enable=wrong-import-position",
-            "--show-progress",
-            "-rn",
-            "-sn",
-        ]
-        out = StringIO()
-        self._run_pylint(args, out=out)
-        actual_output = self._clean_paths(out.getvalue().strip())
-
-        assert self._clean_paths(expected_output.strip()) == actual_output.strip()
-
-    # NOTE: this test's code is pretty much identical to the above, should refactor.
-    def test_progress_reporting_show_file(self) -> None:
-        module1 = join(HERE, "regrtest_data", "import_something.py")
-        module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
-
         # NOTE: same notes about interleaving, STDOUT usage here.
         expected_output = textwrap.dedent(
             f"""
+        Using config file pylint/testutils/testing_pylintrc
         Get ASTs for 2 files.
         tests/regrtest_data/wrong_import_position.py (1 of 2)
         tests/regrtest_data/import_something.py (2 of 2)
@@ -385,8 +350,7 @@ class TestRunTC:
             module1,
             "--disable=all",
             "--enable=wrong-import-position",
-            "--show-progress",
-            "--show-current-file",
+            "--verbose",
             "-rn",
             "-sn",
         ]
