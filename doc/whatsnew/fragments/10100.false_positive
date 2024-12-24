@@ -1,4 +1,0 @@
-Fix a false positive for `use-implicit-booleaness-not-len`. No lint should be emitted for
-generators (`len` is not defined for generators).
-
-Refs #10100
