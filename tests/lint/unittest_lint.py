@@ -1113,7 +1113,7 @@ def test_recursive_ignore(ignore_parameter: str, ignore_parameter_value: str) ->
         exit=False,
     )
 
-    linted_files = run.linter._iterate_file_descrs(
+    linted_files = run.linter._get_file_items(
         tuple(run.linter._discover_files([join(REGRTEST_DATA_DIR, "directory")]))
     )
     linted_file_paths = [file_item.filepath for file_item in linted_files]
