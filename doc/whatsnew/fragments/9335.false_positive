@@ -1,4 +1,0 @@
-Fix false positives for ``undefined-variable`` for classes using Python 3.12
-generic type syntax.
-
-Closes #9335
