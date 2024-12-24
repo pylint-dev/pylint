@@ -25,6 +25,23 @@ configuration overrides. For all other options, Pylint will use its default valu
     was used to generate the file. Most notably ``py-version`` which defaults to the
     current interpreter.
 
+``--init-hook``
+===================
+
+Allows the user to include Python code that runs before Pylint executes.
+
+For example, the user's configuration file ``(~/.pylintrc)`` can be edited to
+append alternative ``site-packages`` paths to ``sys.path``.
+
+View the ``sys.path`` Pylint will use when it executes::
+
+    pylint --init-hook="import sys; print(sys.path)"
+
+Append directories to ``sys.path`` via ``(~/.pylintrc)`` modification::
+
+    [MAIN]
+    init-hook='import sys; sys.path.append("/path/to/my/site-packages/")'
+
 .. toctree::
    :maxdepth: 2
    :titlesonly:
