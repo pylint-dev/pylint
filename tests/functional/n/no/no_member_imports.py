@@ -33,9 +33,9 @@ def test_ignored_modules_root_one_applies_as_well() -> None:
 
 
 def test_ignored_modules_patterns() -> None:
-    import collections
+    import importlib
 
-    collections.abc.THIS_does_not_EXIST
+    importlib.metadata.THIS_does_not_EXIST
 
 
 def test_ignored_classes_no_recursive_pattern() -> None:
