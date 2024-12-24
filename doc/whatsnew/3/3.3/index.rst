@@ -14,6 +14,35 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.3.3?
+---------------------------
+Release date: 2024-12-23
+
+
+False Positives Fixed
+---------------------
+
+- Fix false positives for ``undefined-variable`` for classes using Python 3.12
+  generic type syntax.
+
+  Closes #9335 (`#9335 <https://github.com/pylint-dev/pylint/issues/9335>`_)
+
+- Fix a false positive for `use-implicit-booleaness-not-len`. No lint should be emitted for
+  generators (`len` is not defined for generators).
+
+  Refs #10100 (`#10100 <https://github.com/pylint-dev/pylint/issues/10100>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix ``Unable to import 'collections.abc' (import-error)`` on Python 3.13.1.
+
+  Closes #10112 (`#10112 <https://github.com/pylint-dev/pylint/issues/10112>`_)
+
+
+
 What's new in Pylint 3.3.2?
 ---------------------------
 Release date: 2024-12-01
