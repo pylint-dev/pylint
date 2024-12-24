@@ -42,6 +42,7 @@ from pylint.lint.expand_modules import (
 )
 from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
+from pylint.lint.progress_reporters import get_progress_reporter
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
     report_messages_stats,
@@ -323,8 +324,7 @@ class PyLinter(
             self.option_groups_descs[opt_group[0]] = opt_group[1]
         self._option_groups: tuple[tuple[str, str], ...] = (
             *option_groups,
-            ("Messages control", "Options controlling analysis messages"),
-            ("Reports", "Options related to output formatting and reporting"),
+            *PyLinter.option_groups_descs.items(),
         )
         self.fail_on_symbols: list[str] = []
         """List of message symbols on which pylint should fail, set by --fail-on."""
@@ -354,6 +354,7 @@ class PyLinter(
         self.current_file: str | None = None
         self._ignore_file = False
         self._ignore_paths: list[Pattern[str]] = []
+        self.verbose = False
 
         self.register_checker(self)
 
@@ -679,7 +680,7 @@ class PyLinter(
             check_parallel(
                 self,
                 self.config.jobs,
-                self._iterate_file_descrs(files_or_modules),
+                self._get_file_items(files_or_modules),
                 extra_packages_paths,
             )
             sys.path = original_sys_path
@@ -691,7 +692,7 @@ class PyLinter(
                 fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
                 data: str | None = _read_stdin()
             else:
-                fileitems = self._iterate_file_descrs(files_or_modules)
+                fileitems = self._get_file_items(files_or_modules)
                 data = None
 
         # The contextmanager also opens all checkers and sets up the PyLinter class
@@ -704,12 +705,16 @@ class PyLinter(
                 self._lint_files(ast_per_fileitem, check_astroid_module)
 
     def _get_asts(
-        self, fileitems: Iterator[FileItem], data: str | None
+        self, fileitems: list[FileItem], data: str | None
     ) -> dict[FileItem, nodes.Module | None]:
         """Get the AST for all given FileItems."""
         ast_per_fileitem: dict[FileItem, nodes.Module | None] = {}
 
+        progress_reporter = get_progress_reporter(self.verbose, len(fileitems))
+        progress_reporter.print_message(f"Get ASTs for {len(fileitems)} files.")
+
         for fileitem in fileitems:
+            progress_reporter.increment(fileitem.filepath)
             self.set_current_module(fileitem.name, fileitem.filepath)
 
             try:
@@ -745,7 +750,10 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
     ) -> None:
         """Lint all AST modules from a mapping.."""
+        progress_reporter = get_progress_reporter(self.verbose, len(ast_mapping))
+        progress_reporter.print_message(f"Linting {len(ast_mapping)} modules.")
         for fileitem, module in ast_mapping.items():
+            progress_reporter.increment(fileitem.filepath)
             if module is None:
                 continue
             try:
@@ -838,9 +846,9 @@ class PyLinter(
         for msgid, line, args in spurious_messages:
             self.add_message(msgid, line, None, args)
 
-    def _get_file_descr_from_stdin(self, filepath: str) -> Iterator[FileItem]:
-        """Return file description (tuple of module name, file path, base name) from
-        given file path.
+    def _get_file_descr_from_stdin(self, filepath: str) -> list[FileItem]:
+        """Return single-entry list file description (tuple of module
+        name, file path, base name) from given file path.
 
         This method is used for creating suitable file description for _check_files when the
         source is standard input.
@@ -851,7 +859,7 @@ class PyLinter(
             self.config.ignore_patterns,
             self.config.ignore_paths,
         ):
-            return
+            return []
 
         try:
             # Note that this function does not really perform an
@@ -861,20 +869,19 @@ class PyLinter(
         except ImportError:
             modname = os.path.splitext(os.path.basename(filepath))[0]
 
-        yield FileItem(modname, filepath, filepath)
+        return [FileItem(modname, filepath, filepath)]
 
-    def _iterate_file_descrs(
-        self, files_or_modules: Sequence[str]
-    ) -> Iterator[FileItem]:
-        """Return generator yielding file descriptions (tuples of module name, file
+    def _get_file_items(self, files_or_modules: Sequence[str]) -> list[FileItem]:
+        """Return list of file descriptions (tuples of module name, file
         path, base name).
 
-        The returned generator yield one item for each Python module that should be linted.
+        Each element in the list is a Python module that should be linted.
         """
-        for descr in self._expand_files(files_or_modules).values():
-            name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
-            if self.should_analyze_file(name, filepath, is_argument=is_arg):
-                yield FileItem(name, filepath, descr["basename"])
+        return [
+            FileItem(d["name"], d["path"], d["basename"])
+            for d in self._expand_files(files_or_modules).values()
+            if self.should_analyze_file(d["name"], d["path"], d["isarg"])
+        ]
 
     def _expand_files(
         self, files_or_modules: Sequence[str]
