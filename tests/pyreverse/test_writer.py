@@ -277,10 +277,10 @@ def test_should_show_node_with_depth_limit(
     """Test that nodes are filtered correctly when depth limit is set.
 
     Depth counting is zero-based, determined by number of dots in path:
-    - pkg                   -> depth 0 (0 dots)
-    - pkg.subpkg           -> depth 1 (1 dot)
-    - pkg.subpkg.module    -> depth 2 (2 dots)
-    - pkg.subpkg.module.submodule -> depth 3 (3 dots)
+    - 'pkg'                  -> depth 0 (0 dots)
+    - 'pkg.subpkg'           -> depth 1 (1 dot)
+    - 'pkg.subpkg.module'    -> depth 2 (2 dots)
+    - 'pkg.subpkg.module.submodule' -> depth 3 (3 dots)
     """
     writer = DiagramWriter(default_config)
     print("max_depth:", max_depth)
