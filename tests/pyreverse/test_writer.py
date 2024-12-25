@@ -312,10 +312,10 @@ def test_should_show_node_classes(
     """Test class visibility based on their containing module depth.
 
      Classes are filtered based on their containing module's depth:
-    - MyClass -> depth 0 (no module)
-    - pkg.MyClass -> depth 0 (module has no dots)
-    - pkg.subpkg.MyClass -> depth 1 (module has 1 dot)
-    - pkg.subpkg.mod.MyClass -> depth 2 (module has 2 dots)
+    - 'MyClass' -> depth 0 (no module)
+    - 'pkg.MyClass' -> depth 0 (module has no dots)
+    - 'pkg.subpkg.MyClass' -> depth 1 (module has 1 dot)
+    - 'pkg.subpkg.mod.MyClass' -> depth 2 (module has 2 dots)
     """
     writer = DiagramWriter(default_config)
     print("max_depth:", max_depth)
