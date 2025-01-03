@@ -1,6 +1,6 @@
 """Test generic alias support for stdlib types (added in PY39)."""
 # flake8: noqa
-# pylint: disable=missing-docstring,pointless-statement
+# pylint: disable=missing-docstring,pointless-statement,invalid-name
 # pylint: disable=too-few-public-methods,multiple-statements,line-too-long
 import abc
 import collections
@@ -110,7 +110,7 @@ class CustomImplementation(CustomAbstractCls2):  # [abstract-method,abstract-met
 # Type annotations
 var_tuple: tuple[int, int]
 var_dict: dict[int, str]
-var_orderedDict: collections.OrderedDict[int, str]
+var_ordereddict: collections.OrderedDict[int, str]
 var_container: collections.abc.Container[int]
 var_sequence: collections.abc.Sequence[int]
 var_iterable: collections.abc.Iterable[int]
