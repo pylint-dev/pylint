@@ -6,4 +6,5 @@ charset="utf-8"
 "data.nullable_pattern" [color="black", label=<data.nullable_pattern>, shape="box", style="solid"];
 "data.property_pattern" [color="black", label=<data.property_pattern>, shape="box", style="solid"];
 "data.suppliermodule_test" [color="black", label=<data.suppliermodule_test>, shape="box", style="solid"];
+"data.clientmodule_test" -> "data.suppliermodule_test" [arrowhead="open", arrowtail="none"];
 }

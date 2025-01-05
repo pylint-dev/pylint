@@ -160,6 +160,16 @@ def setup_html(
     yield from _setup(project, html_config, writer)
 
 
+@pytest.fixture()
+def setup_depth_limited(
+    depth_limited_config: PyreverseConfig, get_project: GetProjectCallable
+) -> Iterator[None]:
+    writer = DiagramWriter(depth_limited_config)
+
+    project = get_project(TEST_DATA_DIR, name="depth_limited")
+    yield from _setup(project, depth_limited_config, writer)
+
+
 def _setup(
     project: Project, config: PyreverseConfig, writer: DiagramWriter
 ) -> Iterator[None]:
@@ -218,6 +228,13 @@ def test_html_files(generated_file: str) -> None:
 @pytest.mark.parametrize("generated_file", COLORIZED_PUML_FILES)
 def test_colorized_puml_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
+
+
+@pytest.mark.parametrize("default_max_depth", [1])
+@pytest.mark.usefixtures("setup_depth_limited")
+def test_depth_limited_write() -> None:
+    """Test package diagram generation with a depth limit of 1."""
+    _assert_files_are_equal("packages_depth_limited.dot")
 
 
 def _assert_files_are_equal(generated_file: str) -> None:
@@ -338,19 +355,3 @@ def test_should_show_node_classes(
             f"{writer.should_show_node(path, is_class=True)}"
         )
         assert writer.should_show_node(path, is_class=True) == should_show
-
-
-def test_depth_limited_write(
-    default_config: PyreverseConfig, get_project: GetProjectCallable
-) -> None:
-    """Test package diagram generation with a depth limit of 1."""
-    # Set max depth in default config instead of the writer instance
-    default_config.max_depth = 1
-
-    writer = DiagramWriter(default_config)
-    project = get_project(TEST_DATA_DIR, name="depth_limited")
-    linker = Linker(project)
-    handler = DiadefsHandler(default_config)
-    dd = DefaultDiadefGenerator(linker, handler).visit(project)
-    writer.write(dd)
-    _assert_files_are_equal("packages_depth_limited.dot")
