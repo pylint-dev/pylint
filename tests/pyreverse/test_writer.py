@@ -344,11 +344,13 @@ def test_depth_limited_write(
     default_config: PyreverseConfig, get_project: GetProjectCallable
 ) -> None:
     """Test package diagram generation with a depth limit of 1."""
+    # Set max depth in default config instead of the writer instance
+    default_config.max_depth = 1
+
     writer = DiagramWriter(default_config)
     project = get_project(TEST_DATA_DIR, name="depth_limited")
     linker = Linker(project)
     handler = DiadefsHandler(default_config)
     dd = DefaultDiadefGenerator(linker, handler).visit(project)
-    writer.max_depth = 1
     writer.write(dd)
     _assert_files_are_equal("packages_depth_limited.dot")
