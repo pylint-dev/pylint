@@ -166,7 +166,9 @@ def setup_depth_limited(
 ) -> Iterator[None]:
     writer = DiagramWriter(depth_limited_config)
 
-    project = get_project(TEST_DATA_DIR, name="depth_limited")
+    project = get_project(
+        TEST_DATA_DIR, name=f"depth_limited_{depth_limited_config.max_depth}"
+    )
     yield from _setup(project, depth_limited_config, writer)
 
 
@@ -230,12 +232,12 @@ def test_colorized_puml_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
 
 
-@pytest.mark.parametrize("default_max_depth", [1])
+@pytest.mark.parametrize("default_max_depth", [0, 1])
 @pytest.mark.usefixtures("setup_depth_limited")
-def test_depth_limited_write() -> None:
+def test_depth_limited_write(default_max_depth: int) -> None:
     """Test package diagram generation with a depth limit of 1."""
-    _assert_files_are_equal("packages_depth_limited.dot")
-    _assert_files_are_equal("classes_depth_limited.dot")
+    _assert_files_are_equal(f"packages_depth_limited_{default_max_depth}.dot")
+    _assert_files_are_equal(f"classes_depth_limited_{default_max_depth}.dot")
 
 
 def _assert_files_are_equal(generated_file: str) -> None:
