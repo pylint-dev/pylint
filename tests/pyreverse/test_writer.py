@@ -235,6 +235,7 @@ def test_colorized_puml_files(generated_file: str) -> None:
 def test_depth_limited_write() -> None:
     """Test package diagram generation with a depth limit of 1."""
     _assert_files_are_equal("packages_depth_limited.dot")
+    _assert_files_are_equal("classes_depth_limited.dot")
 
 
 def _assert_files_are_equal(generated_file: str) -> None:
