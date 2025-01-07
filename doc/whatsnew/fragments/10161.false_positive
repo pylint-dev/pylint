@@ -1,0 +1,3 @@
+Fix a false positive for `unidiomatic-typecheck` when comparing two direct types.
+
+Closes #10161
