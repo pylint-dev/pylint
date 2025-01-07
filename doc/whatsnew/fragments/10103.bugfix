@@ -1,0 +1,3 @@
+Fixes a crash that occurred when pylint was run in a container on a host with cgroupsv2 and restrictions on CPU usage.
+
+Closes #10103

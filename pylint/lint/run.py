@@ -43,8 +43,30 @@ def _query_cpu() -> int | None:
     This is based on discussion and copied from suggestions in
     https://bugs.python.org/issue36054.
     """
-    cpu_quota, avail_cpu = None, None
+    if Path("/sys/fs/cgroup/cpu.max").is_file():
+        avail_cpu = _query_cpu_cgroupv2()
+    else:
+        avail_cpu = _query_cpu_cgroupsv1()
+    return _query_cpu_handle_k8s_pods(avail_cpu)
 
+
+def _query_cpu_cgroupv2() -> int | None:
+    avail_cpu = None
+    with open("/sys/fs/cgroup/cpu.max", encoding="utf-8") as file:
+        line = file.read().rstrip()
+        fields = line.split()
+        if len(fields) == 2:
+            str_cpu_quota = fields[0]
+            cpu_period = int(fields[1])
+            # Make sure this is not in an unconstrained cgroup
+            if str_cpu_quota != "max":
+                cpu_quota = int(str_cpu_quota)
+                avail_cpu = int(cpu_quota / cpu_period)
+    return avail_cpu
+
+
+def _query_cpu_cgroupsv1() -> int | None:
+    cpu_quota, avail_cpu = None, None
     if Path("/sys/fs/cgroup/cpu/cpu.cfs_quota_us").is_file():
         with open("/sys/fs/cgroup/cpu/cpu.cfs_quota_us", encoding="utf-8") as file:
             # Not useful for AWS Batch based jobs as result is -1, but works on local linux systems
@@ -65,7 +87,10 @@ def _query_cpu() -> int | None:
             cpu_shares = int(file.read().rstrip())
         # For AWS, gives correct value * 1024.
         avail_cpu = int(cpu_shares / 1024)
+    return avail_cpu
 
+
+def _query_cpu_handle_k8s_pods(avail_cpu: int | None) -> int | None:
     # In K8s Pods also a fraction of a single core could be available
     # As multiprocessing is not able to run only a "fraction" of process
     # assume we have 1 CPU available
