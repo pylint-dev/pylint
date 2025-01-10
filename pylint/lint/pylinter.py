@@ -615,39 +615,31 @@ class PyLinter(
             if not msg.may_be_emitted(self.config.py_version):
                 self._msgs_state[msg.msgid] = False
 
-    def _discover_files(
-        self, files_or_modules: Sequence[str], all_files: bool = False
-    ) -> Iterator[str]:
+    def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
         """Discover python modules and packages in sub-directory.
 
-        :param Sequence[str] files_or_modules: list of directories to explore
-        :param str all_files: whether to return _all_ files, entering modules
-                              and not considering ignored paths
         Returns iterator of paths to discovered modules and packages.
         """
         for something in files_or_modules:
-            if os.path.isdir(something):
-                if not all_files and not os.path.isfile(
-                    os.path.join(something, "__init__.py")
-                ):
-                    continue
+            if os.path.isdir(something) and not os.path.isfile(
+                os.path.join(something, "__init__.py")
+            ):
                 skip_subtrees: list[str] = []
                 for root, _, files in os.walk(something):
                     if any(root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package.
                         continue
 
-                    if not all_files and _is_ignored_file(
+                    if _is_ignored_file(
                         root,
                         self.config.ignore,
                         self.config.ignore_patterns,
                         self.config.ignore_paths,
                     ):
-                        self.skipped_paths.add(root)
                         skip_subtrees.append(root)
                         continue
 
-                    if not all_files and "__init__.py" in files:
+                    if "__init__.py" in files:
                         skip_subtrees.append(root)
                         yield root
                     else:
@@ -1156,11 +1148,8 @@ class PyLinter(
 
             if verbose:
                 checked_files_count = self.stats.node_count["module"]
-                skipped_files = list(
-                    self._discover_files(list(self.skipped_paths), all_files=True)
-                )
-                skipped_files_count = len(skipped_files)
-                msg += f"\nChecked {checked_files_count} files, skipped {skipped_files_count} files"
+                skipped_paths_count = len(self.skipped_paths)
+                msg += f"\nChecked {checked_files_count} files, skipped {skipped_paths_count} files/modules"
 
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)
