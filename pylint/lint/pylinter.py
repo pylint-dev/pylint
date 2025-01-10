@@ -316,6 +316,7 @@ class PyLinter(
 
         # Attributes related to stats
         self.stats = LinterStats()
+        self.skipped_paths: set[str] = set()
 
         # Attributes related to (command-line) options and their parsing
         self.options: Options = options + _make_linter_options(self)
@@ -614,31 +615,39 @@ class PyLinter(
             if not msg.may_be_emitted(self.config.py_version):
                 self._msgs_state[msg.msgid] = False
 
-    def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
+    def _discover_files(
+        self, files_or_modules: Sequence[str], all_files: bool = False
+    ) -> Iterator[str]:
         """Discover python modules and packages in sub-directory.
 
+        :param Sequence[str] files_or_modules: list of directories to explore
+        :param str all_files: whether to return _all_ files, entering modules
+                              and not considering ignored paths
         Returns iterator of paths to discovered modules and packages.
         """
         for something in files_or_modules:
-            if os.path.isdir(something) and not os.path.isfile(
-                os.path.join(something, "__init__.py")
-            ):
+            if os.path.isdir(something):
+                if not all_files and not os.path.isfile(
+                    os.path.join(something, "__init__.py")
+                ):
+                    continue
                 skip_subtrees: list[str] = []
                 for root, _, files in os.walk(something):
                     if any(root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package.
                         continue
 
-                    if _is_ignored_file(
+                    if not all_files and _is_ignored_file(
                         root,
                         self.config.ignore,
                         self.config.ignore_patterns,
                         self.config.ignore_paths,
                     ):
+                        self.skipped_paths.add(root)
                         skip_subtrees.append(root)
                         continue
 
-                    if "__init__.py" in files:
+                    if not all_files and "__init__.py" in files:
                         skip_subtrees.append(root)
                         yield root
                     else:
@@ -851,6 +860,7 @@ class PyLinter(
             self.config.ignore_patterns,
             self.config.ignore_paths,
         ):
+            self.skipped_paths.add(filepath)
             return
 
         try:
@@ -873,7 +883,9 @@ class PyLinter(
         """
         for descr in self._expand_files(files_or_modules).values():
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
-            if self.should_analyze_file(name, filepath, is_argument=is_arg):
+            if descr["isignored"]:
+                self.skipped_paths.add(filepath)
+            elif self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield FileItem(name, filepath, descr["basename"])
 
     def _expand_files(
@@ -1100,6 +1112,7 @@ class PyLinter(
 
             if self.config.reports:
                 self.reporter.display_reports(sect)
+
             score_value = self._report_evaluation(verbose)
             # save results if persistent run
             if self.config.persistent:
@@ -1143,8 +1156,11 @@ class PyLinter(
 
             if verbose:
                 checked_files_count = self.stats.node_count["module"]
-                unchecked_files_count = self.stats.undocumented["module"]
-                msg += f"\nChecked {checked_files_count} files, skipped {unchecked_files_count} files"
+                skipped_files = list(
+                    self._discover_files(list(self.skipped_paths), all_files=True)
+                )
+                skipped_files_count = len(skipped_files)
+                msg += f"\nChecked {checked_files_count} files, skipped {skipped_files_count} files"
 
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)
