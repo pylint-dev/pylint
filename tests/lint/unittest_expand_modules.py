@@ -40,6 +40,7 @@ this_file = {
     "isarg": True,
     "name": "lint.unittest_expand_modules",
     "path": EXPAND_MODULES,
+    "isignored": False,
 }
 
 this_file_relative_to_parent = {
@@ -48,6 +49,7 @@ this_file_relative_to_parent = {
     "isarg": True,
     "name": "lint.unittest_expand_modules",
     "path": EXPAND_MODULES_BASE,
+    "isignored": False,
 }
 
 this_file_from_init = {
@@ -56,6 +58,7 @@ this_file_from_init = {
     "isarg": False,
     "name": "lint.unittest_expand_modules",
     "path": EXPAND_MODULES,
+    "isignored": False,
 }
 
 this_file_from_init_deduplicated = {
@@ -64,6 +67,7 @@ this_file_from_init_deduplicated = {
     "isarg": True,
     "name": "lint.unittest_expand_modules",
     "path": EXPAND_MODULES,
+    "isignored": False,
 }
 
 unittest_lint = {
@@ -72,6 +76,7 @@ unittest_lint = {
     "isarg": False,
     "name": "lint.unittest_lint",
     "path": str(TEST_DIRECTORY / "lint/unittest_lint.py"),
+    "isignored": False,
 }
 
 test_utils = {
@@ -80,6 +85,7 @@ test_utils = {
     "isarg": False,
     "name": "lint.test_utils",
     "path": str(TEST_DIRECTORY / "lint/test_utils.py"),
+    "isignored": False,
 }
 
 test_run_pylint = {
@@ -88,6 +94,7 @@ test_run_pylint = {
     "isarg": False,
     "name": "lint.test_run_pylint",
     "path": str(TEST_DIRECTORY / "lint/test_run_pylint.py"),
+    "isignored": False,
 }
 
 test_pylinter = {
@@ -96,6 +103,7 @@ test_pylinter = {
     "isarg": False,
     "name": "lint.test_pylinter",
     "path": str(TEST_DIRECTORY / "lint/test_pylinter.py"),
+    "isignored": False,
 }
 
 test_caching = {
@@ -104,6 +112,7 @@ test_caching = {
     "isarg": False,
     "name": "lint.test_caching",
     "path": str(TEST_DIRECTORY / "lint/test_caching.py"),
+    "isignored": False,
 }
 
 init_of_package = {
@@ -112,6 +121,7 @@ init_of_package = {
     "isarg": True,
     "name": "lint",
     "path": INIT_PATH,
+    "isignored": False,
 }
 
 # A directory that is not a python package.
@@ -123,6 +133,7 @@ test_reporters = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "isarg": False,
         "basepath": str(REPORTERS_PATH / "__init__.py"),
         "basename": "reporters",
+        "isignored": False,
     },
     str(REPORTERS_PATH / "unittest_reporting.py"): {
         "path": str(REPORTERS_PATH / "unittest_reporting.py"),
@@ -130,6 +141,7 @@ test_reporters = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "isarg": False,
         "basepath": str(REPORTERS_PATH / "__init__.py"),
         "basename": "reporters",
+        "isignored": False,
     },
 }
 
@@ -304,5 +316,5 @@ class TestExpandModules(CheckerTestCase):
             ignore_list_re,
             self.linter.config.ignore_paths,
         )
-        assert modules == expected
+        assert {k: v for k, v in modules.items() if not v["isignored"]} == expected
         assert not errors

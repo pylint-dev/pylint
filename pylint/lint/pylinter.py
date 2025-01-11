@@ -851,6 +851,7 @@ class PyLinter(
             self.config.ignore_patterns,
             self.config.ignore_paths,
         ):
+            self.stats.skipped += 1
             return
 
         try:
@@ -873,7 +874,9 @@ class PyLinter(
         """
         for descr in self._expand_files(files_or_modules).values():
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
-            if self.should_analyze_file(name, filepath, is_argument=is_arg):
+            if descr["isignored"]:
+                self.stats.skipped += 1
+            elif self.should_analyze_file(name, filepath, is_argument=is_arg):
                 yield FileItem(name, filepath, descr["basename"])
 
     def _expand_files(
@@ -1100,6 +1103,7 @@ class PyLinter(
 
             if self.config.reports:
                 self.reporter.display_reports(sect)
+
             score_value = self._report_evaluation(verbose)
             # save results if persistent run
             if self.config.persistent:
@@ -1143,8 +1147,7 @@ class PyLinter(
 
             if verbose:
                 checked_files_count = self.stats.node_count["module"]
-                unchecked_files_count = self.stats.undocumented["module"]
-                msg += f"\nChecked {checked_files_count} files, skipped {unchecked_files_count} files"
+                msg += f"\nChecked {checked_files_count} files, skipped {self.stats.skipped} files/modules"
 
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)
