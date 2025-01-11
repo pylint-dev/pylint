@@ -137,3 +137,18 @@ localized using the following rules:
     - macOS: "~/Library/Caches/pylint"
     - Windows: "C:\Users\<username>\AppData\Local\pylint"
 * ".pylint.d" directory in the current directory
+
+What is the difference between pylint.org and pylint.readthedocs.io?
+--------------------------------------------------------------------
+
+pylint.readthedocs.io is the official documentation for the PyLint
+project which is associated with the PyPI package `pylint`
+(e.g. `pip install pylint`).
+
+Historically, pylint.org was the main website for Pylint before
+development began under the Python Code Quality Authority (PyCQA) umbrella.
+pylint.org is maintained by a separate organization and is not associated
+the `pyline` PyPI package's development.
+
+Please see `issue 8934 <https://github.com/pylint-dev/pylint/issues/8934>`_
+for more details.

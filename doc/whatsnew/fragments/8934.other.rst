@@ -1,0 +1,3 @@
+Added FAQ entry about pylint.org vs pylint.readthedocs.io distinction for clarity.
+
+Refs #8934
