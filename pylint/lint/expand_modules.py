@@ -87,6 +87,14 @@ def expand_modules(
         if _is_ignored_file(
             something, ignore_list, ignore_list_re, ignore_list_paths_re
         ):
+            result[something] = {
+                "path": something,
+                "name": "",
+                "isarg": False,
+                "basepath": something,
+                "basename": "",
+                "isignored": True,
+            }
             continue
         module_package_path = discover_package_path(something, source_roots)
         additional_search_path = [".", module_package_path, *path]
@@ -138,6 +146,7 @@ def expand_modules(
                     "isarg": True,
                     "basepath": filepath,
                     "basename": modname,
+                    "isignored": False,
                 }
         has_init = (
             not (modname.endswith(".__init__") or modname == "__init__")
@@ -153,6 +162,14 @@ def expand_modules(
                 if _is_in_ignore_list_re(
                     os.path.basename(subfilepath), ignore_list_re
                 ) or _is_in_ignore_list_re(subfilepath, ignore_list_paths_re):
+                    result[subfilepath] = {
+                        "path": subfilepath,
+                        "name": "",
+                        "isarg": False,
+                        "basepath": subfilepath,
+                        "basename": "",
+                        "isignored": True,
+                    }
                     continue
 
                 modpath = _modpath_from_file(
@@ -167,5 +184,6 @@ def expand_modules(
                     "isarg": isarg,
                     "basepath": filepath,
                     "basename": modname,
+                    "isignored": False,
                 }
     return result, errors

@@ -51,6 +51,7 @@ class ModuleDescriptionDict(TypedDict):
     isarg: bool
     basepath: str
     basename: str
+    isignored: bool
 
 
 class ErrorDescriptionDict(TypedDict):
