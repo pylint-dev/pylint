@@ -20,7 +20,6 @@ from pylint.lint.pylinter import (
     FORCE_COLOR,
     MANAGER,
     NO_COLOR,
-    PY_COLORS,
     WARN_BOTH_COLOR_SET,
     PyLinter,
     _handle_force_color_no_color,
@@ -140,11 +139,6 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     ids=lambda no_color: f"{no_color=}",
 )
 @pytest.mark.parametrize(
-    "py_colors",
-    [True, False],
-    ids=lambda py_colors: f"{py_colors=}",
-)
-@pytest.mark.parametrize(
     "force_color",
     [True, False],
     ids=lambda force_color: f"{force_color=}",
@@ -153,16 +147,12 @@ def test_handle_force_color_no_color(
     monkeypatch: pytest.MonkeyPatch,
     recwarn: pytest.WarningsRecorder,
     no_color: bool,
-    py_colors: bool,
     force_color: bool,
     text_reporters: tuple[str],
     colorized_reporters: tuple[str],
 ) -> None:
     monkeypatch.setenv(NO_COLOR, "1" if no_color else "")
     monkeypatch.setenv(FORCE_COLOR, "1" if force_color else "")
-    monkeypatch.setenv(PY_COLORS, "1" if py_colors else "")
-
-    force_color = force_color or py_colors
 
     if STDOUT_TEXT in text_reporters or STDOUT_TEXT in colorized_reporters:
         monkeypatch.setattr(sys, STDOUT_TEXT, io.TextIOWrapper(io.BytesIO()))

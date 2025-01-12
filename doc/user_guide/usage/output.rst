@@ -27,12 +27,12 @@ The colorization of the output can also be controlled through environment
 variables. The precedence for determining output format is as follows:
 
 1. ``NO_COLOR``
-2. ``FORCE_COLOR``, or ``PY_COLORS``
+2. ``FORCE_COLOR``
 3. ``--output-format=...``
 
 Setting ``NO_COLOR`` (to any value) will disable colorized output, while
-``FORCE_COLOR`` or ``PY_COLORS`` (to any value) will enable it, overriding
-the ``--output-format`` option if specified.
+``FORCE_COLOR`` (to any value) will enable it, overriding the
+``--output-format`` option if specified.
 
 
 Custom message formats

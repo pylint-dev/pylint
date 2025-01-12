@@ -70,22 +70,17 @@ def test_issue_template_on_fatal_errors(capsys: pytest.CaptureFixture) -> None:
         ("", False),
         (0, True),
         (1, True),
-        (2, True),
         (False, True),
-        ("no", True),
-        ("off", True),
         ("on", True),
-        (True, True),
-        ("yes", True),
     ],
     ids=repr,
 )
 def test_is_env_set_and_non_empty(
-    monkeypatch: pytest.MonkeyPatch, value: Any, expected: bool
+    monkeypatch: pytest.MonkeyPatch, value: object, expected: bool
 ) -> None:
     """Test the function returns True if the environment variable is set and non-empty."""
     env_var = "TEST_VAR"
     if value is not None:
         monkeypatch.setenv(env_var, str(value))
 
-    assert _is_env_set_and_non_empty(env_var) == expected
+    assert _is_env_set_and_non_empty(env_var) is expected

@@ -74,7 +74,6 @@ MANAGER = astroid.MANAGER
 
 NO_COLOR = "NO_COLOR"
 FORCE_COLOR = "FORCE_COLOR"
-PY_COLORS = "PY_COLORS"
 
 WARN_FORCE_COLOR_SET = "FORCE_COLOR is set; ignoring `text` at stdout"
 WARN_NO_COLOR_SET = "NO_COLOR is set; ignoring `colorized` at stdout"
@@ -261,10 +260,9 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 }
 
 
-def _handle_force_color_no_color(reporter: list[reporters.BaseReporter]) -> None:
+def _handle_force_color_no_color(reporters: list[reporters.BaseReporter]) -> list[reporters.BaseReporter]:
     """
-    Check ``NO_COLOR``, ``FORCE_COLOR``, ``PY_COLOR`` and modify the reporter list
-    accordingly.
+    Check ``NO_COLOR`` and ``FORCE_COLOR``, and return the modified reporter list accordingly.
 
     Rules are presented in this table:
     +--------------+---------------+-----------------+------------------------------------------------------------+
@@ -281,9 +279,7 @@ def _handle_force_color_no_color(reporter: list[reporters.BaseReporter]) -> None
     +--------------+---------------+-----------------+------------------------------------------------------------+
     """
     no_color = _is_env_set_and_non_empty(NO_COLOR)
-    force_color = _is_env_set_and_non_empty(FORCE_COLOR) or _is_env_set_and_non_empty(
-        PY_COLORS
-    )
+    force_color = _is_env_set_and_non_empty(FORCE_COLOR)
 
     if no_color and force_color:
         warnings.warn(
@@ -293,34 +289,31 @@ def _handle_force_color_no_color(reporter: list[reporters.BaseReporter]) -> None
         )
         force_color = False
 
-    if no_color:
-        for idx, rep in enumerate(list(reporter)):
-            if not isinstance(rep, ColorizedTextReporter):
-                continue
+    final_reporters: list[reporters.BaseReporter] = []
+    
+    for idx, rep in enumerate(reporters):
+        if no_color and isinstance(rep, ColorizedTextReporter) and rep.out.buffer is sys.stdout.buffer:
+            warnings.warn(
+                WARN_NO_COLOR_SET,
+                ReporterWarning,
+                stacklevel=2,
+            )
+            final_reporters.append(TextReporter())
 
-            if rep.out.buffer is sys.stdout.buffer:
-                warnings.warn(
-                    WARN_NO_COLOR_SET,
-                    ReporterWarning,
-                    stacklevel=2,
-                )
-                reporter.pop(idx)
-                reporter.append(TextReporter())
+   
+        # pylint: disable=unidiomatic-typecheck # Want explicit type check
+        elif force_color and type(rep) is TextReporter and rep.out.buffer is sys.stdout.buffer:
+            warnings.warn(
+                WARN_FORCE_COLOR_SET,
+                ReporterWarning,
+                stacklevel=2,
+            )
+            final_reporters.append(ColorizedTextReporter())
 
-    elif force_color:
-        for idx, rep in enumerate(list(reporter)):
-            # pylint: disable=unidiomatic-typecheck # Want explicit type check
-            if type(rep) is not TextReporter:
-                continue
-
-            if rep.out.buffer is sys.stdout.buffer:
-                warnings.warn(
-                    WARN_FORCE_COLOR_SET,
-                    ReporterWarning,
-                    stacklevel=2,
-                )
-                reporter.pop(idx)
-                reporter.append(ColorizedTextReporter())
+        else:
+            final_reporters.append(rep)
+    
+    return final_reporters
 
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -508,7 +501,7 @@ class PyLinter(
             # Extend the lifetime of all opened output files
             close_output_files = stack.pop_all().close
 
-        _handle_force_color_no_color(sub_reporters)
+        sub_reporters = _handle_force_color_no_color(sub_reporters)
 
         if len(sub_reporters) > 1 or output_files:
             self.set_reporter(
