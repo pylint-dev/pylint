@@ -309,7 +309,7 @@ def _handle_force_color_no_color(
         elif (
             force_color
             # Need type explicit check here
-            and type(rep) is TextReporter  # pylint: disable=unidiomatic-typecheck 
+            and type(rep) is TextReporter  # pylint: disable=unidiomatic-typecheck
             and rep.out.buffer is sys.stdout.buffer
         ):
             warnings.warn(
