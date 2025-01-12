@@ -141,14 +141,12 @@ localized using the following rules:
 What is the difference between pylint.org and pylint.readthedocs.io?
 --------------------------------------------------------------------
 
-pylint.readthedocs.io is the official documentation for the PyLint
-project which is associated with the PyPI package `pylint`
-(e.g. `pip install pylint`).
+Historically, pylint dot org served as the primary website for Pylint. However, 
+we no longer have access to the domain. The current owners are monetizing 
+this by displaying advertisements alongside outdated documentation. For the
+ latest and official Pylint documentation, please visit
+  `pylint.readthedocs.io <https://pylint.readthedocs.io`_.
 
-Historically, pylint.org was the main website for Pylint before
-development began under the Python Code Quality Authority (PyCQA) umbrella.
-pylint.org is maintained by a separate organization and is not associated
-the `pyline` PyPI package's development.
 
 Please see `issue 8934 <https://github.com/pylint-dev/pylint/issues/8934>`_
 for more details.
