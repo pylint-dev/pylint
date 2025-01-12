@@ -12,7 +12,7 @@ class BaseProgressReporter:
         self.item_count = None
         self.current_count = 0
 
-    def increment(self, filename: str) -> None:
+    def report_file(self, filename: str) -> None:
         """Print the next filename."""
         self.current_count += 1
         msg = filename

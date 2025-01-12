@@ -718,7 +718,7 @@ class PyLinter(
         progress_reporter.print_message("Get ASTs.")
 
         for fileitem in fileitems:
-            progress_reporter.increment(fileitem.filepath)
+            progress_reporter.report_file(fileitem.filepath)
             self.set_current_module(fileitem.name, fileitem.filepath)
 
             try:
@@ -757,7 +757,7 @@ class PyLinter(
         progress_reporter = get_progress_reporter(self.verbose, len(ast_mapping))
         progress_reporter.print_message(f"Linting {len(ast_mapping)} modules.")
         for fileitem, module in ast_mapping.items():
-            progress_reporter.increment(fileitem.filepath)
+            progress_reporter.report_file(fileitem.filepath)
             if module is None:
                 continue
             try:
