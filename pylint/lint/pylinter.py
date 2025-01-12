@@ -261,7 +261,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 
 
 def _handle_force_color_no_color(
-    reporters: Sequence[BaseReporter],
+    original_reporters: Sequence[BaseReporter],
 ) -> list[reporters.BaseReporter]:
     """
     Check ``NO_COLOR`` and ``FORCE_COLOR``, and return the modified reporter list.
@@ -293,7 +293,7 @@ def _handle_force_color_no_color(
 
     final_reporters: list[BaseReporter] = []
 
-    for rep in reporters:
+    for rep in original_reporters:
         if (
             no_color
             and isinstance(rep, ColorizedTextReporter)
