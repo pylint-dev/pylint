@@ -260,9 +260,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 }
 
 
-def _handle_force_color_no_color(reporters: list[reporters.BaseReporter]) -> list[reporters.BaseReporter]:
+def _handle_force_color_no_color(
+    reporters: list[reporters.BaseReporter],
+) -> list[reporters.BaseReporter]:
     """
-    Check ``NO_COLOR`` and ``FORCE_COLOR``, and return the modified reporter list accordingly.
+    Check ``NO_COLOR`` and ``FORCE_COLOR``, and return the modified reporter list
+    accordingly.
 
     Rules are presented in this table:
     +--------------+---------------+-----------------+------------------------------------------------------------+
@@ -290,9 +293,13 @@ def _handle_force_color_no_color(reporters: list[reporters.BaseReporter]) -> lis
         force_color = False
 
     final_reporters: list[reporters.BaseReporter] = []
-    
+
     for idx, rep in enumerate(reporters):
-        if no_color and isinstance(rep, ColorizedTextReporter) and rep.out.buffer is sys.stdout.buffer:
+        if (
+            no_color
+            and isinstance(rep, ColorizedTextReporter)
+            and rep.out.buffer is sys.stdout.buffer
+        ):
             warnings.warn(
                 WARN_NO_COLOR_SET,
                 ReporterWarning,
@@ -300,9 +307,12 @@ def _handle_force_color_no_color(reporters: list[reporters.BaseReporter]) -> lis
             )
             final_reporters.append(TextReporter())
 
-   
         # pylint: disable=unidiomatic-typecheck # Want explicit type check
-        elif force_color and type(rep) is TextReporter and rep.out.buffer is sys.stdout.buffer:
+        elif (
+            force_color
+            and type(rep) is TextReporter
+            and rep.out.buffer is sys.stdout.buffer
+        ):
             warnings.warn(
                 WARN_FORCE_COLOR_SET,
                 ReporterWarning,
@@ -312,7 +322,7 @@ def _handle_force_color_no_color(reporters: list[reporters.BaseReporter]) -> lis
 
         else:
             final_reporters.append(rep)
-    
+
     return final_reporters
 
 

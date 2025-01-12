@@ -4,7 +4,6 @@
 
 import unittest.mock
 from pathlib import Path, PosixPath
-from typing import Any
 
 import pytest
 
