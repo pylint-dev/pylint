@@ -138,8 +138,8 @@ localized using the following rules:
     - Windows: "C:\Users\<username>\AppData\Local\pylint"
 * ".pylint.d" directory in the current directory
 
-What is the difference between pylint.org and pylint.readthedocs.io?
---------------------------------------------------------------------
+How does the website pylint dot org relate to this project?
+-----------------------------------------------------------
 
 Historically, pylint dot org served as the primary website for Pylint. However, 
 we no longer have access to the domain. The current owners are monetizing 
