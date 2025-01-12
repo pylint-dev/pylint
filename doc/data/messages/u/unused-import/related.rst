@@ -1,0 +1,1 @@
+- `The --init-import configuration option <https://pylint.readthedocs.io/en/latest/user_guide/configuration/all-options.html#init-import>`_
