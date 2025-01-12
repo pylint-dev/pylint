@@ -715,7 +715,7 @@ class PyLinter(
         # materializing the list, or creating a second iterator and
         # iterating.
         progress_reporter = get_progress_reporter(self.verbose)
-        progress_reporter.print_message("Get ASTs.")
+        progress_reporter.start_get_asts()
 
         for fileitem in fileitems:
             progress_reporter.report_file(fileitem.filepath)
@@ -755,7 +755,7 @@ class PyLinter(
     ) -> None:
         """Lint all AST modules from a mapping.."""
         progress_reporter = get_progress_reporter(self.verbose, len(ast_mapping))
-        progress_reporter.print_message(f"Linting {len(ast_mapping)} modules.")
+        progress_reporter.start_linting()
         for fileitem, module in ast_mapping.items():
             progress_reporter.report_file(fileitem.filepath)
             if module is None:

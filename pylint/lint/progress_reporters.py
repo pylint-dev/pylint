@@ -2,6 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+import abc
 from typing import Optional
 
 
@@ -12,15 +13,22 @@ class BaseProgressReporter:
         self.item_count = None
         self.current_count = 0
 
+    def start_get_asts(self) -> None:
+        """Show message, starting to get all ASTs."""
+
+    def start_linting(self) -> None:
+        """Show message, starting linting."""
+
     def report_file(self, filename: str) -> None:
         """Print the next filename."""
         self.current_count += 1
         msg = filename
         if self.item_count is not None:
             msg = f"{msg} ({self.current_count} of {self.item_count})"
-        self.print_message(msg)
+        self._print_message(msg)
 
-    def print_message(self, msg: str) -> None:
+    @abc.abstractmethod
+    def _print_message(self, msg: str) -> None:
         """Display progress message."""
         raise NotImplementedError()
 
@@ -28,7 +36,13 @@ class BaseProgressReporter:
 class StdoutProgressReporter(BaseProgressReporter):
     """Print progress to stdout."""
 
-    def print_message(self, msg: str) -> None:
+    def start_get_asts(self) -> None:
+        self._print_message("Get ASTs.")
+
+    def start_linting(self) -> None:
+        self._print_message(f"Linting {self.item_count} modules.")
+
+    def _print_message(self, msg: str) -> None:
         """Display progress message."""
         print(msg, flush=True)
 
@@ -36,7 +50,7 @@ class StdoutProgressReporter(BaseProgressReporter):
 class NullProgressReporter(BaseProgressReporter):
     """Suppress progress output."""
 
-    def print_message(self, msg: str) -> None:
+    def _print_message(self, msg: str) -> None:
         """Do nothing."""
 
 
