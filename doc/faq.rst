@@ -141,8 +141,8 @@ localized using the following rules:
 How does the website pylint dot org relate to this project?
 -----------------------------------------------------------
 
-Historically, pylint dot org served as the primary website for Pylint. However, 
-we no longer have access to the domain. The current owners are monetizing 
+Historically, pylint dot org served as the primary website for Pylint. However,
+we no longer have access to the domain. The current owners are monetizing
 this by displaying advertisements alongside outdated documentation. For the
  latest and official Pylint documentation, please visit
   `pylint.readthedocs.io <https://pylint.readthedocs.io`_.
