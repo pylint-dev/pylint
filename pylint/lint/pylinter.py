@@ -42,7 +42,6 @@ from pylint.lint.expand_modules import (
 )
 from pylint.lint.message_state_handler import _MessageStateHandler
 from pylint.lint.parallel import check_parallel
-from pylint.lint.progress_reporters import get_progress_reporter
 from pylint.lint.report_functions import (
     report_messages_by_module_stats,
     report_messages_stats,
@@ -57,6 +56,7 @@ from pylint.message import Message, MessageDefinition, MessageDefinitionStore
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
+from pylint.reporters.progress_reporters import get_progress_reporter
 from pylint.typing import (
     DirectoryNamespaceDict,
     FileItem,
