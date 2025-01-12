@@ -4,9 +4,9 @@
 
 from typing import Optional
 
+
 class BaseProgressReporter:
-    """Progress reporter.
-    """
+    """Progress reporter."""
 
     def __init__(self) -> None:
         self.item_count = None
@@ -40,7 +40,9 @@ class NullProgressReporter(BaseProgressReporter):
         """Do nothing."""
 
 
-def get_progress_reporter(verbose: bool, item_count: Optional[int] = None) -> BaseProgressReporter:
+def get_progress_reporter(
+    verbose: bool, item_count: Optional[int] = None
+) -> BaseProgressReporter:
     """
     Get a progress reporter.
 

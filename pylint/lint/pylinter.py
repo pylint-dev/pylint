@@ -715,7 +715,7 @@ class PyLinter(
         # materializing the list, or creating a second iterator and
         # iterating.
         progress_reporter = get_progress_reporter(self.verbose)
-        progress_reporter.print_message(f"Get ASTs.")
+        progress_reporter.print_message("Get ASTs.")
 
         for fileitem in fileitems:
             progress_reporter.increment(fileitem.filepath)
