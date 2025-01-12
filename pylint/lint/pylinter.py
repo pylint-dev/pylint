@@ -54,9 +54,9 @@ from pylint.lint.utils import (
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
 from pylint.reporters.base_reporter import BaseReporter
+from pylint.reporters.progress_reporters import get_progress_reporter
 from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
-from pylint.reporters.progress_reporters import get_progress_reporter
 from pylint.typing import (
     DirectoryNamespaceDict,
     FileItem,
