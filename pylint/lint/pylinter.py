@@ -291,7 +291,7 @@ def _handle_force_color_no_color(
         )
         force_color = False
 
-    final_reporters: list[reporters.BaseReporter] = []
+    final_reporters: list[BaseReporter] = []
 
     for rep in reporters:
         if (
