@@ -10,7 +10,7 @@ class BaseProgressReporter:
     """Progress reporter."""
 
     def __init__(self) -> None:
-        self.item_count = None
+        self.item_count: Optional[int] = None
         self.current_count = 0
 
     def start_get_asts(self) -> None:
