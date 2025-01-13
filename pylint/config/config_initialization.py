@@ -30,11 +30,10 @@ def _config_initialization(
     config_file: None | str | Path = None,
     verbose_mode: bool = False,
 ) -> list[str]:
-    linter.verbose = verbose_mode
-
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
+    linter.verbose = verbose_mode
     config_file = Path(config_file) if config_file else None
 
     # Set the current module to the configuration file

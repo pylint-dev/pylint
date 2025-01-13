@@ -718,7 +718,7 @@ class PyLinter(
         progress_reporter.start_get_asts()
 
         for fileitem in fileitems:
-            progress_reporter.report_file(fileitem.filepath)
+            progress_reporter.get_ast_for_file(fileitem.filepath)
             self.set_current_module(fileitem.name, fileitem.filepath)
 
             try:
@@ -754,10 +754,10 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
     ) -> None:
         """Lint all AST modules from a mapping.."""
-        progress_reporter = get_progress_reporter(self.verbose, len(ast_mapping))
-        progress_reporter.start_linting()
+        progress_reporter = get_progress_reporter(self.verbose)
+        progress_reporter.start_linting(len(ast_mapping))
         for fileitem, module in ast_mapping.items():
-            progress_reporter.report_file(fileitem.filepath)
+            progress_reporter.lint_file(fileitem.filepath)
             if module is None:
                 continue
             try:

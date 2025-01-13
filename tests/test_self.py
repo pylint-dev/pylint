@@ -361,8 +361,8 @@ class TestRunTC:
             f"""
         Using config file pylint/testutils/testing_pylintrc
         Get ASTs.
-        {module2}
-        {module1}
+        AST for {module2}
+        AST for {module1}
         Linting 2 modules.
         {module2} (1 of 2)
         ************* Module wrong_import_position

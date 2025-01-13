@@ -3,29 +3,28 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 import abc
-from typing import Optional
 
 
 class BaseProgressReporter:
     """Progress reporter."""
 
     def __init__(self) -> None:
-        self.item_count: Optional[int] = None
-        self.current_count = 0
+        self._ast_count = 0
+        self._lint_counter = 0
 
     def start_get_asts(self) -> None:
-        """Show message, starting to get all ASTs."""
+        self._print_message("Get ASTs.")
 
-    def start_linting(self) -> None:
-        """Show message, starting linting."""
+    def get_ast_for_file(self, filename: str) -> None:
+        self._print_message(f"AST for {filename}")
 
-    def report_file(self, filename: str) -> None:
-        """Print the next filename."""
-        self.current_count += 1
-        msg = filename
-        if self.item_count is not None:
-            msg = f"{msg} ({self.current_count} of {self.item_count})"
-        self._print_message(msg)
+    def start_linting(self, ast_count: int) -> None:
+        self._ast_count = ast_count
+        self._print_message(f"Linting {self._ast_count} modules.")
+
+    def lint_file(self, filename: str) -> None:
+        self._lint_counter += 1
+        self._print_message(f"{filename} ({self._lint_counter} of {self._ast_count})")
 
     @abc.abstractmethod
     def _print_message(self, msg: str) -> None:
@@ -35,12 +34,6 @@ class BaseProgressReporter:
 
 class StdoutProgressReporter(BaseProgressReporter):
     """Print progress to stdout."""
-
-    def start_get_asts(self) -> None:
-        self._print_message("Get ASTs.")
-
-    def start_linting(self) -> None:
-        self._print_message(f"Linting {self.item_count} modules.")
 
     def _print_message(self, msg: str) -> None:
         """Display progress message."""
@@ -54,21 +47,16 @@ class NullProgressReporter(BaseProgressReporter):
         """Do nothing."""
 
 
-def get_progress_reporter(
-    verbose: bool, item_count: Optional[int] = None
-) -> BaseProgressReporter:
+def get_progress_reporter(verbose: bool) -> BaseProgressReporter:
     """
     Get a progress reporter.
 
     Parameters:
         verbose (bool): Whether the reporter should display output.
-        item_count (Optional[int]): total count of items.  If included, "(1 of n)" is printed.
 
     Returns:
         BaseProgressReporter: An instance of the progress reporter.
     """
-    p: BaseProgressReporter = NullProgressReporter()
     if verbose:
-        p = StdoutProgressReporter()
-    p.item_count = item_count
-    return p
+        return StdoutProgressReporter()
+    return NullProgressReporter()
