@@ -1,3 +1,0 @@
-Added FAQ entry to clarify that we lost the domain pylint dot org.
-
-Refs #8934
