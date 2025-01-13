@@ -227,7 +227,6 @@ group are mutually exclusive.",
             elif linter.config.jobs == 0:
                 linter.config.jobs = _cpu_count()
 
-        linter.verbose = self.verbose
         if self._output:
             try:
                 with open(self._output, "w", encoding="utf-8") as output:

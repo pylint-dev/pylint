@@ -30,6 +30,8 @@ def _config_initialization(
     config_file: None | str | Path = None,
     verbose_mode: bool = False,
 ) -> list[str]:
+    linter.verbose = verbose_mode
+
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
