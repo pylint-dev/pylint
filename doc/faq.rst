@@ -137,3 +137,15 @@ localized using the following rules:
     - macOS: "~/Library/Caches/pylint"
     - Windows: "C:\Users\<username>\AppData\Local\pylint"
 * ".pylint.d" directory in the current directory
+
+How does the website pylint dot org relate to this project?
+-----------------------------------------------------------
+
+Historically, pylint dot org served as the primary website for Pylint. However,
+we no longer have access to the domain. The current owners are monetizing
+this by displaying advertisements alongside outdated documentation without
+contributing to pylint at all. For the latest and official Pylint documentation,
+please visit `pylint.readthedocs.io <https://pylint.readthedocs.io/en/stable/>`_.
+
+Please see `issue 8934 <https://github.com/pylint-dev/pylint/issues/8934>`_
+for more details.
