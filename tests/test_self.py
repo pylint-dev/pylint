@@ -364,10 +364,10 @@ class TestRunTC:
         {module2}
         {module1}
         Linting 2 modules.
-        tests/regrtest_data/wrong_import_position.py (1 of 2)
+        {module2} (1 of 2)
         ************* Module wrong_import_position
         {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
-        tests/regrtest_data/import_something.py (2 of 2)
+        {module1} (2 of 2)
         """
         )
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
