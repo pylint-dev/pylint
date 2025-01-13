@@ -146,9 +146,6 @@ we no longer have access to the domain. The current owners are monetizing
 this by displaying advertisements alongside outdated documentation without 
 contributing to pylint at all. For the latest and official Pylint documentation, 
 please visit `pylint.readthedocs.io <https://pylint.readthedocs.io/en/stable/>`_.
-  
-  
-
 
 Please see `issue 8934 <https://github.com/pylint-dev/pylint/issues/8934>`_
 for more details.
