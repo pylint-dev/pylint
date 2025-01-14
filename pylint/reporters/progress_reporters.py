@@ -2,13 +2,11 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-import abc
-
-
-class BaseProgressReporter:
+class ProgressReporter:
     """Progress reporter."""
 
-    def __init__(self) -> None:
+    def __init__(self, is_verbose: bool = True) -> None:
+        self._is_verbose = is_verbose
         self._ast_count = 0
         self._lint_counter = 0
 
@@ -26,37 +24,7 @@ class BaseProgressReporter:
         self._lint_counter += 1
         self._print_message(f"{filename} ({self._lint_counter} of {self._ast_count})")
 
-    @abc.abstractmethod
     def _print_message(self, msg: str) -> None:
         """Display progress message."""
-        raise NotImplementedError()
-
-
-class StdoutProgressReporter(BaseProgressReporter):
-    """Print progress to stdout."""
-
-    def _print_message(self, msg: str) -> None:
-        """Display progress message."""
-        print(msg, flush=True)
-
-
-class NullProgressReporter(BaseProgressReporter):
-    """Suppress progress output."""
-
-    def _print_message(self, msg: str) -> None:
-        """Do nothing."""
-
-
-def get_progress_reporter(verbose: bool) -> BaseProgressReporter:
-    """
-    Get a progress reporter.
-
-    Parameters:
-        verbose (bool): Whether the reporter should display output.
-
-    Returns:
-        BaseProgressReporter: An instance of the progress reporter.
-    """
-    if verbose:
-        return StdoutProgressReporter()
-    return NullProgressReporter()
+        if self._is_verbose:
+            print(msg, flush=True)

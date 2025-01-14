@@ -54,7 +54,7 @@ from pylint.lint.utils import (
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
 from pylint.reporters.base_reporter import BaseReporter
-from pylint.reporters.progress_reporters import get_progress_reporter
+from pylint.reporters.progress_reporters import ProgressReporter
 from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
@@ -714,7 +714,7 @@ class PyLinter(
         # but we can't get the total count of filenames without
         # materializing the list, or creating a second iterator and
         # iterating.
-        progress_reporter = get_progress_reporter(self.verbose)
+        progress_reporter = ProgressReporter(self.verbose)
         progress_reporter.start_get_asts()
 
         for fileitem in fileitems:
@@ -754,7 +754,7 @@ class PyLinter(
         check_astroid_module: Callable[[nodes.Module], bool | None],
     ) -> None:
         """Lint all AST modules from a mapping.."""
-        progress_reporter = get_progress_reporter(self.verbose)
+        progress_reporter = ProgressReporter(self.verbose)
         progress_reporter.start_linting(len(ast_mapping))
         for fileitem, module in ast_mapping.items():
             progress_reporter.lint_file(fileitem.filepath)
