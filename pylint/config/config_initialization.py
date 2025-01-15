@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-def _config_initialization(
+def _config_initialization(  # pylint: disable=too-many-statements
     linter: PyLinter,
     args_list: list[str],
     reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
