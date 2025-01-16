@@ -15,10 +15,10 @@ class ProgressReporter:
         self._print_message("Get ASTs.")
 
     def get_ast_for_file(self, filename: str) -> None:
+        self._ast_count += 1
         self._print_message(f"AST for {filename}")
 
-    def start_linting(self, ast_count: int) -> None:
-        self._ast_count = ast_count
+    def start_linting(self) -> None:
         self._print_message(f"Linting {self._ast_count} modules.")
 
     def lint_file(self, filename: str) -> None:
