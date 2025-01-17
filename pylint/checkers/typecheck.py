@@ -1467,61 +1467,57 @@ accessed. Python regular expressions are accepted.",
         _dp("visit call, node", node)
 
         called = safe_infer(node.func, compare_constructors=True)
-        _dp("a")
         self._check_not_callable(node, called)
-        _dp("b")
         try:
-            _dp("c")
             called, implicit_args, callable_name = _determine_callable(called)
-            _dp("d")
         except ValueError:
             # Any error occurred during determining the function type, most of
             # those errors are handled by different warnings.
-            _dp("e")
             return
 
-        _dp("f")
+        _dp("Data dump for __init__ call")
+        call_site = astroid.arguments.CallSite.from_call(node)
+        num_positional_args = len(call_site.positional_arguments)
+        _dp("node frame", node.frame())
+        _dp("isinst", isinstance(node.frame(), nodes.ClassDef))
+        _dp("funcdef", isinstance(called, nodes.FunctionDef))
+        _dp("called", called)
+        _dp("frame body", node.frame().body)
+        _dp("called in frame body", called in node.frame().body)
+        _dp("npa", num_positional_args)
+        _dp("dec names", called.decoratornames())
+
         if called.args.args is None:
-            _dp("g")
+            _dp("called.args.args is None")
             _dp("called.name", called.name)
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
-                _dp("h")
                 self._check_isinstance_args(node, callable_name)
             # Built-in functions have no argument information.
-            _dp("i")
+            _dp("Returning now")
             return
 
-        _dp("j")
         if len(called.argnames()) != len(set(called.argnames())):
             # Duplicate parameter name (see duplicate-argument).  We can't really
             # make sense of the function call in this case, so just return.
-            _dp("k")
             return
 
         # Build the set of keyword arguments, checking for duplicate keywords,
         # and count the positional arguments.
-        _dp("L")
         call_site = astroid.arguments.CallSite.from_call(node)
 
         # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`
-        _dp("m")
         for keyword in call_site.duplicated_keywords:
-            _dp("N")
             self.add_message("repeated-keyword", node=node, args=(keyword,))
 
-        _dp("O")
         if call_site.has_invalid_arguments() or call_site.has_invalid_keywords():
             # Can't make sense of this.
-            _dp("p")
             return
 
         # Has the function signature changed in ways we cannot reliably detect?
-        _dp("q")
         if hasattr(called, "decorators") and decorated_with(
             called, self.linter.config.signature_mutators
         ):
-            _dp("R")
             return
 
         num_positional_args = len(call_site.positional_arguments)
@@ -1553,15 +1549,6 @@ accessed. Python regular expressions are accepted.",
         # inside the class where the function is defined.
         # This avoids emitting `too-many-function-args` since `num_positional_args`
         # includes an implicit `self` argument which is not present in `called.args`.
-        _dp("NOTE: about to dec")
-        _dp("node frame", node.frame())
-        _dp("isinst", isinstance(node.frame(), nodes.ClassDef))
-        _dp("funcdef", isinstance(called, nodes.FunctionDef))
-        _dp("called", called)
-        _dp("frame body", node.frame().body)
-        _dp("called in frame body", called in node.frame().body)
-        _dp("npa", num_positional_args)
-        _dp("dec names", called.decoratornames())
         if (
             isinstance(node.frame(), nodes.ClassDef)
             and isinstance(called, nodes.FunctionDef)
@@ -1569,9 +1556,7 @@ accessed. Python regular expressions are accepted.",
             and num_positional_args > 0
             and "builtins.staticmethod" not in called.decoratornames()
         ):
-            _dp("NOTE: decrementing")
             num_positional_args -= 1
-        _dp("NOTE: dec done")
 
         # Analyze the list of formal parameters.
         args = list(itertools.chain(called.args.posonlyargs or (), called.args.args))
