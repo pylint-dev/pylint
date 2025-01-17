@@ -1497,7 +1497,7 @@ accessed. Python regular expressions are accepted.",
         ### _dp("called in frame body", called in node.frame().body)
         ### _dp("dec names", called.decoratornames())
 
-        def _call_site_has_args(cs):
+        def _call_site_has_args(cs: arguments.CallSite) -> bool:
             """True if any args passed."""
             has_args = (
                 False
