@@ -1455,6 +1455,9 @@ accessed. Python regular expressions are accepted.",
         """
 
         def _dp(s, val=None):
+            if "Attribute.__init__ l.13" not in str(node):
+                # print("Not in init")
+                return
             if val is None:
                 print(f" {s}", flush=True)
             else:
@@ -1480,6 +1483,7 @@ accessed. Python regular expressions are accepted.",
         _dp("f")
         if called.args.args is None:
             _dp("g")
+            _dp("called.name", called.name)
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
                 _dp("h")
