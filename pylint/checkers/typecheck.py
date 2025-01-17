@@ -1488,14 +1488,17 @@ accessed. Python regular expressions are accepted.",
         # _dp("isinst", isinstance(node.frame(), nodes.ClassDef))
         # _dp("funcdef", isinstance(called, nodes.FunctionDef))
         _dp("called", called)
-        _dp("bound method init in called", "BoundMethod __init__ of builtins.object" in str(called))
+        _dp(
+            "bound method init in called",
+            "BoundMethod __init__ of builtins.object" in str(called),
+        )
         _dp("called.args", called.args)
         _dp("frame body", node.frame().body)
         # _dp("called in frame body", called in node.frame().body)
         # _dp("dec names", called.decoratornames())
 
         def _call_site_has_args(cs):
-            "True if any args passed."
+            """True if any args passed."""
             has_args = (
                 False
                 or len(cs.positional_arguments) > 0
@@ -1514,7 +1517,9 @@ accessed. Python regular expressions are accepted.",
             # is handled elsewhere.
             if "BoundMethod __init__ of builtins.object" in str(called):
                 if _call_site_has_args(call_site):
-                    self.add_message("too-many-function-args", node=node, args=("__init__",))
+                    self.add_message(
+                        "too-many-function-args", node=node, args=("__init__",)
+                    )
             return
 
         if len(called.argnames()) != len(set(called.argnames())):
