@@ -1503,8 +1503,8 @@ accessed. Python regular expressions are accepted.",
                 False
                 or len(cs.positional_arguments) > 0
                 or len(cs.keyword_arguments.items()) > 0
-                or cs.starargs is not None
-                or cs.kwargs is not None
+                # or cs.starargs is not None
+                # or cs.kwargs is not None
             )
             return has_args
 
