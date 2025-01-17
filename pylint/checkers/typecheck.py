@@ -1453,11 +1453,13 @@ accessed. Python regular expressions are accepted.",
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.
         """
-        def _dp(s, val = None):
+
+        def _dp(s, val=None):
             if val is None:
                 print(f" {s}", flush=True)
             else:
                 print(f" {s}: {val}", flush=True)
+
         _dp("-" * 25)
         _dp("visit call, node", node)
 

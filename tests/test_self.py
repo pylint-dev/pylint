@@ -343,7 +343,7 @@ class TestRunTC:
 
     def test_super_init_with_non_self_argument(self) -> None:
         module1 = join(HERE, "regrtest_data", "super_init_with_non_self_argument.py")
-        args = [ module1 ]
+        args = [module1]
         out = StringIO()
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue().strip())
@@ -354,9 +354,11 @@ class TestRunTC:
         {module1}:11:0: blah
         """
         )
-        assert "Your code has been rated at 10.00/10" not in actual_output, "bad code should fail."
+        assert (
+            "Your code has been rated at 10.00/10" not in actual_output
+        ), "bad code should fail."
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
-        
+
     def test_progress_reporting(self) -> None:
         module1 = join(HERE, "regrtest_data", "import_something.py")
         module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
