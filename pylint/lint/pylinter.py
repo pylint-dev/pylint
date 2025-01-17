@@ -54,6 +54,7 @@ from pylint.lint.utils import (
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
 from pylint.reporters.base_reporter import BaseReporter
+from pylint.reporters.progress_reporters import ProgressReporter
 from pylint.reporters.text import TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
@@ -323,8 +324,7 @@ class PyLinter(
             self.option_groups_descs[opt_group[0]] = opt_group[1]
         self._option_groups: tuple[tuple[str, str], ...] = (
             *option_groups,
-            ("Messages control", "Options controlling analysis messages"),
-            ("Reports", "Options related to output formatting and reporting"),
+            *PyLinter.option_groups_descs.items(),
         )
         self.fail_on_symbols: list[str] = []
         """List of message symbols on which pylint should fail, set by --fail-on."""
@@ -354,6 +354,7 @@ class PyLinter(
         self.current_file: str | None = None
         self._ignore_file = False
         self._ignore_paths: list[Pattern[str]] = []
+        self.verbose = False
 
         self.register_checker(self)
 
@@ -685,6 +686,8 @@ class PyLinter(
             sys.path = original_sys_path
             return
 
+        progress_reporter = ProgressReporter(self.verbose)
+
         # 1) Get all FileItems
         with augmented_sys_path(extra_packages_paths):
             if self.config.from_stdin:
@@ -698,18 +701,26 @@ class PyLinter(
         with augmented_sys_path(extra_packages_paths):
             with self._astroid_module_checker() as check_astroid_module:
                 # 2) Get the AST for each FileItem
-                ast_per_fileitem = self._get_asts(fileitems, data)
+                ast_per_fileitem = self._get_asts(fileitems, data, progress_reporter)
 
                 # 3) Lint each ast
-                self._lint_files(ast_per_fileitem, check_astroid_module)
+                self._lint_files(
+                    ast_per_fileitem, check_astroid_module, progress_reporter
+                )
 
     def _get_asts(
-        self, fileitems: Iterator[FileItem], data: str | None
+        self,
+        fileitems: Iterator[FileItem],
+        data: str | None,
+        progress_reporter: ProgressReporter,
     ) -> dict[FileItem, nodes.Module | None]:
         """Get the AST for all given FileItems."""
         ast_per_fileitem: dict[FileItem, nodes.Module | None] = {}
 
+        progress_reporter.start_get_asts()
+
         for fileitem in fileitems:
+            progress_reporter.get_ast_for_file(fileitem.filepath)
             self.set_current_module(fileitem.name, fileitem.filepath)
 
             try:
@@ -743,9 +754,12 @@ class PyLinter(
         self,
         ast_mapping: dict[FileItem, nodes.Module | None],
         check_astroid_module: Callable[[nodes.Module], bool | None],
+        progress_reporter: ProgressReporter,
     ) -> None:
         """Lint all AST modules from a mapping.."""
+        progress_reporter.start_linting()
         for fileitem, module in ast_mapping.items():
+            progress_reporter.lint_file(fileitem.filepath)
             if module is None:
                 continue
             try:
