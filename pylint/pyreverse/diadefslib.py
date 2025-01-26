@@ -66,7 +66,7 @@ class DiaDefGenerator:
     def _get_levels(self) -> tuple[int, int]:
         """Help function for search levels."""
         return self.anc_level, self.association_level
-    
+
     def _should_include_by_depth(self, node: nodes.NodeNG) -> bool:
         """Check if a node should be included based on depth."""
         # If max_depth is not set, include all nodes
@@ -75,7 +75,7 @@ class DiaDefGenerator:
 
         # For other nodes, calculate depth based on their root module
         module_depth = node.root().name.count(".")
-        return module_depth <= self.config.max_depth
+        return module_depth <= self.config.max_depth  # type: ignore[no-any-return]
 
     def show_node(self, node: nodes.ClassDef) -> bool:
         """Determine if node should be shown based on config."""
@@ -84,7 +84,7 @@ class DiaDefGenerator:
 
         if is_stdlib_module(node.root().name):
             return self.config.show_stdlib  # type: ignore[no-any-return]
-        
+
         # Filter node by depth
         return self._should_include_by_depth(node)
 
