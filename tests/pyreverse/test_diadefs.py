@@ -8,8 +8,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 from astroid import extract_node, nodes
@@ -56,6 +57,24 @@ def HANDLER(default_config: PyreverseConfig) -> DiadefsHandler:
 def PROJECT(get_project: GetProjectCallable) -> Iterator[Project]:
     with _test_cwd(TESTS):
         yield get_project("data")
+
+
+# Fixture for creating mocked nodes
+@pytest.fixture
+def mock_node() -> Callable[[str], Mock]:
+    def _mock_node(module_path: str) -> Mock:
+        """Create a mocked node with a given module path."""
+        node = Mock()
+        node.root.return_value.name = module_path
+        return node
+
+    return _mock_node
+
+
+# Fixture for the DiaDefGenerator
+@pytest.fixture
+def generator(HANDLER: DiadefsHandler, PROJECT: Project) -> DiaDefGenerator:
+    return DiaDefGenerator(Linker(PROJECT), HANDLER)
 
 
 def test_option_values(
