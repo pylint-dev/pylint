@@ -276,3 +276,56 @@ def test_regression_dataclasses_inference(
     special = "regrtest_data.dataclasses_pyreverse.InventoryItem"
     cd = cdg.class_diagram(path, special)
     assert cd.title == special
+
+
+# Test for no depth limit
+def test_should_include_by_depth_no_limit(
+    generator: DiaDefGenerator, mock_node: Mock
+) -> None:
+    """Test that nodes are included when no depth limit is set."""
+    generator.config.max_depth = None
+
+    # Create mocked nodes with different depths
+    node1 = mock_node("pkg")  # Depth 0
+    node2 = mock_node("pkg.subpkg")  # Depth 1
+    node3 = mock_node("pkg.subpkg.module")  # Depth 2
+
+    # All nodes should be included when max_depth is None
+    assert generator._should_include_by_depth(node1)
+    assert generator._should_include_by_depth(node2)
+    assert generator._should_include_by_depth(node3)
+
+
+@pytest.mark.parametrize("max_depth", range(5))
+def test_should_include_by_depth_with_limit(
+    generator: DiaDefGenerator, mock_node: Mock, max_depth: int
+) -> None:
+    """Test that nodes are filtered correctly when depth limit is set.
+
+    Depth counting is zero-based, determined by number of dots in path:
+    - 'pkg'                  -> depth 0 (0 dots)
+    - 'pkg.subpkg'           -> depth 1 (1 dot)
+    - 'pkg.subpkg.module'    -> depth 2 (2 dots)
+    - 'pkg.subpkg.module.submodule' -> depth 3 (3 dots)
+    """
+    # Set generator config
+    generator.config.max_depth = max_depth
+
+    # Test cases for different depths
+    test_cases = [
+        "pkg",
+        "pkg.subpkg",
+        "pkg.subpkg.module",
+        "pkg.subpkg.module.submodule",
+    ]
+    nodes = [mock_node(path) for path in test_cases]
+
+    # Test if nodes are shown based on their depth and max_depth setting
+    for i, node in enumerate(nodes):
+        should_show = i <= max_depth
+        print(
+            f"Node {node.root.return_value.name} (depth {i}) with max_depth={max_depth} "
+            f"{'should show' if should_show else 'should not show'}:"
+            f"{generator._should_include_by_depth(node)}"
+        )
+        assert generator._should_include_by_depth(node) == should_show
