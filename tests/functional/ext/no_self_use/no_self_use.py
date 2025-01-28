@@ -5,7 +5,7 @@ from typing import Protocol, overload
 
 
 class Toto:
-    """bla bal abl"""
+    """Something inconsequential for the test."""
 
     def __init__(self):
         self.aaa = 2
