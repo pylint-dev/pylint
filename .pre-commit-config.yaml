@@ -109,7 +109,7 @@ repos:
         entry: make -C doc/ html
         pass_filenames: false
         language: system
-        stages: [push]
+        stages: [pre-push]
       - id: check-newsfragments
         name: Check newsfragments
         entry: python3 -m script.check_newsfragments
