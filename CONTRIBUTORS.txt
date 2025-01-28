@@ -334,6 +334,7 @@ contributors:
 - syutbai <syutbai@gmail.com>
 - sur.la.route <17788706+christopherpickering@users.noreply.github.com>
 - sdet_liang <liangway@users.noreply.github.com>
+- purajit <7026198+purajit@users.noreply.github.com>
 - paschich <millen@gridium.com>
 - oittaa <8972248+oittaa@users.noreply.github.com>
 - nyabkun <75878387+nyabkun@users.noreply.github.com>
