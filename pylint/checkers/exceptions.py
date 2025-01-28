@@ -612,9 +612,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                         continue
 
                     exc_ancestors = [
-                        anc
-                        for anc in exception.ancestors()
-                        if isinstance(anc, nodes.ClassDef)
+                        a
+                        for a in exception.ancestors()
+                        if isinstance(a, nodes.ClassDef)
                     ]
 
                     for previous_exc in exceptions_classes:

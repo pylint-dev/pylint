@@ -2339,7 +2339,7 @@ class VariablesChecker(BaseChecker):
                     # Otherwise, safe if used after assignment:
                     # (b := 2) and b
                     maybe_before_assign = defnode.value is node or any(
-                        anc is defnode.value for anc in node.node_ancestors()
+                        a is defnode.value for a in node.node_ancestors()
                     )
                 elif (
                     isinstance(defframe, nodes.ClassDef)
@@ -2463,9 +2463,7 @@ class VariablesChecker(BaseChecker):
                     # var: int
                     # if (var := var * var)  <-- "var" still undefined
                     isinstance(ref_node.parent, nodes.NamedExpr)
-                    and any(
-                        anc is ref_node.parent.value for anc in node.node_ancestors()
-                    )
+                    and any(a is ref_node.parent.value for a in node.node_ancestors())
                 ):
                     return False
             parent = parent_scope.parent
