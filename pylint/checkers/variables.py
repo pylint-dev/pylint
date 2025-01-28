@@ -2463,9 +2463,7 @@ class VariablesChecker(BaseChecker):
                     # var: int
                     # if (var := var * var)  <-- "var" still undefined
                     isinstance(ref_node.parent, nodes.NamedExpr)
-                    and any(
-                        a is ref_node.parent.value for a in node.node_ancestors()
-                    )
+                    and any(a is ref_node.parent.value for a in node.node_ancestors())
                 ):
                     return False
             parent = parent_scope.parent
