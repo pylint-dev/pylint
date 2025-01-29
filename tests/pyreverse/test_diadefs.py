@@ -278,7 +278,6 @@ def test_regression_dataclasses_inference(
     assert cd.title == special
 
 
-# Test for no depth limit
 def test_should_include_by_depth_no_limit(
     generator: DiaDefGenerator, mock_node: Mock
 ) -> None:
@@ -308,10 +307,7 @@ def test_should_include_by_depth_with_limit(
     - 'pkg.subpkg.module'    -> depth 2 (2 dots)
     - 'pkg.subpkg.module.submodule' -> depth 3 (3 dots)
     """
-    # Set generator config
     generator.config.max_depth = max_depth
-
-    # Test cases for different depths
     test_cases = [
         "pkg",
         "pkg.subpkg",
@@ -323,9 +319,9 @@ def test_should_include_by_depth_with_limit(
     # Test if nodes are shown based on their depth and max_depth setting
     for i, node in enumerate(nodes):
         should_show = i <= max_depth
-        print(
+        msg = (
             f"Node {node.root.return_value.name} (depth {i}) with max_depth={max_depth} "
             f"{'should show' if should_show else 'should not show'}:"
             f"{generator._should_include_by_depth(node)}"
         )
-        assert generator._should_include_by_depth(node) == should_show
+        assert generator._should_include_by_depth(node) == should_show, msg

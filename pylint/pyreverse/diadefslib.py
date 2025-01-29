@@ -69,13 +69,9 @@ class DiaDefGenerator:
 
     def _should_include_by_depth(self, node: nodes.NodeNG) -> bool:
         """Check if a node should be included based on depth."""
-        # If max_depth is not set, include all nodes
-        if self.config.max_depth is None:
-            return True
-
-        # For other nodes, calculate depth based on their root module
-        module_depth = node.root().name.count(".")
-        return module_depth <= self.config.max_depth  # type: ignore[no-any-return]
+        # If max_depth is not set, include all nodes, otherwise, calculate depth based on 
+        # node's root module
+        return self.config.max_depth is None or bool(node.root().name.count(".") <= self.config.max_depth)
 
     def show_node(self, node: nodes.ClassDef) -> bool:
         """Determine if node should be shown based on config."""
