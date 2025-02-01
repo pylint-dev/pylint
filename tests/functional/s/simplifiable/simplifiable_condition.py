@@ -19,7 +19,7 @@ elif CONSTANT and True:  # [simplifiable-condition]
 while CONSTANT and True:  # [simplifiable-condition]
     break
 1 if CONSTANT or False else 2  # [simplifiable-condition]
-z = [x for x in range(10) if x or False]  # [simplifiable-condition]
+Z = [x for x in range(10) if x or False]  # [simplifiable-condition]
 
 # Simplifies recursively
 assert CONSTANT or (True and False)  # [simplifiable-condition]
@@ -36,6 +36,6 @@ bool(CONSTANT or OTHER)
 bool(func(CONSTANT or True))
 
 # https://www.reddit.com/r/learnpython/comments/y5vtrw/confused_on_pylint_message_simplifiablecondition/
-board = {}
-if "wking" and "bking" in board.values():  # [simplifiable-condition]
+BOARD = {}
+if "wking" and "bking" in BOARD.values():  # [simplifiable-condition]
     pass

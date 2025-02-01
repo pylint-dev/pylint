@@ -461,14 +461,28 @@ class NameChecker(_BasicChecker):
                 elif isinstance(inferred_assign_type, nodes.ClassDef):
                     self._check_name("class", node.name, node)
 
-                # Don't emit if the name redefines an import in an ImportError except handler.
-                elif not _redefines_import(node) and isinstance(
-                    inferred_assign_type, nodes.Const
+                # Don't emit if the name redefines an import in an ImportError except handler
+                # nor any other reassignment.
+                elif (
+                    not (redefines_import := _redefines_import(node))
+                    and not isinstance(
+                        inferred_assign_type, (nodes.FunctionDef, nodes.Lambda)
+                    )
+                    and not utils.is_reassigned_before_current(node, node.name)
+                    and not utils.is_reassigned_after_current(node, node.name)
+                    and not utils.get_node_first_ancestor_of_type(
+                        node, (nodes.For, nodes.While)
+                    )
                 ):
                     self._check_name("const", node.name, node)
-                else:
+                elif inferred_assign_type is not None and not isinstance(
+                    inferred_assign_type, astroid.util.UninferableBase
+                ):
                     self._check_name(
-                        "variable", node.name, node, disallowed_check_only=True
+                        "variable",
+                        node.name,
+                        node,
+                        disallowed_check_only=redefines_import,
                     )
 
             # Check names defined in AnnAssign nodes
@@ -608,11 +622,11 @@ class NameChecker(_BasicChecker):
     def _assigns_typealias(node: nodes.NodeNG | None) -> bool:
         """Check if a node is assigning a TypeAlias."""
         inferred = utils.safe_infer(node)
-        if isinstance(inferred, nodes.ClassDef):
+        if isinstance(inferred, (nodes.ClassDef, astroid.bases.UnionType)):
             qname = inferred.qname()
             if qname == "typing.TypeAlias":
                 return True
-            if qname == ".Union":
+            if qname in {".Union", "builtins.UnionType"}:
                 # Union is a special case because it can be used as a type alias
                 # or as a type annotation. We only want to check the former.
                 assert node is not None

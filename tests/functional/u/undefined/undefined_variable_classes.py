@@ -6,10 +6,10 @@
 
 import collections
 
-l = ["a", "b", "c"]
+L = ["a", "b", "c"]
 
 
-class Foo(collections.namedtuple("Foo", [x + "_foo" for x in l])):
+class Foo(collections.namedtuple("Foo", [x + "_foo" for x in L])):
     pass
 
 

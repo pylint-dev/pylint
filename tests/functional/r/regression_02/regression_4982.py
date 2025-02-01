@@ -11,7 +11,7 @@ class Base:
         return object
 
 
-subclass = Base.get_first_subclass()
+subclass = Base.get_first_subclass()  # pylint: disable=invalid-name
 
 
 class Another(subclass):

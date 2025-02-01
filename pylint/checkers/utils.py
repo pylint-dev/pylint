@@ -1865,6 +1865,18 @@ def is_sys_guard(node: nodes.If) -> bool:
     return False
 
 
+def is_reassigned_before_current(node: nodes.NodeNG, varname: str) -> bool:
+    """Check if the given variable name is reassigned in the same scope before the
+    current node.
+    """
+    return any(
+        a.name == varname and a.lineno < node.lineno
+        for a in node.scope().nodes_of_class(
+            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
+        )
+    )
+
+
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope after the
     current node.

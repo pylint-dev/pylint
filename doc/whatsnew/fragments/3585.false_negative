@@ -1,0 +1,7 @@
+`invalid-name` now distinguishes module-level names that are assigned only once
+from those that are reassigned and now applies `--variable-rgx` to the latter.
+
+Also, `invalid-name` is triggered for module-level names for additional types
+(e.g. lists and sets).
+
+Closes #3585

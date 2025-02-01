@@ -78,7 +78,7 @@ class MyClass:
     def __init__(self):
         self.my_list = []
 
-my_obj = MyClass()
+MY_OBJ = MyClass()
 def my_function(instance: MyClass):
     for i in range(len(instance.my_list)):  # [consider-using-enumerate]
         var = instance.my_list[i]

@@ -3,9 +3,9 @@ CONS = 42
 
 if __name__ == '__main__':
     CONSTANT = True
-    VAR = 0
+    var = 0
     for i in range(10):
-        VAR += i
+        var += i
 
     import six
     import datetime
