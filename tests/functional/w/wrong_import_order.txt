@@ -1,5 +1,9 @@
-wrong-import-order:22:0:22:22::"first party import ""pylint.checkers"" should be placed before local imports ""package.Class"", "".pack
-age"", "".package2""":UNDEFINED
+wrong-import-order:12:0:12:14::"standard import ""os.path"" should be placed before third party import ""six""":UNDEFINED
+wrong-import-order:14:0:14:10::"standard import ""sys"" should be placed before third party imports ""six"", ""astroid.are_exclusive""":UNDEFINED
+wrong-import-order:15:0:15:15::"standard import ""datetime"" should be placed before third party imports ""six"", ""astroid.are_exclusive""":UNDEFINED
+wrong-import-order:18:0:18:22::"third party import ""totally_missing"" should be placed before local import ""package.Class""":UNDEFINED
+wrong-import-order:20:0:20:14::"third party import ""astroid"" should be placed before local imports ""package.Class"", "".package""":UNDEFINED
+wrong-import-order:22:0:22:22::"first party import ""pylint.checkers"" should be placed before local imports ""package.Class"", "".package"", "".package2""":UNDEFINED
 wrong-import-order:23:0:23:25::"first party import ""pylint.config"" should be placed before local imports ""package.Class"", "".package"", "".package2""":UNDEFINED
 wrong-import-order:24:0:24:17::"first party import ""pylint.sys"" should be placed before local imports ""package.Class"", "".package"", "".package2""":UNDEFINED
 wrong-import-order:25:0:25:28::"first party import ""pylint.pyreverse"" should be placed before local imports ""package.Class"", "".package"", "".package2""":UNDEFINED

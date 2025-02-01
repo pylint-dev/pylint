@@ -475,11 +475,17 @@ class NameChecker(_BasicChecker):
                     )
                 ):
                     self._check_name("const", node.name, node)
-                elif inferred_assign_type is not None and not isinstance(
-                    inferred_assign_type, astroid.util.UninferableBase
-                ):
+                elif inferred_assign_type not in (None, astroid.util.Uninferable):
+                    node_type = "variable"
+                    iattrs = tuple(node.frame().igetattr(node.name))
+                    if (
+                        astroid.util.Uninferable not in iattrs
+                        and len(iattrs) == 2
+                        and astroid.are_exclusive(*iattrs)
+                    ):
+                        node_type = "const"
                     self._check_name(
-                        "variable",
+                        node_type,
                         node.name,
                         node,
                         disallowed_check_only=redefines_import,
