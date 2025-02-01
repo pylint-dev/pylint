@@ -1,6 +1,6 @@
 """Test generic alias support with mix of typing.py and stdlib types (PY39+)."""
 # flake8: noqa
-# pylint: disable=missing-docstring,pointless-statement
+# pylint: disable=missing-docstring,pointless-statement,invalid-name
 # pylint: disable=too-few-public-methods,multiple-statements,line-too-long
 import collections
 import collections.abc
@@ -9,7 +9,7 @@ import re
 import typing
 
 # Type annotations
-var_orderedDict: collections.OrderedDict[int, str]
+var_ordered_dict: collections.OrderedDict[int, str]
 var_container: collections.abc.Container[int]
 var_sequence: collections.abc.Sequence[int]
 var_iterable: collections.abc.Iterable[int]
@@ -17,7 +17,7 @@ var_awaitable: collections.abc.Awaitable[int]
 var_pattern: re.Pattern[int]
 var_bytestring: collections.abc.ByteString
 var_hashable: collections.abc.Hashable
-var_ContextManager: contextlib.AbstractContextManager[int]
+var_context_manager: contextlib.AbstractContextManager[int]
 
 
 # No implementation required for 'builtins'
