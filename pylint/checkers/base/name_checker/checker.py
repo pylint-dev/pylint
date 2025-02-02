@@ -461,6 +461,9 @@ class NameChecker(_BasicChecker):
                 elif isinstance(inferred_assign_type, nodes.ClassDef):
                     self._check_name("class", node.name, node)
 
+                elif inferred_assign_type in (None, astroid.util.Uninferable):
+                    return
+
                 # Don't emit if the name redefines an import in an ImportError except handler
                 # nor any other reassignment.
                 elif (
@@ -475,11 +478,11 @@ class NameChecker(_BasicChecker):
                     )
                 ):
                     self._check_name("const", node.name, node)
-                elif inferred_assign_type not in (None, astroid.util.Uninferable):
+                else:
                     node_type = "variable"
-                    iattrs = tuple(node.frame().igetattr(node.name))
                     if (
-                        astroid.util.Uninferable not in iattrs
+                        (iattrs := tuple(node.frame().igetattr(node.name)))
+                        and astroid.util.Uninferable not in iattrs
                         and len(iattrs) == 2
                         and astroid.are_exclusive(*iattrs)
                     ):
