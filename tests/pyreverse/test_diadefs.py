@@ -8,8 +8,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 from astroid import extract_node, nodes
@@ -56,6 +57,24 @@ def HANDLER(default_config: PyreverseConfig) -> DiadefsHandler:
 def PROJECT(get_project: GetProjectCallable) -> Iterator[Project]:
     with _test_cwd(TESTS):
         yield get_project("data")
+
+
+# Fixture for creating mocked nodes
+@pytest.fixture
+def mock_node() -> Callable[[str], Mock]:
+    def _mock_node(module_path: str) -> Mock:
+        """Create a mocked node with a given module path."""
+        node = Mock()
+        node.root.return_value.name = module_path
+        return node
+
+    return _mock_node
+
+
+# Fixture for the DiaDefGenerator
+@pytest.fixture
+def generator(HANDLER: DiadefsHandler, PROJECT: Project) -> DiaDefGenerator:
+    return DiaDefGenerator(Linker(PROJECT), HANDLER)
 
 
 def test_option_values(
@@ -257,3 +276,52 @@ def test_regression_dataclasses_inference(
     special = "regrtest_data.dataclasses_pyreverse.InventoryItem"
     cd = cdg.class_diagram(path, special)
     assert cd.title == special
+
+
+def test_should_include_by_depth_no_limit(
+    generator: DiaDefGenerator, mock_node: Mock
+) -> None:
+    """Test that nodes are included when no depth limit is set."""
+    generator.config.max_depth = None
+
+    # Create mocked nodes with different depths
+    node1 = mock_node("pkg")  # Depth 0
+    node2 = mock_node("pkg.subpkg")  # Depth 1
+    node3 = mock_node("pkg.subpkg.module")  # Depth 2
+
+    # All nodes should be included when max_depth is None
+    assert generator._should_include_by_depth(node1)
+    assert generator._should_include_by_depth(node2)
+    assert generator._should_include_by_depth(node3)
+
+
+@pytest.mark.parametrize("max_depth", range(5))
+def test_should_include_by_depth_with_limit(
+    generator: DiaDefGenerator, mock_node: Mock, max_depth: int
+) -> None:
+    """Test that nodes are filtered correctly when depth limit is set.
+
+    Depth counting is zero-based, determined by number of dots in path:
+    - 'pkg'                  -> depth 0 (0 dots)
+    - 'pkg.subpkg'           -> depth 1 (1 dot)
+    - 'pkg.subpkg.module'    -> depth 2 (2 dots)
+    - 'pkg.subpkg.module.submodule' -> depth 3 (3 dots)
+    """
+    generator.config.max_depth = max_depth
+    test_cases = [
+        "pkg",
+        "pkg.subpkg",
+        "pkg.subpkg.module",
+        "pkg.subpkg.module.submodule",
+    ]
+    nodes = [mock_node(path) for path in test_cases]
+
+    # Test if nodes are shown based on their depth and max_depth setting
+    for i, node in enumerate(nodes):
+        should_show = i <= max_depth
+        msg = (
+            f"Node {node.root.return_value.name} (depth {i}) with max_depth={max_depth} "
+            f"{'should show' if should_show else 'should not show'}:"
+            f"{generator._should_include_by_depth(node)}"
+        )
+        assert generator._should_include_by_depth(node) == should_show, msg
