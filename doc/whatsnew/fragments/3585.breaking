@@ -2,7 +2,7 @@
 from those that are reassigned and now applies `--variable-rgx` to the latter.
 
 Remember that `--good-names` or `--good-names-rgxs` can be provided to explicitly
-allow good names.
+allow good names. `logger` has been added to the default `--good-names`.
 
 Also, `invalid-name` is triggered for module-level names for additional types
 (e.g. lists and sets).

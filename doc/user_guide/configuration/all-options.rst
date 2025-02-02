@@ -588,7 +588,7 @@ Standard Checkers
 
    # function-rgx =
 
-   good-names = ["i", "j", "k", "ex", "Run", "_"]
+   good-names = ["i", "j", "k", "logger", "ex", "Run", "_"]
 
    good-names-rgxs = []
 

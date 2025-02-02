@@ -199,7 +199,7 @@ class NameChecker(_BasicChecker):
         (
             "good-names",
             {
-                "default": ("i", "j", "k", "ex", "Run", "_"),
+                "default": ("i", "j", "k", "logger", "ex", "Run", "_"),
                 "type": "csv",
                 "metavar": "<names>",
                 "help": "Good variable names which should always be accepted,"

@@ -9,12 +9,12 @@ class Logger:
     """Fake logger"""
 
 
-LOGGER = renamed_logging.getLogger(__name__)
+logger = renamed_logging.getLogger(__name__)
 FAKE_LOGGER = Logger()
 
 # Statements that should be flagged
 renamed_logging.warning('%s, %s' % (4, 5))  # [logging-not-lazy]
-LOGGER.warning('%s' % 5)  # [logging-not-lazy]
+logger.warning('%s' % 5)  # [logging-not-lazy]
 
 # Statements that should not be flagged:
 FAKE_LOGGER.warn('%s' % 5)
