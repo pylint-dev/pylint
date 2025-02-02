@@ -30,5 +30,5 @@ class Animal(Generic[T]):
 class Dog(Animal[Identity]):
     """It's a Dog."""
 
-dog = Dog(identity=Identity(name="Dog"))
-print(dog.identity["name"])
+DOG = Dog(identity=Identity(name="Dog"))
+print(DOG.identity["name"])

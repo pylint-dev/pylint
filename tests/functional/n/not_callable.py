@@ -1,14 +1,14 @@
 # pylint: disable=missing-docstring,too-few-public-methods,wrong-import-position,use-dict-literal
 # pylint: disable=wrong-import-order, undefined-variable
 
-REVISION = None
+revision = None
 
-REVISION() # [not-callable]
+revision() # [not-callable]
 
 def correct():
     return 1
 
-REVISION = correct()
+revision = correct()
 
 class Correct:
     """callable object"""
@@ -21,15 +21,15 @@ class MetaCorrect:
 INSTANCE = Correct()
 CALLABLE_INSTANCE = MetaCorrect()
 CORRECT = CALLABLE_INSTANCE()
-INCORRECT = INSTANCE() # [not-callable]
+incorrect = INSTANCE() # [not-callable]
 LIST = []
-INCORRECT = LIST() # [not-callable]
+incorrect = LIST() # [not-callable]
 DICT = {}
-INCORRECT = DICT() # [not-callable]
+incorrect = DICT() # [not-callable]
 TUPLE = ()
-INCORRECT = TUPLE() # [not-callable]
+incorrect = TUPLE() # [not-callable]
 INT = 1
-INCORRECT = INT() # [not-callable]
+incorrect = INT() # [not-callable]
 
 # Test calling properties. Pylint can detect when using only the
 # getter, but it doesn't infer properly when having a getter
@@ -141,7 +141,7 @@ CLASS_WITH_PROP = ClassWithProperty().value()  # [not-callable]
 import typing
 
 Named = typing.NamedTuple("Named", [("foo", int), ("bar", int)])
-named = Named(1, 2)
+NAMED = Named(1, 2)
 
 
 # NamedTuple is callable, even if it aliased to an attribute
@@ -211,8 +211,8 @@ class Klass:
             self._x = lambda: None
         return self._x
 
-myobject = Klass()
-myobject.myproperty()
+MY_OBJECT = Klass()
+MY_OBJECT.myproperty()
 
 class Klass2:
     @property
@@ -222,16 +222,16 @@ class Klass2:
 
         return 'abcd'
 
-obj2 = Klass2()
-obj2.something()
+OBJ_2 = Klass2()
+OBJ_2.something()
 
 
 # Regression test for https://github.com/pylint-dev/pylint/issues/7109
 instance_or_cls = MyClass  # pylint:disable=invalid-name
 instance_or_cls = MyClass()
 if not isinstance(instance_or_cls, MyClass):
-    new = MyClass.__new__(instance_or_cls)
-    new()
+    NEW = MyClass.__new__(instance_or_cls)
+    NEW()
 
 
 # Regression test for https://github.com/pylint-dev/pylint/issues/5113.

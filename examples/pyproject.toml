@@ -167,7 +167,7 @@ function-naming-style = "snake_case"
 # function-rgx =
 
 # Good variable names which should always be accepted, separated by a comma.
-good-names = ["i", "j", "k", "ex", "Run", "_"]
+good-names = ["i", "j", "k", "logger", "ex", "Run", "_"]
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted

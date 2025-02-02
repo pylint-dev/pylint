@@ -108,9 +108,9 @@ print(else_assign_2)  # [undefined-variable]
 
 # Tests for assignment expressions in lambda statements
 
-things = []
-sorted_things = sorted(
-    things,
+THINGS = []
+SORTED_THINGS = sorted(
+    THINGS,
     key=lambda thing: x_0
     if (x_0 := thing.this_value) < (x_1 := thing.that_value)
     else x_1,
@@ -161,7 +161,7 @@ class Dummy:
         self.value = value
 
 
-dummy = Dummy(value=val if (val := 'something') else 'anything')
+DUMMY = Dummy(value=val if (val := 'something') else 'anything')
 
 def expression_in_ternary_operator_inside_container():
     """Named expression in ternary operator: inside container"""

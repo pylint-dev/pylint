@@ -8,6 +8,6 @@ def okay(**kwargs):
     print(kwargs)
 
 
-keyword_args = {"łol": "this would be hard to check against"}
+KEYWORD_ARGS = {"łol": "this would be hard to check against"}
 
-okay(**keyword_args)
+okay(**KEYWORD_ARGS)

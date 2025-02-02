@@ -12,17 +12,17 @@ _ = lambda x: hash(x)  # replaceable with "hash"
 _ = lambda x, y: min(x, y)  # replaceable with "min"
 
 # A function that can take any arguments given to it.
-_ANYARGS = lambda *args, **kwargs: 'completely arbitrary return value'
+_anyargs = lambda *args, **kwargs: 'completely arbitrary return value'
 
 # Some more complex forms of unnecessary lambda expressions.
 # +1: [unnecessary-lambda]
-_ = lambda *args: _ANYARGS(*args)
+_ = lambda *args: _anyargs(*args)
 # +1: [unnecessary-lambda]
-_ = lambda **kwargs: _ANYARGS(**kwargs)
+_ = lambda **kwargs: _anyargs(**kwargs)
 # +1: [unnecessary-lambda]
-_ = lambda *args, **kwargs: _ANYARGS(*args, **kwargs)
+_ = lambda *args, **kwargs: _anyargs(*args, **kwargs)
 # +1: [unnecessary-lambda]
-_ = lambda x, y, z, *args, **kwargs: _ANYARGS(x, y, z, *args, **kwargs)
+_ = lambda x, y, z, *args, **kwargs: _anyargs(x, y, z, *args, **kwargs)
 
 # These don't use their parameters in their body
 # +1: [unnecessary-lambda]
@@ -39,18 +39,18 @@ _ = lambda x: list(range(5, x))
 _ = lambda x, y: list(range(x, 5))
 _ = lambda x, y, z: x.y(z)
 _ = lambda: 5
-_ = lambda **kwargs: _ANYARGS()
-_ = lambda **kwargs: _ANYARGS(**dict([('three', 3)]))
-_ = lambda **kwargs: _ANYARGS(**{'three': 3})
-_ = lambda dict_arg, **kwargs: _ANYARGS(kwargs, **dict_arg)
-_ = lambda *args: _ANYARGS()
-_ = lambda *args: _ANYARGS(*list([3, 4]))
-_ = lambda *args: _ANYARGS(*[3, 4])
-_ = lambda list_arg, *args: _ANYARGS(args, *list_arg)
-_ = lambda: _ANYARGS(*[3])
-_ = lambda: _ANYARGS(**{'three': 3})
-_ = lambda: _ANYARGS(*[3], **{'three': 3})
-_ = lambda: _ANYARGS(func=42)
+_ = lambda **kwargs: _anyargs()
+_ = lambda **kwargs: _anyargs(**dict([('three', 3)]))
+_ = lambda **kwargs: _anyargs(**{'three': 3})
+_ = lambda dict_arg, **kwargs: _anyargs(kwargs, **dict_arg)
+_ = lambda *args: _anyargs()
+_ = lambda *args: _anyargs(*list([3, 4]))
+_ = lambda *args: _anyargs(*[3, 4])
+_ = lambda list_arg, *args: _anyargs(args, *list_arg)
+_ = lambda: _anyargs(*[3])
+_ = lambda: _anyargs(**{'three': 3})
+_ = lambda: _anyargs(*[3], **{'three': 3})
+_ = lambda: _anyargs(func=42)
 
 # pylint: disable=missing-function-docstring
 def f(d):

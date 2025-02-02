@@ -45,9 +45,15 @@ def _generate_cmdline_tests():
         yield TestCase(''.join(item), True)
 
 
-# We should emit for the loop variable.
+# We should emit for the loop variable using the variable pattern.
 for i in range(10):
     Foocapfor = 2  # [invalid-name]
+    foonocapsfor = 3
+
+
+# Reassignments outside loops
+my_var = 0
+my_var = 1
 
 
 def dummy_decorator(aaabc, bbbcd):
