@@ -37,8 +37,8 @@ def bad_char_file_generator(tmp_path: Path) -> Callable[[str, bool, str], Path]:
         "# Example File containing bad ASCII",
         "# invalid char backspace: \b",
         "# Bad carriage-return \r # not at the end",
-        "# Invalid char sub: \x1A",
-        "# Invalid char esc: \x1B",
+        "# Invalid char sub: \x1a",
+        "# Invalid char esc: \x1b",
     )
 
     def _bad_char_file_generator(
