@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -49,8 +49,10 @@ def _process_relations(
 
 
 @pytest.fixture
-def HANDLER(default_config: PyreverseConfig) -> DiadefsHandler:
-    return DiadefsHandler(default_config)
+def HANDLER(
+    default_config: PyreverseConfig, default_args: Sequence[str]
+) -> DiadefsHandler:
+    return DiadefsHandler(config=default_config, args=default_args)
 
 
 @pytest.fixture(scope="module")
@@ -78,13 +80,16 @@ def generator(HANDLER: DiadefsHandler, PROJECT: Project) -> DiaDefGenerator:
 
 
 def test_option_values(
-    default_config: PyreverseConfig, HANDLER: DiadefsHandler, PROJECT: Project
+    default_config: PyreverseConfig,
+    default_args: Sequence[str],
+    HANDLER: DiadefsHandler,
+    PROJECT: Project,
 ) -> None:
     """Test for ancestor, associated and module options."""
     df_h = DiaDefGenerator(Linker(PROJECT), HANDLER)
     cl_config = default_config
     cl_config.classes = ["Specialization"]
-    cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
+    cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config=cl_config, args=[]))
     assert df_h._get_levels() == (0, 0)
     assert not df_h.module_names
     assert cl_h._get_levels() == (-1, -1)
@@ -96,11 +101,13 @@ def test_option_values(
         hndl._set_default_options()
         assert hndl._get_levels() == (-1, -1)
         assert hndl.module_names
-    handler = DiadefsHandler(default_config)
+    handler = DiadefsHandler(config=default_config, args=default_args)
     df_h = DiaDefGenerator(Linker(PROJECT), handler)
     cl_config = default_config
     cl_config.classes = ["Specialization"]
-    cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
+    cl_h = DiaDefGenerator(
+        Linker(PROJECT), DiadefsHandler(config=cl_config, args=default_args)
+    )
     for hndl in (df_h, cl_h):
         hndl.config.show_ancestors = 2
         hndl.config.show_associated = 1
@@ -127,7 +134,8 @@ class TestShowOptions:
         )
 
         config = PyreverseConfig()
-        dd_gen = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config))
+        args: Sequence[str] = []
+        dd_gen = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config, args))
 
         # Default behavior
         assert not list(dd_gen.get_ancestors(example, 1))
@@ -147,7 +155,8 @@ class TestShowOptions:
         )
 
         config = PyreverseConfig()
-        dd_gen = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config))
+        args: Sequence[str] = []
+        dd_gen = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config, args))
 
         # Default behavior
         assert not list(dd_gen.get_ancestors(example, 1))
@@ -175,7 +184,10 @@ class TestDefaultDiadefGenerator:
         assert relations == self._should_rels
 
     def test_functional_relation_extraction(
-        self, default_config: PyreverseConfig, get_project: GetProjectCallable
+        self,
+        default_config: PyreverseConfig,
+        default_args: Sequence[str],
+        get_project: GetProjectCallable,
     ) -> None:
         """Functional test of relations extraction;
         different classes possibly in different modules.
@@ -183,7 +195,7 @@ class TestDefaultDiadefGenerator:
         # XXX should be catching pyreverse environment problem but doesn't
         # pyreverse doesn't extract the relations but this test ok
         project = get_project("data")
-        handler = DiadefsHandler(default_config)
+        handler = DiadefsHandler(default_config, default_args)
         diadefs = handler.get_diadefs(project, Linker(project, tag=True))
         cd = diadefs[1]
         relations = _process_relations(cd.relationships)
