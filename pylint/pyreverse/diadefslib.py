@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Generator
+from collections.abc import Generator, Sequence
 from typing import Any
 
 import astroid
@@ -217,8 +217,9 @@ class ClassDiadefGenerator(DiaDefGenerator):
 class DiadefsHandler:
     """Get diagram definitions from user (i.e. xml files) or generate them."""
 
-    def __init__(self, config: argparse.Namespace) -> None:
+    def __init__(self, config: argparse.Namespace, args: Sequence[str]) -> None:
         self.config = config
+        self.args = args
 
     def get_diadefs(self, project: Project, linker: Linker) -> list[ClassDiagram]:
         """Get the diagram's configuration data.
