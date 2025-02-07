@@ -27,6 +27,7 @@ class DiaDefGenerator:
     def __init__(self, linker: Linker, handler: DiadefsHandler) -> None:
         """Common Diagram Handler initialization."""
         self.config = handler.config
+        self.args = handler.args
         self.module_names: bool = False
         self._set_default_options()
         self.linker = linker
@@ -69,11 +70,17 @@ class DiaDefGenerator:
 
     def _should_include_by_depth(self, node: nodes.NodeNG) -> bool:
         """Check if a node should be included based on depth."""
-        # If max_depth is not set, include all nodes, otherwise, calculate depth based on
-        # node's root module
-        return self.config.max_depth is None or bool(
-            node.root().name.count(".") <= self.config.max_depth
+        # If max_depth is not set, include all nodes
+        if self.config.max_depth is None:
+            return True
+
+        # Check based on relative depth
+        abs_depth = node.root().name.count(".")
+        base_depth = min(
+            (arg.count(".") for arg in self.args if node.root().name.startswith(arg)),
+            default=abs_depth,  # Fallback to absolute depth if no other packages are found
         )
+        return bool((abs_depth - base_depth) <= self.config.max_depth)
 
     def show_node(self, node: nodes.ClassDef) -> bool:
         """Determine if node should be shown based on config."""
