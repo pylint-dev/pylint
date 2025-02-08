@@ -308,19 +308,19 @@ def test_should_include_by_depth_no_limit(
 
 
 @pytest.mark.parametrize("max_depth", range(5))
-def test_should_include_by_depth_with_limit(
+def test_should_include_by_depth_absolute(
     generator: DiaDefGenerator, mock_node: Mock, max_depth: int
 ) -> None:
-    """Test that nodes are filtered correctly when depth limit is set.
+    """Test absolute depth filtering (no relative package logic).
 
-    Depth counting is zero-based, determined by number of dots in path:
-    - 'pkg'                  -> depth 0 (0 dots)
-    - 'pkg.subpkg'           -> depth 1 (1 dot)
-    - 'pkg.subpkg.module'    -> depth 2 (2 dots)
-    - 'pkg.subpkg.module.submodule' -> depth 3 (3 dots)
+    - 'pkg'                  -> depth 0
+    - 'pkg.subpkg'           -> depth 1
+    - 'pkg.subpkg.module'    -> depth 2
+    - 'pkg.subpkg.module.submodule' -> depth 3
     """
     generator.config.max_depth = max_depth
-    generator.args = "pkg"  # Specify root package
+    generator.args = ["pkg"]  # Single root package
+
     test_cases = [
         "pkg",
         "pkg.subpkg",
@@ -329,11 +329,88 @@ def test_should_include_by_depth_with_limit(
     ]
     nodes = [mock_node(path) for path in test_cases]
 
-    # Test if nodes are shown based on their depth and max_depth setting
     for i, node in enumerate(nodes):
         should_show = i <= max_depth
         msg = (
             f"Node {node.root.return_value.name} (depth {i}) with max_depth={max_depth} "
+            f"{'should show' if should_show else 'should not show'}:"
+            f"{generator._should_include_by_depth(node)}"
+        )
+        assert generator._should_include_by_depth(node) == should_show, msg
+
+
+@pytest.mark.parametrize("max_depth", range(5))
+@pytest.mark.parametrize(
+    "specified_package", [["pkg"], ["pkg.subpkg"], ["pkg.subpkg.module"]]
+)
+def test_should_include_by_depth_relative_single_package(
+    generator: DiaDefGenerator,
+    mock_node: Mock,
+    max_depth: int,
+    specified_package: list[str],
+) -> None:
+    """Test relative depth filtering when only one package is specified.
+
+    Each test case ensures that depth is calculated **relative** to the specified package.
+    """
+    generator.config.max_depth = max_depth
+    generator.args = specified_package  # Only one package is specified
+
+    test_cases = [
+        "pkg",
+        "pkg.subpkg",
+        "pkg.subpkg.module",
+        "pkg.subpkg.module.submodule",
+    ]
+    nodes = [mock_node(path) for path in test_cases]
+
+    base_depth = specified_package[0].count(".")
+
+    for node in nodes:
+        abs_depth = node.root.return_value.name.count(".")
+        relative_depth = abs_depth - base_depth
+        should_show = relative_depth <= max_depth
+
+        msg = (
+            f"Node {node.root.return_value.name} (abs_depth {abs_depth}, base_depth {base_depth}, "
+            f"relative_depth {relative_depth}) with max_depth={max_depth} "
+            f"{'should show' if should_show else 'should not show'}:"
+            f"{generator._should_include_by_depth(node)}"
+        )
+        assert generator._should_include_by_depth(node) == should_show, msg
+
+
+@pytest.mark.parametrize("max_depth", range(5))
+def test_should_include_by_depth_relative_multiple_packages(
+    generator: DiaDefGenerator, mock_node: Mock, max_depth: int
+) -> None:
+    """Test relative depth filtering when multiple packages are specified.
+
+    The base depth should be determined by the **shallowest** specified package.
+    """
+    specified_packages = ["pkg", "pkg.subpkg"]
+    generator.config.max_depth = max_depth
+    generator.args = specified_packages  # Multiple packages specified ==> depth relative to the shallowest
+
+    test_cases = [
+        "pkg",
+        "pkg.subpkg",
+        "pkg.subpkg.module",
+        "pkg.subpkg.module.submodule",
+    ]
+    nodes = [mock_node(path) for path in test_cases]
+
+    # Compute base depth relative to the shallowest specified package
+    base_depth = min(arg.count(".") for arg in specified_packages)
+
+    for node in nodes:
+        abs_depth = node.root.return_value.name.count(".")
+        relative_depth = abs_depth - base_depth
+        should_show = relative_depth <= max_depth
+
+        msg = (
+            f"Node {node.root.return_value.name} (abs_depth {abs_depth}, base_depth {base_depth}, "
+            f"relative_depth {relative_depth}) with max_depth={max_depth} "
             f"{'should show' if should_show else 'should not show'}:"
             f"{generator._should_include_by_depth(node)}"
         )
