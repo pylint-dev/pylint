@@ -324,9 +324,9 @@ class ComparisonChecker(_BasicChecker):
             left = node.left
             if _is_one_arg_pos_call(left):
                 self._check_type_x_is_y(node, left, operator, right)
-            else:
+            elif _is_one_arg_pos_call(right):
                 self._check_type_x_is_y(
-                    node, right, operator, left
+                    node=node, left=right, operator=operator, right=left
                 )  # transforming Y == type(x) case to type(x) == Y
 
     def _check_type_x_is_y(
