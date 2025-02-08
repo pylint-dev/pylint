@@ -327,7 +327,7 @@ class ComparisonChecker(_BasicChecker):
             else:
                 self._check_type_x_is_y(
                     node, right, operator, left
-                )  # tranforming Y == type(x) case to type(x) == Y
+                )  # transforming Y == type(x) case to type(x) == Y
 
     def _check_type_x_is_y(
         self,
