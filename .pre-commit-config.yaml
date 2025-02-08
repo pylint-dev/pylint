@@ -20,7 +20,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.9.3"
+    rev: "v0.9.4"
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -41,7 +41,7 @@ repos:
       - id: isort
         exclude: doc/data/messages/
   - repo: https://github.com/psf/black
-    rev: 24.10.0
+    rev: 25.1.0
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -177,9 +177,13 @@ repos:
         args: ["-r", "-lll"]
         exclude: *fixtures
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.0
+    rev: v2.4.1
     hooks:
       - id: codespell
         args: ["--toml=pyproject.toml"]
         additional_dependencies:
           - tomli
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: "v2.5.0"
+    hooks:
+      - id: pyproject-fmt
