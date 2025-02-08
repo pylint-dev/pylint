@@ -320,6 +320,7 @@ def test_should_include_by_depth_with_limit(
     - 'pkg.subpkg.module.submodule' -> depth 3 (3 dots)
     """
     generator.config.max_depth = max_depth
+    generator.args = "pkg"  # Specify root package
     test_cases = [
         "pkg",
         "pkg.subpkg",
