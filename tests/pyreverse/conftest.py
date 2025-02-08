@@ -18,7 +18,7 @@ from pylint.typing import GetProjectCallable
 @pytest.fixture()
 def default_args() -> Sequence[str]:
     """Provides default command-line arguments for tests."""
-    return []
+    return ["data"]
 
 
 @pytest.fixture()
