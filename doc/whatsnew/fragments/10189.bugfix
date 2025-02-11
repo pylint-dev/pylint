@@ -1,0 +1,3 @@
+Fixed raising invalid-name when using camelCase for private methods with two leading underscores.
+
+Closes #10189
