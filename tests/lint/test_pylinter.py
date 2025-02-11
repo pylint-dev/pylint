@@ -7,9 +7,8 @@ from __future__ import annotations
 import io
 import os
 import sys
-import warnings
 from pathlib import Path
-from typing import Any, NoReturn
+from typing import Any, NamedTuple, NoReturn
 from unittest import mock
 from unittest.mock import patch
 
@@ -88,49 +87,21 @@ def test_open_pylinter_prefer_stubs(linter: PyLinter) -> None:
         MANAGER.prefer_stubs = False
 
 
-def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
-    if metafunc.function.__name__ != test_handle_force_color_no_color.__name__:
-        return
+class ReportersCombo(NamedTuple):
+    text_reporters: tuple[str, ...]
+    colorized_reporters: tuple[str, ...]
 
-    if (
-        TEXT_REPORTERS not in metafunc.fixturenames
-        or COLORIZED_REPORTERS not in metafunc.fixturenames
-    ):
-        warnings.warn(
-            f"Missing fixture {TEXT_REPORTERS} or {COLORIZED_REPORTERS} in"
-            f" {test_handle_force_color_no_color.function.__name__}??",
-            stacklevel=2,
-        )
-        return
 
-    parameters = []
-
-    reporter_combinations = [
-        ("file", STDOUT_TEXT),
-        ("file",),
-        (STDOUT_TEXT,),
-        ("",),
-    ]
-
-    for tr in list(reporter_combinations):
-        for cr in list(reporter_combinations):
-            tr = tuple(t for t in tr if t)
-            cr = tuple(t for t in cr if t)
-
-            total_reporters = len(tr) + len(cr)
-            unique_reporters = len(set(tr + cr))
-
-            if total_reporters == 0:
-                continue
-
-            if unique_reporters != total_reporters:
-                continue
-
-            parameters.append((tuple(tr), tuple(cr)))
-
-    metafunc.parametrize(
-        f"{TEXT_REPORTERS}, {COLORIZED_REPORTERS}", parameters, ids=repr
-    )
+test_handle_force_color_no_color_reporters = (
+    ReportersCombo(("file", "stdout"), ()),
+    ReportersCombo(("file",), ("stdout",)),
+    ReportersCombo(("file",), ()),
+    ReportersCombo(("stdout",), ("file",)),
+    ReportersCombo(("stdout",), ()),
+    ReportersCombo((), ("file", "stdout")),
+    ReportersCombo((), ("file",)),
+    ReportersCombo((), ("stdout",)),
+)
 
 
 @pytest.mark.parametrize(
@@ -142,6 +113,11 @@ def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     "force_color",
     [True, False],
     ids=lambda force_color: f"{force_color=}",
+)
+@pytest.mark.parametrize(
+    "text_reporters, colorized_reporters",
+    test_handle_force_color_no_color_reporters,
+    ids=repr,
 )
 def test_handle_force_color_no_color(
     monkeypatch: pytest.MonkeyPatch,
