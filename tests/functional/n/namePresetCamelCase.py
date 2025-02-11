@@ -21,5 +21,8 @@ class MyClass:  # [invalid-name]
     def __privateMethod(self):
         pass
 
+    def _protectedMethod(self):
+        pass
+
 def say_hello():  # [invalid-name]
     pass
