@@ -10,3 +10,4 @@ catching-non-exception:71:7:71:52::"Catching an exception which doesn't inherit 
 catching-non-exception:84:7:84:26::"Catching an exception which doesn't inherit from Exception: NON_EXCEPTION_TUPLE":UNDEFINED
 catching-non-exception:102:7:102:13::"Catching an exception which doesn't inherit from Exception: object":UNDEFINED
 catching-non-exception:107:7:107:12::"Catching an exception which doesn't inherit from Exception: range":UNDEFINED
+catching-non-exception:141:7:141:13::"Catching an exception which doesn't inherit from Exception: LAMBDA":UNDEFINED

@@ -432,7 +432,13 @@ class ExceptionsChecker(checkers.BaseChecker):
                 return
             if all(
                 node
-                and (utils.inherit_from_std_ex(node) or not utils.has_known_bases(node))
+                and (
+                    utils.inherit_from_std_ex(node)
+                    or (
+                        isinstance(node, nodes.ClassDef)
+                        and not utils.has_known_bases(node)
+                    )
+                )
                 for node in inferred
             ):
                 return
