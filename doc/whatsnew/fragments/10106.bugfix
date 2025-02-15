@@ -1,0 +1,3 @@
+Fix a crash when something besides a class is found in an except handler.
+
+Closes #10106
