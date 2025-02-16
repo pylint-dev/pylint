@@ -47,7 +47,6 @@ _ImportTree = dict[str, Union[list[dict[str, Any]], list[str]]]
 
 DEPRECATED_MODULES = {
     (0, 0, 0): {"tkinter.tix", "fpectl"},
-    (3, 2, 0): {"optparse"},
     (3, 3, 0): {"xml.etree.cElementTree"},
     (3, 4, 0): {"imp"},
     (3, 5, 0): {"formatter"},
@@ -79,7 +78,6 @@ DEPRECATED_MODULES = {
         "uu",
         "xdrlib",
     },
-    (3, 13, 0): {"getopt"},
 }
 
 

@@ -35,7 +35,7 @@ def lint_module_fixture(
 
 
 def test_lint_module_output_update_fail_before(
-    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
 ) -> None:
     """There is a fail before the output need to be updated."""
     filename, expected_output_file, lmou = lint_module_fixture("foo")
@@ -47,7 +47,7 @@ def test_lint_module_output_update_fail_before(
 
 
 def test_lint_module_output_update_effective(
-    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
 ) -> None:
     """The file is updated following a successful tests with wrong output."""
     filename, expected_output_file, lmou = lint_module_fixture("foo")
@@ -61,7 +61,7 @@ def test_lint_module_output_update_effective(
 
 
 def test_lint_module_output_update_remove_useless_txt(
-    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]]
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
 ) -> None:
     """The file is updated following a successful tests with wrong output."""
     filename, expected_output_file, lmou = lint_module_fixture("fine_name")

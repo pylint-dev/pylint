@@ -6,6 +6,10 @@ def simple_positives():
     type(42) is not int # [unidiomatic-typecheck]
     type(42) == int # [unidiomatic-typecheck]
     type(42) != int # [unidiomatic-typecheck]
+    int is type(42) # [unidiomatic-typecheck]
+    int is not type(42) # [unidiomatic-typecheck]
+    int == type(42) # [unidiomatic-typecheck]
+    int != type(42) # [unidiomatic-typecheck]
 
 def simple_inference_positives():
     alias = type

@@ -22,9 +22,7 @@ class LintModuleOutputUpdate(LintModuleTest):
         delimiter = ":"
         lineterminator = "\n"
 
-    # TestDialect inherit from csv.excel, which inherit from Dialect
-    # probably something wrong in csv typing
-    csv.register_dialect("test", TestDialect)  # type: ignore[arg-type]
+    csv.register_dialect("test", TestDialect)
 
     def _check_output_text(
         self,

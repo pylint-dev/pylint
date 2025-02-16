@@ -241,8 +241,23 @@ class TestRunTC:
 
     def test_output_with_verbose(self) -> None:
         out = StringIO()
-        self._runtest([UNNECESSARY_LAMBDA, "--verbose"], out=out, code=4)
-        assert "Checked 1 files, skipped 0 files" in out.getvalue().strip()
+        self._runtest(
+            [
+                UNNECESSARY_LAMBDA,
+                join(
+                    HERE,
+                    "regrtest_data",
+                    "directory",
+                    "ignored_subdirectory",
+                    "failing.py",
+                ),
+                "--ignore-paths=.*failing.*",
+                "--verbose",
+            ],
+            out=out,
+            code=4,
+        )
+        assert "Checked 1 files, skipped 1 files/modules" in out.getvalue().strip()
 
     def test_no_out_encoding(self) -> None:
         """Test redirection of stdout with non ascii characters."""
@@ -324,6 +339,60 @@ class TestRunTC:
             # If ~/.pylintrc is present remove the
             # Using config file...  line
             actual_output = actual_output[actual_output.find("\n") :]
+        assert self._clean_paths(expected_output.strip()) == actual_output.strip()
+
+    def test_progress_reporting(self) -> None:
+        module1 = join(HERE, "regrtest_data", "import_something.py")
+        module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
+        args = [
+            module2,
+            module1,
+            "--disable=all",
+            "--enable=wrong-import-position",
+            "--verbose",
+            "-rn",
+            "-sn",
+        ]
+        out = StringIO()
+        self._run_pylint(args, out=out)
+        actual_output = self._clean_paths(out.getvalue().strip())
+
+        expected_output = textwrap.dedent(
+            f"""
+        Using config file pylint/testutils/testing_pylintrc
+        Get ASTs.
+        AST for {module2}
+        AST for {module1}
+        Linting 2 modules.
+        {module2} (1 of 2)
+        ************* Module wrong_import_position
+        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
+        {module1} (2 of 2)
+        """
+        )
+        assert self._clean_paths(expected_output.strip()) == actual_output.strip()
+
+    def test_progress_reporting_not_shown_if_not_verbose(self) -> None:
+        module1 = join(HERE, "regrtest_data", "import_something.py")
+        module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
+        args = [
+            module2,
+            module1,
+            "--disable=all",
+            "--enable=wrong-import-position",
+            "-rn",
+            "-sn",
+        ]
+        out = StringIO()
+        self._run_pylint(args, out=out)
+        actual_output = self._clean_paths(out.getvalue().strip())
+
+        expected_output = textwrap.dedent(
+            f"""
+        ************* Module wrong_import_position
+        {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
+        """
+        )
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     def test_type_annotation_names(self) -> None:
@@ -1104,7 +1173,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             (
                 "colorized",
                 (
-                    "{path}:4:4: W0612: \x1B[35mUnused variable 'variable'\x1B[0m (\x1B[35munused-variable\x1B[0m)"
+                    "{path}:4:4: W0612: \x1b[35mUnused variable 'variable'\x1b[0m (\x1b[35munused-variable\x1b[0m)"
                 ),
             ),
             ("json", '"message": "Unused variable \'variable\'",'),
@@ -1212,7 +1281,10 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         test would fail due these errors.
         """
         directory = join(HERE, "regrtest_data", "directory")
-        self._runtest([directory, "--recursive=y", f"--ignore={ignore_value}"], code=0)
+        self._runtest(
+            [directory, "--verbose", "--recursive=y", f"--ignore={ignore_value}"],
+            code=0,
+        )
 
     @pytest.mark.parametrize("ignore_pattern_value", ["ignored_.*", "failing.*"])
     def test_ignore_pattern_recursive(self, ignore_pattern_value: str) -> None:

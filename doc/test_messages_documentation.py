@@ -167,7 +167,7 @@ class LintModuleTest:
                 actual_messages_raw
             )
         if self.is_bad_test():
-            bad_files = [(self._test_file[1])]
+            bad_files = [self._test_file[1]]
             if self._test_file[1].is_dir() and not self.is_multifile_example():
                 bad_files = list(self._test_file[1].iterdir())
             assert len(actual_messages_raw) >= len(bad_files), self.assert_message_bad(

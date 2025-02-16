@@ -36,7 +36,7 @@ def _process_classes(classes: list[DiagramEntity]) -> list[tuple[bool, str]]:
 
 
 def _process_relations(
-    relations: dict[str, list[Relationship]]
+    relations: dict[str, list[Relationship]],
 ) -> list[tuple[str, str, str]]:
     """Extract relation indices from a relation list."""
     result = []

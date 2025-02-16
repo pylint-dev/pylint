@@ -33,7 +33,7 @@ class InvalidUserInput(Exception):
 
 
 def should_retry_after_invalid_input(
-    func: Callable[_P, _ReturnValueT]
+    func: Callable[_P, _ReturnValueT],
 ) -> Callable[_P, _ReturnValueT]:
     """Decorator that handles InvalidUserInput exceptions and retries."""
 

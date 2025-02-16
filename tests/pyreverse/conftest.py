@@ -67,6 +67,13 @@ def html_config() -> PyreverseConfig:
     )
 
 
+@pytest.fixture()
+def depth_limited_config(default_max_depth: int) -> PyreverseConfig:
+    return PyreverseConfig(
+        max_depth=default_max_depth,
+    )
+
+
 @pytest.fixture(scope="session")
 def get_project() -> GetProjectCallable:
     def _get_project(module: str, name: str | None = "No Name") -> Project:

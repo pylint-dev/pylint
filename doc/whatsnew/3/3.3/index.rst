@@ -14,6 +14,29 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+
+What's new in Pylint 3.3.4?
+---------------------------
+Release date: 2025-01-28
+
+
+Other Bug Fixes
+---------------
+
+- Fixes "skipped files" count calculation; the previous method was displaying an arbitrary number.
+
+  Closes #10073 (`#10073 <https://github.com/pylint-dev/pylint/issues/10073>`_)
+
+- Fixes a crash that occurred when pylint was run in a container on a host with cgroupsv2 and restrictions on CPU usage.
+
+  Closes #10103 (`#10103 <https://github.com/pylint-dev/pylint/issues/10103>`_)
+
+- Relaxed the requirements for isort so pylint can benefit from isort 6.
+
+  Closes #10203 (`#10203 <https://github.com/pylint-dev/pylint/issues/10203>`_)
+
+
+
 What's new in Pylint 3.3.3?
 ---------------------------
 Release date: 2024-12-23

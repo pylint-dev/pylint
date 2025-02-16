@@ -1,1 +1,1 @@
-STRING = "Valid escape character \x1B"
+STRING = "Valid escape character \x1b"

@@ -60,14 +60,14 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
                     continue
 
                 exc_ancestors = [
-                    anc for anc in exc.ancestors() if isinstance(anc, astroid.ClassDef)
+                    a for a in exc.ancestors() if isinstance(a, astroid.ClassDef)
                 ]
 
                 for prev_part, prev_exc in handled_in_clause:
                     prev_exc_ancestors = [
-                        anc
-                        for anc in prev_exc.ancestors()
-                        if isinstance(anc, astroid.ClassDef)
+                        a
+                        for a in prev_exc.ancestors()
+                        if isinstance(a, astroid.ClassDef)
                     ]
                     if exc == prev_exc:
                         self.add_message(

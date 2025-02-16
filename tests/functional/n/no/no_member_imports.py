@@ -1,6 +1,5 @@
 """Tests for no-member on imported modules"""
 # pylint: disable=import-outside-toplevel, pointless-statement, missing-function-docstring
-# pylint: disable=deprecated-module
 
 
 def test_no_member_in_getattr():

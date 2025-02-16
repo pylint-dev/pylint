@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-def _config_initialization(
+def _config_initialization(  # pylint: disable=too-many-statements
     linter: PyLinter,
     args_list: list[str],
     reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
@@ -33,6 +33,7 @@ def _config_initialization(
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
+    linter.verbose = verbose_mode
     config_file = Path(config_file) if config_file else None
 
     # Set the current module to the configuration file

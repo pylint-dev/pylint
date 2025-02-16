@@ -1,0 +1,3 @@
+Fix a false positive for ``invalid-getnewargs-ex-returned`` when the tuple or dict has been assigned to a name.
+
+Closes #10208

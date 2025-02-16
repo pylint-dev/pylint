@@ -128,6 +128,7 @@ class LinterStats:
         self.refactor = 0
         self.statement = 0
         self.warning = 0
+        self.skipped = 0
 
         self.global_note = 0
         self.nb_duplicated_lines = 0
@@ -151,6 +152,7 @@ class LinterStats:
         {self.refactor}
         {self.statement}
         {self.warning}
+        {self.skipped}
         {self.global_note}
         {self.nb_duplicated_lines}
         {self.percent_duplicated_lines}"""
@@ -385,6 +387,7 @@ def merge_stats(stats: list[LinterStats]) -> LinterStats:
         merged.refactor += stat.refactor
         merged.statement += stat.statement
         merged.warning += stat.warning
+        merged.skipped += stat.skipped
 
         merged.global_note += stat.global_note
     return merged

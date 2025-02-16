@@ -1,0 +1,3 @@
+Fixes "skipped files" count calculation; the previous method was displaying an arbitrary number.
+
+Closes #10073
