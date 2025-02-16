@@ -1166,9 +1166,14 @@ def class_is_abstract(node: nodes.ClassDef) -> bool:
         if meta.name == "ABCMeta" and meta.root().name in ABC_MODULES:
             return True
 
-    for ancestor in node.ancestors():
-        if ancestor.name == "ABC" and ancestor.root().name in ABC_MODULES:
-            # abc.ABC inheritance
+    # As well as direct abc.ABC inheritance
+    for base in node.bases:
+        inferred_base = safe_infer(base)
+        if (
+            isinstance(inferred_base, nodes.ClassDef)
+            and inferred_base.root().name in ABC_MODULES
+            and inferred_base.name == "ABC"
+        ):
             return True
 
     for method in node.methods():
