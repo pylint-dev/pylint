@@ -136,32 +136,28 @@ def expand_modules(
             is_namespace = modutils.is_namespace(spec)
             is_directory = modutils.is_directory(spec)
         if not is_namespace:
-            if filepath in result:
-                # Always set arg flag if module explicitly given.
-                result[filepath]["isarg"] = True
-            else:
-                result[filepath] = {
-                    "path": filepath,
-                    "name": modname,
-                    "isarg": True,
-                    "basepath": filepath,
-                    "basename": modname,
-                    "isignored": False,
-                }
+            default: ModuleDescriptionDict = {
+                "path": filepath,
+                "name": modname,
+                "isarg": True,
+                "basepath": filepath,
+                "basename": modname,
+                "isignored": False,
+            }
+            result.setdefault(filepath, default)["isarg"] = True
         has_init = (
-            not (modname.endswith(".__init__") or modname == "__init__")
-            and os.path.basename(filepath) == "__init__.py"
+            modparts[-1] != "__init__" and os.path.basename(filepath) == "__init__.py"
         )
         if has_init or is_namespace or is_directory:
             for subfilepath in modutils.get_module_files(
-                os.path.dirname(filepath) or ".", ignore_list, list_all=is_namespace
+                os.path.dirname(filepath) or ".", [], list_all=is_namespace
             ):
                 subfilepath = os.path.normpath(subfilepath)
                 if filepath == subfilepath:
                     continue
-                if _is_in_ignore_list_re(
-                    os.path.basename(subfilepath), ignore_list_re
-                ) or _is_in_ignore_list_re(subfilepath, ignore_list_paths_re):
+                if _is_ignored_file(
+                    subfilepath, ignore_list, ignore_list_re, ignore_list_paths_re
+                ):
                     result[subfilepath] = {
                         "path": subfilepath,
                         "name": "",
