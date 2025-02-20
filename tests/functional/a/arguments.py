@@ -62,9 +62,9 @@ function_default_arg(1, 4, coin="hello")  # [unexpected-keyword-arg]
 function_default_arg(1, one=5)  # [redundant-keyword-arg]
 
 # Remaining tests are for coverage of correct names in messages.
-LAMBDA = lambda arg: 1
+my_lambda = lambda arg: 1
 
-LAMBDA()  # [no-value-for-parameter]
+my_lambda()  # [no-value-for-parameter]
 
 def method_tests():
     """Method invocations."""
@@ -260,7 +260,7 @@ def func(one, two, three):
     return one + two + three
 
 
-CALL = lambda *args: func(*args)
+call = lambda *args: func(*args)
 
 
 # Ensure `too-many-function-args` is not emitted when a function call is assigned
@@ -275,9 +275,9 @@ class FruitPicker:
     pick_apple = _pick_fruit("apple")
     pick_pear = _pick_fruit("pear")
 
-picker = FruitPicker()
-picker.pick_apple()
-picker.pick_pear()
+PICKER = FruitPicker()
+PICKER.pick_apple()
+PICKER.pick_pear()
 
 
 def name1(apple, /, **kwargs):

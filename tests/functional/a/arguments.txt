@@ -9,7 +9,7 @@ no-value-for-parameter:59:0:59:21::No value for argument 'first_argument' in fun
 unexpected-keyword-arg:59:0:59:21::Unexpected keyword argument 'bob' in function call:UNDEFINED
 unexpected-keyword-arg:60:0:60:40::Unexpected keyword argument 'coin' in function call:UNDEFINED
 redundant-keyword-arg:62:0:62:30::Argument 'one' passed by position and keyword in function call:UNDEFINED
-no-value-for-parameter:67:0:67:8::No value for argument 'arg' in lambda call:UNDEFINED
+no-value-for-parameter:67:0:67:11::No value for argument 'arg' in lambda call:UNDEFINED
 no-value-for-parameter:72:4:72:24:method_tests:No value for argument 'arg' in staticmethod call:UNDEFINED
 no-value-for-parameter:73:4:73:29:method_tests:No value for argument 'arg' in staticmethod call:UNDEFINED
 no-value-for-parameter:75:4:75:23:method_tests:No value for argument 'arg' in classmethod call:UNDEFINED

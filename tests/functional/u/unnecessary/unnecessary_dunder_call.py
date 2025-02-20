@@ -1,5 +1,5 @@
 """Checks for unnecessary-dunder-call."""
-# pylint: disable=too-few-public-methods, undefined-variable
+# pylint: disable=too-few-public-methods, undefined-variable, invalid-name
 # pylint: disable=missing-class-docstring, missing-function-docstring
 # pylint: disable=protected-access, unnecessary-lambda-assignment, unnecessary-lambda
 from collections import OrderedDict

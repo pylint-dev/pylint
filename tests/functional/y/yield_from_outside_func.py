@@ -3,4 +3,4 @@
 
 yield from [1, 2]  # [yield-outside-function]
 
-LAMBDA_WITH_YIELD = lambda: (yield from [1, 2])
+lambda_with_yield = lambda: (yield from [1, 2])

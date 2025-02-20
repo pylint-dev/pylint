@@ -1,5 +1,5 @@
 """Miscellaneous used-before-assignment cases"""
-# pylint: disable=consider-using-f-string, missing-function-docstring, bare-except
+# pylint: disable=consider-using-f-string, missing-function-docstring, bare-except, invalid-name
 import datetime
 import sys
 from typing import NoReturn

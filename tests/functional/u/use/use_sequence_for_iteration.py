@@ -1,19 +1,19 @@
 # pylint: disable=missing-docstring,pointless-statement,unnecessary-comprehension
 
-var = {1, 2, 3}
+VAR = {1, 2, 3}
 
-for x in var:
+for x in VAR:
     pass
 for x in {1, 2, 3}:  # [use-sequence-for-iteration]
     pass
 
-(x for x in var)
+(x for x in VAR)
 (x for x in {1, 2, 3})  # [use-sequence-for-iteration]
 
-[x for x in var]
+[x for x in VAR]
 [x for x in {1, 2, 3}]  # [use-sequence-for-iteration]
 
-[x for x in {*var, 4}]
+[x for x in {*VAR, 4}]
 
 def deduplicate(list_in):
     for thing in {*list_in}:
