@@ -132,3 +132,11 @@ try:
     raise ValueError
 except EXCEPTIONS:
     pass
+
+
+LAMBDA = lambda x: 1, 2
+
+try:
+    pass
+except LAMBDA:  # [catching-non-exception]
+    pass

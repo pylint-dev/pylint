@@ -125,7 +125,7 @@ def github_issue_1879():
     assert len(ChildClassWithoutBool())  # [use-implicit-booleaness-not-len]
     assert len(range(0))  # [use-implicit-booleaness-not-len]
     assert len([t + 1 for t in []])  # [use-implicit-booleaness-not-len]
-    assert len(u + 1 for u in [])  # [use-implicit-booleaness-not-len]
+    assert len(u + 1 for u in [])  # Should be fine
     assert len({"1":(v + 1) for v in {}})  # [use-implicit-booleaness-not-len]
     assert len(set((w + 1) for w in set()))  # [use-implicit-booleaness-not-len]
 
@@ -189,3 +189,7 @@ def github_issue_4215():
 
 if len('TEST'):
     pass
+
+def github_issue_10100():
+    if len((x for x in [1, 2, 3])):  # Should be fine
+        print("yay!")

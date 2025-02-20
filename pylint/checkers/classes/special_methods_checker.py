@@ -391,7 +391,7 @@ class SpecialMethodsChecker(BaseChecker):
                 (inferred.elts[0], self._is_tuple),
                 (inferred.elts[1], self._is_dict),
             ):
-                if isinstance(arg, nodes.Call):
+                if isinstance(arg, (nodes.Call, nodes.Name)):
                     arg = safe_infer(arg)
 
                 if arg and not isinstance(arg, util.UninferableBase):

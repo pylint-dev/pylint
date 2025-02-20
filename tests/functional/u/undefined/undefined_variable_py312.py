@@ -4,4 +4,5 @@ def f[T](a: T) -> T:
     print(a)
 
 class ChildClass[T, *Ts, **P]:
-    ...
+    def __init__(self, value: T):
+        self.value = value

@@ -1742,6 +1742,11 @@ class VariablesChecker(BaseChecker):
             if utils.is_ancestor_name(consumer.node, node) or (
                 not is_start_index and self._ignore_class_scope(node)
             ):
+                if any(
+                    node.name == param.name.name for param in consumer.node.type_params
+                ):
+                    return False
+
                 return True
 
             # Ignore inner class scope for keywords in class definition
@@ -1952,7 +1957,9 @@ class VariablesChecker(BaseChecker):
                 )
             return (VariableVisitConsumerAction.RETURN, found_nodes)
 
-        elif isinstance(defstmt, nodes.ClassDef):
+        elif (
+            isinstance(defstmt, nodes.ClassDef) and defnode not in defframe.type_params
+        ):
             return self._is_first_level_self_reference(node, defstmt, found_nodes)
 
         elif isinstance(defnode, nodes.NamedExpr):
@@ -2332,8 +2339,15 @@ class VariablesChecker(BaseChecker):
                     # Otherwise, safe if used after assignment:
                     # (b := 2) and b
                     maybe_before_assign = defnode.value is node or any(
-                        anc is defnode.value for anc in node.node_ancestors()
+                        a is defnode.value for a in node.node_ancestors()
                     )
+                elif (
+                    isinstance(defframe, nodes.ClassDef)
+                    and defnode in defframe.type_params
+                ):
+                    # Generic on parent class:
+                    # class Child[_T](Parent[_T])
+                    maybe_before_assign = False
 
         return maybe_before_assign, annotation_return, use_outer_definition
 
@@ -2449,9 +2463,7 @@ class VariablesChecker(BaseChecker):
                     # var: int
                     # if (var := var * var)  <-- "var" still undefined
                     isinstance(ref_node.parent, nodes.NamedExpr)
-                    and any(
-                        anc is ref_node.parent.value for anc in node.node_ancestors()
-                    )
+                    and any(a is ref_node.parent.value for a in node.node_ancestors())
                 ):
                     return False
             parent = parent_scope.parent

@@ -378,7 +378,7 @@ class _MessageStateHandler:
                                 args=("disable-all", "skip-file"),
                             )
                         self.linter.add_message("file-ignored", line=start[0])
-                        self._ignore_file = True
+                        self._ignore_file: bool = True
                         return
                     try:
                         meth = self._options_methods[pragma_repr.action]

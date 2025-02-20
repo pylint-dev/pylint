@@ -14,6 +14,58 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+
+What's new in Pylint 3.3.4?
+---------------------------
+Release date: 2025-01-28
+
+
+Other Bug Fixes
+---------------
+
+- Fixes "skipped files" count calculation; the previous method was displaying an arbitrary number.
+
+  Closes #10073 (`#10073 <https://github.com/pylint-dev/pylint/issues/10073>`_)
+
+- Fixes a crash that occurred when pylint was run in a container on a host with cgroupsv2 and restrictions on CPU usage.
+
+  Closes #10103 (`#10103 <https://github.com/pylint-dev/pylint/issues/10103>`_)
+
+- Relaxed the requirements for isort so pylint can benefit from isort 6.
+
+  Closes #10203 (`#10203 <https://github.com/pylint-dev/pylint/issues/10203>`_)
+
+
+
+What's new in Pylint 3.3.3?
+---------------------------
+Release date: 2024-12-23
+
+
+False Positives Fixed
+---------------------
+
+- Fix false positives for ``undefined-variable`` for classes using Python 3.12
+  generic type syntax.
+
+  Closes #9335 (`#9335 <https://github.com/pylint-dev/pylint/issues/9335>`_)
+
+- Fix a false positive for `use-implicit-booleaness-not-len`. No lint should be emitted for
+  generators (`len` is not defined for generators).
+
+  Refs #10100 (`#10100 <https://github.com/pylint-dev/pylint/issues/10100>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix ``Unable to import 'collections.abc' (import-error)`` on Python 3.13.1.
+
+  Closes #10112 (`#10112 <https://github.com/pylint-dev/pylint/issues/10112>`_)
+
+
+
 What's new in Pylint 3.3.2?
 ---------------------------
 Release date: 2024-12-01

@@ -393,7 +393,7 @@ missing-member-max-choices=1
 spelling-dict=
 
 # List of comma separated words that should not be checked.
-spelling-ignore-words=
+spelling-ignore-words=subpkg,MyClass
 
 # List of comma separated words that should be considered directives if they
 # appear and the beginning of a comment and should not be checked.

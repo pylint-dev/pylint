@@ -1,0 +1,3 @@
+Relaxed the requirements for isort so pylint can benefit from isort 6.
+
+Closes #10203

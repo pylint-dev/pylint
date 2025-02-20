@@ -58,6 +58,13 @@ Filtering and Scope
 **Default:**  ``PUB_ONLY``
 
 
+--max-depth
+-----------
+*Maximum depth in package/module hierarchy to display. A depth of 0 shows only top-level packages, 1 shows one level of subpackages, etc. If not specified, all packages/modules are shown.*
+
+**Default:**  ``None``
+
+
 --show-ancestors
 ----------------
 *Show <ancestor> generations of ancestor classes not in <projects>.*
