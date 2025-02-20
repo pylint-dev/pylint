@@ -222,3 +222,12 @@ class PlatformChecks:  # pylint: disable=missing-docstring
             self.skip("only runs on Linux/Windows")
 
         print(cmd)
+
+
+def conditional_import():
+    if input():
+        import os.path
+    else:
+        os = None
+    if os:
+        pass
