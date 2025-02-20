@@ -1,0 +1,3 @@
+Fixed conditional import x.y causing false positive possibly-used-before-assignment.
+
+Closes #10081

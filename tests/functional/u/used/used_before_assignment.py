@@ -289,3 +289,11 @@ def outer_():
     inner_try()
     inner_while()
     inner_for()
+
+def conditional_import():
+    if input():
+        import os.path
+    else:
+        os = None
+    if os:
+        pass

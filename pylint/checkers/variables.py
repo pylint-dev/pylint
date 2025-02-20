@@ -931,7 +931,7 @@ scope_type : {self.scope_type}
             ):
                 return True
         if isinstance(node, (nodes.Import, nodes.ImportFrom)) and any(
-            (node_name[1] and node_name[1] == name) or (node_name[0] == name)
+            (node_name[1] and node_name[1] == name) or (node_name[0] == name) or (node_name[0].startswith(name + '.'))
             for node_name in node.names
         ):
             return True
