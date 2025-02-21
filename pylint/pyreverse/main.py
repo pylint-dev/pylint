@@ -354,7 +354,7 @@ class Run(_ArgumentsManager, _ArgumentsProvider):
                 verbose=self.config.verbose,
             )
             linker = Linker(project, tag=True)
-            handler = DiadefsHandler(self.config)
+            handler = DiadefsHandler(self.config, self.args)
             diadefs = handler.get_diadefs(project, linker)
         writer.DiagramWriter(self.config).write(diadefs)
         return 0

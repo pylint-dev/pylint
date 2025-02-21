@@ -8,8 +8,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 from astroid import extract_node, nodes
@@ -48,8 +49,10 @@ def _process_relations(
 
 
 @pytest.fixture
-def HANDLER(default_config: PyreverseConfig) -> DiadefsHandler:
-    return DiadefsHandler(default_config)
+def HANDLER(
+    default_config: PyreverseConfig, default_args: Sequence[str]
+) -> DiadefsHandler:
+    return DiadefsHandler(config=default_config, args=default_args)
 
 
 @pytest.fixture(scope="module")
@@ -58,14 +61,35 @@ def PROJECT(get_project: GetProjectCallable) -> Iterator[Project]:
         yield get_project("data")
 
 
+# Fixture for creating mocked nodes
+@pytest.fixture
+def mock_node() -> Callable[[str], Mock]:
+    def _mock_node(module_path: str) -> Mock:
+        """Create a mocked node with a given module path."""
+        node = Mock()
+        node.root.return_value.name = module_path
+        return node
+
+    return _mock_node
+
+
+# Fixture for the DiaDefGenerator
+@pytest.fixture
+def generator(HANDLER: DiadefsHandler, PROJECT: Project) -> DiaDefGenerator:
+    return DiaDefGenerator(Linker(PROJECT), HANDLER)
+
+
 def test_option_values(
-    default_config: PyreverseConfig, HANDLER: DiadefsHandler, PROJECT: Project
+    default_config: PyreverseConfig,
+    default_args: Sequence[str],
+    HANDLER: DiadefsHandler,
+    PROJECT: Project,
 ) -> None:
     """Test for ancestor, associated and module options."""
     df_h = DiaDefGenerator(Linker(PROJECT), HANDLER)
     cl_config = default_config
     cl_config.classes = ["Specialization"]
-    cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
+    cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config=cl_config, args=[]))
     assert df_h._get_levels() == (0, 0)
     assert not df_h.module_names
     assert cl_h._get_levels() == (-1, -1)
@@ -77,11 +101,13 @@ def test_option_values(
         hndl._set_default_options()
         assert hndl._get_levels() == (-1, -1)
         assert hndl.module_names
-    handler = DiadefsHandler(default_config)
+    handler = DiadefsHandler(config=default_config, args=default_args)
     df_h = DiaDefGenerator(Linker(PROJECT), handler)
     cl_config = default_config
     cl_config.classes = ["Specialization"]
-    cl_h = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(cl_config))
+    cl_h = DiaDefGenerator(
+        Linker(PROJECT), DiadefsHandler(config=cl_config, args=default_args)
+    )
     for hndl in (df_h, cl_h):
         hndl.config.show_ancestors = 2
         hndl.config.show_associated = 1
@@ -108,7 +134,8 @@ class TestShowOptions:
         )
 
         config = PyreverseConfig()
-        dd_gen = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config))
+        args: Sequence[str] = []
+        dd_gen = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config, args))
 
         # Default behavior
         assert not list(dd_gen.get_ancestors(example, 1))
@@ -128,7 +155,8 @@ class TestShowOptions:
         )
 
         config = PyreverseConfig()
-        dd_gen = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config))
+        args: Sequence[str] = []
+        dd_gen = DiaDefGenerator(Linker(PROJECT), DiadefsHandler(config, args))
 
         # Default behavior
         assert not list(dd_gen.get_ancestors(example, 1))
@@ -156,7 +184,10 @@ class TestDefaultDiadefGenerator:
         assert relations == self._should_rels
 
     def test_functional_relation_extraction(
-        self, default_config: PyreverseConfig, get_project: GetProjectCallable
+        self,
+        default_config: PyreverseConfig,
+        default_args: Sequence[str],
+        get_project: GetProjectCallable,
     ) -> None:
         """Functional test of relations extraction;
         different classes possibly in different modules.
@@ -164,7 +195,7 @@ class TestDefaultDiadefGenerator:
         # XXX should be catching pyreverse environment problem but doesn't
         # pyreverse doesn't extract the relations but this test ok
         project = get_project("data")
-        handler = DiadefsHandler(default_config)
+        handler = DiadefsHandler(default_config, default_args)
         diadefs = handler.get_diadefs(project, Linker(project, tag=True))
         cd = diadefs[1]
         relations = _process_relations(cd.relationships)
@@ -257,3 +288,130 @@ def test_regression_dataclasses_inference(
     special = "regrtest_data.dataclasses_pyreverse.InventoryItem"
     cd = cdg.class_diagram(path, special)
     assert cd.title == special
+
+
+def test_should_include_by_depth_no_limit(
+    generator: DiaDefGenerator, mock_node: Mock
+) -> None:
+    """Test that nodes are included when no depth limit is set."""
+    generator.config.max_depth = None
+
+    # Create mocked nodes with different depths
+    node1 = mock_node("pkg")  # Depth 0
+    node2 = mock_node("pkg.subpkg")  # Depth 1
+    node3 = mock_node("pkg.subpkg.module")  # Depth 2
+
+    # All nodes should be included when max_depth is None
+    assert generator._should_include_by_depth(node1)
+    assert generator._should_include_by_depth(node2)
+    assert generator._should_include_by_depth(node3)
+
+
+@pytest.mark.parametrize("max_depth", range(5))
+def test_should_include_by_depth_absolute(
+    generator: DiaDefGenerator, mock_node: Mock, max_depth: int
+) -> None:
+    """Test absolute depth filtering (no relative package logic).
+
+    - 'pkg'                  -> depth 0
+    - 'pkg.subpkg'           -> depth 1
+    - 'pkg.subpkg.module'    -> depth 2
+    - 'pkg.subpkg.module.submodule' -> depth 3
+    """
+    generator.config.max_depth = max_depth
+    generator.args = ["pkg"]  # Single root package
+
+    test_cases = [
+        "pkg",
+        "pkg.subpkg",
+        "pkg.subpkg.module",
+        "pkg.subpkg.module.submodule",
+    ]
+    nodes = [mock_node(path) for path in test_cases]
+
+    for i, node in enumerate(nodes):
+        should_show = i <= max_depth
+        msg = (
+            f"Node {node.root.return_value.name} (depth {i}) with max_depth={max_depth} "
+            f"{'should show' if should_show else 'should not show'}:"
+            f"{generator._should_include_by_depth(node)}"
+        )
+        assert generator._should_include_by_depth(node) == should_show, msg
+
+
+@pytest.mark.parametrize("max_depth", range(5))
+@pytest.mark.parametrize(
+    "specified_package", [["pkg"], ["pkg.subpkg"], ["pkg.subpkg.module"]]
+)
+def test_should_include_by_depth_relative_single_package(
+    generator: DiaDefGenerator,
+    mock_node: Mock,
+    max_depth: int,
+    specified_package: list[str],
+) -> None:
+    """Test relative depth filtering when only one package is specified.
+
+    Each test case ensures that depth is calculated **relative** to the specified package.
+    """
+    generator.config.max_depth = max_depth
+    generator.args = specified_package  # Only one package is specified
+
+    test_cases = [
+        "pkg",
+        "pkg.subpkg",
+        "pkg.subpkg.module",
+        "pkg.subpkg.module.submodule",
+    ]
+    nodes = [mock_node(path) for path in test_cases]
+
+    base_depth = specified_package[0].count(".")
+
+    for node in nodes:
+        abs_depth = node.root.return_value.name.count(".")
+        relative_depth = abs_depth - base_depth
+        should_show = relative_depth <= max_depth
+
+        msg = (
+            f"Node {node.root.return_value.name} (abs_depth {abs_depth}, base_depth {base_depth}, "
+            f"relative_depth {relative_depth}) with max_depth={max_depth} "
+            f"{'should show' if should_show else 'should not show'}:"
+            f"{generator._should_include_by_depth(node)}"
+        )
+        assert generator._should_include_by_depth(node) == should_show, msg
+
+
+@pytest.mark.parametrize("max_depth", range(5))
+def test_should_include_by_depth_relative_multiple_packages(
+    generator: DiaDefGenerator, mock_node: Mock, max_depth: int
+) -> None:
+    """Test relative depth filtering when multiple packages are specified.
+
+    The base depth should be determined by the **shallowest** specified package.
+    """
+    specified_packages = ["pkg", "pkg.subpkg"]
+    generator.config.max_depth = max_depth
+    generator.args = specified_packages  # Multiple packages specified ==> depth relative to the shallowest
+
+    test_cases = [
+        "pkg",
+        "pkg.subpkg",
+        "pkg.subpkg.module",
+        "pkg.subpkg.module.submodule",
+    ]
+    nodes = [mock_node(path) for path in test_cases]
+
+    # Compute base depth relative to the shallowest specified package
+    base_depth = min(arg.count(".") for arg in specified_packages)
+
+    for node in nodes:
+        abs_depth = node.root.return_value.name.count(".")
+        relative_depth = abs_depth - base_depth
+        should_show = relative_depth <= max_depth
+
+        msg = (
+            f"Node {node.root.return_value.name} (abs_depth {abs_depth}, base_depth {base_depth}, "
+            f"relative_depth {relative_depth}) with max_depth={max_depth} "
+            f"{'should show' if should_show else 'should not show'}:"
+            f"{generator._should_include_by_depth(node)}"
+        )
+        assert generator._should_include_by_depth(node) == should_show, msg
