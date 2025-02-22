@@ -34,7 +34,9 @@ class DiaDefGenerator:
         self.classdiagram: ClassDiagram  # defined by subclasses
         # Only pre-calculate depths if user has requested a max_depth
         if handler.config.max_depth is not None:
-            self.args_depths = {arg: arg.count(".") for arg in self.args}
+            # Detect which of the args are leaf nodes
+            leaf_nodes = self.get_leaf_nodes(self.args)
+            self.args_depths = {module: module.count(".") for module in leaf_nodes}
 
     def get_title(self, node: nodes.ClassDef) -> str:
         """Get title for objects."""
@@ -93,19 +95,17 @@ class DiaDefGenerator:
         if self.config.max_depth is None:
             return True
 
-        # Check based on relative depth
-        abs_depth = node.root().name.count(".")
+        # Calculate the absolute depth of the node
+        name = node.root().name
+        abs_depth = name.count(".")
 
-        # Select the base depth to compare against
-        base_depth = max(
-            (
-                value
-                for key, value in self.args_depths.items()
-                if node.root().name.startswith(key)
-            ),
-            default=abs_depth,  # Fallback to absolute depth if no other packages are found
+        # Retrieve the base depth to compare against
+        rel_depth = next(
+            (v for k, v in self.args_depths.items() if name.startswith(k)), None
         )
-        return bool((abs_depth - base_depth) <= self.config.max_depth)
+        return rel_depth is not None and bool(
+            (abs_depth - rel_depth) <= self.config.max_depth
+        )
 
     def show_node(self, node: nodes.ClassDef) -> bool:
         """Determine if node should be shown based on config."""
