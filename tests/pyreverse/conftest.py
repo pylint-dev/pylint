@@ -74,7 +74,7 @@ def html_config() -> PyreverseConfig:
     )
 
 
-@pytest.fixture(params=[None, *range(5)])
+@pytest.fixture()
 def depth_limited_config(default_max_depth: int) -> PyreverseConfig:
     return PyreverseConfig(
         max_depth=default_max_depth,
