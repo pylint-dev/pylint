@@ -43,6 +43,22 @@ class DiaDefGenerator:
             title = f"{node.root().name}.{title}"
         return title  # type: ignore[no-any-return]
 
+    def get_leaf_nodes(self, module_names: Sequence[str]) -> list[str]:
+        """
+        Given a list of module/package names, return only the leaf nodes.
+
+        A leaf node is one that is not a prefix (with an extra dot) of any other node.
+        """
+        leaf_nodes = [
+            module
+            for module in module_names
+            if not any(
+                other != module and other.startswith(module + ".")
+                for other in module_names
+            )
+        ]
+        return leaf_nodes
+
     def _set_option(self, option: bool | None) -> bool:
         """Activate some options if not explicitly deactivated."""
         # if we have a class diagram, we want more information by default;
