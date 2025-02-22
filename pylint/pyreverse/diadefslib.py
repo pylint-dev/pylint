@@ -32,6 +32,7 @@ class DiaDefGenerator:
         self._set_default_options()
         self.linker = linker
         self.classdiagram: ClassDiagram  # defined by subclasses
+        self.args_depths = {arg: arg.count(".") for arg in self.args}
 
     def get_title(self, node: nodes.ClassDef) -> str:
         """Get title for objects."""
@@ -76,8 +77,14 @@ class DiaDefGenerator:
 
         # Check based on relative depth
         abs_depth = node.root().name.count(".")
-        base_depth = min(
-            (arg.count(".") for arg in self.args if node.root().name.startswith(arg)),
+
+        # Select the base depth to compare against
+        base_depth = max(
+            (
+                value
+                for key, value in self.args_depths.items()
+                if node.root().name.startswith(key)
+            ),
             default=abs_depth,  # Fallback to absolute depth if no other packages are found
         )
         return bool((abs_depth - base_depth) <= self.config.max_depth)
