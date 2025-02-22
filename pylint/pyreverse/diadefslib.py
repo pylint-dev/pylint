@@ -32,7 +32,9 @@ class DiaDefGenerator:
         self._set_default_options()
         self.linker = linker
         self.classdiagram: ClassDiagram  # defined by subclasses
-        self.args_depths = {arg: arg.count(".") for arg in self.args}
+        # Only pre-calculate depths if user has requested a max_depth
+        if handler.config.max_depth is not None:
+            self.args_depths = {arg: arg.count(".") for arg in self.args}
 
     def get_title(self, node: nodes.ClassDef) -> str:
         """Get title for objects."""
