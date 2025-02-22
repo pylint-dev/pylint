@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 from collections.abc import Generator, Sequence
 from typing import Any
 
@@ -36,6 +37,19 @@ class DiaDefGenerator:
         if handler.config.max_depth is not None:
             # Detect which of the args are leaf nodes
             leaf_nodes = self.get_leaf_nodes(self.args)
+
+            # Emit a warning if any of the args are not leaf nodes
+            diff = set(self.args).difference(set(leaf_nodes))
+            if len(diff) > 0:
+                logging.warning(
+                    "Detected nested names within the specified packages. "
+                    "The following packages: %s will be ignored for "
+                    "depth calculations, using only: %s as the base for limiting "
+                    "package depth.",
+                    sorted(diff),
+                    sorted(leaf_nodes),
+                )
+
             self.args_depths = {module: module.count(".") for module in leaf_nodes}
 
     def get_title(self, node: nodes.ClassDef) -> str:
