@@ -105,10 +105,6 @@ class DiaDefGenerator:
 
     def _should_include_by_depth(self, node: nodes.NodeNG) -> bool:
         """Check if a node should be included based on depth."""
-        # If max_depth is not set, include all nodes
-        if self.config.max_depth is None:
-            return True
-
         # Calculate the absolute depth of the node
         name = node.root().name
         abs_depth = name.count(".")
@@ -129,8 +125,8 @@ class DiaDefGenerator:
         if is_stdlib_module(node.root().name):
             return self.config.show_stdlib  # type: ignore[no-any-return]
 
-        # Filter node by depth
-        return self._should_include_by_depth(node)
+        # Filter node by depth ==> if max_depth is not set, show all nodes
+        return self._should_include_by_depth(node) if self.config.max_depth else True
 
     def add_class(self, node: nodes.ClassDef) -> None:
         """Visit one class and add it to diagram."""
