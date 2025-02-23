@@ -25,7 +25,7 @@ from pylint.pyreverse.diagrams import DiagramEntity, Relationship
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.testutils.pyreverse import PyreverseConfig
 from pylint.testutils.utils import _test_cwd
-from pylint.typing import GetProjectCallable
+from pylint.typing import GeneratorFactory, GetProjectCallable
 
 HERE = Path(__file__)
 TESTS = HERE.parent.parent
@@ -61,6 +61,21 @@ def PROJECT(get_project: GetProjectCallable) -> Iterator[Project]:
         yield get_project("data")
 
 
+# Fixture with factory function to create DiaDefGenerator instances
+@pytest.fixture
+def generator_factory(HANDLER: DiadefsHandler, PROJECT: Project) -> GeneratorFactory:
+    def _factory(
+        config: PyreverseConfig | None = None, args: Sequence[str] | None = None
+    ) -> DiaDefGenerator:
+        if config:
+            HANDLER.config = config
+        if args:
+            HANDLER.args = args
+        return DiaDefGenerator(Linker(PROJECT), HANDLER)
+
+    return _factory
+
+
 # Fixture for creating mocked nodes
 @pytest.fixture
 def mock_node() -> Callable[[str], Mock]:
@@ -71,12 +86,6 @@ def mock_node() -> Callable[[str], Mock]:
         return node
 
     return _mock_node
-
-
-# Fixture for the DiaDefGenerator
-@pytest.fixture
-def generator(HANDLER: DiadefsHandler, PROJECT: Project) -> DiaDefGenerator:
-    return DiaDefGenerator(Linker(PROJECT), HANDLER)
 
 
 def test_option_values(
@@ -291,10 +300,10 @@ def test_regression_dataclasses_inference(
 
 
 def test_should_include_by_depth_no_limit(
-    generator: DiaDefGenerator, mock_node: Mock
+    generator_factory: GeneratorFactory, mock_node: Mock
 ) -> None:
     """Test that nodes are included when no depth limit is set."""
-    generator.config.max_depth = None
+    generator = generator_factory()
 
     # Create mocked nodes with different depths
     node1 = mock_node("pkg")  # Depth 0
@@ -309,7 +318,7 @@ def test_should_include_by_depth_no_limit(
 
 @pytest.mark.parametrize("max_depth", range(5))
 def test_should_include_by_depth_absolute(
-    generator: DiaDefGenerator, mock_node: Mock, max_depth: int
+    generator_factory: GeneratorFactory, mock_node: Mock, max_depth: int
 ) -> None:
     """Test absolute depth filtering (no relative package logic).
 
@@ -318,8 +327,7 @@ def test_should_include_by_depth_absolute(
     - 'pkg.subpkg.module'    -> depth 2
     - 'pkg.subpkg.module.submodule' -> depth 3
     """
-    generator.config.max_depth = max_depth
-    generator.args = ["pkg"]  # Single root package
+    generator = generator_factory(PyreverseConfig(max_depth=max_depth), ["pkg"])
 
     test_cases = [
         "pkg",
@@ -344,7 +352,7 @@ def test_should_include_by_depth_absolute(
     "specified_package", [["pkg"], ["pkg.subpkg"], ["pkg.subpkg.module"]]
 )
 def test_should_include_by_depth_relative_single_package(
-    generator: DiaDefGenerator,
+    generator_factory: GeneratorFactory,
     mock_node: Mock,
     max_depth: int,
     specified_package: list[str],
@@ -353,8 +361,10 @@ def test_should_include_by_depth_relative_single_package(
 
     Each test case ensures that depth is calculated **relative** to the specified package.
     """
-    generator.config.max_depth = max_depth
-    generator.args = specified_package  # Only one package is specified
+    generator = generator_factory(
+        PyreverseConfig(max_depth=max_depth), specified_package
+    )
+    print(generator.args_depths)
 
     test_cases = [
         "pkg",
@@ -369,7 +379,7 @@ def test_should_include_by_depth_relative_single_package(
     for node in nodes:
         abs_depth = node.root.return_value.name.count(".")
         relative_depth = abs_depth - base_depth
-        should_show = relative_depth <= max_depth
+        should_show = relative_depth >= max_depth
 
         msg = (
             f"Node {node.root.return_value.name} (abs_depth {abs_depth}, base_depth {base_depth}, "
@@ -382,15 +392,14 @@ def test_should_include_by_depth_relative_single_package(
 
 @pytest.mark.parametrize("max_depth", range(5))
 def test_should_include_by_depth_relative_multiple_packages(
-    generator: DiaDefGenerator, mock_node: Mock, max_depth: int
+    generator_factory: GeneratorFactory, mock_node: Mock, max_depth: int
 ) -> None:
     """Test relative depth filtering when multiple packages are specified.
 
     The base depth should be determined by the **shallowest** specified package.
     """
-    specified_packages = ["pkg", "pkg.subpkg"]
-    generator.config.max_depth = max_depth
-    generator.args = specified_packages  # Multiple packages specified ==> depth relative to the shallowest
+    pkg = ["pkg", "pkg.subpkg"]
+    generator = generator_factory(PyreverseConfig(max_depth=max_depth), pkg)
 
     test_cases = [
         "pkg",
@@ -401,7 +410,7 @@ def test_should_include_by_depth_relative_multiple_packages(
     nodes = [mock_node(path) for path in test_cases]
 
     # Compute base depth relative to the shallowest specified package
-    base_depth = min(arg.count(".") for arg in specified_packages)
+    base_depth = min(arg.count(".") for arg in pkg)
 
     for node in nodes:
         abs_depth = node.root.return_value.name.count(".")
