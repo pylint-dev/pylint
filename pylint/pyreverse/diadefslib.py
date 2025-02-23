@@ -104,7 +104,13 @@ class DiaDefGenerator:
         return self.anc_level, self.association_level
 
     def _should_include_by_depth(self, node: nodes.NodeNG) -> bool:
-        """Check if a node should be included based on depth."""
+        """Check if a node should be included based on depth.
+
+        A node will be included if it is at or below the max_depth relative to the
+        specified base packages. A node is considered to be a base package if it is the
+        deepest package in the list of specified packages. In other words the base nodes
+        are the leaf nodes of the specified package tree.
+        """
         # If max_depth is not set, include all nodes
         if self.config.max_depth is None:
             return True
