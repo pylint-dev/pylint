@@ -441,3 +441,20 @@ def test_should_include_by_depth_relative_multiple_packages(
         )
         assert result == should_show, msg
         assert logging_msg in caplog.text
+
+
+def test_get_leaf_nodes(generator_factory: GeneratorFactory) -> None:
+    """Test that leaf nodes are correctly identified."""
+    # Create a tree with a single root node and multiple leaf nodes
+    specified_packeges = [
+        "pkg",
+        "pkg.subpkg1",
+        "pkg.subpkg2",
+        "pkg.subpkg1.module1",
+        "pkg.subpkg2.module2",
+        "pkg.subpkg1.module1.submodule",
+    ]
+    corr = set(["pkg.subpkg2.module2", "pkg.subpkg1.module1.submodule"])
+
+    generator = generator_factory(args=specified_packeges)
+    assert len(corr.difference(generator.get_leaf_nodes(specified_packeges))) == 0
