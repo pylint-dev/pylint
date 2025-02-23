@@ -320,72 +320,80 @@ def test_should_include_by_depth_no_limit(
 def test_should_include_by_depth_absolute(
     generator_factory: GeneratorFactory, mock_node: Mock, max_depth: int
 ) -> None:
-    """Test absolute depth filtering (no relative package logic).
+    """Test absolute depth filtering when root package is specified.
 
     - 'pkg'                  -> depth 0
     - 'pkg.subpkg'           -> depth 1
     - 'pkg.subpkg.module'    -> depth 2
     - 'pkg.subpkg.module.submodule' -> depth 3
     """
-    generator = generator_factory(PyreverseConfig(max_depth=max_depth), ["pkg"])
+    specified_pkg = ["pkg"]
+    generator = generator_factory(PyreverseConfig(max_depth=max_depth), specified_pkg)
 
-    test_cases = [
-        "pkg",
-        "pkg.subpkg",
-        "pkg.subpkg.module",
-        "pkg.subpkg.module.submodule",
-    ]
-    nodes = [mock_node(path) for path in test_cases]
+    test_cases = {
+        "pkg": [True, True, True, True, True],
+        "pkg.subpkg": [False, True, True, True, True],
+        "pkg.subpkg.module": [False, False, True, True, True],
+        "pkg.subpkg.module.submodule": [False, False, False, True, True],
+    }
+    nodes = [mock_node(path) for path, _ in test_cases.items()]
 
-    for i, node in enumerate(nodes):
-        should_show = i <= max_depth
+    for node in nodes:
+        should_show = test_cases[node.root.return_value.name][max_depth]
         msg = (
-            f"Node {node.root.return_value.name} (depth {i}) with max_depth={max_depth} "
-            f"{'should show' if should_show else 'should not show'}:"
-            f"{generator._should_include_by_depth(node)}"
+            f"Node {node.root.return_value.name} with max_depth={max_depth} and "
+            f"specified package {specified_pkg} "
+            f"{'should show' if should_show else 'should not show'}. "
+            f"Generator returns: {generator._should_include_by_depth(node)}"
         )
         assert generator._should_include_by_depth(node) == should_show, msg
 
 
 @pytest.mark.parametrize("max_depth", range(5))
-@pytest.mark.parametrize(
-    "specified_package", [["pkg"], ["pkg.subpkg"], ["pkg.subpkg.module"]]
-)
+@pytest.mark.parametrize("args", [["pkg"], ["pkg.subpkg"], ["pkg.subpkg.module"]])
 def test_should_include_by_depth_relative_single_package(
     generator_factory: GeneratorFactory,
     mock_node: Mock,
     max_depth: int,
-    specified_package: list[str],
+    args: list[str],
 ) -> None:
     """Test relative depth filtering when only one package is specified.
 
     Each test case ensures that depth is calculated **relative** to the specified package.
     """
-    generator = generator_factory(
-        PyreverseConfig(max_depth=max_depth), specified_package
-    )
-    print(generator.args_depths)
+    specified_pkg = args[0]
+    generator = generator_factory(PyreverseConfig(max_depth=max_depth), args)
 
-    test_cases = [
-        "pkg",
-        "pkg.subpkg",
-        "pkg.subpkg.module",
-        "pkg.subpkg.module.submodule",
-    ]
-    nodes = [mock_node(path) for path in test_cases]
-
-    base_depth = specified_package[0].count(".")
+    test_cases = {
+        "pkg": {
+            "pkg": [True, True, True, True, True],
+            "pkg.subpkg": [False, True, True, True, True],
+            "pkg.subpkg.module": [False, False, True, True, True],
+            "pkg.subpkg.module.submodule": [False, False, False, True, True],
+        },
+        "pkg.subpkg": {
+            "pkg": [False, False, False, False, False],
+            "pkg.subpkg": [True, True, True, True, True],
+            "pkg.subpkg.module": [False, True, True, True, True],
+            "pkg.subpkg.module.submodule": [False, False, True, True, True],
+        },
+        "pkg.subpkg.module": {
+            "pkg": [False, False, False, False, False],
+            "pkg.subpkg": [False, False, False, False, False],
+            "pkg.subpkg.module": [True, True, True, True, True],
+            "pkg.subpkg.module.submodule": [False, True, True, True, True],
+        },
+    }
+    nodes = [mock_node(path) for path, _ in test_cases.items()]
 
     for node in nodes:
-        abs_depth = node.root.return_value.name.count(".")
-        relative_depth = abs_depth - base_depth
-        should_show = relative_depth >= max_depth
+        should_show = test_cases[specified_pkg][node.root.return_value.name][max_depth]
 
         msg = (
-            f"Node {node.root.return_value.name} (abs_depth {abs_depth}, base_depth {base_depth}, "
-            f"relative_depth {relative_depth}) with max_depth={max_depth} "
-            f"{'should show' if should_show else 'should not show'}:"
-            f"{generator._should_include_by_depth(node)}"
+            f"Node {node.root.return_value.name} with max_depth={max_depth} and "
+            f"specified package {specified_pkg} "
+            f"{'should show' if should_show else 'should not show'}. "
+            f"Generator returns: {generator._should_include_by_depth(node)}"
         )
         assert generator._should_include_by_depth(node) == should_show, msg
 
