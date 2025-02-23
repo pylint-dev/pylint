@@ -457,4 +457,4 @@ def test_get_leaf_nodes(generator_factory: GeneratorFactory) -> None:
     corr = set(["pkg.subpkg2.module2", "pkg.subpkg1.module1.submodule"])
 
     generator = generator_factory(args=specified_packeges)
-    assert len(corr.difference(generator.get_leaf_nodes(specified_packeges))) == 0
+    assert len(corr.difference(generator.get_leaf_nodes())) == 0

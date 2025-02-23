@@ -36,7 +36,7 @@ class DiaDefGenerator:
         # Only pre-calculate depths if user has requested a max_depth
         if handler.config.max_depth is not None:
             # Detect which of the args are leaf nodes
-            leaf_nodes = self.get_leaf_nodes(self.args)
+            leaf_nodes = self.get_leaf_nodes()
 
             # Emit a warning if any of the args are not leaf nodes
             diff = set(self.args).difference(set(leaf_nodes))
@@ -59,18 +59,18 @@ class DiaDefGenerator:
             title = f"{node.root().name}.{title}"
         return title  # type: ignore[no-any-return]
 
-    def get_leaf_nodes(self, module_names: Sequence[str]) -> list[str]:
+    def get_leaf_nodes(self) -> list[str]:
         """
-        Given a list of module/package names, return only the leaf nodes.
+        Get the leaf nodes from the list of args in the generator.
 
         A leaf node is one that is not a prefix (with an extra dot) of any other node.
         """
         leaf_nodes = [
             module
-            for module in module_names
+            for module in self.args
             if not any(
                 other != module and other.startswith(module + ".")
-                for other in module_names
+                for other in self.args
             )
         ]
         return leaf_nodes
