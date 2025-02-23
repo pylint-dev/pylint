@@ -431,4 +431,12 @@ def test_should_include_by_depth_relative_multiple_packages(
             f"{'should show' if should_show else 'should not show'}. "
             f"Generator returns: {result}"
         )
+        logging_msg = (
+            "Detected nested names within the specified packages. "
+            "The following packages: ['pkg'] will be ignored for "
+            "depth calculations, using only: ['pkg.subpkg'] as the base for limiting "
+        )
+        print(logging_msg)
+        print(caplog.text)
         assert result == should_show, msg
+        assert logging_msg in caplog.text
