@@ -8,12 +8,14 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 from astroid import extract_node, nodes
+from pytest import LogCaptureFixture
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
@@ -400,35 +402,33 @@ def test_should_include_by_depth_relative_single_package(
 
 @pytest.mark.parametrize("max_depth", range(5))
 def test_should_include_by_depth_relative_multiple_packages(
-    generator_factory: GeneratorFactory, mock_node: Mock, max_depth: int
+    caplog: LogCaptureFixture,
+    generator_factory: GeneratorFactory,
+    mock_node: Mock,
+    max_depth: int,
 ) -> None:
-    """Test relative depth filtering when multiple packages are specified.
+    """Test relative depth filtering when multiple packages are specified."""
+    specified_pkg = ["pkg", "pkg.subpkg"]
+    generator = generator_factory(PyreverseConfig(max_depth=max_depth), specified_pkg)
 
-    The base depth should be determined by the **shallowest** specified package.
-    """
-    pkg = ["pkg", "pkg.subpkg"]
-    generator = generator_factory(PyreverseConfig(max_depth=max_depth), pkg)
-
-    test_cases = [
-        "pkg",
-        "pkg.subpkg",
-        "pkg.subpkg.module",
-        "pkg.subpkg.module.submodule",
-    ]
-    nodes = [mock_node(path) for path in test_cases]
-
-    # Compute base depth relative to the shallowest specified package
-    base_depth = min(arg.count(".") for arg in pkg)
+    test_cases = {
+        "pkg": [False, False, False, False, False],
+        "pkg.subpkg": [True, True, True, True, True],
+        "pkg.subpkg.module": [False, True, True, True, True],
+        "pkg.subpkg.module.submodule": [False, False, True, True, True],
+    }
+    nodes = [mock_node(path) for path, _ in test_cases.items()]
 
     for node in nodes:
-        abs_depth = node.root.return_value.name.count(".")
-        relative_depth = abs_depth - base_depth
-        should_show = relative_depth <= max_depth
+        should_show = test_cases[node.root.return_value.name][max_depth]
+
+        with caplog.at_level(logging.WARNING):
+            result = generator._should_include_by_depth(node)
 
         msg = (
-            f"Node {node.root.return_value.name} (abs_depth {abs_depth}, base_depth {base_depth}, "
-            f"relative_depth {relative_depth}) with max_depth={max_depth} "
-            f"{'should show' if should_show else 'should not show'}:"
-            f"{generator._should_include_by_depth(node)}"
+            f"Node {node.root.return_value.name} with max_depth={max_depth} and "
+            f"specified package {specified_pkg} "
+            f"{'should show' if should_show else 'should not show'}. "
+            f"Generator returns: {result}"
         )
-        assert generator._should_include_by_depth(node) == should_show, msg
+        assert result == should_show, msg
