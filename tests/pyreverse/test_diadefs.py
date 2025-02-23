@@ -342,13 +342,15 @@ def test_should_include_by_depth_absolute(
 
     for node in nodes:
         should_show = test_cases[node.root.return_value.name][max_depth]
+        result = generator._should_include_by_depth(node)
+
         msg = (
             f"Node {node.root.return_value.name} with max_depth={max_depth} and "
             f"specified package {specified_pkg} "
             f"{'should show' if should_show else 'should not show'}. "
-            f"Generator returns: {generator._should_include_by_depth(node)}"
+            f"Generator returns: {result}"
         )
-        assert generator._should_include_by_depth(node) == should_show, msg
+        assert result == should_show, msg
 
 
 @pytest.mark.parametrize("max_depth", range(5))
@@ -390,14 +392,15 @@ def test_should_include_by_depth_relative_single_package(
 
     for node in nodes:
         should_show = test_cases[specified_pkg][node.root.return_value.name][max_depth]
+        result = generator._should_include_by_depth(node)
 
         msg = (
             f"Node {node.root.return_value.name} with max_depth={max_depth} and "
             f"specified package {specified_pkg} "
             f"{'should show' if should_show else 'should not show'}. "
-            f"Generator returns: {generator._should_include_by_depth(node)}"
+            f"Generator returns: {result}"
         )
-        assert generator._should_include_by_depth(node) == should_show, msg
+        assert result == should_show, msg
 
 
 @pytest.mark.parametrize("max_depth", range(5))
@@ -436,7 +439,5 @@ def test_should_include_by_depth_relative_multiple_packages(
             "The following packages: ['pkg'] will be ignored for "
             "depth calculations, using only: ['pkg.subpkg'] as the base for limiting "
         )
-        print(logging_msg)
-        print(caplog.text)
         assert result == should_show, msg
         assert logging_msg in caplog.text
