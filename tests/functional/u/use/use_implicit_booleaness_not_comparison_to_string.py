@@ -20,3 +20,12 @@ if "" == Y:  # [use-implicit-booleaness-not-comparison-to-string]
 
 if '' != X:  # [use-implicit-booleaness-not-comparison-to-string]
     pass
+
+if X == Y == "":
+    pass
+
+if "" == X == Y:
+    pass
+
+if X == Y == X == Y == "":
+    pass

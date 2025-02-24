@@ -44,3 +44,12 @@ if 0 < X:
 
 if 0 > X:
     pass
+
+if X == Y == 0:
+    pass
+
+if 0 == X == Y:
+    pass
+
+if X == Y == X == Y == 0:
+    pass
