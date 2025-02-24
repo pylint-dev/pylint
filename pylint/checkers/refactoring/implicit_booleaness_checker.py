@@ -216,7 +216,9 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             elif _is_constant_zero(right_operand):
                 operand = left_operand
             if operand is not None:
-                original = f"{left_operand.as_string()} {operator} {right_operand.as_string()}"
+                original = (
+                    f"{left_operand.as_string()} {operator} {right_operand.as_string()}"
+                )
                 suggestion = (
                     operand.as_string()
                     if operator in {"!=", "is not"}
@@ -284,9 +286,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
 
         # Only time we bypass check is when target_node is not inherited by
         # collection literals and have its own __bool__ implementation.
-        if not is_base_comprehension_type and self.instance_has_bool(
-            target_instance
-        ):
+        if not is_base_comprehension_type and self.instance_has_bool(target_instance):
             return
 
         # No need to check for operator when visiting compare node
