@@ -50,8 +50,8 @@ post("http://localhost")  # [missing-timeout]
 put("http://localhost")  # [missing-timeout]
 request("call", "http://localhost")  # [missing-timeout]
 
-kwargs_wo_timeout = {}
-post("http://localhost", **kwargs_wo_timeout)  # [missing-timeout]
+KWARGS_WO_TIMEOUT = {}
+post("http://localhost", **KWARGS_WO_TIMEOUT)  # [missing-timeout]
 
 # requests valid cases
 requests.delete("http://localhost", timeout=10)
@@ -81,5 +81,5 @@ post("http://localhost", timeout=10)
 put("http://localhost", timeout=10)
 request("call", "http://localhost", timeout=10)
 
-kwargs_timeout = {'timeout': 10}
-post("http://localhost", **kwargs_timeout)
+KWARGS_TIMEOUT = {'timeout': 10}
+post("http://localhost", **KWARGS_TIMEOUT)

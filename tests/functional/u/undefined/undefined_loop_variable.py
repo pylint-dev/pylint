@@ -31,13 +31,13 @@ for note in __revision__:
     note.something()
 for line in __revision__:
     for note in line:
-        A = note.anotherthing()
+        a = note.anotherthing()
 
 
 for x in []:
     pass
 for x in range(3):
-    VAR5 = (lambda: x)()
+    var5 = (lambda: x)()
 
 
 def do_stuff_with_a_list():
@@ -140,17 +140,17 @@ def for_else_no_return(iterable):
         print(thing)
 
 
-lst = []
-lst2 = [1, 2, 3]
+LIST = []
+LIST2 = [1, 2, 3]
 
-for item in lst:
+for item in LIST:
     pass
 
-bigger = [
+BIGGER = [
     [
-        x for x in lst2 if x > item
+        x for x in LIST2 if x > item
     ]
-    for item in lst
+    for item in LIST
 ]
 
 
@@ -166,7 +166,7 @@ def lambda_in_first_of_two_loops():
 
 
 def variable_name_assigned_in_body_of_second_loop():
-    for alias in tuple(bigger):
+    for alias in tuple(BIGGER):
         continue
     for _ in range(3):
         alias = True
