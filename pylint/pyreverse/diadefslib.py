@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import argparse
+import warnings
 from collections.abc import Generator, Sequence
 from typing import Any
 
@@ -42,11 +43,10 @@ class DiaDefGenerator:
             if len(diff) > 0:
                 warnings.warn(
                     "Detected nested names within the specified packages. "
-                    "The following packages: %s will be ignored for "
-                    "depth calculations, using only: %s as the base for limiting "
+                    f"The following packages: {sorted(diff)} will be ignored for "
+                    f"depth calculations, using only: {sorted(leaf_nodes)} as the base for limiting "
                     "package depth.",
-                    sorted(diff),
-                    sorted(leaf_nodes),
+                    stacklevel=1,
                 )
 
             self.args_depths = {module: module.count(".") for module in leaf_nodes}

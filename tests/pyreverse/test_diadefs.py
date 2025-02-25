@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-import logging
+import re
 from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 from unittest.mock import Mock
@@ -404,14 +404,24 @@ def test_should_include_by_depth_relative_single_package(
 
 @pytest.mark.parametrize("max_depth", range(5))
 def test_should_include_by_depth_relative_multiple_packages(
-    capwarn: NotSureaboutTheType,
     generator_factory: GeneratorFactory,
     mock_node: Mock,
     max_depth: int,
 ) -> None:
     """Test relative depth filtering when multiple packages are specified."""
     specified_pkg = ["pkg", "pkg.subpkg"]
-    generator = generator_factory(PyreverseConfig(max_depth=max_depth), specified_pkg)
+
+    warning_msg = re.escape(
+        "Detected nested names within the specified packages. "
+        "The following packages: ['pkg'] will be ignored for "
+        "depth calculations, using only: ['pkg.subpkg'] as the base for limiting "
+        "package depth."
+    )
+
+    with pytest.warns(UserWarning, match=warning_msg):
+        generator = generator_factory(
+            PyreverseConfig(max_depth=max_depth), specified_pkg
+        )
 
     test_cases = {
         "pkg": [False, False, False, False, False],
@@ -423,9 +433,7 @@ def test_should_include_by_depth_relative_multiple_packages(
 
     for node in nodes:
         should_show = test_cases[node.root.return_value.name][max_depth]
-
-        with caplog.at_level(logging.WARNING):
-            result = generator._should_include_by_depth(node)
+        result = generator._should_include_by_depth(node)
 
         msg = (
             f"Node {node.root.return_value.name} with max_depth={max_depth} and "
@@ -433,13 +441,7 @@ def test_should_include_by_depth_relative_multiple_packages(
             f"{'should show' if should_show else 'should not show'}. "
             f"Generator returns: {result}"
         )
-        logging_msg = (
-            "Detected nested names within the specified packages. "
-            "The following packages: ['pkg'] will be ignored for "
-            "depth calculations, using only: ['pkg.subpkg'] as the base for limiting "
-        )
         assert result == should_show, msg
-        assert logging_msg in caplog.text
 
 
 def test_get_leaf_nodes(generator_factory: GeneratorFactory) -> None:
