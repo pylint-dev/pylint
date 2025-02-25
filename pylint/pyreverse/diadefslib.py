@@ -46,7 +46,7 @@ class DiaDefGenerator:
                     f"The following packages: {sorted(diff)} will be ignored for "
                     f"depth calculations, using only: {sorted(leaf_nodes)} as the base for limiting "
                     "package depth.",
-                    stacklevel=1,
+                    stacklevel=2,
                 )
 
             self.args_depths = {module: module.count(".") for module in leaf_nodes}
