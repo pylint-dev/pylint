@@ -1,0 +1,4 @@
+The ``suggestion-mode`` option was removed, as pylint now always emits user-friendly hints instead
+of false-positive error messages. You should remove it from your conf if it's defined.
+
+Refs #9962
