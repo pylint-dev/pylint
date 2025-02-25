@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from re import Pattern
 from typing import (
@@ -24,8 +24,10 @@ from typing import (
 
 if TYPE_CHECKING:
     from pylint.config.callback_actions import _CallbackAction
+    from pylint.pyreverse.diadefslib import DiaDefGenerator
     from pylint.pyreverse.inspector import Project
     from pylint.reporters.ureports.nodes import Section
+    from pylint.testutils.pyreverse import PyreverseConfig
     from pylint.utils import LinterStats
 
 
@@ -134,3 +136,9 @@ class GetProjectCallable(Protocol):
     def __call__(
         self, module: str, name: str | None = "No Name"
     ) -> Project: ...  # pragma: no cover
+
+
+class GeneratorFactory(Protocol):
+    def __call__(
+        self, config: PyreverseConfig | None = None, args: Sequence[str] | None = None
+    ) -> DiaDefGenerator: ...
