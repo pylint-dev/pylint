@@ -15,7 +15,6 @@ from unittest.mock import Mock
 
 import pytest
 from astroid import extract_node, nodes
-from pytest import LogCaptureFixture
 
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
