@@ -41,7 +41,7 @@ class DiaDefGenerator:
             # Emit a warning if any of the args are not leaf nodes
             diff = set(self.args).difference(set(leaf_nodes))
             if len(diff) > 0:
-                logging.warning(
+                warnings.warn(
                     "Detected nested names within the specified packages. "
                     "The following packages: %s will be ignored for "
                     "depth calculations, using only: %s as the base for limiting "
@@ -117,14 +117,14 @@ class DiaDefGenerator:
 
         # Calculate the absolute depth of the node
         name = node.root().name
-        abs_depth = name.count(".")
+        absolute_depth = name.count(".")
 
         # Retrieve the base depth to compare against
-        rel_depth = next(
+        relative_depth = next(
             (v for k, v in self.args_depths.items() if name.startswith(k)), None
         )
-        return rel_depth is not None and bool(
-            (abs_depth - rel_depth) <= self.config.max_depth
+        return relative_depth is not None and bool(
+            (absolute_depth - relative_depth) <= self.config.max_depth
         )
 
     def show_node(self, node: nodes.ClassDef) -> bool:

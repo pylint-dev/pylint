@@ -346,8 +346,8 @@ def test_should_include_by_depth_absolute(
 
         msg = (
             f"Node {node.root.return_value.name} with max_depth={max_depth} and "
-            f"specified package {specified_pkg} "
-            f"{'should show' if should_show else 'should not show'}. "
+            f"specified package {specified_pkg} should"
+            f"{'' if should_show else ' not'} show. "
             f"Generator returns: {result}"
         )
         assert result == should_show, msg
@@ -396,8 +396,8 @@ def test_should_include_by_depth_relative_single_package(
 
         msg = (
             f"Node {node.root.return_value.name} with max_depth={max_depth} and "
-            f"specified package {specified_pkg} "
-            f"{'should show' if should_show else 'should not show'}. "
+            f"specified package {specified_pkg} should"
+            f"{'' if should_show else ' not'} show. "
             f"Generator returns: {result}"
         )
         assert result == should_show, msg
@@ -405,7 +405,7 @@ def test_should_include_by_depth_relative_single_package(
 
 @pytest.mark.parametrize("max_depth", range(5))
 def test_should_include_by_depth_relative_multiple_packages(
-    caplog: LogCaptureFixture,
+    capwarn: NotSureaboutTheType,
     generator_factory: GeneratorFactory,
     mock_node: Mock,
     max_depth: int,
