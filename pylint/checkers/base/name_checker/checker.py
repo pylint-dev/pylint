@@ -533,11 +533,8 @@ class NameChecker(_BasicChecker):
     ) -> bool:
         if isinstance(inferred_assign_type, nodes.Const):
             return False
-        if self._name_allowed_by_regex(name=name):
-            return True
         regexp = self._name_regexps["variable"]
-        match = regexp.match(name)
-        return match is not None
+        return regexp.match(name) is not None
 
     def _recursive_check_names(self, args: list[nodes.AssignName]) -> None:
         """Check names in a possibly recursive list <arg>."""
