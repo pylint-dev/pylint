@@ -427,7 +427,9 @@ class NameChecker(_BasicChecker):
 
             # Check names defined in Assign nodes
             elif isinstance(assign_type, (nodes.Assign, nodes.AnnAssign)):
-                inferred_assign_type = utils.safe_infer(assign_type.value) if assign_type.value else None
+                inferred_assign_type = (
+                    utils.safe_infer(assign_type.value) if assign_type.value else None
+                )
 
                 # Check TypeVar's and TypeAliases assigned alone or in tuple assignment
                 if isinstance(node.parent, nodes.Assign):
