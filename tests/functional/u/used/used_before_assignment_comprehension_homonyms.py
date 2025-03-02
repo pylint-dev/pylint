@@ -88,9 +88,9 @@ def func8():
 
 # Module level cases
 
-MODULE_INTS = [j | j for j in range(3)]
+module_ints = [j | j for j in range(3)]
 try:
     1 / 0
 except ZeroDivisionError:
     j = None
-    print(j, MODULE_INTS)
+    print(j, module_ints)

@@ -20,7 +20,7 @@ elif CONSTANT and False:  # [condition-evals-to-constant]
 while CONSTANT and False:  # [condition-evals-to-constant]
     break
 1 if CONSTANT or True else 2  # [condition-evals-to-constant]
-Z = [x for x in range(10) if x or True]  # [condition-evals-to-constant]
+z = [x for x in range(10) if x or True]  # [condition-evals-to-constant]
 
 # Simplifies recursively
 assert True or CONSTANT or OTHER  # [condition-evals-to-constant]

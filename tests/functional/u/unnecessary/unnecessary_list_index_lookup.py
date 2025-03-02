@@ -2,25 +2,25 @@
 
 # pylint: disable=missing-docstring, too-few-public-methods, expression-not-assigned, line-too-long, unused-variable
 
-MY_LIST = ['a', 'b']
+my_list = ['a', 'b']
 
-for idx, val in enumerate(MY_LIST):
-    print(MY_LIST[idx]) # [unnecessary-list-index-lookup]
+for idx, val in enumerate(my_list):
+    print(my_list[idx]) # [unnecessary-list-index-lookup]
 
-for idx, _ in enumerate(MY_LIST):
-    print(MY_LIST[0])
+for idx, _ in enumerate(my_list):
+    print(my_list[0])
     if idx > 0:
-        print(MY_LIST[idx - 1])
+        print(my_list[idx - 1])
 
-for idx, val in enumerate(MY_LIST):
-    del MY_LIST[idx]
+for idx, val in enumerate(my_list):
+    del my_list[idx]
 
-for idx, val in enumerate(MY_LIST):
-    MY_LIST[idx] = 42
+for idx, val in enumerate(my_list):
+    my_list[idx] = 42
 
-for vals in enumerate(MY_LIST):
+for vals in enumerate(my_list):
     # This could be refactored, but too complex to infer
-    print(MY_LIST[vals[0]])
+    print(my_list[vals[0]])
 
 def process_list(data):
     for index, value in enumerate(data):
@@ -32,23 +32,23 @@ def process_list_again(data):
         value = 1
         print(data[index]) # Can't use value here, it's been redefined
 
-OTHER_LIST = [1, 2]
-for idx, val in enumerate(MY_LIST):
-    print(OTHER_LIST[idx])
+other_list = [1, 2]
+for idx, val in enumerate(my_list):
+    print(other_list[idx])
 
 OTHER_INDEX = 0
-for idx, val in enumerate(MY_LIST):
-    print(MY_LIST[OTHER_INDEX])
+for idx, val in enumerate(my_list):
+    print(my_list[OTHER_INDEX])
 
-result = [val for idx, val in enumerate(MY_LIST) if MY_LIST[idx] == 'a'] # [unnecessary-list-index-lookup]
-result = [val for idx, val in enumerate(MY_LIST) if idx > 0 and MY_LIST[idx - 1] == 'a']
-result = [val for idx, val in enumerate(MY_LIST) if OTHER_LIST[idx] == 'a']
-result = [MY_LIST[idx] for idx, val in enumerate(MY_LIST)] # [unnecessary-list-index-lookup]
+result = [val for idx, val in enumerate(my_list) if my_list[idx] == 'a'] # [unnecessary-list-index-lookup]
+result = [val for idx, val in enumerate(my_list) if idx > 0 and my_list[idx - 1] == 'a']
+result = [val for idx, val in enumerate(my_list) if other_list[idx] == 'a']
+result = [my_list[idx] for idx, val in enumerate(my_list)] # [unnecessary-list-index-lookup]
 
 # Regression test for https://github.com/pylint-dev/pylint/issues/6049
-PAIRS = [(0, 0)]
-for i, (a, b) in enumerate(PAIRS):
-    print(PAIRS[i][0])
+pairs = [(0, 0)]
+for i, (a, b) in enumerate(pairs):
+    print(pairs[i][0])
 
 # Regression test for https://github.com/pylint-dev/pylint/issues/6603
 for i, num in enumerate():  # raises TypeError, but shouldn't crash pylint
@@ -76,71 +76,71 @@ for idx, val in enumerate(updated_list):
     print(updated_list[idx])
 
 # Regression test for https://github.com/pylint-dev/pylint/issues/6896
-PARTS = ["a", "b", "c", "d"]
-for i, part in enumerate(PARTS):
+parts = ["a", "b", "c", "d"]
+for i, part in enumerate(parts):
     if i == 3:  # more complex condition actually
-        PARTS.insert(i, "X")
-    print(part, PARTS[i])
+        parts.insert(i, "X")
+    print(part, parts[i])
 
 # regression tests for https://github.com/pylint-dev/pylint/issues/7682
-SERIES = [1, 2, 3, 4, 5]
+series = [1, 2, 3, 4, 5]
 output_list = [
-    (item, SERIES[index])
-    for index, item in enumerate(SERIES, start=1)
-    if index < len(SERIES)
+    (item, series[index])
+    for index, item in enumerate(series, start=1)
+    if index < len(series)
 ]
 
 output_list = [
-    (item, SERIES[index])
-    for index, item in enumerate(SERIES, 1)
-    if index < len(SERIES)
+    (item, series[index])
+    for index, item in enumerate(series, 1)
+    if index < len(series)
 ]
 
-for idx, val in enumerate(SERIES, start=2):
-    print(SERIES[idx])
+for idx, val in enumerate(series, start=2):
+    print(series[idx])
 
-for idx, val in enumerate(SERIES, 2):
-    print(SERIES[idx])
+for idx, val in enumerate(series, 2):
+    print(series[idx])
 
-for idx, val in enumerate(SERIES, start=-2):
-    print(SERIES[idx])
+for idx, val in enumerate(series, start=-2):
+    print(series[idx])
 
-for idx, val in enumerate(SERIES, -2):
-    print(SERIES[idx])
+for idx, val in enumerate(series, -2):
+    print(series[idx])
 
-for idx, val in enumerate(SERIES, start=0):
-    print(SERIES[idx])  # [unnecessary-list-index-lookup]
+for idx, val in enumerate(series, start=0):
+    print(series[idx])  # [unnecessary-list-index-lookup]
 
-for idx, val in enumerate(SERIES, 0):
-    print(SERIES[idx])  # [unnecessary-list-index-lookup]
+for idx, val in enumerate(series, 0):
+    print(series[idx])  # [unnecessary-list-index-lookup]
 
 start = 0
-for idx, val in enumerate(SERIES, start=start):
-    print(SERIES[idx])  # [unnecessary-list-index-lookup]
+for idx, val in enumerate(series, start=start):
+    print(series[idx])  # [unnecessary-list-index-lookup]
 
-for idx, val in enumerate(SERIES, start):
-    print(SERIES[idx])  # [unnecessary-list-index-lookup]
+for idx, val in enumerate(series, start):
+    print(series[idx])  # [unnecessary-list-index-lookup]
 
 start = [1, 2, 3]
-for i, k in enumerate(SERIES, len(start)):
-    print(SERIES[idx])
+for i, k in enumerate(series, len(start)):
+    print(series[idx])
 
 def return_start(start_val):
     return start_val
 
-for i, k in enumerate(SERIES, return_start(20)):
-    print(SERIES[idx])
+for i, k in enumerate(series, return_start(20)):
+    print(series[idx])
 
-for idx, val in enumerate(iterable=SERIES, start=0):
-    print(SERIES[idx])  # [unnecessary-list-index-lookup]
+for idx, val in enumerate(iterable=series, start=0):
+    print(series[idx])  # [unnecessary-list-index-lookup]
 
-result = [MY_LIST[idx] for idx, val in enumerate(iterable=MY_LIST)]  # [unnecessary-list-index-lookup]
+result = [my_list[idx] for idx, val in enumerate(iterable=my_list)]  # [unnecessary-list-index-lookup]
 
-ITERABLE_KWARG = {"iterable": MY_LIST}
-result = [MY_LIST[idx] for idx, val in enumerate(**ITERABLE_KWARG)]  # [unnecessary-list-index-lookup]
+iterable_kwarg = {"iterable": my_list}
+result = [my_list[idx] for idx, val in enumerate(**iterable_kwarg)]  # [unnecessary-list-index-lookup]
 
 for idx, val in enumerate():
-    print(MY_LIST[idx])
+    print(my_list[idx])
 
 class Command:
     def _get_extra_attrs(self, extra_columns):
@@ -149,12 +149,12 @@ class Command:
             pass
 
 Y_START = 2
-NUMS = list(range(20))
-for y, x in enumerate(NUMS, start=Y_START + 1):
+nums = list(range(20))
+for y, x in enumerate(nums, start=Y_START + 1):
     pass
 
-for idx, val in enumerate(MY_LIST):
-    if (val := 42) and MY_LIST[idx] == 'b':
+for idx, val in enumerate(my_list):
+    if (val := 42) and my_list[idx] == 'b':
         print(1)
 
 def regression_9078(apples, cant_infer_this):

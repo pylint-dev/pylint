@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
+from astroid.typing import InferenceResult
 
 from pylint import constants, interfaces
 from pylint.checkers import utils
@@ -199,7 +200,7 @@ class NameChecker(_BasicChecker):
         (
             "good-names",
             {
-                "default": ("i", "j", "k", "logger", "ex", "Run", "_"),
+                "default": ("i", "j", "k", "ex", "Run", "_"),
                 "type": "csv",
                 "metavar": "<names>",
                 "help": "Good variable names which should always be accepted,"
@@ -399,7 +400,7 @@ class NameChecker(_BasicChecker):
         "typevar-double-variance",
         "typevar-name-mismatch",
     )
-    def visit_assignname(  # pylint: disable=too-many-branches
+    def visit_assignname(  # pylint: disable=too-many-branches, too-many-statements
         self, node: nodes.AssignName
     ) -> None:
         """Check module level assigned names."""
@@ -477,7 +478,10 @@ class NameChecker(_BasicChecker):
                         node, (nodes.For, nodes.While)
                     )
                 ):
-                    self._check_name("const", node.name, node)
+                    if not self._meets_exception_for_non_consts(
+                        inferred_assign_type, node.name
+                    ):
+                        self._check_name("const", node.name, node)
                 else:
                     node_type = "variable"
                     if (
@@ -523,6 +527,17 @@ class NameChecker(_BasicChecker):
                 self._check_name("class_const", node.name, node)
             else:
                 self._check_name("class_attribute", node.name, node)
+
+    def _meets_exception_for_non_consts(
+        self, inferred_assign_type: InferenceResult | None, name: str
+    ) -> bool:
+        if isinstance(inferred_assign_type, nodes.Const):
+            return False
+        if self._name_allowed_by_regex(name=name):
+            return True
+        regexp = self._name_regexps["variable"]
+        match = regexp.match(name)
+        return match is not None
 
     def _recursive_check_names(self, args: list[nodes.AssignName]) -> None:
         """Check names in a possibly recursive list <arg>."""

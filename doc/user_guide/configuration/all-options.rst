@@ -428,7 +428,7 @@ Standard Checkers
 """"""""""""
 *Good variable names which should always be accepted, separated by a comma.*
 
-**Default:**  ``('i', 'j', 'k', 'logger', 'ex', 'Run', '_')``
+**Default:**  ``('i', 'j', 'k', 'ex', 'Run', '_')``
 
 
 --good-names-rgxs
@@ -588,7 +588,7 @@ Standard Checkers
 
    # function-rgx =
 
-   good-names = ["i", "j", "k", "logger", "ex", "Run", "_"]
+   good-names = ["i", "j", "k", "ex", "Run", "_"]
 
    good-names-rgxs = []
 

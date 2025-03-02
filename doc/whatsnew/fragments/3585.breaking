@@ -1,10 +1,9 @@
-`invalid-name` now distinguishes module-level names that are assigned only once
-from those that are reassigned and now applies `--variable-rgx` to the latter.
+`invalid-name` now distinguishes module-level constants that are assigned only once
+from those that are reassigned and now applies `--variable-rgx` to the latter. Values
+other than literals (lists, sets, objects) can pass against either the constant or
+variable regexes (e.g. "LOGGER" or "logger" but not "LoGgEr").
 
 Remember that `--good-names` or `--good-names-rgxs` can be provided to explicitly
-allow good names. `logger` has been added to the default `--good-names`.
-
-Also, `invalid-name` is triggered for module-level names for additional types
-(e.g. lists and sets).
+allow good names.
 
 Closes #3585

@@ -275,9 +275,9 @@ class FruitPicker:
     pick_apple = _pick_fruit("apple")
     pick_pear = _pick_fruit("pear")
 
-PICKER = FruitPicker()
-PICKER.pick_apple()
-PICKER.pick_pear()
+picker = FruitPicker()
+picker.pick_apple()
+picker.pick_pear()
 
 
 def name1(apple, /, **kwargs):

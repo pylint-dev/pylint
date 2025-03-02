@@ -4,29 +4,29 @@
 import copy
 from enum import Enum
 
-ITEM_LIST = [1, 2, 3]
-for item in ITEM_LIST:
-    ITEM_LIST.append(item)  # [modified-iterating-list]
+item_list = [1, 2, 3]
+for item in item_list:
+    item_list.append(item)  # [modified-iterating-list]
 
-for item in ITEM_LIST:
-    ITEM_LIST.remove(item)  # [modified-iterating-list]
+for item in item_list:
+    item_list.remove(item)  # [modified-iterating-list]
 
-for item in ITEM_LIST.copy():
-    ITEM_LIST.append(item)
-    ITEM_LIST.remove(item)
+for item in item_list.copy():
+    item_list.append(item)
+    item_list.remove(item)
 
-for item in copy(ITEM_LIST):
-    ITEM_LIST.append(item)
-    ITEM_LIST.remove(item)
+for item in copy(item_list):
+    item_list.append(item)
+    item_list.remove(item)
 
-for item in [k for k in ITEM_LIST]:
-    ITEM_LIST.append(item)
-    ITEM_LIST.remove(item)
+for item in [k for k in item_list]:
+    item_list.append(item)
+    item_list.remove(item)
 
 MY_DICT = {"1": 1, "2": 2, "3": 3}
 i = 1
 for item in MY_DICT:
-    ITEM_LIST[0] = i  # for coverage, see reference at /pull/5628#discussion_r792181642
+    item_list[0] = i  # for coverage, see reference at /pull/5628#discussion_r792181642
     MY_DICT[i] = 1  # [modified-iterating-dict]
     i += 1
 
@@ -58,11 +58,11 @@ for item in item_set:
 for item in item_set.copy():
     item_set.add(item + 10)
 
-for l in ITEM_LIST:
+for l in item_list:
     for s in item_set:
-        ITEM_LIST.append(1)  # [modified-iterating-list]
+        item_list.append(1)  # [modified-iterating-list]
         item_set.remove(4)  # [modified-iterating-set]
-    ITEM_LIST.remove(1)  # [modified-iterating-list]
+    item_list.remove(1)  # [modified-iterating-list]
 
 for item in [1, 2, 3]:
     del item  # [modified-iterating-list]
@@ -77,13 +77,13 @@ for element in item_set:
     del element  # [modified-iterating-set]
 
 # Check for nested for loops and changes to iterators
-for l in ITEM_LIST:
-    ITEM_LIST.append(1)  # [modified-iterating-list]
+for l in item_list:
+    item_list.append(1)  # [modified-iterating-list]
     for _ in []:
         for _ in []:
-            ITEM_LIST.remove(1)  # [modified-iterating-list]
+            item_list.remove(1)  # [modified-iterating-list]
             for _ in []:
-                ITEM_LIST.append(1)  # [modified-iterating-list]
+                item_list.append(1)  # [modified-iterating-list]
 
 
 def format_manifest_serializer_errors(errors):
