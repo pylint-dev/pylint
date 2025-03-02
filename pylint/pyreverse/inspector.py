@@ -21,7 +21,6 @@ from astroid import nodes
 
 from pylint import constants
 from pylint.pyreverse import utils
-from pylint.pyreverse.utils import get_annotation_label
 
 _WrapperFuncT = Callable[
     [Callable[[str], nodes.Module], str, bool], Optional[nodes.Module]
@@ -175,51 +174,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 if not isinstance(assignattr, nodes.Unknown):
                     self.associations_handler.handle(assignattr, node)
                     self.handle_assignattr_type(assignattr, node)
-        # resolve class properties
-        properties = []
-        for name, member_list in node.locals.items():
-            for member in member_list:
-                if isinstance(member, nodes.FunctionDef):
-                    # Check if this function is decorated with @property
-                    if any(
-                        isinstance(decorator, nodes.Name)
-                        and decorator.name == "property"
-                        for decorator in (
-                            member.decorators.nodes if member.decorators else []
-                        )
-                    ):
-                        properties.append(member)
-
-                        # Extract return type directly from the function definition
-                        if member.returns:
-                            # Use get_annotation_label to extract the type name
-                            annotation_label = get_annotation_label(member.returns)
-                            inferred_type = annotation_label
-
-                        # Special handling for enum types ==> name property is always a string
-                        elif (
-                            any(base.name == "Enum" for base in node.ancestors())
-                            and name == "name"
-                        ):
-                            inferred_type = "str"
-
-                        # Fallback to inference (which may not always be perfect)
-                        else:
-                            inferred_nodes = utils.infer_node(member)
-                            inferred_type = (
-                                ", ".join(str(inf) for inf in inferred_nodes if inf)
-                                if inferred_nodes
-                                else "Unknown"
-                            )
-
-                        # Assign to instance attributes with the inferred or annotated type
-                        node.instance_attrs_type[name] = [inferred_type]
-                        print(
-                            f"Property {name} in class {node.name} has type {inferred_type}"
-                        )
-
-        # Add the detected properties to a new attribute for the class definition
-        node.properties = properties
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Visit an astroid.Function node.
