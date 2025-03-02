@@ -60,7 +60,7 @@ Filtering and Scope
 
 --max-depth
 -----------
-*Maximum depth in package/module hierarchy to display. A depth of 0 shows only top-level packages, 1 shows one level of subpackages, etc. If not specified, all packages/modules are shown.*
+*Maximum depth of packages/modules to include in the diagram, relative to the deepest specified package. A depth of 0 shows only the specified packages/modules, while 1 includes their immediate children, etc. When specifying nested packages , depth is calculated from the deepest package level. If not specified, all packages/modules in the hierarchy are shown.*
 
 **Default:**  ``None``
 
