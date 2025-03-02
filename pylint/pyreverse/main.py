@@ -163,8 +163,8 @@ OPTIONS: Options = (
             "help": (
                 "Maximum depth of packages/modules to include in the diagram, relative to the "
                 "deepest specified package. A depth of 0 shows only the specified packages/modules, "
-                "while 1 includes their immediate children, etc. When specifying nested packages "
-                ", depth is calculated from the deepest package level. If not specified, all "
+                "while 1 includes their immediate children, etc. When specifying nested packages,  "
+                "depth is calculated from the deepest package level. If not specified, all "
                 "packages/modules in the hierarchy are shown."
             ),
         },
