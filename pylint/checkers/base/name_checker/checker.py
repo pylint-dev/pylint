@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
+from astroid.typing import InferenceResult
 
 from pylint import constants, interfaces
 from pylint.checkers import utils
@@ -399,7 +400,7 @@ class NameChecker(_BasicChecker):
         "typevar-double-variance",
         "typevar-name-mismatch",
     )
-    def visit_assignname(  # pylint: disable=too-many-branches
+    def visit_assignname(  # pylint: disable=too-many-branches, too-many-statements
         self, node: nodes.AssignName
     ) -> None:
         """Check module level assigned names."""
@@ -461,14 +462,40 @@ class NameChecker(_BasicChecker):
                 elif isinstance(inferred_assign_type, nodes.ClassDef):
                     self._check_name("class", node.name, node)
 
-                # Don't emit if the name redefines an import in an ImportError except handler.
-                elif not _redefines_import(node) and isinstance(
-                    inferred_assign_type, nodes.Const
+                elif inferred_assign_type in (None, astroid.util.Uninferable):
+                    return
+
+                # Don't emit if the name redefines an import in an ImportError except handler
+                # nor any other reassignment.
+                elif (
+                    not (redefines_import := _redefines_import(node))
+                    and not isinstance(
+                        inferred_assign_type, (nodes.FunctionDef, nodes.Lambda)
+                    )
+                    and not utils.is_reassigned_before_current(node, node.name)
+                    and not utils.is_reassigned_after_current(node, node.name)
+                    and not utils.get_node_first_ancestor_of_type(
+                        node, (nodes.For, nodes.While)
+                    )
                 ):
-                    self._check_name("const", node.name, node)
+                    if not self._meets_exception_for_non_consts(
+                        inferred_assign_type, node.name
+                    ):
+                        self._check_name("const", node.name, node)
                 else:
+                    node_type = "variable"
+                    if (
+                        (iattrs := tuple(node.frame().igetattr(node.name)))
+                        and astroid.util.Uninferable not in iattrs
+                        and len(iattrs) == 2
+                        and astroid.are_exclusive(*iattrs)
+                    ):
+                        node_type = "const"
                     self._check_name(
-                        "variable", node.name, node, disallowed_check_only=True
+                        node_type,
+                        node.name,
+                        node,
+                        disallowed_check_only=redefines_import,
                     )
 
             # Check names defined in AnnAssign nodes
@@ -500,6 +527,14 @@ class NameChecker(_BasicChecker):
                 self._check_name("class_const", node.name, node)
             else:
                 self._check_name("class_attribute", node.name, node)
+
+    def _meets_exception_for_non_consts(
+        self, inferred_assign_type: InferenceResult | None, name: str
+    ) -> bool:
+        if isinstance(inferred_assign_type, nodes.Const):
+            return False
+        regexp = self._name_regexps["variable"]
+        return regexp.match(name) is not None
 
     def _recursive_check_names(self, args: list[nodes.AssignName]) -> None:
         """Check names in a possibly recursive list <arg>."""
@@ -608,11 +643,11 @@ class NameChecker(_BasicChecker):
     def _assigns_typealias(node: nodes.NodeNG | None) -> bool:
         """Check if a node is assigning a TypeAlias."""
         inferred = utils.safe_infer(node)
-        if isinstance(inferred, nodes.ClassDef):
+        if isinstance(inferred, (nodes.ClassDef, astroid.bases.UnionType)):
             qname = inferred.qname()
             if qname == "typing.TypeAlias":
                 return True
-            if qname == ".Union":
+            if qname in {".Union", "builtins.UnionType"}:
                 # Union is a special case because it can be used as a type alias
                 # or as a type annotation. We only want to check the former.
                 assert node is not None

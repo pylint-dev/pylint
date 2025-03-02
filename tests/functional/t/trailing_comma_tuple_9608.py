@@ -1,10 +1,10 @@
 """Check trailing comma tuple optimization."""
 # pylint: disable=missing-docstring
 
-AAA = 1,
-BBB = "aaaa",
-CCC="aaa",
-FFF=['f'],
+aaa = 1,
+bbb = "aaaa",
+ccc="aaa",
+fff=['f'],
 
 def some_func(first, second):
     if first:
@@ -14,11 +14,11 @@ def some_func(first, second):
     return first, second,
 
 #pylint:enable = trailing-comma-tuple
-AAA = 1,  # [trailing-comma-tuple]
-BBB = "aaaa", # [trailing-comma-tuple]
+aaa = 1,  # [trailing-comma-tuple]
+bbb = "aaaa", # [trailing-comma-tuple]
 # pylint: disable=trailing-comma-tuple
-CCC="aaa",
+ccc="aaa",
 III = some_func(0,
     0),
 # pylint: enable=trailing-comma-tuple
-FFF=['f'], # [trailing-comma-tuple]
+fff=['f'], # [trailing-comma-tuple]

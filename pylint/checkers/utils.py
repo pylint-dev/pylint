@@ -1865,6 +1865,18 @@ def is_sys_guard(node: nodes.If) -> bool:
     return False
 
 
+def is_reassigned_before_current(node: nodes.NodeNG, varname: str) -> bool:
+    """Check if the given variable name is reassigned in the same scope before the
+    current node.
+    """
+    return any(
+        a.name == varname and a.lineno < node.lineno
+        for a in node.scope().nodes_of_class(
+            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
+        )
+    )
+
+
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope after the
     current node.
@@ -2135,7 +2147,13 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
         binop.op in COMMUTATIVE_OPERATORS
         and _is_target_name_in_binop_side(target, binop.right)
     ):
-        inferred_left = safe_infer(binop.left)
+        if isinstance(binop.left, nodes.Const):
+            # This bizarrely became necessary after an unrelated call to igetattr().
+            # Seems like a code smell uncovered in #10212.
+            # tuple(node.frame().igetattr(node.name))
+            inferred_left = binop.left
+        else:
+            inferred_left = safe_infer(binop.left)
         if isinstance(inferred_left, nodes.Const) and isinstance(
             inferred_left.value, int
         ):

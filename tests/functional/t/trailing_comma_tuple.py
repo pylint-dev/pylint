@@ -1,12 +1,12 @@
 """Check trailing comma one element tuples."""
 # pylint: disable=missing-docstring
-AAA = 1, # [trailing-comma-tuple]
-BBB = "aaaa", # [trailing-comma-tuple]
-CCC="aaa", # [trailing-comma-tuple]
-FFF=['f'], # [trailing-comma-tuple]
+aaa = 1, # [trailing-comma-tuple]
+bbb = "aaaa", # [trailing-comma-tuple]
+ccc="aaa", # [trailing-comma-tuple]
+fff=['f'], # [trailing-comma-tuple]
 
-BBB = 1, 2
-CCC = (1, 2, 3)
+bbb = 1, 2
+ccc = (1, 2, 3)
 DDD = (
     1, 2, 3,
 )
@@ -43,18 +43,18 @@ GGG = ["aaa"
 HHH = ["aaa"
 ]
 
-III = some_func(0,
+iii = some_func(0,
     0), # [trailing-comma-tuple]
 
 JJJ = some_func(0,
     0)
 
 # pylint: disable-next=trailing-comma-tuple
-AAA = 1,
-BBB = "aaaa", # [trailing-comma-tuple]
+aaa = 1,
+bbb = "aaaa", # [trailing-comma-tuple]
 # pylint: disable=trailing-comma-tuple
-CCC="aaa",
-III = some_func(0,
+ccc="aaa",
+iii = some_func(0,
     0),
 # pylint: enable=trailing-comma-tuple
-FFF=['f'], # [trailing-comma-tuple]
+fff=['f'], # [trailing-comma-tuple]

@@ -2,7 +2,7 @@
 import os
 
 
-test = [
+TEST = [
     f"{łol}                                                                       "
     for łol in os.listdir(".")  # [non-ascii-name]
 ]

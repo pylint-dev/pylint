@@ -23,4 +23,10 @@ CONSTD = A()
 CONST = "12 34 ".rstrip().split()
 
 
-assignment_that_crashed_pylint = type(float.__new__.__code__)
+ASSIGNMENT_THAT_CRASHED_PYLINT = type(float.__new__.__code__)
+
+
+if CONST:
+    OTHER_CONST = 1
+else:
+    OTHER_CONST = 2
