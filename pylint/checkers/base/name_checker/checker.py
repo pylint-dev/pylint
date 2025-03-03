@@ -400,7 +400,7 @@ class NameChecker(_BasicChecker):
         "typevar-double-variance",
         "typevar-name-mismatch",
     )
-    def visit_assignname(  # pylint: disable=too-many-branches, too-many-statements
+    def visit_assignname(  # pylint: disable=too-many-branches
         self, node: nodes.AssignName
     ) -> None:
         """Check module level assigned names."""
