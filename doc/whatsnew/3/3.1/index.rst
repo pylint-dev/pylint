@@ -118,7 +118,7 @@ Other Bug Fixes
   The message will report imports as follows:
   For "import X", it will report "(standard/third party/first party/local) import X"
   For "import X.Y" and "from X import Y", it will report "(standard/third party/first party/local) import X.Y"
-  The import category is specified to provide explanation as to why pylint has issued the message and guidence to the developer on how to fix the problem.
+  The import category is specified to provide explanation as to why pylint has issued the message and guidance to the developer on how to fix the problem.
 
   Closes #8808 (`#8808 <https://github.com/pylint-dev/pylint/issues/8808>`_)
 

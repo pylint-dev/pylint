@@ -34,19 +34,19 @@ from pylint.lint.utils import (
 )
 
 __all__ = [
-    "check_parallel",
+    "ArgumentPreprocessingError",
     "PyLinter",
+    "Run",
+    "_augment_sys_path",
+    "augmented_sys_path",
+    "check_parallel",
+    "discover_package_path",
+    "load_results",
+    "realpath_transformer",
     "report_messages_by_module_stats",
     "report_messages_stats",
     "report_total_messages_stats",
-    "Run",
-    "ArgumentPreprocessingError",
-    "_augment_sys_path",
-    "augmented_sys_path",
-    "realpath_transformer",
-    "discover_package_path",
     "save_results",
-    "load_results",
 ]
 
 if __name__ == "__main__":

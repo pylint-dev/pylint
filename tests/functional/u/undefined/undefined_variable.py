@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring, multiple-statements, import-outside-toplevel
-# pylint: disable=too-few-public-methods, bare-except, broad-except
+# pylint: disable=too-few-public-methods, bare-except, broad-except, invalid-name
 # pylint: disable=using-constant-test, import-error, global-variable-not-assigned, unnecessary-comprehension
 # pylint: disable=unnecessary-lambda-assignment, use-yield-from
 

@@ -65,6 +65,58 @@ def test_project_root_in_sys_path() -> None:
         assert sys.path == [PROJECT_ROOT_DIR]
 
 
+@pytest.mark.parametrize(
+    "py_mod_base_name",
+    ("__init__", "impl"),
+    ids=("explicit-namespace", "implicit-namespace"),
+)
+def test_discover_package_path_source_root_as_parent(
+    py_mod_base_name: str,
+    tmp_path: Any,
+) -> None:
+    """Test discover_package_path when source root is a parent of the module."""
+    # Create this temporary structure:
+    # /tmp_path/
+    # └── project/
+    #     └── my-package/
+    #         └── __init__.py
+    project_dir = tmp_path / "project"
+    package_dir = project_dir / "mypackage"
+    package_dir.mkdir(parents=True)
+    (package_dir / f"{py_mod_base_name}.py").touch()
+
+    # Test with project_dir as source root (parent of package)
+    result = discover_package_path(str(package_dir), [str(project_dir)])
+    assert result == str(project_dir)
+
+
+@pytest.mark.parametrize(
+    "py_mod_base_name",
+    ("__init__", "impl"),
+    ids=("explicit-namespace", "implicit-namespace"),
+)
+def test_discover_package_path_source_root_as_child(
+    py_mod_base_name: str,
+    tmp_path: Any,
+) -> None:
+    """Test discover_package_path when source root is a child of the module."""
+    # Create this temporary structure:
+    # /tmp_path/
+    # └── project/
+    #     └── src/
+    #         └── my-package/
+    #             └── __init__.py
+    project_dir = tmp_path / "project"
+    src_dir = project_dir / "src"
+    package_dir = src_dir / "mypackage"
+    package_dir.mkdir(parents=True)
+    (package_dir / f"{py_mod_base_name}.py").touch()
+
+    # Test with src_dir as source root (child of project)
+    result = discover_package_path(str(project_dir), [str(src_dir)])
+    assert result == str(src_dir)
+
+
 @mock.patch("pylint.pyreverse.main.Linker", new=mock.MagicMock())
 @mock.patch("pylint.pyreverse.main.DiadefsHandler", new=mock.MagicMock())
 @mock.patch("pylint.pyreverse.main.writer")
@@ -73,9 +125,7 @@ def test_graphviz_supported_image_format(
     mock_writer: mock.MagicMock, capsys: CaptureFixture[str]
 ) -> None:
     """Test that Graphviz is used if the image format is supported."""
-    with pytest.raises(SystemExit) as wrapped_sysexit:
-        # we have to catch the SystemExit so the test execution does not stop
-        main.Run(["-o", "png", TEST_DATA_DIR])
+    exit_code = main.Run(["-o", "png", TEST_DATA_DIR]).run()
     # Check that the right info message is shown to the user
     assert (
         "Format png is not supported natively. Pyreverse will try to generate it using Graphviz..."
@@ -83,7 +133,7 @@ def test_graphviz_supported_image_format(
     )
     # Check that pyreverse actually made the call to create the diagram and we exit cleanly
     mock_writer.DiagramWriter().write.assert_called_once()
-    assert wrapped_sysexit.value.code == 0
+    assert exit_code == 0
 
 
 @mock.patch("pylint.pyreverse.main.Linker", new=mock.MagicMock())
@@ -95,9 +145,7 @@ def test_graphviz_cant_determine_supported_formats(
 ) -> None:
     """Test that Graphviz is used if the image format is supported."""
     mock_subprocess.run.return_value.stderr = "..."
-    with pytest.raises(SystemExit) as wrapped_sysexit:
-        # we have to catch the SystemExit so the test execution does not stop
-        main.Run(["-o", "png", TEST_DATA_DIR])
+    exit_code = main.Run(["-o", "png", TEST_DATA_DIR]).run()
     # Check that the right info message is shown to the user
     assert (
         "Unable to determine Graphviz supported output formats."
@@ -105,7 +153,7 @@ def test_graphviz_cant_determine_supported_formats(
     )
     # Check that pyreverse actually made the call to create the diagram and we exit cleanly
     mock_writer.DiagramWriter().write.assert_called_once()
-    assert wrapped_sysexit.value.code == 0
+    assert exit_code == 0
 
 
 @mock.patch("pylint.pyreverse.main.Linker", new=mock.MagicMock())
@@ -134,9 +182,7 @@ def test_graphviz_unsupported_image_format(capsys: CaptureFixture) -> None:
 @pytest.mark.usefixtures("mock_graphviz")
 def test_verbose(_: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
     """Test the --verbose flag."""
-    with pytest.raises(SystemExit):
-        # we have to catch the SystemExit so the test execution does not stop
-        main.Run(["--verbose", TEST_DATA_DIR])
+    main.Run(["--verbose", TEST_DATA_DIR]).run()
     assert "parsing" in capsys.readouterr().out
 
 
@@ -164,7 +210,7 @@ def test_verbose(_: mock.MagicMock, capsys: CaptureFixture[str]) -> None:
 @mock.patch("pylint.pyreverse.main.sys.exit", new=mock.MagicMock())
 def test_command_line_arguments_defaults(arg: str, expected_default: Any) -> None:
     """Test that the default arguments of all options are correct."""
-    run = main.Run([TEST_DATA_DIR])  # type: ignore[var-annotated]
+    run = main.Run([TEST_DATA_DIR])
     assert getattr(run.config, arg) == expected_default
 
 
@@ -177,9 +223,8 @@ def test_command_line_arguments_yes_no(
     Make sure that we support --module-names=yes syntax instead
     of using it as a flag.
     """
-    with pytest.raises(SystemExit) as wrapped_sysexit:
-        main.Run(["--module-names=yes", TEST_DATA_DIR])
-    assert wrapped_sysexit.value.code == 0
+    exit_code = main.Run(["--module-names=yes", TEST_DATA_DIR]).run()
+    assert exit_code == 0
 
 
 @mock.patch("pylint.pyreverse.main.writer")
@@ -191,7 +236,7 @@ def test_class_command(
 
     Make sure that we append multiple --class arguments to one option destination.
     """
-    runner = main.Run(  # type: ignore[var-annotated]
+    runner = main.Run(
         [
             "--class",
             "data.clientmodule_test.Ancestor",

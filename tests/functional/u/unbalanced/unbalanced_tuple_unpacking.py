@@ -156,9 +156,9 @@ def my_function(mystring):
     return mylist
 
 
-a, b = my_function("12")  # [unbalanced-tuple-unpacking]
-c = my_function("12")
-d, *_ = my_function("12")
+A, B = my_function("12")  # [unbalanced-tuple-unpacking]
+C = my_function("12")
+D, *_ = my_function("12")
 
 # https://github.com/pylint-dev/pylint/issues/5998
 x, y, z = (1, 2)  # [unbalanced-tuple-unpacking]
@@ -166,4 +166,4 @@ x, y, z = (1, 2)  # [unbalanced-tuple-unpacking]
 # https://github.com/pylint-dev/pylint/issues/7710
 # Using a lot of args, so we have a high probability to still trigger the problem if
 # we add arguments to our unittest command later
-(p, q, r, s, t, u, v, w, x, y, z) = sys.argv
+(p, q, r, s, t, u, v, w, x, y, z) = sys.argv  # pylint: disable=invalid-name

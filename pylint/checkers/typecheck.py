@@ -519,10 +519,8 @@ def _emit_no_member(
                 isinstance(inferred, nodes.Const)
                 and inferred.bool_value() is False
                 and (
-                    isinstance(parent, nodes.If)
-                    and node_origin in parent.body
-                    or isinstance(parent, nodes.IfExp)
-                    and node_origin == parent.body
+                    (isinstance(parent, nodes.If) and node_origin in parent.body)
+                    or (isinstance(parent, nodes.IfExp) and node_origin == parent.body)
                 )
             ):
                 return False
@@ -675,10 +673,8 @@ def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool
     variadics = []
 
     if (
-        isinstance(scope, nodes.Lambda)
-        and not isinstance(scope, nodes.FunctionDef)
-        or isinstance(statement, nodes.With)
-    ):
+        isinstance(scope, nodes.Lambda) and not isinstance(scope, nodes.FunctionDef)
+    ) or isinstance(statement, nodes.With):
         variadics = list(node.keywords or []) + node.kwargs
     elif isinstance(statement, (nodes.Return, nodes.Expr, nodes.Assign)) and isinstance(
         statement.value, nodes.Call
@@ -1276,8 +1272,10 @@ accessed. Python regular expressions are accepted.",
         else:
             for ret_node in return_nodes:
                 if not (
-                    isinstance(ret_node.value, nodes.Const)
-                    and ret_node.value.value is None
+                    (
+                        isinstance(ret_node.value, nodes.Const)
+                        and ret_node.value.value is None
+                    )
                     or ret_node.value is None
                 ):
                     break
@@ -1419,9 +1417,27 @@ accessed. Python regular expressions are accepted.",
         if calling_parg_names != called_param_names[: len(calling_parg_names)]:
             self.add_message("arguments-out-of-order", node=node, args=())
 
-    def _check_isinstance_args(self, node: nodes.Call) -> None:
-        if len(node.args) != 2:
-            # isinstance called with wrong number of args
+    def _check_isinstance_args(self, node: nodes.Call, callable_name: str) -> None:
+        if len(node.args) > 2:
+            # for when isinstance called with too many args
+            self.add_message(
+                "too-many-function-args",
+                node=node,
+                args=(callable_name,),
+                confidence=HIGH,
+            )
+        elif len(node.args) < 2:
+            # NOTE: Hard-coding the parameters for `isinstance` is fragile,
+            # but as noted elsewhere, built-in functions do not provide
+            # argument info, making this necessary for now.
+            parameters = ("'_obj'", "'__class_or_tuple'")
+            for parameter in parameters[len(node.args) :]:
+                self.add_message(
+                    "no-value-for-parameter",
+                    node=node,
+                    args=(parameter, callable_name),
+                    confidence=HIGH,
+                )
             return
 
         second_arg = node.args[1]
@@ -1437,7 +1453,7 @@ accessed. Python regular expressions are accepted.",
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.
         """
-        called = safe_infer(node.func)
+        called = safe_infer(node.func, compare_constructors=True)
 
         self._check_not_callable(node, called)
 
@@ -1451,7 +1467,7 @@ accessed. Python regular expressions are accepted.",
         if called.args.args is None:
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
-                self._check_isinstance_args(node)
+                self._check_isinstance_args(node, callable_name)
             # Built-in functions have no argument information.
             return
 
@@ -1554,7 +1570,9 @@ accessed. Python regular expressions are accepted.",
             elif not overload_function:
                 # Too many positional arguments.
                 self.add_message(
-                    "too-many-function-args", node=node, args=(callable_name,)
+                    "too-many-function-args",
+                    node=node,
+                    args=(callable_name,),
                 )
                 break
 
@@ -1842,10 +1860,14 @@ accessed. Python regular expressions are accepted.",
             )
             if not (
                 isinstance(inferred, known_objects)
-                or isinstance(inferred, nodes.Const)
-                and inferred.pytype() in {"builtins.str", "builtins.bytes"}
-                or isinstance(inferred, astroid.bases.Instance)
-                and inferred.pytype() == "builtins.range"
+                or (
+                    isinstance(inferred, nodes.Const)
+                    and inferred.pytype() in {"builtins.str", "builtins.bytes"}
+                )
+                or (
+                    isinstance(inferred, astroid.bases.Instance)
+                    and inferred.pytype() == "builtins.range"
+                )
             ):
                 # Might be an instance that knows how to handle this slice object
                 return

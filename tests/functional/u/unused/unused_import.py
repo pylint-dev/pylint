@@ -39,6 +39,8 @@ if t.TYPE_CHECKING:
     import xml
 
 
+EXAMPLE: t.Annotated[str, "Path"] = "/foo/bar"
+
 def get_ordered_dict() -> "collections.OrderedDict":
     return []
 
@@ -83,7 +85,7 @@ from io import TYPE_CHECKING  # pylint: disable=no-name-in-module
 import trace as t
 import astroid as typing  # pylint: disable=shadowed-import
 
-TYPE_CHECKING = "red herring"
+TYPE_CHECKING = "red herring"  # pylint: disable=invalid-name
 
 if TYPE_CHECKING:
     import unittest  # [unused-import]
@@ -94,7 +96,7 @@ if typing.TYPE_CHECKING:  # pylint: disable=no-member
 if typing.TYPE_CHECKING_WITH_MAGIC:  # pylint: disable=no-member
     import compileall  # [unused-import]
 
-TYPE_CHECKING = False
+TYPE_CHECKING = False  # pylint: disable=invalid-name
 if TYPE_CHECKING:
     import zoneinfo
 

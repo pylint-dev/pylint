@@ -36,7 +36,7 @@ fail-under = 10
 # from-stdin =
 
 # Files or directories to be skipped. They should be base names, not paths.
-ignore = ["CVS"]
+ignore = [ "CVS" ]
 
 # Add files or directories matching the regular expressions patterns to the
 # ignore-list. The regex matches against paths and can be in Posix or Windows
@@ -47,7 +47,7 @@ ignore = ["CVS"]
 # Files or directories matching the regular expression patterns are skipped. The
 # regex matches against base names, not paths. The default value ignores Emacs
 # file locks
-ignore-patterns = ["^\\.#"]
+ignore-patterns = [ "^\\.#" ]
 
 # List of module names for which member attributes should not be checked and will
 # not be imported (useful for modules/projects where namespaces are manipulated
@@ -83,7 +83,7 @@ persistent = true
 
 # Minimum Python version to use for version dependent checks. Will default to the
 # version used to run pylint.
-py-version = "3.10"
+py-version = "3.13"
 
 # Discover python modules and packages in the file system subtree.
 # recursive =
@@ -119,7 +119,7 @@ attr-naming-style = "snake_case"
 # attr-rgx =
 
 # Bad variable names which should always be refused, separated by a comma.
-bad-names = ["foo", "bar", "baz", "toto", "tutu", "tata"]
+bad-names = [ "foo", "bar", "baz", "toto", "tutu", "tata" ]
 
 # Bad variable names regexes, separated by a comma. If names match any regex,
 # they will always be refused
@@ -167,7 +167,7 @@ function-naming-style = "snake_case"
 # function-rgx =
 
 # Good variable names which should always be accepted, separated by a comma.
-good-names = ["i", "j", "k", "ex", "Run", "_"]
+good-names = [ "i", "j", "k", "ex", "Run", "_" ]
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted
@@ -209,7 +209,7 @@ no-docstring-rgx = "^_"
 # List of decorators that produce properties, such as abc.abstractproperty. Add
 # to this list to register other decorators that produce valid properties. These
 # decorators are taken in consideration only for invalid-name.
-property-classes = ["abc.abstractproperty"]
+property-classes = [ "abc.abstractproperty" ]
 
 # Regular expression matching correct type alias names. If left empty, type alias
 # names will be checked with the set naming style.
@@ -231,17 +231,17 @@ variable-naming-style = "snake_case"
 # check-protected-access-in-special-methods =
 
 # List of method names used to declare (i.e. assign) instance attributes.
-defining-attr-methods = ["__init__", "__new__", "setUp", "asyncSetUp", "__post_init__"]
+defining-attr-methods = [ "__init__", "__new__", "setUp", "asyncSetUp", "__post_init__" ]
 
 # List of member names, which should be excluded from the protected access
 # warning.
-exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make", "os._exit"]
+exclude-protected = [ "_asdict", "_fields", "_replace", "_source", "_make", "os._exit" ]
 
 # List of valid names for the first argument in a class method.
-valid-classmethod-first-arg = ["cls"]
+valid-classmethod-first-arg = [ "cls" ]
 
 # List of valid names for the first argument in a metaclass class method.
-valid-metaclass-classmethod-first-arg = ["mcs"]
+valid-metaclass-classmethod-first-arg = [ "mcs" ]
 
 [tool.pylint.design]
 # List of regular expressions of class ancestor names to ignore when counting
@@ -269,6 +269,9 @@ max-locals = 15
 # Maximum number of parents for a class (see R0901).
 max-parents = 7
 
+# Maximum number of positional arguments for function / method.
+max-positional-arguments = 5
+
 # Maximum number of public methods for a class (see R0904).
 max-public-methods = 20
 
@@ -283,7 +286,7 @@ min-public-methods = 2
 
 [tool.pylint.exceptions]
 # Exceptions that will emit a warning when caught.
-overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
+overgeneral-exceptions = [ "builtins.BaseException", "builtins.Exception" ]
 
 [tool.pylint.format]
 # Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
@@ -342,7 +345,7 @@ max-module-lines = 1000
 # known-standard-library =
 
 # Force import order to recognize a module as part of a third party library.
-known-third-party = ["enchant"]
+known-third-party = [ "enchant" ]
 
 # Couples of modules and preferred modules, separated by a comma.
 # preferred-modules =
@@ -354,12 +357,12 @@ logging-format-style = "old"
 
 # Logging modules to check that the string format arguments are in logging
 # function parameter format.
-logging-modules = ["logging"]
+logging-modules = [ "logging" ]
 
 [tool.pylint."messages control"]
 # Only show warnings with the listed confidence levels. Leave empty to show all.
 # Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED.
-confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
+confidence = [ "HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED" ]
 
 # Disable the message, report, category or checker with the given id(s). You can
 # either give multiple identifiers separated by comma (,) or put this option
@@ -370,7 +373,18 @@ confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFIN
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
-disable = ["raw-checker-failed", "bad-inline-option", "locally-disabled", "file-ignored", "suppressed-message", "useless-suppression", "deprecated-pragma", "use-implicit-booleaness-not-comparison-to-string", "use-implicit-booleaness-not-comparison-to-zero", "use-symbolic-message-instead"]
+disable = [
+  "raw-checker-failed",
+  "bad-inline-option",
+  "locally-disabled",
+  "file-ignored",
+  "suppressed-message",
+  "useless-suppression",
+  "deprecated-pragma",
+  "use-implicit-booleaness-not-comparison-to-string",
+  "use-implicit-booleaness-not-comparison-to-zero",
+  "use-symbolic-message-instead",
+]
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -381,11 +395,20 @@ disable = ["raw-checker-failed", "bad-inline-option", "locally-disabled", "file-
 [tool.pylint.method_args]
 # List of qualified names (i.e., library.method) which require a timeout
 # parameter e.g. 'requests.api.get,requests.api.post'
-timeout-methods = ["requests.api.delete", "requests.api.get", "requests.api.head", "requests.api.options", "requests.api.patch", "requests.api.post", "requests.api.put", "requests.api.request"]
+timeout-methods = [
+  "requests.api.delete",
+  "requests.api.get",
+  "requests.api.head",
+  "requests.api.options",
+  "requests.api.patch",
+  "requests.api.post",
+  "requests.api.put",
+  "requests.api.request",
+]
 
 [tool.pylint.miscellaneous]
 # List of note tags to take in consideration, separated by a comma.
-notes = ["FIXME", "XXX", "TODO"]
+notes = [ "FIXME", "XXX", "TODO" ]
 
 # Regular expression of note tags to take in consideration.
 # notes-rgx =
@@ -397,7 +420,7 @@ max-nested-blocks = 5
 # Complete name of functions that never returns. When checking for inconsistent-
 # return-statements if a never returning function is called then it will be
 # considered as an explicit return statement and no message will be printed.
-never-returning-functions = ["sys.exit", "argparse.parse_error"]
+never-returning-functions = [ "sys.exit", "argparse.parse_error" ]
 
 # Let 'consider-using-join' be raised when the separator to join on would be non-
 # empty (resulting in expected fixes of the type: ``"- " + " - ".join(items)``)
@@ -468,7 +491,7 @@ spelling-ignore-comment-directives = "fmt: on,fmt: off,noqa:,noqa,nosec,isort:sk
 # List of decorators that produce context managers, such as
 # contextlib.contextmanager. Add to this list to register other decorators that
 # produce valid context managers.
-contextmanager-decorators = ["contextlib.contextmanager"]
+contextmanager-decorators = [ "contextlib.contextmanager" ]
 
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E1101 when accessed. Python regular
@@ -490,12 +513,17 @@ ignore-none = true
 ignore-on-opaque-inference = true
 
 # List of symbolic message names to ignore for Mixin members.
-ignored-checks-for-mixins = ["no-member", "not-async-context-manager", "not-context-manager", "attribute-defined-outside-init"]
+ignored-checks-for-mixins = [
+  "no-member",
+  "not-async-context-manager",
+  "not-context-manager",
+  "attribute-defined-outside-init",
+]
 
 # List of class names for which member attributes should not be checked (useful
 # for classes with dynamically set attributes). This supports the use of
 # qualified names.
-ignored-classes = ["optparse.Values", "thread._local", "_thread._local", "argparse.Namespace"]
+ignored-classes = [ "optparse.Values", "thread._local", "_thread._local", "argparse.Namespace" ]
 
 # Show a hint with possible names when a member name was not found. The aspect of
 # finding the hint is based on edit distance.
@@ -528,7 +556,7 @@ allow-global-unused-variables = true
 
 # List of strings which can identify a callback function by name. A callback name
 # must start or end with one of those strings.
-callbacks = ["cb_", "_cb"]
+callbacks = [ "cb_", "_cb" ]
 
 # A regular expression matching the name of dummy variables (i.e. expected to not
 # be used).
@@ -542,4 +570,4 @@ ignored-argument-names = "_.*|^ignored_|^unused_"
 
 # List of qualified module names which can have objects that can redefine
 # builtins.
-redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", "builtins", "io"]
+redefining-builtins-modules = [ "six.moves", "past.builtins", "future.builtins", "builtins", "io" ]

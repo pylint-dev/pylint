@@ -60,12 +60,11 @@ except ImportError:  # pragma: no cover
 
 
 def _get_enchant_dicts() -> list[tuple[Any, enchant.ProviderDesc]]:
-    # Broker().list_dicts() is not typed in enchant, but it does return tuples
-    return enchant.Broker().list_dicts() if PYENCHANT_AVAILABLE else []  # type: ignore[no-any-return]
+    return enchant.Broker().list_dicts() if PYENCHANT_AVAILABLE else []
 
 
 def _get_enchant_dict_choices(
-    inner_enchant_dicts: list[tuple[Any, enchant.ProviderDesc]]
+    inner_enchant_dicts: list[tuple[Any, enchant.ProviderDesc]],
 ) -> list[str]:
     return [""] + [d[0] for d in inner_enchant_dicts]
 

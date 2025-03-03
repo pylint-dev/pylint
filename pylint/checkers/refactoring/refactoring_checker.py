@@ -44,6 +44,7 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
     (
         "_io.open",  # regular 'open()' call
         "pathlib.Path.open",
+        "pathlib._local.Path.open",  # Python 3.13
         "codecs.open",
         "urllib.request.urlopen",
         "tempfile.NamedTemporaryFile",
@@ -284,7 +285,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             'Unnecessary "%s" after "return", %s',
             "no-else-return",
             "Used in order to highlight an unnecessary block of "
-            "code following an if containing a return statement. "
+            "code following an if, or a try/except containing a return statement. "
             "As such, it will warn when it encounters an else "
             "following a chain of ifs, all of them containing a "
             "return statement.",
@@ -386,7 +387,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             'Unnecessary "%s" after "raise", %s',
             "no-else-raise",
             "Used in order to highlight an unnecessary block of "
-            "code following an if containing a raise statement. "
+            "code following an if, or a try/except containing a raise statement. "
             "As such, it will warn when it encounters an else "
             "following a chain of ifs, all of them containing a "
             "raise statement.",
@@ -919,11 +920,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             """Obtain simplest representation of a node as a string."""
             if isinstance(node, nodes.Name):
                 return node.name  # type: ignore[no-any-return]
-            if isinstance(node, nodes.Attribute):
-                return node.attrname  # type: ignore[no-any-return]
             if isinstance(node, nodes.Const):
                 return str(node.value)
-            # this is a catch-all for nodes that are not of type Name or Attribute
+            # this is a catch-all for nodes that are not of type Name or Const
             # extremely helpful for Call or BinOp
             return node.as_string()  # type: ignore[no-any-return]
 
@@ -944,12 +943,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # is of type name or attribute. Attribute referring to NamedTuple.x perse.
         # So we have to check that target is of these types
 
-        if hasattr(target, "name"):
-            target_assignation = target.name
-        elif hasattr(target, "attrname"):
-            target_assignation = target.attrname
-        else:
+        if not (hasattr(target, "name") or hasattr(target, "attrname")):
             return
+
+        target_assignation = get_node_name(target)
 
         if len(node.test.ops) > 1:
             return
@@ -1695,7 +1692,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
         inferred = utils.safe_infer(node.func)
         if not inferred or not isinstance(
-            inferred, (nodes.FunctionDef, nodes.ClassDef, bases.UnboundMethod)
+            inferred, (nodes.FunctionDef, nodes.ClassDef, bases.BoundMethod)
         ):
             return
         could_be_used_in_with = (
@@ -2030,12 +2027,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if isinstance(node, nodes.Return):
             return True
         if isinstance(node, nodes.Call):
-            try:
-                funcdef_node = node.func.inferred()[0]
-                if self._is_function_def_never_returning(funcdef_node):
-                    return True
-            except astroid.InferenceError:
-                pass
+            return any(
+                (
+                    isinstance(maybe_func, (nodes.FunctionDef, bases.BoundMethod))
+                    and self._is_function_def_never_returning(maybe_func)
+                )
+                for maybe_func in utils.infer_all(node.func)
+            )
         if isinstance(node, nodes.While):
             # A while-loop is considered return-ended if it has a
             # truthy test and no break statements
@@ -2087,17 +2085,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the function never returns, False otherwise.
         """
-        if isinstance(node, (nodes.FunctionDef, astroid.BoundMethod)) and node.returns:
-            return (
-                isinstance(node.returns, nodes.Attribute)
-                and node.returns.attrname == "NoReturn"
-                or isinstance(node.returns, nodes.Name)
-                and node.returns.name == "NoReturn"
-            )
         try:
-            return node.qname() in self._never_returning_functions
+            if node.qname() in self._never_returning_functions:
+                return True
         except (TypeError, AttributeError):
-            return False
+            pass
+
+        try:
+            returns: nodes.NodeNG | None = node.returns
+        except AttributeError:
+            return False  # the BoundMethod proxy may be a lambda without a returns
+
+        return (
+            isinstance(returns, nodes.Attribute)
+            and returns.attrname in {"NoReturn", "Never"}
+        ) or (isinstance(returns, nodes.Name) and returns.name in {"NoReturn", "Never"})
 
     def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:
         """Check for presence of a *single* return statement at the end of a
@@ -2448,9 +2450,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False, confidence
 
     def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
-        if (
-            isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute))
-            or isinstance(node, nodes.UnaryOp)
+        if isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute)) or (
+            isinstance(node, nodes.UnaryOp)
             and isinstance(node.operand, (nodes.Attribute, nodes.Name))
         ):
             inferred = utils.safe_infer(node)

@@ -517,8 +517,7 @@ class BasicChecker(_BasicChecker):
         args: list[nodes.Starred | nodes.Keyword], variadic_name: str
     ) -> bool:
         return not args or any(
-            isinstance(a.value, nodes.Name)
-            and a.value.name != variadic_name
+            (isinstance(a.value, nodes.Name) and a.value.name != variadic_name)
             or not isinstance(a.value, nodes.Name)
             for a in args
         )

@@ -16,9 +16,9 @@ def context_manager():
         pass
 
 
-cm = context_manager()
-cm.__enter__()
-cm.__exit__(None, None, None)
+CM = context_manager()
+CM.__enter__()
+CM.__exit__(None, None, None)
 
 
 @contextlib.contextmanager

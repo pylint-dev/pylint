@@ -2,35 +2,35 @@ Pylint recognizes a number of different name types internally. With a few
 exceptions, the type of the name is governed by the location the assignment to a
 name is found in, and not the type of object assigned.
 
-+--------------------+---------------------------------------------------------------------------------------------------+
-| Name Type          | Description                                                                                       |
-+====================+===================================================================================================+
-| ``module``         | Module and package names, same as the file names.                                                 |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``const``          | Module-level constants, any variable defined at module level that is not bound to a class object. |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``class``          | Names in ``class`` statements, as well as names bound to class objects at module level.           |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``function``       | Functions, toplevel or nested in functions or methods.                                            |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``method``         | Methods, functions defined in class bodies. Includes static and class methods.                    |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``attr``           | Attributes created on class instances inside methods.                                             |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``argument``       | Arguments to any function type, including lambdas.                                                |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``variable``       | Local variables in function scopes.                                                               |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``class-attribute``| Attributes defined in class bodies.                                                               |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``class-const``    | Enum constants and class variables annotated with ``ClassVar``                                    |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``inlinevar``      | Loop variables in list comprehensions and generator expressions.                                  |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``typevar``        | Type variable declared with ``TypeVar``.                                                          |
-+--------------------+---------------------------------------------------------------------------------------------------+
-| ``typealias``      | Type alias declared with ``TypeAlias`` or assignments of ``Union``.                               |
-+--------------------+---------------------------------------------------------------------------------------------------+
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| Name Type          | Description                                                                                                 |
++====================+=============================================================================================================+
+| ``module``         | Module and package names, same as the file names.                                                           |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``const``          | Module-level constants: any name defined at module level that is not bound to a class object nor reassigned.|
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``class``          | Names in ``class`` statements, as well as names bound to class objects at module level.                     |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``function``       | Functions, toplevel or nested in functions or methods.                                                      |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``method``         | Methods, functions defined in class bodies. Includes static and class methods.                              |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``attr``           | Attributes created on class instances inside methods.                                                       |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``argument``       | Arguments to any function type, including lambdas.                                                          |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``variable``       | Local variables in function scopes or module-level names that are assigned multiple times.                  |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``class-attribute``| Attributes defined in class bodies.                                                                         |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``class-const``    | Enum constants and class variables annotated with ``Final``                                                 |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``inlinevar``      | Loop variables in list comprehensions and generator expressions.                                            |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``typevar``        | Type variable declared with ``TypeVar``.                                                                    |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``typealias``      | Type alias declared with ``TypeAlias`` or assignments of ``Union``.                                         |
++--------------------+-------------------------------------------------------------------------------------------------------------+
 
 Default behavior
 ~~~~~~~~~~~~~~~~
@@ -50,7 +50,7 @@ Following predefined naming styles are available:
 * ``UPPER_CASE``
 * ``any`` - fake style which does not enforce any limitations
 
-Following options are exposed:
+The following options are exposed:
 
 .. option:: --module-naming-style=<style>
 

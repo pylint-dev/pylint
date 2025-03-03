@@ -6,7 +6,7 @@ on:
       - published
 
 env:
-  DEFAULT_PYTHON: "3.12"
+  DEFAULT_PYTHON: "3.13"
 
 permissions:
   contents: read
@@ -20,10 +20,10 @@ jobs:
       url: https://pypi.org/project/pylint/
     steps:
       - name: Check out code from Github
-        uses: actions/checkout@v4.1.6
+        uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true

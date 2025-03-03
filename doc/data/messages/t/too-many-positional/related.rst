@@ -1,2 +1,0 @@
-- `Ruff discussion <https://github.com/astral-sh/ruff/issues/8946>`_
-- `Pylint issue <https://github.com/pylint-dev/pylint/issues/9099>`_

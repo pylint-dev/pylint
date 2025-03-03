@@ -1,18 +1,5 @@
-"""Test PEP 585 in combination with postponed evaluation PEP 563.
-
-This check requires Python 3.7 or 3.8!
-Testing with 3.8 only, to support TypedDict.
-"""
-
-# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name
-# pylint: disable=inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports
-# pylint: disable=unused-variable,unnecessary-direct-lambda-call
-
-# Disabled because of a bug with pypy 3.8 see
-# https://github.com/pylint-dev/pylint/pull/7918#issuecomment-1352737369
-# pylint: disable=multiple-statements
-
-from __future__ import annotations
+"""Test PEP 585 works as expected, starting with Python 3.9"""
+# pylint: disable=missing-docstring,unused-argument,unused-import,too-few-public-methods,invalid-name,inherit-non-class,unsupported-binary-operation,wrong-import-position,ungrouped-imports,unused-variable,unnecessary-direct-lambda-call
 import collections
 import dataclasses
 import typing
@@ -20,25 +7,25 @@ from dataclasses import dataclass
 from typing import Any, Dict, NamedTuple, TypedDict, Union, Tuple
 
 
-AliasInvalid = list[int]  # [unsubscriptable-object]
+AliasValid = list[int]
 
 class CustomIntList(typing.List[int]):
     pass
 
-class CustomIntListError(list[int]):  # [unsubscriptable-object]
+class CustomIntListError(list[int]):
     pass
 
 cast_variable = [1, 2, 3]
-cast_variable = typing.cast(list[int], cast_variable)  # [unsubscriptable-object]
+cast_variable = typing.cast(list[int], cast_variable)
 
-T = typing.TypeVar("T", list[int], str)  # [unsubscriptable-object]
+T = typing.TypeVar("T", list[int], str)
 
-(lambda x: 2)(list[int])  # [unsubscriptable-object]
+(lambda x: 2)(list[int])
 
 
 # Check typing.NamedTuple
 CustomNamedTuple = typing.NamedTuple(
-    "CustomNamedTuple", [("my_var", list[int])])  # [unsubscriptable-object]
+    "CustomNamedTuple", [("my_var", list[int])])
 
 class CustomNamedTuple2(NamedTuple):
     my_var: list[int]
@@ -48,9 +35,9 @@ class CustomNamedTuple3(typing.NamedTuple):
 
 
 # Check typing.TypedDict
-CustomTypedDict = TypedDict("CustomTypedDict", my_var=list[int])  # [unsubscriptable-object]
+CustomTypedDict = TypedDict("CustomTypedDict", my_var=list[int])
 
-CustomTypedDict2 = TypedDict("CustomTypedDict2", {"my_var": list[int]})  # [unsubscriptable-object]
+CustomTypedDict2 = TypedDict("CustomTypedDict2", {"my_var": list[int]})
 
 class CustomTypedDict3(TypedDict):
     my_var: list[int]
@@ -101,12 +88,12 @@ def func(arg: list[int]):
 def func2() -> list[int]:
     pass
 
-Alias2 = Union[list[str], None]  # [unsubscriptable-object]
-Alias3 = Union[Union[list[int], int]]  # [unsubscriptable-object]
-Alias4 = Tuple[list[int]]  # [unsubscriptable-object]
-Alias5 = Dict[str, list[int]]  # [unsubscriptable-object]
-Alias6 = int | list[int]  # [unsubscriptable-object]
-Alias7 = list[list[int]]  # [unsubscriptable-object,unsubscriptable-object]
+Alias2 = Union[list[str], None]
+Alias3 = Union[Union[list[int], int]]
+Alias4 = Tuple[list[int]]
+Alias5 = Dict[str, list[int]]
+Alias6 = int | list[int]
+Alias7 = list[list[int]]
 
 
 import collections.abc
@@ -116,7 +103,7 @@ import re
 class OrderedDict:
     pass
 
-var12: OrderedDict[str, int]  # string annotations aren't checked
+var12: OrderedDict[str, int]  # [unsubscriptable-object]
 var13: list[int]
 var14: collections.OrderedDict[str, int]
 var15: collections.Counter[int]
@@ -126,15 +113,15 @@ var18: re.Pattern[str]
 
 
 def func3():
-    AliasInvalid2 = list[int]  # [unsubscriptable-object]
+    AliasInvalid2 = list[int]
     cast_variable2 = [1, 2, 3]
-    cast_variable2 = typing.cast(list[int], cast_variable2)  # [unsubscriptable-object]
+    cast_variable2 = typing.cast(list[int], cast_variable2)
     var19: list[int]
 
-def func4(arg=list[int]):  # [unsubscriptable-object]
+def func4(var=list[int]):
     pass
 
-def func5(arg1: list[int], arg2=set[int]):  # [unsubscriptable-object]
+def func5(arg1: list[int], arg2=set[int]):
     pass
 
 def func6(arg1: list[int], /, *args: tuple[str], arg2: set[int], **kwargs: dict[str, Any]):

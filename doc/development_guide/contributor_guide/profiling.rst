@@ -90,7 +90,7 @@ and thus is displayed as being 0.
 
 Often you are more interested in the cumulative time (per call). This refers to the time spent within the function
 and any of the functions it called or the functions they called (etc.). In our example, the ``visit_importfrom``
-method and all of its child-functions took a little over 8 seconds to exectute, with an execution time of
+method and all of its child-functions took a little over 8 seconds to execute, with an execution time of
 0.013 ms per call.
 
 You can also search the ``profiler_stats`` for an individual function you want to check. For example

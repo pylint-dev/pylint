@@ -268,7 +268,9 @@ class BasicErrorChecker(_BasicChecker):
         if not redefined_by_decorator(
             node
         ) and not utils.is_registered_in_singledispatch_function(node):
-            self._check_redefinition(node.is_method() and "method" or "function", node)
+            self._check_redefinition(
+                (node.is_method() and "method") or "function", node
+            )
         # checks for max returns, branch, return in __init__
         returns = node.nodes_of_class(
             nodes.Return, skip_klass=(nodes.FunctionDef, nodes.ClassDef)

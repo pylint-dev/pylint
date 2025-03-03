@@ -1,0 +1,5 @@
+digraph "packages_depth_limited_0" {
+rankdir=BT
+charset="utf-8"
+"data" [color="black", label=<data>, shape="box", style="solid"];
+}

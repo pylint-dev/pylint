@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Dict, Set, Tuple
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes, util
@@ -22,7 +22,7 @@ from pylint.typing import MessageDefinitionTuple
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-DeprecationDict = Dict[Tuple[int, int, int], Set[str]]
+DeprecationDict = dict[tuple[int, int, int], set[str]]
 
 OPEN_FILES_MODE = ("open", "file")
 OPEN_FILES_FUNCS = (*OPEN_FILES_MODE, "read_text", "write_text")
@@ -33,7 +33,8 @@ OS_ENVIRON = "os._Environ"
 ENV_GETTERS = ("os.getenv",)
 SUBPROCESS_POPEN = "subprocess.Popen"
 SUBPROCESS_RUN = "subprocess.run"
-OPEN_MODULE = {"_io", "pathlib"}
+OPEN_MODULE = {"_io", "pathlib", "pathlib._local"}
+PATHLIB_MODULE = {"pathlib", "pathlib._local"}
 DEBUG_BREAKPOINTS = ("builtins.breakpoint", "sys.breakpointhook", "pdb.set_trace")
 LRU_CACHE = {
     "functools.lru_cache",  # Inferred for @lru_cache
@@ -52,6 +53,9 @@ DEPRECATED_ARGUMENTS: dict[
         "int": ((None, "x"),),
         "bool": ((None, "x"),),
         "float": ((None, "x"),),
+    },
+    (3, 5, 0): {
+        "importlib._bootstrap_external.cache_from_source": ((1, "debug_override"),),
     },
     (3, 8, 0): {
         "asyncio.tasks.sleep": ((None, "loop"),),
@@ -89,6 +93,9 @@ DEPRECATED_ARGUMENTS: dict[
         "email.utils.localtime": ((1, "isdst"),),
         "shutil.rmtree": ((2, "onerror"),),
     },
+    (3, 13, 0): {
+        "dis.get_instructions": ((2, "show_caches"),),
+    },
 }
 
 DEPRECATED_DECORATORS: DeprecationDict = {
@@ -99,6 +106,7 @@ DEPRECATED_DECORATORS: DeprecationDict = {
         "abc.abstractproperty",
     },
     (3, 4, 0): {"importlib.util.module_for_loader"},
+    (3, 13, 0): {"typing.no_type_check_decorator"},
 }
 
 
@@ -268,6 +276,10 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "unittest.TestProgram.usageExit",
         },
         (3, 12, 0): {
+            "asyncio.get_child_watcher",
+            "asyncio.set_child_watcher",
+            "asyncio.AbstractEventLoopPolicy.get_child_watcher",
+            "asyncio.AbstractEventLoopPolicy.set_child_watcher",
             "builtins.bool.__invert__",
             "datetime.datetime.utcfromtimestamp",
             "datetime.datetime.utcnow",
@@ -276,6 +288,19 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "pty.master_open",
             "pty.slave_open",
             "xml.etree.ElementTree.Element.__bool__",
+        },
+        (3, 13, 0): {
+            "ctypes.SetPointerType",
+            "pathlib.PurePath.is_reserved",
+            "platform.java_ver",
+            "pydoc.is_package",
+            "sys._enablelegacywindowsfsencoding",
+            "wave.Wave_read.getmark",
+            "wave.Wave_read.getmarkers",
+            "wave.Wave_read.setmark",
+            "wave.Wave_write.getmark",
+            "wave.Wave_write.getmarkers",
+            "wave.Wave_write.setmark",
         },
     },
 }
@@ -333,6 +358,9 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
         "typing": {
             "Text",
         },
+        "urllib.parse": {
+            "Quoter",
+        },
         "webbrowser": {
             "MacOSX",
         },
@@ -365,6 +393,15 @@ DEPRECATED_CLASSES: dict[tuple[int, int, int], dict[str, set[str]]] = {
             "Sized",
         },
     },
+    (3, 13, 0): {
+        "glob": {
+            "glob.glob0",
+            "glob.glob1",
+        },
+        "http.server": {
+            "CGIHTTPRequestHandler",
+        },
+    },
 }
 
 
@@ -375,9 +412,17 @@ DEPRECATED_ATTRIBUTES: DeprecationDict = {
     (3, 12, 0): {
         "calendar.January",
         "calendar.February",
+        "sqlite3.version",
+        "sqlite3.version_info",
         "sys.last_traceback",
         "sys.last_type",
         "sys.last_value",
+    },
+    (3, 13, 0): {
+        "dis.HAVE_ARGUMENT",
+        "tarfile.TarFile.tarfile",
+        "traceback.TracebackException.exc_type",
+        "typing.AnyStr",
     },
 }
 
@@ -784,7 +829,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 mode_arg = utils.get_argument_from_call(
                     node, position=1, keyword="mode"
                 )
-            elif open_module == "pathlib":
+            elif open_module in PATHLIB_MODULE:
                 mode_arg = utils.get_argument_from_call(
                     node, position=0, keyword="mode"
                 )
@@ -807,14 +852,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     confidence=confidence,
                 )
 
-        if (
-            not mode_arg
-            or isinstance(mode_arg, nodes.Const)
+        if not mode_arg or (
+            isinstance(mode_arg, nodes.Const)
             and (not mode_arg.value or "b" not in str(mode_arg.value))
         ):
             confidence = HIGH
             try:
-                if open_module == "pathlib":
+                if open_module in PATHLIB_MODULE:
                     if node.func.attrname == "read_text":
                         encoding_arg = utils.get_argument_from_call(
                             node, position=0, keyword="encoding"

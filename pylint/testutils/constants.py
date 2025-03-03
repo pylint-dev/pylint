@@ -7,9 +7,11 @@ import re
 import sys
 from pathlib import Path
 
-SYS_VERS_STR = (
-    "%d%d%d" % sys.version_info[:3]  # pylint: disable=consider-using-f-string
-)
+# This is faster/terser without f-strings:
+# '"%d%d%d" % sys.version_info[:3]': (best of 5: 214 nanoseconds per loop)
+# '"".join(str(x) for x in sys.version_info[:3])'`: best of 5: 546 nanoseconds per loop
+# pylint: disable-next=consider-using-f-string
+SYS_VERS_STR = "%d%d%d" % sys.version_info[:3]  # noqa: UP031
 TITLE_UNDERLINES = ["", "=", "-", "."]
 UPDATE_OPTION = "--update-functional-output"
 UPDATE_FILE = Path("pylint-functional-test-update")

@@ -19,7 +19,6 @@ var6: typing.Iterable[int]  # [deprecated-typing-alias]
 var7: typing.Hashable  # [deprecated-typing-alias]
 var8: typing.ContextManager[str]  # [deprecated-typing-alias]
 var9: typing.Pattern[str]  # [deprecated-typing-alias]
-var10: typing.re.Match[str]  # [deprecated-typing-alias]
 var11: list[int]
 var12: collections.abc
 var13: Awaitable[None]

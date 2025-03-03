@@ -859,7 +859,7 @@ def test_init_hooks_called_before_load_plugins() -> None:
 
 def test_analyze_explicit_script(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
-    linter.check([os.path.join(DATA_DIR, "ascript")])
+    linter.check([os.path.join(DATA_DIR, "a_script")])
     assert len(linter.reporter.messages) == 1
     assert linter.reporter.messages[0] == Message(
         msg_id="C0301",
@@ -870,11 +870,11 @@ def test_analyze_explicit_script(linter: PyLinter) -> None:
             description="Warning without any associated confidence level.",
         ),
         location=MessageLocationTuple(
-            abspath=os.path.join(abspath(dirname(__file__)), "ascript").replace(
-                f"lint{os.path.sep}ascript", f"data{os.path.sep}ascript"
+            abspath=os.path.join(abspath(dirname(__file__)), "a_script").replace(
+                f"lint{os.path.sep}a_script", f"data{os.path.sep}a_script"
             ),
-            path=f"tests{os.path.sep}data{os.path.sep}ascript",
-            module="data.ascript",
+            path=f"tests{os.path.sep}data{os.path.sep}a_script",
+            module="data.a_script",
             obj="",
             line=2,
             column=0,

@@ -7,7 +7,7 @@ from __future__ import annotations
 import abc
 import argparse
 from pathlib import Path
-from typing import Dict, TypedDict
+from typing import TypedDict
 
 from pylint.reporters.json_reporter import OldJsonExport
 from pylint.testutils._primer import PackageToLint
@@ -18,7 +18,7 @@ class PackageData(TypedDict):
     messages: list[OldJsonExport]
 
 
-PackageMessages = Dict[str, PackageData]
+PackageMessages = dict[str, PackageData]
 
 
 class PrimerCommand:

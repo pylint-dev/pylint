@@ -1,5 +1,5 @@
-Sphinx==7.3.7
+Sphinx==8.2.3
 sphinx-reredirects<1
-towncrier~=23.11
-furo==2024.5.6
+towncrier~=24.8
+furo==2024.8.6
 -e .

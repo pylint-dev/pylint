@@ -67,18 +67,24 @@ to not be included as default messages.
 You can see the plugin you need to explicitly :ref:`load in the technical reference
 <user_guide/checkers/extensions:optional checkers>`.
 
-I want to use pylint on each keystroke in my IDE, how can I do that ?
+I want to run pylint on each keystroke in my IDE. How do I do that?
 ---------------------------------------------------------------------
 
-Don't do it: pylint's full suite of checks is not fast enough for that and never
-will be. pylint is best suited for linting on save for small projects, or for a continuous
-integration job or a git ``pre-push`` hook for big projects. The larger your repository
+Pylint full suite of checks will never be fast enough to run on every keystroke.
+However, some IDEs can run pylint  when the IDE opens or saves files.
+See, for example, the `Microsoft plugin for VS Code`_.
+
+
+That said, pylint is best suited for linting on save for small projects, for continuous
+integration jobs, or a git ``pre-push`` hook for big projects. The larger your repository
 is, the slower pylint will be.
 
 If you want to make pylint faster for this type of use case, you can use the ``--errors-only``
 option, which will remove all the refactor, convention, and warning checks. You can also disable
 checks with inherently high complexity that need to analyse the full code base like
 ``duplicate-code`` or ``cyclic-import`` (this list is not exhaustive).
+
+.. _`Microsoft plugin for VS Code`: https://github.com/microsoft/vscode-pylint#readme
 
 Why do I have non-deterministic results when I try to parallelize pylint ?
 --------------------------------------------------------------------------
@@ -102,7 +108,7 @@ pydocstyle_: missing-module-docstring, missing-class-docstring, missing-function
 
 pep8-naming_: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
 
-isort_ and flake8-import-order_: wrong-import-order
+isort_ and flake8-import-order_: ungrouped-imports, wrong-import-order
 
 .. _`pycodestyle`: https://github.com/PyCQA/pycodestyle
 .. _`pyflakes`: https://github.com/PyCQA/pyflakes
@@ -131,3 +137,15 @@ localized using the following rules:
     - macOS: "~/Library/Caches/pylint"
     - Windows: "C:\Users\<username>\AppData\Local\pylint"
 * ".pylint.d" directory in the current directory
+
+How does the website pylint dot org relate to this project?
+-----------------------------------------------------------
+
+Historically, pylint dot org served as the primary website for Pylint. However,
+we no longer have access to the domain. The current owners are monetizing
+this by displaying advertisements alongside outdated documentation without
+contributing to pylint at all. For the latest and official Pylint documentation,
+please visit `pylint.readthedocs.io <https://pylint.readthedocs.io/en/stable/>`_.
+
+Please see `issue 8934 <https://github.com/pylint-dev/pylint/issues/8934>`_
+for more details.

@@ -34,7 +34,7 @@ class Wife(Person):
         self.tel = tel
 
 
-ms = Myself("Matheus Saraiva", 36, "988070350")
-wi = Wife("Joice Saraiva", 34, "999923554")
+MS = Myself("Matheus Saraiva", 36, "988070350")
+WI = Wife("Joice Saraiva", 34, "999923554")
 
-print(wi.name)
+print(WI.name)

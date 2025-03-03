@@ -328,7 +328,7 @@ Classes checker Messages
   interface or in an overridden method.
 :protected-access (W0212): *Access to a protected member %s of a client class*
   Used when a protected member (i.e. class member with a name beginning with an
-  underscore) is access outside the class or a descendant of the class where
+  underscore) is accessed outside the class or a descendant of the class where
   it's defined.
 :attribute-defined-outside-init (W0201): *Attribute %r defined outside __init__*
   Used when an instance attribute is defined outside the __init__ method.
@@ -437,10 +437,8 @@ Design checker Messages
   simpler (and so easier to use) class.
 :too-many-locals (R0914): *Too many local variables (%s/%s)*
   Used when a function or method has too many local variables.
-:too-many-positional (R0917): *Too many positional arguments in a function call.*
-  Will be implemented in https://github.com/pylint-
-  dev/pylint/issues/9099,msgid/symbol pair reserved for compatibility with
-  ruff, see https://github.com/astral-sh/ruff/issues/8946.
+:too-many-positional-arguments (R0917): *Too many positional arguments (%s/%s)*
+  Used when a function has too many positional arguments.
 :too-many-public-methods (R0904): *Too many public methods (%s/%s)*
   Used when class has too many public methods, try to reduce this to get a
   simpler (and so easier to use) class.
@@ -476,9 +474,8 @@ Exceptions checker Messages
 :raising-bad-type (E0702): *Raising %s while only classes or instances are allowed*
   Used when something which is neither a class nor an instance is raised (i.e.
   a `TypeError` will be raised).
-:raising-non-exception (E0710): *Raising a new style class which doesn't inherit from BaseException*
-  Used when a new style class which doesn't inherit from BaseException is
-  raised.
+:raising-non-exception (E0710): *Raising a class which doesn't inherit from BaseException*
+  Used when a class which doesn't inherit from BaseException is raised.
 :misplaced-bare-raise (E0704): *The raise statement is not inside an except clause*
   Used when a bare raise is not used inside an except clause. This generates an
   error, since there are no active exceptions to be reraised. An exception to
@@ -687,8 +684,7 @@ Method Args checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :positional-only-arguments-expected (E3102): *`%s()` got some positional-only arguments passed as keyword arguments: %s*
   Emitted when positional-only arguments have been passed as keyword arguments.
-  Remove the keywords for the affected arguments in the function call. This
-  message can't be emitted when using Python < 3.8.
+  Remove the keywords for the affected arguments in the function call.
 :missing-timeout (W3101): *Missing timeout argument for method '%s' can cause your program to hang indefinitely*
   Used when a method needs a 'timeout' parameter in order to avoid waiting for
   a long time. If no timeout is specified explicitly the default value is used.
@@ -895,13 +891,15 @@ Refactoring checker Messages
   containing a continue statement. As such, it will warn when it encounters an
   else following a chain of ifs, all of them containing a continue statement.
 :no-else-raise (R1720): *Unnecessary "%s" after "raise", %s*
-  Used in order to highlight an unnecessary block of code following an if
-  containing a raise statement. As such, it will warn when it encounters an
-  else following a chain of ifs, all of them containing a raise statement.
+  Used in order to highlight an unnecessary block of code following an if, or a
+  try/except containing a raise statement. As such, it will warn when it
+  encounters an else following a chain of ifs, all of them containing a raise
+  statement.
 :no-else-return (R1705): *Unnecessary "%s" after "return", %s*
-  Used in order to highlight an unnecessary block of code following an if
-  containing a return statement. As such, it will warn when it encounters an
-  else following a chain of ifs, all of them containing a return statement.
+  Used in order to highlight an unnecessary block of code following an if, or a
+  try/except containing a return statement. As such, it will warn when it
+  encounters an else following a chain of ifs, all of them containing a return
+  statement.
 :unnecessary-dict-index-lookup (R1733): *Unnecessary dictionary index lookup, use '%s' instead*
   Emitted when iterating over the dictionary items (key-item pairs) and
   accessing the value by index lookup. The value can be accessed directly
@@ -922,16 +920,16 @@ Refactoring checker Messages
   Emitted when a single "return" or "return None" statement is found at the end
   of function or method definition. This statement can safely be removed
   because Python will implicitly return None
-:use-implicit-booleaness-not-comparison-to-string (C1804): *"%s" can be simplified to "%s", if it is striclty a string, as an empty string is falsey*
-  Empty string are considered false in a boolean context. Following this check
-  blindly in weakly typed code base can create hard to debug issues. If the
-  value can be something else that is falsey but not a string (for example
-  ``None``, an empty sequence, or ``0``) the code will not be equivalent.
 :use-implicit-booleaness-not-comparison (C1803): *"%s" can be simplified to "%s", if it is strictly a sequence, as an empty %s is falsey*
   Empty sequences are considered false in a boolean context. Following this
   check blindly in weakly typed code base can create hard to debug issues. If
   the value can be something else that is falsey but not a sequence (for
   example ``None``, an empty string, or ``0``) the code will not be equivalent.
+:use-implicit-booleaness-not-comparison-to-string (C1804): *"%s" can be simplified to "%s", if it is strictly a string, as an empty string is falsey*
+  Empty string are considered false in a boolean context. Following this check
+  blindly in weakly typed code base can create hard to debug issues. If the
+  value can be something else that is falsey but not a string (for example
+  ``None``, an empty sequence, or ``0``) the code will not be equivalent.
 :use-implicit-booleaness-not-comparison-to-zero (C1805): *"%s" can be simplified to "%s", if it is strictly an int, as 0 is falsey*
   0 is considered false in a boolean context. Following this check blindly in
   weakly typed code base can create hard to debug issues. If the value can be
@@ -1352,9 +1350,21 @@ Verbatim name of the checker is ``unsupported_version``.
 
 Unsupported Version checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:using-assignment-expression-in-unsupported-version (W2605): *Assignment expression is not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.8 and pylint
+  encounters an assignment expression (walrus) operator.
+:using-exception-groups-in-unsupported-version (W2603): *Exception groups are not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.11 and pylint
+  encounters ``except*`` or `ExceptionGroup``.
 :using-f-string-in-unsupported-version (W2601): *F-strings are not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.6 and pylint
   encounters an f-string.
+:using-generic-type-syntax-in-unsupported-version (W2604): *Generic type syntax (PEP 695) is not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.12 and pylint
+  encounters generic type syntax.
+:using-positional-only-args-in-unsupported-version (W2606): *Positional-only arguments are not supported by all versions included in the py-version setting*
+  Used when the py-version set by the user is lower than 3.8 and pylint
+  encounters positional-only arguments.
 :using-final-decorator-in-unsupported-version (W2602): *typing.final is not supported by all versions included in the py-version setting*
   Used when the py-version set by the user is lower than 3.8 and pylint
   encounters a ``typing.final`` decorator.

@@ -43,3 +43,23 @@ finally:
 def concat2(arg1: str) -> str: ...
 
 def concat2(arg1: str) -> str: ...
+
+# Test for multiple statements on finally line
+try:
+    pass
+finally: pass  # [multiple-statements]
+
+# Test for multiple statements on else line
+try:
+    pass
+except:
+    pass
+else: pass  # [multiple-statements]
+
+# Test for multiple statements on else and finally lines
+try:
+    pass
+except:
+    pass
+else: pass  # [multiple-statements]
+finally: pass  # [multiple-statements]

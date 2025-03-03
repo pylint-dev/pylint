@@ -470,13 +470,8 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
             inferred
         ):
             return True
-        if inferred.pytype() != property_name:
-            continue
-
-        cls = node_frame_class(inferred)
-        if cls == klass.declared_metaclass():
-            continue
-        return True
+        if inferred.pytype() == property_name:
+            return True
     return False
 
 
@@ -523,7 +518,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Access to a protected member %s of a client class",  # E0214
         "protected-access",
         "Used when a protected member (i.e. class member with a name "
-        "beginning with an underscore) is access outside the class or a "
+        "beginning with an underscore) is accessed outside the class or a "
         "descendant of the class where it's defined.",
     ),
     "W0213": (
@@ -1537,7 +1532,11 @@ a metaclass class method.",
         if "__slots__" not in node.locals:
             return False
 
-        for slots in node.ilookup("__slots__"):
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:
+            return False
+        for slots in inferred_slots:
             # check if __slots__ is a valid type
             if isinstance(slots, util.UninferableBase):
                 return False
@@ -1555,7 +1554,11 @@ a metaclass class method.",
         if "__slots__" not in node.locals:
             return
 
-        for slots in node.ilookup("__slots__"):
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:
+            return
+        for slots in inferred_slots:
             # check if __slots__ is a valid type
             if isinstance(slots, util.UninferableBase):
                 continue
@@ -1586,8 +1589,12 @@ a metaclass class method.",
 
     def _get_classdef_slots_names(self, node: nodes.ClassDef) -> list[str]:
 
-        slots_names = []
-        for slots in node.ilookup("__slots__"):
+        slots_names: list[str] = []
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:  # pragma: no cover
+            return slots_names
+        for slots in inferred_slots:
             if isinstance(slots, nodes.Dict):
                 values = [item[0] for item in slots.items]
             else:
@@ -1766,7 +1773,7 @@ a metaclass class method.",
         klass = inferred._proxied
         if not has_known_bases(klass):
             return
-        if "__slots__" not in klass.locals or not klass.newstyle:
+        if "__slots__" not in klass.locals:
             return
         # If `__setattr__` is defined on the class, then we can't reason about
         # what will happen when assigning to an attribute.

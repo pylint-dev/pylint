@@ -13,7 +13,7 @@ import sys
 from collections import defaultdict
 from collections.abc import ItemsView, Sequence
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import astroid
 from astroid import nodes
@@ -43,11 +43,10 @@ if TYPE_CHECKING:
 
 # The dictionary with Any should actually be a _ImportTree again
 # but mypy doesn't support recursive types yet
-_ImportTree = Dict[str, Union[List[Dict[str, Any]], List[str]]]
+_ImportTree = dict[str, Union[list[dict[str, Any]], list[str]]]
 
 DEPRECATED_MODULES = {
     (0, 0, 0): {"tkinter.tix", "fpectl"},
-    (3, 2, 0): {"optparse"},
     (3, 3, 0): {"xml.etree.cElementTree"},
     (3, 4, 0): {"imp"},
     (3, 5, 0): {"formatter"},
@@ -1194,7 +1193,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             for importer in importers:
                 package = self._module_pkg.get(importer, importer)
                 is_inside = importee.startswith(package)
-                if is_inside and internal or not is_inside and not internal:
+                if (is_inside and internal) or (not is_inside and not internal):
                     graph[importee].add(importer)
         return graph
 

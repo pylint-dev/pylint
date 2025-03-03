@@ -14,6 +14,132 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.2.7?
+---------------------------
+Release date: 2024-08-31
+
+
+False Positives Fixed
+---------------------
+
+- Fixed a false positive `unreachable` for `NoReturn` coroutine functions.
+
+  Closes #9840. (`#9840 <https://github.com/pylint-dev/pylint/issues/9840>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix crash in refactoring checker when calling a lambda bound as a method.
+
+  Closes #9865 (`#9865 <https://github.com/pylint-dev/pylint/issues/9865>`_)
+
+- Fix a crash in ``undefined-loop-variable`` when providing the ``iterable`` argument to ``enumerate()``.
+
+  Closes #9875 (`#9875 <https://github.com/pylint-dev/pylint/issues/9875>`_)
+
+- Fix to address indeterminacy of error message in case a module name is same as another in a separate namespace.
+
+  Refs #9883 (`#9883 <https://github.com/pylint-dev/pylint/issues/9883>`_)
+
+
+
+What's new in Pylint 3.2.6?
+---------------------------
+Release date: 2024-07-21
+
+
+False Positives Fixed
+---------------------
+
+- Quiet false positives for `unexpected-keyword-arg` when pylint cannot
+  determine which of two or more dynamically defined classes is being instantiated.
+
+  Closes #9672 (`#9672 <https://github.com/pylint-dev/pylint/issues/9672>`_)
+
+- Fix a false positive for ``missing-param-doc`` where a method which is decorated with ``typing.overload`` was expected to have a docstring specifying its parameters.
+
+  Closes #9739 (`#9739 <https://github.com/pylint-dev/pylint/issues/9739>`_)
+
+- Fix a regression that raised ``invalid-name`` on class attributes merely
+  overriding invalid names from an ancestor.
+
+  Closes #9765 (`#9765 <https://github.com/pylint-dev/pylint/issues/9765>`_)
+
+- Treat `assert_never()` the same way when imported from `typing_extensions`.
+
+  Closes #9780 (`#9780 <https://github.com/pylint-dev/pylint/issues/9780>`_)
+
+- Fix a false positive for `consider-using-min-max-builtin` when the assignment target is an attribute.
+
+  Refs #9800 (`#9800 <https://github.com/pylint-dev/pylint/issues/9800>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix an `AssertionError` arising from properties that return partial functions.
+
+  Closes #9214 (`#9214 <https://github.com/pylint-dev/pylint/issues/9214>`_)
+
+- Fix a crash when a subclass extends ``__slots__``.
+
+  Closes #9814 (`#9814 <https://github.com/pylint-dev/pylint/issues/9814>`_)
+
+
+
+What's new in Pylint 3.2.5?
+---------------------------
+Release date: 2024-06-28
+
+
+Other Bug Fixes
+---------------
+
+- Fixed a false positive ``unreachable-code`` when using ``typing.Any`` as return type in python
+  3.8, the ``typing.NoReturn`` are not taken into account anymore for python 3.8 however.
+
+  Closes #9751 (`#9751 <https://github.com/pylint-dev/pylint/issues/9751>`_)
+
+
+
+What's new in Pylint 3.2.4?
+---------------------------
+Release date: 2024-06-26
+
+
+False Positives Fixed
+---------------------
+
+- Prevent emitting ``possibly-used-before-assignment`` when relying on names
+  only potentially not defined in conditional blocks guarded by functions
+  annotated with ``typing.Never`` or ``typing.NoReturn``.
+
+  Closes #9674 (`#9674 <https://github.com/pylint-dev/pylint/issues/9674>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fixed a crash when the lineno of a variable used as an annotation wasn't available for ``undefined-variable``.
+
+  Closes #8866 (`#8866 <https://github.com/pylint-dev/pylint/issues/8866>`_)
+
+- Fixed a crash when the ``start`` value in an ``enumerate`` was non-constant and impossible to infer
+  (like in``enumerate(apples, start=int(random_apple_index)``) for ``unnecessary-list-index-lookup``.
+
+  Closes #9078 (`#9078 <https://github.com/pylint-dev/pylint/issues/9078>`_)
+
+- Fixed a crash in ``symilar`` when the ``-d`` or ``-i`` short option were not properly recognized.
+  It's still impossible to do ``-d=1`` (you must do ``-d 1``).
+
+  Closes #9343 (`#9343 <https://github.com/pylint-dev/pylint/issues/9343>`_)
+
+
+
 What's new in Pylint 3.2.3?
 ---------------------------
 Release date: 2024-06-06

@@ -1,1 +1,1 @@
-string = "\z"  # [anomalous-backslash-in-string]
+string = "\z"  # [syntax-error]

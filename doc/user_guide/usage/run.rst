@@ -18,8 +18,7 @@ On versions below 2.15, specifying a directory that is not an explicit package
     mydir/__init__.py:1:0: F0010: error while code parsing: Unable to load file mydir/__init__.py:
     [Errno 2] No such file or directory: 'mydir/__init__.py' (parse-error)
 
-Thus, on versions before 2.15, or when dealing with certain edge cases that have not yet been solved,
-using the ``--recursive=y`` option allows for linting a namespace package::
+Thus, on versions before 2.15 using the ``--recursive=y`` option allows for linting a namespace package::
 
     pylint --recursive=y mydir mymodule mypackage
 

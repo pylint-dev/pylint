@@ -6,21 +6,9 @@
 
 from __future__ import annotations
 
-import sys
-
-if sys.version_info[:2] > (3, 9):
-    from collections import Counter
-else:
-    from collections import Counter as _Counter
-
-    class Counter(_Counter):
-        def total(self):
-            return len(tuple(self.elements()))
-
-
+from collections import Counter
 from pathlib import Path
-from typing import Counter as CounterType
-from typing import TextIO, Tuple
+from typing import TextIO
 
 import pytest
 
@@ -31,7 +19,7 @@ from pylint.message.message import Message
 from pylint.testutils.constants import _EXPECTED_RE
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 
-MessageCounter = CounterType[Tuple[int, str]]
+MessageCounter = Counter[tuple[int, str]]
 
 
 def get_functional_test_files_from_directory(input_dir: Path) -> list[tuple[str, Path]]:
@@ -179,7 +167,7 @@ class LintModuleTest:
                 actual_messages_raw
             )
         if self.is_bad_test():
-            bad_files = [(self._test_file[1])]
+            bad_files = [self._test_file[1]]
             if self._test_file[1].is_dir() and not self.is_multifile_example():
                 bad_files = list(self._test_file[1].iterdir())
             assert len(actual_messages_raw) >= len(bad_files), self.assert_message_bad(

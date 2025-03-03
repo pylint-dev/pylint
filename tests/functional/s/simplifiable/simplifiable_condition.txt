@@ -10,4 +10,4 @@ simplifiable-condition:26:7:26:34::"Boolean condition ""True and CONSTANT and OT
 simplifiable-condition:27:7:27:46::"Boolean condition ""(CONSTANT or False) and (OTHER or True)"" may be simplified to ""CONSTANT""":UNDEFINED
 simplifiable-condition:30:7:30:21::"Boolean condition ""[] or CONSTANT"" may be simplified to ""CONSTANT""":UNDEFINED
 simplifiable-condition:31:7:31:21::"Boolean condition ""{} or CONSTANT"" may be simplified to ""CONSTANT""":UNDEFINED
-simplifiable-condition:40:3:40:40::"Boolean condition ""'wking' and 'bking' in board.values()"" may be simplified to ""'bking' in board.values()""":UNDEFINED
+simplifiable-condition:40:3:40:40::"Boolean condition ""'wking' and 'bking' in BOARD.values()"" may be simplified to ""'bking' in BOARD.values()""":UNDEFINED

@@ -85,6 +85,7 @@ class DeprecatedTypingAliasMsg(NamedTuple):
     parent_subscript: bool = False
 
 
+# pylint: disable-next=too-many-instance-attributes
 class TypingChecker(BaseChecker):
     """Find issue specifically related to type annotations."""
 
@@ -103,10 +104,14 @@ class TypingChecker(BaseChecker):
             "Python 3.7 or 3.8.",
         ),
         "R6003": (
-            "Consider using alternative Union syntax instead of '%s'%s",
+            "Consider using alternative union syntax instead of '%s'%s",
             "consider-alternative-union-syntax",
-            "Emitted when 'typing.Union' or 'typing.Optional' is used "
-            "instead of the alternative Union syntax 'int | None'.",
+            "Emitted when ``typing.Union`` or ``typing.Optional`` is used "
+            "instead of the shorthand union syntax. For example, "
+            "``Union[int, float]`` instead of ``int | float``. Using "
+            "the shorthand for unions aligns with Python typing "
+            "recommendations, removes the need for imports, and avoids "
+            "confusion in function signatures.",
         ),
         "E6004": (
             "'NoReturn' inside compound types is broken in 3.7.0 / 3.7.1",
@@ -129,6 +134,12 @@ class TypingChecker(BaseChecker):
             "redundant-typehint-argument",
             "Duplicated type arguments will be skipped by `mypy` tool, therefore should be "
             "removed to avoid confusion.",
+        ),
+        "R6007": (
+            "Type `%s` has unnecessary default type args. Change it to `%s`.",
+            "unnecessary-default-type-args",
+            "Emitted when types have default type args which can be omitted. "
+            "Mainly used for `typing.Generator` and `typing.AsyncGenerator`.",
         ),
     }
     options = (
@@ -174,6 +185,7 @@ class TypingChecker(BaseChecker):
         self._py37_plus = py_version >= (3, 7)
         self._py39_plus = py_version >= (3, 9)
         self._py310_plus = py_version >= (3, 10)
+        self._py313_plus = py_version >= (3, 13)
 
         self._should_check_typing_alias = self._py39_plus or (
             self._py37_plus and self.linter.config.runtime_typing is False
@@ -248,6 +260,35 @@ class TypingChecker(BaseChecker):
 
         self._check_union_types(types, node)
 
+    @only_required_for_messages("unnecessary-default-type-args")
+    def visit_subscript(self, node: nodes.Subscript) -> None:
+        inferred = safe_infer(node.value)
+        if (  # pylint: disable=too-many-boolean-expressions
+            isinstance(inferred, nodes.ClassDef)
+            and (
+                (
+                    inferred.qname() in {"typing.Generator", "typing.AsyncGenerator"}
+                    and self._py313_plus
+                )
+                or inferred.qname()
+                in {"_collections_abc.Generator", "_collections_abc.AsyncGenerator"}
+            )
+            and isinstance(node.slice, nodes.Tuple)
+            and all(
+                (isinstance(el, nodes.Const) and el.value is None)
+                for el in node.slice.elts[1:]
+            )
+        ):
+            suggested_str = (
+                f"{node.value.as_string()}[{node.slice.elts[0].as_string()}]"
+            )
+            self.add_message(
+                "unnecessary-default-type-args",
+                args=(node.as_string(), suggested_str),
+                node=node,
+                confidence=HIGH,
+            )
+
     @staticmethod
     def _is_deprecated_union_annotation(
         annotation: nodes.NodeNG, union_name: str
@@ -312,10 +353,14 @@ class TypingChecker(BaseChecker):
         """
         inferred = safe_infer(node)
         if not (
-            isinstance(inferred, nodes.FunctionDef)
-            and inferred.qname() in {"typing.Optional", "typing.Union"}
-            or isinstance(inferred, astroid.bases.Instance)
-            and inferred.qname() == "typing._SpecialForm"
+            (
+                isinstance(inferred, nodes.FunctionDef)
+                and inferred.qname() in {"typing.Optional", "typing.Union"}
+            )
+            or (
+                isinstance(inferred, astroid.bases.Instance)
+                and inferred.qname() == "typing._SpecialForm"
+            )
         ):
             return
         if not (self._py310_plus or is_node_in_type_annotation_context(node)):
@@ -428,9 +473,8 @@ class TypingChecker(BaseChecker):
             # NoReturn not part of a Union or Callable type
             return
 
-        if (
-            in_type_checking_block(node)
-            or is_postponed_evaluation_enabled(node)
+        if in_type_checking_block(node) or (
+            is_postponed_evaluation_enabled(node)
             and is_node_in_type_annotation_context(node)
         ):
             return
@@ -438,12 +482,16 @@ class TypingChecker(BaseChecker):
         for inferred in node.infer():
             # To deal with typing_extensions, don't use safe_infer
             if (
-                isinstance(inferred, (nodes.FunctionDef, nodes.ClassDef))
-                and inferred.qname() in TYPING_NORETURN
+                (
+                    isinstance(inferred, (nodes.FunctionDef, nodes.ClassDef))
+                    and inferred.qname() in TYPING_NORETURN
+                )
                 # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
-                or isinstance(inferred, astroid.bases.BaseInstance)
-                and isinstance(inferred._proxied, nodes.ClassDef)
-                and inferred._proxied.qname() == "typing._SpecialForm"
+                or (
+                    isinstance(inferred, astroid.bases.BaseInstance)
+                    and isinstance(inferred._proxied, nodes.ClassDef)
+                    and inferred._proxied.qname() == "typing._SpecialForm"
+                )
             ):
                 self.add_message("broken-noreturn", node=node, confidence=INFERENCE)
                 break
@@ -462,9 +510,8 @@ class TypingChecker(BaseChecker):
 
     def _broken_callable_location(self, node: nodes.Name | nodes.Attribute) -> bool:
         """Check if node would be a broken location for collections.abc.Callable."""
-        if (
-            in_type_checking_block(node)
-            or is_postponed_evaluation_enabled(node)
+        if in_type_checking_block(node) or (
+            is_postponed_evaluation_enabled(node)
             and is_node_in_type_annotation_context(node)
         ):
             return False
@@ -490,10 +537,14 @@ class TypingChecker(BaseChecker):
 
         inferred_parent = safe_infer(parent_subscript.value)
         if not (
-            isinstance(inferred_parent, nodes.FunctionDef)
-            and inferred_parent.qname() in {"typing.Optional", "typing.Union"}
-            or isinstance(inferred_parent, astroid.bases.Instance)
-            and inferred_parent.qname() == "typing._SpecialForm"
+            (
+                isinstance(inferred_parent, nodes.FunctionDef)
+                and inferred_parent.qname() in {"typing.Optional", "typing.Union"}
+            )
+            or (
+                isinstance(inferred_parent, astroid.bases.Instance)
+                and inferred_parent.qname() == "typing._SpecialForm"
+            )
         ):
             return False
 
