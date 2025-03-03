@@ -79,8 +79,8 @@ def c2_func() -> _TypeContainerC.C:
 # This is allowed since all the imports are used for typing
 from _TypeContainerExtra import TypeExtraA, TypeExtraB
 from MakerContainerExtra import GetA, GetB
-extraA: TypeExtraA = GetA()
-extraB: TypeExtraB = GetB()
+extra_a: TypeExtraA = GetA()
+extra_b: TypeExtraB = GetB()
 
 # This is not allowed because there is an import not used for typing
 from _TypeContainerExtra2 import TypeExtra2, NotTypeExtra # [import-private-name]
