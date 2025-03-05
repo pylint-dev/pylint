@@ -40,4 +40,12 @@ class LintModuleOutputUpdate(LintModuleTest):
         with open(self._test_file.expected_output, "w", encoding="utf-8") as f:
             writer = csv.writer(f, dialect="test")
             for line in actual_output:
-                writer.writerow(line.to_csv())
+                try:
+                    writer.writerow(line.to_csv())
+                except UnicodeEncodeError:
+                    writer.writerow(
+                        [
+                            s.encode("utf8", "ignore").decode("utf8")
+                            for s in line.to_csv()
+                        ]
+                    )
