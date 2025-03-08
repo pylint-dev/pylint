@@ -16,7 +16,7 @@ Summary -- Release highlights
 
 What's new in Pylint 3.3.5?
 ---------------------------
-Release date: 2025-03-08
+Release date: 2025-03-09
 
 
 False Positives Fixed
