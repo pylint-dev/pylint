@@ -14,6 +14,54 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.3.5?
+---------------------------
+Release date: 2025-03-09
+
+
+False Positives Fixed
+---------------------
+
+- Fix false positives for `use-implicit-booleaness-not-comparison`, `use-implicit-booleaness-not-comparison-to-string`
+  and `use-implicit-booleaness-not-comparison-to-zero` when chained comparisons are checked.
+
+  Closes #10065 (`#10065 <https://github.com/pylint-dev/pylint/issues/10065>`_)
+
+- Fix a false positive for ``invalid-getnewargs-ex-returned`` when the tuple or dict has been assigned to a name.
+
+  Closes #10208 (`#10208 <https://github.com/pylint-dev/pylint/issues/10208>`_)
+
+- Remove `getopt` and `optparse` from the list of deprecated modules.
+
+  Closes #10211 (`#10211 <https://github.com/pylint-dev/pylint/issues/10211>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fixed conditional import x.y causing false positive possibly-used-before-assignment.
+
+  Closes #10081 (`#10081 <https://github.com/pylint-dev/pylint/issues/10081>`_)
+
+- Fix a crash when something besides a class is found in an except handler.
+
+  Closes #10106 (`#10106 <https://github.com/pylint-dev/pylint/issues/10106>`_)
+
+- Fixed raising invalid-name when using camelCase for private methods with two leading underscores.
+
+  Closes #10189 (`#10189 <https://github.com/pylint-dev/pylint/issues/10189>`_)
+
+
+
+Other Changes
+-------------
+
+- Upload release assets to PyPI via Trusted Publishing.
+
+  Closes #10256 (`#10256 <https://github.com/pylint-dev/pylint/issues/10256>`_)
+
+
 
 What's new in Pylint 3.3.4?
 ---------------------------
