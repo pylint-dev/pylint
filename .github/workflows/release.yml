@@ -15,7 +15,7 @@ jobs:
   build:
     name: Build release assets
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
+    if: github.event_name == 'release'
     steps:
       - name: Check out code from Github
         uses: actions/checkout@v4.2.2
@@ -55,7 +55,7 @@ jobs:
           name: release-assets
           path: dist/
       - name: Upload to PyPI
-        if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
+        if: github.event_name == 'release'
         uses: pypa/gh-action-pypi-publish@release/v1
 
   release-github:
@@ -72,7 +72,7 @@ jobs:
           name: release-assets
           path: dist/
       - name: Sign the dists with Sigstore and upload assets to Github release
-        if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
+        if: github.event_name == 'release'
         uses: sigstore/gh-action-sigstore-python@v3.0.0
         with:
           inputs: |
