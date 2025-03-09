@@ -249,6 +249,7 @@ contributors:
 - Aurelien Campeas <aurelien.campeas@logilab.fr>
 - Alvaro Frias <alvarofriasgaray@gmail.com>
 - Alexander Pervakov <frost.nzcr4@jagmort.com>
+- Alex Prabhat Bara <alexpbara@gmail.com>
 - Alain Leufroy <alain.leufroy@logilab.fr>
 - Akhil Kamat <akhil.kamat@gmail.com>
 - Adam Williamson <awilliam@redhat.com>
@@ -294,6 +295,7 @@ contributors:
 - LCD 47 <lcd047@gmail.com>
 - Jérome Perrin <perrinjerome@gmail.com>
 - Justin Li <justinnhli@gmail.com>
+- Julian Grimm <51880314+Julfried@users.noreply.github.com>
 - John Kirkham <jakirkham@gmail.com>
 - Jens H. Nielsen <Jens.Nielsen@microsoft.com>
 - Jake Lishman <jake.lishman@ibm.com>
@@ -327,8 +329,10 @@ contributors:
 - Ben James <benjames1999@hotmail.co.uk>
 - Ben Green <benhgreen@icloud.com>
 - Batuhan Taskaya <batuhanosmantaskaya@gmail.com>
+- Artem Yurchenko <artemyurchenko@zoho.com>
 - Alexander Kapshuna <kapsh@kap.sh>
 - Adam Parkin <pzelnip@users.noreply.github.com>
+- Aaron Liu <aaronliu0130@gmail.com>
 - 🇺🇦 Sviatoslav Sydorenko (Святослав Сидоренко) <wk@sydorenko.org.ua>
 - 谭九鼎 <109224573@qq.com>
 - Łukasz Sznuk <ls@rdprojekt.pl>
@@ -566,6 +570,7 @@ contributors:
 - Eddie Darling <eddie.darling@genapsys.com>
 - Drew Risinger <drewrisinger@users.noreply.github.com>
 - Dr. Nick <das-intensity@users.noreply.github.com>
+- Don Kirkby <donkirkby@users.noreply.github.com>
 - Don Jayamanne <don.jayamanne@yahoo.com>
 - Dominic Lavery <che@thisdevice.co.uk>
 - Dmytro Kyrychuk <dmytro.kyrychuck@gmail.com>
@@ -592,6 +597,7 @@ contributors:
 - Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 - Christopher Zurcher <zurcher@users.noreply.github.com>
 - Christian Clauss <cclauss@me.com>
+- ChandanChainani <chandan.chainani@ibm.com>
 - Carl Crowder <bitbucket@carlcrowder.com>: don't evaluate the value of arguments for 'dangerous-default-value'
 - Carey Metcalfe <carey@cmetcalfe.ca>: demoted `try-except-raise` from error to warning
 - Cameron Olechowski <camsterole@users.noreply.github.com>
