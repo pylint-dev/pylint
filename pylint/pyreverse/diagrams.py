@@ -13,7 +13,7 @@ import astroid
 from astroid import nodes, util
 
 from pylint.checkers.utils import decorated_with_property, in_type_checking_block
-from pylint.pyreverse.utils import FilterMixIn
+from pylint.pyreverse.utils import FilterMixIn, get_annotation_label
 
 
 class Figure:
@@ -121,12 +121,16 @@ class ClassDiagram(Figure, FilterMixIn):
     def get_attrs(self, node: nodes.ClassDef) -> list[str]:
         """Return visible attributes, possibly with class name."""
         attrs = []
+
+        # Collect functions decorated with @property
         properties = {
             local_name: local_node
             for local_name, local_node in node.items()
             if isinstance(local_node, nodes.FunctionDef)
             and decorated_with_property(local_node)
         }
+
+        # Add instance attributes to properties
         for attr_name, attr_type in list(node.locals_type.items()) + list(
             node.instance_attrs_type.items()
         ):
@@ -136,9 +140,21 @@ class ClassDiagram(Figure, FilterMixIn):
         for node_name, associated_nodes in properties.items():
             if not self.show_attr(node_name):
                 continue
-            names = self.class_names(associated_nodes)
-            if names:
-                node_name = f"{node_name} : {', '.join(names)}"
+
+            # Handle property methods differently to correctly extract return type
+            if isinstance(
+                associated_nodes, nodes.FunctionDef
+            ) and decorated_with_property(associated_nodes):
+                if associated_nodes.returns:
+                    type_annotation = get_annotation_label(associated_nodes.returns)
+                    node_name = f"{node_name} : {type_annotation}"
+
+            # Handle regular attributes
+            else:
+                names = self.class_names(associated_nodes)
+                if names:
+                    node_name = f"{node_name} : {', '.join(names)}"
+
             attrs.append(node_name)
         return sorted(attrs)
 
