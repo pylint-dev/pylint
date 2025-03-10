@@ -1464,21 +1464,68 @@ accessed. Python regular expressions are accepted.",
             # those errors are handled by different warnings.
             return
 
+        # Build the set of keyword arguments, checking for duplicate keywords,
+        # and count the positional arguments.
+        call_site = astroid.arguments.CallSite.from_call(node)
+
+        ### Debug cruft used during dev, will remove when done.
+        ### def _dp(s, val=None):
+        ###     return
+        ###     ## if "Attribute.__init__" not in str(node):
+        ###     ##     return
+        ###     ## if val is None:
+        ###     ##     print(f" {s}", flush=True)
+        ###     ## else:
+        ###     ##     print(f" {s}: {val}", flush=True)
+        ### _dp("-" * 25)
+        ### _dp("visit call, node", node)
+        ### _dp("Data dump for __init__ call")
+        ### _dp("call_site", call_site)
+        ### _dp("call_site args", call_site.arguments)
+        ### _dp("call site positional args:", call_site.positional_arguments)
+        ### _dp("call site keyword args:", call_site.keyword_arguments)
+        ### _dp("call site invalid args", call_site.has_invalid_arguments())
+        ### _dp("call site inv keywords", call_site.has_invalid_keywords())
+        ### _dp("node args", node.args)
+        ### _dp("node frame", node.frame())
+        ### _dp("isinst", isinstance(node.frame(), nodes.ClassDef))
+        ### _dp("funcdef", isinstance(called, nodes.FunctionDef))
+        ### _dp("called", called)
+        ### _dp("bound method init in called", "BoundMethod __init__ of builtins.object" in str(called))
+        ### _dp("called.args", called.args)
+        ### _dp("frame body", node.frame().body)
+        ### _dp("called in frame body", called in node.frame().body)
+        ### _dp("dec names", called.decoratornames())
+
+        def _call_site_has_args(cs: arguments.CallSite) -> bool:
+            """True if any args passed."""
+            has_args = (
+                False
+                or len(cs.positional_arguments) > 0
+                or len(cs.keyword_arguments.items()) > 0
+                # or cs.starargs is not None
+                # or cs.kwargs is not None
+            )
+            return has_args
+
         if called.args.args is None:
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
                 self._check_isinstance_args(node, callable_name)
             # Built-in functions have no argument information.
+            # Check built-in __init__ ... a user-defined __init__ function
+            # is handled elsewhere.
+            if "BoundMethod __init__ of builtins.object" in str(called):
+                if _call_site_has_args(call_site):
+                    self.add_message(
+                        "too-many-function-args", node=node, args=("__init__",)
+                    )
             return
 
         if len(called.argnames()) != len(set(called.argnames())):
             # Duplicate parameter name (see duplicate-argument).  We can't really
             # make sense of the function call in this case, so just return.
             return
-
-        # Build the set of keyword arguments, checking for duplicate keywords,
-        # and count the positional arguments.
-        call_site = astroid.arguments.CallSite.from_call(node)
 
         # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`
         for keyword in call_site.duplicated_keywords:
