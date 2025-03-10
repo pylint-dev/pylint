@@ -155,7 +155,17 @@ Standard Checkers
 
 --output-format
 """""""""""""""
-*Set the output format. Available formats are: text, parseable, colorized, json2 (improved json format), json (old json format) and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
+*Set the output format. Available formats are:
+
+* ``text``
+* ``parseable``
+* ``colorized``
+* ``json2``: improved json format
+* ``json``: old json format
+* ``msvs``: visual studio
+* ``github``: `GitHub action messages <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions>`_
+
+You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
 
 **Default:**  ``text``
 
