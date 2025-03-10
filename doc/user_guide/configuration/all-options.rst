@@ -155,7 +155,7 @@ Standard Checkers
 
 --output-format
 """""""""""""""
-*Set the output format. Available formats are:
+*Set the output format. Available formats are:*
 
 * ``text``
 * ``parseable``
@@ -165,7 +165,7 @@ Standard Checkers
 * ``msvs``: visual studio
 * ``github``: `GitHub action messages <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions>`_
 
-You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
+You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.
 
 **Default:**  ``text``
 
