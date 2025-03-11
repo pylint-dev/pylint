@@ -1490,7 +1490,7 @@ accessed. Python regular expressions are accepted.",
             # super() only takes self.
             if self._is_super(node) and utils.is_builtin_object(called):
                 if (
-                    (call_site := astroid.arguments.CallSite.from_call(node))
+                    call_site
                     and call_site.positional_arguments
                     and (first_arg := call_site.positional_arguments[0])
                     and not (
