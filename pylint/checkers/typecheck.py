@@ -1467,19 +1467,6 @@ accessed. Python regular expressions are accepted.",
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.
         """
-
-        is_super = False
-        if (
-            isinstance(node.func, nodes.Attribute)
-            and node.func.attrname == "__init__"
-            and isinstance(node.func.expr, nodes.Call)
-            and isinstance(node.func.expr.func, nodes.Name)
-            and node.func.expr.func.name == "super"
-        ):
-            inferred = safe_infer(node.func.expr)
-            if isinstance(inferred, astroid.objects.Super):
-                is_super = True
-
         called = safe_infer(node.func, compare_constructors=True)
 
         self._check_not_callable(node, called)
@@ -1501,7 +1488,7 @@ accessed. Python regular expressions are accepted.",
                 self._check_isinstance_args(node, callable_name)
             # Built-in functions have no argument information, but we know
             # super() only takes self.
-            if is_super and utils.is_builtin_object(called):
+            if self._is_super(node) and utils.is_builtin_object(called):
                 if (
                     (call_site := astroid.arguments.CallSite.from_call(node))
                     and call_site.positional_arguments
