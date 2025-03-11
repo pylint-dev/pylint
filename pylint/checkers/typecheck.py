@@ -1449,7 +1449,7 @@ accessed. Python regular expressions are accepted.",
             )
 
     def _is_super(self, node: nodes.Call) -> bool:
-        "True if this node is a call to super()."
+        """True if this node is a call to super()."""
         if (
             isinstance(node.func, nodes.Attribute)
             and node.func.attrname == "__init__"
@@ -1493,7 +1493,9 @@ accessed. Python regular expressions are accepted.",
                     (call_site := astroid.arguments.CallSite.from_call(node))
                     and call_site.positional_arguments
                     and (first_arg := call_site.positional_arguments[0])
-                    and not (isinstance(first_arg, nodes.Name) and first_arg.name == "self")
+                    and not (
+                        isinstance(first_arg, nodes.Name) and first_arg.name == "self"
+                    )
                 ):
                     self.add_message(
                         "too-many-function-args",
