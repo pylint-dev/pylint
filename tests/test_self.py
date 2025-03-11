@@ -350,7 +350,7 @@ class TestRunTC:
         expected = textwrap.dedent(
             f"""
         ************* Module super_init_with_non_self_argument
-        {module1}:13:8: E1121: Too many positional arguments for __init__ call (too-many-function-args)
+        {module1}:13:8: E1121: Too many positional arguments for method call (too-many-function-args)
         """
         )
         assert self._clean_paths(expected.strip()) == actual_output.strip()
