@@ -1453,6 +1453,19 @@ accessed. Python regular expressions are accepted.",
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.
         """
+
+        is_super = False
+        if (
+            isinstance(node.func, nodes.Attribute)
+            and node.func.attrname == "__init__"
+            and isinstance(node.func.expr, nodes.Call)
+            and isinstance(node.func.expr.func, nodes.Name)
+            and node.func.expr.func.name == "super"
+        ):
+            inferred = safe_infer(node.func.expr)
+            if isinstance(inferred, astroid.objects.Super):
+                is_super = True
+
         called = safe_infer(node.func, compare_constructors=True)
 
         self._check_not_callable(node, called)
@@ -1483,13 +1496,19 @@ accessed. Python regular expressions are accepted.",
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
                 self._check_isinstance_args(node, callable_name)
-            # Built-in functions have no argument information.
-            # Check built-in __init__ ... a user-defined __init__ function
-            # is handled elsewhere.
-            if "BoundMethod __init__ of builtins.object" in str(called):
-                if _call_site_has_args(call_site):
+            # Built-in functions have no argument information, but we know
+            # super() only takes self.
+            if is_super and utils.is_builtin_object(called):
+                if (
+                    (call_site := astroid.arguments.CallSite.from_call(node))
+                    and call_site.positional_arguments
+                    and (first_arg := call_site.positional_arguments[0])
+                    and not (isinstance(first_arg, nodes.Name) and first_arg.name == "self")
+                ):
                     self.add_message(
-                        "too-many-function-args", node=node, args=("__init__",)
+                        "too-many-function-args",
+                        node=node,
+                        args=(callable_name,),
                     )
             return
 
