@@ -1448,6 +1448,20 @@ accessed. Python regular expressions are accepted.",
                 confidence=INFERENCE,
             )
 
+    def _is_super(self, node: nodes.Call) -> bool:
+        "True if this node is a call to super()."
+        if (
+            isinstance(node.func, nodes.Attribute)
+            and node.func.attrname == "__init__"
+            and isinstance(node.func.expr, nodes.Call)
+            and isinstance(node.func.expr.func, nodes.Name)
+            and node.func.expr.func.name == "super"
+        ):
+            inferred = safe_infer(node.func.expr)
+            if isinstance(inferred, astroid.objects.Super):
+                return True
+        return False
+
     # pylint: disable = too-many-branches, too-many-locals, too-many-statements
     def visit_call(self, node: nodes.Call) -> None:
         """Check that called functions/methods are inferred to callable objects,
