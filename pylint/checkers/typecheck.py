@@ -1468,35 +1468,6 @@ accessed. Python regular expressions are accepted.",
         # and count the positional arguments.
         call_site = astroid.arguments.CallSite.from_call(node)
 
-        ### Debug cruft used during dev, will remove when done.
-        ### def _dp(s, val=None):
-        ###     return
-        ###     ## if "Attribute.__init__" not in str(node):
-        ###     ##     return
-        ###     ## if val is None:
-        ###     ##     print(f" {s}", flush=True)
-        ###     ## else:
-        ###     ##     print(f" {s}: {val}", flush=True)
-        ### _dp("-" * 25)
-        ### _dp("visit call, node", node)
-        ### _dp("Data dump for __init__ call")
-        ### _dp("call_site", call_site)
-        ### _dp("call_site args", call_site.arguments)
-        ### _dp("call site positional args:", call_site.positional_arguments)
-        ### _dp("call site keyword args:", call_site.keyword_arguments)
-        ### _dp("call site invalid args", call_site.has_invalid_arguments())
-        ### _dp("call site inv keywords", call_site.has_invalid_keywords())
-        ### _dp("node args", node.args)
-        ### _dp("node frame", node.frame())
-        ### _dp("isinst", isinstance(node.frame(), nodes.ClassDef))
-        ### _dp("funcdef", isinstance(called, nodes.FunctionDef))
-        ### _dp("called", called)
-        ### _dp("bound method init in called", "BoundMethod __init__ of builtins.object" in str(called))
-        ### _dp("called.args", called.args)
-        ### _dp("frame body", node.frame().body)
-        ### _dp("called in frame body", called in node.frame().body)
-        ### _dp("dec names", called.decoratornames())
-
         def _call_site_has_args(cs: arguments.CallSite) -> bool:
             """True if any args passed."""
             has_args = (
