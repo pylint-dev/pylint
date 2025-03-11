@@ -1481,17 +1481,6 @@ accessed. Python regular expressions are accepted.",
         # and count the positional arguments.
         call_site = astroid.arguments.CallSite.from_call(node)
 
-        def _call_site_has_args(cs: arguments.CallSite) -> bool:
-            """True if any args passed."""
-            has_args = (
-                False
-                or len(cs.positional_arguments) > 0
-                or len(cs.keyword_arguments.items()) > 0
-                # or cs.starargs is not None
-                # or cs.kwargs is not None
-            )
-            return has_args
-
         if called.args.args is None:
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
