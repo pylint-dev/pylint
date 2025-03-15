@@ -150,8 +150,12 @@ def _(node: nodes.ClassDef | bases.Instance) -> Iterable[str]:
     return itertools.chain(values, other_values)
 
 
-def _string_distance(seq1: str, seq2: str) -> int:
-    seq2_length = len(seq2)
+def _string_distance(seq1: str, seq2: str, seq1_length: int, seq2_length: int) -> int:
+    if not seq1_length:
+        return seq2_length
+
+    if not seq2_length:
+        return seq1_length
 
     row = [*list(range(1, seq2_length + 1)), 0]
     for seq1_index, seq1_char in enumerate(seq1):
@@ -179,14 +183,26 @@ def _similar_names(
     The similar names are searched given a distance metric and only
     a given number of choices will be returned.
     """
+    if max_choices <= 0:
+        return []
+
     possible_names: list[tuple[str, int]] = []
     names = _node_names(owner)
+
+    attr_str = attrname or ""
+    attr_len = len(attr_str)
 
     for name in names:
         if name == attrname:
             continue
 
-        distance = _string_distance(attrname or "", name)
+        name_len = len(name)
+
+        min_distance = abs(attr_len - name_len)
+        if min_distance > distance_threshold:
+            continue
+
+        distance = _string_distance(attr_str, name, attr_len, name_len)
         if distance <= distance_threshold:
             possible_names.append((name, distance))
 
