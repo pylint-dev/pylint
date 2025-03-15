@@ -183,9 +183,6 @@ def _similar_names(
     The similar names are searched given a distance metric and only
     a given number of choices will be returned.
     """
-    if max_choices <= 0:
-        return []
-
     possible_names: list[tuple[str, int]] = []
     names = _node_names(owner)
 
