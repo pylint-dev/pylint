@@ -2290,8 +2290,9 @@ class VariablesChecker(BaseChecker):
                     if frame.returns.name in defframe.locals:
                         definition = defframe.locals[node.name][0]
                         # no warning raised if a name was defined earlier in the class
-                        maybe_before_assign  = (
-                            definition.lineno is not None and definition.lineno >= frame.lineno
+                        maybe_before_assign = (
+                            definition.lineno is not None
+                            and definition.lineno >= frame.lineno
                         )
                     else:
                         maybe_before_assign = True
