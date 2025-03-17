@@ -6,5 +6,5 @@ pytest-cov~=6.0
 pytest-xdist~=3.6
 six
 # Type packages for mypy
-types-setuptools==75.8.2.20250305
+types-setuptools==76.0.0.20250313
 tox>=3
