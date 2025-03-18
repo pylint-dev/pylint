@@ -1,0 +1,4 @@
+Fix a false positive for `used-before-assignment` when an inner function's return type
+annotation is a class defined at module scope.
+
+Closes #9391
