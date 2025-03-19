@@ -271,7 +271,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["pypy-3.9", "pypy-3.10"]
+        python-version: ["pypy-3.9", "pypy-3.10", "pypy-3.11"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v4.2.2
@@ -281,29 +281,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
-      - name: Generate partial Python venv restore key
-        id: generate-python-key
-        run: >-
-          echo "key=venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('pyproject.toml', 'requirements_test_min.txt')
-          }}" >> $GITHUB_OUTPUT
-      - name: Restore Python virtual environment
-        id: cache-venv
-        uses: actions/cache@v4.2.2
-        with:
-          path: venv
-          key: >-
-            ${{ runner.os }}-${{ matrix.python-version }}-${{
-            steps.generate-python-key.outputs.key }}
-      - name: Create Python virtual environment
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: |
-          python -m venv venv
-          . venv/bin/activate
-          python -m pip install --upgrade pip setuptools wheel
-          pip install --upgrade --requirement requirements_test_min.txt
-      - name: Run pytest
-        run: |
-          . venv/bin/activate
-          pip list | grep 'astroid\|pylint'
-          python -m pytest --durations=10 --benchmark-disable tests/
+      - run: python -m pip install --upgrade pip
+      - run: pip install --upgrade -r requirements_test_min.txt
+      - run: pip list | grep 'astroid\|pylint'
+      - run: pytest --durations=10 --benchmark-disable tests/
