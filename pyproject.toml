@@ -9,6 +9,7 @@ description = "python code static checker"
 readme = "README.rst"
 keywords = [ "lint", "linter", "python", "static code analysis" ]
 license = { text = "GPL-2.0-or-later" }
+license-files = [ "LICENSE", "CONTRIBUTORS.txt" ] # Keep in sync with setup.cfg
 authors = [
   { name = "Python Code Quality Authority", email = "code-quality@python.org" },
 ]
@@ -64,9 +65,6 @@ scripts.pylint = "pylint:run_pylint"
 scripts.pylint-config = "pylint:_run_pylint_config"
 scripts.pyreverse = "pylint:run_pyreverse"
 scripts.symilar = "pylint:run_symilar"
-
-[tool.setuptools]
-license-files = [ "LICENSE", "CONTRIBUTORS.txt" ] # Keep in sync with setup.cfg
 
 [tool.setuptools.packages.find]
 include = [ "pylint*" ]
