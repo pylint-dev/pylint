@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -63,8 +63,8 @@ jobs:
         run: |
           python -m venv venv
           . venv/bin/activate
-          python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --upgrade --requirement requirements_test.txt
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -177,7 +177,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - name: Set temp directory
         run: echo "TEMP=$env:USERPROFILE\AppData\Local\Temp" >> $env:GITHUB_ENV
@@ -210,8 +210,8 @@ jobs:
         run: |
           python -m venv venv
           . venv\\Scripts\\activate
-          python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test_min.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --upgrade --requirement requirements_test_min.txt
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
@@ -227,7 +227,7 @@ jobs:
       fail-fast: false
       matrix:
         # We only run on the oldest supported version on Mac
-        python-version: [3.9]
+        python-version: ["3.9"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v4.2.2
@@ -256,8 +256,8 @@ jobs:
         run: |
           python -m venv venv
           . venv/bin/activate
-          python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test_min.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --upgrade --requirement requirements_test_min.txt
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -300,8 +300,8 @@ jobs:
         run: |
           python -m venv venv
           . venv/bin/activate
-          python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test_min.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --upgrade --requirement requirements_test_min.txt
       - name: Run pytest
         run: |
           . venv/bin/activate
