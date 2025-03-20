@@ -8,7 +8,7 @@ name = "pylint"
 description = "python code static checker"
 readme = "README.rst"
 keywords = [ "lint", "linter", "python", "static code analysis" ]
-license-files = [ "LICENSE", "CONTRIBUTORS.txt" ] # Keep in sync with setup.cfg
+license-files = [ "LICENSE", "CONTRIBUTORS.txt" ]
 authors = [
   { name = "Python Code Quality Authority", email = "code-quality@python.org" },
 ]
