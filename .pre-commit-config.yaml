@@ -173,3 +173,7 @@ repos:
     rev: "v2.5.1"
     hooks:
       - id: pyproject-fmt
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.24
+    hooks:
+      - id: validate-pyproject
