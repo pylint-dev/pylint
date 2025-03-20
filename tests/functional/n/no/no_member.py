@@ -44,5 +44,10 @@ class Derived(Base):
 print(Derived.label)
 
 
+# Regression test for https://github.com/pylint-dev/pylint/issues/6094
+# pylint: disable-next=unnecessary-dunder-call
+print(parse.__getattribute__("urlparse"))
+
+
 # Regression test for https://github.com/pylint-dev/pylint/issues/5832
 starter_path = Path(__file__).parents[3].resolve()
