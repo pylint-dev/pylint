@@ -47,22 +47,19 @@ commands:
 
 .. code:: bash
 
-  # Note: Atheris doesn't support Python 3.12+ yet:
-  # https://github.com/google/atheris/issues/82
   mkdir fuzzing-repro
   cd fuzzing-repro
 
-  pyenv install --skip-existing 3.11
-  pyenv shell 3.11
-
-  python -m venv .venv-fuzzing-repro
-  source .venv-fuzzing-repro/bin/activate
+  # Note: Atheris doesn't support Python 3.12+ yet:
+  # https://github.com/google/atheris/issues/82
+  uv venv --python 3.11
+  source .venv/bin/activate
 
   git clone https://github.com/pylint-dev/astroid.git
   cd astroid
 
-  pip install atheris
-  pip install --editable .
+  uv pip install atheris==2.3.0
+  uv pip install --editable .
 
   # Save the minimized testcase as `minimized.py` in the astroid directory
 
