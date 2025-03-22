@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 
 import pytest
 from astroid.nodes.scoped_nodes import Module
@@ -16,7 +16,14 @@ from pylint.typing import GetProjectCallable
 
 
 @pytest.fixture()
+def default_args() -> Sequence[str]:
+    """Provides default command-line arguments for tests."""
+    return ["data"]
+
+
+@pytest.fixture()
 def default_config() -> PyreverseConfig:
+    """Provides default configuration for tests."""
     return PyreverseConfig()
 
 

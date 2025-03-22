@@ -1,10 +1,10 @@
 -r requirements_test_min.txt
-coverage~=7.6
+coverage~=7.7
 tbump~=6.11.0
 contributors-txt>=1.0.0
 pytest-cov~=6.0
 pytest-xdist~=3.6
 six
 # Type packages for mypy
-types-setuptools==75.8.0.20250110
+types-setuptools==76.0.0.20250313
 tox>=3

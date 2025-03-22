@@ -14,6 +14,92 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.3.6?
+---------------------------
+Release date: 2025-03-20
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for `used-before-assignment` when an inner function's return type
+  annotation is a class defined at module scope.
+
+  Closes #9391 (`#9391 <https://github.com/pylint-dev/pylint/issues/9391>`_)
+
+
+
+What's new in Pylint 3.3.5?
+---------------------------
+Release date: 2025-03-09
+
+
+False Positives Fixed
+---------------------
+
+- Fix false positives for `use-implicit-booleaness-not-comparison`, `use-implicit-booleaness-not-comparison-to-string`
+  and `use-implicit-booleaness-not-comparison-to-zero` when chained comparisons are checked.
+
+  Closes #10065 (`#10065 <https://github.com/pylint-dev/pylint/issues/10065>`_)
+
+- Fix a false positive for ``invalid-getnewargs-ex-returned`` when the tuple or dict has been assigned to a name.
+
+  Closes #10208 (`#10208 <https://github.com/pylint-dev/pylint/issues/10208>`_)
+
+- Remove `getopt` and `optparse` from the list of deprecated modules.
+
+  Closes #10211 (`#10211 <https://github.com/pylint-dev/pylint/issues/10211>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fixed conditional import x.y causing false positive possibly-used-before-assignment.
+
+  Closes #10081 (`#10081 <https://github.com/pylint-dev/pylint/issues/10081>`_)
+
+- Fix a crash when something besides a class is found in an except handler.
+
+  Closes #10106 (`#10106 <https://github.com/pylint-dev/pylint/issues/10106>`_)
+
+- Fixed raising invalid-name when using camelCase for private methods with two leading underscores.
+
+  Closes #10189 (`#10189 <https://github.com/pylint-dev/pylint/issues/10189>`_)
+
+
+
+Other Changes
+-------------
+
+- Upload release assets to PyPI via Trusted Publishing.
+
+  Closes #10256 (`#10256 <https://github.com/pylint-dev/pylint/issues/10256>`_)
+
+
+
+What's new in Pylint 3.3.4?
+---------------------------
+Release date: 2025-01-28
+
+
+Other Bug Fixes
+---------------
+
+- Fixes "skipped files" count calculation; the previous method was displaying an arbitrary number.
+
+  Closes #10073 (`#10073 <https://github.com/pylint-dev/pylint/issues/10073>`_)
+
+- Fixes a crash that occurred when pylint was run in a container on a host with cgroupsv2 and restrictions on CPU usage.
+
+  Closes #10103 (`#10103 <https://github.com/pylint-dev/pylint/issues/10103>`_)
+
+- Relaxed the requirements for isort so pylint can benefit from isort 6.
+
+  Closes #10203 (`#10203 <https://github.com/pylint-dev/pylint/issues/10203>`_)
+
+
+
 What's new in Pylint 3.3.3?
 ---------------------------
 Release date: 2024-12-23

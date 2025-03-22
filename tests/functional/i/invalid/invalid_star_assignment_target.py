@@ -1,4 +1,4 @@
 """Test for *a = b """
 
-*FIRST = [1, 2, 3] # [invalid-star-assignment-target]
-(*FIRST, ) = [1, 2, 3]
+*first = [1, 2, 3] # [invalid-star-assignment-target]
+(*first, ) = [1, 2, 3]

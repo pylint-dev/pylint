@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.3.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -41,7 +41,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.0
+        uses: actions/cache@v4.2.2
         with:
           path: venv
           key: >-
@@ -52,9 +52,8 @@ jobs:
         run: |
           python -m venv venv
           . venv/bin/activate
-          python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test.txt
-          pip install -U -r doc/requirements.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --upgrade --requirement requirements_test.txt --requirement doc/requirements.txt
       - name: Emit warning if news fragment is missing
         env:
           BASE_BRANCH: ${{ github.base_ref }}

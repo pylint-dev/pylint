@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import codecs
 import os
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from difflib import unified_diff
 from pathlib import Path
 from unittest.mock import Mock
@@ -84,34 +84,42 @@ def change_to_temp_dir(monkeypatch: MonkeyPatch, tmp_path: Path) -> None:
 
 @pytest.fixture()
 def setup_dot(
-    default_config: PyreverseConfig, get_project: GetProjectCallable
+    default_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(default_config)
     project = get_project(TEST_DATA_DIR)
-    yield from _setup(project, default_config, writer)
+    yield from _setup(project, default_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_colorized_dot(
-    colorized_dot_config: PyreverseConfig, get_project: GetProjectCallable
+    colorized_dot_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(colorized_dot_config)
     project = get_project(TEST_DATA_DIR, name="colorized")
-    yield from _setup(project, colorized_dot_config, writer)
+    yield from _setup(project, colorized_dot_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_no_standalone_dot(
-    no_standalone_dot_config: PyreverseConfig, get_project: GetProjectCallable
+    no_standalone_dot_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(no_standalone_dot_config)
     project = get_project(TEST_DATA_DIR, name="no_standalone")
-    yield from _setup(project, no_standalone_dot_config, writer)
+    yield from _setup(project, no_standalone_dot_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_type_check_imports_dot(
-    default_config: PyreverseConfig, get_project: GetProjectCallable
+    default_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(default_config)
     project = get_project(
@@ -119,64 +127,77 @@ def setup_type_check_imports_dot(
         name="type_check_imports",
     )
 
-    yield from _setup(project, default_config, writer)
+    yield from _setup(project, default_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_puml(
-    puml_config: PyreverseConfig, get_project: GetProjectCallable
+    puml_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(puml_config)
     project = get_project(TEST_DATA_DIR)
-    yield from _setup(project, puml_config, writer)
+    yield from _setup(project, puml_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_colorized_puml(
-    colorized_puml_config: PyreverseConfig, get_project: GetProjectCallable
+    colorized_puml_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(colorized_puml_config)
     project = get_project(TEST_DATA_DIR, name="colorized")
-    yield from _setup(project, colorized_puml_config, writer)
+    yield from _setup(project, colorized_puml_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_mmd(
-    mmd_config: PyreverseConfig, get_project: GetProjectCallable
+    mmd_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(mmd_config)
 
     project = get_project(TEST_DATA_DIR)
-    yield from _setup(project, mmd_config, writer)
+    yield from _setup(project, mmd_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_html(
-    html_config: PyreverseConfig, get_project: GetProjectCallable
+    html_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(html_config)
 
     project = get_project(TEST_DATA_DIR)
-    yield from _setup(project, html_config, writer)
+    yield from _setup(project, html_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_depth_limited(
-    depth_limited_config: PyreverseConfig, get_project: GetProjectCallable
+    depth_limited_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(depth_limited_config)
 
     project = get_project(
         TEST_DATA_DIR, name=f"depth_limited_{depth_limited_config.max_depth}"
     )
-    yield from _setup(project, depth_limited_config, writer)
+    yield from _setup(project, depth_limited_config, default_args, writer)
 
 
 def _setup(
-    project: Project, config: PyreverseConfig, writer: DiagramWriter
+    project: Project,
+    config: PyreverseConfig,
+    args: Sequence[str],
+    writer: DiagramWriter,
 ) -> Iterator[None]:
     linker = Linker(project)
-    handler = DiadefsHandler(config)
+    handler = DiadefsHandler(config, args)
     dd = DefaultDiadefGenerator(linker, handler).visit(project)
     for diagram in dd:
         diagram.extract_relationships()
@@ -277,84 +298,3 @@ def test_package_name_with_slash(default_config: PyreverseConfig) -> None:
     writer.write([obj])
 
     assert os.path.exists("test_package_name_with_slash_.dot")
-
-
-def test_should_show_node_no_depth_limit(default_config: PyreverseConfig) -> None:
-    """Test that nodes are shown when no depth limit is set."""
-    writer = DiagramWriter(default_config)
-    writer.max_depth = None
-
-    assert writer.should_show_node("pkg")
-    assert writer.should_show_node("pkg.subpkg")
-    assert writer.should_show_node("pkg.subpkg.module")
-    assert writer.should_show_node("pkg.subpkg.module.submodule")
-
-
-@pytest.mark.parametrize("max_depth", range(5))
-def test_should_show_node_with_depth_limit(
-    default_config: PyreverseConfig, max_depth: int
-) -> None:
-    """Test that nodes are filtered correctly when depth limit is set.
-
-    Depth counting is zero-based, determined by number of dots in path:
-    - 'pkg'                  -> depth 0 (0 dots)
-    - 'pkg.subpkg'           -> depth 1 (1 dot)
-    - 'pkg.subpkg.module'    -> depth 2 (2 dots)
-    - 'pkg.subpkg.module.submodule' -> depth 3 (3 dots)
-    """
-    writer = DiagramWriter(default_config)
-    print("max_depth:", max_depth)
-    writer.max_depth = max_depth
-
-    # Test cases for different depths
-    test_cases = [
-        "pkg",
-        "pkg.subpkg",
-        "pkg.subpkg.module",
-        "pkg.subpkg.module.submodule",
-    ]
-
-    # Test if nodes are shown based on their depth and max_depth setting
-    for i, path in enumerate(test_cases):
-        should_show = i <= max_depth
-        print(
-            f"Path {path} (depth {i}) with max_depth={max_depth} "
-            f"{'should show' if should_show else 'should not show'}:"
-            f"{writer.should_show_node(path, is_class=True)}"
-        )
-        assert writer.should_show_node(path) == should_show
-
-
-@pytest.mark.parametrize("max_depth", range(5))
-def test_should_show_node_classes(
-    default_config: PyreverseConfig, max_depth: int
-) -> None:
-    """Test class visibility based on their containing module depth.
-
-     Classes are filtered based on their containing module's depth:
-    - 'MyClass' -> depth 0 (no module)
-    - 'pkg.MyClass' -> depth 0 (module has no dots)
-    - 'pkg.subpkg.MyClass' -> depth 1 (module has 1 dot)
-    - 'pkg.subpkg.mod.MyClass' -> depth 2 (module has 2 dots)
-    """
-    writer = DiagramWriter(default_config)
-    print("max_depth:", max_depth)
-    writer.max_depth = max_depth
-
-    # Test cases for different depths
-    test_cases = [
-        "MyClass",
-        "pkg.MyClass",
-        "pkg.subpkg.MyClass",
-        "pkg.subpkg.mod.MyClass",
-    ]
-
-    # Test if nodes are shown based on their depth and max_depth setting
-    for i, path in enumerate(test_cases):
-        should_show = i - 1 <= max_depth  # Subtract 1 to account for the class name
-        print(
-            f"Path {path} (depth {i}) with max_depth={max_depth} "
-            f"{'should show' if should_show else 'should not show'}:"
-            f"{writer.should_show_node(path, is_class=True)}"
-        )
-        assert writer.should_show_node(path, is_class=True) == should_show

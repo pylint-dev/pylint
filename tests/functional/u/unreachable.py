@@ -75,7 +75,7 @@ def func11():
     var = 2 + 2  # [unreachable]
     print(var)
 
-incognito_function = sys.exit
+incognito_function = sys.exit  # pylint: disable=invalid-name
 def func12():
     incognito_function()
     var = 2 + 2  # [unreachable]

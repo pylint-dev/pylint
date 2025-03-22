@@ -147,6 +147,7 @@ hmac
 html
 idgeneratormixin
 ifexpr
+igetattr
 importedname
 importfrom
 importnode

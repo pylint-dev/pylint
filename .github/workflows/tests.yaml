@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.3.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -52,7 +52,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.0
+        uses: actions/cache@v4.2.2
         with:
           path: venv
           key: >-
@@ -63,8 +63,8 @@ jobs:
         run: |
           python -m venv venv
           . venv/bin/activate
-          python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --upgrade --requirement requirements_test.txt
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -76,7 +76,7 @@ jobs:
           pip list | grep 'astroid\|pylint'
           python -m pytest -vv --minimal-messages-config tests/test_functional.py
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4.6.0
+        uses: actions/upload-artifact@v4.6.1
         with:
           name: coverage-${{ matrix.python-version }}
           include-hidden-files: true
@@ -92,13 +92,13 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Set up Python 3.12
         id: python
-        uses: actions/setup-python@v5.3.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: "3.13"
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.0
+        uses: actions/cache@v4.2.2
         with:
           path: venv
           fail-on-cache-miss: true
@@ -106,7 +106,7 @@ jobs:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.tests-linux.outputs.python-key }}
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.1.9
       - name: Combine coverage results
         run: |
           . venv/bin/activate
@@ -132,13 +132,13 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.3.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.0
+        uses: actions/cache@v4.2.2
         with:
           path: venv
           fail-on-cache-miss: true
@@ -161,7 +161,7 @@ jobs:
         run: >-
           echo "datetime="$(date "+%Y%m%d_%H%M") >> $GITHUB_OUTPUT
       - name: Upload benchmark artifact
-        uses: actions/upload-artifact@v4.6.0
+        uses: actions/upload-artifact@v4.6.1
         with:
           name:
             benchmark-${{ runner.os }}-${{ matrix.python-version }}_${{
@@ -177,7 +177,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - name: Set temp directory
         run: echo "TEMP=$env:USERPROFILE\AppData\Local\Temp" >> $env:GITHUB_ENV
@@ -187,7 +187,7 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.3.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -199,7 +199,7 @@ jobs:
           }}" >> $env:GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.0
+        uses: actions/cache@v4.2.2
         with:
           path: venv
           key: >-
@@ -210,8 +210,8 @@ jobs:
         run: |
           python -m venv venv
           . venv\\Scripts\\activate
-          python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test_min.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --upgrade --requirement requirements_test_min.txt
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
@@ -227,13 +227,13 @@ jobs:
       fail-fast: false
       matrix:
         # We only run on the oldest supported version on Mac
-        python-version: [3.9]
+        python-version: ["3.9"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.3.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -245,7 +245,7 @@ jobs:
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.0
+        uses: actions/cache@v4.2.2
         with:
           path: venv
           key: >-
@@ -256,8 +256,8 @@ jobs:
         run: |
           python -m venv venv
           . venv/bin/activate
-          python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test_min.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --upgrade --requirement requirements_test_min.txt
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -277,7 +277,7 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.3.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -289,7 +289,7 @@ jobs:
           }}" >> $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.0
+        uses: actions/cache@v4.2.2
         with:
           path: venv
           key: >-
@@ -300,8 +300,8 @@ jobs:
         run: |
           python -m venv venv
           . venv/bin/activate
-          python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test_min.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --upgrade --requirement requirements_test_min.txt
       - name: Run pytest
         run: |
           . venv/bin/activate

@@ -2,7 +2,7 @@
 # pylint: disable=missing-function-docstring,ungrouped-imports,invalid-name
 
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, NamedTuple, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     if True:  # pylint: disable=using-constant-test
@@ -196,3 +196,18 @@ class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-
     def defined_in_with(self) -> base64:  # [used-before-assignment]
         print(binascii)  # [used-before-assignment]
         return base64
+
+
+def outer() -> None:
+    def inner() -> MyNamedTuple:
+        return MyNamedTuple(1)
+
+    print(inner())
+
+
+class MyNamedTuple(NamedTuple):
+    """Note: current false negative if outer() called before this declaration."""
+    field: int
+
+
+outer()

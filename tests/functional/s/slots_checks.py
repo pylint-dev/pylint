@@ -198,6 +198,6 @@ class TestChild(SlotsManipulationTest):
     __slots__ += ["d", "e", "f"]  # pylint: disable=undefined-variable
 
 
-t = TestChild()
+T = TestChild()
 
-print(t.__slots__)
+print(T.__slots__)

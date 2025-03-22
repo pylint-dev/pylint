@@ -127,20 +127,28 @@ init_of_package = {
 # A directory that is not a python package.
 REPORTERS_PATH = Path(__file__).parent.parent / "reporters"
 test_reporters = {  # pylint: disable=consider-using-namedtuple-or-dataclass
-    str(REPORTERS_PATH / "unittest_json_reporter.py"): {
-        "path": str(REPORTERS_PATH / "unittest_json_reporter.py"),
-        "name": "reporters.unittest_json_reporter",
-        "isarg": False,
-        "basepath": str(REPORTERS_PATH / "__init__.py"),
+    str(REPORTERS_PATH / "__init__.py"): {
         "basename": "reporters",
+        "basepath": str(REPORTERS_PATH / "__init__.py"),
+        "isarg": True,
+        "name": "reporters",
+        "path": str(REPORTERS_PATH / "__init__.py"),
+        "isignored": False,
+    },
+    str(REPORTERS_PATH / "unittest_json_reporter.py"): {
+        "basename": "reporters",
+        "basepath": str(REPORTERS_PATH / "__init__.py"),
+        "isarg": False,
+        "name": "reporters.unittest_json_reporter",
+        "path": str(REPORTERS_PATH / "unittest_json_reporter.py"),
         "isignored": False,
     },
     str(REPORTERS_PATH / "unittest_reporting.py"): {
+        "basename": "reporters",
+        "basepath": str(REPORTERS_PATH / "__init__.py"),
+        "isarg": False,
         "path": str(REPORTERS_PATH / "unittest_reporting.py"),
         "name": "reporters.unittest_reporting",
-        "isarg": False,
-        "basepath": str(REPORTERS_PATH / "__init__.py"),
-        "basename": "reporters",
         "isignored": False,
     },
 }

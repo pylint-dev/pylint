@@ -1,5 +1,5 @@
 """Miscellaneous used-before-assignment cases"""
-# pylint: disable=consider-using-f-string, missing-function-docstring, bare-except
+# pylint: disable=consider-using-f-string, missing-function-docstring, bare-except, invalid-name
 import datetime
 import sys
 from typing import NoReturn
@@ -289,3 +289,11 @@ def outer_():
     inner_try()
     inner_while()
     inner_for()
+
+def conditional_import():
+    if input():
+        import os.path
+    else:
+        os = None
+    if os:
+        pass

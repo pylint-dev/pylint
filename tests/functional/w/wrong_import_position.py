@@ -25,9 +25,9 @@ CONSTANT = True
 
 import datetime  # [wrong-import-position]
 
-VAR = 0
+var = 0
 for i in range(10):
-    VAR += i
+    var += i
 
 import scipy  # [wrong-import-position]
 import astroid  # [wrong-import-position]
