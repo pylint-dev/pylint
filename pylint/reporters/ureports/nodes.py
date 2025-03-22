@@ -12,6 +12,8 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Iterator
 from typing import Any, TypeVar
 
+from typing_extensions import Self
+
 from pylint.reporters.ureports.base_writer import BaseWriter
 
 _T = TypeVar("_T")
@@ -28,16 +30,12 @@ class VNode:
     def __iter__(self) -> Iterator[VNode]:
         return iter(self.children)
 
-    def accept(self: _VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
-        func: VisitLeaveFunction[_VNodeT] = getattr(
-            visitor, f"visit_{self.visitor_name}"
-        )
+    def accept(self, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[Self] = getattr(visitor, f"visit_{self.visitor_name}")
         return func(self, *args, **kwargs)
 
-    def leave(self: _VNodeT, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
-        func: VisitLeaveFunction[_VNodeT] = getattr(
-            visitor, f"leave_{self.visitor_name}"
-        )
+    def leave(self, visitor: BaseWriter, *args: Any, **kwargs: Any) -> None:
+        func: VisitLeaveFunction[Self] = getattr(visitor, f"leave_{self.visitor_name}")
         return func(self, *args, **kwargs)
 
 
