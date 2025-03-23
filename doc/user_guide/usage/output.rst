@@ -30,8 +30,8 @@ variables. The precedence for determining output format is as follows:
 2. ``FORCE_COLOR``
 3. ``--output-format=...``
 
-Setting ``NO_COLOR`` (to any value) will disable colorized output, while
-``FORCE_COLOR`` (to any value) will enable it, overriding the
+Setting ``NO_COLOR`` (to any non-empty value) will disable colorized output,
+while ``FORCE_COLOR`` (to any non-empty value) will enable it, overriding the
 ``--output-format`` option if specified.
 
 
