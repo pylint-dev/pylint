@@ -386,6 +386,14 @@ class RecommendationChecker(checkers.BaseChecker):
             if not isinstance(node.parent.parent, nodes.Call):
                 return
 
+            # Don't raise message on bad format string
+            try:
+                keyword_args = [
+                    i[0] for i in utils.parse_format_method_string(node.value)[0]
+                ]
+            except utils.IncompleteFormatString:
+                return
+
             if node.parent.parent.args:
                 for arg in node.parent.parent.args:
                     # If star expressions with more than 1 element are being used
@@ -401,9 +409,6 @@ class RecommendationChecker(checkers.BaseChecker):
                         return
 
             elif node.parent.parent.keywords:
-                keyword_args = [
-                    i[0] for i in utils.parse_format_method_string(node.value)[0]
-                ]
                 for keyword in node.parent.parent.keywords:
                     # If keyword is used multiple times
                     if keyword_args.count(keyword.arg) > 1:
