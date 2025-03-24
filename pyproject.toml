@@ -134,6 +134,7 @@ lint.ignore = [
   "PTH122", # `os.path.splitext()` should be replaced by `Path.suffix`, `Path.stem`, and `Path.parent`
   "PTH123", # `open()` should be replaced by `Path.open()`
   "PTH207", # Replace `glob` with `Path.glob` or `Path.rglob`
+  "PTH208", # Use `pathlib.Path.iterdir()` instead"
   "RUF012", # mutable default values in class attributes
 ]
 lint.pydocstyle.convention = "pep257"

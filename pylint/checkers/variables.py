@@ -3084,8 +3084,8 @@ class VariablesChecker(BaseChecker):
         if isinstance(value_node, nodes.Subscript):
             step = value_node.slice.step or 1
             splice_range = value_node.slice.upper.value - value_node.slice.lower.value
-            splice_length = int(math.ceil(splice_range / step))
-            return splice_length
+            # RUF046 says the return of 'math.ceil' is always an int, mypy doesn't see it
+            return math.ceil(splice_range / step)  # type: ignore[no-any-return]
         return 1
 
     @staticmethod
