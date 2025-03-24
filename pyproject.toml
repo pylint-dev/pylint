@@ -8,8 +8,7 @@ name = "pylint"
 description = "python code static checker"
 readme = "README.rst"
 keywords = [ "lint", "linter", "python", "static code analysis" ]
-license = "GPL-2.0-or-later"
-license-files = [ "LICENSE", "CONTRIBUTORS.txt" ]
+license = { text = "GPL-2.0-or-later" }
 authors = [
   { name = "Python Code Quality Authority", email = "code-quality@python.org" },
 ]
