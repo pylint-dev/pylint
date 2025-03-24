@@ -14,6 +14,21 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.3.6?
+---------------------------
+Release date: 2025-03-20
+
+
+False Positives Fixed
+---------------------
+
+- Fix a false positive for `used-before-assignment` when an inner function's return type
+  annotation is a class defined at module scope.
+
+  Closes #9391 (`#9391 <https://github.com/pylint-dev/pylint/issues/9391>`_)
+
+
+
 What's new in Pylint 3.3.5?
 ---------------------------
 Release date: 2025-03-09
