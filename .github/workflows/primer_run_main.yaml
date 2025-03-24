@@ -45,7 +45,7 @@ jobs:
       # Create a re-usable virtual environment
       - name: Restore Python virtual environment cache
         id: cache-venv
-        uses: actions/cache/restore@v4.2.2
+        uses: actions/cache/restore@v4.2.3
         with:
           path: venv
           key:
@@ -63,7 +63,7 @@ jobs:
       # Save cached Python environment (explicit because cancel-in-progress: true)
       - name: Save Python virtual environment to cache
         if: steps.cache-venv.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4.2.2
+        uses: actions/cache/save@v4.2.3
         with:
           path: venv
           key:
@@ -82,7 +82,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache/restore@v4.2.2
+        uses: actions/cache/restore@v4.2.3
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -95,14 +95,14 @@ jobs:
           python tests/primer/__main__.py prepare --clone
       - name: Save projects cache
         if: steps.cache-projects.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4.2.2
+        uses: actions/cache/save@v4.2.3
         with:
           path: tests/.pylint_primer_tests/
           key: >-
             ${{ runner.os }}-${{ matrix.python-version }}-${{
             steps.commitstring.outputs.commitstring }}-primer
       - name: Upload commit string
-        uses: actions/upload-artifact@v4.6.1
+        uses: actions/upload-artifact@v4.6.2
         if: matrix.batchIdx == 0
         with:
           name: primer_commitstring_${{ matrix.python-version }}
@@ -123,7 +123,7 @@ jobs:
           then echo "::warning ::$WARNINGS"
           fi
       - name: Upload output
-        uses: actions/upload-artifact@v4.6.1
+        uses: actions/upload-artifact@v4.6.2
         with:
           name:
             primer_output_main_${{ matrix.python-version }}_batch${{ matrix.batchIdx }}
