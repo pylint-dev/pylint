@@ -40,7 +40,7 @@ jobs:
           - os: ubuntu-latest
             python-version: "pypy-3.10"
           - os: ubuntu-latest
-            python-version: "pypy-3.11"            
+            python-version: "pypy-3.11"
     runs-on: ${{ matrix.os }}
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
