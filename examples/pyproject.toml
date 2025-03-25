@@ -529,7 +529,7 @@ ignored-classes = [ "optparse.Values", "thread._local", "_thread._local", "argpa
 # finding the hint is based on edit distance.
 missing-member-hint = true
 
-# The minimum edit distance a name should have in order to be considered a
+# The maximum edit distance a name should have in order to be considered a
 # similar match for a missing member name.
 missing-member-hint-distance = 1
 

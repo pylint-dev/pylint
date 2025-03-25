@@ -960,7 +960,7 @@ accessed. Python regular expressions are accepted.",
                 "default": 1,
                 "type": "int",
                 "metavar": "<member hint edit distance>",
-                "help": "The minimum edit distance a name should have in order "
+                "help": "The maximum edit distance a name should have in order "
                 "to be considered a similar match for a missing member name.",
             },
         ),
