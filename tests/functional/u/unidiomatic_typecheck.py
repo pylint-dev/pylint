@@ -65,10 +65,22 @@ def deliberate_subclass_check_negatives(b):
     type(42) is type(b)
     type(42) is not type(b)
 
-def type_of_literals_positives(a):
-    type(a) is type([]) # [unidiomatic-typecheck]
-    type(a) is not type([]) # [unidiomatic-typecheck]
-    type(a) is type({}) # [unidiomatic-typecheck]
-    type(a) is not type({}) # [unidiomatic-typecheck]
-    type(a) is type("") # [unidiomatic-typecheck]
-    type(a) is not type("") # [unidiomatic-typecheck]
+def type_of_literals_negatives(a):
+    type(a) is type([])
+    type(a) is not type([])
+    type(a) is type({})
+    type(a) is not type({})
+    type(a) is type("")
+    type(a) is not type("")
+    type(a) == type([])
+    type(a) != type([])
+    type(a) == type({})
+    type(a) != type({})
+    type(a) == type("")
+    type(a) != type("")
+
+def double_type_check_negatives(a, b):
+    type(a) == type(b)
+    type(a) != type(b)
+    type(a) is type(b)
+    type(a) is not type(b)
