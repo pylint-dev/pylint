@@ -93,8 +93,8 @@ contributors:
   * Add missing-timeout
 - Frank Harrison <frank@doublethefish.com> (doublethefish)
 - Pierre-Yves David <pierre-yves.david@logilab.fr>
-- David Shea <dshea@redhat.com>: invalid sequence and slice index
 - Zen Lee <53538590+zenlyj@users.noreply.github.com>
+- David Shea <dshea@redhat.com>: invalid sequence and slice index
 - Gunung P. Wibisono <55311527+gunungpw@users.noreply.github.com>
 - Derek Gustafson <degustaf@gmail.com>
 - Cezar Elnazli <cezar.elnazli2@gmail.com>: deprecated-method
@@ -122,6 +122,7 @@ contributors:
 - Robert Hofer <hofrob@protonmail.com>
 - Pedro Algarvio <pedro@algarvio.me> (s0undt3ch)
 - Julien Palard <julien@palard.fr>
+- Julian Grimm <51880314+Julfried@users.noreply.github.com>
 - David Liu <david@cs.toronto.edu> (david-yz-liu)
 - Dan Goldsmith <djgoldsmith@googlemail.com>: support for msg-template in HTML reporter.
 - Buck Evan <buck.2019@gmail.com>
@@ -144,7 +145,6 @@ contributors:
 - Lucas Cimon <lucas.cimon@gmail.com>
 - Konstantina Saketou <56515303+ksaketou@users.noreply.github.com>
 - Konstantin <Github@pheanex.de>
-- Julfried <51880314+Julfried@users.noreply.github.com>
 - Jim Robertson <jrobertson98atx@gmail.com>
 - Ethan Leba <ethanleba5@gmail.com>
 - Enji Cooper <yaneurabeya@gmail.com>
@@ -161,6 +161,7 @@ contributors:
   * Added new try-except-raise checker
 - theirix <theirix@gmail.com>
 - Téo Bouvard <teobouvard@gmail.com>
+- Sviatoslav Sydorenko <sviat@redhat.com>
 - Stavros Ntentos <133706+stdedos@users.noreply.github.com>
 - Nicolas Boulenguez <nicolas@debian.org>
 - Mihai Balint <balint.mihai@gmail.com>
@@ -204,11 +205,13 @@ contributors:
 - Ionel Maries Cristian <contact@ionelmc.ro>
 - Gergely Kalmár <gergely.kalmar@logikal.jp>
 - Damien Baty <damien.baty@polyconseil.fr>
+- Christian Clauss <cclauss@me.com>
 - Benjamin Drung <benjamin.drung@profitbricks.com>: contributing Debian Developer
 - Anubhav <35621759+anubh-v@users.noreply.github.com>
 - Antonio Quarta <sgheppy88@gmail.com>
 - Andrew J. Simmons <anjsimmo@gmail.com>
 - Alexey Pelykh <alexey.pelykh@gmail.com>
+- Alex Prabhat Bara <alexpbara@gmail.com>
 - wtracy <afishionado@gmail.com>
 - jessebrennan <jesse@jesse.computer>
 - chohner <mail@chohner.com>
@@ -249,7 +252,6 @@ contributors:
 - Aurelien Campeas <aurelien.campeas@logilab.fr>
 - Alvaro Frias <alvarofriasgaray@gmail.com>
 - Alexander Pervakov <frost.nzcr4@jagmort.com>
-- Alex Prabhat Bara <alexpbara@gmail.com>
 - Alain Leufroy <alain.leufroy@logilab.fr>
 - Akhil Kamat <akhil.kamat@gmail.com>
 - Adam Williamson <awilliam@redhat.com>
@@ -260,11 +262,10 @@ contributors:
 - craig-sh <craig-sh@users.noreply.github.com>
 - bernie gray <bfgray3@users.noreply.github.com>
 - azinneck0485 <123660683+azinneck0485@users.noreply.github.com>
+- Wing Lian <wing.lian@gmail.com>
 - Wes Turner <westurner@google.com> (Google): added new check 'inconsistent-quotes'
 - Tyler Thieding <tyler@thieding.com>
 - Tobias Hernstig <30827238+thernstig@users.noreply.github.com>
-- Sviatoslav Sydorenko (Святослав Сидоренко) <sviat@redhat.com>
-- Sviatoslav Sydorenko <wk@sydorenko.org.ua>
 - Smixi <sismixx@hotmail.fr>
 - Simu Toni <simutoni@gmail.com>
 - Sergei Lebedev <185856+superbobry@users.noreply.github.com>
@@ -295,7 +296,6 @@ contributors:
 - LCD 47 <lcd047@gmail.com>
 - Jérome Perrin <perrinjerome@gmail.com>
 - Justin Li <justinnhli@gmail.com>
-- Julian Grimm <51880314+Julfried@users.noreply.github.com>
 - John Kirkham <jakirkham@gmail.com>
 - Jens H. Nielsen <Jens.Nielsen@microsoft.com>
 - Jake Lishman <jake.lishman@ibm.com>
@@ -333,7 +333,6 @@ contributors:
 - Alexander Kapshuna <kapsh@kap.sh>
 - Adam Parkin <pzelnip@users.noreply.github.com>
 - Aaron Liu <aaronliu0130@gmail.com>
-- 🇺🇦 Sviatoslav Sydorenko (Святослав Сидоренко) <wk@sydorenko.org.ua>
 - 谭九鼎 <109224573@qq.com>
 - Łukasz Sznuk <ls@rdprojekt.pl>
 - zasca <gorstav@gmail.com>
@@ -391,7 +390,6 @@ contributors:
 - Yang Yang <y4n9squared@gmail.com>
 - Xi Shen <davidshen84@gmail.com>
 - Winston H <56998716+winstxnhdw@users.noreply.github.com>
-- Wing Lian <wing.lian@gmail.com>
 - Will Shanks <wsha@posteo.net>
 - Viorel Știrbu <viorels@gmail.com>: intern-builtin warning.
 - VictorT <victor.taix@gmail.com>
@@ -525,6 +523,7 @@ contributors:
 - John McGehee <jmcgehee@altera.com>
 - John Gabriele <jgabriele@fastmail.fm>
 - John Belmonte <john@neggie.net>
+- Johannes Maron <johannes@maron.family>
 - Joffrey Mander <joffrey.mander+pro@gmail.com>
 - Jochen Preusche <iilei@users.noreply.github.com>
 - Jeroen Seegers <jeroenseegers@users.noreply.github.com>:
@@ -597,7 +596,6 @@ contributors:
 - Clément Schreiner <clement@mux.me>
 - Clément Pit-Claudel <cpitclaudel@users.noreply.github.com>
 - Christopher Zurcher <zurcher@users.noreply.github.com>
-- Christian Clauss <cclauss@me.com>
 - ChandanChainani <chandan.chainani@ibm.com>
 - Carl Crowder <bitbucket@carlcrowder.com>: don't evaluate the value of arguments for 'dangerous-default-value'
 - Carey Metcalfe <carey@cmetcalfe.ca>: demoted `try-except-raise` from error to warning
