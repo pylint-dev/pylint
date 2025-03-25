@@ -1,0 +1,4 @@
+The algorithm used for ``no-member`` suggestions is now more efficient and cut the
+calculation when the distance score is already above the threshold.
+
+Refs #10277
