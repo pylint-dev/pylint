@@ -391,6 +391,7 @@ contributors:
 - Yang Yang <y4n9squared@gmail.com>
 - Xi Shen <davidshen84@gmail.com>
 - Winston H <56998716+winstxnhdw@users.noreply.github.com>
+- Wing Lian <wing.lian@gmail.com>
 - Will Shanks <wsha@posteo.net>
 - Viorel Știrbu <viorels@gmail.com>: intern-builtin warning.
 - VictorT <victor.taix@gmail.com>
