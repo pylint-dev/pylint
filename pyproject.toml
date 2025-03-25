@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "setuptools.build_meta"
 
-requires = [ "setuptools>=71.0.4" ]
+requires = [ "setuptools>=77" ]
 
 [project]
 name = "pylint"
