@@ -361,8 +361,6 @@ class AggregationsHandler(AbstractAssociationHandler):
                     # Add relationship for the inferred class
                     current = set(parent.aggregations_type[node.attrname])
                     parent.aggregations_type[node.attrname] = list(current | {inferred})
-                    print(f"Found class instantiation: {inferred.name}")
-                    print(f"Adding to aggregations: {parent.name}.{node.attrname}")
                     return
 
         # Fallback to parent handler
