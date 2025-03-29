@@ -328,46 +328,48 @@ class AbstractAssociationHandler(AssociationHandlerInterface):
 
 class AggregationsHandler(AbstractAssociationHandler):
     def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
-        if isinstance(node.parent, (nodes.AnnAssign, nodes.Assign)):
-            value = node.parent.value
-
-            # Handle direct name assignments
-            if isinstance(value, astroid.node_classes.Name):
-                current = set(parent.aggregations_type[node.attrname])
-                parent.aggregations_type[node.attrname] = list(
-                    current | utils.infer_node(node)
-                )
-
-            # Handle list comprehensions and list literals
-            elif isinstance(value, (nodes.ListComp, nodes.List)):
-                # For list comprehensions, extract the element type
-                if isinstance(value, nodes.ListComp):
-                    element = value.elt
-                # For list literals, check the first element (if available)
-                elif isinstance(value, nodes.List) and value.elts:
-                    element = value.elts[0]
-                else:
-                    super().handle(node, parent)
-                    return
-
-                # Process the element if it's a call to a class constructor
-                if isinstance(element, nodes.Call):
-                    try:
-                        # Try to infer the class being instantiated
-                        inferred = next(element.func.infer())
-                        if isinstance(inferred, nodes.ClassDef):
-                            # Add the relationship for the inferred class
-                            current = set(parent.aggregations_type[node.attrname])
-                            parent.aggregations_type[node.attrname] = list(
-                                current | {inferred}
-                            )
-                            return
-                    except (astroid.InferenceError, StopIteration):
-                        pass
-
-        else:
-            # Fall back to default handling
+        # Check if we're not in an assignment context
+        if not isinstance(node.parent, (nodes.AnnAssign, nodes.Assign)):
             super().handle(node, parent)
+            return
+
+        value = node.parent.value
+
+        # Handle direct name assignments
+        if isinstance(value, astroid.node_classes.Name):
+            current = set(parent.aggregations_type[node.attrname])
+            parent.aggregations_type[node.attrname] = list(
+                current | utils.infer_node(node)
+            )
+            return
+
+        # Handle list comprehensions and list literals
+        if isinstance(value, (nodes.ListComp, nodes.List)):
+            # Determine the element to analyze
+            if isinstance(value, nodes.ListComp):
+                element = value.elt
+            elif value.elts:  # List with elements
+                element = value.elts[0]
+            else:  # Empty list
+                super().handle(node, parent)
+                return
+
+            # Check for class instantiations
+            if isinstance(element, nodes.Call):
+                try:
+                    inferred = next(element.func.infer())
+                    if isinstance(inferred, nodes.ClassDef):
+                        # Add relationship for the inferred class
+                        current = set(parent.aggregations_type[node.attrname])
+                        parent.aggregations_type[node.attrname] = list(
+                            current | {inferred}
+                        )
+                        return
+                except (astroid.InferenceError, StopIteration):
+                    pass
+
+        # Fallback to parent handler
+        super().handle(node, parent)
 
 
 class OtherAssociationsHandler(AbstractAssociationHandler):
