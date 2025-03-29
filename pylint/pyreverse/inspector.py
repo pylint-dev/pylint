@@ -356,17 +356,14 @@ class AggregationsHandler(AbstractAssociationHandler):
 
             # Check for class instantiations
             if isinstance(element, nodes.Call):
-                try:
-                    inferred = next(element.func.infer())
-                    if isinstance(inferred, nodes.ClassDef):
-                        # Add relationship for the inferred class
-                        current = set(parent.aggregations_type[node.attrname])
-                        parent.aggregations_type[node.attrname] = list(
-                            current | {inferred}
-                        )
-                        return
-                except (astroid.InferenceError, StopIteration):
-                    pass
+                inferred = next(element.func.infer())
+                if isinstance(inferred, nodes.ClassDef):
+                    # Add relationship for the inferred class
+                    current = set(parent.aggregations_type[node.attrname])
+                    parent.aggregations_type[node.attrname] = list(current | {inferred})
+                    print(f"Found class instantiation: {inferred.name}")
+                    print(f"Adding to aggregations: {parent.name}.{node.attrname}")
+                    return
 
         # Fallback to parent handler
         super().handle(node, parent)
