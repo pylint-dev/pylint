@@ -1,0 +1,19 @@
+classDiagram
+  class Component {
+    name : str
+  }
+  class Container {
+    components : list[Component]
+    component_dict : dict[Component]
+    components_set : set[Component]
+    lazy_components : generator[Component]
+  }
+  class MultiContainer {
+    mixed : list[Component, Container]
+  }
+  Component --* Container : components
+  Component --* Container : component_dict
+  Component --* Container : components_set
+  Component --* Container : lazy_components
+  Component --* MultiContainer : mixed
+  Container --* MultiContainer : mixed
