@@ -7,7 +7,7 @@ import pytest
 
 from pylint.checkers import typecheck
 from pylint.interfaces import INFERENCE, UNDEFINED
-from pylint.testutils import CheckerTestCase, MessageTest, set_config
+from pylint.testutils import CheckerTestCase, MessageTest
 
 try:
     from coverage import tracer as _
@@ -27,29 +27,6 @@ class TestTypeChecker(CheckerTestCase):
 
     CHECKER_CLASS = typecheck.TypeChecker
 
-    @set_config(suggestion_mode=False)
-    @needs_c_extension
-    def test_nomember_on_c_extension_error_msg(self) -> None:
-        node = astroid.extract_node(
-            """
-        from coverage import tracer
-        tracer.CTracer  #@
-        """
-        )
-        message = MessageTest(
-            "no-member",
-            node=node,
-            args=("Module", "coverage.tracer", "CTracer", ""),
-            confidence=INFERENCE,
-            line=3,
-            col_offset=0,
-            end_line=3,
-            end_col_offset=14,
-        )
-        with self.assertAddsMessages(message):
-            self.checker.visit_attribute(node)
-
-    @set_config(suggestion_mode=True)
     @needs_c_extension
     def test_nomember_on_c_extension_info_msg(self) -> None:
         node = astroid.extract_node(
