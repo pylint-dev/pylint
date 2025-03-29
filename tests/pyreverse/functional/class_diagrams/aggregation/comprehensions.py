@@ -20,9 +20,3 @@ class MultiContainer:
     def __init__(self):
         # Test mixed component types in a list
         self.mixed = [Component("first"), Container()]
-
-
-if __name__ == "__main__":
-    container = Container()
-
-    print(type(container.components_set))
