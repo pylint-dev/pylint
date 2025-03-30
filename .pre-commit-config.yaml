@@ -141,7 +141,7 @@ repos:
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
-        exclude: tests(/\w*)*data/
+        exclude: (tests(/\w*)*data/|.github/FUNDING.yml)
   - repo: https://github.com/DanielNoord/pydocstringformatter
     rev: v0.7.3
     hooks:
