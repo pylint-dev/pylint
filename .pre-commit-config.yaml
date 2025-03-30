@@ -103,13 +103,6 @@ repos:
           ]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/\w*)*data/|doc/
         stages: [manual]
-      - id: sphinx-generated-doc
-        alias: sphinx-generated-doc
-        name: sphinx-generated-doc
-        entry: make -C doc/ html
-        pass_filenames: false
-        language: system
-        stages: [pre-push]
       - id: check-newsfragments
         name: Check newsfragments
         entry: python3 -m script.check_newsfragments
