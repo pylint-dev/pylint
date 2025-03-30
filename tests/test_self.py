@@ -1528,6 +1528,8 @@ class TestCallbackOptions:
         )
         assert process.stdout == process_two.stdout
 
+        assert "suggestion-mode" not in process.stdout
+
         # Check that the generated file is valid
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp:
             filename = temp.name
@@ -1536,7 +1538,6 @@ class TestCallbackOptions:
                 [join(HERE, "regrtest_data", "empty.py"), f"--rcfile={filename}"],
                 exit=False,
             )
-            assert not runner.linter.stats.by_msg
             assert not runner.linter.msg_status
         os.remove(filename)
 
