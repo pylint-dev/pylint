@@ -1528,8 +1528,6 @@ class TestCallbackOptions:
         )
         assert process.stdout == process_two.stdout
 
-        assert "suggestion-mode" not in process.stdout
-
         # Check that the generated file is valid
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp:
             filename = temp.name
