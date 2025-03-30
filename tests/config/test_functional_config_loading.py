@@ -57,10 +57,8 @@ def default_configuration(
 ) -> PylintConfiguration:
     empty_pylintrc = tmp_path / "pylintrc"
     empty_pylintrc.write_text("")
-    mock_exit, _, runner = run_using_a_configuration_file(
-        str(empty_pylintrc), file_to_lint_path
-    )
-    mock_exit.assert_called_once_with(0)
+    runner = run_using_a_configuration_file(str(empty_pylintrc), file_to_lint_path)
+    assert runner.linter.msg_status == 0
     return runner.linter.config.__dict__
 
 
@@ -84,14 +82,24 @@ def test_functional_config_loading(
     expected_loaded_configuration = get_expected_configuration(
         configuration_path, default_configuration
     )
+    runner = None  # The runner can fail to init if conf is bad enough.
     with warnings.catch_warnings():
         warnings.filterwarnings(
             "ignore", message="The use of 'MASTER'.*", category=UserWarning
         )
-        mock_exit, _, runner = run_using_a_configuration_file(
-            configuration_path, file_to_lint_path
-        )
-    mock_exit.assert_called_once_with(expected_code)
+        try:
+            runner = run_using_a_configuration_file(
+                configuration_path, file_to_lint_path
+            )
+            assert runner.linter.msg_status == expected_code
+        except SystemExit as e:
+            # Case where the conf exit with an argparse error
+            assert e.code == expected_code
+            out, err = capsys.readouterr()
+            assert out == ""
+            assert err.rstrip() == expected_output.rstrip()
+            return
+
     out, err = capsys.readouterr()
     # 'rstrip()' applied, so we can have a final newline in the expected test file
     assert expected_output.rstrip() == out.rstrip(), msg

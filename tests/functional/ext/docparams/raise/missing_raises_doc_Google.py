@@ -17,33 +17,33 @@ def test_find_google_attr_raises_exact_exc(self):
     """This is a google docstring.
 
     Raises:
-        re.error: Sometimes
+        calendar.IllegalMonthError: Sometimes
     """
-    import re
+    import calendar
 
-    raise re.error("hi")
+    raise calendar.IllegalMonthError(-1)
 
 
 def test_find_google_attr_raises_substr_exc(self):
     """This is a google docstring.
 
     Raises:
-        re.error: Sometimes
+        calendar.IllegalMonthError: Sometimes
     """
-    from re import error
+    from calendar import IllegalMonthError
 
-    raise error("hi")
+    raise IllegalMonthError(-1)
 
 
 def test_find_valid_missing_google_attr_raises(self):  # [missing-raises-doc]
     """This is a google docstring.
 
     Raises:
-        re.anothererror: Sometimes
+        calendar.anothererror: Sometimes
     """
-    from re import error
+    from calendar import IllegalMonthError
 
-    raise error("hi")
+    raise IllegalMonthError(-1)
 
 
 def test_find_invalid_missing_google_attr_raises(self):

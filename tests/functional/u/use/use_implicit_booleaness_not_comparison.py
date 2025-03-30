@@ -57,6 +57,10 @@ assert [] <= empty_list # [use-implicit-booleaness-not-comparison]
 assert () > empty_tuple # [use-implicit-booleaness-not-comparison]
 assert [] >= empty_list # [use-implicit-booleaness-not-comparison]
 
+assert empty_list != empty_tuple != {}
+assert [] == empty_list == empty_list
+assert empty_list != empty_dict != empty_tuple == ()
+
 assert [] == []
 assert {} != {}
 assert () == ()

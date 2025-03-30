@@ -11,9 +11,9 @@ on:
       - "maintenance/**"
 
 env:
-  CACHE_VERSION: 1
+  CACHE_VERSION: 3
   KEY_PREFIX: base-venv
-  DEFAULT_PYTHON: "3.11"
+  DEFAULT_PYTHON: "3.13"
   PRE_COMMIT_CACHE: ~/.cache/pre-commit
 
 concurrency:
@@ -33,10 +33,10 @@ jobs:
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -49,7 +49,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.2.3
         with:
           path: venv
           key: >-
@@ -60,9 +60,8 @@ jobs:
         run: |
           python -m venv venv
           . venv/bin/activate
-          python -m pip install -U pip setuptools wheel
-          pip install -U -r requirements_test.txt
-          pip install -U -r doc/requirements.txt
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --upgrade --requirement requirements_test.txt --requirement doc/requirements.txt
           pip install pre-commit
       - name: Generate pre-commit restore key
         id: generate-pre-commit-key
@@ -71,7 +70,7 @@ jobs:
             hashFiles('.pre-commit-config.yaml') }}" >> $GITHUB_OUTPUT
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.2.3
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           key: >-
@@ -89,16 +88,16 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.2.3
         with:
           path: venv
           fail-on-cache-miss: true
@@ -107,7 +106,7 @@ jobs:
             needs.prepare-base.outputs.python-key }}
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.2.3
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           fail-on-cache-miss: true
@@ -130,16 +129,16 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.2.3
         with:
           path: venv
           fail-on-cache-miss: true
@@ -158,16 +157,16 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.1.0
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.2.3
         with:
           path: venv
           fail-on-cache-miss: true
@@ -183,7 +182,9 @@ jobs:
           . venv/bin/activate
           cd doc
           pre-commit run --hook-stage push sphinx-generated-doc --all-files || {
+            echo "git diff:" ; \
             git diff ; \
-            echo "Make sure that there are no modifications locally when launching 'make html'" ; \
+            echo "End of 'git diff'" ; \
+            echo "Make sure that 'make html' succeed without any modifications locally." ; \
             exit 1; \
           }

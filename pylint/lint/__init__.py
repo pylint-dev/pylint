@@ -4,15 +4,15 @@
 
 """Pylint [options] modules_or_packages.
 
-  Check that module(s) satisfy a coding standard (and more !).
+Check that module(s) satisfy a coding standard (and more !).
 
-    pylint --help
+pylint --help
 
-  Display this help message and exit.
+Display this help message and exit.
 
-    pylint --help-msg <msg-id>[,<msg-id>]
+pylint --help-msg <msg-id>[,<msg-id>]
 
-  Display help messages about given message identifiers and exit.
+Display help messages about given message identifiers and exit.
 """
 import sys
 
@@ -30,18 +30,18 @@ from pylint.lint.run import Run
 from pylint.lint.utils import _augment_sys_path, augmented_sys_path
 
 __all__ = [
-    "check_parallel",
+    "ArgumentPreprocessingError",
     "PyLinter",
+    "Run",
+    "_augment_sys_path",
+    "augmented_sys_path",
+    "check_parallel",
+    "discover_package_path",
+    "load_results",
     "report_messages_by_module_stats",
     "report_messages_stats",
     "report_total_messages_stats",
-    "Run",
-    "ArgumentPreprocessingError",
-    "_augment_sys_path",
-    "augmented_sys_path",
-    "discover_package_path",
     "save_results",
-    "load_results",
 ]
 
 if __name__ == "__main__":

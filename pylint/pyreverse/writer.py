@@ -35,6 +35,7 @@ class DiagramWriter:
         self.printer: Printer  # defined in set_printer
         self.file_name = ""  # defined in set_printer
         self.depth = self.config.max_color_depth
+        self.max_depth = self.config.max_depth
         # default colors are an adaption of the seaborn colorblind palette
         self.available_colors = itertools.cycle(self.config.color_palette)
         self.used_colors: dict[str, str] = {}
@@ -115,6 +116,7 @@ class DiagramWriter:
         # sorted to get predictable (hence testable) results
         for obj in sorted(diagram.objects, key=lambda x: x.title):
             obj.fig_id = obj.node.qname()
+
             if self.config.no_standalone and not any(
                 obj in (rel.from_object, rel.to_object)
                 for rel_type in ("specialization", "association", "aggregation")

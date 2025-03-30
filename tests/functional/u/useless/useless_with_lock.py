@@ -10,7 +10,7 @@ with threading.Lock():  # [useless-with-lock]
 with Lock():  # [useless-with-lock]
     ...
 
-with threading.Lock() as this_shouldnt_matter:  # [useless-with-lock]
+with threading.Lock() as THIS_SHOULDNT_MATTER:  # [useless-with-lock]
     ...
 
 with threading.RLock():  # [useless-with-lock]
@@ -37,22 +37,22 @@ with threading.BoundedSemaphore():  # [useless-with-lock]
 with BoundedSemaphore():  # [useless-with-lock]
     ...
 
-lock = threading.Lock()
-with lock:  # this is ok
+LOCK = threading.Lock()
+with LOCK:  # this is ok
     ...
 
-rlock = threading.RLock()
-with rlock:  # this is ok
+RLOCK = threading.RLock()
+with RLOCK:  # this is ok
     ...
 
-cond = threading.Condition()
-with cond:  # this is ok
+COND = threading.Condition()
+with COND:  # this is ok
     ...
 
-sem = threading.Semaphore()
-with sem:  # this is ok
+SEM = threading.Semaphore()
+with SEM:  # this is ok
     ...
 
-b_sem = threading.BoundedSemaphore()
-with b_sem:  # this is ok
+B_SEM = threading.BoundedSemaphore()
+with B_SEM:  # this is ok
     ...

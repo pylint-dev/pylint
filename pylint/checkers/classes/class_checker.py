@@ -454,7 +454,6 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
     Returns ``True`` if the name is a property in the given klass,
     ``False`` otherwise.
     """
-
     try:
         attributes = klass.getattr(name)
     except astroid.NotFoundError:
@@ -471,13 +470,8 @@ def _is_attribute_property(name: str, klass: nodes.ClassDef) -> bool:
             inferred
         ):
             return True
-        if inferred.pytype() != property_name:
-            continue
-
-        cls = node_frame_class(inferred)
-        if cls == klass.declared_metaclass():
-            continue
-        return True
+        if inferred.pytype() == property_name:
+            return True
     return False
 
 
@@ -524,7 +518,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Access to a protected member %s of a client class",  # E0214
         "protected-access",
         "Used when a protected member (i.e. class member with a name "
-        "beginning with an underscore) is access outside the class or a "
+        "beginning with an underscore) is accessed outside the class or a "
         "descendant of the class where it's defined.",
     ),
     "W0213": (
@@ -703,6 +697,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when a class tries to extend an inherited Enum class. "
         "Doing so will raise a TypeError at runtime.",
     ),
+    "E0245": (
+        "No such name %r in __slots__",
+        "declare-non-slot",
+        "Raised when a type annotation on a class is absent from the list of names in __slots__, "
+        "and __slots__ does not contain a __dict__ entry.",
+    ),
     "R0202": (
         "Consider using a decorator instead of calling classmethod",
         "no-classmethod-decorator",
@@ -748,7 +748,6 @@ class ScopeAccessMap:
 
     def set_accessed(self, node: _AccessNodes) -> None:
         """Set the given node as accessed."""
-
         frame = node_frame_class(node)
         if frame is None:
             # The node does not live in a class.
@@ -872,6 +871,7 @@ a metaclass class method.",
         "invalid-enum-extension",
         "subclassed-final-class",
         "implicit-flag-alias",
+        "declare-non-slot",
     )
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Init visit variable _accessed."""
@@ -880,6 +880,50 @@ a metaclass class method.",
         self._check_proper_bases(node)
         self._check_typing_final(node)
         self._check_consistent_mro(node)
+        self._check_declare_non_slot(node)
+
+    def _check_declare_non_slot(self, node: nodes.ClassDef) -> None:
+        if not self._has_valid_slots(node):
+            return
+
+        slot_names = self._get_classdef_slots_names(node)
+
+        # Stop if empty __slots__ in the class body, this likely indicates that
+        # this class takes part in multiple inheritance with other slotted classes.
+        if not slot_names:
+            return
+
+        # Stop if we find __dict__, since this means attributes can be set
+        # dynamically
+        if "__dict__" in slot_names:
+            return
+
+        for base in node.bases:
+            ancestor = safe_infer(base)
+            if not isinstance(ancestor, nodes.ClassDef):
+                continue
+            # if any base doesn't have __slots__, attributes can be set dynamically, so stop
+            if not self._has_valid_slots(ancestor):
+                return
+            for slot_name in self._get_classdef_slots_names(ancestor):
+                if slot_name == "__dict__":
+                    return
+                slot_names.append(slot_name)
+
+        # Every class in bases has __slots__, our __slots__ is non-empty and there is no __dict__
+
+        for child in node.body:
+            if isinstance(child, nodes.AnnAssign):
+                if child.value is not None:
+                    continue
+                if isinstance(child.target, nodes.AssignName):
+                    if child.target.name not in slot_names:
+                        self.add_message(
+                            "declare-non-slot",
+                            args=child.target.name,
+                            node=child.target,
+                            confidence=INFERENCE,
+                        )
 
     def _check_consistent_mro(self, node: nodes.ClassDef) -> None:
         """Detect that a class has a consistent mro or duplicate bases."""
@@ -1484,11 +1528,37 @@ a metaclass class method.",
 
         return "functools" in dict(import_node.names)
 
+    def _has_valid_slots(self, node: nodes.ClassDef) -> bool:
+        if "__slots__" not in node.locals:
+            return False
+
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:
+            return False
+        for slots in inferred_slots:
+            # check if __slots__ is a valid type
+            if isinstance(slots, util.UninferableBase):
+                return False
+            if not is_iterable(slots) and not is_comprehension(slots):
+                return False
+            if isinstance(slots, nodes.Const):
+                return False
+            if not hasattr(slots, "itered"):
+                # we can't obtain the values, maybe a .deque?
+                return False
+
+        return True
+
     def _check_slots(self, node: nodes.ClassDef) -> None:
         if "__slots__" not in node.locals:
             return
 
-        for slots in node.ilookup("__slots__"):
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:
+            return
+        for slots in inferred_slots:
             # check if __slots__ is a valid type
             if isinstance(slots, util.UninferableBase):
                 continue
@@ -1517,13 +1587,23 @@ a metaclass class method.",
                     continue
             self._check_redefined_slots(node, slots, values)
 
-    def _check_redefined_slots(
-        self,
-        node: nodes.ClassDef,
-        slots_node: nodes.NodeNG,
-        slots_list: list[nodes.NodeNG],
-    ) -> None:
-        """Check if `node` redefines a slot which is defined in an ancestor class."""
+    def _get_classdef_slots_names(self, node: nodes.ClassDef) -> list[str]:
+
+        slots_names: list[str] = []
+        try:
+            inferred_slots = tuple(node.ilookup("__slots__"))
+        except astroid.InferenceError:  # pragma: no cover
+            return slots_names
+        for slots in inferred_slots:
+            if isinstance(slots, nodes.Dict):
+                values = [item[0] for item in slots.items]
+            else:
+                values = slots.itered()
+            slots_names.extend(self._get_slots_names(values))
+
+        return slots_names
+
+    def _get_slots_names(self, slots_list: list[nodes.NodeNG]) -> list[str]:
         slots_names: list[str] = []
         for slot in slots_list:
             if isinstance(slot, nodes.Const):
@@ -1533,6 +1613,16 @@ a metaclass class method.",
                 inferred_slot_value = getattr(inferred_slot, "value", None)
                 if isinstance(inferred_slot_value, str):
                     slots_names.append(inferred_slot_value)
+        return slots_names
+
+    def _check_redefined_slots(
+        self,
+        node: nodes.ClassDef,
+        slots_node: nodes.NodeNG,
+        slots_list: list[nodes.NodeNG],
+    ) -> None:
+        """Check if `node` redefines a slot which is defined in an ancestor class."""
+        slots_names: list[str] = self._get_slots_names(slots_list)
 
         # Slots of all parent classes
         ancestors_slots_names = {
@@ -1683,7 +1773,7 @@ a metaclass class method.",
         klass = inferred._proxied
         if not has_known_bases(klass):
             return
-        if "__slots__" not in klass.locals or not klass.newstyle:
+        if "__slots__" not in klass.locals:
             return
         # If `__setattr__` is defined on the class, then we can't reason about
         # what will happen when assigning to an attribute.
@@ -1946,7 +2036,6 @@ a metaclass class method.",
         Returns ``True`` if the name is a property in the given klass,
         ``False`` otherwise.
         """
-
         if utils.is_class_attr(name, klass):
             return True
 

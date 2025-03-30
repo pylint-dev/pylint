@@ -7,8 +7,8 @@ from __future__ import annotations
 import sys
 import traceback
 from collections import defaultdict
-from collections.abc import Sequence
-from typing import TYPE_CHECKING, Callable
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from astroid import nodes
 
@@ -75,12 +75,8 @@ class ASTWalker:
         """
         cid = astroid.__class__.__name__.lower()
 
-        # Detect if the node is a new name for a deprecated alias.
-        # In this case, favour the methods for the deprecated
-        # alias if any,  in order to maintain backwards
-        # compatibility.
-        visit_events: Sequence[AstCallback] = self.visit_events.get(cid, ())
-        leave_events: Sequence[AstCallback] = self.leave_events.get(cid, ())
+        visit_events = self.visit_events[cid]
+        leave_events = self.leave_events[cid]
 
         # pylint: disable = too-many-try-statements
         try:

@@ -15,6 +15,8 @@ try:
 except ValueError:
     time = None # [invalid-name]
 
+bbb: int = 42  # [invalid-name]
+
 try:
     from sys import argv, executable as python
 except ImportError:
@@ -45,9 +47,15 @@ def _generate_cmdline_tests():
         yield TestCase(''.join(item), True)
 
 
-# We should emit for the loop variable.
+# We should emit for the loop variable using the variable pattern.
 for i in range(10):
     Foocapfor = 2  # [invalid-name]
+    foonocapsfor = 3
+
+
+# Reassignments outside loops
+my_var = 0
+my_var = 1
 
 
 def dummy_decorator(aaabc, bbbcd):
@@ -102,3 +110,10 @@ class FooBar:
         """Invalid-name will still be raised for other arguments."""
         self.foo_bar = fooBar
         self.foo_bar2 = fooBar2
+
+    def tearDown(self): ...  # pylint: disable=invalid-name
+
+
+class FooBarSubclass(FooBar):
+    tearDown = FooBar.tearDown
+    tearDownNotInAncestor = None  # [invalid-name]

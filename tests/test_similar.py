@@ -22,7 +22,7 @@ DATA = join(HERE, "regrtest_data", "duplicate_code")
 CLEAN_PATH = re.escape(dirname(dirname(__file__)) + os.path.sep)
 
 
-class TestSimilarCodeChecker:
+class TestSymilarCodeChecker:
     def _runtest(self, args: list[str], code: int) -> None:
         """Runs the tests and sees if output code is as expected."""
         out = StringIO()
@@ -161,7 +161,7 @@ class TestSimilarCodeChecker:
             code=0,
         )
 
-    def test_duplicate_code_raw_strings_disable_line_midle(self) -> None:
+    def test_duplicate_code_raw_strings_disable_line_middle(self) -> None:
         """Tests disabling duplicate-code at a line in the middle of a piece of similar code."""
         path = join(DATA, "raw_strings_disable_line_middle")
         self._runtest(
@@ -225,7 +225,8 @@ class TestSimilarCodeChecker:
 
     def test_duplicate_code_raw_strings_disable_scope_function(self) -> None:
         """Tests disabling duplicate-code at an inner scope level with another scope with
-        similarity."""
+        similarity.
+        """
         path = join(DATA, "raw_strings_disable_scope_second_function")
         expected_output = "Similar lines in 2 files"
         self._test_output(

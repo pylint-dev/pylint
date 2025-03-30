@@ -7,13 +7,13 @@ from __future__ import annotations
 from typing import NamedTuple
 
 __all__ = (
-    "HIGH",
+    "CONFIDENCE_LEVELS",
+    "CONFIDENCE_LEVEL_NAMES",
     "CONTROL_FLOW",
+    "HIGH",
     "INFERENCE",
     "INFERENCE_FAILURE",
     "UNDEFINED",
-    "CONFIDENCE_LEVELS",
-    "CONFIDENCE_LEVEL_NAMES",
 )
 
 

@@ -7,7 +7,7 @@ print([index
 print((index
        for index in range(10)))
 
-FILTER_FUNC = lambda x: not x
+filter_func = lambda x: not x
 
 def func(xxx): return xxx
 
@@ -17,9 +17,9 @@ import sys; print(sys.exc_info())
 
 for i in range(10): print(i)
 
-j = 4; LAMB = lambda x: x+j
+j = 4; lamb = lambda x: x+j
 
-FUNC4 = lambda a, b: a != b
+func4 = lambda a, b: a != b
 
 # test https://www.logilab.org/ticket/6954:
 

@@ -13,7 +13,7 @@ import sys
 from collections import defaultdict
 from collections.abc import ItemsView, Sequence
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import astroid
 from astroid import nodes
@@ -43,11 +43,10 @@ if TYPE_CHECKING:
 
 # The dictionary with Any should actually be a _ImportTree again
 # but mypy doesn't support recursive types yet
-_ImportTree = Dict[str, Union[List[Dict[str, Any]], List[str]]]
+_ImportTree = dict[str, Union[list[dict[str, Any]], list[str]]]
 
 DEPRECATED_MODULES = {
     (0, 0, 0): {"tkinter.tix", "fpectl"},
-    (3, 2, 0): {"optparse"},
     (3, 3, 0): {"xml.etree.cElementTree"},
     (3, 4, 0): {"imp"},
     (3, 5, 0): {"formatter"},
@@ -1045,9 +1044,12 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         base = os.path.splitext(os.path.basename(module_file))[0]
 
         try:
-            importedmodname = astroid.modutils.get_module_part(
-                importedmodname, module_file
-            )
+            if isinstance(node, nodes.ImportFrom) and node.level:
+                importedmodname = astroid.modutils.get_module_part(
+                    importedmodname, module_file
+                )
+            else:
+                importedmodname = astroid.modutils.get_module_part(importedmodname)
         except ImportError:
             pass
 
@@ -1076,7 +1078,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
         """Check if the module has a preferred replacement."""
-
         mod_compare = [mod_path]
         # build a comparison list of possible names using importfrom
         if isinstance(node, astroid.nodes.node_classes.ImportFrom):
@@ -1192,7 +1193,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             for importer in importers:
                 package = self._module_pkg.get(importer, importer)
                 is_inside = importee.startswith(package)
-                if is_inside and internal or not is_inside and not internal:
+                if (is_inside and internal) or (not is_inside and not internal):
                     graph[importee].add(importer)
         return graph
 

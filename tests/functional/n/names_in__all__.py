@@ -1,7 +1,7 @@
 # pylint: disable=too-few-public-methods, import-error, unnecessary-pass
 """Test Pylint's use of __all__.
 
-* NonExistant is not defined in this module, and it is listed in
+* NonExistent is not defined in this module, and it is listed in
   __all__. An error is expected.
 
 * This module imports path and republished it in __all__. No errors
@@ -16,7 +16,7 @@ __all__ = [
     '', # [undefined-all-variable]
     Missing,
     SomeUndefined, # [undefined-variable]
-    'NonExistant',  # [undefined-all-variable]
+    'NonExistent',  # [undefined-all-variable]
     'path',
     'func',  # [undefined-all-variable]
     'inner',  # [undefined-all-variable]

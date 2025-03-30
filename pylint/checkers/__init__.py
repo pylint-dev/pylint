@@ -110,6 +110,7 @@ def table_lines_from_stats(
                 ("error", "NC"),
             ]
 
+    # pylint: disable=possibly-used-before-assignment
     for index, value in enumerate(new):
         new_value = value[1]
         old_value = old[index][1]
@@ -131,9 +132,9 @@ def initialize(linter: PyLinter) -> None:
 
 __all__ = [
     "BaseChecker",
-    "BaseTokenChecker",
     "BaseRawFileChecker",
-    "initialize",
+    "BaseTokenChecker",
     "DeprecatedMixin",
+    "initialize",
     "register_plugins",
 ]

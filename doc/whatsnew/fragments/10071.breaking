@@ -1,0 +1,4 @@
+The ``async.py`` checker module has been renamed to ``async_checker.py`` since ``async`` is a Python keyword
+and cannot be imported directly. This allows for better testing and extensibility of the async checker functionality.
+
+Refs #10071

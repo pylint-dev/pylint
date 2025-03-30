@@ -81,6 +81,10 @@
     "mails": ["46202743+lorena-b@users.noreply.github.com"],
     "name": "Lorena Buciu"
   },
+  "51880314+Julfried@users.noreply.github.com": {
+    "mails": ["51880314+Julfried@users.noreply.github.com"],
+    "name": "Julian Grimm"
+  },
   "53538590+zenlyj@users.noreply.github.com": {
     "mails": ["53538590+zenlyj@users.noreply.github.com"],
     "name": "Zen Lee"
@@ -567,6 +571,10 @@
     "mails": ["jaehoonhwang@users.noreply.github.com"],
     "name": "Jaehoon Hwang"
   },
+  "jake.lishman@ibm.com": {
+    "mails": ["jake.lishman@ibm.com", "jake@binhbar.com"],
+    "name": "Jake Lishman"
+  },
   "james.morgensen@gmail.com": {
     "comment": ": ignored-modules option applies to import errors.",
     "mails": ["james.morgensen@gmail.com"],
@@ -772,6 +780,10 @@
     "mails": ["pedro@algarvio.me"],
     "name": "Pedro Algarvio"
   },
+  "perrinjerome@gmail.com": {
+    "mails": ["jerome@nexedi.com", "perrinjerome@gmail.com"],
+    "name": "Jérome Perrin"
+  },
   "peter.kolbus@gmail.com": {
     "comment": " (Garmin)",
     "mails": ["peter.kolbus@gmail.com", "peter.kolbus@garmin.com"],
@@ -890,6 +902,10 @@
   "svet@hyperscience.com": {
     "mails": ["svet@hyperscience.com"],
     "name": "Svetoslav Neykov"
+  },
+  "sviat@redhat.com": {
+    "mails": ["sviat@redhat.com", "wk@sydorenko.org.ua"],
+    "name": "Sviatoslav Sydorenko"
   },
   "tanant@users.noreply.github.com": {
     "mails": ["tanant@users.noreply.github.com"],

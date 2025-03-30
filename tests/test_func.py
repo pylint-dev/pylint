@@ -29,7 +29,7 @@ def exception_str(
     self: Exception, ex: Exception  # pylint: disable=unused-argument
 ) -> str:
     """Function used to replace default __str__ method of exception instances
-    This function is not typed because it is legacy code
+    This function is not typed because it is legacy code.
     """
     return f"in {ex.file}\n:: {', '.join(ex.args)}"  # type: ignore[attr-defined] # Defined in the caller
 
@@ -113,7 +113,7 @@ def gen_tests(
     if filter_rgx:
         is_to_run = re.compile(filter_rgx).search
     else:
-        is_to_run = (  # noqa: E731, We're going to throw all this anyway
+        is_to_run = (  # noqa: E731 we're going to throw all this anyway
             lambda x: 1  # type: ignore[assignment] # pylint: disable=unnecessary-lambda-assignment
         )
     tests: list[tuple[str, str, list[tuple[str, str]]]] = []

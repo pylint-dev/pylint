@@ -14,10 +14,11 @@ import sys
 from collections.abc import Iterable
 from enum import Enum, auto
 from re import Pattern
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 import astroid
 from astroid import nodes
+from astroid.typing import InferenceResult
 
 from pylint import constants, interfaces
 from pylint.checkers import utils
@@ -34,7 +35,7 @@ from pylint.typing import Options
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
-_BadNamesTuple = Tuple[nodes.NodeNG, str, str, interfaces.Confidence]
+_BadNamesTuple = tuple[nodes.NodeNG, str, str, interfaces.Confidence]
 
 # Default patterns for name types that do not have styles
 DEFAULT_PATTERNS = {
@@ -60,6 +61,7 @@ class TypeVarVariance(Enum):
     covariant = auto()
     contravariant = auto()
     double_variant = auto()
+    inferred = auto()
 
 
 def _get_properties(config: argparse.Namespace) -> tuple[set[str], set[str]]:
@@ -417,9 +419,17 @@ class NameChecker(_BasicChecker):
 
         # Check names defined in module scope
         elif isinstance(frame, nodes.Module):
+            # Check names defined in AnnAssign nodes
+            if isinstance(assign_type, nodes.AnnAssign) and self._assigns_typealias(
+                assign_type.annotation
+            ):
+                self._check_name("typealias", node.name, node)
+
             # Check names defined in Assign nodes
-            if isinstance(assign_type, nodes.Assign):
-                inferred_assign_type = utils.safe_infer(assign_type.value)
+            elif isinstance(assign_type, (nodes.Assign, nodes.AnnAssign)):
+                inferred_assign_type = (
+                    utils.safe_infer(assign_type.value) if assign_type.value else None
+                )
 
                 # Check TypeVar's and TypeAliases assigned alone or in tuple assignment
                 if isinstance(node.parent, nodes.Assign):
@@ -460,22 +470,41 @@ class NameChecker(_BasicChecker):
                 elif isinstance(inferred_assign_type, nodes.ClassDef):
                     self._check_name("class", node.name, node)
 
-                # Don't emit if the name redefines an import in an ImportError except handler.
-                elif not _redefines_import(node) and isinstance(
-                    inferred_assign_type, nodes.Const
-                ):
-                    self._check_name("const", node.name, node)
-                else:
-                    self._check_name(
-                        "variable", node.name, node, disallowed_check_only=True
-                    )
+                elif inferred_assign_type in (None, astroid.util.Uninferable):
+                    return
 
-            # Check names defined in AnnAssign nodes
-            elif isinstance(assign_type, nodes.AnnAssign):
-                if utils.is_assign_name_annotated_with(node, "Final"):
-                    self._check_name("const", node.name, node)
-                elif self._assigns_typealias(assign_type.annotation):
-                    self._check_name("typealias", node.name, node)
+                # Don't emit if the name redefines an import in an ImportError except handler
+                # nor any other reassignment.
+                elif (
+                    not (redefines_import := _redefines_import(node))
+                    and not isinstance(
+                        inferred_assign_type, (nodes.FunctionDef, nodes.Lambda)
+                    )
+                    and not utils.is_reassigned_before_current(node, node.name)
+                    and not utils.is_reassigned_after_current(node, node.name)
+                    and not utils.get_node_first_ancestor_of_type(
+                        node, (nodes.For, nodes.While)
+                    )
+                ):
+                    if not self._meets_exception_for_non_consts(
+                        inferred_assign_type, node.name
+                    ):
+                        self._check_name("const", node.name, node)
+                else:
+                    node_type = "variable"
+                    if (
+                        (iattrs := tuple(node.frame().igetattr(node.name)))
+                        and astroid.util.Uninferable not in iattrs
+                        and len(iattrs) == 2
+                        and astroid.are_exclusive(*iattrs)
+                    ):
+                        node_type = "const"
+                    self._check_name(
+                        node_type,
+                        node.name,
+                        node,
+                        disallowed_check_only=redefines_import,
+                    )
 
         # Check names defined in function scopes
         elif isinstance(frame, nodes.FunctionDef):
@@ -490,13 +519,23 @@ class NameChecker(_BasicChecker):
                         self._check_name("variable", node.name, node)
 
         # Check names defined in class scopes
-        elif isinstance(frame, nodes.ClassDef):
+        elif isinstance(frame, nodes.ClassDef) and not any(
+            frame.local_attr_ancestors(node.name)
+        ):
             if utils.is_enum_member(node) or utils.is_assign_name_annotated_with(
                 node, "Final"
             ):
                 self._check_name("class_const", node.name, node)
             else:
                 self._check_name("class_attribute", node.name, node)
+
+    def _meets_exception_for_non_consts(
+        self, inferred_assign_type: InferenceResult | None, name: str
+    ) -> bool:
+        if isinstance(inferred_assign_type, nodes.Const):
+            return False
+        regexp = self._name_regexps["variable"]
+        return regexp.match(name) is not None
 
     def _recursive_check_names(self, args: list[nodes.AssignName]) -> None:
         """Check names in a possibly recursive list <arg>."""
@@ -605,11 +644,11 @@ class NameChecker(_BasicChecker):
     def _assigns_typealias(node: nodes.NodeNG | None) -> bool:
         """Check if a node is assigning a TypeAlias."""
         inferred = utils.safe_infer(node)
-        if isinstance(inferred, nodes.ClassDef):
+        if isinstance(inferred, (nodes.ClassDef, astroid.bases.UnionType)):
             qname = inferred.qname()
             if qname == "typing.TypeAlias":
                 return True
-            if qname == ".Union":
+            if qname in {".Union", "builtins.UnionType"}:
                 # Union is a special case because it can be used as a type alias
                 # or as a type annotation. We only want to check the former.
                 assert node is not None
@@ -623,6 +662,7 @@ class NameChecker(_BasicChecker):
 
     def _check_typevar(self, name: str, node: nodes.AssignName) -> None:
         """Check for TypeVar lint violations."""
+        variance: TypeVarVariance = TypeVarVariance.invariant
         if isinstance(node.parent, nodes.Assign):
             keywords = node.assign_type().value.keywords
             args = node.assign_type().value.args
@@ -634,8 +674,8 @@ class NameChecker(_BasicChecker):
         else:  # PEP 695 generic type nodes
             keywords = ()
             args = ()
+            variance = TypeVarVariance.inferred
 
-        variance = TypeVarVariance.invariant
         name_arg = None
         for kw in keywords:
             if variance == TypeVarVariance.double_variant:
@@ -659,7 +699,12 @@ class NameChecker(_BasicChecker):
         if name_arg is None and args and isinstance(args[0], nodes.Const):
             name_arg = args[0].value
 
-        if variance == TypeVarVariance.double_variant:
+        if variance == TypeVarVariance.inferred:
+            # Ignore variance check for PEP 695 type parameters.
+            # The variance is inferred by the type checker.
+            # Adding _co or _contra suffix can help to reason about TypeVar.
+            pass
+        elif variance == TypeVarVariance.double_variant:
             self.add_message(
                 "typevar-double-variance",
                 node=node,
@@ -688,7 +733,7 @@ class NameChecker(_BasicChecker):
                 confidence=interfaces.INFERENCE,
             )
         elif variance == TypeVarVariance.invariant and (
-            name.endswith("_co") or name.endswith("_contra")
+            name.endswith(("_co", "_contra"))
         ):
             suggest_name = re.sub("_contra$|_co$", "", name)
             self.add_message(

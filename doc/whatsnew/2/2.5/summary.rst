@@ -61,7 +61,7 @@ Other Changes
 * Add new ``good-names-rgx`` and ``bad-names-rgx`` to enable permitting or disallowing of names via regular expressions
 
   To enable better handling of permitted/disallowed names, we added two new config options: good-names-rgxs: a comma-
-  separated list of regexes, that if a name matches will be exempt of naming-checking. bad-names-rgxs: a comma-
+  separated list of regexes, that if a name matches will be exempt from naming-checking. bad-names-rgxs: a comma-
   separated list of regexes, that if a name matches will be always marked as a disallowed name.
 
 * Mutable ``collections.*`` are now flagged as dangerous defaults.

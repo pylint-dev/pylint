@@ -1,0 +1,4 @@
+Fix false positives for `use-implicit-booleaness-not-comparison`, `use-implicit-booleaness-not-comparison-to-string`
+and `use-implicit-booleaness-not-comparison-to-zero` when chained comparisons are checked.
+
+Closes #10065

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import codecs
 import os
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from difflib import unified_diff
 from pathlib import Path
 from unittest.mock import Mock
@@ -84,34 +84,42 @@ def change_to_temp_dir(monkeypatch: MonkeyPatch, tmp_path: Path) -> None:
 
 @pytest.fixture()
 def setup_dot(
-    default_config: PyreverseConfig, get_project: GetProjectCallable
+    default_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(default_config)
     project = get_project(TEST_DATA_DIR)
-    yield from _setup(project, default_config, writer)
+    yield from _setup(project, default_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_colorized_dot(
-    colorized_dot_config: PyreverseConfig, get_project: GetProjectCallable
+    colorized_dot_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(colorized_dot_config)
     project = get_project(TEST_DATA_DIR, name="colorized")
-    yield from _setup(project, colorized_dot_config, writer)
+    yield from _setup(project, colorized_dot_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_no_standalone_dot(
-    no_standalone_dot_config: PyreverseConfig, get_project: GetProjectCallable
+    no_standalone_dot_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(no_standalone_dot_config)
     project = get_project(TEST_DATA_DIR, name="no_standalone")
-    yield from _setup(project, no_standalone_dot_config, writer)
+    yield from _setup(project, no_standalone_dot_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_type_check_imports_dot(
-    default_config: PyreverseConfig, get_project: GetProjectCallable
+    default_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(default_config)
     project = get_project(
@@ -119,52 +127,77 @@ def setup_type_check_imports_dot(
         name="type_check_imports",
     )
 
-    yield from _setup(project, default_config, writer)
+    yield from _setup(project, default_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_puml(
-    puml_config: PyreverseConfig, get_project: GetProjectCallable
+    puml_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(puml_config)
     project = get_project(TEST_DATA_DIR)
-    yield from _setup(project, puml_config, writer)
+    yield from _setup(project, puml_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_colorized_puml(
-    colorized_puml_config: PyreverseConfig, get_project: GetProjectCallable
+    colorized_puml_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(colorized_puml_config)
     project = get_project(TEST_DATA_DIR, name="colorized")
-    yield from _setup(project, colorized_puml_config, writer)
+    yield from _setup(project, colorized_puml_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_mmd(
-    mmd_config: PyreverseConfig, get_project: GetProjectCallable
+    mmd_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(mmd_config)
 
     project = get_project(TEST_DATA_DIR)
-    yield from _setup(project, mmd_config, writer)
+    yield from _setup(project, mmd_config, default_args, writer)
 
 
 @pytest.fixture()
 def setup_html(
-    html_config: PyreverseConfig, get_project: GetProjectCallable
+    html_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
 ) -> Iterator[None]:
     writer = DiagramWriter(html_config)
 
     project = get_project(TEST_DATA_DIR)
-    yield from _setup(project, html_config, writer)
+    yield from _setup(project, html_config, default_args, writer)
+
+
+@pytest.fixture()
+def setup_depth_limited(
+    depth_limited_config: PyreverseConfig,
+    default_args: Sequence[str],
+    get_project: GetProjectCallable,
+) -> Iterator[None]:
+    writer = DiagramWriter(depth_limited_config)
+
+    project = get_project(
+        TEST_DATA_DIR, name=f"depth_limited_{depth_limited_config.max_depth}"
+    )
+    yield from _setup(project, depth_limited_config, default_args, writer)
 
 
 def _setup(
-    project: Project, config: PyreverseConfig, writer: DiagramWriter
+    project: Project,
+    config: PyreverseConfig,
+    args: Sequence[str],
+    writer: DiagramWriter,
 ) -> Iterator[None]:
     linker = Linker(project)
-    handler = DiadefsHandler(config)
+    handler = DiadefsHandler(config, args)
     dd = DefaultDiadefGenerator(linker, handler).visit(project)
     for diagram in dd:
         diagram.extract_relationships()
@@ -218,6 +251,14 @@ def test_html_files(generated_file: str) -> None:
 @pytest.mark.parametrize("generated_file", COLORIZED_PUML_FILES)
 def test_colorized_puml_files(generated_file: str) -> None:
     _assert_files_are_equal(generated_file)
+
+
+@pytest.mark.parametrize("default_max_depth", [0, 1])
+@pytest.mark.usefixtures("setup_depth_limited")
+def test_depth_limited_write(default_max_depth: int) -> None:
+    """Test package diagram generation with a depth limit of 1."""
+    _assert_files_are_equal(f"packages_depth_limited_{default_max_depth}.dot")
+    _assert_files_are_equal(f"classes_depth_limited_{default_max_depth}.dot")
 
 
 def _assert_files_are_equal(generated_file: str) -> None:

@@ -21,7 +21,7 @@ Unittest tests
 
 Most other tests reside in the '/pylint/test' directory. These unittests can be used to test
 almost all functionality within Pylint. A good step before writing any new unittests is to look
-at some tests that test a similar funcitionality. This can often help write new tests.
+at some tests that test a similar functionality. This can often help write new tests.
 
 If your new test requires any additional files you can put those in the
 ``/pylint/test/regrtest_data`` directory. This is the directory we use to store any data needed for

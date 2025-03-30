@@ -14,3 +14,5 @@ invalid-slots:81:0:81:16:TwelfthBad:Invalid __slots__ object:UNDEFINED
 class-variable-slots-conflict:114:17:114:24:ValueInSlotConflict:Value 'first' in slots conflicts with class variable:UNDEFINED
 class-variable-slots-conflict:114:45:114:53:ValueInSlotConflict:Value 'fourth' in slots conflicts with class variable:UNDEFINED
 class-variable-slots-conflict:114:36:114:43:ValueInSlotConflict:Value 'third' in slots conflicts with class variable:UNDEFINED
+declare-non-slot:138:4:138:5:ClassTypeHintNotInSlotsWithoutDict:No such name 'c' in __slots__:INFERENCE
+declare-non-slot:170:4:170:5:DerivedWithMoreSlots:No such name 'd' in __slots__:INFERENCE

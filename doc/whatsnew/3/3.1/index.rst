@@ -17,6 +17,29 @@ and a smattering of bug fixes.
 
 .. towncrier release notes start
 
+What's new in Pylint 3.1.1?
+---------------------------
+Release date: 2024-05-13
+
+
+False Positives Fixed
+---------------------
+
+- Treat `attrs.define` and `attrs.frozen` as dataclass decorators in
+  `too-few-public-methods` check.
+
+  Closes #9345 (`#9345 <https://github.com/pylint-dev/pylint/issues/9345>`_)
+
+- Fix a false positive with ``singledispatchmethod-function`` when a method is decorated with both ``functools.singledispatchmethod`` and ``staticmethod``.
+
+  Closes #9531 (`#9531 <https://github.com/pylint-dev/pylint/issues/9531>`_)
+
+- Fix a false positive for ``consider-using-dict-items`` when iterating using ``keys()`` and then deleting an item using the key as a lookup.
+
+  Closes #9554 (`#9554 <https://github.com/pylint-dev/pylint/issues/9554>`_)
+
+
+
 What's new in Pylint 3.1.0?
 ---------------------------
 Release date: 2024-02-25
@@ -95,7 +118,7 @@ Other Bug Fixes
   The message will report imports as follows:
   For "import X", it will report "(standard/third party/first party/local) import X"
   For "import X.Y" and "from X import Y", it will report "(standard/third party/first party/local) import X.Y"
-  The import category is specified to provide explanation as to why pylint has issued the message and guidence to the developer on how to fix the problem.
+  The import category is specified to provide explanation as to why pylint has issued the message and guidance to the developer on how to fix the problem.
 
   Closes #8808 (`#8808 <https://github.com/pylint-dev/pylint/issues/8808>`_)
 

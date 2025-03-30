@@ -1,0 +1,3 @@
+Fix false negative for `used-before-assignment` when a `TYPE_CHECKING` import is used as a type annotation prior to erroneous usage.
+
+Refs #8893

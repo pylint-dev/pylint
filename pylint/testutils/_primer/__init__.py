@@ -2,7 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-__all__ = ["PackageToLint", "PRIMER_DIRECTORY_PATH"]
+__all__ = ["PRIMER_DIRECTORY_PATH", "PackageToLint"]
 
 from pylint.testutils._primer.package_to_lint import (
     PRIMER_DIRECTORY_PATH,

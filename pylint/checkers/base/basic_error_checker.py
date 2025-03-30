@@ -7,8 +7,6 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Iterator
-from typing import Any
 
 import astroid
 from astroid import nodes
@@ -145,7 +143,7 @@ class BasicErrorChecker(_BasicChecker):
             "pre-decrement operator -- and ++, which doesn't exist in Python.",
         ),
         "E0108": (
-            "Duplicate argument name %s in function definition",
+            "Duplicate argument name %r in function definition",
             "duplicate-argument-name",
             "Duplicate argument names in function definitions are syntax errors.",
         ),
@@ -270,7 +268,9 @@ class BasicErrorChecker(_BasicChecker):
         if not redefined_by_decorator(
             node
         ) and not utils.is_registered_in_singledispatch_function(node):
-            self._check_redefinition(node.is_method() and "method" or "function", node)
+            self._check_redefinition(
+                (node.is_method() and "method") or "function", node
+            )
         # checks for max returns, branch, return in __init__
         returns = node.nodes_of_class(
             nodes.Return, skip_klass=(nodes.FunctionDef, nodes.ClassDef)
@@ -285,8 +285,7 @@ class BasicErrorChecker(_BasicChecker):
                     self.add_message("return-in-init", node=node)
         # Check for duplicate names by clustering args with same name for detailed report
         arg_clusters = {}
-        arguments: Iterator[Any] = filter(None, [node.args.args, node.args.kwonlyargs])
-        for arg in itertools.chain.from_iterable(arguments):
+        for arg in node.args.arguments:
             if arg.name in arg_clusters:
                 self.add_message(
                     "duplicate-argument-name",

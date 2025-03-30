@@ -59,8 +59,7 @@ class DunderCallChecker(BaseChecker):
                 isinstance(parent, nodes.FunctionDef)
                 and parent.name.startswith("__")
                 and parent.name.endswith("__")
-                or DunderCallChecker.is_lambda_rule_exception(parent, node)
-            ):
+            ) or DunderCallChecker.is_lambda_rule_exception(parent, node):
                 return True
             parent = parent.parent
         return False

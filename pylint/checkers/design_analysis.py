@@ -16,6 +16,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_enum, only_required_for_messages
+from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
@@ -81,17 +82,17 @@ MSGS: dict[str, MessageDefinitionTuple] = (
             "Used when an if statement contains too many boolean expressions.",
         ),
         "R0917": (
-            "Too many positional arguments in a function call.",
-            "too-many-positional",
-            "Will be implemented in https://github.com/pylint-dev/pylint/issues/9099,"
-            "msgid/symbol pair reserved for compatibility with ruff, "
-            "see https://github.com/astral-sh/ruff/issues/8946.",
+            "Too many positional arguments (%s/%s)",
+            "too-many-positional-arguments",
+            "Used when a function has too many positional arguments.",
         ),
     }
 )
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
+ATTRS_DECORATORS = frozenset({"define", "frozen"})
+ATTRS_IMPORT = "attrs"
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
 TYPING_TYPEDDICT = "typing.TypedDict"
 TYPING_EXTENSIONS_TYPEDDICT = "typing_extensions.TypedDict"
@@ -183,7 +184,6 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
 
 def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
     """Check if a class is exempt from too-few-public-methods."""
-
     # If it's a typing.Namedtuple, typing.TypedDict or an Enum
     for ancestor in node.ancestors():
         if is_enum(ancestor):
@@ -212,6 +212,10 @@ def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
         if name in DATACLASSES_DECORATORS and (
             root_locals.intersection(DATACLASSES_DECORATORS)
             or DATACLASS_IMPORT in root_locals
+        ):
+            return True
+        if name in ATTRS_DECORATORS and (
+            root_locals.intersection(ATTRS_DECORATORS) or ATTRS_IMPORT in root_locals
         ):
             return True
     return False
@@ -304,6 +308,15 @@ class MisdesignChecker(BaseChecker):
                 "type": "int",
                 "metavar": "<int>",
                 "help": "Maximum number of arguments for function / method.",
+            },
+        ),
+        (
+            "max-positional-arguments",
+            {
+                "default": 5,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "Maximum number of positional arguments for function / method.",
             },
         ),
         (
@@ -520,6 +533,7 @@ class MisdesignChecker(BaseChecker):
         "too-many-branches",
         "too-many-arguments",
         "too-many-locals",
+        "too-many-positional-arguments",
         "too-many-statements",
         "keyword-arg-before-vararg",
     )
@@ -531,13 +545,20 @@ class MisdesignChecker(BaseChecker):
         self._returns.append(0)
         # check number of arguments
         args = node.args.args + node.args.posonlyargs + node.args.kwonlyargs
+        pos_args = node.args.args + node.args.posonlyargs
         ignored_argument_names = self.linter.config.ignored_argument_names
         if args is not None:
             ignored_args_num = 0
             if ignored_argument_names:
-                ignored_args_num = sum(
-                    1 for arg in args if ignored_argument_names.match(arg.name)
+                ignored_pos_args_num = sum(
+                    1 for arg in pos_args if ignored_argument_names.match(arg.name)
                 )
+                ignored_kwonly_args_num = sum(
+                    1
+                    for arg in node.args.kwonlyargs
+                    if ignored_argument_names.match(arg.name)
+                )
+                ignored_args_num = ignored_pos_args_num + ignored_kwonly_args_num
 
             argnum = len(args) - ignored_args_num
             if argnum > self.linter.config.max_args:
@@ -545,6 +566,16 @@ class MisdesignChecker(BaseChecker):
                     "too-many-arguments",
                     node=node,
                     args=(len(args), self.linter.config.max_args),
+                )
+            pos_args_count = (
+                len(args) - len(node.args.kwonlyargs) - ignored_pos_args_num
+            )
+            if pos_args_count > self.linter.config.max_positional_arguments:
+                self.add_message(
+                    "too-many-positional-arguments",
+                    node=node,
+                    args=(pos_args_count, self.linter.config.max_positional_arguments),
+                    confidence=HIGH,
                 )
         else:
             ignored_args_num = 0

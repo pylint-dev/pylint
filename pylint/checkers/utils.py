@@ -6,24 +6,26 @@
 
 from __future__ import annotations
 
+import _string
 import builtins
 import fnmatch
 import itertools
 import numbers
 import re
 import string
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from functools import lru_cache, partial
 from re import Match
-from typing import TYPE_CHECKING, Any, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
-import _string
 import astroid.objects
 from astroid import TooManyLevelsError, nodes, util
 from astroid.context import InferenceContext
 from astroid.exceptions import AstroidError
 from astroid.nodes._base_nodes import ImportNode, Statement
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
+
+from pylint.constants import TYPING_NEVER, TYPING_NORETURN
 
 if TYPE_CHECKING:
     from functools import _lru_cache_wrapper
@@ -484,7 +486,7 @@ def only_required_for_messages(
     """
 
     def store_messages(
-        func: AstCallbackMethod[_CheckerT, _NodeT]
+        func: AstCallbackMethod[_CheckerT, _NodeT],
     ) -> AstCallbackMethod[_CheckerT, _NodeT]:
         func.checks_msgs = messages  # type: ignore[attr-defined]
         return func
@@ -1344,6 +1346,7 @@ def safe_infer(
     context: InferenceContext | None = None,
     *,
     compare_constants: bool = False,
+    compare_constructors: bool = False,
 ) -> InferenceResult | None:
     """Return the inferred value for the given node.
 
@@ -1352,6 +1355,9 @@ def safe_infer(
 
     If compare_constants is True and if multiple constants are inferred,
     unequal inferred values are also considered ambiguous and return None.
+
+    If compare_constructors is True and if multiple classes are inferred,
+    constructors with different signatures are held ambiguous and return None.
     """
     inferred_types: set[str | None] = set()
     try:
@@ -1382,6 +1388,13 @@ def safe_infer(
                 isinstance(inferred, nodes.FunctionDef)
                 and isinstance(value, nodes.FunctionDef)
                 and function_arguments_are_ambiguous(inferred, value)
+            ):
+                return None
+            if (
+                compare_constructors
+                and isinstance(inferred, nodes.ClassDef)
+                and isinstance(value, nodes.ClassDef)
+                and class_constructors_are_ambiguous(inferred, value)
             ):
                 return None
     except astroid.InferenceError:
@@ -1430,6 +1443,21 @@ def function_arguments_are_ambiguous(
             else:
                 return True
     return False
+
+
+def class_constructors_are_ambiguous(
+    class1: nodes.ClassDef, class2: nodes.ClassDef
+) -> bool:
+    try:
+        constructor1 = class1.local_attr("__init__")[0]
+        constructor2 = class2.local_attr("__init__")[0]
+    except astroid.NotFoundError:
+        return False
+    if not isinstance(constructor1, nodes.FunctionDef):
+        return False
+    if not isinstance(constructor2, nodes.FunctionDef):
+        return False
+    return function_arguments_are_ambiguous(constructor1, constructor2)
 
 
 def has_known_bases(
@@ -1484,7 +1512,6 @@ def node_type(node: nodes.NodeNG) -> SuccessfulInferenceResult | None:
 
 def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
     """Check if the given function node is a singledispatch function."""
-
     singledispatch_qnames = (
         "functools.singledispatch",
         "singledispatch.singledispatch",
@@ -1540,7 +1567,6 @@ def find_inferred_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | No
 
 def is_registered_in_singledispatchmethod_function(node: nodes.FunctionDef) -> bool:
     """Check if the given function node is a singledispatchmethod function."""
-
     singledispatchmethod_qnames = (
         "functools.singledispatchmethod",
         "singledispatch.singledispatchmethod",
@@ -1595,19 +1621,25 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
     current_node, parent_node = node, node.parent
     while True:
         if (
-            isinstance(parent_node, nodes.AnnAssign)
-            and parent_node.annotation == current_node
-            or isinstance(parent_node, nodes.Arguments)
-            and current_node
-            in (
-                *parent_node.annotations,
-                *parent_node.posonlyargs_annotations,
-                *parent_node.kwonlyargs_annotations,
-                parent_node.varargannotation,
-                parent_node.kwargannotation,
+            (
+                isinstance(parent_node, nodes.AnnAssign)
+                and parent_node.annotation == current_node
             )
-            or isinstance(parent_node, nodes.FunctionDef)
-            and parent_node.returns == current_node
+            or (
+                isinstance(parent_node, nodes.Arguments)
+                and current_node
+                in (
+                    *parent_node.annotations,
+                    *parent_node.posonlyargs_annotations,
+                    *parent_node.kwonlyargs_annotations,
+                    parent_node.varargannotation,
+                    parent_node.kwargannotation,
+                )
+            )
+            or (
+                isinstance(parent_node, nodes.FunctionDef)
+                and parent_node.returns == current_node
+            )
         ):
             return True
         current_node, parent_node = parent_node, parent_node.parent
@@ -1736,11 +1768,8 @@ def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> b
     annotation = node.parent.annotation
     if isinstance(annotation, nodes.Subscript):
         annotation = annotation.value
-    if (
-        isinstance(annotation, nodes.Name)
-        and annotation.name == typing_name
-        or isinstance(annotation, nodes.Attribute)
-        and annotation.attrname == typing_name
+    if (isinstance(annotation, nodes.Name) and annotation.name == typing_name) or (
+        isinstance(annotation, nodes.Attribute) and annotation.attrname == typing_name
     ):
         return True
     return False
@@ -1817,10 +1846,7 @@ def is_sys_guard(node: nodes.If) -> bool:
     """Return True if IF stmt is a sys.version_info guard.
 
     >>> import sys
-    >>> if sys.version_info > (3, 8):
-    >>>     from typing import Literal
-    >>> else:
-    >>>     from typing_extensions import Literal
+    >>> from typing import Literal
     """
     if isinstance(node.test, nodes.Compare):
         value = node.test.left
@@ -1837,6 +1863,18 @@ def is_sys_guard(node: nodes.If) -> bool:
     }:
         return True
     return False
+
+
+def is_reassigned_before_current(node: nodes.NodeNG, varname: str) -> bool:
+    """Check if the given variable name is reassigned in the same scope before the
+    current node.
+    """
+    return any(
+        a.name == varname and a.lineno < node.lineno
+        for a in node.scope().nodes_of_class(
+            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
+        )
+    )
 
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
@@ -2109,7 +2147,13 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
         binop.op in COMMUTATIVE_OPERATORS
         and _is_target_name_in_binop_side(target, binop.right)
     ):
-        inferred_left = safe_infer(binop.left)
+        if isinstance(binop.left, nodes.Const):
+            # This bizarrely became necessary after an unrelated call to igetattr().
+            # Seems like a code smell uncovered in #10212.
+            # tuple(node.frame().igetattr(node.name))
+            inferred_left = binop.left
+        else:
+            inferred_left = safe_infer(binop.left)
         if isinstance(inferred_left, nodes.Const) and isinstance(
             inferred_left.value, int
         ):
@@ -2152,12 +2196,13 @@ def is_singleton_const(node: nodes.NodeNG) -> bool:
 
 
 def is_terminating_func(node: nodes.Call) -> bool:
-    """Detect call to exit(), quit(), os._exit(), or sys.exit()."""
+    """Detect call to exit(), quit(), os._exit(), sys.exit(), or
+    functions annotated with `typing.NoReturn` or `typing.Never`.
+    """
     if (
         not isinstance(node.func, nodes.Attribute)
         and not (isinstance(node.func, nodes.Name))
-        or isinstance(node.parent, nodes.Lambda)
-    ):
+    ) or isinstance(node.parent, nodes.Lambda):
         return False
 
     try:
@@ -2165,6 +2210,31 @@ def is_terminating_func(node: nodes.Call) -> bool:
             if (
                 hasattr(inferred, "qname")
                 and inferred.qname() in TERMINATING_FUNCS_QNAMES
+            ):
+                return True
+            # Unwrap to get the actual function node object
+            if isinstance(inferred, astroid.BoundMethod) and isinstance(
+                inferred._proxied, astroid.UnboundMethod
+            ):
+                inferred = inferred._proxied._proxied
+            if (  # pylint: disable=too-many-boolean-expressions
+                isinstance(inferred, nodes.FunctionDef)
+                and (
+                    not isinstance(inferred, nodes.AsyncFunctionDef)
+                    or isinstance(node.parent, nodes.Await)
+                )
+                and isinstance(inferred.returns, nodes.Name)
+                and (inferred_func := safe_infer(inferred.returns))
+                and hasattr(inferred_func, "qname")
+                and inferred_func.qname()
+                in (
+                    *TYPING_NEVER,
+                    *TYPING_NORETURN,
+                    # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
+                    # "typing._SpecialForm",
+                    # But 'typing.Any' also inherits _SpecialForm
+                    # See #9751
+                )
             ):
                 return True
     except (StopIteration, astroid.InferenceError):
@@ -2276,7 +2346,6 @@ def is_enum_member(node: nodes.AssignName) -> bool:
     """Return `True` if `node` is an Enum member (is an item of the
     `__members__` container).
     """
-
     frame = node.frame()
     if (
         not isinstance(frame, nodes.ClassDef)

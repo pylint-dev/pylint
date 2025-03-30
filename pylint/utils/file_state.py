@@ -7,7 +7,7 @@ from __future__ import annotations
 import collections
 from collections import defaultdict
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, Dict, Literal
+from typing import TYPE_CHECKING, Literal
 
 from astroid import nodes
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from pylint.message import MessageDefinition, MessageDefinitionStore
 
 
-MessageStateDict = Dict[str, Dict[int, bool]]
+MessageStateDict = dict[str, dict[int, bool]]
 
 
 class FileState:

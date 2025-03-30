@@ -3,7 +3,7 @@
 
 _, INTERESTING = 'a=b'.split('=')
 
-value = 10  # [invalid-name]
+value = 10
 
 
 def clobbering():

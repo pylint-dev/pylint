@@ -2,7 +2,7 @@
 
 __all__ = sorted([
     'Dummy',
-    'NonExistant',
+    'NonExistent',
     'path',
     'func',
     'inner',

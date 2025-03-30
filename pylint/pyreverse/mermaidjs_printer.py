@@ -64,6 +64,9 @@ class MermaidJSPrinter(Printer):
             self.emit(line)
         self._dec_indent()
         self.emit("}")
+        # apply style for colored output
+        if properties.color and properties.color != self.DEFAULT_COLOR:
+            self.emit(f"style {name} fill:{properties.color}")
 
     def emit_edge(
         self,

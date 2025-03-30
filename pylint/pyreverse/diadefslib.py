@@ -7,7 +7,8 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Generator
+import warnings
+from collections.abc import Generator, Sequence
 from typing import Any
 
 import astroid
@@ -27,10 +28,28 @@ class DiaDefGenerator:
     def __init__(self, linker: Linker, handler: DiadefsHandler) -> None:
         """Common Diagram Handler initialization."""
         self.config = handler.config
+        self.args = handler.args
         self.module_names: bool = False
         self._set_default_options()
         self.linker = linker
         self.classdiagram: ClassDiagram  # defined by subclasses
+        # Only pre-calculate depths if user has requested a max_depth
+        if handler.config.max_depth is not None:
+            # Detect which of the args are leaf nodes
+            leaf_nodes = self.get_leaf_nodes()
+
+            # Emit a warning if any of the args are not leaf nodes
+            diff = set(self.args).difference(set(leaf_nodes))
+            if len(diff) > 0:
+                warnings.warn(
+                    "Detected nested names within the specified packages. "
+                    f"The following packages: {sorted(diff)} will be ignored for "
+                    f"depth calculations, using only: {sorted(leaf_nodes)} as the base for limiting "
+                    "package depth.",
+                    stacklevel=2,
+                )
+
+            self.args_depths = {module: module.count(".") for module in leaf_nodes}
 
     def get_title(self, node: nodes.ClassDef) -> str:
         """Get title for objects."""
@@ -38,6 +57,22 @@ class DiaDefGenerator:
         if self.module_names:
             title = f"{node.root().name}.{title}"
         return title  # type: ignore[no-any-return]
+
+    def get_leaf_nodes(self) -> list[str]:
+        """
+        Get the leaf nodes from the list of args in the generator.
+
+        A leaf node is one that is not a prefix (with an extra dot) of any other node.
+        """
+        leaf_nodes = [
+            module
+            for module in self.args
+            if not any(
+                other != module and other.startswith(module + ".")
+                for other in self.args
+            )
+        ]
+        return leaf_nodes
 
     def _set_option(self, option: bool | None) -> bool:
         """Activate some options if not explicitly deactivated."""
@@ -67,6 +102,30 @@ class DiaDefGenerator:
         """Help function for search levels."""
         return self.anc_level, self.association_level
 
+    def _should_include_by_depth(self, node: nodes.NodeNG) -> bool:
+        """Check if a node should be included based on depth.
+
+        A node will be included if it is at or below the max_depth relative to the
+        specified base packages. A node is considered to be a base package if it is the
+        deepest package in the list of specified packages. In other words the base nodes
+        are the leaf nodes of the specified package tree.
+        """
+        # If max_depth is not set, include all nodes
+        if self.config.max_depth is None:
+            return True
+
+        # Calculate the absolute depth of the node
+        name = node.root().name
+        absolute_depth = name.count(".")
+
+        # Retrieve the base depth to compare against
+        relative_depth = next(
+            (v for k, v in self.args_depths.items() if name.startswith(k)), None
+        )
+        return relative_depth is not None and bool(
+            (absolute_depth - relative_depth) <= self.config.max_depth
+        )
+
     def show_node(self, node: nodes.ClassDef) -> bool:
         """Determine if node should be shown based on config."""
         if node.root().name == "builtins":
@@ -75,7 +134,8 @@ class DiaDefGenerator:
         if is_stdlib_module(node.root().name):
             return self.config.show_stdlib  # type: ignore[no-any-return]
 
-        return True
+        # Filter node by depth
+        return self._should_include_by_depth(node)
 
     def add_class(self, node: nodes.ClassDef) -> None:
         """Visit one class and add it to diagram."""
@@ -84,7 +144,7 @@ class DiaDefGenerator:
 
     def get_ancestors(
         self, node: nodes.ClassDef, level: int
-    ) -> Generator[nodes.ClassDef, None, None]:
+    ) -> Generator[nodes.ClassDef]:
         """Return ancestor nodes of a class node."""
         if level == 0:
             return
@@ -95,7 +155,7 @@ class DiaDefGenerator:
 
     def get_associated(
         self, klass_node: nodes.ClassDef, level: int
-    ) -> Generator[nodes.ClassDef, None, None]:
+    ) -> Generator[nodes.ClassDef]:
         """Return associated nodes of a class node."""
         if level == 0:
             return
@@ -163,7 +223,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
 
         add this class to the package diagram definition
         """
-        if self.pkgdiagram:
+        if self.pkgdiagram and self._should_include_by_depth(node):
             self.linker.visit(node)
             self.pkgdiagram.add_object(node.name, node)
 
@@ -177,7 +237,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
 
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
         """Visit astroid.ImportFrom  and catch modules for package diagram."""
-        if self.pkgdiagram:
+        if self.pkgdiagram and self._should_include_by_depth(node):
             self.pkgdiagram.add_from_depend(node, node.modname)
 
 
@@ -208,8 +268,9 @@ class ClassDiadefGenerator(DiaDefGenerator):
 class DiadefsHandler:
     """Get diagram definitions from user (i.e. xml files) or generate them."""
 
-    def __init__(self, config: argparse.Namespace) -> None:
+    def __init__(self, config: argparse.Namespace, args: Sequence[str]) -> None:
         self.config = config
+        self.args = args
 
     def get_diadefs(self, project: Project, linker: Linker) -> list[ClassDiagram]:
         """Get the diagram's configuration data.
@@ -222,7 +283,6 @@ class DiadefsHandler:
         :returns: The list of diagram definitions
         :rtype: list(:class:`pylint.pyreverse.diagrams.ClassDiagram`)
         """
-
         #  read and interpret diagram definitions (Diadefs)
         diagrams = []
         generator = ClassDiadefGenerator(linker, self)

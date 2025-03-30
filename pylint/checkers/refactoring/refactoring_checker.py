@@ -44,6 +44,7 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
     (
         "_io.open",  # regular 'open()' call
         "pathlib.Path.open",
+        "pathlib._local.Path.open",  # Python 3.13
         "codecs.open",
         "urllib.request.urlopen",
         "tempfile.NamedTemporaryFile",
@@ -284,7 +285,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             'Unnecessary "%s" after "return", %s',
             "no-else-return",
             "Used in order to highlight an unnecessary block of "
-            "code following an if containing a return statement. "
+            "code following an if, or a try/except containing a return statement. "
             "As such, it will warn when it encounters an else "
             "following a chain of ifs, all of them containing a "
             "return statement.",
@@ -386,7 +387,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             'Unnecessary "%s" after "raise", %s',
             "no-else-raise",
             "Used in order to highlight an unnecessary block of "
-            "code following an if containing a raise statement. "
+            "code following an if, or a try/except containing a raise statement. "
             "As such, it will warn when it encounters an else "
             "following a chain of ifs, all of them containing a "
             "raise statement.",
@@ -586,7 +587,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         the result of the statement's test, then this can be reduced
         to `bool(test)` without losing any functionality.
         """
-
         if self._is_actual_elif(node):
             # Not interested in if statements with multiple branches.
             return
@@ -649,9 +649,33 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self.add_message("simplifiable-if-statement", node=node, args=(reduced_to,))
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
+        # Optimization flag because '_is_trailing_comma' is costly
+        trailing_comma_tuple_enabled_for_file = self.linter.is_message_enabled(
+            "trailing-comma-tuple"
+        )
+        trailing_comma_tuple_enabled_once: bool = trailing_comma_tuple_enabled_for_file
         # Process tokens and look for 'if' or 'elif'
         for index, token in enumerate(tokens):
             token_string = token[1]
+            if (
+                not trailing_comma_tuple_enabled_once
+                and token_string.startswith("#")
+                # We have at least 1 '#' (one char) at the start of the token
+                and "pylint:" in token_string[1:]
+                # We have at least '#' 'pylint' ( + ':') (8 chars) at the start of the token
+                and "enable" in token_string[8:]
+                # We have at least '#', 'pylint', ( + ':'), 'enable' (+ '=') (15 chars) at
+                # the start of the token
+                and any(
+                    c in token_string[15:] for c in ("trailing-comma-tuple", "R1707")
+                )
+            ):
+                # Way to not have to check if "trailing-comma-tuple" is enabled or
+                # disabled on each line: Any enable for it during tokenization and
+                # we'll start using the costly '_is_trailing_comma' to check if we
+                # need to raise the message. We still won't raise if it's disabled
+                # again due to the usual generic message control handling later.
+                trailing_comma_tuple_enabled_once = True
             if token_string == "elif":
                 # AST exists by the time process_tokens is called, so
                 # it's safe to assume tokens[index+1] exists.
@@ -660,10 +684,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # token[2] is the actual position and also is
                 # reported by IronPython.
                 self._elifs.extend([token[2], tokens[index + 1][2]])
-            elif self.linter.is_message_enabled(
-                "trailing-comma-tuple"
+            elif (
+                trailing_comma_tuple_enabled_for_file
+                or trailing_comma_tuple_enabled_once
             ) and _is_trailing_comma(tokens, index):
-                self.add_message("trailing-comma-tuple", line=token.start[0])
+                # If "trailing-comma-tuple" is enabled globally we always check _is_trailing_comma
+                # it might be for nothing if there's a local disable, or if the message control is
+                # not enabling 'trailing-comma-tuple', but the alternative is having to check if
+                # it's enabled for a line each line (just to avoid calling '_is_trailing_comma').
+                self.add_message(
+                    "trailing-comma-tuple", line=token.start[0], confidence=HIGH
+                )
 
     @utils.only_required_for_messages("consider-using-with")
     def leave_module(self, _: nodes.Module) -> None:
@@ -889,11 +920,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             """Obtain simplest representation of a node as a string."""
             if isinstance(node, nodes.Name):
                 return node.name  # type: ignore[no-any-return]
-            if isinstance(node, nodes.Attribute):
-                return node.attrname  # type: ignore[no-any-return]
             if isinstance(node, nodes.Const):
                 return str(node.value)
-            # this is a catch-all for nodes that are not of type Name or Attribute
+            # this is a catch-all for nodes that are not of type Name or Const
             # extremely helpful for Call or BinOp
             return node.as_string()  # type: ignore[no-any-return]
 
@@ -914,12 +943,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # is of type name or attribute. Attribute referring to NamedTuple.x perse.
         # So we have to check that target is of these types
 
-        if hasattr(target, "name"):
-            target_assignation = target.name
-        elif hasattr(target, "attrname"):
-            target_assignation = target.attrname
-        else:
+        if not (hasattr(target, "name") or hasattr(target, "attrname")):
             return
+
+        target_assignation = get_node_name(target)
 
         if len(node.test.ops) > 1:
             return
@@ -1139,21 +1166,24 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not isinstance(node.value, nodes.Name):
             return
 
-        parent = node.parent.parent
+        loop_node = node.parent.parent
         if (
-            not isinstance(parent, nodes.For)
-            or isinstance(parent, nodes.AsyncFor)
-            or len(parent.body) != 1
+            not isinstance(loop_node, nodes.For)
+            or isinstance(loop_node, nodes.AsyncFor)
+            or len(loop_node.body) != 1
+            # Avoid a false positive if the return value from `yield` is used,
+            # (such as via Assign, AugAssign, etc).
+            or not isinstance(node.parent, nodes.Expr)
         ):
             return
 
-        if parent.target.name != node.value.name:
+        if loop_node.target.name != node.value.name:
             return
 
         if isinstance(node.frame(), nodes.AsyncFunctionDef):
             return
 
-        self.add_message("use-yield-from", node=parent, confidence=HIGH)
+        self.add_message("use-yield-from", node=loop_node, confidence=HIGH)
 
     @staticmethod
     def _has_exit_in_scope(scope: nodes.LocalsDictNodeNG) -> bool:
@@ -1662,7 +1692,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
         inferred = utils.safe_infer(node.func)
         if not inferred or not isinstance(
-            inferred, (nodes.FunctionDef, nodes.ClassDef, bases.UnboundMethod)
+            inferred, (nodes.FunctionDef, nodes.ClassDef, bases.BoundMethod)
         ):
             return
         could_be_used_in_with = (
@@ -1997,12 +2027,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if isinstance(node, nodes.Return):
             return True
         if isinstance(node, nodes.Call):
-            try:
-                funcdef_node = node.func.inferred()[0]
-                if self._is_function_def_never_returning(funcdef_node):
-                    return True
-            except astroid.InferenceError:
-                pass
+            return any(
+                (
+                    isinstance(maybe_func, (nodes.FunctionDef, bases.BoundMethod))
+                    and self._is_function_def_never_returning(maybe_func)
+                )
+                for maybe_func in utils.infer_all(node.func)
+            )
         if isinstance(node, nodes.While):
             # A while-loop is considered return-ended if it has a
             # truthy test and no break statements
@@ -2054,17 +2085,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the function never returns, False otherwise.
         """
-        if isinstance(node, (nodes.FunctionDef, astroid.BoundMethod)) and node.returns:
-            return (
-                isinstance(node.returns, nodes.Attribute)
-                and node.returns.attrname == "NoReturn"
-                or isinstance(node.returns, nodes.Name)
-                and node.returns.name == "NoReturn"
-            )
         try:
-            return node.qname() in self._never_returning_functions
+            if node.qname() in self._never_returning_functions:
+                return True
         except (TypeError, AttributeError):
-            return False
+            pass
+
+        try:
+            returns: nodes.NodeNG | None = node.returns
+        except AttributeError:
+            return False  # the BoundMethod proxy may be a lambda without a returns
+
+        return (
+            isinstance(returns, nodes.Attribute)
+            and returns.attrname in {"NoReturn", "Never"}
+        ) or (isinstance(returns, nodes.Name) and returns.name in {"NoReturn", "Never"})
 
     def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:
         """Check for presence of a *single* return statement at the end of a
@@ -2415,13 +2450,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False, confidence
 
     def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
-        if (
-            isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute))
-            or isinstance(node, nodes.UnaryOp)
+        if isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute)) or (
+            isinstance(node, nodes.UnaryOp)
             and isinstance(node.operand, (nodes.Attribute, nodes.Name))
         ):
             inferred = utils.safe_infer(node)
-            start_val = inferred.value if inferred else None
+            # inferred can be an astroid.base.Instance as in 'enumerate(x, int(y))' or
+            # not correctly inferred (None)
+            start_val = inferred.value if isinstance(inferred, nodes.Const) else None
             return start_val, INFERENCE
         if isinstance(node, nodes.UnaryOp):
             return node.operand.value, HIGH

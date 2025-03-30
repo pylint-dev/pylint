@@ -114,19 +114,19 @@ for idx, val in enumerate(series, start=0):
 for idx, val in enumerate(series, 0):
     print(series[idx])  # [unnecessary-list-index-lookup]
 
-START = 0
-for idx, val in enumerate(series, start=START):
+start = 0
+for idx, val in enumerate(series, start=start):
     print(series[idx])  # [unnecessary-list-index-lookup]
 
-for idx, val in enumerate(series, START):
+for idx, val in enumerate(series, start):
     print(series[idx])  # [unnecessary-list-index-lookup]
 
-START = [1, 2, 3]
-for i, k in enumerate(series, len(START)):
+start = [1, 2, 3]
+for i, k in enumerate(series, len(start)):
     print(series[idx])
 
-def return_start(start):
-    return start
+def return_start(start_val):
+    return start_val
 
 for i, k in enumerate(series, return_start(20)):
     print(series[idx])
@@ -156,3 +156,14 @@ for y, x in enumerate(nums, start=Y_START + 1):
 for idx, val in enumerate(my_list):
     if (val := 42) and my_list[idx] == 'b':
         print(1)
+
+def regression_9078(apples, cant_infer_this):
+    """Regression test for https://github.com/pylint-dev/pylint/issues/9078."""
+    for _, _ in enumerate(apples, int(cant_infer_this)):
+        ...
+
+def random_uninferrable_start(pears):
+    import random # pylint: disable=import-outside-toplevel
+
+    for _, _ in enumerate(pears, random.choice([5, 42])):
+        ...

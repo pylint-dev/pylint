@@ -150,8 +150,12 @@ def _(node: nodes.ClassDef | bases.Instance) -> Iterable[str]:
     return itertools.chain(values, other_values)
 
 
-def _string_distance(seq1: str, seq2: str) -> int:
-    seq2_length = len(seq2)
+def _string_distance(seq1: str, seq2: str, seq1_length: int, seq2_length: int) -> int:
+    if not seq1_length:
+        return seq2_length
+
+    if not seq2_length:
+        return seq1_length
 
     row = [*list(range(1, seq2_length + 1)), 0]
     for seq1_index, seq1_char in enumerate(seq1):
@@ -182,11 +186,20 @@ def _similar_names(
     possible_names: list[tuple[str, int]] = []
     names = _node_names(owner)
 
+    attr_str = attrname or ""
+    attr_len = len(attr_str)
+
     for name in names:
         if name == attrname:
             continue
 
-        distance = _string_distance(attrname or "", name)
+        name_len = len(name)
+
+        min_distance = abs(attr_len - name_len)
+        if min_distance > distance_threshold:
+            continue
+
+        distance = _string_distance(attr_str, name, attr_len, name_len)
         if distance <= distance_threshold:
             possible_names.append((name, distance))
 
@@ -519,10 +532,8 @@ def _emit_no_member(
                 isinstance(inferred, nodes.Const)
                 and inferred.bool_value() is False
                 and (
-                    isinstance(parent, nodes.If)
-                    and node_origin in parent.body
-                    or isinstance(parent, nodes.IfExp)
-                    and node_origin == parent.body
+                    (isinstance(parent, nodes.If) and node_origin in parent.body)
+                    or (isinstance(parent, nodes.IfExp) and node_origin == parent.body)
                 )
             ):
                 return False
@@ -675,10 +686,8 @@ def _no_context_variadic_keywords(node: nodes.Call, scope: nodes.Lambda) -> bool
     variadics = []
 
     if (
-        isinstance(scope, nodes.Lambda)
-        and not isinstance(scope, nodes.FunctionDef)
-        or isinstance(statement, nodes.With)
-    ):
+        isinstance(scope, nodes.Lambda) and not isinstance(scope, nodes.FunctionDef)
+    ) or isinstance(statement, nodes.With):
         variadics = list(node.keywords or []) + node.kwargs
     elif isinstance(statement, (nodes.Return, nodes.Expr, nodes.Assign)) and isinstance(
         statement.value, nodes.Call
@@ -947,7 +956,7 @@ accessed. Python regular expressions are accepted.",
                 "default": 1,
                 "type": "int",
                 "metavar": "<member hint edit distance>",
-                "help": "The minimum edit distance a name should have in order "
+                "help": "The maximum edit distance a name should have in order "
                 "to be considered a similar match for a missing member name.",
             },
         ),
@@ -1228,7 +1237,6 @@ accessed. Python regular expressions are accepted.",
     )
     def visit_assign(self, node: nodes.Assign) -> None:
         """Process assignments in the AST."""
-
         self._check_assignment_from_function_call(node)
         self._check_dundername_is_string(node)
 
@@ -1277,8 +1285,10 @@ accessed. Python regular expressions are accepted.",
         else:
             for ret_node in return_nodes:
                 if not (
-                    isinstance(ret_node.value, nodes.Const)
-                    and ret_node.value.value is None
+                    (
+                        isinstance(ret_node.value, nodes.Const)
+                        and ret_node.value.value is None
+                    )
                     or ret_node.value is None
                 ):
                     break
@@ -1309,7 +1319,6 @@ accessed. Python regular expressions are accepted.",
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
-
         # Check the left-hand side of the assignment is <something>.__name__
         lhs = node.targets[0]
         if not isinstance(lhs, nodes.AssignAttr):
@@ -1421,9 +1430,27 @@ accessed. Python regular expressions are accepted.",
         if calling_parg_names != called_param_names[: len(calling_parg_names)]:
             self.add_message("arguments-out-of-order", node=node, args=())
 
-    def _check_isinstance_args(self, node: nodes.Call) -> None:
-        if len(node.args) != 2:
-            # isinstance called with wrong number of args
+    def _check_isinstance_args(self, node: nodes.Call, callable_name: str) -> None:
+        if len(node.args) > 2:
+            # for when isinstance called with too many args
+            self.add_message(
+                "too-many-function-args",
+                node=node,
+                args=(callable_name,),
+                confidence=HIGH,
+            )
+        elif len(node.args) < 2:
+            # NOTE: Hard-coding the parameters for `isinstance` is fragile,
+            # but as noted elsewhere, built-in functions do not provide
+            # argument info, making this necessary for now.
+            parameters = ("'_obj'", "'__class_or_tuple'")
+            for parameter in parameters[len(node.args) :]:
+                self.add_message(
+                    "no-value-for-parameter",
+                    node=node,
+                    args=(parameter, callable_name),
+                    confidence=HIGH,
+                )
             return
 
         second_arg = node.args[1]
@@ -1439,7 +1466,7 @@ accessed. Python regular expressions are accepted.",
         """Check that called functions/methods are inferred to callable objects,
         and that passed arguments match the parameters in the inferred function.
         """
-        called = safe_infer(node.func)
+        called = safe_infer(node.func, compare_constructors=True)
 
         self._check_not_callable(node, called)
 
@@ -1453,7 +1480,7 @@ accessed. Python regular expressions are accepted.",
         if called.args.args is None:
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
-                self._check_isinstance_args(node)
+                self._check_isinstance_args(node, callable_name)
             # Built-in functions have no argument information.
             return
 
@@ -1556,7 +1583,9 @@ accessed. Python regular expressions are accepted.",
             elif not overload_function:
                 # Too many positional arguments.
                 self.add_message(
-                    "too-many-function-args", node=node, args=(callable_name,)
+                    "too-many-function-args",
+                    node=node,
+                    args=(callable_name,),
                 )
                 break
 
@@ -1844,10 +1873,14 @@ accessed. Python regular expressions are accepted.",
             )
             if not (
                 isinstance(inferred, known_objects)
-                or isinstance(inferred, nodes.Const)
-                and inferred.pytype() in {"builtins.str", "builtins.bytes"}
-                or isinstance(inferred, astroid.bases.Instance)
-                and inferred.pytype() == "builtins.range"
+                or (
+                    isinstance(inferred, nodes.Const)
+                    and inferred.pytype() in {"builtins.str", "builtins.bytes"}
+                )
+                or (
+                    isinstance(inferred, astroid.bases.Instance)
+                    and inferred.pytype() == "builtins.range"
+                )
             ):
                 # Might be an instance that knows how to handle this slice object
                 return
@@ -1926,7 +1959,6 @@ accessed. Python regular expressions are accepted.",
     @only_required_for_messages("invalid-unary-operand-type")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
         """Detect TypeErrors for unary operands."""
-
         for error in node.type_errors():
             # Let the error customize its output.
             self.add_message("invalid-unary-operand-type", args=str(error), node=node)
@@ -2138,6 +2170,7 @@ accessed. Python regular expressions are accepted.",
             msg = "unsupported-delete-operation"
 
         if isinstance(node.value, nodes.SetComp):
+            # pylint: disable-next=possibly-used-before-assignment
             self.add_message(msg, args=node.value.as_string(), node=node.value)
             return
 
@@ -2200,7 +2233,7 @@ accessed. Python regular expressions are accepted.",
         while not isinstance(node_scope, nodes.Module):
             if isinstance(node_scope, nodes.AsyncFunctionDef):
                 return
-            if isinstance(node_scope, nodes.FunctionDef):
+            if isinstance(node_scope, (nodes.FunctionDef, nodes.Lambda)):
                 break
             node_scope = node_scope.parent.scope()
         self.add_message("await-outside-async", node=node)

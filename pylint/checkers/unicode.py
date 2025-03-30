@@ -35,11 +35,11 @@ _StrLike = TypeVar("_StrLike", str, bytes)
 # https://golangexample.com/go-linter-which-checks-for-dangerous-unicode-character-sequences/
 # We use '\u' because it doesn't require a map lookup and is therefore faster
 BIDI_UNICODE = [
-    "\u202A",  # \N{LEFT-TO-RIGHT EMBEDDING}
-    "\u202B",  # \N{RIGHT-TO-LEFT EMBEDDING}
-    "\u202C",  # \N{POP DIRECTIONAL FORMATTING}
-    "\u202D",  # \N{LEFT-TO-RIGHT OVERRIDE}
-    "\u202E",  # \N{RIGHT-TO-LEFT OVERRIDE}
+    "\u202a",  # \N{LEFT-TO-RIGHT EMBEDDING}
+    "\u202b",  # \N{RIGHT-TO-LEFT EMBEDDING}
+    "\u202c",  # \N{POP DIRECTIONAL FORMATTING}
+    "\u202d",  # \N{LEFT-TO-RIGHT OVERRIDE}
+    "\u202e",  # \N{RIGHT-TO-LEFT OVERRIDE}
     "\u2066",  # \N{LEFT-TO-RIGHT ISOLATE}
     "\u2067",  # \N{RIGHT-TO-LEFT ISOLATE}
     "\u2068",  # \N{FIRST STRONG ISOLATE}
@@ -47,7 +47,7 @@ BIDI_UNICODE = [
     # The following was part of PEP 672:
     # https://www.python.org/dev/peps/pep-0672/
     # so the list above might not be complete
-    "\u200F",  # \n{RIGHT-TO-LEFT MARK}
+    "\u200f",  # \n{RIGHT-TO-LEFT MARK}
     # We don't use
     #   "\u200E" # \n{LEFT-TO-RIGHT MARK}
     # as this is the default for latin files and can't be used
@@ -100,7 +100,7 @@ BAD_CHARS = [
     ),
     _BadChar(
         "sub",
-        "\x1A",
+        "\x1a",
         "\\x1A",
         "E2512",
         (
@@ -110,7 +110,7 @@ BAD_CHARS = [
     ),
     _BadChar(
         "esc",
-        "\x1B",
+        "\x1b",
         "\\x1B",
         "E2513",
         (
@@ -129,7 +129,7 @@ BAD_CHARS = [
         # Zero Width with Space. At the time of writing not accepted by Python.
         # But used in Trojan Source Examples, so still included and tested for.
         "zero-width-space",
-        "\u200B",  # \n{ZERO WIDTH SPACE}
+        "\u200b",  # \n{ZERO WIDTH SPACE}
         "\\u200B",
         "E2515",
         "Invisible space character could hide real code execution.",
@@ -165,7 +165,6 @@ def _map_positions_to_result(
     Also takes care of encodings for which the length of an encoded code point does not
     default to 8 Bit.
     """
-
     result: dict[int, _BadChar] = {}
 
     for search_for, char in search_dict.items():
@@ -248,7 +247,7 @@ def _cached_encode_search(string: str, encoding: str) -> bytes:
 
 
 def _fix_utf16_32_line_stream(steam: Iterable[bytes], codec: str) -> Iterable[bytes]:
-    """Handle line ending for UTF16 and UTF32 correctly.
+    r"""Handle line ending for UTF16 and UTF32 correctly.
 
     Currently, Python simply strips the required zeros after \n after the
     line ending. Leading to lines that can't be decoded properly
@@ -375,7 +374,7 @@ class UnicodeChecker(checkers.BaseRawFileChecker):
 
     @staticmethod
     def _is_invalid_codec(codec: str) -> bool:
-        return codec.startswith("utf-16") or codec.startswith("utf-32")
+        return codec.startswith(("utf-16", "utf-32"))
 
     @staticmethod
     def _is_unicode(codec: str) -> bool:

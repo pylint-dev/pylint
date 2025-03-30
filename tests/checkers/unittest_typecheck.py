@@ -221,3 +221,47 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
             )
         ):
             self.checker.visit_subscript(subscript)
+
+
+class TestTypeCheckerStringDistance:
+    """Tests for the _string_distance helper in pylint.checkers.typecheck."""
+
+    def test_string_distance_identical_strings(self) -> None:
+        seq1 = "hi"
+        seq2 = "hi"
+        assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 0
+
+        seq1, seq2 = seq2, seq1
+        assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 0
+
+    def test_string_distance_empty_string(self) -> None:
+        seq1 = ""
+        seq2 = "hi"
+        assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 2
+
+        seq1, seq2 = seq2, seq1
+        assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 2
+
+    def test_string_distance_edit_distance_one_character(self) -> None:
+        seq1 = "hi"
+        seq2 = "he"
+        assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 1
+
+        seq1, seq2 = seq2, seq1
+        assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 1
+
+    def test_string_distance_edit_distance_multiple_similar_characters(self) -> None:
+        seq1 = "hello"
+        seq2 = "yelps"
+        assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 3
+
+        seq1, seq2 = seq2, seq1
+        assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 3
+
+    def test_string_distance_edit_distance_all_dissimilar_characters(self) -> None:
+        seq1 = "yellow"
+        seq2 = "orange"
+        assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 6
+
+        seq1, seq2 = seq2, seq1
+        assert typecheck._string_distance(seq1, seq2, len(seq1), len(seq2)) == 6

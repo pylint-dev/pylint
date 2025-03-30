@@ -6,11 +6,11 @@ from __future__ import annotations
 
 __all__ = [
     "__version__",
-    "version",
     "modify_sys_path",
     "run_pylint",
-    "run_symilar",
     "run_pyreverse",
+    "run_symilar",
+    "version",
 ]
 
 import os
@@ -53,7 +53,7 @@ def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:
     """
     from pylint.pyreverse.main import Run as PyreverseRun
 
-    PyreverseRun(argv or sys.argv[1:])
+    sys.exit(PyreverseRun(argv or sys.argv[1:]).run())
 
 
 def run_symilar(argv: Sequence[str] | None = None) -> NoReturn:
@@ -61,9 +61,9 @@ def run_symilar(argv: Sequence[str] | None = None) -> NoReturn:
 
     argv can be a sequence of strings normally supplied as arguments on the command line
     """
-    from pylint.checkers.similar import Run as SimilarRun
+    from pylint.checkers.symilar import Run as SymilarRun
 
-    SimilarRun(argv or sys.argv[1:])
+    SymilarRun(argv or sys.argv[1:])
 
 
 def modify_sys_path() -> None:

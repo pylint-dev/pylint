@@ -1,5 +1,5 @@
 """Tests for unexpected-keyword-arg"""
-# pylint: disable=undefined-variable, too-few-public-methods, missing-function-docstring, missing-class-docstring
+# pylint: disable=undefined-variable, too-few-public-methods, missing-function-docstring, missing-class-docstring, invalid-name
 
 
 def non_param_decorator(func):
@@ -163,3 +163,35 @@ func4()
 # Two functions with same keyword argument but mixed defaults (names, constant)
 func5 = ambiguous_func3 if unknown else ambiguous_func5
 func5()
+
+
+# pylint: disable=unused-argument
+if do_something():
+    class AmbiguousClass:
+        def __init__(self, feeling="fine"):
+            ...
+else:
+    class AmbiguousClass:
+        def __init__(self, feeling="fine", thinking="hard"):
+            ...
+
+
+AmbiguousClass(feeling="so-so")
+AmbiguousClass(thinking="carefully")
+AmbiguousClass(worrying="little")  # we could raise here if we infer_all()
+
+
+if do_something():
+    class NotAmbiguousClass:
+        def __init__(self, feeling="fine"):
+            ...
+else:
+    class NotAmbiguousClass:
+        def __init__(self, feeling="fine"):
+            ...
+
+
+NotAmbiguousClass(feeling="so-so")
+NotAmbiguousClass(worrying="little")  # [unexpected-keyword-arg]
+
+# pylint: enable=unused-argument

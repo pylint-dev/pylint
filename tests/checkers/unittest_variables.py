@@ -22,7 +22,7 @@ class TestVariablesChecker(CheckerTestCase):
 
     def test_all_elements_without_parent(self) -> None:
         node = astroid.extract_node("__all__ = []")
-        node.value.elts.append(astroid.Const("test"))
+        node.value.elts.append(astroid.Const("test", parent=None))
         root = node.root()
         with self.assertNoMessages():
             self.checker.visit_module(root)
@@ -164,7 +164,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
     def test_nested_lambda(self) -> None:
         """Make sure variables from parent lambdas
-        aren't noted as undefined
+        aren't noted as undefined.
 
         https://github.com/pylint-dev/pylint/issues/760
         """
@@ -179,7 +179,7 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
     @set_config(ignored_argument_names=re.compile("arg"))
     def test_ignored_argument_names_no_message(self) -> None:
         """Make sure is_ignored_argument_names properly ignores
-        function arguments
+        function arguments.
         """
         node = astroid.parse(
             """

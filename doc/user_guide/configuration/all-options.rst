@@ -120,7 +120,7 @@ Standard Checkers
 
 --ignored-modules
 """""""""""""""""
-*List of module names for which member attributes should not be checked (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis). It supports qualified module names, as well as Unix pattern matching.*
+*List of module names for which member attributes should not be checked and will not be imported (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis). It supports qualified module names, as well as Unix pattern matching.*
 
 **Default:**  ``()``
 
@@ -155,7 +155,7 @@ Standard Checkers
 
 --output-format
 """""""""""""""
-*Set the output format. Available formats are: text, parseable, colorized, json2 (improved json format), json (old json format) and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
+*Set the output format. Available formats are: 'text', 'parseable', 'colorized', 'json2' (improved json format), 'json' (old json format), msvs (visual studio) and 'github' (GitHub actions). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
 
 **Default:**  ``text``
 
@@ -165,6 +165,13 @@ Standard Checkers
 *Pickle collected data for later comparisons.*
 
 **Default:**  ``True``
+
+
+--prefer-stubs
+""""""""""""""
+*Resolve imports to .pyi stubs if available. May reduce no-member messages and increase not-an-iterable messages.*
+
+**Default:**  ``False``
 
 
 --py-version
@@ -270,6 +277,8 @@ Standard Checkers
    # output-format =
 
    persistent = true
+
+   prefer-stubs = false
 
    py-version = "sys.version_info[:2]"
 
@@ -756,6 +765,13 @@ Standard Checkers
 **Default:**  ``7``
 
 
+--max-positional-arguments
+""""""""""""""""""""""""""
+*Maximum number of positional arguments for function / method.*
+
+**Default:**  ``5``
+
+
 --max-public-methods
 """"""""""""""""""""
 *Maximum number of public methods for a class (see R0904).*
@@ -812,6 +828,8 @@ Standard Checkers
    max-locals = 15
 
    max-parents = 7
+
+   max-positional-arguments = 5
 
    max-public-methods = 20
 
@@ -1142,6 +1160,13 @@ Standard Checkers
 
 ``Miscellaneous`` **Checker**
 -----------------------------
+--check-fixme-in-docstring
+""""""""""""""""""""""""""
+*Whether or not to search for fixme's in docstrings.*
+
+**Default:**  ``False``
+
+
 --notes
 """""""
 *List of note tags to take in consideration, separated by a comma.*
@@ -1167,6 +1192,8 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.miscellaneous]
+   check-fixme-in-docstring = false
+
    notes = ["FIXME", "XXX", "TODO"]
 
    notes-rgx = ""

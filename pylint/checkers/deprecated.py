@@ -133,10 +133,12 @@ class DeprecatedMixin(BaseChecker):
         if not children:
             return
         if isinstance(children[0], nodes.Call):
-            inf = safe_infer(children[0].func)
+            inferred = safe_infer(children[0].func)
         else:
-            inf = safe_infer(children[0])
-        qname = inf.qname() if inf else None
+            inferred = safe_infer(children[0])
+        if not inferred:
+            return
+        qname = inferred.qname()
         if qname in self.deprecated_decorators():
             self.add_message("deprecated-decorator", node=node, args=qname)
 
@@ -228,7 +230,9 @@ class DeprecatedMixin(BaseChecker):
     def check_deprecated_module(self, node: nodes.Import, mod_path: str | None) -> None:
         """Checks if the module is deprecated."""
         for mod_name in self.deprecated_modules():
-            if mod_path == mod_name or mod_path and mod_path.startswith(mod_name + "."):
+            if mod_path == mod_name or (
+                mod_path and mod_path.startswith(mod_name + ".")
+            ):
                 self.add_message("deprecated-module", node=node, args=mod_path)
 
     def check_deprecated_method(self, node: nodes.Call, inferred: nodes.NodeNG) -> None:
@@ -236,7 +240,6 @@ class DeprecatedMixin(BaseChecker):
 
         This method should be called from the checker implementing this mixin.
         """
-
         # Reject nodes which aren't of interest to us.
         if not isinstance(inferred, ACCEPTABLE_NODES):
             return
@@ -272,7 +275,6 @@ class DeprecatedMixin(BaseChecker):
         self, node: nodes.NodeNG, mod_name: str, class_names: Iterable[str]
     ) -> None:
         """Checks if the class is deprecated."""
-
         for class_name in class_names:
             if class_name in self.deprecated_classes(mod_name):
                 self.add_message(
@@ -281,7 +283,6 @@ class DeprecatedMixin(BaseChecker):
 
     def check_deprecated_class_in_call(self, node: nodes.Call) -> None:
         """Checks if call the deprecated class."""
-
         if isinstance(node.func, nodes.Attribute) and isinstance(
             node.func.expr, nodes.Name
         ):

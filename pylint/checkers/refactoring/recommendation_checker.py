@@ -90,9 +90,8 @@ class RecommendationChecker(checkers.BaseChecker):
             return
 
         comp_ancestor = utils.get_node_first_ancestor_of_type(node, nodes.Compare)
-        if (
-            isinstance(node.parent, (nodes.For, nodes.Comprehension))
-            or comp_ancestor
+        if isinstance(node.parent, (nodes.For, nodes.Comprehension)) or (
+            comp_ancestor
             and any(
                 op
                 for op, comparator in comp_ancestor.ops
@@ -113,7 +112,6 @@ class RecommendationChecker(checkers.BaseChecker):
         """Add message when accessing first or last elements of a str.split() or
         str.rsplit().
         """
-
         # Check if call is split() or rsplit()
         if not (
             isinstance(node.func, nodes.Attribute)
@@ -258,10 +256,14 @@ class RecommendationChecker(checkers.BaseChecker):
                     # name for the iterating object was used.
                     continue
                 if value.name == node.target.name and (
-                    isinstance(subscript.value, nodes.Name)
-                    and iterating_object.name == subscript.value.name
-                    or isinstance(subscript.value, nodes.Attribute)
-                    and iterating_object.attrname == subscript.value.attrname
+                    (
+                        isinstance(subscript.value, nodes.Name)
+                        and iterating_object.name == subscript.value.name
+                    )
+                    or (
+                        isinstance(subscript.value, nodes.Attribute)
+                        and iterating_object.attrname == subscript.value.attrname
+                    )
                 ):
                     self.add_message("consider-using-enumerate", node=node)
                     return
@@ -302,11 +304,16 @@ class RecommendationChecker(checkers.BaseChecker):
                 if (
                     isinstance(subscript.parent, nodes.Assign)
                     and subscript in subscript.parent.targets
-                    or isinstance(subscript.parent, nodes.AugAssign)
+                ) or (
+                    isinstance(subscript.parent, nodes.AugAssign)
                     and subscript == subscript.parent.target
                 ):
                     # Ignore this subscript if it is the target of an assignment
                     # Early termination as dict index lookup is necessary
+                    return
+                if isinstance(subscript.parent, nodes.Delete):
+                    # Ignore this subscript if the index is used to delete a
+                    # dictionary item.
                     return
 
                 self.add_message("consider-using-dict-items", node=node)
@@ -379,6 +386,14 @@ class RecommendationChecker(checkers.BaseChecker):
             if not isinstance(node.parent.parent, nodes.Call):
                 return
 
+            # Don't raise message on bad format string
+            try:
+                keyword_args = [
+                    i[0] for i in utils.parse_format_method_string(node.value)[0]
+                ]
+            except utils.IncompleteFormatString:
+                return
+
             if node.parent.parent.args:
                 for arg in node.parent.parent.args:
                     # If star expressions with more than 1 element are being used
@@ -394,9 +409,6 @@ class RecommendationChecker(checkers.BaseChecker):
                         return
 
             elif node.parent.parent.keywords:
-                keyword_args = [
-                    i[0] for i in utils.parse_format_method_string(node.value)[0]
-                ]
                 for keyword in node.parent.parent.keywords:
                     # If keyword is used multiple times
                     if keyword_args.count(keyword.arg) > 1:
@@ -405,9 +417,12 @@ class RecommendationChecker(checkers.BaseChecker):
                     keyword = utils.safe_infer(keyword.value)
 
                     # If lists of more than one element are being unpacked
-                    if isinstance(keyword, nodes.Dict):
-                        if len(keyword.items) > 1 and len(keyword_args) > 1:
-                            return
+                    if (
+                        isinstance(keyword, nodes.Dict)
+                        and len(keyword.items) > 1
+                        and len(keyword_args) > 1
+                    ):
+                        return
 
             # If all tests pass, then raise message
             self.add_message(
@@ -435,12 +450,10 @@ class RecommendationChecker(checkers.BaseChecker):
             inferred_right = utils.safe_infer(node.parent.right)
 
             # If dicts or lists of length > 1 are used
-            if isinstance(inferred_right, nodes.Dict):
-                if len(inferred_right.items) > 1:
-                    return
-            elif isinstance(inferred_right, nodes.List):
-                if len(inferred_right.elts) > 1:
-                    return
+            if isinstance(inferred_right, nodes.Dict) and len(inferred_right.items) > 1:
+                return
+            if isinstance(inferred_right, nodes.List) and len(inferred_right.elts) > 1:
+                return
 
             # If all tests pass, then raise message
             self.add_message(
