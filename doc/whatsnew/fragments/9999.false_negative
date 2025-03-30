@@ -1,0 +1,5 @@
+We now raise a ``logging-too-few-args`` for format string with no
+interpolation arguments at all (i.e. for something like ``logging.debug("Awaiting process %s")``
+or ``logging.debug("Awaiting process {pid}")``). Previously we did not raise for such case.
+
+Closes #9999
