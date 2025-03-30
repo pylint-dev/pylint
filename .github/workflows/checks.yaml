@@ -180,11 +180,10 @@ jobs:
       - name: Check documentation build and links
         run: |
           . venv/bin/activate
-          cd doc
-          pre-commit run --hook-stage push sphinx-generated-doc --all-files || {
+          tox -e docs || {
             echo "git diff:" ; \
             git diff ; \
             echo "End of 'git diff'" ; \
-            echo "Make sure that 'make html' succeed without any modifications locally." ; \
+            echo "Make sure that 'tox -e docs' succeed without any modifications locally." ; \
             exit 1; \
           }
