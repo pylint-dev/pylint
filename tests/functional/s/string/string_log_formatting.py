@@ -22,7 +22,7 @@ def pprint():
     logging.info(1)
     logging.info(True)
     logging.info('')
-    logging.info('%s%')
+    logging.info('%s%')  # [logging-format-truncated]
     logging.info('%s', '')
     logging.info('%s%%', '')
     logging.info('%s%s', '', '')
