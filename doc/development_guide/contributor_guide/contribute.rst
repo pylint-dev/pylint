@@ -125,14 +125,12 @@ Tips for Getting Started with Pylint Development
 Building the documentation
 ----------------------------
 
-You can use the makefile in the doc directory with ``make html`` to build the
-documentation. To test smaller changes you can consider ``build-html``, which skips some checks but will be faster::
+You can use the makefile in the doc directory to build the documentation::
 
-  $ cd doc
-  $ make install-dependencies
-  $ make html
+  $ make -C doc/ install-dependencies
+  $ make -C doc/ html
 
-We're reusing generated files for speed, use ``make clean`` when you want to start from scratch.
+We're reusing generated files for speed, use ``make clean`` or ``tox -e docs`` when you want to start from scratch.
 
 How to choose the target version ?
 ----------------------------------
