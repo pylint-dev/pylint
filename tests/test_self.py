@@ -1536,6 +1536,7 @@ class TestCallbackOptions:
                 [join(HERE, "regrtest_data", "empty.py"), f"--rcfile={filename}"],
                 exit=False,
             )
+            assert not runner.linter.reporter.messages
             assert not runner.linter.msg_status
         os.remove(filename)
 
