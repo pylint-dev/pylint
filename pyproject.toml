@@ -51,6 +51,28 @@ dependencies = [
   "tomlkit>=0.10.1",
   "typing-extensions>=3.10; python_version<'3.10'",
 ]
+optional-dependencies.dev = [
+  # A combination of requirements_test.txt and requirements_test_min.txt
+  "astroid==4.0.0a0",      # Pinned to a specific version for tests
+  "contributors-txt>=1",
+  "coverage~=7.7",
+  "py~=1.11.0",
+  "pytest~=8.3",
+  "pytest-benchmark~=5.1",
+  "pytest-cov~=6.0",
+  "pytest-timeout~=2.3",
+  "pytest-xdist~=3.6",
+  "requests",
+  # Voluntary for test purpose, not actually used in prod, see #8904
+  "setuptools; python_version>='3.12'",
+  "six",
+  "tbump~=6.11.0",
+  "towncrier~=24.8",
+  "tox>=3",
+  # Type packages for mypy
+  "types-setuptools==76.0.0.20250313",
+  "typing-extensions~=4.12",
+]
 optional-dependencies.spelling = [ "pyenchant~=3.2" ]
 optional-dependencies.testutils = [ "gitpython>3" ]
 urls."Bug Tracker" = "https://github.com/pylint-dev/pylint/issues"

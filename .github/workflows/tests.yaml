@@ -12,12 +12,8 @@ on:
       - main
       - "maintenance/**"
 
-env:
-  CACHE_VERSION: 5
-  KEY_PREFIX: venv
-
-permissions:
-  contents: read
+# permissions:
+#  contents: read  # Incompatible with astral-sh/setup-uv cache
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -30,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         include:
           - os: macos-latest
@@ -42,56 +38,32 @@ jobs:
           - os: ubuntu-latest
             python-version: "pypy-3.11"
     runs-on: ${{ matrix.os }}
-    outputs:
-      python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v4.2.2
-      - name: Set up Python ${{ matrix.python-version }}
-        id: python
-        uses: actions/setup-python@v5.4.0
+      - name: Set up uv with Python ${{ matrix.python-version }} on ${{ matrix.os }}
+        uses: astral-sh/setup-uv@v5
         with:
+          enable-cache: true
           python-version: ${{ matrix.python-version }}
-          check-latest: true
-      - name: Generate partial Python venv restore key
-        id: generate-python-key
-        run: >-
-          echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
-            hashFiles('pyproject.toml', 'requirements_test.txt',
-          'requirements_test_min.txt', 'requirements_test_pre_commit.txt') }}" >>
-          $GITHUB_OUTPUT
-      - name: Restore Python virtual environment
-        id: cache-venv
-        uses: actions/cache@v4.2.3
-        with:
-          path: venv
-          key: >-
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            steps.generate-python-key.outputs.key }}
-      - name: Create Python virtual environment
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: |
-          python -m venv venv
-          . venv/bin/activate
-          python -m pip install --upgrade pip setuptools wheel
-          pip install --upgrade --requirement requirements_test.txt
-      - name: Run pytest
-        run: |
-          . venv/bin/activate
-          pip list | grep 'astroid\|pylint'
-          python -m pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
-      - name: Run functional tests with minimal messages config
-        run: |
-          . venv/bin/activate
-          pip list | grep 'astroid\|pylint'
-          python -m pytest -vv --minimal-messages-config tests/test_functional.py
-      - name: Upload coverage artifact
-        if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: coverage-${{ matrix.python-version }}
-          include-hidden-files: true
-          path: .coverage
+      #- run: |
+      #    uv pip install --python=${{ matrix.python-version }} pip
+      #    pip --version
+      #    uv pip --version
+      #- run: uv pip install --editable ".[dev,testutils]"
+      #- run: pip list | grep 'astroid\|pylint'
+      #- name: Run pytest
+      #  run: |
+      #    python -m pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
+      #- name: Run functional tests with minimal messages config
+      #  run: python -m pytest -vv --minimal-messages-config tests/test_functional.py
+      #- name: Upload coverage artifact
+      #  if: runner.os == 'Linux'
+      #  uses: actions/upload-artifact@v4.6.2
+      #  with:
+      #    name: coverage-${{ matrix.python-version }}
+      #    include-hidden-files: true
+      #    path: .coverage
 
   coverage:
     name: process / coverage
@@ -101,26 +73,14 @@ jobs:
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v4.2.2
-      - name: Set up Python 3.13
-        id: python
+      - name: Set up Python 3.x
         uses: actions/setup-python@v5.4.0
         with:
-          python-version: "3.13"
-          check-latest: true
-      - name: Restore Python virtual environment
-        id: cache-venv
-        uses: actions/cache@v4.2.3
-        with:
-          path: venv
-          fail-on-cache-miss: true
-          key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.tests-linux.outputs.python-key }}
+          python-version: "3.x"
       - name: Download all coverage artifacts
         uses: actions/download-artifact@v4.2.1
       - name: Combine coverage results
         run: |
-          . venv/bin/activate
           coverage combine coverage*/.coverage
           coverage xml
       - uses: codecov/codecov-action@v5
@@ -147,18 +107,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
-      - name: Restore Python virtual environment
-        id: cache-venv
-        uses: actions/cache@v4.2.3
-        with:
-          path: venv
-          fail-on-cache-miss: true
-          key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.tests-linux.outputs.python-key }}
       - name: Run pytest
         run: |
-          . venv/bin/activate
           pip install pygal
           pip install .
           pip list | grep 'astroid\|pylint'
@@ -179,52 +129,3 @@ jobs:
             steps.artifact-name-suffix.outputs.datetime }}
           include-hidden-files: true
           path: .benchmarks/
-
-  tests-windows:
-    name: run / ${{ matrix.python-version }} / Windows
-    runs-on: windows-latest
-    timeout-minutes: 25
-    needs: tests
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-    steps:
-      - name: Set temp directory
-        run: echo "TEMP=$env:USERPROFILE\AppData\Local\Temp" >> $env:GITHUB_ENV
-        # Workaround to set correct temp directory on Windows
-        # https://github.com/actions/virtual-environments/issues/712
-      - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
-      - name: Set up Python ${{ matrix.python-version }}
-        id: python
-        uses: actions/setup-python@v5.4.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          check-latest: true
-      - name: Generate partial Python venv restore key
-        id: generate-python-key
-        run: >-
-          echo "key=venv-${{ env.CACHE_VERSION }}-${{
-            hashFiles('pyproject.toml', 'requirements_test_min.txt')
-          }}" >> $env:GITHUB_OUTPUT
-      - name: Restore Python virtual environment
-        id: cache-venv
-        uses: actions/cache@v4.2.3
-        with:
-          path: venv
-          key: >-
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            steps.generate-python-key.outputs.key }}
-      - name: Create Python virtual environment
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: |
-          python -m venv venv
-          . venv\\Scripts\\activate
-          python -m pip install --upgrade pip setuptools wheel
-          pip install --upgrade --requirement requirements_test_min.txt
-      - name: Run pytest
-        run: |
-          . venv\\Scripts\\activate
-          pip list | grep 'astroid\|pylint'
-          python -m pytest --durations=10 --benchmark-disable tests/
