@@ -9,11 +9,17 @@ classDiagram
     lazy_components : generator[Component]
   }
   class MultiContainer {
-    mixed : list[Component, Container]
+    mixed_list : list[Component, Container]
+    mixed_dict : dict[Component, Container]
+    mixed_set : set[Component, Container]
   }
   Component --o Container : components
   Component --o Container : component_dict
   Component --o Container : components_set
   Component --o Container : lazy_components
-  Component --o MultiContainer : mixed
-  Container --o MultiContainer : mixed
+  Component --o MultiContainer : mixed_list
+  Component --o MultiContainer : mixed_dict
+  Component --o MultiContainer : mixed_set
+  Container --o MultiContainer : mixed_list
+  Container --o MultiContainer : mixed_dict
+  Container --o MultiContainer : mixed_set
