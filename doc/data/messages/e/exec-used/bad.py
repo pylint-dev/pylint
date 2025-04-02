@@ -1,5 +1,4 @@
-def get_user_code(name):
-    return input(f"Enter code to be executed please, {name}: ")
-
-
-exec(get_user_code("Ada"))  # [exec-used]
+username = "Ada"
+code_to_execute = f"""input('Enter code to be executed please, {username}: ')"""
+program = exec(code_to_execute)  # [exec-used]
+exec(program)  # [exec-used]
