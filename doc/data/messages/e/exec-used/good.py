@@ -3,7 +3,7 @@ def get_user_code(name):
 
 
 # If the globals dictionary does not contain a value for the key __builtins__,
-# all builtins are allowed. Uou need to be explicit about it being disallowed.
+# all builtins are allowed. You need to be explicit about it being disallowed.
 allowed_globals = {"__builtins__": {}}
 allowed_locals = {}
 # pylint: disable-next=exec-used
