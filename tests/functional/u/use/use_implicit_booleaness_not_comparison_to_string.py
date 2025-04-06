@@ -34,7 +34,7 @@ if X == Y == X == Y == "":
 def test_in_boolean_context():
     """
     Cases where a comparison like `x != ""` is used in a boolean context.
-    
+
     It is safe and idiomatic to simplify `x != ""` to just `x`.
     """
     # pylint: disable=pointless-statement,superfluous-parens,unnecessary-negation
