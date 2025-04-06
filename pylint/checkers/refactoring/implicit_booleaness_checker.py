@@ -348,7 +348,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         A comparison is considered to be in a boolean context when it appears in constructs
         that evaluate its truthiness directly, such as:
         - control flow statements (`if`, `while`, `assert`)
-        - ternary expressions (`x if cond else y`)
+        - ternary expressions (`x if condition else y`)
         - logical negation (`not`)
         - comprehension filters (e.g. `[x for x in items if cond]`)
         - generator expressions passed to `all()` or `any()`
