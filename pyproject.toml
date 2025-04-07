@@ -1,3 +1,8 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+
+requires = [ "setuptools>=77" ]
+
 [project]
 name = "pylint"
 description = "python code static checker"
@@ -30,19 +35,6 @@ classifiers = [
 ]
 dynamic = [ "version" ]
 
-# Metadata
-urls."Bug Tracker" = "https://github.com/pylint-dev/pylint/issues"
-urls."Discord Server" = "https://discord.com/invite/Egy6P8AMB5"
-urls."Docs: Contributor Guide" = "https://pylint.readthedocs.io/en/latest/development_guide/contributor_guide/index.html"
-urls."Docs: User Guide" = "https://pylint.readthedocs.io/en/latest/"
-urls."homepage" = "https://github.com/pylint-dev/pylint"
-urls."Source Code" = "https://github.com/pylint-dev/pylint"
-urls."What's New" = "https://pylint.readthedocs.io/en/latest/whatsnew/3/"
-scripts.pylint = "pylint:run_pylint"
-scripts.pylint-config = "pylint:_run_pylint_config"
-scripts.pyreverse = "pylint:run_pyreverse"
-scripts.symilar = "pylint:run_symilar"
-
 # All the dependencies of the project are configured here
 dependencies = [
   # Also upgrade requirements_test_min.txt.
@@ -62,63 +54,70 @@ dependencies = [
 ]
 
 # Extras are optional dependencies that can be installed with the package
-[project.optional-dependencies]
-spelling = [ "pyenchant~=3.2" ]
-testutils = [ "gitpython>3" ]
-
+optional-dependencies.spelling = [ "pyenchant~=3.2" ]
 # Dependency groups store development dependecies that are not distributed with the package
+# Metadata
+urls."Bug Tracker" = "https://github.com/pylint-dev/pylint/issues"
+urls."Discord Server" = "https://discord.com/invite/Egy6P8AMB5"
+urls."Docs: Contributor Guide" = "https://pylint.readthedocs.io/en/latest/development_guide/contributor_guide/index.html"
+urls."Docs: User Guide" = "https://pylint.readthedocs.io/en/latest/"
+urls."homepage" = "https://github.com/pylint-dev/pylint"
+urls."Source Code" = "https://github.com/pylint-dev/pylint"
+urls."What's New" = "https://pylint.readthedocs.io/en/latest/whatsnew/3/"
+scripts.pylint = "pylint:run_pylint"
+scripts.pylint-config = "pylint:_run_pylint_config"
+scripts.pyreverse = "pylint:run_pyreverse"
+scripts.symilar = "pylint:run_symilar"
+
+optional-dependencies.testutils = [ "gitpython>3" ]
+
 [dependency-groups]
-test-min = [
-    # Base test dependencies
-    "astroid==4.0.0-a0",  # Pinned to a specific version for tests
-    "typing-extensions~=4.12",
-    "py~=1.11.0",
-    "pytest~=8.3",
-    "pytest-benchmark~=5.1",
-    "pytest-timeout~=2.3",
-    "towncrier~=24.8",
-    "requests",
-    "setuptools;python_version>='3.12'",
-    # From extras
-    "pyenchant~=3.2",
-    "gitpython>3",
+dev = [
+  "bandit",
+  "black",
+  "flake8",
+  "flake8-typing-imports",
+  "isort",
+  "mypy",
+  "pre-commit",
+  "ruff",
 ]
 
 test = [
-    {include-group="test-min"},  # Include test-min dependencies
-    "coverage~=7.8",
-    "tbump~=6.11.0",
-    "contributors-txt>=1.0.0",
-    "pytest-cov~=6.0",
-    "pytest-xdist~=3.6",
-    "six",
-    "types-setuptools==78.1.0.20250329",
-    "tox>=3",
-]
-
-dev = [
-    "pre-commit",
-    "bandit",
-    "black",
-    "flake8",
-    "ruff",
-    "flake8-typing-imports",
-    "isort",
-    "mypy",
-]
-
-docs = [
-    "Sphinx==8.2.3",
-    "sphinx-reredirects<1",
-    "towncrier~=24.8",
-    "furo==2024.8.6",
+  "contributors-txt>=1",
+  "coverage~=7.8",
+  "pytest-cov~=6.0",
+  "pytest-xdist~=3.6",
+  "six",
+  "tbump~=6.11.0",
+  "tox>=3",
+  "types-setuptools==78.1.0.20250329",
+  { include-group = "test-min" },      # Include test-min dependencies
 ]
 
 # Configuration for the build system
-[build-system]
-build-backend = "setuptools.build_meta"
+test-min = [
+  # Base test dependencies
+  "astroid==4.0.0a0", # Pinned to a specific version for tests
+  "gitpython>3",
+  "py~=1.11.0",
+  # From extras
+  "pyenchant~=3.2",
+  "pytest~=8.3",
+  "pytest-benchmark~=5.1",
+  "pytest-timeout~=2.3",
+  "requests",
+  "setuptools; python_version>='3.12'",
+  "towncrier~=24.8",
+  "typing-extensions~=4.12",
+]
 
-requires = [ "setuptools>=77" ]
+docs = [
+  "furo==2024.8.6",
+  "sphinx==8.2.3",
+  "sphinx-reredirects<1",
+  "towncrier~=24.8",
+]
 
 [tool.setuptools.packages.find]
 include = [ "pylint*" ]
