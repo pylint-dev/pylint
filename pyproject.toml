@@ -60,14 +60,7 @@ optional-dependencies.testutils = [ "gitpython>3" ]
 [dependency-groups]
 # Dependency groups store dependencies that should not be distributed with the package
 dev = [
-  "bandit",
-  "black",
-  "flake8",
-  "flake8-typing-imports",
-  "isort",
-  "mypy",
   "pre-commit",
-  "ruff",
 ]
 
 test = [
