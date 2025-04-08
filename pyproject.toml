@@ -54,12 +54,10 @@ dependencies = [
   "typing-extensions>=3.10; python_version<'3.10'",
 ]
 
-# Extras are optional dependencies that can be installed with the package
 optional-dependencies.spelling = [ "pyenchant~=3.2" ]
 optional-dependencies.testutils = [ "gitpython>3" ]
 
 [dependency-groups]
-# Dependency groups store dependencies that should not be distributed with the package
 dev = [
   "contributors-txt>=1",
   "pre-commit",
@@ -73,7 +71,7 @@ test = [
   "six",
   "tox>=3",
   "types-setuptools==78.1.0.20250329",
-  { include-group = "test-min" },      # Include test-min dependencies
+  { include-group = "test-min" },
 ]
 
 docs = [
