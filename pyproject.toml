@@ -55,23 +55,10 @@ dependencies = [
 
 # Extras are optional dependencies that can be installed with the package
 optional-dependencies.spelling = [ "pyenchant~=3.2" ]
-# Dependency groups store development dependecies that are not distributed with the package
-# Metadata
-urls."Bug Tracker" = "https://github.com/pylint-dev/pylint/issues"
-urls."Discord Server" = "https://discord.com/invite/Egy6P8AMB5"
-urls."Docs: Contributor Guide" = "https://pylint.readthedocs.io/en/latest/development_guide/contributor_guide/index.html"
-urls."Docs: User Guide" = "https://pylint.readthedocs.io/en/latest/"
-urls."homepage" = "https://github.com/pylint-dev/pylint"
-urls."Source Code" = "https://github.com/pylint-dev/pylint"
-urls."What's New" = "https://pylint.readthedocs.io/en/latest/whatsnew/3/"
-scripts.pylint = "pylint:run_pylint"
-scripts.pylint-config = "pylint:_run_pylint_config"
-scripts.pyreverse = "pylint:run_pyreverse"
-scripts.symilar = "pylint:run_symilar"
-
 optional-dependencies.testutils = [ "gitpython>3" ]
 
 [dependency-groups]
+# Dependency groups store dependencies that should not be distributed with the package
 dev = [
   "bandit",
   "black",
@@ -95,6 +82,13 @@ test = [
   { include-group = "test-min" },      # Include test-min dependencies
 ]
 
+docs = [
+  "furo==2024.8.6",
+  "sphinx==8.2.3",
+  "sphinx-reredirects<1",
+  "towncrier~=24.8",
+]
+
 # Configuration for the build system
 test-min = [
   # Base test dependencies
@@ -110,13 +104,6 @@ test-min = [
   "setuptools; python_version>='3.12'",
   "towncrier~=24.8",
   "typing-extensions~=4.12",
-]
-
-docs = [
-  "furo==2024.8.6",
-  "sphinx==8.2.3",
-  "sphinx-reredirects<1",
-  "towncrier~=24.8",
 ]
 
 [tool.setuptools.packages.find]
