@@ -60,16 +60,16 @@ optional-dependencies.testutils = [ "gitpython>3" ]
 [dependency-groups]
 # Dependency groups store dependencies that should not be distributed with the package
 dev = [
+  "contributors-txt>=1",
   "pre-commit",
+  "tbump~=6.11.0",
 ]
 
 test = [
-  "contributors-txt>=1",
   "coverage~=7.8",
   "pytest-cov~=6.0",
   "pytest-xdist~=3.6",
   "six",
-  "tbump~=6.11.0",
   "tox>=3",
   "types-setuptools==78.1.0.20250329",
   { include-group = "test-min" },      # Include test-min dependencies
