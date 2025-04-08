@@ -241,3 +241,71 @@ def test_func():
     assert my_class.my_difficult_property == {}
     # Uninferable does not raise
     assert AnotherClassWithProperty().my_property == {}
+
+
+def test_in_boolean_context():
+    """
+    Cases where a comparison like `x != []` is used in a boolean context.
+
+    It is safe and idiomatic to simplify `x != []` to just `x`.
+    """
+    # pylint: disable=pointless-statement,superfluous-parens,unnecessary-negation
+
+    # Control flow
+    if empty_list != []:  # [use-implicit-booleaness-not-comparison]
+        pass
+    while empty_list != []:  # [use-implicit-booleaness-not-comparison]
+        pass
+    assert empty_list != []  # [use-implicit-booleaness-not-comparison]
+
+    # Ternary
+    _ = 1 if empty_list != [] else 2  # [use-implicit-booleaness-not-comparison]
+
+    # Not
+    if not (empty_list != []):  # [use-implicit-booleaness-not-comparison]
+        pass
+
+    # Comprehension filters
+    [x for x in [] if empty_list != []]  # [use-implicit-booleaness-not-comparison]
+    {x for x in [] if empty_list != []}  # [use-implicit-booleaness-not-comparison]
+    (x for x in [] if empty_list != [])  # [use-implicit-booleaness-not-comparison]
+
+    # all() / any() with generator expressions
+    all(empty_list != [] for _ in range(1))  # [use-implicit-booleaness-not-comparison]
+    any(empty_list != [] for _ in range(1))  # [use-implicit-booleaness-not-comparison]
+
+    # filter() with lambda
+    filter(lambda: empty_list != [], [])  # [use-implicit-booleaness-not-comparison]
+
+    # boolean cast
+    bool(empty_list != [])  # [use-implicit-booleaness-not-comparison]
+
+    # Logical operators nested in boolean contexts
+    if empty_list != [] and input():  # [use-implicit-booleaness-not-comparison]
+        pass
+    while input() or empty_list != []:  # [use-implicit-booleaness-not-comparison]
+        pass
+    if (empty_list != [] or input()) and input():  # [use-implicit-booleaness-not-comparison]
+        pass
+
+
+def test_not_in_boolean_context():
+    """
+    Cases where a comparison like `x != []` is used in a non-boolean context.
+
+    These comparisons cannot be safely replaced with just `x`, and should be explicitly cast using `bool(x)`.
+    """
+    # pylint: disable=pointless-statement
+    _ = empty_list != []  # [use-implicit-booleaness-not-comparison]
+
+    _ = empty_list != [] or input()  # [use-implicit-booleaness-not-comparison]
+
+    print(empty_list != [])  # [use-implicit-booleaness-not-comparison]
+
+    [empty_list != [] for _ in []]  # [use-implicit-booleaness-not-comparison]
+
+    lambda: empty_list != []  # [use-implicit-booleaness-not-comparison]
+
+    filter(lambda x: x, [empty_list != []])  # [use-implicit-booleaness-not-comparison]
+
+    return empty_list != []  # [use-implicit-booleaness-not-comparison]
