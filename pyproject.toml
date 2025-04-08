@@ -84,11 +84,8 @@ docs = [
 # Configuration for the build system
 test-min = [
   # Base test dependencies
-  "astroid==4.0.0a0", # Pinned to a specific version for tests
-  "gitpython>3",
+  "astroid==4.0.0a0",                   # Pinned to a specific version for tests
   "py~=1.11.0",
-  # From extras
-  "pyenchant~=3.2",
   "pytest~=8.3",
   "pytest-benchmark~=5.1",
   "pytest-timeout~=2.3",
