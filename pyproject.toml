@@ -35,7 +35,8 @@ classifiers = [
 ]
 dynamic = [ "version" ]
 
-# All the dependencies of the project are configured here
+# All the dependencies of the project will be configured here, once pip fully supports PEP735
+# TODO: Remove all requirements.txt files and use this section instead once pip supports PEP735
 dependencies = [
   # Also upgrade requirements_test_min.txt.
   # Pinned to dev of second minor update to allow editable installs and fix primer issues,
