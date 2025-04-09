@@ -34,7 +34,6 @@ classifiers = [
   "Typing :: Typed",
 ]
 dynamic = [ "version" ]
-
 # All the dependencies of the project will be configured here, once pip fully supports PEP735
 # TODO: Remove all requirements.txt files and use this section instead once pip supports PEP735
 dependencies = [
@@ -56,6 +55,18 @@ dependencies = [
 
 optional-dependencies.spelling = [ "pyenchant~=3.2" ]
 optional-dependencies.testutils = [ "gitpython>3" ]
+
+urls."Bug Tracker" = "https://github.com/pylint-dev/pylint/issues"
+urls."Discord Server" = "https://discord.com/invite/Egy6P8AMB5"
+urls."Docs: Contributor Guide" = "https://pylint.readthedocs.io/en/latest/development_guide/contributor_guide/index.html"
+urls."Docs: User Guide" = "https://pylint.readthedocs.io/en/latest/"
+urls."homepage" = "https://github.com/pylint-dev/pylint"
+urls."Source Code" = "https://github.com/pylint-dev/pylint"
+urls."What's New" = "https://pylint.readthedocs.io/en/latest/whatsnew/3/"
+scripts.pylint = "pylint:run_pylint"
+scripts.pylint-config = "pylint:_run_pylint_config"
+scripts.pyreverse = "pylint:run_pyreverse"
+scripts.symilar = "pylint:run_symilar"
 
 [dependency-groups]
 dev = [
