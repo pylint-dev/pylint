@@ -306,6 +306,29 @@ class DiadefsHandler:
 
         return diagrams
 
+    def deduplicate_relationships(self, diagram: ClassDiagram) -> None:
+        """Remove duplicate relationships between objects
+
+        :param diagram: The class diagram to deduplicate
+        :type diagram: ClassDiagram
+        """
+        seen = set()
+        unique_rels = []
+
+        # Track relationships by (from_qname, to_qname, type, label)
+        for rel in diagram.relationships:
+            key = (
+                rel.from_object.node.qname(),
+                rel.to_object.node.qname(),
+                type(rel).__name__,  # Use class name to identify relationship type
+                getattr(rel, "name", None),  # Include label if exists
+            )
+            if key not in seen:
+                seen.add(key)
+                unique_rels.append(rel)
+
+        diagram.relationships = unique_rels
+
     def get_diadefs(self, project: Project, linker: Linker) -> list[ClassDiagram]:
         """Get the diagram's configuration data.
 
@@ -326,4 +349,5 @@ class DiadefsHandler:
             diagrams = DefaultDiadefGenerator(linker, self).visit(project)
         for diagram in diagrams:
             diagram.extract_relationships()
+            self.deduplicate_relationships(diagram)
         return self.deduplicate_classes(diagrams)
