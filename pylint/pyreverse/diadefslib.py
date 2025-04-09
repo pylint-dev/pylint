@@ -272,6 +272,40 @@ class DiadefsHandler:
         self.config = config
         self.args = args
 
+    def deduplicate_classes(self, diagrams: list[ClassDiagram]) -> list[ClassDiagram]:
+        """Remove duplicate classes from diagrams by merging their relationships
+
+        :param diagrams: List of class diagrams
+        :type diagrams: list[ClassDiagram]
+        :return: Deduplicated diagrams
+        :rtype: list[ClassDiagram]
+        """
+        for diagram in diagrams:
+            # Track unique classes by qualified name
+            unique_classes = {}
+            duplicate_classes = set()
+
+            for obj in diagram.objects:
+                qname = obj.node.qname()
+                if qname in unique_classes:
+                    duplicate_classes.add(obj)
+                    # Merge relationships
+                    for rel_type in ("specialization", "association", "aggregation"):
+                        for rel in diagram.get_relationships(rel_type):
+                            if rel.from_object == obj:
+                                rel.from_object = unique_classes[qname]
+                            if rel.to_object == obj:
+                                rel.to_object = unique_classes[qname]
+                else:
+                    unique_classes[qname] = obj
+
+            # Remove duplicates from objects list
+            diagram.objects = [
+                obj for obj in diagram.objects if obj not in duplicate_classes
+            ]
+
+        return diagrams
+
     def get_diadefs(self, project: Project, linker: Linker) -> list[ClassDiagram]:
         """Get the diagram's configuration data.
 
@@ -292,4 +326,4 @@ class DiadefsHandler:
             diagrams = DefaultDiadefGenerator(linker, self).visit(project)
         for diagram in diagrams:
             diagram.extract_relationships()
-        return diagrams
+        return self.deduplicate_classes(diagrams)
