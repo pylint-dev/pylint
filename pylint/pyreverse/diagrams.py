@@ -210,7 +210,7 @@ class ClassDiagram(Figure, FilterMixIn):
 
     def classes(self) -> list[ClassEntity]:
         """Return all class nodes in the diagram."""
-        return [o for o in self.objects if isinstance(o, ClassEntity)]
+        return list(set([o for o in self.objects if isinstance(o, ClassEntity)]))
 
     def classe(self, name: str) -> ClassEntity:
         """Return a class by its name, raise KeyError if not found."""
