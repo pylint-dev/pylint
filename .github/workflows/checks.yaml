@@ -118,9 +118,9 @@ jobs:
       - name: Run pylint checks
         run: |
           . venv/bin/activate
-          pip install .[spelling]
+          pip install .
           pip list | grep 'astroid\|pylint'
-          pylint -rn -sn --rcfile=pylintrc --fail-on=I --spelling-dict=en --output-format=github
+          pre-commit run --hook-stage manual pylint-with-spelling --all-files
 
   spelling:
     name: spelling tests
