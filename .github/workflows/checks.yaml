@@ -66,7 +66,7 @@ jobs:
       - name: Generate pre-commit restore key
         id: generate-pre-commit-key
         run: >-
-          echo "key=pre-commit-${{ env.CACHE_VERSION }}-${{
+          echo "key=pre-commit-${{ steps.generate-python-key.outputs.key }}-${{
             hashFiles('.pre-commit-config.yaml') }}" >> $GITHUB_OUTPUT
       - name: Restore pre-commit environment
         id: cache-precommit
