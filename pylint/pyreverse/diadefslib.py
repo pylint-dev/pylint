@@ -15,7 +15,7 @@ import astroid
 from astroid import nodes
 from astroid.modutils import is_stdlib_module
 
-from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram
+from pylint.pyreverse.diagrams import ClassDiagram, PackageDiagram, Relationship
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.utils import LocalsVisitor
 
@@ -313,10 +313,10 @@ class DiadefsHandler:
         :type diagram: ClassDiagram
         """
         seen = set()
-        unique_rels = []
+        unique_rels = dict[str, list[Relationship]] = {}
 
         # Track relationships by (from_name, to_name, type, label)
-        for list_rel in diagram.relationships.values():
+        for rel_name, list_rel in diagram.relationships.items():
             for rel in list_rel:
 
                 # Handle both object references and string class names
@@ -340,7 +340,7 @@ class DiadefsHandler:
 
                 if key not in seen:
                     seen.add(key)
-                    unique_rels.append(rel)
+                    unique_rels[rel_name].append(rel)
 
         diagram.relationships = unique_rels
 
