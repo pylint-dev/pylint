@@ -313,7 +313,7 @@ class DiadefsHandler:
         :type diagram: ClassDiagram
         """
         seen = set()
-        unique_rels = dict[str, list[Relationship]] = {}
+        unique_rels: dict[str, list[Relationship]] = {}
 
         # Track relationships by (from_name, to_name, type, label)
         for rel_name, list_rel in diagram.relationships.items():
