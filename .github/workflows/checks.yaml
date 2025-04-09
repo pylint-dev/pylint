@@ -73,7 +73,7 @@ jobs:
         uses: actions/cache@v4.2.3
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
-          key: ${{ runner.os }}-${{ steps.generate-pre-commit-key.outputs.key }}
+          key: ${{ steps.generate-pre-commit-key.outputs.key }}
       - name: Install pre-commit dependencies
         if: steps.cache-precommit.outputs.cache-hit != 'true'
         run: |
