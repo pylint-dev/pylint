@@ -315,14 +315,22 @@ class DiadefsHandler:
         seen = set()
         unique_rels = []
 
-        # Track relationships by (from_qname, to_qname, type, label)
+        # Track relationships by (from_name, to_name, type, label)
         for rel in diagram.relationships:
-            key = (
-                rel.from_object.node.qname(),
-                rel.to_object.node.qname(),
-                type(rel).__name__,  # Use class name to identify relationship type
-                getattr(rel, "name", None),  # Include label if exists
+            # Handle both object references and string class names
+            from_name = (
+                rel.from_object.node.qname()
+                if hasattr(rel.from_object, "node")
+                else str(rel.from_object)
             )
+            to_name = (
+                rel.to_object.node.qname()
+                if hasattr(rel.to_object, "node")
+                else str(rel.to_object)
+            )
+
+            key = (from_name, to_name, type(rel).__name__, getattr(rel, "name", None))
+
             if key not in seen:
                 seen.add(key)
                 unique_rels.append(rel)
