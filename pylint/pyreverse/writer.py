@@ -114,7 +114,7 @@ class DiagramWriter:
     def write_classes(self, diagram: ClassDiagram) -> None:
         """Write a class diagram."""
         # sorted to get predictable (hence testable) results
-        for obj in sorted(set(diagram.objects), key=lambda x: x.title):
+        for obj in sorted(diagram.objects, key=lambda x: x.title):
             obj.fig_id = obj.node.qname()
 
             if self.config.no_standalone and not any(
