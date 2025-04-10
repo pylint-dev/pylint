@@ -10,7 +10,7 @@ import argparse
 import warnings
 from collections.abc import Generator, Sequence
 from collections import defaultdict
-from typing import Any
+from typing import Any, Tuple
 
 import astroid
 from astroid import nodes
@@ -283,8 +283,8 @@ class DiadefsHandler:
         """
         for diagram in diagrams:
             # Track unique classes by qualified name
-            unique_classes = {}
-            duplicate_classes = set()
+            unique_classes: dict[str, Any] = {}
+            duplicate_classes: Any = set()
 
             for obj in diagram.objects:
                 qname = obj.node.qname()
@@ -313,7 +313,7 @@ class DiadefsHandler:
         :param diagram: The class diagram to deduplicate
         :type diagram: ClassDiagram
         """
-        seen = set()
+        seen: Tuple = set()
         unique_rels: dict[str, list[Relationship]] = defaultdict(list)
 
         # Track relationships by (from_name, to_name, type, label)
