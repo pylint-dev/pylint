@@ -343,28 +343,28 @@ class AggregationsHandler(AbstractAssociationHandler):
             )
             return
 
-        # Handle list comprehensions and list literals
-        if isinstance(value, (nodes.ListComp, nodes.List)):
-            # Determine the element to analyze
-            if isinstance(value, nodes.ListComp):
-                element = value.elt
-            elif value.elts:  # List with elements
-                element = value.elts[0]
-            else:  # Empty list
-                super().handle(node, parent)
+        # Handle list comprehensions
+        if isinstance(value, nodes.ListComp):
+            # Try to infer the element type from the comprehension's element
+            element_type = self._infer_element_type(value.elt)
+            if element_type:
+                current = set(parent.aggregations_type[node.attrname])
+                parent.aggregations_type[node.attrname] = list(current | {element_type})
                 return
-
-            # Check for class instantiations
-            if isinstance(element, nodes.Call):
-                inferred = next(element.func.infer())
-                if isinstance(inferred, nodes.ClassDef):
-                    # Add relationship for the inferred class
-                    current = set(parent.aggregations_type[node.attrname])
-                    parent.aggregations_type[node.attrname] = list(current | {inferred})
-                    return
 
         # Fallback to parent handler
         super().handle(node, parent)
+
+    def _infer_element_type(self, element: astroid.NodeNG) -> nodes.ClassDef | None:
+        """Tries to infer the class type of an element."""
+        if isinstance(element, nodes.Call):
+            try:
+                inferred = next(element.func.infer())
+                if isinstance(inferred, nodes.ClassDef):
+                    return inferred
+            except (astroid.InferenceError, StopIteration):
+                pass
+        return None
 
 
 class OtherAssociationsHandler(AbstractAssociationHandler):
