@@ -11,8 +11,7 @@ import warnings
 from collections import defaultdict
 from collections.abc import Generator, Sequence
 from collections import defaultdict
-from typing import Any, tuple
-
+from typing import Any
 import astroid
 from astroid import nodes
 from astroid.modutils import is_stdlib_module
