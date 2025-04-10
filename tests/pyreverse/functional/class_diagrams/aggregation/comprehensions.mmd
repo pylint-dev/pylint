@@ -4,7 +4,7 @@ classDiagram
   }
   class Container {
     components : list[Component]
-    component_dict : dict[Component]
+    component_dict : dict[int, Component]
     components_set : set[Component]
     lazy_components : generator[Component]
   }
