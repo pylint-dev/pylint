@@ -1492,7 +1492,7 @@ Standard Checkers
 
 --missing-member-hint-distance
 """"""""""""""""""""""""""""""
-*The minimum edit distance a name should have in order to be considered a similar match for a missing member name.*
+*The maximum edit distance a name should have in order to be considered a similar match for a missing member name.*
 
 **Default:**  ``1``
 
