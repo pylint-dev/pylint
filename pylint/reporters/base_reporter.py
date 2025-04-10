@@ -42,7 +42,11 @@ class BaseReporter:
 
     def writeln(self, string: str = "") -> None:
         """Write a line in the output buffer."""
-        print(string, file=self.out)
+        try:
+            print(string, file=self.out)
+        except UnicodeEncodeError:
+            best_effort_string = string.encode(encoding="utf-8", errors="ignore")
+            print(best_effort_string.decode("utf8"), file=self.out)
 
     def display_reports(self, layout: Section) -> None:
         """Display results encapsulated in the layout tree."""
