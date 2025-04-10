@@ -273,77 +273,111 @@ class DiadefsHandler:
         self.config = config
         self.args = args
 
-    def deduplicate_classes(self, diagrams: list[ClassDiagram]) -> list[ClassDiagram]:
-        """Remove duplicate classes from diagrams by merging their relationships.
+    def _get_object_name(self, obj: Any) -> str:
+        """Get object name safely handling both title attributes and strings.
 
-        :param diagrams: List of class diagrams
-        :type diagrams: list[ClassDiagram]
-        :return: Deduplicated diagrams
-        :rtype: list[ClassDiagram]
+        :param obj: Object to get name from
+        :return: Object name/title
+        :rtype: str
         """
+        return obj.title if hasattr(obj, "title") else str(obj)
+
+    def _make_relationship_key(
+        self, rel: Relationship
+    ) -> tuple[str, str, str, str | None]:
+        """Create unique key for relationship.
+
+        :param rel: Relationship object
+        :return: Tuple key for deduplication
+        :rtype: tuple
+        """
+        from_name = self._get_object_name(rel.from_object)
+        to_name = self._get_object_name(rel.to_object)
+        return (from_name, to_name, type(rel).__name__, getattr(rel, "name", None))
+
+    def _process_relationship(
+        self, relationship: Relationship, unique_classes: dict[str, Any], obj: Any
+    ) -> None:
+        """Process a single relationship for deduplication.
+
+        :param relationship: Relationship to process
+        :param unique_classes: Dict of unique classes
+        :param obj: Current object being processed
+        """
+        if relationship.from_object == obj:
+            relationship.from_object = unique_classes[obj.node.qname()]
+        if relationship.to_object == obj:
+            relationship.to_object = unique_classes[obj.node.qname()]
+
+    def _process_class_relationships(
+        self, diagram: ClassDiagram, obj: Any, unique_classes: dict[str, Any]
+    ) -> None:
+        """Merge relationships for a class.
+
+        :param diagram: Current diagram
+        :param obj: Object whose relationships to process
+        :param unique_classes: Dict of unique classes
+        """
+        for rel_type in ("specialization", "association", "aggregation"):
+            for rel in diagram.get_relationships(rel_type):
+                self._process_relationship(rel, unique_classes, obj)
+
+    def deduplicate_classes(self, diagrams: list[ClassDiagram]) -> list[ClassDiagram]:
+        """Remove duplicate classes from diagrams."""
         for diagram in diagrams:
             # Track unique classes by qualified name
             unique_classes: dict[str, Any] = {}
             duplicate_classes: Any = set()
 
+            # First pass - identify duplicates
             for obj in diagram.objects:
                 qname = obj.node.qname()
                 if qname in unique_classes:
                     duplicate_classes.add(obj)
-                    # Merge relationships
-                    for rel_type in ("specialization", "association", "aggregation"):
-                        for rel in diagram.get_relationships(rel_type):
-                            if rel.from_object == obj:
-                                rel.from_object = unique_classes[qname]
-                            if rel.to_object == obj:
-                                rel.to_object = unique_classes[qname]
+                    self._process_class_relationships(diagram, obj, unique_classes)
                 else:
                     unique_classes[qname] = obj
 
-            # Remove duplicates from objects list
+            # Second pass - filter out duplicates
             diagram.objects = [
                 obj for obj in diagram.objects if obj not in duplicate_classes
             ]
 
         return diagrams
 
-    def deduplicate_relationships(self, diagram: ClassDiagram) -> None:
-        """Remove duplicate relationships between objects.
+    def _process_relationship_type(
+        self,
+        rel_list: list[Relationship],
+        seen: set[tuple[str, str, str, Any | None]],
+        unique_rels: dict[str, list[Relationship]],
+        rel_name: str,
+    ) -> None:
+        """Process a list of relationships of a single type.
 
-        :param diagram: The class diagram to deduplicate
-        :type diagram: ClassDiagram
+        :param rel_list: List of relationships to process
+        :param seen: Set of seen relationships
+        :param unique_rels: Dict to store unique relationships
+        :param rel_name: Name of relationship type
         """
-        seen: tuple[str, str, str, str | None] = set()
+        for rel in rel_list:
+            key = (
+                self._get_object_name(rel.from_object),
+                self._get_object_name(rel.to_object),
+                type(rel).__name__,
+                getattr(rel, "name", None),
+            )
+            if key not in seen:
+                seen.add(key)
+                unique_rels[rel_name].append(rel)
+
+    def deduplicate_relationships(self, diagram: ClassDiagram) -> None:
+        """Remove duplicate relationships between objects."""
+        seen: set[tuple[str, str, str, Any | None]] = set()
         unique_rels: dict[str, list[Relationship]] = defaultdict(list)
+        for rel_name, rel_list in diagram.relationships.items():
+            self._process_relationship_type(rel_list, seen, unique_rels, rel_name)
 
-        # Track relationships by (from_name, to_name, type, label)
-        for rel_name, list_rel in diagram.relationships.items():
-            for rel in list_rel:
-
-                # Handle both object references and string class names
-                from_name = (
-                    rel.from_object.title
-                    if hasattr(rel.from_object, "title")
-                    else str(rel.name)
-                )
-                to_name = (
-                    rel.to_object.title
-                    if hasattr(rel.to_object, "title")
-                    else str(rel.name)
-                )
-
-                key = (
-                    from_name,
-                    to_name,
-                    type(rel).__name__,
-                    getattr(rel, "name", None),
-                )
-
-                if key not in seen:
-                    seen.add(key)
-                    unique_rels[rel_name].append(rel)
-
-        diagram.relationships = unique_rels
+        diagram.relationships = dict(unique_rels)
 
     def get_diadefs(self, project: Project, linker: Linker) -> list[ClassDiagram]:
         """Get the diagram's configuration data.
