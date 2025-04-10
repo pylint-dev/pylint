@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import warnings
+from collections import defaultdict
 from collections.abc import Generator, Sequence
 from collections import defaultdict
 from typing import Any, Tuple
@@ -274,7 +275,7 @@ class DiadefsHandler:
         self.args = args
 
     def deduplicate_classes(self, diagrams: list[ClassDiagram]) -> list[ClassDiagram]:
-        """Remove duplicate classes from diagrams by merging their relationships
+        """Remove duplicate classes from diagrams by merging their relationships.
 
         :param diagrams: List of class diagrams
         :type diagrams: list[ClassDiagram]
@@ -308,7 +309,7 @@ class DiadefsHandler:
         return diagrams
 
     def deduplicate_relationships(self, diagram: ClassDiagram) -> None:
-        """Remove duplicate relationships between objects
+        """Remove duplicate relationships between objects.
 
         :param diagram: The class diagram to deduplicate
         :type diagram: ClassDiagram
