@@ -10,7 +10,6 @@ import argparse
 import warnings
 from collections import defaultdict
 from collections.abc import Generator, Sequence
-from collections import defaultdict
 from typing import Any, Tuple
 
 import astroid
