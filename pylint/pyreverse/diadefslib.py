@@ -282,19 +282,6 @@ class DiadefsHandler:
         """
         return obj.title if hasattr(obj, "title") else str(obj)
 
-    def _make_relationship_key(
-        self, rel: Relationship
-    ) -> tuple[str, str, str, str | None]:
-        """Create unique key for relationship.
-
-        :param rel: Relationship object
-        :return: Tuple key for deduplication
-        :rtype: tuple
-        """
-        from_name = self._get_object_name(rel.from_object)
-        to_name = self._get_object_name(rel.to_object)
-        return (from_name, to_name, type(rel).__name__, getattr(rel, "name", None))
-
     def _process_relationship(
         self, relationship: Relationship, unique_classes: dict[str, Any], obj: Any
     ) -> None:
