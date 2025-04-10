@@ -13,11 +13,3 @@ class Container:
         self.component_dict = {i: Component(f"dict_component_{i}") for i in range(2)} # dict
         self.components_set = {Component(f"set_component_{i}") for i in range(2)} # set
         self.lazy_components = (Component(f"lazy_{i}") for i in range(2)) # generator
-
-class MultiContainer:
-    """A container with multiple component types."""
-    def __init__(self):
-        # Test mixed component types in a list
-        self.mixed_list = [Component("first"), Container()]
-        self.mixed_dict = {1: Component("first"), 2: Container()}
-        self.mixed_set = {Component("first"), Container()}
