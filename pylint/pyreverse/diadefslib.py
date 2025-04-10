@@ -11,7 +11,7 @@ import warnings
 from collections import defaultdict
 from collections.abc import Generator, Sequence
 from collections import defaultdict
-from typing import Any, Tuple
+from typing import Any, tuple
 
 import astroid
 from astroid import nodes
@@ -314,7 +314,7 @@ class DiadefsHandler:
         :param diagram: The class diagram to deduplicate
         :type diagram: ClassDiagram
         """
-        seen: Tuple = set()
+        seen: tuple[str, str, str, str | None] = set()
         unique_rels: dict[str, list[Relationship]] = defaultdict(list)
 
         # Track relationships by (from_name, to_name, type, label)
