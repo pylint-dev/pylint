@@ -343,10 +343,15 @@ class AggregationsHandler(AbstractAssociationHandler):
             )
             return
 
-        # Handle list comprehensions
-        if isinstance(value, nodes.ListComp):
-            # Try to infer the element type from the comprehension's element
-            element_type = self._infer_element_type(value.elt)
+        # Handle comprehensions
+        if isinstance(
+            value, (nodes.ListComp, nodes.DictComp, nodes.SetComp, nodes.GeneratorExp)
+        ):
+            # Determine the type of the element in the comprehension
+            if isinstance(value, nodes.DictComp):
+                element_type = self._infer_element_type(value.value)
+            else:
+                element_type = self._infer_element_type(value.elt)
             if element_type:
                 current = set(parent.aggregations_type[node.attrname])
                 parent.aggregations_type[node.attrname] = list(current | {element_type})
