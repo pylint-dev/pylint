@@ -27,3 +27,7 @@ build-stamp
 .pytest_cache/
 .mypy_cache/
 .benchmarks/
+
+**/Include/**
+**/Lib/**
+**/Scripts/**
