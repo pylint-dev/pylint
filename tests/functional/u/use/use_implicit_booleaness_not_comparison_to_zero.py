@@ -56,8 +56,7 @@ if X == Y == X == Y == 0:
 
 
 def test_in_boolean_context():
-    """
-    Cases where a comparison like `x != 0` is used in a boolean context.
+    """Cases where a comparison like `x != 0` is used in a boolean context.
 
     It is safe and idiomatic to simplify `x != 0` to just `x`.
     """
@@ -102,8 +101,7 @@ def test_in_boolean_context():
 
 
 def test_not_in_boolean_context():
-    """
-    Cases where a comparison like `x != 0` is used in a non-boolean context.
+    """Cases where a comparison like `x != 0` is used in a non-boolean context.
 
     These comparisons cannot be safely replaced with just `x`, and should be explicitly
     cast using `bool(x)`.

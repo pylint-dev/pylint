@@ -342,8 +342,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         return f"not {name}"
 
     def _in_boolean_context(self, node: nodes.Compare) -> bool:
-        """
-        Returns True if the comparison is used in a boolean context; False otherwise.
+        """Returns True if the comparison is used in a boolean context; False otherwise.
 
         A comparison is considered to be in a boolean context when it appears in constructs
         that evaluate its truthiness directly, such as:
