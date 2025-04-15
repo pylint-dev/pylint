@@ -20,6 +20,7 @@ import astroid
 from astroid import nodes
 
 from pylint import constants
+from pylint.checkers.utils import safe_infer
 from pylint.pyreverse import utils
 
 _WrapperFuncT = Callable[
@@ -349,9 +350,9 @@ class AggregationsHandler(AbstractAssociationHandler):
         ):
             # Determine the type of the element in the comprehension
             if isinstance(value, nodes.DictComp):
-                element_type = self._infer_element_type(value.value)
+                element_type = safe_infer(value.value)
             else:
-                element_type = self._infer_element_type(value.elt)
+                element_type = safe_infer(value.elt)
             if element_type:
                 current = set(parent.aggregations_type[node.attrname])
                 parent.aggregations_type[node.attrname] = list(current | {element_type})
@@ -359,17 +360,6 @@ class AggregationsHandler(AbstractAssociationHandler):
 
         # Fallback to parent handler
         super().handle(node, parent)
-
-    def _infer_element_type(self, element: astroid.NodeNG) -> nodes.ClassDef | None:
-        """Tries to infer the class type of an element."""
-        if isinstance(element, nodes.Call):
-            try:
-                inferred = next(element.func.infer())
-                if isinstance(inferred, nodes.ClassDef):
-                    return inferred
-            except (astroid.InferenceError, StopIteration):
-                pass
-        return None
 
 
 class OtherAssociationsHandler(AbstractAssociationHandler):
