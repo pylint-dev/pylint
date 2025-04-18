@@ -214,3 +214,16 @@ def method3(self):  # [too-complex]
     finally:
         pass
     return True
+
+def match_case_complexity(self, avg):  # [too-complex]
+    """McCabe rating: 3
+    See https://github.com/astral-sh/ruff/issues/11421
+    """
+    match avg:
+        case avg if avg < .3:
+            avg_grade = "F"
+        case avg if avg < .7:
+            avg_grade = "E+"
+        case _:
+            raise ValueError(f"Unexpected average: {avg}")
+    return avg_grade
