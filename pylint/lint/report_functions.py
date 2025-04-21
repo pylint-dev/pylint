@@ -9,8 +9,8 @@ from collections import defaultdict
 from typing import cast
 
 from pylint import checkers, exceptions
-from pylint.reporters.ureports.nodes import Section, Table
 from pylint.pylint_typing import MessageTypesFullName
+from pylint.reporters.ureports.nodes import Section, Table
 from pylint.utils import LinterStats
 
 

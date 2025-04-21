@@ -14,6 +14,7 @@ from pylint.config.arguments_manager import _ArgumentsManager
 from pylint.config.arguments_provider import _ArgumentsProvider
 from pylint.lint import discover_package_path
 from pylint.lint.utils import augmented_sys_path
+from pylint.pylint_typing import Options
 from pylint.pyreverse import writer
 from pylint.pyreverse.diadefslib import DiadefsHandler
 from pylint.pyreverse.inspector import Linker, project_from_files
@@ -22,7 +23,6 @@ from pylint.pyreverse.utils import (
     check_if_graphviz_supports_format,
     insert_default_options,
 )
-from pylint.pylint_typing import Options
 
 DIRECTLY_SUPPORTED_FORMATS = (
     "dot",

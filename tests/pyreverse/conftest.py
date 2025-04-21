@@ -10,9 +10,9 @@ import pytest
 from astroid.nodes.scoped_nodes import Module
 
 from pylint.lint import augmented_sys_path, discover_package_path
+from pylint.pylint_typing import GetProjectCallable
 from pylint.pyreverse.inspector import Project, project_from_files
 from pylint.testutils.pyreverse import PyreverseConfig
-from pylint.pylint_typing import GetProjectCallable
 
 
 @pytest.fixture()

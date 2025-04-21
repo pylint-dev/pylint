@@ -53,10 +53,6 @@ from pylint.lint.utils import (
     prepare_crash_report,
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
-from pylint.reporters.base_reporter import BaseReporter
-from pylint.reporters.progress_reporters import ProgressReporter
-from pylint.reporters.text import TextReporter
-from pylint.reporters.ureports import nodes as report_nodes
 from pylint.pylint_typing import (
     DirectoryNamespaceDict,
     FileItem,
@@ -66,6 +62,10 @@ from pylint.pylint_typing import (
     ModuleDescriptionDict,
     Options,
 )
+from pylint.reporters.base_reporter import BaseReporter
+from pylint.reporters.progress_reporters import ProgressReporter
+from pylint.reporters.text import TextReporter
+from pylint.reporters.ureports import nodes as report_nodes
 from pylint.utils import ASTWalker, FileState, LinterStats, utils
 
 MANAGER = astroid.MANAGER

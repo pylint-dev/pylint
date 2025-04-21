@@ -8,10 +8,10 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from pylint.pylint_typing import GetProjectCallable
 from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker
 from pylint.testutils.pyreverse import PyreverseConfig
-from pylint.pylint_typing import GetProjectCallable
 
 
 def test_property_handling(

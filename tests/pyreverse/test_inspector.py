@@ -16,10 +16,10 @@ from pathlib import Path
 import astroid
 import pytest
 
+from pylint.pylint_typing import GetProjectCallable
 from pylint.pyreverse import inspector
 from pylint.pyreverse.inspector import Project
 from pylint.testutils.utils import _test_cwd
-from pylint.pylint_typing import GetProjectCallable
 
 HERE = Path(__file__)
 TESTS = HERE.parent.parent

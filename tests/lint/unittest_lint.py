@@ -38,10 +38,10 @@ from pylint.constants import (
 from pylint.exceptions import InvalidMessageError
 from pylint.lint import PyLinter, expand_modules
 from pylint.message import Message
+from pylint.pylint_typing import MessageLocationTuple
 from pylint.reporters import text
 from pylint.testutils import create_files
 from pylint.testutils._run import _Run as Run
-from pylint.pylint_typing import MessageLocationTuple
 from pylint.utils import (
     FileState,
     LinterStats,

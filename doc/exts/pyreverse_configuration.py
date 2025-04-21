@@ -11,8 +11,8 @@ from typing import NamedTuple
 
 from sphinx.application import Sphinx
 
-from pylint.pyreverse.main import OPTIONS_GROUPS, Run
 from pylint.pylint_typing import OptionDict
+from pylint.pyreverse.main import OPTIONS_GROUPS, Run
 from pylint.utils import get_rst_title
 
 

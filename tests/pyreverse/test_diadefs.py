@@ -16,6 +16,7 @@ from unittest.mock import Mock
 import pytest
 from astroid import extract_node, nodes
 
+from pylint.pylint_typing import GeneratorFactory, GetProjectCallable
 from pylint.pyreverse.diadefslib import (
     ClassDiadefGenerator,
     DefaultDiadefGenerator,
@@ -26,7 +27,6 @@ from pylint.pyreverse.diagrams import DiagramEntity, Relationship
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.testutils.pyreverse import PyreverseConfig
 from pylint.testutils.utils import _test_cwd
-from pylint.pylint_typing import GeneratorFactory, GetProjectCallable
 
 HERE = Path(__file__)
 TESTS = HERE.parent.parent

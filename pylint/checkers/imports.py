@@ -32,8 +32,8 @@ from pylint.constants import MAX_NUMBER_OF_IMPORT_SHOWN
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import HIGH
-from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
 from pylint.pylint_typing import MessageDefinitionTuple
+from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
 from pylint.utils import IsortDriver
 from pylint.utils.linterstats import LinterStats
 

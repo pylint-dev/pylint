@@ -17,9 +17,9 @@ from pylint import checkers
 from pylint.interfaces import HIGH, UNDEFINED
 from pylint.lint import PyLinter
 from pylint.message import Message
+from pylint.pylint_typing import MessageLocationTuple
 from pylint.reporters.json_reporter import JSON2Reporter, JSONReporter
 from pylint.reporters.ureports.nodes import EvaluationSection
-from pylint.pylint_typing import MessageLocationTuple
 
 expected_score_message = "Expected score message"
 

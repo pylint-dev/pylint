@@ -29,10 +29,10 @@ from pylint.lint import PyLinter, augmented_sys_path
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
+from pylint.pylint_typing import FileItem
 from pylint.reporters.progress_reporters import ProgressReporter
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.testutils.utils import _test_cwd
-from pylint.pylint_typing import FileItem
 from pylint.utils import LinterStats, ModuleStats
 
 if TYPE_CHECKING:
