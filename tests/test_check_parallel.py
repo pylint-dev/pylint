@@ -32,7 +32,7 @@ from pylint.lint.parallel import check_parallel
 from pylint.reporters.progress_reporters import ProgressReporter
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.testutils.utils import _test_cwd
-from pylint.typing import FileItem
+from pylint.pylint_typing import FileItem
 from pylint.utils import LinterStats, ModuleStats
 
 if TYPE_CHECKING:

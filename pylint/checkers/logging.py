@@ -17,7 +17,7 @@ from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.utils import infer_all
 from pylint.interfaces import HIGH
-from pylint.typing import MessageDefinitionTuple
+from pylint.pylint_typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

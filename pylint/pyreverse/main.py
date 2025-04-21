@@ -22,7 +22,7 @@ from pylint.pyreverse.utils import (
     check_if_graphviz_supports_format,
     insert_default_options,
 )
-from pylint.typing import Options
+from pylint.pylint_typing import Options
 
 DIRECTLY_SUPPORTED_FORMATS = (
     "dot",

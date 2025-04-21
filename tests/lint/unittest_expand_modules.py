@@ -16,7 +16,7 @@ import pytest
 from pylint.checkers import BaseChecker
 from pylint.lint.expand_modules import _is_in_ignore_list_re, expand_modules
 from pylint.testutils import CheckerTestCase, set_config
-from pylint.typing import MessageDefinitionTuple, ModuleDescriptionDict
+from pylint.pylint_typing import MessageDefinitionTuple, ModuleDescriptionDict
 
 
 def test__is_in_ignore_list_re_match() -> None:

@@ -12,7 +12,7 @@ from typing import NamedTuple
 from sphinx.application import Sphinx
 
 from pylint.pyreverse.main import OPTIONS_GROUPS, Run
-from pylint.typing import OptionDict
+from pylint.pylint_typing import OptionDict
 from pylint.utils import get_rst_title
 
 

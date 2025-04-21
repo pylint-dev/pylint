@@ -21,7 +21,7 @@ from astroid.typing import SuccessfulInferenceResult
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
 from pylint.checkers.utils import only_required_for_messages
 from pylint.interfaces import HIGH
-from pylint.typing import MessageDefinitionTuple
+from pylint.pylint_typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

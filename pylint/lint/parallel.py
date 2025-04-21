@@ -14,7 +14,7 @@ import dill
 from pylint import reporters
 from pylint.lint.utils import _augment_sys_path
 from pylint.message import Message
-from pylint.typing import FileItem
+from pylint.pylint_typing import FileItem
 from pylint.utils import LinterStats, merge_stats
 
 try:

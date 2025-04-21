@@ -40,7 +40,7 @@ from pylint.checkers.utils import (
     uninferable_final_decorators,
 )
 from pylint.interfaces import HIGH, INFERENCE
-from pylint.typing import MessageDefinitionTuple
+from pylint.pylint_typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter

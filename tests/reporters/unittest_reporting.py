@@ -21,7 +21,7 @@ from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.reporters import BaseReporter, MultiReporter
 from pylint.reporters.text import ParseableTextReporter, TextReporter
-from pylint.typing import FileItem, MessageLocationTuple
+from pylint.pylint_typing import FileItem, MessageLocationTuple
 
 if TYPE_CHECKING:
     from pylint.reporters.ureports.nodes import Section

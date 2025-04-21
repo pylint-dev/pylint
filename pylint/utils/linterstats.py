@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Literal, TypedDict, cast
 
-from pylint.typing import MessageTypesFullName
+from pylint.pylint_typing import MessageTypesFullName
 
 
 class BadNames(TypedDict):

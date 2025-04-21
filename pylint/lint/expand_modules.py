@@ -12,7 +12,7 @@ from re import Pattern
 
 from astroid import modutils
 
-from pylint.typing import ErrorDescriptionDict, ModuleDescriptionDict
+from pylint.pylint_typing import ErrorDescriptionDict, ModuleDescriptionDict
 
 
 def _modpath_from_file(filename: str, is_namespace: bool, path: list[str]) -> list[str]:

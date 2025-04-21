@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
-from pylint.typing import ManagedMessage
+from pylint.pylint_typing import ManagedMessage
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

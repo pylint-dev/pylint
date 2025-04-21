@@ -24,7 +24,7 @@ from pylint.checkers import BaseRawFileChecker, BaseTokenChecker
 from pylint.checkers.utils import only_required_for_messages
 from pylint.constants import WarningScope
 from pylint.interfaces import HIGH
-from pylint.typing import MessageDefinitionTuple
+from pylint.pylint_typing import MessageDefinitionTuple
 from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragma
 
 if TYPE_CHECKING:

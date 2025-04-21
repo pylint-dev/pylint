@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from astroid.typing import InferenceResult
 
     from pylint.lint import PyLinter
-    from pylint.typing import MessageDefinitionTuple
+    from pylint.pylint_typing import MessageDefinitionTuple
 
     Consumption = dict[str, list[nodes.NodeNG]]
 

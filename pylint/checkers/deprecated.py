@@ -17,7 +17,7 @@ from pylint.checkers import utils
 from pylint.checkers.base_checker import BaseChecker
 from pylint.checkers.utils import get_import_name, infer_all, safe_infer
 from pylint.interfaces import INFERENCE
-from pylint.typing import MessageDefinitionTuple
+from pylint.pylint_typing import MessageDefinitionTuple
 
 ACCEPTABLE_NODES = (
     astroid.BoundMethod,

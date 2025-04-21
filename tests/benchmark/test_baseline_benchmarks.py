@@ -19,7 +19,7 @@ from pylint.checkers import BaseRawFileChecker
 from pylint.lint import PyLinter, check_parallel
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.testutils._run import _Run as Run
-from pylint.typing import FileItem
+from pylint.pylint_typing import FileItem
 from pylint.utils import register_plugins
 
 

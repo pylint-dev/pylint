@@ -15,7 +15,7 @@ from pylint.exceptions import InvalidMessageError, UnknownMessageError
 from pylint.lint.pylinter import PyLinter
 from pylint.message import MessageDefinition
 from pylint.message.message_definition_store import MessageDefinitionStore
-from pylint.typing import MessageDefinitionTuple
+from pylint.pylint_typing import MessageDefinitionTuple
 
 
 @pytest.mark.parametrize(

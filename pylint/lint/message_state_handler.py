@@ -18,7 +18,7 @@ from pylint.constants import (
 )
 from pylint.interfaces import HIGH
 from pylint.message import MessageDefinition
-from pylint.typing import ManagedMessage, MessageDefinitionTuple
+from pylint.pylint_typing import ManagedMessage, MessageDefinitionTuple
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,

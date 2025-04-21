@@ -33,7 +33,7 @@ from pylint.config.exceptions import (
 from pylint.config.help_formatter import _HelpFormatter
 from pylint.config.utils import _convert_option_to_argument, _parse_rich_type_value
 from pylint.constants import MAIN_CHECKER_NAME
-from pylint.typing import DirectoryNamespaceDict, OptionDict
+from pylint.pylint_typing import DirectoryNamespaceDict, OptionDict
 
 if sys.version_info >= (3, 11):
     import tomllib

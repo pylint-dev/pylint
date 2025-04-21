@@ -10,7 +10,7 @@ from collections.abc import Iterator
 from typing import Any
 
 from pylint.config.arguments_manager import _ArgumentsManager
-from pylint.typing import OptionDict, Options
+from pylint.pylint_typing import OptionDict, Options
 
 
 class _ArgumentsProvider:

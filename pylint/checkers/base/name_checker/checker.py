@@ -30,7 +30,7 @@ from pylint.checkers.base.name_checker.naming_style import (
     _create_naming_options,
 )
 from pylint.checkers.utils import is_property_deleter, is_property_setter
-from pylint.typing import Options
+from pylint.pylint_typing import Options
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter

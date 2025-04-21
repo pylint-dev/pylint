@@ -8,7 +8,7 @@ import re
 from re import Pattern
 
 from pylint import constants
-from pylint.typing import OptionDict, Options
+from pylint.pylint_typing import OptionDict, Options
 
 
 class NamingStyle:

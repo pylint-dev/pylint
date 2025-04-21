@@ -48,7 +48,7 @@ from astroid import nodes
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, table_lines_from_stats
 from pylint.reporters.ureports.nodes import Section, Table
-from pylint.typing import MessageDefinitionTuple, Options
+from pylint.pylint_typing import MessageDefinitionTuple, Options
 from pylint.utils import LinterStats, decoding_stream
 
 if TYPE_CHECKING:

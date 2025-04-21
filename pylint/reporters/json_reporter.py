@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Optional, TypedDict
 from pylint.interfaces import CONFIDENCE_MAP, UNDEFINED
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
-from pylint.typing import MessageLocationTuple
+from pylint.pylint_typing import MessageLocationTuple
 
 if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter

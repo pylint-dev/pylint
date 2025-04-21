@@ -9,7 +9,7 @@ from collections.abc import ValuesView
 from pylint.interfaces import HIGH
 from pylint.message import Message
 from pylint.message.message_definition import MessageDefinition
-from pylint.typing import MessageLocationTuple
+from pylint.pylint_typing import MessageLocationTuple
 
 
 def test_new_message(message_definitions: ValuesView[MessageDefinition]) -> None:

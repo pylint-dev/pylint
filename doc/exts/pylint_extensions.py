@@ -19,7 +19,7 @@ from sphinx.application import Sphinx
 from pylint.checkers import BaseChecker
 from pylint.constants import MAIN_CHECKER_NAME
 from pylint.lint import PyLinter
-from pylint.typing import MessageDefinitionTuple, OptionDict, ReportsCallable
+from pylint.pylint_typing import MessageDefinitionTuple, OptionDict, ReportsCallable
 from pylint.utils import get_rst_title
 
 

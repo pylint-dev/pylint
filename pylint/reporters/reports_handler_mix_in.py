@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 from pylint.exceptions import EmptyReportError
 from pylint.reporters.ureports.nodes import Section
-from pylint.typing import ReportsCallable
+from pylint.pylint_typing import ReportsCallable
 from pylint.utils import LinterStats
 
 if TYPE_CHECKING:

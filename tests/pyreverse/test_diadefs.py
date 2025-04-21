@@ -26,7 +26,7 @@ from pylint.pyreverse.diagrams import DiagramEntity, Relationship
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.testutils.pyreverse import PyreverseConfig
 from pylint.testutils.utils import _test_cwd
-from pylint.typing import GeneratorFactory, GetProjectCallable
+from pylint.pylint_typing import GeneratorFactory, GetProjectCallable
 
 HERE = Path(__file__)
 TESTS = HERE.parent.parent

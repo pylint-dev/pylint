@@ -18,7 +18,7 @@ from pylint.constants import _MSG_ORDER, MAIN_CHECKER_NAME, WarningScope
 from pylint.exceptions import InvalidMessageError
 from pylint.interfaces import Confidence
 from pylint.message.message_definition import MessageDefinition
-from pylint.typing import (
+from pylint.pylint_typing import (
     ExtraMessageOptions,
     MessageDefinitionTuple,
     OptionDict,

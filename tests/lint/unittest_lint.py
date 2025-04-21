@@ -41,7 +41,7 @@ from pylint.message import Message
 from pylint.reporters import text
 from pylint.testutils import create_files
 from pylint.testutils._run import _Run as Run
-from pylint.typing import MessageLocationTuple
+from pylint.pylint_typing import MessageLocationTuple
 from pylint.utils import (
     FileState,
     LinterStats,

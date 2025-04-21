@@ -20,7 +20,7 @@ from pylint.pyreverse.diadefslib import DefaultDiadefGenerator, DiadefsHandler
 from pylint.pyreverse.inspector import Linker, Project
 from pylint.pyreverse.writer import DiagramWriter
 from pylint.testutils.pyreverse import PyreverseConfig
-from pylint.typing import GetProjectCallable
+from pylint.pylint_typing import GetProjectCallable
 
 _DEFAULTS = {
     "all_ancestors": None,

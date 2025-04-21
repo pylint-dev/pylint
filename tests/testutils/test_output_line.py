@@ -13,7 +13,7 @@ import pytest
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 from pylint.message import Message
 from pylint.testutils.output_line import OutputLine
-from pylint.typing import MessageLocationTuple
+from pylint.pylint_typing import MessageLocationTuple
 
 
 class _MessageCallable(Protocol):

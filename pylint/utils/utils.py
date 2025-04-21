@@ -31,7 +31,7 @@ from typing import TYPE_CHECKING, Any, Literal, TextIO, TypeVar, Union
 from astroid import Module, modutils, nodes
 
 from pylint.constants import PY_EXTS
-from pylint.typing import OptionDict
+from pylint.pylint_typing import OptionDict
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

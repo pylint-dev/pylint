@@ -19,7 +19,7 @@ from pylint.lint import PyLinter
 from pylint.message import Message
 from pylint.reporters.json_reporter import JSON2Reporter, JSONReporter
 from pylint.reporters.ureports.nodes import EvaluationSection
-from pylint.typing import MessageLocationTuple
+from pylint.pylint_typing import MessageLocationTuple
 
 expected_score_message = "Expected score message"
 

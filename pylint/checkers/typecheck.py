@@ -51,7 +51,7 @@ from pylint.checkers.utils import (
 )
 from pylint.constants import PY310_PLUS
 from pylint.interfaces import HIGH, INFERENCE
-from pylint.typing import MessageDefinitionTuple
+from pylint.pylint_typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

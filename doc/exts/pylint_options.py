@@ -19,7 +19,7 @@ from pylint.checkers import initialize as initialize_checkers
 from pylint.checkers.base_checker import BaseChecker
 from pylint.extensions import initialize as initialize_extensions
 from pylint.lint import PyLinter
-from pylint.typing import OptionDict
+from pylint.pylint_typing import OptionDict
 from pylint.utils import get_rst_title
 
 

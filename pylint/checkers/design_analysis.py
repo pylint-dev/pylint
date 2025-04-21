@@ -17,7 +17,7 @@ from astroid import nodes
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_enum, only_required_for_messages
 from pylint.interfaces import HIGH
-from pylint.typing import MessageDefinitionTuple
+from pylint.pylint_typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter

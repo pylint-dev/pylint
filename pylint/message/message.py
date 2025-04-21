@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass
 
 from pylint.constants import MSG_TYPES
 from pylint.interfaces import UNDEFINED, Confidence
-from pylint.typing import MessageLocationTuple
+from pylint.pylint_typing import MessageLocationTuple
 
 
 @dataclass(unsafe_hash=True)
