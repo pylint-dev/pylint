@@ -1,3 +1,0 @@
-Using a slice as a class decorator now raise a 'not-callable' message instead of crashing pylint.
-
-Closes #10334
