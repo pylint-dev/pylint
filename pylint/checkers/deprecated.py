@@ -138,7 +138,7 @@ class DeprecatedMixin(BaseChecker):
             inferred = safe_infer(children[0])
         if not inferred:
             return
-        qname = inferred.qname()
+        qname = inferred.qname() if hasattr(inferred, "qname") else ""
         if qname in self.deprecated_decorators():
             self.add_message("deprecated-decorator", node=node, args=qname)
 
@@ -217,7 +217,7 @@ class DeprecatedMixin(BaseChecker):
         inferred_expr = safe_infer(node.expr)
         if not isinstance(inferred_expr, (nodes.ClassDef, Instance, nodes.Module)):
             return
-        attribute_qname = ".".join((inferred_expr.qname(), node.attrname))
+        attribute_qname = ".".join((inferred_expr.qname() if hasattr(inferred_expr, "qname") else "", node.attrname))
         for deprecated_name in self.deprecated_attributes():
             if attribute_qname == deprecated_name:
                 self.add_message(
