@@ -873,7 +873,8 @@ def decorated_with(
             decorator_node = decorator_node.func
         try:
             if any(
-                i.name in qnames or i.qname() in qnames
+                hasattr(i, "name")
+                and (i.name in qnames or (hasattr(i, "qname") and i.qname() in qnames))
                 for i in decorator_node.infer()
                 if i is not None and not isinstance(i, util.UninferableBase)
             ):
