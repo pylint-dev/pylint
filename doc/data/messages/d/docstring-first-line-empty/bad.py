@@ -1,6 +1,5 @@
 def foo():  # [docstring-first-line-empty]
     """
-
     Lorem Ipsum is simply dummy text of the printing and typesetting
     industry.
 
