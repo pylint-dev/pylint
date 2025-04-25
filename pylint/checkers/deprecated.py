@@ -136,7 +136,7 @@ class DeprecatedMixin(BaseChecker):
             inferred = safe_infer(children[0].func)
         else:
             inferred = safe_infer(children[0])
-        if not inferred or not hasattr(inferred, "qname"):
+        if not isinstance(inferred, (nodes.ClassDef, nodes.FunctionDef)):
             return
         qname = inferred.qname()
         if qname in self.deprecated_decorators():
