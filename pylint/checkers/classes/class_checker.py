@@ -1511,18 +1511,14 @@ a metaclass class method.",
             )
 
         # Handle return type compatibility check
-        try:
-            inferred_return = safe_infer(function_node.returns)
-            inferred_parent_return = safe_infer(parent_function_node.returns)
-            if inferred_return != inferred_parent_return:
-                self.add_message(
-                    "invalid-overridden-method",
-                    args=(function_node.name, inferred_parent_return, inferred_return),
-                    node=function_node,
-                )
-        except (astroid.InferenceError, AttributeError):
-            pass
- 
+        inferred_return = safe_infer(function_node.returns)
+        inferred_parent_return = safe_infer(parent_function_node.returns)
+        if inferred_return != inferred_parent_return:
+            self.add_message(
+                "invalid-overridden-method",
+                args=(function_node.name, inferred_parent_return, inferred_return),
+                node=function_node,
+            )
 
     def _check_functools_or_not(self, decorator: nodes.Attribute) -> bool:
         if decorator.attrname != "cached_property":
