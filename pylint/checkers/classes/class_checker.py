@@ -1510,13 +1510,41 @@ a metaclass class method.",
                 node=function_node,
             )
 
-        # Handle return type compatibility check
+        # Handle return type compatibility check between the current function and the overridden parent function
+        if parent_function_node.returns is None:
+            # If the parent function has no return type, no further checks are needed
+            return
+
         inferred_return = safe_infer(function_node.returns)
         inferred_parent_return = safe_infer(parent_function_node.returns)
-        if inferred_return != inferred_parent_return:
+
+        # If both return types are None, there's no conflict, so no validation is required
+        if inferred_return is None and inferred_parent_return is None:
+            return
+
+        # If one return type is None and the other is not, this is an invalid override
+        if (inferred_return is None) != (inferred_parent_return is None):
             self.add_message(
                 "invalid-overridden-method",
-                args=(function_node.name, inferred_parent_return, inferred_return),
+                args=(
+                    function_node.name,
+                    "None" if inferred_parent_return is None else inferred_parent_return,
+                    "None" if inferred_return is None else inferred_return
+                ),
+                node=function_node,
+            )
+            return
+
+        # If both return types are not None, compare them to check for compatibility
+        if inferred_return.name != inferred_parent_return.name:
+            # The return types are incompatible, so add an error message
+            self.add_message(
+                "invalid-overridden-method",
+                args=(
+                    function_node.name,
+                    inferred_parent_return,  # Parent return type
+                    inferred_return          # Current return type
+                ),
                 node=function_node,
             )
 

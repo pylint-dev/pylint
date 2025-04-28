@@ -1,0 +1,6 @@
+************* Module functional.r.invalid_overridden_method
+invalid_overridden_method.py:17:4: W0236: Method 'method' was expected to be <ClassDef.int l.0 at 0x794d71667490>, found it instead as <ClassDef.str l.0 at 0x794d713ce250> (invalid-overridden-method)
+invalid_overridden_method.py:30:4: W0236: Method 'method' was expected to be <Const.NoneType l.24 at 0x794d711b7010>, found it instead as <ClassDef.int l.0 at 0x794d71667490> (invalid-overridden-method)
+invalid_overridden_method.py:44:4: W0236: Method 'read_file' was expected to be <ClassDef.TextIOWrapper l.0 at 0x794d70fa4b90>, found it instead as <ClassDef.BytesIO l.0 at 0x794d71102ad0> (invalid-overridden-method)
+invalid_overridden_method.py:70:4: W0236: Method 'get_contents' was expected to be <Const.str l.64 at 0x794d711beb90>, found it instead as <ClassDef.dict l.0 at 0x794d715b12d0> (invalid-overridden-method)
+invalid_overridden_method.py:84:4: W0236: Method 'get_value' was expected to be <ClassDef.float l.0 at 0x794d71603990>, found it instead as <ClassDef.str l.0 at 0x794d713ce250> (invalid-overridden-method)
