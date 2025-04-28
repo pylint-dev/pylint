@@ -1535,15 +1535,14 @@ a metaclass class method.",
             )
             return
 
-        # If both return types are not None, compare them to check for compatibility
-        if inferred_return.name != inferred_parent_return.name:
-            # The return types are incompatible, so add an error message
+        # Both have types but they differ - invalid
+        if inferred_return and inferred_parent_return and inferred_return.name != inferred_parent_return.name:
             self.add_message(
                 "invalid-overridden-method",
                 args=(
                     function_node.name,
-                    inferred_parent_return,  # Parent return type
-                    inferred_return          # Current return type
+                    inferred_parent_return,
+                    inferred_return
                 ),
                 node=function_node,
             )
