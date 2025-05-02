@@ -876,7 +876,7 @@ def decorated_with(
             if any(
                 i.name in qnames or i.qname() in qnames
                 for i in decorator_node.infer()
-                if i is not None and not isinstance(i, util.UninferableBase)
+                if isinstance(i, (nodes.ClassDef, nodes.FunctionDef))
             ):
                 return True
         except astroid.InferenceError:

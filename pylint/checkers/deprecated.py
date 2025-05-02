@@ -136,7 +136,9 @@ class DeprecatedMixin(BaseChecker):
             inf = safe_infer(children[0].func)
         else:
             inf = safe_infer(children[0])
-        qname = inf.qname() if inf else None
+        if not isinstance(inf, (nodes.ClassDef, nodes.FunctionDef)):
+            return
+        qname = inf.qname()
         if qname in self.deprecated_decorators():
             self.add_message("deprecated-decorator", node=node, args=qname)
 

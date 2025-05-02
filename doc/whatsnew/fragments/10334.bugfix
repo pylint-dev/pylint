@@ -1,0 +1,3 @@
+Using a slice as a class decorator now raise a 'not-callable' message instead of crashing pylint. A lot of checks that dealt with decorators (too many to list) are now shortcut if the decorator can't immediately be inferred to a function or class definition.
+
+Closes #10334
