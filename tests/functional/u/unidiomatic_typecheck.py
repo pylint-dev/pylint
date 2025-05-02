@@ -61,9 +61,15 @@ def parameter_shadowing_inference_negatives(type):
     type(42) in [int]
     type(42) not in [int]
 
-def deliberate_subclass_check_negatives(b):
+def deliberate_subclass_check_negatives(a,b):
     type(42) is type(b)
     type(42) is not type(b)
+    type(42) == type(b)
+    type(42) != type(b)
+    type(a) is type(b)
+    type(a) is not type(b)
+    type(a) == type(b)
+    type(a) != type(b)
 
 def type_of_literals_negatives(a):
     type(a) is type([])
@@ -78,9 +84,3 @@ def type_of_literals_negatives(a):
     type(a) != type({})
     type(a) == type("")
     type(a) != type("")
-
-def double_type_check_negatives(a, b):
-    type(a) == type(b)
-    type(a) != type(b)
-    type(a) is type(b)
-    type(a) is not type(b)
