@@ -10,3 +10,15 @@ unidiomatic-typecheck:16:4:16:20:simple_inference_positives:Use isinstance() rat
 unidiomatic-typecheck:17:4:17:24:simple_inference_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
 unidiomatic-typecheck:18:4:18:20:simple_inference_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
 unidiomatic-typecheck:19:4:19:20:simple_inference_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:75:4:75:23:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:76:4:76:27:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:77:4:77:23:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:78:4:78:27:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:79:4:79:23:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:80:4:80:27:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:81:4:81:23:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:82:4:82:23:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:83:4:83:23:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:84:4:84:23:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:85:4:85:23:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
+unidiomatic-typecheck:86:4:86:23:type_of_literals_positives:Use isinstance() rather than type() for a typecheck.:UNDEFINED
