@@ -323,18 +323,13 @@ class ComparisonChecker(_BasicChecker):
         if operator in TYPECHECK_COMPARISON_OPERATORS:
             left = node.left
             if _is_one_arg_pos_call(left):
-                self._check_type_x_is_y(node, left, operator, right)
+                self._check_type_x_is_y(node=node, left=left, right=right)
             elif isinstance(left, nodes.Name) and _is_one_arg_pos_call(right):
-                self._check_type_x_is_y(
-                    node=node, left=right, operator=operator, right=left
-                )  # transforming Y == type(x) case to type(x) == Y
+                # transforming Y == type(x) case to type(x) == Y
+                self._check_type_x_is_y(node=node, left=right, right=left)
 
     def _check_type_x_is_y(
-        self,
-        node: nodes.Compare,
-        left: nodes.NodeNG,
-        operator: str,
-        right: nodes.NodeNG,
+        self, node: nodes.Compare, left: nodes.NodeNG, right: nodes.NodeNG
     ) -> None:
         """Check for expressions like type(x) == Y."""
         left_func = utils.safe_infer(left.func)
