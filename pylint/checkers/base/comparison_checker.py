@@ -349,5 +349,4 @@ class ComparisonChecker(_BasicChecker):
                 if not isinstance(right_arg, LITERAL_NODE_TYPES):
                     # not e.g. type(x) == type([])
                     return
-
         self.add_message("unidiomatic-typecheck", node=node)
