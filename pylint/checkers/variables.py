@@ -2448,7 +2448,7 @@ class VariablesChecker(BaseChecker):
         node_frame = node.frame()
 
         parent = node
-        while parent is not defstmt_frame.parent:
+        while parent not in {defstmt_frame.parent, None}:
             parent_scope = parent.scope()
 
             # Find out if any nonlocals receive values in nested functions

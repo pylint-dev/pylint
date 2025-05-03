@@ -1,0 +1,3 @@
+Fixed a crash when importing a class decorator that did not exist with the same name than a class attribute after the class definition.
+
+Closes #10105
