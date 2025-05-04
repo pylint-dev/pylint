@@ -1,3 +1,0 @@
-Comparisons between two calls to `type()` won't raise an ``unidiomatic-typecheck`` warning anymore, consistent with the behavior applied only for ``==`` previously.
-
-Closes #10161

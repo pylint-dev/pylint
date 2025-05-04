@@ -1,3 +1,0 @@
-Fix a crash caused by malformed format strings when using `.format` with keyword arguments.
-
-Closes #10282
