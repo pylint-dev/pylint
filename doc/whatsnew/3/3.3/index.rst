@@ -31,7 +31,7 @@ False Positives Fixed
 Other Bug Fixes
 ---------------
 
-- Fixed a crash when importing a class decorator that did not exist with the same name than a class attribute after the class definition.
+- Fixed a crash when importing a class decorator that did not exist with the same name as a class attribute after the class definition.
 
   Closes #10105 (`#10105 <https://github.com/pylint-dev/pylint/issues/10105>`_)
 
@@ -39,7 +39,7 @@ Other Bug Fixes
 
   Closes #10282 (`#10282 <https://github.com/pylint-dev/pylint/issues/10282>`_)
 
-- Using a slice as a class decorator now raise a 'not-callable' message instead of crashing pylint. A lot of checks that dealt with decorators (too many to list) are now shortcut if the decorator can't immediately be inferred to a function or class definition.
+- Using a slice as a class decorator now raises a ``not-callable`` message instead of crashing. A lot of checks that dealt with decorators (too many to list) are now shortcut if the decorator can't immediately be inferred to a function or class definition.
 
   Closes #10334 (`#10334 <https://github.com/pylint-dev/pylint/issues/10334>`_)
 
@@ -48,7 +48,7 @@ Other Bug Fixes
 Other Changes
 -------------
 
-- The algorithm used for ``no-member`` suggestions is now more efficient and cut the
+- The algorithm used for ``no-member`` suggestions is now more efficient and cuts the
   calculation when the distance score is already above the threshold.
 
   Refs #10277 (`#10277 <https://github.com/pylint-dev/pylint/issues/10277>`_)
