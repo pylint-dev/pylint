@@ -1467,7 +1467,7 @@ a metaclass class method.",
     ) -> None:
         if _is_trivial_super_delegation(function_node):
             return
-        
+
         parent_is_property = decorated_with_property(
             parent_function_node
         ) or is_property_setter_or_deleter(parent_function_node)
@@ -1512,7 +1512,7 @@ a metaclass class method.",
                 args=(function_node.name, parent_function_node.parent.frame().name),
                 node=function_node,
             )
-        
+
         if function_node.returns is None or parent_function_node.returns is None:
             return
 
@@ -1530,40 +1530,49 @@ a metaclass class method.",
             and inferred_parent_return.name == "Any"
         ):
             return
-            
+
         # Parent returns None - allow any return type in child.
         if (
             isinstance(inferred_parent_return, nodes.Const)
             and inferred_parent_return.value is None
         ):
             return
-            
+
         # Validation: Skip if parent has no explicit return type annotation
         if parent_function_node.returns is None:
             return
 
         # Validation: Check if child return type is a subtype of parent return type
         try:
-            if hasattr(utils, 'is_subtype') and utils.is_subtype(inferred_return, inferred_parent_return):
+            if hasattr(utils, "is_subtype") and utils.is_subtype(
+                inferred_return, inferred_parent_return
+            ):
                 return
         except astroid.InferenceError:
             pass
 
         # Validation: Compare qualified names for class types
-        if hasattr(inferred_return, "qname") and hasattr(inferred_parent_return, "qname"):
+        if hasattr(inferred_return, "qname") and hasattr(
+            inferred_parent_return, "qname"
+        ):
             if inferred_return.qname() == inferred_parent_return.qname():
                 return
 
         # Validation: Same name for builtin types
-        if hasattr(inferred_return, 'name') and hasattr(inferred_parent_return, 'name'):
+        if hasattr(inferred_return, "name") and hasattr(inferred_parent_return, "name"):
             if inferred_return.name == inferred_parent_return.name:
                 return
 
         return_name = getattr(inferred_return, "name", str(inferred_return))
-        parent_return_name = getattr(inferred_parent_return, "name", str(inferred_parent_return))
-        
+        parent_return_name = getattr(
+            inferred_parent_return, "name", str(inferred_parent_return)
+        )
+
         # Only report if types are definitely different
-        if return_name != parent_return_name or inferred_return != inferred_parent_return:
+        if (
+            return_name != parent_return_name
+            or inferred_return != inferred_parent_return
+        ):
             self.add_message(
                 "invalid-overridden-method",
                 args=(
