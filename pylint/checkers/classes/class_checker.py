@@ -1465,6 +1465,9 @@ a metaclass class method.",
         function_node: nodes.FunctionDef,
         parent_function_node: nodes.FunctionDef,
     ) -> None:
+        if _is_trivial_super_delegation(function_node):
+            return
+        
         parent_is_property = decorated_with_property(
             parent_function_node
         ) or is_property_setter_or_deleter(parent_function_node)
@@ -1509,40 +1512,64 @@ a metaclass class method.",
                 args=(function_node.name, parent_function_node.parent.frame().name),
                 node=function_node,
             )
-
-        # Handle return type compatibility check between the current function and the overridden parent function
-        if parent_function_node.returns is None:
-            # If the parent function has no return type, no further checks are needed
+        
+        if function_node.returns is None or parent_function_node.returns is None:
             return
 
         inferred_return = safe_infer(function_node.returns)
         inferred_parent_return = safe_infer(parent_function_node.returns)
 
-        # If both return types are None, there's no conflict, so no validation is required
-        if inferred_return is None and inferred_parent_return is None:
+        # Skip type checking if we couldn't infer one or both return types
+        if inferred_return is None or inferred_parent_return is None:
             return
 
-        # If one return type is None and the other is not, this is an invalid override
-        if (inferred_return is None) != (inferred_parent_return is None):
+        # Handle special cases where return type differences are allowed
+        # Parent returns Any - allow any return type in child
+        if (
+            isinstance(inferred_parent_return, nodes.Name)
+            and inferred_parent_return.name == "Any"
+        ):
+            return
+            
+        # Parent returns None - allow any return type in child.
+        if (
+            isinstance(inferred_parent_return, nodes.Const)
+            and inferred_parent_return.value is None
+        ):
+            return
+            
+        # Validation: Skip if parent has no explicit return type annotation
+        if parent_function_node.returns is None:
+            return
+
+        # Validation: Check if child return type is a subtype of parent return type
+        try:
+            if hasattr(utils, 'is_subtype') and utils.is_subtype(inferred_return, inferred_parent_return):
+                return
+        except astroid.InferenceError:
+            pass
+
+        # Validation: Compare qualified names for class types
+        if hasattr(inferred_return, "qname") and hasattr(inferred_parent_return, "qname"):
+            if inferred_return.qname() == inferred_parent_return.qname():
+                return
+
+        # Validation: Same name for builtin types
+        if hasattr(inferred_return, 'name') and hasattr(inferred_parent_return, 'name'):
+            if inferred_return.name == inferred_parent_return.name:
+                return
+
+        return_name = getattr(inferred_return, "name", str(inferred_return))
+        parent_return_name = getattr(inferred_parent_return, "name", str(inferred_parent_return))
+        
+        # Only report if types are definitely different
+        if return_name != parent_return_name or inferred_return != inferred_parent_return:
             self.add_message(
                 "invalid-overridden-method",
                 args=(
                     function_node.name,
-                    "None" if inferred_parent_return is None else inferred_parent_return,
-                    "None" if inferred_return is None else inferred_return
-                ),
-                node=function_node,
-            )
-            return
-
-        # Both have types but they differ - invalid
-        if inferred_return and inferred_parent_return and inferred_return.name != inferred_parent_return.name:
-            self.add_message(
-                "invalid-overridden-method",
-                args=(
-                    function_node.name,
-                    inferred_parent_return,
-                    inferred_return
+                    parent_return_name,
+                    return_name,
                 ),
                 node=function_node,
             )
