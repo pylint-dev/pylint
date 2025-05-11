@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.5.0
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -103,7 +103,7 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Set up Python 3.13
         id: python
-        uses: actions/setup-python@v5.5.0
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.13"
           check-latest: true
@@ -117,7 +117,7 @@ jobs:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.tests-linux.outputs.python-key }}
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v4.2.1
+        uses: actions/download-artifact@v4.3.0
       - name: Combine coverage results
         run: |
           . venv/bin/activate
@@ -143,7 +143,7 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.5.0
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -198,7 +198,7 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.5.0
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
