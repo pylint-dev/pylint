@@ -3,10 +3,10 @@ import collections.abc as ca
 import typing as t
 
 a1: t.Generator[int, str, str]
-a2: t.Generator[int, None, None]
+a2: t.Generator[int, None, None]  # >=3.13:[unnecessary-default-type-args]
 a3: t.Generator[int]
 b1: t.AsyncGenerator[int, str]
-b2: t.AsyncGenerator[int, None]
+b2: t.AsyncGenerator[int, None]  # >=3.13:[unnecessary-default-type-args]
 b3: t.AsyncGenerator[int]
 
 c1: ca.Generator[int, str, str]
