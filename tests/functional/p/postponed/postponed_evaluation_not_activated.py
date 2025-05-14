@@ -3,10 +3,10 @@
 
 class Class:
     @classmethod
-    def from_string(cls, source) -> Class:  # [undefined-variable]
+    def from_string(cls, source) -> Class:  # <3.14:[undefined-variable]
         ...
 
-    def validate_b(self, obj: OtherClass) -> bool:  # [used-before-assignment]
+    def validate_b(self, obj: OtherClass) -> bool:  # <3.14:[used-before-assignment]
         ...
 
 

@@ -1,0 +1,15 @@
+undefined-variable:79:20:79:27:MyClass.incorrect_default_method:Undefined variable 'MyClass':UNDEFINED
+possibly-used-before-assignment:171:14:171:20:TypeCheckingMultiBranch.defined_in_elif_branch:Possibly using variable 'bisect' before assignment:INFERENCE
+possibly-used-before-assignment:172:15:172:23:TypeCheckingMultiBranch.defined_in_elif_branch:Possibly using variable 'calendar' before assignment:INFERENCE
+used-before-assignment:175:14:175:22:TypeCheckingMultiBranch.defined_in_else_branch:Using variable 'zoneinfo' before assignment:INFERENCE
+used-before-assignment:176:14:176:20:TypeCheckingMultiBranch.defined_in_else_branch:Using variable 'pprint' before assignment:INFERENCE
+used-before-assignment:177:14:177:25:TypeCheckingMultiBranch.defined_in_else_branch:Using variable 'collections' before assignment:INFERENCE
+possibly-used-before-assignment:181:14:181:19:TypeCheckingMultiBranch.defined_in_nested_if_else:Possibly using variable 'heapq' before assignment:INFERENCE
+used-before-assignment:185:14:185:19:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'types' before assignment:INFERENCE
+used-before-assignment:186:14:186:18:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'copy' before assignment:INFERENCE
+used-before-assignment:187:14:187:21:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'numbers' before assignment:INFERENCE
+used-before-assignment:188:15:188:20:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'array' before assignment:INFERENCE
+used-before-assignment:191:14:191:19:TypeCheckingMultiBranch.defined_in_loops:Using variable 'email' before assignment:INFERENCE
+used-before-assignment:192:14:192:21:TypeCheckingMultiBranch.defined_in_loops:Using variable 'mailbox' before assignment:INFERENCE
+used-before-assignment:193:14:193:23:TypeCheckingMultiBranch.defined_in_loops:Using variable 'mimetypes' before assignment:INFERENCE
+used-before-assignment:197:14:197:22:TypeCheckingMultiBranch.defined_in_with:Using variable 'binascii' before assignment:INFERENCE
