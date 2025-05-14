@@ -186,6 +186,8 @@ class TypingChecker(BaseChecker):
         self._py39_plus = py_version >= (3, 9)
         self._py310_plus = py_version >= (3, 10)
         self._py313_plus = py_version >= (3, 13)
+        self._py314_plus = py_version >= (3, 14)
+        self._postponed_evaluation_enabled = False
 
         self._should_check_typing_alias = self._py39_plus or (
             self._py37_plus and self.linter.config.runtime_typing is False
@@ -196,6 +198,11 @@ class TypingChecker(BaseChecker):
 
         self._should_check_noreturn = py_version < (3, 7, 2)
         self._should_check_callable = py_version < (3, 9, 2)
+
+    def visit_module(self, node: nodes.Module) -> None:
+        self._postponed_evaluation_enabled = (
+            self._py314_plus or is_postponed_evaluation_enabled(node)
+        )
 
     def _msg_postponed_eval_hint(self, node: nodes.NodeNG) -> str:
         """Message hint if postponed evaluation isn't enabled."""
@@ -474,7 +481,7 @@ class TypingChecker(BaseChecker):
             return
 
         if in_type_checking_block(node) or (
-            is_postponed_evaluation_enabled(node)
+            self._postponed_evaluation_enabled
             and is_node_in_type_annotation_context(node)
         ):
             return
@@ -511,7 +518,7 @@ class TypingChecker(BaseChecker):
     def _broken_callable_location(self, node: nodes.Name | nodes.Attribute) -> bool:
         """Check if node would be a broken location for collections.abc.Callable."""
         if in_type_checking_block(node) or (
-            is_postponed_evaluation_enabled(node)
+            self._postponed_evaluation_enabled
             and is_node_in_type_annotation_context(node)
         ):
             return False
