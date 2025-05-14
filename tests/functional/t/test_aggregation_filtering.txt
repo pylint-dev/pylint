@@ -1,0 +1,11 @@
+classDiagram
+  class A {
+    x
+  }
+  class B {
+  }
+  class C {
+  }
+  class P {
+  }
+  P --* A : x
