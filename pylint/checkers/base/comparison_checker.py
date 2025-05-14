@@ -338,15 +338,4 @@ class ComparisonChecker(_BasicChecker):
         ):
             return
 
-        if _is_one_arg_pos_call(right):
-            right_func = utils.safe_infer(right.func)
-            if (
-                isinstance(right_func, nodes.ClassDef)
-                and right_func.qname() == TYPE_QNAME
-            ):
-                # type(x) == type(a)
-                right_arg = utils.safe_infer(right.args[0])
-                if not isinstance(right_arg, LITERAL_NODE_TYPES):
-                    # not e.g. type(x) == type([])
-                    return
         self.add_message("unidiomatic-typecheck", node=node)
