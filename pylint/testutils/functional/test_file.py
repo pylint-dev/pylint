@@ -5,10 +5,10 @@
 from __future__ import annotations
 
 import configparser
-import os
 import sys
 from collections.abc import Callable
 from os.path import basename, exists, join
+from pathlib import Path
 from typing import TypedDict
 
 
@@ -101,18 +101,11 @@ class FunctionalTestFile:
 
     @property
     def expected_output(self) -> str:
-        files = list(
-            filter(
-                lambda s: s.startswith(f"{self.base}.") and s.endswith(".txt"),
-                os.listdir(self._directory),
-            )
-        )
+        files = [p.stem for p in Path(self._directory).glob(f"{self.base}.[0-9]*.txt")]
         # pylint: disable-next=bad-builtin
         current_version = int("".join(map(str, sys.version_info[:2])))
         output_options = [
-            int(version)
-            for s in files
-            if s.count(".") == 2 and (version := s.rsplit(".", maxsplit=2)[1]).isalnum()
+            int(version) for s in files if (version := s.rpartition(".")[2]).isalnum()
         ]
         for opt in sorted(output_options, reverse=True):
             if current_version >= opt:
