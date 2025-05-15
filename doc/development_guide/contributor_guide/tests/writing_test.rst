@@ -66,6 +66,27 @@ test runner. The following options are currently supported:
 - "except_implementations": List of python implementations on which the test should not run
 - "exclude_platforms": List of operating systems on which the test should not run
 
+**Different output for different Python versions**
+
+Sometimes the linting result can change between Python releases. In these cases errors can be marked as conditional.
+Supported operators are ``<``, ``<=``, ``>`` and ``>=``.
+
+.. code-block:: python
+
+    def some_func() -> X:  # <3.14:[undefined-variable]
+      ...
+
+    class X: ...
+
+Since the output messages are different, it is necessary to add two separate files for it.
+First ``<test-file-name>.314.txt``, this will include the output messages for ``>=3.14``, i.e. should be empty here.
+Second ``<test-file-name>.txt``, this will be the default for all other Python versions.
+
+.. note::
+
+    This does only work if the code itself is valid in all tested Python versions.
+    For new syntax, use ``min_pyver`` / ``max_pyver`` instead.
+
 **Functional test file locations**
 
 For existing checkers, new test cases should preferably be appended to the existing test file.
