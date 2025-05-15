@@ -354,7 +354,7 @@ class TypingChecker(BaseChecker):
         inferred = safe_infer(node)
         if not (
             (
-                isinstance(inferred, nodes.FunctionDef)
+                isinstance(inferred, (nodes.FunctionDef, nodes.ClassDef))
                 and inferred.qname() in {"typing.Optional", "typing.Union"}
             )
             or (
@@ -538,7 +538,7 @@ class TypingChecker(BaseChecker):
         inferred_parent = safe_infer(parent_subscript.value)
         if not (
             (
-                isinstance(inferred_parent, nodes.FunctionDef)
+                isinstance(inferred_parent, (nodes.FunctionDef, nodes.ClassDef))
                 and inferred_parent.qname() in {"typing.Optional", "typing.Union"}
             )
             or (
