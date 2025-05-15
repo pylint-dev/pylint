@@ -1,3 +1,5 @@
+# Test for https://github.com/pylint-dev/pylint/issues/10373
+
 class P:
     pass
 
@@ -6,6 +8,3 @@ class A:
 
 class B:
     __x: P = P()
-
-class C:
-    _y: P = P()
