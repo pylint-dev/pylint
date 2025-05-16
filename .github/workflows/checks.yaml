@@ -148,6 +148,7 @@ jobs:
       - name: Run spelling checks
         run: |
           . venv/bin/activate
+          pip install .
           pytest tests/ -k unittest_spelling
 
   documentation:
