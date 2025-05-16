@@ -10,6 +10,7 @@ import warnings
 import pytest
 from pytest import CaptureFixture
 
+from pylint.constants import PY314_PLUS
 from pylint.lint.run import _PylintConfigRun as Run
 
 
@@ -29,7 +30,10 @@ def test_pylint_config_main_messages(capsys: CaptureFixture[str]) -> None:
         with pytest.raises(SystemExit):
             Run(["generate", "-h"])
         captured = capsys.readouterr()
-        assert captured.out.startswith("usage: pylint-config [options] generate")
+        if PY314_PLUS:
+            assert captured.out.startswith("usage: pylint-config generate")
+        else:
+            assert captured.out.startswith("usage: pylint-config [options] generate")
         assert "--interactive" in captured.out
 
         with pytest.raises(SystemExit) as ex:
