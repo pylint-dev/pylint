@@ -1,0 +1,3 @@
+Fix a bug in Pyreverse where aggregations and associations were included in diagrams regardless of the selected --filter-mode (such as PUB_ONLY, ALL, etc.).
+
+Closes #10373
