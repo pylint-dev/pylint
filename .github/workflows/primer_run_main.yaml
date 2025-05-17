@@ -113,7 +113,7 @@ jobs:
       - name: Run pylint primer
         run: |
           . venv/bin/activate
-          pip install .
+          pip install . --no-deps
           python tests/primer/__main__.py run --type=main --batches=${{ matrix.batches }} --batchIdx=${{ matrix.batchIdx }} 2>warnings.txt
       - name: Echo warnings
         if: success() || failure()
