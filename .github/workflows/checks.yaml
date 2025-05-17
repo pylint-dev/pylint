@@ -119,7 +119,7 @@ jobs:
       - name: Run pylint checks
         run: |
           . venv/bin/activate
-          pip install .
+          pip install . --no-deps
           pip list | grep 'astroid\|pylint'
           pre-commit run --hook-stage manual pylint-with-spelling --all-files
 
@@ -149,6 +149,7 @@ jobs:
       - name: Run spelling checks
         run: |
           . venv/bin/activate
+          pip install . --no-deps
           pytest tests/ -k unittest_spelling
 
   documentation:
