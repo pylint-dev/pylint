@@ -78,6 +78,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
+          pip install . --no-deps
           pip list | grep 'astroid\|pylint'
           python -m pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
       - name: Run functional tests with minimal messages config
@@ -160,7 +161,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install pygal
-          pip install .
+          pip install . --no-deps
           pip list | grep 'astroid\|pylint'
           pytest --exitfirst \
             --benchmark-only \
@@ -226,5 +227,6 @@ jobs:
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
+          pip install . --no-deps
           pip list | grep 'astroid\|pylint'
           python -m pytest --durations=10 --benchmark-disable tests/
