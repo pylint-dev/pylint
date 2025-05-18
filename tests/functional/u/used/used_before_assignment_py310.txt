@@ -1,0 +1,1 @@
+possibly-used-before-assignment:108:11:108:17:check_value_if_then_match_non_exhaustive:Possibly using variable 'result' before assignment:CONTROL_FLOW
