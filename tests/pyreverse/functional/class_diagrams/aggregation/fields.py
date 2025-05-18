@@ -4,7 +4,7 @@ class P:
     pass
 
 class A:
-    x: P  # can't tell, so default to aggregation
+    x: P  # just type hint, no ownership, soassociation
 
 class B:
     def __init__(self, x: P):
