@@ -1,23 +1,23 @@
 classDiagram
   class A {
-    x
+    x : P
   }
   class B {
-    x
+    x : P
   }
   class C {
-    x
+    x : P
   }
   class D {
-    x
+    x : P
   }
   class E {
-    x
+    x : P
   }
   class P {
   }
-  P --* A : x
-  P --* C : x
+  P --o A : x
+  P --o B : x
+  P --o C : x
   P --* D : x
   P --* E : x
-  P --o B : x
