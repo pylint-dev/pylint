@@ -9,7 +9,9 @@ import sys
 from collections.abc import Callable
 from os.path import basename, exists, join, split
 from pathlib import Path
-from typing import TypedDict
+from typing import Final, TypedDict
+
+_CURRENT_VERSION: Final = sys.version_info[:2]
 
 
 def parse_python_version(ver_str: str) -> tuple[int, ...]:
@@ -105,14 +107,15 @@ class FunctionalTestFile:
             p.stem
             for p in Path(self._directory).glob(f"{split(self.base)[-1]}.[0-9]*.txt")
         ]
-        # pylint: disable-next=bad-builtin
-        current_version = int("".join(map(str, sys.version_info[:2])))
         output_options = [
-            int(version) for s in files if (version := s.rpartition(".")[2]).isalnum()
+            (int(version[0]), int(version[1:]))
+            for s in files
+            if (version := s.rpartition(".")[2]).isalnum()
         ]
         for opt in sorted(output_options, reverse=True):
-            if current_version >= opt:
-                return join(self._directory, f"{self.base}.{opt}.txt")
+            if _CURRENT_VERSION >= opt:
+                str_opt = "".join([str(s) for s in opt])
+                return join(self._directory, f"{self.base}.{str_opt}.txt")
         return join(self._directory, self.base + ".txt")
 
     @property
