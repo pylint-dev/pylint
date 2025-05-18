@@ -226,6 +226,7 @@ class ClassDiagram(Figure, FilterMixIn):
             obj.attrs = self.get_attrs(node)
             obj.methods = self.get_methods(node)
             obj.shape = "class"
+
             # inheritance link
             for par_node in node.ancestors(recurs=False):
                 try:
@@ -234,12 +235,16 @@ class ClassDiagram(Figure, FilterMixIn):
                 except KeyError:
                     continue
 
+            # Track processed attributes to avoid duplicates
+            processed_attrs = set()
+
             # Composition links
             for name, values in list(node.compositions_type.items()):
                 for value in values:
                     self.assign_association_relationship(
                         value, obj, name, "composition"
                     )
+                    processed_attrs.add(name)
 
             # Aggregation links
             for name, values in list(node.aggregations_type.items()):
