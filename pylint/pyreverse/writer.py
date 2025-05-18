@@ -146,6 +146,14 @@ class DiagramWriter:
                 label=rel.name,
                 type_=EdgeType.ASSOCIATION,
             )
+        # generate compositions
+        for rel in diagram.get_relationships("composition"):
+            self.printer.emit_edge(
+                rel.from_object.fig_id,
+                rel.to_object.fig_id,
+                label=rel.name,
+                type_=EdgeType.COMPOSITION,
+            )
         # generate aggregations
         for rel in diagram.get_relationships("aggregation"):
             if rel.to_object.fig_id in associations[rel.from_object.fig_id]:

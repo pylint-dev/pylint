@@ -121,8 +121,14 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         self.tag = tag
         # visited project
         self.project = project
-        self.associations_handler = AggregationsHandler()
-        self.associations_handler.set_next(OtherAssociationsHandler())
+
+        # Chain: Composition → Aggregation → Association
+        self.associations_handler = CompositionsHandler()
+        aggregation_handler = AggregationsHandler()
+        association_handler = AssociationsHandler()
+
+        self.associations_handler.set_next(aggregation_handler)
+        aggregation_handler.set_next(association_handler)
 
     def visit_project(self, node: Project) -> None:
         """Visit a pyreverse.utils.Project node.
@@ -166,6 +172,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             specializations.append(node)
             baseobj.specializations = specializations
         # resolve instance attributes
+        node.compositions_type = collections.defaultdict(list)
         node.instance_attrs_type = collections.defaultdict(list)
         node.aggregations_type = collections.defaultdict(list)
         node.associations_type = collections.defaultdict(list)
@@ -326,16 +333,39 @@ class AbstractAssociationHandler(AssociationHandlerInterface):
             self._next_handler.handle(node, parent)
 
 
-class AggregationsHandler(AbstractAssociationHandler):
+class CompositionsHandler(AbstractAssociationHandler):
+    """Handle composition relationships where parent creates child objects."""
+
     def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
-        # Check if we're not in an assignment context
         if not isinstance(node.parent, (nodes.AnnAssign, nodes.Assign)):
             super().handle(node, parent)
             return
 
         value = node.parent.value
 
-        # Handle direct name assignments
+        # Composition: parent creates child (self.x = P())
+        if isinstance(value, nodes.Call):
+            current = set(parent.compositions_type[node.attrname])
+            parent.compositions_type[node.attrname] = list(
+                current | utils.infer_node(node)
+            )
+            return
+
+        # Not a composition, pass to next handler
+        super().handle(node, parent)
+
+
+class AggregationsHandler(AbstractAssociationHandler):
+    """Handle aggregation relationships where parent receives child objects."""
+
+    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+        if not isinstance(node.parent, (nodes.AnnAssign, nodes.Assign)):
+            super().handle(node, parent)
+            return
+
+        value = node.parent.value
+
+        # Aggregation: parent receives child (self.x = x)
         if isinstance(value, astroid.node_classes.Name):
             current = set(parent.aggregations_type[node.attrname])
             parent.aggregations_type[node.attrname] = list(
@@ -343,11 +373,10 @@ class AggregationsHandler(AbstractAssociationHandler):
             )
             return
 
-        # Handle comprehensions
+        # Aggregation: comprehensions (self.x = [P() for ...])
         if isinstance(
             value, (nodes.ListComp, nodes.DictComp, nodes.SetComp, nodes.GeneratorExp)
         ):
-            # Determine the type of the element in the comprehension
             if isinstance(value, nodes.DictComp):
                 element_type = safe_infer(value.value)
             else:
@@ -357,12 +386,23 @@ class AggregationsHandler(AbstractAssociationHandler):
                 parent.aggregations_type[node.attrname] = list(current | {element_type})
                 return
 
-        # Fallback to parent handler
+        # Type annotation only (x: P) defaults to aggregation
+        if isinstance(node.parent, nodes.AnnAssign) and node.parent.value is None:
+            current = set(parent.aggregations_type[node.attrname])
+            parent.aggregations_type[node.attrname] = list(
+                current | utils.infer_node(node)
+            )
+            return
+
+        # Not an aggregation, pass to next handler
         super().handle(node, parent)
 
 
-class OtherAssociationsHandler(AbstractAssociationHandler):
+class AssociationsHandler(AbstractAssociationHandler):
+    """Handle regular association relationships."""
+
     def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+        # Everything else is a regular association
         current = set(parent.associations_type[node.attrname])
         parent.associations_type[node.attrname] = list(current | utils.infer_node(node))
 
