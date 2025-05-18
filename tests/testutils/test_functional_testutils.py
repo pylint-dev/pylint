@@ -6,6 +6,7 @@
 
 import contextlib
 import os
+import os.path
 import shutil
 import tempfile
 from collections.abc import Iterator
@@ -122,7 +123,7 @@ def test_expected_output_file_matching(files: list[str], output_file_name: str) 
             "pylint.testutils.functional.test_file._CURRENT_VERSION",
             new=(3, 13),
         ):
-            assert test_file.expected_output == f"./{output_file_name}"
+            assert test_file.expected_output == f".{os.path.sep}{output_file_name}"
 
 
 def test_minimal_messages_config_enabled(pytest_config: MagicMock) -> None:
