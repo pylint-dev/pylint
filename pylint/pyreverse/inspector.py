@@ -112,6 +112,9 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
 
     * aggregations_type
       as instance_attrs_type but for aggregations relationships
+
+    * compositions_type
+      as instance_attrs_type but for compositions relationships
     """
 
     def __init__(self, project: Project, tag: bool = False) -> None:
