@@ -1,0 +1,4 @@
+Fix false positives for `possibly-used-before-assignment` when variables are exhaustively
+assigned within a `match` block.
+
+Closes #9668
