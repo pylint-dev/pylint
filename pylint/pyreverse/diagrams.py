@@ -234,15 +234,22 @@ class ClassDiagram(Figure, FilterMixIn):
                 except KeyError:
                     continue
 
-            # associations & aggregations links
+            # Composition links
+            for name, values in list(node.compositions_type.items()):
+                for value in values:
+                    self.assign_association_relationship(
+                        value, obj, name, "composition"
+                    )
+
+            # Aggregation links
             for name, values in list(node.aggregations_type.items()):
                 for value in values:
                     self.assign_association_relationship(
                         value, obj, name, "aggregation"
                     )
 
+            # Association links
             associations = node.associations_type.copy()
-
             for name, values in node.locals_type.items():
                 if name not in associations:
                     associations[name] = values
