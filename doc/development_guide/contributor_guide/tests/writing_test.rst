@@ -76,6 +76,11 @@ Supported operators are ``<``, ``<=``, ``>`` and ``>=``.
     def some_func() -> X:  # <3.14:[undefined-variable]
       ...
 
+    # It can also be combined with offsets
+    # +1:<3.14:[undefined-variable]
+    def some_other_func() -> X:
+      ...
+
     class X: ...
 
 Since the output messages are different, it is necessary to add two separate files for it.
@@ -84,7 +89,7 @@ Second ``<test-file-name>.txt``, this will be the default for all other Python v
 
 .. note::
 
-    This does only work if the code itself is valid in all tested Python versions.
+    This does only work if the code itself is parsable in all tested Python versions.
     For new syntax, use ``min_pyver`` / ``max_pyver`` instead.
 
 **Functional test file locations**
