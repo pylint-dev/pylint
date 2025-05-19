@@ -239,7 +239,7 @@ class ClassDiagram(Figure, FilterMixIn):
                 for value in values:
                     if not self.show_attr(name):
                         continue
-                    
+
                     self.assign_association_relationship(
                         value, obj, name, "aggregation"
                     )
@@ -254,7 +254,7 @@ class ClassDiagram(Figure, FilterMixIn):
                 for value in values:
                     if not self.show_attr(name):
                         continue
-                    
+
                     self.assign_association_relationship(
                         value, obj, name, "association"
                     )
