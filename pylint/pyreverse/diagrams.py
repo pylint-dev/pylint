@@ -226,6 +226,7 @@ class ClassDiagram(Figure, FilterMixIn):
             obj.attrs = self.get_attrs(node)
             obj.methods = self.get_methods(node)
             obj.shape = "class"
+
             # inheritance link
             for par_node in node.ancestors(recurs=False):
                 try:
@@ -234,24 +235,38 @@ class ClassDiagram(Figure, FilterMixIn):
                 except KeyError:
                     continue
 
-            # associations & aggregations links
-            for name, values in list(node.aggregations_type.items()):
+            # Track processed attributes to avoid duplicates
+            processed_attrs = set()
+
+            # Composition links
+            for name, values in list(node.compositions_type.items()):
                 for value in values:
                     self.assign_association_relationship(
-                        value, obj, name, "aggregation"
+                        value, obj, name, "composition"
                     )
+                    processed_attrs.add(name)
 
+            # Aggregation links
+            for name, values in list(node.aggregations_type.items()):
+                if name not in processed_attrs:
+                    for value in values:
+                        self.assign_association_relationship(
+                            value, obj, name, "aggregation"
+                        )
+                        processed_attrs.add(name)
+
+            # Association links
             associations = node.associations_type.copy()
-
             for name, values in node.locals_type.items():
                 if name not in associations:
                     associations[name] = values
 
             for name, values in associations.items():
-                for value in values:
-                    self.assign_association_relationship(
-                        value, obj, name, "association"
-                    )
+                if name not in processed_attrs:
+                    for value in values:
+                        self.assign_association_relationship(
+                            value, obj, name, "association"
+                        )
 
     def assign_association_relationship(
         self, value: astroid.NodeNG, obj: ClassEntity, name: str, type_relationship: str
