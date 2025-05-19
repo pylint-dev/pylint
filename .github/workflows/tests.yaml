@@ -50,7 +50,7 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         # Custom with PyPy fix: https://github.com/actions/setup-python/pull/1110
-        uses: cdce8p/setup-python@v5.6.0-c1
+        uses: cdce8p/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
