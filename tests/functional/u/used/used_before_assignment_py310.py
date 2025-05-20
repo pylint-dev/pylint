@@ -33,7 +33,7 @@ def check_value_if_then_match_return(example: Example, should_check: bool) -> st
             case _:
                 return None
 
-    return result  # [possibly-used-before-assignment] FALSE POSITIVE
+    return result
 
 def check_value_if_then_match_raise(example: Example, should_check: bool) -> str | None:
     if should_check:
@@ -47,7 +47,7 @@ def check_value_if_then_match_raise(example: Example, should_check: bool) -> str
             case _:
                 raise ValueError("Not a valid enum")
 
-    return result  # [possibly-used-before-assignment] FALSE POSITIVE
+    return result
 
 def check_value_if_then_match_assert_never(example: Example, should_check: bool) -> str | None:
     if should_check:
@@ -61,7 +61,7 @@ def check_value_if_then_match_assert_never(example: Example, should_check: bool)
             case _:
                 assert_never(example)
 
-    return result  # [possibly-used-before-assignment] FALSE POSITIVE
+    return result
 
 def g(x):
     if x is None:
@@ -73,4 +73,36 @@ def g(x):
             case _:
                 raise TypeError(type(x))
 
-    return y  # [possibly-used-before-assignment] FALSE POSITIVE
+    return y
+
+def check_value_if_then_match_nested(
+    example: Example, example_inner: Example, should_check: bool
+) -> str | None:
+    if should_check:
+        result = None
+    else:
+        match example:
+            case Example.FOO:
+                match example_inner:
+                    case Example.BAR:
+                        result = "bar"
+                    case _:
+                        return None
+            case _:
+                return None
+
+    return result
+
+def check_value_if_then_match_non_exhaustive(example: Example, should_check: bool) -> str | None:
+    if should_check:
+        result = None
+    else:
+        match example:
+            case Example.FOO:
+                result = "foo"
+            case Example.BAR:
+                pass
+            case _:
+                return None
+
+    return result  # [possibly-used-before-assignment]

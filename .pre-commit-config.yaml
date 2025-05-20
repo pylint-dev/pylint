@@ -20,7 +20,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.11.8"
+    rev: "v0.11.10"
     hooks:
       - id: ruff
         args: ["--fix"]
@@ -128,13 +128,7 @@ repos:
         args: []
         require_serial: true
         additional_dependencies:
-          [
-            "isort>=5",
-            "platformdirs==2.2.0",
-            "py==1.11",
-            "tomlkit>=0.10.1",
-            "types-setuptools==75.6.0.20241126",
-          ]
+          ["isort>=5", "platformdirs==2.2.0", "py==1.11", "tomlkit>=0.10.1"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/rbubley/mirrors-prettier
     rev: v3.5.3

@@ -5,6 +5,4 @@ contributors-txt>=1.0.0
 pytest-cov~=6.1
 pytest-xdist~=3.6
 six
-# Type packages for mypy
-types-setuptools==80.3.0.20250505
 tox>=3

@@ -49,7 +49,8 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        # Custom with PyPy fix: https://github.com/actions/setup-python/pull/1110
+        uses: cdce8p/setup-python@v5.6.0-c1
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -78,6 +79,7 @@ jobs:
       - name: Run pytest
         run: |
           . venv/bin/activate
+          pip install . --no-deps
           pip list | grep 'astroid\|pylint'
           python -m pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
       - name: Run functional tests with minimal messages config
@@ -160,7 +162,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install pygal
-          pip install .
+          pip install . --no-deps
           pip list | grep 'astroid\|pylint'
           pytest --exitfirst \
             --benchmark-only \
@@ -226,5 +228,6 @@ jobs:
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
+          pip install . --no-deps
           pip list | grep 'astroid\|pylint'
           python -m pytest --durations=10 --benchmark-disable tests/

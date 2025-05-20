@@ -648,7 +648,7 @@ class NameChecker(_BasicChecker):
             qname = inferred.qname()
             if qname == "typing.TypeAlias":
                 return True
-            if qname in {".Union", "builtins.UnionType"}:
+            if qname in {".Union", "builtins.Union", "builtins.UnionType"}:
                 # Union is a special case because it can be used as a type alias
                 # or as a type annotation. We only want to check the former.
                 assert node is not None

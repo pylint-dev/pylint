@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import codecs
 import os
 from collections.abc import Iterator, Sequence
 from difflib import unified_diff
@@ -65,7 +64,7 @@ class Config:
 
 def _file_lines(path: str) -> list[str]:
     # we don't care about the actual encoding, but python3 forces us to pick one
-    with codecs.open(path, encoding="latin1") as stream:
+    with open(path, encoding="latin1") as stream:
         lines = [
             line.strip()
             for line in stream.readlines()

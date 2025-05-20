@@ -674,6 +674,12 @@ scope_type : {self.scope_type}
         if isinstance(node, (nodes.With, nodes.For, nodes.While)):
             return NamesConsumer._defines_name_raises_or_returns_recursive(name, node)
 
+        if isinstance(node, nodes.Match):
+            return all(
+                NamesConsumer._defines_name_raises_or_returns_recursive(name, case)
+                for case in node.cases
+            )
+
         if not isinstance(node, nodes.If):
             return False
 
@@ -723,6 +729,7 @@ scope_type : {self.scope_type}
                         nodes.With,
                         nodes.For,
                         nodes.While,
+                        nodes.Match,
                     ),
                 )
                 and self._inferred_to_define_name_raise_or_return(name, if_body_stmt)
@@ -975,6 +982,11 @@ scope_type : {self.scope_type}
                 and NamesConsumer._defines_name_raises_or_returns_recursive(name, stmt)
             ):
                 return True
+            if isinstance(stmt, nodes.Match):
+                return all(
+                    NamesConsumer._defines_name_raises_or_returns_recursive(name, case)
+                    for case in stmt.cases
+                )
         return False
 
     @staticmethod
