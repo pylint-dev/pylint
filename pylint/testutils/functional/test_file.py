@@ -5,6 +5,8 @@
 from __future__ import annotations
 
 import configparser
+import os
+import sys
 from collections.abc import Callable
 from os.path import basename, exists, join
 from typing import TypedDict
@@ -99,7 +101,23 @@ class FunctionalTestFile:
 
     @property
     def expected_output(self) -> str:
-        return self._file_type(".txt", check_exists=False)
+        files = list(
+            filter(
+                lambda s: s.startswith(f"{self.base}.") and s.endswith(".txt"),
+                os.listdir(self._directory),
+            )
+        )
+        # pylint: disable-next=bad-builtin
+        current_version = int("".join(map(str, sys.version_info[:2])))
+        output_options = [
+            int(version)
+            for s in files
+            if s.count(".") == 2 and (version := s.rsplit(".", maxsplit=2)[1]).isalnum()
+        ]
+        for opt in sorted(output_options, reverse=True):
+            if current_version >= opt:
+                return join(self._directory, f"{self.base}.{opt}.txt")
+        return join(self._directory, self.base + ".txt")
 
     @property
     def source(self) -> str:
