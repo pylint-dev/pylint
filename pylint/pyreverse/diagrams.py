@@ -221,6 +221,9 @@ class ClassDiagram(Figure, FilterMixIn):
             # associations & aggregations links
             for name, values in list(node.aggregations_type.items()):
                 for value in values:
+                    if not self.show_attr(name):
+                        continue
+
                     self.assign_association_relationship(
                         value, obj, name, "aggregation"
                     )
@@ -233,6 +236,9 @@ class ClassDiagram(Figure, FilterMixIn):
 
             for name, values in associations.items():
                 for value in values:
+                    if not self.show_attr(name):
+                        continue
+
                     self.assign_association_relationship(
                         value, obj, name, "association"
                     )

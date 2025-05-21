@@ -1,0 +1,18 @@
+classDiagram
+  class P {
+    name : str
+  }
+  class PrivateAttr {
+    __x
+  }
+  class ProtectedAttr {
+    _x
+  }
+  class PublicAttr {
+    x
+  }
+  class SpecialAttr {
+  }
+  P --* PrivateAttr : __x
+  P --* ProtectedAttr : _x
+  P --* PublicAttr : x
