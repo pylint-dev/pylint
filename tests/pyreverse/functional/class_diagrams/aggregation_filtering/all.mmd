@@ -1,0 +1,25 @@
+classDiagram
+  class P {
+    name : str
+    __init__(name: str)
+  }
+  class PrivateAttr {
+    __x
+    __init__()
+  }
+  class ProtectedAttr {
+    _x
+    __init__()
+  }
+  class PublicAttr {
+    x
+    __init__()
+  }
+  class SpecialAttr {
+    __x__
+    __init__()
+  }
+  P --* PrivateAttr : __x
+  P --* ProtectedAttr : _x
+  P --* PublicAttr : x
+  P --* SpecialAttr : __x__
