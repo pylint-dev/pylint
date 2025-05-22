@@ -4,8 +4,14 @@
 
 """Tests for the functional test framework."""
 
+import contextlib
+import os
+import os.path
+import shutil
+import tempfile
+from collections.abc import Iterator
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from _pytest.outcomes import Skipped
@@ -18,6 +24,26 @@ from pylint.testutils.functional import (
 
 HERE = Path(__file__).parent
 DATA_DIRECTORY = HERE / "data"
+
+
+@contextlib.contextmanager
+def tempdir() -> Iterator[str]:
+    """Create a temp directory and change the current location to it.
+
+    This is supposed to be used with a *with* statement.
+    """
+    tmp = tempfile.mkdtemp()
+
+    # Get real path of tempfile, otherwise test fail on mac os x
+    current_dir = os.getcwd()
+    os.chdir(tmp)
+    abs_tmp = os.path.abspath(".")
+
+    try:
+        yield abs_tmp
+    finally:
+        os.chdir(current_dir)
+        shutil.rmtree(abs_tmp)
 
 
 @pytest.fixture(name="pytest_config")
@@ -67,6 +93,37 @@ def test_get_functional_test_files_from_crowded_directory() -> None:
         )
     assert exc_info.match("m: 4 when the max is 3")
     assert "max_overflow" not in str(exc_info.value)
+
+
+@pytest.mark.parametrize(
+    ["files", "output_file_name"],
+    [
+        ([], "file.txt"),
+        (["file.txt"], "file.txt"),
+        (["file.314.txt"], "file.txt"),  # don't match 3.14
+        (["file.42.txt"], "file.txt"),  # don't match 4.2
+        (["file.32.txt", "file.txt"], "file.32.txt"),
+        (["file.312.txt", "file.txt"], "file.312.txt"),
+        (["file.313.txt", "file.txt"], "file.313.txt"),
+        (["file.310.txt", "file.313.txt", "file.312.txt", "file.txt"], "file.313.txt"),
+        # don't match other test file names accidentally
+        ([".file.313.txt"], "file.txt"),
+        (["file_other.313.txt"], "file.txt"),
+        (["other_file.313.txt"], "file.txt"),
+    ],
+)
+def test_expected_output_file_matching(files: list[str], output_file_name: str) -> None:
+    """Test output file matching. Pin current Python version to 3.13."""
+    with tempdir():
+        for file in files:
+            with open(file, "w", encoding="utf-8"):
+                ...
+        test_file = FunctionalTestFile(".", "file.py")
+        with patch(
+            "pylint.testutils.functional.test_file._CURRENT_VERSION",
+            new=(3, 13),
+        ):
+            assert test_file.expected_output == f".{os.path.sep}{output_file_name}"
 
 
 def test_minimal_messages_config_enabled(pytest_config: MagicMock) -> None:

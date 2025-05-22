@@ -5,9 +5,13 @@
 from __future__ import annotations
 
 import configparser
+import sys
 from collections.abc import Callable
-from os.path import basename, exists, join
-from typing import TypedDict
+from os.path import basename, exists, join, split
+from pathlib import Path
+from typing import Final, TypedDict
+
+_CURRENT_VERSION: Final = sys.version_info[:2]
 
 
 def parse_python_version(ver_str: str) -> tuple[int, ...]:
@@ -99,7 +103,20 @@ class FunctionalTestFile:
 
     @property
     def expected_output(self) -> str:
-        return self._file_type(".txt", check_exists=False)
+        files = [
+            p.stem
+            for p in Path(self._directory).glob(f"{split(self.base)[-1]}.[0-9]*.txt")
+        ]
+        output_options = [
+            (int(version[0]), int(version[1:]))
+            for s in files
+            if (version := s.rpartition(".")[2]).isalnum()
+        ]
+        for opt in sorted(output_options, reverse=True):
+            if _CURRENT_VERSION >= opt:
+                str_opt = "".join([str(s) for s in opt])
+                return join(self._directory, f"{self.base}.{str_opt}.txt")
+        return join(self._directory, self.base + ".txt")
 
     @property
     def source(self) -> str:
