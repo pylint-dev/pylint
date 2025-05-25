@@ -33,10 +33,7 @@ class MermaidJSPrinter(Printer):
         self._inc_indent()
 
     def _escape_mermaid_text(self, text: str) -> str:
-        """Escape text to prevent Mermaid from interpreting it as Markdown
-        formatting.
-        """
-        # Escape characters that conflict with Markdown formatting
+        """Escape characters that conflict with Markdown formatting."""
         text = text.replace("__", r"\_\_")  # Double underscore → escaped
         return text
 
