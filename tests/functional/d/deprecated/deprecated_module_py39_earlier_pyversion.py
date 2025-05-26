@@ -3,4 +3,4 @@ but use an earlier --py-version and ensure a warning is still emitted.
 """
 # pylint: disable=unused-import
 
-import binhex  # [deprecated-module]
+import binhex  # [deprecated-module, import-error]
