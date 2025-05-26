@@ -1,1 +1,2 @@
 deprecated-module:4:0:4:13::Deprecated module 'binhex':UNDEFINED
+import-error:4:0:4:13::Unable to import 'binhex':UNDEFINED
