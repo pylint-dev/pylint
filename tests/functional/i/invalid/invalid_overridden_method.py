@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring,too-few-public-methods,disallowed-name,invalid-name,unused-argument
 import abc
+from io import TextIOWrapper, BytesIO
 
 
 class SuperClass(metaclass=abc.ABCMeta):
@@ -125,3 +126,16 @@ class B(A):
     @multiple_returns
     def bar2(self):  # [invalid-overridden-method]
         return False
+
+
+# Test case for return type mismatch from the issue
+class BaseClass(abc.ABC):
+    @abc.abstractmethod
+    def read_file(self, path: str) -> TextIOWrapper:
+        """Abstract method that should return a TextIOWrapper."""
+        raise NotImplementedError("Method must be implemented by subclass")
+
+class ChildClass(BaseClass):
+    def read_file(self, path: str) -> BytesIO:  # [invalid-overridden-method]
+        """Implementation returns BytesIO instead of TextIOWrapper."""
+        return BytesIO(b"content")
