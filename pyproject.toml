@@ -86,6 +86,8 @@ version = { attr = "pylint.__pkginfo__.__version__" }
 # (for docstrings, strings and comments in particular).
 line-length = 115
 
+target-version = "py310"
+
 extend-exclude = [
   "tests/**/data/",
   "tests/**/functional/",
