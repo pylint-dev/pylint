@@ -49,7 +49,6 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
-from pylint.constants import PY310_PLUS
 from pylint.interfaces import HIGH, INFERENCE
 from pylint.typing import MessageDefinitionTuple
 
@@ -796,7 +795,7 @@ def _is_c_extension(module_node: InferenceResult) -> bool:
 
 def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
     # Return True if we are sure that arg is not a type
-    if PY310_PLUS and isinstance(arg, nodes.BinOp) and arg.op == "|":
+    if isinstance(arg, nodes.BinOp) and arg.op == "|":
         return any(
             _is_invalid_isinstance_type(elt) and not is_none(elt)
             for elt in (arg.left, arg.right)
@@ -811,7 +810,7 @@ def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
         return False
     if isinstance(inferred, astroid.Instance) and inferred.qname() == BUILTIN_TUPLE:
         return False
-    if PY310_PLUS and isinstance(inferred, bases.UnionType):
+    if isinstance(inferred, bases.UnionType):
         return any(
             _is_invalid_isinstance_type(elt) and not is_none(elt)
             for elt in (inferred.left, inferred.right)
