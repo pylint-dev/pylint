@@ -82,11 +82,11 @@ version = { attr = "pylint.__pkginfo__.__version__" }
 
 [tool.ruff]
 
+target-version = "py310"
+
 # ruff is less lenient than pylint and does not make any exceptions
 # (for docstrings, strings and comments in particular).
 line-length = 115
-
-target-version = "py310"
 
 extend-exclude = [
   "tests/**/data/",
