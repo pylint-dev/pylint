@@ -5,7 +5,7 @@ for various Python 3 constructs. """
 class Undefined:
     """ test various annotation problems. """
 
-    def test(self)->Undefined: # [undefined-variable]
+    def test(self)->Undefined: # <3.14:[undefined-variable]
         """ used Undefined, which is Undefined in this scope. """
 
     Undefined = True
