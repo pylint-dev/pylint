@@ -7,13 +7,12 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 from re import Pattern
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Literal,
     NamedTuple,
     Optional,
@@ -95,17 +94,15 @@ MessageTypesFullName = Literal[
 
 OptionDict = dict[
     str,
-    Union[
-        None,
-        str,
-        bool,
-        int,
-        Pattern[str],
-        Iterable[Union[str, int, Pattern[str]]],
-        type["_CallbackAction"],
-        Callable[[Any], Any],
-        Callable[[Any, Any, Any, Any], Any],
-    ],
+    None
+    | str
+    | bool
+    | int
+    | Pattern[str]
+    | Iterable[str | int | Pattern[str]]
+    | type["_CallbackAction"]
+    | Callable[[Any], Any]
+    | Callable[[Any, Any, Any, Any], Any],
 ]
 Options = tuple[tuple[str, OptionDict], ...]
 
