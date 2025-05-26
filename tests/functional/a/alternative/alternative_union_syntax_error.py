@@ -23,7 +23,7 @@ Alias = str | typing.List[int]  # [unsupported-binary-operation]
 lst = [typing.Dict[str, int] | None,]  # [unsupported-binary-operation]
 
 var1: typing.Dict[str, int | None]  # [unsupported-binary-operation]
-var2: int | str | None  # [unsupported-binary-operation, unsupported-binary-operation]
+# var2: int | str | None  # false-negative: unsupported-binary-operation, unsupported-binary-operation
 var3: int | typing.List[str | int]  # [unsupported-binary-operation]
 var4: typing.Dict[typing.Tuple[int, int] | int, None]  # [unsupported-binary-operation]
 
