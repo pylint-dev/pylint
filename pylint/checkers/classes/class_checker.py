@@ -1510,6 +1510,27 @@ a metaclass class method.",
                 node=function_node,
             )
 
+        # Check for return type mismatches
+        parent_returns = parent_function_node.returns
+        current_returns = function_node.returns
+
+        # Only check if both methods have return type annotations
+        if parent_returns is not None and current_returns is not None:
+            parent_return_str = parent_returns.as_string()
+            current_return_str = current_returns.as_string()
+
+            # Compare return type annotations as strings
+            if parent_return_str != current_return_str:
+                self.add_message(
+                    "invalid-overridden-method",
+                    args=(
+                        function_node.name,
+                        f"return type '{parent_return_str}'",
+                        f"return type '{current_return_str}'",
+                    ),
+                    node=function_node,
+                )
+
     def _check_functools_or_not(self, decorator: nodes.Attribute) -> bool:
         if decorator.attrname != "cached_property":
             return False
