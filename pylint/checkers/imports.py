@@ -13,7 +13,7 @@ import sys
 from collections import defaultdict
 from collections.abc import ItemsView, Sequence
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes
@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 
 # The dictionary with Any should actually be a _ImportTree again
 # but mypy doesn't support recursive types yet
-_ImportTree = dict[str, Union[list[dict[str, Any]], list[str]]]
+_ImportTree = dict[str, list[dict[str, Any]] | list[str]]
 
 DEPRECATED_MODULES = {
     (0, 0, 0): {"tkinter.tix", "fpectl"},
