@@ -15,10 +15,8 @@ from typing import (
     Any,
     Literal,
     NamedTuple,
-    Optional,
     Protocol,
     TypedDict,
-    Union,
 )
 
 if TYPE_CHECKING:
@@ -107,7 +105,7 @@ OptionDict = dict[
 Options = tuple[tuple[str, OptionDict], ...]
 
 
-ReportsCallable = Callable[["Section", "LinterStats", Optional["LinterStats"]], None]
+ReportsCallable = Callable[["Section", "LinterStats", "LinterStats | None"], None]
 """Callable to create a report."""
 
 
@@ -122,10 +120,9 @@ class ExtraMessageOptions(TypedDict, total=False):
     default_enabled: bool
 
 
-MessageDefinitionTuple = Union[
-    tuple[str, str, str],
-    tuple[str, str, str, ExtraMessageOptions],
-]
+MessageDefinitionTuple = (
+    tuple[str, str, str] | tuple[str, str, str, ExtraMessageOptions]
+)
 DirectoryNamespaceDict = dict[Path, tuple[argparse.Namespace, "DirectoryNamespaceDict"]]
 
 

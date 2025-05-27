@@ -15,7 +15,7 @@ import sys
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache, singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal
 
 import astroid
 import astroid.exceptions
@@ -55,12 +55,12 @@ from pylint.typing import MessageDefinitionTuple
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-CallableObjects = Union[
-    bases.BoundMethod,
-    bases.UnboundMethod,
-    nodes.FunctionDef,
-    nodes.Lambda,
-    nodes.ClassDef,
+CallableObjects = type[
+    bases.BoundMethod
+    | bases.UnboundMethod
+    | nodes.FunctionDef
+    | nodes.Lambda
+    | nodes.ClassDef
 ]
 
 STR_FORMAT = {"builtins.str.format"}
@@ -1485,7 +1485,7 @@ accessed. Python regular expressions are accepted.",
 
         num_positional_args = len(call_site.positional_arguments)
         keyword_args = list(call_site.keyword_arguments.keys())
-        overload_function = is_overload_stub(called)
+        overload_function = is_overload_stub(called)  # type: ignore[arg-type]
 
         # Determine if we don't have a context for our call and we use variadics.
         node_scope = node.scope()
