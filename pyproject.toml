@@ -136,6 +136,7 @@ lint.ignore = [
   "PTH207", # Replace `glob` with `Path.glob` or `Path.rglob`
   "PTH208", # Use `pathlib.Path.iterdir()` instead"
   "RUF012", # mutable default values in class attributes
+  "UP038",  # Use `X | Y` in `isinstance` call instead of `(X, Y)`
 ]
 lint.pydocstyle.convention = "pep257"
 
