@@ -26,7 +26,7 @@ from collections import deque
 from collections.abc import Iterable, Sequence
 from io import BufferedReader, BytesIO
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Literal, TextIO, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Literal, TextIO, TypeVar
 
 from astroid import Module, modutils, nodes
 
@@ -54,14 +54,14 @@ GLOBAL_OPTION_PATTERN = Literal[
 ]
 GLOBAL_OPTION_PATTERN_LIST = Literal["exclude-too-few-public-methods", "ignore-paths"]
 GLOBAL_OPTION_TUPLE_INT = Literal["py-version"]
-GLOBAL_OPTION_NAMES = Union[
-    GLOBAL_OPTION_BOOL,
-    GLOBAL_OPTION_INT,
-    GLOBAL_OPTION_LIST,
-    GLOBAL_OPTION_PATTERN,
-    GLOBAL_OPTION_PATTERN_LIST,
-    GLOBAL_OPTION_TUPLE_INT,
-]
+GLOBAL_OPTION_NAMES = (
+    GLOBAL_OPTION_BOOL
+    | GLOBAL_OPTION_INT
+    | GLOBAL_OPTION_LIST
+    | GLOBAL_OPTION_PATTERN
+    | GLOBAL_OPTION_PATTERN_LIST
+    | GLOBAL_OPTION_TUPLE_INT
+)
 T_GlobalOptionReturnTypes = TypeVar(
     "T_GlobalOptionReturnTypes",
     bool,

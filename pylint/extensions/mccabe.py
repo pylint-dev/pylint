@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeAlias, TypeVar
 
 from astroid import nodes
 from mccabe import PathGraph as Mccabe_PathGraph
@@ -20,26 +20,26 @@ from pylint.interfaces import HIGH
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-_StatementNodes = Union[
-    nodes.Assert,
-    nodes.Assign,
-    nodes.AugAssign,
-    nodes.Delete,
-    nodes.Raise,
-    nodes.Yield,
-    nodes.Import,
-    nodes.Call,
-    nodes.Subscript,
-    nodes.Pass,
-    nodes.Continue,
-    nodes.Break,
-    nodes.Global,
-    nodes.Return,
-    nodes.Expr,
-    nodes.Await,
-]
+_StatementNodes: TypeAlias = (
+    nodes.Assert
+    | nodes.Assign
+    | nodes.AugAssign
+    | nodes.Delete
+    | nodes.Raise
+    | nodes.Yield
+    | nodes.Import
+    | nodes.Call
+    | nodes.Subscript
+    | nodes.Pass
+    | nodes.Continue
+    | nodes.Break
+    | nodes.Global
+    | nodes.Return
+    | nodes.Expr
+    | nodes.Await
+)
 
-_SubGraphNodes = Union[nodes.If, nodes.Try, nodes.For, nodes.While]
+_SubGraphNodes: TypeAlias = nodes.If | nodes.Try | nodes.For | nodes.While
 _AppendableNodeT = TypeVar(
     "_AppendableNodeT", bound=_StatementNodes | nodes.While | nodes.FunctionDef
 )

@@ -15,7 +15,7 @@ import sys
 from collections.abc import Callable, Iterable
 from functools import cached_property, lru_cache, singledispatch
 from re import Pattern
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 import astroid
 import astroid.exceptions
@@ -55,13 +55,13 @@ from pylint.typing import MessageDefinitionTuple
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-CallableObjects = Union[
-    bases.BoundMethod,
-    bases.UnboundMethod,
-    nodes.FunctionDef,
-    nodes.Lambda,
-    nodes.ClassDef,
-]
+CallableObjects: TypeAlias = (
+    bases.BoundMethod
+    | bases.UnboundMethod
+    | nodes.FunctionDef
+    | nodes.Lambda
+    | nodes.ClassDef
+)
 
 STR_FORMAT = {"builtins.str.format"}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"

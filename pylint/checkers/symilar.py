@@ -41,7 +41,7 @@ from collections import defaultdict
 from collections.abc import Callable, Generator, Iterable, Sequence
 from io import BufferedIOBase, BufferedReader, BytesIO
 from itertools import chain
-from typing import TYPE_CHECKING, NamedTuple, NewType, NoReturn, TextIO, Union
+from typing import TYPE_CHECKING, NamedTuple, NewType, NoReturn, TextIO, TypeAlias
 
 import astroid
 from astroid import nodes
@@ -79,7 +79,7 @@ HashToIndex_T = dict["LinesChunk", list[Index]]
 IndexToLines_T = dict[Index, "SuccessiveLinesLimits"]
 
 # The types the streams read by pylint can take. Originating from astroid.nodes.Module.stream() and open()
-STREAM_TYPES = Union[TextIO, BufferedReader, BytesIO]
+STREAM_TYPES: TypeAlias = TextIO | BufferedReader | BytesIO
 
 
 class CplSuccessiveLinesLimits:
