@@ -48,18 +48,31 @@ class ModuleShadowingTest(unittest.TestCase):
         messages = self._run_pylint(code)
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
         self.assertEqual(len(errors), 0)
-    
+
     def test_early_module_yield(self):
-        code = "import my_module.utils as my_module\nmy_module.other_method()\n"
+        code = """
+                import my_module.utils as my_module
+                x = my_module.other_method()
+                y = [my_module.format() for _ in range(1)]
+                """
         messages = self._run_pylint(code)
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
-        self.assertEqual(len(errors), 0, f"Unexpected error: {errors}")
-    
+        self.assertEqual(len(errors), 0)
+
+    def test_nested_shadowed_imports(self):
+        code = """
+                import my_module.submodule.utils as my_module
+                my_module.format()
+                """
+        messages = self._run_pylint(code)
+        errors = [msg for msg in messages if msg.msg_id == "E0611"]
+        self.assertEqual(len(errors), 0)
+
     def test_access_module_dict(self):
         code = "import my_module.utils as utils\nprint(utils.__dict__)\n"
         messages = self._run_pylint(code)
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
-        self.assertEqual(len(errors), 0, f"Should allow __dict__ access: {errors}")
+        self.assertEqual(len(errors), 0)
 
     def test_non_shadowed_import(self):
         code = "import my_module.utils as utils\nutils.format()\n"
