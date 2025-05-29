@@ -208,7 +208,7 @@ def _infer_name_module(node: nodes.Import, name: str) -> Generator[InferenceResu
         node.names[0][0].startswith(node.names[0][1] + '.')):
 
         try:
-            module = next(node.infer(context, asname=False))
+            module = next(node.infer(context, asname=False), None)
             if isinstance(module, nodes.Module):
                 yield module
                 return
