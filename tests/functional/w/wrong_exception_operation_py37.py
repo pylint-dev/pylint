@@ -3,7 +3,7 @@
 
 try:
     1/0
-except (ValueError | TypeError): # [wrong-exception-operation]
+except (ValueError | TypeError): # [wrong-exception-operation, catching-non-exception]
     pass
 
 try:

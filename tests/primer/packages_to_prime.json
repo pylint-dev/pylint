@@ -29,7 +29,6 @@
     "branch": "master",
     "directories": ["music21"],
     "pylintrc_relpath": ".pylintrc",
-    "minimum_python": "3.10",
     "url": "https://github.com/cuthbertLab/music21"
   },
   "pandas": {

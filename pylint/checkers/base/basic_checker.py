@@ -884,7 +884,7 @@ class BasicChecker(_BasicChecker):
         # to one AST "With" node with multiple items
         pairs = node.items
         if pairs:
-            for prev_pair, pair in zip(pairs, pairs[1:]):
+            for prev_pair, pair in itertools.pairwise(pairs):
                 if isinstance(prev_pair[1], nodes.AssignName) and (
                     pair[1] is None and not isinstance(pair[0], nodes.Call)
                 ):

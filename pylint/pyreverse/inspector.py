@@ -14,7 +14,6 @@ import os
 import traceback
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
-from typing import Optional
 
 import astroid
 from astroid import nodes
@@ -24,7 +23,7 @@ from pylint.checkers.utils import safe_infer
 from pylint.pyreverse import utils
 
 _WrapperFuncT = Callable[
-    [Callable[[str], nodes.Module], str, bool], Optional[nodes.Module]
+    [Callable[[str], nodes.Module], str, bool], nodes.Module | None
 ]
 
 
