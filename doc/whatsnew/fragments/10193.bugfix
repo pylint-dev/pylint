@@ -1,0 +1,3 @@
+Fix incorrect `no-name-in-module` when calling methods on shadowed imports (e.g. `import pkg.sub as pkg`).
+
+Closes #10193
