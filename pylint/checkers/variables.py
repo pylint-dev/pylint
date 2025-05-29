@@ -207,14 +207,11 @@ def _infer_name_module(node: nodes.Import, name: str) -> Generator[InferenceResu
         '.' in node.names[0][0] and
         node.names[0][0].startswith(node.names[0][1] + '.')):
 
-        try:
-            module = next(node.infer(context, asname=False), None)
-            if isinstance(module, nodes.Module):
-                yield module
-                return
-        except astroid.InferenceError:
-            pass
-    
+        module = next(node.infer(context, asname=False), None)
+        if isinstance(module, nodes.Module):
+            yield module
+            return
+
     yield from node.infer(context, asname=False)
 
 
