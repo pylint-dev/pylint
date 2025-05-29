@@ -3,7 +3,7 @@ classDiagram
     name : str
   }
   class PrivateAttr {
-    __x
+    \_\_x
   }
   class ProtectedAttr {
     _x
@@ -13,6 +13,6 @@ classDiagram
   }
   class SpecialAttr {
   }
-  P --* PrivateAttr : __x
+  P --* PrivateAttr : \_\_x
   P --* ProtectedAttr : _x
   P --* PublicAttr : x
