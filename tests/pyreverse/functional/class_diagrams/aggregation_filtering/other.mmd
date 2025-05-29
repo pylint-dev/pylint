@@ -1,21 +1,21 @@
 classDiagram
   class P {
     name : str
-    __init__(name: str)
+    \_\_init\_\_(name: str)
   }
   class PrivateAttr {
-    __init__()
+    \_\_init\_\_()
   }
   class ProtectedAttr {
-    __init__()
+    \_\_init\_\_()
   }
   class PublicAttr {
     x
-    __init__()
+    \_\_init\_\_()
   }
   class SpecialAttr {
-    __x__
-    __init__()
+    \_\_x\_\_
+    \_\_init\_\_()
   }
   P --* PublicAttr : x
-  P --* SpecialAttr : __x__
+  P --* SpecialAttr : \_\_x\_\_
