@@ -48,12 +48,18 @@ class ModuleShadowingTest(unittest.TestCase):
         messages = self._run_pylint(code)
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
         self.assertEqual(len(errors), 0)
-
-    def test_shadowed_other_method(self):
+    
+    def test_early_module_yield(self):
         code = "import my_module.utils as my_module\nmy_module.other_method()\n"
         messages = self._run_pylint(code)
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
-        self.assertEqual(len(errors), 0)
+        self.assertEqual(len(errors), 0, f"Unexpected error: {errors}")
+    
+    def test_access_module_dict(self):
+        code = "import my_module.utils as utils\nprint(utils.__dict__)\n"
+        messages = self._run_pylint(code)
+        errors = [msg for msg in messages if msg.msg_id == "E0611"]
+        self.assertEqual(len(errors), 0, f"Should allow __dict__ access: {errors}")
 
     def test_non_shadowed_import(self):
         code = "import my_module.utils as utils\nutils.format()\n"
