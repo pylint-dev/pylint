@@ -32,6 +32,11 @@ class MermaidJSPrinter(Printer):
         self.emit("classDiagram")
         self._inc_indent()
 
+    def _escape_mermaid_text(self, text: str) -> str:
+        """Escape characters that conflict with Markdown formatting."""
+        text = text.replace("__", r"\_\_")  # Double underscore → escaped
+        return text
+
     def emit_node(
         self,
         name: str,
@@ -48,14 +53,24 @@ class MermaidJSPrinter(Printer):
         nodetype = self.NODES[type_]
         body = []
         if properties.attrs:
-            body.extend(properties.attrs)
+            # Escape attribute names to prevent Markdown formatting issues
+            escaped_attrs = [
+                self._escape_mermaid_text(attr) for attr in properties.attrs
+            ]
+            body.extend(escaped_attrs)
         if properties.methods:
             for func in properties.methods:
                 args = self._get_method_arguments(func)
-                line = f"{func.name}({', '.join(args)})"
+                # Escape method name and arguments
+                escaped_method_name = self._escape_mermaid_text(func.name)
+                escaped_args = [self._escape_mermaid_text(arg) for arg in args]
+                line = f"{escaped_method_name}({', '.join(escaped_args)})"
                 line += "*" if func.is_abstract() else ""
                 if func.returns:
-                    line += f" {get_annotation_label(func.returns)}"
+                    # Escape return type annotation
+                    return_type = get_annotation_label(func.returns)
+                    escaped_return_type = self._escape_mermaid_text(return_type)
+                    line += f" {escaped_return_type}"
                 body.append(line)
         name = name.split(".")[-1]
         self.emit(f"{nodetype} {name} {{")
@@ -77,7 +92,7 @@ class MermaidJSPrinter(Printer):
         to_node = to_node.split(".")[-1]
         edge = f"{from_node} {self.ARROWS[type_]} {to_node}"
         if label:
-            edge += f" : {label}"
+            edge += f" : {self._escape_mermaid_text(label)}"
         self.emit(edge)
 
     def _close_graph(self) -> None:
