@@ -201,11 +201,13 @@ def _detect_global_scope(
 def _infer_name_module(node: nodes.Import, name: str) -> Generator[InferenceResult]:
     context = astroid.context.InferenceContext()
     context.lookupname = name
-    
-    if (len(node.names) == 1 and 
-        node.names[0][1] and
-        '.' in node.names[0][0] and
-        node.names[0][0].startswith(node.names[0][1] + '.')):
+
+    if (
+        len(node.names) == 1
+        and node.names[0][1]
+        and "." in node.names[0][0]
+        and node.names[0][0].startswith(node.names[0][1] + ".")
+    ):
 
         module = next(node.infer(context, asname=False), None)
         if isinstance(module, nodes.Module):
@@ -3159,12 +3161,14 @@ class VariablesChecker(BaseChecker):
         """Check that module_names (list of string) are accessible through the
         given module, if the latest access name corresponds to a module, return it.
         """
-        if (isinstance(node, nodes.Import) and module_names):
+        if isinstance(node, nodes.Import) and module_names:
             for alias, asname in node.names:
-                if (asname and 
-                    '.' in alias and 
-                    alias.startswith(asname + '.') and
-                    module_names[0] == alias.split('.')[-1]):
+                if (
+                    asname
+                    and "." in alias
+                    and alias.startswith(asname + ".")
+                    and module_names[0] == alias.split(".")[-1]
+                ):
                     module_names.pop(0)
                     break
         while module_names:
