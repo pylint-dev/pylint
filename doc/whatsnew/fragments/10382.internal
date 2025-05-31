@@ -1,0 +1,3 @@
+Modified test framework to allow for different test output for different Python versions.
+
+Refs #10382
