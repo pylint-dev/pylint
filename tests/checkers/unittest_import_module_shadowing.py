@@ -7,8 +7,10 @@
 import os
 import tempfile
 import unittest
+
 from pylint import lint
 from pylint.testutils import GenericTestReporter
+
 
 class ModuleShadowingTest(unittest.TestCase):
 
@@ -17,20 +19,22 @@ class ModuleShadowingTest(unittest.TestCase):
         self.addCleanup(self.tempdir.cleanup)
         self.pkg_dir = os.path.join(self.tempdir.name, "my_module")
         os.makedirs(self.pkg_dir)
-        
-        with open(os.path.join(self.pkg_dir, "__init__.py"), "w", encoding="utf-8") as f:
+
+        with open(
+            os.path.join(self.pkg_dir, "__init__.py"), "w", encoding="utf-8"
+        ) as f:
             f.write("")
-        
+
         self.utils_file = os.path.join(self.pkg_dir, "utils.py")
         with open(self.utils_file, "w", encoding="utf-8") as f:
             f.write("def format():\n    pass\n\ndef other_method():\n    pass\n")
-        
+
         self.test_file = os.path.join(self.tempdir.name, "main.py")
 
     def _run_pylint(self, code: str) -> list[Message]:
         with open(self.test_file, "w", encoding="utf-8") as f:
             f.write(code)
-        
+
         reporter = GenericTestReporter()
         lint.Run(
             [
@@ -38,10 +42,10 @@ class ModuleShadowingTest(unittest.TestCase):
                 "--enable=no-name-in-module",
                 "--persistent=no",
                 "--rcfile=",
-                self.test_file
+                self.test_file,
             ],
             reporter=reporter,
-            exit=False
+            exit=False,
         )
         return reporter.messages
 
@@ -87,6 +91,7 @@ class ModuleShadowingTest(unittest.TestCase):
         messages = self._run_pylint(code)
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
         self.assertEqual(len(errors), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
