@@ -2,6 +2,8 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+# pylint: disable=missing-docstring,consider-using-with,trailing-whitespace,unused-import
+
 import os
 import tempfile
 import unittest
@@ -25,7 +27,7 @@ class ModuleShadowingTest(unittest.TestCase):
         
         self.test_file = os.path.join(self.tempdir.name, "main.py")
 
-    def _run_pylint(self, code: str) -> list:
+    def _run_pylint(self, code: str) -> list[str]:
         with open(self.test_file, "w", encoding="utf-8") as f:
             f.write(code)
         
@@ -88,4 +90,3 @@ class ModuleShadowingTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
