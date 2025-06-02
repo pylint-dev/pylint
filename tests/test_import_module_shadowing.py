@@ -5,7 +5,6 @@
 import os
 import tempfile
 import unittest
-from typing import List
 from pylint import lint
 from pylint.testutils import GenericTestReporter
 
@@ -13,7 +12,7 @@ class ModuleShadowingTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
-        self.addCleanup(self.tempdir.cleanup)  # Automatically cleanup tempdir
+        self.addCleanup(self.tempdir.cleanup)
         self.pkg_dir = os.path.join(self.tempdir.name, "my_module")
         os.makedirs(self.pkg_dir)
         
@@ -26,7 +25,7 @@ class ModuleShadowingTest(unittest.TestCase):
         
         self.test_file = os.path.join(self.tempdir.name, "main.py")
 
-    def _run_pylint(self, code: str) -> List:
+    def _run_pylint(self, code: str) -> list:
         with open(self.test_file, "w", encoding="utf-8") as f:
             f.write(code)
         
