@@ -27,7 +27,7 @@ class ModuleShadowingTest(unittest.TestCase):
         
         self.test_file = os.path.join(self.tempdir.name, "main.py")
 
-    def _run_pylint(self, code: str) -> list[str]:
+    def _run_pylint(self, code: str) -> list[Message]:
         with open(self.test_file, "w", encoding="utf-8") as f:
             f.write(code)
         
