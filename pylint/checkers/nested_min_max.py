@@ -116,11 +116,11 @@ class NestedMinMaxChecker(BaseChecker):
                         end_col_offset=0,
                     )
                     splat_node.value = arg
-                    fixed_node.args = (
-                        fixed_node.args[:idx]
-                        + [splat_node]
-                        + fixed_node.args[idx + 1 : idx]
-                    )
+                    fixed_node.args = [
+                        *fixed_node.args[:idx],
+                        splat_node,
+                        *fixed_node.args[idx + 1 : idx],
+                    ]
 
         self.add_message(
             "nested-min-max",
