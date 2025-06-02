@@ -5,13 +5,15 @@
 import os
 import tempfile
 import unittest
+from typing import List
 from pylint import lint
 from pylint.testutils import GenericTestReporter
 
 class ModuleShadowingTest(unittest.TestCase):
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)  # Automatically cleanup tempdir
         self.pkg_dir = os.path.join(self.tempdir.name, "my_module")
         os.makedirs(self.pkg_dir)
         
@@ -24,10 +26,7 @@ class ModuleShadowingTest(unittest.TestCase):
         
         self.test_file = os.path.join(self.tempdir.name, "main.py")
 
-    def tearDown(self):
-        self.tempdir.cleanup()
-
-    def _run_pylint(self, code):
+    def _run_pylint(self, code: str) -> List:
         with open(self.test_file, "w", encoding="utf-8") as f:
             f.write(code)
         
@@ -45,13 +44,13 @@ class ModuleShadowingTest(unittest.TestCase):
         )
         return reporter.messages
 
-    def test_shadowed_format_call(self):
+    def test_shadowed_format_call(self) -> None:
         code = "import my_module.utils as my_module\nmy_module.format()\n"
         messages = self._run_pylint(code)
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
         self.assertEqual(len(errors), 0)
 
-    def test_early_module_yield(self):
+    def test_early_module_yield(self) -> None:
         code = """
                 import my_module.utils as my_module
                 x = my_module.other_method()
@@ -61,7 +60,7 @@ class ModuleShadowingTest(unittest.TestCase):
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
         self.assertEqual(len(errors), 0)
 
-    def test_nested_shadowed_imports(self):
+    def test_nested_shadowed_imports(self) -> None:
         code = """
                 import my_module.submodule.utils as my_module
                 my_module.format()
@@ -70,19 +69,19 @@ class ModuleShadowingTest(unittest.TestCase):
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
         self.assertEqual(len(errors), 0)
 
-    def test_access_module_dict(self):
+    def test_access_module_dict(self) -> None:
         code = "import my_module.utils as utils\nprint(utils.__dict__)\n"
         messages = self._run_pylint(code)
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
         self.assertEqual(len(errors), 0)
 
-    def test_non_shadowed_import(self):
+    def test_non_shadowed_import(self) -> None:
         code = "import my_module.utils as utils\nutils.format()\n"
         messages = self._run_pylint(code)
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
         self.assertEqual(len(errors), 0)
 
-    def test_shadowed_import_without_call(self):
+    def test_shadowed_import_without_call(self) -> None:
         code = "import my_module.utils as my_module\n"
         messages = self._run_pylint(code)
         errors = [msg for msg in messages if msg.msg_id == "E0611"]
@@ -90,3 +89,4 @@ class ModuleShadowingTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
