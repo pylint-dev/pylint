@@ -20,12 +20,12 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.11.11"
+    rev: "v0.12.0"
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: ["--fix"]
         exclude: doc/data/messages
-      - id: ruff
+      - id: ruff-check
         name: ruff-doc
         files: doc/data/messages
   - repo: https://github.com/Pierre-Sassoulas/copyright_notice_precommit
@@ -121,14 +121,14 @@ repos:
         files: ^(doc/whatsnew/fragments)
         exclude: doc/whatsnew/fragments/_.*.rst
   - repo: https://github.com/rstcheck/rstcheck
-    rev: "v6.2.4"
+    rev: "v6.2.5"
     hooks:
       - id: rstcheck
         args: ["--report-level=warning"]
         files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: [Sphinx==7.4.3]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+    rev: v1.16.1
     hooks:
       - id: mypy
         name: mypy
@@ -154,7 +154,7 @@ repos:
         args: ["--max-summary-lines=2", "--linewrap-full-docstring"]
         files: "pylint"
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.3
+    rev: 1.8.5
     hooks:
       - id: bandit
         args: ["-r", "-lll"]
