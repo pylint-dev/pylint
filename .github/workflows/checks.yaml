@@ -149,7 +149,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip install . --no-deps
-          pytest tests/ -k unittest_spelling
+          pytest tests/ -k unittest_spelling --benchmark-disable
 
   documentation:
     name: documentation
