@@ -22,6 +22,7 @@ class NodeType(Enum):
 
 class EdgeType(Enum):
     INHERITS = "inherits"
+    COMPOSITION = "composition"
     ASSOCIATION = "association"
     AGGREGATION = "aggregation"
     USES = "uses"
