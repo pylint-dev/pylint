@@ -86,7 +86,7 @@ jobs:
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
-          python -m pytest -vv --minimal-messages-config tests/test_functional.py
+          python -m pytest -vv --minimal-messages-config tests/test_functional.py --benchmark-disable
       - name: Upload coverage artifact
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4.6.2
