@@ -483,7 +483,7 @@ class _CallableArgument(_Argument):
         kwargs: dict[str, Any],
         hide_help: bool,
         section: str | None,
-        metavar: str,
+        metavar: str | None,
     ) -> None:
         super().__init__(
             flags=flags, arg_help=arg_help, hide_help=hide_help, section=section
