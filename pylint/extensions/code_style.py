@@ -4,8 +4,7 @@
 
 from __future__ import annotations
 
-import sys
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, TypeGuard, cast
 
 from astroid import nodes
 
@@ -15,11 +14,6 @@ from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
-
-if sys.version_info >= (3, 10):
-    from typing import TypeGuard
-else:
-    from typing_extensions import TypeGuard
 
 
 class CodeStyleChecker(BaseChecker):

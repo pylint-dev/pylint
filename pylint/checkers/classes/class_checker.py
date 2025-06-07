@@ -11,7 +11,7 @@ from collections.abc import Callable, Sequence
 from functools import cached_property
 from itertools import chain, zip_longest
 from re import Pattern
-from typing import TYPE_CHECKING, Any, NamedTuple, Union
+from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias
 
 import astroid
 from astroid import bases, nodes, util
@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from pylint.lint.pylinter import PyLinter
 
 
-_AccessNodes = Union[nodes.Attribute, nodes.AssignAttr]
+_AccessNodes: TypeAlias = nodes.Attribute | nodes.AssignAttr
 
 INVALID_BASE_CLASSES = {"bool", "range", "slice", "memoryview"}
 ALLOWED_PROPERTIES = {"bultins.property", "functools.cached_property"}

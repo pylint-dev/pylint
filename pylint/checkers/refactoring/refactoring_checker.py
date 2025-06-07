@@ -11,7 +11,7 @@ import tokenize
 from collections.abc import Iterator
 from functools import cached_property, reduce
 from re import Pattern
-from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias, cast
 
 import astroid
 from astroid import bases, nodes
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-NodesWithNestedBlocks = Union[nodes.Try, nodes.While, nodes.For, nodes.If]
+NodesWithNestedBlocks: TypeAlias = nodes.Try | nodes.While | nodes.For | nodes.If
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))

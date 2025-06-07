@@ -1,8 +1,6 @@
 unsupported-binary-operation:22:8:22:30::unsupported operand type(s) for |:INFERENCE
 unsupported-binary-operation:23:7:23:35::unsupported operand type(s) for |:INFERENCE
 unsupported-binary-operation:25:23:25:33::unsupported operand type(s) for |:INFERENCE
-unsupported-binary-operation:26:6:26:22::unsupported operand type(s) for |:INFERENCE
-unsupported-binary-operation:26:6:26:15::unsupported operand type(s) for |:INFERENCE
 unsupported-binary-operation:27:6:27:34::unsupported operand type(s) for |:INFERENCE
 unsupported-binary-operation:28:18:28:46::unsupported operand type(s) for |:INFERENCE
 unsupported-binary-operation:31:23:31:32::unsupported operand type(s) for |:INFERENCE
