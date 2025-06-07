@@ -224,5 +224,14 @@ module = [
   "sphinx.*",
 ]
 
+[tool.pyright]
+include = [
+  "pylint",
+]
+pythonVersion = "3.9"
+typeCheckingMode = "basic"
+reportMissingImports = "none"
+reportMissingModuleSource = "none"
+
 [tool.aliases]
 test = "pytest"
