@@ -1,0 +1,4 @@
+Remove support for launching pylint with Python 3.9.
+Code that supports Python 3.9 can still be linted with the ``--py-version=3.9`` setting.
+
+Refs #10405

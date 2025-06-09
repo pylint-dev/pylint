@@ -7,19 +7,16 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 from re import Pattern
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Literal,
     NamedTuple,
-    Optional,
     Protocol,
     TypedDict,
-    Union,
 )
 
 if TYPE_CHECKING:
@@ -95,22 +92,20 @@ MessageTypesFullName = Literal[
 
 OptionDict = dict[
     str,
-    Union[
-        None,
-        str,
-        bool,
-        int,
-        Pattern[str],
-        Iterable[Union[str, int, Pattern[str]]],
-        type["_CallbackAction"],
-        Callable[[Any], Any],
-        Callable[[Any, Any, Any, Any], Any],
-    ],
+    None
+    | str
+    | bool
+    | int
+    | Pattern[str]
+    | Iterable[str | int | Pattern[str]]
+    | type["_CallbackAction"]
+    | Callable[[Any], Any]
+    | Callable[[Any, Any, Any, Any], Any],
 ]
 Options = tuple[tuple[str, OptionDict], ...]
 
 
-ReportsCallable = Callable[["Section", "LinterStats", Optional["LinterStats"]], None]
+ReportsCallable = Callable[["Section", "LinterStats", "LinterStats | None"], None]
 """Callable to create a report."""
 
 
@@ -125,10 +120,9 @@ class ExtraMessageOptions(TypedDict, total=False):
     default_enabled: bool
 
 
-MessageDefinitionTuple = Union[
-    tuple[str, str, str],
-    tuple[str, str, str, ExtraMessageOptions],
-]
+MessageDefinitionTuple = (
+    tuple[str, str, str] | tuple[str, str, str, ExtraMessageOptions]
+)
 DirectoryNamespaceDict = dict[Path, tuple[argparse.Namespace, "DirectoryNamespaceDict"]]
 
 

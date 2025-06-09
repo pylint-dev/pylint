@@ -13,7 +13,7 @@ license-files = [ "LICENSE", "CONTRIBUTORS.txt" ]
 authors = [
   { name = "Python Code Quality Authority", email = "code-quality@python.org" },
 ]
-requires-python = ">=3.9.0"
+requires-python = ">=3.10.0"
 classifiers = [
   "Development Status :: 6 - Mature",
   "Environment :: Console",
@@ -21,7 +21,6 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -137,6 +136,7 @@ lint.ignore = [
   "PTH207", # Replace `glob` with `Path.glob` or `Path.rglob`
   "PTH208", # Use `pathlib.Path.iterdir()` instead"
   "RUF012", # mutable default values in class attributes
+  "UP038",  # Use `X | Y` in `isinstance` call instead of `(X, Y)`
 ]
 lint.pydocstyle.convention = "pep257"
 
@@ -223,6 +223,15 @@ module = [
   "pytest",
   "sphinx.*",
 ]
+
+[tool.pyright]
+include = [
+  "pylint",
+]
+pythonVersion = "3.9"
+typeCheckingMode = "basic"
+reportMissingImports = "none"
+reportMissingModuleSource = "none"
 
 [tool.aliases]
 test = "pytest"

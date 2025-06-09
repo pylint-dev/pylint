@@ -14,4 +14,4 @@ from attr import attrib, attrs  # pylint: disable=import-error
 class User:
     name: str = attrib()
     age: int = attrib()
-    occupation = Optional[str] = attrib(default=None)  # [unsupported-assignment-operation]
+    occupation = Optional[str] = attrib(default=None)
