@@ -91,6 +91,9 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[mis
 
     visitAsyncFunctionDef = visitFunctionDef
 
+    # def visitMatchCase(self, node: MatchCase) -> None:
+    #     self._append_node(node)
+
     def visitSimpleStatement(self, node: _StatementNodes) -> None:
         self._append_node(node)
 
