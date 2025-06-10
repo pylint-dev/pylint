@@ -227,11 +227,19 @@ module = [
 [tool.pyright]
 include = [
   "pylint",
+  # not checking the tests yet, but we could
 ]
-pythonVersion = "3.9"
+pythonVersion = "3.10"
 typeCheckingMode = "basic"
-reportMissingImports = "none"
-reportMissingModuleSource = "none"
+reportMissingImports = "none" # pytest / astroid are not detected
+reportOptionalMemberAccess = "none" # 150 issues
+reportArgumentType = "none" # 12 issues
+reportAttributeAccessIssue = "none" # 11 issues
+reportInvalidTypeForm = "none" # 6 issues
+reportOptionalCall = "none" # 2 issues
+reportGeneralTypeIssues = "none" # 1 issue
+reportCallIssue = "none" # 1 issue
+reportInvalidTypeVarUse = "none" # 2 warnings
 
 [tool.aliases]
 test = "pytest"
