@@ -111,6 +111,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "unexpected-line-ending-format",
         "Used when there is different newline than expected.",
     ),
+    "C0329": (
+        "Scientific notation should be '%s' instead",
+        "use-standard-scientific-notation",
+        "Emitted when a number is written in non-standard scientific notation.",
+    ),
 }
 
 
@@ -377,6 +382,16 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                             self._check_keyword_parentheses(tokens[i:], 0)
                         return
 
+    @staticmethod
+    def to_standard_scientific_notation(number: float) -> str:
+        # number is always going to be > 0 because node constants are always positive
+        # Format with high precision to capture all digits
+        s = f"{number:.15e}"
+        base, exp = s.split("e")
+        # Remove trailing zeros and possible trailing decimal point
+        base = base.rstrip("0").rstrip(".")
+        return f"{base}e{int(exp)}"
+
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Process tokens and search for:
 
@@ -439,8 +454,23 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         check_equal = False
                         self.check_indent_level(line, indents[-1], line_num)
 
-            if tok_type == tokenize.NUMBER and string.endswith("l"):
-                self.add_message("lowercase-l-suffix", line=line_num)
+            if tok_type == tokenize.NUMBER:
+                # Check for wrong scientific notation
+                if (
+                    ("e" in string or "E" in string)
+                    and "x" not in string  # not a hexadecimal
+                    and "j" not in string  # not a complex
+                ):
+                    value = float(string.lower().split("e")[0])
+                    if not (1 <= value < 10):
+                        self.add_message(
+                            "use-standard-scientific-notation",
+                            args=(self.to_standard_scientific_notation(value)),
+                            line=line_num,
+                            col_offset=start[1],
+                        )
+                if string.endswith("l"):
+                    self.add_message("lowercase-l-suffix", line=line_num)
 
             if string in _KEYWORD_TOKENS:
                 self._check_keyword_parentheses(tokens, idx)
