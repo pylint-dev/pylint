@@ -1,0 +1,11 @@
+use-standard-scientific-notation:3:12:None:None::Scientific notation should be '4.53e1' instead:UNDEFINED
+use-standard-scientific-notation:4:20:None:None::Scientific notation should be '4.53e1' instead:UNDEFINED
+use-standard-scientific-notation:5:14:None:None::Scientific notation should be '1.2e-4' instead:UNDEFINED
+use-standard-scientific-notation:6:26:None:None::Scientific notation should be '1e1' instead:UNDEFINED
+use-standard-scientific-notation:7:18:None:None::Scientific notation should be '1.1e4' instead:UNDEFINED
+use-standard-scientific-notation:8:26:None:None::Scientific notation should be '1.2e1' instead:UNDEFINED
+use-standard-scientific-notation:9:26:None:None::Scientific notation should be '1.23e2' instead:UNDEFINED
+use-standard-scientific-notation:10:28:None:None::Scientific notation should be '1e-4' instead:UNDEFINED
+use-standard-scientific-notation:11:26:None:None::Scientific notation should be '1e-4' instead:UNDEFINED
+use-standard-scientific-notation:12:20:None:None::Scientific notation should be '5e-1' instead:UNDEFINED
+use-standard-scientific-notation:13:12:None:None::Scientific notation should be '0e0' instead:UNDEFINED
