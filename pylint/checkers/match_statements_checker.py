@@ -37,7 +37,7 @@ class MatchStatementChecker(BaseChecker):
     @only_required_for_messages("unreachable-match-patterns")
     def visit_match(self, node: nodes.Match) -> None:
         """Check if a name capture pattern prevents the other cases from being
-        reached
+        reached.
         """
         for idx, case in enumerate(node.cases):
             if (
