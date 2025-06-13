@@ -184,13 +184,60 @@ def test_disable_global_option_end_of_line() -> None:
 
 
 @pytest.mark.parametrize(
-    "value, expected",
+    "value,expected_scientific,expected_engineering,expected_underscore",
     [
-        ("1_000_000", "1_000_000"),
-        ("1000_000", "1_000_000"),
-        ("10_5415_456_4654984.16354698489", "1_054_154_564_654_984.16354698489"),
+        ("0", "0.0", "0.0", "0.0"),
+        ("0e10", "0.0", "0.0", "0.0"),
+        ("0e-10", "0.0", "0.0", "0.0"),
+        ("0.0e10", "0.0", "0.0", "0.0"),
+        ("1e0", "1.0", "1.0", "1.0"),
+        ("1e10", "1e10", "10e9", "10_000_000_000.0"),
+        # no reason to not use exponential notation for very low number
+        # even for strict underscore grouping notation
+        ("1e-10", "1e-10", "100e-12", "1e-10"),
+        ("2e1", "2e1", "20.0", "20.0"),
+        ("2e-1", "2e-1", "200e-3", "0.2"),
+        ("3.456e2", "3.456e2", "345.6", "345.6"),
+        ("3.456e-2", "3.456e-2", "34.56e-3", "0.03456"),
+        ("4e2", "4e2", "400.0", "400.0"),
+        ("4e-2", "4e-2", "40e-3", "0.04"),
+        ("50e2", "5e3", "5e3", "5_000.0"),
+        ("50e-2", "5e-1", "500e-3", "0.5"),
+        ("6e6", "6e6", "6e6", "6_000_000.0"),
+        ("6e-6", "6e-6", "6e-6", "6e-06"),  # 6e-06 is what python offer on str(float)
+        ("10e5", "1e6", "1e6", "1_000_000.0"),
+        ("10e-5", "1e-4", "100e-6", "0.0001"),
+        ("1_000_000", "1e6", "1e6", "1_000_000.0"),
+        ("1000_000", "1e6", "1e6", "1_000_000.0"),
+        ("20e9", "2e10", "20e9", "20_000_000_000.0"),
+        ("20e-9", "2e-8", "20e-9", "2e-08"),  # 2e-08 is what python offer on str(float)
+        (
+            # 15 significant digits because we get rounding error otherwise
+            # and 15 seems enough especially since we don't autofix
+            "10_5415_456_465498.16354698489",
+            "1.05415456465498e14",
+            "105.415456465498e12",
+            "105_415_456_465_498.16",
+        ),
     ],
 )
-def test_to_standard_underscore_grouping(value: str, expected: str) -> None:
-    """Test the conversion of numbers to standard underscore grouping."""
-    assert FormatChecker.to_standard_underscore_grouping(value) == expected
+def test_to_another_standard_notation(
+    value: str,
+    expected_scientific: str,
+    expected_engineering: str,
+    expected_underscore: str,
+) -> None:
+    """Test the conversion of numbers to all possible notations."""
+    float_value = float(value)
+    scientific = FormatChecker.to_standard_scientific_notation(float_value)
+    assert (
+        scientific == expected_scientific
+    ), f"Scientific notation mismatch expected {expected_scientific}, got {scientific}"
+    engineering = FormatChecker.to_standard_engineering_notation(float_value)
+    assert (
+        engineering == expected_engineering
+    ), f"Engineering notation mismatch expected {expected_engineering}, got {engineering}"
+    underscore = FormatChecker.to_standard_underscore_grouping(float_value)
+    assert (
+        underscore == expected_underscore
+    ), f"Underscore grouping mismatch expected {expected_underscore}, got {underscore}"
