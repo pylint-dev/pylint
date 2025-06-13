@@ -3,6 +3,7 @@
 wrong_big = 45.3e6  # [use-standard-scientific-notation]
 uppercase_e_wrong = 45.3E6  # [use-standard-scientific-notation]
 wrong_small = 0.00012e-26  # [use-standard-scientific-notation]
+uppercase_e_wrong_small = 0.00012E-26  # [use-standard-scientific-notation]
 wrong_negative_and_big = -10e3  # [use-standard-scientific-notation]
 actual_trolling = 11000e26  # [use-standard-scientific-notation]
 scientific_double_digit = 12e8  # [use-standard-scientific-notation]
@@ -25,10 +26,12 @@ correct_with_plus = 1.2e+10
 correct_decimal_only = 3.14
 negative_correct = -5.67e-8
 correct_small_exponent = 1.5e1
-correct_tiny_exponent = 9.0e0
-correct_precise = 6.02214076e23
+actually_nine = 9e0
+actually_one = 1.0e0
+
 
 hex_constant = 0x1e4  # Hexadecimal, not scientific notation
+hex_constant_bad = 0x10e4
 binary_constant = 0b1010
 octal_constant = 0o1234
 inside_string = "Temperature: 10e3 degrees"
@@ -39,44 +42,60 @@ inside_comment = 1.0  # This comment has 12e4 in it
 in_variable_name = measurement_10e3 = 45
 inside_f_string = f"Value is {1.0} not 10e6"
 
-# Potential false negatives
-barely_violation = 9.99e0  # Should this be 9.99?
-integer_sci = int(1e10)  # Integer call with scientific notation
 complex_number = 1.5e3 + 2.5e3j  # Complex number with scientific notation
-tuple_of_sci = (1.2e4, 3.4e5)
-list_of_sci = [5.6e6, 7.8e7]
-dict_with_sci = {"a": 9.1e8, "b": 1.2e9}
+# false negative for complex numbers:
+complex_number_wrong = 15e3 + 25e3j  # [use-standard-scientific-notation]
 
-# Mathematical operations
-addition = 1.0e3 + 2.0e3
-multiplication = 1.0e3 * 2.0
-division = 1.0e3 / 2.0
-power = 1.0e3 ** 2.0
 
-# Function calls with scientific notation
-def function_with_sci(param=1.0e3, other_param=2.0e3):
+#+1: [use-standard-scientific-notation, use-standard-scientific-notation]
+def function_with_sci(param=10.0e3, other_param=20.0e3):
     return param, other_param
 
-result = function_with_sci(2.0e3)
-positional_and_keyword = function_with_sci(1.0, other_param=3.0e4)
+#+1: [use-standard-scientific-notation, use-standard-scientific-notation]
+result = function_with_sci(20.0e3, 10.0e3)
 
-# Assignments with operations
-a = 1
-a += 1.0e3
-b = 2
-b *= 2.0e3
+valid_underscore_int = 1_000_000
+valid_underscore_float = 1_000_000.12345
+valid_underscore_float_exp = 123_000_000.12345e12_000_000 # [use-standard-scientific-notation]
+valid_underscore_float_exp_cap = 123_000_000.12345E123_000_000 # [use-standard-scientific-notation]
 
-# Scientific notation in different contexts
-inside_list_comp = [x * 2 for x in [1.0e3, 2.0e3]]
-inside_dict_comp = {str(x): x for x in [3.0e3, 4.0e3]}
-inside_generator = (x + 1 for x in [5.0e3, 6.0e3])
+invalid_underscore_octal = 0o123_456 # octal with underscores bypassed
+invalid_underscore_hexa = 0x12c_456 # hexa with underscores bypassed
 
-# Boundary cases for normalization
-boundary_small = 9.999e0  # Almost 10, but not quite
-boundary_large = 1.001e0  # Just above 1
-boundary_case = 1.0e0  # Equal to 1
+invalid_underscore_float_no_int = .123_456 # [esoteric-underscore-grouping]
+invalid_underscore_float_no_frac = 123_456.123_456 # [esoteric-underscore-grouping]
+incorrect_sci_underscore = 1.234_567e6 # [esoteric-underscore-grouping]
+incorrect_sci_uppercase = 1.234_567E6 # [esoteric-underscore-grouping]
+incorrect_sci_underscore_exp = 1.2e1_0  # [esoteric-underscore-grouping]
+invalid_underscore_float = 1_234.567_89 # [esoteric-underscore-grouping]
+invalid_underscore_binary = 0b1010_1010 # [esoteric-underscore-grouping]
+#+1: [use-standard-scientific-notation, esoteric-underscore-grouping]
+wrong_big_underscore = 45.3_45e6
+#+1: [use-standard-scientific-notation, esoteric-underscore-grouping]
+wrong_small_underscore = 0.000_12e-26
+#+1: [use-standard-scientific-notation, esoteric-underscore-grouping]
+scientific_double_digit_underscore = 1_2e8
+#+1: [use-standard-scientific-notation, esoteric-underscore-grouping]
+scientific_triple_digit_underscore = 12_3e3
+#+1: [use-standard-scientific-notation, esoteric-underscore-grouping]
+invalid_underscore_sci = 1_234.567_89e10
+invalid_underscore_sci_exp = 1.2e1_0 # [esoteric-underscore-grouping]
+#+1: [use-standard-scientific-notation, esoteric-underscore-grouping]
+invalid_underscore_sci_combined = 1_2.3_4e5_6
+#+1: [use-standard-scientific-notation, esoteric-underscore-grouping]
+invalid_uppercase_sci = 1_234.567_89E10
+edge_underscore_1 = 1_0e6  # [use-standard-scientific-notation, esoteric-underscore-grouping]
+mixed_underscore_1 = 1_000_000.0e-3  # [use-standard-scientific-notation]
+#+1: [use-standard-scientific-notation, esoteric-underscore-grouping]
+mixed_underscore_2 = 0.000_001e3
+mixed_underscore_3 = 1_0.0e2    # [use-standard-scientific-notation, esoteric-underscore-grouping]
 
-# Constants from physics/science (correctly formatted)
-speed_of_light = 2.99792458e8  # m/s
-planck_constant = 6.62607015e-34  # J⋅s
-electron_charge = 1.602176634e-19  # C
+# Complex numbers with underscores
+complex_underscore = 1.5_6e3 + 2.5_6e3j # [esoteric-underscore-grouping]
+#+1: [use-standard-scientific-notation, esoteric-underscore-grouping]
+complex_underscore_wrong = 15_6e2 + 25_6e2j
+
+#+2: [esoteric-underscore-grouping, esoteric-underscore-grouping]
+#+1: [use-standard-scientific-notation, use-standard-scientific-notation]
+def function_with_underscore(param=10.0_0e3, other_param=20.0_0e3):
+    return param, other_param
