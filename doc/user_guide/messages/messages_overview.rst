@@ -405,6 +405,7 @@ All messages in the convention category:
    convention/bad-classmethod-argument
    convention/bad-docstring-quotes
    convention/bad-file-encoding
+   convention/bad-float-notation
    convention/bad-mcs-classmethod-argument
    convention/bad-mcs-method-argument
    convention/consider-iterating-dictionary

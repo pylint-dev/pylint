@@ -13,6 +13,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import math
 import re
 import tokenize
 from functools import reduce
@@ -113,14 +114,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when there is different newline than expected.",
     ),
     "C0329": (
-        "Scientific notation should be '%s' instead",
-        "use-standard-scientific-notation",
-        "Emitted when a number is written in non-standard scientific notation.",
-    ),
-    "C0331": (
-        "Non standard grouping of numeric literals using underscores should be %s",
-        "esoteric-underscore-grouping",
-        "Used when numeric literals use underscore separators not in groups of 3 digits.",
+        "float literal should be written as '%s' instead",
+        "bad-float-notation",
+        "Emitted when a number is written in a non-standard notation. The three "
+        "allowed notation above the threshold are the scientific notation, the "
+        "engineering notation, and the underscore grouping notation defined in PEP515.",
     ),
 }
 
@@ -262,12 +260,91 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 ),
             },
         ),
+        (
+            "float-notation-threshold",
+            {
+                # default big enough to not trigger on pixel perfect web design
+                # on big screen
+                "default": "1e6",
+                "type": "float",
+                "metavar": "<float>",
+                "help": (
+                    "Threshold for float literals to be expected to be written "
+                    "using the scientific, engineering or underscore notation."
+                    " If the absolute value of a float literal is greater than this "
+                    "value (or smaller than the inverse of this value for scientific "
+                    "and engineering notation), it will be checked."
+                ),
+            },
+        ),
+        (
+            "strict-engineering-notation",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Only allow engineering notation for float literals with "
+                "absolute value bigger than 'float-notation-threshold' or smaller"
+                "than the inverse of 'float-notation-threshold'.",
+            },
+        ),
+        (
+            "strict-scientific-notation",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Only allow scientific notation for float literals with "
+                "absolute value bigger than 'float-notation-threshold' or smaller"
+                "than the inverse of 'float-notation-threshold'.",
+            },
+        ),
+        (
+            "strict-underscore-notation",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": "Only allow underscore notation for float literals bigger than "
+                "'float-notation-threshold'.",
+            },
+        ),
     )
 
     def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
         self._lines: dict[int, str] = {}
         self._visited_lines: dict[int, Literal[1, 2]] = {}
+        scientific = self.linter.config.strict_scientific_notation
+        engineering = self.linter.config.strict_engineering_notation
+        underscore = self.linter.config.strict_underscore_notation
+        float_config = sum([scientific, engineering, underscore])
+        print(
+            f"scientific: {scientific}, "
+            f"engineering: {engineering},"
+            f" underscore; {underscore}"
+            f" float_config; {float_config}"
+        )
+        if float_config > 1:
+            raise ValueError(
+                "Only one of strict-scientific-notation, "
+                "strict-engineering-notation, or strict-underscore-notation "
+                "can be set to True at a time."
+            )
+        if float_config == 0:
+            # i.e. nothing is strict so we should check all
+            self.should_check_scientific_notation = True
+            self.should_check_engineering_notation = True
+            self.should_check_underscore_notation = True
+        else:
+            self.should_check_scientific_notation = scientific
+            self.should_check_engineering_notation = engineering
+            self.should_check_underscore_notation = underscore
+        print(
+            self.should_check_scientific_notation,
+            self.should_check_engineering_notation,
+            self.should_check_underscore_notation,
+        )
 
     def new_line(self, tokens: TokenWrapper, line_end: int, line_start: int) -> None:
         """A new line has been encountered, process it if necessary."""
@@ -388,42 +465,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                             self._check_keyword_parentheses(tokens[i:], 0)
                         return
 
-    @staticmethod
-    def to_standard_scientific_notation(number: float) -> str:
-        # number is always going to be > 0 because node constants are always positive
-        # Format with high precision to capture all digits
-        s = f"{number:.15e}"
-        base, exp = s.split("e")
-        # Remove trailing zeros and possible trailing decimal point
-        base = base.rstrip("0").rstrip(".")
-        return f"{base}e{int(exp)}"
-
-    @staticmethod
-    def to_standard_underscore_grouping(number: str) -> str:
-        if "e" in number.lower() or "E" in number.lower():
-            return FormatChecker.to_standard_scientific_notation(float(number))
-
-        number = number.replace("_", "")
-        # Split into whole and decimal parts (if present)
-        if "." in number:
-            whole, decimal = number.split(".")
-        else:
-            whole, decimal = number, ""
-
-        # Format whole part with proper grouping (right to left)
-        if len(whole) > 3:
-            grouped_whole = ""
-            for i in range(len(whole), 0, -3):
-                start = max(0, i - 3)
-                group = whole[start:i]
-                if grouped_whole:
-                    grouped_whole = group + "_" + grouped_whole
-                else:
-                    grouped_whole = group
-            whole = grouped_whole
-        return f"{whole}.{decimal}" if decimal else whole
-
-    # pylint: disable-next=too-many-branches,too-many-statements
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Process tokens and search for:
 
@@ -487,37 +528,17 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         self.check_indent_level(line, indents[-1], line_num)
 
             if tok_type == tokenize.NUMBER:
-                not_hex_oct_or_complex = (
-                    # You don't deserve a linter if you mix non-decimal notation with
-                    # and exponential or underscore,
+                if (
+                    self.linter.is_message_enabled("bad-float-notation")
+                    and
+                    # You don't deserve a linter if you mix non-decimal notation and
+                    # exponential or underscore,
                     "x" not in string  # not a hexadecimal
                     and "o" not in string  # not an octal
                     and "j" not in string  # not a complex
-                )
-                # Wrong scientific notation
-                if ("e" in string or "E" in string) and not_hex_oct_or_complex:
-                    value = float(string.lower().split("e")[0])
-                    if not (1 <= value < 10):
-                        self.add_message(
-                            "use-standard-scientific-notation",
-                            args=(self.to_standard_scientific_notation(value)),
-                            line=line_num,
-                            col_offset=start[1],
-                            confidence=HIGH,
-                        )
-                # proper underscore grouping in numeric literals
-                if "_" in string and not_hex_oct_or_complex:
-                    if not re.match(
-                        r"^\d{0,3}(_\d{3})*\.?\d*([eE]-?\d{0,3}(_\d{3})*)?$", string
-                    ):
-                        suggested = self.to_standard_underscore_grouping(string)
-                        self.add_message(
-                            "esoteric-underscore-grouping",
-                            args=(suggested),
-                            line=line_num,
-                            col_offset=start[1],
-                            confidence=HIGH,
-                        )
+                    and "b" not in string  # not a binary
+                ):
+                    self._check_bad_float_notation(line_num, start, string)
                 if string.endswith("l"):
                     self.add_message("lowercase-l-suffix", line=line_num)
 
@@ -546,6 +567,169 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         # files like __init__.py markers.
         if line_num == last_blank_line_num and line_num > 0:
             self.add_message("trailing-newlines", line=line_num)
+
+    @classmethod
+    def to_standard_or_engineering_base(cls, number: float) -> tuple[str, str]:
+        """Calculate scientific notation components (base, exponent) for a number.
+
+        Returns a tuple (base, exponent) where:
+        - base is a number between 1 and 10 (or exact 0)
+        - exponent is the power of 10 needed to represent the original number
+        """
+        if number == 0:
+            return "0", "0"
+        exponent = math.floor(math.log10(abs(number)))
+        if exponent == 0:
+            return str(number), "0"
+        base_value = number / (10**exponent)
+        # 15 significant digits because if we add more precision then
+        # we get into rounding errors territory
+        base_str = f"{base_value:.15g}".rstrip("0").rstrip(".")
+        exp_str = str(exponent)
+        return base_str, exp_str
+
+    @classmethod
+    def to_standard_scientific_notation(cls, number: float) -> str:
+        base, exp = cls.to_standard_or_engineering_base(number)
+        if exp != "0":
+            return f"{base}e{int(exp)}"
+        if "." in base:
+            return base
+        return f"{base}.0"
+
+    @classmethod
+    def to_standard_engineering_notation(cls, number: float) -> str:
+        base, exp = cls.to_standard_or_engineering_base(number)
+        exp_value = int(exp)
+        remainder = exp_value % 3
+        # For negative exponents, the adjustment is different
+        if exp_value < 0:
+            # For negative exponents, we need to round down to the next multiple of 3
+            # e.g., -5 should go to -6, so we get 3 - ((-5) % 3) = 3 - 1 = 2
+            adjustment = 3 - ((-exp_value) % 3)
+            if adjustment == 3:
+                adjustment = 0
+            exp_value = exp_value - adjustment
+            base_value = float(base) * (10**adjustment)
+        elif remainder != 0:
+            # For positive exponents, keep the existing logic
+            exp_value = exp_value - remainder
+            base_value = float(base) * (10**remainder)
+        else:
+            base_value = float(base)
+        base = str(base_value).rstrip("0").rstrip(".")
+        if exp_value != 0:
+            return f"{base}e{exp_value}"
+        if "." in base:
+            return base
+        return f"{base}.0"
+
+    @classmethod
+    def to_standard_underscore_grouping(cls, number: float) -> str:
+        number_str = str(number)
+        if "e" in number_str or "E" in number_str:
+            # python itself want to display this as exponential there's no reason to
+            # not use exponential notation for very small number even for strict
+            # underscore grouping notation
+            return number_str
+        if "." in number_str:
+            int_part, dec_part = number_str.split(".")
+        else:
+            int_part = number_str
+            dec_part = "0"
+        grouped_int_part = ""
+        for i, digit in enumerate(reversed(int_part)):
+            if i > 0 and i % 3 == 0:
+                grouped_int_part = "_" + grouped_int_part
+            grouped_int_part = digit + grouped_int_part
+        return f"{grouped_int_part}.{dec_part}"
+
+    def _check_bad_float_notation(
+        self, line_num: int, start: tuple[int, int], string: str
+    ) -> None:
+
+        def raise_bad_float_notation(suggested: set[str]) -> None:
+            return self.add_message(
+                "bad-float-notation",
+                args=("' or '".join(suggested)),
+                line=line_num,
+                col_offset=start[1],
+                confidence=HIGH,
+            )
+
+        value = float(string)
+        threshold = self.linter.config.float_notation_threshold
+        abs_value = abs(value)
+        has_underscore = "_" in string
+        has_exponent = "e" in string or "E" in string
+        print(
+            f"Checking {string} {line_num}: "
+            f"s:{self.should_check_scientific_notation} "
+            f"e:{self.should_check_engineering_notation} "
+            f"u;{self.should_check_underscore_notation} "
+            f"has_underscore: {has_underscore} "
+            f"has_exponent: {has_exponent} "
+            f"abs_value: {abs_value} "
+            f"threshold: {threshold} "
+            f"strict_scientific_notation: {self.linter.config.strict_scientific_notation} "
+        )
+        if has_exponent:
+            if self.linter.config.strict_underscore_notation:
+                # If we have exponent it means it's not proper underscore
+                return raise_bad_float_notation(
+                    {self.to_standard_underscore_grouping(value)}
+                )
+            if abs_value > threshold or abs_value < 1 / threshold:
+                value_as_str, exponent_as_str = string.lower().split("e")
+                value = float(value_as_str)
+                wrong_scientific_notation = (
+                    self.should_check_scientific_notation and not (1 <= value < 10)
+                )
+                if (
+                    self.linter.config.strict_scientific_notation
+                    and wrong_scientific_notation
+                ):
+                    return raise_bad_float_notation(
+                        {self.to_standard_scientific_notation(value)}
+                    )
+                wrong_engineering_notation = (
+                    self.should_check_engineering_notation
+                    and not (1 <= value < 1000 and int(exponent_as_str) % 3 == 0)
+                )
+                if (
+                    self.linter.config.strict_engineering_notation
+                    and wrong_engineering_notation
+                ):
+                    return raise_bad_float_notation(
+                        {self.to_standard_engineering_notation(value)}
+                    )
+                if wrong_scientific_notation and wrong_engineering_notation:
+                    return raise_bad_float_notation(
+                        {
+                            self.to_standard_scientific_notation(value),
+                            self.to_standard_engineering_notation(value),
+                            self.to_standard_underscore_grouping(value),
+                        }
+                    )
+        if has_underscore:
+            # If we have underscore and exponent, we suggest exponent by default
+            if self.linter.config.strict_scientific_notation:
+                return raise_bad_float_notation(
+                    {self.to_standard_scientific_notation(value)}
+                )
+            if self.linter.config.strict_engineering_notation:
+                return raise_bad_float_notation(
+                    {self.to_standard_engineering_notation(value)}
+                )
+            underscore_notation = has_underscore and re.match(
+                r"^\d{0,3}(_\d{3})*\.?\d*([eE]-?\d{0,3}(_\d{3})*)?$", string
+            )
+            if not underscore_notation:
+                return raise_bad_float_notation(
+                    {self.to_standard_underscore_grouping(value)}
+                )
+            return None
+        return None
 
     def _check_line_ending(self, line_ending: str, line_num: int) -> None:
         # check if line endings are mixed

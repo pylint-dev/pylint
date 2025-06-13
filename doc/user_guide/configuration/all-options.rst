@@ -897,6 +897,13 @@ Standard Checkers
 **Default:** ``""``
 
 
+--float-notation-threshold
+""""""""""""""""""""""""""
+*Threshold for float literals to be expected to be written using the scientific, engineering or underscore notation. If the absolute value of a float literal is greater than this value (or smaller than the inverse of this value for scientific and engineering notation), it will be checked.*
+
+**Default:**  ``1e6``
+
+
 --ignore-long-lines
 """""""""""""""""""
 *Regexp for a line that is allowed to be longer than the limit.*
@@ -946,6 +953,27 @@ Standard Checkers
 **Default:**  ``False``
 
 
+--strict-engineering-notation
+"""""""""""""""""""""""""""""
+*Only allow engineering notation for float literals with absolute value bigger than 'float-notation-threshold' or smallerthan the inverse of 'float-notation-threshold'.*
+
+**Default:**  ``False``
+
+
+--strict-scientific-notation
+""""""""""""""""""""""""""""
+*Only allow scientific notation for float literals with absolute value bigger than 'float-notation-threshold' or smallerthan the inverse of 'float-notation-threshold'.*
+
+**Default:**  ``False``
+
+
+--strict-underscore-notation
+""""""""""""""""""""""""""""
+*Only allow underscore notation for float literals bigger than 'float-notation-threshold'.*
+
+**Default:**  ``False``
+
+
 
 .. raw:: html
 
@@ -960,6 +988,8 @@ Standard Checkers
    # Possible choices: ['', 'LF', 'CRLF']
    expected-line-ending-format = ""
 
+   float-notation-threshold = 1000000.0
+
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 
    indent-after-paren = 4
@@ -973,6 +1003,12 @@ Standard Checkers
    single-line-class-stmt = false
 
    single-line-if-stmt = false
+
+   strict-engineering-notation = false
+
+   strict-scientific-notation = false
+
+   strict-underscore-notation = false
 
 
 
