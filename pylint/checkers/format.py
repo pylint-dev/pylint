@@ -13,6 +13,7 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import re
 import tokenize
 from functools import reduce
 from re import Match
@@ -115,6 +116,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Scientific notation should be '%s' instead",
         "use-standard-scientific-notation",
         "Emitted when a number is written in non-standard scientific notation.",
+    ),
+    "C0331": (
+        "Non standard grouping of numeric literals using underscores should be %s",
+        "esoteric-underscore-grouping",
+        "Used when numeric literals use underscore separators not in groups of 3 digits.",
     ),
 }
 
@@ -392,6 +398,32 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         base = base.rstrip("0").rstrip(".")
         return f"{base}e{int(exp)}"
 
+    @staticmethod
+    def to_standard_underscore_grouping(number: str) -> str:
+        if "e" in number.lower() or "E" in number.lower():
+            return FormatChecker.to_standard_scientific_notation(float(number))
+
+        number = number.replace("_", "")
+        # Split into whole and decimal parts (if present)
+        if "." in number:
+            whole, decimal = number.split(".")
+        else:
+            whole, decimal = number, ""
+
+        # Format whole part with proper grouping (right to left)
+        if len(whole) > 3:
+            grouped_whole = ""
+            for i in range(len(whole), 0, -3):
+                start = max(0, i - 3)
+                group = whole[start:i]
+                if grouped_whole:
+                    grouped_whole = group + "_" + grouped_whole
+                else:
+                    grouped_whole = group
+            whole = grouped_whole
+        return f"{whole}.{decimal}" if decimal else whole
+
+    # pylint: disable-next=too-many-branches,too-many-statements
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Process tokens and search for:
 
@@ -455,12 +487,15 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         self.check_indent_level(line, indents[-1], line_num)
 
             if tok_type == tokenize.NUMBER:
-                # Check for wrong scientific notation
-                if (
-                    ("e" in string or "E" in string)
-                    and "x" not in string  # not a hexadecimal
+                not_hex_oct_or_complex = (
+                    # You don't deserve a linter if you mix non-decimal notation with
+                    # and exponential or underscore,
+                    "x" not in string  # not a hexadecimal
+                    and "o" not in string  # not an octal
                     and "j" not in string  # not a complex
-                ):
+                )
+                # Wrong scientific notation
+                if ("e" in string or "E" in string) and not_hex_oct_or_complex:
                     value = float(string.lower().split("e")[0])
                     if not (1 <= value < 10):
                         self.add_message(
@@ -468,6 +503,20 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                             args=(self.to_standard_scientific_notation(value)),
                             line=line_num,
                             col_offset=start[1],
+                            confidence=HIGH,
+                        )
+                # proper underscore grouping in numeric literals
+                if "_" in string and not_hex_oct_or_complex:
+                    if not re.match(
+                        r"^\d{0,3}(_\d{3})*\.?\d*([eE]-?\d{0,3}(_\d{3})*)?$", string
+                    ):
+                        suggested = self.to_standard_underscore_grouping(string)
+                        self.add_message(
+                            "esoteric-underscore-grouping",
+                            args=(suggested),
+                            line=line_num,
+                            col_offset=start[1],
+                            confidence=HIGH,
                         )
                 if string.endswith("l"):
                     self.add_message("lowercase-l-suffix", line=line_num)
