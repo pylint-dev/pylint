@@ -10,6 +10,7 @@ import tempfile
 import tokenize
 
 import astroid
+import pytest
 
 from pylint import lint, reporters
 from pylint.checkers.base.basic_checker import BasicChecker
@@ -215,3 +216,16 @@ class TestIgnorePatternInLongLines(CheckerTestCase):
         for msg, code in cases:
             with self.assertAddsMessages(msg):
                 self.checker.process_tokens(_tokenize_str(code + "\n"))
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        ("1_000_000", "1_000_000"),
+        ("1000_000", "1_000_000"),
+        ("10_5415_456_4654984.16354698489", "1_054_154_564_654_984.16354698489"),
+    ],
+)
+def test_to_standard_underscore_grouping(value: str, expected: str) -> None:
+    """Test the conversion of numbers to standard underscore grouping."""
+    assert FormatChecker.to_standard_underscore_grouping(value) == expected
