@@ -1,11 +1,55 @@
-use-standard-scientific-notation:3:12:None:None::Scientific notation should be '4.53e1' instead:UNDEFINED
-use-standard-scientific-notation:4:20:None:None::Scientific notation should be '4.53e1' instead:UNDEFINED
-use-standard-scientific-notation:5:14:None:None::Scientific notation should be '1.2e-4' instead:UNDEFINED
-use-standard-scientific-notation:6:26:None:None::Scientific notation should be '1e1' instead:UNDEFINED
-use-standard-scientific-notation:7:18:None:None::Scientific notation should be '1.1e4' instead:UNDEFINED
-use-standard-scientific-notation:8:26:None:None::Scientific notation should be '1.2e1' instead:UNDEFINED
-use-standard-scientific-notation:9:26:None:None::Scientific notation should be '1.23e2' instead:UNDEFINED
-use-standard-scientific-notation:10:28:None:None::Scientific notation should be '1e-4' instead:UNDEFINED
-use-standard-scientific-notation:11:26:None:None::Scientific notation should be '1e-4' instead:UNDEFINED
-use-standard-scientific-notation:12:20:None:None::Scientific notation should be '5e-1' instead:UNDEFINED
-use-standard-scientific-notation:13:12:None:None::Scientific notation should be '0e0' instead:UNDEFINED
+use-standard-scientific-notation:3:12:None:None::Scientific notation should be '4.53e1' instead:HIGH
+use-standard-scientific-notation:4:20:None:None::Scientific notation should be '4.53e1' instead:HIGH
+use-standard-scientific-notation:5:14:None:None::Scientific notation should be '1.2e-4' instead:HIGH
+use-standard-scientific-notation:6:26:None:None::Scientific notation should be '1.2e-4' instead:HIGH
+use-standard-scientific-notation:7:26:None:None::Scientific notation should be '1e1' instead:HIGH
+use-standard-scientific-notation:8:18:None:None::Scientific notation should be '1.1e4' instead:HIGH
+use-standard-scientific-notation:9:26:None:None::Scientific notation should be '1.2e1' instead:HIGH
+use-standard-scientific-notation:10:26:None:None::Scientific notation should be '1.23e2' instead:HIGH
+use-standard-scientific-notation:11:28:None:None::Scientific notation should be '1e-4' instead:HIGH
+use-standard-scientific-notation:12:26:None:None::Scientific notation should be '1e-4' instead:HIGH
+use-standard-scientific-notation:13:20:None:None::Scientific notation should be '5e-1' instead:HIGH
+use-standard-scientific-notation:14:12:None:None::Scientific notation should be '0e0' instead:HIGH
+use-standard-scientific-notation:47:23:None:None::Scientific notation should be '1.5e1' instead:HIGH
+use-standard-scientific-notation:51:28:None:None::Scientific notation should be '1e1' instead:HIGH
+use-standard-scientific-notation:51:48:None:None::Scientific notation should be '2e1' instead:HIGH
+use-standard-scientific-notation:55:35:None:None::Scientific notation should be '1e1' instead:HIGH
+use-standard-scientific-notation:55:27:None:None::Scientific notation should be '2e1' instead:HIGH
+use-standard-scientific-notation:59:29:None:None::Scientific notation should be '1.2300000012345e8' instead:HIGH
+use-standard-scientific-notation:60:33:None:None::Scientific notation should be '1.2300000012345e8' instead:HIGH
+esoteric-underscore-grouping:65:34:None:None::Non standard grouping of numeric literals using underscores should be .123456:HIGH
+esoteric-underscore-grouping:66:35:None:None::Non standard grouping of numeric literals using underscores should be 123_456.123456:HIGH
+esoteric-underscore-grouping:67:27:None:None::Non standard grouping of numeric literals using underscores should be 1.234567e6:HIGH
+esoteric-underscore-grouping:68:26:None:None::Non standard grouping of numeric literals using underscores should be 1.234567e6:HIGH
+esoteric-underscore-grouping:69:31:None:None::Non standard grouping of numeric literals using underscores should be 1.2e10:HIGH
+esoteric-underscore-grouping:70:27:None:None::Non standard grouping of numeric literals using underscores should be 1_234.56789:HIGH
+esoteric-underscore-grouping:71:28:None:None::Non standard grouping of numeric literals using underscores should be 0_b10_101_010:HIGH
+esoteric-underscore-grouping:73:23:None:None::Non standard grouping of numeric literals using underscores should be 4.5345e7:HIGH
+use-standard-scientific-notation:73:23:None:None::Scientific notation should be '4.5345e1' instead:HIGH
+esoteric-underscore-grouping:75:25:None:None::Non standard grouping of numeric literals using underscores should be 1.2e-30:HIGH
+use-standard-scientific-notation:75:25:None:None::Scientific notation should be '1.2e-4' instead:HIGH
+esoteric-underscore-grouping:77:37:None:None::Non standard grouping of numeric literals using underscores should be 1.2e9:HIGH
+use-standard-scientific-notation:77:37:None:None::Scientific notation should be '1.2e1' instead:HIGH
+esoteric-underscore-grouping:79:37:None:None::Non standard grouping of numeric literals using underscores should be 1.23e5:HIGH
+use-standard-scientific-notation:79:37:None:None::Scientific notation should be '1.23e2' instead:HIGH
+esoteric-underscore-grouping:81:25:None:None::Non standard grouping of numeric literals using underscores should be 1.23456789e13:HIGH
+use-standard-scientific-notation:81:25:None:None::Scientific notation should be '1.23456789e3' instead:HIGH
+esoteric-underscore-grouping:82:29:None:None::Non standard grouping of numeric literals using underscores should be 1.2e10:HIGH
+esoteric-underscore-grouping:84:34:None:None::Non standard grouping of numeric literals using underscores should be 1.234e57:HIGH
+use-standard-scientific-notation:84:34:None:None::Scientific notation should be '1.234e1' instead:HIGH
+esoteric-underscore-grouping:86:24:None:None::Non standard grouping of numeric literals using underscores should be 1.23456789e13:HIGH
+use-standard-scientific-notation:86:24:None:None::Scientific notation should be '1.23456789e3' instead:HIGH
+esoteric-underscore-grouping:87:20:None:None::Non standard grouping of numeric literals using underscores should be 1e7:HIGH
+use-standard-scientific-notation:87:20:None:None::Scientific notation should be '1e1' instead:HIGH
+use-standard-scientific-notation:88:21:None:None::Scientific notation should be '1e6' instead:HIGH
+esoteric-underscore-grouping:90:21:None:None::Non standard grouping of numeric literals using underscores should be 1e-3:HIGH
+use-standard-scientific-notation:90:21:None:None::Scientific notation should be '1e-6' instead:HIGH
+esoteric-underscore-grouping:91:21:None:None::Non standard grouping of numeric literals using underscores should be 1e3:HIGH
+use-standard-scientific-notation:91:21:None:None::Scientific notation should be '1e1' instead:HIGH
+esoteric-underscore-grouping:94:21:None:None::Non standard grouping of numeric literals using underscores should be 1.56e3:HIGH
+esoteric-underscore-grouping:96:27:None:None::Non standard grouping of numeric literals using underscores should be 1.56e4:HIGH
+use-standard-scientific-notation:96:27:None:None::Scientific notation should be '1.56e2' instead:HIGH
+esoteric-underscore-grouping:100:35:None:None::Non standard grouping of numeric literals using underscores should be 1e4:HIGH
+esoteric-underscore-grouping:100:57:None:None::Non standard grouping of numeric literals using underscores should be 2e4:HIGH
+use-standard-scientific-notation:100:35:None:None::Scientific notation should be '1e1' instead:HIGH
+use-standard-scientific-notation:100:57:None:None::Scientific notation should be '2e1' instead:HIGH
