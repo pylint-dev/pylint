@@ -117,7 +117,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "use-standard-scientific-notation",
         "Emitted when a number is written in non-standard scientific notation.",
     ),
-    "C0330": (
+    "C0331": (
         "Non standard grouping of numeric literals using underscores should be %s",
         "esoteric-underscore-grouping",
         "Used when numeric literals use underscore separators not in groups of 3 digits.",
