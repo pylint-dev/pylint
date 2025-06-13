@@ -186,6 +186,18 @@ def test_disable_global_option_end_of_line() -> None:
 @pytest.mark.parametrize(
     "value, expected",
     [
+        ("0e10", "0e0"),
+        ("30e2", "3e3"),
+    ],
+)
+def test_to_standard_scientific_notation(value: str, expected: str) -> None:
+    """Test the conversion of numbers to standard underscore grouping."""
+    assert FormatChecker.to_standard_underscore_grouping(value) == expected
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
         ("1_000_000", "1_000_000"),
         ("1000_000", "1_000_000"),
         ("10_5415_456_4654984.16354698489", "1_054_154_564_654_984.16354698489"),
