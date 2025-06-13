@@ -1,0 +1,4 @@
+[tool.pylint.format]
+strict-engineering-notation = false
+strict-scientific-notation = true
+strict-underscore-notation = false
