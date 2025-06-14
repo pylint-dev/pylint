@@ -4,7 +4,7 @@ class P:
     pass
 
 class A:
-    x: P  # just type hint, no ownership, soassociation
+    x: P  # just type hint, no ownership, so association
 
 class B:
     def __init__(self, x: P):
