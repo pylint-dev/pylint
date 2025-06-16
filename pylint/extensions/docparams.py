@@ -688,7 +688,9 @@ class DocstringParameterChecker(BaseChecker):
         node_line_count = checker_utils.get_node_last_lineno(node) - node.lineno
         min_lines = self.linter.config.docstring_min_length
         result = -1 < node_line_count < min_lines
-        assert isinstance(result, bool), "Result of int comparison should have been a boolean"
+        assert isinstance(
+            result, bool
+        ), "Result of int comparison should have been a boolean"
         return result
 
 
