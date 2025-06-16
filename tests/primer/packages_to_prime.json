@@ -13,6 +13,7 @@
   "django": {
     "branch": "main",
     "directories": ["django"],
+    "minimum_python": "3.12",
     "url": "https://github.com/django/django"
   },
   "flask": {
