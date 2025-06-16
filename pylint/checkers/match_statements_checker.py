@@ -30,10 +30,6 @@ class MatchStatementChecker(BaseChecker):
         )
     }
 
-    def open(self) -> None:
-        py_version = self.linter.config.py_version
-        self._py310_plus = py_version >= (3, 10)
-
     @only_required_for_messages("unreachable-match-patterns")
     def visit_match(self, node: nodes.Match) -> None:
         """Check if a name capture pattern prevents the other cases from being
@@ -45,7 +41,6 @@ class MatchStatementChecker(BaseChecker):
                 and case.pattern.pattern is None
                 and isinstance(case.pattern.name, nodes.AssignName)
                 and idx < len(node.cases) - 1
-                and self._py310_plus
             ):
                 self.add_message(
                     "unreachable-match-patterns",
