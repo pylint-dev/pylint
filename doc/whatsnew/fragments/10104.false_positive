@@ -1,0 +1,3 @@
+Fix false positive for `missing-raises-doc` and `missing-yield-doc` when the method length is less than docstring-min-length.
+
+Refs #10104
