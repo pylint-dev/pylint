@@ -1,0 +1,4 @@
+Using "default" in parameter signatures of NumPy doctrings emitted a `missing-param`
+error.
+
+Closes #6211
