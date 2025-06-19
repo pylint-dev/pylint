@@ -311,20 +311,13 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         ),
     )
 
-    def __init__(self, linter: PyLinter) -> None:
-        super().__init__(linter)
+    def open(self) -> None:
         self._lines: dict[int, str] = {}
         self._visited_lines: dict[int, Literal[1, 2]] = {}
         scientific = self.linter.config.strict_scientific_notation
         engineering = self.linter.config.strict_engineering_notation
         underscore = self.linter.config.strict_underscore_notation
         float_config = sum([scientific, engineering, underscore])
-        print(
-            f"scientific: {scientific}, "
-            f"engineering: {engineering},"
-            f" underscore; {underscore}"
-            f" float_config; {float_config}"
-        )
         if float_config > 1:
             raise ValueError(
                 "Only one of strict-scientific-notation, "
@@ -340,11 +333,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             self.should_check_scientific_notation = scientific
             self.should_check_engineering_notation = engineering
             self.should_check_underscore_notation = underscore
-        print(
-            self.should_check_scientific_notation,
-            self.should_check_engineering_notation,
-            self.should_check_underscore_notation,
-        )
 
     def new_line(self, tokens: TokenWrapper, line_end: int, line_start: int) -> None:
         """A new line has been encountered, process it if necessary."""
