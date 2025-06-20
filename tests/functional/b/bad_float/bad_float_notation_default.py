@@ -24,7 +24,7 @@ base_between_one_and_a_thousand = 12.345e9
 under_a_thousand = 990
 
 # Content of bad_float_scientific_notation strict tests tested with default configuration
-base_not_between_one_and_ten = 10e3  # [bad-float-notation]
+base_not_between_one_and_ten = 10e3
 above_threshold_without_exponent_2 = 10000000  # [bad-float-notation]
 under_ten_with_exponent = 9.9e0  # [bad-float-notation]
 base_between_one_and_ten = 1e4
@@ -32,14 +32,14 @@ above_threshold_with_exponent = 1e7
 under_ten = 9.9
 
 
-wrong_big = 45.3e6  # [bad-float-notation]
-uppercase_e_wrong = 45.3E6  # [bad-float-notation]
+wrong_big = 45.3e7  # [bad-float-notation]
+uppercase_e_wrong = 45.3E7  # [bad-float-notation]
 wrong_small = 0.00012e-26  # [bad-float-notation]
 uppercase_e_wrong_small = 0.00012E-26  # [bad-float-notation]
-wrong_negative_and_big = -10e3  # [bad-float-notation]
-actual_trolling = 11000e26  # [bad-float-notation]
+wrong_negative_and_big = -10e5  # [bad-float-notation]
+actual_trolling = 11000e27  # [bad-float-notation]
 scientific_double_digit = 12e8  # [bad-float-notation]
-scientific_triple_digit = 123e3  # [bad-float-notation]
+scientific_triple_digit = 123e3
 zero_before_decimal_small = 0.0001e-5  # [bad-float-notation]
 zero_before_decimal_big = 0.0001e5  # [bad-float-notation]
 negative_decimal = -0.5e10  # [bad-float-notation]
@@ -57,9 +57,10 @@ correct_with_digits = 4.567e8
 correct_with_plus = 1.2e+10
 correct_decimal_only = 3.14
 negative_correct = -5.67e-8
-correct_small_exponent = 1.5e1
-actually_nine = 9e0
-actually_one = 1.0e0
+correct_small_exponent = 1.5e1  # [bad-float-notation]
+actually_nine = 9e0  # [bad-float-notation]
+actually_one = 1.0e0  # [bad-float-notation]
+
 
 
 hex_constant = 0x1e4  # Hexadecimal, not scientific notation
@@ -76,15 +77,15 @@ inside_f_string = f"Value is {1.0} not 10e6"
 
 complex_number = 1.5e3 + 2.5e3j  # Complex number with scientific notation
 # false negative for complex numbers:
-complex_number_wrong = 15e3 + 25e3j  # [bad-float-notation]
+complex_number_wrong = 15e4 + 25e7j  # [bad-float-notation]
 
 
 #+1: [bad-float-notation, bad-float-notation]
-def function_with_sci(param=10.0e3, other_param=20.0e3):
+def function_with_sci(param=10.0e4, other_param=20.0e5):
     return param, other_param
 
 #+1: [bad-float-notation, bad-float-notation]
-result = function_with_sci(20.0e3, 10.0e3)
+result = function_with_sci(20.0e4, 10.0e7)
 
 valid_underscore_int = 1_000_000
 valid_underscore_float = 1_000_000.12345
