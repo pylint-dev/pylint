@@ -317,22 +317,29 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         scientific = self.linter.config.strict_scientific_notation
         engineering = self.linter.config.strict_engineering_notation
         underscore = self.linter.config.strict_underscore_notation
-        float_config = sum([scientific, engineering, underscore])
-        if float_config > 1:
+        number_of_strict_float_notation = sum([scientific, engineering, underscore])
+        if number_of_strict_float_notation > 1:
             raise ValueError(
                 "Only one of strict-scientific-notation, "
-                "strict-engineering-notation, or strict-underscore-notation "
+                "'strict-engineering-notation', or 'strict-underscore-notation' "
                 "can be set to True at a time."
             )
-        if float_config == 0:
-            # i.e. nothing is strict so we should check all
-            self.should_check_scientific_notation = True
-            self.should_check_engineering_notation = True
-            self.should_check_underscore_notation = True
-        else:
-            self.should_check_scientific_notation = scientific
-            self.should_check_engineering_notation = engineering
-            self.should_check_underscore_notation = underscore
+        self.all_float_notation_allowed = number_of_strict_float_notation == 0
+        if (
+            self.linter.config.float_notation_threshold < 10
+            and self.linter.config.strict_scientific_notation
+        ):
+            raise ValueError(
+                "'float-notation-threshold' must be at least 10 "
+                "when 'strict-scientific-notation' is enabled, got "
+                f"{self.linter.config.float_notation_threshold}."
+            )
+        if self.linter.config.float_notation_threshold < 1000:
+            raise ValueError(
+                "'float-notation-threshold' must be at least 1000 "
+                f"when 'strict-scientific-notation' is disabled, got "
+                f"{self.linter.config.float_notation_threshold}."
+            )
 
     def new_line(self, tokens: TokenWrapper, line_end: int, line_start: int) -> None:
         """A new line has been encountered, process it if necessary."""
@@ -566,6 +573,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         """
         if number == 0:
             return "0", "0"
+        if number == math.inf:
+            return "math.inf", "0"
+        print(f"Converting {number} to standard or engineering base")
         exponent = math.floor(math.log10(abs(number)))
         if exponent == 0:
             return str(number), "0"
@@ -579,6 +589,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     @classmethod
     def to_standard_scientific_notation(cls, number: float) -> str:
         base, exp = cls.to_standard_or_engineering_base(number)
+        if base == "math.inf":
+            return "math.inf"
         if exp != "0":
             return f"{base}e{int(exp)}"
         if "." in base:
@@ -588,6 +600,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     @classmethod
     def to_standard_engineering_notation(cls, number: float) -> str:
         base, exp = cls.to_standard_or_engineering_base(number)
+        if base == "math.inf":
+            return "math.inf"
         exp_value = int(exp)
         remainder = exp_value % 3
         # For negative exponents, the adjustment is different
@@ -632,91 +646,114 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             grouped_int_part = digit + grouped_int_part
         return f"{grouped_int_part}.{dec_part}"
 
-    def _check_bad_float_notation(
+    def _check_bad_float_notation(  # pylint: disable=too-many-locals
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
+        value = float(string)
+        engineering = (
+            self.all_float_notation_allowed
+            or self.linter.config.strict_engineering_notation
+        )
+        scientific = (
+            self.all_float_notation_allowed
+            or self.linter.config.strict_scientific_notation
+        )
+        pep515 = (
+            self.all_float_notation_allowed
+            or self.linter.config.strict_underscore_notation
+        )
 
-        def raise_bad_float_notation(suggested: set[str]) -> None:
+        def raise_bad_float_notation() -> None:
+            suggested = set()
+            if scientific:
+                suggested.add(self.to_standard_scientific_notation(value))
+            if engineering:
+                suggested.add(self.to_standard_engineering_notation(value))
+            if pep515:
+                suggested.add(self.to_standard_underscore_grouping(value))
+            print("\tBad float notation, suggesting:", suggested)
             return self.add_message(
                 "bad-float-notation",
-                args=("' or '".join(suggested)),
+                args=("' or '".join(sorted(suggested))),
                 line=line_num,
+                end_lineno=line_num,
                 col_offset=start[1],
+                end_col_offset=start[1] + len(string),
                 confidence=HIGH,
             )
 
-        value = float(string)
-        threshold = self.linter.config.float_notation_threshold
-        abs_value = abs(value)
         has_underscore = "_" in string
         has_exponent = "e" in string or "E" in string
-        print(
-            f"Checking {string} {line_num}: "
-            f"s:{self.should_check_scientific_notation} "
-            f"e:{self.should_check_engineering_notation} "
-            f"u;{self.should_check_underscore_notation} "
-            f"has_underscore: {has_underscore} "
-            f"has_exponent: {has_exponent} "
-            f"abs_value: {abs_value} "
-            f"threshold: {threshold} "
-            f"strict_scientific_notation: {self.linter.config.strict_scientific_notation} "
+        should_be_written_simply = (
+            1 <= value < 10 and self.linter.config.strict_scientific_notation
+        ) or 1 <= value < 1000
+        is_written_complexly = has_underscore or has_exponent
+        print(f"Checking {string} line {line_num}")
+        if should_be_written_simply and is_written_complexly:
+            print(f"\t{value} is a simple number")
+            # If the value does not deserve a complex notation then write it in a simple way.
+            # The threshold is guaranteed to be higher than those value.
+            # When 1 <= value < 10 the engineering notation is equivalent to the scientific notation
+            return raise_bad_float_notation()
+
+        abs_value = abs(value)
+        should_not_be_checked_because_of_threshold = (
+            abs_value < self.linter.config.float_notation_threshold  # under threshold
+            and (  # use scientific or engineering notation and under 1/threshold
+                self.linter.config.strict_underscore_notation
+                or abs_value > 1 / self.linter.config.float_notation_threshold
+            )
         )
+        print(
+            "\tshould_not_be_checked_because_of_threshold=",
+            should_not_be_checked_because_of_threshold,
+        )
+        if not is_written_complexly:
+            if should_not_be_checked_because_of_threshold:
+                # This number is free style, we do not have to check it, unless it's
+                # written complexly, then it could be badly written
+                print("\tFree style number, no need to check")
+                return None
+            return raise_bad_float_notation()
         if has_exponent:
             if self.linter.config.strict_underscore_notation:
                 # If we have exponent it means it's not proper underscore
-                return raise_bad_float_notation(
-                    {self.to_standard_underscore_grouping(value)}
-                )
-            if abs_value > threshold or abs_value < 1 / threshold:
-                value_as_str, exponent_as_str = string.lower().split("e")
-                value = float(value_as_str)
-                wrong_scientific_notation = (
-                    self.should_check_scientific_notation and not (1 <= value < 10)
-                )
-                if (
-                    self.linter.config.strict_scientific_notation
-                    and wrong_scientific_notation
-                ):
-                    return raise_bad_float_notation(
-                        {self.to_standard_scientific_notation(value)}
-                    )
-                wrong_engineering_notation = (
-                    self.should_check_engineering_notation
-                    and not (1 <= value < 1000 and int(exponent_as_str) % 3 == 0)
-                )
-                if (
-                    self.linter.config.strict_engineering_notation
-                    and wrong_engineering_notation
-                ):
-                    return raise_bad_float_notation(
-                        {self.to_standard_engineering_notation(value)}
-                    )
-                if wrong_scientific_notation and wrong_engineering_notation:
-                    return raise_bad_float_notation(
-                        {
-                            self.to_standard_scientific_notation(value),
-                            self.to_standard_engineering_notation(value),
-                            self.to_standard_underscore_grouping(value),
-                        }
-                    )
-        if has_underscore:
+                return raise_bad_float_notation()
+            base_as_str, exponent_as_str = string.lower().split("e")
+            base = float(base_as_str)
+            print("\tBase:", base, "Exponent:", exponent_as_str)
+            wrong_scientific_notation = not (1 <= base < 10)
+            print(f"\twrong_scientific_notation:{wrong_scientific_notation}")
+            if (
+                self.linter.config.strict_scientific_notation
+                and wrong_scientific_notation
+            ):
+                return raise_bad_float_notation()
+            wrong_engineering_notation = not (
+                1 <= base < 1000 and int(exponent_as_str) % 3 == 0
+            )
+            print(f"\twrong_engineering_notation:{wrong_engineering_notation}")
+            if (
+                self.linter.config.strict_engineering_notation
+                and wrong_engineering_notation
+            ) or (wrong_scientific_notation and wrong_engineering_notation):
+                return raise_bad_float_notation()
+        elif has_underscore:
             # If we have underscore and exponent, we suggest exponent by default
-            if self.linter.config.strict_scientific_notation:
-                return raise_bad_float_notation(
-                    {self.to_standard_scientific_notation(value)}
-                )
-            if self.linter.config.strict_engineering_notation:
-                return raise_bad_float_notation(
-                    {self.to_standard_engineering_notation(value)}
-                )
-            underscore_notation = has_underscore and re.match(
+            print("\tHas underscore, checking underscore grouping")
+            if (
+                self.linter.config.strict_scientific_notation
+                or self.linter.config.strict_engineering_notation
+            ):
+                return raise_bad_float_notation()
+            wrong_underscore_notation = not re.match(
                 r"^\d{0,3}(_\d{3})*\.?\d*([eE]-?\d{0,3}(_\d{3})*)?$", string
             )
-            if not underscore_notation:
-                return raise_bad_float_notation(
-                    {self.to_standard_underscore_grouping(value)}
-                )
-            return None
+            print(f"\twrong_underscore_notation:{wrong_underscore_notation}")
+            if pep515 and wrong_underscore_notation:
+                return raise_bad_float_notation()
+        else:
+            return raise_bad_float_notation()
         return None
 
     def _check_line_ending(self, line_ending: str, line_num: int) -> None:

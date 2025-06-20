@@ -1,0 +1,5 @@
+bad-float-notation:3:23:3:36::float literal should be written as '123_456_789.0' instead:HIGH
+bad-float-notation:4:23:4:38::float literal should be written as '1.2345678e+16' instead:HIGH
+bad-float-notation:5:35:5:44::float literal should be written as '123_456_789.0' instead:HIGH
+bad-float-notation:6:22:6:34::float literal should be written as '1.2345678e+16' instead:HIGH
+bad-float-notation:7:23:7:35::float literal should be written as '1.2345678e+16' instead:HIGH
