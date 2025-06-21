@@ -1,3 +1,3 @@
-bad-float-notation:3:31:3:35::float literal should be written as '1e4' instead:HIGH
-bad-float-notation:4:35:4:43::float literal should be written as '1e7' instead:HIGH
-bad-float-notation:5:26:5:31::float literal should be written as '9.9' instead:HIGH
+bad-float-notation:3:31:3:35::'10e3' has a base, '10.0', that is not strictly inferior to 10, and it should be written as '1e4' instead:HIGH
+bad-float-notation:4:35:4:43::'10000000' is bigger than 1e6, and it should be written as '1e7' instead:HIGH
+bad-float-notation:5:26:5:31::'9.9e0' has underscore or exponent, and it should be written as '9.9' instead:HIGH
