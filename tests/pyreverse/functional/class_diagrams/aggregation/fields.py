@@ -4,24 +4,24 @@ class P:
     pass
 
 class A:
-    x: P
+    x: P  # just type hint, no ownership, so association
 
 class B:
     def __init__(self, x: P):
-        self.x = x
+        self.x = x  # not instantiated, so aggregation
 
 class C:
     x: P
 
     def __init__(self, x: P):
-        self.x = x
+        self.x = x  # not instantiated, so aggregation
 
 class D:
     x: P
 
     def __init__(self):
-        self.x = P()
+        self.x = P()  # instantiated, so composition
 
 class E:
     def __init__(self):
-        self.x = P()
+        self.x = P()  # instantiated, so composition
