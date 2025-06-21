@@ -1,55 +1,53 @@
-bad-float-notation:3:12:None:None::Scientific notation should be '4.53e1' instead:HIGH
-bad-float-notation:4:20:None:None::Scientific notation should be '4.53e1' instead:HIGH
-bad-float-notation:5:14:None:None::Scientific notation should be '1.2e-4' instead:HIGH
-bad-float-notation:6:26:None:None::Scientific notation should be '1.2e-4' instead:HIGH
-bad-float-notation:7:26:None:None::Scientific notation should be '1e1' instead:HIGH
-bad-float-notation:8:18:None:None::Scientific notation should be '1.1e4' instead:HIGH
-bad-float-notation:9:26:None:None::Scientific notation should be '1.2e1' instead:HIGH
-bad-float-notation:10:26:None:None::Scientific notation should be '1.23e2' instead:HIGH
-bad-float-notation:11:28:None:None::Scientific notation should be '1e-4' instead:HIGH
-bad-float-notation:12:26:None:None::Scientific notation should be '1e-4' instead:HIGH
-bad-float-notation:13:20:None:None::Scientific notation should be '5e-1' instead:HIGH
-bad-float-notation:14:12:None:None::Scientific notation should be '0e0' instead:HIGH
-bad-float-notation:47:23:None:None::Scientific notation should be '1.5e1' instead:HIGH
-bad-float-notation:51:28:None:None::Scientific notation should be '1e1' instead:HIGH
-bad-float-notation:51:48:None:None::Scientific notation should be '2e1' instead:HIGH
-bad-float-notation:55:35:None:None::Scientific notation should be '1e1' instead:HIGH
-bad-float-notation:55:27:None:None::Scientific notation should be '2e1' instead:HIGH
-bad-float-notation:59:29:None:None::Scientific notation should be '1.2300000012345e8' instead:HIGH
-bad-float-notation:60:33:None:None::Scientific notation should be '1.2300000012345e8' instead:HIGH
-bad-float-notation:65:34:None:None::Non standard grouping of numeric literals using underscores should be .123456:HIGH
-bad-float-notation:66:35:None:None::Non standard grouping of numeric literals using underscores should be 123_456.123456:HIGH
-bad-float-notation:67:27:None:None::Non standard grouping of numeric literals using underscores should be 1.234567e6:HIGH
-bad-float-notation:68:26:None:None::Non standard grouping of numeric literals using underscores should be 1.234567e6:HIGH
-bad-float-notation:69:31:None:None::Non standard grouping of numeric literals using underscores should be 1.2e10:HIGH
-bad-float-notation:70:27:None:None::Non standard grouping of numeric literals using underscores should be 1_234.56789:HIGH
-bad-float-notation:71:28:None:None::Non standard grouping of numeric literals using underscores should be 0_b10_101_010:HIGH
-bad-float-notation:73:23:None:None::Non standard grouping of numeric literals using underscores should be 4.5345e7:HIGH
-bad-float-notation:73:23:None:None::Scientific notation should be '4.5345e1' instead:HIGH
-bad-float-notation:75:25:None:None::Non standard grouping of numeric literals using underscores should be 1.2e-30:HIGH
-bad-float-notation:75:25:None:None::Scientific notation should be '1.2e-4' instead:HIGH
-bad-float-notation:77:37:None:None::Non standard grouping of numeric literals using underscores should be 1.2e9:HIGH
-bad-float-notation:77:37:None:None::Scientific notation should be '1.2e1' instead:HIGH
-bad-float-notation:79:37:None:None::Non standard grouping of numeric literals using underscores should be 1.23e5:HIGH
-bad-float-notation:79:37:None:None::Scientific notation should be '1.23e2' instead:HIGH
-bad-float-notation:81:25:None:None::Non standard grouping of numeric literals using underscores should be 1.23456789e13:HIGH
-bad-float-notation:81:25:None:None::Scientific notation should be '1.23456789e3' instead:HIGH
-bad-float-notation:82:29:None:None::Non standard grouping of numeric literals using underscores should be 1.2e10:HIGH
-bad-float-notation:84:34:None:None::Non standard grouping of numeric literals using underscores should be 1.234e57:HIGH
-bad-float-notation:84:34:None:None::Scientific notation should be '1.234e1' instead:HIGH
-bad-float-notation:86:24:None:None::Non standard grouping of numeric literals using underscores should be 1.23456789e13:HIGH
-bad-float-notation:86:24:None:None::Scientific notation should be '1.23456789e3' instead:HIGH
-bad-float-notation:87:20:None:None::Non standard grouping of numeric literals using underscores should be 1e7:HIGH
-bad-float-notation:87:20:None:None::Scientific notation should be '1e1' instead:HIGH
-bad-float-notation:88:21:None:None::Scientific notation should be '1e6' instead:HIGH
-bad-float-notation:90:21:None:None::Non standard grouping of numeric literals using underscores should be 1e-3:HIGH
-bad-float-notation:90:21:None:None::Scientific notation should be '1e-6' instead:HIGH
-bad-float-notation:91:21:None:None::Non standard grouping of numeric literals using underscores should be 1e3:HIGH
-bad-float-notation:91:21:None:None::Scientific notation should be '1e1' instead:HIGH
-bad-float-notation:94:21:None:None::Non standard grouping of numeric literals using underscores should be 1.56e3:HIGH
-bad-float-notation:96:27:None:None::Non standard grouping of numeric literals using underscores should be 1.56e4:HIGH
-bad-float-notation:96:27:None:None::Scientific notation should be '1.56e2' instead:HIGH
-bad-float-notation:100:35:None:None::Non standard grouping of numeric literals using underscores should be 1e4:HIGH
-bad-float-notation:100:57:None:None::Non standard grouping of numeric literals using underscores should be 2e4:HIGH
-bad-float-notation:100:35:None:None::Scientific notation should be '1e1' instead:HIGH
-bad-float-notation:100:57:None:None::Scientific notation should be '2e1' instead:HIGH
+bad-float-notation:4:19:4:25::float literal should be written as '1.504e8' or '150.4e6' or '150_400_000.0' instead:HIGH
+bad-float-notation:10:23:10:36::float literal should be written as '1.23456789e8' or '123.45678899999999e6' or '123_456_789.0' instead:HIGH
+bad-float-notation:11:23:11:38::float literal should be written as '1.2345678e+16' or '1.2345678e16' or '12.345678e15' instead:HIGH
+bad-float-notation:12:35:12:44::float literal should be written as '1.23456789e8' or '123.45678899999999e6' or '123_456_789.0' instead:HIGH
+bad-float-notation:18:33:18:38::float literal should be written as '1.23e6' or '1_230_000.0' instead:HIGH
+bad-float-notation:19:38:19:45::float literal should be written as '1.2345e10' or '12.344999999999999e9' or '12_345_000_000.0' instead:HIGH
+bad-float-notation:20:35:20:43::float literal should be written as '10_000_000.0' or '10e6' or '1e7' instead:HIGH
+bad-float-notation:21:33:21:38::float literal should be written as '9.9e2' or '990.0' instead:HIGH
+bad-float-notation:28:37:28:45::float literal should be written as '10_000_000.0' or '10e6' or '1e7' instead:HIGH
+bad-float-notation:29:26:29:31::float literal should be written as '9.9' instead:HIGH
+bad-float-notation:35:12:35:18::float literal should be written as '4.53e8' or '453_000_000.0' or '453e6' instead:HIGH
+bad-float-notation:36:20:36:26::float literal should be written as '4.53e8' or '453_000_000.0' or '453e6' instead:HIGH
+bad-float-notation:37:14:37:25::float literal should be written as '1.2e-30' instead:HIGH
+bad-float-notation:38:26:38:37::float literal should be written as '1.2e-30' instead:HIGH
+bad-float-notation:39:26:39:30::float literal should be written as '1_000_000.0' or '1e6' instead:HIGH
+bad-float-notation:40:18:40:26::float literal should be written as '1.1e+31' or '1.1e31' or '11e30' instead:HIGH
+bad-float-notation:41:26:41:30::float literal should be written as '1.2e9' or '1_200_000_000.0' instead:HIGH
+bad-float-notation:43:28:43:37::float literal should be written as '1e-09' or '1e-9' instead:HIGH
+bad-float-notation:44:26:44:34::float literal should be written as '10.0' or '1e1' instead:HIGH
+bad-float-notation:45:20:45:26::float literal should be written as '5_000_000_000.0' or '5e9' instead:HIGH
+bad-float-notation:46:12:46:16::float literal should be written as '0.0' instead:HIGH
+bad-float-notation:60:25:60:30::float literal should be written as '1.5e1' or '15.0' instead:HIGH
+bad-float-notation:61:16:61:19::float literal should be written as '9.0' instead:HIGH
+bad-float-notation:62:15:62:20::float literal should be written as '1.0' instead:HIGH
+bad-float-notation:78:23:78:27::float literal should be written as '1.5e5' or '150_000.0' or '150e3' instead:HIGH
+bad-float-notation:83:28:83:34::float literal should be written as '100_000.0' or '100e3' or '1e5' instead:HIGH
+bad-float-notation:83:48:83:54::float literal should be written as '2_000_000.0' or '2e6' instead:HIGH
+bad-float-notation:87:35:87:41::float literal should be written as '100_000_000.0' or '100e6' or '1e8' instead:HIGH
+bad-float-notation:87:27:87:33::float literal should be written as '200_000.0' or '200e3' or '2e5' instead:HIGH
+bad-float-notation:91:29:91:57::float literal should be written as 'inf.0' or 'math.inf' instead:HIGH
+bad-float-notation:92:33:92:62::float literal should be written as 'inf.0' or 'math.inf' instead:HIGH
+bad-float-notation:97:34:97:42::float literal should be written as '0.123456' or '1.23456e-1' or '123.45600000000002e-3' instead:HIGH
+bad-float-notation:98:35:98:50::float literal should be written as '1.23456123456e5' or '123.45612345600001e3' or '123_456.123456' instead:HIGH
+bad-float-notation:99:27:99:38::float literal should be written as '1.234567e6' or '1_234_567.0' instead:HIGH
+bad-float-notation:100:26:100:37::float literal should be written as '1.234567e6' or '1_234_567.0' instead:HIGH
+bad-float-notation:101:31:101:38::float literal should be written as '1.2e10' or '12_000_000_000.0' or '12e9' instead:HIGH
+bad-float-notation:102:27:102:39::float literal should be written as '1.23456789e3' or '1_234.56789' instead:HIGH
+bad-float-notation:103:23:103:32::float literal should be written as '4.5345e7' or '45.345000000000006e6' or '45_345_000.0' instead:HIGH
+bad-float-notation:104:25:104:37::float literal should be written as '1.2e-30' instead:HIGH
+bad-float-notation:105:37:105:42::float literal should be written as '1.2e9' or '1_200_000_000.0' instead:HIGH
+bad-float-notation:106:37:106:43::float literal should be written as '1.23e5' or '123_000.0' or '123e3' instead:HIGH
+bad-float-notation:107:25:107:40::float literal should be written as '1.23456789e13' or '12.3456789e12' or '12_345_678_900_000.0' instead:HIGH
+bad-float-notation:108:29:108:36::float literal should be written as '1.2e10' or '12_000_000_000.0' or '12e9' instead:HIGH
+bad-float-notation:109:34:109:45::float literal should be written as '1.234e+57' or '1.234e57' instead:HIGH
+bad-float-notation:110:24:110:39::float literal should be written as '1.23456789e13' or '12.3456789e12' or '12_345_678_900_000.0' instead:HIGH
+bad-float-notation:111:20:111:25::float literal should be written as '10_000_000.0' or '10e6' or '1e7' instead:HIGH
+bad-float-notation:112:21:112:35::float literal should be written as '1_000.0' or '1e3' instead:HIGH
+bad-float-notation:113:21:113:32::float literal should be written as '0.001' or '1e-3' instead:HIGH
+bad-float-notation:114:21:114:28::float literal should be written as '1_000.0' or '1e3' instead:HIGH
+bad-float-notation:117:21:117:28::float literal should be written as '1.56e3' or '1_560.0' instead:HIGH
+bad-float-notation:118:27:118:33::float literal should be written as '1.56e4' or '15.600000000000001e3' or '15_600.0' instead:HIGH
+bad-float-notation:121:35:121:43::float literal should be written as '10_000.0' or '10e3' or '1e4' instead:HIGH
+bad-float-notation:121:57:121:65::float literal should be written as '20_000.0' or '20e3' or '2e4' instead:HIGH
