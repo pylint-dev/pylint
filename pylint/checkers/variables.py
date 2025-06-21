@@ -2836,9 +2836,7 @@ class VariablesChecker(BaseChecker):
                 return
 
             # Special case for exception variable
-            if isinstance(stmt.parent, nodes.ExceptHandler) and any(
-                n.name == name for n in stmt.parent.nodes_of_class(nodes.Name)
-            ):
+            if self._is_exception_binding_used_in_handler(stmt, name):
                 return
 
             self.add_message(message_name, args=name, node=stmt)
@@ -2913,6 +2911,15 @@ class VariablesChecker(BaseChecker):
             return
 
         self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
+
+    def _is_exception_binding_used_in_handler(
+        self, stmt: nodes.NodeNG, name: str
+    ) -> bool:
+        return (
+            isinstance(stmt.parent, nodes.ExceptHandler)
+            and stmt is stmt.parent.name
+            and any(n.name == name for n in stmt.parent.nodes_of_class(nodes.Name))
+        )
 
     def _check_late_binding_closure(self, node: nodes.Name) -> None:
         """Check whether node is a cell var that is assigned within a containing loop.
@@ -3244,6 +3251,8 @@ class VariablesChecker(BaseChecker):
         for name, node_lst in not_consumed.items():
             for node in node_lst:
                 if in_type_checking_block(node):
+                    continue
+                if self._is_exception_binding_used_in_handler(node, name):
                     continue
                 self.add_message("unused-variable", args=(name,), node=node)
 
