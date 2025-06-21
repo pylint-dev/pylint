@@ -265,7 +265,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             {
                 # default big enough to not trigger on pixel perfect web design
                 # on big screen
-                "default": "1e6",
+                "default": "1e8",
                 "type": "float",
                 "metavar": "<float>",
                 "help": (
