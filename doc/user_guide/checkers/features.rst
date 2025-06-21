@@ -557,6 +557,10 @@ Format checker Messages
   Used when there is different newline than expected.
 :superfluous-parens (C0325): *Unnecessary parens after %r keyword*
   Used when a single item in parentheses follows an if, for, or other keyword.
+:bad-float-notation (C0329): *float literal should be written as '%s' instead*
+  Emitted when a number is written in a non-standard notation. The three
+  allowed notation above the threshold are the scientific notation, the
+  engineering notation, and the underscore grouping notation defined in PEP515.
 
 
 Imports checker
