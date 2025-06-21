@@ -44,6 +44,10 @@ zero_before_decimal_small = 0.0001e-5  # [bad-float-notation]
 zero_before_decimal_big = 0.0001e5  # [bad-float-notation]
 negative_decimal = -0.5e10  # [bad-float-notation]
 zero_only = 0e10  # [bad-float-notation]
+zero_int = 0
+zero_float = 0.0
+annoying_zero = 00 # [bad-float-notation]
+another_annoying_zero = 0. # [bad-float-notation]
 
 one_only = 1e6
 correct_1 = 4.53e7
