@@ -1,0 +1,3 @@
+Fix a false positive for ``unused-variable`` when multiple except handlers bind the same name under a try block.
+
+Closes #10426
