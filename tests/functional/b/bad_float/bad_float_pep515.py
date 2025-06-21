@@ -7,3 +7,5 @@ scientific_notation = 1.2345678e16 # [bad-float-notation]
 engineering_notation = 12.345678e15 # [bad-float-notation]
 
 proper_grouping = 123_456_789
+
+int_under_ten = 9

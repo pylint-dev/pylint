@@ -61,8 +61,6 @@ correct_small_exponent = 1.5e1  # [bad-float-notation]
 actually_nine = 9e0  # [bad-float-notation]
 actually_one = 1.0e0  # [bad-float-notation]
 
-
-
 hex_constant = 0x1e4  # Hexadecimal, not scientific notation
 hex_constant_bad = 0x10e4
 binary_constant = 0b1010
@@ -78,6 +76,7 @@ inside_f_string = f"Value is {1.0} not 10e6"
 complex_number = 1.5e3 + 2.5e3j  # Complex number with scientific notation
 # false negative for complex numbers:
 complex_number_wrong = 15e4 + 25e7j  # [bad-float-notation]
+underscore_binary = 0b1010_1010
 
 
 #+1: [bad-float-notation, bad-float-notation]
@@ -101,34 +100,31 @@ incorrect_sci_underscore = 1.234_567e6 # [bad-float-notation]
 incorrect_sci_uppercase = 1.234_567E6 # [bad-float-notation]
 incorrect_sci_underscore_exp = 1.2e1_0  # [bad-float-notation]
 invalid_underscore_float = 1_234.567_89 # [bad-float-notation]
-invalid_underscore_binary = 0b1010_1010 # [bad-float-notation]
-#+1: [bad-float-notation, bad-float-notation]
-wrong_big_underscore = 45.3_45e6
-#+1: [bad-float-notation, bad-float-notation]
-wrong_small_underscore = 0.000_12e-26
-#+1: [bad-float-notation, bad-float-notation]
-scientific_double_digit_underscore = 1_2e8
-#+1: [bad-float-notation, bad-float-notation]
-scientific_triple_digit_underscore = 12_3e3
-#+1: [bad-float-notation, bad-float-notation]
-invalid_underscore_sci = 1_234.567_89e10
+wrong_big_underscore = 45.3_45e6 # [bad-float-notation]
+wrong_small_underscore = 0.000_12e-26  # [bad-float-notation]
+scientific_double_digit_underscore = 1_2e8   # [bad-float-notation]
+scientific_triple_digit_underscore = 12_3e3  # [bad-float-notation]
+invalid_underscore_sci = 1_234.567_89e10  # [bad-float-notation]
 invalid_underscore_sci_exp = 1.2e1_0 # [bad-float-notation]
-#+1: [bad-float-notation, bad-float-notation]
-invalid_underscore_sci_combined = 1_2.3_4e5_6
-#+1: [bad-float-notation, bad-float-notation]
-invalid_uppercase_sci = 1_234.567_89E10
-edge_underscore_1 = 1_0e6  # [bad-float-notation, bad-float-notation]
+invalid_underscore_sci_combined = 1_2.3_4e5_6 # [bad-float-notation]
+invalid_uppercase_sci = 1_234.567_89E10 # [bad-float-notation]
+edge_underscore_1 = 1_0e6  # [bad-float-notation]
 mixed_underscore_1 = 1_000_000.0e-3  # [bad-float-notation]
-#+1: [bad-float-notation, bad-float-notation]
-mixed_underscore_2 = 0.000_001e3
-mixed_underscore_3 = 1_0.0e2    # [bad-float-notation, bad-float-notation]
+mixed_underscore_2 = 0.000_001e3 # [bad-float-notation]
+mixed_underscore_3 = 1_0.0e2 # [bad-float-notation]
 
 # Complex numbers with underscores
 complex_underscore = 1.5_6e3 + 2.5_6e3j # [bad-float-notation]
-#+1: [bad-float-notation, bad-float-notation]
-complex_underscore_wrong = 15_6e2 + 25_6e2j
+complex_underscore_wrong = 15_6e2 + 25_6e2j # [bad-float-notation]
 
-#+2: [bad-float-notation, bad-float-notation]
 #+1: [bad-float-notation, bad-float-notation]
 def function_with_underscore(param=10.0_0e3, other_param=20.0_0e3):
     return param, other_param
+
+int_under_ten = 9
+int_under_a_thousand = 998
+
+for i in range(10):
+    if i < 0:
+        continue
+    print("Let's not be really annoying.")
