@@ -132,3 +132,11 @@ for i in range(10):
     if i < 0:
         continue
     print("Let's not be really annoying.")
+
+
+#+3: [bad-float-notation]
+#+3: [bad-float-notation]
+#+3: [bad-float-notation]
+time_in_s_since_two_week_ago_at_16 = 1180800 # 2 * 24 * 3600 - (8 * 3600)
+time_in_s_since_last_year = 31536000 # 365 * 24 * 3600
+time_in_s_since_last_month = 2592000  # 30 * 24 * 3600
