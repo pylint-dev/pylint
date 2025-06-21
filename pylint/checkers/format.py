@@ -679,6 +679,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 confidence=HIGH,
             )
 
+        if string in {"0", "0.0"}:
+            # 0 is a special case because it is used very often, and float approximation
+            # being what they are it needs to be special cased anyway for scientific and
+            # engineering notation when checking if a number is under 1/threshold
+            return None
         has_underscore = "_" in string
         has_exponent = "e" in string or "E" in string
         should_be_written_simply = (
@@ -698,10 +703,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             under_threshold  # under threshold
             and (  # use scientific or engineering notation and under 1/threshold
                 self.linter.config.strict_underscore_notation
-                or (
-                    value == 0
-                    or abs_value > 1 / self.linter.config.float_notation_threshold
-                )
+                or abs_value != 0
+                or abs_value >= 1 / self.linter.config.float_notation_threshold
             )
         )
         if not is_written_complexly:
