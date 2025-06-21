@@ -596,6 +596,25 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         return f"{base}.0"
 
     @classmethod
+    def to_understandable_time(cls, number: float) -> str:
+        if number % 3600 != 0:
+            return ""  # Not a suspected time
+        parts: list[int] = [3600]
+        number //= 3600
+        for divisor in (
+            24,
+            7,
+            365,
+        ):
+            if number % divisor == 0:
+                parts.append(divisor)
+                number //= divisor
+        remainder = int(number)
+        if remainder != 1:
+            parts.append(remainder)
+        return " * ".join([str(p) for p in parts])
+
+    @classmethod
     def to_standard_engineering_notation(cls, number: float) -> str:
         base, exp = cls.to_standard_or_engineering_base(number)
         if base == "math.inf":
@@ -661,7 +680,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             or self.linter.config.strict_underscore_notation
         )
 
-        def raise_bad_float_notation(reason: str) -> None:
+        def raise_bad_float_notation(
+            reason: str, time_suggestion: bool = False
+        ) -> None:
             suggested = set()
             if scientific:
                 suggested.add(self.to_standard_scientific_notation(value))
@@ -669,6 +690,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 suggested.add(self.to_standard_engineering_notation(value))
             if pep515:
                 suggested.add(self.to_standard_underscore_grouping(value))
+            if time_suggestion:
+                maybe_a_time = self.to_understandable_time(value)
+                if maybe_a_time:
+                    suggested.add(maybe_a_time)
             return self.add_message(
                 "bad-float-notation",
                 args=(string, reason, "' or '".join(sorted(suggested))),
@@ -717,10 +742,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 1 / threshold
             )
             threshold = self.to_standard_scientific_notation(threshold)
+            if under_threshold:
+                return raise_bad_float_notation(
+                    f"is smaller than {close_to_zero_threshold}"
+                )
             return raise_bad_float_notation(
-                f"is smaller than {close_to_zero_threshold}"
-                if under_threshold
-                else f"is bigger than {threshold}"
+                f"is bigger than {threshold}", time_suggestion=True
             )
         if has_exponent:
             if self.linter.config.strict_underscore_notation or has_underscore:

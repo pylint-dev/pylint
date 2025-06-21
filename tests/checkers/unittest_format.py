@@ -213,7 +213,7 @@ def test_disable_global_option_end_of_line() -> None:
         ("20e-9", "2e-8", "20e-9", "2e-08"),  # 2e-08 is what python offer on str(float)
         (
             # 15 significant digits because we get rounding error otherwise
-            # and 15 seems enough especially since we don't autofix
+            # and 15 seems enough especially since we don't auto-fix
             "10_5415_456_465498.16354698489",
             "1.05415456465498e14",
             "105.415456465498e12",
