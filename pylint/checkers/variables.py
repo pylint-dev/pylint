@@ -2541,12 +2541,12 @@ class VariablesChecker(BaseChecker):
         return False
 
     @staticmethod
-    def _is_variable_annotation_in_function(node: nodes.NodeNG) -> bool:
-        is_annotation = utils.get_node_first_ancestor_of_type(node, nodes.AnnAssign)
+    def _is_variable_annotation_in_function(node: nodes.Name) -> bool:
         return (
-            is_annotation
+            isinstance(node.parent, nodes.AnnAssign)
+            and node is node.parent.annotation
             and utils.get_node_first_ancestor_of_type(  # type: ignore[return-value]
-                is_annotation, nodes.FunctionDef
+                node.parent, nodes.FunctionDef
             )
         )
 
