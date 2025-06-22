@@ -46,8 +46,9 @@ negative_decimal = -0.5e10  # [bad-float-notation]
 zero_only = 0e10  # [bad-float-notation]
 zero_int = 0
 zero_float = 0.0
-annoying_zero = 00.0 # [bad-float-notation]
-another_annoying_zero = 0. # [bad-float-notation]
+zero_float_v2 = 0.
+annoying_zero_int = 00
+annoying_zero_float = 00.0 # [bad-float-notation]
 
 one_only = 1e6
 correct_1 = 4.53e7

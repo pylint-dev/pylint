@@ -727,7 +727,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 confidence=HIGH,
             )
 
-        if string in {"0", "0.0"}:
+        if string in {"0", "0.0", "0."}:
             # 0 is a special case because it is used very often, and float approximation
             # being what they are it needs to be special cased anyway for scientific and
             # engineering notation when checking if a number is under 1/threshold
