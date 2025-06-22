@@ -13,7 +13,7 @@ import pytest
 
 from pylint import lint, reporters
 from pylint.checkers.base.basic_checker import BasicChecker
-from pylint.checkers.format import FormatChecker
+from pylint.checkers.format import FloatFormatterHelper, FormatChecker
 from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str
 
 
@@ -229,15 +229,19 @@ def test_to_another_standard_notation(
 ) -> None:
     """Test the conversion of numbers to all possible notations."""
     float_value = float(value)
-    scientific = FormatChecker.to_standard_scientific_notation(float_value)
+    scientific = FloatFormatterHelper.to_standard_scientific_notation(float_value)
     assert (
         scientific == expected_scientific
     ), f"Scientific notation mismatch expected {expected_scientific}, got {scientific}"
-    engineering = FormatChecker.to_standard_engineering_notation(float_value)
+    engineering = FloatFormatterHelper.to_standard_engineering_notation(float_value)
     assert (
         engineering == expected_engineering
     ), f"Engineering notation mismatch expected {expected_engineering}, got {engineering}"
-    underscore = FormatChecker.to_standard_underscore_grouping(float_value)
+    underscore = FloatFormatterHelper.to_standard_underscore_grouping(float_value)
     assert (
         underscore == expected_underscore
     ), f"Underscore grouping mismatch expected {expected_underscore}, got {underscore}"
+    time = FloatFormatterHelper.to_understandable_time(float_value)
+    assert (
+        time == ""
+    ), f"Time notation mismatch expected {expected_underscore}, got {time}"

@@ -53,6 +53,132 @@ _KEYWORD_TOKENS = {
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
 
+class FloatFormatterHelper:
+
+    @classmethod
+    def standardize(
+        cls,
+        number: float,
+        scientific: bool = True,
+        engineering: bool = True,
+        pep515: bool = True,
+        time_suggestion: bool = False,
+    ) -> str:
+        suggested = set()
+        if scientific:
+            suggested.add(cls.to_standard_scientific_notation(number))
+        if engineering:
+            suggested.add(cls.to_standard_engineering_notation(number))
+        if pep515:
+            suggested.add(cls.to_standard_underscore_grouping(number))
+        if time_suggestion:
+            maybe_a_time = cls.to_understandable_time(number)
+            if maybe_a_time:
+                suggested.add(maybe_a_time)
+        return "' or '".join(sorted(suggested))
+
+    @classmethod
+    def to_standard_or_engineering_base(cls, number: float) -> tuple[str, str]:
+        """Calculate scientific notation components (base, exponent) for a number.
+
+        Returns a tuple (base, exponent) where:
+        - base is a number between 1 and 10 (or exact 0)
+        - exponent is the power of 10 needed to represent the original number
+        """
+        if number == 0:
+            return "0", "0"
+        if number == math.inf:
+            return "math.inf", "0"
+        exponent = math.floor(math.log10(abs(number)))
+        if exponent == 0:
+            return str(number), "0"
+        base_value = number / (10**exponent)
+        # 15 significant digits because if we add more precision then
+        # we get into rounding errors territory
+        base_str = f"{base_value:.15g}".rstrip("0").rstrip(".")
+        exp_str = str(exponent)
+        return base_str, exp_str
+
+    @classmethod
+    def to_standard_scientific_notation(cls, number: float) -> str:
+        base, exp = cls.to_standard_or_engineering_base(number)
+        if base == "math.inf":
+            return "math.inf"
+        if exp != "0":
+            return f"{base}e{int(exp)}"
+        if "." in base:
+            return base
+        return f"{base}.0"
+
+    @classmethod
+    def to_understandable_time(cls, number: float) -> str:
+        if number == 0.0 or number % 3600 != 0:
+            return ""  # Not a suspected time
+        parts: list[int] = [3600]
+        number //= 3600
+        for divisor in (
+            24,
+            7,
+            365,
+        ):
+            if number % divisor == 0:
+                parts.append(divisor)
+                number //= divisor
+        remainder = int(number)
+        if remainder != 1:
+            parts.append(remainder)
+        return " * ".join([str(p) for p in parts])
+
+    @classmethod
+    def to_standard_engineering_notation(cls, number: float) -> str:
+        base, exp = cls.to_standard_or_engineering_base(number)
+        if base == "math.inf":
+            return "math.inf"
+        exp_value = int(exp)
+        remainder = exp_value % 3
+        # For negative exponents, the adjustment is different
+        if exp_value < 0:
+            # For negative exponents, we need to round down to the next multiple of 3
+            # e.g., -5 should go to -6, so we get 3 - ((-5) % 3) = 3 - 1 = 2
+            adjustment = 3 - ((-exp_value) % 3)
+            if adjustment == 3:
+                adjustment = 0
+            exp_value = exp_value - adjustment
+            base_value = float(base) * (10**adjustment)
+        elif remainder != 0:
+            # For positive exponents, keep the existing logic
+            exp_value = exp_value - remainder
+            base_value = float(base) * (10**remainder)
+        else:
+            base_value = float(base)
+        base = str(base_value).rstrip("0").rstrip(".")
+        if exp_value != 0:
+            return f"{base}e{exp_value}"
+        if "." in base:
+            return base
+        return f"{base}.0"
+
+    @classmethod
+    def to_standard_underscore_grouping(cls, number: float) -> str:
+        number_str = str(number)
+        if "e" in number_str or "E" in number_str:
+            # python itself want to display this as exponential there's no reason to
+            # not use exponential notation for very small number even for strict
+            # underscore grouping notation
+            return number_str
+        if "." in number_str:
+            int_part, dec_part = number_str.split(".")
+        else:
+            int_part = number_str
+            dec_part = "0"
+        grouped_int_part = ""
+        for i, digit in enumerate(reversed(int_part)):
+            if i > 0 and i % 3 == 0:
+                grouped_int_part = "_" + grouped_int_part
+            grouped_int_part = digit + grouped_int_part
+        return f"{grouped_int_part}.{dec_part}"
+
+
 MSGS: dict[str, MessageDefinitionTuple] = {
     "C0301": (
         "Line too long (%s/%s)",
@@ -562,107 +688,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         if line_num == last_blank_line_num and line_num > 0:
             self.add_message("trailing-newlines", line=line_num)
 
-    @classmethod
-    def to_standard_or_engineering_base(cls, number: float) -> tuple[str, str]:
-        """Calculate scientific notation components (base, exponent) for a number.
-
-        Returns a tuple (base, exponent) where:
-        - base is a number between 1 and 10 (or exact 0)
-        - exponent is the power of 10 needed to represent the original number
-        """
-        if number == 0:
-            return "0", "0"
-        if number == math.inf:
-            return "math.inf", "0"
-        exponent = math.floor(math.log10(abs(number)))
-        if exponent == 0:
-            return str(number), "0"
-        base_value = number / (10**exponent)
-        # 15 significant digits because if we add more precision then
-        # we get into rounding errors territory
-        base_str = f"{base_value:.15g}".rstrip("0").rstrip(".")
-        exp_str = str(exponent)
-        return base_str, exp_str
-
-    @classmethod
-    def to_standard_scientific_notation(cls, number: float) -> str:
-        base, exp = cls.to_standard_or_engineering_base(number)
-        if base == "math.inf":
-            return "math.inf"
-        if exp != "0":
-            return f"{base}e{int(exp)}"
-        if "." in base:
-            return base
-        return f"{base}.0"
-
-    @classmethod
-    def to_understandable_time(cls, number: float) -> str:
-        if number % 3600 != 0:
-            return ""  # Not a suspected time
-        parts: list[int] = [3600]
-        number //= 3600
-        for divisor in (
-            24,
-            7,
-            365,
-        ):
-            if number % divisor == 0:
-                parts.append(divisor)
-                number //= divisor
-        remainder = int(number)
-        if remainder != 1:
-            parts.append(remainder)
-        return " * ".join([str(p) for p in parts])
-
-    @classmethod
-    def to_standard_engineering_notation(cls, number: float) -> str:
-        base, exp = cls.to_standard_or_engineering_base(number)
-        if base == "math.inf":
-            return "math.inf"
-        exp_value = int(exp)
-        remainder = exp_value % 3
-        # For negative exponents, the adjustment is different
-        if exp_value < 0:
-            # For negative exponents, we need to round down to the next multiple of 3
-            # e.g., -5 should go to -6, so we get 3 - ((-5) % 3) = 3 - 1 = 2
-            adjustment = 3 - ((-exp_value) % 3)
-            if adjustment == 3:
-                adjustment = 0
-            exp_value = exp_value - adjustment
-            base_value = float(base) * (10**adjustment)
-        elif remainder != 0:
-            # For positive exponents, keep the existing logic
-            exp_value = exp_value - remainder
-            base_value = float(base) * (10**remainder)
-        else:
-            base_value = float(base)
-        base = str(base_value).rstrip("0").rstrip(".")
-        if exp_value != 0:
-            return f"{base}e{exp_value}"
-        if "." in base:
-            return base
-        return f"{base}.0"
-
-    @classmethod
-    def to_standard_underscore_grouping(cls, number: float) -> str:
-        number_str = str(number)
-        if "e" in number_str or "E" in number_str:
-            # python itself want to display this as exponential there's no reason to
-            # not use exponential notation for very small number even for strict
-            # underscore grouping notation
-            return number_str
-        if "." in number_str:
-            int_part, dec_part = number_str.split(".")
-        else:
-            int_part = number_str
-            dec_part = "0"
-        grouped_int_part = ""
-        for i, digit in enumerate(reversed(int_part)):
-            if i > 0 and i % 3 == 0:
-                grouped_int_part = "_" + grouped_int_part
-            grouped_int_part = digit + grouped_int_part
-        return f"{grouped_int_part}.{dec_part}"
-
     def _check_bad_float_notation(  # pylint: disable=too-many-locals
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
@@ -683,20 +708,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         def raise_bad_float_notation(
             reason: str, time_suggestion: bool = False
         ) -> None:
-            suggested = set()
-            if scientific:
-                suggested.add(self.to_standard_scientific_notation(value))
-            if engineering:
-                suggested.add(self.to_standard_engineering_notation(value))
-            if pep515:
-                suggested.add(self.to_standard_underscore_grouping(value))
-            if time_suggestion:
-                maybe_a_time = self.to_understandable_time(value)
-                if maybe_a_time:
-                    suggested.add(maybe_a_time)
+            suggestion = FloatFormatterHelper.standardize(
+                value, scientific, engineering, pep515, time_suggestion
+            )
             return self.add_message(
                 "bad-float-notation",
-                args=(string, reason, "' or '".join(sorted(suggested))),
+                args=(string, reason, suggestion),
                 line=line_num,
                 end_lineno=line_num,
                 col_offset=start[1],
@@ -738,10 +755,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 # written complexly, then it could be badly written
                 return None
             threshold = self.linter.config.float_notation_threshold
-            close_to_zero_threshold = self.to_standard_scientific_notation(
-                1 / threshold
+            close_to_zero_threshold = (
+                FloatFormatterHelper.to_standard_scientific_notation(1 / threshold)
             )
-            threshold = self.to_standard_scientific_notation(threshold)
+            threshold = FloatFormatterHelper.to_standard_scientific_notation(threshold)
             if under_threshold:
                 return raise_bad_float_notation(
                     f"is smaller than {close_to_zero_threshold}"
