@@ -112,15 +112,11 @@ class FloatFormatterHelper:
 
     @classmethod
     def to_understandable_time(cls, number: float) -> str:
-        if number == 0.0 or number % 3600 != 0:
+        if number == 0.0 or number % 3600 != 0 or number // 3600 == 1:
             return ""  # Not a suspected time
         parts: list[int] = [3600]
         number //= 3600
-        for divisor in (
-            24,
-            7,
-            365,
-        ):
+        for divisor in (24, 7, 365):
             if number % divisor == 0:
                 parts.append(divisor)
                 number //= divisor

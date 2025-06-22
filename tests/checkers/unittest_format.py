@@ -245,3 +245,20 @@ def test_to_another_standard_notation(
     assert (
         time == ""
     ), f"Time notation mismatch expected {expected_underscore}, got {time}"
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        (3600, ""),
+        (86400, "3600 * 24"),
+        (604800, "3600 * 24 * 7"),
+        (2592000, "3600 * 24 * 30"),
+        (31536000, "3600 * 24 * 365"),
+        (1180800, "3600 * 24 * 14 - (8 * 3600)"),
+        (315360000, "3600 * 24 * 365 * 10"),
+    ],
+)
+def test_to_understandable_time(value: int, expected: str) -> None:
+    actual = FloatFormatterHelper.to_understandable_time(value)
+    assert actual == expected, f"Expected {expected} for {value}, got {actual}"
