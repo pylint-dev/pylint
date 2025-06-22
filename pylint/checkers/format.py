@@ -391,7 +391,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             {
                 # default big enough to not trigger on pixel perfect web design
                 # on big screen
-                "default": "1e8",
+                "default": "1e6",
                 "type": "float",
                 "metavar": "<float>",
                 "help": (
@@ -688,9 +688,15 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         if line_num == last_blank_line_num and line_num > 0:
             self.add_message("trailing-newlines", line=line_num)
 
-    def _check_bad_float_notation(  # pylint: disable=too-many-locals
+    def _check_bad_float_notation(  # pylint: disable=too-many-locals,too-many-return-statements
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
+        has_dot = "." in string
+        has_exponent = "e" in string or "E" in string
+        if not (has_dot or has_exponent):
+            # it's an int, need special treatment later on
+            return None
+
         value = float(string)
         engineering = (
             self.all_float_notation_allowed
@@ -727,7 +733,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             # engineering notation when checking if a number is under 1/threshold
             return None
         has_underscore = "_" in string
-        has_exponent = "e" in string or "E" in string
         should_be_written_simply = (
             1 <= value < 10 and self.linter.config.strict_scientific_notation
         ) or 1 <= value < 1000
