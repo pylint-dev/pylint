@@ -539,6 +539,10 @@ Format checker Messages
 :unnecessary-semicolon (W0301): *Unnecessary semicolon*
   Used when a statement is ended by a semi-colon (";"), which isn't necessary
   (that's python, not C ;).
+:bad-float-notation (C0329): *'%s' %s, and it should be written as '%s' instead*
+  Emitted when a number is written in a non-standard notation. The three
+  allowed notation above the threshold are the scientific notation, the
+  engineering notation, and the underscore grouping notation defined in PEP515.
 :missing-final-newline (C0304): *Final newline missing*
   Used when the last line in a file is missing a newline.
 :line-too-long (C0301): *Line too long (%s/%s)*
@@ -557,10 +561,6 @@ Format checker Messages
   Used when there is different newline than expected.
 :superfluous-parens (C0325): *Unnecessary parens after %r keyword*
   Used when a single item in parentheses follows an if, for, or other keyword.
-:bad-float-notation (C0329): *float literal should be written as '%s' instead*
-  Emitted when a number is written in a non-standard notation. The three
-  allowed notation above the threshold are the scientific notation, the
-  engineering notation, and the underscore grouping notation defined in PEP515.
 
 
 Imports checker
