@@ -112,18 +112,56 @@ class FloatFormatterHelper:
 
     @classmethod
     def to_understandable_time(cls, number: float) -> str:
-        if number == 0.0 or number % 3600 != 0 or number // 3600 == 1:
-            return ""  # Not a suspected time
-        parts: list[int] = [3600]
+        if (
+            number % 3600 != 0  # not a multiple of the number of second in an hour
+            or number == 0.0  # 0 is congruent to 3600, but not a time
+        ):
+            return ""
+        if number // 3600 == 1:
+            # If we have to advise a proper time for 3600, it means the threshold
+            # was under 3600, so we advise even more decomposition
+            return "60 * 60"
+        parts: list[int | str] = [3600]
         number //= 3600
-        for divisor in (24, 7, 365):
+        for divisor in (24, 365):
             if number % divisor == 0:
                 parts.append(divisor)
                 number //= divisor
         remainder = int(number)
+        days_to_add = None
+        hours_to_add = None
+        exp = 0
+        while remainder > 1 and remainder % 1000 == 0:
+            # suspected watt hour remove prior to decomposition
+            remainder //= 1000
+            exp += 3
+        if exp:
+            parts.append(f"1e{exp}")
+        else:
+            days = int(remainder // 24)
+            hours_to_remove = remainder % 24
+            if days > 1 and hours_to_remove != 0 and 24 not in parts:
+                parts += [24]
+                hours_to_add = f" + ({hours_to_remove} * 3600)"
+                remainder -= hours_to_remove
+                remainder //= 24
+            year = int(remainder // 365)
+            days_to_remove = remainder % 365
+            if year > 1 and days_to_remove != 0 and 365 not in parts:
+                parts += [365]
+                days_to_add = f" + ({days_to_remove} * 3600 * 24)"
+                remainder -= days_to_remove
+                remainder //= 365
         if remainder != 1:
             parts.append(remainder)
-        return " * ".join([str(p) for p in parts])
+        result = " * ".join([str(p) for p in parts])
+        if days_to_add:
+            result = f"({result}){days_to_add}"
+            if hours_to_add:
+                result += hours_to_add
+        elif hours_to_add:
+            result = f"({result}){hours_to_add}"
+        return result
 
     @classmethod
     def to_standard_engineering_notation(cls, number: float) -> str:
@@ -733,7 +771,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             1 <= value < 10 and self.linter.config.strict_scientific_notation
         ) or 1 <= value < 1000
         is_written_complexly = has_underscore or has_exponent
-        # print(f"Checking {string} line {line_num}")
         if should_be_written_simply and is_written_complexly:
             # If the value does not deserve a complex notation then write it in a simple way.
             # The threshold is guaranteed to be higher than those value.
@@ -775,7 +812,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 )
             base_as_str, exponent_as_str = string.lower().split("e")
             base = float(base_as_str)
-            # print("\tBase:", base, "Exponent:", exponent_as_str)
             wrong_scientific_notation = not (1 <= base < 10)
             if (
                 self.linter.config.strict_scientific_notation
