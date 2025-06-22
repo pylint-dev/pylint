@@ -7,9 +7,9 @@ engineering_notation = 150.4e6
 underscore_notation = 150_400_000
 
 # Content of pep515 strict tests tested with default configuration
-not_grouped_by_three = 1_23_456_7_89  # [bad-float-notation]
+not_grouped_by_three = 1_23_456_7_89.0  # [bad-float-notation]
 mixing_with_exponent = 1_23_4_5_67_8e9  # [bad-float-notation]
-above_threshold_without_grouping = 123456789  # [bad-float-notation]
+above_threshold_without_grouping = 123456789.0  # [bad-float-notation]
 proper_grouping = 123_456_789
 scientific_notation_2 = 1.2345678e16
 engineering_notation_2 = 12.345678e15
@@ -17,7 +17,7 @@ engineering_notation_2 = 12.345678e15
 # Content of bad_float_engineering_notation.py strict tests tested with default configuration
 exponent_not_multiple_of_three = 123e4  # [bad-float-notation]
 base_not_between_one_and_a_thousand = 12345e6  # [bad-float-notation]
-above_threshold_without_exponent = 10000000  # [bad-float-notation]
+above_threshold_without_exponent = 10000000.0  # [bad-float-notation]
 under_a_thousand_with_exponent = 9.9e2  # [bad-float-notation]
 exponent_multiple_of_three = 1.23e6
 base_between_one_and_a_thousand = 12.345e9
@@ -25,7 +25,7 @@ under_a_thousand = 990
 
 # Content of bad_float_scientific_notation strict tests tested with default configuration
 base_not_between_one_and_ten = 10e3
-above_threshold_without_exponent_2 = 10000000  # [bad-float-notation]
+above_threshold_without_exponent_2 = 10000000.0  # [bad-float-notation]
 under_ten_with_exponent = 9.9e0  # [bad-float-notation]
 base_between_one_and_ten = 1e4
 above_threshold_with_exponent = 1e7
@@ -46,7 +46,7 @@ negative_decimal = -0.5e10  # [bad-float-notation]
 zero_only = 0e10  # [bad-float-notation]
 zero_int = 0
 zero_float = 0.0
-annoying_zero = 00 # [bad-float-notation]
+annoying_zero = 00.0 # [bad-float-notation]
 another_annoying_zero = 0. # [bad-float-notation]
 
 one_only = 1e6
@@ -137,6 +137,6 @@ for i in range(10):
 #+3: [bad-float-notation]
 #+3: [bad-float-notation]
 #+3: [bad-float-notation]
-time_in_s_since_two_week_ago_at_16 = 1180800 # 2 * 24 * 3600 - (8 * 3600)
-time_in_s_since_last_year = 31536000 # 365 * 24 * 3600
-time_in_s_since_last_month = 2592000  # 30 * 24 * 3600
+time_in_s_since_two_week_ago_at_16 = 1180800.0 # 2 * 24 * 3600 - (8 * 3600)
+time_in_s_since_last_year = 31536000.0 # 365 * 24 * 3600
+time_in_s_since_last_month = 2592000.0  # 30 * 24 * 3600
