@@ -8,6 +8,7 @@ bad-float-notation:20:35:20:45::'10000000.0' is bigger than 1e6, and it should b
 bad-float-notation:21:33:21:38::'9.9e2' has underscore or exponent, and it should be written as '9.9e2' or '990.0' instead:HIGH
 bad-float-notation:28:37:28:47::'10000000.0' is bigger than 1e6, and it should be written as '10_000_000.0' or '10e6' or '1e7' instead:HIGH
 bad-float-notation:29:26:29:31::'9.9e0' has underscore or exponent, and it should be written as '9.9' instead:HIGH
+bad-float-notation:34:22:34:28::'1504e2' has a base, '1504.0', that is not between 1 and 1000, and it should be written as '1.504e5' or '150.4e3' or '150_400.0' instead:HIGH
 bad-float-notation:35:12:35:18::'45.3e7' has an exponent '7' that is not a multiple of 3, and it should be written as '4.53e8' or '453_000_000.0' or '453e6' instead:HIGH
 bad-float-notation:36:20:36:26::'45.3E7' has an exponent '7' that is not a multiple of 3, and it should be written as '4.53e8' or '453_000_000.0' or '453e6' instead:HIGH
 bad-float-notation:37:14:37:25::'0.00012e-26' has a base, '0.00012', that is not between 1 and 1000, and it should be written as '1.2e-30' instead:HIGH
@@ -52,6 +53,6 @@ bad-float-notation:122:21:122:28::'1.5_6e3' has exponent and underscore at the s
 bad-float-notation:123:27:123:33::'15_6e2' has exponent and underscore at the same time, and it should be written as '1.56e4' or '15.600000000000001e3' or '15_600.0' instead:HIGH
 bad-float-notation:126:35:126:43::'10.0_0e3' has exponent and underscore at the same time, and it should be written as '10_000.0' or '10e3' or '1e4' instead:HIGH
 bad-float-notation:126:57:126:65::'20.0_0e3' has exponent and underscore at the same time, and it should be written as '20_000.0' or '20e3' or '2e4' instead:HIGH
-bad-float-notation:141:37:141:46::'1180800.0' is bigger than 1e6, and it should be written as '1.1808e6' or '1_180_800.0' or '3600 * 328' instead:HIGH
+bad-float-notation:141:37:141:46::'1180800.0' is bigger than 1e6, and it should be written as '(3600 * 24 * 13) + (16 * 3600)' or '1.1808e6' or '1_180_800.0' instead:HIGH
 bad-float-notation:142:28:142:38::'31536000.0' is bigger than 1e6, and it should be written as '3.1536e7' or '31.536e6' or '31_536_000.0' or '3600 * 24 * 365' instead:HIGH
 bad-float-notation:143:29:143:38::'2592000.0' is bigger than 1e6, and it should be written as '2.592e6' or '2_592_000.0' or '3600 * 24 * 30' instead:HIGH

@@ -31,7 +31,7 @@ base_between_one_and_ten = 1e4
 above_threshold_with_exponent = 1e7
 under_ten = 9.9
 
-
+under_threshold_bad = 1504e2  # [bad-float-notation]
 wrong_big = 45.3e7  # [bad-float-notation]
 uppercase_e_wrong = 45.3E7  # [bad-float-notation]
 wrong_small = 0.00012e-26  # [bad-float-notation]
