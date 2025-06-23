@@ -187,7 +187,7 @@ class JSON2Reporter(BaseReporter):
         except Exception as ex:  # pylint: disable=broad-except
             score: str | int = f"An exception occurred while rating: {ex}"
         else:
-            score = round(note, 2)
+            score = note
 
         return {
             "messageTypeCount": counts_dict,

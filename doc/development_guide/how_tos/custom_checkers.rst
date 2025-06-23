@@ -271,6 +271,7 @@ The message is then formatted using the ``args`` parameter from ``add_message`` 
   standing for ``Convention``, ``Warning``, ``Error``, ``Fatal`` and ``Refactoring``.
   The 4 digits should not conflict with existing checkers
   and the first 2 digits should consistent across the checker (except shared messages).
+  It is safe to use 51-99 as the first 2 digits for custom checkers because this range is reserved for them.
 
 * The ``displayed-message`` is used for displaying the message to the user,
   once it is emitted.

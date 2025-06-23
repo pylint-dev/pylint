@@ -5,6 +5,9 @@ line-length = 103
 extend-exclude = [
     "messages/d/duplicate-argument-name/bad.py",
     "messages/s/syntax-error/bad.py",
+    # syntax error in newer python versions
+    "messages/s/star-needs-assignment-target/bad.py",
+    "messages/i/invalid-star-assignment-target/bad.py"
 ]
 
 [lint]

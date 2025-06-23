@@ -935,7 +935,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             sys.path = copy(paths)
             with _test_environ_pythonpath("/custom_pythonpath:"):
                 modify_sys_path()
-            assert sys.path == [paths[1]] + paths[3:]
+            assert sys.path == [paths[1], *paths[3:]]
 
             paths = ["", cwd, "/custom_pythonpath", *default_paths]
             sys.path = copy(paths)

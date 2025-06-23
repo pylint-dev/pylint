@@ -209,9 +209,7 @@ class DocstringParameterChecker(BaseChecker):
             return
 
         # skip functions smaller than 'docstring-min-length'
-        lines = checker_utils.get_node_last_lineno(node) - node.lineno
-        max_lines = self.linter.config.docstring_min_length
-        if max_lines > -1 and lines < max_lines:
+        if self._is_shorter_than_min_length(node):
             return
 
         self.check_functiondef_params(node, node_doc)
@@ -279,6 +277,10 @@ class DocstringParameterChecker(BaseChecker):
     def visit_raise(self, node: nodes.Raise) -> None:
         func_node = node.frame()
         if not isinstance(func_node, astroid.FunctionDef):
+            return
+
+        # skip functions smaller than 'docstring-min-length'
+        if self._is_shorter_than_min_length(node):
             return
 
         # skip functions that match the 'no-docstring-rgx' config option
@@ -362,6 +364,10 @@ class DocstringParameterChecker(BaseChecker):
 
     def visit_yield(self, node: nodes.Yield | nodes.YieldFrom) -> None:
         if self.linter.config.accept_no_yields_doc:
+            return
+
+        # skip functions smaller than 'docstring-min-length'
+        if self._is_shorter_than_min_length(node):
             return
 
         func_node: astroid.FunctionDef = node.frame()
@@ -670,6 +676,22 @@ class DocstringParameterChecker(BaseChecker):
                 node=node,
                 confidence=HIGH,
             )
+
+    def _is_shorter_than_min_length(self, node: nodes.FunctionDef) -> bool:
+        """Returns true on functions smaller than 'docstring-min-length'.
+
+        :param node: Node for a function or method definition in the AST
+        :type node: :class:`astroid.scoped_nodes.Function`
+
+        :rtype: bool
+        """
+        node_line_count = checker_utils.get_node_last_lineno(node) - node.lineno
+        min_lines = self.linter.config.docstring_min_length
+        result = -1 < node_line_count < min_lines
+        assert isinstance(
+            result, bool
+        ), "Result of int comparison should have been a boolean"
+        return result
 
 
 def register(linter: PyLinter) -> None:

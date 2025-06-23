@@ -70,7 +70,6 @@ def report_by_type_stats(
     # percentage of different types documented and/or with a bad name
     nice_stats: dict[str, dict[str, str]] = {}
     for node_type in ("module", "class", "method", "function"):
-        node_type = cast(Literal["function", "class", "method", "module"], node_type)
         total = stats.get_node_count(node_type)
         nice_stats[node_type] = {}
         if total != 0:
