@@ -346,13 +346,30 @@ class CompositionsHandler(AbstractAssociationHandler):
 
         value = node.parent.value
 
-        # Composition: parent creates child (self.x = P())
+        # Composition: direct object creation (self.x = P())
         if isinstance(value, nodes.Call):
             current = set(parent.compositions_type[node.attrname])
             parent.compositions_type[node.attrname] = list(
                 current | utils.infer_node(node)
             )
             return
+
+        # Composition: comprehensions with object creation (self.x = [P() for ...])
+        if isinstance(
+            value, (nodes.ListComp, nodes.DictComp, nodes.SetComp, nodes.GeneratorExp)
+        ):
+            if isinstance(value, nodes.DictComp):
+                element = value.value
+            else:
+                element = value.elt
+
+            # If the element is a Call (object creation), it's composition
+            if isinstance(element, nodes.Call):
+                current = set(parent.compositions_type[node.attrname])
+                parent.compositions_type[node.attrname] = list(
+                    current | utils.infer_node(node)
+                )
+                return
 
         # Not a composition, pass to next handler
         super().handle(node, parent)
@@ -376,26 +393,27 @@ class AggregationsHandler(AbstractAssociationHandler):
             )
             return
 
-        # Aggregation: comprehensions (self.x = [P() for ...])
+        # Aggregation: comprehensions without object creation (self.x = [existing_obj for ...])
         if isinstance(
             value, (nodes.ListComp, nodes.DictComp, nodes.SetComp, nodes.GeneratorExp)
         ):
             if isinstance(value, nodes.DictComp):
-                element_type = safe_infer(value.value)
+                element = value.value
             else:
-                element_type = safe_infer(value.elt)
-            if element_type:
-                current = set(parent.aggregations_type[node.attrname])
-                parent.aggregations_type[node.attrname] = list(current | {element_type})
-                return
+                element = value.elt
 
-        # Type annotation only (x: P) defaults to aggregation
-        if isinstance(node.parent, nodes.AnnAssign) and node.parent.value is None:
-            current = set(parent.aggregations_type[node.attrname])
-            parent.aggregations_type[node.attrname] = list(
-                current | utils.infer_node(node)
-            )
-            return
+            # If the element is NOT a Call (no object creation), it's aggregation
+            if not isinstance(element, nodes.Call):
+                if isinstance(value, nodes.DictComp):
+                    element_type = safe_infer(value.value)
+                else:
+                    element_type = safe_infer(value.elt)
+                if element_type:
+                    current = set(parent.aggregations_type[node.attrname])
+                    parent.aggregations_type[node.attrname] = list(
+                        current | {element_type}
+                    )
+                    return
 
         # Not an aggregation, pass to next handler
         super().handle(node, parent)
@@ -405,7 +423,16 @@ class AssociationsHandler(AbstractAssociationHandler):
     """Handle regular association relationships."""
 
     def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
-        # Everything else is a regular association
+        # Type annotation only (x: P) -> Association
+        # BUT only if there's no actual assignment (to avoid duplicates)
+        if isinstance(node.parent, nodes.AnnAssign) and node.parent.value is None:
+            current = set(parent.associations_type[node.attrname])
+            parent.associations_type[node.attrname] = list(
+                current | utils.infer_node(node)
+            )
+            return
+
+        # Everything else is also association (fallback)
         current = set(parent.associations_type[node.attrname])
         parent.associations_type[node.attrname] = list(current | utils.infer_node(node))
 
