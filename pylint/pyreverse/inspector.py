@@ -365,11 +365,13 @@ class CompositionsHandler(AbstractAssociationHandler):
 
             # If the element is a Call (object creation), it's composition
             if isinstance(element, nodes.Call):
-                current = set(parent.compositions_type[node.attrname])
-                parent.compositions_type[node.attrname] = list(
-                    current | utils.infer_node(node)
-                )
-                return
+                element_type = safe_infer(element)
+                if element_type:
+                    current = set(parent.compositions_type[node.attrname])
+                    parent.compositions_type[node.attrname] = list(
+                        current | {element_type}
+                    )
+                    return
 
         # Not a composition, pass to next handler
         super().handle(node, parent)
