@@ -387,8 +387,8 @@ class AggregationsHandler(AbstractAssociationHandler):
 
         value = node.parent.value
 
-        # Aggregation: parent receives child (self.x = x)
-        if isinstance(value, astroid.node_classes.Name):
+        # Aggregation: direct assignment (self.x = x)
+        if isinstance(value, nodes.Name):
             current = set(parent.aggregations_type[node.attrname])
             parent.aggregations_type[node.attrname] = list(
                 current | utils.infer_node(node)
@@ -404,8 +404,8 @@ class AggregationsHandler(AbstractAssociationHandler):
             else:
                 element = value.elt
 
-            # If the element is NOT a Call (no object creation), it's aggregation
-            if not isinstance(element, nodes.Call):
+            # If the element is a Name, it means it's an existing object, so it's aggregation
+            if isinstance(element, nodes.Name):
                 if isinstance(value, nodes.DictComp):
                     element_type = safe_infer(value.value)
                 else:
