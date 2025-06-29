@@ -119,7 +119,12 @@ class DiagramWriter:
 
             if self.config.no_standalone and not any(
                 obj in (rel.from_object, rel.to_object)
-                for rel_type in ("specialization", "association", "aggregation")
+                for rel_type in (
+                    "specialization",
+                    "association",
+                    "aggregation",
+                    "composition",
+                )
                 for rel in diagram.get_relationships(rel_type)
             ):
                 continue
