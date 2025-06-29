@@ -531,7 +531,7 @@ class PyLinter(
     def any_fail_on_issues(self) -> bool:
         return any(x in self.fail_on_symbols for x in self.stats.by_msg.keys())
 
-    def pass_fail_on_config_to_color_reporter(self):
+    def pass_fail_on_config_to_color_reporter(self) -> None:
         """Pass fail_on symbol configuration to colorized text reporter."""
         if isinstance(self.reporter, ColorizedTextReporter):
             self.reporter.set_fail_on_symbols(self.fail_on_symbols)

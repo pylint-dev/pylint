@@ -226,7 +226,7 @@ class ColorizedTextReporter(TextReporter):
     ) -> None:
         super().__init__(output)
         self.color_mapping = color_mapping or ColorizedTextReporter.COLOR_MAPPING
-        self.fail_on_symbols = []
+        self.fail_on_symbols: list[str] = []
         ansi_terms = ["xterm-16color", "xterm-256color"]
         if os.environ.get("TERM") not in ansi_terms:
             if sys.platform == "win32":
@@ -239,7 +239,7 @@ class ColorizedTextReporter(TextReporter):
         """Returns the message style as defined in self.color_mapping."""
         return self.color_mapping.get(msg_id[0]) or MessageStyle(None)
 
-    def set_fail_on_symbols(self, fail_on_symbols: list[str]):
+    def set_fail_on_symbols(self, fail_on_symbols: list[str]) -> None:
         """Sets the list of configured fail-on symbols."""
         self.fail_on_symbols = fail_on_symbols
 
