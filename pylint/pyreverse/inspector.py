@@ -17,6 +17,7 @@ from collections.abc import Callable, Sequence
 
 import astroid
 from astroid import nodes
+from astroid.typing import InferenceResult
 
 from pylint import constants
 from pylint.checkers.utils import safe_infer
@@ -426,15 +427,64 @@ class AssociationsHandler(AbstractAssociationHandler):
         # Type annotation only (x: P) -> Association
         # BUT only if there's no actual assignment (to avoid duplicates)
         if isinstance(node.parent, nodes.AnnAssign) and node.parent.value is None:
+            inferred_types = utils.infer_node(node)
+            element_types = extract_element_types(inferred_types)
+
+            # Resolve nodes to actual class definitions
+            resolved_types = resolve_to_class_def(element_types)
+
             current = set(parent.associations_type[node.attrname])
-            parent.associations_type[node.attrname] = list(
-                current | utils.infer_node(node)
-            )
+            parent.associations_type[node.attrname] = list(current | resolved_types)
             return
 
         # Everything else is also association (fallback)
         current = set(parent.associations_type[node.attrname])
-        parent.associations_type[node.attrname] = list(current | utils.infer_node(node))
+        inferred_types = utils.infer_node(node)
+        element_types = extract_element_types(inferred_types)
+
+        # Resolve Name nodes to actual class definitions
+        resolved_types = resolve_to_class_def(element_types)
+        parent.associations_type[node.attrname] = list(current | resolved_types)
+
+
+def resolve_to_class_def(types: set[nodes.NodeNG]) -> set[nodes.ClassDef]:
+    """Resolve a set of nodes to ClassDef nodes."""
+    class_defs = set()
+    for node in types:
+        if isinstance(node, nodes.ClassDef):
+            class_defs.add(node)
+        elif isinstance(node, nodes.Name):
+            inferred = safe_infer(node)
+            if isinstance(inferred, nodes.ClassDef):
+                class_defs.add(inferred)
+    return class_defs
+
+
+def extract_element_types(inferred_types: set[InferenceResult]) -> set[nodes.NodeNG]:
+    """Extract element types in case the inferred type is a container.
+
+    This function checks if the inferred type is a container type (like list, dict, etc.)
+    and extracts the element type(s) from it. If the inferred type is a direct type (like a class),
+    it adds that type directly to the set of element types it returns.
+    """
+    element_types = set()
+
+    for inferred_type in inferred_types:
+        if isinstance(inferred_type, nodes.Subscript):
+            slice_node = inferred_type.slice
+
+            # Handle both Tuple (dict[K,V]) and single element (list[T])
+            elements = (
+                slice_node.elts if isinstance(slice_node, nodes.Tuple) else [slice_node]
+            )
+
+            for elt in elements:
+                if isinstance(elt, (nodes.Name, nodes.ClassDef)):
+                    element_types.add(elt)
+        else:
+            element_types.add(inferred_type)
+
+    return element_types
 
 
 def project_from_files(
