@@ -1,5 +1,6 @@
 # Test for https://github.com/pylint-dev/pylint/issues/10236
 from collections.abc import Generator
+from dataclasses import dataclass
 
 
 class Component:
@@ -7,25 +8,14 @@ class Component:
     def __init__(self, name: str):
         self.name = name
 
-
 class AssociationContainer:
     """Type hints only - no ownership."""
-    # Association: just type hints, no actual assignment
-    components: list[Component]
-    component_dict: dict[int, Component]
-    components_set: set[Component]
-    lazy_components: Generator[Component]
-
-
-class AggregationContainer:
-    """Comprehensions using existing objects - aggregation."""
-    def __init__(self, existing_components: list[Component]):
-        # Aggregation: comprehensions using existing objects (not creating)
-        self.components: list[Component] = [comp for comp in existing_components]
-        self.component_dict: dict[str, Component] = {f"key_{i}": comp for i, comp in enumerate(existing_components)}
-        self.components_set: set[Component] = {comp for comp in existing_components}
-        self.lazy_components: Generator[Component] = (comp for comp in existing_components)
-
+    def __init__(self):
+        # Association: just type hints, no actual assignment
+        self.components: list[Component]
+        self.component_dict: dict[int, Component]
+        self.components_set: set[Component]
+        self.lazy_components: Generator[Component]
 
 class CompositionContainer:
     """Comprehensions creating new objects - composition."""
