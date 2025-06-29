@@ -299,11 +299,11 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 mod_paths.append(mod_path)
 
 
-class AssociationHandlerInterface(ABC):
+class RelationshipHandlerInterface(ABC):
     @abstractmethod
     def set_next(
-        self, handler: AssociationHandlerInterface
-    ) -> AssociationHandlerInterface:
+        self, handler: RelationshipHandlerInterface
+    ) -> RelationshipHandlerInterface:
         pass
 
     @abstractmethod
@@ -311,23 +311,23 @@ class AssociationHandlerInterface(ABC):
         pass
 
 
-class AbstractAssociationHandler(AssociationHandlerInterface):
+class AbstractRelationshipHandler(RelationshipHandlerInterface):
     """
-    Chain of Responsibility for handling types of association, useful
-    to expand in the future if we want to add more distinct associations.
+    Chain of Responsibility for handling types of relationships, useful
+    to expand in the future if we want to add more distinct relationships.
 
-    Every link of the chain checks if it's a certain type of association.
-    If no association is found it's set as a generic association in `associations_type`.
+    Every link of the chain checks if it's a certain type of relationship.
+    If no relationship is found it's set as a generic relationship in `relationships_type`.
 
     The default chaining behavior is implemented inside the base handler
     class.
     """
 
-    _next_handler: AssociationHandlerInterface
+    _next_handler: RelationshipHandlerInterface
 
     def set_next(
-        self, handler: AssociationHandlerInterface
-    ) -> AssociationHandlerInterface:
+        self, handler: RelationshipHandlerInterface
+    ) -> RelationshipHandlerInterface:
         self._next_handler = handler
         return handler
 
@@ -337,7 +337,7 @@ class AbstractAssociationHandler(AssociationHandlerInterface):
             self._next_handler.handle(node, parent)
 
 
-class CompositionsHandler(AbstractAssociationHandler):
+class CompositionsHandler(AbstractRelationshipHandler):
     """Handle composition relationships where parent creates child objects."""
 
     def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
@@ -384,7 +384,7 @@ class CompositionsHandler(AbstractAssociationHandler):
         super().handle(node, parent)
 
 
-class AggregationsHandler(AbstractAssociationHandler):
+class AggregationsHandler(AbstractRelationshipHandler):
     """Handle aggregation relationships where parent receives child objects."""
 
     def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
@@ -431,7 +431,7 @@ class AggregationsHandler(AbstractAssociationHandler):
         super().handle(node, parent)
 
 
-class AssociationsHandler(AbstractAssociationHandler):
+class AssociationsHandler(AbstractRelationshipHandler):
     """Handle regular association relationships."""
 
     def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
