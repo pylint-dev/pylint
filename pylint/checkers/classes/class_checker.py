@@ -33,6 +33,7 @@ from pylint.checkers.utils import (
     is_iterable,
     is_property_setter,
     is_property_setter_or_deleter,
+    is_subclass_of,
     node_frame_class,
     only_required_for_messages,
     safe_infer,
@@ -1516,20 +1517,39 @@ a metaclass class method.",
 
         # Only check if both methods have return type annotations
         if parent_returns is not None and current_returns is not None:
-            parent_return_str = parent_returns.as_string()
-            current_return_str = current_returns.as_string()
+            parent_return_type = safe_infer(parent_returns)
+            current_return_type = safe_infer(current_returns)
 
-            # Compare return type annotations as strings
-            if parent_return_str != current_return_str:
-                self.add_message(
-                    "invalid-overridden-method",
-                    args=(
-                        function_node.name,
-                        f"return type '{parent_return_str}'",
-                        f"return type '{current_return_str}'",
-                    ),
-                    node=function_node,
-                )
+            compatible = False
+
+            if (
+                parent_return_type
+                and current_return_type
+                and isinstance(parent_return_type, nodes.ClassDef)
+                and isinstance(current_return_type, nodes.ClassDef)
+            ):
+                # Same type check
+                if parent_return_type.qname() == current_return_type.qname():
+                    compatible = True
+                # Covariant check - current is subclass of parent
+                elif (
+                    isinstance(current_return_type, nodes.ClassDef)
+                    and isinstance(parent_return_type, nodes.ClassDef)
+                    and is_subclass_of(current_return_type, parent_return_type)
+                ):
+                    compatible = True
+
+                # Emit error if not compatible
+                if not compatible:
+                    self.add_message(
+                        "invalid-overridden-method",
+                        args=(
+                            function_node.name,
+                            f"return type '{parent_return_type.name}'",
+                            f"return type '{current_return_type.name}'",
+                        ),
+                        node=function_node,
+                    )
 
     def _check_functools_or_not(self, decorator: nodes.Attribute) -> bool:
         if decorator.attrname != "cached_property":
