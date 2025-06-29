@@ -349,10 +349,14 @@ class CompositionsHandler(AbstractAssociationHandler):
 
         # Composition: direct object creation (self.x = P())
         if isinstance(value, nodes.Call):
+            inferred_types = utils.infer_node(node)
+            element_types = extract_element_types(inferred_types)
+
+            # Resolve nodes to actual class definitions
+            resolved_types = resolve_to_class_def(element_types)
+
             current = set(parent.compositions_type[node.attrname])
-            parent.compositions_type[node.attrname] = list(
-                current | utils.infer_node(node)
-            )
+            parent.compositions_type[node.attrname] = list(current | resolved_types)
             return
 
         # Composition: comprehensions with object creation (self.x = [P() for ...])
@@ -366,13 +370,15 @@ class CompositionsHandler(AbstractAssociationHandler):
 
             # If the element is a Call (object creation), it's composition
             if isinstance(element, nodes.Call):
-                element_type = safe_infer(element)
-                if element_type:
-                    current = set(parent.compositions_type[node.attrname])
-                    parent.compositions_type[node.attrname] = list(
-                        current | {element_type}
-                    )
-                    return
+                inferred_types = utils.infer_node(node)
+                element_types = extract_element_types(inferred_types)
+
+                # Resolve nodes to actual class definitions
+                resolved_types = resolve_to_class_def(element_types)
+
+                current = set(parent.compositions_type[node.attrname])
+                parent.compositions_type[node.attrname] = list(current | resolved_types)
+                return
 
         # Not a composition, pass to next handler
         super().handle(node, parent)
@@ -390,10 +396,14 @@ class AggregationsHandler(AbstractAssociationHandler):
 
         # Aggregation: direct assignment (self.x = x)
         if isinstance(value, nodes.Name):
+            inferred_types = utils.infer_node(node)
+            element_types = extract_element_types(inferred_types)
+
+            # Resolve nodes to actual class definitions
+            resolved_types = resolve_to_class_def(element_types)
+
             current = set(parent.aggregations_type[node.attrname])
-            parent.aggregations_type[node.attrname] = list(
-                current | utils.infer_node(node)
-            )
+            parent.aggregations_type[node.attrname] = list(current | resolved_types)
             return
 
         # Aggregation: comprehensions without object creation (self.x = [existing_obj for ...])
@@ -408,13 +418,15 @@ class AggregationsHandler(AbstractAssociationHandler):
 
             # If the element is a Name, it means it's an existing object, so it's aggregation
             if isinstance(element, nodes.Name):
-                element_type = safe_infer(element)
-                if element_type:
-                    current = set(parent.aggregations_type[node.attrname])
-                    parent.aggregations_type[node.attrname] = list(
-                        current | {element_type}
-                    )
-                    return
+                inferred_types = utils.infer_node(node)
+                element_types = extract_element_types(inferred_types)
+
+                # Resolve nodes to actual class definitions
+                resolved_types = resolve_to_class_def(element_types)
+
+                current = set(parent.aggregations_type[node.attrname])
+                parent.aggregations_type[node.attrname] = list(current | resolved_types)
+                return
 
         # Not an aggregation, pass to next handler
         super().handle(node, parent)
