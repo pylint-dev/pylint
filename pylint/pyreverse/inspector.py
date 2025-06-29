@@ -469,6 +469,9 @@ def resolve_to_class_def(types: set[nodes.NodeNG]) -> set[nodes.ClassDef]:
             inferred = safe_infer(node)
             if isinstance(inferred, nodes.ClassDef):
                 class_defs.add(inferred)
+        elif isinstance(node, astroid.Instance):
+            # Instance of a class -> get the actual class
+            class_defs.add(node._proxied)
     return class_defs
 
 
