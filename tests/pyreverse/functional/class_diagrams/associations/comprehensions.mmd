@@ -1,4 +1,10 @@
 classDiagram
+  class AggregationContainer {
+    component_dict : dict[str, Component]
+    components : list[Component]
+    components_set : set[Component]
+    lazy_components : Generator[Component]
+  }
   class AssociationContainer {
     component_dict : dict[int, Component]
     components : list[Component]
@@ -22,3 +28,7 @@ classDiagram
   Component --* CompositionContainer : component_dict
   Component --* CompositionContainer : components_set
   Component --* CompositionContainer : lazy_components
+  Component --o AggregationContainer : components
+  Component --o AggregationContainer : component_dict
+  Component --o AggregationContainer : components_set
+  Component --o AggregationContainer : lazy_components

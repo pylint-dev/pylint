@@ -17,6 +17,15 @@ class AssociationContainer:
         self.components_set: set[Component]
         self.lazy_components: Generator[Component]
 
+class AggregationContainer:
+    """Comprehensions using existing objects - aggregation."""
+    def __init__(self, existing_components: list[Component]):
+        # Aggregation: comprehensions using existing objects (not creating)
+        self.components: list[Component] = [comp for comp in existing_components]
+        self.component_dict: dict[str, Component] = {f"key_{i}": comp for i, comp in enumerate(existing_components)}
+        self.components_set: set[Component] = {comp for comp in existing_components}
+        self.lazy_components: Generator[Component] = (comp for comp in existing_components)
+
 class CompositionContainer:
     """Comprehensions creating new objects - composition."""
     def __init__(self):
