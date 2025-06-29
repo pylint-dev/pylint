@@ -55,7 +55,7 @@ from pylint.lint.utils import (
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
 from pylint.reporters.base_reporter import BaseReporter
 from pylint.reporters.progress_reporters import ProgressReporter
-from pylint.reporters.text import TextReporter, ColorizedTextReporter
+from pylint.reporters.text import ColorizedTextReporter, TextReporter
 from pylint.reporters.ureports import nodes as report_nodes
 from pylint.typing import (
     DirectoryNamespaceDict,
@@ -532,7 +532,7 @@ class PyLinter(
         return any(x in self.fail_on_symbols for x in self.stats.by_msg.keys())
 
     def pass_fail_on_config_to_color_reporter(self):
-        """Pass fail_on symbol configuration to colorized text reporter"""
+        """Pass fail_on symbol configuration to colorized text reporter."""
         if isinstance(self.reporter, ColorizedTextReporter):
             self.reporter.set_fail_on_symbols(self.fail_on_symbols)
         elif isinstance(self.reporter, reporters.MultiReporter):

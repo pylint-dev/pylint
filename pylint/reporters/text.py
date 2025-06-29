@@ -240,7 +240,7 @@ class ColorizedTextReporter(TextReporter):
         return self.color_mapping.get(msg_id[0]) or MessageStyle(None)
 
     def set_fail_on_symbols(self, fail_on_symbols: list[str]):
-        """Sets the list of configured fail-on symbols"""
+        """Sets the list of configured fail-on symbols."""
         self.fail_on_symbols = fail_on_symbols
 
     def handle_message(self, msg: Message) -> None:
