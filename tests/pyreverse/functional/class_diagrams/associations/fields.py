@@ -3,23 +3,23 @@
 class P:
     pass
 
-class A:
+class Association:
     x: P  # just type hint, no ownership → Association
 
-class B:
+class Aggregation1:
     def __init__(self, x: P):
         self.x = x  # receives object, not created → Aggregation
 
-class C:
+class Aggregation2:
     x: P
     def __init__(self, x: P):
         self.x = x  # receives object, not created → Aggregation
 
-class D:
+class Composition1:
     x: P
     def __init__(self):
         self.x = P()  # creates object → Composition
 
-class E:
+class Composition2:
     def __init__(self):
         self.x = P()  # creates object → Composition

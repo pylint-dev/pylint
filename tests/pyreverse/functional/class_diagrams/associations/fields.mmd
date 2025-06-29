@@ -1,23 +1,23 @@
 classDiagram
-  class A {
+  class Aggregation1 {
     x
   }
-  class B {
+  class Aggregation2 {
     x
   }
-  class C {
+  class Association {
     x
   }
-  class D {
+  class Composition1 {
     x
   }
-  class E {
+  class Composition2 {
     x
   }
   class P {
   }
-  P --> A : x
-  P --* D : x
-  P --* E : x
-  P --o B : x
-  P --o C : x
+  P --> Association : x
+  P --* Composition1 : x
+  P --* Composition2 : x
+  P --o Aggregation1 : x
+  P --o Aggregation2 : x
