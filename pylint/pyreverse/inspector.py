@@ -127,11 +127,11 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         self.project = project
 
         # Chain: Composition → Aggregation → Association
-        self.associations_handler = CompositionsHandler()
+        self.compositions_handler = CompositionsHandler()
         aggregation_handler = AggregationsHandler()
         association_handler = AssociationsHandler()
 
-        self.associations_handler.set_next(aggregation_handler)
+        self.compositions_handler.set_next(aggregation_handler)
         aggregation_handler.set_next(association_handler)
 
     def visit_project(self, node: Project) -> None:
@@ -183,7 +183,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         for assignattrs in tuple(node.instance_attrs.values()):
             for assignattr in assignattrs:
                 if not isinstance(assignattr, nodes.Unknown):
-                    self.associations_handler.handle(assignattr, node)
+                    self.compositions_handler.handle(assignattr, node)
                     self.handle_assignattr_type(assignattr, node)
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
