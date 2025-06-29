@@ -1,16 +1,16 @@
 classDiagram
-  class Component {
-    name : str
-  }
   class AssociationContainer {
-    components : list[Component]
     component_dict : dict[int, Component]
+    components : list[Component]
     components_set : set[Component]
     lazy_components : Generator[Component]
   }
+  class Component {
+    name : str
+  }
   class CompositionContainer {
-    components : list[Component]
     component_dict : dict[int, Component]
+    components : list[Component]
     components_set : set[Component]
     lazy_components : Generator[Component]
   }
