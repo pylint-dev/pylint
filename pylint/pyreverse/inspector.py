@@ -396,6 +396,7 @@ class AggregationsHandler(AbstractAssociationHandler):
             return
 
         # Aggregation: comprehensions without object creation (self.x = [existing_obj for ...])
+        # TODO: Currently inferring type of existing_obj is not reliable ==> improve once astroid supports it
         if isinstance(
             value, (nodes.ListComp, nodes.DictComp, nodes.SetComp, nodes.GeneratorExp)
         ):
