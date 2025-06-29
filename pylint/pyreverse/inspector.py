@@ -406,10 +406,7 @@ class AggregationsHandler(AbstractAssociationHandler):
 
             # If the element is a Name, it means it's an existing object, so it's aggregation
             if isinstance(element, nodes.Name):
-                if isinstance(value, nodes.DictComp):
-                    element_type = safe_infer(value.value)
-                else:
-                    element_type = safe_infer(value.elt)
+                element_type = safe_infer(element)
                 if element_type:
                     current = set(parent.aggregations_type[node.attrname])
                     parent.aggregations_type[node.attrname] = list(
