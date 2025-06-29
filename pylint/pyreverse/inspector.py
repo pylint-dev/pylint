@@ -187,6 +187,14 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                     self.compositions_handler.handle(assignattr, node)
                     self.handle_assignattr_type(assignattr, node)
 
+        # Process class attributes
+        for local_nodes in node.locals.values():
+            for local_node in local_nodes:
+                if isinstance(local_node, nodes.AssignName) and isinstance(
+                    local_node.parent, nodes.Assign
+                ):
+                    self.compositions_handler.handle(local_node, node)
+
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Visit an astroid.Function node.
 
@@ -308,7 +316,9 @@ class RelationshipHandlerInterface(ABC):
         pass
 
     @abstractmethod
-    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+    def handle(
+        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+    ) -> None:
         pass
 
 
@@ -333,7 +343,9 @@ class AbstractRelationshipHandler(RelationshipHandlerInterface):
         return handler
 
     @abstractmethod
-    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+    def handle(
+        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+    ) -> None:
         if self._next_handler:
             self._next_handler.handle(node, parent)
 
@@ -341,12 +353,18 @@ class AbstractRelationshipHandler(RelationshipHandlerInterface):
 class CompositionsHandler(AbstractRelationshipHandler):
     """Handle composition relationships where parent creates child objects."""
 
-    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+    def handle(
+        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+    ) -> None:
+        # If the node is not part of an assignment, pass to next handler
         if not isinstance(node.parent, (nodes.AnnAssign, nodes.Assign)):
             super().handle(node, parent)
             return
 
         value = node.parent.value
+
+        # Extract the name to handle both AssignAttr and AssignName nodes
+        name = node.attrname if isinstance(node, nodes.AssignAttr) else node.name
 
         # Composition: direct object creation (self.x = P())
         if isinstance(value, nodes.Call):
@@ -356,8 +374,8 @@ class CompositionsHandler(AbstractRelationshipHandler):
             # Resolve nodes to actual class definitions
             resolved_types = resolve_to_class_def(element_types)
 
-            current = set(parent.compositions_type[node.attrname])
-            parent.compositions_type[node.attrname] = list(current | resolved_types)
+            current = set(parent.compositions_type[name])
+            parent.compositions_type[name] = list(current | resolved_types)
             return
 
         # Composition: comprehensions with object creation (self.x = [P() for ...])
@@ -377,8 +395,8 @@ class CompositionsHandler(AbstractRelationshipHandler):
                 # Resolve nodes to actual class definitions
                 resolved_types = resolve_to_class_def(element_types)
 
-                current = set(parent.compositions_type[node.attrname])
-                parent.compositions_type[node.attrname] = list(current | resolved_types)
+                current = set(parent.compositions_type[name])
+                parent.compositions_type[name] = list(current | resolved_types)
                 return
 
         # Not a composition, pass to next handler
@@ -388,12 +406,18 @@ class CompositionsHandler(AbstractRelationshipHandler):
 class AggregationsHandler(AbstractRelationshipHandler):
     """Handle aggregation relationships where parent receives child objects."""
 
-    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+    def handle(
+        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+    ) -> None:
+        # If the node is not part of an assignment, pass to next handler
         if not isinstance(node.parent, (nodes.AnnAssign, nodes.Assign)):
             super().handle(node, parent)
             return
 
         value = node.parent.value
+
+        # Extract the name to handle both AssignAttr and AssignName nodes
+        name = node.attrname if isinstance(node, nodes.AssignAttr) else node.name
 
         # Aggregation: direct assignment (self.x = x)
         if isinstance(value, nodes.Name):
@@ -403,8 +427,8 @@ class AggregationsHandler(AbstractRelationshipHandler):
             # Resolve nodes to actual class definitions
             resolved_types = resolve_to_class_def(element_types)
 
-            current = set(parent.aggregations_type[node.attrname])
-            parent.aggregations_type[node.attrname] = list(current | resolved_types)
+            current = set(parent.aggregations_type[name])
+            parent.aggregations_type[name] = list(current | resolved_types)
             return
 
         # Aggregation: comprehensions without object creation (self.x = [existing_obj for ...])
@@ -424,8 +448,8 @@ class AggregationsHandler(AbstractRelationshipHandler):
                 # Resolve nodes to actual class definitions
                 resolved_types = resolve_to_class_def(element_types)
 
-                current = set(parent.aggregations_type[node.attrname])
-                parent.aggregations_type[node.attrname] = list(current | resolved_types)
+                current = set(parent.aggregations_type[name])
+                parent.aggregations_type[name] = list(current | resolved_types)
                 return
 
         # Not an aggregation, pass to next handler
@@ -435,7 +459,12 @@ class AggregationsHandler(AbstractRelationshipHandler):
 class AssociationsHandler(AbstractRelationshipHandler):
     """Handle regular association relationships."""
 
-    def handle(self, node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+    def handle(
+        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+    ) -> None:
+        # Extract the name to handle both AssignAttr and AssignName nodes
+        name = node.attrname if isinstance(node, nodes.AssignAttr) else node.name
+
         # Type annotation only (x: P) -> Association
         # BUT only if there's no actual assignment (to avoid duplicates)
         if isinstance(node.parent, nodes.AnnAssign) and node.parent.value is None:
@@ -445,18 +474,18 @@ class AssociationsHandler(AbstractRelationshipHandler):
             # Resolve nodes to actual class definitions
             resolved_types = resolve_to_class_def(element_types)
 
-            current = set(parent.associations_type[node.attrname])
-            parent.associations_type[node.attrname] = list(current | resolved_types)
+            current = set(parent.associations_type[name])
+            parent.associations_type[name] = list(current | resolved_types)
             return
 
         # Everything else is also association (fallback)
-        current = set(parent.associations_type[node.attrname])
+        current = set(parent.associations_type[name])
         inferred_types = utils.infer_node(node)
         element_types = extract_element_types(inferred_types)
 
         # Resolve Name nodes to actual class definitions
         resolved_types = resolve_to_class_def(element_types)
-        parent.associations_type[node.attrname] = list(current | resolved_types)
+        parent.associations_type[name] = list(current | resolved_types)
 
 
 def resolve_to_class_def(types: set[nodes.NodeNG]) -> set[nodes.ClassDef]:
