@@ -39,7 +39,7 @@ ARROWS: dict[EdgeType, dict[str, str]] = {
     EdgeType.ASSOCIATION: {
         "fontcolor": "green",
         "arrowtail": "none",
-        "arrowhead": "normal",
+        "arrowhead": "vee",
         "style": "solid",
     },
     EdgeType.AGGREGATION: {
