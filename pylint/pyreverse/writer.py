@@ -119,7 +119,12 @@ class DiagramWriter:
 
             if self.config.no_standalone and not any(
                 obj in (rel.from_object, rel.to_object)
-                for rel_type in ("specialization", "association", "aggregation")
+                for rel_type in (
+                    "specialization",
+                    "association",
+                    "aggregation",
+                    "composition",
+                )
                 for rel in diagram.get_relationships(rel_type)
             ):
                 continue
@@ -145,6 +150,14 @@ class DiagramWriter:
                 rel.to_object.fig_id,
                 label=rel.name,
                 type_=EdgeType.ASSOCIATION,
+            )
+        # generate compositions
+        for rel in diagram.get_relationships("composition"):
+            self.printer.emit_edge(
+                rel.from_object.fig_id,
+                rel.to_object.fig_id,
+                label=rel.name,
+                type_=EdgeType.COMPOSITION,
             )
         # generate aggregations
         for rel in diagram.get_relationships("aggregation"):

@@ -181,8 +181,8 @@ class TestShowOptions:
 class TestDefaultDiadefGenerator:
     _should_rels = [
         ("aggregation", "DoNothing2", "Specialization"),
-        ("association", "DoNothing", "Ancestor"),
-        ("association", "DoNothing", "Specialization"),
+        ("composition", "DoNothing", "Ancestor"),
+        ("composition", "DoNothing", "Specialization"),
         ("specialization", "Specialization", "Ancestor"),
     ]
 
