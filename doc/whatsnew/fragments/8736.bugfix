@@ -1,0 +1,5 @@
+When displaying unicode with surrogates (or other potential ``UnicodeEncodeError``),
+pylint will now display the best representation of the string by ignoring unicode
+errors instead of crashing.
+
+Closes #8736.
