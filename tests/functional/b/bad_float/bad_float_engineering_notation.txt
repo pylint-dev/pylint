@@ -1,0 +1,4 @@
+bad-float-notation:3:33:3:38::'123e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.23e6' instead:HIGH
+bad-float-notation:4:38:4:45::'12345e6' has a base, '12345.0', that is not between 1 and 1000, and it should be written as '12.344999999999999e9' instead:HIGH
+bad-float-notation:5:35:5:45::'10000000.0' is bigger than 1e6, and it should be written as '10e6' instead:HIGH
+bad-float-notation:6:33:6:38::'9.9e2' has underscore or exponent, and it should be written as '990.0' instead:HIGH
