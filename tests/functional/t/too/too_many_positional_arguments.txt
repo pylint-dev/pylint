@@ -1,5 +1,5 @@
-too-many-arguments:4:4:4:13:FiveArgumentMethods.fail1:Too many arguments (7/6):UNDEFINED
-too-many-positional-arguments:4:4:4:13:FiveArgumentMethods.fail1:Too many positional arguments (7/6):HIGH
-too-many-arguments:6:4:6:13:FiveArgumentMethods.fail2:Too many arguments (7/6):UNDEFINED
-too-many-positional-arguments:6:4:6:13:FiveArgumentMethods.fail2:Too many positional arguments (7/6):HIGH
-too-many-arguments:8:4:8:13:FiveArgumentMethods.okay1:Too many arguments (7/6):UNDEFINED
+too-many-arguments:5:4:5:21:RegularMethods.regular_fail1:Too many arguments (7/6):UNDEFINED
+too-many-positional-arguments:5:4:5:21:RegularMethods.regular_fail1:Too many positional arguments (7/6):HIGH
+too-many-arguments:8:4:8:21:RegularMethods.regular_fail2:Too many arguments (7/6):UNDEFINED
+too-many-positional-arguments:8:4:8:21:RegularMethods.regular_fail2:Too many positional arguments (7/6):HIGH
+too-many-arguments:11:4:11:21:RegularMethods.regular_okay1:Too many arguments (7/6):UNDEFINED
