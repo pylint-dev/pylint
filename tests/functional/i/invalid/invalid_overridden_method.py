@@ -128,7 +128,8 @@ class B(A):
         return False
 
 
-# Test case for return type mismatch from the issue
+# https://github.com/pylint-dev/pylint/issues/10351
+# Test case for return type mismatch
 class BaseClass(abc.ABC):
     @abc.abstractmethod
     def read_file(self, path: str) -> TextIOWrapper:
