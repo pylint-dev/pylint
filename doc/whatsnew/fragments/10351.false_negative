@@ -1,0 +1,5 @@
+Enhanced `invalid-overridden-method` checker to detect return type mismatches when overriding methods.
+The checker now properly identifies when subclass methods have incompatible return types compared to their parent methods,
+including support for covariant return types and proper `typing.Any` handling.
+
+Closes #10351
