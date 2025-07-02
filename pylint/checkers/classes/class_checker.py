@@ -1520,24 +1520,16 @@ a metaclass class method.",
             parent_return_type = safe_infer(parent_returns)
             current_return_type = safe_infer(current_returns)
 
-            compatible = False
-
             if (
                 parent_return_type
                 and current_return_type
                 and isinstance(parent_return_type, nodes.ClassDef)
                 and isinstance(current_return_type, nodes.ClassDef)
             ):
-                # Same type check
-                if parent_return_type.qname() == current_return_type.qname():
-                    compatible = True
-                # Covariant check - current is subclass of parent
-                elif (
-                    isinstance(current_return_type, nodes.ClassDef)
-                    and isinstance(parent_return_type, nodes.ClassDef)
-                    and is_subclass_of(current_return_type, parent_return_type)
-                ):
-                    compatible = True
+                # Check for compatibility
+                compatible = self._are_return_types_compatible(
+                    current_return_type, parent_return_type
+                )
 
                 # Emit error if not compatible
                 if not compatible:
@@ -2097,6 +2089,7 @@ a metaclass class method.",
                 node.local_attr(attr)
                 # yes, stop here
                 continue
+
             except astroid.NotFoundError:
                 pass
             # is it an instance attribute of a parent class ?
@@ -2433,6 +2426,34 @@ a metaclass class method.",
             self.add_message(
                 "signature-differs", args=(class_type, method1.name), node=method1
             )
+
+    def _are_return_types_compatible(
+        self, current_type: nodes.ClassDef, parent_type: nodes.ClassDef
+    ) -> bool:
+        """Check if current_type is compatible with parent_type for return type
+        checking.
+
+        Compatible means:
+        1. Same type (qname match)
+        2. current_type is a subclass of parent_type (covariance)
+        3. parent_type is typing.Any (any type is compatible with Any)
+        """
+        # Same type check
+        if current_type.qname() == parent_type.qname():
+            return True
+
+        # Special case: Any type accepts anything
+        if parent_type.qname() == "typing.Any":
+            return True
+
+        # Covariant check - current is subclass of parent
+        if is_subclass_of(current_type, parent_type):
+            return True
+
+        # For built-in types, also check by qualified name in ancestors
+        parent_qname = parent_type.qname()
+        current_ancestors = {ancestor.qname() for ancestor in current_type.ancestors()}
+        return parent_qname in current_ancestors
 
     def _uses_mandatory_method_param(
         self, node: nodes.Attribute | nodes.Assign | nodes.AssignAttr
