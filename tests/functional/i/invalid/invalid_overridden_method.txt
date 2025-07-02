@@ -4,4 +4,4 @@ invalid-overridden-method:46:4:46:16:InvalidDerived.method_a:Method 'method_a' w
 invalid-overridden-method:49:4:49:22:InvalidDerived.method_b:Method 'method_b' was expected to be 'non-async', found it instead as 'async':UNDEFINED
 invalid-overridden-method:123:4:123:11:B.bar:Method 'bar' was expected to be 'property', found it instead as 'method':UNDEFINED
 invalid-overridden-method:127:4:127:12:B.bar2:Method 'bar2' was expected to be 'property', found it instead as 'method':UNDEFINED
-invalid-overridden-method:140:4:140:17:ChildClass.read_file:Method 'read_file' was expected to be "return type 'TextIOWrapper'", found it instead as "return type 'BytesIO'":UNDEFINED
+invalid-overridden-method:143:4:143:17:ChildClass1.read_file:Method 'read_file' was expected to be "return type 'TextIOWrapper'", found it instead as "return type 'BytesIO'":UNDEFINED

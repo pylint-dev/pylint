@@ -130,13 +130,21 @@ class B(A):
 
 # https://github.com/pylint-dev/pylint/issues/10351
 # Test case for return type mismatch
+class ReturnType(TextIOWrapper):
+    pass
+
 class BaseClass(abc.ABC):
     @abc.abstractmethod
     def read_file(self, path: str) -> TextIOWrapper:
         """Abstract method that should return a TextIOWrapper."""
         raise NotImplementedError("Method must be implemented by subclass")
 
-class ChildClass(BaseClass):
+class ChildClass1(BaseClass):
     def read_file(self, path: str) -> BytesIO:  # [invalid-overridden-method]
         """Implementation returns BytesIO instead of TextIOWrapper."""
         return BytesIO(b"content")
+
+class ChildClass2(BaseClass):
+    def read_file(self, path: str) -> ReturnType:
+        """Implementation returns BytesIO instead of TextIOWrapper."""
+        return ReturnType(BytesIO(b"content"))
