@@ -91,6 +91,7 @@ contributors:
   * Fix consider-using-ternary for 'True and True and True or True' case
   * Add bad-docstring-quotes and docstring-first-line-empty
   * Add missing-timeout
+  * Fix false negative for `deprecated-module` when a `__import__` method is used instead of `import` sentence
 - Frank Harrison <frank@doublethefish.com> (doublethefish)
 - Zen Lee <53538590+zenlyj@users.noreply.github.com>
 - Pierre-Yves David <pierre-yves.david@logilab.fr>
