@@ -20,7 +20,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.12.2"
+    rev: "v0.12.3"
     hooks:
       - id: ruff-check
         args: ["--fix"]
@@ -147,7 +147,7 @@ repos:
         args: [--prose-wrap=always, --print-width=88]
         exclude: (tests(/\w*)*data/|.github/FUNDING.yml)
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.7.3
+    rev: v0.7.5
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures
