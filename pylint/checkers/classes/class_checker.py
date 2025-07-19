@@ -2437,6 +2437,7 @@ a metaclass class method.",
         1. Same type (qname match)
         2. current_type is a subclass of parent_type (covariance)
         3. parent_type is typing.Any (any type is compatible with Any)
+        4. current_type is a Literal containing values compatible with parent_type
         """
         # Same type check
         if current_type.qname() == parent_type.qname():
@@ -2445,6 +2446,16 @@ a metaclass class method.",
         # Special case: Any type accepts anything
         if parent_type.qname() == "typing.Any":
             return True
+
+        # Special case: Hanndle constant Literal types
+        if current_type.qname() == ".Literal":
+            inferred = current_type.values()
+            for i in inferred:
+                # print("Inferred value:", i)
+                if isinstance(i, nodes.Const):
+                    # If we have a Literal with a class, we can check its qname
+                    if i.qname() == parent_type.qname():
+                        return True
 
         # Covariant check - current is subclass of parent
         if is_subclass_of(current_type, parent_type):
