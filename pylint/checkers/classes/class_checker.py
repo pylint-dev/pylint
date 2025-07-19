@@ -33,6 +33,7 @@ from pylint.checkers.utils import (
     is_iterable,
     is_property_setter,
     is_property_setter_or_deleter,
+    is_subclass_of,
     node_frame_class,
     only_required_for_messages,
     safe_infer,
@@ -1510,6 +1511,38 @@ a metaclass class method.",
                 node=function_node,
             )
 
+        # Check for return type mismatches
+        parent_returns = parent_function_node.returns
+        current_returns = function_node.returns
+
+        # Only check if both methods have return type annotations
+        if parent_returns is not None and current_returns is not None:
+            parent_return_type = safe_infer(parent_returns)
+            current_return_type = safe_infer(current_returns)
+
+            if (
+                parent_return_type
+                and current_return_type
+                and isinstance(parent_return_type, nodes.ClassDef)
+                and isinstance(current_return_type, nodes.ClassDef)
+            ):
+                # Check for compatibility
+                compatible = self._are_return_types_compatible(
+                    current_return_type, parent_return_type
+                )
+
+                # Emit error if not compatible
+                if not compatible:
+                    self.add_message(
+                        "invalid-overridden-method",
+                        args=(
+                            function_node.name,
+                            f"return type '{parent_return_type.name}'",
+                            f"return type '{current_return_type.name}'",
+                        ),
+                        node=function_node,
+                    )
+
     def _check_functools_or_not(self, decorator: nodes.Attribute) -> bool:
         if decorator.attrname != "cached_property":
             return False
@@ -2056,6 +2089,7 @@ a metaclass class method.",
                 node.local_attr(attr)
                 # yes, stop here
                 continue
+
             except astroid.NotFoundError:
                 pass
             # is it an instance attribute of a parent class ?
@@ -2392,6 +2426,49 @@ a metaclass class method.",
             self.add_message(
                 "signature-differs", args=(class_type, method1.name), node=method1
             )
+
+    def _are_return_types_compatible(
+        self, current_type: nodes.ClassDef, parent_type: nodes.ClassDef
+    ) -> bool:
+        """Check if current_type is compatible with parent_type for return type
+        checking.
+
+        Compatible means:
+        1. Same type (qname match)
+        2. current_type is a subclass of parent_type (covariance)
+        3. parent_type is typing.Any (any type is compatible with Any)
+        4. current_type is a Literal containing values compatible with parent_type
+        """
+        # Same type check
+        if current_type.qname() == parent_type.qname():
+            return True
+
+        # Special case: Any type accepts anything
+        if parent_type.qname() == "typing.Any":
+            return True
+
+        # Special case: Hanndle constant Literal types
+        if current_type.qname() == ".Literal":
+            inferred = current_type.values()
+            for i in inferred:
+                # print("Inferred value:", i)
+                if isinstance(i, nodes.Const):
+                    # If we have a Literal with a class, we can check its qname
+                    if i.qname() == parent_type.qname():
+                        return True
+
+        # Covariant check - current is subclass of parent
+        if is_subclass_of(current_type, parent_type):
+            return True
+
+        # Covariant check - current is subtype of parent
+        if current_type.is_subtype_of(parent_type):
+            return True
+
+        # For built-in types, also check by qualified name in ancestors
+        parent_qname = parent_type.qname()
+        current_ancestors = {ancestor.qname() for ancestor in current_type.ancestors()}
+        return parent_qname in current_ancestors
 
     def _uses_mandatory_method_param(
         self, node: nodes.Attribute | nodes.Assign | nodes.AssignAttr
