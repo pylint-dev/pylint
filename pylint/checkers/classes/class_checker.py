@@ -2447,7 +2447,7 @@ a metaclass class method.",
         if parent_type.qname() == "typing.Any":
             return True
 
-        # Special case: Hanndle constant Literal types
+        # Special case: Handle constant Literal types
         if current_type.qname() == ".Literal":
             inferred = current_type.values()
             for i in inferred:
