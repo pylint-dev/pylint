@@ -2462,7 +2462,7 @@ a metaclass class method.",
             return True
 
         # Covariant check - current is subtype of parent
-        if current_type.is_subtype_of(parent_type):
+        if current_type.is_subtype_of(parent_type.qname()):
             return True
 
         # For built-in types, also check by qualified name in ancestors
