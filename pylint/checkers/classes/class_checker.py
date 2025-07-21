@@ -2451,7 +2451,6 @@ a metaclass class method.",
         if current_type.qname() == ".Literal":
             inferred = current_type.values()
             for i in inferred:
-                # print("Inferred value:", i)
                 if isinstance(i, nodes.Const):
                     # If we have a Literal with a class, we can check its qname
                     if i.qname() == parent_type.qname():
