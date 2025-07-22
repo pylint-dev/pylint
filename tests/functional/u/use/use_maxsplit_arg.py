@@ -67,7 +67,10 @@ list_of_strs = ["a", "b", "c", "d", "e", "f"]
 for s in list_of_strs:
     print(s.split(" ")[0])  # [use-maxsplit-arg]
     print(s.split(" ")[-1])  # [use-maxsplit-arg]
-    print(s.split(" ")[-2])
+    try:
+        print(s.split(" ")[-2])
+    except IndexError:
+        continue
 
 
 # Test warning messages (matching and replacing .split / .rsplit)

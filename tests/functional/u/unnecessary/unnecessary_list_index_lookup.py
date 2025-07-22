@@ -51,7 +51,10 @@ for i, (a, b) in enumerate(pairs):
     print(pairs[i][0])
 
 # Regression test for https://github.com/pylint-dev/pylint/issues/6603
-for i, num in enumerate():  # raises TypeError, but shouldn't crash pylint
+try:
+    for i, num in enumerate():  # raises TypeError, but shouldn't crash pylint
+        pass
+except TypeError:
     pass
 
 # Regression test for https://github.com/pylint-dev/pylint/issues/6788
