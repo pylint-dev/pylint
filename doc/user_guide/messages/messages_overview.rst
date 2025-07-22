@@ -165,6 +165,7 @@ All messages in the error category:
    error/unexpected-special-method-signature
    error/unhashable-member
    error/unpacking-non-sequence
+   error/unreachable-match-patterns
    error/unrecognized-inline-option
    error/unrecognized-option
    error/unsubscriptable-object
