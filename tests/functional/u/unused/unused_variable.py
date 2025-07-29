@@ -187,6 +187,17 @@ def sibling_except_handlers():
     except ValueError as e:
         print(e)
 
+
+def test_multiple_except_handlers_under_try():
+    try:
+        pass
+    except TypeError as exc:
+        print(exc)
+    except ValueError as exc:
+        print(exc)
+    except ArithmeticError as exc:
+        print(exc)
+
 def func6():
     a = 1
 
