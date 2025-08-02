@@ -23,7 +23,7 @@ class MatchStatementChecker(BaseChecker):
     msgs = {
         "E5000": (
             "The name capture `case %s` makes the remaining patterns unreachable. "
-            "Use a dotted name(for example an enum) to fix this",
+            "Use a dotted name (for example an enum) to fix this.",
             "unreachable-match-patterns",
             "Emitted when a name capture pattern in a match statement is used "
             "and there are case statements below it.",
