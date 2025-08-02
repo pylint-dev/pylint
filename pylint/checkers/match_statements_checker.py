@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class MatchStatementChecker(BaseChecker):
     name = "match_statements"
     msgs = {
-        "E5000": (
+        "E1901": (
             "The name capture `case %s` makes the remaining patterns unreachable. "
             "Use a dotted name (for example an enum) to fix this.",
             "unreachable-match-patterns",
