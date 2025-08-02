@@ -28,6 +28,7 @@ repos:
       - id: ruff-check
         name: ruff-doc
         files: doc/data/messages
+        exclude: doc/data/messages/u/unreachable-match-patterns/bad.py
   - repo: https://github.com/Pierre-Sassoulas/copyright_notice_precommit
     rev: 0.1.2
     hooks:
