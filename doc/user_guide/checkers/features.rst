@@ -681,7 +681,7 @@ Verbatim name of the checker is ``match_statements``.
 Match Statements checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :unreachable-match-patterns (E5000): *The name capture `case %s` makes the remaining patterns unreachable. Use a dotted name(for example an enum) to fix this*
-  Emitted when a name capture pattern in a match statement is used and there
+  Emitted when a name capture pattern is used in a match statement and there
   are case statements below it.
 
 
