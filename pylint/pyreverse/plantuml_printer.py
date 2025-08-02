@@ -21,7 +21,8 @@ class PlantUmlPrinter(Printer):
     }
     ARROWS: dict[EdgeType, str] = {
         EdgeType.INHERITS: "--|>",
-        EdgeType.ASSOCIATION: "--*",
+        EdgeType.ASSOCIATION: "-->",
+        EdgeType.COMPOSITION: "--*",
         EdgeType.AGGREGATION: "--o",
         EdgeType.USES: "-->",
         EdgeType.TYPE_DEPENDENCY: "..>",
