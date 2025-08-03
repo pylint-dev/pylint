@@ -1,0 +1,3 @@
+Fix false negative for `deprecated-module` when a `__import__` method is used instead of `import` sentence.
+
+Refs #10453

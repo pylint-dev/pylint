@@ -20,7 +20,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.12.0"
+    rev: "v0.12.5"
     hooks:
       - id: ruff-check
         args: ["--fix"]
@@ -128,7 +128,7 @@ repos:
         files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: [Sphinx==7.4.3]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.16.1
+    rev: v1.17.0
     hooks:
       - id: mypy
         name: mypy
@@ -141,20 +141,20 @@ repos:
           ["isort>=5", "platformdirs==2.2.0", "py==1.11", "tomlkit>=0.10.1"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.5.3
+    rev: v3.6.2
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
         exclude: (tests(/\w*)*data/|.github/FUNDING.yml)
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.7.3
+    rev: v0.7.5
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures
         args: ["--max-summary-lines=2", "--linewrap-full-docstring"]
         files: "pylint"
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.5
+    rev: 1.8.6
     hooks:
       - id: bandit
         args: ["-r", "-lll"]

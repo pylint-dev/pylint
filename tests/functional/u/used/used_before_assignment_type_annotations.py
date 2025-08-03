@@ -88,3 +88,22 @@ def nested_class_as_return_annotation():
             pass
 
     print(MyObject)
+
+
+def conditional_annotated_assignment():
+    """Variable is conditionally defined but later used in a type-annotated assignment."""
+    if object() is None:
+        data={"cat": "harf"}
+    token: str = data.get("cat")  # [possibly-used-before-assignment]
+    print(token)
+
+
+def loop_conditional_annotated_assignment():
+    """Variable is conditionally defined inside a for-loop but later used
+    in a type-annotated assignment.
+    """
+    for _ in range(3):
+        if object() is None:
+            data={"cat": "harf"}
+    token: str = data.get("cat")  # [possibly-used-before-assignment]
+    print(token)

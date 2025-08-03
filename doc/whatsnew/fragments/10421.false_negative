@@ -1,0 +1,4 @@
+Fix a false negative for `possibly-used-before-assignment` when a variable is conditionally defined
+and later assigned to a type-annotated variable.
+
+Closes #10421

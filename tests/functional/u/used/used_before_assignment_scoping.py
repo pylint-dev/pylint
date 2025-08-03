@@ -16,3 +16,10 @@ def func():
     first = datetime.now()  # [used-before-assignment]
     second = datetime.now()
     return first, second
+
+
+def annotated_declaration_with_type_subscript():
+    dt_list: list[datetime]
+    dt_list = [datetime.now(), datetime.now()]  # [used-before-assignment]
+
+    return dt_list

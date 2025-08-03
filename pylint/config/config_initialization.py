@@ -139,6 +139,9 @@ def _config_initialization(  # pylint: disable=too-many-statements
     # enable them
     linter.enable_fail_on_messages()
 
+    # Now that fail_on messages are enabled, pass them to colorized reporter
+    linter.pass_fail_on_config_to_color_reporter()
+
     linter._parse_error_mode()
 
     # Link the base Namespace object on the current directory
