@@ -63,6 +63,7 @@ All messages in the error category:
    error/bad-str-strip-call
    error/bad-string-format-type
    error/bad-super-call
+   error/bare-name-capture-pattern
    error/bidirectional-unicode
    error/broken-collections-callable
    error/broken-noreturn
@@ -165,7 +166,6 @@ All messages in the error category:
    error/unexpected-special-method-signature
    error/unhashable-member
    error/unpacking-non-sequence
-   error/unreachable-match-patterns
    error/unrecognized-inline-option
    error/unrecognized-option
    error/unsubscriptable-object

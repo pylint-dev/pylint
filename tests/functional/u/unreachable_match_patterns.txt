@@ -1,2 +1,0 @@
-unreachable-match-patterns:10:0:None:None::The name capture `case a` makes the remaining patterns unreachable. Use a dotted name (for example an enum) to fix this.:HIGH
-unreachable-match-patterns:12:0:None:None::The name capture `case b` makes the remaining patterns unreachable. Use a dotted name (for example an enum) to fix this.:HIGH

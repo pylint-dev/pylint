@@ -24,13 +24,13 @@ class MatchStatementChecker(BaseChecker):
         "E1901": (
             "The name capture `case %s` makes the remaining patterns unreachable. "
             "Use a dotted name (for example an enum) to fix this.",
-            "unreachable-match-patterns",
+            "bare-name-capture-pattern",
             "Emitted when a name capture pattern in a match statement is used "
             "and there are case statements below it.",
         )
     }
 
-    @only_required_for_messages("unreachable-match-patterns")
+    @only_required_for_messages("bare-name-capture-pattern")
     def visit_match(self, node: nodes.Match) -> None:
         """Check if a name capture pattern prevents the other cases from being
         reached.
@@ -43,7 +43,7 @@ class MatchStatementChecker(BaseChecker):
                 and idx < len(node.cases) - 1
             ):
                 self.add_message(
-                    "unreachable-match-patterns",
+                    "bare-name-capture-pattern",
                     node=case,
                     args=case.pattern.name.name,
                     confidence=HIGH,
