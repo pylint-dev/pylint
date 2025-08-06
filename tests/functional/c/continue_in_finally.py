@@ -12,7 +12,7 @@ while True:
     try:
         pass
     finally:
-        break
+        break  # [break-in-finally]
 
 while True:
     try:

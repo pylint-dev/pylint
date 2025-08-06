@@ -1,0 +1,5 @@
+Add ``break-in-finally`` warning. Using ``break`` inside the ``finally`` clause
+will raise a syntax warning in Python 3.14.
+See `PEP 765 - Disallow return/break/continue that exit a finally block <https://peps.python.org/pep-0765/>`_.
+
+Refs #10480

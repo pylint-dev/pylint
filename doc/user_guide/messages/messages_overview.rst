@@ -68,7 +68,6 @@ All messages in the error category:
    error/broken-noreturn
    error/catching-non-exception
    error/class-variable-slots-conflict
-   error/continue-in-finally
    error/declare-non-slot
    error/dict-iter-missing-items
    error/duplicate-argument-name
@@ -223,6 +222,7 @@ All messages in the warning category:
    warning/bare-except
    warning/binary-op-exception
    warning/boolean-datetime
+   warning/break-in-finally
    warning/broad-exception-caught
    warning/broad-exception-raised
    warning/cell-var-from-loop
@@ -230,6 +230,7 @@ All messages in the warning category:
    warning/confusing-with-statement
    warning/consider-ternary-expression
    warning/contextmanager-generator-missing-cleanup
+   warning/continue-in-finally
    warning/dangerous-default-value
    warning/deprecated-argument
    warning/deprecated-attribute
