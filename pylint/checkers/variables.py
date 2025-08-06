@@ -1312,6 +1312,10 @@ class VariablesChecker(BaseChecker):
         ] = {}
         self._postponed_evaluation_enabled = False
 
+    def open(self) -> None:
+        py_version = self.linter.config.py_version
+        self._py314_plus = py_version >= (3, 14)
+
     @utils.only_required_for_messages(
         "unbalanced-dict-unpacking",
     )
@@ -1375,7 +1379,9 @@ class VariablesChecker(BaseChecker):
         checks globals doesn't overrides builtins.
         """
         self._to_consume = [NamesConsumer(node, "module")]
-        self._postponed_evaluation_enabled = is_postponed_evaluation_enabled(node)
+        self._postponed_evaluation_enabled = (
+            self._py314_plus or is_postponed_evaluation_enabled(node)
+        )
 
         for name, stmts in node.locals.items():
             if utils.is_builtin(name):
@@ -2501,8 +2507,8 @@ class VariablesChecker(BaseChecker):
             parent = parent_scope.parent
         return True
 
-    @staticmethod
     def _is_first_level_self_reference(
+        self,
         node: nodes.Name,
         defstmt: nodes.ClassDef,
         found_nodes: list[nodes.NodeNG],
@@ -2514,7 +2520,7 @@ class VariablesChecker(BaseChecker):
             # Check if used as type annotation
             # Break if postponed evaluation is enabled
             if utils.is_node_in_type_annotation_context(node):
-                if not utils.is_postponed_evaluation_enabled(node):
+                if not self._postponed_evaluation_enabled:
                     return (VariableVisitConsumerAction.CONTINUE, None)
                 return (VariableVisitConsumerAction.RETURN, None)
             # Check if used as default value by calling the class

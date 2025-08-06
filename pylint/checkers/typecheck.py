@@ -975,7 +975,14 @@ accessed. Python regular expressions are accepted.",
     def open(self) -> None:
         py_version = self.linter.config.py_version
         self._py310_plus = py_version >= (3, 10)
+        self._py314_plus = py_version >= (3, 14)
+        self._postponed_evaluation_enabled = False
         self._mixin_class_rgx = self.linter.config.mixin_class_rgx
+
+    def visit_module(self, node: nodes.Module) -> None:
+        self._postponed_evaluation_enabled = (
+            self._py314_plus or is_postponed_evaluation_enabled(node)
+        )
 
     @cached_property
     def _compiled_generated_members(self) -> tuple[Pattern[str], ...]:
@@ -1065,7 +1072,7 @@ accessed. Python regular expressions are accepted.",
         ):
             return
 
-        if is_postponed_evaluation_enabled(node) and is_node_in_type_annotation_context(
+        if self._postponed_evaluation_enabled and is_node_in_type_annotation_context(
             node
         ):
             return
@@ -1949,9 +1956,10 @@ accessed. Python regular expressions are accepted.",
         if self._py310_plus:  # 310+ supports the new syntax
             return
 
-        if isinstance(
-            node.parent, TYPE_ANNOTATION_NODES_TYPES
-        ) and not is_postponed_evaluation_enabled(node):
+        if (
+            isinstance(node.parent, TYPE_ANNOTATION_NODES_TYPES)
+            and not self._postponed_evaluation_enabled
+        ):
             # Use in type annotations only allowed if
             # postponed evaluation is enabled.
             self._check_unsupported_alternative_union_syntax(node)
@@ -1973,7 +1981,7 @@ accessed. Python regular expressions are accepted.",
             # Make sure to filter context if postponed evaluation is enabled
             # and parent is allowed node type.
             allowed_nested_syntax = False
-            if is_postponed_evaluation_enabled(node):
+            if self._postponed_evaluation_enabled:
                 parent_node = node.parent
                 while True:
                     if isinstance(parent_node, TYPE_ANNOTATION_NODES_TYPES):
