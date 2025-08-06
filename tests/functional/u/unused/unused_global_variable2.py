@@ -9,3 +9,11 @@ if TYPE_CHECKING:
 
 
 VAR = 'pylint'  # [unused-variable]
+
+
+try:
+    pass
+except TypeError as exc:
+    print(exc)
+except ValueError as exc:
+    print(exc)
