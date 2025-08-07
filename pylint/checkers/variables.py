@@ -1929,7 +1929,17 @@ class VariablesChecker(BaseChecker):
                 # and unevaluated annotations inside a function body
                 if not (
                     self._postponed_evaluation_enabled
-                    and isinstance(stmt, (nodes.AnnAssign, nodes.FunctionDef))
+                    and (
+                        isinstance(stmt, nodes.AnnAssign)
+                        or (
+                            isinstance(stmt, nodes.FunctionDef)
+                            and node
+                            not in {
+                                *(stmt.args.defaults or ()),
+                                *(stmt.args.kw_defaults or ()),
+                            }
+                        )
+                    )
                 ) and not (
                     isinstance(stmt, nodes.AnnAssign)
                     and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
