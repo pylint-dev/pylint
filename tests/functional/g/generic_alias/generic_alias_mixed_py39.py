@@ -15,7 +15,6 @@ var_sequence: collections.abc.Sequence[int]
 var_iterable: collections.abc.Iterable[int]
 var_awaitable: collections.abc.Awaitable[int]
 var_pattern: re.Pattern[int]
-var_bytestring: collections.abc.ByteString
 var_hashable: collections.abc.Hashable
 var_context_manager: contextlib.AbstractContextManager[int]
 

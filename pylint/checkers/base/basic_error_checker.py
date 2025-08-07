@@ -20,7 +20,7 @@ from pylint.interfaces import HIGH
 ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 # List of methods which can be redefined
 REDEFINABLE_METHODS = frozenset(("__module__",))
-TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
+FORWARD_REF_QNAME = {"typing.ForwardRef", "annotationlib.ForwardRef"}
 
 
 def _get_break_loop_node(break_node: nodes.Break) -> nodes.For | nodes.While | None:
@@ -575,7 +575,7 @@ class BasicErrorChecker(_BasicChecker):
                     if (
                         inferred
                         and isinstance(inferred, astroid.Instance)
-                        and inferred.qname() == TYPING_FORWARD_REF_QNAME
+                        and inferred.qname() in FORWARD_REF_QNAME
                     ):
                         return
 
