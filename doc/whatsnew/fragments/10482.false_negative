@@ -1,0 +1,3 @@
+Fix false-negative for ``used-before-assignment`` with ``from __future__ import annotations`` in function definitions.
+
+Refs #10482
