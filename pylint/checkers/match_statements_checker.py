@@ -25,7 +25,7 @@ class MatchStatementChecker(BaseChecker):
             "The name capture `case %s` makes the remaining patterns unreachable. "
             "Use a dotted name (for example an enum) to fix this.",
             "bare-name-capture-pattern",
-            "Emitted when a name capture pattern in a match statement is used "
+            "Emitted when a name capture pattern is used in a match statement "
             "and there are case statements below it.",
         )
     }
