@@ -1,0 +1,6 @@
+Add ``match-statements`` checker and the following message:
+``bare-name-capture-pattern``.
+This will emit an error message when a name capture pattern is used in a match statement which would make the remaining patterns unreachable.
+This code is a SyntaxError at runtime.
+
+Closes #7128
