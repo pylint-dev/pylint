@@ -2021,12 +2021,12 @@ class VariablesChecker(BaseChecker):
 
         Returns True if an error is reported; otherwise, returns False.
         """
-        if self._is_builtin(node.name):
-            return False
         if (
             self._postponed_evaluation_enabled
             and utils.is_node_in_type_annotation_context(node)
         ) or utils.is_node_in_pep695_type_context(node):
+            return False
+        if self._is_builtin(node.name):
             return False
         if self._is_variable_annotation_in_function(node):
             return False
