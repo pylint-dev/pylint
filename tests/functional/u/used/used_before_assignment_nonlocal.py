@@ -26,17 +26,17 @@ def test_fail2():
         cnt = cnt + 1 # [used-before-assignment]
     wrap()
 
-def test_fail3(arg: test_fail4): # [used-before-assignment]
+def test_fail3(arg: test_fail4): # <3.14:[used-before-assignment]
     """ Depends on `test_fail4`, in argument annotation. """
     return arg
-# +1: [used-before-assignment, used-before-assignment]
+# +1:<3.14: [used-before-assignment, used-before-assignment]
 def test_fail4(*args: test_fail5, **kwargs: undefined):
     """ Depends on `test_fail5` and `undefined` in
     variable and named arguments annotations.
     """
     return args, kwargs
 
-def test_fail5()->undefined1: # [used-before-assignment]
+def test_fail5()->undefined1: # <3.14:[used-before-assignment]
     """ Depends on `undefined1` in function return annotation. """
 
 def undefined():

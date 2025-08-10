@@ -4,13 +4,19 @@ import contextlib
 import multiprocessing
 import pathlib
 import subprocess
+import sys
 import tarfile
 import tempfile
 import threading
 import urllib
 import zipfile
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from pathlib import Path
+
+if sys.version_info >= (3, 14):
+    from concurrent.futures.process import ProcessPoolExecutor
+    from concurrent.futures.thread import ThreadPoolExecutor
+else:
+    from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 
 def test_pathlib_open():

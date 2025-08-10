@@ -57,9 +57,6 @@ Basic checker Messages
   Used when break or continue keywords are used outside a loop.
 :function-redefined (E0102): *%s already defined line %s*
   Used when a function / class / method is redefined.
-:continue-in-finally (E0116): *'continue' not supported inside 'finally' clause*
-  Emitted when the `continue` keyword is found inside a finally clause, which
-  is a SyntaxError.
 :abstract-class-instantiated (E0110): *Abstract class %r with abstract methods instantiated*
   Used when an abstract class with `abc.ABCMeta` as metaclass has abstract
   methods and is instantiated.
@@ -108,6 +105,12 @@ Basic checker Messages
   Used when a break or a return statement is found inside the finally clause of
   a try...finally block: the exceptions raised in the try clause will be
   silently swallowed instead of being re-raised.
+:break-in-finally (W0137): *'break' discouraged inside 'finally' clause*
+  Emitted when the `break` keyword is found inside a finally clause. This
+  will raise a SyntaxWarning starting in Python 3.14.
+:continue-in-finally (W0136): *'continue' discouraged inside 'finally' clause*
+  Emitted when the `continue` keyword is found inside a finally clause. This
+  will raise a SyntaxWarning starting in Python 3.14.
 :return-in-finally (W0134): *'return' shadowed by the 'finally' clause.*
   Emitted when a 'return' statement is found in a 'finally' block. This will
   overwrite the return value of a function and should be avoided.

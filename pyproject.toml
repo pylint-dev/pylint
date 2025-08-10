@@ -38,7 +38,7 @@ dependencies = [
   # Also upgrade requirements_test_min.txt.
   # Pinned to dev of second minor update to allow editable installs and fix primer issues,
   # see https://github.com/pylint-dev/astroid/issues/1341
-  "astroid>=4.0.0b0,<=4.1.0.dev0",
+  "astroid>=4.0.0b2,<=4.1.0.dev0",
   "colorama>=0.4.5; sys_platform=='win32'",
   "dill>=0.2; python_version<'3.11'",
   "dill>=0.3.6; python_version>='3.11'",
@@ -188,7 +188,13 @@ tests/functional/m/member/member_checks_async.py,\
 testpaths = [ "tests" ]
 python_files = [ "*test_*.py" ]
 addopts = "--strict-markers"
-filterwarnings = "error"
+filterwarnings = [
+  "error",
+  # Added in Python 3.14
+  "ignore:'break' in a 'finally' block:SyntaxWarning",
+  "ignore:'return' in a 'finally' block:SyntaxWarning",
+  "ignore:'continue' in a 'finally' block:SyntaxWarning",
+]
 markers = [
   "primer_stdlib: Checks for crashes and errors when running pylint on stdlib",
   "benchmark: Baseline of pylint performance, if this regress something serious happened",

@@ -1,6 +1,6 @@
 """Tests for used-before-assignment for typing related issues"""
 # pylint: disable=missing-function-docstring,ungrouped-imports,invalid-name
-
+# pylint: disable=line-too-long
 
 from typing import List, NamedTuple, Optional, TYPE_CHECKING
 
@@ -66,12 +66,12 @@ class MyClass:
     """Type annotation or default values for first level methods can't refer to their own class"""
 
     def incorrect_typing_method(
-        self, other: MyClass  # [undefined-variable]
+        self, other: MyClass  # <3.14:[undefined-variable]
     ) -> bool:
         return self == other
 
     def incorrect_nested_typing_method(
-        self, other: List[MyClass]  # [undefined-variable]
+        self, other: List[MyClass]  # <3.14:[undefined-variable]
     ) -> bool:
         return self == other[0]
 
@@ -137,7 +137,7 @@ class MyFourthClass:  # pylint: disable=too-few-public-methods
     """Class to test conditional imports guarded by TYPE_CHECKING two levels
     up then used in function annotation. See https://github.com/pylint-dev/pylint/issues/7539"""
 
-    def is_close(self, comparator: math.isclose, first, second):  # [used-before-assignment]
+    def is_close(self, comparator: math.isclose, first, second):  # <3.14:[used-before-assignment]
         """Conditional imports guarded are only valid for variable annotations."""
         comparator(first, second)
 
@@ -150,7 +150,7 @@ class VariableAnnotationsGuardedByTypeChecking:  # pylint: disable=too-few-publi
     and https://github.com/pylint-dev/pylint/issues/7882
     """
 
-    still_an_error: datetime.date  # [used-before-assignment]
+    still_an_error: datetime.date  # <3.14:[used-before-assignment]
 
     def print_date(self, date) -> None:
         date: datetime.date = date
@@ -167,9 +167,9 @@ class ConditionalImportGuardedWhenUsed:  # pylint: disable=too-few-public-method
 
 class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-variable
     """Test for defines in TYPE_CHECKING if/elif/else branching"""
-    def defined_in_elif_branch(self) -> calendar.Calendar:  # [possibly-used-before-assignment]
+    def defined_in_elif_branch(self) -> calendar.Calendar:  # <3.14:[possibly-used-before-assignment]
         print(bisect)  # [possibly-used-before-assignment]
-        return calendar.Calendar()
+        return calendar.Calendar()  # >=3.14:[possibly-used-before-assignment]
 
     def defined_in_else_branch(self) -> urlopen:
         print(zoneinfo)  # [used-before-assignment]
@@ -177,23 +177,23 @@ class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-
         print(collections())  # [used-before-assignment]
         return urlopen
 
-    def defined_in_nested_if_else(self) -> heapq:  # [possibly-used-before-assignment]
-        print(heapq)
+    def defined_in_nested_if_else(self) -> heapq:  # <3.14:[possibly-used-before-assignment]
+        print(heapq)  # >=3.14:[possibly-used-before-assignment]
         return heapq
 
-    def defined_in_try_except(self) -> array:  # [used-before-assignment]
+    def defined_in_try_except(self) -> array:  # <3.14:[used-before-assignment]
         print(types)  # [used-before-assignment]
         print(copy)  # [used-before-assignment]
         print(numbers)  # [used-before-assignment]
-        return array
+        return array  # >=3.14:[used-before-assignment]
 
-    def defined_in_loops(self) -> json:  # [used-before-assignment]
+    def defined_in_loops(self) -> json:  # <3.14:[used-before-assignment]
         print(email)  # [used-before-assignment]
         print(mailbox)  # [used-before-assignment]
         print(mimetypes)  # [used-before-assignment]
         return json
 
-    def defined_in_with(self) -> base64:  # [used-before-assignment]
+    def defined_in_with(self) -> base64:  # <3.14:[used-before-assignment]
         print(binascii)  # [used-before-assignment]
         return base64
 

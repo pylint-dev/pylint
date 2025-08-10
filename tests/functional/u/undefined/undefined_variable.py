@@ -252,7 +252,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
 
-def func_should_fail(_dt: datetime):  # [used-before-assignment]
+def func_should_fail(_dt: datetime):  # <3.14:[used-before-assignment]
     pass
 
 
@@ -374,13 +374,13 @@ GLOBAL_VAR_TWO: int
 
 
 class RepeatedReturnAnnotations:
-    def x(self, o: RepeatedReturnAnnotations) -> bool:  # [undefined-variable]
+    def x(self, o: RepeatedReturnAnnotations) -> bool:  # <3.14:[undefined-variable]
         pass
-    def y(self) -> RepeatedReturnAnnotations:  # [undefined-variable]
+    def y(self) -> RepeatedReturnAnnotations:  # <3.14:[undefined-variable]
         pass
-    def z(self) -> RepeatedReturnAnnotations:  # [undefined-variable]
+    def z(self) -> RepeatedReturnAnnotations:  # <3.14:[undefined-variable]
         pass
 
 class A:
-    def say_hello(self) -> __module__:  # [undefined-variable]
+    def say_hello(self) -> __module__:  # <3.14:[undefined-variable]
         ...

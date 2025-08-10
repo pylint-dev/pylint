@@ -1312,6 +1312,10 @@ class VariablesChecker(BaseChecker):
         ] = {}
         self._postponed_evaluation_enabled = False
 
+    def open(self) -> None:
+        py_version = self.linter.config.py_version
+        self._py314_plus = py_version >= (3, 14)
+
     @utils.only_required_for_messages(
         "unbalanced-dict-unpacking",
     )
@@ -1375,7 +1379,9 @@ class VariablesChecker(BaseChecker):
         checks globals doesn't overrides builtins.
         """
         self._to_consume = [NamesConsumer(node, "module")]
-        self._postponed_evaluation_enabled = is_postponed_evaluation_enabled(node)
+        self._postponed_evaluation_enabled = (
+            self._py314_plus or is_postponed_evaluation_enabled(node)
+        )
 
         for name, stmts in node.locals.items():
             if utils.is_builtin(name):
@@ -1923,7 +1929,17 @@ class VariablesChecker(BaseChecker):
                 # and unevaluated annotations inside a function body
                 if not (
                     self._postponed_evaluation_enabled
-                    and isinstance(stmt, (nodes.AnnAssign, nodes.FunctionDef))
+                    and (
+                        isinstance(stmt, nodes.AnnAssign)
+                        or (
+                            isinstance(stmt, nodes.FunctionDef)
+                            and node
+                            not in {
+                                *(stmt.args.defaults or ()),
+                                *(stmt.args.kw_defaults or ()),
+                            }
+                        )
+                    )
                 ) and not (
                     isinstance(stmt, nodes.AnnAssign)
                     and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
@@ -2501,8 +2517,8 @@ class VariablesChecker(BaseChecker):
             parent = parent_scope.parent
         return True
 
-    @staticmethod
     def _is_first_level_self_reference(
+        self,
         node: nodes.Name,
         defstmt: nodes.ClassDef,
         found_nodes: list[nodes.NodeNG],
@@ -2514,7 +2530,7 @@ class VariablesChecker(BaseChecker):
             # Check if used as type annotation
             # Break if postponed evaluation is enabled
             if utils.is_node_in_type_annotation_context(node):
-                if not utils.is_postponed_evaluation_enabled(node):
+                if not self._postponed_evaluation_enabled:
                     return (VariableVisitConsumerAction.CONTINUE, None)
                 return (VariableVisitConsumerAction.RETURN, None)
             # Check if used as default value by calling the class
@@ -2837,9 +2853,7 @@ class VariablesChecker(BaseChecker):
                 return
 
             # Special case for exception variable
-            if isinstance(stmt.parent, nodes.ExceptHandler) and any(
-                n.name == name for n in stmt.parent.nodes_of_class(nodes.Name)
-            ):
+            if self._is_exception_binding_used_in_handler(stmt, name):
                 return
 
             self.add_message(message_name, args=name, node=stmt)
@@ -2914,6 +2928,15 @@ class VariablesChecker(BaseChecker):
             return
 
         self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
+
+    def _is_exception_binding_used_in_handler(
+        self, stmt: nodes.NodeNG, name: str
+    ) -> bool:
+        return (
+            isinstance(stmt.parent, nodes.ExceptHandler)
+            and stmt is stmt.parent.name
+            and any(n.name == name for n in stmt.parent.nodes_of_class(nodes.Name))
+        )
 
     def _check_late_binding_closure(self, node: nodes.Name) -> None:
         """Check whether node is a cell var that is assigned within a containing loop.
@@ -3245,6 +3268,8 @@ class VariablesChecker(BaseChecker):
         for name, node_lst in not_consumed.items():
             for node in node_lst:
                 if in_type_checking_block(node):
+                    continue
+                if self._is_exception_binding_used_in_handler(node, name):
                     continue
                 self.add_message("unused-variable", args=(name,), node=node)
 

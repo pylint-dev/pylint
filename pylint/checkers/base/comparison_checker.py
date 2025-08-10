@@ -60,7 +60,7 @@ class ComparisonChecker(_BasicChecker):
             "Used when something is compared against itself.",
         ),
         "R0133": (
-            "Comparison between constants: '%s %s %s' has a constant value",
+            'Comparison between constants: "%s %s %s" has a constant value',
             "comparison-of-constants",
             "When two literals are compared with each other the result is a constant. "
             "Using the constant directly is both easier to read and more performant. "
@@ -257,7 +257,7 @@ class ComparisonChecker(_BasicChecker):
         self.add_message(
             "comparison-of-constants",
             node=node,
-            args=(left_operand.value, operator, right_operand.value),
+            args=(left_operand.as_string(), operator, right_operand.as_string()),
             confidence=HIGH,
         )
 

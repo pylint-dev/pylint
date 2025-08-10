@@ -1,0 +1,5 @@
+The message-id of ``continue-in-finally`` was changed from ``E0116`` to ``W0136``. The warning is
+now emitted for every Python version since it will raise a syntax warning in Python 3.14.
+See `PEP 765 - Disallow return/break/continue that exit a finally block <https://peps.python.org/pep-0765/>`_.
+
+Refs #10480

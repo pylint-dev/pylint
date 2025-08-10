@@ -20,7 +20,7 @@ from pylint.interfaces import HIGH
 ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 # List of methods which can be redefined
 REDEFINABLE_METHODS = frozenset(("__module__",))
-TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
+FORWARD_REF_QNAME = {"typing.ForwardRef", "annotationlib.ForwardRef"}
 
 
 def _get_break_loop_node(break_node: nodes.Break) -> nodes.For | nodes.While | None:
@@ -182,12 +182,6 @@ class BasicErrorChecker(_BasicChecker):
             "nonlocal-and-global",
             "Emitted when a name is both nonlocal and global.",
         ),
-        "E0116": (
-            "'continue' not supported inside 'finally' clause",
-            "continue-in-finally",
-            "Emitted when the `continue` keyword is found "
-            "inside a finally clause, which is a SyntaxError.",
-        ),
         "E0117": (
             "nonlocal name %s found without binding",
             "nonlocal-without-binding",
@@ -201,11 +195,21 @@ class BasicErrorChecker(_BasicChecker):
             "which results in an error since Python 3.6.",
             {"minversion": (3, 6)},
         ),
+        "W0136": (
+            "'continue' discouraged inside 'finally' clause",
+            "continue-in-finally",
+            "Emitted when the `continue` keyword is found "
+            "inside a finally clause. This will raise a SyntaxWarning "
+            "starting in Python 3.14.",
+        ),
+        "W0137": (
+            "'break' discouraged inside 'finally' clause",
+            "break-in-finally",
+            "Emitted when the `break` keyword is found "
+            "inside a finally clause. This will raise a SyntaxWarning "
+            "starting in Python 3.14.",
+        ),
     }
-
-    def open(self) -> None:
-        py_version = self.linter.config.py_version
-        self._py38_plus = py_version >= (3, 8)
 
     @utils.only_required_for_messages("function-redefined")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
@@ -369,7 +373,7 @@ class BasicErrorChecker(_BasicChecker):
     def visit_continue(self, node: nodes.Continue) -> None:
         self._check_in_loop(node, "continue")
 
-    @utils.only_required_for_messages("not-in-loop")
+    @utils.only_required_for_messages("not-in-loop", "break-in-finally")
     def visit_break(self, node: nodes.Break) -> None:
         self._check_in_loop(node, "break")
 
@@ -497,9 +501,14 @@ class BasicErrorChecker(_BasicChecker):
                 isinstance(parent, nodes.Try)
                 and node in parent.finalbody
                 and isinstance(node, nodes.Continue)
-                and not self._py38_plus
             ):
                 self.add_message("continue-in-finally", node=node)
+            if (
+                isinstance(parent, nodes.Try)
+                and node in parent.finalbody
+                and isinstance(node, nodes.Break)
+            ):
+                self.add_message("break-in-finally", node=node)
 
         self.add_message("not-in-loop", node=node, args=node_name)
 
@@ -566,7 +575,7 @@ class BasicErrorChecker(_BasicChecker):
                     if (
                         inferred
                         and isinstance(inferred, astroid.Instance)
-                        and inferred.qname() == TYPING_FORWARD_REF_QNAME
+                        and inferred.qname() in FORWARD_REF_QNAME
                     ):
                         return
 
