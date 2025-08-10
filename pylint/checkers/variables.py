@@ -1927,22 +1927,28 @@ class VariablesChecker(BaseChecker):
 
                 # Skip postponed evaluation of annotations
                 # and unevaluated annotations inside a function body
-                if not (
-                    self._postponed_evaluation_enabled
-                    and (
-                        isinstance(stmt, nodes.AnnAssign)
-                        or (
-                            isinstance(stmt, nodes.FunctionDef)
-                            and node
-                            not in {
-                                *(stmt.args.defaults or ()),
-                                *(stmt.args.kw_defaults or ()),
-                            }
+                if (
+                    not (
+                        self._postponed_evaluation_enabled
+                        and (
+                            isinstance(stmt, nodes.AnnAssign)
+                            or (
+                                isinstance(stmt, nodes.FunctionDef)
+                                and node
+                                not in {
+                                    *(stmt.args.defaults or ()),
+                                    *(stmt.args.kw_defaults or ()),
+                                }
+                            )
                         )
                     )
-                ) and not (
-                    isinstance(stmt, nodes.AnnAssign)
-                    and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
+                    and not (
+                        isinstance(stmt, nodes.AnnAssign)
+                        and utils.get_node_first_ancestor_of_type(
+                            stmt, nodes.FunctionDef
+                        )
+                    )
+                    and not isinstance(stmt, nodes.TypeAlias)
                 ):
                     self.add_message(
                         "used-before-assignment",
@@ -2015,12 +2021,12 @@ class VariablesChecker(BaseChecker):
 
         Returns True if an error is reported; otherwise, returns False.
         """
+        if self._is_builtin(node.name):
+            return False
         if (
             self._postponed_evaluation_enabled
             and utils.is_node_in_type_annotation_context(node)
-        ):
-            return False
-        if self._is_builtin(node.name):
+        ) or utils.is_node_in_pep695_type_context(node):
             return False
         if self._is_variable_annotation_in_function(node):
             return False
