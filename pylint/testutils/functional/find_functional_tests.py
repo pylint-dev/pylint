@@ -11,9 +11,12 @@ from pathlib import Path
 from pylint.testutils.functional.test_file import FunctionalTestFile
 
 REASONABLY_DISPLAYABLE_VERTICALLY = 49
-"""'Wet finger' number of files that are reasonable to display by an IDE.
+"""'Wet finger' number of python files that are reasonable to have in a functional test
+directory.
 
 'Wet finger' as in 'in my settings there are precisely this many'.
+Initially the total number of file then we started counting only the python files to
+avoid moving a lot of files.
 """
 
 IGNORED_PARENT_DIRS = {
@@ -70,7 +73,9 @@ def _check_functional_tests_structure(
     ) -> list[Path]:
         """Return directories and files from a directory and handles violations."""
         files_without_leading_underscore = list(
-            p for p in path.iterdir() if not p.stem.startswith("_")
+            p
+            for p in path.iterdir()
+            if not p.stem.startswith("_") and p.suffix == ".py"
         )
         if len(files_without_leading_underscore) > max_file_per_directory:
             violations.append((path, len(files_without_leading_underscore)))
