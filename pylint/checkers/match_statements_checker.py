@@ -36,18 +36,16 @@ class MatchStatementChecker(BaseChecker):
         reached.
         """
         for idx, case in enumerate(node.cases):
-            if (
-                isinstance(case.pattern, nodes.MatchAs)
-                and case.pattern.pattern is None
-                and isinstance(case.pattern.name, nodes.AssignName)
-                and idx < len(node.cases) - 1
-            ):
-                self.add_message(
-                    "bare-name-capture-pattern",
-                    node=case,
-                    args=case.pattern.name.name,
-                    confidence=HIGH,
-                )
+            match case.pattern:
+                case nodes.MatchAs(pattern=None, name=nodes.AssignName()) if (
+                    idx < len(node.cases) - 1
+                ):
+                    self.add_message(
+                        "bare-name-capture-pattern",
+                        node=case,
+                        args=case.pattern.name.name,
+                        confidence=HIGH,
+                    )
 
 
 def register(linter: PyLinter) -> None:
