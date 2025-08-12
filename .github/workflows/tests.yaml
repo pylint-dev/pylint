@@ -44,7 +44,7 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         # Custom with PyPy fix: https://github.com/actions/setup-python/pull/1110
@@ -100,7 +100,7 @@ jobs:
     needs: tests
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python 3.13
         id: python
         uses: actions/setup-python@v5.6.0
@@ -140,7 +140,7 @@ jobs:
         python-version: ["3.13"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v5.6.0
@@ -195,7 +195,7 @@ jobs:
         # Workaround to set correct temp directory on Windows
         # https://github.com/actions/virtual-environments/issues/712
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
         uses: actions/setup-python@v5.6.0
