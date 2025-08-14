@@ -17,7 +17,7 @@ class "Composition2" as fields.Composition2 {
 }
 class "P" as fields.P {
 }
-fields.P --> fields.Association : x
+fields.Association --> fields.P : x
 fields.P --* fields.Composition1 : x
 fields.P --* fields.Composition2 : x
 fields.P --o fields.Aggregation1 : x
