@@ -18,7 +18,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Check out code from Github
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v5.6.0
@@ -50,7 +50,7 @@ jobs:
       id-token: write
     steps:
       - name: Download release assets
-        uses: actions/download-artifact@v4.3.0
+        uses: actions/download-artifact@v5.0.0
         with:
           name: release-assets
           path: dist/
@@ -67,7 +67,7 @@ jobs:
       id-token: write
     steps:
       - name: Download release assets
-        uses: actions/download-artifact@v4.3.0
+        uses: actions/download-artifact@v5.0.0
         with:
           name: release-assets
           path: dist/

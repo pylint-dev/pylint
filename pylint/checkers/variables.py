@@ -1927,22 +1927,21 @@ class VariablesChecker(BaseChecker):
 
                 # Skip postponed evaluation of annotations
                 # and unevaluated annotations inside a function body
+                # as well as TypeAlias nodes.
                 if not (
-                    self._postponed_evaluation_enabled
+                    self._postponed_evaluation_enabled  # noqa: RUF021
                     and (
                         isinstance(stmt, nodes.AnnAssign)
-                        or (
-                            isinstance(stmt, nodes.FunctionDef)
-                            and node
-                            not in {
-                                *(stmt.args.defaults or ()),
-                                *(stmt.args.kw_defaults or ()),
-                            }
-                        )
+                        or isinstance(stmt, nodes.FunctionDef)  # noqa: RUF021
+                        and node
+                        not in {
+                            *(stmt.args.defaults or ()),
+                            *(stmt.args.kw_defaults or ()),
+                        }
                     )
-                ) and not (
-                    isinstance(stmt, nodes.AnnAssign)
+                    or isinstance(stmt, nodes.AnnAssign)  # noqa: RUF021
                     and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
+                    or isinstance(stmt, nodes.TypeAlias)
                 ):
                     self.add_message(
                         "used-before-assignment",
@@ -2018,7 +2017,7 @@ class VariablesChecker(BaseChecker):
         if (
             self._postponed_evaluation_enabled
             and utils.is_node_in_type_annotation_context(node)
-        ):
+        ) or utils.is_node_in_pep695_type_context(node):
             return False
         if self._is_builtin(node.name):
             return False
