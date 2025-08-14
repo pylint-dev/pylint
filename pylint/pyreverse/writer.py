@@ -146,8 +146,8 @@ class DiagramWriter:
         for rel in diagram.get_relationships("association"):
             associations[rel.from_object.fig_id].add(rel.to_object.fig_id)
             self.printer.emit_edge(
-                rel.from_object.fig_id,
                 rel.to_object.fig_id,
+                rel.from_object.fig_id,
                 label=rel.name,
                 type_=EdgeType.ASSOCIATION,
             )
