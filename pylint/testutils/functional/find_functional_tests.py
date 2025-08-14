@@ -15,7 +15,7 @@ REASONABLY_DISPLAYABLE_VERTICALLY = 49
 directory.
 
 'Wet finger' as in 'in my settings there are precisely this many'.
-Initially the total number of file then we started counting only the python files to
+Initially the total number of files then we started counting only the python files to
 avoid moving a lot of files.
 """
 
@@ -75,7 +75,7 @@ def _check_functional_tests_structure(
         files_without_leading_underscore = list(
             p
             for p in path.iterdir()
-            if not p.stem.startswith("_") and p.suffix == ".py"
+            if not (p.stem.startswith("_") or (p.is_file() and p.suffix != ".py"))
         )
         if len(files_without_leading_underscore) > max_file_per_directory:
             violations.append((path, len(files_without_leading_underscore)))
@@ -90,7 +90,6 @@ def _check_functional_tests_structure(
         )
         for _file_or_dir in parent_dir_files:
             if _file_or_dir.is_dir():
-                _files = _get_files_from_dir(_file_or_dir, violations)
                 yield _file_or_dir.resolve()
                 try:
                     yield from walk(_file_or_dir)
