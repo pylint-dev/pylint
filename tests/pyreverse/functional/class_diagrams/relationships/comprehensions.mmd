@@ -20,10 +20,10 @@ classDiagram
     components_set : set[Component]
     lazy_components : Generator[Component]
   }
-  Component --> AssociationContainer : components
-  Component --> AssociationContainer : component_dict
-  Component --> AssociationContainer : components_set
-  Component --> AssociationContainer : lazy_components
+  AssociationContainer --> Component : components
+  AssociationContainer --> Component : component_dict
+  AssociationContainer --> Component : components_set
+  AssociationContainer --> Component : lazy_components
   Component --* CompositionContainer : components
   Component --* CompositionContainer : component_dict
   Component --* CompositionContainer : components_set

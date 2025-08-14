@@ -21,10 +21,10 @@ class "CompositionContainer" as comprehensions.CompositionContainer {
   components_set : set[Component]
   lazy_components : Generator[Component]
 }
-comprehensions.Component --> comprehensions.AssociationContainer : components
-comprehensions.Component --> comprehensions.AssociationContainer : component_dict
-comprehensions.Component --> comprehensions.AssociationContainer : components_set
-comprehensions.Component --> comprehensions.AssociationContainer : lazy_components
+comprehensions.AssociationContainer --> comprehensions.Component : components
+comprehensions.AssociationContainer --> comprehensions.Component : component_dict
+comprehensions.AssociationContainer --> comprehensions.Component : components_set
+comprehensions.AssociationContainer --> comprehensions.Component : lazy_components
 comprehensions.Component --* comprehensions.CompositionContainer : components
 comprehensions.Component --* comprehensions.CompositionContainer : component_dict
 comprehensions.Component --* comprehensions.CompositionContainer : components_set
