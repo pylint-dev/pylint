@@ -1,14 +1,23 @@
-"""used-before-assignment re: python 3.12 generic typing syntax (PEP 695)"""
+"""Tests for used-before-assignment with Python 3.12 generic typing syntax (PEP 695)"""
+# pylint: disable = invalid-name,missing-docstring,too-few-public-methods,unused-argument
 
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
+
 type Point[T] = tuple[T, ...]
 type Alias[*Ts] = tuple[*Ts]
-type Alias[**P] = Callable[P]
+type Alias2[**P] = Callable[P, None]
 
-# pylint: disable = invalid-name, missing-class-docstring, too-few-public-methods
-
-# https://github.com/pylint-dev/pylint/issues/9815
-type IntOrX = int | X  # [used-before-assignment] FALSE POSITIVE
+type AliasType = int | X | Y
 
 class X:
     pass
+
+if TYPE_CHECKING:
+    class Y: ...
+
+class Good[T: Y]: ...
+type OtherAlias[T: Y] = T | None
+
+# https://github.com/pylint-dev/pylint/issues/9884
+def func[T: Y](x: T) -> None:  # [redefined-outer-name]  FALSE POSITIVE
+    ...
