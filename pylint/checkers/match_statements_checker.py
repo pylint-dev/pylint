@@ -42,7 +42,7 @@ class MatchStatementChecker(BaseChecker):
                 ):
                     self.add_message(
                         "bare-name-capture-pattern",
-                        node=case,
+                        node=case.pattern,
                         args=case.pattern.name.name,
                         confidence=HIGH,
                     )
