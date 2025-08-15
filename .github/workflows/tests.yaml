@@ -117,7 +117,7 @@ jobs:
           fail-on-cache-miss: true
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.tests-linux.outputs.python-key }}
+            needs.tests.outputs.python-key }}
       - name: Download all coverage artifacts
         uses: actions/download-artifact@v5.0.0
       - name: Combine coverage results
@@ -157,7 +157,7 @@ jobs:
           fail-on-cache-miss: true
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.tests-linux.outputs.python-key }}
+            needs.tests.outputs.python-key }}
       - name: Run pytest
         run: |
           . venv/bin/activate
