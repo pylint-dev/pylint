@@ -128,7 +128,9 @@ repos:
       - id: rstcheck
         args: ["--report-level=warning"]
         files: ^(doc/(.*/)*.*\.rst)
-        additional_dependencies: [Sphinx==7.4.3]
+        # TODO remove pydantic once 2.12.0 is released
+        additional_dependencies:
+          ["Sphinx==7.4.3", "pydantic>=2.12.0a1;python_version>='3.14'"]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.17.1
     hooks:
