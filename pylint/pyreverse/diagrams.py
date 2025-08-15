@@ -226,6 +226,7 @@ class ClassDiagram(Figure, FilterMixIn):
             obj.attrs = self.get_attrs(node)
             obj.methods = self.get_methods(node)
             obj.shape = "class"
+
             # inheritance link
             for par_node in node.ancestors(recurs=False):
                 try:
@@ -234,27 +235,41 @@ class ClassDiagram(Figure, FilterMixIn):
                 except KeyError:
                     continue
 
-            # associations & aggregations links
-            for name, values in list(node.aggregations_type.items()):
-                for value in values:
-                    if not self.show_attr(name):
-                        continue
+            # Track processed attributes to avoid duplicates
+            processed_attrs = set()
 
+            # Process in priority order: Composition > Aggregation > Association
+
+            # 1. Composition links (highest priority)
+            for name, values in list(node.compositions_type.items()):
+                if not self.show_attr(name):
+                    continue
+                for value in values:
+                    self.assign_association_relationship(
+                        value, obj, name, "composition"
+                    )
+                    processed_attrs.add(name)
+
+            # 2. Aggregation links (medium priority)
+            for name, values in list(node.aggregations_type.items()):
+                if not self.show_attr(name) or name in processed_attrs:
+                    continue
+                for value in values:
                     self.assign_association_relationship(
                         value, obj, name, "aggregation"
                     )
+                    processed_attrs.add(name)
 
+            # 3. Association links (lowest priority)
             associations = node.associations_type.copy()
-
             for name, values in node.locals_type.items():
                 if name not in associations:
                     associations[name] = values
 
             for name, values in associations.items():
+                if not self.show_attr(name) or name in processed_attrs:
+                    continue
                 for value in values:
-                    if not self.show_attr(name):
-                        continue
-
                     self.assign_association_relationship(
                         value, obj, name, "association"
                     )
