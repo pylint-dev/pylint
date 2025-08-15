@@ -10,7 +10,7 @@ from pathlib import Path
 
 from pylint.testutils.functional.test_file import FunctionalTestFile
 
-REASONABLY_DISPLAYABLE_VERTICALLY = 49
+REASONABLY_DISPLAYABLE_VERTICALLY = 40
 """'Wet finger' number of python files that are reasonable to have in a functional test
 directory.
 
