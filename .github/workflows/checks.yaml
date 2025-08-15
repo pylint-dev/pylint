@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - "maintenance/**"
+  workflow_dispatch:
 
 env:
   CACHE_VERSION: 3
