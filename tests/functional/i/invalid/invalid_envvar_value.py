@@ -1,4 +1,5 @@
 # pylint: disable=useless-return,missing-docstring
+import os
 from os import getenv
 
 
@@ -82,3 +83,62 @@ getenv(key='TEST', default=function_returning_list())  # [invalid-envvar-default
 getenv(key='TEST', default=function_returning_none())
 getenv(key='TEST', default=function_returning_string())
 getenv(key='TEST', default=function_returning_bytes())  # [invalid-envvar-default]
+
+os.environ.get()   # pylint: disable=no-value-for-parameter
+
+os.environ.get(b"TEST")  # [invalid-envvar-value]
+os.environ.get("TEST")
+os.environ.get(None)   # [invalid-envvar-value]
+os.environ.get(["Crap"])   # [invalid-envvar-value]
+os.environ.get(function_returning_bytes())   # [invalid-envvar-value]
+os.environ.get(deep_function_returning_bytes())   # [invalid-envvar-value]
+os.environ.get(function_returning_list())   # [invalid-envvar-value]
+os.environ.get(function_returning_none())   # [invalid-envvar-value]
+os.environ.get(function_returning_string())
+os.environ.get(deep_function_returning_string())
+
+os.environ.get(b"TEST", "default")   # [invalid-envvar-value]
+os.environ.get("TEST", "default")
+os.environ.get(None, "default")  # [invalid-envvar-value]
+os.environ.get(["Crap"], "default")   # [invalid-envvar-value]
+os.environ.get(function_returning_bytes(), "default")   # [invalid-envvar-value]
+os.environ.get(function_returning_list(), "default")   # [invalid-envvar-value]
+os.environ.get(function_returning_none(), "default")   # [invalid-envvar-value]
+os.environ.get(function_returning_string(), "default")
+
+os.environ.get(key=b"TEST")   # [invalid-envvar-value]
+os.environ.get(key="TEST")
+os.environ.get(key=None)    # [invalid-envvar-value]
+os.environ.get(key=["Crap"])   # [invalid-envvar-value]
+os.environ.get(key=function_returning_bytes())   # [invalid-envvar-value]
+os.environ.get(key=function_returning_list())   # [invalid-envvar-value]
+os.environ.get(key=function_returning_none())   # [invalid-envvar-value]
+os.environ.get(key=function_returning_string())
+
+os.environ.get('TEST', "value")
+os.environ.get('TEST', [])  # [invalid-envvar-default]
+os.environ.get('TEST', None)
+os.environ.get('TEST', b"123")  # [invalid-envvar-default]
+os.environ.get('TEST', function_returning_list()) # [invalid-envvar-default]
+os.environ.get('TEST', function_returning_none())
+os.environ.get('TEST', function_returning_string())
+os.environ.get('TEST', function_returning_bytes())   # [invalid-envvar-default]
+
+os.environ.get('TEST', default="value")
+os.environ.get('TEST', default=[])  # [invalid-envvar-default]
+os.environ.get('TEST', default=None)
+os.environ.get('TEST', default=b"123")  # [invalid-envvar-default]
+os.environ.get('TEST', default=function_returning_list())  # [invalid-envvar-default]
+os.environ.get('TEST', default=function_returning_none())
+os.environ.get('TEST', default=function_returning_string())
+os.environ.get('TEST', default=function_returning_bytes())  # [invalid-envvar-default]
+
+os.environ.get(key='TEST')
+os.environ.get(key='TEST', default="value")
+os.environ.get(key='TEST', default=b"value")  # [invalid-envvar-default]
+os.environ.get(key='TEST', default=["Crap"])  # [invalid-envvar-default]
+os.environ.get(key='TEST', default=function_returning_list())  # [invalid-envvar-default]
+os.environ.get(key='TEST', default=function_returning_none())
+os.environ.get(key='TEST', default=function_returning_string())
+os.environ.get(key='TEST', default=function_returning_bytes())  # [invalid-envvar-default]
+os.environ.get(key='TEST', default=function_returning_bytes())  # [invalid-envvar-default]
