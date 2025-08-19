@@ -1,0 +1,3 @@
+Fixed unidiomatic-typecheck not flagged for type(x) is type(y).
+
+Closes #10365
