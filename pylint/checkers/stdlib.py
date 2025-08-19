@@ -960,9 +960,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             elif not isinstance(call_arg.value, str):
                 emit = True
             if emit:
-                self.add_message(message, node=node, args=(name, call_arg.pytype()))
+                self.add_message(message, node=node, args=("os.environ.get" if self.is_os_environ_get(node) else name, call_arg.pytype()))
         else:
-            self.add_message(message, node=node, args=(name, call_arg.pytype()))
+            self.add_message(message, node=node, args=("os.environ.get" if self.is_os_environ_get(node) else name, call_arg.pytype()))
 
     def is_os_environ_get(self, node: nodes.Call) -> bool:
         try:
