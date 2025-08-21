@@ -1652,7 +1652,7 @@ class TestCallbackOptions:
         with patch("sys.exit") as mock_exit:
             run = Run(["--verbose=True"])
             assert run.verbose
-            assert mock_exit.call_count == 2 
+            assert mock_exit.call_count == 2
 
     @staticmethod
     def test_enable_all_extensions() -> None:
