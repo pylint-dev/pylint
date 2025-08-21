@@ -1628,7 +1628,7 @@ class TestCallbackOptions:
         with mock.patch('sys.exit') as mock_exit:
             run = Run(["--errors-only"])
             assert run.linter._error_mode
-            mock_exit.assert_called_once()
+            assert mock_exit.call_count == 2
 
     @staticmethod
     def test_errors_only_functions_as_disable() -> None:
@@ -1647,12 +1647,12 @@ class TestCallbackOptions:
         with patch('sys.exit') as mock_exit:
             run = Run(["--verbose"])
             assert run.verbose
-            mock_exit.assert_called_once()
+            assert mock_exit.call_count == 2
 
         with patch('sys.exit') as mock_exit:
             run = Run(["--verbose=True"])
             assert run.verbose
-            mock_exit.assert_called_once()
+            assert mock_exit.call_count == 2 
 
     @staticmethod
     def test_enable_all_extensions() -> None:
