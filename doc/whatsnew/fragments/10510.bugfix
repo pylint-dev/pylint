@@ -1,0 +1,7 @@
+Fixed crash in 'unnecessary-list-index-lookup' when starting an enumeration using
+minus the length of an iterable inside a dict comprehension when the len call was only
+made in this dict comprehension, and not elsewhere. Also changed the approach,
+to use inference in all cases but the simple ones, so we don't have to fix crashes
+one by one for arbitrarily complex expressions in enumerate.
+
+Closes #10510
