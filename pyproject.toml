@@ -247,6 +247,11 @@ scripts_are_modules = true
 warn_unused_ignores = true
 show_error_codes = true
 enable_error_code = "ignore-without-code"
+disable_error_code = [
+  # TODO: remove once match false-positives are fixed, probably in v1.18
+  # https://github.com/python/mypy/pull/19708
+  "has-type",
+]
 strict = true
 # TODO: Remove this once pytest has annotations
 disallow_untyped_decorators = false
