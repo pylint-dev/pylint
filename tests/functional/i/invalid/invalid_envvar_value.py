@@ -58,6 +58,8 @@ getenv(key=function_returning_none())   # [invalid-envvar-value]
 getenv(key=function_returning_string())
 
 getenv('TEST', "value")
+int(getenv("TEST", 1))
+float(getenv("TEST", 1.0))
 getenv('TEST', [])  # [invalid-envvar-default]
 getenv('TEST', None)
 getenv('TEST', b"123")  # [invalid-envvar-default]
@@ -67,6 +69,8 @@ getenv('TEST', function_returning_string())
 getenv('TEST', function_returning_bytes())   # [invalid-envvar-default]
 
 getenv('TEST', default="value")
+int(getenv("TEST", default=1))
+float(getenv("TEST", default=1.0))
 getenv('TEST', default=[])  # [invalid-envvar-default]
 getenv('TEST', default=None)
 getenv('TEST', default=b"123")  # [invalid-envvar-default]
@@ -77,6 +81,8 @@ getenv('TEST', default=function_returning_bytes())  # [invalid-envvar-default]
 
 getenv(key='TEST')
 getenv(key='TEST', default="value")
+int(getenv(key="TEST", default=1))
+float(getenv(key="TEST", default=1.0))
 getenv(key='TEST', default=b"value")  # [invalid-envvar-default]
 getenv(key='TEST', default=["Crap"])  # [invalid-envvar-default]
 getenv(key='TEST', default=function_returning_list())  # [invalid-envvar-default]
@@ -116,6 +122,8 @@ os.environ.get(key=function_returning_none())   # [invalid-envvar-value]
 os.environ.get(key=function_returning_string())
 
 os.environ.get('TEST', "value")
+int(os.environ.get("TEST", 1))
+float(os.environ.get("TEST", 1.0))
 os.environ.get('TEST', [])  # [invalid-envvar-default]
 os.environ.get('TEST', None)
 os.environ.get('TEST', b"123")  # [invalid-envvar-default]
@@ -125,6 +133,8 @@ os.environ.get('TEST', function_returning_string())
 os.environ.get('TEST', function_returning_bytes())   # [invalid-envvar-default]
 
 os.environ.get('TEST', default="value")
+int(os.environ.get("TEST", default=1))
+float(os.environ.get("TEST", default=1.0))
 os.environ.get('TEST', default=[])  # [invalid-envvar-default]
 os.environ.get('TEST', default=None)
 os.environ.get('TEST', default=b"123")  # [invalid-envvar-default]
@@ -135,6 +145,8 @@ os.environ.get('TEST', default=function_returning_bytes())  # [invalid-envvar-de
 
 os.environ.get(key='TEST')
 os.environ.get(key='TEST', default="value")
+int(os.environ.get(key="TEST", default=1))
+float(os.environ.get(key="TEST", default=1.0))
 os.environ.get(key='TEST', default=b"value")  # [invalid-envvar-default]
 os.environ.get(key='TEST', default=["Crap"])  # [invalid-envvar-default]
 os.environ.get(key='TEST', default=function_returning_list())  # [invalid-envvar-default]

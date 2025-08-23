@@ -694,7 +694,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     self.add_message("forgotten-debug-statement", node=node)
             elif (
                 isinstance(inferred, astroid.BoundMethod)
-                and self.is_os_environ_get(node)
+                and self._is_os_environ_get(node)
                 and utils.is_builtin_object(inferred)
             ):
                 # when os.environ.get() is inferred it creates a "builtins.dict" and "_collections_abc.Mapping"
@@ -952,6 +952,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if call_arg is None or isinstance(call_arg, util.UninferableBase):
             return
 
+        if (
+            message == "invalid-envvar-default"
+            and isinstance(node.parent, nodes.Call)
+            and isinstance(node.parent.func, nodes.Name)
+            and node.parent.func.name in {"int", "float"}
+        ):
+            return
+
         name = infer.qname()
         if isinstance(call_arg, nodes.Const):
             emit = False
@@ -964,7 +972,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     message,
                     node=node,
                     args=(
-                        "os.environ.get" if self.is_os_environ_get(node) else name,
+                        "os.environ.get" if self._is_os_environ_get(node) else name,
                         call_arg.pytype(),
                     ),
                 )
@@ -973,12 +981,12 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 message,
                 node=node,
                 args=(
-                    "os.environ.get" if self.is_os_environ_get(node) else name,
+                    "os.environ.get" if self._is_os_environ_get(node) else name,
                     call_arg.pytype(),
                 ),
             )
 
-    def is_os_environ_get(self, node: nodes.Call) -> bool:
+    def _is_os_environ_get(self, node: nodes.Call) -> bool:
         try:
             return (
                 isinstance(node.func, nodes.Attribute)
