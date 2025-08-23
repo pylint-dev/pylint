@@ -33,6 +33,7 @@ classDiagram
     deprecated_classes(module: str) Iterable[str]
     deprecated_decorators() Iterable[str]
     deprecated_methods() set[str]
+    is_os_environ_get(node: nodes.Call) bool
     visit_boolop(node: nodes.BoolOp) None
     visit_call(node: nodes.Call) None
     visit_functiondef(node: nodes.FunctionDef) None
