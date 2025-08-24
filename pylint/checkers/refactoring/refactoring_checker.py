@@ -2452,18 +2452,20 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False, confidence
 
     def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
-        if (
-            isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute))
-            or isinstance(node, nodes.UnaryOp)
-            and isinstance(node.operand, (nodes.Attribute, nodes.Name))
-        ):
-            inferred = utils.safe_infer(node)
-            # inferred can be an astroid.base.Instance as in 'enumerate(x, int(y))' or
-            # not correctly inferred (None)
-            start_val = inferred.value if isinstance(inferred, nodes.Const) else None
-            return start_val, INFERENCE
-        if isinstance(node, nodes.UnaryOp):
-            return node.operand.value, HIGH
+        # Most common use cases are a constant integer or minus a constant integer. We
+        # don't need inference for that. If that's not the case, we assume arbitrary
+        # complexity and we use inference.
         if isinstance(node, nodes.Const):
             return node.value, HIGH
-        return None, HIGH
+        if isinstance(node, nodes.UnaryOp) and isinstance(node.operand, nodes.Const):
+            return node.operand.value, HIGH
+        inferred = utils.safe_infer(node)
+        if isinstance(inferred, nodes.Const):
+            return inferred.value, INFERENCE
+        # inferred can be an 'astroid.base.Instance' in 'enumerate(x, int(y))',
+        # for example. We're doing nothing in this case for now, as extracting
+        # the value is costly.
+
+        # At this point the most likely cases is that the node is uninferable
+        # But we don't have to check if it's actually uninferable.
+        return None, INFERENCE
