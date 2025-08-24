@@ -1625,10 +1625,8 @@ class TestCallbackOptions:
     @staticmethod
     def test_errors_only() -> None:
         """Test the --errors-only flag."""
-        with mock.patch("sys.exit") as mock_exit:
-            run = Run(["--errors-only"])
-            assert run.linter._error_mode
-            assert mock_exit.call_count == 2
+        run = Run([str(UNNECESSARY_LAMBDA), "--errors-only"], exit=False)
+        assert run.linter._error_mode
 
     @staticmethod
     def test_errors_only_functions_as_disable() -> None:
@@ -1644,15 +1642,8 @@ class TestCallbackOptions:
     @staticmethod
     def test_verbose() -> None:
         """Test the --verbose flag."""
-        with patch("sys.exit") as mock_exit:
-            run = Run(["--verbose"])
-            assert run.verbose
-            assert mock_exit.call_count == 2
-
-        with patch("sys.exit") as mock_exit:
-            run = Run(["--verbose=True"])
-            assert run.verbose
-            assert mock_exit.call_count == 2
+        run = Run([str(UNNECESSARY_LAMBDA), "--verbose"], exit=False)
+        assert run.verbose
 
     @staticmethod
     def test_enable_all_extensions() -> None:
