@@ -1625,9 +1625,8 @@ class TestCallbackOptions:
     @staticmethod
     def test_errors_only() -> None:
         """Test the --errors-only flag."""
-        with pytest.raises(SystemExit):
-            run = Run(["--errors-only"])
-            assert run.linter._error_mode
+        run = Run([str(UNNECESSARY_LAMBDA), "--errors-only"], exit=False)
+        assert run.linter._error_mode
 
     @staticmethod
     def test_errors_only_functions_as_disable() -> None:
@@ -1643,13 +1642,8 @@ class TestCallbackOptions:
     @staticmethod
     def test_verbose() -> None:
         """Test the --verbose flag."""
-        with pytest.raises(SystemExit):
-            run = Run(["--verbose"])
-            assert run.verbose
-
-        with pytest.raises(SystemExit):
-            run = Run(["--verbose=True"])
-            assert run.verbose
+        run = Run([str(UNNECESSARY_LAMBDA), "--verbose"], exit=False)
+        assert run.verbose
 
     @staticmethod
     def test_enable_all_extensions() -> None:
