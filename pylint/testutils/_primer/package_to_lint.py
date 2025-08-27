@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
@@ -18,7 +19,7 @@ PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
 class DirtyPrimerDirectoryException(Exception):
     """We can't pull if there's local changes."""
 
-    def __init__(self, path: Path | str):
+    def __init__(self, path: Path | str) -> None:
         super().__init__(
             rf"""
 
@@ -31,6 +32,7 @@ git diff
         )
 
 
+@dataclass(frozen=True)
 class PackageToLint:
     """Represents data about a package to be tested during primer tests."""
 
@@ -43,35 +45,17 @@ class PackageToLint:
     directories: list[str]
     """Directories within the repository to run pylint over."""
 
-    commit: str | None
+    commit: str | None = None
     """Commit hash to pin the repository on."""
 
-    pylint_additional_args: list[str]
+    pylint_additional_args: list[str] = field(default_factory=list)
     """Arguments to give to pylint."""
 
-    pylintrc_relpath: str | None
+    pylintrc_relpath: str | None = None
     """Path relative to project's main directory to the pylintrc if it exists."""
 
-    minimum_python: str | None
+    minimum_python: str | None = None
     """Minimum python version supported by the package."""
-
-    def __init__(
-        self,
-        url: str,
-        branch: str,
-        directories: list[str],
-        commit: str | None = None,
-        pylint_additional_args: list[str] | None = None,
-        pylintrc_relpath: str | None = None,
-        minimum_python: str | None = None,
-    ) -> None:
-        self.url = url
-        self.branch = branch
-        self.directories = directories
-        self.commit = commit
-        self.pylint_additional_args = pylint_additional_args or []
-        self.pylintrc_relpath = pylintrc_relpath
-        self.minimum_python = minimum_python
 
     @property
     def pylintrc(self) -> Path | Literal[""]:
@@ -81,10 +65,14 @@ class PackageToLint:
         return self.clone_directory / self.pylintrc_relpath
 
     @property
+    def clone_name(self) -> str:
+        """Extract repository name from URL."""
+        return "/".join(self.url.split("/")[-2:]).replace(".git", "")
+
+    @property
     def clone_directory(self) -> Path:
         """Directory to clone repository into."""
-        clone_name = "/".join(self.url.split("/")[-2:]).replace(".git", "")
-        return PRIMER_DIRECTORY_PATH / clone_name
+        return PRIMER_DIRECTORY_PATH / self.clone_name
 
     @property
     def paths_to_lint(self) -> list[str]:
