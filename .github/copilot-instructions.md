@@ -2,111 +2,190 @@
 
 Always follow these instructions first and fallback to additional search and context gathering only if the information in these instructions is incomplete or found to be in error.
 
-## Working Effectively
+## Development Environment Setup
 
-- Bootstrap and set up the development environment:
-  - `python --version` -- verify Python 3.10+ is available
-  - `pip install -e .` -- install pylint in development mode (takes ~30-60 seconds)
-  - `pip install coverage pytest pytest-cov pytest-xdist tox` -- install core test dependencies
+### Basic Installation
+Clone and set up pylint development environment:
+- `git clone https://github.com/pylint-dev/pylint` -- clone repository
+- `cd pylint` -- enter directory
+- `python3 --version` -- verify Python 3.8+ is available (development requires 3.8+)
+- `python3 -m venv venv` -- create virtual environment
+- `source venv/bin/activate` -- activate virtual environment (Linux/Mac)
+- `pip install -r requirements_test_min.txt` -- install test dependencies (~30 seconds)
+- `pip install -e .` -- install pylint in editable mode (~30-60 seconds)
 
-- Run basic validation:
-  - `pylint --help` -- verify pylint is working correctly
-  - `pylint --disable=all --enable=E,F pylint/` -- run pylint on itself for errors only (takes ~20 seconds, some import errors expected)
+### Optional Setup Steps
+- `pre-commit install` -- enable pre-commit hooks for autoformatting
+- `pip install pre-commit` -- install pre-commit separately if needed
 
-- Run tests:
-  - `pytest tests/test_check_parallel.py -v` -- run a quick test file (~2 seconds)
-  - `pytest tests/test_self.py -v` -- run core functionality tests (~15 seconds)
-  - `pytest tests/test_functional.py::test_functional --maxfail=5 -q` -- run functional tests (takes ~60 seconds, NEVER CANCEL, set timeout to 120+ seconds)
-  - **NEVER CANCEL:** Full test suite takes 60+ seconds. Always wait for completion.
+### Astroid Development (if needed)
+If working on astroid changes:
+- `git clone https://github.com/pylint-dev/astroid.git` -- clone astroid
+- `pip install -e astroid/` -- install astroid in editable mode
+- `cd astroid/ && git switch my-astroid-dev-branch` -- switch to development branch
 
-- Install additional development dependencies:
-  - `pip install pre-commit` -- for code formatting and linting
-  - `cd doc && pip install -r requirements.txt` -- for documentation (requires network access)
+## Running Tests
 
-- Build documentation:
-  - `cd doc && make install-dependencies` -- install doc dependencies (~10 seconds)
-  - `cd doc && make html` -- build documentation (~3 minutes, NEVER CANCEL, may fail without network access)
-  - **NEVER CANCEL:** Documentation build takes up to 3 minutes. Set timeout to 300+ seconds.
+### Core Test Commands
+- `pytest tests/test_functional.py -k test_functional` -- run functional tests (~60 seconds, NEVER CANCEL, set timeout to 120+ seconds)
+- `pytest tests/` -- run all tests (several minutes, NEVER CANCEL, set timeout to 300+ seconds)
+- `python3 -m pytest` -- run tests with local python
+- `pytest tests/test_check_parallel.py -v` -- quick test file (~2 seconds)
 
-## Validation
+### Specific Test Types
+- **Functional tests:** `pytest "tests/test_functional.py::test_functional[missing_kwoa_py3]"` -- single functional test (~1 second)
+- **Unit tests:** Located in `/tests/` directory, test specific pylint functionality
+- **Configuration tests:** In `/tests/config/functional/` for testing configuration loading
+- **Primer tests:** `pytest -m primer_stdlib --primer-stdlib` -- test on stdlib for crashes
 
-- Always run pylint on your changes before committing:
-  - `pylint --rcfile=pylintrc --fail-on=I path/to/your/changes.py` -- standard pylint run
-  - `pylint --disable=all --enable=E,F,W path/to/your/changes.py` -- focus on errors and warnings
+### Test with Coverage
+- `pytest tests/message/ --cov=pylint.message` -- run with coverage
+- `coverage html` -- generate HTML coverage report
 
-- Run formatting and pre-commit checks:
-  - `pre-commit run --all-files` -- run all formatting checks (requires network for initial setup)
-  - **Network dependency:** pre-commit may fail in isolated environments due to hook downloads
+### Tox Usage (Optional)
+- `python -m tox` -- run all tox environments
+- `python -m tox -epy313` -- run Python 3.13 suite only
+- `python -m tox -epylint` -- run pylint on pylint's codebase
+- `python -m tox -eformatting` -- run formatting checks
+- `python -m tox --recreate` -- recreate environments (recommended)
+- `python -m tox -e py310 -- -k test_functional` -- run specific tests in tox
 
-- **VALIDATION SCENARIOS:** Always test your changes by:
-  - Running pylint on a sample Python file: `echo "def badFunction(): pass" > /tmp/test_sample.py && pylint --enable=C0103 /tmp/test_sample.py` (should find naming issues)
-  - Verifying pylint CLI still works: `pylint --help` and `pylint --list-msgs | head -10`
-  - Testing message ID functionality: `pylint --help-msg=C0103` (should show invalid-name help)
-  - Checking specific module: `pylint --rcfile=pylintrc --fail-on=I pylint/__init__.py` (should get 10.00/10 rating)
+## Documentation
 
-## Common Tasks
+### Building Documentation
+- `make -C doc/ install-dependencies` -- install doc dependencies (~10 seconds)
+- `make -C doc/ html` -- build documentation (~3 minutes, NEVER CANCEL, set timeout to 300+ seconds)
+- `make -C doc/ clean` -- clean build files when starting from scratch
+- `tox -e docs` -- alternative way to build docs
 
-### Running specific test categories:
-- Functional tests: `pytest tests/test_functional.py -k "test_name" -v`
-- Individual functional test: `pytest "tests/test_functional.py::test_functional[abstract_class_instantiated]" -v` (~1 second)
-- Unit tests: `pytest tests/test_self.py -v`
-- Quick smoke test: `pytest tests/test_func.py tests/test_check_parallel.py -v` (~2 seconds, 53 tests)
+**Network dependency:** Documentation build requires internet access to fetch external inventories.
 
-### Understanding the codebase structure:
+## Validation and Quality Checks
+
+### Running Pylint on Code
+- `pylint --help` -- verify pylint installation works
+- `pylint --disable=all --enable=E,F pylint/` -- run pylint on itself for errors only (~20 seconds)
+- `pylint --rcfile=pylintrc --fail-on=I path/to/your/changes.py` -- standard pylint run
+- `pylint --disable=all --enable=E,F,W path/to/your/changes.py` -- focus on errors and warnings
+
+### Pre-commit and Formatting
+- `pre-commit run --all-files` -- run all formatting checks (requires network for initial setup)
+- **Network dependency:** pre-commit may fail in isolated environments due to hook downloads
+
+### Validation Test Scenarios
+Always test your changes with these validation scenarios:
+- `echo "def badFunction(): pass" > /tmp/test_sample.py && pylint --enable=C0103 /tmp/test_sample.py` -- should find naming issues
+- `pylint --help` and `pylint --list-msgs | head -10` -- verify CLI functionality
+- `pylint --help-msg=C0103` -- should show invalid-name help
+- `pylint --rcfile=pylintrc --fail-on=I pylint/__init__.py` -- should get 10.00/10 rating
+
+## Writing Tests
+
+### Functional Tests
+Located in `/tests/functional/`, consists of `.py` test files with corresponding `.txt` expected output files:
+- Annotate lines where messages are expected: `a, b, c = 1 # [unbalanced-tuple-unpacking]`
+- Multiple messages on same line: `a, b, c = 1.test # [unbalanced-tuple-unpacking, no-member]`
+- Use offset syntax for special cases: `# +1: [singleton-comparison]`
+- **Run and update:** `python tests/test_functional.py --update-functional-output -k "test_functional[test_name]"`
+
+### Test File Organization
+- **New checkers:** Create `new_checker_message.py` in `/tests/functional/n/`
+- **Extensions:** Place in `/tests/functional/ext/extension_name/`
+- **Regression tests:** Place in `/tests/r/regression/` with `regression_` prefix
+- **Configuration tests:** Place in `/tests/config/functional/`
+
+### Configuration Test Files
+Create `.result.json` files with configuration differences from standard config:
+```json
+{
+    "functional_append": {
+        "disable": [["a-message-to-be-added"]]
+    },
+    "jobs": 10
+}
+```
+
+## Codebase Structure
+
 ```
 pylint/                    # Main package
-├── checkers/             # All pylint checkers (rules)
-├── config/               # Configuration handling
-├── message/              # Message system
-├── reporters/            # Output formatters
-├── testutils/            # Testing utilities
-└── extensions/           # Optional extensions
+├── checkers/             # All pylint checkers (rules implementation)
+├── config/               # Configuration handling and parsing
+├── message/              # Message system and formatting
+├── reporters/            # Output formatters (text, json, etc.)
+├── testutils/            # Testing utilities and helpers
+└── extensions/           # Optional extensions and plugins
 
 tests/                     # Test suite
-├── functional/           # Functional test files (.py files with expected output)
+├── functional/           # Functional test files (.py + .txt expected output)
+├── config/functional/    # Configuration functional tests
+├── r/regression/         # Regression tests
 ├── test_*.py            # Unit tests
-└── data/                # Test data files
+└── regrtest_data/       # Test data files
 
 doc/                      # Documentation
 ├── user_guide/          # User documentation
-├── development_guide/   # Developer documentation
+├── development_guide/   # Developer and contributor documentation
+│   ├── contributor_guide/    # Setup, testing, contribution guidelines
+│   ├── technical_reference/  # Technical implementation details
+│   └── how_tos/             # Guides for custom checkers, plugins
 └── additional_tools/    # Tools documentation
+
+script/                   # Development utility scripts
 ```
 
-### Key files to know:
+### Key Files
 - `pyproject.toml` -- Main configuration (dependencies, build, tools)
 - `tox.ini` -- Multi-environment testing configuration
-- `.pre-commit-config.yaml` -- Code quality checks configuration
+- `.pre-commit-config.yaml` -- Code quality checks configuration  
 - `pylintrc` -- Pylint's own configuration
-- `script/` -- Utility scripts for development
+- `requirements_test_min.txt` -- Minimal test dependencies
 
-### Creating new checkers:
-- Use `python script/get_unused_message_id_category.py` to get unused message IDs (outputs next available ID)
-- Look at existing checkers in `pylint/checkers/` for patterns
-- Add functional tests in `tests/functional/`
+## Creating New Checkers
 
-### Working with functional tests:
-- Tests are in `tests/functional/` with `.py` files and corresponding `.txt` files for expected output
-- Run individual functional test: `pytest tests/test_functional.py::test_functional[test_name] -v`
+### Getting Started
+- `python script/get_unused_message_id_category.py` -- get next available message ID
+- Study existing checkers in `pylint/checkers/` for patterns
+- Read technical reference documentation in `doc/development_guide/technical_reference/`
+- Use `astroid.extract_node` for AST manipulation
+
+### Workflow
+1. Create checker class in appropriate `pylint/checkers/` file
+2. Add functional tests in `tests/functional/`
+3. Search existing code for warning message to find where logic exists
+4. Test with sample code to ensure functionality works
+
+## Pull Request Guidelines
+
+### Before Submitting
+- Use Python 3.8+ for development (required for latest AST parser and pre-commit hooks)
+- Write comprehensive commit messages relating to tracker issues
+- Keep changes small and separate consensual from opinionated changes
+- Add news fragment: `towncrier create <IssueNumber>.<type>`
+
+### Documentation Changes
+- Document non-trivial changes
+- Generate docs with `tox -e docs`
+- Maintainers may label issues `skip-news` if no changelog needed
+
+### Contribution Credits
+- Add emails/names to `script/.contributors_aliases.json` if using multiple identities
 
 ## Critical Timing Information
 
 - **NEVER CANCEL:** All operations that show "NEVER CANCEL" may take significant time
-- Functional test suite: 60 seconds (set timeout to 120+ seconds)
-- Documentation build: 180 seconds (set timeout to 300+ seconds)
-- Full pylint self-check: 20 seconds (set timeout to 60+ seconds)
-- Individual test files: 1-15 seconds
+- **Full test suite:** 60+ seconds (set timeout to 120+ seconds)
+- **Documentation build:** 180 seconds (set timeout to 300+ seconds)
+- **Functional tests:** 60 seconds (set timeout to 120+ seconds)
+- **Pylint self-check:** 20 seconds (set timeout to 60+ seconds)
+- **Individual test files:** 1-15 seconds
+- **Installation steps:** 30-60 seconds each
 
-## Known Issues and Workarounds
+## Environment Limitations and Workarounds
 
 - **Network connectivity required:** Documentation build and pre-commit setup require internet access
-- **Tox may fail:** In isolated environments, use direct pytest and pip commands instead of tox
+- **Tox failures:** In isolated environments, use direct pytest and pip commands instead of tox
 - **Import errors in self-check:** Some import errors when running pylint on itself are expected (git dependencies not installed)
+- **Build environments:** Use direct pip/pytest commands when tox environments fail to build
 
-## Environment Limitations
-
-- Some network-dependent operations may fail in isolated environments
-- Use direct pip and pytest commands when tox environments fail to build
-- Documentation build requires network access to fetch external inventories
-
-Always build and exercise your changes by running pylint on sample code to ensure functionality works correctly.
+Always validate your changes by running pylint on sample code to ensure functionality works correctly.
