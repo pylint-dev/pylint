@@ -82,9 +82,9 @@ class MultiReporter(BaseReporter):
         self._reporters = reporters
         self.path_strip_prefix = os.getcwd() + os.sep
 
-    def on_set_current_module(self, *args: str, **kwargs: Any) -> None:
+    def on_set_current_module(self, module: str, filepath: str | None) -> None:
         for rep in self._reporters:
-            rep.on_set_current_module(*args, **kwargs)
+            rep.on_set_current_module(module, filepath)
 
     def handle_message(self, msg: Message) -> None:
         for rep in self._reporters:

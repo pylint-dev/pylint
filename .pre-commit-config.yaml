@@ -131,16 +131,12 @@ repos:
         # TODO remove pydantic once 2.12.0 is released
         additional_dependencies:
           ["Sphinx==7.4.3", "pydantic>=2.12.0a1;python_version>='3.14'"]
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.17.1
+  - repo: https://github.com/cdce8p/mypy-dev-pre-commit
+    rev: v1.18.0a6
     hooks:
       - id: mypy
         name: mypy
-        entry: mypy
-        language: python
-        types: [python]
         args: []
-        require_serial: true
         additional_dependencies:
           ["isort>=5", "platformdirs==2.2.0", "py==1.11", "tomlkit>=0.10.1"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
