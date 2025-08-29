@@ -24,7 +24,6 @@ Clone and set up pylint development environment:
 
 - `git clone https://github.com/pylint-dev/pylint` -- clone repository
 - `cd pylint` -- enter directory
-- `python3 --version` -- verify Python 3.8+ is available (development requires 3.8+)
 - `python3 -m venv venv` -- create virtual environment
 - `source venv/bin/activate` -- activate virtual environment (Linux/Mac)
 - `pip install -r requirements_test_min.txt` -- install test dependencies (~30 seconds)
@@ -217,6 +216,7 @@ script/                   # Development utility scripts
 - Write comprehensive commit messages relating to tracker issues
 - Keep changes small and separate consensual from opinionated changes
 - Add news fragment: `towncrier create <IssueNumber>.<type>`
+- Always launch `pre-commit run -a` before committing
 
 ### Documentation Changes
 
