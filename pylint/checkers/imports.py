@@ -1033,6 +1033,24 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
             dotted_modname = get_import_name(importnode, modname)
             self.add_message("import-error", args=repr(dotted_modname), node=importnode)
+        except AttributeError as e:
+            # Handle mypyc compiled modules that may not have __dict__
+            if "__dict__" in str(e):
+                if not self.linter.is_message_enabled("import-error"):
+                    return None
+                if _ignore_import_failure(importnode, modname, self._ignored_modules):
+                    return None
+                if (
+                    not self.linter.config.analyse_fallback_blocks
+                    and is_from_fallback_block(importnode)
+                ):
+                    return None
+
+                dotted_modname = get_import_name(importnode, modname)
+                self.add_message("import-error", args=repr(dotted_modname), node=importnode)
+            else:
+                # Re-raise other AttributeErrors
+                raise astroid.AstroidError from e
         except Exception as e:  # pragma: no cover
             raise astroid.AstroidError from e
         return None
