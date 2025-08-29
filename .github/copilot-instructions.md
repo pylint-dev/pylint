@@ -8,9 +8,12 @@ error.
 
 Before attempting to fix any issue, check the GitHub issue labels using the GitHub API:
 
-- If an issue is labeled with "Astroid", "Needs astroid update", "Needs astroid constraint", or "Needs astroid Brain 🧠", **ONLY** create regression tests
-- Do **NOT** attempt to fix astroid-related issues as you cannot modify astroid from this repository
-- For astroid-related issues, focus on creating comprehensive regression tests that reproduce the problem
+- If an issue is labeled with "Astroid", "Needs astroid update", "Needs astroid
+  constraint", or "Needs astroid Brain 🧠", **ONLY** create regression tests
+- Do **NOT** attempt to fix astroid-related issues as you cannot modify astroid from
+  this repository
+- For astroid-related issues, focus on creating comprehensive regression tests that
+  reproduce the problem
 - All other issues can be fixed normally following the standard development workflow
 
 ## Development Environment Setup
