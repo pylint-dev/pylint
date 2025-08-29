@@ -103,10 +103,11 @@ def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> 
     """
     more = ""
     if isinstance(inferred, DICT_TYPES):
-        if isinstance(node, nodes.Assign):
-            more = node.value.as_string()
-        elif isinstance(node, nodes.For):
-            more = node.iter.as_string()
+        match node:
+            case nodes.Assign():
+                more = node.value.as_string()
+            case nodes.For():
+                more = node.iter.as_string()
         return more
 
     inferred_module = inferred.root().name
@@ -671,17 +672,21 @@ scope_type : {self.scope_type}
                 for handler in handlers
             )
 
-        if isinstance(node, (nodes.With, nodes.For, nodes.While)):
-            return NamesConsumer._defines_name_raises_or_returns_recursive(name, node)
+        match node:
+            case nodes.With() | nodes.For() | nodes.While():
+                return NamesConsumer._defines_name_raises_or_returns_recursive(
+                    name, node
+                )
 
-        if isinstance(node, nodes.Match):
-            return all(
-                NamesConsumer._defines_name_raises_or_returns_recursive(name, case)
-                for case in node.cases
-            )
-
-        if not isinstance(node, nodes.If):
-            return False
+            case nodes.Match():
+                return all(
+                    NamesConsumer._defines_name_raises_or_returns_recursive(name, case)
+                    for case in node.cases
+                )
+            case nodes.If():
+                pass
+            case _:
+                return False
 
         # Be permissive if there is a break or a continue
         if any(node.nodes_of_class(nodes.Break, nodes.Continue)):
@@ -750,14 +755,15 @@ scope_type : {self.scope_type}
         """
         uncertain_nodes = []
         for other_node in found_nodes:
-            if isinstance(other_node, nodes.AssignName):
-                name = other_node.name
-            elif isinstance(other_node, (nodes.Import, nodes.ImportFrom)):
-                name = node.name
-            elif isinstance(other_node, (nodes.FunctionDef, nodes.ClassDef)):
-                name = other_node.name
-            else:
-                continue
+            match other_node:
+                case nodes.AssignName():
+                    name = other_node.name
+                case nodes.Import() | nodes.ImportFrom():
+                    name = node.name
+                case nodes.FunctionDef() | nodes.ClassDef():
+                    name = other_node.name
+                case _:
+                    continue
 
             all_if = [
                 n
@@ -970,23 +976,27 @@ scope_type : {self.scope_type}
         for stmt in node.get_children():
             if NamesConsumer._defines_name_raises_or_returns(name, stmt):
                 return True
-            if isinstance(stmt, (nodes.If, nodes.With)):
-                if any(
-                    NamesConsumer._defines_name_raises_or_returns(name, nested_stmt)
-                    for nested_stmt in stmt.get_children()
+            match stmt:
+                case nodes.If() | nodes.With():
+                    if any(
+                        NamesConsumer._defines_name_raises_or_returns(name, nested_stmt)
+                        for nested_stmt in stmt.get_children()
+                    ):
+                        return True
+                case nodes.Try() if (
+                    not stmt.finalbody
+                    and NamesConsumer._defines_name_raises_or_returns_recursive(
+                        name, stmt
+                    )
                 ):
                     return True
-            if (
-                isinstance(stmt, nodes.Try)
-                and not stmt.finalbody
-                and NamesConsumer._defines_name_raises_or_returns_recursive(name, stmt)
-            ):
-                return True
-            if isinstance(stmt, nodes.Match):
-                return all(
-                    NamesConsumer._defines_name_raises_or_returns_recursive(name, case)
-                    for case in stmt.cases
-                )
+                case nodes.Match():
+                    return all(
+                        NamesConsumer._defines_name_raises_or_returns_recursive(
+                            name, case
+                        )
+                        for case in stmt.cases
+                    )
         return False
 
     @staticmethod
@@ -1347,29 +1357,30 @@ class VariablesChecker(BaseChecker):
             if any(isinstance(target, nodes.Starred) for target in targets):
                 return
 
-        if isinstance(inferred, nodes.Dict):
-            if isinstance(node.iter, nodes.Name):
-                # If this a case of 'dict-items-missing-iter', we don't want to
-                # report it as an 'unbalanced-dict-unpacking' as well
-                # TODO (performance), merging both checks would streamline this
-                if len(targets) == 2:
-                    return
+        match inferred:
+            case nodes.Dict():
+                if isinstance(node.iter, nodes.Name):
+                    # If this a case of 'dict-items-missing-iter', we don't want to
+                    # report it as an 'unbalanced-dict-unpacking' as well
+                    # TODO (performance), merging both checks would streamline this
+                    if len(targets) == 2:
+                        return
 
-        else:
-            is_starred_targets = any(
-                isinstance(target, nodes.Starred) for target in targets
-            )
-            for value in values:
-                value_length = self._get_value_length(value)
-                is_valid_star_unpack = is_starred_targets and value_length >= len(
-                    targets
+            case _:
+                is_starred_targets = any(
+                    isinstance(target, nodes.Starred) for target in targets
                 )
-                if len(targets) != value_length and not is_valid_star_unpack:
-                    details = _get_unpacking_extra_info(node, inferred)
-                    self._report_unbalanced_unpacking(
-                        node, inferred, targets, value_length, details
+                for value in values:
+                    value_length = self._get_value_length(value)
+                    is_valid_star_unpack = is_starred_targets and value_length >= len(
+                        targets
                     )
-                    break
+                    if len(targets) != value_length and not is_valid_star_unpack:
+                        details = _get_unpacking_extra_info(node, inferred)
+                        self._report_unbalanced_unpacking(
+                            node, inferred, targets, value_length, details
+                        )
+                        break
 
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
@@ -2226,18 +2237,19 @@ class VariablesChecker(BaseChecker):
         while parent is not None:
             if parent is frame:
                 return False
-            if isinstance(parent, nodes.Lambda) and child is not parent.args:
-                # Body of lambda should not have access to class attributes.
-                return True
-            if isinstance(parent, nodes.Comprehension) and child is not parent.iter:
-                # Only iter of list/set/dict/generator comprehension should have access.
-                return True
-            if isinstance(parent, nodes.ComprehensionScope) and not (
-                parent.generators and child is parent.generators[0]
-            ):
-                # Body of list/set/dict/generator comprehension should not have access to class attributes.
-                # Furthermore, only the first generator (if multiple) in comprehension should have access.
-                return True
+            match parent:
+                case nodes.Lambda() if child is not parent.args:
+                    # Body of lambda should not have access to class attributes.
+                    return True
+                case nodes.Comprehension() if child is not parent.iter:
+                    # Only iter of list/set/dict/generator comprehension should have access.
+                    return True
+                case nodes.ComprehensionScope() if not (
+                    parent.generators and child is parent.generators[0]
+                ):
+                    # Body of list/set/dict/generator comprehension should not have access to class attributes.
+                    # Furthermore, only the first generator (if multiple) in comprehension should have access.
+                    return True
             child = parent
             parent = parent.parent
         return False
@@ -2415,18 +2427,20 @@ class VariablesChecker(BaseChecker):
                 for elt in defstmt.value.elts
                 if isinstance(elt, (*NODES_WITH_VALUE_ATTR, nodes.IfExp, nodes.Match))
             )
-        value = defstmt.value
-        if isinstance(value, nodes.IfExp):
-            return True
-        if isinstance(value, nodes.Lambda) and isinstance(value.body, nodes.IfExp):
-            return True
-        if isinstance(value, nodes.Dict) and any(
-            isinstance(item[0], nodes.IfExp) or isinstance(item[1], nodes.IfExp)
-            for item in value.items
-        ):
-            return True
-        if not isinstance(value, nodes.Call):
-            return False
+        match value := defstmt.value:
+            case nodes.IfExp():
+                return True
+            case nodes.Lambda(body=nodes.IfExp()):
+                return True
+            case nodes.Dict() if any(
+                isinstance(item[0], nodes.IfExp) or isinstance(item[1], nodes.IfExp)
+                for item in value.items
+            ):
+                return True
+            case nodes.Call():
+                pass
+            case _:
+                return False
         return any(
             any(isinstance(kwarg.value, nodes.IfExp) for kwarg in call.keywords)
             or any(isinstance(arg, nodes.IfExp) for arg in call.args)
@@ -2547,13 +2561,13 @@ class VariablesChecker(BaseChecker):
         """Check if a NamedExpr is inside a side of if ... else that never
         gets evaluated.
         """
-        inferred_test = utils.safe_infer(defnode_parent.test)
-        if isinstance(inferred_test, nodes.Const):
-            if inferred_test.value is True and defnode == defnode_parent.orelse:
+        match utils.safe_infer(defnode_parent.test):
+            case nodes.Const(value=True) if defnode == defnode_parent.orelse:
                 return True
-            if inferred_test.value is False and defnode == defnode_parent.body:
+            case nodes.Const(value=False) if defnode == defnode_parent.body:
                 return True
-        return False
+            case _:
+                return False
 
     @staticmethod
     def _is_variable_annotation_in_function(node: nodes.Name) -> bool:
@@ -2828,20 +2842,21 @@ class VariablesChecker(BaseChecker):
             if _has_locals_call_after_node(stmt, node.scope()):
                 message_name = "possibly-unused-variable"
             else:
-                if isinstance(stmt, nodes.Import):
-                    if asname is not None:
-                        msg = f"{qname} imported as {asname}"
-                    else:
-                        msg = f"import {name}"
-                    self.add_message("unused-import", args=msg, node=stmt)
-                    return
-                if isinstance(stmt, nodes.ImportFrom):
-                    if asname is not None:
-                        msg = f"{qname} imported from {stmt.modname} as {asname}"
-                    else:
-                        msg = f"{name} imported from {stmt.modname}"
-                    self.add_message("unused-import", args=msg, node=stmt)
-                    return
+                match stmt:
+                    case nodes.Import():
+                        if asname is not None:
+                            msg = f"{qname} imported as {asname}"
+                        else:
+                            msg = f"import {name}"
+                        self.add_message("unused-import", args=msg, node=stmt)
+                        return
+                    case nodes.ImportFrom():
+                        if asname is not None:
+                            msg = f"{qname} imported from {stmt.modname} as {asname}"
+                        else:
+                            msg = f"{name} imported from {stmt.modname}"
+                        self.add_message("unused-import", args=msg, node=stmt)
+                        return
                 message_name = "unused-variable"
 
             if isinstance(stmt, nodes.FunctionDef) and stmt.decorators:
@@ -2863,13 +2878,11 @@ class VariablesChecker(BaseChecker):
         name: str,
     ) -> re.Pattern[str] | re.Match[str] | None:
         authorized_rgx = self.linter.config.dummy_variables_rgx
-        if (
-            isinstance(stmt, nodes.AssignName)
-            and isinstance(stmt.parent, nodes.Arguments)
-        ) or isinstance(stmt, nodes.Arguments):
-            regex: re.Pattern[str] = self.linter.config.ignored_argument_names
-        else:
-            regex = authorized_rgx
+        match stmt:
+            case nodes.AssignName(parent=nodes.Arguments()) | nodes.Arguments():
+                regex: re.Pattern[str] = self.linter.config.ignored_argument_names
+            case _:
+                regex = authorized_rgx
         # See https://stackoverflow.com/a/47007761/2519059 to
         # understand what this function return. Please do NOT use
         # this elsewhere, this is confusing for no benefit
@@ -3009,16 +3022,17 @@ class VariablesChecker(BaseChecker):
 
     def _store_type_annotation_node(self, type_annotation: nodes.NodeNG) -> None:
         """Given a type annotation, store all the name nodes it refers to."""
-        if isinstance(type_annotation, nodes.Name):
-            self._type_annotation_names.append(type_annotation.name)
-            return
-
-        if isinstance(type_annotation, nodes.Attribute):
-            self._store_type_annotation_node(type_annotation.expr)
-            return
-
-        if not isinstance(type_annotation, nodes.Subscript):
-            return
+        match type_annotation:
+            case nodes.Name():
+                self._type_annotation_names.append(type_annotation.name)
+                return
+            case nodes.Attribute():
+                self._store_type_annotation_node(type_annotation.expr)
+                return
+            case nodes.Subscript():
+                pass
+            case _:
+                return
 
         if (
             isinstance(type_annotation.value, nodes.Attribute)
@@ -3045,12 +3059,15 @@ class VariablesChecker(BaseChecker):
         """Check that self/cls don't get assigned."""
         assign_names: set[str | None] = set()
         for target in node.targets:
-            if isinstance(target, nodes.AssignName):
-                assign_names.add(target.name)
-            elif isinstance(target, nodes.Tuple):
-                assign_names.update(
-                    elt.name for elt in target.elts if isinstance(elt, nodes.AssignName)
-                )
+            match target:
+                case nodes.AssignName():
+                    assign_names.add(target.name)
+                case nodes.Tuple():
+                    assign_names.update(
+                        elt.name
+                        for elt in target.elts
+                        if isinstance(elt, nodes.AssignName)
+                    )
         scope = node.scope()
         nonlocals_with_same_name = node.scope().parent and any(
             child for child in scope.body if isinstance(child, nodes.Nonlocal)
@@ -3112,15 +3129,16 @@ class VariablesChecker(BaseChecker):
         value_subnodes = VariablesChecker._nodes_to_unpack(value_node)
         if value_subnodes is not None:
             return len(value_subnodes)
-        if isinstance(value_node, nodes.Const) and isinstance(
-            value_node.value, (str, bytes)
-        ):
-            return len(value_node.value)
-        if isinstance(value_node, nodes.Subscript):
-            step = value_node.slice.step or 1
-            splice_range = value_node.slice.upper.value - value_node.slice.lower.value
-            # RUF046 says the return of 'math.ceil' is always an int, mypy doesn't see it
-            return math.ceil(splice_range / step)  # type: ignore[no-any-return]
+        match value_node:
+            case nodes.Const(value=str() | bytes()):
+                return len(value_node.value)
+            case nodes.Subscript():
+                step = value_node.slice.step or 1
+                splice_range = (
+                    value_node.slice.upper.value - value_node.slice.lower.value
+                )
+                # RUF046 says the return of 'math.ceil' is always an int, mypy doesn't see it
+                return math.ceil(splice_range / step)  # type: ignore[no-any-return]
         return 1
 
     @staticmethod
