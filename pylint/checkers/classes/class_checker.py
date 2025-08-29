@@ -95,14 +95,15 @@ def _signature_from_call(call: nodes.Call) -> _CallSignature:
             kws[arg] = None
 
     for arg in call.args:
-        if isinstance(arg, nodes.Starred) and isinstance(arg.value, nodes.Name):
-            # Positional variadic and a name, otherwise some transformation
-            # might have occurred.
-            starred_args.append(arg.value.name)
-        elif isinstance(arg, nodes.Name):
-            args.append(arg.name)
-        else:
-            args.append(None)
+        match arg:
+            case nodes.Starred(value=nodes.Name(name=name)):
+                # Positional variadic and a name, otherwise some transformation
+                # might have occurred.
+                starred_args.append(name)
+            case nodes.Name():
+                args.append(arg.name)
+            case _:
+                args.append(None)
 
     return _CallSignature(args, kws, starred_args, starred_kws)
 
@@ -1297,22 +1298,18 @@ a metaclass class method.",
 
         if node.decorators:
             for decorator in node.decorators.nodes:
-                if isinstance(decorator, nodes.Attribute) and decorator.attrname in {
-                    "getter",
-                    "setter",
-                    "deleter",
-                }:
-                    # attribute affectation will call this method, not hiding it
-                    return
-                if isinstance(decorator, nodes.Name):
-                    if decorator.name in ALLOWED_PROPERTIES:
-                        # attribute affectation will either call a setter or raise
-                        # an attribute error, anyway not hiding the function
+                match decorator:
+                    case nodes.Attribute(attrname="getter" | "setter" | "deleter"):
+                        # attribute affectation will call this method, not hiding it
                         return
-
-                if isinstance(decorator, nodes.Attribute):
-                    if self._check_functools_or_not(decorator):
-                        return
+                    case nodes.Name():
+                        if decorator.name in ALLOWED_PROPERTIES:
+                            # attribute affectation will either call a setter or raise
+                            # an attribute error, anyway not hiding the function
+                            return
+                    case nodes.Attribute():
+                        if self._check_functools_or_not(decorator):
+                            return
 
                 # Infer the decorator and see if it returns something useful
                 inferred = safe_infer(decorator)
@@ -1645,25 +1642,19 @@ a metaclass class method.",
         self, elt: SuccessfulInferenceResult, node: nodes.ClassDef
     ) -> None:
         for inferred in elt.infer():
-            if isinstance(inferred, util.UninferableBase):
-                continue
-            if not isinstance(inferred, nodes.Const) or not isinstance(
-                inferred.value, str
-            ):
-                self.add_message(
-                    "invalid-slots-object",
-                    args=elt.as_string(),
-                    node=elt,
-                    confidence=INFERENCE,
-                )
-                continue
-            if not inferred.value:
-                self.add_message(
-                    "invalid-slots-object",
-                    args=elt.as_string(),
-                    node=elt,
-                    confidence=INFERENCE,
-                )
+            match inferred:
+                case util.UninferableBase():
+                    continue
+                case nodes.Const(value=str(value)) if value:
+                    pass
+                case _:
+                    self.add_message(
+                        "invalid-slots-object",
+                        args=elt.as_string(),
+                        node=elt,
+                        confidence=INFERENCE,
+                    )
+                    continue
 
             # Check if we have a conflict with a class variable.
             class_variable = node.locals.get(inferred.value)
