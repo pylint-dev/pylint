@@ -36,3 +36,7 @@ for key, value in DICT.items():
 # Flag lambda expression assignments via named expressions as well.
 if (e := lambda: 2) and e():  # [unnecessary-lambda-assignment]
     pass
+
+# Skip checking multi-assignments
+a = b = lambda: None
+a, b = x = lambda: None, None
