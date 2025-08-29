@@ -1047,7 +1047,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     return None
 
                 dotted_modname = get_import_name(importnode, modname)
-                self.add_message("import-error", args=repr(dotted_modname), node=importnode)
+                self.add_message(
+                    "import-error", args=repr(dotted_modname), node=importnode
+                )
             else:
                 # Re-raise other AttributeErrors
                 raise astroid.AstroidError from e
