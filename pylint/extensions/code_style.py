@@ -309,13 +309,12 @@ class CodeStyleChecker(BaseChecker):
         if isinstance(node.test, nodes.Compare):
             next_if_node: nodes.If | None = None
             next_sibling = node.next_sibling()
-            match (node.orelse, next_sibling):
-                case [[nodes.If() as next_if_node], _]:
-                    # elif block
-                    pass
-                case [_, nodes.If() as next_if_node]:
-                    # separate if block
-                    pass
+            if len(node.orelse) == 1 and isinstance(node.orelse[0], nodes.If):
+                # elif block
+                next_if_node = node.orelse[0]
+            elif isinstance(next_sibling, nodes.If):
+                # separate if block
+                next_if_node = next_sibling
 
             if (  # pylint: disable=too-many-boolean-expressions
                 next_if_node is not None
