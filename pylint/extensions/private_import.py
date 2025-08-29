@@ -196,21 +196,21 @@ class PrivateImportChecker(BaseChecker):
         or a Subscript e.g. `Optional[type]` or an Attribute, e.g. `pylint.lint.linter`.
         """
         match node:
-            case nodes.Name(name=n) if n not in all_used_type_annotations:
-                all_used_type_annotations[n] = True
-                return n  # type: ignore[no-any-return]
-            case nodes.Subscript(slice=s, value=v):
+            case nodes.Name(name=name) if name not in all_used_type_annotations:
+                all_used_type_annotations[name] = True
+                return name  # type: ignore[no-any-return]
+            case nodes.Subscript(slice=s, value=value):
                 # slice is the next nested type
                 self._populate_type_annotations_annotation(s, all_used_type_annotations)
                 # value is the current type name: could be a Name or Attribute
                 return self._populate_type_annotations_annotation(
-                    v, all_used_type_annotations
+                    value, all_used_type_annotations
                 )
-            case nodes.Attribute(expr=e):
+            case nodes.Attribute(expr=expr):
                 # An attribute is a type like `pylint.lint.pylinter`. node.expr is the next level
                 # up, could be another attribute
                 return self._populate_type_annotations_annotation(
-                    e, all_used_type_annotations
+                    expr, all_used_type_annotations
                 )
         return None
 

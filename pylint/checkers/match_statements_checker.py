@@ -37,13 +37,13 @@ class MatchStatementChecker(BaseChecker):
         """
         for idx, case in enumerate(node.cases):
             match case.pattern:
-                case nodes.MatchAs(pattern=None, name=nodes.AssignName(name=n)) if (
+                case nodes.MatchAs(pattern=None, name=nodes.AssignName(name=name)) if (
                     idx < len(node.cases) - 1
                 ):
                     self.add_message(
                         "bare-name-capture-pattern",
                         node=case.pattern,
-                        args=n,
+                        args=name,
                         confidence=HIGH,
                     )
 
