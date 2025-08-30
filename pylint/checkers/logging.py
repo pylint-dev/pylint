@@ -237,35 +237,37 @@ class LoggingChecker(checkers.BaseChecker):
         else:
             return
 
-        format_arg = node.args[format_pos]
-        if isinstance(format_arg, nodes.BinOp):
-            binop = format_arg
-            emit = binop.op == "%"
-            if binop.op == "+" and not self._is_node_explicit_str_concatenation(binop):
-                total_number_of_strings = sum(
-                    1
-                    for operand in (binop.left, binop.right)
-                    if self._is_operand_literal_str(utils.safe_infer(operand))
-                )
-                emit = total_number_of_strings > 0
-            if emit:
+        match format_arg := node.args[format_pos]:
+            case nodes.BinOp():
+                binop = format_arg
+                emit = binop.op == "%"
+                if binop.op == "+" and not self._is_node_explicit_str_concatenation(
+                    binop
+                ):
+                    total_number_of_strings = sum(
+                        1
+                        for operand in (binop.left, binop.right)
+                        if self._is_operand_literal_str(utils.safe_infer(operand))
+                    )
+                    emit = total_number_of_strings > 0
+                if emit:
+                    self.add_message(
+                        "logging-not-lazy",
+                        node=node,
+                        args=(self._helper_string(node),),
+                    )
+            case nodes.Call():
+                self._check_call_func(format_arg)
+            case nodes.Const():
+                self._check_format_string(node, format_pos)
+            case nodes.JoinedStr():
+                if str_formatting_in_f_string(format_arg):
+                    return
                 self.add_message(
-                    "logging-not-lazy",
+                    "logging-fstring-interpolation",
                     node=node,
                     args=(self._helper_string(node),),
                 )
-        elif isinstance(format_arg, nodes.Call):
-            self._check_call_func(format_arg)
-        elif isinstance(format_arg, nodes.Const):
-            self._check_format_string(node, format_pos)
-        elif isinstance(format_arg, nodes.JoinedStr):
-            if str_formatting_in_f_string(format_arg):
-                return
-            self.add_message(
-                "logging-fstring-interpolation",
-                node=node,
-                args=(self._helper_string(node),),
-            )
 
     def _helper_string(self, node: nodes.Call) -> str:
         """Create a string that lists the valid types of formatting for this node."""

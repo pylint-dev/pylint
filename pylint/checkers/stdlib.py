@@ -859,18 +859,19 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             confidence = HIGH
             try:
                 if open_module in PATHLIB_MODULE:
-                    if node.func.attrname == "read_text":
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=0, keyword="encoding"
-                        )
-                    elif node.func.attrname == "write_text":
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=1, keyword="encoding"
-                        )
-                    else:
-                        encoding_arg = utils.get_argument_from_call(
-                            node, position=2, keyword="encoding"
-                        )
+                    match node.func.attrname:
+                        case "read_text":
+                            encoding_arg = utils.get_argument_from_call(
+                                node, position=0, keyword="encoding"
+                            )
+                        case "write_text":
+                            encoding_arg = utils.get_argument_from_call(
+                                node, position=1, keyword="encoding"
+                            )
+                        case _:
+                            encoding_arg = utils.get_argument_from_call(
+                                node, position=2, keyword="encoding"
+                            )
                 else:
                     encoding_arg = utils.get_argument_from_call(
                         node, position=3, keyword="encoding"
@@ -945,10 +946,13 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         name = infer.qname()
         if isinstance(call_arg, nodes.Const):
             emit = False
-            if call_arg.value is None:
-                emit = not allow_none
-            elif not isinstance(call_arg.value, str):
-                emit = True
+            match call_arg.value:
+                case None:
+                    emit = not allow_none
+                case str():
+                    pass
+                case _:
+                    emit = True
             if emit:
                 self.add_message(message, node=node, args=(name, call_arg.pytype()))
         else:

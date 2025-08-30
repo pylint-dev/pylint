@@ -447,25 +447,27 @@ class ExceptionsChecker(checkers.BaseChecker):
             # Don't emit the warning if the inferred stmt
             # is None, but the exception handler is something else,
             # maybe it was redefined.
-            if isinstance(exc, nodes.Const) and exc.value is None:
-                if (
-                    isinstance(handler.type, nodes.Const) and handler.type.value is None
-                ) or handler.type.parent_of(exc):
-                    # If the exception handler catches None or
-                    # the exception component, which is None, is
-                    # defined by the entire exception handler, then
-                    # emit a warning.
+            match exc:
+                case nodes.Const(value=None):
+                    if (
+                        isinstance(handler.type, nodes.Const)
+                        and handler.type.value is None
+                    ) or handler.type.parent_of(exc):
+                        # If the exception handler catches None or
+                        # the exception component, which is None, is
+                        # defined by the entire exception handler, then
+                        # emit a warning.
+                        self.add_message(
+                            "catching-non-exception",
+                            node=handler.type,
+                            args=(part.as_string(),),
+                        )
+                case _:
                     self.add_message(
                         "catching-non-exception",
                         node=handler.type,
                         args=(part.as_string(),),
                     )
-            else:
-                self.add_message(
-                    "catching-non-exception",
-                    node=handler.type,
-                    args=(part.as_string(),),
-                )
             return
 
         if (
