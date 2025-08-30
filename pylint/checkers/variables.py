@@ -685,8 +685,10 @@ scope_type : {self.scope_type}
                 )
             case nodes.If():
                 pass
-            case _:
-                return False
+            case _:  # pragma: no cover
+                # The function is only called for Try, With, For, While, Match and
+                # If nodes. All of which are being handled above.
+                raise AssertionError
 
         # Be permissive if there is a break or a continue
         if any(node.nodes_of_class(nodes.Break, nodes.Continue)):
