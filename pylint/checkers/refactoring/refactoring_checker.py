@@ -1886,8 +1886,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     func = "list"
                 case nodes.SetComp():
                     func = "set"
-                case _:  # pragma: no cover
-                    return
+                case _:
+                    raise AssertionError
 
             self.add_message(
                 "unnecessary-comprehension",
