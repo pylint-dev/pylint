@@ -39,10 +39,12 @@ def test_primer_launch_bad_args(args: list[str], capsys: CaptureFixture) -> None
 
 
 @pytest.mark.skipif(
-    sys.version_info[:2] != PRIMER_CURRENT_INTERPRETER or IS_PYPY,
+    sys.platform != "linux"
+    or sys.version_info[:2] != PRIMER_CURRENT_INTERPRETER
+    or IS_PYPY,
     reason=(
         "Primers are internal and will always be run for only one interpreter (currently"
-        f" {PRIMER_CURRENT_INTERPRETER})"
+        f" {PRIMER_CURRENT_INTERPRETER}, on linux)"
     ),
 )
 class TestPrimer:
