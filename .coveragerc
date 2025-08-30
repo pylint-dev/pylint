@@ -20,3 +20,6 @@ exclude_lines =
 
     # Abstract methods are not executed during pytest runs
     raise NotImplementedError()
+
+    # Fallback cases which should never be executed
+    raise AssertionError
