@@ -367,11 +367,8 @@ class BasicChecker(_BasicChecker):
                 # Just forcing the generator to infer all elements.
                 # astroid.exceptions.InferenceError are false positives
                 # see https://github.com/pylint-dev/pylint/pull/8185
-                match inferred:
-                    case nodes.FunctionDef():
-                        call_inferred = list(inferred.infer_call_result(node))
-                    case nodes.Lambda():
-                        call_inferred = list(inferred.infer_call_result(node))
+                if isinstance(inferred, (nodes.FunctionDef, nodes.Lambda)):
+                    call_inferred = list(inferred.infer_call_result(node))
             except astroid.InferenceError:
                 call_inferred = None
             if call_inferred:
