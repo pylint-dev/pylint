@@ -41,7 +41,7 @@ class LambdaExpressionChecker(BaseChecker):
         """Check if lambda expression is assigned to a variable."""
         match node:
             case nodes.Assign(
-                targets=[nodes.AssignName()], value=nodes.Lambda() as value
+                targets=[nodes.AssignName(), *_], value=nodes.Lambda() as value
             ):
                 self.add_message(
                     "unnecessary-lambda-assignment",
@@ -49,7 +49,7 @@ class LambdaExpressionChecker(BaseChecker):
                     confidence=HIGH,
                 )
             case nodes.Assign(
-                targets=[nodes.Tuple() as target],
+                targets=[nodes.Tuple() as target, *_],
                 value=nodes.Tuple() | nodes.List() as value,
             ):
                 # Iterate over tuple unpacking assignment elements and

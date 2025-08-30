@@ -37,6 +37,6 @@ for key, value in DICT.items():
 if (e := lambda: 2) and e():  # [unnecessary-lambda-assignment]
     pass
 
-# Skip checking multi-assignments
-a = b = lambda: None
-a, b = x = lambda: None, None
+# Multi-assignments
+a = b = lambda: None  # [unnecessary-lambda-assignment]
+a, b = x = lambda: None, None  # [unnecessary-lambda-assignment]
