@@ -1886,7 +1886,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     func = "list"
                 case nodes.SetComp():
                     func = "set"
-                case _:
+                case _:  # pragma: no cover
                     return
 
             self.add_message(
