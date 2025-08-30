@@ -21,7 +21,9 @@ PRIMER_DIRECTORY = TEST_DIR_ROOT / ".pylint_primer_tests/"
 PACKAGES_TO_PRIME_PATH = TEST_DIR_ROOT / "primer/packages_to_prime.json"
 FIXTURES_PATH = HERE / "fixtures"
 
-PRIMER_CURRENT_INTERPRETER = (3, 11)
+# If you change this, also change DEFAULT_PYTHON in
+# ``.github/workflows/primer_comment.yaml``
+PRIMER_CURRENT_INTERPRETER = (3, 13)
 
 DEFAULT_ARGS = ["python tests/primer/__main__.py", "compare", "--commit=v2.14.2"]
 
@@ -37,10 +39,12 @@ def test_primer_launch_bad_args(args: list[str], capsys: CaptureFixture) -> None
 
 
 @pytest.mark.skipif(
-    sys.version_info[:2] != PRIMER_CURRENT_INTERPRETER or IS_PYPY,
+    sys.platform != "linux"
+    or sys.version_info[:2] != PRIMER_CURRENT_INTERPRETER
+    or IS_PYPY,
     reason=(
         "Primers are internal and will always be run for only one interpreter (currently"
-        f" {PRIMER_CURRENT_INTERPRETER})"
+        f" {PRIMER_CURRENT_INTERPRETER}, on linux)"
     ),
 )
 class TestPrimer:
