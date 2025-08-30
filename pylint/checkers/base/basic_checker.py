@@ -539,12 +539,11 @@ class BasicChecker(_BasicChecker):
             # The body of the lambda must be a function call expression
             # for the lambda to be unnecessary.
             return
-        if isinstance(node.body.func, nodes.Attribute) and isinstance(
-            node.body.func.expr, nodes.Call
-        ):
-            # Chained call, the intermediate call might
-            # return something else (but we don't check that, yet).
-            return
+        match call.func:
+            case nodes.Attribute(expr=nodes.Call()):
+                # Chained call, the intermediate call might
+                # return something else (but we don't check that, yet).
+                return
 
         ordinary_args = list(node.args.args)
         new_call_args = list(self._filter_vararg(node, call.args))
@@ -685,14 +684,9 @@ class BasicChecker(_BasicChecker):
         if not expr:
             # we are doubtful on inferred type of node, so here just check if format
             # was called on print()
-            call_expr = call_node.func.expr
-            if not isinstance(call_expr, nodes.Call):
-                return
-            if (
-                isinstance(call_expr.func, nodes.Name)
-                and call_expr.func.name == "print"
-            ):
-                self.add_message("misplaced-format-function", node=call_node)
+            match call_node.func.expr:
+                case nodes.Call(func=nodes.Name(name="print")):
+                    self.add_message("misplaced-format-function", node=call_node)
 
     @utils.only_required_for_messages(
         "eval-used",

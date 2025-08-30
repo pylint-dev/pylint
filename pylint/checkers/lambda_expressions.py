@@ -70,14 +70,15 @@ class LambdaExpressionChecker(BaseChecker):
                     )
 
     def visit_namedexpr(self, node: nodes.NamedExpr) -> None:
-        if isinstance(node.target, nodes.AssignName) and isinstance(
-            node.value, nodes.Lambda
-        ):
-            self.add_message(
-                "unnecessary-lambda-assignment",
-                node=node.value,
-                confidence=HIGH,
-            )
+        match node:
+            case nodes.NamedExpr(
+                target=nodes.AssignName(), value=nodes.Lambda() as value
+            ):
+                self.add_message(
+                    "unnecessary-lambda-assignment",
+                    node=value,
+                    confidence=HIGH,
+                )
 
     def visit_call(self, node: nodes.Call) -> None:
         """Check if lambda expression is called directly."""

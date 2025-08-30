@@ -1428,19 +1428,12 @@ class VariablesChecker(BaseChecker):
         # Check for hidden ancestor names
         # e.g. "six" in: Class X(six.with_metaclass(ABCMeta, object)):
         for name_node in node.nodes_of_class(nodes.Name):
-            if (
-                isinstance(name_node.parent, nodes.Call)
-                and isinstance(name_node.parent.func, nodes.Attribute)
-                and isinstance(name_node.parent.func.expr, nodes.Name)
-            ):
-                hidden_name_node = name_node.parent.func.expr
-                for consumer in self._to_consume:
-                    if hidden_name_node.name in consumer.to_consume:
-                        consumer.mark_as_consumed(
-                            hidden_name_node.name,
-                            consumer.to_consume[hidden_name_node.name],
-                        )
-                        break
+            match name_node.parent:
+                case nodes.Call(func=nodes.Attribute(expr=nodes.Name(name=name))):
+                    for consumer in self._to_consume:
+                        if name in consumer.to_consume:
+                            consumer.mark_as_consumed(name, consumer.to_consume[name])
+                            break
         self._to_consume.pop()
 
     def visit_lambda(self, node: nodes.Lambda) -> None:
@@ -1508,11 +1501,9 @@ class VariablesChecker(BaseChecker):
                 # Suppress emitting the message if the outer name is in the
                 # scope of an exception assignment.
                 # For example: the `e` in `except ValueError as e`
-                global_node = globs[name][0]
-                if isinstance(global_node, nodes.AssignName) and isinstance(
-                    global_node.parent, nodes.ExceptHandler
-                ):
-                    continue
+                match globs[name][0]:
+                    case nodes.AssignName(parent=nodes.ExceptHandler()):
+                        continue
 
                 line = definition.fromlineno
                 if not self._is_name_ignored(stmt, name):
@@ -1769,11 +1760,10 @@ class VariablesChecker(BaseChecker):
 
                 return True
 
-            # Ignore inner class scope for keywords in class definition
-            if isinstance(node.parent, nodes.Keyword) and isinstance(
-                node.parent.parent, nodes.ClassDef
-            ):
-                return True
+            match node.parent:
+                case nodes.Keyword(parent=nodes.ClassDef()):
+                    # Ignore inner class scope for keywords in class definition
+                    return True
 
         elif consumer.scope_type == "function" and self._defined_in_function_definition(
             node, consumer.node
@@ -2533,10 +2523,9 @@ class VariablesChecker(BaseChecker):
                     return (VariableVisitConsumerAction.CONTINUE, None)
                 return (VariableVisitConsumerAction.RETURN, None)
             # Check if used as default value by calling the class
-            if isinstance(node.parent, nodes.Call) and isinstance(
-                node.parent.parent, nodes.Arguments
-            ):
-                return (VariableVisitConsumerAction.CONTINUE, None)
+            match node.parent:
+                case nodes.Call(parent=nodes.Arguments()):
+                    return (VariableVisitConsumerAction.CONTINUE, None)
         return (VariableVisitConsumerAction.RETURN, found_nodes)
 
     @staticmethod
@@ -2769,13 +2758,11 @@ class VariablesChecker(BaseChecker):
         if self._is_name_ignored(stmt, name):
             return
         # Ignore names that were added dynamically to the Function scope
-        if (
-            isinstance(node, nodes.FunctionDef)
-            and name == "__class__"
-            and len(node.locals["__class__"]) == 1
-            and isinstance(node.locals["__class__"][0], nodes.ClassDef)
-        ):
-            return
+        match node:
+            case nodes.FunctionDef(locals={"__class__": [nodes.ClassDef()]}) if (
+                name == "__class__"
+            ):
+                return
 
         # Ignore names imported by the global statement.
         if isinstance(stmt, (nodes.Global, nodes.Import, nodes.ImportFrom)):
@@ -3020,13 +3007,10 @@ class VariablesChecker(BaseChecker):
         if not isinstance(type_annotation, nodes.Subscript):
             return
 
-        if (
-            isinstance(type_annotation.value, nodes.Attribute)
-            and isinstance(type_annotation.value.expr, nodes.Name)
-            and type_annotation.value.expr.name == TYPING_MODULE
-        ):
-            self._type_annotation_names.append(TYPING_MODULE)
-            return
+        match type_annotation.value:
+            case nodes.Attribute(expr=nodes.Name(name=n)) if n == TYPING_MODULE:
+                self._type_annotation_names.append(TYPING_MODULE)
+                return
 
         self._type_annotation_names.extend(
             annotation.name for annotation in type_annotation.nodes_of_class(nodes.Name)

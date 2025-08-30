@@ -229,16 +229,12 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
             self.visit_name(node.func)
-        if (
-            len(node.args) > 1
-            and isinstance(node.args[0], nodes.Const)
-            and isinstance(node.args[0].value, str)
-        ):
-            msg = node.args[0].value
-            if "%" in msg or ("{" in msg and "}" in msg):
-                self._checker.add_message(
-                    "raising-format-tuple", node=self._node, confidence=HIGH
-                )
+        match node.args:
+            case [nodes.Const(value=str() as msg), _, *_]:
+                if "%" in msg or ("{" in msg and "}" in msg):
+                    self._checker.add_message(
+                        "raising-format-tuple", node=self._node, confidence=HIGH
+                    )
 
 
 class ExceptionRaiseLeafVisitor(BaseVisitor):
