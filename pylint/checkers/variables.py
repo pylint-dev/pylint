@@ -1359,30 +1359,29 @@ class VariablesChecker(BaseChecker):
             if any(isinstance(target, nodes.Starred) for target in targets):
                 return
 
-        match inferred:
-            case nodes.Dict():
-                if isinstance(node.iter, nodes.Name):
-                    # If this a case of 'dict-items-missing-iter', we don't want to
-                    # report it as an 'unbalanced-dict-unpacking' as well
-                    # TODO (performance), merging both checks would streamline this
-                    if len(targets) == 2:
-                        return
+        if isinstance(inferred, nodes.Dict):
+            if isinstance(node.iter, nodes.Name):
+                # If this a case of 'dict-items-missing-iter', we don't want to
+                # report it as an 'unbalanced-dict-unpacking' as well
+                # TODO (performance), merging both checks would streamline this
+                if len(targets) == 2:
+                    return
 
-            case _:
-                is_starred_targets = any(
-                    isinstance(target, nodes.Starred) for target in targets
+        else:
+            is_starred_targets = any(
+                isinstance(target, nodes.Starred) for target in targets
+            )
+            for value in values:
+                value_length = self._get_value_length(value)
+                is_valid_star_unpack = is_starred_targets and value_length >= len(
+                    targets
                 )
-                for value in values:
-                    value_length = self._get_value_length(value)
-                    is_valid_star_unpack = is_starred_targets and value_length >= len(
-                        targets
+                if len(targets) != value_length and not is_valid_star_unpack:
+                    details = _get_unpacking_extra_info(node, inferred)
+                    self._report_unbalanced_unpacking(
+                        node, inferred, targets, value_length, details
                     )
-                    if len(targets) != value_length and not is_valid_star_unpack:
-                        details = _get_unpacking_extra_info(node, inferred)
-                        self._report_unbalanced_unpacking(
-                            node, inferred, targets, value_length, details
-                        )
-                        break
+                    break
 
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
