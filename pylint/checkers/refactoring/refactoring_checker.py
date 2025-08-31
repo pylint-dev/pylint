@@ -1128,19 +1128,19 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     inside_comp = f"({inside_comp})"
                     inside_comp += ", "
                     inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
-                match call_name := node.func.name:
-                    case "any" | "all":
-                        self.add_message(
-                            "use-a-generator",
-                            node=node,
-                            args=(call_name, inside_comp),
-                        )
-                    case _:
-                        self.add_message(
-                            "consider-using-generator",
-                            node=node,
-                            args=(call_name, inside_comp),
-                        )
+                call_name = node.func.name
+                if call_name in {"any", "all"}:
+                    self.add_message(
+                        "use-a-generator",
+                        node=node,
+                        args=(call_name, inside_comp),
+                    )
+                else:
+                    self.add_message(
+                        "consider-using-generator",
+                        node=node,
+                        args=(call_name, inside_comp),
+                    )
 
     @utils.only_required_for_messages(
         "stop-iteration-return",
