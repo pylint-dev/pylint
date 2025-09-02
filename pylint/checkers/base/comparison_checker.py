@@ -188,9 +188,10 @@ class ComparisonChecker(_BasicChecker):
         is_other_literal = isinstance(literal, (nodes.List, nodes.Dict, nodes.Set))
         is_const = False
         if isinstance(literal, nodes.Const):
-            if isinstance(literal.value, bool) or literal.value is None:
-                # Not interested in these values.
-                return
+            match literal.value:
+                case bool() | None:
+                    # Not interested in these values.
+                    return
             is_const = isinstance(literal.value, (bytes, str, int, float))
 
         if is_const or is_other_literal:

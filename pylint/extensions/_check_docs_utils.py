@@ -40,12 +40,11 @@ def get_setters_property_name(node: nodes.FunctionDef) -> str | None:
     """
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
-        if (
-            isinstance(decorator, nodes.Attribute)
-            and decorator.attrname == "setter"
-            and isinstance(decorator.expr, nodes.Name)
-        ):
-            return decorator.expr.name  # type: ignore[no-any-return]
+        match decorator:
+            case nodes.Attribute(attrname=attrname, expr=nodes.Name(name=name)) if (
+                attrname == "setter"
+            ):
+                return name  # type: ignore[no-any-return]
     return None
 
 
@@ -92,9 +91,8 @@ def returns_something(return_node: nodes.Return) -> bool:
 
 
 def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | UninferableBase | None:
-    if isinstance(node.exc, nodes.Call):
-        func = node.exc.func
-        if isinstance(func, (nodes.Name, nodes.Attribute)):
+    match node.exc:
+        case nodes.Call(func=nodes.Name() | nodes.Attribute() as func):
             return utils.safe_infer(func)
     return None
 

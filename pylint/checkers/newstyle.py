@@ -74,26 +74,23 @@ class NewStyleConflictChecker(BaseChecker):
 
             # calling super(type(self), self) can lead to recursion loop
             # in derived classes
-            arg0 = call.args[0]
-            if (
-                isinstance(arg0, nodes.Call)
-                and isinstance(arg0.func, nodes.Name)
-                and arg0.func.name == "type"
-            ):
-                self.add_message("bad-super-call", node=call, args=("type",))
-                continue
+            match call.args[0]:
+                case nodes.Call(func=nodes.Name(name="type")):
+                    self.add_message("bad-super-call", node=call, args=("type",))
+                    continue
 
             # calling super(self.__class__, self) can lead to recursion loop
             # in derived classes
-            if (
-                len(call.args) >= 2
-                and isinstance(call.args[1], nodes.Name)
-                and call.args[1].name == "self"
-                and isinstance(arg0, nodes.Attribute)
-                and arg0.attrname == "__class__"
-            ):
-                self.add_message("bad-super-call", node=call, args=("self.__class__",))
-                continue
+            match call.args:
+                case [
+                    nodes.Attribute(attrname="__class__"),
+                    nodes.Name(name="self"),
+                    *_,
+                ]:
+                    self.add_message(
+                        "bad-super-call", node=call, args=("self.__class__",)
+                    )
+                    continue
 
             try:
                 supcls = call.args and next(call.args[0].infer(), None)

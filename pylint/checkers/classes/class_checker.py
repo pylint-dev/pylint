@@ -913,17 +913,16 @@ a metaclass class method.",
         # Every class in bases has __slots__, our __slots__ is non-empty and there is no __dict__
 
         for child in node.body:
-            if isinstance(child, nodes.AnnAssign):
-                if child.value is not None:
-                    continue
-                if isinstance(child.target, nodes.AssignName):
-                    if child.target.name not in slot_names:
-                        self.add_message(
-                            "declare-non-slot",
-                            args=child.target.name,
-                            node=child.target,
-                            confidence=INFERENCE,
-                        )
+            match child:
+                case nodes.AnnAssign(
+                    target=nodes.AssignName(name=name), value=None
+                ) if (name not in slot_names):
+                    self.add_message(
+                        "declare-non-slot",
+                        args=child.target.name,
+                        node=child.target,
+                        confidence=INFERENCE,
+                    )
 
     def _check_consistent_mro(self, node: nodes.ClassDef) -> None:
         """Detect that a class has a consistent mro or duplicate bases."""
@@ -935,31 +934,30 @@ a metaclass class method.",
             self.add_message("duplicate-bases", args=node.name, node=node)
 
     def _check_enum_base(self, node: nodes.ClassDef, ancestor: nodes.ClassDef) -> None:
-        members = ancestor.getattr("__members__")
-        if members and isinstance(members[0], nodes.Dict) and members[0].items:
-            for _, name_node in members[0].items:
-                # Exempt type annotations without value assignments
-                if all(
-                    isinstance(item.parent, nodes.AnnAssign)
-                    and item.parent.value is None
-                    for item in ancestor.getattr(name_node.name)
-                ):
-                    continue
-                self.add_message(
-                    "invalid-enum-extension",
-                    args=ancestor.name,
-                    node=node,
-                    confidence=INFERENCE,
-                )
-                break
+        match ancestor.getattr("__members__"):
+            case [nodes.Dict(items=items), *_] if items:
+                for _, name_node in items:
+                    # Exempt type annotations without value assignments
+                    if all(
+                        isinstance(item.parent, nodes.AnnAssign)
+                        and item.parent.value is None
+                        for item in ancestor.getattr(name_node.name)
+                    ):
+                        continue
+                    self.add_message(
+                        "invalid-enum-extension",
+                        args=ancestor.name,
+                        node=node,
+                        confidence=INFERENCE,
+                    )
+                    break
 
         if ancestor.is_subtype_of("enum.IntFlag"):
             # Collect integer flag assignments present on the class
             assignments = defaultdict(list)
             for assign_name in node.nodes_of_class(nodes.AssignName):
-                if isinstance(assign_name.parent, nodes.Assign):
-                    value = getattr(assign_name.parent.value, "value", None)
-                    if isinstance(value, int):
+                match assign_name.parent:
+                    case nodes.Assign(value=object(value=int() as value)):
                         assignments[value].append(assign_name)
 
             # For each bit position, collect all the flags that set the bit
@@ -1339,11 +1337,9 @@ a metaclass class method.",
         try:
             overridden = klass.instance_attr(node.name)[0]
             overridden_frame = overridden.frame()
-            if (
-                isinstance(overridden_frame, nodes.FunctionDef)
-                and overridden_frame.type == "method"
-            ):
-                overridden_frame = overridden_frame.parent.frame()
+            match overridden_frame:
+                case nodes.FunctionDef(type="method"):
+                    overridden_frame = overridden_frame.parent.frame()
             if not (
                 isinstance(overridden_frame, nodes.ClassDef)
                 and klass.is_subtype_of(overridden_frame.qname())
@@ -1749,12 +1745,10 @@ a metaclass class method.",
             inferred = safe_infer(node.parent.parent.value.elts[class_index])
         else:
             inferred = safe_infer(node.parent.value)
-        if (
-            isinstance(inferred, (nodes.ClassDef, util.UninferableBase))
-            or inferred is None
-        ):
-            # If is uninferable, we allow it to prevent false positives
-            return
+        match inferred:
+            case nodes.ClassDef() | util.UninferableBase() | None:
+                # If is uninferable, we allow it to prevent false positives
+                return
         self.add_message(
             "invalid-class-object",
             node=node,
@@ -1935,12 +1929,9 @@ a metaclass class method.",
         # through the class object or through super
 
         # If the expression begins with a call to super, that's ok.
-        if (
-            isinstance(node.expr, nodes.Call)
-            and isinstance(node.expr.func, nodes.Name)
-            and node.expr.func.name == "super"
-        ):
-            return
+        match node.expr:
+            case nodes.Call(func=nodes.Name(name="super")):
+                return
 
         # If the expression begins with a call to type(self), that's ok.
         if self._is_type_self_call(node.expr):
@@ -1969,14 +1960,10 @@ a metaclass class method.",
             # class A:
             #     b = property(lambda: self._b)
 
-            stmt = node.parent.statement()
-            if (
-                isinstance(stmt, nodes.Assign)
-                and len(stmt.targets) == 1
-                and isinstance(stmt.targets[0], nodes.AssignName)
-            ):
-                name = stmt.targets[0].name
-                if _is_attribute_property(name, klass):
+            match node.parent.statement():
+                case nodes.Assign(
+                    targets=[nodes.AssignName(name=name)]
+                ) if _is_attribute_property(name, klass):
                     return
 
             if (
@@ -2250,12 +2237,9 @@ a metaclass class method.",
             if not isinstance(expr, nodes.Attribute) or expr.attrname != "__init__":
                 continue
             # skip the test if using super
-            if (
-                isinstance(expr.expr, nodes.Call)
-                and isinstance(expr.expr.func, nodes.Name)
-                and expr.expr.func.name == "super"
-            ):
-                return
+            match expr.expr:
+                case nodes.Call(func=nodes.Name(name="super")):
+                    return
             # pylint: disable = too-many-try-statements
             try:
                 for klass in expr.expr.infer():
