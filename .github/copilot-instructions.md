@@ -191,6 +191,8 @@ script/                   # Development utility scripts
 - `.pre-commit-config.yaml` -- Code quality checks configuration
 - `pylintrc` -- Pylint's own configuration
 - `requirements_test_min.txt` -- Minimal test dependencies
+- `.gitignore` do not add the 'venv' inside the .gitignore, don't commit the venv in the
+  first place (humans add it to their global gitignore)
 
 ## Creating New Checkers
 
