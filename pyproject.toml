@@ -87,7 +87,7 @@ docs = [
   "furo==2025.7.19",
   "sphinx==8.2.3",
   "sphinx-reredirects<1",
-  "towncrier~=24.8",
+  "towncrier>=24.8,<26",
 ]
 
 # Configuration for the build system
@@ -100,7 +100,7 @@ test-min = [
   "pytest-timeout~=2.4",
   "requests",
   "setuptools; python_version>='3.12'",
-  "towncrier~=24.8",
+  "towncrier>=24.8,<26",
   "typing-extensions~=4.15",
 ]
 
