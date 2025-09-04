@@ -50,7 +50,7 @@ jobs:
         id: python
         # Use unreleased version with PyPy fix: https://github.com/actions/setup-python/pull/1110
         # TODO move back to tagged versions for >5.6.0
-        uses: actions/setup-python@88ffd4d597d830d67a7369dd33dcb72c0958a807
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -105,7 +105,7 @@ jobs:
         uses: actions/checkout@v5.0.0
       - name: Set up Python 3.13
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: "3.13"
           check-latest: true
@@ -145,7 +145,7 @@ jobs:
         uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -200,7 +200,7 @@ jobs:
         uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
