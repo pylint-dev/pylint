@@ -35,5 +35,6 @@ GoodNameP = te.ParamSpec("GoodNameP")  # [invalid-name]
 # GoodNameTs = TypeVarTuple("GoodNameTs")  # invalid-name
 
 # -- typing_extensions.TypeVarTuple --
+# TODO Can't infer typing_extensions.TypeVarTuple for 3.10  # pylint:disable=fixme
 TypeVarTupleShouldBeLikeThis = te.TypeVarTuple("TypeVarTupleShouldBeLikeThis")
-GoodNameTs = te.TypeVarTuple("GoodNameTs")  # [invalid-name]
+GoodNameTs = te.TypeVarTuple("GoodNameTs")  # >=3.11:[invalid-name]

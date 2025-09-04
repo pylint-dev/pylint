@@ -84,7 +84,8 @@ badName = te.ParamSpec("badName")  # [invalid-name]
 # badName = TypeVarTuple("badName")  # invalid-name
 
 # -- typing_extensions.TypeVarTuple (3.11+) --
+# TODO Can't infer typing_extensions.TypeVarTuple for 3.10  # pylint:disable=fixme
 Ts = te.TypeVarTuple("Ts")
 _Ts = te.TypeVarTuple("_Ts")
 GoodNameTs = te.TypeVarTuple("GoodNameTs")
-badName = te.TypeVarTuple("badName")  # [invalid-name]
+badName = te.TypeVarTuple("badName")  # >=3.11:[invalid-name]
