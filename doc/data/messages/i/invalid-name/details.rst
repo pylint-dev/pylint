@@ -29,6 +29,10 @@ name is found in, and not the type of object assigned.
 +--------------------+-------------------------------------------------------------------------------------------------------------+
 | ``typevar``        | Type variable declared with ``TypeVar``.                                                                    |
 +--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``paramspec``      | Parameter specification variable declared with ``ParamSpec``.                                               |
++--------------------+-------------------------------------------------------------------------------------------------------------+
+| ``typevartuple``   | Type variable tuple declared with ``TypeVarTuple``.                                                         |
++--------------------+-------------------------------------------------------------------------------------------------------------+
 | ``typealias``      | Type alias declared with ``TypeAlias`` or assignments of ``Union``.                                         |
 +--------------------+-------------------------------------------------------------------------------------------------------------+
 
@@ -88,6 +92,10 @@ The following types of names are checked with a predefined pattern:
 | ``typevar``        | ``T``, ``_CallableT``, ``_T_co``, ``AnyStr``,         | ``DICT_T``, ``CALLABLE_T``, ``ENUM_T``, ``DeviceType``,    |
 |                    | ``DeviceTypeT``, ``IPAddressT``                       | ``_StrType``                                               |
 +--------------------+-------------------------------------------------------+------------------------------------------------------------+
+| ``paramspec``      | ``P``, ``_P``                                         | ``CALLABLE_P``                                             |
++--------------------+-------------------------------------------------------+------------------------------------------------------------+
+| ``typevartuple``   | ``Ts``, ``_Ts``                                       | ``TUPLE_TS``                                               |
++--------------------+-------------------------------------------------------+------------------------------------------------------------+
 | ``typealias``      | ``GoodName``, ``_GoodName``, ``IPAddressType``,       | ``BadNameT``, ``badName``, ``TBadName``, ``TypeBadName``,  |
 |                    |  ``GoodName2`` and other PascalCase variants that     |  ``_1BadName``                                             |
 |                    |  don't start with ``T`` or ``Type``. This is to       |                                                            |
@@ -138,6 +146,10 @@ expression will lead to an instance of ``invalid-name``.
 .. option:: --inlinevar-rgx=<regex>
 
 .. option:: --typevar-rgx=<regex>
+
+.. option:: --paramspec-rgx=<regex>
+
+.. option:: --typevartuple-rgx=<regex>
 
 .. option:: --typealias-rgx=<regex>
 
