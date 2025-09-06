@@ -777,81 +777,82 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             import_category = isort_driver.place_module(package)
             node_and_package_import = (node, package)
 
-            if import_category in {"FUTURE", "STDLIB"}:
-                std_imports.append(node_and_package_import)
-                wrong_import = (
-                    third_party_not_ignored
-                    or first_party_not_ignored
-                    or local_not_ignored
-                )
-                if self._is_fallback_import(node, wrong_import):
-                    continue
-                if wrong_import and not nested:
-                    self.add_message(
-                        "wrong-import-order",
-                        node=node,
-                        args=(  ## TODO - this isn't right for multiple on the same line...
-                            f'standard import "{self._get_full_import_name((node, package))}"',
-                            self._get_out_of_order_string(
-                                third_party_not_ignored,
-                                first_party_not_ignored,
-                                local_not_ignored,
-                            ),
-                        ),
+            match import_category:
+                case "FUTURE" | "STDLIB":
+                    std_imports.append(node_and_package_import)
+                    wrong_import = (
+                        third_party_not_ignored
+                        or first_party_not_ignored
+                        or local_not_ignored
                     )
-            elif import_category == "THIRDPARTY":
-                third_party_imports.append(node_and_package_import)
-                external_imports.append(node_and_package_import)
-                if not nested:
-                    if not ignore_for_import_order:
-                        third_party_not_ignored.append(node_and_package_import)
-                    else:
-                        self.linter.add_ignored_message(
-                            "wrong-import-order", node.fromlineno, node
-                        )
-                wrong_import = first_party_not_ignored or local_not_ignored
-                if wrong_import and not nested:
-                    self.add_message(
-                        "wrong-import-order",
-                        node=node,
-                        args=(
-                            f'third party import "{self._get_full_import_name((node, package))}"',
-                            self._get_out_of_order_string(
-                                None, first_party_not_ignored, local_not_ignored
+                    if self._is_fallback_import(node, wrong_import):
+                        continue
+                    if wrong_import and not nested:
+                        self.add_message(
+                            "wrong-import-order",
+                            node=node,
+                            args=(  ## TODO - this isn't right for multiple on the same line...
+                                f'standard import "{self._get_full_import_name((node, package))}"',
+                                self._get_out_of_order_string(
+                                    third_party_not_ignored,
+                                    first_party_not_ignored,
+                                    local_not_ignored,
+                                ),
                             ),
-                        ),
-                    )
-            elif import_category == "FIRSTPARTY":
-                first_party_imports.append(node_and_package_import)
-                external_imports.append(node_and_package_import)
-                if not nested:
-                    if not ignore_for_import_order:
-                        first_party_not_ignored.append(node_and_package_import)
-                    else:
-                        self.linter.add_ignored_message(
-                            "wrong-import-order", node.fromlineno, node
                         )
-                wrong_import = local_not_ignored
-                if wrong_import and not nested:
-                    self.add_message(
-                        "wrong-import-order",
-                        node=node,
-                        args=(
-                            f'first party import "{self._get_full_import_name((node, package))}"',
-                            self._get_out_of_order_string(
-                                None, None, local_not_ignored
+                case "THIRDPARTY":
+                    third_party_imports.append(node_and_package_import)
+                    external_imports.append(node_and_package_import)
+                    if not nested:
+                        if not ignore_for_import_order:
+                            third_party_not_ignored.append(node_and_package_import)
+                        else:
+                            self.linter.add_ignored_message(
+                                "wrong-import-order", node.fromlineno, node
+                            )
+                    wrong_import = first_party_not_ignored or local_not_ignored
+                    if wrong_import and not nested:
+                        self.add_message(
+                            "wrong-import-order",
+                            node=node,
+                            args=(
+                                f'third party import "{self._get_full_import_name((node, package))}"',
+                                self._get_out_of_order_string(
+                                    None, first_party_not_ignored, local_not_ignored
+                                ),
                             ),
-                        ),
-                    )
-            elif import_category == "LOCALFOLDER":
-                local_imports.append((node, package))
-                if not nested:
-                    if not ignore_for_import_order:
-                        local_not_ignored.append((node, package))
-                    else:
-                        self.linter.add_ignored_message(
-                            "wrong-import-order", node.fromlineno, node
                         )
+                case "FIRSTPARTY":
+                    first_party_imports.append(node_and_package_import)
+                    external_imports.append(node_and_package_import)
+                    if not nested:
+                        if not ignore_for_import_order:
+                            first_party_not_ignored.append(node_and_package_import)
+                        else:
+                            self.linter.add_ignored_message(
+                                "wrong-import-order", node.fromlineno, node
+                            )
+                    wrong_import = local_not_ignored
+                    if wrong_import and not nested:
+                        self.add_message(
+                            "wrong-import-order",
+                            node=node,
+                            args=(
+                                f'first party import "{self._get_full_import_name((node, package))}"',
+                                self._get_out_of_order_string(
+                                    None, None, local_not_ignored
+                                ),
+                            ),
+                        )
+                case "LOCALFOLDER":
+                    local_imports.append((node, package))
+                    if not nested:
+                        if not ignore_for_import_order:
+                            local_not_ignored.append((node, package))
+                        else:
+                            self.linter.add_ignored_message(
+                                "wrong-import-order", node.fromlineno, node
+                            )
         return std_imports, external_imports, local_imports
 
     def _get_out_of_order_string(
