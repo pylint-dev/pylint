@@ -693,6 +693,10 @@ class MisdesignChecker(BaseChecker):
 
     visit_for = visit_while
 
+    def visit_match(self, node: nodes.Match) -> None:
+        """Increments the branches counter."""
+        self._inc_branch(node, len(node.cases))
+
     def _inc_branch(self, node: nodes.NodeNG, branchesnum: int = 1) -> None:
         """Increments the branches counter."""
         self._branches[node.scope()] += branchesnum
