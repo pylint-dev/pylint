@@ -1817,10 +1817,9 @@ accessed. Python regular expressions are accepted.",
             match index_type := safe_infer(index):
                 case _ if not index_type:
                     continue
-                case nodes.Const():
+                case nodes.Const(value=int() | None):
                     # Constants must be of type int or None
-                    if isinstance(index_type.value, (int, type(None))):
-                        continue
+                    continue
                 case astroid.Instance():
                     # Instance values must be of type int, None or an object
                     # with __index__

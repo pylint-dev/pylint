@@ -650,29 +650,30 @@ scope_type : {self.scope_type}
     def _inferred_to_define_name_raise_or_return(
         self,
         name: str,
-        node: nodes.NodeNG,
+        node: nodes.Try | nodes.With | nodes.For | nodes.While | nodes.Match | nodes.If,
     ) -> bool:
         """Return True if there is a path under this `if_node`
         that is inferred to define `name`, raise, or return.
         """
-        # Handle try and with
-        if isinstance(node, nodes.Try):
-            # Allow either a path through try/else/finally OR a path through ALL except handlers
-            try_except_node = node
-            if node.finalbody:
-                try_except_node = next(
-                    (child for child in node.nodes_of_class(nodes.Try)),
-                    None,
-                )
-            handlers = try_except_node.handlers if try_except_node else []
-            return NamesConsumer._defines_name_raises_or_returns_recursive(
-                name, node
-            ) or all(
-                NamesConsumer._defines_name_raises_or_returns_recursive(name, handler)
-                for handler in handlers
-            )
-
         match node:
+            case nodes.Try():
+                # Allow either a path through try/else/finally OR a path through ALL except handlers
+                try_except_node = node
+                if node.finalbody:
+                    try_except_node = next(
+                        (child for child in node.nodes_of_class(nodes.Try)),
+                        None,
+                    )
+                handlers = try_except_node.handlers if try_except_node else []
+                return NamesConsumer._defines_name_raises_or_returns_recursive(
+                    name, node
+                ) or all(
+                    NamesConsumer._defines_name_raises_or_returns_recursive(
+                        name, handler
+                    )
+                    for handler in handlers
+                )
+
             case nodes.With() | nodes.For() | nodes.While():
                 return NamesConsumer._defines_name_raises_or_returns_recursive(
                     name, node
@@ -684,12 +685,17 @@ scope_type : {self.scope_type}
                     for case in node.cases
                 )
             case nodes.If():
-                pass
+                return self._inferred_to_define_name_raise_or_return_for_if_node(
+                    name, node
+                )
             case _:  # pragma: no cover
                 # The function is only called for Try, With, For, While, Match and
                 # If nodes. All of which are being handled above.
                 raise AssertionError
 
+    def _inferred_to_define_name_raise_or_return_for_if_node(
+        self, name: str, node: nodes.If
+    ) -> bool:
         # Be permissive if there is a break or a continue
         if any(node.nodes_of_class(nodes.Break, nodes.Continue)):
             return True
