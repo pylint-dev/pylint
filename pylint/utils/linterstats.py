@@ -24,6 +24,8 @@ class BadNames(TypedDict):
     module: int
     variable: int
     typevar: int
+    paramspec: int
+    typevartuple: int
     typealias: int
 
 
@@ -102,6 +104,8 @@ class LinterStats:
             module=0,
             variable=0,
             typevar=0,
+            paramspec=0,
+            typevartuple=0,
             typealias=0,
         )
         self.by_module: dict[str, ModuleStats] = by_module or {}
@@ -181,6 +185,8 @@ class LinterStats:
             "module",
             "variable",
             "typevar",
+            "paramspec",
+            "typevartuple",
             "typealias",
         ],
     ) -> int:
@@ -204,6 +210,8 @@ class LinterStats:
             "module",
             "variable",
             "typevar",
+            "paramspec",
+            "typevartuple",
             "typealias",
         }:
             raise ValueError("Node type not part of the bad_names stat")
@@ -222,6 +230,8 @@ class LinterStats:
                 "module",
                 "variable",
                 "typevar",
+                "paramspec",
+                "typevartuple",
                 "typealias",
             ],
             node_name,
@@ -246,6 +256,8 @@ class LinterStats:
             module=0,
             variable=0,
             typevar=0,
+            paramspec=0,
+            typevartuple=0,
             typealias=0,
         )
 
@@ -341,6 +353,8 @@ def merge_stats(stats: list[LinterStats]) -> LinterStats:
         merged.bad_names["module"] += stat.bad_names["module"]
         merged.bad_names["variable"] += stat.bad_names["variable"]
         merged.bad_names["typevar"] += stat.bad_names["typevar"]
+        merged.bad_names["paramspec"] += stat.bad_names["paramspec"]
+        merged.bad_names["typevartuple"] += stat.bad_names["typevartuple"]
         merged.bad_names["typealias"] += stat.bad_names["typealias"]
 
         for mod_key, mod_value in stat.by_module.items():

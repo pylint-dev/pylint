@@ -20,7 +20,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.12.10"
+    rev: "v0.12.11"
     hooks:
       - id: ruff-check
         args: ["--fix"]
@@ -132,7 +132,7 @@ repos:
         additional_dependencies:
           ["Sphinx==7.4.3", "pydantic>=2.12.0a1;python_version>='3.14'"]
   - repo: https://github.com/cdce8p/mypy-dev-pre-commit
-    rev: v1.18.0a6
+    rev: v1.18.0a7
     hooks:
       - id: mypy
         name: mypy
