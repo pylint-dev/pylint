@@ -166,7 +166,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "default": 100,
                 "type": "int",
                 "metavar": "<int>",
-                "help": "Maximum number of characters on a single line.",
+                "help": (
+                    "Maximum number of characters on a single line. "
+                    "Pylint's default of 100 is based on PEP 8's guidance that teams "
+                    "may choose line lengths up to 99 characters."
+                ),
             },
         ),
         (
@@ -347,30 +351,31 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     )
                 return
             elif depth == 1:
-                # This is a tuple, which is always acceptable.
-                if token[1] == ",":
-                    return
-                # 'and' and 'or' are the only boolean operators with lower precedence
-                # than 'not', so parens are only required when they are found.
-                if token[1] in {"and", "or"}:
-                    found_and_or = True
-                # A yield inside an expression must always be in parentheses,
-                # quit early without error.
-                elif token[1] == "yield":
-                    return
-                # A generator expression always has a 'for' token in it, and
-                # the 'for' token is only legal inside parens when it is in a
-                # generator expression.  The parens are necessary here, so bail
-                # without an error.
-                elif token[1] == "for":
-                    return
-                # A generator expression can have an 'else' token in it.
-                # We check the rest of the tokens to see if any problems occur after
-                # the 'else'.
-                elif token[1] == "else":
-                    if "(" in (i.string for i in tokens[i:]):
-                        self._check_keyword_parentheses(tokens[i:], 0)
-                    return
+                match token[1]:
+                    case ",":
+                        # This is a tuple, which is always acceptable.
+                        return
+                    case "and" | "or":
+                        # 'and' and 'or' are the only boolean operators with lower precedence
+                        # than 'not', so parens are only required when they are found.
+                        found_and_or = True
+                    case "yield":
+                        # A yield inside an expression must always be in parentheses,
+                        # quit early without error.
+                        return
+                    case "for":
+                        # A generator expression always has a 'for' token in it, and
+                        # the 'for' token is only legal inside parens when it is in a
+                        # generator expression.  The parens are necessary here, so bail
+                        # without an error.
+                        return
+                    case "else":
+                        # A generator expression can have an 'else' token in it.
+                        # We check the rest of the tokens to see if any problems occur after
+                        # the 'else'.
+                        if "(" in (i.string for i in tokens[i:]):
+                            self._check_keyword_parentheses(tokens[i:], 0)
+                        return
 
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         """Process tokens and search for:
@@ -397,39 +402,42 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 else:
                     self.new_line(TokenWrapper(tokens), idx - 1, idx)
 
-            if tok_type == tokenize.NEWLINE:
-                # a program statement, or ENDMARKER, will eventually follow,
-                # after some (possibly empty) run of tokens of the form
-                #     (NL | COMMENT)* (INDENT | DEDENT+)?
-                # If an INDENT appears, setting check_equal is wrong, and will
-                # be undone when we see the INDENT.
-                check_equal = True
-                self._check_line_ending(string, line_num)
-            elif tok_type == tokenize.INDENT:
-                check_equal = False
-                self.check_indent_level(string, indents[-1] + 1, line_num)
-                indents.append(indents[-1] + 1)
-            elif tok_type == tokenize.DEDENT:
-                # there's nothing we need to check here!  what's important is
-                # that when the run of DEDENTs ends, the indentation of the
-                # program statement (or ENDMARKER) that triggered the run is
-                # equal to what's left at the top of the indents stack
-                check_equal = True
-                if len(indents) > 1:
-                    del indents[-1]
-            elif tok_type == tokenize.NL:
-                if not line.strip("\r\n"):
-                    last_blank_line_num = line_num
-            elif tok_type not in (tokenize.COMMENT, tokenize.ENCODING):
-                # This is the first concrete token following a NEWLINE, so it
-                # must be the first token of the next program statement, or an
-                # ENDMARKER; the "line" argument exposes the leading white-space
-                # for this statement; in the case of ENDMARKER, line is an empty
-                # string, so will properly match the empty string with which the
-                # "indents" stack was seeded
-                if check_equal:
+            match tok_type:
+                case tokenize.NEWLINE:
+                    # a program statement, or ENDMARKER, will eventually follow,
+                    # after some (possibly empty) run of tokens of the form
+                    #     (NL | COMMENT)* (INDENT | DEDENT+)?
+                    # If an INDENT appears, setting check_equal is wrong, and will
+                    # be undone when we see the INDENT.
+                    check_equal = True
+                    self._check_line_ending(string, line_num)
+                case tokenize.INDENT:
                     check_equal = False
-                    self.check_indent_level(line, indents[-1], line_num)
+                    self.check_indent_level(string, indents[-1] + 1, line_num)
+                    indents.append(indents[-1] + 1)
+                case tokenize.DEDENT:
+                    # there's nothing we need to check here!  what's important is
+                    # that when the run of DEDENTs ends, the indentation of the
+                    # program statement (or ENDMARKER) that triggered the run is
+                    # equal to what's left at the top of the indents stack
+                    check_equal = True
+                    if len(indents) > 1:
+                        del indents[-1]
+                case tokenize.NL:
+                    if not line.strip("\r\n"):
+                        last_blank_line_num = line_num
+                case tokenize.COMMENT | tokenize.ENCODING:
+                    pass
+                case _:
+                    # This is the first concrete token following a NEWLINE, so it
+                    # must be the first token of the next program statement, or an
+                    # ENDMARKER; the "line" argument exposes the leading white-space
+                    # for this statement; in the case of ENDMARKER, line is an empty
+                    # string, so will properly match the empty string with which the
+                    # "indents" stack was seeded
+                    if check_equal:
+                        check_equal = False
+                        self.check_indent_level(line, indents[-1], line_num)
 
             if tok_type == tokenize.NUMBER and string.endswith("l"):
                 self.add_message("lowercase-l-suffix", line=line_num)
@@ -546,30 +554,26 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
 
     def _check_multi_statement_line(self, node: nodes.NodeNG, line: int) -> None:
         """Check for lines containing multiple statements."""
-        if isinstance(node, nodes.With):
-            # Do not warn about multiple nested context managers in with statements.
-            return
-        if (
-            isinstance(node.parent, nodes.If)
-            and not node.parent.orelse
-            and self.linter.config.single_line_if_stmt
-        ):
-            return
-        if (
-            isinstance(node.parent, nodes.ClassDef)
-            and len(node.parent.body) == 1
-            and self.linter.config.single_line_class_stmt
-        ):
-            return
-
-        # Functions stubs and class with ``Ellipsis`` as body are exempted.
-        if (
-            isinstance(node, nodes.Expr)
-            and isinstance(node.parent, (nodes.FunctionDef, nodes.ClassDef))
-            and isinstance(node.value, nodes.Const)
-            and node.value.value is Ellipsis
-        ):
-            return
+        match node:
+            case nodes.With():
+                # Do not warn about multiple nested context managers in with statements.
+                return
+            case nodes.NodeNG(
+                parent=nodes.If(orelse=[])
+            ) if self.linter.config.single_line_if_stmt:
+                return
+            case nodes.NodeNG(
+                parent=nodes.ClassDef(body=[_])
+            ) if self.linter.config.single_line_class_stmt:
+                return
+            case nodes.Expr(
+                parent=nodes.FunctionDef() | nodes.ClassDef(),
+                value=nodes.Const(value=value),
+            ) if (
+                value is Ellipsis
+            ):
+                # Functions stubs and class with ``Ellipsis`` as body are exempted.
+                return
 
         self.add_message("multiple-statements", node=node, confidence=HIGH)
         self._visited_lines[line] = 2

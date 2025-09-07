@@ -137,6 +137,8 @@ DEFAULT_NAMING_STYLES = {
 KNOWN_NAME_TYPES = {
     *KNOWN_NAME_TYPES_WITH_STYLE,
     "typevar",
+    "paramspec",
+    "typevartuple",
     "typealias",
 }
 

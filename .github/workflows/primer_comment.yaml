@@ -16,6 +16,8 @@ env:
   # This needs to be the SAME as in the Main and PR job
   CACHE_VERSION: 4
   KEY_PREFIX: venv-primer
+  # If you change this, also change PRIMER_CURRENT_INTERPRETER in
+  # tests/testutils/_primer/test_primer.py
   DEFAULT_PYTHON: "3.13"
 
 permissions:
@@ -33,7 +35,7 @@ jobs:
         uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true

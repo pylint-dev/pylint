@@ -227,14 +227,14 @@ def arg_matches_format_type(
         # All types can be printed with %s and %r
         return True
     if isinstance(arg_type, astroid.Instance):
-        arg_type = arg_type.pytype()
-        if arg_type == "builtins.str":
-            return format_type == "c"
-        if arg_type == "builtins.float":
-            return format_type in "deEfFgGn%"
-        if arg_type == "builtins.int":
-            # Integers allow all types
-            return True
+        match arg_type.pytype():
+            case "builtins.str":
+                return format_type == "c"
+            case "builtins.float":
+                return format_type in "deEfFgGn%"
+            case "builtins.int":
+                # Integers allow all types
+                return True
         return False
     return True
 
@@ -417,24 +417,24 @@ class StringFormatChecker(BaseChecker):
         self.add_message("f-string-without-interpolation", node=node)
 
     def visit_call(self, node: nodes.Call) -> None:
-        func = utils.safe_infer(node.func)
-        if (
-            isinstance(func, astroid.BoundMethod)
-            and isinstance(func.bound, astroid.Instance)
-            and func.bound.name in {"str", "unicode", "bytes"}
-        ):
-            if func.name in {"strip", "lstrip", "rstrip"} and node.args:
-                arg = utils.safe_infer(node.args[0])
-                if not isinstance(arg, nodes.Const) or not isinstance(arg.value, str):
-                    return
-                if len(arg.value) != len(set(arg.value)):
-                    self.add_message(
-                        "bad-str-strip-call",
-                        node=node,
-                        args=(func.bound.name, func.name),
-                    )
-            elif func.name == "format":
-                self._check_new_format(node, func)
+        match func := utils.safe_infer(node.func):
+            case astroid.BoundMethod(
+                bound=astroid.Instance(name="str" | "unicode" | "bytes" as bound_name),
+            ):
+                if func.name in {"strip", "lstrip", "rstrip"} and node.args:
+                    arg = utils.safe_infer(node.args[0])
+                    if not isinstance(arg, nodes.Const) or not isinstance(
+                        arg.value, str
+                    ):
+                        return
+                    if len(arg.value) != len(set(arg.value)):
+                        self.add_message(
+                            "bad-str-strip-call",
+                            node=node,
+                            args=(bound_name, func.name),
+                        )
+                elif func.name == "format":
+                    self._check_new_format(node, func)
 
     def _detect_vacuous_formatting(
         self, node: nodes.Call, positional_arguments: list[SuccessfulInferenceResult]
@@ -724,31 +724,32 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
     def process_tokens(self, tokens: list[tokenize.TokenInfo]) -> None:
         encoding = "ascii"
         for i, (token_type, token, start, _, line) in enumerate(tokens):
-            if token_type == tokenize.ENCODING:
-                # this is always the first token processed
-                encoding = token
-            elif token_type == tokenize.STRING:
-                # 'token' is the whole un-parsed token; we can look at the start
-                # of it to see whether it's a raw or unicode string etc.
-                self.process_string_token(token, start[0], start[1])
-                # We figure the next token, ignoring comments & newlines:
-                j = i + 1
-                while j < len(tokens) and tokens[j].type in (
-                    tokenize.NEWLINE,
-                    tokenize.NL,
-                    tokenize.COMMENT,
-                ):
-                    j += 1
-                next_token = tokens[j] if j < len(tokens) else None
-                if encoding != "ascii":
-                    # We convert `tokenize` character count into a byte count,
-                    # to match with astroid `.col_offset`
-                    start = (start[0], len(line[: start[1]].encode(encoding)))
-                self.string_tokens[start] = (str_eval(token), next_token)
-                is_parenthesized = self._is_initial_string_token(
-                    i, tokens
-                ) and self._is_parenthesized(i, tokens)
-                self._parenthesized_string_tokens[start] = is_parenthesized
+            match token_type:
+                case tokenize.ENCODING:
+                    # this is always the first token processed
+                    encoding = token
+                case tokenize.STRING:
+                    # 'token' is the whole un-parsed token; we can look at the start
+                    # of it to see whether it's a raw or unicode string etc.
+                    self.process_string_token(token, start[0], start[1])
+                    # We figure the next token, ignoring comments & newlines:
+                    j = i + 1
+                    while j < len(tokens) and tokens[j].type in (
+                        tokenize.NEWLINE,
+                        tokenize.NL,
+                        tokenize.COMMENT,
+                    ):
+                        j += 1
+                    next_token = tokens[j] if j < len(tokens) else None
+                    if encoding != "ascii":
+                        # We convert `tokenize` character count into a byte count,
+                        # to match with astroid `.col_offset`
+                        start = (start[0], len(line[: start[1]].encode(encoding)))
+                    self.string_tokens[start] = (str_eval(token), next_token)
+                    is_parenthesized = self._is_initial_string_token(
+                        i, tokens
+                    ) and self._is_parenthesized(i, tokens)
+                    self._parenthesized_string_tokens[start] = is_parenthesized
 
         if self.linter.config.check_quote_consistency:
             self.check_for_consistent_string_delimiters(tokens)
@@ -842,10 +843,11 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         for tok_type, token, _, _, _ in tokens:
             if sys.version_info[:2] >= (3, 12):
                 # pylint: disable=no-member,useless-suppression
-                if tok_type == tokenize.FSTRING_START:
-                    inside_fstring = True
-                elif tok_type == tokenize.FSTRING_END:
-                    inside_fstring = False
+                match tok_type:
+                    case tokenize.FSTRING_START:
+                        inside_fstring = True
+                    case tokenize.FSTRING_END:
+                        inside_fstring = False
 
                 if inside_fstring and not target_py312:
                     # skip analysis of f-string contents
