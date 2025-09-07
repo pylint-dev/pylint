@@ -1,6 +1,6 @@
 """Test case for typevar-name-incorrect-variance with default settings"""
 # pylint: disable=too-few-public-methods,line-too-long
-from typing import TypeVar
+from typing import TypeVar, ParamSpec
 import typing_extensions as te
 
 # PascalCase names with prefix
@@ -62,3 +62,30 @@ GoodNameT = te.TypeVar("GoodNameT")
 GoodNameT_co = te.TypeVar("GoodNameT_co", covariant=True)
 badName = te.TypeVar("badName")  # [invalid-name]
 T_co = te.TypeVar("T_co", covariant=True, contravariant=True)  # [typevar-double-variance,typevar-name-incorrect-variance]
+
+
+# -- typing.ParamSpec --
+P = ParamSpec("P")
+_P = ParamSpec("_P")
+GoodNameP = ParamSpec("GoodNameP")
+badName = ParamSpec("badName")  # [invalid-name]
+
+# -- typing_extensions.ParamSpec --
+P = te.ParamSpec("P")
+_P = te.ParamSpec("_P")
+GoodNameP = te.ParamSpec("GoodNameP")
+badName = te.ParamSpec("badName")  # [invalid-name]
+
+
+# # -- typing.TypeVarTuple (TODO 3.11+) --
+# Ts = TypeVarTuple("Ts")
+# _Ts = TypeVarTuple("_Ts")
+# GoodNameTs = TypeVarTuple("GoodNameTs")
+# badName = TypeVarTuple("badName")  # invalid-name
+
+# -- typing_extensions.TypeVarTuple (3.11+) --
+# TODO Can't infer typing_extensions.TypeVarTuple for 3.10  # pylint:disable=fixme
+Ts = te.TypeVarTuple("Ts")
+_Ts = te.TypeVarTuple("_Ts")
+GoodNameTs = te.TypeVarTuple("GoodNameTs")
+badName = te.TypeVarTuple("badName")  # >=3.11:[invalid-name]

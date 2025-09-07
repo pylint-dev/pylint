@@ -528,20 +528,20 @@ def _get_all_attribute_assignments(
     attributes: set[str] = set()
     for child in node.nodes_of_class((nodes.Assign, nodes.AnnAssign)):
         targets = []
-        if isinstance(child, nodes.Assign):
-            targets = child.targets
-        elif isinstance(child, nodes.AnnAssign):
-            targets = [child.target]
+        match child:
+            case nodes.Assign():
+                targets = child.targets
+            case nodes.AnnAssign():
+                targets = [child.target]
         for assign_target in targets:
-            if isinstance(assign_target, nodes.Tuple):
-                targets.extend(assign_target.elts)
-                continue
-            if (
-                isinstance(assign_target, nodes.AssignAttr)
-                and isinstance(assign_target.expr, nodes.Name)
-                and (name is None or assign_target.expr.name == name)
-            ):
-                attributes.add(assign_target.attrname)
+            match assign_target:
+                case nodes.Tuple():
+                    targets.extend(assign_target.elts)
+                    continue
+                case nodes.AssignAttr(expr=nodes.Name(name=n)) if (
+                    n is None or n == name
+                ):
+                    attributes.add(assign_target.attrname)
     return attributes
 
 
@@ -608,43 +608,44 @@ def _determine_callable(
     parameters = 0
     if hasattr(callable_obj, "implicit_parameters"):
         parameters = callable_obj.implicit_parameters()
-    if isinstance(callable_obj, bases.BoundMethod):
-        # Bound methods have an extra implicit 'self' argument.
-        return callable_obj, parameters, callable_obj.type
-    if isinstance(callable_obj, bases.UnboundMethod):
-        return callable_obj, parameters, "unbound method"
-    if isinstance(callable_obj, nodes.FunctionDef):
-        return callable_obj, parameters, callable_obj.type
-    if isinstance(callable_obj, nodes.Lambda):
-        return callable_obj, parameters, "lambda"
-    if isinstance(callable_obj, nodes.ClassDef):
-        # Class instantiation, lookup __new__ instead.
-        # If we only find object.__new__, we can safely check __init__
-        # instead. If __new__ belongs to builtins, then we look
-        # again for __init__ in the locals, since we won't have
-        # argument information for the builtin __new__ function.
-        try:
-            # Use the last definition of __new__.
-            new = callable_obj.local_attr("__new__")[-1]
-        except astroid.NotFoundError:
-            new = None
-
-        from_object = new and new.parent.scope().name == "object"
-        from_builtins = new and new.root().name in sys.builtin_module_names
-
-        if not new or from_object or from_builtins:
+    match callable_obj:
+        case bases.BoundMethod():
+            # Bound methods have an extra implicit 'self' argument.
+            return callable_obj, parameters, callable_obj.type
+        case bases.UnboundMethod():
+            return callable_obj, parameters, "unbound method"
+        case nodes.FunctionDef():
+            return callable_obj, parameters, callable_obj.type
+        case nodes.Lambda():
+            return callable_obj, parameters, "lambda"
+        case nodes.ClassDef():
+            # Class instantiation, lookup __new__ instead.
+            # If we only find object.__new__, we can safely check __init__
+            # instead. If __new__ belongs to builtins, then we look
+            # again for __init__ in the locals, since we won't have
+            # argument information for the builtin __new__ function.
             try:
-                # Use the last definition of __init__.
-                callable_obj = callable_obj.local_attr("__init__")[-1]
-            except astroid.NotFoundError as e:
-                raise ValueError from e
-        else:
-            callable_obj = new
+                # Use the last definition of __new__.
+                new = callable_obj.local_attr("__new__")[-1]
+            except astroid.NotFoundError:
+                new = None
 
-        if not isinstance(callable_obj, nodes.FunctionDef):
-            raise ValueError
-        # both have an extra implicit 'cls'/'self' argument.
-        return callable_obj, parameters, "constructor"
+            from_object = new and new.parent.scope().name == "object"
+            from_builtins = new and new.root().name in sys.builtin_module_names
+
+            if not new or from_object or from_builtins:
+                try:
+                    # Use the last definition of __init__.
+                    callable_obj = callable_obj.local_attr("__init__")[-1]
+                except astroid.NotFoundError as e:
+                    raise ValueError from e
+            else:
+                callable_obj = new
+
+            if not isinstance(callable_obj, nodes.FunctionDef):
+                raise ValueError
+            # both have an extra implicit 'cls'/'self' argument.
+            return callable_obj, parameters, "constructor"
 
     raise ValueError
 
@@ -800,21 +801,21 @@ def _is_invalid_isinstance_type(arg: nodes.NodeNG) -> bool:
             _is_invalid_isinstance_type(elt) and not is_none(elt)
             for elt in (arg.left, arg.right)
         )
-    inferred = utils.safe_infer(arg)
-    if not inferred:
-        # Cannot infer it so skip it.
-        return False
-    if isinstance(inferred, nodes.Tuple):
-        return any(_is_invalid_isinstance_type(elt) for elt in inferred.elts)
-    if isinstance(inferred, nodes.ClassDef):
-        return False
-    if isinstance(inferred, astroid.Instance) and inferred.qname() == BUILTIN_TUPLE:
-        return False
-    if isinstance(inferred, bases.UnionType):
-        return any(
-            _is_invalid_isinstance_type(elt) and not is_none(elt)
-            for elt in (inferred.left, inferred.right)
-        )
+    match inferred := utils.safe_infer(arg):
+        case _ if not inferred:
+            # Cannot infer it so skip it.
+            return False
+        case nodes.Tuple():
+            return any(_is_invalid_isinstance_type(elt) for elt in inferred.elts)
+        case nodes.ClassDef():
+            return False
+        case astroid.Instance() if inferred.qname() == BUILTIN_TUPLE:
+            return False
+        case bases.UnionType():
+            return any(
+                _is_invalid_isinstance_type(elt) and not is_none(elt)
+                for elt in (inferred.left, inferred.right)
+            )
     return True
 
 
@@ -1312,12 +1313,13 @@ accessed. Python regular expressions are accepted.",
         rhs = node.value
         if isinstance(rhs, nodes.Const) and isinstance(rhs.value, str):
             return
-        inferred = utils.safe_infer(rhs)
-        if not inferred:
-            return
-        if not (isinstance(inferred, nodes.Const) and isinstance(inferred.value, str)):
-            # Add the message
-            self.add_message("non-str-assignment-to-dunder-name", node=node)
+        match inferred := utils.safe_infer(rhs):
+            case _ if not inferred:
+                return
+            case nodes.Const(value=str()):
+                pass
+            case _:
+                self.add_message("non-str-assignment-to-dunder-name", node=node)
 
     def _check_uninferable_call(self, node: nodes.Call) -> None:
         """Check that the given uninferable Call node does not
@@ -1749,24 +1751,25 @@ accessed. Python regular expressions are accepted.",
         index_type = safe_infer(subscript.slice)
         if index_type is None or isinstance(index_type, util.UninferableBase):
             return None
-        # Constants must be of type int
-        if isinstance(index_type, nodes.Const):
-            if isinstance(index_type.value, int):
-                return None
-        # Instance values must be int, slice, or have an __index__ method
-        elif isinstance(index_type, astroid.Instance):
-            if index_type.pytype() in {"builtins.int", "builtins.slice"}:
-                return None
-            try:
-                index_type.getattr("__index__")
-                return None
-            except astroid.NotFoundError:
-                pass
-        elif isinstance(index_type, nodes.Slice):
-            # A slice can be present
-            # here after inferring the index node, which could
-            # be a `slice(...)` call for instance.
-            return self._check_invalid_slice_index(index_type)
+        match index_type:
+            case nodes.Const():
+                # Constants must be of type int
+                if isinstance(index_type.value, int):
+                    return None
+            case astroid.Instance():
+                # Instance values must be int, slice, or have an __index__ method
+                if index_type.pytype() in {"builtins.int", "builtins.slice"}:
+                    return None
+                try:
+                    index_type.getattr("__index__")
+                    return None
+                except astroid.NotFoundError:
+                    pass
+            case nodes.Slice():
+                # A slice can be present
+                # here after inferring the index node, which could
+                # be a `slice(...)` call for instance.
+                return self._check_invalid_slice_index(index_type)
 
         # Anything else is an error
         self.add_message("invalid-sequence-index", node=subscript)
@@ -1810,25 +1813,23 @@ accessed. Python regular expressions are accepted.",
             if index is None:
                 continue
 
-            index_type = safe_infer(index)
-            if index_type is None or isinstance(index_type, util.UninferableBase):
-                continue
-
-            # Constants must be of type int or None
-            if isinstance(index_type, nodes.Const):
-                if isinstance(index_type.value, (int, type(None))):
+            match index_type := safe_infer(index):
+                case _ if not index_type:
                     continue
-            # Instance values must be of type int, None or an object
-            # with __index__
-            elif isinstance(index_type, astroid.Instance):
-                if index_type.pytype() in {"builtins.int", "builtins.NoneType"}:
+                case nodes.Const(value=int() | None):
+                    # Constants must be of type int or None
                     continue
+                case astroid.Instance():
+                    # Instance values must be of type int, None or an object
+                    # with __index__
+                    if index_type.pytype() in {"builtins.int", "builtins.NoneType"}:
+                        continue
 
-                try:
-                    index_type.getattr("__index__")
-                    return
-                except astroid.NotFoundError:
-                    pass
+                    try:
+                        index_type.getattr("__index__")
+                        return
+                    except astroid.NotFoundError:
+                        pass
             invalid_slices_nodes.append(index)
 
         invalid_slice_step = (
@@ -1875,68 +1876,67 @@ accessed. Python regular expressions are accepted.",
     def visit_with(self, node: nodes.With) -> None:
         for ctx_mgr, _ in node.items:
             context = astroid.context.InferenceContext()
-            inferred = safe_infer(ctx_mgr, context=context)
-            if inferred is None or isinstance(inferred, util.UninferableBase):
-                continue
-
-            if isinstance(inferred, astroid.bases.Generator):
-                # Check if we are dealing with a function decorated
-                # with contextlib.contextmanager.
-                if decorated_with(
-                    inferred.parent, self.linter.config.contextmanager_decorators
-                ):
+            match inferred := safe_infer(ctx_mgr, context=context):
+                case _ if not inferred:
                     continue
-                # If the parent of the generator is not the context manager itself,
-                # that means that it could have been returned from another
-                # function which was the real context manager.
-                # The following approach is more of a hack rather than a real
-                # solution: walk all the inferred statements for the
-                # given *ctx_mgr* and if you find one function scope
-                # which is decorated, consider it to be the real
-                # manager and give up, otherwise emit not-context-manager.
-                # See the test file for not_context_manager for a couple
-                # of self explaining tests.
-
-                # Retrieve node from all previously visited nodes in the
-                # inference history
-                for inferred_path, _ in context.path:
-                    if not inferred_path:
-                        continue
-                    if isinstance(inferred_path, nodes.Call):
-                        scope = safe_infer(inferred_path.func)
-                    else:
-                        scope = inferred_path.scope()
-                    if not isinstance(scope, nodes.FunctionDef):
-                        continue
+                case astroid.bases.Generator():
+                    # Check if we are dealing with a function decorated
+                    # with contextlib.contextmanager.
                     if decorated_with(
-                        scope, self.linter.config.contextmanager_decorators
+                        inferred.parent, self.linter.config.contextmanager_decorators
                     ):
-                        break
-                else:
-                    self.add_message(
-                        "not-context-manager", node=node, args=(inferred.name,)
-                    )
-            else:
-                try:
-                    inferred.getattr("__enter__")
-                    inferred.getattr("__exit__")
-                except astroid.NotFoundError:
-                    if isinstance(inferred, astroid.Instance):
-                        # If we do not know the bases of this class,
-                        # just skip it.
-                        if not has_known_bases(inferred):
-                            continue
-                        # Just ignore mixin classes.
-                        if (
-                            "not-context-manager"
-                            in self.linter.config.ignored_checks_for_mixins
-                        ):
-                            if inferred.name[-5:].lower() == "mixin":
-                                continue
+                        continue
+                    # If the parent of the generator is not the context manager itself,
+                    # that means that it could have been returned from another
+                    # function which was the real context manager.
+                    # The following approach is more of a hack rather than a real
+                    # solution: walk all the inferred statements for the
+                    # given *ctx_mgr* and if you find one function scope
+                    # which is decorated, consider it to be the real
+                    # manager and give up, otherwise emit not-context-manager.
+                    # See the test file for not_context_manager for a couple
+                    # of self explaining tests.
 
-                    self.add_message(
-                        "not-context-manager", node=node, args=(inferred.name,)
-                    )
+                    # Retrieve node from all previously visited nodes in the
+                    # inference history
+                    for inferred_path, _ in context.path:
+                        if not inferred_path:
+                            continue
+                        if isinstance(inferred_path, nodes.Call):
+                            scope = safe_infer(inferred_path.func)
+                        else:
+                            scope = inferred_path.scope()
+                        if not isinstance(scope, nodes.FunctionDef):
+                            continue
+                        if decorated_with(
+                            scope, self.linter.config.contextmanager_decorators
+                        ):
+                            break
+                    else:
+                        self.add_message(
+                            "not-context-manager", node=node, args=(inferred.name,)
+                        )
+                case _:
+                    try:
+                        inferred.getattr("__enter__")
+                        inferred.getattr("__exit__")
+                    except astroid.NotFoundError:
+                        if isinstance(inferred, astroid.Instance):
+                            # If we do not know the bases of this class,
+                            # just skip it.
+                            if not has_known_bases(inferred):
+                                continue
+                            # Just ignore mixin classes.
+                            if (
+                                "not-context-manager"
+                                in self.linter.config.ignored_checks_for_mixins
+                            ):
+                                if inferred.name[-5:].lower() == "mixin":
+                                    continue
+
+                        self.add_message(
+                            "not-context-manager", node=node, args=(inferred.name,)
+                        )
 
     @only_required_for_messages("invalid-unary-operand-type")
     def visit_unaryop(self, node: nodes.UnaryOp) -> None:
@@ -2129,31 +2129,32 @@ accessed. Python regular expressions are accepted.",
         self._check_invalid_sequence_index(node)
 
         supported_protocol: Callable[[Any, Any], bool] | None = None
-        if isinstance(node.value, (nodes.ListComp, nodes.DictComp)):
-            return
+        match node.value:
+            case nodes.ListComp() | nodes.DictComp():
+                return
 
-        if isinstance(node.value, nodes.Dict):
-            # Assert dict key is hashable
-            if not is_hashable(node.slice):
-                self.add_message(
-                    "unhashable-member",
-                    node=node.value,
-                    args=(node.slice.as_string(), "key", "dict"),
-                    confidence=INFERENCE,
-                )
+            case nodes.Dict():
+                # Assert dict key is hashable
+                if not is_hashable(node.slice):
+                    self.add_message(
+                        "unhashable-member",
+                        node=node.value,
+                        args=(node.slice.as_string(), "key", "dict"),
+                        confidence=INFERENCE,
+                    )
 
-        if node.ctx == astroid.Context.Load:
-            supported_protocol = supports_getitem
-            msg = "unsubscriptable-object"
-        elif node.ctx == astroid.Context.Store:
-            supported_protocol = supports_setitem
-            msg = "unsupported-assignment-operation"
-        elif node.ctx == astroid.Context.Del:
-            supported_protocol = supports_delitem
-            msg = "unsupported-delete-operation"
+        match node.ctx:
+            case astroid.Context.Load:
+                supported_protocol = supports_getitem
+                msg = "unsubscriptable-object"
+            case astroid.Context.Store:
+                supported_protocol = supports_setitem
+                msg = "unsupported-assignment-operation"
+            case astroid.Context.Del:
+                supported_protocol = supports_delitem
+                msg = "unsupported-delete-operation"
 
         if isinstance(node.value, nodes.SetComp):
-            # pylint: disable-next=possibly-used-before-assignment
             self.add_message(msg, args=node.value.as_string(), node=node.value)
             return
 
@@ -2214,10 +2215,11 @@ accessed. Python regular expressions are accepted.",
     def _check_await_outside_coroutine(self, node: nodes.Await) -> None:
         node_scope = node.scope()
         while not isinstance(node_scope, nodes.Module):
-            if isinstance(node_scope, nodes.AsyncFunctionDef):
-                return
-            if isinstance(node_scope, (nodes.FunctionDef, nodes.Lambda)):
-                break
+            match node_scope:
+                case nodes.AsyncFunctionDef():
+                    return
+                case nodes.FunctionDef() | nodes.Lambda():
+                    break
             node_scope = node_scope.parent.scope()
         self.add_message("await-outside-async", node=node)
 

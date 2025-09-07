@@ -902,7 +902,7 @@ Standard Checkers
 
 --max-line-length
 """""""""""""""""
-*Maximum number of characters on a single line.*
+*Maximum number of characters on a single line. Pylint's default of 100 is based on PEP 8's guidance that teams may choose line lengths up to 99 characters.*
 
 **Default:**  ``100``
 
