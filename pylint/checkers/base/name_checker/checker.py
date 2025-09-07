@@ -681,18 +681,19 @@ class NameChecker(_BasicChecker):
     def _check_typevar(self, name: str, node: nodes.AssignName) -> None:
         """Check for TypeVar lint violations."""
         variance: TypeVarVariance = TypeVarVariance.invariant
-        if isinstance(node.parent, nodes.Assign):
-            keywords = node.assign_type().value.keywords
-            args = node.assign_type().value.args
-        elif isinstance(node.parent, nodes.Tuple):
-            keywords = (
-                node.assign_type().value.elts[node.parent.elts.index(node)].keywords
-            )
-            args = node.assign_type().value.elts[node.parent.elts.index(node)].args
-        else:  # PEP 695 generic type nodes
-            keywords = ()
-            args = ()
-            variance = TypeVarVariance.inferred
+        match node.parent:
+            case nodes.Assign():
+                keywords = node.assign_type().value.keywords
+                args = node.assign_type().value.args
+            case nodes.Tuple():
+                keywords = (
+                    node.assign_type().value.elts[node.parent.elts.index(node)].keywords
+                )
+                args = node.assign_type().value.elts[node.parent.elts.index(node)].args
+            case _:  # PEP 695 generic type nodes
+                keywords = ()
+                args = ()
+                variance = TypeVarVariance.inferred
 
         name_arg = None
         for kw in keywords:
@@ -717,49 +718,48 @@ class NameChecker(_BasicChecker):
         if name_arg is None and args and isinstance(args[0], nodes.Const):
             name_arg = args[0].value
 
-        if variance == TypeVarVariance.inferred:
-            # Ignore variance check for PEP 695 type parameters.
-            # The variance is inferred by the type checker.
-            # Adding _co or _contra suffix can help to reason about TypeVar.
-            pass
-        elif variance == TypeVarVariance.double_variant:
-            self.add_message(
-                "typevar-double-variance",
-                node=node,
-                confidence=interfaces.INFERENCE,
-            )
-            self.add_message(
-                "typevar-name-incorrect-variance",
-                node=node,
-                args=("",),
-                confidence=interfaces.INFERENCE,
-            )
-        elif variance == TypeVarVariance.covariant and not name.endswith("_co"):
-            suggest_name = f"{re.sub('_contra$', '', name)}_co"
-            self.add_message(
-                "typevar-name-incorrect-variance",
-                node=node,
-                args=(f'. "{name}" is covariant, use "{suggest_name}" instead'),
-                confidence=interfaces.INFERENCE,
-            )
-        elif variance == TypeVarVariance.contravariant and not name.endswith("_contra"):
-            suggest_name = f"{re.sub('_co$', '', name)}_contra"
-            self.add_message(
-                "typevar-name-incorrect-variance",
-                node=node,
-                args=(f'. "{name}" is contravariant, use "{suggest_name}" instead'),
-                confidence=interfaces.INFERENCE,
-            )
-        elif variance == TypeVarVariance.invariant and (
-            name.endswith(("_co", "_contra"))
-        ):
-            suggest_name = re.sub("_contra$|_co$", "", name)
-            self.add_message(
-                "typevar-name-incorrect-variance",
-                node=node,
-                args=(f'. "{name}" is invariant, use "{suggest_name}" instead'),
-                confidence=interfaces.INFERENCE,
-            )
+        match variance:
+            case TypeVarVariance.inferred:
+                # Ignore variance check for PEP 695 type parameters.
+                # The variance is inferred by the type checker.
+                # Adding _co or _contra suffix can help to reason about TypeVar.
+                pass
+            case TypeVarVariance.double_variant:
+                self.add_message(
+                    "typevar-double-variance",
+                    node=node,
+                    confidence=interfaces.INFERENCE,
+                )
+                self.add_message(
+                    "typevar-name-incorrect-variance",
+                    node=node,
+                    args=("",),
+                    confidence=interfaces.INFERENCE,
+                )
+            case TypeVarVariance.covariant if not name.endswith("_co"):
+                suggest_name = f"{re.sub('_contra$', '', name)}_co"
+                self.add_message(
+                    "typevar-name-incorrect-variance",
+                    node=node,
+                    args=(f'. "{name}" is covariant, use "{suggest_name}" instead'),
+                    confidence=interfaces.INFERENCE,
+                )
+            case TypeVarVariance.contravariant if not name.endswith("_contra"):
+                suggest_name = f"{re.sub('_co$', '', name)}_contra"
+                self.add_message(
+                    "typevar-name-incorrect-variance",
+                    node=node,
+                    args=(f'. "{name}" is contravariant, use "{suggest_name}" instead'),
+                    confidence=interfaces.INFERENCE,
+                )
+            case TypeVarVariance.invariant if name.endswith(("_co", "_contra")):
+                suggest_name = re.sub("_contra$|_co$", "", name)
+                self.add_message(
+                    "typevar-name-incorrect-variance",
+                    node=node,
+                    args=(f'. "{name}" is invariant, use "{suggest_name}" instead'),
+                    confidence=interfaces.INFERENCE,
+                )
 
         if name_arg is not None and name_arg != name:
             self.add_message(
