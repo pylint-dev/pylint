@@ -1747,7 +1747,7 @@ a metaclass class method.",
             inferred = safe_infer(node.parent.value)
         match inferred:
             case nodes.ClassDef() | util.UninferableBase() | None:
-                # If is uninferable, we allow it to prevent false positives
+                # If uninferable, we allow it to prevent false positives
                 return
         self.add_message(
             "invalid-class-object",

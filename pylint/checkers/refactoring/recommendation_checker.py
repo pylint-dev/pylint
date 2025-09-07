@@ -443,7 +443,7 @@ class RecommendationChecker(checkers.BaseChecker):
 
             # If dicts or lists of length > 1 are used
             match utils.safe_infer(node.parent.right):
-                case nodes.Dict(items=i) | nodes.List(elts=i) if len(i) > 1:
+                case nodes.Dict(items=items) | nodes.List(elts=items) if len(items) > 1:
                     return
 
             # If all tests pass, then raise message
