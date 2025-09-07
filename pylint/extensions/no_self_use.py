@@ -102,8 +102,9 @@ class NoSelfUseChecker(BaseChecker):
 def _has_bare_super_call(fundef_node: nodes.FunctionDef) -> bool:
     for call in fundef_node.nodes_of_class(nodes.Call):
         func = call.func
-        if isinstance(func, nodes.Name) and func.name == "super" and not call.args:
-            return True
+        match func:
+            case nodes.Name(name="super") if not call.args:
+                return True
     return False
 
 

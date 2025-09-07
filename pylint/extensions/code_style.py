@@ -316,21 +316,11 @@ class CodeStyleChecker(BaseChecker):
                 # separate if block
                 next_if_node = next_sibling
 
-            if (  # pylint: disable=too-many-boolean-expressions
-                next_if_node is not None
-                and (
-                    (
-                        isinstance(next_if_node.test, nodes.Compare)
-                        and isinstance(next_if_node.test.left, nodes.Name)
-                        and next_if_node.test.left.name == name
-                    )
-                    or (
-                        isinstance(next_if_node.test, nodes.Name)
-                        and next_if_node.test.name == name
-                    )
-                )
-            ):
-                return True
+            match next_if_node:
+                case nodes.If(
+                    test=nodes.Compare(left=nodes.Name(name=n)) | nodes.Name(name=n)
+                ) if (n == name):
+                    return True
         return False
 
     @only_required_for_messages("consider-using-augmented-assign")

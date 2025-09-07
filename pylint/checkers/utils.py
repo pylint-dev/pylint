@@ -1730,21 +1730,13 @@ def is_attribute_typed_annotation(
     """Test if attribute is typed annotation in current node
     or any base nodes.
     """
-    attribute = node.locals.get(attr_name, [None])[0]
-    if (
-        attribute
-        and isinstance(attribute, nodes.AssignName)
-        and isinstance(attribute.parent, nodes.AnnAssign)
-    ):
-        return True
-    for base in node.bases:
-        inferred = safe_infer(base)
-        if (
-            inferred
-            and isinstance(inferred, nodes.ClassDef)
-            and is_attribute_typed_annotation(inferred, attr_name)
-        ):
+    match node.locals.get(attr_name, [None])[0]:
+        case nodes.AssignName(parent=nodes.AnnAssign()):
             return True
+    for base in node.bases:
+        match inferred := safe_infer(base):
+            case nodes.ClassDef() if is_attribute_typed_annotation(inferred, attr_name):
+                return True
     return False
 
 
@@ -1763,10 +1755,9 @@ def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> b
     annotation = node.parent.annotation
     if isinstance(annotation, nodes.Subscript):
         annotation = annotation.value
-    if (isinstance(annotation, nodes.Name) and annotation.name == typing_name) or (
-        isinstance(annotation, nodes.Attribute) and annotation.attrname == typing_name
-    ):
-        return True
+    match annotation:
+        case nodes.Name(name=n) | nodes.Attribute(attrname=n) if n == typing_name:
+            return True
     return False
 
 
@@ -1778,15 +1769,12 @@ def get_iterating_dictionary_name(node: nodes.For | nodes.Comprehension) -> str 
     or a dictionary itself, this returns None.
     """
     # Is it a proper keys call?
-    if (
-        isinstance(node.iter, nodes.Call)
-        and isinstance(node.iter.func, nodes.Attribute)
-        and node.iter.func.attrname == "keys"
-    ):
-        inferred = safe_infer(node.iter.func)
-        if not isinstance(inferred, astroid.BoundMethod):
-            return None
-        return node.iter.as_string().rpartition(".keys")[0]  # type: ignore[no-any-return]
+    match node.iter:
+        case nodes.Call(func=nodes.Attribute(attrname="keys")):
+            inferred = safe_infer(node.iter.func)
+            if not isinstance(inferred, astroid.BoundMethod):
+                return None
+            return node.iter.as_string().rpartition(".keys")[0]  # type: ignore[no-any-return]
 
     # Is it a dictionary?
     if isinstance(node.iter, (nodes.Name, nodes.Attribute)):
@@ -1981,18 +1969,15 @@ def in_type_checking_block(node: nodes.NodeNG) -> bool:
                 and maybe_import_from.modname == "typing"
             ):
                 return True
-            inferred = safe_infer(ancestor.test)
-            if isinstance(inferred, nodes.Const) and inferred.value is False:
-                return True
+            match safe_infer(ancestor.test):
+                case nodes.Const(value=False):
+                    return True
         elif isinstance(ancestor.test, nodes.Attribute):
             if ancestor.test.attrname != "TYPE_CHECKING":
                 continue
-            inferred_module = safe_infer(ancestor.test.expr)
-            if (
-                isinstance(inferred_module, nodes.Module)
-                and inferred_module.name == "typing"
-            ):
-                return True
+            match safe_infer(ancestor.test.expr):
+                case nodes.Module(name="typing"):
+                    return True
 
     return False
 
@@ -2151,10 +2136,9 @@ def is_augmented_assign(node: nodes.Assign) -> tuple[bool, str]:
             inferred_left = binop.left
         else:
             inferred_left = safe_infer(binop.left)
-        if isinstance(inferred_left, nodes.Const) and isinstance(
-            inferred_left.value, int
-        ):
-            return True, binop.op
+        match inferred_left:
+            case nodes.Const(value=int()):
+                return True, binop.op
         return False, ""
     return False, ""
 
@@ -2209,11 +2193,10 @@ def is_terminating_func(node: nodes.Call) -> bool:
                 and inferred.qname() in TERMINATING_FUNCS_QNAMES
             ):
                 return True
-            # Unwrap to get the actual function node object
-            if isinstance(inferred, astroid.BoundMethod) and isinstance(
-                inferred._proxied, astroid.UnboundMethod
-            ):
-                inferred = inferred._proxied._proxied
+            match inferred:
+                case astroid.BoundMethod(_proxied=astroid.UnboundMethod(_proxied=p)):
+                    # Unwrap to get the actual function node object
+                    inferred = p
             if (  # pylint: disable=too-many-boolean-expressions
                 isinstance(inferred, nodes.FunctionDef)
                 and (

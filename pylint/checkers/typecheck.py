@@ -1237,10 +1237,9 @@ accessed. Python regular expressions are accepted.",
             return
 
         # Unwrap to get the actual function node object
-        if isinstance(function_node, astroid.BoundMethod) and isinstance(
-            function_node._proxied, astroid.UnboundMethod
-        ):
-            function_node = function_node._proxied._proxied
+        match function_node:
+            case astroid.BoundMethod(_proxied=astroid.UnboundMethod(_proxied=p)):
+                function_node = p
 
         # Make sure that it's a valid function that we can analyze.
         # Ordered from less expensive to more expensive checks.
