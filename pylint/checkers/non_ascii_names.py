@@ -73,13 +73,14 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
             type_label = constants.HUMAN_READABLE_TYPES[node_type]
             args = (type_label.capitalize(), name)
 
-            msg = "non-ascii-name"
-
             # Some node types have customized messages
-            if node_type == "file":
-                msg = "non-ascii-file-name"
-            elif node_type == "module":
-                msg = "non-ascii-module-import"
+            match node_type:
+                case "file":
+                    msg = "non-ascii-file-name"
+                case "module":
+                    msg = "non-ascii-module-import"
+                case _:
+                    msg = "non-ascii-name"
 
             self.add_message(msg, node=node, args=args, confidence=interfaces.HIGH)
 
@@ -125,23 +126,22 @@ class NonAsciiNameChecker(base_checker.BaseChecker):
         # versions of variables, i.e. constants, inline variables etc.
         # To simplify we use only `variable` here, as we don't need to apply different
         # rules to different types of variables.
-        frame = node.frame()
-
-        if isinstance(frame, nodes.FunctionDef):
-            if node.parent in frame.body:
-                # Only perform the check if the assignment was done in within the body
-                # of the function (and not the function parameter definition
-                # (will be handled in visit_functiondef)
-                # or within a decorator (handled in visit_call)
+        match frame := node.frame():
+            case nodes.FunctionDef():
+                if node.parent in frame.body:
+                    # Only perform the check if the assignment was done in within the body
+                    # of the function (and not the function parameter definition
+                    # (will be handled in visit_functiondef)
+                    # or within a decorator (handled in visit_call)
+                    self._check_name("variable", node.name, node)
+            case nodes.ClassDef():
+                self._check_name("attr", node.name, node)
+            case _:
+                # Possibilities here:
+                # - isinstance(node.assign_type(), nodes.Comprehension) == inlinevar
+                # - isinstance(frame, nodes.Module) == variable (constant?)
+                # - some other kind of assignment missed but still most likely a variable
                 self._check_name("variable", node.name, node)
-        elif isinstance(frame, nodes.ClassDef):
-            self._check_name("attr", node.name, node)
-        else:
-            # Possibilities here:
-            # - isinstance(node.assign_type(), nodes.Comprehension) == inlinevar
-            # - isinstance(frame, nodes.Module) == variable (constant?)
-            # - some other kind of assignment missed but still most likely a variable
-            self._check_name("variable", node.name, node)
 
     @utils.only_required_for_messages("non-ascii-name")
     def visit_classdef(self, node: nodes.ClassDef) -> None:

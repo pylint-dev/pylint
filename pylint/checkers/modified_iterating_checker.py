@@ -74,13 +74,13 @@ class ModifiedIterationChecker(checkers.BaseChecker):
         if isinstance(node, nodes.Delete) and any(
             self._deleted_iteration_target_cond(t, iter_obj) for t in node.targets
         ):
-            inferred = utils.safe_infer(iter_obj)
-            if isinstance(inferred, nodes.List):
-                msg_id = "modified-iterating-list"
-            elif isinstance(inferred, nodes.Dict):
-                msg_id = "modified-iterating-dict"
-            elif isinstance(inferred, nodes.Set):
-                msg_id = "modified-iterating-set"
+            match utils.safe_infer(iter_obj):
+                case nodes.List():
+                    msg_id = "modified-iterating-list"
+                case nodes.Dict():
+                    msg_id = "modified-iterating-dict"
+                case nodes.Set():
+                    msg_id = "modified-iterating-set"
         elif not isinstance(iter_obj, (nodes.Name, nodes.Attribute)):
             pass
         elif self._modified_iterating_list_cond(node, iter_obj):
