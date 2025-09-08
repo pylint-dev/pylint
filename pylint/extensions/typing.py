@@ -300,11 +300,10 @@ class TypingChecker(BaseChecker):
     def _is_deprecated_union_annotation(
         annotation: nodes.NodeNG, union_name: str
     ) -> bool:
-        return (
-            isinstance(annotation, nodes.Subscript)
-            and isinstance(annotation.value, nodes.Name)
-            and annotation.value.name == union_name
-        )
+        match annotation:
+            case nodes.Subscript(value=nodes.Name(name=name)):
+                return name == union_name  # type: ignore[no-any-return]
+        return False
 
     def _is_binop_union_annotation(self, annotation: nodes.NodeNG) -> bool:
         return self._should_check_alternative_union_syntax and isinstance(
@@ -313,9 +312,10 @@ class TypingChecker(BaseChecker):
 
     @staticmethod
     def _is_optional_none_annotation(annotation: nodes.Subscript) -> bool:
-        return (
-            isinstance(annotation.slice, nodes.Const) and annotation.slice.value is None
-        )
+        match annotation.slice:
+            case nodes.Const(value=None):
+                return True
+        return False
 
     def _parse_binops_typehints(
         self, binop_node: nodes.BinOp, typehints_list: list[nodes.NodeNG] | None = None

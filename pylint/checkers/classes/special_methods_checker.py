@@ -257,42 +257,60 @@ class SpecialMethodsChecker(BaseChecker):
         if SpecialMethodsChecker._is_wrapped_type(node, "int"):
             return True
 
-        return isinstance(node, nodes.Const) and isinstance(node.value, int)
+        match node:
+            case nodes.Const(value=int()):
+                return True
+        return False
 
     @staticmethod
     def _is_str(node: InferenceResult) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "str"):
             return True
 
-        return isinstance(node, nodes.Const) and isinstance(node.value, str)
+        match node:
+            case nodes.Const(value=str()):
+                return True
+        return False
 
     @staticmethod
     def _is_bool(node: InferenceResult) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "bool"):
             return True
 
-        return isinstance(node, nodes.Const) and isinstance(node.value, bool)
+        match node:
+            case nodes.Const(value=bool()):
+                return True
+        return False
 
     @staticmethod
     def _is_bytes(node: InferenceResult) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "bytes"):
             return True
 
-        return isinstance(node, nodes.Const) and isinstance(node.value, bytes)
+        match node:
+            case nodes.Const(value=bytes()):
+                return True
+        return False
 
     @staticmethod
     def _is_tuple(node: InferenceResult) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "tuple"):
             return True
 
-        return isinstance(node, nodes.Const) and isinstance(node.value, tuple)
+        match node:
+            case nodes.Const(value=tuple()):
+                return True
+        return False
 
     @staticmethod
     def _is_dict(node: InferenceResult) -> bool:
         if SpecialMethodsChecker._is_wrapped_type(node, "dict"):
             return True
 
-        return isinstance(node, nodes.Const) and isinstance(node.value, dict)
+        match node:
+            case nodes.Const(value=dict()):
+                return True
+        return False
 
     @staticmethod
     def _is_iterator(node: InferenceResult) -> bool:

@@ -1291,14 +1291,14 @@ accessed. Python regular expressions are accepted.",
 
     @staticmethod
     def _is_builtin_no_return(node: nodes.Assign) -> bool:
-        return (
-            isinstance(node.value, nodes.Call)
-            and isinstance(node.value.func, nodes.Attribute)
-            and bool(inferred := utils.safe_infer(node.value.func.expr))
-            and isinstance(inferred, bases.Instance)
-            and node.value.func.attrname
-            in BUILTINS_IMPLICIT_RETURN_NONE.get(inferred.pytype(), ())
-        )
+        match node.value:
+            case nodes.Call(func=nodes.Attribute(expr=expr, attrname=attr)):
+                return (
+                    bool(inferred := utils.safe_infer(expr))
+                    and isinstance(inferred, bases.Instance)
+                    and attr in BUILTINS_IMPLICIT_RETURN_NONE.get(inferred.pytype(), ())
+                )
+        return False
 
     def _check_dundername_is_string(self, node: nodes.Assign) -> None:
         """Check a string is assigned to self.__name__."""
