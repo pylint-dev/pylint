@@ -31,11 +31,13 @@ def report_messages_stats(
     """Make messages type report."""
     by_msg_stats = stats.by_msg
     in_order = sorted(
-        (value, msg_id)
-        for msg_id, value in by_msg_stats.items()
-        if not msg_id.startswith("I")
+        (
+            (value, msg_id)
+            for msg_id, value in by_msg_stats.items()
+            if not msg_id.startswith("I")
+        ),
+        reverse=True,
     )
-    in_order.reverse()
     lines = ["message id", "occurrences"]
     for value, msg_id in in_order:
         lines += [msg_id, str(value)]
@@ -70,8 +72,7 @@ def report_messages_by_module_stats(
                 module,
             )
         )
-    sorted_result.sort()
-    sorted_result.reverse()
+    sorted_result.sort(reverse=True)
     lines = ["module", "error", "warning", "refactor", "convention"]
     for line in sorted_result:
         # Don't report clean modules.
