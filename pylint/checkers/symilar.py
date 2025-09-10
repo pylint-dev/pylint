@@ -430,8 +430,7 @@ class Symilar:
             cpls: set[LinesChunkLimits_T]
             for cpls in ensembles:
                 sims.append((num, cpls))
-        sims.sort()
-        sims.reverse()
+        sims.sort(reverse=True)
         return sims
 
     def _display_sims(
