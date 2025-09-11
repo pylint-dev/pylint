@@ -1933,8 +1933,7 @@ a metaclass class method.",
         outer_klass = klass
         callee = node.expr.as_string()
         parents_callee = callee.split(".")
-        parents_callee.reverse()
-        for callee in parents_callee:
+        for callee in reversed(parents_callee):
             if not outer_klass or callee != outer_klass.name:
                 inside_klass = False
                 break
