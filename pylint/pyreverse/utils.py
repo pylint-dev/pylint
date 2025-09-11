@@ -47,9 +47,7 @@ def get_default_options() -> list[str]:
 
 def insert_default_options() -> None:
     """Insert default options to sys.argv."""
-    options = get_default_options()
-    options.reverse()
-    for arg in options:
+    for arg in reversed(get_default_options()):
         sys.argv.insert(1, arg)
 
 
