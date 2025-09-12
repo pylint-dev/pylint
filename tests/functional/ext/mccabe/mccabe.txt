@@ -13,3 +13,4 @@ too-complex:142:4:142:15:MyClass1.method2:'method2' is too complex. The McCabe r
 too-many-branches:142:4:142:15:MyClass1.method2:Too many branches (19/12):UNDEFINED
 too-complex:198:0:204:15::This 'for' is too complex. The McCabe rating is 4:HIGH
 too-complex:207:0:207:11:method3:'method3' is too complex. The McCabe rating is 3:HIGH
+too-complex:218:0:218:25:match_case_complexity:'match_case_complexity' is too complex. The McCabe rating is 3:HIGH
