@@ -344,6 +344,20 @@ class TestRunTC:
             actual_output = actual_output[actual_output.find("\n") :]
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
+    def test_super_init_with_non_self_argument(self) -> None:
+        module1 = join(HERE, "regrtest_data", "super_init_with_non_self_argument.py")
+        args = [module1, "-rn", "-sn"]
+        out = StringIO()
+        self._run_pylint(args, out=out)
+        actual_output = self._clean_paths(out.getvalue().strip())
+        expected = textwrap.dedent(
+            f"""
+        ************* Module super_init_with_non_self_argument
+        {module1}:13:8: E1121: Too many positional arguments for method call (too-many-function-args)
+        """
+        )
+        assert self._clean_paths(expected.strip()) == actual_output.strip()
+
     def test_progress_reporting(self) -> None:
         module1 = join(HERE, "regrtest_data", "import_something.py")
         module2 = join(HERE, "regrtest_data", "wrong_import_position.py")

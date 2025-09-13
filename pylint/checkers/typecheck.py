@@ -1445,6 +1445,20 @@ accessed. Python regular expressions are accepted.",
                 confidence=INFERENCE,
             )
 
+    def _is_super(self, node: nodes.Call) -> bool:
+        """True if this node is a call to super()."""
+        if (
+            isinstance(node.func, nodes.Attribute)
+            and node.func.attrname == "__init__"
+            and isinstance(node.func.expr, nodes.Call)
+            and isinstance(node.func.expr.func, nodes.Name)
+            and node.func.expr.func.name == "super"
+        ):
+            inferred = safe_infer(node.func.expr)
+            if isinstance(inferred, astroid.objects.Super):
+                return True
+        return False
+
     # pylint: disable = too-many-branches, too-many-locals, too-many-statements
     def visit_call(self, node: nodes.Call) -> None:
         """Check that called functions/methods are inferred to callable objects,
@@ -1461,21 +1475,36 @@ accessed. Python regular expressions are accepted.",
             # those errors are handled by different warnings.
             return
 
+        # Build the set of keyword arguments, checking for duplicate keywords,
+        # and count the positional arguments.
+        call_site = astroid.arguments.CallSite.from_call(node)
+
         if called.args.args is None:
             if called.name == "isinstance":
                 # Verify whether second argument of isinstance is a valid type
                 self._check_isinstance_args(node, callable_name)
-            # Built-in functions have no argument information.
+            # Built-in functions have no argument information, but we know
+            # super() only takes self.
+            if self._is_super(node) and utils.is_builtin_object(called):
+                if (
+                    call_site
+                    and call_site.positional_arguments
+                    and (first_arg := call_site.positional_arguments[0])
+                    and not (
+                        isinstance(first_arg, nodes.Name) and first_arg.name == "self"
+                    )
+                ):
+                    self.add_message(
+                        "too-many-function-args",
+                        node=node,
+                        args=(callable_name,),
+                    )
             return
 
         if len(called.argnames()) != len(set(called.argnames())):
             # Duplicate parameter name (see duplicate-argument).  We can't really
             # make sense of the function call in this case, so just return.
             return
-
-        # Build the set of keyword arguments, checking for duplicate keywords,
-        # and count the positional arguments.
-        call_site = astroid.arguments.CallSite.from_call(node)
 
         # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`
         for keyword in call_site.duplicated_keywords:
