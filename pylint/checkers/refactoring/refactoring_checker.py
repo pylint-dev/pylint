@@ -558,10 +558,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _is_bool_const(node: nodes.Return | nodes.Assign) -> bool:
-        match node.value:
-            case nodes.Const(value=bool()):
-                return True
-        return False
+        return isinstance(node.value, nodes.Const) and isinstance(
+            node.value.value, bool
+        )
 
     def _is_actual_elif(self, node: nodes.If | nodes.Try) -> bool:
         """Check if the given node is an actual elif.

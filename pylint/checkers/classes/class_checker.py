@@ -1989,12 +1989,9 @@ a metaclass class method.",
     @staticmethod
     def _is_classmethod(func: LocalsDictNodeNG) -> bool:
         """Check if the given *func* node is a class method."""
-        match func:
-            case nodes.FunctionDef(type="classmethod") | nodes.FunctionDef(
-                name="__class_getitem__"
-            ):
-                return True
-        return False
+        return isinstance(func, nodes.FunctionDef) and (
+            func.type == "classmethod" or func.name == "__class_getitem__"
+        )
 
     @staticmethod
     def _is_inferred_instance(expr: nodes.NodeNG, klass: nodes.ClassDef) -> bool:
