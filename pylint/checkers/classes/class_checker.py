@@ -1980,13 +1980,10 @@ a metaclass class method.",
         return frame_name and frame_name in PYMETHODS
 
     def _is_type_self_call(self, expr: nodes.NodeNG) -> bool:
-        return (
-            isinstance(expr, nodes.Call)
-            and isinstance(expr.func, nodes.Name)
-            and expr.func.name == "type"
-            and len(expr.args) == 1
-            and self._is_mandatory_method_param(expr.args[0])
-        )
+        match expr:
+            case nodes.Call(func=nodes.Name(name="type"), args=[arg]):
+                return self._is_mandatory_method_param(arg)
+        return False
 
     @staticmethod
     def _is_classmethod(func: LocalsDictNodeNG) -> bool:

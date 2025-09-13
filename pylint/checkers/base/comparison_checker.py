@@ -145,20 +145,19 @@ class ComparisonChecker(_BasicChecker):
     ) -> None:
         def _is_float_nan(node: nodes.NodeNG) -> bool:
             try:
-                if isinstance(node, nodes.Call) and len(node.args) == 1:
-                    if (
-                        node.args[0].value.lower() == "nan"
-                        and node.inferred()[0].pytype() == "builtins.float"
+                match node:
+                    case nodes.Call(args=[nodes.Const(value=str(value))]) if (
+                        value.lower() == "nan"
                     ):
-                        return True
+                        return node.inferred()[0].pytype() == "builtins.float"  # type: ignore[no-any-return]
                 return False
             except AttributeError:
                 return False
 
         def _is_numpy_nan(node: nodes.NodeNG) -> bool:
-            if isinstance(node, nodes.Attribute) and node.attrname == "NaN":
-                if isinstance(node.expr, nodes.Name):
-                    return node.expr.name in {"numpy", "nmp", "np"}
+            match node:
+                case nodes.Attribute(attrname="NaN", expr=nodes.Name(name=name)):
+                    return name in {"numpy", "nmp", "np"}
             return False
 
         def _is_nan(node: nodes.NodeNG) -> bool:

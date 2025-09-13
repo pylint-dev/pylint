@@ -99,12 +99,10 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     @staticmethod
     def _is_node_expr_that_calls_attribute_name(node: nodes.NodeNG) -> bool:
-        return (
-            isinstance(node, nodes.Expr)
-            and isinstance(node.value, nodes.Call)
-            and isinstance(node.value.func, nodes.Attribute)
-            and isinstance(node.value.func.expr, nodes.Name)
-        )
+        match node:
+            case nodes.Expr(value=nodes.Call(func=nodes.Attribute(expr=nodes.Name()))):
+                return True
+        return False
 
     @staticmethod
     def _common_cond_list_set(
@@ -123,10 +121,10 @@ class ModifiedIterationChecker(checkers.BaseChecker):
 
     @staticmethod
     def _is_node_assigns_subscript_name(node: nodes.NodeNG) -> bool:
-        return isinstance(node, nodes.Assign) and (
-            isinstance(node.targets[0], nodes.Subscript)
-            and (isinstance(node.targets[0].value, nodes.Name))
-        )
+        match node:
+            case nodes.Assign(targets=[nodes.Subscript(value=nodes.Name()), *_]):
+                return True
+        return False
 
     def _modified_iterating_list_cond(
         self, node: nodes.NodeNG, iter_obj: nodes.Name | nodes.Attribute
