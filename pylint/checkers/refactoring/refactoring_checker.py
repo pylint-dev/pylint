@@ -183,14 +183,13 @@ def _is_part_of_assignment_target(node: nodes.NodeNG) -> bool:
     This requires recursive checking, because destructuring assignment can have
     arbitrarily nested tuples and lists to unpack.
     """
-    if isinstance(node.parent, nodes.Assign):
-        return node in node.parent.targets
-
-    if isinstance(node.parent, nodes.AugAssign):
-        return node == node.parent.target  # type: ignore[no-any-return]
-
-    if isinstance(node.parent, (nodes.Tuple, nodes.List)):
-        return _is_part_of_assignment_target(node.parent)
+    match node.parent:
+        case nodes.Assign():
+            return node in node.parent.targets
+        case nodes.AugAssign():
+            return node == node.parent.target  # type: ignore[no-any-return]
+        case nodes.Tuple() | nodes.List():
+            return _is_part_of_assignment_target(node.parent)
 
     return False
 
@@ -211,10 +210,11 @@ class ConsiderUsingWithStack(NamedTuple):
         self, frame: nodes.FunctionDef | nodes.ClassDef | nodes.Module
     ) -> dict[str, nodes.NodeNG]:
         """Get the stack corresponding to the scope of the given frame."""
-        if isinstance(frame, nodes.FunctionDef):
-            return self.function_scope
-        if isinstance(frame, nodes.ClassDef):
-            return self.class_scope
+        match frame:
+            case nodes.FunctionDef():
+                return self.function_scope
+            case nodes.ClassDef():
+                return self.class_scope
         return self.module_scope
 
     def clear_all(self) -> None:
@@ -570,10 +570,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Unfortunately we need to know the exact type in certain
         cases.
         """
-        if isinstance(node.parent, nodes.If):
-            orelse = node.parent.orelse
-            # current if node must directly follow an "else"
-            if orelse and orelse == [node]:
+        match node.parent:
+            case nodes.If(orelse=[n]) if n == node:
+                # current if node must directly follow an "else"
                 if (node.lineno, node.col_offset) in self._elifs:
                     return True
         return False
@@ -596,37 +595,38 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         # Check if both branches can be reduced.
         first_branch = node.body[0]
         else_branch = node.orelse[0]
-        if isinstance(first_branch, nodes.Return):
-            if not isinstance(else_branch, nodes.Return):
-                return
-            first_branch_is_bool = self._is_bool_const(first_branch)
-            else_branch_is_bool = self._is_bool_const(else_branch)
-            reduced_to = "'return bool(test)'"
-        elif isinstance(first_branch, nodes.Assign):
-            if not isinstance(else_branch, nodes.Assign):
-                return
+        match first_branch:
+            case nodes.Return():
+                if not isinstance(else_branch, nodes.Return):
+                    return
+                first_branch_is_bool = self._is_bool_const(first_branch)
+                else_branch_is_bool = self._is_bool_const(else_branch)
+                reduced_to = "'return bool(test)'"
+            case nodes.Assign():
+                if not isinstance(else_branch, nodes.Assign):
+                    return
 
-            # Check if we assign to the same value
-            first_branch_targets = [
-                target.name
-                for target in first_branch.targets
-                if isinstance(target, nodes.AssignName)
-            ]
-            else_branch_targets = [
-                target.name
-                for target in else_branch.targets
-                if isinstance(target, nodes.AssignName)
-            ]
-            if not first_branch_targets or not else_branch_targets:
-                return
-            if sorted(first_branch_targets) != sorted(else_branch_targets):
-                return
+                # Check if we assign to the same value
+                first_branch_targets = [
+                    target.name
+                    for target in first_branch.targets
+                    if isinstance(target, nodes.AssignName)
+                ]
+                else_branch_targets = [
+                    target.name
+                    for target in else_branch.targets
+                    if isinstance(target, nodes.AssignName)
+                ]
+                if not first_branch_targets or not else_branch_targets:
+                    return
+                if sorted(first_branch_targets) != sorted(else_branch_targets):
+                    return
 
-            first_branch_is_bool = self._is_bool_const(first_branch)
-            else_branch_is_bool = self._is_bool_const(else_branch)
-            reduced_to = "'var = bool(test)'"
-        else:
-            return
+                first_branch_is_bool = self._is_bool_const(first_branch)
+                else_branch_is_bool = self._is_bool_const(else_branch)
+                reduced_to = "'var = bool(test)'"
+            case _:
+                return
 
         if not first_branch_is_bool or not else_branch_is_bool:
             return
@@ -968,20 +968,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if body_value not in (right_statement_value, left_operand):
             return
 
-        if operator in {"<", "<="}:
-            reduced_to = (
-                f"{target_assignation} = max({target_assignation}, {body_value})"
-            )
-            self.add_message(
-                "consider-using-max-builtin", node=node, args=(reduced_to,)
-            )
-        elif operator in {">", ">="}:
-            reduced_to = (
-                f"{target_assignation} = min({target_assignation}, {body_value})"
-            )
-            self.add_message(
-                "consider-using-min-builtin", node=node, args=(reduced_to,)
-            )
+        match operator:
+            case "<" | "<=":
+                reduced_to = (
+                    f"{target_assignation} = max({target_assignation}, {body_value})"
+                )
+                self.add_message(
+                    "consider-using-max-builtin", node=node, args=(reduced_to,)
+                )
+            case ">" | ">=":
+                reduced_to = (
+                    f"{target_assignation} = min({target_assignation}, {body_value})"
+                )
+                self.add_message(
+                    "consider-using-min-builtin", node=node, args=(reduced_to,)
+                )
 
     @utils.only_required_for_messages("simplifiable-if-expression")
     def visit_ifexp(self, node: nodes.IfExp) -> None:
@@ -1003,12 +1004,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             test_reduced_to = "bool(test)"
 
-        if (node.body.value, node.orelse.value) == (True, False):
-            reduced_to = f"'{test_reduced_to}'"
-        elif (node.body.value, node.orelse.value) == (False, True):
-            reduced_to = "'not test'"
-        else:
-            return
+        match (node.body.value, node.orelse.value):
+            case [True, False]:
+                reduced_to = f"'{test_reduced_to}'"
+            case [False, True]:
+                reduced_to = "'not test'"
+            case _:
+                return
 
         self.add_message("simplifiable-if-expression", node=node, args=(reduced_to,))
 
@@ -1193,15 +1195,16 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     def _check_quit_exit_call(self, node: nodes.Call) -> None:
-        if isinstance(node.func, nodes.Name) and node.func.name in BUILTIN_EXIT_FUNCS:
-            # If we have `exit` imported from `sys` in the current or global scope,
-            # exempt this instance.
-            local_scope = node.scope()
-            if self._has_exit_in_scope(local_scope) or self._has_exit_in_scope(
-                node.root()
-            ):
-                return
-            self.add_message("consider-using-sys-exit", node=node, confidence=HIGH)
+        match node.func:
+            case nodes.Name(name=name) if name in BUILTIN_EXIT_FUNCS:
+                # If we have `exit` imported from `sys` in the current or global scope,
+                # exempt this instance.
+                local_scope = node.scope()
+                if self._has_exit_in_scope(local_scope) or self._has_exit_in_scope(
+                    node.root()
+                ):
+                    return
+                self.add_message("consider-using-sys-exit", node=node, confidence=HIGH)
 
     def _check_super_with_arguments(self, node: nodes.Call) -> None:
         if not isinstance(node.func, nodes.Name) or node.func.name != "super":
@@ -1439,16 +1442,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     if value is None:
                         continue
 
-                    if operator in {"<", "<="}:
-                        if operand is left_operand:
-                            uses[value]["lower_bound"].add(comparison_node)
-                        elif operand is right_operand:
-                            uses[value]["upper_bound"].add(comparison_node)
-                    elif operator in {">", ">="}:
-                        if operand is left_operand:
-                            uses[value]["upper_bound"].add(comparison_node)
-                        elif operand is right_operand:
-                            uses[value]["lower_bound"].add(comparison_node)
+                    match operator:
+                        case "<" | "<=":
+                            if operand is left_operand:
+                                uses[value]["lower_bound"].add(comparison_node)
+                            elif operand is right_operand:
+                                uses[value]["upper_bound"].add(comparison_node)
+                        case ">" | ">=":
+                            if operand is left_operand:
+                                uses[value]["upper_bound"].add(comparison_node)
+                            elif operand is right_operand:
+                                uses[value]["lower_bound"].add(comparison_node)
                 left_operand = right_operand
 
         uses: collections.defaultdict[str, dict[str, set[nodes.Compare]]] = (
@@ -1862,32 +1866,28 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if expr_list == target_list and expr_list:
             args: tuple[str] | None = None
             inferred = utils.safe_infer(node.iter)
-            if isinstance(node.parent, nodes.DictComp) and isinstance(
-                inferred, astroid.objects.DictItems
-            ):
-                args = (f"dict({node.iter.func.expr.as_string()})",)
-            elif isinstance(node.parent, nodes.ListComp) and isinstance(
-                inferred, nodes.List
-            ):
-                args = (f"list({node.iter.as_string()})",)
-            elif isinstance(node.parent, nodes.SetComp) and isinstance(
-                inferred, nodes.Set
-            ):
-                args = (f"set({node.iter.as_string()})",)
+            match (node.parent, inferred):
+                case [nodes.DictComp(), astroid.objects.DictItems()]:
+                    args = (f"dict({node.iter.func.expr.as_string()})",)
+                case [nodes.ListComp(), nodes.List()]:
+                    args = (f"list({node.iter.as_string()})",)
+                case [nodes.SetComp(), nodes.Set()]:
+                    args = (f"set({node.iter.as_string()})",)
             if args:
                 self.add_message(
                     "unnecessary-comprehension", node=node.parent, args=args
                 )
                 return
 
-            if isinstance(node.parent, nodes.DictComp):
-                func = "dict"
-            elif isinstance(node.parent, nodes.ListComp):
-                func = "list"
-            elif isinstance(node.parent, nodes.SetComp):
-                func = "set"
-            else:
-                return
+            match node.parent:
+                case nodes.DictComp():
+                    func = "dict"
+                case nodes.ListComp():
+                    func = "list"
+                case nodes.SetComp():
+                    func = "set"
+                case _:  # pragma: no cover
+                    raise AssertionError
 
             self.add_message(
                 "unnecessary-comprehension",
@@ -2023,44 +2023,41 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Returns:
             bool: True if the node ends with an explicit statement, False otherwise.
         """
-        # Recursion base case
-        if isinstance(node, nodes.Return):
-            return True
-        if isinstance(node, nodes.Call):
-            return any(
-                (
-                    isinstance(maybe_func, (nodes.FunctionDef, bases.BoundMethod))
-                    and self._is_function_def_never_returning(maybe_func)
+        match node:
+            case nodes.Return():
+                # Recursion base case
+                return True
+            case nodes.Call():
+                return any(
+                    (
+                        isinstance(maybe_func, (nodes.FunctionDef, bases.BoundMethod))
+                        and self._is_function_def_never_returning(maybe_func)
+                    )
+                    for maybe_func in utils.infer_all(node.func)
                 )
-                for maybe_func in utils.infer_all(node.func)
-            )
-        if isinstance(node, nodes.While):
-            # A while-loop is considered return-ended if it has a
-            # truthy test and no break statements
-            return (node.test.bool_value() and not _loop_exits_early(node)) or any(
-                self._is_node_return_ended(child) for child in node.orelse
-            )
-        if isinstance(node, nodes.Raise):
-            return self._is_raise_node_return_ended(node)
-        if isinstance(node, nodes.If):
-            return self._is_if_node_return_ended(node)
-        if isinstance(node, nodes.Try):
-            handlers = {
-                _child
-                for _child in node.get_children()
-                if isinstance(_child, nodes.ExceptHandler)
-            }
-            all_but_handler = set(node.get_children()) - handlers
-            return any(
-                self._is_node_return_ended(_child) for _child in all_but_handler
-            ) and all(self._is_node_return_ended(_child) for _child in handlers)
-        if (
-            isinstance(node, nodes.Assert)
-            and isinstance(node.test, nodes.Const)
-            and not node.test.value
-        ):
-            # consider assert False as a return node
-            return True
+            case nodes.While():
+                # A while-loop is considered return-ended if it has a
+                # truthy test and no break statements
+                return (node.test.bool_value() and not _loop_exits_early(node)) or any(
+                    self._is_node_return_ended(child) for child in node.orelse
+                )
+            case nodes.Raise():
+                return self._is_raise_node_return_ended(node)
+            case nodes.If():
+                return self._is_if_node_return_ended(node)
+            case nodes.Try():
+                handlers = {
+                    _child
+                    for _child in node.get_children()
+                    if isinstance(_child, nodes.ExceptHandler)
+                }
+                all_but_handler = set(node.get_children()) - handlers
+                return any(
+                    self._is_node_return_ended(_child) for _child in all_but_handler
+                ) and all(self._is_node_return_ended(_child) for _child in handlers)
+            case nodes.Assert(test=nodes.Const(value=value)) if not value:
+                # consider assert False as a return node
+                return True
         # recurses on the children of the node
         return any(self._is_node_return_ended(_child) for _child in node.get_children())
 
@@ -2125,12 +2122,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         while isinstance(last, (nodes.If, nodes.Try, nodes.ExceptHandler)):
             last = last.last_child()
 
-        if isinstance(last, nodes.Return):
-            # e.g. "return"
-            if last.value is None:
+        match last:
+            case nodes.Return(value=None):
+                # e.g. "return"
                 self.add_message("useless-return", node=node)
-            # return None"
-            elif isinstance(last.value, nodes.Const) and (last.value.value is None):
+            case nodes.Return(value=nodes.Const(value=None)):
+                # return None"
                 self.add_message("useless-return", node=node)
 
     def _check_unnecessary_dict_index_lookup(
@@ -2450,17 +2447,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False, confidence
 
     def _get_start_value(self, node: nodes.NodeNG) -> tuple[int | None, Confidence]:
-        if isinstance(node, (nodes.Name, nodes.Call, nodes.Attribute)) or (
-            isinstance(node, nodes.UnaryOp)
-            and isinstance(node.operand, (nodes.Attribute, nodes.Name))
-        ):
-            inferred = utils.safe_infer(node)
-            # inferred can be an astroid.base.Instance as in 'enumerate(x, int(y))' or
-            # not correctly inferred (None)
-            start_val = inferred.value if isinstance(inferred, nodes.Const) else None
-            return start_val, INFERENCE
-        if isinstance(node, nodes.UnaryOp):
-            return node.operand.value, HIGH
-        if isinstance(node, nodes.Const):
-            return node.value, HIGH
-        return None, HIGH
+        # Most common use cases are a constant integer or minus a constant integer. We
+        # don't need inference for that. If that's not the case, we assume arbitrary
+        # complexity and we use inference.
+        match node:
+            case nodes.Const():
+                return node.value, HIGH
+            case nodes.UnaryOp(operand=nodes.Const()):
+                return node.operand.value, HIGH
+        inferred = utils.safe_infer(node)
+        if isinstance(inferred, nodes.Const):
+            return inferred.value, INFERENCE
+        # inferred can be an 'astroid.base.Instance' in 'enumerate(x, int(y))',
+        # for example. We're doing nothing in this case for now, as extracting
+        # the value is costly.
+
+        # At this point the most likely cases is that the node is uninferable
+        # But we don't have to check if it's actually uninferable.
+        return None, INFERENCE

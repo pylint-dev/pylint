@@ -9,11 +9,14 @@ jobs:
     if: github.repository_owner == 'pylint-dev'
     runs-on: ubuntu-latest
     permissions:
+      actions: write
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/stale@v9
+      - uses: actions/stale@v10
         with:
+          operations-per-run: 100
+
           days-before-issue-stale: 28
           days-before-issue-close: 7
           any-of-issue-labels:

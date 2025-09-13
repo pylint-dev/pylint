@@ -167,3 +167,7 @@ def random_uninferrable_start(pears):
 
     for _, _ in enumerate(pears, random.choice([5, 42])):
         ...
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/10510
+xs = [1, 2, 3]
+test_dict = {j: i for i, j in enumerate(xs, -len(xs))}

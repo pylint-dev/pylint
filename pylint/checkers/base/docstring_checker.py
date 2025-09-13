@@ -191,12 +191,13 @@ class DocStringChecker(_BasicChecker):
                     # Strings.
                     if func.bound.name in {"str", "unicode", "bytes"}:
                         return
-            if node_type == "module":
-                message = "missing-module-docstring"
-            elif node_type == "class":
-                message = "missing-class-docstring"
-            else:
-                message = "missing-function-docstring"
+            match node_type:
+                case "module":
+                    message = "missing-module-docstring"
+                case "class":
+                    message = "missing-class-docstring"
+                case _:
+                    message = "missing-function-docstring"
             self.add_message(message, node=node, confidence=confidence)
         elif not docstring.strip():
             if node_type == "class":

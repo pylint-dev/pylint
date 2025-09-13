@@ -67,6 +67,15 @@ def test_ignore_docstrings() -> None:
         == (
             f"""
 5 similar lines in 2 files
+=={SIMILAR1}:[0:5]
+=={SIMILAR2}:[0:5]
+   import one
+   from two import two
+   three
+   four
+   five
+
+5 similar lines in 2 files
 =={SIMILAR1}:[7:15]
 =={SIMILAR2}:[7:15]
    seven
@@ -77,15 +86,6 @@ def test_ignore_docstrings() -> None:
    twelve '''
    thirteen
    fourteen
-
-5 similar lines in 2 files
-=={SIMILAR1}:[0:5]
-=={SIMILAR2}:[0:5]
-   import one
-   from two import two
-   three
-   four
-   five
 TOTAL lines=62 duplicates=10 percent=16.13
 """
         ).strip()

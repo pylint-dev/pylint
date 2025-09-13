@@ -75,6 +75,8 @@ HUMAN_READABLE_TYPES = {
     "class_const": "class constant",
     "inlinevar": "inline iteration",
     "typevar": "type variable",
+    "paramspec": "parameter specification variable",
+    "typevartuple": "type variable tuple",
     "typealias": "type alias",
 }
 

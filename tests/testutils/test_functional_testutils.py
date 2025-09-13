@@ -85,13 +85,14 @@ def test_get_functional_test_files_from_crowded_directory() -> None:
         get_functional_test_files_from_directory(
             DATA_DIRECTORY / "m", max_file_per_directory=1
         )
-    assert exc_info.match("m: 4 when the max is 1")
-    assert exc_info.match("max_overflow: 3 when the max is 1")
+    assert exc_info.match("m: 3 when the max is 1")
+    assert exc_info.match("max_overflow: 2 when the max is 1")
+    assert len(exc_info.value.args[0].splitlines()) == 3
     with pytest.raises(AssertionError) as exc_info:
         get_functional_test_files_from_directory(
-            DATA_DIRECTORY / "m", max_file_per_directory=3
+            DATA_DIRECTORY / "m", max_file_per_directory=2
         )
-    assert exc_info.match("m: 4 when the max is 3")
+    assert exc_info.match("m: 3 when the max is 2")
     assert "max_overflow" not in str(exc_info.value)
 
 

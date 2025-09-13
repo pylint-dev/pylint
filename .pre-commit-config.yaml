@@ -3,7 +3,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         exclude: tests(/\w*)*/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html|doc/data/messages/t/trailing-whitespace/bad.py
@@ -20,7 +20,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.12.7"
+    rev: "v0.12.12"
     hooks:
       - id: ruff-check
         args: ["--fix"]
@@ -28,6 +28,8 @@ repos:
       - id: ruff-check
         name: ruff-doc
         files: doc/data/messages
+        # Please exclude using doc/data/ruff.toml
+        # exclude: ""  # Leave empty
   - repo: https://github.com/Pierre-Sassoulas/copyright_notice_precommit
     rev: 0.1.2
     hooks:
@@ -126,17 +128,15 @@ repos:
       - id: rstcheck
         args: ["--report-level=warning"]
         files: ^(doc/(.*/)*.*\.rst)
-        additional_dependencies: [Sphinx==7.4.3]
+        # TODO remove pydantic once 2.12.0 is released
+        additional_dependencies:
+          ["Sphinx==7.4.3", "pydantic>=2.12.0a1;python_version>='3.14'"]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.17.1
+    rev: v1.18.1
     hooks:
       - id: mypy
         name: mypy
-        entry: mypy
-        language: python
-        types: [python]
         args: []
-        require_serial: true
         additional_dependencies:
           ["isort>=5", "platformdirs==2.2.0", "py==1.11", "tomlkit>=0.10.1"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/

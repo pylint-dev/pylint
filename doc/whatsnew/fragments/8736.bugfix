@@ -1,0 +1,5 @@
+When displaying unicode with surrogates (or other potential ``UnicodeEncodeError``),
+pylint will now display a '?' character (using ``encode(encoding="utf-8", errors="replace")``)
+instead of crashing. The functional tests classes are also updated to handle this case.
+
+Closes #8736.

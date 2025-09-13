@@ -1,0 +1,36 @@
+@startuml classes
+set namespaceSeparator none
+class "AggregationContainer" as comprehensions.AggregationContainer {
+  component_dict : dict[str, Component]
+  components : list[Component]
+  components_set : set[Component]
+  lazy_components : Generator[Component]
+}
+class "AssociationContainer" as comprehensions.AssociationContainer {
+  component_dict : dict[int, Component]
+  components : list[Component]
+  components_set : set[Component]
+  lazy_components : Generator[Component]
+}
+class "Component" as comprehensions.Component {
+  name : str
+}
+class "CompositionContainer" as comprehensions.CompositionContainer {
+  component_dict : dict[int, Component]
+  components : list[Component]
+  components_set : set[Component]
+  lazy_components : Generator[Component]
+}
+comprehensions.AssociationContainer --> comprehensions.Component : components
+comprehensions.AssociationContainer --> comprehensions.Component : component_dict
+comprehensions.AssociationContainer --> comprehensions.Component : components_set
+comprehensions.AssociationContainer --> comprehensions.Component : lazy_components
+comprehensions.Component --* comprehensions.CompositionContainer : components
+comprehensions.Component --* comprehensions.CompositionContainer : component_dict
+comprehensions.Component --* comprehensions.CompositionContainer : components_set
+comprehensions.Component --* comprehensions.CompositionContainer : lazy_components
+comprehensions.Component --o comprehensions.AggregationContainer : components
+comprehensions.Component --o comprehensions.AggregationContainer : component_dict
+comprehensions.Component --o comprehensions.AggregationContainer : components_set
+comprehensions.Component --o comprehensions.AggregationContainer : lazy_components
+@enduml

@@ -11,8 +11,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures.process import BrokenProcessPool
+from concurrent.futures.process import BrokenProcessPool, ProcessPoolExecutor
 from pathlib import Path
 from pickle import PickleError
 from typing import TYPE_CHECKING

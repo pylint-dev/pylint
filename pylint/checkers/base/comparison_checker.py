@@ -60,7 +60,7 @@ class ComparisonChecker(_BasicChecker):
             "Used when something is compared against itself.",
         ),
         "R0133": (
-            "Comparison between constants: '%s %s %s' has a constant value",
+            'Comparison between constants: "%s %s %s" has a constant value',
             "comparison-of-constants",
             "When two literals are compared with each other the result is a constant. "
             "Using the constant directly is both easier to read and more performant. "
@@ -185,36 +185,37 @@ class ComparisonChecker(_BasicChecker):
         self, literal: nodes.NodeNG, node: nodes.Compare
     ) -> None:
         """Check if we compare to a literal, which is usually what we do not want to do."""
-        is_other_literal = isinstance(literal, (nodes.List, nodes.Dict, nodes.Set))
-        is_const = False
-        if isinstance(literal, nodes.Const):
-            if isinstance(literal.value, bool) or literal.value is None:
+        match literal:
+            case nodes.Const(value=bool() | None):
                 # Not interested in these values.
                 return
-            is_const = isinstance(literal.value, (bytes, str, int, float))
+            case nodes.Const(value=bytes() | str() | int() | float()):
+                pass
+            case nodes.List() | nodes.Dict() | nodes.Set():
+                # Inline list, dict and set nodes
+                pass
+            case _:
+                return
 
-        if is_const or is_other_literal:
-            incorrect_node_str = node.as_string()
-            if "is not" in incorrect_node_str:
-                equal_or_not_equal = "!="
-                is_or_is_not = "is not"
-            else:
-                equal_or_not_equal = "=="
-                is_or_is_not = "is"
-            fixed_node_str = incorrect_node_str.replace(
-                is_or_is_not, equal_or_not_equal
-            )
-            self.add_message(
-                "literal-comparison",
-                args=(
-                    incorrect_node_str,
-                    equal_or_not_equal,
-                    is_or_is_not,
-                    fixed_node_str,
-                ),
-                node=node,
-                confidence=HIGH,
-            )
+        incorrect_node_str = node.as_string()
+        if "is not" in incorrect_node_str:
+            equal_or_not_equal = "!="
+            is_or_is_not = "is not"
+        else:
+            equal_or_not_equal = "=="
+            is_or_is_not = "is"
+        fixed_node_str = incorrect_node_str.replace(is_or_is_not, equal_or_not_equal)
+        self.add_message(
+            "literal-comparison",
+            args=(
+                incorrect_node_str,
+                equal_or_not_equal,
+                is_or_is_not,
+                fixed_node_str,
+            ),
+            node=node,
+            confidence=HIGH,
+        )
 
     def _check_logical_tautology(self, node: nodes.Compare) -> None:
         """Check if identifier is compared against itself.
@@ -257,7 +258,7 @@ class ComparisonChecker(_BasicChecker):
         self.add_message(
             "comparison-of-constants",
             node=node,
-            args=(left_operand.value, operator, right_operand.value),
+            args=(left_operand.as_string(), operator, right_operand.as_string()),
             confidence=HIGH,
         )
 

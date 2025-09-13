@@ -40,12 +40,11 @@ def get_setters_property_name(node: nodes.FunctionDef) -> str | None:
     """
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
-        if (
-            isinstance(decorator, nodes.Attribute)
-            and decorator.attrname == "setter"
-            and isinstance(decorator.expr, nodes.Name)
-        ):
-            return decorator.expr.name  # type: ignore[no-any-return]
+        match decorator:
+            case nodes.Attribute(attrname=attrname, expr=nodes.Name(name=name)) if (
+                attrname == "setter"
+            ):
+                return name  # type: ignore[no-any-return]
     return None
 
 
@@ -92,9 +91,8 @@ def returns_something(return_node: nodes.Return) -> bool:
 
 
 def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | UninferableBase | None:
-    if isinstance(node.exc, nodes.Call):
-        func = node.exc.func
-        if isinstance(func, (nodes.Name, nodes.Attribute)):
+    match node.exc:
+        case nodes.Call(func=nodes.Name() | nodes.Attribute() as func):
             return utils.safe_infer(func)
     return None
 
@@ -133,23 +131,24 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
             except astroid.InferenceError:
                 pass
     else:
-        target = _get_raise_target(node)
-        if isinstance(target, nodes.ClassDef):
-            exceptions = [target]
-        elif isinstance(target, nodes.FunctionDef):
-            for ret in target.nodes_of_class(nodes.Return):
-                if ret.value is None:
-                    continue
-                if ret.frame() != target:
-                    # return from inner function - ignore it
-                    continue
+        match target := _get_raise_target(node):
+            case nodes.ClassDef():
+                exceptions = [target]
+            case nodes.FunctionDef():
+                for ret in target.nodes_of_class(nodes.Return):
+                    if ret.value is None:
+                        continue
+                    if ret.frame() != target:
+                        # return from inner function - ignore it
+                        continue
 
-                val = utils.safe_infer(ret.value)
-                if val and utils.inherit_from_std_ex(val):
-                    if isinstance(val, nodes.ClassDef):
-                        exceptions.append(val)
-                    elif isinstance(val, astroid.Instance):
-                        exceptions.append(val.getattr("__class__")[0])
+                    val = utils.safe_infer(ret.value)
+                    if val and utils.inherit_from_std_ex(val):
+                        match val:
+                            case nodes.ClassDef():
+                                exceptions.append(val)
+                            case astroid.Instance():
+                                exceptions.append(val.getattr("__class__")[0])
 
     try:
         return {

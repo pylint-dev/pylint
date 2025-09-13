@@ -39,45 +39,46 @@ class LambdaExpressionChecker(BaseChecker):
 
     def visit_assign(self, node: nodes.Assign) -> None:
         """Check if lambda expression is assigned to a variable."""
-        if isinstance(node.targets[0], nodes.AssignName) and isinstance(
-            node.value, nodes.Lambda
-        ):
-            self.add_message(
-                "unnecessary-lambda-assignment",
-                node=node.value,
-                confidence=HIGH,
-            )
-        elif isinstance(node.targets[0], nodes.Tuple) and isinstance(
-            node.value, (nodes.Tuple, nodes.List)
-        ):
-            # Iterate over tuple unpacking assignment elements and
-            # see if any lambdas are assigned to a variable.
-            # N.B. We may encounter W0632 (unbalanced-tuple-unpacking)
-            # and still need to flag the lambdas that are being assigned.
-            for lhs_elem, rhs_elem in zip_longest(
-                node.targets[0].elts, node.value.elts
+        match node:
+            case nodes.Assign(
+                targets=[nodes.AssignName(), *_], value=nodes.Lambda() as value
             ):
-                if lhs_elem is None or rhs_elem is None:
-                    # unbalanced tuple unpacking. stop checking.
-                    break
-                if isinstance(lhs_elem, nodes.AssignName) and isinstance(
-                    rhs_elem, nodes.Lambda
-                ):
-                    self.add_message(
-                        "unnecessary-lambda-assignment",
-                        node=rhs_elem,
-                        confidence=HIGH,
-                    )
+                self.add_message(
+                    "unnecessary-lambda-assignment",
+                    node=value,
+                    confidence=HIGH,
+                )
+            case nodes.Assign(
+                targets=[nodes.Tuple() as target, *_],
+                value=nodes.Tuple() | nodes.List() as value,
+            ):
+                # Iterate over tuple unpacking assignment elements and
+                # see if any lambdas are assigned to a variable.
+                # N.B. We may encounter W0632 (unbalanced-tuple-unpacking)
+                # and still need to flag the lambdas that are being assigned.
+                for lhs_elem, rhs_elem in zip_longest(target.elts, value.elts):
+                    if lhs_elem is None or rhs_elem is None:
+                        # unbalanced tuple unpacking. stop checking.
+                        break
+                    if isinstance(lhs_elem, nodes.AssignName) and isinstance(
+                        rhs_elem, nodes.Lambda
+                    ):
+                        self.add_message(
+                            "unnecessary-lambda-assignment",
+                            node=rhs_elem,
+                            confidence=HIGH,
+                        )
 
     def visit_namedexpr(self, node: nodes.NamedExpr) -> None:
-        if isinstance(node.target, nodes.AssignName) and isinstance(
-            node.value, nodes.Lambda
-        ):
-            self.add_message(
-                "unnecessary-lambda-assignment",
-                node=node.value,
-                confidence=HIGH,
-            )
+        match node:
+            case nodes.NamedExpr(
+                target=nodes.AssignName(), value=nodes.Lambda() as value
+            ):
+                self.add_message(
+                    "unnecessary-lambda-assignment",
+                    node=value,
+                    confidence=HIGH,
+                )
 
     def visit_call(self, node: nodes.Call) -> None:
         """Check if lambda expression is called directly."""

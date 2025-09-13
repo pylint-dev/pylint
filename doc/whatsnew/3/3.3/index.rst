@@ -14,6 +14,53 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.3.8?
+---------------------------
+Release date: 2025-08-09
+
+This patch release includes an exceptional fix for a false negative issue.
+For details, see: https://github.com/pylint-dev/pylint/pull/10482#issuecomment-3164514082
+
+False Positives Fixed
+---------------------
+
+- Fix false positives for `possibly-used-before-assignment` when variables are exhaustively
+  assigned within a `match` block.
+
+  Closes #9668 (`#9668 <https://github.com/pylint-dev/pylint/issues/9668>`_)
+
+- Fix false positive for `missing-raises-doc` and `missing-yield-doc` when the method length is less than docstring-min-length.
+
+  Refs #10104 (`#10104 <https://github.com/pylint-dev/pylint/issues/10104>`_)
+
+- Fix a false positive for ``unused-variable`` when multiple except handlers bind the same name under a try block.
+
+  Closes #10426 (`#10426 <https://github.com/pylint-dev/pylint/issues/10426>`_)
+
+
+
+False Negatives Fixed
+---------------------
+
+- Fix false-negative for ``used-before-assignment`` with ``from __future__ import annotations`` in function definitions.
+
+  Refs #10482 (`#10482 <https://github.com/pylint-dev/pylint/issues/10482>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix a bug in Pyreverse where aggregations and associations were included in diagrams regardless of the selected --filter-mode (such as PUB_ONLY, ALL, etc.).
+
+  Closes #10373 (`#10373 <https://github.com/pylint-dev/pylint/issues/10373>`_)
+
+- Fix double underscores erroneously rendering as bold in pyreverse's Mermaid output.
+
+  Closes #10402 (`#10402 <https://github.com/pylint-dev/pylint/issues/10402>`_)
+
+
+
 What's new in Pylint 3.3.7?
 ---------------------------
 Release date: 2025-05-04

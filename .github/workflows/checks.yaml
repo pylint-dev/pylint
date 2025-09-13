@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - "maintenance/**"
+  workflow_dispatch:
 
 env:
   CACHE_VERSION: 3
@@ -33,10 +34,10 @@ jobs:
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -49,7 +50,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.3
+        uses: actions/cache@v4.2.4
         with:
           path: venv
           key: >-
@@ -70,7 +71,7 @@ jobs:
             hashFiles('.pre-commit-config.yaml') }}" >> $GITHUB_OUTPUT
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache@v4.2.3
+        uses: actions/cache@v4.2.4
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           key: >-
@@ -88,16 +89,16 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.3
+        uses: actions/cache/restore@v4.2.4
         with:
           path: venv
           fail-on-cache-miss: true
@@ -106,7 +107,7 @@ jobs:
             needs.prepare-base.outputs.python-key }}
       - name: Restore pre-commit environment
         id: cache-precommit
-        uses: actions/cache@v4.2.3
+        uses: actions/cache/restore@v4.2.4
         with:
           path: ${{ env.PRE_COMMIT_CACHE }}
           fail-on-cache-miss: true
@@ -129,16 +130,16 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.3
+        uses: actions/cache/restore@v4.2.4
         with:
           path: venv
           fail-on-cache-miss: true
@@ -158,16 +159,16 @@ jobs:
     needs: prepare-base
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.3
+        uses: actions/cache/restore@v4.2.4
         with:
           path: venv
           fail-on-cache-miss: true

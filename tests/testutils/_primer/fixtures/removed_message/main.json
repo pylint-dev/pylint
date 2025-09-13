@@ -1,0 +1,33 @@
+{
+  "astroid": {
+    "commit": "1234567890abcdef",
+    "messages": [
+      {
+        "type": "info",
+        "module": "astroid",
+        "obj": "",
+        "line": 91,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py",
+        "symbol": "locally-disabled",
+        "message": "Locally disabling redefined-builtin (W0622)",
+        "message-id": "I0011"
+      },
+      {
+        "type": "warning",
+        "module": "astroid",
+        "obj": "",
+        "line": 91,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py",
+        "symbol": "unknown-option-value",
+        "message": "Unknown option value for 'disable', expected a valid pylint message and got 'Ellipsis'",
+        "message-id": "W0012"
+      }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+"comprehensions.AggregationContainer" [color="black", fontcolor="black", label=<{AggregationContainer|component_dict : dict[str, Component]<br ALIGN="LEFT"/>components : list[Component]<br ALIGN="LEFT"/>components_set : set[Component]<br ALIGN="LEFT"/>lazy_components : Generator[Component]<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"comprehensions.AssociationContainer" [color="black", fontcolor="black", label=<{AssociationContainer|component_dict : dict[int, Component]<br ALIGN="LEFT"/>components : list[Component]<br ALIGN="LEFT"/>components_set : set[Component]<br ALIGN="LEFT"/>lazy_components : Generator[Component]<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"comprehensions.Component" [color="black", fontcolor="black", label=<{Component|name : str<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"comprehensions.CompositionContainer" [color="black", fontcolor="black", label=<{CompositionContainer|component_dict : dict[int, Component]<br ALIGN="LEFT"/>components : list[Component]<br ALIGN="LEFT"/>components_set : set[Component]<br ALIGN="LEFT"/>lazy_components : Generator[Component]<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"comprehensions.AssociationContainer" -> "comprehensions.Component" [arrowhead="vee", arrowtail="none", fontcolor="green", label="components", style="solid"];
+"comprehensions.AssociationContainer" -> "comprehensions.Component" [arrowhead="vee", arrowtail="none", fontcolor="green", label="component_dict", style="solid"];
+"comprehensions.AssociationContainer" -> "comprehensions.Component" [arrowhead="vee", arrowtail="none", fontcolor="green", label="components_set", style="solid"];
+"comprehensions.AssociationContainer" -> "comprehensions.Component" [arrowhead="vee", arrowtail="none", fontcolor="green", label="lazy_components", style="solid"];
+"comprehensions.Component" -> "comprehensions.CompositionContainer" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="components", style="solid"];
+"comprehensions.Component" -> "comprehensions.CompositionContainer" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="component_dict", style="solid"];
+"comprehensions.Component" -> "comprehensions.CompositionContainer" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="components_set", style="solid"];
+"comprehensions.Component" -> "comprehensions.CompositionContainer" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="lazy_components", style="solid"];
+"comprehensions.Component" -> "comprehensions.AggregationContainer" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="components", style="solid"];
+"comprehensions.Component" -> "comprehensions.AggregationContainer" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="component_dict", style="solid"];
+"comprehensions.Component" -> "comprehensions.AggregationContainer" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="components_set", style="solid"];
+"comprehensions.Component" -> "comprehensions.AggregationContainer" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="lazy_components", style="solid"];
+}

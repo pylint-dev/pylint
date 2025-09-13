@@ -40,4 +40,4 @@ class LintModuleOutputUpdate(LintModuleTest):
         with open(self._test_file.expected_output, "w", encoding="utf-8") as f:
             writer = csv.writer(f, dialect="test")
             for line in actual_output:
-                writer.writerow(line.to_csv())
+                self.safe_write_output_line(writer, line)
