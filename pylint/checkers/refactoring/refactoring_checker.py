@@ -2087,10 +2087,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return False  # the BoundMethod proxy may be a lambda without a returns
 
         match returns:
-            case nodes.Attribute(attrname="NoReturn" | "Never") | nodes.Name(
-                name="NoReturn" | "Never"
-            ):
-                return True
+            case nodes.Attribute(attrname=name) | nodes.Name(name=name):
+                return name in {"NoReturn", "Never"}
         return False
 
     def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:
