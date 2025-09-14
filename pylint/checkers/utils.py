@@ -1479,11 +1479,10 @@ def has_known_bases(
 
 
 def is_none(node: nodes.NodeNG) -> bool:
-    return (
-        node is None
-        or (isinstance(node, nodes.Const) and node.value is None)
-        or (isinstance(node, nodes.Name) and node.name == "None")
-    )
+    match node:
+        case None | nodes.Const(value=None) | nodes.Name(value="None"):
+            return True
+    return False
 
 
 def node_type(node: nodes.NodeNG) -> SuccessfulInferenceResult | None:
@@ -1696,11 +1695,10 @@ def is_protocol_class(cls: nodes.NodeNG) -> bool:
 
 def is_call_of_name(node: nodes.NodeNG, name: str) -> bool:
     """Checks if node is a function call with the given name."""
-    return (
-        isinstance(node, nodes.Call)
-        and isinstance(node.func, nodes.Name)
-        and node.func.name == name
-    )
+    match node:
+        case nodes.Call(func=nodes.Name(name=func_name)):
+            return func_name == name  # type: ignore[no-any-return]
+    return False
 
 
 def is_test_condition(
@@ -1885,12 +1883,10 @@ def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
 
 def is_function_body_ellipsis(node: nodes.FunctionDef) -> bool:
     """Checks whether a function body only consists of a single Ellipsis."""
-    return (
-        len(node.body) == 1
-        and isinstance(node.body[0], nodes.Expr)
-        and isinstance(node.body[0].value, nodes.Const)
-        and node.body[0].value.value == Ellipsis
-    )
+    match node.body:
+        case [nodes.Expr(value=nodes.Const(value=value))]:
+            return value is Ellipsis
+    return False
 
 
 def is_base_container(node: nodes.NodeNG | None) -> bool:
@@ -1909,20 +1905,18 @@ def is_empty_str_literal(node: nodes.NodeNG | None) -> bool:
 
 def returns_bool(node: nodes.NodeNG) -> bool:
     """Returns true if a node is a nodes.Return that returns a constant boolean."""
-    return (
-        isinstance(node, nodes.Return)
-        and isinstance(node.value, nodes.Const)
-        and isinstance(node.value.value, bool)
-    )
+    match node:
+        case nodes.Return(value=nodes.Const(value=bool())):
+            return True
+    return False
 
 
 def assigned_bool(node: nodes.NodeNG) -> bool:
     """Returns true if a node is a nodes.Assign that returns a constant boolean."""
-    return (
-        isinstance(node, nodes.Assign)
-        and isinstance(node.value, nodes.Const)
-        and isinstance(node.value.value, bool)
-    )
+    match node:
+        case nodes.Assign(value=nodes.Const(value=bool())):
+            return True
+    return False
 
 
 def get_node_first_ancestor_of_type(
@@ -1993,18 +1987,15 @@ def is_typing_member(node: nodes.NodeNG, names_to_check: tuple[str, ...]) -> boo
             except IndexError:
                 return False
 
-            if isinstance(import_from, nodes.ImportFrom):
-                return (
-                    import_from.modname == "typing"
-                    and import_from.real_name(node.name) in names_to_check
-                )
+            match import_from:
+                case nodes.ImportFrom(modname="typing"):
+                    return import_from.real_name(node.name) in names_to_check
+            return False
         case nodes.Attribute():
-            inferred_module = safe_infer(node.expr)
-            return (
-                isinstance(inferred_module, nodes.Module)
-                and inferred_module.name == "typing"
-                and node.attrname in names_to_check
-            )
+            match safe_infer(node.expr):
+                case nodes.Module(name="typing"):
+                    return node.attrname in names_to_check
+            return False
     return False
 
 

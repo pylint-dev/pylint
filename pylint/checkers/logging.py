@@ -192,11 +192,10 @@ class LoggingChecker(checkers.BaseChecker):
         """Checks calls to logging methods."""
 
         def is_logging_name() -> bool:
-            return (
-                isinstance(node.func, nodes.Attribute)
-                and isinstance(node.func.expr, nodes.Name)
-                and node.func.expr.name in self._logging_names
-            )
+            match node.func:
+                case nodes.Attribute(expr=nodes.Name(name=name)):
+                    return name in self._logging_names
+            return False
 
         def is_logger_class() -> tuple[bool, str | None]:
             for inferred in infer_all(node.func):
