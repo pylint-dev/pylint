@@ -45,7 +45,6 @@ dependencies = [
   "dill>=0.3.6; python_version>='3.11'",
   "dill>=0.3.7; python_version>='3.12'",
   "isort>=4.2.5,!=5.13,<7",
-  "mccabe>=0.6,<0.8",
   "platformdirs>=2.2",
   "tomli>=1.1; python_version<'3.11'",
   "tomlkit>=0.10.1",
@@ -177,6 +176,7 @@ lint.ignore = [
   "PTH208", # Use `pathlib.Path.iterdir()` instead"
   "RUF012", # mutable default values in class attributes
 ]
+lint.per-file-ignores."pylint/extensions/mccabe.py" = [ "UP008", "UP031" ]
 lint.pydocstyle.convention = "pep257"
 
 [tool.isort]
