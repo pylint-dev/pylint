@@ -203,12 +203,11 @@ def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
     for decorator in node.decorators.nodes:
         if isinstance(decorator, astroid.Call):
             decorator = decorator.func
-        if not isinstance(decorator, (astroid.Name, astroid.Attribute)):
-            continue
-        if isinstance(decorator, astroid.Name):
-            name = decorator.name
-        else:
-            name = decorator.attrname
+        match decorator:
+            case astroid.Name(name=name) | astroid.Attribute(attrname=name):
+                pass
+            case _:
+                continue
         if name in DATACLASSES_DECORATORS and (
             root_locals.intersection(DATACLASSES_DECORATORS)
             or DATACLASS_IMPORT in root_locals
