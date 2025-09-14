@@ -1,0 +1,15 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+"fields.Aggregation1" [color="black", fontcolor="black", label=<{Aggregation1|x<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"fields.Aggregation2" [color="black", fontcolor="black", label=<{Aggregation2|x<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"fields.Association" [color="black", fontcolor="black", label=<{Association|x<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"fields.Composition1" [color="black", fontcolor="black", label=<{Composition1|x<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"fields.Composition2" [color="black", fontcolor="black", label=<{Composition2|x<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"fields.P" [color="black", fontcolor="black", label=<{P|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"fields.Association" -> "fields.P" [arrowhead="vee", arrowtail="none", fontcolor="green", label="x", style="solid"];
+"fields.P" -> "fields.Composition1" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="x", style="solid"];
+"fields.P" -> "fields.Composition2" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="x", style="solid"];
+"fields.P" -> "fields.Aggregation1" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="x", style="solid"];
+"fields.P" -> "fields.Aggregation2" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="x", style="solid"];
+}

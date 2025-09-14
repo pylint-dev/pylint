@@ -30,10 +30,16 @@ SHAPES: dict[NodeType, str] = {
 # pylint: disable-next=consider-using-namedtuple-or-dataclass
 ARROWS: dict[EdgeType, dict[str, str]] = {
     EdgeType.INHERITS: {"arrowtail": "none", "arrowhead": "empty"},
-    EdgeType.ASSOCIATION: {
+    EdgeType.COMPOSITION: {
         "fontcolor": "green",
         "arrowtail": "none",
         "arrowhead": "diamond",
+        "style": "solid",
+    },
+    EdgeType.ASSOCIATION: {
+        "fontcolor": "green",
+        "arrowtail": "none",
+        "arrowhead": "vee",
         "style": "solid",
     },
     EdgeType.AGGREGATION: {

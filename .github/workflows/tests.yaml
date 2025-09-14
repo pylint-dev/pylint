@@ -11,6 +11,7 @@ on:
     branches:
       - main
       - "maintenance/**"
+  workflow_dispatch:
 
 env:
   CACHE_VERSION: 5
@@ -44,11 +45,10 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        # Custom with PyPy fix: https://github.com/actions/setup-python/pull/1110
-        uses: cdce8p/setup-python@v5.6.0-c1
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -61,7 +61,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.3
+        uses: actions/cache@v4.2.4
         with:
           path: venv
           key: >-
@@ -100,24 +100,24 @@ jobs:
     needs: tests
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python 3.13
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: "3.13"
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.3
+        uses: actions/cache/restore@v4.2.4
         with:
           path: venv
           fail-on-cache-miss: true
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.tests-linux.outputs.python-key }}
+            needs.tests.outputs.python-key }}
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v4.3.0
+        uses: actions/download-artifact@v5.0.0
       - name: Combine coverage results
         run: |
           . venv/bin/activate
@@ -140,22 +140,22 @@ jobs:
         python-version: ["3.13"]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.3
+        uses: actions/cache/restore@v4.2.4
         with:
           path: venv
           fail-on-cache-miss: true
           key:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.tests-linux.outputs.python-key }}
+            needs.tests.outputs.python-key }}
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -195,10 +195,10 @@ jobs:
         # Workaround to set correct temp directory on Windows
         # https://github.com/actions/virtual-environments/issues/712
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -210,7 +210,7 @@ jobs:
           }}" >> $env:GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.3
+        uses: actions/cache@v4.2.4
         with:
           path: venv
           key: >-

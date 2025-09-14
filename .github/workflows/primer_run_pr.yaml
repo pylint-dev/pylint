@@ -43,12 +43,12 @@ jobs:
         batchIdx: [0, 1, 2, 3]
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ matrix.python-version }}
           check-latest: true
@@ -56,7 +56,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache/restore@v4.2.3
+        uses: actions/cache/restore@v4.2.4
         with:
           path: venv
           key:
@@ -75,7 +75,7 @@ jobs:
       # Save cached Python environment (explicit because cancel-in-progress: true)
       - name: Save Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4.2.3
+        uses: actions/cache/save@v4.2.4
         with:
           path: venv
           key:
@@ -87,7 +87,7 @@ jobs:
       # Cache primer packages
       - name: Download last 'main' run info
         id: download-main-run
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v8.0.0
         env:
           COMMIT_STRING_ARTIFACT: primer_commitstring_${{ matrix.python-version }}
           OUTPUT_ARTIFACT:
@@ -151,7 +151,7 @@ jobs:
           echo "commitstring=$output" >> $GITHUB_OUTPUT
       - name: Restore projects cache
         id: cache-projects
-        uses: actions/cache/restore@v4.2.3
+        uses: actions/cache/restore@v4.2.4
         with:
           path: tests/.pylint_primer_tests/
           key: >-
@@ -164,7 +164,7 @@ jobs:
           python tests/primer/__main__.py prepare --clone
       - name: Save projects cache
         if: steps.cache-projects.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4.2.3
+        uses: actions/cache/save@v4.2.4
         with:
           path: tests/.pylint_primer_tests/
           key: >-

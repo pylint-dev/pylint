@@ -1,1 +1,1 @@
-used-before-assignment:11:20:11:21::Using variable 'X' before assignment:HIGH
+redefined-outer-name:22:9:22:13:func:Redefining name 'T' from outer scope (line 6):UNDEFINED

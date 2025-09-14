@@ -99,14 +99,11 @@ class RecommendationChecker(checkers.BaseChecker):
                 and (comparator in node.node_ancestors() or comparator is node)
             )
         ):
-            inferred = utils.safe_infer(node.func)
-            if not isinstance(inferred, astroid.BoundMethod) or not isinstance(
-                inferred.bound, nodes.Dict
-            ):
-                return
-            self.add_message(
-                "consider-iterating-dictionary", node=node, confidence=INFERENCE
-            )
+            match utils.safe_infer(node.func):
+                case astroid.BoundMethod(bound=nodes.Dict()):
+                    self.add_message(
+                        "consider-iterating-dictionary", node=node, confidence=INFERENCE
+                    )
 
     def _check_use_maxsplit_arg(self, node: nodes.Call) -> None:
         """Add message when accessing first or last elements of a str.split() or
@@ -230,12 +227,9 @@ class RecommendationChecker(checkers.BaseChecker):
             return
         # If we're defining __iter__ on self, enumerate won't work
         scope = node.scope()
-        if (
-            isinstance(iterating_object, nodes.Name)
-            and iterating_object.name == "self"
-            and scope.name == "__iter__"
-        ):
-            return
+        match iterating_object:
+            case nodes.Name(name="self") if scope.name == "__iter__":
+                return
 
         # Verify that the body of the for loop uses a subscript
         # with the object that was iterated. This uses some heuristics
@@ -447,13 +441,10 @@ class RecommendationChecker(checkers.BaseChecker):
             if "{" in node.parent.left.value or "}" in node.parent.left.value:
                 return
 
-            inferred_right = utils.safe_infer(node.parent.right)
-
             # If dicts or lists of length > 1 are used
-            if isinstance(inferred_right, nodes.Dict) and len(inferred_right.items) > 1:
-                return
-            if isinstance(inferred_right, nodes.List) and len(inferred_right.elts) > 1:
-                return
+            match utils.safe_infer(node.parent.right):
+                case nodes.Dict(items=items) | nodes.List(elts=items) if len(items) > 1:
+                    return
 
             # If all tests pass, then raise message
             self.add_message(

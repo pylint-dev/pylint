@@ -676,6 +676,18 @@ Logging checker Messages
   format-interpolation is disabled then you can use str.format.
 
 
+Match Statements checker
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Verbatim name of the checker is ``match_statements``.
+
+Match Statements checker Messages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:bare-name-capture-pattern (E1901): *The name capture `case %s` makes the remaining patterns unreachable. Use a dotted name (for example an enum) to fix this.*
+  Emitted when a name capture pattern is used in a match statement and there
+  are case statements below it.
+
+
 Method Args checker
 ~~~~~~~~~~~~~~~~~~~
 

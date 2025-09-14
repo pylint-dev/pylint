@@ -112,8 +112,7 @@ def get_module_and_frameid(node: nodes.NodeNG) -> tuple[str, str]:
             frame = frame.parent.frame()
         except AttributeError:
             break
-    obj.reverse()
-    return module, ".".join(obj)
+    return module, ".".join(reversed(obj))
 
 
 def get_rst_title(title: str, character: str) -> str:

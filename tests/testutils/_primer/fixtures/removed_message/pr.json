@@ -1,0 +1,20 @@
+{
+  "astroid": {
+    "commit": "123456789abcdef",
+    "messages": [
+      {
+        "type": "info",
+        "module": "astroid",
+        "obj": "",
+        "line": 91,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py",
+        "symbol": "locally-disabled",
+        "message": "Locally disabling redefined-builtin (W0622)",
+        "message-id": "I0011"
+      }
+    ]
+  }
+}

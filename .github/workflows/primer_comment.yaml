@@ -16,6 +16,8 @@ env:
   # This needs to be the SAME as in the Main and PR job
   CACHE_VERSION: 4
   KEY_PREFIX: venv-primer
+  # If you change this, also change PRIMER_CURRENT_INTERPRETER in
+  # tests/testutils/_primer/test_primer.py
   DEFAULT_PYTHON: "3.13"
 
 permissions:
@@ -30,10 +32,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
           check-latest: true
@@ -41,7 +43,7 @@ jobs:
       # Restore cached Python environment
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.2.3
+        uses: actions/cache@v4.2.4
         with:
           path: venv
           key:
@@ -51,7 +53,7 @@ jobs:
             'requirements_test_pre_commit.txt') }}
 
       - name: Download outputs
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v8.0.0
         with:
           script: |
             // Download workflow pylint output
@@ -99,7 +101,7 @@ jobs:
           --batches=4
       - name: Post comment
         id: post-comment
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v8.0.0
         with:
           script: |
             const fs = require('fs')

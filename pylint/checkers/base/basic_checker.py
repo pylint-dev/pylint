@@ -367,9 +367,7 @@ class BasicChecker(_BasicChecker):
                 # Just forcing the generator to infer all elements.
                 # astroid.exceptions.InferenceError are false positives
                 # see https://github.com/pylint-dev/pylint/pull/8185
-                if isinstance(inferred, nodes.FunctionDef):
-                    call_inferred = list(inferred.infer_call_result(node))
-                elif isinstance(inferred, nodes.Lambda):
+                if isinstance(inferred, (nodes.FunctionDef, nodes.Lambda)):
                     call_inferred = list(inferred.infer_call_result(node))
             except astroid.InferenceError:
                 call_inferred = None
@@ -539,12 +537,11 @@ class BasicChecker(_BasicChecker):
             # The body of the lambda must be a function call expression
             # for the lambda to be unnecessary.
             return
-        if isinstance(node.body.func, nodes.Attribute) and isinstance(
-            node.body.func.expr, nodes.Call
-        ):
-            # Chained call, the intermediate call might
-            # return something else (but we don't check that, yet).
-            return
+        match call.func:
+            case nodes.Attribute(expr=nodes.Call()):
+                # Chained call, the intermediate call might
+                # return something else (but we don't check that, yet).
+                return
 
         ordinary_args = list(node.args.args)
         new_call_args = list(self._filter_vararg(node, call.args))
@@ -685,14 +682,9 @@ class BasicChecker(_BasicChecker):
         if not expr:
             # we are doubtful on inferred type of node, so here just check if format
             # was called on print()
-            call_expr = call_node.func.expr
-            if not isinstance(call_expr, nodes.Call):
-                return
-            if (
-                isinstance(call_expr.func, nodes.Name)
-                and call_expr.func.name == "print"
-            ):
-                self.add_message("misplaced-format-function", node=call_node)
+            match call_node.func.expr:
+                case nodes.Call(func=nodes.Name(name="print")):
+                    self.add_message("misplaced-format-function", node=call_node)
 
     @utils.only_required_for_messages(
         "eval-used",
@@ -711,37 +703,36 @@ class BasicChecker(_BasicChecker):
             # ignore the name if it's not a builtin (i.e. not defined in the
             # locals nor globals scope)
             if not (name in node.frame() or name in node.root()):
-                if name == "exec":
-                    self.add_message("exec-used", node=node)
-                elif name == "reversed":
-                    self._check_reversed(node)
-                elif name == "eval":
-                    self.add_message("eval-used", node=node)
+                match name:
+                    case "exec":
+                        self.add_message("exec-used", node=node)
+                    case "reversed":
+                        self._check_reversed(node)
+                    case "eval":
+                        self.add_message("eval-used", node=node)
 
     @utils.only_required_for_messages("assert-on-tuple", "assert-on-string-literal")
     def visit_assert(self, node: nodes.Assert) -> None:
         """Check whether assert is used on a tuple or string literal."""
-        if isinstance(node.test, nodes.Tuple) and len(node.test.elts) > 0:
-            self.add_message("assert-on-tuple", node=node, confidence=HIGH)
-
-        if isinstance(node.test, nodes.Const) and isinstance(node.test.value, str):
-            if node.test.value:
-                when = "never"
-            else:
-                when = "always"
-            self.add_message("assert-on-string-literal", node=node, args=(when,))
+        match node.test:
+            case nodes.Tuple(elts=elts) if len(elts) > 0:
+                self.add_message("assert-on-tuple", node=node, confidence=HIGH)
+            case nodes.Const(value=str(val)):
+                when = "never" if val else "always"
+                self.add_message("assert-on-string-literal", node=node, args=(when,))
 
     @utils.only_required_for_messages("duplicate-key")
     def visit_dict(self, node: nodes.Dict) -> None:
         """Check duplicate key in dictionary."""
         keys = set()
         for k, _ in node.items:
-            if isinstance(k, nodes.Const):
-                key = k.value
-            elif isinstance(k, nodes.Attribute):
-                key = k.as_string()
-            else:
-                continue
+            match k:
+                case nodes.Const():
+                    key = k.value
+                case nodes.Attribute():
+                    key = k.as_string()
+                case _:
+                    continue
             if key in keys:
                 self.add_message("duplicate-key", node=node, args=key)
             keys.add(key)
@@ -827,40 +818,41 @@ class BasicChecker(_BasicChecker):
         except utils.NoSuchArgumentError:
             pass
         else:
-            if isinstance(argument, util.UninferableBase):
-                return
-            if argument is None:
-                # Nothing was inferred.
-                # Try to see if we have iter().
-                if isinstance(node.args[0], nodes.Call):
-                    try:
-                        func = next(node.args[0].func.infer())
-                    except astroid.InferenceError:
-                        return
-                    if getattr(
-                        func, "name", None
-                    ) == "iter" and utils.is_builtin_object(func):
-                        self.add_message("bad-reversed-sequence", node=node)
-                return
-
-            if isinstance(argument, (nodes.List, nodes.Tuple)):
-                return
-
-            # dicts are reversible, but only from Python 3.8 onward. Prior to
-            # that, any class based on dict must explicitly provide a
-            # __reversed__ method
-            if not self._py38_plus and isinstance(argument, astroid.Instance):
-                if any(
-                    ancestor.name == "dict" and utils.is_builtin_object(ancestor)
-                    for ancestor in itertools.chain(
-                        (argument._proxied,), argument._proxied.ancestors()
-                    )
-                ):
-                    try:
-                        argument.locals[REVERSED_PROTOCOL_METHOD]
-                    except KeyError:
-                        self.add_message("bad-reversed-sequence", node=node)
+            match argument:
+                case util.UninferableBase():
                     return
+                case None:
+                    # Nothing was inferred.
+                    # Try to see if we have iter().
+                    if isinstance(node.args[0], nodes.Call):
+                        try:
+                            func = next(node.args[0].func.infer())
+                        except astroid.InferenceError:
+                            return
+                        if getattr(
+                            func, "name", None
+                        ) == "iter" and utils.is_builtin_object(func):
+                            self.add_message("bad-reversed-sequence", node=node)
+                    return
+
+                case nodes.List() | nodes.Tuple():
+                    return
+
+                case astroid.Instance() if not self._py38_plus:
+                    # dicts are reversible, but only from Python 3.8 onward. Prior to
+                    # that, any class based on dict must explicitly provide a
+                    # __reversed__ method
+                    if any(
+                        ancestor.name == "dict" and utils.is_builtin_object(ancestor)
+                        for ancestor in itertools.chain(
+                            (argument._proxied,), argument._proxied.ancestors()
+                        )
+                    ):
+                        try:
+                            argument.locals[REVERSED_PROTOCOL_METHOD]
+                        except KeyError:
+                            self.add_message("bad-reversed-sequence", node=node)
+                        return
 
             if hasattr(argument, "getattr"):
                 # everything else is not a proper sequence for reversed()
@@ -910,15 +902,16 @@ class BasicChecker(_BasicChecker):
                 # Unpacking a variable into the same name.
                 return
 
-        if isinstance(node.value, nodes.Name):
-            if len(targets) != 1:
-                return
-            rhs_names = [node.value]
-        elif isinstance(node.value, nodes.Tuple):
-            rhs_count = len(node.value.elts)
-            if len(targets) != rhs_count or rhs_count == 1:
-                return
-            rhs_names = node.value.elts
+        match node.value:
+            case nodes.Name():
+                if len(targets) != 1:
+                    return
+                rhs_names = [node.value]
+            case nodes.Tuple():
+                rhs_count = len(node.value.elts)
+                if len(targets) != rhs_count or rhs_count == 1:
+                    return
+                rhs_names = node.value.elts
 
         for target, lhs_name in zip(targets, rhs_names):
             if not isinstance(lhs_name, nodes.Name):

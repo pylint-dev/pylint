@@ -82,9 +82,9 @@ class MultiReporter(BaseReporter):
         self._reporters = reporters
         self.path_strip_prefix = os.getcwd() + os.sep
 
-    def on_set_current_module(self, *args: str, **kwargs: Any) -> None:
+    def on_set_current_module(self, module: str, filepath: str | None) -> None:
         for rep in self._reporters:
-            rep.on_set_current_module(*args, **kwargs)
+            rep.on_set_current_module(module, filepath)
 
     def handle_message(self, msg: Message) -> None:
         for rep in self._reporters:
@@ -1625,9 +1625,8 @@ class TestCallbackOptions:
     @staticmethod
     def test_errors_only() -> None:
         """Test the --errors-only flag."""
-        with pytest.raises(SystemExit):
-            run = Run(["--errors-only"])
-            assert run.linter._error_mode
+        run = Run([str(UNNECESSARY_LAMBDA), "--errors-only"], exit=False)
+        assert run.linter._error_mode
 
     @staticmethod
     def test_errors_only_functions_as_disable() -> None:
@@ -1643,13 +1642,8 @@ class TestCallbackOptions:
     @staticmethod
     def test_verbose() -> None:
         """Test the --verbose flag."""
-        with pytest.raises(SystemExit):
-            run = Run(["--verbose"])
-            assert run.verbose
-
-        with pytest.raises(SystemExit):
-            run = Run(["--verbose=True"])
-            assert run.verbose
+        run = Run([str(UNNECESSARY_LAMBDA), "--verbose"], exit=False)
+        assert run.verbose
 
     @staticmethod
     def test_enable_all_extensions() -> None:

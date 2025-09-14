@@ -40,20 +40,30 @@ _BadNamesTuple = tuple[nodes.NodeNG, str, str, interfaces.Confidence]
 # Default patterns for name types that do not have styles
 DEFAULT_PATTERNS = {
     "typevar": re.compile(
-        r"^_{0,2}(?!T[A-Z])(?:[A-Z]+|(?:[A-Z]+[a-z]+)+T?(?<!Type))(?:_co(?:ntra)?)?$"
+        r"^_{0,2}(?!T[A-Z])(?:[A-Z]+|(?:[A-Z]+[a-z]+)+(?:T)?(?<!Type))(?:_co(?:ntra)?)?$"
     ),
+    "paramspec": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z]+)+(?:P)?(?<!Type))$"),
+    "typevartuple": re.compile(r"^_{0,2}(?:[A-Z]+|(?:[A-Z]+[a-z]+)+(?:Ts)?(?<!Type))$"),
     "typealias": re.compile(
         r"^_{0,2}(?!T[A-Z]|Type)[A-Z]+[a-z0-9]+(?:[A-Z][a-z0-9]+)*$"
     ),
 }
 
 BUILTIN_PROPERTY = "builtins.property"
-TYPE_VAR_QNAME = frozenset(
-    (
+TYPE_VAR_QNAMES = {
+    "typevar": {
         "typing.TypeVar",
         "typing_extensions.TypeVar",
-    )
-)
+    },
+    "paramspec": {
+        "typing.ParamSpec",
+        "typing_extensions.ParamSpec",
+    },
+    "typevartuple": {
+        "typing.TypeVarTuple",
+        "typing_extensions.TypeVarTuple",
+    },
+}
 
 
 class TypeVarVariance(Enum):
@@ -400,7 +410,7 @@ class NameChecker(_BasicChecker):
         "typevar-double-variance",
         "typevar-name-mismatch",
     )
-    def visit_assignname(  # pylint: disable=too-many-branches
+    def visit_assignname(  # pylint: disable=too-many-branches,too-many-statements
         self, node: nodes.AssignName
     ) -> None:
         """Check module level assigned names."""
@@ -413,6 +423,12 @@ class NameChecker(_BasicChecker):
 
         elif isinstance(assign_type, nodes.TypeVar):
             self._check_name("typevar", node.name, node)
+
+        elif isinstance(assign_type, nodes.ParamSpec):
+            self._check_name("paramspec", node.name, node)
+
+        elif isinstance(assign_type, nodes.TypeVarTuple):
+            self._check_name("typevartuple", node.name, node)
 
         elif isinstance(assign_type, nodes.TypeAlias):
             self._check_name("typealias", node.name, node)
@@ -433,8 +449,10 @@ class NameChecker(_BasicChecker):
 
                 # Check TypeVar's and TypeAliases assigned alone or in tuple assignment
                 if isinstance(node.parent, nodes.Assign):
-                    if self._assigns_typevar(assign_type.value):
-                        self._check_name("typevar", assign_type.targets[0].name, node)
+                    if typevar_node_type := self._assigns_typevar(assign_type.value):
+                        self._check_name(
+                            typevar_node_type, assign_type.targets[0].name, node
+                        )
                         return
                     if self._assigns_typealias(assign_type.value):
                         self._check_name("typealias", assign_type.targets[0].name, node)
@@ -447,9 +465,9 @@ class NameChecker(_BasicChecker):
                     and node.parent.elts.index(node) < len(assign_type.value.elts)
                 ):
                     assigner = assign_type.value.elts[node.parent.elts.index(node)]
-                    if self._assigns_typevar(assigner):
+                    if typevar_node_type := self._assigns_typevar(assigner):
                         self._check_name(
-                            "typevar",
+                            typevar_node_type,
                             assign_type.targets[0]
                             .elts[node.parent.elts.index(node)]
                             .name,
@@ -629,16 +647,16 @@ class NameChecker(_BasicChecker):
             self._check_typevar(name, node)
 
     @staticmethod
-    def _assigns_typevar(node: nodes.NodeNG | None) -> bool:
-        """Check if a node is assigning a TypeVar."""
+    def _assigns_typevar(node: nodes.NodeNG | None) -> str | None:
+        """Check if a node is assigning a TypeVar and return TypeVar type."""
         if isinstance(node, astroid.Call):
             inferred = utils.safe_infer(node.func)
-            if (
-                isinstance(inferred, astroid.ClassDef)
-                and inferred.qname() in TYPE_VAR_QNAME
-            ):
-                return True
-        return False
+            if isinstance(inferred, astroid.ClassDef):
+                qname = inferred.qname()
+                for typevar_node_typ, qnames in TYPE_VAR_QNAMES.items():
+                    if qname in qnames:
+                        return typevar_node_typ
+        return None
 
     @staticmethod
     def _assigns_typealias(node: nodes.NodeNG | None) -> bool:
@@ -663,18 +681,19 @@ class NameChecker(_BasicChecker):
     def _check_typevar(self, name: str, node: nodes.AssignName) -> None:
         """Check for TypeVar lint violations."""
         variance: TypeVarVariance = TypeVarVariance.invariant
-        if isinstance(node.parent, nodes.Assign):
-            keywords = node.assign_type().value.keywords
-            args = node.assign_type().value.args
-        elif isinstance(node.parent, nodes.Tuple):
-            keywords = (
-                node.assign_type().value.elts[node.parent.elts.index(node)].keywords
-            )
-            args = node.assign_type().value.elts[node.parent.elts.index(node)].args
-        else:  # PEP 695 generic type nodes
-            keywords = ()
-            args = ()
-            variance = TypeVarVariance.inferred
+        match node.parent:
+            case nodes.Assign():
+                keywords = node.assign_type().value.keywords
+                args = node.assign_type().value.args
+            case nodes.Tuple():
+                keywords = (
+                    node.assign_type().value.elts[node.parent.elts.index(node)].keywords
+                )
+                args = node.assign_type().value.elts[node.parent.elts.index(node)].args
+            case _:  # PEP 695 generic type nodes
+                keywords = ()
+                args = ()
+                variance = TypeVarVariance.inferred
 
         name_arg = None
         for kw in keywords:
@@ -699,49 +718,48 @@ class NameChecker(_BasicChecker):
         if name_arg is None and args and isinstance(args[0], nodes.Const):
             name_arg = args[0].value
 
-        if variance == TypeVarVariance.inferred:
-            # Ignore variance check for PEP 695 type parameters.
-            # The variance is inferred by the type checker.
-            # Adding _co or _contra suffix can help to reason about TypeVar.
-            pass
-        elif variance == TypeVarVariance.double_variant:
-            self.add_message(
-                "typevar-double-variance",
-                node=node,
-                confidence=interfaces.INFERENCE,
-            )
-            self.add_message(
-                "typevar-name-incorrect-variance",
-                node=node,
-                args=("",),
-                confidence=interfaces.INFERENCE,
-            )
-        elif variance == TypeVarVariance.covariant and not name.endswith("_co"):
-            suggest_name = f"{re.sub('_contra$', '', name)}_co"
-            self.add_message(
-                "typevar-name-incorrect-variance",
-                node=node,
-                args=(f'. "{name}" is covariant, use "{suggest_name}" instead'),
-                confidence=interfaces.INFERENCE,
-            )
-        elif variance == TypeVarVariance.contravariant and not name.endswith("_contra"):
-            suggest_name = f"{re.sub('_co$', '', name)}_contra"
-            self.add_message(
-                "typevar-name-incorrect-variance",
-                node=node,
-                args=(f'. "{name}" is contravariant, use "{suggest_name}" instead'),
-                confidence=interfaces.INFERENCE,
-            )
-        elif variance == TypeVarVariance.invariant and (
-            name.endswith(("_co", "_contra"))
-        ):
-            suggest_name = re.sub("_contra$|_co$", "", name)
-            self.add_message(
-                "typevar-name-incorrect-variance",
-                node=node,
-                args=(f'. "{name}" is invariant, use "{suggest_name}" instead'),
-                confidence=interfaces.INFERENCE,
-            )
+        match variance:
+            case TypeVarVariance.inferred:
+                # Ignore variance check for PEP 695 type parameters.
+                # The variance is inferred by the type checker.
+                # Adding _co or _contra suffix can help to reason about TypeVar.
+                pass
+            case TypeVarVariance.double_variant:
+                self.add_message(
+                    "typevar-double-variance",
+                    node=node,
+                    confidence=interfaces.INFERENCE,
+                )
+                self.add_message(
+                    "typevar-name-incorrect-variance",
+                    node=node,
+                    args=("",),
+                    confidence=interfaces.INFERENCE,
+                )
+            case TypeVarVariance.covariant if not name.endswith("_co"):
+                suggest_name = f"{re.sub('_contra$', '', name)}_co"
+                self.add_message(
+                    "typevar-name-incorrect-variance",
+                    node=node,
+                    args=(f'. "{name}" is covariant, use "{suggest_name}" instead'),
+                    confidence=interfaces.INFERENCE,
+                )
+            case TypeVarVariance.contravariant if not name.endswith("_contra"):
+                suggest_name = f"{re.sub('_co$', '', name)}_contra"
+                self.add_message(
+                    "typevar-name-incorrect-variance",
+                    node=node,
+                    args=(f'. "{name}" is contravariant, use "{suggest_name}" instead'),
+                    confidence=interfaces.INFERENCE,
+                )
+            case TypeVarVariance.invariant if name.endswith(("_co", "_contra")):
+                suggest_name = re.sub("_contra$|_co$", "", name)
+                self.add_message(
+                    "typevar-name-incorrect-variance",
+                    node=node,
+                    args=(f'. "{name}" is invariant, use "{suggest_name}" instead'),
+                    confidence=interfaces.INFERENCE,
+                )
 
         if name_arg is not None and name_arg != name:
             self.add_message(
