@@ -139,7 +139,9 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[mis
         pathnode: _SubGraphNodes,
         extra_blocks: Sequence[nodes.ExceptHandler | nodes.MatchCase],
     ) -> None:
-        """Parse `match`/`case` blocks, or the body and `else` block of `if`/`for` statements."""
+        """Parse `match`/`case` blocks, or the body and `else` block of `if`/`for`
+        statements.
+        """
         loose_ends = []
         if isinstance(node, nodes.Match):
             for case in extra_blocks:
