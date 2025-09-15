@@ -12,7 +12,7 @@ under the GPL License.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 from astroid import nodes
 
@@ -22,6 +22,25 @@ from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+SimpleNode: TypeAlias = (
+    nodes.Assert
+    | nodes.Assign
+    | nodes.AugAssign
+    | nodes.Delete
+    | nodes.Raise
+    | nodes.Yield
+    | nodes.Import
+    | nodes.Call
+    | nodes.Subscript
+    | nodes.Pass
+    | nodes.Continue
+    | nodes.Break
+    | nodes.Global
+    | nodes.Return
+    | nodes.Expr
+    | nodes.Await
+)
 
 
 class PathGraph:
@@ -58,14 +77,42 @@ class PathGraphingAstVisitor:
         self.tail: Any = None
 
     def dispatch(self, node: nodes.NodeNG) -> None:
-        meth = getattr(self, "visit" + node.__class__.__name__, self.default)
-        meth(node)
+        {
+            "FunctionDef": self.visitFunctionDef,
+            "AsyncFunctionDef": self.visitFunctionDef,
+            "With": self.visitWith,
+            "AsyncWith": self.visitWith,
+            "For": self.visitFor,
+            "AsyncFor": self.visitFor,
+            "While": self.visitFor,
+            "If": self.visitFor,
+            "Try": self.visitTry,
+            "Match": self.visitMatch,
+            "Assert": self.visitSimpleNode,
+            "Assign": self.visitSimpleNode,
+            "AugAssign": self.visitSimpleNode,
+            "Delete": self.visitSimpleNode,
+            "Raise": self.visitSimpleNode,
+            "Yield": self.visitSimpleNode,
+            "Import": self.visitSimpleNode,
+            "Call": self.visitSimpleNode,
+            "Subscript": self.visitSimpleNode,
+            "Pass": self.visitSimpleNode,
+            "Continue": self.visitSimpleNode,
+            "Break": self.visitSimpleNode,
+            "Global": self.visitSimpleNode,
+            "Return": self.visitSimpleNode,
+            "Expr": self.visitSimpleNode,
+            "Await": self.visitSimpleNode,
+        }.get(node.__class__.__name__, self.default)(node)
 
     def default(self, node: nodes.NodeNG) -> None:
         for child in node.get_children():
             self.dispatch(child)
 
-    def visitFunctionDef(self, node: nodes.FunctionDef) -> None:
+    def visitFunctionDef(
+        self, node: nodes.FunctionDef | nodes.AsyncFunctionDef
+    ) -> None:
         if self.graph is not None:
             # closure
             self.graph.connect(self.tail, node)
@@ -86,32 +133,22 @@ class PathGraphingAstVisitor:
             self.graph = None
             self.tail = None
 
-    visitAsyncFunctionDef = visitFunctionDef
-
-    def visitAssert(self, node: nodes.NodeNG) -> None:
+    def visitSimpleNode(self, node: SimpleNode) -> None:
         if self.tail and self.graph:
             self.graph.connect(self.tail, node)
             self.tail = node
 
-    visitAssign = visitAugAssign = visitDelete = visitRaise = visitYield = (
-        visitImport
-    ) = visitCall = visitSubscript = visitPass = visitContinue = visitBreak = (
-        visitGlobal
-    ) = visitReturn = visitExpr = visitAwait = visitAssert
-
-    def visitWith(self, node: nodes.With) -> None:
+    def visitWith(self, node: nodes.With | nodes.AsyncWith) -> None:
         if self.tail and self.graph:
             self.graph.connect(self.tail, node)
             self.tail = node
         for child in node.body:
             self.dispatch(child)
 
-    visitAsyncWith = visitWith
-
-    def visitFor(self, node: nodes.For | nodes.While) -> None:
+    def visitFor(
+        self, node: nodes.For | nodes.AsyncFor | nodes.While | nodes.If
+    ) -> None:
         self._subgraph(node, node.handlers if isinstance(node, nodes.Try) else [])
-
-    visitAsyncFor = visitWhile = visitIf = visitFor
 
     def visitTry(self, node: nodes.Try) -> None:
         self._subgraph(node, node.handlers)
