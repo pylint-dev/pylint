@@ -1,4 +1,4 @@
-# pylint: disable=missing-function-docstring, missing-module-docstring, invalid-name, import-outside-toplevel
+# pylint: disable=missing-function-docstring, missing-module-docstring, invalid-name, import-outside-toplevel, deprecated-method
 import codecs
 import contextlib
 import multiprocessing
@@ -28,7 +28,7 @@ def test_codecs_open():
 
 
 def test_urlopen():
-    _ = urllib.request.urlopen("http://www.python.org")  # [consider-using-with]  # pylint: disable=deprecated-method
+    _ = urllib.request.urlopen("http://www.python.org")  # [consider-using-with]
 
 
 def test_temporary_file():
