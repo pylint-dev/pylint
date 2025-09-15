@@ -76,7 +76,7 @@ dev = [
 
 test = [
   "coverage~=7.10",
-  "pytest-cov~=6.2",
+  "pytest-cov>=6.2,<8",
   "pytest-xdist~=3.8",
   "six",
   "tox>=3",
