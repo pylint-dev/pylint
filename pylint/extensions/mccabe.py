@@ -58,14 +58,42 @@ class PathGraphingAstVisitor:
         self.tail: Any = None
 
     def dispatch(self, node: nodes.NodeNG) -> None:
-        meth = getattr(self, "visit" + node.__class__.__name__, self.default)
-        meth(node)
+        {
+            "FunctionDef": self.visitFunctionDef,
+            "AsyncFunctionDef": self.visitFunctionDef,
+            "With": self.visitWith,
+            "AsyncWith": self.visitWith,
+            "For": self.visitFor,
+            "AsyncFor": self.visitFor,
+            "While": self.visitFor,
+            "If": self.visitFor,
+            "Try": self.visitTry,
+            "Match": self.visitMatch,
+            "Assert": self.visitSimpleNode,
+            "Assign": self.visitSimpleNode,
+            "AugAssign": self.visitSimpleNode,
+            "Delete": self.visitSimpleNode,
+            "Raise": self.visitSimpleNode,
+            "Yield": self.visitSimpleNode,
+            "Import": self.visitSimpleNode,
+            "Call": self.visitSimpleNode,
+            "Subscript": self.visitSimpleNode,
+            "Pass": self.visitSimpleNode,
+            "Continue": self.visitSimpleNode,
+            "Break": self.visitSimpleNode,
+            "Global": self.visitSimpleNode,
+            "Return": self.visitSimpleNode,
+            "Expr": self.visitSimpleNode,
+            "Await": self.visitSimpleNode,
+        }.get(node.__class__.__name__, self.default)(node)
 
     def default(self, node: nodes.NodeNG) -> None:
         for child in node.get_children():
             self.dispatch(child)
 
-    def visitFunctionDef(self, node: nodes.FunctionDef) -> None:
+    def visitFunctionDef(
+        self, node: nodes.FunctionDef | nodes.AsyncFunctionDef
+    ) -> None:
         if self.graph is not None:
             # closure
             self.graph.connect(self.tail, node)
@@ -82,49 +110,32 @@ class PathGraphingAstVisitor:
             self.tail = node
             for child in node.body:
                 self.dispatch(child)
-            self.graphs[node.name] = (self.graph, node)
+            self.graphs[f"func_{id(node)}"] = (self.graph, node)
             self.graph = None
             self.tail = None
 
-    visitAsyncFunctionDef = visitFunctionDef
-
-    def visitAssert(self, node: nodes.NodeNG) -> None:
+    def visitSimpleNode(self, node: nodes.NodeNG) -> None:
         if self.tail and self.graph:
             self.graph.connect(self.tail, node)
             self.tail = node
 
-    visitAssign = visitAugAssign = visitDelete = visitRaise = visitYield = (
-        visitImport
-    ) = visitCall = visitSubscript = visitPass = visitContinue = visitBreak = (
-        visitGlobal
-    ) = visitReturn = visitExpr = visitAwait = visitAssert
-
-    def visitWith(self, node: nodes.With) -> None:
+    def visitWith(self, node: nodes.With | nodes.AsyncWith) -> None:
         if self.tail and self.graph:
             self.graph.connect(self.tail, node)
             self.tail = node
         for child in node.body:
             self.dispatch(child)
 
-    visitAsyncWith = visitWith
-
-    def visitFor(self, node: nodes.For | nodes.While) -> None:
-        self._subgraph(node, node.handlers if isinstance(node, nodes.Try) else [])
-
-    visitAsyncFor = visitWhile = visitIf = visitFor
+    def visitFor(
+        self, node: nodes.For | nodes.AsyncFor | nodes.While | nodes.If
+    ) -> None:
+        self._subgraph(node)
 
     def visitTry(self, node: nodes.Try) -> None:
         self._subgraph(node, node.handlers)
 
     def visitMatch(self, node: nodes.Match) -> None:
         self._subgraph(node, node.cases)
-
-    def _append_node(self, node: _AppendableNodeT) -> _AppendableNodeT | None:
-        if not (self.tail and self.graph):
-            return None
-        self.graph.connect(self.tail, node)
-        self.tail = node
-        return node
 
     def _subgraph(
         self, node: nodes.NodeNG, extra_blocks: list[nodes.NodeNG] | None = None
@@ -207,13 +218,8 @@ class McCabeMethodChecker(checkers.BaseChecker):
     )
 
     @only_required_for_messages("too-complex")
-<<<<<<< HEAD
-    def visit_module(self, node: nodes.Module) -> None:
-        """Visit an nodes.Module node to check too complex rating and
-=======
     def visit_module(self, module: nodes.Module) -> None:
-        """Visit an astroid.Module node to check too complex rating and
->>>>>>> 6364d3680 ([mccabe] Remove unused code that was used to draw graphics originally)
+        """Visit a module node to check too complex rating and
         add message if is greater than max_complexity stored from options.
         """
         visitor = PathGraphingAstVisitor()
