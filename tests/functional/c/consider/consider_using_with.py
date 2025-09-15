@@ -28,6 +28,7 @@ def test_codecs_open():
 
 
 def test_urlopen():
+    # pylint: disable=deprecated-method 
     _ = urllib.request.urlopen("http://www.python.org")  # [consider-using-with]
 
 
