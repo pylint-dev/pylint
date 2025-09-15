@@ -176,7 +176,6 @@ lint.ignore = [
   "PTH208", # Use `pathlib.Path.iterdir()` instead"
   "RUF012", # mutable default values in class attributes
 ]
-lint.per-file-ignores."pylint/extensions/mccabe.py" = [ "UP008", "UP031" ]
 lint.pydocstyle.convention = "pep257"
 
 [tool.isort]
