@@ -43,7 +43,7 @@ class MatchStatementChecker(BaseChecker):
         "E1904": (
             "Multiple sub-patterns for attribute %s",
             "multiple-class-sub-patterns",
-            "Emitted when there are more than one sub-patterns for a specific "
+            "Emitted when there is more than one sub-pattern for a specific "
             "attribute in a class pattern.",
         ),
     }
