@@ -106,8 +106,8 @@ Basic checker Messages
   a try...finally block: the exceptions raised in the try clause will be
   silently swallowed instead of being re-raised.
 :break-in-finally (W0137): *'break' discouraged inside 'finally' clause*
-  Emitted when the `break` keyword is found inside a finally clause. This
-  will raise a SyntaxWarning starting in Python 3.14.
+  Emitted when the `break` keyword is found inside a finally clause. This will
+  raise a SyntaxWarning starting in Python 3.14.
 :continue-in-finally (W0136): *'continue' discouraged inside 'finally' clause*
   Emitted when the `continue` keyword is found inside a finally clause. This
   will raise a SyntaxWarning starting in Python 3.14.
@@ -193,7 +193,7 @@ Basic checker Messages
 :missing-parentheses-for-call-in-test (W0126): *Using a conditional statement with potentially wrong function or method call due to missing parentheses*
   Emitted when a conditional statement (If or ternary if) seems to wrongly call
   a function due to missing parentheses
-:comparison-of-constants (R0133): *Comparison between constants: '%s %s %s' has a constant value*
+:comparison-of-constants (R0133): *Comparison between constants: "%s %s %s" has a constant value*
   When two literals are compared with each other the result is a constant.
   Using the constant directly is both easier to read and more performant.
   Initializing 'True' and 'False' this way is not required since Python 2.3.
