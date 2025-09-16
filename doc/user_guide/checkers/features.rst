@@ -688,11 +688,11 @@ Match Statements checker Messages
   are case statements below it.
 :invalid-match-args-definition (E1902): *`__match_args__` must be a tuple of strings.*
   Emitted if `__match_args__` isn't a tuple of strings required for match.
-:too-many-positional-sub-patterns (E1903): *%s excepts %d positional sub-patterns (given %d)*
-  Emitted when the number of allowed positional sub-patterns exceeds the the
+:too-many-positional-sub-patterns (E1903): *%s expects %d positional sub-patterns (given %d)*
+  Emitted when the number of allowed positional sub-patterns exceeds the
   number of allowed sub-patterns specified in `__match_args__`.
 :multiple-class-sub-patterns (E1904): *Multiple sub-patterns for attribute %s*
-  Emitted when there are more than one sub-patterns for a specific attribute in
+  Emitted when there is more than one sub-pattern for a specific attribute in
   a class pattern.
 
 
