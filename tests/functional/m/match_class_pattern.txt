@@ -1,0 +1,7 @@
+invalid-match-args-definition:11:21:11:31:C:`__match_args__` must be a tuple of strings.:HIGH
+invalid-match-args-definition:14:21:14:29:D:`__match_args__` must be a tuple of strings.:HIGH
+too-many-positional-sub-patterns:25:13:25:20:f1:A excepts 1 positional sub-patterns (given 2):INFERENCE
+too-many-positional-sub-patterns:27:13:27:23:f1:B excepts 2 positional sub-patterns (given 3):INFERENCE
+multiple-class-sub-patterns:32:13:32:22:f2:Multiple sub-patterns for attribute x:INFERENCE
+multiple-class-sub-patterns:34:13:34:29:f2:Multiple sub-patterns for attribute x:INFERENCE
+undefined-variable:40:13:40:23:f2:Undefined variable 'NotDefined':UNDEFINED

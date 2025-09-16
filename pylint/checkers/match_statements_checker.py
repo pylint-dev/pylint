@@ -8,11 +8,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import astroid.exceptions
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import only_required_for_messages
-from pylint.interfaces import HIGH
+from pylint.checkers.utils import only_required_for_messages, safe_infer
+from pylint.interfaces import HIGH, INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -27,8 +28,46 @@ class MatchStatementChecker(BaseChecker):
             "bare-name-capture-pattern",
             "Emitted when a name capture pattern is used in a match statement "
             "and there are case statements below it.",
-        )
+        ),
+        "E1902": (
+            "`__match_args__` must be a tuple of strings.",
+            "invalid-match-args-definition",
+            "Emitted if `__match_args__` isn't a tuple of strings required for match.",
+        ),
+        "E1903": (
+            "%s excepts %d positional sub-patterns (given %d)",
+            "too-many-positional-sub-patterns",
+            "Emitted when the number of allowed positional sub-patterns exceeds the "
+            "the number of allowed sub-patterns specified in `__match_args__`.",
+        ),
+        "E1904": (
+            "Multiple sub-patterns for attribute %s",
+            "multiple-class-sub-patterns",
+            "Emitted when there are more than one sub-patterns for a specific "
+            "attribute in a class pattern.",
+        ),
     }
+
+    @only_required_for_messages("invalid-match-args-definition")
+    def visit_assignname(self, node: nodes.AssignName) -> None:
+        if (
+            node.name == "__match_args__"
+            and isinstance(node.frame(), nodes.ClassDef)
+            and isinstance(node.parent, nodes.Assign)
+            and not (
+                isinstance(node.parent.value, nodes.Tuple)
+                and all(
+                    isinstance(el, nodes.Const) and isinstance(el.value, str)
+                    for el in node.parent.value.elts
+                )
+            )
+        ):
+            self.add_message(
+                "invalid-match-args-definition",
+                node=node.parent.value,
+                args=(),
+                confidence=HIGH,
+            )
 
     @only_required_for_messages("bare-name-capture-pattern")
     def visit_match(self, node: nodes.Match) -> None:
@@ -43,9 +82,74 @@ class MatchStatementChecker(BaseChecker):
                     self.add_message(
                         "bare-name-capture-pattern",
                         node=case.pattern,
-                        args=name,
+                        args=(name,),
                         confidence=HIGH,
                     )
+
+    @staticmethod
+    def get_match_args_for_class(node: nodes.NodeNG) -> list[str] | None:
+        """Infer __match_args__ from class name."""
+        inferred = safe_infer(node)
+        if not isinstance(inferred, nodes.ClassDef):
+            return None
+        try:
+            match_args = inferred.getattr("__match_args__")
+        except astroid.exceptions.NotFoundError:
+            return None
+
+        match match_args:
+            case [
+                nodes.AssignName(parent=nodes.Assign(value=nodes.Tuple(elts=elts))),
+                *_,
+            ] if all(
+                isinstance(el, nodes.Const) and isinstance(el.value, str) for el in elts
+            ):
+                return [el.value for el in elts]
+            case _:
+                return None
+
+    def check_duplicate_sub_patterns(
+        self, name: str, node: nodes.NodeNG, *, attrs: set[str], dups: set[str]
+    ) -> None:
+        """Track attribute names and emit error if name is given more than once."""
+        if name in attrs and name not in dups:
+            dups.add(name)
+            self.add_message(
+                "multiple-class-sub-patterns",
+                node=node,
+                args=(name,),
+                confidence=INFERENCE,
+            )
+        else:
+            attrs.add(name)
+
+    @only_required_for_messages(
+        "multiple-class-sub-patterns",
+        "too-many-positional-sub-patterns",
+    )
+    def visit_matchclass(self, node: nodes.MatchClass) -> None:
+        attrs: set[str] = set()
+        dups: set[str] = set()
+
+        if (
+            node.patterns
+            and (match_args := self.get_match_args_for_class(node.cls)) is not None
+        ):
+            if len(node.patterns) > len(match_args):
+                self.add_message(
+                    "too-many-positional-sub-patterns",
+                    node=node,
+                    args=(node.cls.as_string(), len(match_args), len(node.patterns)),
+                    confidence=INFERENCE,
+                )
+                return
+
+            for i in range(len(node.patterns)):
+                name = match_args[i]
+                self.check_duplicate_sub_patterns(name, node, attrs=attrs, dups=dups)
+
+        for kw_name in node.kwd_attrs:
+            self.check_duplicate_sub_patterns(kw_name, node, attrs=attrs, dups=dups)
 
 
 def register(linter: PyLinter) -> None:
