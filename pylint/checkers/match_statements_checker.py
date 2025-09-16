@@ -35,7 +35,7 @@ class MatchStatementChecker(BaseChecker):
             "Emitted if `__match_args__` isn't a tuple of strings required for match.",
         ),
         "E1903": (
-            "%s excepts %d positional sub-patterns (given %d)",
+            "%s expects %d positional sub-patterns (given %d)",
             "too-many-positional-sub-patterns",
             "Emitted when the number of allowed positional sub-patterns exceeds the "
             "number of allowed sub-patterns specified in `__match_args__`.",
