@@ -102,11 +102,11 @@ jobs:
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v5.0.0
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.13
         id: python
         uses: actions/setup-python@v6.0.0
         with:
-          python-version: "3.x"
+          python-version: "3.13"
           check-latest: true
       - name: Restore Python virtual environment
         id: cache-venv
@@ -138,7 +138,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.x"]
+        python-version: ["3.13"]
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v5.0.0
