@@ -38,7 +38,7 @@ class MatchStatementChecker(BaseChecker):
             "%s excepts %d positional sub-patterns (given %d)",
             "too-many-positional-sub-patterns",
             "Emitted when the number of allowed positional sub-patterns exceeds the "
-            "the number of allowed sub-patterns specified in `__match_args__`.",
+            "number of allowed sub-patterns specified in `__match_args__`.",
         ),
         "E1904": (
             "Multiple sub-patterns for attribute %s",
