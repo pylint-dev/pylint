@@ -385,7 +385,7 @@ Internal Changes
 ----------------
 
 - All variables, classes, functions and file names containing the word 'similar', when it was,
-  in fact, referring to 'symilar' (the standalone program for the duplicate-code check) were renamed
+  in fact, referring to 'symilar' (the standalone program for the :ref:`duplicate-code` check) were renamed
   to 'symilar'.
 
   Closes #9734 (`#9734 <https://github.com/pylint-dev/pylint/issues/9734>`_)

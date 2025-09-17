@@ -179,7 +179,7 @@ Release date: 2022-03-29
 
   Closes #5998
 
-* Fix false positive for 'nonexistent-operator' when repeated '-' are
+* Fix false positive for ':ref:`nonexistent-operator`' when repeated '-' are
   separated (e.g. by parens).
 
   Closes #5769

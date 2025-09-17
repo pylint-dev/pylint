@@ -600,7 +600,7 @@ Other Changes
 
   Closes #6388
 
-* Fix false positive for 'nonexistent-operator' when repeated '-' are
+* Fix false positive for ':ref:`nonexistent-operator`' when repeated '-' are
   separated (e.g. by parens).
 
   Closes #5769
