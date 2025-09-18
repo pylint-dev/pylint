@@ -4,11 +4,9 @@
 
 from __future__ import annotations
 
-import logging  # Added for debugging
-from typing import TYPE_CHECKING, Set, Dict, Union, List
+from typing import TYPE_CHECKING, Union
 
-from astroid import Uninferable, nodes
-from astroid.exceptions import InferenceError
+from astroid import nodes
 
 from pylint import checkers, interfaces
 from pylint.checkers import utils
@@ -18,11 +16,9 @@ if TYPE_CHECKING:
 
 DefinitionType = Union[nodes.NodeNG, str]
 
-class RepeatedIteratorLoopChecker(checkers.BaseChecker):
-    """
-    Checks for exhaustible iterators that are re-used in a nested loop.
-    """
 
+class RepeatedIteratorLoopChecker(checkers.BaseChecker):
+    """Checks for exhaustible iterators that are re-used in a nested loop."""
 
     name = "looping-through-iterator"
     msgs = {
@@ -35,13 +31,17 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
 
     options = ()
 
-    KNOWN_ITERATOR_PRODUCING_FUNCTIONS: Set[str] = {
-        "builtins.map", "builtins.filter", "builtins.zip", "builtins.iter", "builtins.reversed"
+    KNOWN_ITERATOR_PRODUCING_FUNCTIONS: set[str] = {
+        "builtins.map",
+        "builtins.filter",
+        "builtins.zip",
+        "builtins.iter",
+        "builtins.reversed",
     }
 
     def __init__(self, linter: PyLinter | None = None) -> None:
         super().__init__(linter)
-        self._scope_stack: List[Dict[str, DefinitionType]] = []
+        self._scope_stack: list[dict[str, DefinitionType]] = []
 
     # --- Scope Management ---
 
@@ -122,7 +122,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         # 2. Get all ancestor loops of the USAGE node.
         ancestor_loops_of_usage = []
         current: nodes.NodeNG | None = usage_node
-        while (loop := self._find_ancestor_loop(current)):
+        while loop := self._find_ancestor_loop(current):
             ancestor_loops_of_usage.append(loop)
             current = loop.parent
 
@@ -155,6 +155,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
                 return None
             current = current.parent
         return None
+
 
 def register(linter: PyLinter) -> None:
     """This required function is called by Pylint to register the checker."""
