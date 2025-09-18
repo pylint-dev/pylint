@@ -1,0 +1,3 @@
+Match cases are now counted as edges in the McCabe graph and will increase the complexity accordingly.
+
+Refs #9667

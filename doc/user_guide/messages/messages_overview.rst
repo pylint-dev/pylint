@@ -100,6 +100,7 @@ All messages in the error category:
    error/invalid-index-returned
    error/invalid-length-hint-returned
    error/invalid-length-returned
+   error/invalid-match-args-definition
    error/invalid-metaclass
    error/invalid-repr-returned
    error/invalid-sequence-index
@@ -123,6 +124,7 @@ All messages in the error category:
    error/mixed-format-string
    error/modified-iterating-dict
    error/modified-iterating-set
+   error/multiple-class-sub-patterns
    error/no-member
    error/no-method-argument
    error/no-name-in-module
@@ -157,6 +159,7 @@ All messages in the error category:
    error/too-few-format-args
    error/too-many-format-args
    error/too-many-function-args
+   error/too-many-positional-sub-patterns
    error/too-many-star-expressions
    error/truncated-format-string
    error/undefined-all-variable

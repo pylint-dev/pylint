@@ -214,3 +214,40 @@ def method3(self):  # [too-complex]
     finally:
         pass
     return True
+
+def match_case_complexity(avg):  # [too-complex]
+    """McCabe rating: 4
+    See https://github.com/astral-sh/ruff/issues/11421
+    """
+    # pylint: disable=bare-name-capture-pattern
+    match avg:
+        case avg if avg < .3:
+            avg_grade = "F"
+        case avg if avg < .7:
+            avg_grade = "E+"
+        case _:
+            raise ValueError(f"Unexpected average: {avg}")
+    return avg_grade
+
+
+
+def nested_match(data):  # [too-complex]
+    """McCabe rating: 8
+
+    Nested match statements."""
+    match data:
+        case {"type": "user", "data": user_data}:
+            match user_data:  # Nested match adds complexity
+                case {"name": str(name)}:
+                    return f"User: {name}"
+                case {"id": int(user_id)}:
+                    return f"User ID: {user_id}"
+                case _:
+                    return "Unknown user format"
+        case {"type": "product", "data": product_data}:
+            if "price" in product_data:  # +1 for if
+                return f"Product costs {product_data['price']}"
+            else:
+                return "Product with no price"
+        case _:
+            return "Unknown data type"

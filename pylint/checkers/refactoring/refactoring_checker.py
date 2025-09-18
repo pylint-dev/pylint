@@ -826,14 +826,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _type_and_name_are_equal(node_a: Any, node_b: Any) -> bool:
-        if isinstance(node_a, nodes.Name) and isinstance(node_b, nodes.Name):
-            return node_a.name == node_b.name  # type: ignore[no-any-return]
-        if isinstance(node_a, nodes.AssignName) and isinstance(
-            node_b, nodes.AssignName
-        ):
-            return node_a.name == node_b.name  # type: ignore[no-any-return]
-        if isinstance(node_a, nodes.Const) and isinstance(node_b, nodes.Const):
-            return node_a.value == node_b.value  # type: ignore[no-any-return]
+        match (node_a, node_b):
+            case (
+                [nodes.Name(name=a), nodes.Name(name=b)]
+                | [nodes.AssignName(name=a), nodes.AssignName(name=b)]
+                | [nodes.Const(value=a), nodes.Const(value=b)]
+            ):
+                return a == b  # type: ignore[no-any-return]
         return False
 
     def _is_dict_get_block(self, node: nodes.If) -> bool:
@@ -1568,12 +1567,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     @staticmethod
     def _is_simple_assignment(node: nodes.NodeNG | None) -> bool:
-        return (
-            isinstance(node, nodes.Assign)
-            and len(node.targets) == 1
-            and isinstance(node.targets[0], nodes.AssignName)
-            and isinstance(node.value, nodes.Name)
-        )
+        match node:
+            case nodes.Assign(targets=[nodes.AssignName()], value=nodes.Name()):
+                return True
+        return False
 
     def _check_swap_variables(self, node: nodes.Return | nodes.Assign) -> None:
         if not node.next_sibling() or not node.next_sibling().next_sibling():
@@ -1901,16 +1898,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         All of: condition, true_value and false_value should not be a complex boolean expression
         """
-        return (
-            isinstance(node, nodes.BoolOp)
-            and node.op == "or"
-            and len(node.values) == 2
-            and isinstance(node.values[0], nodes.BoolOp)
-            and not isinstance(node.values[1], nodes.BoolOp)
-            and node.values[0].op == "and"
-            and not isinstance(node.values[0].values[1], nodes.BoolOp)
-            and len(node.values[0].values) == 2
-        )
+        match node:
+            case nodes.BoolOp(
+                op="or", values=[nodes.BoolOp(op="and", values=[_, v1]), v2]
+            ) if not (isinstance(v2, nodes.BoolOp) or isinstance(v1, nodes.BoolOp)):
+                return True
+        return False
 
     @staticmethod
     def _and_or_ternary_arguments(
@@ -2093,10 +2086,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         except AttributeError:
             return False  # the BoundMethod proxy may be a lambda without a returns
 
-        return (
-            isinstance(returns, nodes.Attribute)
-            and returns.attrname in {"NoReturn", "Never"}
-        ) or (isinstance(returns, nodes.Name) and returns.name in {"NoReturn", "Never"})
+        match returns:
+            case nodes.Attribute(attrname=name) | nodes.Name(name=name):
+                return name in {"NoReturn", "Never"}
+        return False
 
     def _check_return_at_the_end(self, node: nodes.FunctionDef) -> None:
         """Check for presence of a *single* return statement at the end of a

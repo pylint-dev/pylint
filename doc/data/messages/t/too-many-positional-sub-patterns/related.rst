@@ -1,0 +1,1 @@
+- `Python documentation <https://docs.python.org/3/reference/compound_stmts.html#class-patterns>`_
