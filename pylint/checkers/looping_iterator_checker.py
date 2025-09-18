@@ -143,7 +143,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
                 confidence=interfaces.HIGH,
             )
 
-    # --- Helper Methods ---
+    # --- Helper Method ---
 
     def _find_ancestor_loop(self, node: nodes.NodeNG) -> nodes.For | nodes.While | None:
         """Walks up the AST from a node to find the first containing loop."""
