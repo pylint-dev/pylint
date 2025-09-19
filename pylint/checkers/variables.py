@@ -629,7 +629,12 @@ scope_type : {self._atomic.scope_type}
             and parent_node.iter == node
             and parent_node.target in found_nodes
         ):
-            found_nodes = None
+            # Only filter out the for-loop target if there are other definitions besides the target
+            other_definitions = [fn for fn in found_nodes if fn != parent_node.target]
+            if other_definitions:
+                found_nodes = other_definitions
+            else:
+                found_nodes = None
 
         # Before filtering, check that this node's name is not a nonlocal
         if any(
