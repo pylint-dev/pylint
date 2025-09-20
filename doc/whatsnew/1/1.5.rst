@@ -46,14 +46,14 @@ Release date: 2016-01-15
   messages from the StringFormatChecker would have resulted in no
   messages at all.
 
-* Don't apply unneeded-not over sets.
+* Don't apply :ref:`unneeded-not` over sets.
 
 
 What's New in Pylint 1.5.3?
 ===========================
 Release date: 2016-01-11
 
-* Handle the import fallback idiom with regard to wrong-import-order.
+* Handle the import fallback idiom with regard to :ref:`wrong-import-order`.
 
   Closes #750
 
@@ -75,7 +75,7 @@ Release date: 2016-01-11
 
   Inferring variadic positional arguments and keyword arguments
   will result into empty Tuples and Dicts, which can lead in
-  some cases to false positives with regard to no-value-for-parameter.
+  some cases to false positives with regard to :ref:`no-value-for-parameter`.
   In order to avoid this, until we'll have support for call context
   propagation, we're ignoring such cases if detected.
 
@@ -92,7 +92,7 @@ Release date: 2016-01-11
 
   Closes #745
 
-* Suppress reporting 'unneeded-not' inside ``__ne__`` methods
+* Suppress reporting ':ref:`unneeded-not`' inside ``__ne__`` methods
 
   Closes #749
 
@@ -106,7 +106,7 @@ Release date: 2015-12-21
 
   Closes #168
 
-* Accept only functions and methods for the deprecated-method checker.
+* Accept only functions and methods for the :ref:`deprecated-method` checker.
 
   This prevents a crash which can occur when an object doesn't have
   .qname() method after the inference.
@@ -130,21 +130,21 @@ Release date: 2015-12-02
 
   Closes #711
 
-* Add wrong-import-position to check_messages's decorator arguments
+* Add :ref:`wrong-import-position` to check_messages's decorator arguments
   for ImportChecker.leave_module
-  This fixes an esoteric bug which occurs when ungrouped-imports and
-  wrong-import-order are disabled and pylint is executed on multiple files.
-  What happens is that without wrong-import-position in check_messages,
+  This fixes an esoteric bug which occurs when :ref:`ungrouped-imports` and
+  :ref:`wrong-import-order` are disabled and pylint is executed on multiple files.
+  What happens is that without :ref:`wrong-import-position` in check_messages,
   leave_module will never be called, which means that the first non-import node
   from other files might leak into the current file,
-  leading to wrong-import-position being emitted by pylint.
+  leading to :ref:`wrong-import-position` being emitted by pylint.
 
 * Fix a crash which occurred when old visit methods are encountered
   in plugin modules.
 
   Closes #711
 
-* Don't emit import-self and cyclic-import for relative imports
+* Don't emit :ref:`import-self` and :ref:`cyclic-import` for relative imports
   of modules with the same name as the package itself.
 
   Closes #708
@@ -155,30 +155,30 @@ What's New in Pylint 1.5.0?
 ===========================
 Release date: 2015-11-29
 
-* Added multiple warnings related to imports. 'wrong-import-order'
+* Added multiple warnings related to imports. ':ref:`wrong-import-order`'
   is emitted when PEP 8 recommendations regarding imports are not
   respected (that is, standard imports should be followed by third-party
-  imports and then by local imports). 'ungrouped-imports' is emitted
+  imports and then by local imports). ':ref:`ungrouped-imports`' is emitted
   when imports from the same package or module are not placed
-  together, but scattered around in the code. 'wrong-import-position'
+  together, but scattered around in the code. ':ref:`wrong-import-position`'
   is emitted when code is mixed with imports, being recommended for the
   latter to be at the top of the file, in order to figure out easier by
   a human reader what dependencies a module has.
 
   Closes #692
 
-* Added a new refactoring warning, 'unneeded-not', emitted
+* Added a new refactoring warning, ':ref:`unneeded-not`', emitted
   when an expression with the not operator could be simplified.
 
   Closes #670
 
-* Added a new refactoring warning, 'simplifiable-if-statement',
+* Added a new refactoring warning, ':ref:`simplifiable-if-statement`',
   used when an if statement could be reduced to a boolean evaluation
   of its test.
 
   Closes #698
 
-* Added a new refactoring warning, 'too-many-boolean-expressions',
+* Added a new refactoring warning, ':ref:`too-many-boolean-expressions`',
   used when an if statement contains too many boolean expressions,
   which makes the code less maintainable and harder to understand.
 
@@ -189,13 +189,13 @@ Release date: 2015-11-29
 
   Closes #284
 
-* Add a new refactoring error, 'too-many-nested-blocks', which is emitted
+* Add a new refactoring error, ':ref:`too-many-nested-blocks`', which is emitted
   when a function or a method has too many nested blocks, which makes the
   code less readable and harder to understand.
 
   Closes #668
 
-* Add a new error, 'unsubscriptable-object', that is emitted when
+* Add a new error, ':ref:`unsubscriptable-object`', that is emitted when
   value used in subscription expression doesn't support subscription
   (i.e. doesn't define __getitem__ method).
 
@@ -208,22 +208,22 @@ Release date: 2015-11-29
 
   Closes #632
 
-* non-iterator-returned can detect classes with iterator-metaclasses.
+* :ref:`non-iterator-returned` can detect classes with iterator-metaclasses.
 
   Closes #679
 
-* Add a new error, 'unsupported-membership-test', emitted when value
+* Add a new error, ':ref:`unsupported-membership-test`', emitted when value
   to the right of the 'in' operator doesn't support membership test
   protocol (i.e. doesn't define __contains__/__iter__/__getitem__)
 
-* Add new errors, 'not-an-iterable', emitted when non-iterable value
+* Add new errors, ':ref:`not-an-iterable`', emitted when non-iterable value
   is used in an iterating context (starargs, for-statement,
-  comprehensions, etc), and 'not-a-mapping', emitted when non-mapping
+  comprehensions, etc), and ':ref:`not-a-mapping`', emitted when non-mapping
   value is used in a mapping context.
 
   Closes #563
 
-* Make 'no-self-use' checker not emit a warning if there is a 'super()'
+* Make ':ref:`no-self-use`' checker not emit a warning if there is a 'super()'
   call inside the method.
 
   Closes #667
@@ -232,39 +232,39 @@ Release date: 2015-11-29
 
   Closes #598
 
-* Fix unused-argument false positive when the "+=" operator is used.
+* Fix :ref:`unused-argument` false positive when the "+=" operator is used.
 
   Closes #518
 
-* Don't emit import-error for ignored modules. PyLint will not emit import
+* Don't emit :ref:`import-error` for ignored modules. PyLint will not emit import
   errors for any import which is, or is a subpackage of, a module in
   the ignored-modules list.
 
   Closes #223
 
-* Fix unused-import false positive when the import is used in a
+* Fix :ref:`unused-import` false positive when the import is used in a
   class assignment.
 
   Closes #475
 
-* Add a new error, 'not-context-manager', emitted when something
+* Add a new error, ':ref:`not-context-manager`', emitted when something
   that doesn't implement __enter__ and __exit__ is used in a with
   statement.
 
-* Add a new warning, 'confusing-with-statement', emitted by the
+* Add a new warning, ':ref:`confusing-with-statement`', emitted by the
   base checker, when an ambiguous looking with statement is used.
   For example `with open() as first, second` which looks like a
   tuple assignment but is actually 2 context managers.
 
-* Add a new warning, 'duplicate-except', emitted when there is an
+* Add a new warning, ':ref:`duplicate-except`', emitted when there is an
   exception handler which handles an exception type that was handled
   before.
 
   Closes #485
 
 * A couple of warnings got promoted to errors, since they could uncover
-  potential bugs in the code. These warnings are: assignment-from-none,
-  unbalanced-tuple-unpacking, unpacking-non-sequence, non-iterator-returned.
+  potential bugs in the code. These warnings are: :ref:`assignment-from-none`,
+  :ref:`unbalanced-tuple-unpacking`, :ref:`unpacking-non-sequence`, :ref:`non-iterator-returned`.
 
   Closes #388
 
@@ -282,7 +282,7 @@ Release date: 2015-11-29
 
   Closes #479
 
-* Don't emit an unused-wildcard-import when the imported name comes
+* Don't emit an :ref:`unused-wildcard-import` when the imported name comes
   from another module and it is in fact a __future__ name.
 
 * The colorized reporter now works on Windows.
@@ -298,19 +298,19 @@ Release date: 2015-11-29
   crashed when it encountered a bytes string with a .format
   method called.
 
-* Don't warn about no-self-use for builtin properties.
+* Don't warn about :ref:`no-self-use` for builtin properties.
 
-* Fix a false positive for bad-reversed-sequence, when a subclass
+* Fix a false positive for :ref:`bad-reversed-sequence`, when a subclass
   of a ``dict`` provides a __reversed__ method.
 
-* Change the default no-docstring-rgx so missing-docstring isn't
+* Change the default no-docstring-rgx so :ref:`missing-docstring` isn't
   emitted for private functions.
 
-* Don't emit redefined-outer-name for __future__ directives.
+* Don't emit :ref:`redefined-outer-name` for __future__ directives.
 
   Closes #520.
 
-* Provide some hints for the bad-builtin message.
+* Provide some hints for the :ref:`bad-builtin` message.
 
   Closes #522.
 
@@ -324,21 +324,21 @@ Release date: 2015-11-29
 
   Closes #429.
 
-* Don't emit no-member for classes with unknown bases.
+* Don't emit :ref:`no-member` for classes with unknown bases.
 
   Since we don't know what those bases might add, we simply ignore
   the error in this case.
 
-* Lookup in the implicit metaclass when checking for no-member,
+* Lookup in the implicit metaclass when checking for :ref:`no-member`,
   if the class in question has an implicit metaclass, which is
   True for new style classes.
 
   Closes #438.
 
-* Add two new warnings, duplicate-bases and inconsistent-mro.
+* Add two new warnings, :ref:`duplicate-bases` and :ref:`inconsistent-mro`.
 
-  duplicate-bases is emitted when a class has the same bases
-  listed more than once in its bases definition, while inconsistent-mro
+  :ref:`duplicate-bases` is emitted when a class has the same bases
+  listed more than once in its bases definition, while :ref:`inconsistent-mro`
   is emitted when no sane mro hierarchy can be determined.
 
   Closes #526.
@@ -365,12 +365,12 @@ Release date: 2015-11-29
   documentation in Sphinx, Google, and Numpy style.
 
 * Detect undefined variable cases, where the "definition" of an undefined
-  variable was in del statement. Instead of emitting used-before-assignment,
-  which is totally misleading, it now emits undefined-variable.
+  variable was in del statement. Instead of emitting :ref:`used-before-assignment`,
+  which is totally misleading, it now emits :ref:`undefined-variable`.
 
   Closes #528.
 
-* Don't emit attribute-defined-outside-init and access-member-before-definition
+* Don't emit :ref:`attribute-defined-outside-init` and :ref:`access-member-before-definition`
   for mixin classes. Actual errors can occur in mixin classes, but this is
   controlled by the ignore-mixin-members option.
 
@@ -382,34 +382,34 @@ Release date: 2015-11-29
 
   Closes #342 and issue #404.
 
-* Add a new warning, 'unexpected-special-method-signature', which is emitted
+* Add a new warning, ':ref:`unexpected-special-method-signature`', which is emitted
   when a special method (dunder method) doesn't have the expected signature,
   which can lead to actual errors in the application code.
 
   Closes #253.
 
-* Remove 'bad-context-manager' due to the inclusion of 'unexpected-special-method-signature'.
+* Remove ':ref:`bad-context-manager`' due to the inclusion of ':ref:`unexpected-special-method-signature`'.
 
-* Don't emit no-name-in-module if the import is guarded by an ImportError, Exception or
+* Don't emit :ref:`no-name-in-module` if the import is guarded by an ImportError, Exception or
   a bare except clause.
 
-* Don't emit no-member if the attribute access node is protected by an
+* Don't emit :ref:`no-member` if the attribute access node is protected by an
   except handler, which handles AttributeError, Exception or it is a
   bare except.
 
-* Don't emit import-error if the import is guarded by an ImportError, Exception or a
+* Don't emit :ref:`import-error` if the import is guarded by an ImportError, Exception or a
   bare except clause.
 
-* Don't emit undefined-variable if the node is guarded by a NameError, Exception
+* Don't emit :ref:`undefined-variable` if the node is guarded by a NameError, Exception
   or bare except clause.
 
-* Add a new warning, 'using-constant-test', which is emitted when a conditional
+* Add a new warning, ':ref:`using-constant-test`', which is emitted when a conditional
   statement (If, IfExp) uses a test which is always constant, such as numbers,
   classes, functions etc. This is most likely an error from the user's part.
 
   Closes #524.
 
-* Don't emit 'raising-non-exception' when the exception has unknown
+* Don't emit ':ref:`raising-non-exception`' when the exception has unknown
   bases. We don't know what those bases actually are and it's better
   to assume that the user knows what he is doing rather than emitting
   a message which can be considered a false positive.
@@ -442,11 +442,11 @@ Release date: 2015-11-29
 
 * yield-outside-func is also emitted for ``yield from``.
 
-* Add a new error, 'too-many-star-expressions', emitted when
+* Add a new error, ':ref:`too-many-star-expressions`', emitted when
   there are more than one starred expression (`*x`) in an assignment.
   The warning is emitted only on Python 3.
 
-* Add a new error, 'invalid-star-assignment-target', emitted when
+* Add a new error, ':ref:`invalid-star-assignment-target`', emitted when
   a starred expression (`*x`) is used as the lhs side of an assignment,
   as in `*x = [1, 2]`. This is not a SyntaxError on Python 3 though.
 
@@ -458,11 +458,11 @@ Release date: 2015-11-29
   module level, which is an error on Python 3. Using this will emit a
   SyntaxWarning on Python 2.
 
-* Add a new error, 'star-needs-assignment-target', emitted on Python 3 when
+* Add a new error, ':ref:`star-needs-assignment-target`', emitted on Python 3 when
   a Starred expression (`*x`) is not used in an assignment target. This is not
   caught when parsing the AST on Python 3, so it needs to be a separate check.
 
-* Add a new error, 'unsupported-binary-operation', emitted when
+* Add a new error, ':ref:`unsupported-binary-operation`', emitted when
   two a binary arithmetic operation is executed between two objects
   which don't support it (a number plus a string for instance).
   This is currently disabled, since the it exhibits way too many false
@@ -473,11 +473,11 @@ Release date: 2015-11-29
 
   These were moved since they didn't belong in astroid.
 
-* Enable misplaced-future for Python 3.
+* Enable :ref:`misplaced-future` for Python 3.
 
   Closes #580.
 
-* Add a new error, 'nonlocal-and-global', which is emitted when a
+* Add a new error, ':ref:`nonlocal-and-global`', which is emitted when a
   name is found to be both nonlocal and global in the same scope.
 
   Closes #581.
@@ -507,9 +507,9 @@ Release date: 2015-11-29
 
   Closes #608.
 
-* Improved the not-in-loop checker to properly detect more cases.
+* Improved the :ref:`not-in-loop` checker to properly detect more cases.
 
-* Add a new error, 'continue-in-finally', which is emitted when
+* Add a new error, ':ref:`continue-in-finally`', which is emitted when
   the ``continue`` keyword is found inside a ``finally`` clause, which
   is a SyntaxError.
 
@@ -542,7 +542,7 @@ Release date: 2015-11-29
 
 * --profile flag is obsolete and it will be removed in Pylint 1.6.
 
-* Add a new error, 'misplaced-bare-raise'.
+* Add a new error, ':ref:`misplaced-bare-raise`'.
 
   The error is used when a bare raise is not used inside an except clause.
   This can generate a RuntimeError in Python, if there are no active exceptions
@@ -576,14 +576,14 @@ Release date: 2015-11-29
 
   Closes #424.
 
-* Add a new error, 'nonlocal-without-binding'
+* Add a new error, ':ref:`nonlocal-without-binding`'
 
   The error is emitted on Python 3 when a nonlocal name is not bound
   to any variable in the parents scopes.
 
   Closes #582.
 
-* 'deprecated-module' can be shown for modules which aren't
+* ':ref:`deprecated-module`' can be shown for modules which aren't
    available.
 
   Closes #362.
@@ -591,51 +591,51 @@ Release date: 2015-11-29
 * Don't consider a class abstract if its members can't
   be properly inferred.
 
-  This fixes a false positive related to abstract-class-instantiated.
+  This fixes a false positive related to :ref:`abstract-class-instantiated`.
 
   Closes #648.
 
 * Add a new checker for the async features added by PEP 492.
 
-* Add a new error, 'yield-inside-async-function', emitted on
+* Add a new error, ':ref:`yield-inside-async-function`', emitted on
   Python 3.5 and upwards when the ``yield`` statement is found inside
   a new coroutine function (PEP 492).
 
-* Add a new error, 'not-async-context-manager', emitted when
+* Add a new error, ':ref:`not-async-context-manager`', emitted when
   an async context manager block is used with an object which doesn't
   support this protocol (PEP 492).
 
-* Add a new convention warning, 'singleton-comparison', emitted when
+* Add a new convention warning, ':ref:`singleton-comparison`', emitted when
   comparison to True, False or None is found.
 
-* Don't emit 'assigning-non-slot' for descriptors.
+* Don't emit ':ref:`assigning-non-slot`' for descriptors.
 
   Closes #652.
 
-* Add a new error, 'repeated-keyword', when a keyword argument is passed
+* Add a new error, ':ref:`repeated-keyword`', when a keyword argument is passed
   multiple times into a function call.
 
-  This is similar with redundant-keyword-arg, but it's mildly different
+  This is similar with :ref:`redundant-keyword-arg`, but it's mildly different
   that it needs to be a separate error.
 
 * --enable=all can now be used.
 
   Closes #142.
 
-* Add a new convention message, 'misplaced-comparison-constant',
+* Add a new convention message, ':ref:`misplaced-comparison-constant`',
   emitted when a constant is placed in the left hand side of a comparison,
   as in '5 == func()'. This is also called Yoda condition, since the
   flow of code reminds of the Star Wars green character, conditions usually
   encountered in languages with variabile assignments in conditional
   statements.
 
-* Add a new convention message, 'consider-using-enumerate', which is
+* Add a new convention message, ':ref:`consider-using-enumerate`', which is
   emitted when code that uses ``range`` and ``len`` for iterating is encountered.
 
   Closes #684.
 
-* Added two new refactoring messages, 'no-classmethod-decorator' and
-  'no-staticmethod-decorator', which are emitted when a static method or a class
+* Added two new refactoring messages, ':ref:`no-classmethod-decorator`' and
+  ':ref:`no-staticmethod-decorator`', which are emitted when a static method or a class
   method is declared without using decorators syntax.
 
   Closes #675.
