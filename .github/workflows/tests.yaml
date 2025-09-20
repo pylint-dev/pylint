@@ -100,7 +100,7 @@ jobs:
     name: process / coverage
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: tests
+    needs: [tests]
     steps:
       - *checkout
       - name: Set up Python 3.13
@@ -136,7 +136,7 @@ jobs:
     name: run benchmark / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: tests
+    needs: [tests]
     strategy:
       fail-fast: false
       matrix:
@@ -173,7 +173,7 @@ jobs:
     name: run / ${{ matrix.python-version }} / Windows
     runs-on: windows-latest
     timeout-minutes: 25
-    needs: tests
+    needs: [tests]
     strategy:
       fail-fast: false
       matrix:

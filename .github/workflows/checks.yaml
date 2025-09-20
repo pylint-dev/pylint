@@ -88,7 +88,7 @@ jobs:
     name: pylint
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: prepare-base
+    needs: [prepare-base]
     steps:
       - *checkout
       - *setup-python
@@ -124,7 +124,7 @@ jobs:
     name: spelling tests
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: prepare-base
+    needs: [prepare-base]
     steps:
       - *checkout
       - *setup-python
@@ -139,7 +139,7 @@ jobs:
     name: documentation
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: prepare-base
+    needs: [prepare-base]
     steps:
       - *checkout
       - *setup-python
