@@ -2027,6 +2027,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if isinstance(node, nodes.Return):
             return True
         if isinstance(node, nodes.Call):
+            if utils.is_terminating_func(node):
+                return True
             return any(
                 (
                     isinstance(maybe_func, (nodes.FunctionDef, bases.BoundMethod))
