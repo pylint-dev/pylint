@@ -1162,10 +1162,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 value=nodes.Name(name=name),
                 parent=nodes.Expr(parent=nodes.For(body=[_]) as loop_node),
             ) if not isinstance(loop_node, nodes.AsyncFor):
-                # Avoid a false positive if the return value from `yield` is used,
-                # (such as via Assign, AugAssign, etc).
                 pass
             case _:
+                # Avoid a false positive if the return value from `yield` is used,
+                # (such as via Assign, AugAssign, etc).
                 return
 
         if loop_node.target.name != name:
@@ -1422,7 +1422,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             for operator, right_operand in comparison_node.ops:
                 for operand in (left_operand, right_operand):
                     match operand:
-                        case nodes.Name(name=value) | nodes.Const(value=value):
+                        case nodes.Name(name=value) | nodes.Const(value=value) if (
+                            value is not None
+                        ):
                             pass
                         case _:
                             continue
