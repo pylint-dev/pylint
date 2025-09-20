@@ -1,0 +1,4 @@
+The dependency to mccabe was removed and its content is now vendored in pylint. Optimization were done as a result
+because mccabe was a code to dot graph generator and pylint only need to calculate the mccabe score not draw graphics.
+
+Refs #10551
