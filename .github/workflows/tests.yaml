@@ -62,7 +62,8 @@ jobs:
             hashFiles('pyproject.toml', 'requirements_test.txt',
           'requirements_test_min.txt', 'requirements_test_pre_commit.txt') }}" >>
           $GITHUB_OUTPUT
-      - name: Restore Python virtual environment
+      - &cache-python
+        name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache@v4.2.4
         with:
@@ -191,7 +192,7 @@ jobs:
           echo "key=venv-${{ env.CACHE_VERSION }}-${{
             hashFiles('pyproject.toml', 'requirements_test_min.txt')
           }}" >> $env:GITHUB_OUTPUT
-      - *cache-restore-python
+      - *cache-python
       - name: Create Python virtual environment
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
