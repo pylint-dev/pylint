@@ -220,23 +220,15 @@ class CodeStyleChecker(BaseChecker):
         Note: Assignment expressions were added in Python 3.8
         """
         # Check if `node.test` contains a `Name` node
-        node_name: nodes.Name | None = None
-        if isinstance(node.test, nodes.Name):
-            node_name = node.test
-        elif (
-            isinstance(node.test, nodes.UnaryOp)
-            and node.test.op == "not"
-            and isinstance(node.test.operand, nodes.Name)
-        ):
-            node_name = node.test.operand
-        elif (
-            isinstance(node.test, nodes.Compare)
-            and isinstance(node.test.left, nodes.Name)
-            and len(node.test.ops) == 1
-        ):
-            node_name = node.test.left
-        else:
-            return
+        match node.test:
+            case (
+                (nodes.Name() as node_name)
+                | nodes.UnaryOp(op="not", operand=nodes.Name() as node_name)
+                | nodes.Compare(left=nodes.Name() as node_name, ops=[_])
+            ):
+                pass
+            case _:
+                return
 
         # Make sure the previous node is an assignment to the same name
         # used in `node.test`. Furthermore, ignore if assignment spans multiple lines.

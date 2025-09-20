@@ -523,13 +523,11 @@ class TypingChecker(BaseChecker):
             return False
 
         # Check first Callable arg is a list of arguments -> Callable[[int], None]
-        if not (
-            isinstance(node.parent, nodes.Subscript)
-            and isinstance(node.parent.slice, nodes.Tuple)
-            and len(node.parent.slice.elts) == 2
-            and isinstance(node.parent.slice.elts[0], nodes.List)
-        ):
-            return False
+        match node.parent:
+            case nodes.Subscript(slice=nodes.Tuple(elts=[nodes.List(), _])):
+                pass
+            case _:
+                return False
 
         # Check nested inside Optional or Union
         parent_subscript = node.parent.parent

@@ -251,13 +251,12 @@ class DeprecatedMixin(BaseChecker):
         if not isinstance(inferred, ACCEPTABLE_NODES):
             return
 
-        if isinstance(node.func, nodes.Attribute):
-            func_name = node.func.attrname
-        elif isinstance(node.func, nodes.Name):
-            func_name = node.func.name
-        else:
-            # Not interested in other nodes.
-            return
+        match node.func:
+            case nodes.Attribute(attrname=func_name) | nodes.Name(name=func_name):
+                pass
+            case _:
+                # Not interested in other nodes.
+                return
 
         qnames = {inferred.qname(), func_name}
         if any(name in self.deprecated_methods() for name in qnames):
