@@ -2021,11 +2021,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 # Recursion base case
                 return True
             case nodes.Call():
+                if utils.is_terminating_func(node):
+                    return True
                 return any(
-                    (
-                        isinstance(maybe_func, (nodes.FunctionDef, bases.BoundMethod))
-                        and self._is_function_def_never_returning(maybe_func)
-                    )
+                    isinstance(maybe_func, (nodes.FunctionDef, bases.BoundMethod))
+                    and self._is_function_def_never_returning(maybe_func)
                     for maybe_func in utils.infer_all(node.func)
                 )
             case nodes.While():
