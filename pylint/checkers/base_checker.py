@@ -126,7 +126,7 @@ class BaseChecker(_ArgumentsProvider):
         if msgs:
             result += get_rst_title(f"{checker_title} Messages", "^")
             for msgid, msg in sorted(
-                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[1])
+                msgs.items(), key=lambda kv: (_MSG_ORDER.index(kv[0][0]), kv[0])
             ):
                 msg_def = self.create_message_definition_from_tuple(msgid, msg)
                 result += f"{msg_def.format_help(checkerref=False)}\n"

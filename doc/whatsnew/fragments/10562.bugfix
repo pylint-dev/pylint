@@ -1,0 +1,3 @@
+Fix false positive ``undefined-variable`` (E0602) for for-loop variable shadowing patterns like ``for item in item:`` when the variable was previously defined.
+
+Closes #10562

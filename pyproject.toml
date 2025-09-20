@@ -76,7 +76,7 @@ dev = [
 
 test = [
   "coverage~=7.10",
-  "pytest-cov~=6.2",
+  "pytest-cov>=6.2,<8",
   "pytest-xdist~=3.8",
   "six",
   "tox>=3",
@@ -176,7 +176,6 @@ lint.ignore = [
   "PTH207", # Replace `glob` with `Path.glob` or `Path.rglob`
   "PTH208", # Use `pathlib.Path.iterdir()` instead"
   "RUF012", # mutable default values in class attributes
-  "UP038",  # Use `X | Y` in `isinstance` call instead of `(X, Y)`
 ]
 lint.pydocstyle.convention = "pep257"
 
