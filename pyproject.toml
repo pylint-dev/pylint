@@ -25,6 +25,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development :: Debuggers",
@@ -222,6 +223,9 @@ tests/functional/t/type/typevar_naming_style_rgx.py,\
 tests/functional/t/type/typevar_naming_style_default.py,\
 tests/functional/m/member/member_checks_async.py,\
 """
+
+[tool.pyproject-fmt]
+max_supported_python = "3.14"
 
 [tool.pytest.ini_options]
 testpaths = [ "tests" ]
