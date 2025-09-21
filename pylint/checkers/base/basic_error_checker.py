@@ -542,26 +542,20 @@ class BasicErrorChecker(_BasicChecker):
 
             # Exempt functions redefined on a condition.
             if isinstance(node.parent, nodes.If):
-                # Exempt "if not <func>" cases
-                if (
-                    isinstance(node.parent.test, nodes.UnaryOp)
-                    and node.parent.test.op == "not"
-                    and isinstance(node.parent.test.operand, nodes.Name)
-                    and node.parent.test.operand.name == node.name
-                ):
-                    return
-
-                # Exempt "if <func> is not None" cases
-                # pylint: disable=too-many-boolean-expressions
-                if (
-                    isinstance(node.parent.test, nodes.Compare)
-                    and isinstance(node.parent.test.left, nodes.Name)
-                    and node.parent.test.left.name == node.name
-                    and node.parent.test.ops[0][0] == "is"
-                    and isinstance(node.parent.test.ops[0][1], nodes.Const)
-                    and node.parent.test.ops[0][1].value is None
-                ):
-                    return
+                match node.parent.test:
+                    case nodes.UnaryOp(op="not", operand=nodes.Name(name=name)) if (
+                        name == node.name
+                    ):
+                        # Exempt "if not <func>" cases
+                        return
+                    case nodes.Compare(
+                        left=nodes.Name(name=name),
+                        ops=[["is", nodes.Const(value=None)]],
+                    ) if (
+                        name == node.name
+                    ):
+                        # Exempt "if <func> is not None" cases
+                        return
 
             # Check if we have forward references for this node.
             try:

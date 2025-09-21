@@ -3402,19 +3402,19 @@ class VariablesChecker(BaseChecker):
         consumed: list[tuple[Consumption, str]] = []
         metaclass = klass.metaclass()
         name = ""
-        if isinstance(klass._metaclass, nodes.Name):
-            name = klass._metaclass.name
-        elif isinstance(klass._metaclass, nodes.Attribute) and klass._metaclass.expr:
-            attr = klass._metaclass.expr
-            while not isinstance(attr, nodes.Name):
-                attr = attr.expr
-            name = attr.name
-        elif isinstance(klass._metaclass, nodes.Call) and isinstance(
-            klass._metaclass.func, nodes.Name
-        ):
-            name = klass._metaclass.func.name
-        elif metaclass:
-            name = metaclass.root().name
+        match klass._metaclass:
+            case nodes.Name(name=name):
+                # bind name
+                pass
+            case nodes.Attribute(expr=attr):
+                while not isinstance(attr, nodes.Name):
+                    attr = attr.expr
+                name = attr.name
+            case nodes.Call(func=nodes.Name(name=name)):
+                # bind name
+                pass
+            case _ if metaclass:
+                name = metaclass.root().name
 
         found = False
         name = METACLASS_NAME_TRANSFORMS.get(name, name)
