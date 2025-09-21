@@ -1902,6 +1902,7 @@ accessed. Python regular expressions are accepted.",
                                 "async-context-manager-with-regular-with",
                                 node=node,
                                 args=(inferred.parent.name,),
+                                confidence=INFERENCE
                             )
                             continue
                     # If the parent of the generator is not the context manager itself,
