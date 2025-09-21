@@ -53,6 +53,7 @@ All messages in the error category:
    error/assigning-non-slot
    error/assignment-from-no-return
    error/assignment-from-none
+   error/async-context-manager-with-regular-with
    error/await-outside-async
    error/bad-configuration-section
    error/bad-except-order

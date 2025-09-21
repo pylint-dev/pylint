@@ -29,6 +29,9 @@ Async checker Messages
   Used when an async context manager is used with an object that does not
   implement the async context management protocol. This message can't be
   emitted when using Python < 3.5.
+:async-context-manager-with-regular-with (E1145): *Context manager '%s' is async and should be used with 'async with'.*
+  Used when an async context manager is used with a regular 'with' statement
+  instead of 'async with'.
 
 
 Bad-Chained-Comparison checker

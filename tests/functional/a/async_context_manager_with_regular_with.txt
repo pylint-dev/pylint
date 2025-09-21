@@ -1,0 +1,1 @@
+async-context-manager-with-regular-with:12:0:13:8::Context manager 'async_cm' is async and should be used with 'async with'.:INFERENCE

@@ -299,6 +299,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when an instance in a with statement doesn't implement "
         "the context manager protocol(__enter__/__exit__).",
     ),
+    "E1145": (
+        "Context manager '%s' is async and should be used with 'async with'.",
+        "async-context-manager-with-regular-with",
+        "Used when an async context manager is used with a regular 'with' statement "
+        "instead of 'async with'.",
+    ),
     "E1130": (
         "%s",
         "invalid-unary-operand-type",
@@ -1869,7 +1875,9 @@ accessed. Python regular expressions are accepted.",
         if invalid_slice_step:
             self.add_message("invalid-slice-step", node=node.step, confidence=HIGH)
 
-    @only_required_for_messages("not-context-manager")
+    @only_required_for_messages(
+        "not-context-manager", "async-context-manager-with-regular-with"
+    )
     def visit_with(self, node: nodes.With) -> None:
         for ctx_mgr, _ in node.items:
             context = astroid.context.InferenceContext()
@@ -1883,6 +1891,17 @@ accessed. Python regular expressions are accepted.",
                         inferred.parent, self.linter.config.contextmanager_decorators
                     ):
                         continue
+                    # Check if it's an AsyncGenerator decorated with asynccontextmanager
+                    if isinstance(inferred, astroid.bases.AsyncGenerator):
+                        async_decorators = ["contextlib.asynccontextmanager"]
+                        if decorated_with(inferred.parent, async_decorators):
+                            self.add_message(
+                                "async-context-manager-with-regular-with",
+                                node=node,
+                                args=(inferred.parent.name,),
+                                confidence=INFERENCE,
+                            )
+                            continue
                     # If the parent of the generator is not the context manager itself,
                     # that means that it could have been returned from another
                     # function which was the real context manager.
