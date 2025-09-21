@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, TypeGuard
 
 import astroid.bases
 from astroid import nodes
@@ -299,7 +299,7 @@ class TypingChecker(BaseChecker):
     @staticmethod
     def _is_deprecated_union_annotation(
         annotation: nodes.NodeNG, union_name: str
-    ) -> bool:
+    ) -> TypeGuard[nodes.Subscript]:
         match annotation:
             case nodes.Subscript(value=nodes.Name(name=name)):
                 return name == union_name  # type: ignore[no-any-return]

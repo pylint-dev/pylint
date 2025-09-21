@@ -146,7 +146,7 @@ class ComparisonChecker(_BasicChecker):
         def _is_float_nan(node: nodes.NodeNG) -> bool:
             try:
                 match node:
-                    case nodes.Call(args=[nodes.Const(value=str(value))]) if (
+                    case nodes.Call(args=[nodes.Const(value=str() as value)]) if (
                         value.lower() == "nan"
                     ):
                         return node.inferred()[0].pytype() == "builtins.float"  # type: ignore[no-any-return]
@@ -157,7 +157,7 @@ class ComparisonChecker(_BasicChecker):
         def _is_numpy_nan(node: nodes.NodeNG) -> bool:
             match node:
                 case nodes.Attribute(attrname="NaN", expr=nodes.Name(name=name)):
-                    return name in {"numpy", "nmp", "np"}
+                    return name in {"numpy", "np"}
             return False
 
         def _is_nan(node: nodes.NodeNG) -> bool:

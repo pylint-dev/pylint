@@ -1038,7 +1038,7 @@ scope_type : {self.scope_type}
         """
         if not other_node_try_except.orelse:
             return False
-        closest_loop: None | (nodes.For | nodes.While) = (
+        closest_loop: nodes.For | nodes.While | None = (
             utils.get_node_first_ancestor_of_type(node, (nodes.For, nodes.While))
         )
         if closest_loop is None:
@@ -3034,7 +3034,7 @@ class VariablesChecker(BaseChecker):
                 return
 
         match type_annotation.value:
-            case nodes.Attribute(expr=nodes.Name(name=n)) if n == TYPING_MODULE:
+            case nodes.Attribute(expr=nodes.Name(name=name)) if name == TYPING_MODULE:
                 self._type_annotation_names.append(TYPING_MODULE)
                 return
 

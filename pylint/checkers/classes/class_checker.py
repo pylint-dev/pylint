@@ -14,6 +14,7 @@ from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias
 
 import astroid
+import astroid.objects
 from astroid import bases, nodes, util
 from astroid.nodes import LocalsDictNodeNG
 from astroid.typing import SuccessfulInferenceResult
@@ -1641,7 +1642,7 @@ a metaclass class method.",
             match inferred:
                 case util.UninferableBase():
                     continue
-                case nodes.Const(value=str(value)) if value:
+                case nodes.Const(value=str() as value) if value:
                     pass
                 case _:
                     self.add_message(
