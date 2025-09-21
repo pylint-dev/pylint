@@ -881,19 +881,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return isinstance(utils.safe_infer(test.ops[0][1]), nodes.Dict)
 
     def _check_consider_get(self, node: nodes.If) -> None:
-        if_block_ok = self._is_dict_get_block(node)
-        if if_block_ok and not node.orelse:
-            self.add_message("consider-using-get", node=node)
-        elif (
-            if_block_ok
-            and len(node.orelse) == 1
-            and isinstance(node.orelse[0], nodes.Assign)
-            and self._type_and_name_are_equal(
-                node.orelse[0].targets[0], node.body[0].targets[0]
-            )
-            and len(node.orelse[0].targets) == 1
-        ):
-            self.add_message("consider-using-get", node=node)
+        if not self._is_dict_get_block(node):
+            return
+        match node:
+            case nodes.If(orelse=[]):
+                self.add_message("consider-using-get", node=node)
+            case nodes.If(
+                body=[nodes.Assign(targets=[t1])], orelse=[nodes.Assign(targets=[t2])]
+            ) if self._type_and_name_are_equal(t1, t2):
+                self.add_message("consider-using-get", node=node)
 
     @utils.only_required_for_messages(
         "too-many-nested-blocks",
@@ -1374,14 +1370,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return
 
         for value in node.values:
-            if (
-                not isinstance(value, nodes.Compare)
-                or len(value.ops) != 1
-                or value.ops[0][0] not in allowed_ops[node.op]
-            ):
-                return
-            for comparable in value.left, value.ops[0][1]:
-                if isinstance(comparable, nodes.Call):
+            match value:
+                case nodes.Compare(left=nodes.Call()) | nodes.Compare(
+                    ops=[tuple((_, nodes.Call()))]
+                ):
+                    return
+                case nodes.Compare(ops=[tuple((op, _))]) if op in allowed_ops[node.op]:
+                    pass
+                case _:
                     return
 
         # Gather variables and values from comparisons
@@ -1822,42 +1818,43 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         ):
             return
 
-        if (
-            isinstance(node.parent, nodes.DictComp)
-            and isinstance(node.parent.key, nodes.Name)
-            and isinstance(node.parent.value, nodes.Name)
-            and isinstance(node.target, nodes.Tuple)
-            and all(isinstance(elt, nodes.AssignName) for elt in node.target.elts)
-        ):
-            expr_list = [node.parent.key.name, node.parent.value.name]
-            target_list = [elt.name for elt in node.target.elts]
+        match node:
+            case nodes.Comprehension(
+                target=nodes.Tuple(elts=elts),
+                parent=nodes.DictComp(
+                    key=nodes.Name(name=key_name),
+                    value=nodes.Name(name=value_name),
+                ),
+            ) if all(isinstance(elt, nodes.AssignName) for elt in elts):
+                expr_list = [key_name, value_name]
+                target_list = [elt.name for elt in elts]
 
-        elif isinstance(node.parent, (nodes.ListComp, nodes.SetComp)):
-            expr = node.parent.elt
-            if isinstance(expr, nodes.Name):
-                expr_list = expr.name
-            elif isinstance(expr, nodes.Tuple):
-                if any(not isinstance(elt, nodes.Name) for elt in expr.elts):
-                    return
-                expr_list = [elt.name for elt in expr.elts]
-            else:
-                expr_list = []
-            target = node.parent.generators[0].target
-            target_list = (
-                target.name
-                if isinstance(target, nodes.AssignName)
-                else (
-                    [
-                        elt.name
-                        for elt in target.elts
-                        if isinstance(elt, nodes.AssignName)
-                    ]
-                    if isinstance(target, nodes.Tuple)
-                    else []
-                )
-            )
-        else:
-            return
+            case nodes.Comprehension(
+                parent=nodes.ListComp() | nodes.SetComp() as parent
+            ):
+                match expr := parent.elt:
+                    case nodes.Name(name=expr_list):
+                        pass
+                    case nodes.Tuple():
+                        if not all(isinstance(elt, nodes.Name) for elt in expr.elts):
+                            return
+                        expr_list = [elt.name for elt in expr.elts]
+                    case _:
+                        expr_list = []
+                match target := parent.generators[0].target:
+                    case nodes.AssignName(name=target_list):
+                        pass
+                    case nodes.Tuple():
+                        target_list = [
+                            elt.name
+                            for elt in target.elts
+                            if isinstance(elt, nodes.AssignName)
+                        ]
+                    case _:
+                        target_list = []
+
+            case _:
+                return
         if expr_list == target_list and expr_list:
             args: tuple[str] | None = None
             inferred = utils.safe_infer(node.iter)

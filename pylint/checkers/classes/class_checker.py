@@ -1653,16 +1653,16 @@ a metaclass class method.",
                     continue
 
             # Check if we have a conflict with a class variable.
-            class_variable = node.locals.get(inferred.value)
-            if class_variable:
-                # Skip annotated assignments which don't conflict at all with slots.
-                if len(class_variable) == 1:
-                    parent = class_variable[0].parent
-                    if isinstance(parent, nodes.AnnAssign) and parent.value is None:
-                        return
-                self.add_message(
-                    "class-variable-slots-conflict", args=(inferred.value,), node=elt
-                )
+            match class_variable := node.locals.get(inferred.value):
+                case [nodes.NodeNG(parent=nodes.AnnAssign(value=None))]:
+                    # Skip annotated assignments which don't conflict at all with slots.
+                    return
+                case _ if class_variable:
+                    self.add_message(
+                        "class-variable-slots-conflict",
+                        args=(inferred.value,),
+                        node=elt,
+                    )
 
     def leave_functiondef(self, node: nodes.FunctionDef) -> None:
         """On method node, check if this method couldn't be a function.
@@ -2221,7 +2221,6 @@ a metaclass class method.",
             match expr.expr:
                 case nodes.Call(func=nodes.Name(name="super")):
                     return
-            # pylint: disable = too-many-try-statements
             try:
                 for klass in expr.expr.infer():
                     if isinstance(klass, util.UninferableBase):
@@ -2233,15 +2232,13 @@ a metaclass class method.",
                     # base = super()
                     # base.__init__(...)
 
-                    if (
-                        isinstance(klass, astroid.Instance)
-                        and isinstance(klass._proxied, nodes.ClassDef)
-                        and is_builtin_object(klass._proxied)
-                        and klass._proxied.name == "super"
-                    ):
-                        return
-                    if isinstance(klass, astroid.objects.Super):
-                        return
+                    match klass:
+                        case astroid.Instance(
+                            _proxied=nodes.ClassDef(name="super") as p
+                        ) if is_builtin_object(p):
+                            return
+                        case astroid.objects.Super():
+                            return
                     try:
                         method = not_called_yet.pop(klass)
                         # Record that the class' init has been called

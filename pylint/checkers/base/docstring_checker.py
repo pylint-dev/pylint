@@ -178,19 +178,15 @@ class DocStringChecker(_BasicChecker):
                 self.linter.stats.undocumented["klass"] += 1
             else:
                 self.linter.stats.undocumented[node_type] += 1
-            if (
-                node.body
-                and isinstance(node.body[0], nodes.Expr)
-                and isinstance(node.body[0].value, nodes.Call)
-            ):
-                # Most likely a string with a format call. Let's see.
-                func = utils.safe_infer(node.body[0].value.func)
-                if isinstance(func, astroid.BoundMethod) and isinstance(
-                    func.bound, astroid.Instance
-                ):
-                    # Strings.
-                    if func.bound.name in {"str", "unicode", "bytes"}:
-                        return
+            match node.body:
+                case [nodes.Expr(value=nodes.Call() as value), *_]:
+                    # Most likely a string with a format call. Let's see.
+                    match utils.safe_infer(value.func):
+                        case astroid.BoundMethod(
+                            bound=astroid.Instance(name="str" | "unicode" | "bytes")
+                        ):
+                            # Strings.
+                            return
             match node_type:
                 case "module":
                     message = "missing-module-docstring"
