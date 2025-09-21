@@ -1,24 +1,39 @@
 # pylint: disable=invalid-name,unnecessary-pass,no-else-return,useless-else-on-loop
 # pylint: disable=undefined-variable,consider-using-sys-exit,unused-variable,too-many-return-statements
-# pylint: disable=redefined-outer-name,using-constant-test,unused-argument
+# pylint: disable=redefined-outer-name,using-constant-test,unused-argument,unnecessary-lambda-assignment
 # pylint: disable=broad-except, not-context-manager, no-method-argument, unspecified-encoding, broad-exception-raised
 
 """Checks use of "too-complex" check"""
 
 
-def f1():  # [too-complex]
+def just_a_pass():  # [too-complex]
     """McCabe rating: 1"""
     pass
 
 
-def f2(n):  # [too-complex]
+def just_a_yield():  # [too-complex]
+    """McCabe rating: 1"""
+    yield from range(10)
+
+
+def just_a_return():  # [too-complex]
+    """McCabe rating: 1"""
+    return 42
+
+
+def just_a_raise():  # [too-complex]
+    """McCabe rating: 1"""
+    raise ValueError("An error occurred")
+
+
+def one_edge_multiple_operations(n):  # [too-complex]
     """McCabe rating: 1"""
     k = n + 4
     s = k + n
     return s
 
 
-def f3(n):  # [too-complex]
+def if_elif_else(n):  # [too-complex]
     """McCabe rating: 3"""
     if n > 3:
         return "bigger than three"
@@ -28,13 +43,28 @@ def f3(n):  # [too-complex]
         return "smaller than or equal to three"
 
 
-def f4():  # [too-complex]
+def if_with_conditionals(a, b, c):  # [too-complex]
+    """McCabe rating: 2"""
+    if (  # pylint: disable=too-many-boolean-expressions
+        a
+        and b
+        or c
+        or (a and not b)
+        or (b and not c)
+        or (c and not a)
+        or (a and b and c)
+    ):
+        return True
+    return False
+
+
+def for_loop():  # [too-complex]
     """McCabe rating: 2"""
     for i in range(10):
         print(i)
 
 
-def f5(mylist):  # [too-complex]
+def for_loop_with_else(mylist):  # [too-complex]
     """McCabe rating: 2"""
     for i in mylist:
         print(i)
@@ -42,30 +72,54 @@ def f5(mylist):  # [too-complex]
         print(None)
 
 
-def f6(n):  # [too-complex]
+def recursive_if_else(n):  # [too-complex]
     """McCabe rating: 2"""
     if n > 4:
-        return f(n - 1)
+        return recursive_if_else(n - 1)
     else:
         return n
 
 
-def f7():  # [too-complex]
+def for_loop_with_break():  # [too-complex]
+    """McCabe rating: 3"""
+    for i in range(10):
+        if i == 5:
+            break
+
+
+def for_loop_with_continue():  # [too-complex]
+    """McCabe rating: 3"""
+    for i in range(10):
+        if i % 2 == 0:
+            continue
+        print(i)
+
+
+def for_loop_with_continue_and_break():  # [too-complex]
+    """McCabe rating: 4"""
+    for i in range(10):
+        if i % 2 == 0:
+            continue
+        if i % 5 == 0:
+            break
+
+
+def inner_functions():  # [too-complex]
     """McCabe rating: 3"""
 
-    def b():
+    def inner_function():  # Known false negative ?
         """McCabe rating: 2"""
 
-        def c():
+        def innermost_function():  # Known false negative ?
             """McCabe rating: 1"""
             pass
 
-        c()
+        innermost_function()
 
-    b()
+    inner_function()
 
 
-def f8():  # [too-complex]
+def try_with_multiple_except_and_else():  # [too-complex]
     """McCabe rating: 4"""
     try:
         print(1)
@@ -77,7 +131,44 @@ def f8():  # [too-complex]
         print(4)
 
 
-def f9():  # [too-complex]
+def with_(fp):  # [too-complex]
+    """McCabe rating: 1"""
+    with open(fp) as f:
+        content = f.read()
+    return content
+
+
+def lambda_with_if(lst):  # [too-complex]
+    """McCabe rating should be 4, but is 1 (known false negative ?)
+
+    See counterpart 'comprehension_with_if' below."""
+    f = lambda x: [x for x in lst if x % 2 == 0] or range(10)
+    return f(lst)
+
+
+def comprehension_with_if(lst):  # [too-complex]
+    """McCabe rating: should be 4 but is 1 (known false negative ?)
+    https://github.com/PyCQA/mccabe/issues/69
+    """
+    return [x for x in lst if x % 2 == 0] or range(10)
+
+
+def comprehension_with_if_equivalent(lst):  # [too-complex]
+    """McCabe rating: 4
+
+    See counterpart 'comprehension_with_if' above.
+    """
+    xs = []
+    for x in lst:
+        if x % 2 == 0:
+            xs.append(x)
+    if xs:
+        return xs
+    else:
+        return range(10)
+
+
+def nested_ifs_elifs_elses():  # [too-complex]
     """McCabe rating: 9"""
     myint = 2
     if myint > 5:
@@ -103,7 +194,7 @@ def f9():  # [too-complex]
                 myint = 4
 
 
-def f10():  # [too-complex]
+def big_elif_chain_with_nested_ifs():  # [too-complex]
     """McCabe rating: 11"""
     myint = 2
     if myint == 5:
@@ -130,16 +221,16 @@ def f10():  # [too-complex]
     return myint
 
 
-class MyClass1:
+class ExampleComplexityClass:
     """Class of example to test mccabe"""
 
-    _name = "MyClass"  # To force a tail.node=None
+    _name = "ExampleComplexityKlass"  # To force a tail.node=None
 
-    def method1():  # [too-complex]
+    def just_a_pass(self):  # [too-complex]
         """McCabe rating: 1"""
         pass
 
-    def method2(self, param1):  # [too-complex, too-many-branches]
+    def highly_complex(self, param1):  # [too-complex, too-many-branches]
         """McCabe rating: 15"""
         if not param1:
             pass
@@ -148,9 +239,7 @@ class MyClass1:
             pass
         else:
             pass
-
         pass
-
         if param1:
             pass
         if param1:
@@ -166,7 +255,6 @@ class MyClass1:
         if param1:
             for value in range(5):
                 pass
-
         pass
         for count in range(6):
             with open("myfile") as fp:
@@ -195,7 +283,8 @@ class MyClass1:
         return param1
 
 
-for count in range(10): # [too-complex]
+for count in range(10):  # [too-complex]
+    # McCabe rating: 4
     if count == 1:
         exit(0)
     elif count == 2:
@@ -204,7 +293,7 @@ for count in range(10): # [too-complex]
         exit(2)
 
 
-def method3(self):  # [too-complex]
+def try_finally_with_nested_ifs():  # [too-complex]
     """McCabe rating: 3"""
     try:
         if True:
@@ -215,23 +304,23 @@ def method3(self):  # [too-complex]
         pass
     return True
 
-def match_case_complexity(avg):  # [too-complex]
+
+def match_case(avg):  # [too-complex]
     """McCabe rating: 4
     See https://github.com/astral-sh/ruff/issues/11421
     """
     # pylint: disable=bare-name-capture-pattern
     match avg:
-        case avg if avg < .3:
+        case avg if avg < 0.3:
             avg_grade = "F"
-        case avg if avg < .7:
+        case avg if avg < 0.7:
             avg_grade = "E+"
         case _:
             raise ValueError(f"Unexpected average: {avg}")
     return avg_grade
 
 
-
-def nested_match(data):  # [too-complex]
+def nested_match_case(data):  # [too-complex]
     """McCabe rating: 8
 
     Nested match statements."""
@@ -251,3 +340,13 @@ def nested_match(data):  # [too-complex]
                 return "Product with no price"
         case _:
             return "Unknown data type"
+
+
+def yield_in_for_loop(a=None, b=None, c=None):  # [too-complex]
+    """McCabe rating: 4"""
+    yield from a or ()
+    for elt in b:
+        if elt is not None:
+            yield elt
+    if c is not None:
+        yield c
