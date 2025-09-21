@@ -61,6 +61,22 @@ CALLS_RETURNING_CONTEXT_MANAGERS = frozenset(
         "subprocess.Popen",
     )
 )
+CALLS_THAT_SHOULD_USE_GENERATOR = frozenset(
+    # 'any', 'all', definitely should use generator, while 'list', 'tuple',
+    # 'sum', 'max', and 'min' need to be considered first
+    # See https://github.com/pylint-dev/pylint/pull/3309#discussion_r576683109
+    # https://github.com/pylint-dev/pylint/pull/6595#issuecomment-1125704244
+    # and https://peps.python.org/pep-0289/
+    (
+        "any",
+        "all",
+        "sum",
+        "max",
+        "min",
+        "list",
+        "tuple",
+    )
+)
 
 
 def _if_statement_is_always_returning(
@@ -982,8 +998,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_simplifiable_ifexp(self, node: nodes.IfExp) -> None:
         match node:
             case nodes.IfExp(
-                body=nodes.Const(value=bool() as bval),
-                orelse=nodes.Const(value=bool() as oval),
+                body=nodes.Const(value=bool() as body_value),
+                orelse=nodes.Const(value=bool() as orelse_value),
             ):
                 pass
             case _:
@@ -994,7 +1010,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         else:
             test_reduced_to = "bool(test)"
 
-        match (bval, oval):
+        match (body_value, orelse_value):
             case [True, False]:
                 reduced_to = f"'{test_reduced_to}'"
             case [False, True]:
@@ -1098,16 +1114,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 self.add_message(message_name, node=node)
 
     def _check_consider_using_generator(self, node: nodes.Call) -> None:
-        # 'any', 'all', definitely should use generator, while 'list', 'tuple',
-        # 'sum', 'max', and 'min' need to be considered first
-        # See https://github.com/pylint-dev/pylint/pull/3309#discussion_r576683109
-        # https://github.com/pylint-dev/pylint/pull/6595#issuecomment-1125704244
-        # and https://peps.python.org/pep-0289/
-        checked_call = {"any", "all", "sum", "max", "min", "list", "tuple"}
         match node:
             case nodes.Call(
                 func=nodes.Name(name=call_name), args=[nodes.ListComp() as comp]
-            ) if (call_name in checked_call):
+            ) if (call_name in CALLS_THAT_SHOULD_USE_GENERATOR):
                 # functions in checked_calls take exactly one positional argument
                 # check whether the argument is list comprehension
                 pass
