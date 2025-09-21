@@ -2199,10 +2199,7 @@ accessed. Python regular expressions are accepted.",
 
     @only_required_for_messages("dict-items-missing-iter")
     def visit_for(self, node: nodes.For) -> None:
-        if not isinstance(node.target, nodes.Tuple):
-            # target is not a tuple
-            return
-        if not len(node.target.elts) == 2:
+        if not (isinstance(node.target, nodes.Tuple) and len(node.target.elts) == 2):
             # target is not a tuple of two elements
             return
 
@@ -2281,11 +2278,11 @@ class IterableChecker(BaseChecker):
             return False
         for decorator in inferred_func.decorators.nodes:
             inferred_decorator = safe_infer(decorator)
-            if not isinstance(inferred_decorator, nodes.FunctionDef):
-                continue
-            if inferred_decorator.qname() != ASYNCIO_COROUTINE:
-                continue
-            return True
+            if (
+                isinstance(inferred_decorator, nodes.FunctionDef)
+                and inferred_decorator.qname() == ASYNCIO_COROUTINE
+            ):
+                return True
         return False
 
     def _check_iterable(self, node: nodes.NodeNG, check_async: bool = False) -> None:

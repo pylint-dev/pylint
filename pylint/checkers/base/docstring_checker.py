@@ -35,11 +35,9 @@ def _infer_dunder_doc_attribute(
         return None
 
     docstring = utils.safe_infer(docstring)
-    if not docstring:
-        return None
-    if not isinstance(docstring, nodes.Const):
-        return None
-    return str(docstring.value)
+    if isinstance(docstring, nodes.Const):
+        return str(docstring.value)
+    return None
 
 
 class DocStringChecker(_BasicChecker):

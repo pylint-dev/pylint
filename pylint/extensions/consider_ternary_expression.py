@@ -38,12 +38,11 @@ class ConsiderTernaryExpressionChecker(BaseChecker):
                 return
 
         for bname, oname in zip(bst.targets, ost.targets):
-            if not isinstance(bname, nodes.AssignName) or not isinstance(
-                oname, nodes.AssignName
+            if not (
+                isinstance(bname, nodes.AssignName)
+                and isinstance(oname, nodes.AssignName)
+                and bname.name == oname.name
             ):
-                return
-
-            if bname.name != oname.name:
                 return
 
         self.add_message("consider-ternary-expression", node=node)
