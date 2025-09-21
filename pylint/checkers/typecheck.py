@@ -1878,7 +1878,9 @@ accessed. Python regular expressions are accepted.",
         if invalid_slice_step:
             self.add_message("invalid-slice-step", node=node.step, confidence=HIGH)
 
-    @only_required_for_messages("not-context-manager", "async-context-manager-with-regular-with")
+    @only_required_for_messages(
+        "not-context-manager", "async-context-manager-with-regular-with"
+    )
     def visit_with(self, node: nodes.With) -> None:
         for ctx_mgr, _ in node.items:
             context = astroid.context.InferenceContext()
@@ -1897,8 +1899,9 @@ accessed. Python regular expressions are accepted.",
                         async_decorators = ["contextlib.asynccontextmanager"]
                         if decorated_with(inferred.parent, async_decorators):
                             self.add_message(
-                                "async-context-manager-with-regular-with", node=node,
-                                args=(inferred.parent.name,)
+                                "async-context-manager-with-regular-with",
+                                node=node,
+                                args=(inferred.parent.name,),
                             )
                             continue
                     # If the parent of the generator is not the context manager itself,
