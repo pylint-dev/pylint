@@ -33,9 +33,11 @@ jobs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
       pre-commit-key: ${{ steps.generate-pre-commit-key.outputs.key }}
     steps:
-      - name: Check out code from GitHub
+      - &checkout
+        name: Check out code from GitHub
         uses: actions/checkout@v5.0.0
-      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+      - &setup-python
+        name: Set up Python ${{ env.DEFAULT_PYTHON }}
         id: python
         uses: actions/setup-python@v6.0.0
         with:
@@ -61,7 +63,7 @@ jobs:
         run: |
           python -m venv venv
           . venv/bin/activate
-          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade pip
           pip install --upgrade --requirement requirements_test.txt --requirement doc/requirements.txt
           pip install pre-commit
       - name: Generate pre-commit restore key
@@ -86,17 +88,12 @@ jobs:
     name: pylint
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: prepare-base
+    needs: [prepare-base]
     steps:
-      - name: Check out code from GitHub
-        uses: actions/checkout@v5.0.0
-      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
-        id: python
-        uses: actions/setup-python@v6.0.0
-        with:
-          python-version: ${{ env.DEFAULT_PYTHON }}
-          check-latest: true
-      - name: Restore Python virtual environment
+      - *checkout
+      - *setup-python
+      - &cache-restore-python
+        name: Restore Python virtual environment
         id: cache-venv
         uses: actions/cache/restore@v4.2.4
         with:
@@ -127,25 +124,11 @@ jobs:
     name: spelling tests
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: prepare-base
+    needs: [prepare-base]
     steps:
-      - name: Check out code from GitHub
-        uses: actions/checkout@v5.0.0
-      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
-        id: python
-        uses: actions/setup-python@v6.0.0
-        with:
-          python-version: ${{ env.DEFAULT_PYTHON }}
-          check-latest: true
-      - name: Restore Python virtual environment
-        id: cache-venv
-        uses: actions/cache/restore@v4.2.4
-        with:
-          path: venv
-          fail-on-cache-miss: true
-          key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.prepare-base.outputs.python-key }}
+      - *checkout
+      - *setup-python
+      - *cache-restore-python
       - name: Run spelling checks
         run: |
           . venv/bin/activate
@@ -156,25 +139,11 @@ jobs:
     name: documentation
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: prepare-base
+    needs: [prepare-base]
     steps:
-      - name: Check out code from GitHub
-        uses: actions/checkout@v5.0.0
-      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
-        id: python
-        uses: actions/setup-python@v6.0.0
-        with:
-          python-version: ${{ env.DEFAULT_PYTHON }}
-          check-latest: true
-      - name: Restore Python virtual environment
-        id: cache-venv
-        uses: actions/cache/restore@v4.2.4
-        with:
-          path: venv
-          fail-on-cache-miss: true
-          key:
-            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
-            needs.prepare-base.outputs.python-key }}
+      - *checkout
+      - *setup-python
+      - *cache-restore-python
       - name: Run checks on documentation code examples
         run: |
           . venv/bin/activate
