@@ -1520,12 +1520,11 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
     for decorator in decorators:
         # func.register are function calls or register attributes
         # when the function is annotated with types
-        if isinstance(decorator, nodes.Call):
-            func = decorator.func
-        elif isinstance(decorator, nodes.Attribute):
-            func = decorator
-        else:
-            continue
+        match decorator:
+            case nodes.Call(func=func) | (nodes.Attribute() as func):
+                pass
+            case _:
+                continue
 
         if not isinstance(func, nodes.Attribute) or func.attrname != "register":
             continue
@@ -1544,12 +1543,11 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
 def find_inferred_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | None:
     # func.register are function calls or register attributes
     # when the function is annotated with types
-    if isinstance(node, nodes.Call):
-        func = node.func
-    elif isinstance(node, nodes.Attribute):
-        func = node
-    else:
-        return None
+    match node:
+        case nodes.Call(func=func) | (nodes.Attribute() as func):
+            pass
+        case _:
+            return None
 
     if not isinstance(func, nodes.Attribute) or func.attrname != "register":
         return None

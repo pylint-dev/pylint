@@ -226,15 +226,15 @@ class PrivateImportChecker(BaseChecker):
             # possible illegal access elsewhere
             return False
         for assignment in assignments:
-            current_attribute = None
-            if isinstance(assignment.value, nodes.Call):
-                current_attribute = assignment.value.func
-            elif isinstance(assignment.value, nodes.Attribute):
-                current_attribute = assignment.value
-            elif isinstance(assignment.value, nodes.Name):
-                current_attribute = assignment.value.name
-            if not current_attribute:
-                continue
+            match assignment.value:
+                case (
+                    nodes.Call(func=current_attribute)
+                    | (nodes.Attribute() as current_attribute)
+                    | nodes.Name(name=current_attribute)
+                ):
+                    pass
+                case _:
+                    continue
             while isinstance(current_attribute, (nodes.Attribute, nodes.Call)):
                 if isinstance(current_attribute, nodes.Call):
                     current_attribute = current_attribute.func

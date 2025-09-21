@@ -1267,14 +1267,11 @@ accessed. Python regular expressions are accepted.",
             self.add_message("assignment-from-no-return", node=node)
         else:
             for ret_node in return_nodes:
-                if not (
-                    (
-                        isinstance(ret_node.value, nodes.Const)
-                        and ret_node.value.value is None
-                    )
-                    or ret_node.value is None
-                ):
-                    break
+                match ret_node.value:
+                    case nodes.Const(value=None) | None:
+                        pass
+                    case _:
+                        break
             else:
                 self.add_message("assignment-from-none", node=node)
 
