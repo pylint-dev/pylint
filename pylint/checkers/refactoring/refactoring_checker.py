@@ -2043,7 +2043,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 return any(
                     self._is_node_return_ended(_child) for _child in all_but_handler
                 ) and all(self._is_node_return_ended(_child) for _child in handlers)
-            case nodes.Assert(test=nodes.Const(value=False)):
+            case nodes.Assert(test=nodes.Const(value=False | 0)):
                 # consider assert False as a return node
                 return True
         # recurses on the children of the node
