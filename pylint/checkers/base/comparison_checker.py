@@ -157,7 +157,7 @@ class ComparisonChecker(_BasicChecker):
         def _is_numpy_nan(node: nodes.NodeNG) -> bool:
             match node:
                 case nodes.Attribute(attrname="NaN", expr=nodes.Name(name=name)):
-                    return name in {"numpy", "np"}
+                    return name in {"numpy", "nmp", "np"}
             return False
 
         def _is_nan(node: nodes.NodeNG) -> bool:
