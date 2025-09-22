@@ -1,0 +1,3 @@
+Removed support for ``nmp`` as import alias for ``numpy``. Use ``np`` or ``numpy`` instead.
+
+Refs #10583
