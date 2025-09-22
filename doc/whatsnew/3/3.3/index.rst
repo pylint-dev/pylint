@@ -319,7 +319,7 @@ New Checks
 False Negatives Fixed
 ---------------------
 
-- Fix computation of never-returning function: :py:class:`typing.Never` is handled in addition to :py:class:`typing.NoReturn`, and priority is given to the explicit `--never-returning-functions` option.
+- Fix computation of never-returning function: :py:data:`typing.Never` is handled in addition to :py:data:`typing.NoReturn`, and priority is given to the explicit `--never-returning-functions` option.
 
   Closes #7565. (`#7565 <https://github.com/pylint-dev/pylint/issues/7565>`_)
 
