@@ -41,9 +41,7 @@ def get_setters_property_name(node: nodes.FunctionDef) -> str | None:
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
         match decorator:
-            case nodes.Attribute(attrname=attrname, expr=nodes.Name(name=name)) if (
-                attrname == "setter"
-            ):
+            case nodes.Attribute(attrname="setter", expr=nodes.Name(name=name)):
                 return name  # type: ignore[no-any-return]
     return None
 

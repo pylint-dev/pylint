@@ -17,6 +17,7 @@ from re import Pattern
 from typing import TYPE_CHECKING
 
 import astroid
+import astroid.bases
 from astroid import nodes
 from astroid.typing import InferenceResult
 

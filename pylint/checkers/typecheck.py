@@ -1755,10 +1755,9 @@ accessed. Python regular expressions are accepted.",
         if index_type is None or isinstance(index_type, util.UninferableBase):
             return None
         match index_type:
-            case nodes.Const():
+            case nodes.Const(value=int()):
                 # Constants must be of type int
-                if isinstance(index_type.value, int):
-                    return None
+                return None
             case astroid.Instance():
                 # Instance values must be int, slice, or have an __index__ method
                 if index_type.pytype() in {"builtins.int", "builtins.slice"}:

@@ -14,6 +14,7 @@ from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias, cast
 
 import astroid
+import astroid.objects
 from astroid import bases, nodes
 from astroid.util import UninferableBase
 
@@ -1125,7 +1126,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             inside_comp = f"({inside_comp})"
             inside_comp += ", "
             inside_comp += ", ".join(kw.as_string() for kw in node.keywords)
-        call_name = node.func.name
         if call_name in {"any", "all"}:
             self.add_message(
                 "use-a-generator",
@@ -2043,7 +2043,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 return any(
                     self._is_node_return_ended(_child) for _child in all_but_handler
                 ) and all(self._is_node_return_ended(_child) for _child in handlers)
-            case nodes.Assert(test=nodes.Const(value=value)) if not value:
+            case nodes.Assert(test=nodes.Const(value=False | 0)):
                 # consider assert False as a return node
                 return True
         # recurses on the children of the node

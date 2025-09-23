@@ -717,7 +717,7 @@ class BasicChecker(_BasicChecker):
         match node.test:
             case nodes.Tuple(elts=elts) if len(elts) > 0:
                 self.add_message("assert-on-tuple", node=node, confidence=HIGH)
-            case nodes.Const(value=str(val)):
+            case nodes.Const(value=str() as val):
                 when = "never" if val else "always"
                 self.add_message("assert-on-string-literal", node=node, args=(when,))
 
