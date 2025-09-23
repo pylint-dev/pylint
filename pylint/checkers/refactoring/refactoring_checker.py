@@ -1061,7 +1061,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not node.exc:
             return
         exc = utils.safe_infer(node.exc)
-        if not exc or not isinstance(exc, (bases.Instance, nodes.ClassDef)):
+        if not isinstance(exc, (bases.Instance, nodes.ClassDef)):
             return
         if self._check_exception_inherit_from_stopiteration(exc):
             self.add_message("stop-iteration-return", node=node, confidence=INFERENCE)
@@ -1712,7 +1712,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_use_dict_literal(self, node: nodes.Call) -> None:
         """Check if dict is created by using the literal {}."""
-        if not isinstance(node.func, astroid.Name) or node.func.name != "dict":
+        if not (isinstance(node.func, astroid.Name) and node.func.name == "dict"):
             return
         inferred = utils.safe_infer(node.func)
         if (
@@ -1753,7 +1753,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         values = [
             value for value in node.values if isinstance(value, nodes.FormattedValue)
         ]
-        if len(values) != 1 or not isinstance(values[0].value, nodes.Name):
+        if not (len(values) == 1 and isinstance(values[0].value, nodes.Name)):
             return None
         # If there are more values in joined string than formatted values,
         # they are probably separators.
@@ -1772,7 +1772,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             result += number  # aug_assign
         """
         for_loop = aug_assign.parent
-        if not isinstance(for_loop, nodes.For) or len(for_loop.body) > 1:
+        if not (isinstance(for_loop, nodes.For) and len(for_loop.body) == 1):
             return
         assign = for_loop.previous_sibling()
         if not isinstance(assign, nodes.Assign):
@@ -1810,11 +1810,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_unnecessary_list_index_lookup(node)
 
     def _check_unnecessary_comprehension(self, node: nodes.Comprehension) -> None:
-        if (
-            isinstance(node.parent, nodes.GeneratorExp)
-            or len(node.ifs) != 0
-            or len(node.parent.generators) != 1
-            or node.is_async
+        if isinstance(node.parent, nodes.GeneratorExp) or not (
+            len(node.ifs) == 0
+            and len(node.parent.generators) == 1
+            and node.is_async is False
         ):
             return
 

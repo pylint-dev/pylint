@@ -1526,7 +1526,7 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
             case _:
                 continue
 
-        if not isinstance(func, nodes.Attribute) or func.attrname != "register":
+        if not (isinstance(func, nodes.Attribute) and func.attrname == "register"):
             continue
 
         try:
@@ -1549,7 +1549,7 @@ def find_inferred_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | No
         case _:
             return None
 
-    if not isinstance(func, nodes.Attribute) or func.attrname != "register":
+    if not (isinstance(func, nodes.Attribute) and func.attrname == "register"):
         return None
 
     func_def = safe_infer(func.expr)
@@ -2168,10 +2168,9 @@ def is_terminating_func(node: nodes.Call) -> bool:
     """Detect call to exit(), quit(), os._exit(), sys.exit(), or
     functions annotated with `typing.NoReturn` or `typing.Never`.
     """
-    if (
-        not isinstance(node.func, nodes.Attribute)
-        and not (isinstance(node.func, nodes.Name))
-    ) or isinstance(node.parent, nodes.Lambda):
+    if not isinstance(node.func, (nodes.Attribute, nodes.Name)) or isinstance(
+        node.parent, nodes.Lambda
+    ):
         return False
 
     try:

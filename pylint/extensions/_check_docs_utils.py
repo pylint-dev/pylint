@@ -81,11 +81,9 @@ def returns_something(return_node: nodes.Return) -> bool:
         False otherwise.
     """
     returns = return_node.value
-
-    if returns is None:
-        return False
-
-    return not (isinstance(returns, nodes.Const) and returns.value is None)
+    return not (
+        returns is None or (isinstance(returns, nodes.Const) and returns.value is None)
+    )
 
 
 def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | UninferableBase | None:

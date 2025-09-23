@@ -2216,7 +2216,7 @@ a metaclass class method.",
         parents_with_called_inits: set[bases.UnboundMethod] = set()
         for stmt in node.nodes_of_class(nodes.Call):
             expr = stmt.func
-            if not isinstance(expr, nodes.Attribute) or expr.attrname != "__init__":
+            if not (isinstance(expr, nodes.Attribute) and expr.attrname == "__init__"):
                 continue
             # skip the test if using super
             match expr.expr:

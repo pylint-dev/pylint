@@ -1687,7 +1687,7 @@ class VariablesChecker(BaseChecker):
 
     @utils.only_required_for_messages("redefined-outer-name")
     def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
-        if not node.name or not isinstance(node.name, nodes.AssignName):
+        if not isinstance(node.name, nodes.AssignName):
             return
 
         for outer_except, outer_except_assign_name in self._except_handler_names_queue:
@@ -2481,7 +2481,7 @@ class VariablesChecker(BaseChecker):
         defstmt: _base_nodes.Statement,
     ) -> bool:
         """Check if variable only gets assigned a type and never a value."""
-        if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
+        if not (isinstance(defstmt, nodes.AnnAssign) and defstmt.value is None):
             return False
 
         defstmt_frame = defstmt.frame()
@@ -3472,8 +3472,9 @@ class VariablesChecker(BaseChecker):
     ) -> None:
         """Check for the potential-index-error message."""
         # Currently we only check simple slices of a single integer
-        if not isinstance(inferred_slice, nodes.Const) or not isinstance(
-            inferred_slice.value, int
+        if not (
+            isinstance(inferred_slice, nodes.Const)
+            and isinstance(inferred_slice.value, int)
         ):
             return
 
