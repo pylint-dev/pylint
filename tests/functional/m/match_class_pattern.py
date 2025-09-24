@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring,unused-variable,too-few-public-methods
+# pylint: disable=match-class-positional-attributes
 
 # -- Check __match_args__ definitions --
 class A:
@@ -25,6 +26,8 @@ def f1(x):
         case A(1, 2): ...  # [too-many-positional-sub-patterns]
         case B(1, 2): ...
         case B(1, 2, 3): ...  # [too-many-positional-sub-patterns]
+        case int(1): ...
+        case int(1, 2): ...  # [too-many-positional-sub-patterns]
 
 def f2(x):
     """Check multiple sub-patterns for attribute"""
@@ -38,3 +41,26 @@ def f2(x):
 
         # If class name is undefined, we can't get __match_args__
         case NotDefined(1, x=1): ...  # [undefined-variable]
+
+def f3(x):
+    """Check class pattern with name binding to self."""
+    match x:
+        case int(y): ... # [match-class-bind-self]
+        case int() as y: ...
+        case int(2 as y): ...
+        case str(y): ...   # [match-class-bind-self]
+        case str() as y: ...
+        case str("Hello" as y): ...
+        case tuple(y): ...  # [match-class-bind-self]
+        case tuple() as y: ...
+
+def f4(x):
+    """Check for positional attributes if keywords could be used."""
+    # pylint: enable=match-class-positional-attributes
+    match x:
+        case int(2): ...
+        case bool(True): ...
+        case A(1): ...  # [match-class-positional-attributes]
+        case A(x=1): ...
+        case B(1, 2): ...  # [match-class-positional-attributes]
+        case B(x=1, y=2): ...

@@ -518,6 +518,8 @@ All messages in the refactor category:
    refactor/inconsistent-return-statements
    refactor/literal-comparison
    refactor/magic-value-comparison
+   refactor/match-class-bind-self
+   refactor/match-class-positional-attributes
    refactor/no-classmethod-decorator
    refactor/no-else-break
    refactor/no-else-continue

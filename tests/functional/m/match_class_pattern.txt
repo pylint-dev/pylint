@@ -1,7 +1,13 @@
-invalid-match-args-definition:11:21:11:31:C:`__match_args__` must be a tuple of strings.:HIGH
-invalid-match-args-definition:14:21:14:29:D:`__match_args__` must be a tuple of strings.:HIGH
-too-many-positional-sub-patterns:25:13:25:20:f1:A expects 1 positional sub-patterns (given 2):INFERENCE
-too-many-positional-sub-patterns:27:13:27:23:f1:B expects 2 positional sub-patterns (given 3):INFERENCE
-multiple-class-sub-patterns:32:13:32:22:f2:Multiple sub-patterns for attribute x:INFERENCE
-multiple-class-sub-patterns:34:13:34:29:f2:Multiple sub-patterns for attribute x:INFERENCE
-undefined-variable:40:13:40:23:f2:Undefined variable 'NotDefined':UNDEFINED
+invalid-match-args-definition:12:21:12:31:C:`__match_args__` must be a tuple of strings.:HIGH
+invalid-match-args-definition:15:21:15:29:D:`__match_args__` must be a tuple of strings.:HIGH
+too-many-positional-sub-patterns:26:13:26:20:f1:A expects 1 positional sub-patterns (given 2):INFERENCE
+too-many-positional-sub-patterns:28:13:28:23:f1:B expects 2 positional sub-patterns (given 3):INFERENCE
+too-many-positional-sub-patterns:30:13:30:22:f1:int expects 1 positional sub-patterns (given 2):INFERENCE
+multiple-class-sub-patterns:35:13:35:22:f2:Multiple sub-patterns for attribute x:INFERENCE
+multiple-class-sub-patterns:37:13:37:29:f2:Multiple sub-patterns for attribute x:INFERENCE
+undefined-variable:43:13:43:23:f2:Undefined variable 'NotDefined':UNDEFINED
+match-class-bind-self:48:17:48:18:f3:Use 'int() as y' instead:HIGH
+match-class-bind-self:51:17:51:18:f3:Use 'str() as y' instead:HIGH
+match-class-bind-self:54:19:54:20:f3:Use 'tuple() as y' instead:HIGH
+match-class-positional-attributes:63:13:63:17:f4:Use keyword attributes instead of positional ones:HIGH
+match-class-positional-attributes:65:13:65:20:f4:Use keyword attributes instead of positional ones:HIGH

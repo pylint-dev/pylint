@@ -19,6 +19,23 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
+# List of builtin classes which match self
+# https://docs.python.org/3/reference/compound_stmts.html#class-patterns
+MATCH_CLASS_SELF_NAMES = {
+    "builtins.bool",
+    "builtins.bytearray",
+    "builtins.bytes",
+    "builtins.dict",
+    "builtins.float",
+    "builtins.frozenset",
+    "builtins.int",
+    "builtins.list",
+    "builtins.set",
+    "builtins.str",
+    "builtins.tuple",
+}
+
+
 class MatchStatementChecker(BaseChecker):
     name = "match_statements"
     msgs = {
@@ -45,6 +62,19 @@ class MatchStatementChecker(BaseChecker):
             "multiple-class-sub-patterns",
             "Emitted when there is more than one sub-pattern for a specific "
             "attribute in a class pattern.",
+        ),
+        "R1905": (
+            "Use '%s' instead",
+            "match-class-bind-self",
+            "Match class patterns are faster if the name binding happens "
+            "for the whole pattern and any lookup for `__match_args__` "
+            "can be avoided.",
+        ),
+        "R1906": (
+            "Use keyword attributes instead of positional ones",
+            "match-class-positional-attributes",
+            "Keyword attributes are more explicit and slightly faster "
+            "since CPython can skip the `__match_args__` lookup.",
         ),
     }
 
@@ -86,6 +116,26 @@ class MatchStatementChecker(BaseChecker):
                         confidence=HIGH,
                     )
 
+    @only_required_for_messages("match-class-bind-self")
+    def visit_matchas(self, node: nodes.MatchAs) -> None:
+        match node:
+            case nodes.MatchAs(
+                parent=nodes.MatchClass(cls=nodes.Name() as cls_name),
+                name=nodes.AssignName(name=name),
+                pattern=None,
+            ):
+                inferred = safe_infer(cls_name)
+                if (
+                    isinstance(inferred, nodes.ClassDef)
+                    and inferred.qname() in MATCH_CLASS_SELF_NAMES
+                ):
+                    self.add_message(
+                        "match-class-bind-self",
+                        node=node,
+                        args=(f"{cls_name.name}() as {name}",),
+                        confidence=HIGH,
+                    )
+
     @staticmethod
     def get_match_args_for_class(node: nodes.NodeNG) -> list[str] | None:
         """Infer __match_args__ from class name."""
@@ -95,6 +145,8 @@ class MatchStatementChecker(BaseChecker):
         try:
             match_args = inferred.getattr("__match_args__")
         except astroid.exceptions.NotFoundError:
+            if inferred.qname() in MATCH_CLASS_SELF_NAMES:
+                return ["<self>"]
             return None
 
         match match_args:
@@ -124,12 +176,26 @@ class MatchStatementChecker(BaseChecker):
             attrs.add(name)
 
     @only_required_for_messages(
+        "match-class-positional-attributes",
         "multiple-class-sub-patterns",
         "too-many-positional-sub-patterns",
     )
     def visit_matchclass(self, node: nodes.MatchClass) -> None:
         attrs: set[str] = set()
         dups: set[str] = set()
+
+        if node.patterns:
+            if isinstance(node, nodes.MatchClass) and isinstance(node.cls, nodes.Name):
+                inferred = safe_infer(node.cls)
+                if not (
+                    isinstance(inferred, nodes.ClassDef)
+                    and inferred.qname() in MATCH_CLASS_SELF_NAMES
+                ):
+                    self.add_message(
+                        "match-class-positional-attributes",
+                        node=node,
+                        confidence=HIGH,
+                    )
 
         if (
             node.patterns
