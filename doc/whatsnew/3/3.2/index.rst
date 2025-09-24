@@ -148,7 +148,7 @@ Release date: 2024-06-06
 False Positives Fixed
 ---------------------
 
-- Classes with only an Ellipsis (``...``) in their body do not trigger 'multiple-statements'
+- Classes with only an Ellipsis (``...``) in their body do not trigger ':ref:`multiple-statements`'
   anymore if they are inlined (in accordance with black's 2024 style).
 
   Closes #9398 (`#9398 <https://github.com/pylint-dev/pylint/issues/9398>`_)
