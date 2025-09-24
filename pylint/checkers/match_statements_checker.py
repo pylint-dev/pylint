@@ -20,21 +20,19 @@ if TYPE_CHECKING:
 
 
 # List of builtin classes which match self
-# Exclude `dict`, `list` and `tuple` as those could also
-# be matched by the mapping or sequence patterns.
 # https://docs.python.org/3/reference/compound_stmts.html#class-patterns
 MATCH_CLASS_SELF_NAMES = {
     "builtins.bool",
     "builtins.bytearray",
     "builtins.bytes",
-    # "builtins.dict",
+    "builtins.dict",
     "builtins.float",
     "builtins.frozenset",
     "builtins.int",
-    # "builtins.list",
+    "builtins.list",
     "builtins.set",
     "builtins.str",
-    # "builtins.tuple",
+    "builtins.tuple",
 }
 
 
@@ -191,7 +189,10 @@ class MatchStatementChecker(BaseChecker):
                 inferred = safe_infer(node.cls)
                 if not (
                     isinstance(inferred, nodes.ClassDef)
-                    and inferred.qname() in MATCH_CLASS_SELF_NAMES
+                    and (
+                        inferred.qname() in MATCH_CLASS_SELF_NAMES
+                        or "tuple" in inferred.basenames
+                    )
                 ):
                     self.add_message(
                         "match-class-positional-attributes",
