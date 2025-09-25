@@ -703,7 +703,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         # it means the import comes after it and therefore is not well placed
         if self._first_non_import_node:
             if self.linter.is_message_enabled(
-                "wrong-import-position", self._first_non_import_node.fromlineno
+                "wrong-import-position", node.fromlineno
             ):
                 self.add_message(
                     "wrong-import-position", node=node, args=node.as_string()
