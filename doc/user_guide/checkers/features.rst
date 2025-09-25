@@ -29,9 +29,6 @@ Async checker Messages
   Used when an async context manager is used with an object that does not
   implement the async context management protocol. This message can't be
   emitted when using Python < 3.5.
-:async-context-manager-with-regular-with (E1145): *Context manager '%s' is async and should be used with 'async with'.*
-  Used when an async context manager is used with a regular 'with' statement
-  instead of 'async with'.
 
 
 Bad-Chained-Comparison checker
@@ -1287,6 +1284,9 @@ Typecheck checker Messages
 :invalid-slice-step (E1144): *Slice step cannot be 0*
   Used when a slice step is 0 and the object doesn't implement a custom
   __getitem__ method.
+:async-context-manager-with-regular-with (E1145): *Context manager '%s' is async and should be used with 'async with'.*
+  Used when an async context manager is used with a regular 'with' statement
+  instead of 'async with'.
 :keyword-arg-before-vararg (W1113): *Keyword argument before variable positional arguments list in the definition of %s function*
   When defining a keyword argument before variable positional arguments, one
   can end up in having multiple values passed for the aforementioned parameter
