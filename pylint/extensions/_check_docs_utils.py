@@ -74,7 +74,7 @@ def returns_something(return_node: nodes.Return) -> bool:
     """Check if a return node returns a value other than None.
 
     :param return_node: The return node to check.
-    :type return_node: astroid.Return
+    :type return_node: nodes.Return
 
     :rtype: bool
     :return: True if the return node returns a value other than None,

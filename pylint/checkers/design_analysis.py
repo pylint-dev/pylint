@@ -11,7 +11,6 @@ from collections import defaultdict
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
-import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
@@ -182,7 +181,7 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
 )
 
 
-def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
+def _is_exempt_from_public_methods(node: nodes.ClassDef) -> bool:
     """Check if a class is exempt from too-few-public-methods."""
     # If it's a typing.Namedtuple, typing.TypedDict or an Enum
     for ancestor in node.ancestors():
@@ -201,10 +200,10 @@ def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
 
     root_locals = set(node.root().locals)
     for decorator in node.decorators.nodes:
-        if isinstance(decorator, astroid.Call):
+        if isinstance(decorator, nodes.Call):
             decorator = decorator.func
         match decorator:
-            case astroid.Name(name=name) | astroid.Attribute(attrname=name):
+            case nodes.Name(name=name) | nodes.Attribute(attrname=name):
                 pass
             case _:
                 continue
@@ -227,7 +226,7 @@ def _count_boolean_expressions(bool_op: nodes.BoolOp) -> int:
     """
     nb_bool_expr = 0
     for bool_expr in bool_op.get_children():
-        if isinstance(bool_expr, astroid.BoolOp):
+        if isinstance(bool_expr, nodes.BoolOp):
             nb_bool_expr += _count_boolean_expressions(bool_expr)
         else:
             nb_bool_expr += 1
@@ -662,7 +661,7 @@ class MisdesignChecker(BaseChecker):
         branches = 1
         # don't double count If nodes coming from some 'elif'
         if node.orelse and (
-            len(node.orelse) > 1 or not isinstance(node.orelse[0], astroid.If)
+            len(node.orelse) > 1 or not isinstance(node.orelse[0], nodes.If)
         ):
             branches += 1
         self._inc_branch(node, branches)
@@ -673,7 +672,7 @@ class MisdesignChecker(BaseChecker):
         if the 'if' node test is a BoolOp node.
         """
         condition = node.test
-        if not isinstance(condition, astroid.BoolOp):
+        if not isinstance(condition, nodes.BoolOp):
             return
         nb_bool_expr = _count_boolean_expressions(condition)
         if nb_bool_expr > self.linter.config.max_bool_expr:

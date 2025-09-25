@@ -392,10 +392,7 @@ class RecommendationChecker(checkers.BaseChecker):
                     # If star expressions with more than 1 element are being used
                     if isinstance(arg, nodes.Starred):
                         inferred = utils.safe_infer(arg.value)
-                        if (
-                            isinstance(inferred, astroid.List)
-                            and len(inferred.elts) > 1
-                        ):
+                        if isinstance(inferred, nodes.List) and len(inferred.elts) > 1:
                             return
                     # Backslashes can't be in f-string expressions
                     if "\\" in arg.as_string():

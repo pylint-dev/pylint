@@ -379,7 +379,7 @@ class SpecialMethodsChecker(BaseChecker):
             return
 
         if not isinstance(inferred, nodes.Tuple):
-            # If it's not an astroid.Tuple we can't analyze it further
+            # If it's not an nodes.Tuple we can't analyze it further
             return
 
         found_error = False

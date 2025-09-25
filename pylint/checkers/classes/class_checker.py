@@ -1517,7 +1517,7 @@ a metaclass class method.",
             return False
         import_node = import_nodes[0]
 
-        if not isinstance(import_node, (astroid.Import, astroid.ImportFrom)):
+        if not isinstance(import_node, (nodes.Import, nodes.ImportFrom)):
             return False
 
         return "functools" in dict(import_node.names)

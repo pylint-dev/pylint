@@ -24,7 +24,7 @@ ACCEPTABLE_NODES = (
     astroid.UnboundMethod,
     nodes.FunctionDef,
     nodes.ClassDef,
-    astroid.Attribute,
+    nodes.Attribute,
 )
 
 
@@ -89,8 +89,8 @@ class DeprecatedMixin(BaseChecker):
     }
 
     @utils.only_required_for_messages("deprecated-attribute")
-    def visit_attribute(self, node: astroid.Attribute) -> None:
-        """Called when an `astroid.Attribute` node is visited."""
+    def visit_attribute(self, node: nodes.Attribute) -> None:
+        """Called when an `Attribute` node is visited."""
         self.check_deprecated_attribute(node)
 
     @utils.only_required_for_messages(
@@ -111,7 +111,7 @@ class DeprecatedMixin(BaseChecker):
                 and inferred.qname() == "builtins.__import__"
                 and len(node.args) == 1
                 and (mod_path_node := utils.safe_infer(node.args[0]))
-                and isinstance(mod_path_node, astroid.Const)
+                and isinstance(mod_path_node, nodes.Const)
             ):
                 self.check_deprecated_module(node, mod_path_node.value)
 
@@ -219,7 +219,7 @@ class DeprecatedMixin(BaseChecker):
         """Callback returning the deprecated attributes."""
         return ()
 
-    def check_deprecated_attribute(self, node: astroid.Attribute) -> None:
+    def check_deprecated_attribute(self, node: nodes.Attribute) -> None:
         """Checks if the attribute is deprecated."""
         inferred_expr = safe_infer(node.expr)
         if not isinstance(inferred_expr, (nodes.ClassDef, Instance, nodes.Module)):

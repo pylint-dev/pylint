@@ -650,9 +650,9 @@ class NameChecker(_BasicChecker):
     @staticmethod
     def _assigns_typevar(node: nodes.NodeNG | None) -> str | None:
         """Check if a node is assigning a TypeVar and return TypeVar type."""
-        if isinstance(node, astroid.Call):
+        if isinstance(node, nodes.Call):
             inferred = utils.safe_infer(node.func)
-            if isinstance(inferred, astroid.ClassDef):
+            if isinstance(inferred, nodes.ClassDef):
                 qname = inferred.qname()
                 for typevar_node_typ, qnames in TYPE_VAR_QNAMES.items():
                     if qname in qnames:

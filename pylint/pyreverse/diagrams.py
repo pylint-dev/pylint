@@ -275,7 +275,7 @@ class ClassDiagram(Figure, FilterMixIn):
                     )
 
     def assign_association_relationship(
-        self, value: astroid.NodeNG, obj: ClassEntity, name: str, type_relationship: str
+        self, value: nodes.NodeNG, obj: ClassEntity, name: str, type_relationship: str
     ) -> None:
         if isinstance(value, util.UninferableBase):
             return
