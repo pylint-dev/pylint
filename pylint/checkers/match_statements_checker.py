@@ -120,7 +120,7 @@ class MatchStatementChecker(BaseChecker):
     def visit_matchas(self, node: nodes.MatchAs) -> None:
         match node:
             case nodes.MatchAs(
-                parent=nodes.MatchClass(cls=nodes.Name() as cls_name),
+                parent=nodes.MatchClass(cls=nodes.Name() as cls_name, patterns=[_]),
                 name=nodes.AssignName(name=name),
                 pattern=None,
             ):
