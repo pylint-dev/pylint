@@ -64,7 +64,7 @@ class MatchStatementChecker(BaseChecker):
             "attribute in a class pattern.",
         ),
         "R1905": (
-            "Use '%s' instead",
+            "Use '%s() as %s' instead",
             "match-class-bind-self",
             "Match class patterns are faster if the name binding happens "
             "for the whole pattern and any lookup for `__match_args__` "
@@ -132,7 +132,7 @@ class MatchStatementChecker(BaseChecker):
                     self.add_message(
                         "match-class-bind-self",
                         node=node,
-                        args=(f"{cls_name.name}() as {name}",),
+                        args=(cls_name.name, name),
                         confidence=HIGH,
                     )
 
@@ -197,7 +197,7 @@ class MatchStatementChecker(BaseChecker):
                     self.add_message(
                         "match-class-positional-attributes",
                         node=node,
-                        confidence=HIGH,
+                        confidence=INFERENCE,
                     )
 
         if (

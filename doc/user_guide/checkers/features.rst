@@ -694,7 +694,7 @@ Match Statements checker Messages
 :multiple-class-sub-patterns (E1904): *Multiple sub-patterns for attribute %s*
   Emitted when there is more than one sub-pattern for a specific attribute in
   a class pattern.
-:match-class-bind-self (R1905): *Use '%s' instead*
+:match-class-bind-self (R1905): *Use '%s() as %s' instead*
   Match class patterns are faster if the name binding happens for the whole
   pattern and any lookup for `__match_args__` can be avoided.
 :match-class-positional-attributes (R1906): *Use keyword attributes instead of positional ones*
