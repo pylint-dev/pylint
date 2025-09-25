@@ -702,9 +702,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         # if a first non-import instruction has already been encountered,
         # it means the import comes after it and therefore is not well placed
         if self._first_non_import_node:
-            if self.linter.is_message_enabled(
-                "wrong-import-position", node.fromlineno
-            ):
+            if self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
                 self.add_message(
                     "wrong-import-position", node=node, args=node.as_string()
                 )
