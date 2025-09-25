@@ -1,3 +1,3 @@
 Add new check ``async-context-manager-with-regular-with`` to detect async context managers used with regular ``with`` statements instead of ``async with``.
 
-Refs #10999
+Refs #10408
