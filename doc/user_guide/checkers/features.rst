@@ -697,7 +697,7 @@ Match Statements checker Messages
 :match-class-bind-self (R1905): *Use '%s() as %s' instead*
   Match class patterns are faster if the name binding happens for the whole
   pattern and any lookup for `__match_args__` can be avoided.
-:match-class-positional-attributes (R1906): *Use keyword attributes instead of positional ones*
+:match-class-positional-attributes (R1906): *Use keyword attributes instead of positional ones (%s)*
   Keyword attributes are more explicit and slightly faster since CPython can
   skip the `__match_args__` lookup.
 

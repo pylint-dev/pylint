@@ -71,7 +71,7 @@ class MatchStatementChecker(BaseChecker):
             "can be avoided.",
         ),
         "R1906": (
-            "Use keyword attributes instead of positional ones",
+            "Use keyword attributes instead of positional ones (%s)",
             "match-class-positional-attributes",
             "Keyword attributes are more explicit and slightly faster "
             "since CPython can skip the `__match_args__` lookup.",
@@ -184,22 +184,6 @@ class MatchStatementChecker(BaseChecker):
         attrs: set[str] = set()
         dups: set[str] = set()
 
-        if node.patterns:
-            if isinstance(node, nodes.MatchClass) and isinstance(node.cls, nodes.Name):
-                inferred = safe_infer(node.cls)
-                if not (
-                    isinstance(inferred, nodes.ClassDef)
-                    and (
-                        inferred.qname() in MATCH_CLASS_SELF_NAMES
-                        or "tuple" in inferred.basenames
-                    )
-                ):
-                    self.add_message(
-                        "match-class-positional-attributes",
-                        node=node,
-                        confidence=INFERENCE,
-                    )
-
         if (
             node.patterns
             and (match_args := self.get_match_args_for_class(node.cls)) is not None
@@ -212,6 +196,22 @@ class MatchStatementChecker(BaseChecker):
                     confidence=INFERENCE,
                 )
                 return
+
+            inferred = safe_infer(node.cls)
+            if not (
+                isinstance(inferred, nodes.ClassDef)
+                and (
+                    inferred.qname() in MATCH_CLASS_SELF_NAMES
+                    or "tuple" in inferred.basenames
+                )
+            ):
+                attributes = [f"'{attr}'" for attr in match_args[: len(node.patterns)]]
+                self.add_message(
+                    "match-class-positional-attributes",
+                    node=node,
+                    args=(", ".join(attributes),),
+                    confidence=INFERENCE,
+                )
 
             for i in range(len(node.patterns)):
                 name = match_args[i]
