@@ -1,5 +1,5 @@
-wrong-import-position:19:0:19:9::"Import ""import os"" should be placed at the top of the module":UNDEFINED
-wrong-import-position:20:0:20:14::"Import ""import pathlib"" should be placed at the top of the module":UNDEFINED
-wrong-import-position:21:0:21:13::"Import ""import random"" should be placed at the top of the module":UNDEFINED
-wrong-import-position:29:0:29:10::"Import ""import csv"" should be placed at the top of the module":UNDEFINED
-wrong-import-position:30:0:30:9::"Import ""import re"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:12:0:12:9::"Import ""import os"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:13:0:13:14::"Import ""import pathlib"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:14:0:14:13::"Import ""import random"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:22:0:22:10::"Import ""import csv"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:23:0:23:9::"Import ""import re"" should be placed at the top of the module":UNDEFINED

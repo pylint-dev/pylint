@@ -1,0 +1,3 @@
+Scope ``wrong-import-position`` pragma to specific line only.
+
+Closes #10589
