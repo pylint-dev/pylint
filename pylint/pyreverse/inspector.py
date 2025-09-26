@@ -96,17 +96,17 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     added to visited nodes:
 
     * uid,
-      a unique identifier for the node (on astroid.Project, astroid.Module,
-      astroid.Class and astroid.locals_type). Only if the linker
+      a unique identifier for the node (on astroid.Project, nodes.Module,
+      nodes.Class and astroid.locals_type). Only if the linker
       has been instantiated with tag=True parameter (False by default).
 
     * Function
       a mapping from locals names to their bounded value, which may be a
       constant like a string or an integer, or an astroid node
-      (on astroid.Module, astroid.Class and astroid.Function).
+      (on nodes.Module, nodes.Class and nodes.Function).
 
     * instance_attrs_type
-      as locals_type but for klass member attributes (only on astroid.Class)
+      as locals_type but for klass member attributes (only on nodes.Class)
 
     * associations_type
       as instance_attrs_type but for association relationships
@@ -145,7 +145,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             self.visit(module)
 
     def visit_module(self, node: nodes.Module) -> None:
-        """Visit an astroid.Module node.
+        """Visit an nodes.Module node.
 
         * set the locals_type mapping
         * set the depends mapping
@@ -160,7 +160,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             node.uid = self.generate_id()
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        """Visit an astroid.Class node.
+        """Visit an nodes.Class node.
 
         * set the locals_type and instance_attrs_type mappings
         * optionally tag the node with a unique id
@@ -195,7 +195,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                     self.compositions_handler.handle(local_node, node)
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        """Visit an astroid.Function node.
+        """Visit an nodes.Function node.
 
         * set the locals_type mapping
         * optionally tag the node with a unique id
@@ -207,7 +207,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             node.uid = self.generate_id()
 
     def visit_assignname(self, node: nodes.AssignName) -> None:
-        """Visit an astroid.AssignName node.
+        """Visit an nodes.AssignName node.
 
         handle locals_type
         """
@@ -248,7 +248,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         )
 
     def visit_import(self, node: nodes.Import) -> None:
-        """Visit an astroid.Import node.
+        """Visit an nodes.Import node.
 
         resolve module dependencies
         """
@@ -258,7 +258,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             self._imported_module(node, name[0], relative)
 
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        """Visit an astroid.ImportFrom node.
+        """Visit an nodes.ImportFrom node.
 
         resolve module dependencies
         """

@@ -27,10 +27,10 @@ def _get_break_loop_node(break_node: nodes.Break) -> nodes.For | nodes.While | N
     """Returns the loop node that holds the break node in arguments.
 
     Args:
-        break_node (astroid.Break): the break node of interest.
+        break_node (nodes.Break): the break node of interest.
 
     Returns:
-        astroid.For or astroid.While: the loop node holding the break node.
+        nodes.For or nodes.While: the loop node holding the break node.
     """
     loop_nodes = (nodes.For, nodes.While)
     parent = break_node.parent
@@ -48,7 +48,7 @@ def _loop_exits_early(loop: nodes.For | nodes.While) -> bool:
     """Returns true if a loop may end with a break statement.
 
     Args:
-        loop (astroid.For, astroid.While): the loop node inspected.
+        loop (nodes.For, nodes.While): the loop node inspected.
 
     Returns:
         bool: True if the loop may end with a break statement, False otherwise.

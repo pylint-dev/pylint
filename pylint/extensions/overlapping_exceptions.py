@@ -42,7 +42,7 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
         for handler in node.handlers:
             if handler.type is None:
                 continue
-            if isinstance(handler.type, astroid.BoolOp):
+            if isinstance(handler.type, nodes.BoolOp):
                 continue
             try:
                 excs = list(_annotated_unpack_infer(handler.type))
@@ -56,18 +56,16 @@ class OverlappingExceptionsChecker(checkers.BaseChecker):
                 if isinstance(exc, astroid.Instance) and utils.inherit_from_std_ex(exc):
                     exc = exc._proxied
 
-                if not isinstance(exc, astroid.ClassDef):
+                if not isinstance(exc, nodes.ClassDef):
                     continue
 
                 exc_ancestors = [
-                    a for a in exc.ancestors() if isinstance(a, astroid.ClassDef)
+                    a for a in exc.ancestors() if isinstance(a, nodes.ClassDef)
                 ]
 
                 for prev_part, prev_exc in handled_in_clause:
                     prev_exc_ancestors = [
-                        a
-                        for a in prev_exc.ancestors()
-                        if isinstance(a, astroid.ClassDef)
+                        a for a in prev_exc.ancestors() if isinstance(a, nodes.ClassDef)
                     ]
                     if exc == prev_exc:
                         self.add_message(

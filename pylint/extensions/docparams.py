@@ -9,7 +9,6 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
-import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
@@ -257,7 +256,7 @@ class DocstringParameterChecker(BaseChecker):
         if (not node_doc.supports_yields and node.is_generator()) or node.is_abstract():
             return
 
-        return_nodes = node.nodes_of_class(astroid.Return)
+        return_nodes = node.nodes_of_class(nodes.Return)
         if (node_doc.has_returns() or node_doc.has_rtype()) and not any(
             utils.returns_something(ret_node) for ret_node in return_nodes
         ):
@@ -276,7 +275,7 @@ class DocstringParameterChecker(BaseChecker):
 
     def visit_raise(self, node: nodes.Raise) -> None:
         func_node = node.frame()
-        if not isinstance(func_node, astroid.FunctionDef):
+        if not isinstance(func_node, nodes.FunctionDef):
             return
 
         # skip functions smaller than 'docstring-min-length'
@@ -340,7 +339,7 @@ class DocstringParameterChecker(BaseChecker):
         if self.linter.config.accept_no_return_doc:
             return
 
-        func_node: astroid.FunctionDef = node.frame()
+        func_node: nodes.FunctionDef = node.frame()
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -370,7 +369,7 @@ class DocstringParameterChecker(BaseChecker):
         if self._is_shorter_than_min_length(node):
             return
 
-        func_node: astroid.FunctionDef = node.frame()
+        func_node: nodes.FunctionDef = node.frame()
 
         # skip functions that match the 'no-docstring-rgx' config option
         no_docstring_rgx = self.linter.config.no_docstring_rgx
@@ -509,8 +508,8 @@ class DocstringParameterChecker(BaseChecker):
     def check_arguments_in_docstring(
         self,
         doc: Docstring,
-        arguments_node: astroid.Arguments,
-        warning_node: astroid.NodeNG,
+        arguments_node: nodes.Arguments,
+        warning_node: nodes.NodeNG,
         accept_no_param_doc: bool | None = None,
     ) -> None:
         """Check that all parameters are consistent with the parameters mentioned

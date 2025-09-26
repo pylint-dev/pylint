@@ -1712,7 +1712,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
     def _check_use_dict_literal(self, node: nodes.Call) -> None:
         """Check if dict is created by using the literal {}."""
-        if not (isinstance(node.func, astroid.Name) and node.func.name == "dict"):
+        if not (isinstance(node.func, nodes.Name) and node.func.name == "dict"):
             return
         inferred = utils.safe_infer(node.func)
         if (

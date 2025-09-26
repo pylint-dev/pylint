@@ -437,7 +437,7 @@ def is_func_decorator(node: nodes.NodeNG) -> bool:
 
 
 def is_ancestor_name(frame: nodes.ClassDef, node: nodes.NodeNG) -> bool:
-    """Return whether `frame` is an astroid.Class node with `node` in the
+    """Return whether `frame` is an nodes.Class node with `node` in the
     subtree of its bases attribute.
     """
     if not isinstance(frame, nodes.ClassDef):
@@ -691,11 +691,11 @@ def node_frame_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
     return klass
 
 
-def get_outer_class(class_node: astroid.ClassDef) -> astroid.ClassDef | None:
+def get_outer_class(class_node: nodes.ClassDef) -> nodes.ClassDef | None:
     """Return the class that is the outer class of given (nested) class_node."""
     parent_klass = class_node.parent.frame()
 
-    return parent_klass if isinstance(parent_klass, astroid.ClassDef) else None
+    return parent_klass if isinstance(parent_klass, nodes.ClassDef) else None
 
 
 def is_attr_private(attrname: str) -> Match[str] | None:
@@ -913,7 +913,7 @@ def uninferable_final_decorators(
             continue
         import_node = import_nodes[0]
 
-        if not isinstance(import_node, (astroid.Import, astroid.ImportFrom)):
+        if not isinstance(import_node, (nodes.Import, nodes.ImportFrom)):
             continue
 
         import_names = dict(import_node.names)
