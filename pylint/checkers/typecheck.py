@@ -18,9 +18,12 @@ from re import Pattern
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 import astroid
+import astroid.context
 import astroid.exceptions
 import astroid.helpers
-from astroid import arguments, bases, nodes, util
+import astroid.interpreter
+import astroid.modutils
+from astroid import arguments, bases, nodes, objects, util
 from astroid.nodes import _base_nodes
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
@@ -476,7 +479,7 @@ def _emit_no_member(
         # at some point during the runtime of the program.
         if utils.is_attribute_typed_annotation(owner, node.attrname):
             return False
-    if isinstance(owner, astroid.objects.Super):
+    if isinstance(owner, objects.Super):
         # Verify if we are dealing with an invalid Super object.
         # If it is invalid, then there's no point in checking that
         # it has the required attribute. Also, don't fail if the
@@ -605,9 +608,9 @@ def _determine_callable(
     callable_obj: nodes.NodeNG,
 ) -> tuple[CallableObjects, int, str]:
     # TODO: The typing of the second return variable is actually Literal[0,1]
-    # We need typing on astroid.NodeNG.implicit_parameters for this
+    # We need typing on nodes.NodeNG.implicit_parameters for this
     # TODO: The typing of the third return variable can be narrowed to a Literal
-    # We need typing on astroid.NodeNG.type for this
+    # We need typing on nodes.NodeNG.type for this
 
     # Ordering is important, since BoundMethod is a subclass of UnboundMethod,
     # and Function inherits Lambda.
@@ -1478,7 +1481,7 @@ accessed. Python regular expressions are accepted.",
 
         # Build the set of keyword arguments, checking for duplicate keywords,
         # and count the positional arguments.
-        call_site = astroid.arguments.CallSite.from_call(node)
+        call_site = arguments.CallSite.from_call(node)
 
         # Warn about duplicated keyword arguments, such as `f=24, **{'f': 24}`
         for keyword in call_site.duplicated_keywords:
@@ -1853,7 +1856,7 @@ accessed. Python regular expressions are accepted.",
                 nodes.List,
                 nodes.Dict,
                 nodes.Tuple,
-                astroid.objects.FrozenSet,
+                objects.FrozenSet,
                 nodes.Set,
             )
             if not (
@@ -1883,7 +1886,7 @@ accessed. Python regular expressions are accepted.",
             match inferred := safe_infer(ctx_mgr, context=context):
                 case _ if not inferred:
                     continue
-                case astroid.bases.Generator():
+                case bases.Generator():
                     # Check if we are dealing with a function decorated
                     # with contextlib.contextmanager.
                     if decorated_with(
@@ -1891,7 +1894,7 @@ accessed. Python regular expressions are accepted.",
                     ):
                         continue
                     # Check if it's an AsyncGenerator decorated with asynccontextmanager
-                    if isinstance(inferred, astroid.bases.AsyncGenerator):
+                    if isinstance(inferred, bases.AsyncGenerator):
                         async_decorators = ["contextlib.asynccontextmanager"]
                         if decorated_with(inferred.parent, async_decorators):
                             self.add_message(

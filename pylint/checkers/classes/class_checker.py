@@ -14,9 +14,8 @@ from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias
 
 import astroid
-import astroid.objects
-from astroid import bases, nodes, util
-from astroid.nodes import LocalsDictNodeNG
+import astroid.exceptions
+from astroid import bases, nodes, objects, util
 from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, utils
@@ -177,7 +176,7 @@ def _is_trivial_super_delegation(function: nodes.FunctionDef) -> bool:
 
     # Anything other than a super call is non-trivial.
     super_call = safe_infer(expr)
-    if not isinstance(super_call, astroid.objects.Super):
+    if not isinstance(super_call, objects.Super):
         return False
 
     # The name should be the same.
@@ -415,7 +414,7 @@ def _has_data_descriptor(cls: nodes.ClassDef, attr: str) -> bool:
 
 
 def _called_in_methods(
-    func: LocalsDictNodeNG,
+    func: nodes.LocalsDictNodeNG,
     klass: nodes.ClassDef,
     methods: Sequence[str],
 ) -> bool:
@@ -1981,7 +1980,7 @@ a metaclass class method.",
         return False
 
     @staticmethod
-    def _is_classmethod(func: LocalsDictNodeNG) -> bool:
+    def _is_classmethod(func: nodes.LocalsDictNodeNG) -> bool:
         """Check if the given *func* node is a class method."""
         return isinstance(func, nodes.FunctionDef) and (
             func.type == "classmethod" or func.name == "__class_getitem__"
@@ -2238,7 +2237,7 @@ a metaclass class method.",
                             _proxied=nodes.ClassDef(name="super") as p
                         ) if is_builtin_object(p):
                             return
-                        case astroid.objects.Super():
+                        case objects.Super():
                             return
                     try:
                         method = not_called_yet.pop(klass)
