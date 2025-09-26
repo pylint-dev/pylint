@@ -14,8 +14,7 @@ from re import Pattern
 from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias, cast
 
 import astroid
-import astroid.objects
-from astroid import bases, nodes
+from astroid import bases, nodes, objects
 from astroid.util import UninferableBase
 
 from pylint import checkers
@@ -1858,7 +1857,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             args: tuple[str] | None = None
             inferred = utils.safe_infer(node.iter)
             match (node.parent, inferred):
-                case [nodes.DictComp(), astroid.objects.DictItems()]:
+                case [nodes.DictComp(), objects.DictItems()]:
                     args = (f"dict({node.iter.func.expr.as_string()})",)
                 case [nodes.ListComp(), nodes.List()]:
                     args = (f"list({node.iter.as_string()})",)

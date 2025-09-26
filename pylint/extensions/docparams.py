@@ -533,10 +533,10 @@ class DocstringParameterChecker(BaseChecker):
 
         :param arguments_node: Arguments node for the function, method or
             class constructor.
-        :type arguments_node: :class:`astroid.scoped_nodes.Arguments`
+        :type arguments_node: :class:`astroid.nodes.Arguments`
 
         :param warning_node: The node to assign the warnings to
-        :type warning_node: :class:`astroid.scoped_nodes.Node`
+        :type warning_node: :class:`astroid.nodes.NodeNG`
 
         :param accept_no_param_doc: Whether to allow no parameters to be
             documented. If None then this value is read from the configuration.
@@ -680,7 +680,7 @@ class DocstringParameterChecker(BaseChecker):
         """Returns true on functions smaller than 'docstring-min-length'.
 
         :param node: Node for a function or method definition in the AST
-        :type node: :class:`astroid.scoped_nodes.Function`
+        :type node: :class:`astroid.nodes.FunctionDef`
 
         :rtype: bool
         """

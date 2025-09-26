@@ -21,6 +21,8 @@ from types import ModuleType
 from typing import Any, Protocol
 
 import astroid
+import astroid.builder
+import astroid.modutils
 from astroid import nodes
 
 from pylint import checkers, exceptions, interfaces, reporters

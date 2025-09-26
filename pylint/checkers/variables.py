@@ -18,7 +18,8 @@ from typing import TYPE_CHECKING
 
 import astroid
 import astroid.exceptions
-from astroid import bases, extract_node, nodes, util
+import astroid.modutils
+from astroid import bases, extract_node, nodes, objects, util
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -55,10 +56,10 @@ BUILTIN_RANGE = "builtins.range"
 TYPING_MODULE = "typing"
 
 DICT_TYPES = (
-    astroid.objects.DictValues,
-    astroid.objects.DictKeys,
-    astroid.objects.DictItems,
-    astroid.nodes.node_classes.Dict,
+    objects.DictValues,
+    objects.DictKeys,
+    objects.DictItems,
+    nodes.Dict,
 )
 
 NODES_WITH_VALUE_ATTR = (
@@ -1357,7 +1358,7 @@ class VariablesChecker(BaseChecker):
             # no dict items returned
             return
 
-        if isinstance(inferred, astroid.objects.DictItems):
+        if isinstance(inferred, objects.DictItems):
             # dict.items() is a bit special because values will be a tuple
             # So as long as there are always 2 targets and values each are
             # a tuple with two items, this will unpack correctly.
@@ -2760,7 +2761,7 @@ class VariablesChecker(BaseChecker):
                 nodes.Tuple,
                 nodes.Dict,
                 nodes.Set,
-                astroid.objects.FrozenSet,
+                objects.FrozenSet,
             )
             if not isinstance(inferred, sequences):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)

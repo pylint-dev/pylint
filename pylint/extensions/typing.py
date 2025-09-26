@@ -6,8 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, NamedTuple, TypeGuard
 
-import astroid.bases
-from astroid import nodes
+from astroid import bases, nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
@@ -364,7 +363,7 @@ class TypingChecker(BaseChecker):
                 and inferred.qname() in {"typing.Optional", "typing.Union"}
             )
             or (
-                isinstance(inferred, astroid.bases.Instance)
+                isinstance(inferred, bases.Instance)
                 and inferred.qname() == "typing._SpecialForm"
             )
         ):
@@ -494,7 +493,7 @@ class TypingChecker(BaseChecker):
                 )
                 # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
                 or (
-                    isinstance(inferred, astroid.bases.BaseInstance)
+                    isinstance(inferred, bases.BaseInstance)
                     and isinstance(inferred._proxied, nodes.ClassDef)
                     and inferred._proxied.qname() == "typing._SpecialForm"
                 )
@@ -546,7 +545,7 @@ class TypingChecker(BaseChecker):
                 and inferred_parent.qname() in {"typing.Optional", "typing.Union"}
             )
             or (
-                isinstance(inferred_parent, astroid.bases.Instance)
+                isinstance(inferred_parent, bases.Instance)
                 and inferred_parent.qname() == "typing._SpecialForm"
             )
         ):

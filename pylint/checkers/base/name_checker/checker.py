@@ -17,8 +17,7 @@ from re import Pattern
 from typing import TYPE_CHECKING
 
 import astroid
-import astroid.bases
-from astroid import nodes
+from astroid import bases, nodes, util
 from astroid.typing import InferenceResult
 
 from pylint import constants, interfaces
@@ -489,7 +488,7 @@ class NameChecker(_BasicChecker):
                 elif isinstance(inferred_assign_type, nodes.ClassDef):
                     self._check_name("class", node.name, node)
 
-                elif inferred_assign_type in (None, astroid.util.Uninferable):
+                elif inferred_assign_type in (None, util.Uninferable):
                     return
 
                 # Don't emit if the name redefines an import in an ImportError except handler
@@ -513,7 +512,7 @@ class NameChecker(_BasicChecker):
                     node_type = "variable"
                     if (
                         (iattrs := tuple(node.frame().igetattr(node.name)))
-                        and astroid.util.Uninferable not in iattrs
+                        and util.Uninferable not in iattrs
                         and len(iattrs) == 2
                         and astroid.are_exclusive(*iattrs)
                     ):
@@ -663,7 +662,7 @@ class NameChecker(_BasicChecker):
     def _assigns_typealias(node: nodes.NodeNG | None) -> bool:
         """Check if a node is assigning a TypeAlias."""
         inferred = utils.safe_infer(node)
-        if isinstance(inferred, (nodes.ClassDef, astroid.bases.UnionType)):
+        if isinstance(inferred, (nodes.ClassDef, bases.UnionType)):
             qname = inferred.qname()
             if qname == "typing.TypeAlias":
                 return True

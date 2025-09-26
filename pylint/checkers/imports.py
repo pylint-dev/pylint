@@ -16,6 +16,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
 import astroid
+import astroid.modutils
 from astroid import nodes
 from astroid.nodes._base_nodes import ImportNode
 
@@ -1081,7 +1082,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         """Check if the module has a preferred replacement."""
         mod_compare = [mod_path]
         # build a comparison list of possible names using importfrom
-        if isinstance(node, astroid.nodes.node_classes.ImportFrom):
+        if isinstance(node, nodes.ImportFrom):
             mod_compare = [f"{node.modname}.{name[0]}" for name in node.names]
 
         # find whether there are matches with the import vs preferred_modules keys
