@@ -1,6 +1,6 @@
 .[testutils,spelling]
 # astroid dependency is also defined in pyproject.toml
-astroid==4.0.0b2  # Pinned to a specific version for tests
+astroid==4.0.0b3  # Pinned to a specific version for tests
 typing-extensions~=4.15
 py~=1.11.0
 pytest~=8.4

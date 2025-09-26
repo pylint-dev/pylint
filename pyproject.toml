@@ -40,7 +40,7 @@ dependencies = [
   # Also upgrade requirements_test_min.txt.
   # Pinned to dev of second minor update to allow editable installs and fix primer issues,
   # see https://github.com/pylint-dev/astroid/issues/1341
-  "astroid>=4.0.0b2,<=4.1.0.dev0",
+  "astroid>=4.0.0b3,<=4.1.0.dev0",
   "colorama>=0.4.5; sys_platform=='win32'",
   "dill>=0.2; python_version<'3.11'",
   "dill>=0.3.6; python_version>='3.11'",
@@ -94,7 +94,7 @@ docs = [
 # Configuration for the build system
 test-min = [
   # Base test dependencies
-  "astroid==4.0.0b2",                   # Pinned to a specific version for tests
+  "astroid==4.0.0b3",                   # Pinned to a specific version for tests
   "py~=1.11.0",
   "pytest~=8.4",
   "pytest-benchmark~=5.1",
