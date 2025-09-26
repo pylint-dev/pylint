@@ -327,9 +327,9 @@ def nested_match_case(data):  # [too-complex]
     match data:
         case {"type": "user", "data": user_data}:
             match user_data:  # Nested match adds complexity
-                case {"name": str(name)}:
+                case {"name": str() as name}:
                     return f"User: {name}"
-                case {"id": int(user_id)}:
+                case {"id": int() as user_id}:
                     return f"User ID: {user_id}"
                 case _:
                     return "Unknown user format"
