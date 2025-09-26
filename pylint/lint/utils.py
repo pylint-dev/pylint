@@ -112,6 +112,11 @@ def get_fatal_error_message(filepath: str, issue_template_path: Path) -> str:
     )
 
 
+def realpath_transformer(paths: Sequence[str]) -> list[str]:
+    """Transforms paths to real paths while expanding user vars."""
+    return [str(Path(path).resolve().expanduser()) for path in paths]
+
+
 def _augment_sys_path(additional_paths: Sequence[str]) -> list[str]:
     original = list(sys.path)
     changes = []
