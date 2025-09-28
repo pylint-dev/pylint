@@ -18,8 +18,10 @@ from functools import lru_cache, partial
 from re import Match
 from typing import TYPE_CHECKING, TypeVar
 
-import astroid.objects
-from astroid import TooManyLevelsError, nodes, util
+import astroid
+import astroid.exceptions
+import astroid.helpers
+from astroid import TooManyLevelsError, bases, nodes, objects, util
 from astroid.context import InferenceContext
 from astroid.exceptions import AstroidError
 from astroid.nodes._base_nodes import ImportNode, Statement
@@ -852,7 +854,7 @@ def _is_property_decorator(decorator: nodes.Name) -> bool:
                 inferred = safe_infer(returns[0].value)
                 if (
                     inferred
-                    and isinstance(inferred, astroid.objects.Property)
+                    and isinstance(inferred, objects.Property)
                     and isinstance(inferred.function, nodes.FunctionDef)
                 ):
                     return decorated_with_property(inferred.function)
@@ -1006,7 +1008,7 @@ def find_except_wrapper_node_in_scope(
     """Return the ExceptHandler in which the node is, without going out of scope."""
     for current in node.node_ancestors():
         match current:
-            case astroid.scoped_nodes.LocalsDictNodeNG():
+            case nodes.LocalsDictNodeNG():
                 # If we're inside a function/class definition, we don't want to keep checking
                 # higher ancestors for `except` clauses, because if these exist, it means our
                 # function/class was defined in an `except` clause, rather than the current code
@@ -1287,9 +1289,7 @@ def _supports_protocol(
         case nodes.ComprehensionScope():
             return True
 
-        case astroid.bases.Proxy(
-            _proxied=astroid.BaseInstance() as p
-        ) if has_known_bases(p):
+        case bases.Proxy(_proxied=astroid.BaseInstance() as p) if has_known_bases(p):
             return protocol_callback(p)
 
     return False

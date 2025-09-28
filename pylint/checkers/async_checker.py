@@ -10,6 +10,8 @@ import sys
 from typing import TYPE_CHECKING
 
 import astroid
+import astroid.bases
+import astroid.exceptions
 from astroid import nodes
 
 from pylint import checkers

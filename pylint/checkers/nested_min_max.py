@@ -23,7 +23,7 @@ DICT_TYPES = (
     objects.DictValues,
     objects.DictKeys,
     objects.DictItems,
-    nodes.node_classes.Dict,
+    nodes.Dict,
 )
 
 

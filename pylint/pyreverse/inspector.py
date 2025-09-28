@@ -16,6 +16,8 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
 
 import astroid
+import astroid.exceptions
+import astroid.modutils
 from astroid import nodes
 from astroid.typing import InferenceResult
 
