@@ -1704,7 +1704,7 @@ class VariablesChecker(BaseChecker):
 
     @utils.only_required_for_messages("redefined-outer-name")
     def leave_excepthandler(self, node: nodes.ExceptHandler) -> None:
-        if not node.name or not isinstance(node.name, nodes.AssignName):
+        if not (node.name and isinstance(node.name, nodes.AssignName)):
             return
         self._except_handler_names_queue.pop()
 
@@ -2975,7 +2975,7 @@ class VariablesChecker(BaseChecker):
             return
 
         assign_scope, stmts = node.lookup(node.name)
-        if not stmts or not assign_scope.parent_of(node_scope):
+        if not (stmts and assign_scope.parent_of(node_scope)):
             return
 
         if utils.is_comprehension(assign_scope):
@@ -3243,8 +3243,8 @@ class VariablesChecker(BaseChecker):
             if not elt_name.parent:
                 continue
 
-            if not isinstance(elt_name, nodes.Const) or not isinstance(
-                elt_name.value, str
+            if not (
+                isinstance(elt_name, nodes.Const) and isinstance(elt_name.value, str)
             ):
                 self.add_message("invalid-all-object", args=elt.as_string(), node=elt)
                 continue

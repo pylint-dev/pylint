@@ -82,7 +82,7 @@ class DataclassChecker(BaseChecker):
             self._check_invalid_field_call_within_call(node, scope_node)
             return
 
-        if not scope_node or not scope_node.is_dataclass:
+        if not (scope_node and scope_node.is_dataclass):
             self.add_message(
                 "invalid-field-call",
                 node=node,

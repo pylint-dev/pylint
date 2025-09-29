@@ -281,10 +281,10 @@ class RecommendationChecker(checkers.BaseChecker):
                     continue
 
                 value = subscript.slice
-                if (
-                    not isinstance(value, nodes.Name)
-                    or value.name != node.target.name
-                    or iterating_object_name != subscript.value.as_string()
+                if not (
+                    isinstance(value, nodes.Name)
+                    and value.name == node.target.name
+                    and iterating_object_name == subscript.value.as_string()
                 ):
                     continue
                 last_definition_lineno = value.lookup(value.name)[1][-1].lineno
@@ -334,10 +334,10 @@ class RecommendationChecker(checkers.BaseChecker):
                     continue
 
                 value = subscript.slice
-                if (
-                    not isinstance(value, nodes.Name)
-                    or value.name != node.target.name
-                    or iterating_object_name != subscript.value.as_string()
+                if not (
+                    isinstance(value, nodes.Name)
+                    and value.name == node.target.name
+                    and iterating_object_name == subscript.value.as_string()
                 ):
                     continue
 
@@ -428,8 +428,9 @@ class RecommendationChecker(checkers.BaseChecker):
                 return
 
             # If % applied to another type than str, it's modulo and can't be replaced by formatting
-            if not hasattr(node.parent.left, "value") or not isinstance(
-                node.parent.left.value, str
+            if not (
+                hasattr(node.parent.left, "value")
+                and isinstance(node.parent.left.value, str)
             ):
                 return
 
