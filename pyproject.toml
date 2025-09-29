@@ -85,7 +85,7 @@ test = [
 ]
 
 docs = [
-  "furo==2025.7.19",
+  "furo==2025.9.25",
   "sphinx==8.2.3",
   "sphinx-reredirects<1",
   "towncrier>=24.8,<26",
