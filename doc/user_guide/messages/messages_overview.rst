@@ -516,6 +516,7 @@ All messages in the refactor category:
    refactor/duplicate-code
    refactor/else-if-used
    refactor/empty-comment
+   refactor/improve-conditionals
    refactor/inconsistent-return-statements
    refactor/literal-comparison
    refactor/magic-value-comparison

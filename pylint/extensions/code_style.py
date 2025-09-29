@@ -5,13 +5,14 @@
 from __future__ import annotations
 
 import difflib
+from copy import copy
 from typing import TYPE_CHECKING, TypeGuard, cast
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import only_required_for_messages, safe_infer
-from pylint.interfaces import INFERENCE
+from pylint.interfaces import HIGH, INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -81,6 +82,14 @@ class CodeStyleChecker(BaseChecker):
             "Using math.inf or math.nan permits to benefit from typing and it is up "
             "to 4 times faster than a float call (after the initial import of math). "
             "This check also catches typos in float calls as a side effect.",
+        ),
+        "R6107": (
+            "Rewrite conditional expression to '%s'",
+            "improve-conditionals",
+            "Rewrite negated if expressions to improve readability.",
+            {
+                # "default_enabled": False,
+            },
         ),
     }
     options = (
@@ -354,6 +363,76 @@ class CodeStyleChecker(BaseChecker):
                 line=node.lineno,
                 col_offset=node.col_offset,
                 confidence=INFERENCE,
+            )
+
+    @staticmethod
+    def _can_be_inverted(node: nodes.NodeNG) -> bool:
+        match node:
+            case nodes.UnaryOp(op="not"):
+                return True
+            case nodes.Compare(
+                ops=[("!=" | "not in", _)]
+                | [("<" | "<=" | ">" | ">=", nodes.Const(value=int()))]
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def _invert_node(node: nodes.NodeNG) -> nodes.NodeNG:
+        match node:
+            case nodes.UnaryOp(op="not"):
+                new_node = copy(node.operand)
+                new_node.parent = node
+                return new_node
+            case nodes.Compare(left=left, ops=[(op, n)]):
+                new_node = copy(node)
+                match op:
+                    case "!=":
+                        new_op = "=="
+                    case "not in":
+                        new_op = "in"
+                    case "<":
+                        new_op = ">="
+                    case "<=":
+                        new_op = ">"
+                    case ">":
+                        new_op = "<="
+                    case ">=":
+                        new_op = "<"
+                    case _:  # pragma: no cover
+                        raise AssertionError
+                new_node.postinit(left=left, ops=[(new_op, n)])
+                return new_node
+            case _:  # pragma: no cover
+                raise AssertionError
+
+    @only_required_for_messages("improve-conditionals")
+    def visit_boolop(self, node: nodes.BoolOp) -> None:
+        if node.op == "or" and all(self._can_be_inverted(val) for val in node.values):
+            new_boolop = copy(node)
+            new_boolop.op = "and"
+            new_boolop.postinit([self._invert_node(val) for val in node.values])
+
+            if isinstance(node.parent, nodes.UnaryOp) and node.parent.op == "not":
+                target_node = node.parent
+                new_node = new_boolop
+            else:
+                target_node = node
+                new_node = nodes.UnaryOp(
+                    op="not",
+                    lineno=0,
+                    col_offset=0,
+                    end_lineno=None,
+                    end_col_offset=None,
+                    parent=node.parent,
+                )
+                new_node.postinit(operand=new_boolop)
+
+            self.add_message(
+                "improve-conditionals",
+                node=target_node,
+                args=(new_node.as_string(),),
+                confidence=HIGH,
             )
 
 
