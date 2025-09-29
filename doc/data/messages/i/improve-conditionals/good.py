@@ -1,0 +1,3 @@
+def func(expr, node_cls):
+    if not (isinstance(expr, node_cls) and expr.attrname == "__init__"):
+        ...

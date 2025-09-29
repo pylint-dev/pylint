@@ -88,6 +88,8 @@ Code Style checker Messages
   'typing.NamedTuple' uses the well-known 'class' keyword with type-hints for
   readability (it's also faster as it avoids an internal exec call). Disabled
   by default!
+:improve-conditionals (R6106): *Rewrite conditional expression to '%s'*
+  Rewrite negated if expressions to improve readability.
 
 
 .. _pylint.extensions.comparison_placement:
