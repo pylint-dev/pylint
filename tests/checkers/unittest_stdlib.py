@@ -69,15 +69,6 @@ class TestStdlibChecker(CheckerTestCase):
             with self.assertNoMessages():
                 self.checker.visit_call(node)
 
-    def test_importlib_read_text_not_deprecated(self) -> None:
-        """Ensure importlib.resources.read_text is NOT flagged as deprecated."""
-        assign_node = astroid.extract_node("""
-    from importlib.resources import read_text
-    data = read_text("mypkg", "file.txt")
-        """)
-        call_node = assign_node.value  # The value of the Assign node is the Call node
-        with self.assertNoMessages():
-            self.checker.visit_call(call_node)
 
 
 

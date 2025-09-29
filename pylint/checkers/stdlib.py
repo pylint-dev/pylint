@@ -244,12 +244,6 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "binascii.rlecode_hqx",
             "binascii.rledecode_hqx",
             "importlib.resources.contents",
-            "importlib.resources.is_resource",
-            "importlib.resources.open_binary",
-            "importlib.resources.open_text",
-            "importlib.resources.path",
-            "importlib.resources.read_binary",
-            # "importlib.resources.read_text", #un-deprecated in Python 3.13
         },
         (3, 10, 0): {
             "_sqlite3.enable_shared_cache",
