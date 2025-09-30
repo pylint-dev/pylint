@@ -1,0 +1,3 @@
+Fix a false positive for ``invalid-name`` in ``attrs`` decorated classes with ``ClassVar`` annotated attributes.
+
+Closes #10525
