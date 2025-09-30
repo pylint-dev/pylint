@@ -243,7 +243,6 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "binascii.a2b_hqx",
             "binascii.rlecode_hqx",
             "binascii.rledecode_hqx",
-            "importlib.resources.contents",
         },
         (3, 10, 0): {
             "_sqlite3.enable_shared_cache",
@@ -273,6 +272,7 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "unittest.TestLoader.loadTestsFromTestCase",
             "unittest.TestLoader.getTestCaseNames",
             "unittest.TestProgram.usageExit",
+            "importlib.resources.contents",
         },
         (3, 12, 0): {
             "asyncio.get_child_watcher",

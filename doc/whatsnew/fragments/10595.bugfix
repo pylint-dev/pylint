@@ -1,4 +1,1 @@
-Removed falsely deprecated functions from `importlib.resources` in the stdlib checker 
-(read_text, read_binary, open_binary, open_text, path, is_resource).
-
-Closes #10595
+No longer flag undeprecated functions in ``importlib.resources`` as deprecated.
