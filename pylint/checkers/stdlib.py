@@ -262,6 +262,7 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "cgi.log",
         },
         (3, 11, 0): {
+            "importlib.resources.contents",
             "locale.getdefaultlocale",
             "locale.resetlocale",
             "re.template",
@@ -272,7 +273,6 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "unittest.TestLoader.loadTestsFromTestCase",
             "unittest.TestLoader.getTestCaseNames",
             "unittest.TestProgram.usageExit",
-            "importlib.resources.contents",
         },
         (3, 12, 0): {
             "asyncio.get_child_watcher",
