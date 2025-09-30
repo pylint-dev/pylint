@@ -68,7 +68,3 @@ class TestStdlibChecker(CheckerTestCase):
             )
             with self.assertNoMessages():
                 self.checker.visit_call(node)
-
-
-
-
