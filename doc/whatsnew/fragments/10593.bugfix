@@ -1,1 +1,3 @@
 No longer flag undeprecated functions in ``importlib.resources`` as deprecated.
+
+Closes #10593
