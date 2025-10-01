@@ -93,9 +93,11 @@ class CodeStyleChecker(BaseChecker):
         "R6107": (
             "Rewrite conditional expression to '%s'",
             "improve-conditionals",
-            "Rewrite negated if expressions to improve readability.",
+            "Rewrite negated if expressions to improve readability. This style is simpler "
+            "and also permits converting long if/elif chains to match case with more ease.\n"
+            "Disabled by default!",
             {
-                # "default_enabled": False,
+                "default_enabled": False,
             },
         ),
     }
