@@ -89,7 +89,9 @@ Code Style checker Messages
   readability (it's also faster as it avoids an internal exec call). Disabled
   by default!
 :improve-conditionals (R6106): *Rewrite conditional expression to '%s'*
-  Rewrite negated if expressions to improve readability.
+  Rewrite negated if expressions to improve readability. This style is simpler
+  and also permits converting long if/elif chains to match case with more ease.
+  Disabled by default!
 
 
 .. _pylint.extensions.comparison_placement:
