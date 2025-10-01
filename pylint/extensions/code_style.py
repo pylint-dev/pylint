@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import difflib
 from copy import copy
+from enum import IntFlag, auto
 from typing import TYPE_CHECKING, TypeGuard, cast
 
 from astroid import nodes
@@ -16,6 +17,12 @@ from pylint.interfaces import HIGH, INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+
+class InvertibleValues(IntFlag):
+    NO = 0
+    YES = auto()
+    EXPLICIT_NEGATION = auto()
 
 
 class CodeStyleChecker(BaseChecker):
@@ -366,16 +373,21 @@ class CodeStyleChecker(BaseChecker):
             )
 
     @staticmethod
-    def _can_be_inverted(node: nodes.NodeNG) -> bool:
-        match node:
-            case nodes.UnaryOp(op="not"):
-                return True
-            case nodes.Compare(
-                ops=[("!=" | "not in", _)]
-                | [("<" | "<=" | ">" | ">=", nodes.Const(value=int()))]
-            ):
-                return True
-        return False
+    def _can_be_inverted(values: list[nodes.NodeNG]) -> InvertibleValues:
+        invertible = InvertibleValues.NO
+        for node in values:
+            match node:
+                case nodes.UnaryOp(op="not") | nodes.Compare(
+                    ops=[("!=" | "not in", _)]
+                ):
+                    invertible |= InvertibleValues.EXPLICIT_NEGATION
+                case nodes.Compare(
+                    ops=[("<" | "<=" | ">" | ">=", nodes.Const(value=int()))]
+                ):
+                    invertible |= InvertibleValues.YES
+                case _:
+                    return InvertibleValues.NO
+        return invertible
 
     @staticmethod
     def _invert_node(node: nodes.NodeNG) -> nodes.NodeNG:
@@ -408,7 +420,11 @@ class CodeStyleChecker(BaseChecker):
 
     @only_required_for_messages("improve-conditionals")
     def visit_boolop(self, node: nodes.BoolOp) -> None:
-        if node.op == "or" and all(self._can_be_inverted(val) for val in node.values):
+        if (
+            node.op == "or"
+            and (invertible := self._can_be_inverted(node.values))
+            and invertible & InvertibleValues.EXPLICIT_NEGATION
+        ):
             new_boolop = copy(node)
             new_boolop.op = "and"
             new_boolop.postinit([self._invert_node(val) for val in node.values])
