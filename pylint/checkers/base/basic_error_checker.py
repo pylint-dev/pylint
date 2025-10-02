@@ -10,7 +10,6 @@ import itertools
 
 import astroid
 from astroid import nodes
-from astroid.nodes import FunctionDef, AsyncFunctionDef
 from astroid.typing import InferenceResult
 
 from pylint.checkers import utils
@@ -537,6 +536,9 @@ class BasicErrorChecker(_BasicChecker):
             ):
                 return
 
+            if utils._is_singledispatchmethod_registration(node):
+                return
+
             # Skip typing.overload() functions.
             if utils.is_overload_stub(node):
                 return
@@ -573,17 +575,10 @@ class BasicErrorChecker(_BasicChecker):
                     ):
                         return
 
-            dummy_variables_rgx = self.linter.config.dummy_variables_rgx
-
-            # Only skip dummy names for non-function nodes (variables, etc.)
-            if dummy_variables_rgx and dummy_variables_rgx.match(node.name) and not isinstance(node, (FunctionDef,AsyncFunctionDef)):
-                return
-
-            # Ensure defined_self exists, fallback to node.lineno if not
             defined_lineno = getattr(defined_self, "fromlineno", node.lineno)
 
             self.add_message(
                 "function-redefined",
                 node=node,
                 args=(redeftype, defined_lineno),
-)
+            )
