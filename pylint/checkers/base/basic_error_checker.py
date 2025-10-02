@@ -573,7 +573,13 @@ class BasicErrorChecker(_BasicChecker):
                         return
 
             dummy_variables_rgx = self.linter.config.dummy_variables_rgx
-            if dummy_variables_rgx and dummy_variables_rgx.match(node.name):
+            if (
+                dummy_variables_rgx
+                and dummy_variables_rgx.match(node.name)
+                and not isinstance(
+                    node, (astroid.FunctionDef, astroid.AsyncFunctionDef)
+                )
+            ):
                 return
             self.add_message(
                 "function-redefined",
