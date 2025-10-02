@@ -108,7 +108,7 @@ class PrivateImportChecker(BaseChecker):
         return (
             bool(name)
             and name[0] == "_"
-            and (len(name) <= 4 or name[1] != "_" or name[-2:] != "__")
+            and not (len(name) > 4 and name[1] == "_" and name[-2:] == "__")
         )
 
     def _get_type_annotation_names(
