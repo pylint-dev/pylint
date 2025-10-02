@@ -238,13 +238,6 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "binascii.a2b_hqx",
             "binascii.rlecode_hqx",
             "binascii.rledecode_hqx",
-            "importlib.resources.contents",
-            "importlib.resources.is_resource",
-            "importlib.resources.open_binary",
-            "importlib.resources.open_text",
-            "importlib.resources.path",
-            "importlib.resources.read_binary",
-            "importlib.resources.read_text",
         },
         (3, 10, 0): {
             "_sqlite3.enable_shared_cache",
@@ -264,6 +257,7 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "cgi.log",
         },
         (3, 11, 0): {
+            "importlib.resources.contents",
             "locale.getdefaultlocale",
             "locale.resetlocale",
             "re.template",
