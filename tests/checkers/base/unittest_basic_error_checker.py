@@ -1,15 +1,21 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
+
+"""Unittest for the function-redefined."""
+
 import re
 
 import astroid
 
-from pylint.checkers import base  # The checker we are testing
+from pylint.checkers.base.basic_error_checker import BasicErrorChecker
 from pylint.testutils import CheckerTestCase, MessageTest
 
 
 class TestBasicErrorCheckerRedef(CheckerTestCase):
-    CHECKER_CLASS = base.BasicErrorChecker  # Assign the checker
+    CHECKER_CLASS = BasicErrorChecker  # Assign the checker
 
-    def test_function_redefined_with_leading_underscore(self):
+    def test_function_redefined_with_leading_underscore(self) -> None:
         # Use two separate code snippets for two functions
 
         self.checker.linter.config.dummy_variables_rgx = re.compile(
