@@ -46,3 +46,28 @@ def _my_func():  #@
             # Visit both function definitions
             self.checker.visit_functiondef(func1)
             self.checker.visit_functiondef(func2)
+
+    def test_dummy_names_are_exempt(self) -> None:
+        # dummy_func should be exempt; single underscore '_' also exempt
+
+        self.checker.linter.config.dummy_variables_rgx = re.compile(
+            r"dummy|_$"
+        )  # or any regex pattern
+
+        code = """
+def dummy_func():
+    pass
+
+def dummy_func():
+    pass
+
+import math as _
+def _():
+    pass
+"""
+        module = astroid.parse(code)
+        funcs = list(module.nodes_of_class(astroid.nodes.FunctionDef))
+
+        with self.assertNoMessages():
+            for fn in funcs:
+                self.checker.visit_functiondef(fn)
