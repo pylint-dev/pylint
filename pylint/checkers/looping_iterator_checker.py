@@ -149,7 +149,9 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
                     if not stmt.handlers and not stmt.finalbody:
                         return False
 
-                    sub_paths_before_finally = [stmt.body] + [h.body for h in stmt.handlers]
+                    sub_paths_before_finally = [stmt.body] + [
+                        h.body for h in stmt.handlers
+                    ]
                     if stmt.orelse:
                         sub_paths_before_finally.append(stmt.orelse)
 
@@ -167,7 +169,6 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         # If the queue becomes empty, it means every path we explored
         # was successfully terminated by an exit statement.
         return True
-
 
     def _check_variable_usage(self, usage_node: nodes.Name) -> None:
         """
@@ -212,7 +213,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         try:
             # For a 'for' loop, the inner loop must be in its body.
             inner_loop_index = outer_loop.body.index(inner_loop)
-            statements_after_inner_loop = outer_loop.body[inner_loop_index + 1:]
+            statements_after_inner_loop = outer_loop.body[inner_loop_index + 1 :]
             if self._has_unconditional_exit(statements_after_inner_loop):
                 return
         except (AttributeError, ValueError):

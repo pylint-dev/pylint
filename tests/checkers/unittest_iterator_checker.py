@@ -567,17 +567,19 @@ class TestRepeatedIteratorLoopChecker(CheckerTestCase):
         outer_for_loop_node = module_node.body[1]
         if_block_node = outer_for_loop_node.body[0]
         inner_for_loop_node = if_block_node.body[0]
-        expected_message_node = inner_for_loop_node.iter  # This is the 'my_iter' Name node.
+        expected_message_node = (
+            inner_for_loop_node.iter
+        )  # This is the 'my_iter' Name node.
 
         # Assert that a message is added on the identified node.
         with self.assertAddsMessages(
-                MessageTest(
-                    msg_id="looping-through-iterator",
-                    node=expected_message_node,
-                    args=("my_iter",),
-                    confidence=interfaces.HIGH,
-                ),
-                ignore_position=True,
+            MessageTest(
+                msg_id="looping-through-iterator",
+                node=expected_message_node,
+                args=("my_iter",),
+                confidence=interfaces.HIGH,
+            ),
+            ignore_position=True,
         ):
             self.walk(module_node)
 
@@ -604,17 +606,19 @@ class TestRepeatedIteratorLoopChecker(CheckerTestCase):
         outer_for_loop_node = module_node.body[1]
         try_block_node = outer_for_loop_node.body[0]
         inner_for_loop_node = try_block_node.body[0]
-        expected_message_node = inner_for_loop_node.iter  # This is the 'source_iter' Name node.
+        expected_message_node = (
+            inner_for_loop_node.iter
+        )  # This is the 'source_iter' Name node.
 
         # Assert that a message is added on the identified node.
         with self.assertAddsMessages(
-                MessageTest(
-                    msg_id="looping-through-iterator",
-                    node=expected_message_node,
-                    args=("source_iter",),
-                    confidence=interfaces.HIGH,
-                ),
-                ignore_position=True,
+            MessageTest(
+                msg_id="looping-through-iterator",
+                node=expected_message_node,
+                args=("source_iter",),
+                confidence=interfaces.HIGH,
+            ),
+            ignore_position=True,
         ):
             self.walk(module_node)
 
@@ -641,13 +645,13 @@ class TestRepeatedIteratorLoopChecker(CheckerTestCase):
         expected_node = inner_for.iter
 
         with self.assertAddsMessages(
-                MessageTest(
-                    msg_id="looping-through-iterator",
-                    node=expected_node,
-                    args=("my_iter",),
-                    confidence=interfaces.HIGH,
-                ),
-                ignore_position=True,
+            MessageTest(
+                msg_id="looping-through-iterator",
+                node=expected_node,
+                args=("my_iter",),
+                confidence=interfaces.HIGH,
+            ),
+            ignore_position=True,
         ):
             self.walk(module)
 
@@ -675,13 +679,13 @@ class TestRepeatedIteratorLoopChecker(CheckerTestCase):
         expected_node = inner_for.iter
 
         with self.assertAddsMessages(
-                MessageTest(
-                    msg_id="looping-through-iterator",
-                    node=expected_node,
-                    args=("my_iter",),
-                    confidence=interfaces.HIGH,
-                ),
-                ignore_position=True,
+            MessageTest(
+                msg_id="looping-through-iterator",
+                node=expected_node,
+                args=("my_iter",),
+                confidence=interfaces.HIGH,
+            ),
+            ignore_position=True,
         ):
             self.walk(module)
 
@@ -710,13 +714,13 @@ class TestRepeatedIteratorLoopChecker(CheckerTestCase):
         expected_message_node = inner_for_loop.iter
 
         with self.assertAddsMessages(
-                MessageTest(
-                    msg_id="looping-through-iterator",
-                    node=expected_message_node,
-                    args=("my_iter",),
-                    confidence=interfaces.HIGH
-                ),
-                ignore_position=True,
+            MessageTest(
+                msg_id="looping-through-iterator",
+                node=expected_message_node,
+                args=("my_iter",),
+                confidence=interfaces.HIGH,
+            ),
+            ignore_position=True,
         ):
             self.walk(module)
 
@@ -750,6 +754,7 @@ class TestRepeatedIteratorLoopChecker(CheckerTestCase):
                     """
                 )
             )
+
     def test_no_warning_break_outer_loop(self):
         with self.assertNoMessages():
             self.walk(  # CHANGED HERE
@@ -763,7 +768,6 @@ class TestRepeatedIteratorLoopChecker(CheckerTestCase):
                     """
                 )
             )
-
 
     def test_no_warning_if_iterator_defined_inside_outer_loop(self):
         with self.assertNoMessages():
@@ -1111,16 +1115,16 @@ class TestRepeatedIteratorLoopChecker(CheckerTestCase):
     def test_no_warning_stop_iteration(self):
         code = """
                         def simple_generator():
-    
+
                             print("Generator started...")
                             yield 0
                             yield 1
                             yield 2
                             print("Generator finished.")
-                        
+
                         # Create the generator object
                         my_gen = simple_generator()
-                        
+
                         print("Starting the loop...")
                         while True:
                             try:
@@ -1131,7 +1135,7 @@ class TestRepeatedIteratorLoopChecker(CheckerTestCase):
                                 # This block runs when the generator is exhausted
                                 print("Caught StopIteration. Exiting the loop.")
                                 break
-                        
+
                         print("Loop finished.")
                         """
         with self.assertNoMessages():
@@ -1202,4 +1206,3 @@ class TestRepeatedIteratorLoopChecker(CheckerTestCase):
         """
         with self.assertNoMessages():
             self.walk(astroid.parse(code))
-
