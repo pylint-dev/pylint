@@ -23,12 +23,9 @@ import astroid.exceptions
 import astroid.helpers
 from astroid import TooManyLevelsError, bases, nodes, objects, util
 from astroid.context import InferenceContext
-from astroid.exceptions import AstroidError
+from astroid.exceptions import AstroidError, InferenceError
 from astroid.nodes._base_nodes import ImportNode, Statement
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
-
-from astroid import nodes
-from astroid.exceptions import InferenceError
 
 from pylint.constants import TYPING_NEVER, TYPING_NORETURN
 
@@ -2316,6 +2313,7 @@ def is_enum_member(node: nodes.AssignName) -> bool:
         return False
     return node.name in [name_obj.name for value, name_obj in members[0].items]
 
+
 def _extract_register_target(dec: nodes.NodeNG) -> nodes.NodeNG | None:
     """
     If decorator `dec` looks like `@func.register(...)` or `@func.register`,
@@ -2334,7 +2332,7 @@ def _extract_register_target(dec: nodes.NodeNG) -> nodes.NodeNG | None:
     return None
 
 
-def _check_decorator_nodes_for_singledispatch(base_decorators : nodes.NodeNG) -> bool:
+def _check_decorator_nodes_for_singledispatch(base_decorators: nodes.NodeNG) -> bool:
     """
     Given an object that has a `.nodes` attribute representing decorator nodes,
     return True if any decorator is `singledispatchmethod`.
@@ -2350,7 +2348,10 @@ def _check_decorator_nodes_for_singledispatch(base_decorators : nodes.NodeNG) ->
     for base_dec in nodes_iter:
         if isinstance(base_dec, nodes.Name) and base_dec.name == "singledispatchmethod":
             return True
-        if isinstance(base_dec, nodes.Attribute) and base_dec.attrname == "singledispatchmethod":
+        if (
+            isinstance(base_dec, nodes.Attribute)
+            and base_dec.attrname == "singledispatchmethod"
+        ):
             return True
 
     return False
@@ -2359,7 +2360,9 @@ def _check_decorator_nodes_for_singledispatch(base_decorators : nodes.NodeNG) ->
 def _inferred_has_singledispatchmethod(target: nodes.NodeNG) -> bool:
     """
     Infer `target` and return True if any inferred object has a
-    @singledispatchmethod decorator. The try/except is limited to the
+    @singledispatchmethod decorator.
+
+    The try/except is limited to the
     inference call only to keep the try-body very small.
     """
     # Keep try block tiny: only the inference call
@@ -2377,7 +2380,7 @@ def _inferred_has_singledispatchmethod(target: nodes.NodeNG) -> bool:
 
         # Defensive: some inferred objects might expose `.decorators` in other shapes
         if hasattr(inferred, "decorators"):
-            base_decorators = getattr(inferred, "decorators")
+            base_decorators = inferred.decorators
             if _check_decorator_nodes_for_singledispatch(base_decorators):
                 return True
 

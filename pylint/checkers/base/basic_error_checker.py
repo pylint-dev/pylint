@@ -10,7 +10,6 @@ import itertools
 
 import astroid
 from astroid import nodes
-from astroid.nodes import AsyncFunctionDef, FunctionDef
 from astroid.typing import InferenceResult
 
 from pylint.checkers import utils
@@ -536,7 +535,7 @@ class BasicErrorChecker(_BasicChecker):
                 and node.name in REDEFINABLE_METHODS
             ):
                 return
-            
+
             if utils._is_singledispatchmethod_registration(node):
                 return
 
@@ -579,13 +578,12 @@ class BasicErrorChecker(_BasicChecker):
             dummy_variables_rgx = self.linter.config.dummy_variables_rgx
 
             # Only skip dummy names for non-function nodes (variables, etc.)
-            if (
-                dummy_variables_rgx
-                and dummy_variables_rgx.match(node.name)
-            ):
+            if dummy_variables_rgx and dummy_variables_rgx.match(node.name):
                 if node.name == "_":
-                    return 
-                if isinstance(node,(nodes.FunctionDef,nodes.AsyncFunctionDef)) and node.name.startswith("_"):
+                    return
+                if isinstance(
+                    node, (nodes.FunctionDef, nodes.AsyncFunctionDef)
+                ) and node.name.startswith("_"):
                     pass
                 else:
                     return
