@@ -1,0 +1,5 @@
+[Messages Control]
+disable=C,R,W
+
+[TYPECHECK]
+extension-pkg-allow-list=mypy
