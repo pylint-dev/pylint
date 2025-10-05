@@ -110,24 +110,6 @@ def _extract_register_target(dec: nodes.NodeNG) -> nodes.NodeNG | None:
 
     return None
 
-
-def _check_decorator_nodes_for_singledispatch(base_decorators: nodes.NodeNG) -> bool:
-    """
-    Given an object that has a `.nodes` attribute representing decorator nodes,
-    return True if any decorator resolves to `functools.singledispatchmethod`.
-    """
-    # Defensive: base_decorators might be None or a structure without .nodes
-    if not base_decorators or not getattr(base_decorators, "nodes", None):
-        return False
-
-    for base_dec in base_decorators.nodes:
-        inferred = utils.safe_infer(base_dec)
-        if inferred and inferred.qname() == "functools.singledispatchmethod":
-            return True
-
-    return False
-
-
 def _inferred_has_singledispatchmethod(target: nodes.NodeNG) -> bool:
     """
     Infer `target` and return True if the inferred object has a
@@ -135,13 +117,15 @@ def _inferred_has_singledispatchmethod(target: nodes.NodeNG) -> bool:
     """
     inferred = utils.safe_infer(target)
     if not inferred:
-        return False
+        return False  
 
-    # Typical case: inferred is a FunctionDef-like node with a .decorators attribute
     if isinstance(inferred, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
-        base_decorators = inferred.decorators
-        if _check_decorator_nodes_for_singledispatch(base_decorators):
-            return True
+        decorators = inferred.decorators
+        if isinstance(decorators, nodes.Decorators):
+            for dec in decorators.nodes:
+                inferred_dec = utils.safe_infer(dec)
+                if inferred_dec and inferred_dec.qname() == "functools.singledispatchmethod":
+                    return True
 
     return False
 
@@ -651,10 +635,8 @@ class BasicErrorChecker(_BasicChecker):
                     ):
                         return
 
-            defined_lineno = defined_self.fromlineno
-
             self.add_message(
                 "function-redefined",
                 node=node,
-                args=(redeftype, defined_lineno),
+                args=(redeftype, defined_self.fromlineno),
             )

@@ -23,7 +23,7 @@ import astroid.exceptions
 import astroid.helpers
 from astroid import TooManyLevelsError, bases, nodes, objects, util
 from astroid.context import InferenceContext
-from astroid.exceptions import AstroidError, InferenceError
+from astroid.exceptions import AstroidError
 from astroid.nodes._base_nodes import ImportNode, Statement
 from astroid.typing import InferenceResult, SuccessfulInferenceResult
 
