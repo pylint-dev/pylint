@@ -39,7 +39,7 @@ Other Bug Fixes
 
   Closes #10508 (`#10508 <https://github.com/pylint-dev/pylint/issues/10508>`_)
 
-- Fixed crash in 'unnecessary-list-index-lookup' when starting an enumeration using
+- Fixed crash in ``unnecessary-list-index-lookup`` when starting an enumeration using
   minus the length of an iterable inside a dict comprehension when the len call was only
   made in this dict comprehension, and not elsewhere. Also changed the approach,
   to use inference in all cases but the simple ones, so we don't have to fix crashes
