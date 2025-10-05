@@ -30,14 +30,18 @@ False Positives Fixed
 
   Closes #10593 (`#10593 <https://github.com/pylint-dev/pylint/issues/10593>`_)
 
+- Fix false positive ``inconsistent-return-statements`` when using ``quit()`` or ``exit()`` functions.
+
+  Closes #10508 (`#10508 <https://github.com/pylint-dev/pylint/issues/10508>`_)
+
+- Fix false positive ``undefined-variable`` (E0602) for for-loop variable shadowing patterns like ``for item in item:`` when the variable was previously defined.
+
+  Closes #10562 (`#10562 <https://github.com/pylint-dev/pylint/issues/10562>`_)
+
 
 
 Other Bug Fixes
 ---------------
-
-- Fix false positive ``inconsistent-return-statements`` when using ``quit()`` or ``exit()`` functions.
-
-  Closes #10508 (`#10508 <https://github.com/pylint-dev/pylint/issues/10508>`_)
 
 - Fixed crash in ``unnecessary-list-index-lookup`` when starting an enumeration using
   minus the length of an iterable inside a dict comprehension when the len call was only
@@ -46,10 +50,6 @@ Other Bug Fixes
   one by one for arbitrarily complex expressions in enumerate.
 
   Closes #10510 (`#10510 <https://github.com/pylint-dev/pylint/issues/10510>`_)
-
-- Fix false positive ``undefined-variable`` (E0602) for for-loop variable shadowing patterns like ``for item in item:`` when the variable was previously defined.
-
-  Closes #10562 (`#10562 <https://github.com/pylint-dev/pylint/issues/10562>`_)
 
 
 
