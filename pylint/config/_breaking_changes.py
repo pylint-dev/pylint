@@ -35,7 +35,7 @@ class Condition(enum.Enum):
 class Information(NamedTuple):
     msgid_or_symbol: str | None = None
     extension: str | None = None
-    option: str | None = None
+    option: list[str] | str | None = None
     description: str | None = None
 
 
@@ -84,6 +84,7 @@ SUGGESTION_MODE_REMOVED = Information(
 )
 
 INVALID_NAME_CONST_BEHAVIOR = Information(
+    option=["const-rgx", "const-naming-style"],
     description="""\
 In 'invalid-name', module-level constants that are reassigned are now treated
 as variables and checked against ``--variable-rgx`` rather than ``--const-rgx``.
