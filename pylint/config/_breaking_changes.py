@@ -154,7 +154,6 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
             {
                 Intention.KEEP: [Solution.REVIEW_OPTION],
                 Intention.USE_DEFAULT: [],
-                Intention.FIX_CONF: [],
             },
         ),
     ],
