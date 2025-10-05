@@ -10,6 +10,13 @@ import enum
 from typing import NamedTuple
 
 
+class Intention(enum.Enum):
+    KEEP = "Keep the same behavior"
+    USE_DEFAULT = "Use the new default behavior"
+    # This could/should always be automated
+    FIX_CONF = "Fix the configuration to become consistent again"
+
+
 class BreakingChange(enum.Enum):
     MESSAGE_MADE_DISABLED_BY_DEFAULT = "{symbol} ({msgid}) was disabled by default"
     MESSAGE_MADE_ENABLED_BY_DEFAULT = "{symbol} ({msgid}) was enabled by default"
@@ -62,7 +69,7 @@ ConditionsToBeAffected = list[Condition]
 # A solution to a breaking change might imply multiple actions
 MultipleActionSolution = list[Solution]
 # Sometimes there's multiple solutions and the user needs to choose
-Solutions = list[MultipleActionSolution]
+Solutions = dict[Intention, MultipleActionSolution]
 BreakingChangeWithSolution = tuple[
     BreakingChange, Information, ConditionsToBeAffected, Solutions
 ]
@@ -101,7 +108,10 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
             BreakingChange.MESSAGE_MOVED_TO_EXTENSION,
             NO_SELF_USE,
             [Condition.MESSAGE_IS_ENABLED, Condition.EXTENSION_IS_NOT_LOADED],
-            [[Solution.ADD_EXTENSION], [Solution.DISABLE_MESSAGE_IMPLICITLY]],
+            {
+                Intention.KEEP: [Solution.ADD_EXTENSION],
+                Intention.USE_DEFAULT: [Solution.DISABLE_MESSAGE_IMPLICITLY],
+            },
         ),
     ],
     "3.0.0": [
@@ -109,13 +119,23 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
             BreakingChange.EXTENSION_REMOVED,
             COMPARE_TO_ZERO,
             [Condition.MESSAGE_IS_NOT_DISABLED, Condition.EXTENSION_IS_LOADED],
-            [[Solution.REMOVE_EXTENSION, Solution.ENABLE_MESSAGE_EXPLICITLY]],
+            {
+                Intention.FIX_CONF: [
+                    Solution.REMOVE_EXTENSION,
+                    Solution.ENABLE_MESSAGE_EXPLICITLY,
+                ],
+            },
         ),
         (
             BreakingChange.EXTENSION_REMOVED,
             COMPARE_TO_EMPTY_STRING,
             [Condition.MESSAGE_IS_NOT_DISABLED, Condition.EXTENSION_IS_LOADED],
-            [[Solution.REMOVE_EXTENSION, Solution.ENABLE_MESSAGE_EXPLICITLY]],
+            {
+                Intention.FIX_CONF: [
+                    Solution.REMOVE_EXTENSION,
+                    Solution.ENABLE_MESSAGE_EXPLICITLY,
+                ],
+            },
         ),
     ],
     "4.0.0": [
@@ -123,13 +143,19 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
             BreakingChange.OPTION_REMOVED,
             SUGGESTION_MODE_REMOVED,
             [Condition.OPTION_IS_PRESENT],
-            [[Solution.REMOVE_OPTION]],
+            {
+                Intention.FIX_CONF: [Solution.REMOVE_OPTION],
+            },
         ),
         (
             BreakingChange.OPTION_BEHAVIOR_CHANGED,
             INVALID_NAME_CONST_BEHAVIOR,
             [],
-            [[Solution.REVIEW_OPTION]],
+            {
+                Intention.KEEP: [Solution.REVIEW_OPTION],
+                Intention.USE_DEFAULT: [],
+                Intention.FIX_CONF: [],
+            },
         ),
     ],
 }
