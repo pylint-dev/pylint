@@ -1,3 +1,0 @@
-Fix used-before-assignment for PEP 695 type aliases and parameters.
-
-Closes #9815
