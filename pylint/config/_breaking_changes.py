@@ -83,21 +83,15 @@ SUGGESTION_MODE_REMOVED = Information(
     description="This option is no longer used and should be removed",
 )
 
-invalid_name_change_4_0 = """\
+INVALID_NAME_CONST_BEHAVIOR = Information(
+    description="""\
 In 'invalid-name', module-level constants that are reassigned are now treated
 as variables and checked against ``--variable-rgx`` rather than ``--const-rgx``.
 Module-level lists, sets, and objects can pass against either regex.
 
 You may need to adjust this option to match your naming conventions.
 
-See the release notes for concrete examples: https://pylint.readthedocs.io/en/stable/whatsnew/4/4.0/index.html"""
-INVALID_NAME_CONST_BEHAVIOR = Information(
-    option="const-rgx",
-    description=invalid_name_change_4_0,
-)
-INVALID_NAME_CONST_NAMING_BEHAVIOR = Information(
-    option="const-naming-style",
-    description=invalid_name_change_4_0,
+See the release notes for concrete examples: https://pylint.readthedocs.io/en/stable/whatsnew/4/4.0/index.html""",
 )
 
 CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
