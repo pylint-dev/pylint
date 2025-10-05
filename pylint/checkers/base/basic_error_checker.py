@@ -94,6 +94,7 @@ def redefined_by_decorator(node: nodes.FunctionDef) -> bool:
                 return True
     return False
 
+
 def _extract_register_target(dec: nodes.NodeNG) -> nodes.NodeNG | None:
     """
     If decorator `dec` looks like `@func.register(...)` or `@func.register`,
@@ -110,6 +111,7 @@ def _extract_register_target(dec: nodes.NodeNG) -> nodes.NodeNG | None:
 
     return None
 
+
 def _inferred_has_singledispatchmethod(target: nodes.NodeNG) -> bool:
     """
     Infer `target` and return True if the inferred object has a
@@ -117,14 +119,17 @@ def _inferred_has_singledispatchmethod(target: nodes.NodeNG) -> bool:
     """
     inferred = utils.safe_infer(target)
     if not inferred:
-        return False  
+        return False
 
     if isinstance(inferred, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
         decorators = inferred.decorators
         if isinstance(decorators, nodes.Decorators):
             for dec in decorators.nodes:
                 inferred_dec = utils.safe_infer(dec)
-                if inferred_dec and inferred_dec.qname() == "functools.singledispatchmethod":
+                if (
+                    inferred_dec
+                    and inferred_dec.qname() == "functools.singledispatchmethod"
+                ):
                     return True
 
     return False
