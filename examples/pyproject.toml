@@ -381,9 +381,9 @@ disable = [
   "suppressed-message",
   "useless-suppression",
   "deprecated-pragma",
+  "use-symbolic-message-instead",
   "use-implicit-booleaness-not-comparison-to-string",
   "use-implicit-booleaness-not-comparison-to-zero",
-  "use-symbolic-message-instead",
 ]
 
 # Enable the message, report, category or checker with the given id(s). You can
@@ -470,8 +470,8 @@ min-similarity-lines = 4
 # Limits count of emitted suggestions for spelling mistakes.
 max-spelling-suggestions = 4
 
-# Spelling dictionary name. Available dictionaries: en (aspell), en_AU (aspell),
-# en_CA (aspell), en_GB (aspell), en_US (aspell).
+# Spelling dictionary name. No available dictionaries : You need to install both
+# the python package and the system dependency for enchant to work.
 # spelling-dict =
 
 # List of comma separated words that should be considered directives if they
