@@ -24,6 +24,7 @@ import tokenize
 import warnings
 from collections import deque
 from collections.abc import Iterable, Sequence
+from importlib import import_module
 from io import BufferedReader, BytesIO
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Literal, TextIO, TypeVar
@@ -262,6 +263,18 @@ def _check_regexp_csv(value: list[str] | tuple[str] | str) -> Iterable[str]:
             else:
                 regexps[-1].append(char)
         yield from ("".join(regexp).strip() for regexp in regexps if regexp is not None)
+
+
+def _import_attribute(dotted_path: str) -> Any:
+    try:
+        module_path, attribute_name = dotted_path.rsplit(".", 1)
+    except ValueError as err:
+        raise ImportError(f"{dotted_path} doesn't look like a module path") from err
+
+    if not (module := sys.modules.get(module_path)):
+        module = import_module(module_path)
+
+    return getattr(module, attribute_name)
 
 
 def _comment(string: str) -> str:
