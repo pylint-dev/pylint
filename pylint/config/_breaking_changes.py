@@ -55,7 +55,7 @@ class Solution(enum.Enum):
         "{symbol} ({msgid}) should be removed from the 'enable' option"
     )
     REMOVE_OPTION = "Remove {option} from configuration"
-    REVIEW_OPTION = "Review and adjust {option}: {description}"
+    REVIEW_OPTION = "Review and adjust or remove {option}: {description}"
 
 
 ConditionsToBeAffected = list[Condition]
@@ -83,11 +83,14 @@ SUGGESTION_MODE_REMOVED = Information(
     description="This option is no longer used and should be removed",
 )
 
-invalid_name_change_4_0 = (
-    "'invalid-name' now treats module-level names that are reassigned as variables, "
-    "whereas previously they were treated as constants. "
-    "You may need to adjust this option to match your naming conventions"
-)
+invalid_name_change_4_0 = """\
+In 'invalid-name', module-level constants that are reassigned are now treated
+as variables and checked against ``--variable-rgx`` rather than ``--const-rgx``.
+Module-level lists, sets, and objects can pass against either regex.
+
+You may need to adjust this option to match your naming conventions.
+
+See the release notes for concrete examples: https://pylint.readthedocs.io/en/stable/whatsnew/4/4.0/index.html"""
 INVALID_NAME_CONST_BEHAVIOR = Information(
     option="const-rgx",
     description=invalid_name_change_4_0,
@@ -130,7 +133,7 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
         (
             BreakingChange.OPTION_BEHAVIOR_CHANGED,
             INVALID_NAME_CONST_BEHAVIOR,
-            [Condition.OPTION_IS_PRESENT],
+            [],
             [[Solution.REVIEW_OPTION]],
         ),
     ],
