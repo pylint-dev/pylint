@@ -12,6 +12,7 @@ import os
 import sys
 import tokenize
 import traceback
+import warnings
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from io import TextIOWrapper
@@ -291,11 +292,17 @@ class PyLinter(
         options: Options = (),
         reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
         option_groups: tuple[tuple[str, str], ...] = (),
-        # TODO: Deprecate passing the pylintrc parameter
-        pylintrc: str | None = None,  # pylint: disable=unused-argument
+        pylintrc: str | None = None,
     ) -> None:
         _ArgumentsManager.__init__(self, prog="pylint")
         _MessageStateHandler.__init__(self, self)
+
+        if pylintrc is not None:
+            warnings.warn(
+                "The pylintrc argument will be removed in pylint 5.0.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         # Some stuff has to be done before initialization of other ancestors...
         # messages store / checkers / reporter / astroid manager
