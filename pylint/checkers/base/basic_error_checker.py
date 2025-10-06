@@ -95,6 +95,71 @@ def redefined_by_decorator(node: nodes.FunctionDef) -> bool:
     return False
 
 
+def _extract_register_target(dec: nodes.NodeNG) -> nodes.NodeNG | None:
+    """
+    If decorator `dec` looks like `@func.register(...)` or `@func.register`,
+    return the `func` target node (Name or Attribute). Otherwise return None.
+    """
+    if isinstance(dec, nodes.Call):
+        func_part = dec.func
+        if isinstance(func_part, nodes.Attribute) and func_part.attrname == "register":
+            return func_part.expr
+        return None
+
+    if isinstance(dec, nodes.Attribute) and dec.attrname == "register":
+        return dec.expr
+
+    return None
+
+
+def _inferred_has_singledispatchmethod(target: nodes.NodeNG) -> bool:
+    """
+    Infer `target` and return True if the inferred object has a
+    @singledispatchmethod decorator.
+    """
+    inferred = utils.safe_infer(target)
+    if not inferred:
+        return False
+
+    if isinstance(inferred, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
+        decorators = inferred.decorators
+        if isinstance(decorators, nodes.Decorators):
+            for dec in decorators.nodes:
+                inferred_dec = utils.safe_infer(dec)
+                if (
+                    inferred_dec
+                    and inferred_dec.qname() == "functools.singledispatchmethod"
+                ):
+                    return True
+
+    return False
+
+
+def _is_singledispatchmethod_registration(node: nodes.FunctionDef) -> bool:
+    """
+    Return True if `node` is a function decorated like:
+
+        @func.register(...)
+        def _(…): ...
+
+    where `func` is a singledispatchmethod (i.e. its base was decorated
+    with @singledispatchmethod).
+    """
+    decorators = node.decorators
+    if not decorators:
+        return False
+
+    for dec in decorators.nodes:
+        target = _extract_register_target(dec)
+        if target is None:
+            continue
+
+        if _inferred_has_singledispatchmethod(target):
+            return True
+
+    return False
+
+
 class BasicErrorChecker(_BasicChecker):
     msgs = {
         "E0100": (
@@ -536,6 +601,9 @@ class BasicErrorChecker(_BasicChecker):
             ):
                 return
 
+            if _is_singledispatchmethod_registration(node):
+                return
+
             # Skip typing.overload() functions.
             if utils.is_overload_stub(node):
                 return
@@ -572,9 +640,6 @@ class BasicErrorChecker(_BasicChecker):
                     ):
                         return
 
-            dummy_variables_rgx = self.linter.config.dummy_variables_rgx
-            if dummy_variables_rgx and dummy_variables_rgx.match(node.name):
-                return
             self.add_message(
                 "function-redefined",
                 node=node,

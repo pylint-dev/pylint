@@ -1,0 +1,3 @@
+Fix false negative where function-redefined (E0102) was not reported for functions with a leading underscore.
+
+Closes #9894
