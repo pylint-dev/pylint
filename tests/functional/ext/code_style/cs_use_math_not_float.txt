@@ -9,3 +9,5 @@ use-math-not-float:13:12:13:24::math.nan is preferable to float('nan'):INFERENCE
 use-math-not-float:14:16:14:29::math.nan is preferable to float('-nan'):INFERENCE
 use-math-not-float:15:16:15:29::math.nan is preferable to float('+nan'):INFERENCE
 use-math-not-float:16:18:16:30::math.nan is preferable to float('NaN'):INFERENCE
+use-math-not-float:17:17:17:30::math.nan is preferable to float('nani'):INFERENCE
+use-math-not-float:18:23:18:35::math.nan is preferable to float('nna'):INFERENCE

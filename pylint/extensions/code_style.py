@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import difflib
 from typing import TYPE_CHECKING, TypeGuard, cast
 
 from astroid import nodes
@@ -127,14 +128,21 @@ class CodeStyleChecker(BaseChecker):
                         c.isalpha() and c.lower() != "e" for c in node.args[0].value
                     )
                 ):
-                    is_nan = "nan" in node.args[0].value.lower()
-                    minus = (
-                        "-" if not is_nan and node.args[0].value.startswith("-") else ""
-                    )
+                    value = node.args[0].value.lower()
+                    math_call: str
+                    if "nan" in value:
+                        math_call = "nan"
+                    elif "inf" in value:
+                        math_call = "inf"
+                    else:
+                        math_call = difflib.get_close_matches(
+                            value, ["inf", "nan"], n=1, cutoff=0
+                        )[0]
+                    minus = "-" if math_call == "inf" and value.startswith("-") else ""
                     self.add_message(
                         "use-math-not-float",
                         node=node,
-                        args=(minus, "nan" if is_nan else "inf", node.as_string()),
+                        args=(minus, math_call, node.as_string()),
                         confidence=INFERENCE,
                     )
 
