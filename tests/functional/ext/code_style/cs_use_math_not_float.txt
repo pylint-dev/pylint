@@ -1,0 +1,11 @@
+use-math-not-float:3:12:3:24::math.inf is preferable to float('inf'):INFERENCE
+use-math-not-float:4:16:4:29::-math.inf is preferable to float('-inf'):INFERENCE
+use-math-not-float:5:16:5:29::math.inf is preferable to float('+inf'):INFERENCE
+use-math-not-float:6:17:6:34::math.inf is preferable to float('infinity'):INFERENCE
+use-math-not-float:7:21:7:39::-math.inf is preferable to float('-infinity'):INFERENCE
+use-math-not-float:11:20:11:31::math.inf is preferable to float('in'):INFERENCE
+use-math-not-float:12:21:12:41::math.inf is preferable to float('in', base=10):INFERENCE
+use-math-not-float:13:12:13:24::math.nan is preferable to float('nan'):INFERENCE
+use-math-not-float:14:16:14:29::math.nan is preferable to float('-nan'):INFERENCE
+use-math-not-float:15:16:15:29::math.nan is preferable to float('+nan'):INFERENCE
+use-math-not-float:16:18:16:30::math.nan is preferable to float('NaN'):INFERENCE

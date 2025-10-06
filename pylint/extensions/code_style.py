@@ -74,6 +74,13 @@ class CodeStyleChecker(BaseChecker):
                 "default_enabled": False,
             },
         ),
+        "R6106": (
+            "%smath.%s is preferable to %s",
+            "use-math-not-float",
+            "Using math.inf or math.nan permits to benefit from typing "
+            "and it is 4 time faster than a float call.\n"
+            "Requires 'import math' in the file.",
+        ),
     }
     options = (
         (
@@ -101,14 +108,35 @@ class CodeStyleChecker(BaseChecker):
             or self.linter.config.max_line_length
         )
 
-    @only_required_for_messages("prefer-typing-namedtuple")
+    @only_required_for_messages("prefer-typing-namedtuple", "use-math-not-float")
     def visit_call(self, node: nodes.Call) -> None:
         if self._py36_plus:
             called = safe_infer(node.func)
-            if called and called.qname() == "collections.namedtuple":
+            if not called:
+                return
+            if called.qname() == "collections.namedtuple":
                 self.add_message(
                     "prefer-typing-namedtuple", node=node, confidence=INFERENCE
                 )
+            elif called.qname() == "builtins.float":
+                if (
+                    node.args
+                    and isinstance(node.args[0], nodes.Const)
+                    and isinstance(node.args[0].value, str)
+                    and any(
+                        c.isalpha() and c.lower() != "e" for c in node.args[0].value
+                    )
+                ):
+                    is_nan = "nan" in node.args[0].value.lower()
+                    minus = (
+                        "-" if not is_nan and node.args[0].value.startswith("-") else ""
+                    )
+                    self.add_message(
+                        "use-math-not-float",
+                        node=node,
+                        args=(minus, "nan" if is_nan else "inf", node.as_string()),
+                        confidence=INFERENCE,
+                    )
 
     @only_required_for_messages("consider-using-namedtuple-or-dataclass")
     def visit_dict(self, node: nodes.Dict) -> None:
