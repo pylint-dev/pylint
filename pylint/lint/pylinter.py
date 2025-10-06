@@ -299,7 +299,7 @@ class PyLinter(
 
         if pylintrc is not None:
             warnings.warn(
-                "The pylintrc argument will be removed.",
+                "The pylintrc argument will be removed in pylint 5.0.",
                 DeprecationWarning,
                 stacklevel=2,
             )
