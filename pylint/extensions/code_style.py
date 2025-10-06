@@ -78,8 +78,8 @@ class CodeStyleChecker(BaseChecker):
             "%smath.%s is preferable to %s",
             "use-math-not-float",
             "Using math.inf or math.nan permits to benefit from typing "
-            "and it is 4 time faster than a float call.\n"
-            "Requires 'import math' in the file.",
+            "and it is 4 time faster than a float call (notwithstanding"
+            " the initial import of math).",
         ),
     }
     options = (

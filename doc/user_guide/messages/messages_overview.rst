@@ -559,6 +559,7 @@ All messages in the refactor category:
    refactor/use-a-generator
    refactor/use-dict-literal
    refactor/use-list-literal
+   refactor/use-math-not-float
    refactor/use-set-for-membership
    refactor/use-yield-from
    refactor/useless-object-inheritance
