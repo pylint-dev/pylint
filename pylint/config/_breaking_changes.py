@@ -63,6 +63,7 @@ class Solution(enum.Enum):
     )
     REMOVE_OPTION = "Remove {option} from configuration"
     REVIEW_OPTION = "Review and adjust or remove {option}: {description}"
+    DO_NOTHING = "Do nothing"
 
 
 ConditionsToBeAffected = list[Condition]
@@ -153,7 +154,7 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
             [],
             {
                 Intention.KEEP: [Solution.REVIEW_OPTION],
-                Intention.USE_DEFAULT: [],
+                Intention.USE_DEFAULT: [Solution.DO_NOTHING],
             },
         ),
     ],
