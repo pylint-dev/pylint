@@ -110,7 +110,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[mis
         self._subgraph(node, f"match_{id(node)}", node.cases)
 
     def _append_node(self, node: _AppendableNodeT) -> _AppendableNodeT | None:
-        if not self.tail or not self.graph:
+        if not (self.tail and self.graph):
             return None
         self.graph.connect(self.tail, node)
         self.tail = node
