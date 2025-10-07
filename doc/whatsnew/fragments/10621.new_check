@@ -1,6 +1,7 @@
 Add a ``consider-math-not-float`` message. ``float("nan")`` and ``float("inf")`` are slower
 than their counterpart ``math.inf`` and ``math.nan`` by a factor of 4 (notwithstanding
 the initial import of math) and they are also not well typed when using mypy.
+This check also catches typos in float calls as a side effect.
 
 The :ref:`pylint.extensions.code_style` need to be activated for this check to work.
 
