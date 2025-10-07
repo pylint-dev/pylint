@@ -76,11 +76,11 @@ class CodeStyleChecker(BaseChecker):
             },
         ),
         "R6106": (
-            "%smath.%s is preferable to %s",
-            "use-math-not-float",
-            "Using math.inf or math.nan permits to benefit from typing "
-            "and it is 4 time faster than a float call (notwithstanding"
-            " the initial import of math).",
+            "Consider %smath.%s instead of %s",
+            "consider-math-not-float",
+            "Using math.inf or math.nan permits to benefit from typing and it is 4 "
+            "time faster than a float call (after the initial import of math). "
+            "This check also catch typo in float calls as a side effect.",
         ),
     }
     options = (
@@ -109,7 +109,7 @@ class CodeStyleChecker(BaseChecker):
             or self.linter.config.max_line_length
         )
 
-    @only_required_for_messages("prefer-typing-namedtuple", "use-math-not-float")
+    @only_required_for_messages("prefer-typing-namedtuple", "consider-math-not-float")
     def visit_call(self, node: nodes.Call) -> None:
         if self._py36_plus:
             called = safe_infer(node.func)
@@ -140,7 +140,7 @@ class CodeStyleChecker(BaseChecker):
                         )[0]
                     minus = "-" if math_call == "inf" and value.startswith("-") else ""
                     self.add_message(
-                        "use-math-not-float",
+                        "consider-math-not-float",
                         node=node,
                         args=(minus, math_call, node.as_string()),
                         confidence=INFERENCE,

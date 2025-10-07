@@ -491,6 +491,7 @@ All messages in the refactor category:
    refactor/condition-evals-to-constant
    refactor/confusing-consecutive-elif
    refactor/consider-alternative-union-syntax
+   refactor/consider-math-not-float
    refactor/consider-merging-isinstance
    refactor/consider-refactoring-into-while-condition
    refactor/consider-swap-variables
@@ -559,7 +560,6 @@ All messages in the refactor category:
    refactor/use-a-generator
    refactor/use-dict-literal
    refactor/use-list-literal
-   refactor/use-math-not-float
    refactor/use-set-for-membership
    refactor/use-yield-from
    refactor/useless-object-inheritance

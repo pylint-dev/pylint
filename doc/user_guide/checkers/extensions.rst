@@ -88,9 +88,10 @@ Code Style checker Messages
   'typing.NamedTuple' uses the well-known 'class' keyword with type-hints for
   readability (it's also faster as it avoids an internal exec call). Disabled
   by default!
-:use-math-not-float (R6106): *%smath.%s is preferable to %s*
+:consider-math-not-float (R6106): *Consider %smath.%s instead of %s*
   Using math.inf or math.nan permits to benefit from typing and it is 4 time
-  faster than a float call (notwithstanding the initial import of math).
+  faster than a float call (after the initial import of math). This check also
+  catch typo in float calls as a side effect.
 
 
 .. _pylint.extensions.comparison_placement:
