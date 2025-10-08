@@ -2355,6 +2355,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         or iterating_object_name != subscript.value.as_string()
                     ):
                         continue
+
                     if (
                         isinstance(node, nodes.For)
                         and (lookup_results := index.lookup(index.name)[1])
