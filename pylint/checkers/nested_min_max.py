@@ -46,24 +46,26 @@ class NestedMinMaxChecker(BaseChecker):
     }
 
     @classmethod
-    def is_min_max_call(cls, node: nodes.NodeNG) -> bool:
-        if not isinstance(node, nodes.Call):
-            return False
-
+    def get_inferred_min_max_call(cls, node: nodes.Call) -> nodes.FunctionDef | None:
         inferred = safe_infer(node.func)
-        return (
+        if (
             isinstance(inferred, nodes.FunctionDef)
             and inferred.qname() in cls.FUNC_NAMES
-        )
+        ):
+            return inferred
+        return None
 
     @classmethod
-    def get_redundant_calls(cls, node: nodes.Call) -> list[nodes.Call]:
+    def get_redundant_calls(
+        cls, node: nodes.Call, inferred_call: nodes.FunctionDef
+    ) -> list[nodes.Call]:
         return [
             arg
             for arg in node.args
             if (
-                cls.is_min_max_call(arg)
-                and arg.func.name == node.func.name
+                isinstance(arg, nodes.Call)
+                and (inferred := cls.get_inferred_min_max_call(arg))
+                and inferred.qname == inferred_call.qname
                 # Nesting is useful for finding the maximum in a matrix.
                 # Allow: max(max([[1, 2, 3], [4, 5, 6]]))
                 # Meaning, redundant call only if parent max call has more than 1 arg.
@@ -73,10 +75,11 @@ class NestedMinMaxChecker(BaseChecker):
 
     @only_required_for_messages("nested-min-max")
     def visit_call(self, node: nodes.Call) -> None:
-        if not self.is_min_max_call(node):
+        inferred = self.get_inferred_min_max_call(node)
+        if inferred is None:
             return
 
-        redundant_calls = self.get_redundant_calls(node)
+        redundant_calls = self.get_redundant_calls(node, inferred)
         if not redundant_calls:
             return
 
@@ -96,7 +99,7 @@ class NestedMinMaxChecker(BaseChecker):
                     )
                     break
 
-            redundant_calls = self.get_redundant_calls(fixed_node)
+            redundant_calls = self.get_redundant_calls(fixed_node, inferred)
 
         for idx, arg in enumerate(fixed_node.args):
             if not isinstance(arg, nodes.Const):
@@ -125,7 +128,7 @@ class NestedMinMaxChecker(BaseChecker):
         self.add_message(
             "nested-min-max",
             node=node,
-            args=(node.func.name, fixed_node.as_string()),
+            args=(inferred.qname(), fixed_node.as_string()),
             confidence=INFERENCE,
         )
 
