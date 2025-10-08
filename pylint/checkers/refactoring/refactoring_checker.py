@@ -2355,10 +2355,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         or iterating_object_name != subscript.value.as_string()
                     ):
                         continue
-
                     if (
                         isinstance(node, nodes.For)
-                        and index.lookup(index.name)[1][-1].lineno > node.lineno
+                        and (lookup_results := index.lookup(index.name)[1])
+                        and lookup_results[-1].lineno > node.lineno
                     ):
                         # Ignore this subscript if it has been redefined after
                         # the for loop.

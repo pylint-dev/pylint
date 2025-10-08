@@ -1,0 +1,4 @@
+Fixed a crash in ``unnecessary-dict-index-lookup`` when the index of an enumerated list
+was deleted inside a for loop.
+
+Closes #10627
