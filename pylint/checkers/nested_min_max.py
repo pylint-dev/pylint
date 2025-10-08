@@ -124,11 +124,15 @@ class NestedMinMaxChecker(BaseChecker):
                         splat_node,
                         *fixed_node.args[idx + 1 : idx],
                     ]
-
+        func_name = (
+            node.func.attrname
+            if isinstance(node.func, nodes.Attribute)
+            else node.func.name
+        )
         self.add_message(
             "nested-min-max",
             node=node,
-            args=(inferred.qname(), fixed_node.as_string()),
+            args=(func_name, fixed_node.as_string()),
             confidence=INFERENCE,
         )
 
