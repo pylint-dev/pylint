@@ -491,6 +491,7 @@ All messages in the refactor category:
    refactor/condition-evals-to-constant
    refactor/confusing-consecutive-elif
    refactor/consider-alternative-union-syntax
+   refactor/consider-math-not-float
    refactor/consider-merging-isinstance
    refactor/consider-refactoring-into-while-condition
    refactor/consider-swap-variables

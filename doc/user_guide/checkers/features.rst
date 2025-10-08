@@ -689,11 +689,11 @@ Match Statements checker Messages
 :invalid-match-args-definition (E1902): *`__match_args__` must be a tuple of strings.*
   Emitted if `__match_args__` isn't a tuple of strings required for match.
 :too-many-positional-sub-patterns (E1903): *%s expects %d positional sub-patterns (given %d)*
-  Emitted when the number of allowed positional sub-patterns exceeds the
-  number of allowed sub-patterns specified in `__match_args__`.
+  Emitted when the number of allowed positional sub-patterns exceeds the number
+  of allowed sub-patterns specified in `__match_args__`.
 :multiple-class-sub-patterns (E1904): *Multiple sub-patterns for attribute %s*
-  Emitted when there is more than one sub-pattern for a specific attribute in
-  a class pattern.
+  Emitted when there is more than one sub-pattern for a specific attribute in a
+  class pattern.
 :match-class-bind-self (R1905): *Use '%s() as %s' instead*
   Match class patterns are faster if the name binding happens for the whole
   pattern and any lookup for `__match_args__` can be avoided.

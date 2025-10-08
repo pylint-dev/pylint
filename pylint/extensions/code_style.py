@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import difflib
 from typing import TYPE_CHECKING, TypeGuard, cast
 
 from astroid import nodes
@@ -74,6 +75,13 @@ class CodeStyleChecker(BaseChecker):
                 "default_enabled": False,
             },
         ),
+        "R6106": (
+            "Consider %smath.%s instead of %s",
+            "consider-math-not-float",
+            "Using math.inf or math.nan permits to benefit from typing and it is up "
+            "to 4 times faster than a float call (after the initial import of math). "
+            "This check also catches typos in float calls as a side effect.",
+        ),
     }
     options = (
         (
@@ -101,14 +109,42 @@ class CodeStyleChecker(BaseChecker):
             or self.linter.config.max_line_length
         )
 
-    @only_required_for_messages("prefer-typing-namedtuple")
+    @only_required_for_messages("prefer-typing-namedtuple", "consider-math-not-float")
     def visit_call(self, node: nodes.Call) -> None:
         if self._py36_plus:
             called = safe_infer(node.func)
-            if called and called.qname() == "collections.namedtuple":
+            if not called:
+                return
+            if called.qname() == "collections.namedtuple":
                 self.add_message(
                     "prefer-typing-namedtuple", node=node, confidence=INFERENCE
                 )
+            elif called.qname() == "builtins.float":
+                if (
+                    node.args
+                    and isinstance(node.args[0], nodes.Const)
+                    and isinstance(node.args[0].value, str)
+                    and any(
+                        c.isalpha() and c.lower() != "e" for c in node.args[0].value
+                    )
+                ):
+                    value = node.args[0].value.lower()
+                    math_call: str
+                    if "nan" in value:
+                        math_call = "nan"
+                    elif "inf" in value:
+                        math_call = "inf"
+                    else:
+                        math_call = difflib.get_close_matches(
+                            value, ["inf", "nan"], n=1, cutoff=0
+                        )[0]
+                    minus = "-" if math_call == "inf" and value.startswith("-") else ""
+                    self.add_message(
+                        "consider-math-not-float",
+                        node=node,
+                        args=(minus, math_call, node.as_string()),
+                        confidence=INFERENCE,
+                    )
 
     @only_required_for_messages("consider-using-namedtuple-or-dataclass")
     def visit_dict(self, node: nodes.Dict) -> None:
