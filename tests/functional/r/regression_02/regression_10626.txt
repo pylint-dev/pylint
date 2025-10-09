@@ -1,0 +1,6 @@
+nested-min-max:5:0:5:26::Do not use nested call of 'min'; it's possible to do 'builtins.min(1, 2, 3)' instead:INFERENCE
+nested-min-max:6:0:6:26::Do not use nested call of 'min'; it's possible to do 'min(1, 2, 3)' instead:INFERENCE
+nested-min-max:7:0:7:35::Do not use nested call of 'min'; it's possible to do 'builtins.min(1, 2, 3)' instead:INFERENCE
+nested-min-max:9:0:9:26::Do not use nested call of 'max'; it's possible to do 'builtins.max(1, 2, 3)' instead:INFERENCE
+nested-min-max:10:0:10:26::Do not use nested call of 'max'; it's possible to do 'max(1, 2, 3)' instead:INFERENCE
+nested-min-max:11:0:11:35::Do not use nested call of 'max'; it's possible to do 'builtins.max(1, 2, 3)' instead:INFERENCE
