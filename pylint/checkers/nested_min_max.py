@@ -46,7 +46,9 @@ class NestedMinMaxChecker(BaseChecker):
     }
 
     @classmethod
-    def get_inferred_min_max_call(cls, node: nodes.Call) -> nodes.FunctionDef | None:
+    def maybe_get_inferred_min_max_call(
+        cls, node: nodes.Call
+    ) -> nodes.FunctionDef | None:
         inferred = safe_infer(node.func)
         if (
             isinstance(inferred, nodes.FunctionDef)
@@ -64,7 +66,7 @@ class NestedMinMaxChecker(BaseChecker):
             for arg in node.args
             if (
                 isinstance(arg, nodes.Call)
-                and (inferred := cls.get_inferred_min_max_call(arg))
+                and (inferred := cls.maybe_get_inferred_min_max_call(arg))
                 and inferred.qname == inferred_call.qname
                 # Nesting is useful for finding the maximum in a matrix.
                 # Allow: max(max([[1, 2, 3], [4, 5, 6]]))
@@ -75,7 +77,7 @@ class NestedMinMaxChecker(BaseChecker):
 
     @only_required_for_messages("nested-min-max")
     def visit_call(self, node: nodes.Call) -> None:
-        inferred = self.get_inferred_min_max_call(node)
+        inferred = self.maybe_get_inferred_min_max_call(node)
         if inferred is None:
             return
 
