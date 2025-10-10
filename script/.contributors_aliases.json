@@ -12,6 +12,13 @@
     "name": "Daniël van Noord",
     "team": "Maintainers"
   },
+  "153769403+Akshay9715@users.noreply.github.com": {
+    "mails": [
+      "153769403+Akshay9715@users.noreply.github.com",
+      "akshaychoudhary2040@gmail.com"
+    ],
+    "name": "Akshay Choudhary"
+  },
   "15907922+kasium@users.noreply.github.com": {
     "mails": ["15907922+kasium@users.noreply.github.com"],
     "name": "Kai Mueller"
@@ -86,7 +93,7 @@
     "name": "Julian Grimm"
   },
   "53538590+zenlyj@users.noreply.github.com": {
-    "mails": ["53538590+zenlyj@users.noreply.github.com"],
+    "mails": ["53538590+zenlyj@users.noreply.github.com", "zenlyj97@gmail.com"],
     "name": "Zen Lee"
   },
   "53625739+dbrookman@users.noreply.github.com": {
@@ -111,7 +118,7 @@
   },
   "6644187+moylop260@users.noreply.github.com": {
     "mails": ["6644187+moylop260@users.noreply.github.com", "moylop260@vauxoo.com"],
-    "name": "Moisés Lopez"
+    "name": "Moisés López"
   },
   "74228962+tanvimoharir@users.noreply.github.com": {
     "comment": ": Fix for invalid toml config",
@@ -283,7 +290,8 @@
       "49699333+dependabot[bot]@users.noreply.github.com",
       "212256041+pylint-backport-bot[bot]@users.noreply.github.com",
       "41898282+github-actions[bot]@users.noreply.github.com",
-      "212256041+pylint-backport[bot]@users.noreply.github.com"
+      "212256041+pylint-backport[bot]@users.noreply.github.com",
+      "198982749+Copilot@users.noreply.github.com"
     ],
     "name": "bot"
   },
@@ -532,7 +540,10 @@
     "name": "Robert Hofer"
   },
   "hugovk@users.noreply.github.com": {
-    "mails": ["hugovk@users.noreply.github.com"],
+    "mails": [
+      "hugovk@users.noreply.github.com",
+      "1324225+hugovk@users.noreply.github.com"
+    ],
     "name": "Hugo van Kemenade"
   },
   "hugues.bruant@affirm.com": {
