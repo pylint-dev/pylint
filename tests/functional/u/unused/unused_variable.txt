@@ -14,6 +14,10 @@ unused-import:59:4:59:40:unused_import_in_function:Unused hexdigits imported fro
 unused-variable:64:4:64:10:hello:Unused variable 'my_var':UNDEFINED
 unused-variable:75:4:75:8:function:Unused variable 'aaaa':UNDEFINED
 global-statement:97:4:97:39:test_global:Using the global statement:HIGH
+unused-import:98:4:98:31:test_global:Unused path imported from os as PATH:UNDEFINED
+unused-import:99:4:99:19:test_global:Unused os imported as OS:UNDEFINED
+unused-import:100:4:100:22:test_global:Unused import collections:UNDEFINED
+unused-import:101:4:101:33:test_global:Unused deque imported from collections:UNDEFINED
 unused-import:103:4:103:28:test_global:Unused platform imported from sys:UNDEFINED
 unused-import:104:4:104:38:test_global:Unused version imported from sys as VERSION:UNDEFINED
 unused-import:105:4:105:15:test_global:Unused import this:UNDEFINED
