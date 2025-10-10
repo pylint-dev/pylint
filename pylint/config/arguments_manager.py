@@ -239,6 +239,8 @@ class _ArgumentsManager:
         """Write a configuration file according to the current configuration
         into the given stream or stdout.
         """
+        # If --message-sets is absent, maybe just go ahead and
+        # set --message-sets=pylint.recommended? or wait until pylint 5?
         options_by_section = {}
         sections = []
         for group in sorted(
