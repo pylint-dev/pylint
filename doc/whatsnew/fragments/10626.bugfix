@@ -1,4 +1,0 @@
-Fix a crash in :ref:`nested-min-max` when using ``builtins.min`` or ``builtins.max``
-instead of ``min`` or ``max`` directly.
-
-Closes #10626

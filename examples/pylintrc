@@ -230,6 +230,11 @@ name-group=
 # not require a docstring.
 no-docstring-rgx=^_
 
+# Regular expression matching correct parameter specification variable names.
+# If left empty, parameter specification variable names will be checked with
+# the set naming style.
+#paramspec-rgx=
+
 # List of decorators that produce properties, such as abc.abstractproperty. Add
 # to this list to register other decorators that produce valid properties.
 # These decorators are taken in consideration only for invalid-name.
@@ -242,6 +247,10 @@ property-classes=abc.abstractproperty
 # Regular expression matching correct type variable names. If left empty, type
 # variable names will be checked with the set naming style.
 #typevar-rgx=
+
+# Regular expression matching correct type variable tuple names. If left empty,
+# type variable tuple names will be checked with the set naming style.
+#typevartuple-rgx=
 
 # Naming style matching correct variable names.
 variable-naming-style=snake_case
@@ -340,7 +349,9 @@ indent-after-paren=4
 # tab).
 indent-string='    '
 
-# Maximum number of characters on a single line.
+# Maximum number of characters on a single line. Pylint's default of 100 is
+# based on PEP 8's guidance that teams may choose line lengths up to 99
+# characters.
 max-line-length=100
 
 # Maximum number of lines in a module.
@@ -432,9 +443,9 @@ disable=raw-checker-failed,
         suppressed-message,
         useless-suppression,
         deprecated-pragma,
-        use-symbolic-message-instead,
         use-implicit-booleaness-not-comparison-to-string,
-        use-implicit-booleaness-not-comparison-to-zero
+        use-implicit-booleaness-not-comparison-to-zero,
+        use-symbolic-message-instead
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

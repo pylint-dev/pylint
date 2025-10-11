@@ -1,4 +1,0 @@
-The unused ``pylintrc`` argument to ``PyLinter.__init__()`` is deprecated
-and will be removed.
-
-Refs #6052

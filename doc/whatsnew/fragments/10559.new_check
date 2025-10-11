@@ -1,7 +1,0 @@
-Add new checks for invalid uses of class patterns in :keyword:`match`.
-
-* :ref:`invalid-match-args-definition` is emitted if :py:data:`object.__match_args__` isn't a tuple of strings.
-* :ref:`too-many-positional-sub-patterns` if there are more positional sub-patterns than specified in :py:data:`object.__match_args__`.
-* :ref:`multiple-class-sub-patterns` if there are multiple sub-patterns for the same attribute.
-
-Refs #10559

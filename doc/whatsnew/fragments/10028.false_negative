@@ -1,3 +1,0 @@
-Fix false negative for `used-before-assignment` when a function is defined inside a `TYPE_CHECKING` guard block and used later.
-
-Closes #10028
