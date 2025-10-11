@@ -1,1 +1,1 @@
-- `Stackoverflow explanation for ':ref:`useless-super-delegation`' <https://stackoverflow.com/a/51030674/2519059>`_
+- `Stackoverflow explanation for 'useless-super-delegation' <https://stackoverflow.com/a/51030674/2519059>`_
