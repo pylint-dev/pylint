@@ -42,10 +42,13 @@ class Condition(enum.Enum):
     OPTION_IS_NOT_PRESENT = "{option} is not present in configuration"
 
 
-class Information(NamedTuple):
-    msgid_or_symbol: str | None = None
+class MessageInformation(NamedTuple):
+    msgid_or_symbol: str
     extension: str | None = None
-    option: list[str] | str | None = None
+
+
+class OptionInformation(NamedTuple):
+    option: list[str] | str
     description: str | None = None
     new_value: str | None = None
 
@@ -76,18 +79,19 @@ ConditionsToBeAffected = list[Condition]
 MultipleActionSolution = list[Solution]
 # Sometimes there's multiple solutions and the user needs to choose
 Solutions = dict[Intention, MultipleActionSolution]
+Information = MessageInformation | OptionInformation
 BreakingChangeWithSolution = tuple[
     BreakingChange, Information, ConditionsToBeAffected, Solutions
 ]
 
-NO_SELF_USE = Information(
+NO_SELF_USE = MessageInformation(
     msgid_or_symbol="no-self-use", extension="pylint.extensions.no_self_use"
 )
 CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
     "2.7.3": [
         (
             BreakingChange.OPTION_RENAMED,
-            Information(
+            OptionInformation(
                 option="extension-pkg-whitelist",
                 new_value="extension-pkg-allow-list",
             ),
@@ -109,7 +113,7 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
     "3.0.0": [
         (
             BreakingChange.EXTENSION_REMOVED,
-            Information(
+            MessageInformation(
                 msgid_or_symbol="compare-to-zero",
                 extension="pylint.extensions.comparetozero",
             ),
@@ -123,7 +127,7 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
         ),
         (
             BreakingChange.EXTENSION_REMOVED,
-            Information(
+            MessageInformation(
                 msgid_or_symbol="compare-to-empty-string",
                 extension="pylint.extensions.emptystring",
             ),
@@ -139,7 +143,7 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
     "4.0.0": [
         (
             BreakingChange.OPTION_REMOVED,
-            Information(
+            OptionInformation(
                 option="suggestion-mode",
                 description="This option is no longer used and should be removed",
             ),
@@ -150,7 +154,7 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
         ),
         (
             BreakingChange.OPTION_BEHAVIOR_CHANGED,
-            Information(
+            OptionInformation(
                 option=["const-rgx", "const-naming-style"],
                 description=textwrap.dedent(
                     """
