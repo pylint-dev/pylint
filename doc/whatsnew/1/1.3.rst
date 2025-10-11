@@ -21,7 +21,7 @@ Release date: 2014-07-26
 
   Closes #205.
 
-* Emit ':ref:`undefined-variable`' for undefined names when using the
+* Emit :ref:`undefined-variable` for undefined names when using the
   Python 3 ``metaclass=`` argument.
 
 * Checkers respect priority now.
@@ -36,13 +36,13 @@ Release date: 2014-07-26
 
   Closes #143
 
-* Don't warn with ':ref:`bad-format-character`' when encountering
+* Don't warn with :ref:`bad-format-character` when encountering
   the 'a' format on Python 3.
 
 * Add multiple checks for PEP 3101 advanced string formatting:
-  ':ref:`bad-format-string`', ':ref:`missing-format-argument-key`',
-  ':ref:`unused-format-string-argument`', ':ref:`format-combined-specification`',
-  ':ref:`missing-format-attribute`' and ':ref:`invalid-format-index`'.
+  :ref:`bad-format-string`, :ref:`missing-format-argument-key`,
+  :ref:`unused-format-string-argument`, :ref:`format-combined-specification`,
+  :ref:`missing-format-attribute` and :ref:`invalid-format-index`.
 
 * Issue :ref:`broad-except` and :ref:`bare-except` even if the number
   of except handlers is different than 1.
@@ -54,7 +54,7 @@ Release date: 2014-07-26
 
   Closes #262
 
-* Emit ':ref:`not-callable`' when calling properties.
+* Emit :ref:`not-callable` when calling properties.
 
   Closes #268.
 
@@ -63,17 +63,17 @@ Release date: 2014-07-26
 
   Closes #273.
 
-* Add new checks, ':ref:`invalid-slice-index`' and ':ref:`invalid-sequence-index`'
+* Add new checks, :ref:`invalid-slice-index` and :ref:`invalid-sequence-index`
   for invalid sequence and slice indices.
 
-* Add ':ref:`assigning-non-slot`' warning, which detects assignments to
+* Add :ref:`assigning-non-slot` warning, which detects assignments to
   attributes not defined in slots.
 
-* Don't emit ':ref:`no-name-in-module`' for ignored modules.
+* Don't emit :ref:`no-name-in-module` for ignored modules.
 
   Closes #223.
 
-* Fix an ':ref:`unused-variable`' false positive, where the variable is
+* Fix an :ref:`unused-variable` false positive, where the variable is
   assigned through an import.
 
   Closes #196.
@@ -83,7 +83,7 @@ Release date: 2014-07-26
 
   Closes #257.
 
-* Don't emit ':ref:`unused-variable`' when assigning to a nonlocal.
+* Don't emit :ref:`unused-variable` when assigning to a nonlocal.
 
   Closes #275.
 
@@ -92,7 +92,7 @@ Release date: 2014-07-26
 
   Closes #203.
 
-* Don't emit ':ref:`pointless-string-statement`' for attribute docstrings.
+* Don't emit :ref:`pointless-string-statement` for attribute docstrings.
 
   Closes #193.
 
@@ -106,11 +106,11 @@ Release date: 2014-07-26
 * Only emit :ref:`attribute-defined-outside-init` for definition within the same
   module as the offended class, avoiding to mangle the output in some cases.
 
-* Don't emit ':ref:`unnecessary-lambda`' if the body of the lambda call contains
+* Don't emit :ref:`unnecessary-lambda` if the body of the lambda call contains
   call chaining.
 
   Closes #243.
 
-* Don't emit ':ref:`missing-docstring`' when the actual docstring uses ``.format``.
+* Don't emit :ref:`missing-docstring` when the actual docstring uses ``.format``.
 
   Closes #281.

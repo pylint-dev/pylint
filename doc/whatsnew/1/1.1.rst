@@ -4,9 +4,8 @@
 
 Release date: 2013-12-22
 
-* Add new check for use of deprecated pragma directives "pylint:disable-msg"
-  or "pylint:enable-msg" (I0022, :ref:`deprecated-pragma`) which was previously
-  emitted as a regular warn().
+* Add new check for use of :ref:`deprecated-pragma` directives "pylint:disable-msg"
+  or "pylint:enable-msg" which was previously emitted as a regular warn().
 
 * Avoid false :ref:`used-before-assignment` for except handler defined
   identifier used on the same line.
@@ -16,7 +15,7 @@ Release date: 2013-12-22
 * Combine 'no-space-after-operator', 'no-space-after-comma' and
   'no-space-before-operator' into a new warning 'bad-whitespace'.
 
-* Add a new warning ':ref:`superfluous-parens`' for unnecessary
+* Add a new warning :ref:`superfluous-parens` for unnecessary
   parentheses after certain keywords.
 
 * Fix a potential crash in the redefine-in-handler warning
@@ -25,7 +24,7 @@ Release date: 2013-12-22
 * Add a new option for the multi-statement warning to
   allow single-line if statements.
 
-* Add ':ref:`bad-context-manager`' error, checking that '__exit__'
+* Add :ref:`bad-context-manager` error, checking that '__exit__'
   special method accepts the right number of arguments.
 
 * Run pylint as a python module 'python -m pylint' (Anatoly Techtonik).
@@ -39,7 +38,7 @@ Release date: 2013-12-22
   Closes BitBucket #53
   Closes BitBucket #54
 
-* Added a new warning, ':ref:`non-iterator-returned`', for non-iterators
+* Added a new warning, :ref:`non-iterator-returned`, for non-iterators
   returned by '__iter__'.
 
 * Add new checks for unpacking non-sequences in assignments

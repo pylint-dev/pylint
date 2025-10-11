@@ -288,7 +288,7 @@ Release date: 2021-06-29
   Closes #585
 
 * Fix a crash when a plugin from the configuration could not be loaded and raise an error
-  ':ref:`bad-plugin-value`' instead
+  :ref:`bad-plugin-value`' instead
 
   Closes #4555
 

@@ -72,7 +72,7 @@ Release date: 2016-07-03
 
   Closes #156
 
-* Added a new error, ':ref:`trailing-newlines`', which is emitted when a file
+* Added a new error, :ref:`trailing-newlines`, which is emitted when a file
   has trailing new lines.
 
   Closes #682
@@ -86,7 +86,7 @@ Release date: 2016-07-03
 
   Closes #162
 
-* Add a new recommendation checker, ':ref:`consider-iterating-dictionary`', which is emitted
+* Add a new recommendation checker, :ref:`consider-iterating-dictionary`, which is emitted
   which is emitted when a dictionary is iterated through .keys().
 
   Closes #699
@@ -98,7 +98,7 @@ Release date: 2016-07-03
 
   Closes #828
 
-* A new error was added, ':ref:`invalid-length-returned`', when the ``__len__``
+* A new error was added, :ref:`invalid-length-returned`, when the ``__len__``
   special method returned something else than a non-negative number.
 
   Closes #557

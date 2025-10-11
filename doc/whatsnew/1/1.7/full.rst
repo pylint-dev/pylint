@@ -40,12 +40,12 @@ Release date: 2017-04-13
   Closes #1351
 
 * Split the 'missing or differing' in parameter documentation in different error.
-  ':ref:`differing-param-doc`' covers the differing part of the old ':ref:`missing-param-doc`',
-  and ':ref:`differing-type-doc`' covers the differing part of the old ':ref:`missing-type-doc`'
+  :ref:`differing-param-doc` covers the differing part of the old :ref:`missing-param-doc`',
+  and :ref:`differing-type-doc`' covers the differing part of the old :ref:`missing-type-doc`'
 
   Closes #1342
 
-* Added a new error, ':ref:`used-prior-global-declaration`', which is emitted when a name
+* Added a new error, :ref:`used-prior-global-declaration`', which is emitted when a name
   is used prior a global declaration in a function. This causes a SyntaxError in
   Python 3.6
 
@@ -62,7 +62,7 @@ Release date: 2017-04-13
 
 * Require one space for annotations with type hints, as per PEP 8.
 
-* ':ref:`trailing-comma-tuple`' check was added
+* :ref:`trailing-comma-tuple`' check was added
 
   This message is emitted when pylint finds an one-element tuple,
   created by a stray comma. This can suggest a potential problem in the
@@ -84,7 +84,7 @@ Release date: 2017-04-13
 
 * Added new extension to detect comparisons of integers against zero
 
-* Added new error conditions for ':ref:`bad-super-call`'
+* Added new error conditions for :ref:`bad-super-call`'
 
   Now detects ``super(type(self), self)`` and ``super(self.__class__, self)``
   which can lead to recursion loop in derived classes.
@@ -97,7 +97,7 @@ Release date: 2017-04-13
 
   Closes #1035
 
-* Add a new warning, ':ref:`redefined-argument-from-local`'
+* Add a new warning, :ref:`redefined-argument-from-local`'
 
   Closes #649
 
@@ -111,16 +111,16 @@ Release date: 2017-04-13
 
   Closes #441
 
-* Added a new warning, ':ref:`useless-super-delegation`'
+* Added a new warning, :ref:`useless-super-delegation`'
 
   Close 839.
 
-* Added a new error, ':ref:`invalid-metaclass`', raised when
+* Added a new error, :ref:`invalid-metaclass`', raised when
   we can detect that a class is using an improper metaclass.
 
   Closes #579
 
-* Added a new refactoring message, ':ref:`literal-comparison`'.
+* Added a new refactoring message, :ref:`literal-comparison`'.
 
   Closes #786
 
@@ -201,24 +201,24 @@ Release date: 2017-04-13
 
 * empty indent strings are rejected.
 
-* Added a new error, ':ref:`relative-beyond-top-level`', which is emitted
+* Added a new error, :ref:`relative-beyond-top-level`', which is emitted
   when a relative import was attempted beyond the top level package.
 
   Closes #588
 
-* Added a new warning, ':ref:`unsupported-assignment-operation`', which is
+* Added a new warning, :ref:`unsupported-assignment-operation`', which is
   emitted when item assignment is tried on an object which doesn't
   have this ability.
 
   Closes #591
 
-* Added a new warning, ':ref:`unsupported-delete-operation`', which is
+* Added a new warning, :ref:`unsupported-delete-operation`', which is
   emitted when item deletion is tried on an object which doesn't
   have this ability.
 
   Closes #592
 
-* Fix a false positive of ':ref:`redundant-returns-doc`', occurred when the documented
+* Fix a false positive of :ref:`redundant-returns-doc`', occurred when the documented
   function was using *yield* instead of *return*.
 
   Closes #984.
@@ -226,13 +226,13 @@ Release date: 2017-04-13
 * Fix false positives of 'missing-[raises|params|type]-doc' due to not
   recognizing keyword synonyms supported by Sphinx.
 
-* Added a new refactoring message, ':ref:`consider-merging-isinstance`', which is
+* Added a new refactoring message, :ref:`consider-merging-isinstance`', which is
   emitted whenever we can detect that consecutive isinstance calls can be
   merged together.
 
   Closes #968
 
-* Fix a false positive of ':ref:`missing-param-doc`' and ':ref:`missing-type-doc`',
+* Fix a false positive of :ref:`missing-param-doc`' and :ref:`missing-type-doc`',
   occurred when a class docstring uses the 'For the parameters, see'
   magic string but the class __init__ docstring does not, or vice versa.
 
@@ -241,7 +241,7 @@ Release date: 2017-04-13
 
   Closes #911.
 
-* Added proper exception type inference for ':ref:`missing-raises-doc`'.
+* Added proper exception type inference for :ref:`missing-raises-doc`'.
 
 * Added InvalidMessageError exception class to replace asserts in
   pylint.utils.
@@ -274,7 +274,7 @@ Release date: 2017-04-13
 * Added a new Python 3 warning around implementing '__div__', '__idiv__', or
   '__rdiv__' as those methods are phased out in Python 3.
 
-* Added a new warning, ':ref:`overlapping-except`', which is
+* Added a new warning, :ref:`overlapping-except`', which is
   emitted when two exceptions in the same except-clause are aliases
   for each other or one exceptions is an ancestor of another.
 
@@ -283,7 +283,7 @@ Release date: 2017-04-13
 * Added a new Python 3 warning for calling 'str.encode' or 'str.decode' with a non-text
   encoding.
 
-* Added new coding convention message, ':ref:`single-string-used-for-slots`'.
+* Added new coding convention message, :ref:`single-string-used-for-slots`'.
 
   Closes #1166
 
@@ -299,7 +299,7 @@ Release date: 2017-04-13
 
   Closes #1032 and #1034
 
-* Added refactoring message ':ref:`no-else-return`'.
+* Added refactoring message :ref:`no-else-return`'.
 
 * Improve :ref:`unused-variable` checker to warn about unused variables in module scope.
 
@@ -313,7 +313,7 @@ Release date: 2017-04-13
 
   Closes #1177
 
-* Added refactoring message ':ref:`consider-using-ternary`'.
+* Added refactoring message :ref:`consider-using-ternary`'.
 
   Closes #1204
 

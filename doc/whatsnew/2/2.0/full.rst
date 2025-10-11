@@ -113,7 +113,7 @@ Release date: 2018-07-15
 
 * Don't emit ``unused-import`` anymore for typing imports used in type comments.
 
-* Add a new check ':ref:`useless-import-alias`'.
+* Add a new check :ref:`useless-import-alias`'.
 
   Closes #2052
 
@@ -140,12 +140,12 @@ Release date: 2018-07-15
 
   Closes #2051
 
-* Add a new warning, ':ref:`logging-fstring-interpolation`', emitted when f-string
+* Add a new warning, :ref:`logging-fstring-interpolation`', emitted when f-string
   is used within logging function calls.
 
   Closes #1998
 
-* Don't show ':ref:`useless-super-delegation`' if the subclass method has different type annotations.
+* Don't show :ref:`useless-super-delegation`' if the subclass method has different type annotations.
 
   Closes #1923
 
@@ -368,7 +368,7 @@ Release date: 2018-07-15
 
   Closes #2102
 
-* Fix ':ref:`method-hidden`' raised when assigning to a property or data descriptor.
+* Fix :ref:`method-hidden`' raised when assigning to a property or data descriptor.
 
 * Fix emitting ``useless-super-delegation`` when changing the default value of keyword arguments.
 

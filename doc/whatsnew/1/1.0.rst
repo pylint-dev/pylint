@@ -19,7 +19,7 @@ Release date: 2013-08-06
 * Do not double-check parameter names with the regex for parameters and
   inline variables.
 
-* Added a new warning :ref:`missing-final-newline` (C0304) for files missing
+* Added a new warning :ref:`missing-final-newline` for files missing
   the final newline.
 
 * Methods that are decorated as properties are now treated as attributes
@@ -40,7 +40,7 @@ Release date: 2013-08-06
   contain data that cannot be decoded with the specified or
   default encoding.
 
-* New warning :ref:`bad-open-mode` (W1501) for calls to open (or file) that
+* New warning :ref:`bad-open-mode` for calls to open (or file) that
   specify invalid open modes (Original implementation by Sasha Issayev).
 
 * New warning old-style-class (C1001) for classes that do not have any
@@ -49,7 +49,7 @@ Release date: 2013-08-06
 * Add new name type 'class_attribute' for attributes defined
   in class scope. By default, allow both const and variable names.
 
-* New warning :ref:`trailing-whitespace` (C0303) that warns about
+* New warning :ref:`trailing-whitespace` that warns about
   trailing whitespace.
 
 * Added a new warning unpacking-in-except (W0712) about unpacking
@@ -81,7 +81,7 @@ Release date: 2013-08-06
 * Added a new warning 'old-raise-syntax' for the deprecated syntax
   raise Exception, args
 
-* Support for PEP 3102 and new :ref:`missing-kwoa` (E1125) message for missing
+* Support for PEP 3102 and new :ref:`missing-kwoa` message for missing
   mandatory keyword argument
 
   Closes Logilab #107788

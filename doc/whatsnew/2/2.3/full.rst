@@ -125,7 +125,7 @@ Release date: 2019-02-27
 
   Closes #2689
 
-* Add a new option 'check-str-concat-over-line-jumps' to check ':ref:`implicit-str-concat-in-sequence`'
+* Add a new option 'check-str-concat-over-line-jumps' to check :ref:`implicit-str-concat-in-sequence`'
 
 * Fixes for the new style logging format linter.
 
