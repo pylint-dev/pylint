@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import enum
+import textwrap
 from typing import NamedTuple
 
 
@@ -78,31 +79,6 @@ BreakingChangeWithSolution = tuple[
 NO_SELF_USE = Information(
     msgid_or_symbol="no-self-use", extension="pylint.extensions.no_self_use"
 )
-COMPARE_TO_ZERO = Information(
-    msgid_or_symbol="compare-to-zero", extension="pylint.extensions.comparetozero"
-)
-COMPARE_TO_EMPTY_STRING = Information(
-    msgid_or_symbol="compare-to-empty-string",
-    extension="pylint.extensions.emptystring",
-)
-
-SUGGESTION_MODE_REMOVED = Information(
-    option="suggestion-mode",
-    description="This option is no longer used and should be removed",
-)
-
-INVALID_NAME_CONST_BEHAVIOR = Information(
-    option=["const-rgx", "const-naming-style"],
-    description="""\
-In 'invalid-name', module-level constants that are reassigned are now treated
-as variables and checked against ``--variable-rgx`` rather than ``--const-rgx``.
-Module-level lists, sets, and objects can pass against either regex.
-
-You may need to adjust this option to match your naming conventions.
-
-See the release notes for concrete examples: https://pylint.readthedocs.io/en/stable/whatsnew/4/4.0/index.html""",
-)
-
 CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
     "2.14.0": [
         (
@@ -118,7 +94,10 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
     "3.0.0": [
         (
             BreakingChange.EXTENSION_REMOVED,
-            COMPARE_TO_ZERO,
+            Information(
+                msgid_or_symbol="compare-to-zero",
+                extension="pylint.extensions.comparetozero",
+            ),
             [Condition.MESSAGE_IS_NOT_DISABLED, Condition.EXTENSION_IS_LOADED],
             {
                 Intention.FIX_CONF: [
@@ -129,7 +108,10 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
         ),
         (
             BreakingChange.EXTENSION_REMOVED,
-            COMPARE_TO_EMPTY_STRING,
+            Information(
+                msgid_or_symbol="compare-to-empty-string",
+                extension="pylint.extensions.emptystring",
+            ),
             [Condition.MESSAGE_IS_NOT_DISABLED, Condition.EXTENSION_IS_LOADED],
             {
                 Intention.FIX_CONF: [
@@ -142,7 +124,10 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
     "4.0.0": [
         (
             BreakingChange.OPTION_REMOVED,
-            SUGGESTION_MODE_REMOVED,
+            Information(
+                option="suggestion-mode",
+                description="This option is no longer used and should be removed",
+            ),
             [Condition.OPTION_IS_PRESENT],
             {
                 Intention.FIX_CONF: [Solution.REMOVE_OPTION],
@@ -150,7 +135,20 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
         ),
         (
             BreakingChange.OPTION_BEHAVIOR_CHANGED,
-            INVALID_NAME_CONST_BEHAVIOR,
+            Information(
+                option=["const-rgx", "const-naming-style"],
+                description=textwrap.dedent(
+                    """
+                    In 'invalid-name', module-level constants that are reassigned are now treated
+                    as variables and checked against ``--variable-rgx`` rather than ``--const-rgx``.
+                    Module-level lists, sets, and objects can pass against either regex.
+
+                    You may need to adjust this option to match your naming conventions.
+
+                    See the release notes for concrete examples:
+                    https://pylint.readthedocs.io/en/stable/whatsnew/4/4.0/index.html""",
+                ),
+            ),
             [],
             {
                 Intention.KEEP: [Solution.REVIEW_OPTION],
