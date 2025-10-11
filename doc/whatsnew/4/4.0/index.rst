@@ -285,7 +285,7 @@ False Negatives Fixed
 
   Closes #9770 (`#9770 <https://github.com/pylint-dev/pylint/issues/9770>`_)
 
-- Fix false negative where function-redefined (E0102) was not reported for functions with a leading underscore.
+- Fix false negative where :ref:`function-redefined` (E0102) was not reported for functions with a leading underscore.
 
   Closes #9894 (`#9894 <https://github.com/pylint-dev/pylint/issues/9894>`_)
 
@@ -327,7 +327,7 @@ Other Bug Fixes
 
   Closes #8736. (`#8736 <https://github.com/pylint-dev/pylint/issues/8736>`_)
 
-- Fixed unidiomatic-typecheck only checking left-hand side.
+- Fixed :ref:`unidiomatic-typecheck` only checking left-hand side.
 
   Closes #10217 (`#10217 <https://github.com/pylint-dev/pylint/issues/10217>`_)
 
