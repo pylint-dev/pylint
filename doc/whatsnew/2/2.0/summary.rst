@@ -280,7 +280,7 @@ Other Changes
 
 * Skip wildcard import check for ``__init__.py``.
 
-* Don't warn ':ref:`useless-super-delegation`' if the subclass method has different type annotations.
+* Don't warn :ref:`useless-super-delegation`' if the subclass method has different type annotations.
 
 * Don't warn that a global variable is unused if it is defined by an import
 

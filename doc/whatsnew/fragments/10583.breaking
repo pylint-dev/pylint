@@ -1,3 +1,3 @@
-Removed support for ``nmp.NaN`` alias for ``numpy.NaN`` being recognized in ':ref:`nan-comparison`'. Use ``np`` or ``numpy`` instead.
+Removed support for ``nmp.NaN`` alias for ``numpy.NaN`` being recognized in :ref:`nan-comparison`. Use ``np`` or ``numpy`` instead.
 
 Refs #10583

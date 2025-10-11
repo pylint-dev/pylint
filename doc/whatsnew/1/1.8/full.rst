@@ -78,7 +78,7 @@ Release date: 2017-12-15
 
 * Protocol checks (:ref:`not-a-mapping`, :ref:`not-an-iterable` and co.) aren't emitted on classes with dynamic getattr
 
-* Added a new warning, ':ref:`bad-thread-instantiation`'
+* Added a new warning, :ref:`bad-thread-instantiation`'
 
   This message is emitted when the threading.Thread class does not
   receive the target argument, but receives just one argument, which
@@ -147,8 +147,8 @@ Release date: 2017-12-15
 
   Closes #1085
 
-* Disabling ':ref:`wrong-import-order`', ':ref:`wrong-import-position`', or
-  ':ref:`ungrouped-imports`' for a single line now prevents that line from
+* Disabling :ref:`wrong-import-order`', :ref:`wrong-import-position`', or
+  :ref:`ungrouped-imports`' for a single line now prevents that line from
   triggering violations on subsequent lines.
 
   Closes #1336

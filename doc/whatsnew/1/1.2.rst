@@ -66,7 +66,7 @@ Release date: 2014-04-18
 
   Closes BitBucket #170
 
-* Add new warning ':ref:`eval-used`', checking that the builtin function ``eval`` was used.
+* Add new warning :ref:`eval-used`, checking that the builtin function ``eval`` was used.
 
 * Make it possible to show a naming hint for invalid name by setting
   include-naming-hint. Also make the naming hints configurable.
@@ -84,7 +84,7 @@ Release date: 2014-04-18
   warnings; contributed by sebastianu@google.com.
 
 * Added a new configuration option logging-modules to make the list
-  of module names that can be checked for ':ref:`logging-not-lazy`' et. al.
+  of module names that can be checked for :ref:`logging-not-lazy` et. al.
   configurable; contributed by morbo@google.com.
 
 * ensure init-hooks is evaluated before other options, notably load-plugins
@@ -101,7 +101,7 @@ Release date: 2014-04-18
 
   Closes BitBucket #128
 
-* Add new warning, ':ref:`bad-reversed-sequence`', for checking that the
+* Add new warning, :ref:`bad-reversed-sequence`, for checking that the
   reversed() builtin receive a sequence (implements ``__getitem__`` and ``__len__``,
   without being a dict or a dict subclass) or an instance which implements
   ``__reversed__``.
@@ -110,25 +110,25 @@ Release date: 2014-04-18
 
   Closes #8
 
-* Add new warning ':ref:`bad-exception-context`', checking
+* Add new warning :ref:`bad-exception-context`, checking
   that ``raise ... from ...`` uses a proper exception context
   (None or an exception).
 
-* Enhance the check for ':ref:`used-before-assignment`' to look
+* Enhance the check for :ref:`used-before-assignment` to look
   for 'nonlocal' uses.
 
-* Emit ':ref:`undefined-all-variable`' if a package's __all__
+* Emit :ref:`undefined-all-variable` if a package's __all__
   variable contains a missing submodule.
 
   Closes #126
 
-* Add a new warning ':ref:`abstract-class-instantiated`' for checking
+* Add a new warning :ref:`abstract-class-instantiated` for checking
   that abstract classes created with ``abc`` module and
   with abstract methods are instantiated.
 
-* Do not warn about ':ref:`return-arg-in-generator`' in Python 3.3+.
+* Do not warn about :ref:`return-arg-in-generator` in Python 3.3+.
 
-* Do not warn about ':ref:`abstract-method`' when the abstract method
+* Do not warn about :ref:`abstract-method` when the abstract method
   is implemented through assignment
 
   Closes #155

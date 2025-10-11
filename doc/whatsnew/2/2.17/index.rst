@@ -444,7 +444,7 @@ False Positives Fixed
 False Negatives Fixed
 ---------------------
 
-- Fix a false negative for ':ref:`missing-parentheses-for-call-in-test`' when
+- Fix a false negative for :ref:`missing-parentheses-for-call-in-test`' when
   inference
   failed for the internal of the call as we did not need that information to
   raise
