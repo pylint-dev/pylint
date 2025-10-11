@@ -15,7 +15,7 @@ from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Literal
 
 import astroid
-from astroid import bases, nodes, util
+from astroid import arguments, bases, nodes, util
 from astroid.typing import SuccessfulInferenceResult
 
 from pylint.checkers import BaseChecker, BaseRawFileChecker, BaseTokenChecker, utils
@@ -473,7 +473,7 @@ class StringFormatChecker(BaseChecker):
         if not (isinstance(strnode, nodes.Const) and isinstance(strnode.value, str)):
             return
         try:
-            call_site = astroid.arguments.CallSite.from_call(node)
+            call_site = arguments.CallSite.from_call(node)
         except astroid.InferenceError:
             return
 

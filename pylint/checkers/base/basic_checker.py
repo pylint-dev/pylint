@@ -12,7 +12,7 @@ from collections.abc import Iterator
 from typing import TYPE_CHECKING, Literal, cast
 
 import astroid
-from astroid import nodes, objects, util
+from astroid import bases, nodes, objects, util
 
 from pylint import utils as lint_utils
 from pylint.checkers import BaseChecker, utils
@@ -311,7 +311,7 @@ class BasicChecker(_BasicChecker):
             nodes.Lambda,
             nodes.FunctionDef,
             nodes.ClassDef,
-            astroid.bases.Generator,
+            bases.Generator,
             astroid.UnboundMethod,
             astroid.BoundMethod,
             nodes.Module,
@@ -717,7 +717,7 @@ class BasicChecker(_BasicChecker):
         match node.test:
             case nodes.Tuple(elts=elts) if len(elts) > 0:
                 self.add_message("assert-on-tuple", node=node, confidence=HIGH)
-            case nodes.Const(value=str(val)):
+            case nodes.Const(value=str() as val):
                 when = "never" if val else "always"
                 self.add_message("assert-on-string-literal", node=node, args=(when,))
 

@@ -59,22 +59,17 @@ class NewStyleConflictChecker(BaseChecker):
             if not isinstance(expr, nodes.Attribute):
                 continue
 
-            call = expr.expr
-            # skip the test if using super
-            if not (
-                isinstance(call, nodes.Call)
-                and isinstance(call.func, nodes.Name)
-                and call.func.name == "super"
-            ):
-                continue
-
-            # super first arg should not be the class
-            if not call.args:
-                continue
+            match call := expr.expr:
+                case nodes.Call(func=nodes.Name(name="super"), args=[arg0, *_]):
+                    pass
+                case _:
+                    # skip the test if using super
+                    # super first arg should not be the class
+                    continue
 
             # calling super(type(self), self) can lead to recursion loop
             # in derived classes
-            match call.args[0]:
+            match arg0:
                 case nodes.Call(func=nodes.Name(name="type")):
                     self.add_message("bad-super-call", node=call, args=("type",))
                     continue

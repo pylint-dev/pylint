@@ -689,11 +689,17 @@ Match Statements checker Messages
 :invalid-match-args-definition (E1902): *`__match_args__` must be a tuple of strings.*
   Emitted if `__match_args__` isn't a tuple of strings required for match.
 :too-many-positional-sub-patterns (E1903): *%s expects %d positional sub-patterns (given %d)*
-  Emitted when the number of allowed positional sub-patterns exceeds the
-  number of allowed sub-patterns specified in `__match_args__`.
+  Emitted when the number of allowed positional sub-patterns exceeds the number
+  of allowed sub-patterns specified in `__match_args__`.
 :multiple-class-sub-patterns (E1904): *Multiple sub-patterns for attribute %s*
-  Emitted when there is more than one sub-pattern for a specific attribute in
-  a class pattern.
+  Emitted when there is more than one sub-pattern for a specific attribute in a
+  class pattern.
+:match-class-bind-self (R1905): *Use '%s() as %s' instead*
+  Match class patterns are faster if the name binding happens for the whole
+  pattern and any lookup for `__match_args__` can be avoided.
+:match-class-positional-attributes (R1906): *Use keyword attributes instead of positional ones (%s)*
+  Keyword attributes are more explicit and slightly faster since CPython can
+  skip the `__match_args__` lookup.
 
 
 Method Args checker
@@ -1278,6 +1284,9 @@ Typecheck checker Messages
 :invalid-slice-step (E1144): *Slice step cannot be 0*
   Used when a slice step is 0 and the object doesn't implement a custom
   __getitem__ method.
+:async-context-manager-with-regular-with (E1145): *Context manager '%s' is async and should be used with 'async with'.*
+  Used when an async context manager is used with a regular 'with' statement
+  instead of 'async with'.
 :keyword-arg-before-vararg (W1113): *Keyword argument before variable positional arguments list in the definition of %s function*
   When defining a keyword argument before variable positional arguments, one
   can end up in having multiple values passed for the aforementioned parameter

@@ -1,0 +1,3 @@
+Fix false positive ``inconsistent-return-statements`` when using ``quit()`` or ``exit()`` functions.
+
+Closes #10508

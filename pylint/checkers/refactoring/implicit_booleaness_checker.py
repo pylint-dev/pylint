@@ -17,9 +17,7 @@ from pylint.interfaces import HIGH, INFERENCE
 def _is_constant_zero(node: str | nodes.NodeNG) -> bool:
     # We have to check that node.value is not False because node.value == 0 is True
     # when node.value is False
-    return (
-        isinstance(node, astroid.Const) and node.value == 0 and node.value is not False
-    )
+    return isinstance(node, nodes.Const) and node.value == 0 and node.value is not False
 
 
 class ImplicitBooleanessChecker(checkers.BaseChecker):
@@ -195,7 +193,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             return
 
         negation_redundant_ops = {"!=", "is not"}
-        # note: astroid.Compare has the left most operand in node.left
+        # note: nodes.Compare has the left most operand in node.left
         # while the rest are a list of tuples in node.ops
         # the format of the tuple is ('compare operator sign', node)
         # here we squash everything into `ops` to make it easier for processing later

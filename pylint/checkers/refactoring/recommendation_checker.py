@@ -210,15 +210,14 @@ class RecommendationChecker(checkers.BaseChecker):
             return
 
         # Is it a proper len call?
-        if not isinstance(node.iter.args[-1], nodes.Call):
-            return
-        second_func = node.iter.args[-1].func
-        if not self._is_builtin(second_func, "len"):
-            return
-        len_args = node.iter.args[-1].args
-        if not len_args or len(len_args) != 1:
-            return
-        iterating_object = len_args[0]
+        match node.iter.args:
+            case [
+                *_,
+                nodes.Call(func=second_func, args=[iterating_object]),
+            ] if self._is_builtin(second_func, "len"):
+                pass
+            case _:
+                return
         if isinstance(iterating_object, nodes.Name):
             expected_subscript_val_type = nodes.Name
         elif isinstance(iterating_object, nodes.Attribute):
@@ -393,10 +392,7 @@ class RecommendationChecker(checkers.BaseChecker):
                     # If star expressions with more than 1 element are being used
                     if isinstance(arg, nodes.Starred):
                         inferred = utils.safe_infer(arg.value)
-                        if (
-                            isinstance(inferred, astroid.List)
-                            and len(inferred.elts) > 1
-                        ):
+                        if isinstance(inferred, nodes.List) and len(inferred.elts) > 1:
                             return
                     # Backslashes can't be in f-string expressions
                     if "\\" in arg.as_string():

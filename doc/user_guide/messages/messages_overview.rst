@@ -53,6 +53,7 @@ All messages in the error category:
    error/assigning-non-slot
    error/assignment-from-no-return
    error/assignment-from-none
+   error/async-context-manager-with-regular-with
    error/await-outside-async
    error/bad-configuration-section
    error/bad-except-order
@@ -490,6 +491,7 @@ All messages in the refactor category:
    refactor/condition-evals-to-constant
    refactor/confusing-consecutive-elif
    refactor/consider-alternative-union-syntax
+   refactor/consider-math-not-float
    refactor/consider-merging-isinstance
    refactor/consider-refactoring-into-while-condition
    refactor/consider-swap-variables
@@ -517,6 +519,8 @@ All messages in the refactor category:
    refactor/inconsistent-return-statements
    refactor/literal-comparison
    refactor/magic-value-comparison
+   refactor/match-class-bind-self
+   refactor/match-class-positional-attributes
    refactor/no-classmethod-decorator
    refactor/no-else-break
    refactor/no-else-continue

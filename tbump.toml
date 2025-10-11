@@ -26,6 +26,10 @@ src = "pylint/__pkginfo__.py"
 # and before the git commit is made
 
 [[before_commit]]
+name = "Clean-up / normalize functional tests output"
+cmd = "python tests/test_functional.py --update-functional-output"
+
+[[before_commit]]
 name = "Normalize file ending"
 cmd = "git add --renormalize ."
 

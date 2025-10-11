@@ -1,3 +1,0 @@
-Remove `getopt` and `optparse` from the list of deprecated modules.
-
-Closes #10211

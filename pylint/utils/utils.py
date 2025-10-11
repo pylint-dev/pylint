@@ -28,7 +28,7 @@ from io import BufferedReader, BytesIO
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Literal, TextIO, TypeVar
 
-from astroid import Module, modutils, nodes
+from astroid import modutils, nodes
 
 from pylint.constants import PY_EXTS
 from pylint.typing import OptionDict
@@ -104,7 +104,7 @@ def get_module_and_frameid(node: nodes.NodeNG) -> tuple[str, str]:
     frame = node.frame()
     module, obj = "", []
     while frame:
-        if isinstance(frame, Module):
+        if isinstance(frame, nodes.Module):
             module = frame.name
         else:
             obj.append(getattr(frame, "name", "<lambda>"))

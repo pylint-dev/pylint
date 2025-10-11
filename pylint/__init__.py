@@ -112,7 +112,7 @@ def _catch_valueerror(unraisable: sys.UnraisableHookArgs) -> None:  # pragma: no
     sys.__unraisablehook__(unraisable)
 
 
-if (3, 12, 0) <= sys.version_info[:3] < (3, 12, 3):
+if (3, 12, 0) <= sys.version_info[:3] < (3, 12, 3) or sys.version_info >= (3, 12, 5):
     sys.unraisablehook = _catch_valueerror
 
 

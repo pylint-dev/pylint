@@ -196,9 +196,9 @@ class PrivateImportChecker(BaseChecker):
         or a Subscript e.g. `Optional[type]` or an Attribute, e.g. `pylint.lint.linter`.
         """
         match node:
-            case nodes.Name() if node.name not in all_used_type_annotations:
-                all_used_type_annotations[node.name] = True
-                return node.name  # type: ignore[no-any-return]
+            case nodes.Name(name=name) if name not in all_used_type_annotations:
+                all_used_type_annotations[name] = True
+                return name  # type: ignore[no-any-return]
             case nodes.Subscript():  # e.g. Optional[List[str]]
                 # slice is the next nested type
                 self._populate_type_annotations_annotation(
@@ -226,15 +226,15 @@ class PrivateImportChecker(BaseChecker):
             # possible illegal access elsewhere
             return False
         for assignment in assignments:
-            current_attribute = None
-            if isinstance(assignment.value, nodes.Call):
-                current_attribute = assignment.value.func
-            elif isinstance(assignment.value, nodes.Attribute):
-                current_attribute = assignment.value
-            elif isinstance(assignment.value, nodes.Name):
-                current_attribute = assignment.value.name
-            if not current_attribute:
-                continue
+            match assignment.value:
+                case (
+                    nodes.Call(func=current_attribute)
+                    | (nodes.Attribute() as current_attribute)
+                    | nodes.Name(name=current_attribute)
+                ):
+                    pass
+                case _:
+                    continue
             while isinstance(current_attribute, (nodes.Attribute, nodes.Call)):
                 if isinstance(current_attribute, nodes.Call):
                     current_attribute = current_attribute.func

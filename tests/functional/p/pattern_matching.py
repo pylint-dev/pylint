@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring,invalid-name,too-few-public-methods
+# pylint: disable=match-class-positional-attributes
 
 class Point2D:
     __match_args__ = ("x", "y")

@@ -10,7 +10,7 @@ from collections.abc import Iterable
 from typing import Any
 
 import astroid
-from astroid import nodes, util
+from astroid import nodes, objects, util
 
 from pylint.checkers.utils import decorated_with_property, in_type_checking_block
 from pylint.pyreverse.utils import FilterMixIn, get_annotation_label
@@ -164,7 +164,7 @@ class ClassDiagram(Figure, FilterMixIn):
             m
             for m in node.values()
             if isinstance(m, nodes.FunctionDef)
-            and not isinstance(m, astroid.objects.Property)
+            and not isinstance(m, objects.Property)
             and not decorated_with_property(m)
             and self.show_attr(m.name)
         ]
@@ -275,7 +275,7 @@ class ClassDiagram(Figure, FilterMixIn):
                     )
 
     def assign_association_relationship(
-        self, value: astroid.NodeNG, obj: ClassEntity, name: str, type_relationship: str
+        self, value: nodes.NodeNG, obj: ClassEntity, name: str, type_relationship: str
     ) -> None:
         if isinstance(value, util.UninferableBase):
             return

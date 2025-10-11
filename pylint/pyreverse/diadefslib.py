@@ -219,7 +219,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         return (self.classdiagram,)
 
     def visit_module(self, node: nodes.Module) -> None:
-        """Visit an astroid.Module node.
+        """Visit an nodes.Module node.
 
         add this class to the package diagram definition
         """
@@ -228,7 +228,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
             self.pkgdiagram.add_object(node.name, node)
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        """Visit an astroid.Class node.
+        """Visit an nodes.Class node.
 
         add this class to the class diagram definition
         """
@@ -236,7 +236,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         self.extract_classes(node, anc_level, association_level)
 
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        """Visit astroid.ImportFrom  and catch modules for package diagram."""
+        """Visit nodes.ImportFrom  and catch modules for package diagram."""
         if self.pkgdiagram and self._should_include_by_depth(node):
             self.pkgdiagram.add_from_depend(node, node.modname)
 
