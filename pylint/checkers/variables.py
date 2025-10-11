@@ -1608,7 +1608,7 @@ class VariablesChecker(BaseChecker):
 
         module = frame.root()
         default_message = True
-        locals_ = node.scope().locals
+        module_locals = node.root().locals
         for name in node.names:
             try:
                 assign_nodes = module.getattr(name)
@@ -1618,7 +1618,7 @@ class VariablesChecker(BaseChecker):
 
             not_defined_locally_by_import = not any(
                 isinstance(local, (nodes.Import, nodes.ImportFrom))
-                for local in locals_.get(name, ())
+                for local in module_locals.get(name, ())
             )
             if (
                 not utils.is_reassigned_after_current(node, name)

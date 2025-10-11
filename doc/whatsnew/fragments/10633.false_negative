@@ -1,0 +1,3 @@
+Fix false-negative where :ref:`unused-import` was not reported for names referenced in a preceding ``global`` statement.
+
+Refs #10633
