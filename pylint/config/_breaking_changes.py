@@ -24,6 +24,7 @@ class BreakingChange(enum.Enum):
     MESSAGE_MOVED_TO_EXTENSION = "{symbol} ({msgid}) was moved to {extension}"
     EXTENSION_REMOVED = "{extension} was removed"
     OPTION_REMOVED = "{option} option was removed"
+    OPTION_RENAMED = "{option} option was renamed to {new_value}"
     OPTION_BEHAVIOR_CHANGED = "{option} behavior changed: {description}"
     # This kind of upgrade is non-breaking but if we want to automatically upgrade it,
     # then we should use the message store and old_names values instead of duplicating
@@ -38,6 +39,7 @@ class Condition(enum.Enum):
     EXTENSION_IS_LOADED = "{extension} is loaded"
     EXTENSION_IS_NOT_LOADED = "{extension} is not loaded"
     OPTION_IS_PRESENT = "{option} is present in configuration"
+    OPTION_IS_NOT_PRESENT = "{option} is not present in configuration"
 
 
 class Information(NamedTuple):
@@ -45,6 +47,7 @@ class Information(NamedTuple):
     extension: str | None = None
     option: list[str] | str | None = None
     description: str | None = None
+    new_value: str | None = None
 
 
 class Solution(enum.Enum):
@@ -64,6 +67,7 @@ class Solution(enum.Enum):
     )
     REMOVE_OPTION = "Remove {option} from configuration"
     REVIEW_OPTION = "Review and adjust or remove {option}: {description}"
+    RENAME_OPTION = "Rename {option} to {new_value}"
     DO_NOTHING = "Do nothing"
 
 
@@ -80,6 +84,17 @@ NO_SELF_USE = Information(
     msgid_or_symbol="no-self-use", extension="pylint.extensions.no_self_use"
 )
 CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
+    "2.7.3": [
+        (
+            BreakingChange.OPTION_RENAMED,
+            Information(
+                option="extension-pkg-whitelist",
+                new_value="extension-pkg-allow-list",
+            ),
+            [Condition.OPTION_IS_PRESENT],
+            {Intention.FIX_CONF: [Solution.RENAME_OPTION]},
+        ),
+    ],
     "2.14.0": [
         (
             BreakingChange.MESSAGE_MOVED_TO_EXTENSION,
