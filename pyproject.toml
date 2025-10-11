@@ -273,6 +273,11 @@ module = [
   "sphinx.*",
 ]
 
+# For local tests: Enable follow_untyped_imports overwrite for astroid
+# [[tool.mypy.overrides]]
+# module = ["astroid.*"]
+# follow_untyped_imports = true
+
 [tool.pyright]
 include = [
   "pylint",
