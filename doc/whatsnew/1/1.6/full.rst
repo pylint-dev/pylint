@@ -59,12 +59,12 @@ Release date: 2016-07-03
 
   Closes #923
 
-* bad-builtin is now an extension check.
+* :ref:`bad-builtin` is now an extension check.
 
 * generated-members support qualified name through regular expressions.
 
   For instance, one can specify a regular expression as --generated-members=astroid.node_classes.*
-  for ignoring every no-member error that is accessed as in ``astroid.node_classes.missing.object``.
+  for ignoring every :ref:`no-member` error that is accessed as in ``astroid.node_classes.missing.object``.
 
 * Add the ability to ignore files based on regex matching, with the new ``--ignore-patterns``
   option. Allow for multiple ignore patterns to be specified. Rather than clobber the existing
@@ -72,7 +72,7 @@ Release date: 2016-07-03
 
   Closes #156
 
-* Added a new error, 'trailing-newlines', which is emitted when a file
+* Added a new error, ':ref:`trailing-newlines`', which is emitted when a file
   has trailing new lines.
 
   Closes #682
@@ -86,7 +86,7 @@ Release date: 2016-07-03
 
   Closes #162
 
-* Add a new recommendation checker, 'consider-iterating-dictionary', which is emitted
+* Add a new recommendation checker, ':ref:`consider-iterating-dictionary`', which is emitted
   which is emitted when a dictionary is iterated through .keys().
 
   Closes #699
@@ -98,12 +98,12 @@ Release date: 2016-07-03
 
   Closes #828
 
-* A new error was added, 'invalid-length-returned', when the ``__len__``
+* A new error was added, ':ref:`invalid-length-returned`', when the ``__len__``
   special method returned something else than a non-negative number.
 
   Closes #557
 
-* Switch to using isort internally for wrong-import-order.
+* Switch to using isort internally for :ref:`wrong-import-order`.
 
   Closes #879
 
@@ -111,14 +111,14 @@ Release date: 2016-07-03
 
   Closes #887
 
-* Don't warn about invalid-sequence-index if the indexed object has unknown base
+* Don't warn about :ref:`invalid-sequence-index` if the indexed object has unknown base
   classes.
 
   Closes #867
 
-* Don't crash when checking, for super-init-not-called, a method defined in an if block.
+* Don't crash when checking, for :ref:`super-init-not-called`, a method defined in an if block.
 
-* Do not emit import-error or no-name-in-module for fallback import blocks by default.
+* Do not emit :ref:`import-error` or :ref:`no-name-in-module` for fallback import blocks by default.
 
   Until now, we warned with these errors when a fallback import block (a TryExcept block
   that contained imports for Python 2 and 3) was found, but this gets cumbersome when

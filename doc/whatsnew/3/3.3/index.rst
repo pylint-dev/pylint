@@ -22,7 +22,7 @@ Release date: 2025-10-05
 False Positives Fixed
 ---------------------
 
-- Fix used-before-assignment for PEP 695 type aliases and parameters.
+- Fix :ref:`used-before-assignment` for PEP 695 type aliases and parameters.
 
   Closes #9815 (`#9815 <https://github.com/pylint-dev/pylint/issues/9815>`_)
 
@@ -424,7 +424,7 @@ Internal Changes
 ----------------
 
 - All variables, classes, functions and file names containing the word 'similar', when it was,
-  in fact, referring to 'symilar' (the standalone program for the duplicate-code check) were renamed
+  in fact, referring to 'symilar' (the standalone program for the :ref:`duplicate-code` check) were renamed
   to 'symilar'.
 
   Closes #9734 (`#9734 <https://github.com/pylint-dev/pylint/issues/9734>`_)

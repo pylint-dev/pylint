@@ -179,4 +179,4 @@ Release date: 2021-08-20
 
 * Improve performance when inferring ``Call`` nodes, by utilizing caching.
 
-* Improve error message for invalid-metaclass when the node is an Instance.
+* Improve error message for :ref:`invalid-metaclass` when the node is an Instance.

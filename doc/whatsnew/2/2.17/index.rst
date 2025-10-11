@@ -220,7 +220,7 @@ False Positives Fixed
 
   Closes #8410 (`#8410 <https://github.com/pylint-dev/pylint/issues/8410>`_)
 
-- Fix false positive for isinstance-second-argument-not-valid-type when union
+- Fix false positive for :ref:`isinstance-second-argument-not-valid-type` when union
   types contains None.
 
   Closes #8424 (`#8424 <https://github.com/pylint-dev/pylint/issues/8424>`_)
@@ -424,7 +424,7 @@ False Positives Fixed
 
   Closes #7574 (`#7574 <https://github.com/pylint-dev/pylint/issues/7574>`_)
 
-- Fix false positive for isinstance-second-argument-not-valid-type with union
+- Fix false positive for :ref:`isinstance-second-argument-not-valid-type` with union
   types.
 
   Closes #8205 (`#8205 <https://github.com/pylint-dev/pylint/issues/8205>`_)
@@ -444,7 +444,7 @@ False Positives Fixed
 False Negatives Fixed
 ---------------------
 
-- Fix a false negative for 'missing-parentheses-for-call-in-test' when
+- Fix a false negative for ':ref:`missing-parentheses-for-call-in-test`' when
   inference
   failed for the internal of the call as we did not need that information to
   raise

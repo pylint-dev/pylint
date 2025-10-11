@@ -79,7 +79,7 @@ Release date: 2021-07-20
 
   Closes #4715
 
-* Clarify documentation for consider-using-from-import
+* Clarify documentation for :ref:`consider-using-from-import`
 
 * Don't emit ``unreachable`` warning for empty generator functions
 
@@ -288,7 +288,7 @@ Release date: 2021-06-29
   Closes #585
 
 * Fix a crash when a plugin from the configuration could not be loaded and raise an error
-  'bad-plugin-value' instead
+  ':ref:`bad-plugin-value`' instead
 
   Closes #4555
 

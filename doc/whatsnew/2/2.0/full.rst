@@ -65,7 +65,7 @@ Release date: 2018-07-15
 
   Closes #2081
 
-* Support typing.TYPE_CHECKING for *unused-import* errors
+* Support typing.TYPE_CHECKING for *:ref:`unused-import`* errors
 
   Closes #1948
 
@@ -106,14 +106,14 @@ Release date: 2018-07-15
 
   Closes #2076
 
-* invalid-slice-index is not emitted when the slice is used as index for a complex object.
+* :ref:`invalid-slice-index` is not emitted when the slice is used as index for a complex object.
 
   We only use a handful of known objects (list, set and friends) to figure out if
-  we should emit invalid-slice-index when the slice is used to subscript an object.
+  we should emit :ref:`invalid-slice-index` when the slice is used to subscript an object.
 
 * Don't emit ``unused-import`` anymore for typing imports used in type comments.
 
-* Add a new check 'useless-import-alias'.
+* Add a new check ':ref:`useless-import-alias`'.
 
   Closes #2052
 
@@ -140,12 +140,12 @@ Release date: 2018-07-15
 
   Closes #2051
 
-* Add a new warning, 'logging-fstring-interpolation', emitted when f-string
+* Add a new warning, ':ref:`logging-fstring-interpolation`', emitted when f-string
   is used within logging function calls.
 
   Closes #1998
 
-* Don't show 'useless-super-delegation' if the subclass method has different type annotations.
+* Don't show ':ref:`useless-super-delegation`' if the subclass method has different type annotations.
 
   Closes #1923
 
@@ -198,7 +198,7 @@ Release date: 2018-07-15
 
   Closes #1788
 
-* Don't trigger misplaced-bare-raise when the raise is in a finally clause
+* Don't trigger :ref:`misplaced-bare-raise` when the raise is in a finally clause
 
   Closes #1924
 
@@ -256,7 +256,7 @@ Release date: 2018-07-15
 
   Closes #1831
 
-* Fix stop-iteration-return false positive when next builtin has a
+* Fix :ref:`stop-iteration-return` false positive when next builtin has a
   default value in a generator
 
   Closes #1830
@@ -329,7 +329,7 @@ Release date: 2018-07-15
 
   Closes #1120
 
-* Fix false positive undefined-variable for lambda argument in class definitions
+* Fix false positive :ref:`undefined-variable` for lambda argument in class definitions
 
   Closes #1824
 
@@ -351,7 +351,7 @@ Release date: 2018-07-15
 
   Closes #638
 
-* Fix false positive unused-variable in lambda default arguments
+* Fix false positive :ref:`unused-variable` in lambda default arguments
 
   Closes #1921
   Closes #1552
@@ -368,7 +368,7 @@ Release date: 2018-07-15
 
   Closes #2102
 
-* Fix 'method-hidden' raised when assigning to a property or data descriptor.
+* Fix ':ref:`method-hidden`' raised when assigning to a property or data descriptor.
 
 * Fix emitting ``useless-super-delegation`` when changing the default value of keyword arguments.
 
@@ -378,7 +378,7 @@ Release date: 2018-07-15
 
   Closes #2214
 
-* Fix false-positive undefined-variable in nested lambda
+* Fix false-positive :ref:`undefined-variable` in nested lambda
 
   Closes #760
 
