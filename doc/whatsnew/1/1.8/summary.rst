@@ -271,7 +271,7 @@ New checkers
 Other Changes
 =============
 
-* Fixing u'' string in superfluous-parens message.
+* Fixing u'' string in :ref:`superfluous-parens` message.
 
 * Configuration options of invalid name checker are significantly redesigned.
   Predefined rules for common naming styles were introduced. For typical
@@ -312,7 +312,7 @@ Other Changes
 * Spelling checker has a new configuration parameter ``max-spelling-suggestions``, which
   affects maximum count of suggestions included in emitted message.
 
-* The **invalid-name** check contains the name of the template that caused the failure.
+* The **:ref:`invalid-name`** check contains the name of the template that caused the failure.
 
   For the given code, **pylint** used to emit ``invalid-name`` in the form ``Invalid constant name var``,
   without offering any context why ``var`` is not such a good name.
