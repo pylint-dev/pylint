@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import enum
+import textwrap
 from typing import NamedTuple
 
 
@@ -23,6 +24,7 @@ class BreakingChange(enum.Enum):
     MESSAGE_MOVED_TO_EXTENSION = "{symbol} ({msgid}) was moved to {extension}"
     EXTENSION_REMOVED = "{extension} was removed"
     OPTION_REMOVED = "{option} option was removed"
+    OPTION_RENAMED = "{option} option was renamed to {new_value}"
     OPTION_BEHAVIOR_CHANGED = "{option} behavior changed: {description}"
     # This kind of upgrade is non-breaking but if we want to automatically upgrade it,
     # then we should use the message store and old_names values instead of duplicating
@@ -37,13 +39,18 @@ class Condition(enum.Enum):
     EXTENSION_IS_LOADED = "{extension} is loaded"
     EXTENSION_IS_NOT_LOADED = "{extension} is not loaded"
     OPTION_IS_PRESENT = "{option} is present in configuration"
+    OPTION_IS_NOT_PRESENT = "{option} is not present in configuration"
 
 
-class Information(NamedTuple):
-    msgid_or_symbol: str | None = None
+class MessageInformation(NamedTuple):
+    msgid_or_symbol: str
     extension: str | None = None
-    option: list[str] | str | None = None
+
+
+class OptionInformation(NamedTuple):
+    option: list[str] | str
     description: str | None = None
+    new_value: str | None = None
 
 
 class Solution(enum.Enum):
@@ -63,6 +70,7 @@ class Solution(enum.Enum):
     )
     REMOVE_OPTION = "Remove {option} from configuration"
     REVIEW_OPTION = "Review and adjust or remove {option}: {description}"
+    RENAME_OPTION = "Rename {option} to {new_value}"
     DO_NOTHING = "Do nothing"
 
 
@@ -71,39 +79,26 @@ ConditionsToBeAffected = list[Condition]
 MultipleActionSolution = list[Solution]
 # Sometimes there's multiple solutions and the user needs to choose
 Solutions = dict[Intention, MultipleActionSolution]
+Information = MessageInformation | OptionInformation
 BreakingChangeWithSolution = tuple[
     BreakingChange, Information, ConditionsToBeAffected, Solutions
 ]
 
-NO_SELF_USE = Information(
+NO_SELF_USE = MessageInformation(
     msgid_or_symbol="no-self-use", extension="pylint.extensions.no_self_use"
 )
-COMPARE_TO_ZERO = Information(
-    msgid_or_symbol="compare-to-zero", extension="pylint.extensions.comparetozero"
-)
-COMPARE_TO_EMPTY_STRING = Information(
-    msgid_or_symbol="compare-to-empty-string",
-    extension="pylint.extensions.emptystring",
-)
-
-SUGGESTION_MODE_REMOVED = Information(
-    option="suggestion-mode",
-    description="This option is no longer used and should be removed",
-)
-
-INVALID_NAME_CONST_BEHAVIOR = Information(
-    option=["const-rgx", "const-naming-style"],
-    description="""\
-In 'invalid-name', module-level constants that are reassigned are now treated
-as variables and checked against ``--variable-rgx`` rather than ``--const-rgx``.
-Module-level lists, sets, and objects can pass against either regex.
-
-You may need to adjust this option to match your naming conventions.
-
-See the release notes for concrete examples: https://pylint.readthedocs.io/en/stable/whatsnew/4/4.0/index.html""",
-)
-
 CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
+    "2.7.3": [
+        (
+            BreakingChange.OPTION_RENAMED,
+            OptionInformation(
+                option="extension-pkg-whitelist",
+                new_value="extension-pkg-allow-list",
+            ),
+            [Condition.OPTION_IS_PRESENT],
+            {Intention.FIX_CONF: [Solution.RENAME_OPTION]},
+        ),
+    ],
     "2.14.0": [
         (
             BreakingChange.MESSAGE_MOVED_TO_EXTENSION,
@@ -118,7 +113,10 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
     "3.0.0": [
         (
             BreakingChange.EXTENSION_REMOVED,
-            COMPARE_TO_ZERO,
+            MessageInformation(
+                msgid_or_symbol="compare-to-zero",
+                extension="pylint.extensions.comparetozero",
+            ),
             [Condition.MESSAGE_IS_NOT_DISABLED, Condition.EXTENSION_IS_LOADED],
             {
                 Intention.FIX_CONF: [
@@ -129,7 +127,10 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
         ),
         (
             BreakingChange.EXTENSION_REMOVED,
-            COMPARE_TO_EMPTY_STRING,
+            MessageInformation(
+                msgid_or_symbol="compare-to-empty-string",
+                extension="pylint.extensions.emptystring",
+            ),
             [Condition.MESSAGE_IS_NOT_DISABLED, Condition.EXTENSION_IS_LOADED],
             {
                 Intention.FIX_CONF: [
@@ -142,7 +143,10 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
     "4.0.0": [
         (
             BreakingChange.OPTION_REMOVED,
-            SUGGESTION_MODE_REMOVED,
+            OptionInformation(
+                option="suggestion-mode",
+                description="This option is no longer used and should be removed",
+            ),
             [Condition.OPTION_IS_PRESENT],
             {
                 Intention.FIX_CONF: [Solution.REMOVE_OPTION],
@@ -150,7 +154,20 @@ CONFIGURATION_BREAKING_CHANGES: dict[str, list[BreakingChangeWithSolution]] = {
         ),
         (
             BreakingChange.OPTION_BEHAVIOR_CHANGED,
-            INVALID_NAME_CONST_BEHAVIOR,
+            OptionInformation(
+                option=["const-rgx", "const-naming-style"],
+                description=textwrap.dedent(
+                    """\
+                    In 'invalid-name', module-level constants that are reassigned are now treated
+                    as variables and checked against ``--variable-rgx`` rather than ``--const-rgx``.
+                    Module-level lists, sets, and objects can pass against either regex.
+
+                    You may need to adjust this option to match your naming conventions.
+
+                    See the release notes for concrete examples: \
+                    https://pylint.readthedocs.io/en/stable/whatsnew/4/4.0/index.html""",
+                ),
+            ),
             [],
             {
                 Intention.KEEP: [Solution.REVIEW_OPTION],
