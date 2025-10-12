@@ -1,3 +1,0 @@
-Fix false negative where :ref:`function-redefined` was not reported for functions with a leading underscore.
-
-Closes #9894

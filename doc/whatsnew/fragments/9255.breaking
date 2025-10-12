@@ -1,3 +1,0 @@
-Commented out code blocks such as ``#    bar() # TODO: remove dead code`` will no longer emit ``fixme``.
-
-Refs #9255
