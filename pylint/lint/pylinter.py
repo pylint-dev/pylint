@@ -364,6 +364,7 @@ class PyLinter(
         self.msgs_store = MessageDefinitionStore(self.config.py_version)
         self.msg_status = 0
         self._by_id_managed_msgs: list[ManagedMessage] = []
+        self._freeze_register_msgs = False
 
         # Attributes related to visiting files
         self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
@@ -506,13 +507,13 @@ class PyLinter(
         self._registered_checkers.add((checker.name, checker))
         for r_id, r_title, r_cb in checker.reports:
             self.register_report(r_id, r_title, r_cb, checker)
-        if hasattr(checker, "msgs"):
+        if not self._freeze_register_msgs and hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
             for message in checker.messages:
                 if not message.default_enabled:
                     self.disable(message.msgid)
         # Register the checker, but disable all of its messages.
-        if not getattr(checker, "enabled", True):
+        if not (self._freeze_register_msgs or getattr(checker, "enabled", True)):
             self.disable(checker.name)
 
     def _deregister_checkers(

@@ -7,7 +7,6 @@ from __future__ import annotations
 import functools
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
-from copy import copy
 from typing import TYPE_CHECKING, Any
 
 import dill
@@ -55,19 +54,14 @@ def _worker_initialize(
 
     # Re-register dynamic plugins, since the pool does not have access to the
     # astroid module that existed when the linter was pickled.
-    # Save and restore enabled and disabled messages since those might get overwritten
-    # during the dynamic plugin load.
-    enable = copy(_worker_linter.config.enable)
-    disable = copy(_worker_linter.config.disable)
+    # Freeze register new messages to prevent overwriting enabled and disabled messaged
+    # during dynamic plugin re-load.
+    _worker_linter._freeze_register_msgs = True
     _worker_linter._deregister_checkers(
         _worker_linter._registered_dynamic_plugin_checkers
     )
     _worker_linter.load_plugin_modules(_worker_linter._dynamic_plugins, force=True)
     _worker_linter.load_plugin_configuration()
-    for msg in enable:
-        _worker_linter.linter.enable(msg)
-    for msg in disable:
-        _worker_linter.linter.disable(msg)
 
     if extra_packages_paths:
         _augment_sys_path(extra_packages_paths)
