@@ -46,11 +46,6 @@ class MessageDefinitionStore:
         for message in checker.messages:
             self.register_message(message)
 
-    def deregister_messages_from_checker(self, checker: BaseChecker) -> None:
-        """De-register all message definitions from a checker."""
-        for message in checker.messages:
-            self.deregister_message(message)
-
     def register_message(self, message: MessageDefinition) -> None:
         """Register a MessageDefinition with consistency in mind."""
         self.message_id_store.register_message_definition(
@@ -58,14 +53,6 @@ class MessageDefinitionStore:
         )
         self._messages_definitions[message.msgid] = message
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
-
-    def deregister_message(self, message: MessageDefinition) -> None:
-        """De-register a MessageDefinition."""
-        self.message_id_store.deregister_message_definition(
-            message.msgid, message.symbol, message.old_names
-        )
-        self._messages_definitions.pop(message.msgid)
-        self._msgs_by_category[message.msgid[0]].remove(message.msgid)
 
     # Since MessageDefinitionStore is only initialized once
     # and the arguments are relatively small we do not run the

@@ -59,7 +59,6 @@ def _worker_initialize(
     # during the dynamic plugin load.
     enable = copy(_worker_linter.config.enable)
     disable = copy(_worker_linter.config.disable)
-    _worker_linter._reset_msgs_state()
     _worker_linter._deregister_checkers(
         _worker_linter._registered_dynamic_plugin_checkers
     )

@@ -518,13 +518,14 @@ class PyLinter(
     def _deregister_checkers(
         self, checker_collection: Collection[tuple[str, checkers.BaseChecker]]
     ) -> None:
-        """De-registered a collection of checkers with its reports and messages."""
+        """De-registered a collection of checkers with its reports.
+
+        Leave messages in place as re-registering them is a no-op.
+        """
         for checker_name, checker in checker_collection:
             self._checkers[checker_name].remove(checker)
             if checker.reports:
                 self.deregister_reports(checker)
-            if hasattr(checker, "msgs"):
-                self.msgs_store.deregister_messages_from_checker(checker)
 
     def enable_fail_on_messages(self) -> None:
         """Enable 'fail on' msgs.

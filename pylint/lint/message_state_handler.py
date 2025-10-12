@@ -63,10 +63,6 @@ class _MessageStateHandler:
         option_value and msg_id needed to (later) emit the messages keyed on module names.
         """
 
-    def _reset_msgs_state(self) -> None:
-        """Reset message states."""
-        self._msgs_state = {}
-
     def _set_one_msg_status(
         self, scope: str, msg: MessageDefinition, line: int | None, enable: bool
     ) -> None:

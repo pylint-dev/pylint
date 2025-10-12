@@ -64,14 +64,6 @@ class MessageIdStore:
             self.check_msgid_and_symbol(old_msgid, old_symbol)
             self.add_legacy_msgid_and_symbol(old_msgid, old_symbol, msgid)
 
-    def deregister_message_definition(
-        self, msgid: str, symbol: str, old_names: list[tuple[str, str]]
-    ) -> None:
-        """De-register a message definition."""
-        self.remove_msgid_and_symbol(msgid, symbol)
-        for old_msgid, old_symbol in old_names:
-            self.remove_legacy_msgid_and_symbol(old_msgid, old_symbol, msgid)
-
     def add_msgid_and_symbol(self, msgid: str, symbol: str) -> None:
         """Add valid message id.
 
@@ -80,11 +72,6 @@ class MessageIdStore:
         """
         self.__msgid_to_symbol[msgid] = symbol
         self.__symbol_to_msgid[symbol] = msgid
-
-    def remove_msgid_and_symbol(self, msgid: str, symbol: str) -> None:
-        """Remove valid message id."""
-        self.__msgid_to_symbol.pop(msgid)
-        self.__symbol_to_msgid.pop(symbol)
 
     def add_legacy_msgid_and_symbol(
         self, msgid: str, symbol: str, new_msgid: str
@@ -99,16 +86,6 @@ class MessageIdStore:
         existing_old_names = self.__old_names.get(msgid, [])
         existing_old_names.append(new_msgid)
         self.__old_names[msgid] = existing_old_names
-
-    def remove_legacy_msgid_and_symbol(
-        self, msgid: str, symbol: str, new_msgid: str
-    ) -> None:
-        """Remove valid legacy message id."""
-        self.__msgid_to_symbol.pop(msgid)
-        self.__symbol_to_msgid.pop(symbol)
-        self.__old_names[msgid].remove(new_msgid)
-        if not self.__old_names[msgid]:
-            self.__old_names.pop(msgid)
 
     def check_msgid_and_symbol(self, msgid: str, symbol: str) -> None:
         existing_msgid: str | None = self.__symbol_to_msgid.get(symbol)
