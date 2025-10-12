@@ -34,7 +34,7 @@ For example:
    git commit -am "Upgrade the version to 2.5.0-dev0 following 2.4.0 release"
 
 -  tbump will have created a new ``What's new in Pylint X.Y+1`` document.
-   Add it to ``doc/whatsnew/3/index.rst``. Take a look at the examples from ``doc/whatsnew``.
+   Add it to ``doc/whatsnew/X/index.rst``. Take a look at the examples from ``doc/whatsnew``.
    Commit that with ``git commit -a --amend``.
 - Push to a release branch
 - Open a merge request with the two commits (no one can push directly
