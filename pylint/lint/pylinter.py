@@ -14,7 +14,7 @@ import tokenize
 import traceback
 import warnings
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
@@ -323,6 +323,14 @@ class PyLinter(
         """Dictionary of registered and initialized checkers."""
         self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
+        self._registered_checkers: set[tuple[str, checkers.BaseChecker]] = set()
+        """Set of tuples with loaded checker names and reference to checker."""
+        self._registered_dynamic_plugin_checkers: set[
+            tuple[str, checkers.BaseChecker]
+        ] = set()
+        """Set of tuples with loaded dynamic plugin checker names and reference to
+        checker.
+        """
 
         # Attributes related to stats
         self.stats = LinterStats()
@@ -495,6 +503,7 @@ class PyLinter(
     def register_checker(self, checker: checkers.BaseChecker) -> None:
         """This method auto registers the checker."""
         self._checkers[checker.name].append(checker)
+        self._registered_checkers.add((checker.name, checker))
         for r_id, r_title, r_cb in checker.reports:
             self.register_report(r_id, r_title, r_cb, checker)
         if hasattr(checker, "msgs"):
@@ -505,6 +514,17 @@ class PyLinter(
         # Register the checker, but disable all of its messages.
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)
+
+    def deregister_checkers(
+        self, checker_collection: Collection[tuple[str, checkers.BaseChecker]]
+    ) -> None:
+        """Deregistered a collection of checkers with its reports and messages."""
+        for checker_name, checker in checker_collection:
+            self._checkers[checker_name].remove(checker)
+            if checker.reports:
+                self.deregister_reports(checker)
+            if hasattr(checker, "msgs"):
+                self.msgs_store.deregister_messages_from_checker(checker)
 
     def enable_fail_on_messages(self) -> None:
         """Enable 'fail on' msgs.

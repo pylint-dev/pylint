@@ -48,6 +48,10 @@ class ReportsHandlerMixIn:
         reportid = reportid.upper()
         self._reports[checker].append((reportid, r_title, r_cb))
 
+    def deregister_reports(self, checker: BaseChecker) -> None:
+        """Deregister all reports for a checker."""
+        self._reports.pop(checker)
+
     def enable_report(self, reportid: str) -> None:
         """Enable the report of the given id."""
         reportid = reportid.upper()
