@@ -24,6 +24,7 @@ import pylint.interfaces
 import pylint.lint.parallel
 from pylint.checkers import BaseRawFileChecker
 from pylint.checkers.imports import ImportsChecker
+from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter, augmented_sys_path
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
@@ -216,6 +217,42 @@ class TestCheckParallelFramework:
             max_workers=2, initializer=worker_initialize, initargs=(dill.dumps(linter),)
         ) as executor:
             executor.map(print, [1, 2])
+
+    def test_worker_initialize_custom_plugins(self) -> None:
+        """Test plugins are initialized (only once) and messages are set to
+        enabled and disabled correctly, after the worker linter is initialized.
+        """
+        linter = PyLinter(reporter=Reporter())
+        linter.load_default_plugins()
+        config_data = {
+            "load-plugins": "pylint.extensions.code_style,pylint.extensions.typing",
+        }
+        config_args = [
+            "--enable=consider-using-augmented-assign",
+            "--disable=consider-alternative-union-syntax",
+        ]
+        with patch(
+            "pylint.config.config_file_parser._ConfigurationFileParser.parse_config_file",
+            return_value=(config_data, config_args),
+        ):
+            _config_initialization(linter, [])
+        assert len(linter._checkers["code_style"]) == 1
+        assert len(linter._checkers["typing"]) == 1
+        assert linter.is_message_enabled("consider-using-augmented-assign") is True
+        assert (  # default disabled
+            linter.is_message_enabled("prefer-typing-namedtuple") is False
+        )
+        assert linter.is_message_enabled("consider-alternative-union-syntax") is False
+        worker_initialize(linter=dill.dumps(linter))
+        worker_linter = pylint.lint.parallel._worker_linter
+        assert isinstance(worker_linter, PyLinter)
+        assert len(worker_linter._checkers["code_style"]) == 1
+        assert len(worker_linter._checkers["typing"]) == 1
+        assert linter.is_message_enabled("consider-using-augmented-assign") is True
+        assert (  # default disabled
+            linter.is_message_enabled("prefer-typing-namedtuple") is False
+        )
+        assert linter.is_message_enabled("consider-alternative-union-syntax") is False
 
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
