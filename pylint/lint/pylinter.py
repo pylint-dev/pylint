@@ -515,7 +515,7 @@ class PyLinter(
         if not getattr(checker, "enabled", True):
             self.disable(checker.name)
 
-    def deregister_checkers(
+    def _deregister_checkers(
         self, checker_collection: Collection[tuple[str, checkers.BaseChecker]]
     ) -> None:
         """Deregistered a collection of checkers with its reports and messages."""
