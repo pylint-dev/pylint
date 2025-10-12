@@ -1,0 +1,5 @@
+Version requirement for `isort` has been bumped to >=5.0.0.
+The internal compatibility for older `isort` versions exposed via `pylint.utils.IsortDriver` has
+been removed.
+
+Refs #10637

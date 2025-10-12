@@ -23,7 +23,6 @@ from pylint.testutils.functional import (
     LintModuleOutputUpdate,
     get_functional_test_files_from_directory,
 )
-from pylint.utils import HAS_ISORT_5
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -31,13 +30,6 @@ if TYPE_CHECKING:
 FUNCTIONAL_DIR = Path(__file__).parent.resolve() / "functional"
 
 
-# isort 5 has slightly different rules as isort 4. Testing both would be hard: test with isort 5 only.
-TESTS = [
-    t
-    for t in get_functional_test_files_from_directory(FUNCTIONAL_DIR)
-    if not (t.base == "wrong_import_order" and not HAS_ISORT_5)
-]
-TESTS_NAMES = [t.base for t in TESTS]
 TEST_WITH_EXPECTED_DEPRECATION = [
     "anomalous_backslash_escape",
     "anomalous_unicode_escape",
@@ -55,7 +47,11 @@ def revert_stateful_config_changes(linter: PyLinter) -> Iterator[PyLinter]:
 
 
 @pytest.mark.usefixtures("revert_stateful_config_changes")
-@pytest.mark.parametrize("test_file", TESTS, ids=TESTS_NAMES)
+@pytest.mark.parametrize(
+    "test_file",
+    get_functional_test_files_from_directory(FUNCTIONAL_DIR),
+    ids=lambda x: x.base,
+)
 def test_functional(test_file: FunctionalTestFile, pytestconfig: Config) -> None:
     __tracebackhide__ = True  # pylint: disable=unused-variable
     lint_test: LintModuleOutputUpdate | testutils.LintModuleTest
