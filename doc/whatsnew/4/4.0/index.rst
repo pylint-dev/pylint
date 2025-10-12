@@ -241,7 +241,7 @@ New Checks
   * :ref:`match-class-positional-attributes` is emitted if a class pattern has positional
     attributes when keywords could be used.
 
-  Refs #10586 (`#10586 <https://github.com/pylint-dev/pylint/issues/10586>`_)
+  Refs #10587 (`#10587 <https://github.com/pylint-dev/pylint/issues/10587>`_)
 
 - Add a ``consider-math-not-float`` message. ``float("nan")`` and ``float("inf")`` are slower
   than their counterpart ``math.inf`` and ``math.nan`` by a factor of 4 (notwithstanding
