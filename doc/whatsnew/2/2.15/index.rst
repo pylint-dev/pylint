@@ -497,7 +497,7 @@ Other Bug Fixes
 - Fix a failure to lint packages with ``__init__.py`` contained in directories lacking ``__init__.py``.
 
   Closes #1667 (`#1667 <https://github.com/pylint-dev/pylint/issues/1667>`_)
-- Fixed a syntax-error crash that was not handled properly when the declared encoding of a file
+- Fixed a :ref:`syntax-error` crash that was not handled properly when the declared encoding of a file
   was ``utf-9``.
 
   Closes #3860 (`#3860 <https://github.com/pylint-dev/pylint/issues/3860>`_)

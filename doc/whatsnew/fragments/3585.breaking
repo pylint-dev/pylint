@@ -1,4 +1,4 @@
-`invalid-name` now distinguishes module-level constants that are assigned only once
+:ref:`invalid-name` now distinguishes module-level constants that are assigned only once
 from those that are reassigned and now applies `--variable-rgx` to the latter. Values
 other than literals (lists, sets, objects) can pass against either the constant or
 variable regexes (e.g. "LOGGER" or "logger" but not "LoGgEr").

@@ -98,7 +98,7 @@ Release date: 2019-09-25
   for emitting ``used-before-assignment`` if a variable was only defined
   inside a type checking guard (using ``TYPE_CHECKING`` variable from `typing`)
   Unfortunately that missed the case of using those type checking imports
-  inside the guard itself, which triggered spurious used-before-assignment errors.
+  inside the guard itself, which triggered spurious :ref:`used-before-assignment` errors.
 
   Closes #3119
 
@@ -184,7 +184,7 @@ Release date: 2019-09-24
 
   Inferring variadic positional arguments and keyword arguments
   will result into empty Tuples and Dicts, which can lead in
-  some cases to false positives with regard to no-value-for-parameter.
+  some cases to false positives with regard to :ref:`no-value-for-parameter`.
   In order to avoid this, until we'll have support for call context
   propagation, we're ignoring such cases if detected.
   We already did that for function calls, but the previous fix
@@ -326,7 +326,7 @@ Release date: 2019-09-24
   This check is emitted when ``pylint`` finds a class variable that conflicts with a slot
   name, which would raise a ``ValueError`` at runtime.
 
-* Added new check: dict-iter-missing-items (E1141)
+* Added new check: :ref:`dict-iter-missing-items` (E1141)
 
   Closes #2761
 

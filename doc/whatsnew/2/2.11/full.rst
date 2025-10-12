@@ -88,7 +88,7 @@ Release date: 2021-09-16
   Closes #1375
   Closes #330
 
-* Fix false positives for invalid-all-format that are lists or tuples at runtime
+* Fix false positives for :ref:`invalid-all-format` that are lists or tuples at runtime
 
   Closes #4711
 
