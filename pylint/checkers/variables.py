@@ -3285,6 +3285,14 @@ class VariablesChecker(BaseChecker):
                     continue
                 if self._is_exception_binding_used_in_handler(node, name):
                     continue
+                if isinstance(node, nodes.AssignName) and node.name == "__all__":
+                    continue
+                if (
+                    isinstance(node, nodes.ImportFrom)
+                    and name == "annotations"
+                    and node.modname == "__future__"
+                ):
+                    continue
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches
