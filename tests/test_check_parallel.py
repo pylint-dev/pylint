@@ -225,7 +225,11 @@ class TestCheckParallelFramework:
         linter = PyLinter(reporter=Reporter())
         linter.load_default_plugins()
         config_data = {
-            "load-plugins": "pylint.extensions.code_style,pylint.extensions.typing",
+            "load-plugins": (
+                "pylint.extensions.code_style,"
+                "pylint.extensions.typing,"
+                "pylint.checkers.raw_metrics,"  # Custom report
+            ),
         }
         config_args = [
             "--enable=consider-using-augmented-assign",
@@ -238,6 +242,9 @@ class TestCheckParallelFramework:
             _config_initialization(linter, [])
         assert len(linter._checkers["code_style"]) == 1
         assert len(linter._checkers["typing"]) == 1
+        assert len(linter._checkers["metrics"]) == 2
+        old_metrics_checker = linter._checkers["metrics"][-1]
+        assert len(linter._reports[old_metrics_checker]) == 2
         assert linter.is_message_enabled("consider-using-augmented-assign") is True
         assert (  # default disabled
             linter.is_message_enabled("prefer-typing-namedtuple") is False
@@ -246,8 +253,17 @@ class TestCheckParallelFramework:
         worker_initialize(linter=dill.dumps(linter))
         worker_linter = pylint.lint.parallel._worker_linter
         assert isinstance(worker_linter, PyLinter)
+        assert len(worker_linter._registered_dynamic_plugin_checkers) == 3
         assert len(worker_linter._checkers["code_style"]) == 1
         assert len(worker_linter._checkers["typing"]) == 1
+        assert len(worker_linter._checkers["metrics"]) == 2
+        # The base checker overwrite __eq__ and __hash__ to only compare name and msgs.
+        # Thus, while the ids for the metrics checker are different, they have the same
+        # hash. That is used as key for the '_reports' dict.
+        new_metrics_checker = worker_linter._checkers["metrics"][-1]
+        assert id(old_metrics_checker) != id(new_metrics_checker)
+        assert old_metrics_checker == new_metrics_checker
+        assert len(worker_linter._reports[new_metrics_checker]) == 2
         assert linter.is_message_enabled("consider-using-augmented-assign") is True
         assert (  # default disabled
             linter.is_message_enabled("prefer-typing-namedtuple") is False

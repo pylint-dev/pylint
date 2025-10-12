@@ -323,10 +323,10 @@ class PyLinter(
         """Dictionary of registered and initialized checkers."""
         self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
-        self._registered_checkers: set[tuple[str, checkers.BaseChecker]] = set()
+        self._registered_checkers: set[tuple[str, checkers.BaseChecker, int]] = set()
         """Set of tuples with loaded checker names and reference to checker."""
         self._registered_dynamic_plugin_checkers: set[
-            tuple[str, checkers.BaseChecker]
+            tuple[str, checkers.BaseChecker, int]
         ] = set()
         """Set of tuples with loaded dynamic plugin checker names and reference to
         checker.
@@ -504,7 +504,7 @@ class PyLinter(
     def register_checker(self, checker: checkers.BaseChecker) -> None:
         """This method auto registers the checker."""
         self._checkers[checker.name].append(checker)
-        self._registered_checkers.add((checker.name, checker))
+        self._registered_checkers.add((checker.name, checker, id(checker)))
         for r_id, r_title, r_cb in checker.reports:
             self.register_report(r_id, r_title, r_cb, checker)
         if not self._freeze_register_msgs and hasattr(checker, "msgs"):
@@ -517,13 +517,13 @@ class PyLinter(
             self.disable(checker.name)
 
     def _deregister_checkers(
-        self, checker_collection: Collection[tuple[str, checkers.BaseChecker]]
+        self, checker_collection: Collection[tuple[str, checkers.BaseChecker, int]]
     ) -> None:
         """De-registered a collection of checkers with its reports.
 
         Leave messages in place as re-registering them is a no-op.
         """
-        for checker_name, checker in checker_collection:
+        for checker_name, checker, _ in checker_collection:
             self._checkers[checker_name].remove(checker)
             if checker.reports:
                 self.deregister_reports(checker)
