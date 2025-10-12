@@ -1,8 +1,0 @@
-Add additional checks for suboptimal uses of class patterns in :keyword:`match`.
-
-* :ref:`match-class-bind-self` is emitted if a name is bound to ``self`` instead of
-  using an ``as`` pattern.
-* :ref:`match-class-positional-attributes` is emitted if a class pattern has positional
-  attributes when keywords could be used.
-
-Refs #10586

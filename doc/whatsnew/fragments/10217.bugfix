@@ -1,3 +1,0 @@
-Fixed :ref:`unidiomatic-typecheck` only checking left-hand side.
-
-Closes #10217
