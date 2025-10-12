@@ -322,6 +322,7 @@ DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
 DEFAULT_PREFERRED_MODULES = ()
 
 
+# pylint: disable-next = too-many-instance-attributes
 class ImportsChecker(DeprecatedMixin, BaseChecker):
     """BaseChecker for import statements.
 
