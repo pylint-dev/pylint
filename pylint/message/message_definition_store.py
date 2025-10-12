@@ -47,7 +47,7 @@ class MessageDefinitionStore:
             self.register_message(message)
 
     def deregister_messages_from_checker(self, checker: BaseChecker) -> None:
-        """Deregister all message definitions from a checker."""
+        """De-register all message definitions from a checker."""
         for message in checker.messages:
             self.deregister_message(message)
 
@@ -60,7 +60,7 @@ class MessageDefinitionStore:
         self._msgs_by_category[message.msgid[0]].append(message.msgid)
 
     def deregister_message(self, message: MessageDefinition) -> None:
-        """Deregister a MessageDefinition."""
+        """De-register a MessageDefinition."""
         self.message_id_store.deregister_message_definition(
             message.msgid, message.symbol, message.old_names
         )

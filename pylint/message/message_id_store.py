@@ -67,7 +67,7 @@ class MessageIdStore:
     def deregister_message_definition(
         self, msgid: str, symbol: str, old_names: list[tuple[str, str]]
     ) -> None:
-        """Deregister a message definition."""
+        """De-register a message definition."""
         self.remove_msgid_and_symbol(msgid, symbol)
         for old_msgid, old_symbol in old_names:
             self.remove_legacy_msgid_and_symbol(old_msgid, old_symbol, msgid)

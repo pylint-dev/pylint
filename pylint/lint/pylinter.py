@@ -518,7 +518,7 @@ class PyLinter(
     def _deregister_checkers(
         self, checker_collection: Collection[tuple[str, checkers.BaseChecker]]
     ) -> None:
-        """Deregistered a collection of checkers with its reports and messages."""
+        """De-registered a collection of checkers with its reports and messages."""
         for checker_name, checker in checker_collection:
             self._checkers[checker_name].remove(checker)
             if checker.reports:
