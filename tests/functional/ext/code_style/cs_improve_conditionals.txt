@@ -1,4 +1,5 @@
-improve-conditionals:22:7:22:68:f1:Rewrite conditional expression to 'not (isinstance(expr, node_cls) and expr.attrname == '__init__')':HIGH
-improve-conditionals:24:9:24:28:f1:Rewrite conditional expression to 'not (x and y in z)':HIGH
-improve-conditionals:26:9:26:29:f1:Rewrite conditional expression to 'x and y':HIGH
-improve-conditionals:28:16:28:30:f1:Rewrite conditional expression to 'not (y and z)':HIGH
+improve-conditionals:27:7:27:68:f1:Rewrite conditional expression to 'not (isinstance(expr, node_cls) and expr.attrname == '__init__')':HIGH
+improve-conditionals:29:9:29:28:f1:Rewrite conditional expression to 'not (x and y in z)':HIGH
+improve-conditionals:31:9:31:28:f1:Rewrite conditional expression to 'not (x and y is z)':HIGH
+improve-conditionals:33:9:33:29:f1:Rewrite conditional expression to 'x and y':HIGH
+improve-conditionals:35:16:35:30:f1:Rewrite conditional expression to 'not (y and z)':HIGH

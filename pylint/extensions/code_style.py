@@ -379,8 +379,10 @@ class CodeStyleChecker(BaseChecker):
         invertible = InvertibleValues.NO
         for node in values:
             match node:
-                case nodes.UnaryOp(op="not") | nodes.Compare(
-                    ops=[("!=" | "not in", _)]
+                case nodes.UnaryOp(op="not"):
+                    invertible |= InvertibleValues.EXPLICIT_NEGATION
+                case nodes.Compare(ops=[("!=" | "not in" | "is not" as op, n)]) if not (
+                    op == "is not" and isinstance(n, nodes.Const) and n.value is None
                 ):
                     invertible |= InvertibleValues.EXPLICIT_NEGATION
                 case nodes.Compare(
@@ -405,6 +407,8 @@ class CodeStyleChecker(BaseChecker):
                         new_op = "=="
                     case "not in":
                         new_op = "in"
+                    case "is not":
+                        new_op = "is"
                     case "<":
                         new_op = ">="
                     case "<=":
