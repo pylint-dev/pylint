@@ -410,7 +410,9 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         return False
 
     def _check_len_comparison_with_zero(self, node: nodes.Compare) -> None:
-        """Check for len() comparisons with zero that can be simplified using implicit booleaness."""
+        """Check for len() comparisons with zero that can be simplified using implicit
+        booleaness.
+        """
         if len(node.ops) != 1:
             return
 
@@ -484,28 +486,48 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 if operator == "==":
                     return f"not {len_arg_name}"
                 if operator == "!=":
-                    return len_arg_name if self._in_boolean_context(node) else f"bool({len_arg_name})"
+                    return (
+                        len_arg_name
+                        if self._in_boolean_context(node)
+                        else f"bool({len_arg_name})"
+                    )
                 if operator in {"<", "<=", ">=", ">"}:
                     return f"not {len_arg_name}"
             if constant_value == 1:
                 if operator == ">=":
-                    return len_arg_name if self._in_boolean_context(node) else f"bool({len_arg_name})"
+                    return (
+                        len_arg_name
+                        if self._in_boolean_context(node)
+                        else f"bool({len_arg_name})"
+                    )
                 if operator == "<":
                     return f"not {len_arg_name}"
         elif constant_value == 0:
             if operator == "==":
                 return f"not {len_arg_name}"
             if operator == "!=":
-                return len_arg_name if self._in_boolean_context(node) else f"bool({len_arg_name})"
+                return (
+                    len_arg_name
+                    if self._in_boolean_context(node)
+                    else f"bool({len_arg_name})"
+                )
             if operator == ">":
-                return len_arg_name if self._in_boolean_context(node) else f"bool({len_arg_name})"
+                return (
+                    len_arg_name
+                    if self._in_boolean_context(node)
+                    else f"bool({len_arg_name})"
+                )
             if operator in {"<", "<=", ">="}:
                 return f"not {len_arg_name}"
         elif constant_value == 1:
             if operator == "<=":
                 return f"not {len_arg_name}"
             if operator == ">":
-                return len_arg_name if self._in_boolean_context(node) else f"bool({len_arg_name})"
+                return (
+                    len_arg_name
+                    if self._in_boolean_context(node)
+                    else f"bool({len_arg_name})"
+                )
 
         return None
 
