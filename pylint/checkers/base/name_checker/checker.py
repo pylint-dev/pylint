@@ -99,7 +99,7 @@ def _redefines_import(node: nodes.AssignName) -> bool:
     current = node
     while current and not isinstance(current.parent, nodes.ExceptHandler):
         current = current.parent
-    if not current or not utils.error_of_type(current.parent, ImportError):
+    if not (current and utils.error_of_type(current.parent, ImportError)):
         return False
     try_block = current.parent.parent
     for import_node in try_block.nodes_of_class((nodes.ImportFrom, nodes.Import)):
@@ -160,7 +160,7 @@ def _is_multi_naming_match(
         match is not None
         and match.lastgroup is not None
         and match.lastgroup not in EXEMPT_NAME_CATEGORIES
-        and (node_type != "method" or confidence != interfaces.INFERENCE_FAILURE)
+        and not (node_type == "method" and confidence == interfaces.INFERENCE_FAILURE)
     )
 
 
