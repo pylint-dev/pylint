@@ -176,6 +176,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         "use-implicit-booleaness-not-comparison",
         "use-implicit-booleaness-not-comparison-to-string",
         "use-implicit-booleaness-not-comparison-to-zero",
+        "use-implicit-booleaness-not-len",
     )
     def visit_compare(self, node: nodes.Compare) -> None:
         if self.linter.is_message_enabled("use-implicit-booleaness-not-comparison"):
@@ -186,6 +187,8 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "use-implicit-booleaness-not-comparison-to-str"
         ):
             self._check_compare_to_str_or_zero(node)
+        if self.linter.is_message_enabled("use-implicit-booleaness-not-len"):
+            self._check_len_comparison_with_zero(node)
 
     def _check_compare_to_str_or_zero(self, node: nodes.Compare) -> None:
         # Skip check for chained comparisons
@@ -405,6 +408,106 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     break
 
         return False
+
+    def _check_len_comparison_with_zero(self, node: nodes.Compare) -> None:
+        """Check for len() comparisons with zero that can be simplified using implicit booleaness."""
+        if len(node.ops) != 1:
+            return
+
+        operator, right_operand = node.ops[0]
+        left_operand = node.left
+
+        # Check if one side is len() call and other is 0 or 1
+        len_node = None
+        constant_value = None
+        is_len_on_left = False
+
+        if utils.is_call_of_name(left_operand, "len"):
+            len_node = left_operand
+            is_len_on_left = True
+            if isinstance(right_operand, nodes.Const) and right_operand.value in {0, 1}:
+                constant_value = right_operand.value
+        elif utils.is_call_of_name(right_operand, "len"):
+            len_node = right_operand
+            is_len_on_left = False
+            if isinstance(left_operand, nodes.Const) and left_operand.value in {0, 1}:
+                constant_value = left_operand.value
+
+        if len_node is None or constant_value is None:
+            return
+
+        len_arg = len_node.args[0]
+
+        try:
+            instance = next(len_arg.infer())
+        except astroid.InferenceError:
+            return
+
+        # Check if this is a comprehension (special case handled separately)
+        if isinstance(len_arg, (nodes.ListComp, nodes.SetComp, nodes.DictComp)):
+            return
+
+        mother_classes = self.base_names_of_instance(instance)
+        affected_by_pep8 = any(
+            t in mother_classes for t in ("str", "tuple", "list", "set")
+        )
+        is_range = "range" in mother_classes
+
+        # Only proceed if it's a sequence type and doesn't have custom __bool__
+        if not (affected_by_pep8 or is_range or self.instance_has_bool(instance)):
+            return
+
+        suggestion = self._get_len_comparison_suggestion(
+            operator, constant_value, is_len_on_left, node, len_arg
+        )
+        if suggestion:
+            self.add_message(
+                "use-implicit-booleaness-not-len",
+                node=node,
+                confidence=HIGH,
+            )
+
+    def _get_len_comparison_suggestion(
+        self,
+        operator: str,
+        constant_value: int,
+        is_len_on_left: bool,
+        node: nodes.Compare,
+        len_arg: nodes.NodeNG,
+    ) -> str | None:
+        """Get the appropriate suggestion for len() comparisons with zero."""
+        len_arg_name = len_arg.as_string()
+
+        # Patterns that should be flagged
+        if is_len_on_left:
+            if constant_value == 0:
+                if operator == "==":
+                    return f"not {len_arg_name}"
+                if operator == "!=":
+                    return len_arg_name if self._in_boolean_context(node) else f"bool({len_arg_name})"
+                if operator in {"<", "<=", ">=", ">"}:
+                    return f"not {len_arg_name}"
+            if constant_value == 1:
+                if operator == ">=":
+                    return len_arg_name if self._in_boolean_context(node) else f"bool({len_arg_name})"
+                if operator == "<":
+                    return f"not {len_arg_name}"
+        elif constant_value == 0:
+            if operator == "==":
+                return f"not {len_arg_name}"
+            if operator == "!=":
+                return len_arg_name if self._in_boolean_context(node) else f"bool({len_arg_name})"
+            if operator == ">":
+                return len_arg_name if self._in_boolean_context(node) else f"bool({len_arg_name})"
+            if operator in {"<", "<=", ">="}:
+                return f"not {len_arg_name}"
+        elif constant_value == 1:
+            if operator == "<=":
+                return f"not {len_arg_name}"
+            if operator == ">":
+                return len_arg_name if self._in_boolean_context(node) else f"bool({len_arg_name})"
+
+        return None
 
     @staticmethod
     def base_names_of_instance(
