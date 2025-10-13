@@ -324,12 +324,14 @@ class PyLinter(
         self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
         self._registered_checkers: set[tuple[str, checkers.BaseChecker, int]] = set()
-        """Set of tuples with loaded checker names and reference to checker."""
+        """Set of tuples with loaded checker name, reference to checker
+        and checker object id.
+        """
         self._registered_dynamic_plugin_checkers: set[
             tuple[str, checkers.BaseChecker, int]
         ] = set()
-        """Set of tuples with loaded dynamic plugin checker names and reference to
-        checker.
+        """Set of tuples with loaded dynamic plugin checker name, reference to
+        checker and checker object id.
         """
 
         # Attributes related to stats

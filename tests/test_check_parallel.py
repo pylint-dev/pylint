@@ -250,6 +250,7 @@ class TestCheckParallelFramework:
             linter.is_message_enabled("prefer-typing-namedtuple") is False
         )
         assert linter.is_message_enabled("consider-alternative-union-syntax") is False
+
         worker_initialize(linter=dill.dumps(linter))
         worker_linter = pylint.lint.parallel._worker_linter
         assert isinstance(worker_linter, PyLinter)
