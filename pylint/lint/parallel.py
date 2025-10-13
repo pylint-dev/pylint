@@ -54,6 +54,12 @@ def _worker_initialize(
 
     # Re-register dynamic plugins, since the pool does not have access to the
     # astroid module that existed when the linter was pickled.
+    # Freeze register new messages to prevent overwriting enabled and disabled messaged
+    # during dynamic plugin re-load.
+    _worker_linter._freeze_register_msgs = True
+    _worker_linter._deregister_checkers(
+        _worker_linter._registered_dynamic_plugin_checkers
+    )
     _worker_linter.load_plugin_modules(_worker_linter._dynamic_plugins, force=True)
     _worker_linter.load_plugin_configuration()
 
