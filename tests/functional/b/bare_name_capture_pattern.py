@@ -11,6 +11,8 @@ match s:
         pass
     case b:  # [bare-name-capture-pattern]
         pass
+    case c if c == "Hello":
+        pass
     case "a" as some_name:
         pass
     case s:
