@@ -1,0 +1,3 @@
+Exclude ``__all__`` and ``__future__.annotations`` from ``unused-variable``.
+
+Closes #10019
