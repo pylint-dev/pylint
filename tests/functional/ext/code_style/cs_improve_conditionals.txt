@@ -3,3 +3,5 @@ improve-conditionals:29:9:29:28:f1:Rewrite conditional expression to 'not (x and
 improve-conditionals:31:9:31:28:f1:Rewrite conditional expression to 'not (x and y is z)':HIGH
 improve-conditionals:33:9:33:29:f1:Rewrite conditional expression to 'x and y':HIGH
 improve-conditionals:35:16:35:30:f1:Rewrite conditional expression to 'not (y and z)':HIGH
+improve-conditionals:37:9:37:33:f1:Rewrite conditional expression to 'not (x and y >= 0 and z > 0)':HIGH
+improve-conditionals:39:9:39:33:f1:Rewrite conditional expression to 'not (x and y <= 0 and z < 0)':HIGH
