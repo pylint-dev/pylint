@@ -634,7 +634,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     for target in else_branch.targets
                     if isinstance(target, nodes.AssignName)
                 ]
-                if not first_branch_targets or not else_branch_targets:
+                if not (first_branch_targets and else_branch_targets):
                     return
                 if sorted(first_branch_targets) != sorted(else_branch_targets):
                     return
@@ -645,7 +645,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             case _:
                 return
 
-        if not first_branch_is_bool or not else_branch_is_bool:
+        if not (first_branch_is_bool and else_branch_is_bool):
             return
         if not first_branch.value.value:
             # This is a case that can't be easily simplified and
@@ -1053,7 +1053,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_stop_iteration_inside_generator(self, node: nodes.Raise) -> None:
         """Check if an exception of type StopIteration is raised inside a generator."""
         frame = node.frame()
-        if not isinstance(frame, nodes.FunctionDef) or not frame.is_generator():
+        if not (isinstance(frame, nodes.FunctionDef) and frame.is_generator()):
             return
         if utils.node_ignores_exception(node, StopIteration):
             return
@@ -1319,11 +1319,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         all_types: collections.defaultdict[str, set[str]] = collections.defaultdict(set)
 
         for call in node.values:
-            if not isinstance(call, nodes.Call) or len(call.args) != 2:
+            if not (isinstance(call, nodes.Call) and len(call.args) == 2):
                 continue
 
             inferred = utils.safe_infer(call.func)
-            if not inferred or not utils.is_builtin_object(inferred):
+            if not (inferred and utils.is_builtin_object(inferred)):
                 continue
 
             if inferred.name != "isinstance":
@@ -1365,7 +1365,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _check_consider_using_in(self, node: nodes.BoolOp) -> None:
         allowed_ops = {"or": "==", "and": "!="}
 
-        if node.op not in allowed_ops or len(node.values) < 2:
+        if not (node.op in allowed_ops and len(node.values) >= 2):
             return
 
         for value in node.values:
@@ -1416,7 +1416,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         Care is taken to avoid simplifying a < b < c and b < d.
         """
-        if node.op != "and" or len(node.values) < 2:
+        if not (node.op == "and" and len(node.values) >= 2):
             return
 
         def _find_lower_upper_bounds(
@@ -1566,7 +1566,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False
 
     def _check_swap_variables(self, node: nodes.Return | nodes.Assign) -> None:
-        if not node.next_sibling() or not node.next_sibling().next_sibling():
+        if not (node.next_sibling() and node.next_sibling().next_sibling()):
             return
         assignments = [node, node.next_sibling(), node.next_sibling().next_sibling()]
         if not all(self._is_simple_assignment(node) for node in assignments):
@@ -1643,10 +1643,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             if not isinstance(value, nodes.Call):
                 continue
             inferred = utils.safe_infer(value.func)
-            if (
-                not inferred
-                or inferred.qname() not in CALLS_RETURNING_CONTEXT_MANAGERS
-                or not isinstance(assignee, (nodes.AssignName, nodes.AssignAttr))
+            if not (
+                inferred
+                and inferred.qname() in CALLS_RETURNING_CONTEXT_MANAGERS
+                and isinstance(assignee, (nodes.AssignName, nodes.AssignAttr))
             ):
                 continue
             stack = self._consider_using_with_stack.get_stack_for_frame(node.frame())
@@ -1685,8 +1685,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             # checked when leaving the scope.
             return
         inferred = utils.safe_infer(node.func)
-        if not inferred or not isinstance(
-            inferred, (nodes.FunctionDef, nodes.ClassDef, bases.BoundMethod)
+        if not (
+            inferred
+            and isinstance(
+                inferred, (nodes.FunctionDef, nodes.ClassDef, bases.BoundMethod)
+            )
         ):
             return
         could_be_used_in_with = (
@@ -2178,12 +2181,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                 # Case where .items is assigned to k,v (i.e., for k, v in d.items())
                 if isinstance(value, nodes.Name):
-                    if (
-                        not isinstance(node.target, nodes.Tuple)
+                    if not (
+                        isinstance(node.target, nodes.Tuple)
                         # Ignore 1-tuples: for k, in d.items()
-                        or len(node.target.elts) < 2
-                        or value.name != node.target.elts[0].name
-                        or iterating_object_name != subscript.value.as_string()
+                        and len(node.target.elts) >= 2
+                        and value.name == node.target.elts[0].name
+                        and iterating_object_name == subscript.value.as_string()
                     ):
                         continue
 
@@ -2213,11 +2216,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                 # Case where .items is assigned to single var (i.e., for item in d.items())
                 elif isinstance(value, nodes.Subscript):
-                    if (
-                        not isinstance(node.target, nodes.AssignName)
-                        or not isinstance(value.value, nodes.Name)
-                        or node.target.name != value.value.name
-                        or iterating_object_name != subscript.value.as_string()
+                    if not (
+                        isinstance(node.target, nodes.AssignName)
+                        and isinstance(value.value, nodes.Name)
+                        and node.target.name == value.value.name
+                        and iterating_object_name == subscript.value.as_string()
                     ):
                         continue
 
@@ -2234,7 +2237,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                     # check if subscripted by 0 (key)
                     inferred = utils.safe_infer(value.slice)
-                    if not isinstance(inferred, nodes.Const) or inferred.value != 0:
+                    if not (isinstance(inferred, nodes.Const) and inferred.value == 0):
                         continue
 
                     if has_nested_loops:
@@ -2350,9 +2353,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
                 index = subscript.slice
                 if isinstance(index, nodes.Name):
-                    if (
-                        index.name != name1
-                        or iterating_object_name != subscript.value.as_string()
+                    if not (
+                        index.name == name1
+                        and iterating_object_name == subscript.value.as_string()
                     ):
                         continue
 

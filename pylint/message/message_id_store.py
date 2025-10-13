@@ -147,7 +147,7 @@ class MessageIdStore:
                 deletion_reason = is_deleted_symbol(symbol)
                 if deletion_reason is None:
                     moved_reason = is_moved_symbol(symbol)
-        if not msgid or not symbol:
+        if not (msgid and symbol):
             if deletion_reason is not None:
                 raise DeletedMessageError(msgid_or_symbol, deletion_reason)
             if moved_reason is not None:
