@@ -1717,9 +1717,10 @@ accessed. Python regular expressions are accepted.",
         # If the types can be determined, only allow indices to be int,
         # slice or instances with __index__.
         parent_type = safe_infer(subscript.value)
-        if not isinstance(
-            parent_type, (nodes.ClassDef, astroid.Instance)
-        ) or not has_known_bases(parent_type):
+        if not (
+            isinstance(parent_type, (nodes.ClassDef, astroid.Instance))
+            and has_known_bases(parent_type)
+        ):
             return None
 
         # Determine what method on the parent this index will use
@@ -1746,11 +1747,11 @@ accessed. Python regular expressions are accepted.",
             IndexError,
         ):
             return None
-        if (
-            not isinstance(itemmethod, nodes.FunctionDef)
-            or itemmethod.root().name != "builtins"
-            or not itemmethod.parent
-            or itemmethod.parent.frame().name not in SEQUENCE_TYPES
+        if not (
+            isinstance(itemmethod, nodes.FunctionDef)
+            and itemmethod.root().name == "builtins"
+            and itemmethod.parent
+            and itemmethod.parent.frame().name in SEQUENCE_TYPES
         ):
             return None
 

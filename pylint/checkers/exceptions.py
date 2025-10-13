@@ -348,7 +348,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             current = current.parent
 
         expected = (nodes.ExceptHandler,)
-        if not current or not isinstance(current.parent, expected):
+        if not (current and isinstance(current.parent, expected)):
             self.add_message("misplaced-bare-raise", node=node, confidence=HIGH)
 
     def _check_bad_exception_cause(self, node: nodes.Raise) -> None:

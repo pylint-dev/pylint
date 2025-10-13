@@ -423,8 +423,8 @@ class StringFormatChecker(BaseChecker):
             ):
                 if func.name in {"strip", "lstrip", "rstrip"} and node.args:
                     arg = utils.safe_infer(node.args[0])
-                    if not isinstance(arg, nodes.Const) or not isinstance(
-                        arg.value, str
+                    if not (
+                        isinstance(arg, nodes.Const) and isinstance(arg.value, str)
                     ):
                         return
                     if len(arg.value) != len(set(arg.value)):
@@ -567,7 +567,7 @@ class StringFormatChecker(BaseChecker):
                 argument = utils.safe_infer(argname)
             except astroid.InferenceError:
                 continue
-            if not specifiers or not argument:
+            if not (specifiers and argument):
                 # No need to check this key if it doesn't
                 # use attribute / item access
                 continue
@@ -769,7 +769,7 @@ class StringConstantChecker(BaseTokenChecker, BaseRawFileChecker):
         prev_token = self._find_prev_token(
             index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)
         )
-        if not prev_token or prev_token.type != tokenize.OP or prev_token[1] != "(":
+        if not (prev_token and prev_token.type == tokenize.OP and prev_token[1] == "("):
             return False
         next_token = self._find_next_token(
             index, tokens, ignore=(*_PAREN_IGNORE_TOKEN_TYPES, tokenize.STRING)

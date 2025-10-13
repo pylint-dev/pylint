@@ -198,9 +198,9 @@ def get_annotation(
         ann
         and getattr(default, "value", "value") is None
         and not label.startswith("Optional")
-        and (
-            not isinstance(ann, nodes.BinOp)
-            or not any(
+        and not (
+            isinstance(ann, nodes.BinOp)
+            and any(
                 isinstance(child, nodes.Const) and child.value is None
                 for child in ann.get_children()
             )

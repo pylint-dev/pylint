@@ -1180,10 +1180,13 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     ) -> None:
         """Write dependencies as a dot (graphviz) file."""
         dep_info = self.linter.stats.dependencies
-        if not dep_info or not (
-            self.linter.config.import_graph
-            or self.linter.config.ext_import_graph
-            or self.linter.config.int_import_graph
+        if not (
+            dep_info
+            and (
+                self.linter.config.import_graph
+                or self.linter.config.ext_import_graph
+                or self.linter.config.int_import_graph
+            )
         ):
             raise EmptyReportError()
         filename = self.linter.config.import_graph
