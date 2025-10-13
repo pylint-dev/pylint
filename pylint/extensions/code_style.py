@@ -92,7 +92,7 @@ class CodeStyleChecker(BaseChecker):
         ),
         "R6107": (
             "Rewrite conditional expression to '%s'",
-            "improve-conditionals",
+            "consider-rewriting-conditional",
             "Rewrite negated if expressions to improve readability. This style is simpler "
             "and also permits converting long if/elif chains to match case with more ease.\n"
             "Disabled by default!",
@@ -424,7 +424,7 @@ class CodeStyleChecker(BaseChecker):
             case _:  # pragma: no cover
                 raise AssertionError
 
-    @only_required_for_messages("improve-conditionals")
+    @only_required_for_messages("consider-rewriting-conditional")
     def visit_boolop(self, node: nodes.BoolOp) -> None:
         if (
             node.op == "or"
@@ -451,7 +451,7 @@ class CodeStyleChecker(BaseChecker):
                 new_node.postinit(operand=new_boolop)
 
             self.add_message(
-                "improve-conditionals",
+                "consider-rewriting-conditional",
                 node=target_node,
                 args=(new_node.as_string(),),
                 confidence=HIGH,
