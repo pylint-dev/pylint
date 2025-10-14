@@ -497,7 +497,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     ) -> str | None:
         """Get the appropriate suggestion for len() comparisons with zero."""
         len_arg_name = len_arg.as_string()
-        
+
         # Helper to get the appropriate positive suggestion
         def get_positive_suggestion() -> str:
             return (
