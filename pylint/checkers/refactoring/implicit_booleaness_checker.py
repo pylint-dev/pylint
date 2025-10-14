@@ -438,6 +438,21 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         if len_node is None or constant_value is None:
             return
 
+        # Check if the comparison should be flagged
+        # The comparison could be nested in boolean operations, e.g. `if z or len(x) > 0:`
+        parent = node.parent
+        has_bool_op = False
+        while isinstance(parent, nodes.BoolOp):
+            has_bool_op = True
+            parent = parent.parent
+        
+        # Flag if it's in a test condition, OR directly returned (without being in a BoolOp)
+        is_test_cond = utils.is_test_condition(node, parent)
+        is_direct_return = isinstance(parent, nodes.Return) and not has_bool_op
+        
+        if not (is_test_cond or is_direct_return):
+            return
+
         len_arg = len_node.args[0]
 
         try:
