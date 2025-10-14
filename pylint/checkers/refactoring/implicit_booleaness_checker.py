@@ -445,11 +445,11 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         while isinstance(parent, nodes.BoolOp):
             has_bool_op = True
             parent = parent.parent
-        
+
         # Flag if it's in a test condition, OR directly returned (without being in a BoolOp)
         is_test_cond = utils.is_test_condition(node, parent)
         is_direct_return = isinstance(parent, nodes.Return) and not has_bool_op
-        
+
         if not (is_test_cond or is_direct_return):
             return
 
