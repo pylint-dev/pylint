@@ -14,7 +14,7 @@ import sys
 from collections.abc import Iterable
 from enum import Enum, auto
 from re import Pattern
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import astroid
 from astroid import bases, nodes, util
@@ -484,12 +484,21 @@ class NameChecker(_BasicChecker):
                         )
                         return
 
-                # Check classes (TypeVar's are classes so they need to be excluded first)
-                elif isinstance(inferred_assign_type, nodes.ClassDef):
-                    self._check_name("class", node.name, node)
-
                 elif inferred_assign_type in (None, util.Uninferable):
                     return
+
+                # Check classes (TypeVar's are classes so they need to be excluded first)
+                elif isinstance(inferred_assign_type, nodes.ClassDef) or (
+                    isinstance(inferred_assign_type, bases.Instance)
+                    and "EnumMeta"
+                    in {
+                        ancestor.name
+                        for ancestor in cast(
+                            InferenceResult, inferred_assign_type
+                        ).mro()
+                    }
+                ):
+                    self._check_name("class", node.name, node)
 
                 # Don't emit if the name redefines an import in an ImportError except handler
                 # nor any other reassignment.
