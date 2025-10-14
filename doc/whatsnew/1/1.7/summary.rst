@@ -596,7 +596,7 @@ Other Changes
   default True. The inference can return  multiple potential results while
   evaluating a Python object, but some branches might not be evaluated, which
   results in partial inference. In that case, it might be useful to still emit
-  no-member and other checks for the rest of the inferred objects.
+  :ref:`no-member` and other checks for the rest of the inferred objects.
 
 * Namespace packages are now supported by pylint. This includes both explicit namespace
   packages and implicit namespace packages, supported in Python 3 through PEP 420.
@@ -609,13 +609,13 @@ Other Changes
   can enable the analysis for both branches using this flag.
 
 * ``ignored-argument-names`` option is now used for ignoring arguments
-  for unused-variable check.
+  for :ref:`unused-variable` check.
 
   This option was used for ignoring arguments when computing the correct number of arguments
   a function should have, but for handling the arguments with regard
-  to unused-variable check, dummy-variables-rgx was used instead. Now, ignored-argument-names
+  to :ref:`unused-variable` check, dummy-variables-rgx was used instead. Now, ignored-argument-names
   is used for its original purpose and also for ignoring the matched arguments for
-  the unused-variable check. This offers a better control of what should be ignored
+  the :ref:`unused-variable` check. This offers a better control of what should be ignored
   and how.
   Also, the same option was moved from the design checker to the variables checker,
   which means that the option now appears under the ``[VARIABLES]`` section inside

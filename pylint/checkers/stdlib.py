@@ -635,7 +635,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if "target" in func_kwargs:
             return
 
-        if len(node.args) < 2 and (not node.kwargs or "target" not in func_kwargs):
+        if len(node.args) < 2 and not (node.kwargs and "target" in func_kwargs):
             self.add_message(
                 "bad-thread-instantiation", node=node, confidence=interfaces.HIGH
             )
@@ -879,7 +879,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
         if not mode_arg or (
             isinstance(mode_arg, nodes.Const)
-            and (not mode_arg.value or "b" not in str(mode_arg.value))
+            and not (mode_arg.value and "b" in str(mode_arg.value))
         ):
             confidence = HIGH
             try:

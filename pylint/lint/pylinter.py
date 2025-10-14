@@ -14,7 +14,7 @@ import tokenize
 import traceback
 import warnings
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
@@ -323,6 +323,16 @@ class PyLinter(
         """Dictionary of registered and initialized checkers."""
         self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
+        self._registered_checkers: set[tuple[str, checkers.BaseChecker, int]] = set()
+        """Set of tuples with loaded checker name, reference to checker
+        and checker object id.
+        """
+        self._registered_dynamic_plugin_checkers: set[
+            tuple[str, checkers.BaseChecker, int]
+        ] = set()
+        """Set of tuples with loaded dynamic plugin checker name, reference to
+        checker and checker object id.
+        """
 
         # Attributes related to stats
         self.stats = LinterStats()
@@ -356,6 +366,7 @@ class PyLinter(
         self.msgs_store = MessageDefinitionStore(self.config.py_version)
         self.msg_status = 0
         self._by_id_managed_msgs: list[ManagedMessage] = []
+        self._freeze_register_msgs = False
 
         # Attributes related to visiting files
         self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
@@ -495,16 +506,29 @@ class PyLinter(
     def register_checker(self, checker: checkers.BaseChecker) -> None:
         """This method auto registers the checker."""
         self._checkers[checker.name].append(checker)
+        self._registered_checkers.add((checker.name, checker, id(checker)))
         for r_id, r_title, r_cb in checker.reports:
             self.register_report(r_id, r_title, r_cb, checker)
-        if hasattr(checker, "msgs"):
+        if not self._freeze_register_msgs and hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
             for message in checker.messages:
                 if not message.default_enabled:
                     self.disable(message.msgid)
         # Register the checker, but disable all of its messages.
-        if not getattr(checker, "enabled", True):
+        if not (self._freeze_register_msgs or getattr(checker, "enabled", True)):
             self.disable(checker.name)
+
+    def _deregister_checkers(
+        self, checker_collection: Collection[tuple[str, checkers.BaseChecker, int]]
+    ) -> None:
+        """De-registered a collection of checkers with its reports.
+
+        Leave messages in place as re-registering them is a no-op.
+        """
+        for checker_name, checker, _ in checker_collection:
+            self._checkers[checker_name].remove(checker)
+            if checker.reports:
+                self.deregister_reports(checker)
 
     def enable_fail_on_messages(self) -> None:
         """Enable 'fail on' msgs.
