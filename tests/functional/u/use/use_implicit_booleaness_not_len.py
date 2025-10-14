@@ -185,6 +185,40 @@ def github_issue_4215():
     if len(undefined_var2[0]):  # [undefined-variable]
         pass
 
+def test_additional_coverage():
+    """Test cases for additional code coverage."""
+    # Test >= with 0 (always true, should flag)
+    if len('TEST') >= 0:  # [use-implicit-booleaness-not-len]
+        pass
+
+    # Test > with 0 in assignment (non-boolean context) - Should be fine
+    result = len('TEST') > 0  # Creating boolean variable for later use is OK
+
+    # Test constant on left with <= (equivalent to len < 1)
+    if 1 <= len('TEST'):  # [use-implicit-booleaness-not-len]
+        pass
+
+    # Test >= with 1 in ternary expression
+    test_var = 1 if len('TEST') >= 1 else 0  # [use-implicit-booleaness-not-len]
+
+    # Test > with constant 1 on the right
+    if 1 > len('TEST'):  # [use-implicit-booleaness-not-len]
+        pass
+
+    # Test <= with 1 on the right (constant on right)
+    if len('TEST') <= 1:  # Should be fine - checking if len is 0 or 1, not just empty
+        pass
+
+    # Test > operator with 1 on the left
+    if 1 < len('TEST'):  # Should be fine - checking if len > 1, not just non-empty
+        pass
+
+    # Test with range (should flag)
+    if len(range(10)) > 0:  # [use-implicit-booleaness-not-len]
+        pass
+
+    return result, test_var
+
 # pylint: disable=len-as-condition
 
 if len('TEST'):

@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import itertools
-
 import astroid
 from astroid import bases, nodes, util
 
@@ -190,20 +188,26 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         if self.linter.is_message_enabled("use-implicit-booleaness-not-len"):
             self._check_len_comparison_with_zero(node)
 
-    def _check_compare_to_str_or_zero(self, node: nodes.Compare) -> None:
-        # Skip check for chained comparisons
+    def _extract_comparison_operands(
+        self, node: nodes.Compare
+    ) -> tuple[nodes.NodeNG, str, nodes.NodeNG] | None:
+        """Extract left operand, operator, and right operand from a comparison.
+
+        Returns None if this is a chained comparison.
+        """
         if len(node.ops) != 1:
+            return None
+        operator, right_operand = node.ops[0]
+        left_operand = node.left
+        return left_operand, operator, right_operand
+
+    def _check_compare_to_str_or_zero(self, node: nodes.Compare) -> None:
+        operands = self._extract_comparison_operands(node)
+        if operands is None:
             return
+        left_operand, operator, right_operand = operands
 
         negation_redundant_ops = {"!=", "is not"}
-        # note: nodes.Compare has the left most operand in node.left
-        # while the rest are a list of tuples in node.ops
-        # the format of the tuple is ('compare operator sign', node)
-        # here we squash everything into `ops` to make it easier for processing later
-        ops: list[tuple[str, nodes.NodeNG]] = [("", node.left), *node.ops]
-        iter_ops = iter(ops)
-        all_ops = list(itertools.chain(*iter_ops))
-        _, left_operand, operator, right_operand = all_ops
 
         if operator not in self._operators:
             return
@@ -413,11 +417,10 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         """Check for len() comparisons with zero that can be simplified using implicit
         booleaness.
         """
-        if len(node.ops) != 1:
+        operands = self._extract_comparison_operands(node)
+        if operands is None:
             return
-
-        operator, right_operand = node.ops[0]
-        left_operand = node.left
+        left_operand, operator, right_operand = operands
 
         # Check if one side is len() call and other is 0 or 1
         len_node = None
@@ -494,6 +497,14 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
     ) -> str | None:
         """Get the appropriate suggestion for len() comparisons with zero."""
         len_arg_name = len_arg.as_string()
+        
+        # Helper to get the appropriate positive suggestion
+        def get_positive_suggestion() -> str:
+            return (
+                len_arg_name
+                if self._in_boolean_context(node)
+                else f"bool({len_arg_name})"
+            )
 
         # Patterns that should be flagged
         if is_len_on_left:
@@ -501,48 +512,26 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                 if operator == "==":
                     return f"not {len_arg_name}"
                 if operator == "!=":
-                    return (
-                        len_arg_name
-                        if self._in_boolean_context(node)
-                        else f"bool({len_arg_name})"
-                    )
+                    return get_positive_suggestion()
                 if operator in {"<", "<=", ">=", ">"}:
                     return f"not {len_arg_name}"
-            if constant_value == 1:
+            elif constant_value == 1:
                 if operator == ">=":
-                    return (
-                        len_arg_name
-                        if self._in_boolean_context(node)
-                        else f"bool({len_arg_name})"
-                    )
+                    return get_positive_suggestion()
                 if operator == "<":
                     return f"not {len_arg_name}"
         elif constant_value == 0:
             if operator == "==":
                 return f"not {len_arg_name}"
-            if operator == "!=":
-                return (
-                    len_arg_name
-                    if self._in_boolean_context(node)
-                    else f"bool({len_arg_name})"
-                )
-            if operator == ">":
-                return (
-                    len_arg_name
-                    if self._in_boolean_context(node)
-                    else f"bool({len_arg_name})"
-                )
+            if operator in {"!=", ">"}:
+                return get_positive_suggestion()
             if operator in {"<", "<=", ">="}:
                 return f"not {len_arg_name}"
         elif constant_value == 1:
             if operator == "<=":
-                return f"not {len_arg_name}"
+                return get_positive_suggestion()
             if operator == ">":
-                return (
-                    len_arg_name
-                    if self._in_boolean_context(node)
-                    else f"bool({len_arg_name})"
-                )
+                return f"not {len_arg_name}"
 
         return None
 
