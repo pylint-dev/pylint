@@ -122,6 +122,17 @@ repos:
         types: [text]
         files: ^(doc/whatsnew/fragments)
         exclude: doc/whatsnew/fragments/_.*.rst
+      - id: check-message-references
+        name: Check pylint message references
+        entry: python script/check_message_references.py
+        language: system
+        args: ["--fix"]
+        types_or: [python, rst, markdown, text]
+        files: ^doc/(whatsnew|data/messages)/.*\.rst$
+        exclude:
+          \.( doc/development_guide/api/pylint.rst|
+          doc/development_guide/how_tos/custom_checkers.rst| )$
+        pass_filenames: true
   - repo: https://github.com/rstcheck/rstcheck
     rev: "v6.2.5"
     hooks:
