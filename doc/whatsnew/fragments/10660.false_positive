@@ -1,0 +1,4 @@
+Check enums created with the ``Enum()`` functional syntax to pass against the
+``--class-rgx`` for the :ref:`invalid-name` check, like other enums.
+
+Closes #10660
