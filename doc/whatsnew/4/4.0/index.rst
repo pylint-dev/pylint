@@ -74,6 +74,29 @@ to your liking.
 
 .. towncrier release notes start
 
+What's new in Pylint 4.0.1?
+---------------------------
+Release date: 2025-10-14
+
+
+False Positives Fixed
+---------------------
+
+- Exclude ``__all__`` and ``__future__.annotations`` from ``unused-variable``.
+
+  Closes #10019 (`#10019 <https://github.com/pylint-dev/pylint/issues/10019>`_)
+
+- Fix false-positive for ``bare-name-capture-pattern`` if a case guard is used.
+
+  Closes #10647 (`#10647 <https://github.com/pylint-dev/pylint/issues/10647>`_)
+
+- Check enums created with the ``Enum()`` functional syntax to pass against the
+  ``--class-rgx`` for the :ref:`invalid-name` check, like other enums.
+
+  Closes #10660 (`#10660 <https://github.com/pylint-dev/pylint/issues/10660>`_)
+
+
+
 What's new in Pylint 4.0.0?
 ---------------------------
 Release date: 2025-10-12
