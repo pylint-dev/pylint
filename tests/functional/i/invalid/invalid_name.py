@@ -121,3 +121,7 @@ class FooBarSubclass(FooBar):
 
 from enum import Enum
 Color = Enum('Color', [('RED', 1), ('GREEN', 2), ('BLUE', 3)])
+
+
+from typing import TypedDict
+MyExampleType = TypedDict("MyExampleType", {"some_field": str})
