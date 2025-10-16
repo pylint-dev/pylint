@@ -490,13 +490,14 @@ class NameChecker(_BasicChecker):
                 # Check classes (TypeVar's are classes so they need to be excluded first)
                 elif isinstance(inferred_assign_type, nodes.ClassDef) or (
                     isinstance(inferred_assign_type, bases.Instance)
-                    and "EnumMeta"
-                    in {
-                        ancestor.name
-                        for ancestor in cast(
-                            InferenceResult, inferred_assign_type
-                        ).mro()
-                    }
+                    and {"EnumMeta", "TypedDict"}.intersection(
+                        {
+                            ancestor.name
+                            for ancestor in cast(
+                                InferenceResult, inferred_assign_type
+                            ).mro()
+                        }
+                    )
                 ):
                     self._check_name("class", node.name, node)
 
