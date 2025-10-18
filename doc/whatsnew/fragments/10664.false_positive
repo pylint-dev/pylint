@@ -1,0 +1,4 @@
+Fix a false positive for ``invalid-name`` on exclusive module-level assignments
+composed of three or more branches.
+
+Closes #10664
