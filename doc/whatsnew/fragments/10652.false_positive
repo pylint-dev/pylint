@@ -1,0 +1,3 @@
+Fix false positive for ``invalid-name`` on a partially uninferable module-level constant.
+
+Closes #10652

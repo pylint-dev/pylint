@@ -32,3 +32,11 @@ elif CONSTA:
     OTHER_CONST = 2
 else:
     OTHER_CONST = 3
+
+
+from importlib.metadata import version
+
+try:
+    VERSION = version("ty")  # uninferable
+except:
+    VERSION = "0.0.0"
