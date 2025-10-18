@@ -520,11 +520,15 @@ class NameChecker(_BasicChecker):
                         self._check_name("const", node.name, node)
                 else:
                     node_type = "variable"
+                    iattrs = tuple(node.frame().igetattr(node.name))
                     if (
-                        (iattrs := tuple(node.frame().igetattr(node.name)))
-                        and util.Uninferable not in iattrs
-                        and len(iattrs) == 2
-                        and astroid.are_exclusive(*iattrs)
+                        util.Uninferable in iattrs
+                        and self._name_regexps["const"].match(node.name) is not None
+                    ):
+                        return
+                    if len(iattrs) > 1 and all(
+                        astroid.are_exclusive(*combo)
+                        for combo in itertools.combinations(iattrs, 2)
                     ):
                         node_type = "const"
                     self._check_name(
