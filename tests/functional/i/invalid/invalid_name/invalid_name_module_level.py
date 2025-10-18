@@ -28,5 +28,7 @@ ASSIGNMENT_THAT_CRASHED_PYLINT = type(float.__new__.__code__)
 
 if CONST:
     OTHER_CONST = 1
-else:
+elif CONSTA:
     OTHER_CONST = 2
+else:
+    OTHER_CONST = 3

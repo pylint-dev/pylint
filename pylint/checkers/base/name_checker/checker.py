@@ -523,8 +523,11 @@ class NameChecker(_BasicChecker):
                     if (
                         (iattrs := tuple(node.frame().igetattr(node.name)))
                         and util.Uninferable not in iattrs
-                        and len(iattrs) == 2
-                        and astroid.are_exclusive(*iattrs)
+                        and len(iattrs) > 1
+                        and all(
+                            astroid.are_exclusive(*combo)
+                            for combo in itertools.combinations(iattrs, 2)
+                        )
                     ):
                         node_type = "const"
                     self._check_name(
