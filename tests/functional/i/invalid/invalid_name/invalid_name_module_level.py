@@ -1,5 +1,5 @@
 """Tests for invalid name for names declared at module level"""
-# pylint: disable=missing-class-docstring, too-few-public-methods, missing-function-docstring
+# pylint: disable=missing-class-docstring, too-few-public-methods, missing-function-docstring, wrong-import-position
 
 import collections
 
@@ -42,3 +42,12 @@ elif CONSTA:
     other_const = [2]
 else:
     other_const = [3]
+
+
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version
+
+try:
+    VERSION = version("ty")  # uninferable
+except PackageNotFoundError:
+    VERSION = "0.0.0"
