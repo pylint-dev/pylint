@@ -701,7 +701,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         # Check if import comes after a non-import statement
         if self._first_non_import_node:
             # Check for inline pragma on the import line
-            if not self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
+            if not self.linter.is_message_enabled(
+                "wrong-import-position", node.fromlineno
+            ):
                 self.linter.add_ignored_message(
                     "wrong-import-position", node.fromlineno, node
                 )
@@ -717,7 +719,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
             if most_recent_non_import:
                 check_line = most_recent_non_import.fromlineno
-                if not self.linter.is_message_enabled("wrong-import-position", check_line):
+                if not self.linter.is_message_enabled(
+                    "wrong-import-position", check_line
+                ):
                     self.linter.add_ignored_message(
                         "wrong-import-position", check_line, most_recent_non_import
                     )
@@ -726,9 +730,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     )
                     return
 
-            self.add_message(
-                "wrong-import-position", node=node, args=node.as_string()
-            )
+            self.add_message("wrong-import-position", node=node, args=node.as_string())
 
     def _record_import(
         self,
