@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 import re
 import tokenize
+from decimal import Decimal, getcontext
 from functools import reduce
 from re import Match
 from typing import TYPE_CHECKING, Literal
@@ -31,6 +32,8 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+getcontext().prec = 50
 
 
 _KEYWORD_TOKENS = {
@@ -59,16 +62,20 @@ class FloatFormatterHelper:
     def standardize(
         cls,
         number: float,
+        original_string: str,  # ← ADD THIS PARAMETER
         scientific: bool = True,
         engineering: bool = True,
         pep515: bool = True,
         time_suggestion: bool = False,
     ) -> str:
+        dec_number = Decimal(original_string)
+        sig_figs = len(dec_number.as_tuple().digits)
+
         suggested = set()
         if scientific:
-            suggested.add(cls.to_standard_scientific_notation(number))
+            suggested.add(cls.to_standard_scientific_notation(dec_number, sig_figs))
         if engineering:
-            suggested.add(cls.to_standard_engineering_notation(number))
+            suggested.add(cls.to_standard_engineering_notation(dec_number, sig_figs))
         if pep515:
             suggested.add(cls.to_standard_underscore_grouping(number))
         if time_suggestion:
@@ -100,15 +107,33 @@ class FloatFormatterHelper:
         return base_str, exp_str
 
     @classmethod
-    def to_standard_scientific_notation(cls, number: float) -> str:
-        base, exp = cls.to_standard_or_engineering_base(number)
-        if base == "math.inf":
+    def to_standard_scientific_notation(
+        cls, dec_number: Decimal, sig_figs: int  # ← CHANGE TYPE  # ← ADD PARAMETER
+    ) -> str:
+        if dec_number == 0:
+            return "0.0"
+        if dec_number == Decimal("Infinity"):  # ← CHANGE
             return "math.inf"
-        if exp != "0":
-            return f"{base}e{int(exp)}"
-        if "." in base:
-            return base
-        return f"{base}.0"
+
+        # ← USE Decimal.adjusted() instead of log10
+        exponent = dec_number.adjusted()
+
+        if exponent == 0:
+            base_str = f"{float(dec_number):.{sig_figs}g}"
+            if "." not in base_str:
+                base_str += ".0"
+            return base_str
+
+        # ← EXACT DIVISION with Decimal
+        base_value = dec_number / (Decimal(10) ** exponent)
+
+        # ← FORMAT with exact sig figs
+        base_str = f"{float(base_value):.{sig_figs}g}"
+
+        if "." not in base_str and "e" not in base_str.lower():
+            base_str += ".0"
+
+        return f"{base_str}e{exponent}"
 
     @classmethod
     def to_understandable_time(cls, number: float) -> str:
@@ -164,33 +189,44 @@ class FloatFormatterHelper:
         return result
 
     @classmethod
-    def to_standard_engineering_notation(cls, number: float) -> str:
-        base, exp = cls.to_standard_or_engineering_base(number)
-        if base == "math.inf":
+    def to_standard_engineering_notation(
+        cls, dec_number: Decimal, sig_figs: int  # ← CHANGE TYPE  # ← ADD PARAMETER
+    ) -> str:
+        if dec_number == 0:
+            return "0.0"
+        if dec_number == Decimal("Infinity"):  # ← CHANGE
             return "math.inf"
-        exp_value = int(exp)
-        remainder = exp_value % 3
-        # For negative exponents, the adjustment is different
-        if exp_value < 0:
-            # For negative exponents, we need to round down to the next multiple of 3
-            # e.g., -5 should go to -6, so we get 3 - ((-5) % 3) = 3 - 1 = 2
-            adjustment = 3 - ((-exp_value) % 3)
+
+        # ← USE Decimal.adjusted()
+        exponent = dec_number.adjusted()
+
+        remainder = exponent % 3
+
+        if exponent < 0:
+            adjustment = 3 - ((-exponent) % 3)
             if adjustment == 3:
                 adjustment = 0
-            exp_value = exp_value - adjustment
-            base_value = float(base) * (10**adjustment)
+            exp_value = exponent - adjustment
+            # ← EXACT DIVISION with Decimal
+            base_value = dec_number / (Decimal(10) ** exp_value)
         elif remainder != 0:
-            # For positive exponents, keep the existing logic
-            exp_value = exp_value - remainder
-            base_value = float(base) * (10**remainder)
+            exp_value = exponent - remainder
+            # ← EXACT DIVISION with Decimal
+            base_value = dec_number / (Decimal(10) ** exp_value)
         else:
-            base_value = float(base)
-        base = str(base_value).rstrip("0").rstrip(".")
+            exp_value = exponent
+            # ← EXACT DIVISION with Decimal
+            base_value = dec_number / (Decimal(10) ** exponent)
+
+        # ← FORMAT with exact sig figs (no .rstrip needed!)
+        base_str = f"{float(base_value):.{sig_figs}g}"
+
+        if "." not in base_str and "e" not in base_str.lower():
+            base_str += ".0"
+
         if exp_value != 0:
-            return f"{base}e{exp_value}"
-        if "." in base:
-            return base
-        return f"{base}.0"
+            return f"{base_str}e{exp_value}"
+        return base_str
 
     @classmethod
     def to_standard_underscore_grouping(cls, number: float) -> str:
@@ -725,13 +761,14 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def _check_bad_float_notation(  # pylint: disable=too-many-locals,too-many-return-statements
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
+
         has_dot = "." in string
         has_exponent = "e" in string or "E" in string
         if not (has_dot or has_exponent):
             # it's an int, need special treatment later on
             return None
 
-        value = float(string)
+        suggestion = FloatFormatterHelper.standardize(string)
         engineering = (
             self.all_float_notation_allowed
             or self.linter.config.strict_engineering_notation
@@ -749,17 +786,14 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             reason: str, time_suggestion: bool = False
         ) -> None:
             suggestion = FloatFormatterHelper.standardize(
-                value, scientific, engineering, pep515, time_suggestion
+                value,
+                string,  # ← ADD THIS: Pass original string
+                scientific,
+                engineering,
+                pep515,
+                time_suggestion,
             )
-            return self.add_message(
-                "bad-float-notation",
-                args=(string, reason, suggestion),
-                line=line_num,
-                end_lineno=line_num,
-                col_offset=start[1],
-                end_col_offset=start[1] + len(string),
-                confidence=HIGH,
-            )
+            return self.add_message(...)
 
         if string in {"0", "0.0", "0."}:
             # 0 is a special case because it is used very often, and float approximation
