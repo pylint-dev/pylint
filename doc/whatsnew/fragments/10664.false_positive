@@ -1,4 +1,5 @@
 Fix a false positive for ``invalid-name`` on exclusive module-level assignments
-composed of three or more branches.
+composed of three or more branches. We won't raise ``disallowed-name`` on module-level names that can't be inferred 
+until a further refactor to remove this false negative is done.
 
 Closes #10664
