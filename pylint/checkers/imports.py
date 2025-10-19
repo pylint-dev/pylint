@@ -446,8 +446,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         BaseChecker.__init__(self, linter)
         self.import_graph: defaultdict[str, set[str]] = defaultdict(set)
         self._imports_stack: list[tuple[ImportNode, str]] = []
-        self._first_non_import_node = None
-        self._non_import_nodes: list = []
+        self._non_import_nodes: list[nodes.NodeNG] = []
         self._module_pkg: dict[Any, Any] = (
             {}
         )  # mapping of modules to the pkg they belong in
@@ -608,7 +607,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             met.add(package)
 
         self._imports_stack = []
-        self._first_non_import_node = None
         self._non_import_nodes = []
 
     def compute_first_non_import_node(
@@ -642,9 +640,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if all(valid_targets):
                 return
 
-        if not self._first_non_import_node:
-            self._first_non_import_node = node
-
         self._non_import_nodes.append(node)
 
     visit_try = visit_assignattr = visit_assign = visit_ifexp = visit_comprehension = (
@@ -665,9 +660,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         if isinstance(root, (nodes.If, nodes.Try)):
             if any(root.nodes_of_class((nodes.Import, nodes.ImportFrom))):
                 return
-
-        if not self._first_non_import_node:
-            self._first_non_import_node = node
 
         self._non_import_nodes.append(node)
 
@@ -699,7 +691,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         Send a message  if `node` comes before another instruction
         """
         # Check if import comes after a non-import statement
-        if self._first_non_import_node:
+        if self._non_import_nodes:
             # Check for inline pragma on the import line
             if not self.linter.is_message_enabled(
                 "wrong-import-position", node.fromlineno
