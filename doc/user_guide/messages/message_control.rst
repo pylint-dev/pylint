@@ -220,7 +220,7 @@ This causes a conflict if both are enabled. You can resolve it by choosing one o
       [MESSAGES CONTROL]
       disable=C0209
 
-      
+
 Detecting useless disables
 --------------------------
 
