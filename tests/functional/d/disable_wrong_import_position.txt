@@ -1,1 +1,1 @@
-wrong-import-position:10:0:10:10::"Import ""import sys"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:11:0:11:14::"Import ""import logging"" should be placed at the top of the module":UNDEFINED

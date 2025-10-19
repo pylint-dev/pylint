@@ -447,6 +447,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         self.import_graph: defaultdict[str, set[str]] = defaultdict(set)
         self._imports_stack: list[tuple[ImportNode, str]] = []
         self._first_non_import_node = None
+        self._non_import_nodes: list = []
         self._module_pkg: dict[Any, Any] = (
             {}
         )  # mapping of modules to the pkg they belong in
@@ -608,6 +609,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         self._imports_stack = []
         self._first_non_import_node = None
+        self._non_import_nodes = []
 
     def compute_first_non_import_node(
         self,
@@ -621,12 +623,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             | nodes.Try
         ),
     ) -> None:
-        # if the node does not contain an import instruction, and if it is the
-        # first node of the module, keep a track of it (all the import positions
-        # of the module will be compared to the position of this first
-        # instruction)
-        if self._first_non_import_node:
-            return
+        # Track non-import nodes at module level to check import positions
         if not isinstance(node.parent, nodes.Module):
             return
         if isinstance(node, nodes.Try) and any(
@@ -644,7 +641,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ]
             if all(valid_targets):
                 return
-        self._first_non_import_node = node
+
+        if not self._first_non_import_node:
+            self._first_non_import_node = node
+
+        self._non_import_nodes.append(node)
 
     visit_try = visit_assignattr = visit_assign = visit_ifexp = visit_comprehension = (
         visit_expr
@@ -653,12 +654,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     def visit_functiondef(
         self, node: nodes.FunctionDef | nodes.While | nodes.For | nodes.ClassDef
     ) -> None:
-        # If it is the first non import instruction of the module, record it.
-        if self._first_non_import_node:
-            return
-
-        # Check if the node belongs to an `If` or a `Try` block. If they
-        # contain imports, skip recording this node.
+        # Record non-import instruction unless inside an If/Try block that contains imports
         if not isinstance(node.parent.scope(), nodes.Module):
             return
 
@@ -670,7 +666,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             if any(root.nodes_of_class((nodes.Import, nodes.ImportFrom))):
                 return
 
-        self._first_non_import_node = node
+        if not self._first_non_import_node:
+            self._first_non_import_node = node
+
+        self._non_import_nodes.append(node)
 
     visit_classdef = visit_for = visit_while = visit_functiondef
 
@@ -699,17 +698,37 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         Send a message  if `node` comes before another instruction
         """
-        # if a first non-import instruction has already been encountered,
-        # it means the import comes after it and therefore is not well placed
+        # Check if import comes after a non-import statement
         if self._first_non_import_node:
-            if self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
-                self.add_message(
-                    "wrong-import-position", node=node, args=node.as_string()
-                )
-            else:
+            # Check for inline pragma on the import line
+            if not self.linter.is_message_enabled("wrong-import-position", node.fromlineno):
                 self.linter.add_ignored_message(
                     "wrong-import-position", node.fromlineno, node
                 )
+                return
+
+            # Check for pragma on the preceding non-import statement
+            most_recent_non_import = None
+            for non_import_node in self._non_import_nodes:
+                if non_import_node.fromlineno < node.fromlineno:
+                    most_recent_non_import = non_import_node
+                else:
+                    break
+
+            if most_recent_non_import:
+                check_line = most_recent_non_import.fromlineno
+                if not self.linter.is_message_enabled("wrong-import-position", check_line):
+                    self.linter.add_ignored_message(
+                        "wrong-import-position", check_line, most_recent_non_import
+                    )
+                    self.linter.add_ignored_message(
+                        "wrong-import-position", node.fromlineno, node
+                    )
+                    return
+
+            self.add_message(
+                "wrong-import-position", node=node, args=node.as_string()
+            )
 
     def _record_import(
         self,

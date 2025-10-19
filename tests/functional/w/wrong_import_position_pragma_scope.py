@@ -1,23 +1,16 @@
-"""Test that wrong-import-position pragma suppression is correctly scoped."""
-# pylint: disable=unused-import,invalid-name
+"""Test wrong-import-position pragma scoping."""
+# pylint: disable=unused-import
 
-import logging
+import os
 import sys
 
-# This pragma should not affect subsequent import statements
-logger = logging.getLogger()  # pylint: disable=wrong-import-position
-logging.basicConfig(level='DEBUG')
+# Pragma on non-import suppresses following imports until next non-import
+CONSTANT_A = False  # pylint: disable=wrong-import-position
+import time
 
-logger.debug('importing modules...')
-import os  # [wrong-import-position]
-import pathlib  # [wrong-import-position]
-import random  # [wrong-import-position]
-logger.debug('done importing')
+CONSTANT_B = True
+import logging  # [wrong-import-position]
 
-# Test that pragma on import line works correctly (this import should not be flagged)
-constant_var = "test"
+# Inline pragma on import line
+CONSTANT_C = 42
 import json  # pylint: disable=wrong-import-position
-
-# Test that subsequent imports are not affected by the pragma above
-import csv  # [wrong-import-position]
-import re  # [wrong-import-position]
