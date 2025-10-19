@@ -523,16 +523,22 @@ class NameChecker(_BasicChecker):
                     if (
                         (iattrs := tuple(node.frame().igetattr(node.name)))
                         and util.Uninferable not in iattrs
-                        and len(iattrs) == 2
-                        and astroid.are_exclusive(*iattrs)
+                        and len(iattrs) > 1
+                        and all(
+                            astroid.are_exclusive(*combo)
+                            for combo in itertools.combinations(iattrs, 2)
+                        )
                     ):
                         node_type = "const"
-                    self._check_name(
-                        node_type,
-                        node.name,
-                        node,
-                        disallowed_check_only=redefines_import,
-                    )
+                    if not self._meets_exception_for_non_consts(
+                        inferred_assign_type, node.name
+                    ):
+                        self._check_name(
+                            node_type,
+                            node.name,
+                            node,
+                            disallowed_check_only=redefines_import,
+                        )
 
         # Check names defined in function scopes
         elif isinstance(frame, nodes.FunctionDef):
