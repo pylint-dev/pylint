@@ -8,6 +8,7 @@ import os
 import re
 import tempfile
 import tokenize
+from decimal import Decimal
 
 import astroid
 import pytest
@@ -226,26 +227,36 @@ class TestIgnorePatternInLongLines(CheckerTestCase):
         ("0e-10", "0.0", "0.0", "0.0"),
         ("0.0e10", "0.0", "0.0", "0.0"),
         ("1e0", "1.0", "1.0", "1.0"),
-        ("1e10", "1e10", "10e9", "10_000_000_000.0"),
+        ("1e10", "1.0e10", "10.0e9", "10_000_000_000.0"),
         # no reason to not use exponential notation for very low number
         # even for strict underscore grouping notation
-        ("1e-10", "1e-10", "100e-12", "1e-10"),
-        ("2e1", "2e1", "20.0", "20.0"),
-        ("2e-1", "2e-1", "200e-3", "0.2"),
+        ("1e-10", "1.0e-10", "100.0e-12", "1e-10"),
+        ("2e1", "2.0e1", "20.0", "20.0"),
+        ("2e-1", "2.0e-1", "200.0e-3", "0.2"),
         ("3.456e2", "3.456e2", "345.6", "345.6"),
         ("3.456e-2", "3.456e-2", "34.56e-3", "0.03456"),
-        ("4e2", "4e2", "400.0", "400.0"),
-        ("4e-2", "4e-2", "40e-3", "0.04"),
-        ("50e2", "5e3", "5e3", "5_000.0"),
-        ("50e-2", "5e-1", "500e-3", "0.5"),
-        ("6e6", "6e6", "6e6", "6_000_000.0"),
-        ("6e-6", "6e-6", "6e-6", "6e-06"),  # 6e-06 is what python offer on str(float)
-        ("10e5", "1e6", "1e6", "1_000_000.0"),
-        ("10e-5", "1e-4", "100e-6", "0.0001"),
-        ("1_000_000", "1e6", "1e6", "1_000_000.0"),
-        ("1000_000", "1e6", "1e6", "1_000_000.0"),
-        ("20e9", "2e10", "20e9", "20_000_000_000.0"),
-        ("20e-9", "2e-8", "20e-9", "2e-08"),  # 2e-08 is what python offer on str(float)
+        ("4e2", "4.0e2", "400.0", "400.0"),
+        ("4e-2", "4.0e-2", "40.0e-3", "0.04"),
+        ("50e2", "5.0e3", "5.0e3", "5_000.0"),
+        ("50e-2", "5.0e-1", "500.0e-3", "0.5"),
+        ("6e6", "6.0e6", "6.0e6", "6_000_000.0"),
+        (
+            "6e-6",
+            "6.0e-6",
+            "6.0e-6",
+            "6e-06",
+        ),  # 6e-06 is what python offer on str(float)
+        ("10e5", "1.0e6", "1.0e6", "1_000_000.0"),
+        ("10e-5", "1.0e-4", "100.0e-6", "0.0001"),
+        ("1_000_000", "1.0e6", "1.0e6", "1_000_000.0"),
+        ("1000_000", "1.0e6", "1.0e6", "1_000_000.0"),
+        ("20e9", "2.0e10", "20.0e9", "20_000_000_000.0"),
+        (
+            "20e-9",
+            "2.0e-8",
+            "20.0e-9",
+            "2e-08",
+        ),  # 2e-08 is what python offer on str(float)
         (
             # 15 significant digits because we get rounding error otherwise
             # and 15 seems enough especially since we don't auto-fix
@@ -264,11 +275,17 @@ def test_to_another_standard_notation(
 ) -> None:
     """Test the conversion of numbers to all possible notations."""
     float_value = float(value)
-    scientific = FloatFormatterHelper.to_standard_scientific_notation(float_value)
+    dec_value = Decimal(value)
+    sig_figs = len(dec_value.as_tuple().digits)
+    scientific = FloatFormatterHelper.to_standard_scientific_notation(
+        dec_value, sig_figs
+    )
     assert (
         scientific == expected_scientific
     ), f"Scientific notation mismatch expected {expected_scientific}, got {scientific}"
-    engineering = FloatFormatterHelper.to_standard_engineering_notation(float_value)
+    engineering = FloatFormatterHelper.to_standard_engineering_notation(
+        dec_value, sig_figs
+    )
     assert (
         engineering == expected_engineering
     ), f"Engineering notation mismatch expected {expected_engineering}, got {engineering}"

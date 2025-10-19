@@ -13,9 +13,11 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import decimal
 import math
 import re
 import tokenize
+from decimal import Decimal, getcontext
 from functools import reduce
 from re import Match
 from typing import TYPE_CHECKING, Literal
@@ -31,6 +33,8 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+getcontext().prec = 50
 
 
 _KEYWORD_TOKENS = {
@@ -59,16 +63,20 @@ class FloatFormatterHelper:
     def standardize(
         cls,
         number: float,
+        original_string: str,  # ← ADD THIS PARAMETER
         scientific: bool = True,
         engineering: bool = True,
         pep515: bool = True,
         time_suggestion: bool = False,
     ) -> str:
+        dec_number = Decimal(original_string)
+        sig_figs = len(dec_number.as_tuple().digits)
+
         suggested = set()
         if scientific:
-            suggested.add(cls.to_standard_scientific_notation(number))
+            suggested.add(cls.to_standard_scientific_notation(dec_number, sig_figs))
         if engineering:
-            suggested.add(cls.to_standard_engineering_notation(number))
+            suggested.add(cls.to_standard_engineering_notation(dec_number, sig_figs))
         if pep515:
             suggested.add(cls.to_standard_underscore_grouping(number))
         if time_suggestion:
@@ -100,15 +108,35 @@ class FloatFormatterHelper:
         return base_str, exp_str
 
     @classmethod
-    def to_standard_scientific_notation(cls, number: float) -> str:
-        base, exp = cls.to_standard_or_engineering_base(number)
-        if base == "math.inf":
+    def to_standard_scientific_notation(cls, dec_number: Decimal, sig_figs: int) -> str:
+        if dec_number == 0:
+            return "0.0"
+        if dec_number == Decimal("Infinity") or dec_number == Decimal("-Infinity"):
             return "math.inf"
-        if exp != "0":
-            return f"{base}e{int(exp)}"
-        if "." in base:
-            return base
-        return f"{base}.0"
+
+        exponent = dec_number.adjusted()
+
+        if exponent == 0:
+            base_str = f"{float(dec_number):.{min(sig_figs, 15)}g}"
+            if "." not in base_str:
+                base_str += ".0"
+            return base_str
+
+        try:
+            base_value = dec_number / (Decimal(10) ** exponent)
+        except decimal.Overflow:
+            # Extreme exponents (e.g. 1e12_000_000) overflow Decimal arithmetic;
+            # fall back to float-based computation.
+            base, exp_str = cls.to_standard_or_engineering_base(float(dec_number))
+            return f"{base}e{exp_str}" if exp_str != "0" else base
+        # Cap at 15 significant digits (float precision limit) to avoid
+        # g-format switching to scientific notation for intermediate values.
+        base_str = f"{float(base_value):.{min(sig_figs, 15)}g}"
+
+        if "." not in base_str and "e" not in base_str.lower():
+            base_str += ".0"
+
+        return f"{base_str}e{exponent}"
 
     @classmethod
     def to_understandable_time(cls, number: float) -> str:
@@ -164,33 +192,49 @@ class FloatFormatterHelper:
         return result
 
     @classmethod
-    def to_standard_engineering_notation(cls, number: float) -> str:
-        base, exp = cls.to_standard_or_engineering_base(number)
-        if base == "math.inf":
+    def to_standard_engineering_notation(
+        cls, dec_number: Decimal, sig_figs: int
+    ) -> str:
+        if dec_number == 0:
+            return "0.0"
+        if dec_number == Decimal("Infinity") or dec_number == Decimal("-Infinity"):
             return "math.inf"
-        exp_value = int(exp)
-        remainder = exp_value % 3
-        # For negative exponents, the adjustment is different
-        if exp_value < 0:
-            # For negative exponents, we need to round down to the next multiple of 3
-            # e.g., -5 should go to -6, so we get 3 - ((-5) % 3) = 3 - 1 = 2
-            adjustment = 3 - ((-exp_value) % 3)
-            if adjustment == 3:
-                adjustment = 0
-            exp_value = exp_value - adjustment
-            base_value = float(base) * (10**adjustment)
-        elif remainder != 0:
-            # For positive exponents, keep the existing logic
-            exp_value = exp_value - remainder
-            base_value = float(base) * (10**remainder)
-        else:
-            base_value = float(base)
-        base = str(base_value).rstrip("0").rstrip(".")
+
+        exponent = dec_number.adjusted()
+
+        remainder = exponent % 3
+
+        try:
+            if exponent < 0:
+                adjustment = 3 - ((-exponent) % 3)
+                if adjustment == 3:
+                    adjustment = 0
+                exp_value = exponent - adjustment
+                base_value = dec_number / (Decimal(10) ** exp_value)
+            elif remainder != 0:
+                exp_value = exponent - remainder
+                base_value = dec_number / (Decimal(10) ** exp_value)
+            else:
+                exp_value = exponent
+                base_value = dec_number / (Decimal(10) ** exponent)
+        except decimal.Overflow:
+            # Extreme exponents overflow Decimal arithmetic; fall back to
+            # float-based scientific notation.
+            base, exp_str = cls.to_standard_or_engineering_base(float(dec_number))
+            return f"{base}e{exp_str}" if exp_str != "0" else base
+
+        # Use at least 3 significant digits to prevent g-format from switching
+        # to scientific notation (engineering base is always < 1000), and cap
+        # at 15 (float precision limit).
+        precision = max(min(sig_figs, 15), 3)
+        base_str = f"{float(base_value):.{precision}g}"
+
+        if "." not in base_str and "e" not in base_str.lower():
+            base_str += ".0"
+
         if exp_value != 0:
-            return f"{base}e{exp_value}"
-        if "." in base:
-            return base
-        return f"{base}.0"
+            return f"{base_str}e{exp_value}"
+        return base_str
 
     @classmethod
     def to_standard_underscore_grouping(cls, number: float) -> str:
@@ -735,13 +779,14 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def _check_bad_float_notation(  # pylint: disable=too-many-locals,too-many-return-statements
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
+
         has_dot = "." in string
         has_exponent = "e" in string or "E" in string
         if not (has_dot or has_exponent):
             # it's an int, need special treatment later on
             return None
 
-        value = float(string)
+        value = float(string.replace("_", ""))
         engineering = (
             self.all_float_notation_allowed
             or self.linter.config.strict_engineering_notation
@@ -759,15 +804,20 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             reason: str, time_suggestion: bool = False
         ) -> None:
             suggestion = FloatFormatterHelper.standardize(
-                value, scientific, engineering, pep515, time_suggestion
+                value,
+                string,  # ← ADD THIS: Pass original string
+                scientific,
+                engineering,
+                pep515,
+                time_suggestion,
             )
             return self.add_message(
                 "bad-float-notation",
-                args=(string, reason, suggestion),
                 line=line_num,
-                end_lineno=line_num,
                 col_offset=start[1],
+                end_lineno=line_num,
                 end_col_offset=start[1] + len(string),
+                args=(string, reason, suggestion),
                 confidence=HIGH,
             )
 
@@ -803,10 +853,16 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 # written complexly, then it could be badly written
                 return None
             threshold = self.linter.config.float_notation_threshold
+            dec_threshold = Decimal(str(threshold))
+            dec_close = Decimal(str(1 / threshold))
             close_to_zero_threshold = (
-                FloatFormatterHelper.to_standard_scientific_notation(1 / threshold)
+                FloatFormatterHelper.to_standard_scientific_notation(
+                    dec_close, len(dec_close.as_tuple().digits)
+                )
             )
-            threshold = FloatFormatterHelper.to_standard_scientific_notation(threshold)
+            threshold = FloatFormatterHelper.to_standard_scientific_notation(
+                dec_threshold, len(dec_threshold.as_tuple().digits)
+            )
             if under_threshold:
                 return raise_bad_float_notation(
                     f"is smaller than {close_to_zero_threshold}"
