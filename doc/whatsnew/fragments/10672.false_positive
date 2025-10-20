@@ -1,3 +1,0 @@
-Fix false positive for ``invalid-name`` for ``TypedDict`` instances.
-
-Closes #10672
