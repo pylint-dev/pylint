@@ -74,6 +74,30 @@ to your liking.
 
 .. towncrier release notes start
 
+What's new in Pylint 4.0.2?
+--------------------------------
+Release date: 2025-10-20
+
+
+False Positives Fixed
+---------------------
+
+- Fix false positive for :ref:`invalid-name` on a partially uninferable module-level constant.
+
+  Closes #10652 (`#10652 <https://github.com/pylint-dev/pylint/issues/10652>`_)
+
+- Fix a false positive for :ref:`invalid-name` on exclusive module-level assignments
+  composed of three or more branches. We won't raise :ref:`disallowed-name` on module-level names that can't be inferred
+  until a further refactor to remove this false negative is done.
+
+  Closes #10664 (`#10664 <https://github.com/pylint-dev/pylint/issues/10664>`_)
+
+- Fix false positive for :ref:`invalid-name` for ``TypedDict`` instances.
+
+  Closes #10672 (`#10672 <https://github.com/pylint-dev/pylint/issues/10672>`_)
+
+
+
 What's new in Pylint 4.0.1?
 ---------------------------
 Release date: 2025-10-14
