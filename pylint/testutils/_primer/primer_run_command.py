@@ -83,7 +83,7 @@ class RunCommand(PrimerCommand):
         # Duplicate code takes too long and is relatively safe
         # TODO: Find a way to allow cyclic-import and compare output correctly
         disables = ["--disable=duplicate-code,cyclic-import"]
-        additional = ["--clear-cache-post-run=y"]
+        additional = ["--clear-cache-post-run=y", "--jobs=2"]
         arguments = data.pylint_args + enables + disables + additional
         output = StringIO()
         reporter = JSONReporter(output)
