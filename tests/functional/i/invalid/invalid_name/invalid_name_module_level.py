@@ -51,3 +51,7 @@ try:
     VERSION = version("ty")  # uninferable
 except PackageNotFoundError:
     VERSION = "0.0.0"
+
+
+from typing import Annotated
+IntWithAnnotation = Annotated[int, "anything"]
