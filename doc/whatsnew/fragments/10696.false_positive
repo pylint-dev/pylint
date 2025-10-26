@@ -1,0 +1,3 @@
+Fixed false positive for ``invalid-name`` with ``typing.Annotated``.
+
+Closes #10696
