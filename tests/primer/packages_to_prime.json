@@ -1,4 +1,10 @@
 {
+  "ansible": {
+    "branch": "devel",
+    "directories": ["lib/ansible"],
+    "url": "https://github.com/ansible/ansible",
+    "pylintrc_relpath": "test/lib/ansible_test/_util/controller/sanity/pylint/config/default.cfg"
+  },
   "astroid": {
     "branch": "main",
     "directories": ["astroid"],
@@ -9,6 +15,12 @@
     "branch": "main",
     "directories": ["src/black/", "src/blackd/", "src/blib2to3/"],
     "url": "https://github.com/psf/black"
+  },
+  "coverage": {
+    "branch": "master",
+    "directories": ["coverage"],
+    "url": "https://github.com/nedbat/coveragepy",
+    "pylintrc_relpath": "pyproject.toml"
   },
   "django": {
     "branch": "main",
@@ -21,11 +33,6 @@
     "directories": ["src/flask"],
     "url": "https://github.com/pallets/flask"
   },
-  "home-assistant": {
-    "branch": "dev",
-    "directories": ["homeassistant"],
-    "url": "https://github.com/home-assistant/core"
-  },
   "music21": {
     "branch": "master",
     "directories": ["music21"],
@@ -37,6 +44,12 @@
     "directories": ["pandas/core"],
     "pylint_additional_args": ["--ignore-patterns=\"test_"],
     "url": "https://github.com/pandas-dev/pandas"
+  },
+  "poetry-core": {
+    "branch": "main",
+    "directories": ["src"],
+    "url": "https://github.com/python-poetry/poetry-core",
+    "pylint_additional_args": ["--recursive=y", "--source-roots=src"]
   },
   "psycopg": {
     "branch": "master",
@@ -57,17 +70,5 @@
     "branch": "master",
     "directories": ["src/sentry"],
     "url": "https://github.com/getsentry/sentry"
-  },
-  "coverage": {
-    "branch": "master",
-    "directories": ["coverage"],
-    "url": "https://github.com/nedbat/coveragepy",
-    "pylintrc_relpath": "pyproject.toml"
-  },
-  "poetry-core": {
-    "branch": "main",
-    "directories": ["src"],
-    "url": "https://github.com/python-poetry/poetry-core",
-    "pylint_additional_args": ["--recursive=y", "--source-roots=src"]
   }
 }
