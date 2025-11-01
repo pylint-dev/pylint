@@ -9,14 +9,14 @@ module_snake_case_constant: Final[int] = 42  # [invalid-name]
 MODULE_UPPER_CASE_CONSTANT: Final[int] = 42
 
 
-def example_function() -> None:
+def function() -> None:
     function_snake_case_constant: Final[int] = 42  # [invalid-name]
     FUNCTION_UPPER_CASE_CONSTANT: Final[int] = 42
     print(function_snake_case_constant, FUNCTION_UPPER_CASE_CONSTANT)
 
 
 @dataclass
-class ExampleClass:
+class Class:
     class_snake_case_constant: Final[int] = 42  # [invalid-name]
     CLASS_UPPER_CASE_CONSTANT: Final[int] = 42
 
