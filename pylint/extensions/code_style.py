@@ -115,11 +115,17 @@ class CodeStyleChecker(BaseChecker):
             called = safe_infer(node.func)
             if not called:
                 return
-            if called.qname() == "collections.namedtuple":
+            if (
+                isinstance(called, nodes.FunctionDef)
+                and called.qname() == "collections.namedtuple"
+            ):
                 self.add_message(
                     "prefer-typing-namedtuple", node=node, confidence=INFERENCE
                 )
-            elif called.qname() == "builtins.float":
+            elif (
+                isinstance(called, nodes.ClassDef)
+                and called.qname() == "builtins.float"
+            ):
                 if (
                     node.args
                     and isinstance(node.args[0], nodes.Const)
