@@ -1,0 +1,4 @@
+Fix a false positive when an UPPER_CASED class attribute was raising an
+``invalid-name`` when typed with ``Final``.
+
+Closes #10711
