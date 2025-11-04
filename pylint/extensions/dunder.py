@@ -58,7 +58,11 @@ class DunderChecker(BaseChecker):
             return
 
         # Detect something that could be a bad dunder method
-        if node.name.startswith("_") and node.name.endswith("_") and node.name not in self._dunder_methods:
+        if (
+            node.name.startswith("_")
+            and node.name.endswith("_")
+            and node.name not in self._dunder_methods
+        ):
             self.add_message(
                 "bad-dunder-name",
                 node=node,
