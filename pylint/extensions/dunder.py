@@ -41,11 +41,10 @@ class DunderChecker(BaseChecker):
     )
 
     def open(self) -> None:
-        self._dunder_methods = (
-            EXTRA_DUNDER_METHODS
-            + DUNDER_PROPERTIES
-            + self.linter.config.good_dunder_names
-        )
+        self._dunder_methods = DUNDER_PROPERTIES + self.linter.config.good_dunder_names
+        for since_vers, dunder_methods in EXTRA_DUNDER_METHODS.items():
+            if since_vers <= self.linter.config.py_version:
+                self._dunder_methods.extend(dunder_methods)
         for since_vers, dunder_methods in DUNDER_METHODS.items():
             if since_vers <= self.linter.config.py_version:
                 self._dunder_methods.extend(list(dunder_methods.keys()))
@@ -59,11 +58,7 @@ class DunderChecker(BaseChecker):
             return
 
         # Detect something that could be a bad dunder method
-        if (
-            node.name.startswith("_")
-            and node.name.endswith("_")
-            and node.name not in self._dunder_methods
-        ):
+        if node.name.startswith("_") and node.name.endswith("_") and node.name not in self._dunder_methods:
             self.add_message(
                 "bad-dunder-name",
                 node=node,
