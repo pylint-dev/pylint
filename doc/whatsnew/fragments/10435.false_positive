@@ -1,0 +1,3 @@
+Add Enum dunder method to the allowed list.
+
+Closes #10435
