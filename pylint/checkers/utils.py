@@ -1847,24 +1847,40 @@ def is_reassigned_before_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope before the
     current node.
     """
-    return any(
-        a.name == varname and a.lineno < node.lineno
-        for a in node.scope().nodes_of_class(
-            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
-        )
-    )
+    node_scope = node.scope()
+    node_lineno = node.lineno
+    if node_lineno is None:
+        return False
+    for a in node_scope.nodes_of_class(
+        (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
+    ):
+        if a.name == varname and a.lineno is not None and a.lineno < node_lineno:
+            if isinstance(a, (nodes.ClassDef, nodes.FunctionDef)):
+                if a.parent and a.parent.scope() == node_scope:
+                    return True
+            elif a.scope() == node_scope:
+                return True
+    return False
 
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope after the
     current node.
     """
-    return any(
-        a.name == varname and a.lineno > node.lineno
-        for a in node.scope().nodes_of_class(
-            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
-        )
-    )
+    node_scope = node.scope()
+    node_lineno = node.lineno
+    if node_lineno is None:
+        return False
+    for a in node_scope.nodes_of_class(
+        (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
+    ):
+        if a.name == varname and a.lineno is not None and a.lineno > node_lineno:
+            if isinstance(a, (nodes.ClassDef, nodes.FunctionDef)):
+                if a.parent and a.parent.scope() == node_scope:
+                    return True
+            elif a.scope() == node_scope:
+                return True
+    return False
 
 
 def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
