@@ -175,4 +175,6 @@ def fruit(apple: int, pear: int, kiwi: int | None = None) -> tuple[int, int] | t
 
 def main():
     _, _ = fruit(1, 2)
+    _, _ = fruit(1, 2, 3)
+    _, _, _ = fruit(1, 2)
     _, _, _ = fruit(1, 2, 3)
