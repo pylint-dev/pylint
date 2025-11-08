@@ -314,7 +314,7 @@ class CodeStyleChecker(BaseChecker):
             case nodes.Assign(
                 targets=[nodes.AssignName(name=target_name)]
             ) | nodes.AnnAssign(target=nodes.AssignName(name=target_name)):
-                return target_name == name  # type: ignore[no-any-return]
+                return target_name == name and prev_sibling.value is not None
         return False
 
     @staticmethod
