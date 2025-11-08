@@ -1,0 +1,4 @@
+invalid-name:8:0:8:26::"Constant name ""module_snake_case_constant"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:14:4:14:32:function:"Variable name ""FUNCTION_UPPER_CASE_CONSTANT"" doesn't conform to snake_case naming style":HIGH
+invalid-name:20:4:20:29:Class:"Class constant name ""class_snake_case_constant"" doesn't conform to UPPER_CASE naming style":HIGH
+invalid-name:25:8:25:34:Class.method:"Variable name ""METHOD_UPPER_CASE_CONSTANT"" doesn't conform to snake_case naming style":HIGH
