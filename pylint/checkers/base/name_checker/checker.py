@@ -373,7 +373,9 @@ class NameChecker(_BasicChecker):
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_name("class", node.name, node)
         for attr, anodes in node.instance_attrs.items():
-            if not any(node.instance_attr_ancestors(attr)):
+            if not any(
+                node.instance_attr_ancestors(attr)
+            ) and not utils.is_assign_name_annotated_with(anodes[0], "Final"):
                 self._check_name("attr", attr, anodes[0])
 
     @utils.only_required_for_messages("disallowed-name", "invalid-name")
