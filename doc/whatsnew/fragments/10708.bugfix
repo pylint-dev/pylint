@@ -1,0 +1,4 @@
+Fix crash for ``prefer-typing-namedtuple`` and ``consider-math-not-float`` when
+a ``slice`` object is called.
+
+Closes #10708
