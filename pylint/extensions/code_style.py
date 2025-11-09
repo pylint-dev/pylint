@@ -113,7 +113,7 @@ class CodeStyleChecker(BaseChecker):
     def visit_call(self, node: nodes.Call) -> None:
         if self._py36_plus:
             called = safe_infer(node.func)
-            if not called:
+            if not (called and isinstance(called, (nodes.FunctionDef, nodes.ClassDef))):
                 return
             if called.qname() == "collections.namedtuple":
                 self.add_message(
