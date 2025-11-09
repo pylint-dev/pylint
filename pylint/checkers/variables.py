@@ -2162,11 +2162,10 @@ class VariablesChecker(BaseChecker):
         # Check if we have starred nodes.
         if any(isinstance(target, nodes.Starred) for target in targets):
             return
-
         try:
-            inferred = utils.safe_infer(node.value)
-            if inferred is not None:
-                self._check_unpacking(inferred, node, targets)
+            inferred = node.value.inferred()
+            if inferred is not None and len(inferred) == 1:
+                self._check_unpacking(inferred[0], node, targets)
         except astroid.InferenceError:
             return
 
