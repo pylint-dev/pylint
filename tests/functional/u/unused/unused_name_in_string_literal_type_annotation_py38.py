@@ -3,7 +3,7 @@
 from argparse import ArgumentParser # [unused-import]
 from argparse import Namespace  # [unused-import]
 import http  # [unused-import]
-from http import HTTPStatus
+from http import HTTPStatus, HTTPMethod
 import typing as t
 from typing import Literal as Lit
 
@@ -25,3 +25,6 @@ EXAMPLE3: Lit["", " ", "?"] = "?"
 # See https://peps.python.org/pep-0586/#literals-enums-and-forward-references
 example4: t.Literal["http.HTTPStatus.OK", "http.HTTPStatus.NOT_FOUND"]
 example5: "t.Literal[HTTPStatus.OK, HTTPStatus.NOT_FOUND]"
+
+# Regression test 10724
+print(HTTPMethod.CONNECT)
