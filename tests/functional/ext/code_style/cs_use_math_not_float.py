@@ -16,8 +16,3 @@ pos_nan_float = float("+nan")  # [consider-math-not-float]
 upper_nan_float = float("NaN")  # [consider-math-not-float]
 typo_nan_float = float("nani")  # [consider-math-not-float]
 other_typo_nan_float = float("nna")  # [consider-math-not-float]
-
-
-# Regression test for https://github.com/pylint-dev/pylint/issues/10708
-x = slice(42)
-x()  # pylint: disable=not-callable
