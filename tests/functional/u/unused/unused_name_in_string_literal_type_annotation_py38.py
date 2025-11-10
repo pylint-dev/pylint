@@ -26,5 +26,5 @@ EXAMPLE3: Lit["", " ", "?"] = "?"
 example4: t.Literal["http.HTTPStatus.OK", "http.HTTPStatus.NOT_FOUND"]
 example5: "t.Literal[HTTPStatus.OK, HTTPStatus.NOT_FOUND]"
 
-# Regression test 10624
+# Regression test for https://github.com/pylint-dev/pylint/issues/10624
 print(HTTPMethod.CONNECT)
