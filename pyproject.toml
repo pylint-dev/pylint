@@ -96,7 +96,7 @@ test-min = [
   # Base test dependencies
   "astroid==4.0.1",                     # Pinned to a specific version for tests
   "py~=1.11.0",
-  "pytest>=8.4,<10.0",
+  "pytest>=8.4,<10",
   "pytest-benchmark~=5.1",
   "pytest-timeout~=2.4",
   "requests",
