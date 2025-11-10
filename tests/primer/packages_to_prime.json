@@ -17,7 +17,7 @@
     "url": "https://github.com/psf/black"
   },
   "coverage": {
-    "branch": "master",
+    "branch": "main",
     "directories": ["coverage"],
     "url": "https://github.com/nedbat/coveragepy",
     "pylintrc_relpath": "pyproject.toml"
