@@ -13,7 +13,7 @@ Release date: 2021-11-25
 
   Closes #5342
 
-* Specified that the ``ignore-paths`` option considers "\" to represent a
+* Specified that the ``ignore-paths`` option considers ``\`` to represent a
   windows directory delimiter instead of a regular expression escape
   character.
 
@@ -23,7 +23,7 @@ Release date: 2021-11-25
   Closes #5437
 
 * Fixed handling of Sphinx-style parameter docstrings with asterisks. These
-  should be escaped with by prepending a "\".
+  should be escaped with by prepending a ``\``.
 
   Closes #5406
 
