@@ -331,7 +331,7 @@ class TestExpandModules(CheckerTestCase):
     def test_expand_modules_with_ignore_list(self) -> None:
         """Test expand_modules with a non-default value of ignore."""
         ignore_list: list[str] = self.linter.config.ignore
-        ignore_list_re = (re.compile('^\\.#'),)
+        ignore_list_re = (re.compile("^\\.#"),)
         path = Path(__file__).parent.parent / "regrtest_data" / "ignore_option_10669"
         modules, errors = expand_modules(
             [str(path)],
