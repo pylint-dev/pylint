@@ -326,3 +326,23 @@ class TestExpandModules(CheckerTestCase):
         )
         assert {k: v for k, v in modules.items() if not v["isignored"]} == expected
         assert not errors
+
+    @set_config(ignore=["test"])
+    def test_expand_modules_with_ignore_list(self) -> None:
+        """Test expand_modules with a non-default value of ignore."""
+        ignore_list: list[str] = self.linter.config.ignore
+        ignore_list_re = (re.compile('^\\.#'),)
+        path = Path(__file__).parent.parent / "regrtest_data" / "ignore_option_10669"
+        modules, errors = expand_modules(
+            [str(path)],
+            [],
+            ignore_list,
+            ignore_list_re,
+            [],
+        )
+        expected_keys = {
+            str(path / "__init__.py"),
+            str(path / "main.py"),
+        }
+        assert {k for k, v in modules.items() if not v["isignored"]} == expected_keys
+        assert not errors
