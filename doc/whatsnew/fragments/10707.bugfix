@@ -1,4 +1,0 @@
-Fix crash for ``consider-using-assignment-expr`` when a variable annotation without assignment
-is used as the ``if`` test expression.
-
-Closes #10707

@@ -1,3 +1,0 @@
-Add Enum dunder methods ``_generate_next_value_``, ``_missing_``, ``_numeric_repr_``, ``_add_alias_``, and ``_add_value_alias_`` to the list passed to ``--good-dunder-names``.
-
-Closes #10435
