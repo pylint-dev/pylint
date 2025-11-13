@@ -81,6 +81,7 @@ clear-cache-post-run=no
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once). See also the "--disable" option for examples.
 enable=
+    consider-rewriting-conditional,
     use-symbolic-message-instead,
     useless-suppression,
 
