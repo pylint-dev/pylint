@@ -144,6 +144,7 @@ gv
 hashable
 hmac
 html
+iattrs
 idgeneratormixin
 ifexpr
 igetattr
