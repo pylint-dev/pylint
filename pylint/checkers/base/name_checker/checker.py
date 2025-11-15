@@ -513,12 +513,14 @@ class NameChecker(_BasicChecker):
                 else:
                     node_type = "variable"
                     iattrs = tuple(node.frame().igetattr(node.name))
-                    attrs = tuple(node.frame().getattr(node.name))
                     if (
                         util.Uninferable in iattrs
                         and self._name_regexps["const"].match(node.name) is not None
                     ):
                         return
+                    # Do the exclusive assignment analysis on attrs, not iattrs.
+                    # iattrs locations could be anywhere (inference result).
+                    attrs = tuple(node.frame().getattr(node.name))
                     if len(attrs) > 1 and all(
                         astroid.are_exclusive(*combo)
                         for combo in itertools.combinations(attrs, 2)
