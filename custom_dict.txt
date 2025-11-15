@@ -24,6 +24,7 @@ asynccontextmanager
 attr
 attrib
 attrname
+attrs
 backport
 BaseChecker
 basename
