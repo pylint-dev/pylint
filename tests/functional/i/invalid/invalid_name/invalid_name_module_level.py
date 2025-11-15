@@ -44,6 +44,12 @@ else:
     other_const = [3]
 
 
+if CONST:
+    ANOTHER_CONST = A()
+else:
+    ANOTHER_CONST = 5
+
+
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version
 
