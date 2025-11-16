@@ -26,13 +26,13 @@ class TypeAnnotationChecker(checkers.BaseChecker):
 
     name = "type-annotation"
     msgs = {
-        "C2901": (
+        "C3801": (
             "Missing return type annotation for function %r",
             "missing-return-type-annotation",
             "Used when a function or method does not have a return type annotation. "
             "Type annotations improve code readability and help with static type checking.",
         ),
-        "C2902": (
+        "C3802": (
             "Missing type annotation for parameter %r in function %r",
             "missing-param-type-annotation",
             "Used when a function or method parameter does not have a type annotation. "
