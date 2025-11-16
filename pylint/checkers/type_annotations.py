@@ -86,7 +86,7 @@ class TypeAnnotationChecker(checkers.BaseChecker):
         ):
             return
 
-        # Skip property setters and deleters (return value not meaningful)
+        # Skip property setters and delete methods (return value not meaningful)
         if utils.decorated_with(
             node, ["property", "*.setter", "*.deleter", "builtins.property"]
         ):

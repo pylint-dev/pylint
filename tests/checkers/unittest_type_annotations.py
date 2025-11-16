@@ -156,7 +156,7 @@ class TestTypeAnnotationChecker(CheckerTestCase):
             self.checker.visit_functiondef(node)
 
     def test_classmethod_cls_parameter_skipped(self) -> None:
-        """Test that 'cls' parameter is skipped in classmethods."""
+        """Test that 'cls' parameter is skipped in class methods."""
         node = astroid.extract_node(
             """
         class MyClass:
