@@ -1843,28 +1843,50 @@ def is_sys_guard(node: nodes.If) -> bool:
     return False
 
 
+def _is_node_in_same_scope(
+    candidate: nodes.NodeNG, node_scope: nodes.LocalsDictNodeNG
+) -> bool:
+    if isinstance(candidate, (nodes.ClassDef, nodes.FunctionDef)):
+        return candidate.parent is not None and candidate.parent.scope() is node_scope
+    return candidate.scope() is node_scope
+
+
+def _is_reassigned_relative_to_current(
+    node: nodes.NodeNG, varname: str, before: bool
+) -> bool:
+    """Check if the given variable name is reassigned in the same scope relative to
+    the current node.
+    """
+    node_scope = node.scope()
+    node_lineno = node.lineno
+    if node_lineno is None:
+        return False
+    for a in node_scope.nodes_of_class(
+        (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
+    ):
+        if a.name == varname and a.lineno is not None:
+            if before:
+                if a.lineno < node_lineno:
+                    if _is_node_in_same_scope(a, node_scope):
+                        return True
+            elif a.lineno > node_lineno:
+                if _is_node_in_same_scope(a, node_scope):
+                    return True
+    return False
+
+
 def is_reassigned_before_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope before the
     current node.
     """
-    return any(
-        a.name == varname and a.lineno < node.lineno
-        for a in node.scope().nodes_of_class(
-            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
-        )
-    )
+    return _is_reassigned_relative_to_current(node, varname, before=True)
 
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope after the
     current node.
     """
-    return any(
-        a.name == varname and a.lineno > node.lineno
-        for a in node.scope().nodes_of_class(
-            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
-        )
-    )
+    return _is_reassigned_relative_to_current(node, varname, before=False)
 
 
 def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:

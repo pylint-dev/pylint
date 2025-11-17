@@ -520,3 +520,105 @@ def test_is_typing_member() -> None:
     )
     assert not utils.is_typing_member(code[0], ("Literal",))
     assert not utils.is_typing_member(code[1], ("Literal",))
+
+
+def test_is_reassigned_after_current_requires_isinstance_check() -> None:
+    tree = astroid.parse(
+        """
+    CONSTANT = 1
+
+    def global_function_assign():
+        global CONSTANT
+        def CONSTANT():
+            pass
+        CONSTANT()
+    """
+    )
+    func = tree.body[1]
+    global_stmt = func.body[0]
+    nested_func = func.body[1]
+
+    assert isinstance(global_stmt, nodes.Global)
+    assert isinstance(nested_func, nodes.FunctionDef)
+
+    node_scope = global_stmt.scope()
+
+    assert nested_func.scope() == nested_func
+    assert nested_func.scope() != node_scope
+
+    assert nested_func.parent.scope() == node_scope
+
+    assert utils.is_reassigned_after_current(global_stmt, "CONSTANT") is True
+
+
+def test_is_reassigned_before_current() -> None:
+    tree = astroid.parse(
+        """
+    x = 1
+    x = 2
+    x = 3
+    """
+    )
+    first_assign = tree.body[0]
+    second_assign = tree.body[1]
+    third_assign = tree.body[2]
+
+    assert isinstance(first_assign, nodes.Assign)
+    assert isinstance(second_assign, nodes.Assign)
+    assert isinstance(third_assign, nodes.Assign)
+
+    third_assign_name = third_assign.targets[0]
+    first_assign_name = first_assign.targets[0]
+
+    assert isinstance(third_assign_name, nodes.AssignName)
+    assert isinstance(first_assign_name, nodes.AssignName)
+
+    assert utils.is_reassigned_before_current(third_assign_name, "x") is True
+    assert utils.is_reassigned_before_current(first_assign_name, "x") is False
+
+
+def test_is_reassigned_after_current_with_assignname() -> None:
+    tree = astroid.parse(
+        """
+    x = 1
+    x = 2
+    x = 3
+    """
+    )
+    first_assign = tree.body[0]
+    second_assign = tree.body[1]
+    third_assign = tree.body[2]
+
+    assert isinstance(first_assign, nodes.Assign)
+    assert isinstance(second_assign, nodes.Assign)
+    assert isinstance(third_assign, nodes.Assign)
+
+    first_assign_name = first_assign.targets[0]
+    third_assign_name = third_assign.targets[0]
+
+    assert isinstance(first_assign_name, nodes.AssignName)
+    assert isinstance(third_assign_name, nodes.AssignName)
+
+    assert utils.is_reassigned_after_current(first_assign_name, "x") is True
+    assert utils.is_reassigned_after_current(third_assign_name, "x") is False
+
+
+def test_is_reassigned_with_node_no_lineno() -> None:
+    tree = astroid.parse(
+        """
+    x = 1
+    x = 2
+    """
+    )
+    first_assign = tree.body[0]
+    first_assign_name = first_assign.targets[0]
+
+    assert isinstance(first_assign_name, nodes.AssignName)
+    original_lineno = first_assign_name.lineno
+    first_assign_name.lineno = None
+
+    try:
+        assert utils.is_reassigned_after_current(first_assign_name, "x") is False
+        assert utils.is_reassigned_before_current(first_assign_name, "x") is False
+    finally:
+        first_assign_name.lineno = original_lineno
