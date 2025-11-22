@@ -55,3 +55,15 @@ except PackageNotFoundError:
 
 from typing import Annotated
 IntWithAnnotation = Annotated[int, "anything"]
+
+
+# Regression test for #10719: module-level constants should not be incorrectly
+# classified as variables when a class-level attribute with the same name exists.
+class Theme:
+    INPUT = ">>> "
+
+
+INPUT = Theme()
+input = Theme()  # pylint: disable=redefined-builtin
+OUTPUT = Theme()
+output = Theme()
