@@ -518,13 +518,12 @@ class NameChecker(_BasicChecker):
                         and self._name_regexps["const"].match(node.name) is not None
                     ):
                         return
-                    if (
-                        util.Uninferable not in iattrs
-                        and len(iattrs) > 1
-                        and all(
-                            astroid.are_exclusive(*combo)
-                            for combo in itertools.combinations(iattrs, 2)
-                        )
+                    # Do the exclusive assignment analysis on attrs, not iattrs.
+                    # iattrs locations could be anywhere (inference result).
+                    attrs = tuple(node.frame().getattr(node.name))
+                    if len(attrs) > 1 and all(
+                        astroid.are_exclusive(*combo)
+                        for combo in itertools.combinations(attrs, 2)
                     ):
                         node_type = "const"
                     if not self._meets_exception_for_non_consts(
