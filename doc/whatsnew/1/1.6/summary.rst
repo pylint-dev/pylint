@@ -83,7 +83,7 @@ New features
   contains more forward-looking functions::
 
       $ cat a.py
-      # Oups, now pylint emits a redefined-builtin message.
+      # Oups, now pylint emits a :ref:`redefined-builtin` message.
       from six.moves import open
       $ pylint a.py --redefining-builtins-modules=six.moves
 
@@ -120,9 +120,9 @@ Other Changes
   This allows having comments inside list values, in the configuration,
   such as::
 
-      disable=no-member,
+      disable=:ref:`no-member`,
               # Don't like this check
-              bad-indentation
+              :ref:`bad-indentation`
 
 * We now use the isort_ package internally.
 
