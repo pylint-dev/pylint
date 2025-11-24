@@ -36,7 +36,7 @@ jobs:
     steps:
       - &checkout
         name: Check out code from GitHub
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
       - &setup-python
         name: Set up Python ${{ matrix.python-version }}
         id: python
