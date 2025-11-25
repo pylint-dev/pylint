@@ -6,5 +6,7 @@ def add(x, y) -> int:  # [missing-param-type-annotation, missing-param-type-anno
     return x + y
 
 
-def process(*args, **kwargs) -> dict:  # [missing-param-type-annotation, missing-param-type-annotation]
+def process(  # [missing-param-type-annotation, missing-param-type-annotation]
+    *args, **kwargs
+) -> dict:
     return combine(args, kwargs)
