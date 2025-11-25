@@ -151,6 +151,14 @@ test_reporters = {  # pylint: disable=consider-using-namedtuple-or-dataclass
         "name": "reporters.unittest_reporting",
         "isignored": False,
     },
+    str(REPORTERS_PATH / "unittest_sarif_reporter.py"): {
+        "basename": "reporters",
+        "basepath": str(REPORTERS_PATH / "__init__.py"),
+        "isarg": False,
+        "path": str(REPORTERS_PATH / "unittest_sarif_reporter.py"),
+        "name": "reporters.unittest_sarif_reporter",
+        "isignored": False,
+    },
 }
 
 
