@@ -31,12 +31,14 @@ class TypeAnnotationChecker(checkers.BaseChecker):
             "missing-return-type-annotation",
             "Used when a function or method does not have a return type annotation. "
             "Type annotations improve code readability and help with static type checking.",
+            {"default_enabled": False},
         ),
         "C3802": (
             "Missing type annotation for parameter %r in function %r",
             "missing-param-type-annotation",
             "Used when a function or method parameter does not have a type annotation. "
             "Type annotations improve code readability and help with static type checking.",
+            {"default_enabled": False},
         ),
     }
 
@@ -48,13 +50,7 @@ class TypeAnnotationChecker(checkers.BaseChecker):
         self._check_return_type_annotation(node)
         self._check_param_type_annotations(node)
 
-    @utils.only_required_for_messages(
-        "missing-return-type-annotation", "missing-param-type-annotation"
-    )
-    def visit_asyncfunctiondef(self, node: nodes.AsyncFunctionDef) -> None:
-        """Check for missing type annotations in async functions."""
-        self._check_return_type_annotation(node)
-        self._check_param_type_annotations(node)
+    visit_asyncfunctiondef = visit_functiondef
 
     def _check_return_type_annotation(
         self, node: nodes.FunctionDef | nodes.AsyncFunctionDef
@@ -64,35 +60,28 @@ class TypeAnnotationChecker(checkers.BaseChecker):
         Args:
             node: The function definition node to check
         """
-        # Skip if function already has return type annotation
         if node.returns is not None:
             return
 
-        # Skip if function has type comment with return type
         if node.type_comment_returns:
             return
 
-        # Skip __init__ methods as they implicitly return None
         if node.name == "__init__":
             return
 
-        # Skip abstract methods (often overridden with proper annotations)
         if utils.decorated_with(node, ["abc.abstractmethod", "abc.abstractproperty"]):
             return
 
-        # Skip overload decorators (stub definitions)
         if utils.decorated_with(
             node, ["typing.overload", "typing_extensions.overload"]
         ):
             return
 
-        # Skip property setters and delete methods (return value not meaningful)
         if utils.decorated_with(
             node, ["property", "*.setter", "*.deleter", "builtins.property"]
         ):
             return
 
-        # Emit the message
         self.add_message("missing-return-type-annotation", node=node, args=(node.name,))
 
     def _check_param_type_annotations(
@@ -103,11 +92,9 @@ class TypeAnnotationChecker(checkers.BaseChecker):
         Args:
             node: The function definition node to check
         """
-        # Skip abstract methods
         if utils.decorated_with(node, ["abc.abstractmethod", "abc.abstractproperty"]):
             return
 
-        # Skip overload decorators
         if utils.decorated_with(
             node, ["typing.overload", "typing_extensions.overload"]
         ):
@@ -132,7 +119,6 @@ class TypeAnnotationChecker(checkers.BaseChecker):
         if arguments.args:
             annotations = arguments.annotations or []
             start_idx = 0
-            # Skip 'self' or 'cls' for methods
             if (
                 arguments.args
                 and arguments.args[0].name in {"self", "cls"}
