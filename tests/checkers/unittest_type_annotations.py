@@ -356,7 +356,7 @@ class TestTypeAnnotationChecker(
             self.checker.visit_functiondef(node)
 
     def test_property_deleter_skipped(self) -> None:
-        """Test that property deleters are skipped."""
+        """Test that property deleter methods are skipped."""
         node = astroid.extract_node(
             """
         class MyClass:
@@ -451,7 +451,7 @@ class TestTypeAnnotationChecker(
             self.checker.visit_functiondef(node)
 
     def test_positional_only_args_with_cls_skipped(self) -> None:
-        """Test that cls is skipped in positional-only args for classmethods."""
+        """Test that cls is skipped in positional-only args for class methods."""
         node = astroid.extract_node(
             """
         class MyClass:
