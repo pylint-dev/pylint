@@ -270,7 +270,11 @@ class TestRunTC:
         strio = StringIO()
         assert strio.encoding is None
         self._runtest(
-            [join(HERE, "regrtest_data", "no_stdout_encoding.py"), "--disable=missing-param-type-annotation,missing-return-type-annotation", "--enable=all"],
+            [
+                join(HERE, "regrtest_data", "no_stdout_encoding.py"),
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
+                "--enable=all",
+            ],
             out=strio,
             code=28,
         )
@@ -311,7 +315,13 @@ class TestRunTC:
         """
         )
         self._test_output(
-            [module, "--disable=I,missing-param-type-annotation,missing-return-type-annotation", "--enable=all", "-rn"], expected_output=expected
+            [
+                module,
+                "--disable=I,missing-param-type-annotation,missing-return-type-annotation",
+                "--enable=all",
+                "-rn",
+            ],
+            expected_output=expected,
         )
 
     def test_wrong_import_position_when_others_disabled(self) -> None:
@@ -1165,7 +1175,14 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
     )
     def test_fail_on_info_only_exit_code(self, args: list[str], expected: int) -> None:
         path = join(HERE, "regrtest_data", "fail_on_info_only.py")
-        self._runtest([path, *args, "--disable=missing-param-type-annotation,missing-return-type-annotation"], code=expected)
+        self._runtest(
+            [
+                path,
+                *args,
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
+            ],
+            code=expected,
+        )
 
     @pytest.mark.parametrize(
         "output_format, expected_output",
@@ -1430,7 +1447,14 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         """
         )
 
-        self._test_output([module, "--disable=missing-param-type-annotation,missing-return-type-annotation", "--enable=all"], expected_output=expected)
+        self._test_output(
+            [
+                module,
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
+                "--enable=all",
+            ],
+            expected_output=expected,
+        )
 
     def test_output_no_header(self) -> None:
         module = join(HERE, "data", "clientmodule_test.py")
@@ -1456,31 +1480,45 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
 
     def test_type_annotation_checker(self) -> None:
         """Test that the type annotation checker works correctly when enabled."""
-        module = join(HERE, "regrtest_data", "type_annotations_test.py")
+        module = join(HERE, "regrtest_data", "type_annotations.py")
         expected = textwrap.dedent(
             f"""
-        ************* Module type_annotations_test
-        {module}:4:0: C3801: Missing return type annotation for function 'missing_return_type' (missing-return-type-annotation)
-        {module}:9:0: C3802: Missing type annotation for parameter 'x' in function 'missing_param_types' (missing-param-type-annotation)
-        {module}:9:0: C3802: Missing type annotation for parameter 'y' in function 'missing_param_types' (missing-param-type-annotation)
-        {module}:14:0: C3801: Missing return type annotation for function 'missing_all_annotations' (missing-return-type-annotation)
-        {module}:14:0: C3802: Missing type annotation for parameter 'x' in function 'missing_all_annotations' (missing-param-type-annotation)
-        {module}:14:0: C3802: Missing type annotation for parameter 'y' in function 'missing_all_annotations' (missing-param-type-annotation)
-        {module}:31:4: C3801: Missing return type annotation for function 'get_value' (missing-return-type-annotation)
-        {module}:35:4: C3801: Missing return type annotation for function 'set_value' (missing-return-type-annotation)
-        {module}:35:4: C3802: Missing type annotation for parameter 'value' in function 'set_value' (missing-param-type-annotation)
-        {module}:44:0: C3801: Missing return type annotation for function 'async_missing_return' (missing-return-type-annotation)
+        ************* Module type_annotations
+        {module}:4:0: C3801: Missing return type annotation for function """
+            f"""'missing_return_type' (missing-return-type-annotation)
+        {module}:9:0: C3802: Missing type annotation for parameter 'x' in """
+            f"""function 'missing_param_types' (missing-param-type-annotation)
+        {module}:9:0: C3802: Missing type annotation for parameter 'y' in """
+            f"""function 'missing_param_types' (missing-param-type-annotation)
+        {module}:14:0: C3801: Missing return type annotation for function """
+            f"""'missing_all_annotations' (missing-return-type-annotation)
+        {module}:14:0: C3802: Missing type annotation for parameter 'x' in """
+            f"""function 'missing_all_annotations' (missing-param-type-annotation)
+        {module}:14:0: C3802: Missing type annotation for parameter 'y' in """
+            f"""function 'missing_all_annotations' (missing-param-type-annotation)
+        {module}:31:4: C3801: Missing return type annotation for function """
+            f"""'get_value' (missing-return-type-annotation)
+        {module}:35:4: C3801: Missing return type annotation for function """
+            f"""'set_value' (missing-return-type-annotation)
+        {module}:35:4: C3802: Missing type annotation for parameter 'value' """
+            f"""in function 'set_value' (missing-param-type-annotation)
+        {module}:44:0: C3801: Missing return type annotation for function """
+            f"""'async_missing_return' (missing-return-type-annotation)
         """
         )
         # Test with the checker explicitly enabled
         self._test_output(
-            [module, "--enable=missing-return-type-annotation,missing-param-type-annotation", "-rn"],
+            [
+                module,
+                "--enable=missing-return-type-annotation,missing-param-type-annotation",
+                "-rn",
+            ],
             expected_output=expected,
         )
 
     def test_type_annotation_checker_disabled_by_default(self) -> None:
         """Test that the type annotation checker is disabled by default."""
-        module = join(HERE, "regrtest_data", "type_annotations_test.py")
+        module = join(HERE, "regrtest_data", "type_annotations.py")
         # Without explicitly enabling the checker, no type annotation messages should appear
         out = StringIO()
         self._runtest([module], out=out, code=0)
