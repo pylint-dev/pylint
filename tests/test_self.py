@@ -270,7 +270,7 @@ class TestRunTC:
         strio = StringIO()
         assert strio.encoding is None
         self._runtest(
-            [join(HERE, "regrtest_data", "no_stdout_encoding.py"), "--enable=all"],
+            [join(HERE, "regrtest_data", "no_stdout_encoding.py"), "--disable=missing-param-type-annotation,missing-return-type-annotation", "--enable=all"],
             out=strio,
             code=28,
         )
@@ -311,7 +311,7 @@ class TestRunTC:
         """
         )
         self._test_output(
-            [module, "--disable=I", "--enable=all", "-rn"], expected_output=expected
+            [module, "--disable=I,missing-param-type-annotation,missing-return-type-annotation", "--enable=all", "-rn"], expected_output=expected
         )
 
     def test_wrong_import_position_when_others_disabled(self) -> None:
@@ -732,6 +732,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             [
                 "--fail-under",
                 "-10",
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
                 "--enable=all",
                 join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
@@ -741,6 +742,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             [
                 "--fail-under",
                 "6",
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
                 "--enable=all",
                 join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
@@ -750,6 +752,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             [
                 "--fail-under",
                 "7.5",
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
                 "--enable=all",
                 join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
@@ -759,6 +762,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             [
                 "--fail-under",
                 "7.6",
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
                 "--enable=all",
                 join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
             ],
@@ -769,6 +773,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             [
                 "--fail-under",
                 "-11",
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
                 "--enable=all",
                 join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
@@ -778,6 +783,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             [
                 "--fail-under",
                 "-10",
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
                 "--enable=all",
                 join(HERE, "regrtest_data", "fail_under_minus10.py"),
             ],
@@ -789,6 +795,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             [
                 "--fail-under",
                 "-9",
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
                 "--enable=all",
                 "--evaluation",
                 "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
@@ -800,6 +807,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             [
                 "--fail-under",
                 "-5",
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
                 "--enable=all",
                 "--evaluation",
                 "0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)",
@@ -846,6 +854,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
                 "--fail-under",
                 f"{fu_score:f}",
                 f"--fail-on={fo_msgs}",
+                "--disable=missing-param-type-annotation,missing-return-type-annotation",
                 "--enable=all",
                 join(HERE, "regrtest_data", fname),
                 # Use the old form of the evaluation that can go negative
@@ -1156,7 +1165,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
     )
     def test_fail_on_info_only_exit_code(self, args: list[str], expected: int) -> None:
         path = join(HERE, "regrtest_data", "fail_on_info_only.py")
-        self._runtest([path, *args], code=expected)
+        self._runtest([path, *args, "--disable=missing-param-type-annotation,missing-return-type-annotation"], code=expected)
 
     @pytest.mark.parametrize(
         "output_format, expected_output",
@@ -1421,7 +1430,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         """
         )
 
-        self._test_output([module, "--enable=all"], expected_output=expected)
+        self._test_output([module, "--disable=missing-param-type-annotation,missing-return-type-annotation", "--enable=all"], expected_output=expected)
 
     def test_output_no_header(self) -> None:
         module = join(HERE, "data", "clientmodule_test.py")
@@ -1444,6 +1453,40 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         self._test_output(
             [module, "-E"], expected_output="", unexpected_output=unexpected
         )
+
+    def test_type_annotation_checker(self) -> None:
+        """Test that the type annotation checker works correctly when enabled."""
+        module = join(HERE, "regrtest_data", "type_annotations_test.py")
+        expected = textwrap.dedent(
+            f"""
+        ************* Module type_annotations_test
+        {module}:4:0: C3801: Missing return type annotation for function 'missing_return_type' (missing-return-type-annotation)
+        {module}:9:0: C3802: Missing type annotation for parameter 'x' in function 'missing_param_types' (missing-param-type-annotation)
+        {module}:9:0: C3802: Missing type annotation for parameter 'y' in function 'missing_param_types' (missing-param-type-annotation)
+        {module}:14:0: C3801: Missing return type annotation for function 'missing_all_annotations' (missing-return-type-annotation)
+        {module}:14:0: C3802: Missing type annotation for parameter 'x' in function 'missing_all_annotations' (missing-param-type-annotation)
+        {module}:14:0: C3802: Missing type annotation for parameter 'y' in function 'missing_all_annotations' (missing-param-type-annotation)
+        {module}:31:4: C3801: Missing return type annotation for function 'get_value' (missing-return-type-annotation)
+        {module}:35:4: C3801: Missing return type annotation for function 'set_value' (missing-return-type-annotation)
+        {module}:35:4: C3802: Missing type annotation for parameter 'value' in function 'set_value' (missing-param-type-annotation)
+        {module}:44:0: C3801: Missing return type annotation for function 'async_missing_return' (missing-return-type-annotation)
+        """
+        )
+        # Test with the checker explicitly enabled
+        self._test_output(
+            [module, "--enable=missing-return-type-annotation,missing-param-type-annotation", "-rn"],
+            expected_output=expected,
+        )
+
+    def test_type_annotation_checker_disabled_by_default(self) -> None:
+        """Test that the type annotation checker is disabled by default."""
+        module = join(HERE, "regrtest_data", "type_annotations_test.py")
+        # Without explicitly enabling the checker, no type annotation messages should appear
+        out = StringIO()
+        self._runtest([module], out=out, code=0)
+        output = out.getvalue()
+        assert "missing-return-type-annotation" not in output
+        assert "missing-param-type-annotation" not in output
 
 
 class TestCallbackOptions:
