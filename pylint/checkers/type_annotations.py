@@ -77,9 +77,10 @@ class TypeAnnotationChecker(checkers.BaseChecker):
         ):
             return
 
-        if utils.decorated_with(
-            node, ["property", "*.setter", "*.deleter", "builtins.property"]
-        ):
+        if utils.decorated_with(node, ["property", "builtins.property"]):
+            return
+
+        if utils.is_property_setter_or_deleter(node):
             return
 
         self.add_message("missing-return-type-annotation", node=node, args=(node.name,))
@@ -98,6 +99,9 @@ class TypeAnnotationChecker(checkers.BaseChecker):
         if utils.decorated_with(
             node, ["typing.overload", "typing_extensions.overload"]
         ):
+            return
+
+        if utils.is_property_setter_or_deleter(node):
             return
 
         arguments = node.args
