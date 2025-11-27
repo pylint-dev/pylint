@@ -41,9 +41,41 @@ def get_python_path(filepath: str) -> str:
             return os.getcwd()
 
 
+def _ignore_path_candidates(element: str) -> tuple[str, ...]:
+    candidates: list[str] = [element]
+    if element.startswith("."):
+        forward = element.replace("\\", "/")
+        backward = element.replace("/", "\\")
+        candidates.append("/" + forward)
+        candidates.append("\\" + backward)
+    # Preserve order while removing duplicates.
+    seen: set[str] = set()
+    unique_candidates: list[str] = []
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        unique_candidates.append(candidate)
+    return tuple(unique_candidates)
+
+
 def _is_in_ignore_list_re(element: str, ignore_list_re: list[Pattern[str]]) -> bool:
     """Determines if the element is matched in a regex ignore-list."""
-    return any(file_pattern.match(element) for file_pattern in ignore_list_re)
+    return any(
+        file_pattern.match(candidate)
+        for candidate in _ignore_path_candidates(element)
+        for file_pattern in ignore_list_re
+    )
+
+
+def _normalized_path_for_ignore(path: str) -> str:
+    """Normalize paths before comparing them against ignore-path patterns."""
+    normalized = os.path.normpath(path)
+    try:
+        relative = os.path.relpath(normalized)
+    except ValueError:
+        return normalized
+    return os.path.normpath(relative)
 
 
 def expand_modules(
@@ -60,11 +92,12 @@ def expand_modules(
     path = sys.path.copy()
 
     for something in files_or_modules:
+        normalized_argument = _normalized_path_for_ignore(something)
         basename = os.path.basename(something)
         if (
             basename in ignore_list
             or _is_in_ignore_list_re(os.path.basename(something), ignore_list_re)
-            or _is_in_ignore_list_re(something, ignore_list_paths_re)
+            or _is_in_ignore_list_re(normalized_argument, ignore_list_paths_re)
         ):
             continue
         module_path = get_python_path(something)
@@ -128,9 +161,12 @@ def expand_modules(
             ):
                 if filepath == subfilepath:
                     continue
+                normalized_subfilepath = _normalized_path_for_ignore(subfilepath)
                 if _is_in_ignore_list_re(
                     os.path.basename(subfilepath), ignore_list_re
-                ) or _is_in_ignore_list_re(subfilepath, ignore_list_paths_re):
+                ) or _is_in_ignore_list_re(
+                    normalized_subfilepath, ignore_list_paths_re
+                ):
                     continue
 
                 modpath = _modpath_from_file(

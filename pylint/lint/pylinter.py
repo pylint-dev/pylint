@@ -576,20 +576,21 @@ class PyLinter(
             ):
                 skip_subtrees: list[str] = []
                 for root, _, files in os.walk(something):
-                    if any(root.startswith(s) for s in skip_subtrees):
+                    normalized_root = os.path.normpath(root)
+                    if any(normalized_root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package.
                         continue
                     if "__init__.py" in files:
-                        skip_subtrees.append(root)
-                        yield root
+                        skip_subtrees.append(normalized_root)
+                        yield normalized_root
                     else:
                         yield from (
-                            os.path.join(root, file)
+                            os.path.normpath(os.path.join(root, file))
                             for file in files
                             if file.endswith(".py")
                         )
             else:
-                yield something
+                yield os.path.normpath(something)
 
     def check(self, files_or_modules: Sequence[str] | str) -> None:
         """Main checking entry: check a list of files or modules from their name.

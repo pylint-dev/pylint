@@ -69,6 +69,14 @@ test_pylinter = {
     "path": str(TEST_DIRECTORY / "lint/test_pylinter.py"),
 }
 
+test_recursive_ignore_paths = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.test_recursive_ignore_paths",
+    "path": str(TEST_DIRECTORY / "lint/test_recursive_ignore_paths.py"),
+}
+
 test_caching = {
     "basename": "lint",
     "basepath": INIT_PATH,
@@ -109,6 +117,7 @@ class TestExpandModules(CheckerTestCase):
                     init_of_package,
                     test_caching,
                     test_pylinter,
+                    test_recursive_ignore_paths,
                     test_utils,
                     this_file_from_init,
                     unittest_lint,
