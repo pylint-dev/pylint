@@ -52,3 +52,26 @@ def test_ignore_paths_normalization_removes_leading_dot_slash(
 
     assert not errors
     assert modules == []
+
+
+def test_ignore_paths_supports_prefixed_dot_slash(tmp_path, linter, monkeypatch):
+    hidden_dir = tmp_path / ".a"
+    hidden_dir.mkdir()
+    (hidden_dir / "foo.py").write_text("print('foo')\n", encoding="utf8")
+    (tmp_path / "bar.py").write_text("print('bar')\n", encoding="utf8")
+
+    monkeypatch.chdir(tmp_path)
+    linter.global_set_option("ignore-paths", r"^\./\.a")
+
+    discovered = tuple(PyLinter._discover_files(["."]))
+    modules, errors = expand_modules(
+        discovered,
+        list(linter.config.ignore),
+        list(linter.config.ignore_patterns),
+        linter.config.ignore_paths,
+    )
+
+    assert not errors
+    paths = {Path(module["path"]) for module in modules}
+    assert any(path.name == "bar.py" for path in paths)
+    assert all(path.name != "foo.py" for path in paths)

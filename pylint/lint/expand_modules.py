@@ -42,16 +42,25 @@ def get_python_path(filepath: str) -> str:
 
 
 def _ignore_path_candidates(element: str) -> tuple[str, ...]:
-    candidates: list[str] = [element]
-    if element.startswith("."):
-        forward = element.replace("\\", "/")
-        backward = element.replace("/", "\\")
-        candidates.append("/" + forward)
-        candidates.append("\\" + backward)
-    # Preserve order while removing duplicates.
+    normalized = _normalized_path_for_ignore(element)
+    posix_normalized = normalized.replace("\\", "/")
+    windows_normalized = normalized.replace("/", "\\")
+    candidates: list[str] = [element, normalized]
+    if posix_normalized:
+        candidates.append(f"./{posix_normalized}")
+    if windows_normalized:
+        candidates.append(f".\\{windows_normalized}")
+    if posix_normalized.startswith("."):
+        candidates.append(f"/{posix_normalized}")
+    if windows_normalized.startswith("."):
+        candidates.append(f"\\{windows_normalized}")
+    candidates.extend((posix_normalized, windows_normalized))
+
     seen: set[str] = set()
     unique_candidates: list[str] = []
     for candidate in candidates:
+        if not candidate:
+            continue
         if candidate in seen:
             continue
         seen.add(candidate)
