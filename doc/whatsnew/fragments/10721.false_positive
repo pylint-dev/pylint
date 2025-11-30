@@ -1,3 +1,0 @@
-Fix a false positive for ``unbalanced-tuple-unpacking`` when a tuple is assigned to a function call and the structure of the function's return value is ambiguous.
-
-Closes #10721

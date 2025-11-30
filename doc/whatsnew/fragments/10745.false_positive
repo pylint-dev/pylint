@@ -1,4 +1,0 @@
-Fix a false positive for ``invalid-name`` on an UPPER_CASED name inside an
-``if`` branch that assigns an object.
-
-Closes #10745
