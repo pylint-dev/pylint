@@ -1616,13 +1616,7 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
         match parent_node:
             case nodes.AnnAssign(annotation=ann) if ann == current_node:
                 return True
-            case nodes.Arguments() if current_node in (
-                *parent_node.annotations,
-                *parent_node.posonlyargs_annotations,
-                *parent_node.kwonlyargs_annotations,
-                parent_node.varargannotation,
-                parent_node.kwargannotation,
-            ):
+            case nodes.Arguments() if current_node in parent_node.get_annotations():
                 return True
             case nodes.FunctionDef(returns=ret) if ret == current_node:
                 return True
