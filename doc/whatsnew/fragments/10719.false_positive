@@ -1,3 +1,0 @@
-Fixed false positive for ``invalid-name`` where module-level constants were incorrectly classified as variables when a class-level attribute with the same name exists.
-
-Closes #10719
