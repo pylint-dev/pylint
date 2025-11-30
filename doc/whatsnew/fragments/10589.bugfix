@@ -1,0 +1,3 @@
+Allow ``wrong-import-position`` pragma on non-import lines to suppress following imports until the next non-import statement.
+
+Closes #10589
