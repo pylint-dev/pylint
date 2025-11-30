@@ -1,4 +1,0 @@
-Fix false positive for ``f-string-without-interpolation`` with template strings
-when using format spec.
-
-Closes #10702

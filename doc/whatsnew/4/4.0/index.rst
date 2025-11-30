@@ -74,6 +74,24 @@ to your liking.
 
 .. towncrier release notes start
 
+What's new in Pylint 4.0.4?
+--------------------------------
+Release date: 2025-11-30
+
+
+False Positives Fixed
+---------------------
+
+- Fixed false positive for ``invalid-name`` where module-level constants were incorrectly classified as variables when a class-level attribute with the same name exists.
+
+  Closes #10719 (`#10719 <https://github.com/pylint-dev/pylint/issues/10719>`_)
+
+- Fix a false positive for ``invalid-name`` on an UPPER_CASED name inside an ``if`` branch that assigns an object.
+
+  Closes #10745 (`#10745 <https://github.com/pylint-dev/pylint/issues/10745>`_)
+
+
+
 What's new in Pylint 4.0.3?
 ---------------------------
 Release date: 2025-11-13
