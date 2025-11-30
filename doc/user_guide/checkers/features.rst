@@ -560,6 +560,10 @@ Format checker Messages
   Used when there are mixed (LF and CRLF) newline signs in a file.
 :unexpected-line-ending-format (C0328): *Unexpected line ending format. There is '%s' while it should be '%s'.*
   Used when there is different newline than expected.
+:bad-float-notation (C0329): *'%s' %s, and it should be written as '%s' instead*
+  Emitted when a number is written in a non-standard notation. The three
+  allowed notation above the threshold are the scientific notation, the
+  engineering notation, and the underscore grouping notation defined in PEP515.
 
 
 Imports checker
