@@ -2,13 +2,13 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Tests for the type_annotations checker."""
+"""Tests for the type_annotations extension."""
 
 from __future__ import annotations
 
 import astroid
 
-from pylint.checkers.type_annotations import TypeAnnotationChecker
+from pylint.extensions.type_annotations import TypeAnnotationChecker
 from pylint.testutils import CheckerTestCase, MessageTest
 
 

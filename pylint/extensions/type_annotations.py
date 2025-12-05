@@ -31,14 +31,12 @@ class TypeAnnotationChecker(checkers.BaseChecker):
             "missing-return-type-annotation",
             "Used when a function or method does not have a return type annotation. "
             "Type annotations improve code readability and help with static type checking.",
-            {"default_enabled": False},
         ),
         "C3802": (
             "Missing type annotation for parameter %r in function %r",
             "missing-param-type-annotation",
             "Used when a function or method parameter does not have a type annotation. "
             "Type annotations improve code readability and help with static type checking.",
-            {"default_enabled": False},
         ),
     }
 

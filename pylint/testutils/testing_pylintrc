@@ -7,8 +7,6 @@ disable=
     suppressed-message,
     locally-disabled,
     useless-suppression,
-    missing-param-type-annotation,
-    missing-return-type-annotation,
 
 enable=
     deprecated-pragma,
