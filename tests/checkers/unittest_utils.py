@@ -622,3 +622,21 @@ def test_is_reassigned_with_node_no_lineno() -> None:
         assert utils.is_reassigned_before_current(first_assign_name, "x") is False
     finally:
         first_assign_name.lineno = original_lineno
+
+def test_is_terminating_func_unittest_fail() -> None:
+    node = astroid.extract_node(
+        """
+    from unittest import TestCase
+    import os
+
+    class TestX(TestCase):
+        def test_foo(self):
+            if 'FOO' in os.environ:
+                x = 1
+            else:
+                self.fail()  #@
+            print(x)
+    """
+    )
+    result = utils.is_terminating_func(node)
+    assert result is True

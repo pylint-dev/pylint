@@ -238,7 +238,7 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
 SINGLETON_VALUES = {True, False, None}
 
 TERMINATING_FUNCS_QNAMES = frozenset(
-    {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
+    {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit", "unittest.case.TestCase.fail"}
 )
 
 
