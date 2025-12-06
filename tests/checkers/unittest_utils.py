@@ -623,6 +623,7 @@ def test_is_reassigned_with_node_no_lineno() -> None:
     finally:
         first_assign_name.lineno = original_lineno
 
+
 def test_is_terminating_func_unittest_fail() -> None:
     node = astroid.extract_node(
         """
