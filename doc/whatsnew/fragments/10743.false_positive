@@ -1,0 +1,3 @@
+Fix possibly-used-before-assignment false positive when using self.fail() in tests.
+
+Closes #10743
