@@ -1,3 +1,4 @@
+minimum_pre_commit_version: "3.20"
 ci:
   skip: [pylint]
 
@@ -136,7 +137,13 @@ repos:
         name: mypy
         args: []
         additional_dependencies:
-          ["isort>=5", "platformdirs==2.2.0", "py==1.11", "tomlkit>=0.10.1"]
+          [
+            "isort>=5",
+            "platformdirs==2.2.0",
+            "py==1.11",
+            "tomlkit>=0.10.1",
+            "types-requests",
+          ]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/rbubley/mirrors-prettier
     rev: v3.6.2
