@@ -50,7 +50,7 @@ jobs:
       - &setup-python
         name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v6.0.0
+        uses: actions/setup-python@v6.1.0
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
@@ -106,7 +106,7 @@ jobs:
       - *checkout
       - name: Set up Python 3.13
         id: python
-        uses: actions/setup-python@v6.0.0
+        uses: actions/setup-python@v6.1.0
         with:
           python-version: "3.13"
           check-latest: true
