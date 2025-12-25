@@ -586,13 +586,15 @@ class PyLinter(
         for argument in files_or_modules:
             normalized_argument = os.path.normpath(argument)
             basename_argument = os.path.basename(normalized_argument)
+            is_directory = os.path.isdir(argument)
 
-            if is_ignored_basename(basename_argument) or is_ignored_path(
-                normalized_argument
+            if is_directory and (
+                is_ignored_basename(basename_argument)
+                or is_ignored_path(normalized_argument)
             ):
                 continue
 
-            if not os.path.isdir(argument):
+            if not is_directory:
                 yield normalized_argument
                 continue
 
@@ -604,7 +606,9 @@ class PyLinter(
                 normalized_root = os.path.normpath(root)
                 basename_root = os.path.basename(normalized_root)
 
-                if is_ignored_basename(basename_root) or is_ignored_path(root):
+                if is_ignored_basename(basename_root) or is_ignored_path(
+                    normalized_root
+                ):
                     dirs[:] = []
                     continue
 
