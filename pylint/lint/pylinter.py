@@ -564,33 +564,74 @@ class PyLinter(
             if not msg.may_be_emitted():
                 self._msgs_state[msg.msgid] = False
 
-    @staticmethod
-    def _discover_files(files_or_modules: Sequence[str]) -> Iterator[str]:
+    def _discover_files(self, files_or_modules: Sequence[str]) -> Iterator[str]:
         """Discover python modules and packages in sub-directory.
 
         Returns iterator of paths to discovered modules and packages.
         """
-        for something in files_or_modules:
-            if os.path.isdir(something) and not os.path.isfile(
-                os.path.join(something, "__init__.py")
+
+        ignored_basenames = set(self.config.ignore)
+        ignored_patterns = self.config.ignore_patterns
+        ignored_path_patterns = self.config.ignore_paths
+
+        def is_ignored_basename(name: str) -> bool:
+            return name in ignored_basenames or any(
+                pattern.match(name) for pattern in ignored_patterns
+            )
+
+        def is_ignored_path(path: str) -> bool:
+            normalized = os.path.normpath(path)
+            return any(pattern.match(normalized) for pattern in ignored_path_patterns)
+
+        for argument in files_or_modules:
+            normalized_argument = os.path.normpath(argument)
+            basename_argument = os.path.basename(normalized_argument)
+
+            if is_ignored_basename(basename_argument) or is_ignored_path(
+                normalized_argument
             ):
-                skip_subtrees: list[str] = []
-                for root, _, files in os.walk(something):
-                    normalized_root = os.path.normpath(root)
-                    if any(normalized_root.startswith(s) for s in skip_subtrees):
-                        # Skip subtree of already discovered package.
+                continue
+
+            if not os.path.isdir(argument):
+                yield normalized_argument
+                continue
+
+            if os.path.isfile(os.path.join(argument, "__init__.py")):
+                yield normalized_argument
+                continue
+
+            for root, dirs, files in os.walk(argument, topdown=True):
+                normalized_root = os.path.normpath(root)
+                basename_root = os.path.basename(normalized_root)
+
+                if is_ignored_basename(basename_root) or is_ignored_path(root):
+                    dirs[:] = []
+                    continue
+
+                pruned_dirs: list[str] = []
+                for directory in dirs:
+                    directory_path = os.path.join(root, directory)
+                    if is_ignored_basename(directory) or is_ignored_path(
+                        directory_path
+                    ):
                         continue
-                    if "__init__.py" in files:
-                        skip_subtrees.append(normalized_root)
-                        yield normalized_root
-                    else:
-                        yield from (
-                            os.path.normpath(os.path.join(root, file))
-                            for file in files
-                            if file.endswith(".py")
-                        )
-            else:
-                yield os.path.normpath(something)
+                    pruned_dirs.append(directory)
+                dirs[:] = pruned_dirs
+
+                if "__init__.py" in files:
+                    dirs[:] = []
+                    yield normalized_root
+                    continue
+
+                for filename in files:
+                    if not filename.endswith(".py"):
+                        continue
+                    if is_ignored_basename(filename):
+                        continue
+                    file_path = os.path.join(root, filename)
+                    if is_ignored_path(file_path):
+                        continue
+                    yield os.path.normpath(file_path)
 
     def check(self, files_or_modules: Sequence[str] | str) -> None:
         """Main checking entry: check a list of files or modules from their name.
