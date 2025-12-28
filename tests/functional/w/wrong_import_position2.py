@@ -7,4 +7,4 @@ except ImportError:
 else:
     pass
 
-import os
+import os  # [wrong-import-position]

@@ -6,4 +6,4 @@ except ImportError:
     pass
 finally:
     pass
-import y
+import y  # [wrong-import-position]

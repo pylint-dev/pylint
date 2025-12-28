@@ -1,1 +1,8 @@
-wrong-import-position:12:0:12:14::"Import ""import logging"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:11:0:11:14::"Import ""import logging"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:24:0:24:14::"Import ""import pathlib"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:29:0:29:13::"Import ""import typing"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:34:0:34:15::"Import ""import calendar"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:39:0:39:16::"Import ""import fractions"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:44:0:44:14::"Import ""import hashlib"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:50:0:50:13::"Import ""import base64"" should be placed at the top of the module":UNDEFINED
+wrong-import-position:60:0:60:9::"Import ""import re"" should be placed at the top of the module":UNDEFINED

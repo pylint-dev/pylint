@@ -12,4 +12,4 @@ except ImportError:
             value += item
         return value
 
-import sys
+import sys  # [wrong-import-position]

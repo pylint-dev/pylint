@@ -619,14 +619,12 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             | nodes.Assign
             | nodes.AssignAttr
             | nodes.Try
+            | nodes.With
+            | nodes.Match
         ),
     ) -> None:
-        # Track non-import nodes at module level to check import positions
+        # Track non-import nodes at module level
         if not isinstance(node.parent, nodes.Module):
-            return
-        if isinstance(node, nodes.Try) and any(
-            node.nodes_of_class((nodes.Import, nodes.ImportFrom))
-        ):
             return
         if isinstance(node, nodes.Assign):
             # Add compatibility for module level dunder names
@@ -644,23 +642,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     visit_try = visit_assignattr = visit_assign = visit_ifexp = visit_comprehension = (
         visit_expr
-    ) = visit_if = compute_first_non_import_node
+    ) = visit_if = visit_with = visit_match = compute_first_non_import_node
 
     def visit_functiondef(
         self, node: nodes.FunctionDef | nodes.While | nodes.For | nodes.ClassDef
     ) -> None:
-        # Record non-import instruction unless inside an If/Try block that contains imports
-        if not isinstance(node.parent.scope(), nodes.Module):
+        # Track non-import nodes at module level
+        if not isinstance(node.parent, nodes.Module):
             return
-
-        root = node
-        while not isinstance(root.parent, nodes.Module):
-            root = root.parent
-
-        if isinstance(root, (nodes.If, nodes.Try)):
-            if any(root.nodes_of_class((nodes.Import, nodes.ImportFrom))):
-                return
-
         self._non_import_nodes.append(node)
 
     visit_classdef = visit_for = visit_while = visit_functiondef
