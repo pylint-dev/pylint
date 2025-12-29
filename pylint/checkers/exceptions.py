@@ -454,9 +454,7 @@ class ExceptionsChecker(checkers.BaseChecker):
                 )
                 return
 
-    def _contains_exception_in_message(
-        self, node: nodes.NodeNG, exc_name: str
-    ) -> bool:
+    def _contains_exception_in_message(self, node: nodes.NodeNG, exc_name: str) -> bool:
         """Check if the node contains a reference to the exception variable.
 
         Detects:
