@@ -1,0 +1,3 @@
+Add ``redundant-exception-message`` check (W0720) that detects when the original exception is included in the message of a re-raised exception using ``raise ... from``. This is redundant since Python's exception chaining preserves the original exception via ``__cause__``.
+
+Closes #10792
