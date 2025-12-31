@@ -2212,6 +2212,8 @@ def is_terminating_func(node: nodes.Call) -> bool:
                 case astroid.BoundMethod(_proxied=astroid.UnboundMethod(_proxied=p)):
                     # Unwrap to get the actual function node object
                     inferred = p
+            if is_overload_stub(inferred):
+                continue
             if (  # pylint: disable=too-many-boolean-expressions
                 isinstance(inferred, nodes.FunctionDef)
                 and (
