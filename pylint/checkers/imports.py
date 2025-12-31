@@ -612,15 +612,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     def compute_first_non_import_node(
         self,
         node: (
-            nodes.If
-            | nodes.Expr
+            nodes.Expr
             | nodes.Comprehension
             | nodes.IfExp
             | nodes.Assign
             | nodes.AssignAttr
-            | nodes.Try
-            | nodes.With
-            | nodes.Match
         ),
     ) -> None:
         # Track non-import nodes at module level
@@ -640,19 +636,26 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         self._non_import_nodes.append(node)
 
-    visit_try = visit_assignattr = visit_assign = visit_ifexp = visit_comprehension = (
-        visit_expr
-    ) = visit_if = visit_with = visit_match = compute_first_non_import_node
+    visit_assignattr = visit_assign = visit_ifexp = visit_comprehension = visit_expr = (
+        compute_first_non_import_node
+    )
 
     def visit_functiondef(
-        self, node: nodes.FunctionDef | nodes.While | nodes.For | nodes.ClassDef
+        self,
+        node: (
+            nodes.FunctionDef
+            | nodes.AsyncFunctionDef
+            | nodes.While
+            | nodes.For
+            | nodes.ClassDef
+        ),
     ) -> None:
         # Track non-import nodes at module level
         if not isinstance(node.parent, nodes.Module):
             return
         self._non_import_nodes.append(node)
 
-    visit_classdef = visit_for = visit_while = visit_functiondef
+    visit_asyncfunctiondef = visit_classdef = visit_for = visit_while = visit_functiondef
 
     def _check_misplaced_future(self, node: nodes.ImportFrom) -> None:
         basename = node.modname

@@ -21,12 +21,12 @@ try:
 except ImportError:
     pass
 
-import pathlib  # [wrong-import-position]
+import pathlib
 
 if True:
     import random
 
-import typing  # [wrong-import-position]
+import typing
 
 for _ in []:
     import html
@@ -54,7 +54,7 @@ try:  # pylint: disable=wrong-import-position
 except ImportError:
     pass
 
-import collections
+import collections  # [wrong-import-position]
 
 CONSTANT_E = 123
 import re  # [wrong-import-position]

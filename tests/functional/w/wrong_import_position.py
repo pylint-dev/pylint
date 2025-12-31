@@ -19,7 +19,7 @@ else:
         def some_func(self):
             pass
 
-import six  # [wrong-import-position]
+import six
 
 CONSTANT = True
 
