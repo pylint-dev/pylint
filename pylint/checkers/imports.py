@@ -655,7 +655,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             return
         self._non_import_nodes.append(node)
 
-    visit_asyncfunctiondef = visit_classdef = visit_for = visit_while = visit_functiondef
+    visit_asyncfunctiondef = visit_classdef = visit_for = visit_while = (
+        visit_functiondef
+    )
 
     def _check_misplaced_future(self, node: nodes.ImportFrom) -> None:
         basename = node.modname
