@@ -642,6 +642,7 @@ def test_is_terminating_func_unittest_fail() -> None:
     result = utils.is_terminating_func(node)
     assert result is True
 
+
 def test_is_terminating_func_ignored_overload_noreturn() -> None:
     node = astroid.extract_node(
         """
@@ -657,6 +658,7 @@ def test_is_terminating_func_ignored_overload_noreturn() -> None:
     )
     result = utils.is_terminating_func(node)
     assert result is False
+
 
 def test_is_terminating_func_overload_with_noreturn_implementation() -> None:
     node = astroid.extract_node(

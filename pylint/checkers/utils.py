@@ -2206,10 +2206,7 @@ def is_terminating_func(node: nodes.Call) -> bool:
         return False
 
     for inferred in inferred_funcs:
-        if (
-            hasattr(inferred, "qname")
-            and inferred.qname() in TERMINATING_FUNCS_QNAMES
-        ):
+        if hasattr(inferred, "qname") and inferred.qname() in TERMINATING_FUNCS_QNAMES:
             return True
         match inferred:
             case astroid.BoundMethod(_proxied=astroid.UnboundMethod(_proxied=p)):
