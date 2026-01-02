@@ -185,6 +185,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "original error message (via str(err), f-string, or concatenation) "
         "results in duplicate information in logs. Use a descriptive message "
         "without the original error, or extract specific context like file paths.",
+        {"default_enabled": False},
     ),
 }
 
@@ -454,6 +455,17 @@ class ExceptionsChecker(checkers.BaseChecker):
                 )
                 return
 
+    def _is_str_call_of(self, node: nodes.NodeNG, name: str) -> bool:
+        """Check if node is a str(name) call."""
+        return (
+            isinstance(node, nodes.Call)
+            and isinstance(node.func, nodes.Name)
+            and node.func.name == "str"
+            and node.args
+            and isinstance(node.args[0], nodes.Name)
+            and node.args[0].name == name
+        )
+
     def _contains_exception_in_message(self, node: nodes.NodeNG, exc_name: str) -> bool:
         """Check if the node contains a reference to the exception variable.
 
@@ -472,30 +484,16 @@ class ExceptionsChecker(checkers.BaseChecker):
                     if isinstance(inner, nodes.Name) and inner.name == exc_name:
                         return True
                     # str(err) call: f"{str(err)}"
-                    if (
-                        isinstance(inner, nodes.Call)
-                        and isinstance(inner.func, nodes.Name)
-                        and inner.func.name == "str"
-                        and inner.args
-                        and isinstance(inner.args[0], nodes.Name)
-                        and inner.args[0].name == exc_name
-                    ):
+                    if self._is_str_call_of(inner, exc_name):
                         return True
         elif isinstance(node, nodes.BinOp) and node.op == "+":
             # String concatenation: "message: " + str(err)
             return self._contains_exception_in_message(
                 node.left, exc_name
             ) or self._contains_exception_in_message(node.right, exc_name)
-        elif isinstance(node, nodes.Call):
+        elif self._is_str_call_of(node, exc_name):
             # str(err) directly as argument
-            if (
-                isinstance(node.func, nodes.Name)
-                and node.func.name == "str"
-                and node.args
-                and isinstance(node.args[0], nodes.Name)
-                and node.args[0].name == exc_name
-            ):
-                return True
+            return True
         elif isinstance(node, nodes.Name) and node.name == exc_name:
             # Direct reference as argument (rare but possible)
             return True
