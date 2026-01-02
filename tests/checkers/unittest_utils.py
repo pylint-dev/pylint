@@ -641,3 +641,40 @@ def test_is_terminating_func_unittest_fail() -> None:
     )
     result = utils.is_terminating_func(node)
     assert result is True
+
+
+def test_is_terminating_func_ignored_overload_noreturn() -> None:
+    node = astroid.extract_node(
+        """
+    from typing import Literal, NoReturn, overload
+    @overload
+    def create_client(version: int = ...) -> NoReturn: ...
+    @overload
+    def create_client(version: Literal[2] = ...) -> int: ...
+    def create_client(version: int = 2) -> int:
+        return 1
+    create_client(version=2)  #@
+    """
+    )
+    result = utils.is_terminating_func(node)
+    assert result is False
+
+
+def test_is_terminating_func_overload_with_noreturn_implementation() -> None:
+    node = astroid.extract_node(
+        """
+    from typing import NoReturn, overload
+
+    @overload
+    def always_fails(code: int) -> NoReturn: ...
+    @overload
+    def always_fails(code: str) -> NoReturn: ...
+
+    def always_fails(code: int | str) -> NoReturn:
+        raise SystemExit(code)
+
+    always_fails(1)  #@
+"""
+    )
+    result = utils.is_terminating_func(node)
+    assert result is True
