@@ -552,9 +552,14 @@ class NameChecker(_BasicChecker):
         elif isinstance(frame, nodes.ClassDef) and not any(
             frame.local_attr_ancestors(node.name)
         ):
-            if utils.is_enum_member(node) or utils.is_assign_name_annotated_with(
-                node, "Final"
-            ):
+            if utils.is_assign_name_annotated_with_class_var_typing_name(node, "Final"):
+                self._check_name("class_const", node.name, node)
+            elif utils.is_assign_name_annotated_with(node, "Final"):
+                if frame.is_dataclass:
+                    self._check_name("class_attribute", node.name, node)
+                else:
+                    self._check_name("class_const", node.name, node)
+            elif utils.is_enum_member(node):
                 self._check_name("class_const", node.name, node)
             else:
                 self._check_name("class_attribute", node.name, node)
