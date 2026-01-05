@@ -882,6 +882,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             and not (mode_arg.value and "b" in str(mode_arg.value))
         ):
             confidence = HIGH
+            emit_unspecified_encoding = self.linter.config.py_version < (3, 15)
+            if not emit_unspecified_encoding:
+                return
             try:
                 if open_module in PATHLIB_MODULE:
                     match node.func.attrname:
@@ -906,17 +909,19 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 if encoding_arg:
                     confidence = INFERENCE
                 else:
-                    self.add_message(
-                        "unspecified-encoding", node=node, confidence=confidence
-                    )
+                    if emit_unspecified_encoding:
+                        self.add_message(
+                            "unspecified-encoding", node=node, confidence=confidence
+                        )
 
             if encoding_arg:
                 encoding_arg = utils.safe_infer(encoding_arg)
 
                 if isinstance(encoding_arg, nodes.Const) and encoding_arg.value is None:
-                    self.add_message(
-                        "unspecified-encoding", node=node, confidence=confidence
-                    )
+                    if emit_unspecified_encoding:
+                        self.add_message(
+                            "unspecified-encoding", node=node, confidence=confidence
+                        )
 
     def _check_env_function(self, node: nodes.Call, infer: nodes.FunctionDef) -> None:
         env_name_kwarg = "key"

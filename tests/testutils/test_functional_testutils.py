@@ -8,6 +8,7 @@ import contextlib
 import os
 import os.path
 import shutil
+import sys
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
@@ -139,7 +140,6 @@ def test_minimal_messages_config_enabled(pytest_config: MagicMock) -> None:
         mod_test._linter.is_message_enabled(msgid)
         for msgid in (
             "consider-using-with",
-            "unspecified-encoding",
             "consider-using-f-string",
             # Always enable fatal errors: important not to have false negatives
             "astroid-error",
@@ -147,6 +147,10 @@ def test_minimal_messages_config_enabled(pytest_config: MagicMock) -> None:
             "syntax-error",
         )
     )
+    if sys.version_info < (3, 15):
+        assert mod_test._linter.is_message_enabled("unspecified-encoding")
+    else:
+        assert not mod_test._linter.is_message_enabled("unspecified-encoding")
     assert not mod_test._linter.is_message_enabled("unused-import")
 
 

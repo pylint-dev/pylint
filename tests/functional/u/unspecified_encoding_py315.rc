@@ -1,0 +1,7 @@
+[MAIN]
+py-version=3.15
+
+[Messages Control]
+disable=all
+enable=unspecified-encoding
+
