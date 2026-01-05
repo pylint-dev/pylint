@@ -16,4 +16,3 @@ Path(FILENAME).read_text()
 Path(FILENAME).read_text(encoding=None)
 Path(FILENAME).write_text("string")
 Path(FILENAME).write_text("string", encoding=None)
-
