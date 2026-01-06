@@ -318,6 +318,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 
 
 DEFAULT_STANDARD_LIBRARY = ()
+DEFAULT_KNOWN_FIRST_PARTY = ()
 DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
 DEFAULT_PREFERRED_MODULES = ()
 
@@ -399,6 +400,16 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 "metavar": "<modules>",
                 "help": "Force import order to recognize a module as part of "
                 "the standard compatibility libraries.",
+            },
+        ),
+        (
+            "known-first-party",
+            {
+                "default": DEFAULT_KNOWN_FIRST_PARTY,
+                "type": "csv",
+                "metavar": "<modules>",
+                "help": "Force import order to recognize a module as part of "
+                "a first party library.",
             },
         ),
         (
@@ -758,6 +769,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             # KNOWN_standard_library for ages in pylint, and we
             # don't want to break compatibility.
             extra_standard_library=self.linter.config.known_standard_library,
+            known_first_party=self.linter.config.known_first_party,
             known_third_party=self.linter.config.known_third_party,
         )
 

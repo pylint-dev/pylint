@@ -6,11 +6,15 @@
 import os
 from sys import argv
 
-# external imports
+# external/third-party imports
 import isort
 import datetime  # std import that should be treated as third-party
 
+# First-party imports
 from six import moves
+
+import pylint
+import re  # std import that should be treated as first-party
 
 # local_imports
 from . import my_package

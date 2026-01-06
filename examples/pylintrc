@@ -398,6 +398,9 @@ int-import-graph=
 # compatibility libraries.
 known-standard-library=
 
+# Force import order to recognize a module as part of a first party library.
+known-first-party=
+
 # Force import order to recognize a module as part of a third party library.
 known-third-party=enchant
 
