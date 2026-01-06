@@ -459,15 +459,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         )
         self._excluded_edges: defaultdict[str, set[str]] = defaultdict(set)
 
-        self._isort_config = isort.Config(
-            # There is no typo here. EXTRA_standard_library is
-            # what most users want. The option has been named
-            # KNOWN_standard_library for ages in pylint, and we
-            # don't want to break compatibility.
-            extra_standard_library=linter.config.known_standard_library,
-            known_third_party=linter.config.known_third_party,
-        )
-
     def open(self) -> None:
         """Called before visiting project (i.e set of modules)."""
         self.linter.stats.dependencies = {}
@@ -765,6 +756,15 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         Imports must follow this order: standard, 3rd party, local
         """
+        isort_config = isort.Config(
+            # There is no typo here. EXTRA_standard_library is
+            # what most users want. The option has been named
+            # KNOWN_standard_library for ages in pylint, and we
+            # don't want to break compatibility.
+            extra_standard_library=self.linter.config.known_standard_library,
+            known_third_party=self.linter.config.known_third_party,
+        )
+
         std_imports: list[tuple[ImportNode, str]] = []
         third_party_imports: list[tuple[ImportNode, str]] = []
         first_party_imports: list[tuple[ImportNode, str]] = []
@@ -783,7 +783,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ignore_for_import_order = not self.linter.is_message_enabled(
                 "wrong-import-order", node.fromlineno
             )
-            import_category = isort.place_module(package, config=self._isort_config)
+            import_category = isort.place_module(package, config=isort_config)
             node_and_package_import = (node, package)
 
             match import_category:
