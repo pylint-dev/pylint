@@ -322,7 +322,6 @@ DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
 DEFAULT_PREFERRED_MODULES = ()
 
 
-# pylint: disable-next = too-many-instance-attributes
 class ImportsChecker(DeprecatedMixin, BaseChecker):
     """BaseChecker for import statements.
 
@@ -747,16 +746,13 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         imports = [import_node for (import_node, _) in imports]
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
-    def _check_imports_order(self, _module_node: nodes.Module) -> tuple[
-        list[tuple[ImportNode, str]],
-        list[tuple[ImportNode, str]],
-        list[tuple[ImportNode, str]],
-    ]:
-        """Checks imports of module `node` are grouped by category.
+    @property
+    def _isort_config(self) -> isort.Config:
+        """Get the config for use with isort.
 
-        Imports must follow this order: standard, 3rd party, local
+        Only valid after CLI parsing finished, i.e. not in __init__
         """
-        isort_config = isort.Config(
+        return isort.Config(
             # There is no typo here. EXTRA_standard_library is
             # what most users want. The option has been named
             # KNOWN_standard_library for ages in pylint, and we
@@ -765,6 +761,15 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             known_third_party=self.linter.config.known_third_party,
         )
 
+    def _check_imports_order(self, _module_node: nodes.Module) -> tuple[
+        list[tuple[ImportNode, str]],
+        list[tuple[ImportNode, str]],
+        list[tuple[ImportNode, str]],
+    ]:
+        """Checks imports of module `node` are grouped by category.
+
+        Imports must follow this order: standard, 3rd party, 1st party, local
+        """
         std_imports: list[tuple[ImportNode, str]] = []
         third_party_imports: list[tuple[ImportNode, str]] = []
         first_party_imports: list[tuple[ImportNode, str]] = []
@@ -783,7 +788,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ignore_for_import_order = not self.linter.is_message_enabled(
                 "wrong-import-order", node.fromlineno
             )
-            import_category = isort.place_module(package, config=isort_config)
+            import_category = isort.place_module(package, config=self._isort_config)
             node_and_package_import = (node, package)
 
             match import_category:
