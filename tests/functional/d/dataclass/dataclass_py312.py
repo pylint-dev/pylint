@@ -14,3 +14,16 @@ class C(B[int]):
 
 
 C(x=0)
+
+
+@dataclasses.dataclass
+class One[T]:
+    one: T
+
+
+@dataclasses.dataclass
+class Two[T](One[T]):
+    two: T
+
+one = One(1)
+two = Two(1, 2)

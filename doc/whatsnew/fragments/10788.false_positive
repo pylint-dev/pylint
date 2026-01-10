@@ -1,0 +1,4 @@
+Fix a false positive for ``too-many-function-args`` for dataclasses
+using generic type aliases (PEP 695).
+
+Closes #10788
