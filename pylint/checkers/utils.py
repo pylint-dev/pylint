@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-import _string  # pylint: disable=wrong-import-order # Ruff and Isort disagree about the order here
+import _string
 import builtins
 import fnmatch
 import itertools
