@@ -8,6 +8,7 @@ from sys import argv
 
 # external imports
 import isort
+import datetime  # std import that should be treated as third-party
 
 from six import moves
 

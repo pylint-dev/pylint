@@ -322,7 +322,6 @@ DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
 DEFAULT_PREFERRED_MODULES = ()
 
 
-# pylint: disable-next = too-many-instance-attributes
 class ImportsChecker(DeprecatedMixin, BaseChecker):
     """BaseChecker for import statements.
 
@@ -458,15 +457,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ("RP0402", "Modules dependencies graph", self._report_dependencies_graph),
         )
         self._excluded_edges: defaultdict[str, set[str]] = defaultdict(set)
-
-        self._isort_config = isort.Config(
-            # There is no typo here. EXTRA_standard_library is
-            # what most users want. The option has been named
-            # KNOWN_standard_library for ages in pylint, and we
-            # don't want to break compatibility.
-            extra_standard_library=linter.config.known_standard_library,
-            known_third_party=linter.config.known_third_party,
-        )
 
     def open(self) -> None:
         """Called before visiting project (i.e set of modules)."""
@@ -756,6 +746,21 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         imports = [import_node for (import_node, _) in imports]
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
+    @property
+    def _isort_config(self) -> isort.Config:
+        """Get the config for use with isort.
+
+        Only valid after CLI parsing finished, i.e. not in __init__
+        """
+        return isort.Config(
+            # There is no typo here. EXTRA_standard_library is
+            # what most users want. The option has been named
+            # KNOWN_standard_library for ages in pylint, and we
+            # don't want to break compatibility.
+            extra_standard_library=self.linter.config.known_standard_library,
+            known_third_party=self.linter.config.known_third_party,
+        )
+
     def _check_imports_order(self, _module_node: nodes.Module) -> tuple[
         list[tuple[ImportNode, str]],
         list[tuple[ImportNode, str]],
@@ -763,7 +768,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     ]:
         """Checks imports of module `node` are grouped by category.
 
-        Imports must follow this order: standard, 3rd party, local
+        Imports must follow this order: standard, 3rd party, 1st party, local
         """
         std_imports: list[tuple[ImportNode, str]] = []
         third_party_imports: list[tuple[ImportNode, str]] = []
