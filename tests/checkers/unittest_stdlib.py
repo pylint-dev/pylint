@@ -68,3 +68,9 @@ class TestStdlibChecker(CheckerTestCase):
             )
             with self.assertNoMessages():
                 self.checker.visit_call(node)
+
+    def test_unspecified_encoding_skipped_for_py315(self) -> None:
+        self.checker.linter.config.py_version = (3, 15)
+        node = astroid.extract_node("open('foo')")
+        with self.assertNoMessages():
+            self.checker._check_open_call(node, "_io", "open")
