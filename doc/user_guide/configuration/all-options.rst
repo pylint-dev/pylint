@@ -1041,6 +1041,13 @@ Standard Checkers
 **Default:**  ``()``
 
 
+--known-first-party
+"""""""""""""""""""
+*Force import order to recognize a module as part of a first party library.*
+
+**Default:**  ``()``
+
+
 --known-third-party
 """""""""""""""""""
 *Force import order to recognize a module as part of a third party library.*
@@ -1081,6 +1088,8 @@ Standard Checkers
    int-import-graph = ""
 
    known-standard-library = []
+
+   known-first-party = []
 
    known-third-party = ["enchant"]
 

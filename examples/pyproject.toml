@@ -351,6 +351,9 @@ max-module-lines = 1000
 # known-standard-library =
 
 # Force import order to recognize a module as part of a third party library.
+# known-first-party =
+
+# Force import order to recognize a module as part of a third party library.
 known-third-party = [ "enchant" ]
 
 # Couples of modules and preferred modules, separated by a comma.
