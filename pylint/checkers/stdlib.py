@@ -883,8 +883,6 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             and not (mode_arg.value and "b" in str(mode_arg.value))
         ):
             confidence = HIGH
-            if self.linter.config.py_version >= (3, 15):
-                return
             try:
                 if open_module in PATHLIB_MODULE:
                     match node.func.attrname:
