@@ -172,7 +172,8 @@ class DiagramWriter:
 
     def set_printer(self, file_name: str, basename: str) -> None:
         """Set printer."""
-        self.printer = self.printer_class(basename)
+        show_signatures = not self.config.no_signatures
+        self.printer = self.printer_class(basename, show_signatures=show_signatures)
         self.file_name = file_name
 
     def get_package_properties(self, obj: PackageEntity) -> NodeProperties:

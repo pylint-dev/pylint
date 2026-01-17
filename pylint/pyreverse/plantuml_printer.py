@@ -66,11 +66,14 @@ class PlantUmlPrinter(Printer):
             body.extend(properties.attrs)
         if properties.methods:
             for func in properties.methods:
-                args = self._get_method_arguments(func)
                 line = "{abstract}" if func.is_abstract() else ""
-                line += f"{func.name}({', '.join(args)})"
-                if func.returns:
-                    line += " -> " + get_annotation_label(func.returns)
+                if self.show_signatures:
+                    args = self._get_method_arguments(func)
+                    line += f"{func.name}({', '.join(args)})"
+                    if func.returns:
+                        line += " -> " + get_annotation_label(func.returns)
+                else:
+                    line += f"{func.name}()"
                 body.append(line)
         label = properties.label if properties.label is not None else name
         if properties.fontcolor and properties.fontcolor != self.DEFAULT_COLOR:

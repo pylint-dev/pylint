@@ -65,10 +65,11 @@ class DotPrinter(Printer):
         title: str,
         layout: Layout | None = None,
         use_automatic_namespace: bool | None = None,
+        show_signatures: bool = True,
     ):
         layout = layout or Layout.BOTTOM_TO_TOP
         self.charset = "utf-8"
-        super().__init__(title, layout, use_automatic_namespace)
+        super().__init__(title, layout, use_automatic_namespace, show_signatures)
 
     def _open_graph(self) -> None:
         """Emit the header lines."""
@@ -124,14 +125,17 @@ class DotPrinter(Printer):
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
         for func in methods:
-            args = ", ".join(self._get_method_arguments(func)).replace("|", r"\|")
             method_name = (
                 f"<I>{func.name}</I>" if func.is_abstract() else f"{func.name}"
             )
-            label += rf"{method_name}({args})"
-            if func.returns:
-                annotation_label = get_annotation_label(func.returns)
-                label += ": " + self._escape_annotation_label(annotation_label)
+            if self.show_signatures:
+                args = ", ".join(self._get_method_arguments(func)).replace("|", r"\|")
+                label += rf"{method_name}({args})"
+                if func.returns:
+                    annotation_label = get_annotation_label(func.returns)
+                    label += ": " + self._escape_annotation_label(annotation_label)
+            else:
+                label += rf"{method_name}()"
             label += rf"{HTMLLabels.LINEBREAK_LEFT.value}"
         label += "}"
         return label
