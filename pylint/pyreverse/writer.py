@@ -172,7 +172,7 @@ class DiagramWriter:
 
     def set_printer(self, file_name: str, basename: str) -> None:
         """Set printer."""
-        show_signatures = not getattr(self.config, "no_signatures", False)
+        show_signatures = not self.config.no_signatures
         self.printer = self.printer_class(basename, show_signatures=show_signatures)
         self.file_name = file_name
 
