@@ -61,13 +61,16 @@ class MermaidJSPrinter(Printer):
             body.extend(escaped_attrs)
         if properties.methods:
             for func in properties.methods:
-                args = self._get_method_arguments(func)
                 # Escape method name and arguments
                 escaped_method_name = self._escape_mermaid_text(func.name)
-                escaped_args = [self._escape_mermaid_text(arg) for arg in args]
-                line = f"{escaped_method_name}({', '.join(escaped_args)})"
+                if self.show_signatures:
+                    args = self._get_method_arguments(func)
+                    escaped_args = [self._escape_mermaid_text(arg) for arg in args]
+                    line = f"{escaped_method_name}({', '.join(escaped_args)})"
+                else:
+                    line = f"{escaped_method_name}()"
                 line += "*" if func.is_abstract() else ""
-                if func.returns:
+                if self.show_signatures and func.returns:
                     # Escape return type annotation
                     return_type = get_annotation_label(func.returns)
                     escaped_return_type = self._escape_mermaid_text(return_type)
