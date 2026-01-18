@@ -161,11 +161,9 @@ def test_disable_global_option_end_of_line() -> None:
     """
     file_ = tempfile.NamedTemporaryFile("w", delete=False)
     with file_:
-        file_.write(
-            """
+        file_.write("""
 1
-    """
-        )
+    """)
     # pylint: disable = too-many-try-statements
     try:
         linter = lint.PyLinter()

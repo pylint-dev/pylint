@@ -33,10 +33,7 @@ def test_ignore_comments() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run(["--ignore-comments", SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == (
-            f"""
+    assert output.getvalue().strip() == (f"""
 10 similar lines in 2 files
 =={SIMILAR1}:[0:11]
 =={SIMILAR2}:[0:11]
@@ -52,9 +49,7 @@ def test_ignore_comments() -> None:
    nine
    ''' ten
 TOTAL lines=62 duplicates=10 percent=16.13
-"""
-        ).strip()
-    )
+""").strip()
 
 
 def test_ignore_docstrings() -> None:
@@ -62,10 +57,7 @@ def test_ignore_docstrings() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run(["--ignore-docstrings", SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == (
-            f"""
+    assert output.getvalue().strip() == (f"""
 5 similar lines in 2 files
 =={SIMILAR1}:[0:5]
 =={SIMILAR2}:[0:5]
@@ -87,9 +79,7 @@ def test_ignore_docstrings() -> None:
    thirteen
    fourteen
 TOTAL lines=62 duplicates=10 percent=16.13
-"""
-        ).strip()
-    )
+""").strip()
 
 
 def test_ignore_imports() -> None:
@@ -97,12 +87,9 @@ def test_ignore_imports() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run(["--ignore-imports", SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == """
+    assert output.getvalue().strip() == """
 TOTAL lines=62 duplicates=0 percent=0.00
 """.strip()
-    )
 
 
 def test_multiline_imports() -> None:
@@ -110,10 +97,7 @@ def test_multiline_imports() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run([MULTILINE, MULTILINE])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == (
-            f"""
+    assert output.getvalue().strip() == (f"""
 8 similar lines in 2 files
 =={MULTILINE}:[0:8]
 =={MULTILINE}:[0:8]
@@ -126,9 +110,7 @@ def test_multiline_imports() -> None:
      quuuuux,
    )
 TOTAL lines=16 duplicates=8 percent=50.00
-"""
-        ).strip()
-    )
+""").strip()
 
 
 def test_ignore_multiline_imports() -> None:
@@ -136,12 +118,9 @@ def test_ignore_multiline_imports() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run(["--ignore-imports", MULTILINE, MULTILINE])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == """
+    assert output.getvalue().strip() == """
 TOTAL lines=16 duplicates=0 percent=0.00
 """.strip()
-    )
 
 
 def test_ignore_signatures_fail() -> None:
@@ -149,10 +128,7 @@ def test_ignore_signatures_fail() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run([SIMILAR5, SIMILAR6])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == (
-            f'''
+    assert output.getvalue().strip() == (f'''
 9 similar lines in 2 files
 =={SIMILAR5}:[7:17]
 =={SIMILAR6}:[8:18]
@@ -177,9 +153,7 @@ def test_ignore_signatures_fail() -> None:
        dval4
    )
 TOTAL lines=35 duplicates=15 percent=42.86
-'''
-        ).strip()
-    )
+''').strip()
 
 
 def test_ignore_signatures_pass() -> None:
@@ -187,12 +161,9 @@ def test_ignore_signatures_pass() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run(["--ignore-signatures", SIMILAR5, SIMILAR6])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == """
+    assert output.getvalue().strip() == """
 TOTAL lines=35 duplicates=0 percent=0.00
 """.strip()
-    )
 
 
 def test_ignore_signatures_class_methods_fail() -> None:
@@ -200,10 +171,7 @@ def test_ignore_signatures_class_methods_fail() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run([SIMILAR_CLS_B, SIMILAR_CLS_A])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == (
-            f'''
+    assert output.getvalue().strip() == (f'''
 15 similar lines in 2 files
 =={SIMILAR_CLS_A}:[1:18]
 =={SIMILAR_CLS_B}:[1:18]
@@ -236,9 +204,7 @@ def test_ignore_signatures_class_methods_fail() -> None:
            ):
                pass
 TOTAL lines=54 duplicates=22 percent=40.74
-'''
-        ).strip()
-    )
+''').strip()
 
 
 def test_ignore_signatures_class_methods_pass() -> None:
@@ -246,12 +212,9 @@ def test_ignore_signatures_class_methods_pass() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run(["--ignore-signatures", SIMILAR_CLS_B, SIMILAR_CLS_A])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == """
+    assert output.getvalue().strip() == """
 TOTAL lines=54 duplicates=0 percent=0.00
 """.strip()
-    )
 
 
 def test_ignore_signatures_empty_functions_fail() -> None:
@@ -259,10 +222,7 @@ def test_ignore_signatures_empty_functions_fail() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run([EMPTY_FUNCTION_1, EMPTY_FUNCTION_2])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == (
-            f'''
+    assert output.getvalue().strip() == (f'''
 6 similar lines in 2 files
 =={EMPTY_FUNCTION_1}:[1:7]
 =={EMPTY_FUNCTION_2}:[1:7]
@@ -273,9 +233,7 @@ def test_ignore_signatures_empty_functions_fail() -> None:
    ) -> None:
        """Valid function definition with docstring only."""
 TOTAL lines=14 duplicates=6 percent=42.86
-'''
-        ).strip()
-    )
+''').strip()
 
 
 def test_ignore_signatures_empty_functions_pass() -> None:
@@ -283,12 +241,9 @@ def test_ignore_signatures_empty_functions_pass() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run(["--ignore-signatures", EMPTY_FUNCTION_1, EMPTY_FUNCTION_2])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == """
+    assert output.getvalue().strip() == """
 TOTAL lines=14 duplicates=0 percent=0.00
 """.strip()
-    )
 
 
 def test_no_hide_code_with_imports() -> None:
@@ -304,10 +259,7 @@ def test_ignore_nothing() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run([SIMILAR1, SIMILAR2])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == (
-            f"""
+    assert output.getvalue().strip() == (f"""
 5 similar lines in 2 files
 =={SIMILAR1}:[0:5]
 =={SIMILAR2}:[0:5]
@@ -317,9 +269,7 @@ def test_ignore_nothing() -> None:
    four
    five
 TOTAL lines=62 duplicates=5 percent=8.06
-"""
-        ).strip()
-    )
+""").strip()
 
 
 def test_lines_without_meaningful_content_do_not_trigger_similarity() -> None:
@@ -327,10 +277,7 @@ def test_lines_without_meaningful_content_do_not_trigger_similarity() -> None:
     with redirect_stdout(output), pytest.raises(SystemExit) as ex:
         symilar.Run([SIMILAR3, SIMILAR4])
     assert ex.value.code == 0
-    assert (
-        output.getvalue().strip()
-        == (
-            f"""
+    assert output.getvalue().strip() == (f"""
 14 similar lines in 2 files
 =={SIMILAR3}:[11:25]
 =={SIMILAR4}:[11:25]
@@ -349,9 +296,7 @@ def test_lines_without_meaningful_content_do_not_trigger_similarity() -> None:
        )
    )
 TOTAL lines=50 duplicates=14 percent=28.00
-"""
-        ).strip()
-    )
+""").strip()
 
 
 def test_help() -> None:

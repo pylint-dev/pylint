@@ -4,7 +4,6 @@
 
 """Test for the 'pylint-config' utils."""
 
-
 import pytest
 from pytest import CaptureFixture, MonkeyPatch
 
@@ -22,9 +21,7 @@ def test_retrying_user_input_validation(
     with pytest.raises(SystemExit):
         get_and_validate_format()
     captured = capsys.readouterr()
-    assert (
-        captured.out
-        == """Answer should be one of i, ini, t, toml.
+    assert captured.out == """Answer should be one of i, ini, t, toml.
 Type 'exit()' if you want to exit the program.
 Answer should be one of i, ini, t, toml.
 Type 'exit()' if you want to exit the program.
@@ -32,4 +29,3 @@ Answer should be one of i, ini, t, toml.
 Type 'exit()' if you want to exit the program.
 Stopping 'pylint-config'.
 """
-    )

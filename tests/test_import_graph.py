@@ -38,9 +38,7 @@ def test_dependencies_graph(dest: str) -> None:
     """DOC files are correctly generated, and the graphname is the basename."""
     imports._dependencies_graph(dest, {"labas": {"hoho", "yep"}, "hoho": {"yep"}})
     with open(dest, encoding="utf-8") as stream:
-        assert (
-            stream.read().strip()
-            == """
+        assert stream.read().strip() == """
 digraph "foo" {
 rankdir=LR
 charset="utf-8"
@@ -53,7 +51,6 @@ URL="." node[shape="box"]
 "yep" -> "labas" [];
 }
 """.strip()
-        )
 
 
 @pytest.mark.parametrize("filename", ["graph.png", "graph"])

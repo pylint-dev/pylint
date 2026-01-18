@@ -62,15 +62,13 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_deprecated_attribute(self) -> None:
         # Tests detecting deprecated attribute
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class DeprecatedClass:
             deprecated_attribute = 42
 
         obj = DeprecatedClass()
         obj.deprecated_attribute
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-attribute",
@@ -87,14 +85,12 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_deprecated_function(self) -> None:
         # Tests detecting deprecated function
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def deprecated_func():
             pass
 
         deprecated_func()
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-method",
@@ -111,16 +107,14 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_deprecated_method(self) -> None:
         # Tests detecting deprecated method
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class Deprecated:
             def deprecated_method():
                 pass
 
         d = Deprecated()
         d.deprecated_method()
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-method",
@@ -137,8 +131,7 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_deprecated_method_alias(self) -> None:
         # Tests detecting deprecated method defined as alias
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class Deprecated:
             def deprecated_method(self):
                 pass
@@ -147,8 +140,7 @@ class TestDeprecatedChecker(CheckerTestCase):
 
         d = Deprecated()
         d.new_name()
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-method",
@@ -165,8 +157,7 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_not_deprecated(self) -> None:
         # Tests detecting method is NOT deprecated when alias name is a deprecated name
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class Deprecated:
             def not_deprecated(self):
                 pass
@@ -175,15 +166,13 @@ class TestDeprecatedChecker(CheckerTestCase):
 
         d = Deprecated()
         d.deprecated_method()
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
     def test_no_message(self) -> None:
         # Tests not raising error when no deprecated functions/methods are present.
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class MyClass:
             def mymethod():
                 pass
@@ -194,21 +183,18 @@ class TestDeprecatedChecker(CheckerTestCase):
             pass
 
         myfunc()
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
     def test_function_deprecated_arg(self) -> None:
         # Tests raising error when calling function with deprecated argument
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def myfunction1(arg1, deprecated_arg1='spam'):
             pass
 
         myfunction1(None, 'deprecated')
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-argument",
@@ -225,14 +211,12 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_function_deprecated_kwarg(self) -> None:
         # Tests raising error when calling function with deprecated keyword argument
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def myfunction1(arg1, deprecated_arg1='spam'):
             pass
 
         myfunction1(None, deprecated_arg1='deprecated')
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-argument",
@@ -249,27 +233,23 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_function_deprecated_not_used(self) -> None:
         # Tests raising error when calling function without deprecated argument
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def myfunction1(arg1, deprecated_arg1='spam'):
             pass
 
         myfunction1(None)
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
     def test_function_deprecated_kwarg_only(self) -> None:
         # Tests raising error when calling function with deprecated keyword only argument
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def myfunction3(arg1, *, deprecated_arg1='spam'):
             pass
 
         myfunction3(None, deprecated_arg1='deprecated')
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-argument",
@@ -286,15 +266,13 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_method_deprecated_arg(self) -> None:
         # Tests raising error when calling method with deprecated argument
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class MyClass:
             def mymethod1(self, arg1, deprecated_arg1):
                 pass
 
         MyClass().mymethod1(None, 'deprecated')
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-argument",
@@ -311,15 +289,13 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_method_deprecated_kwarg(self) -> None:
         # Tests raising error when calling method with deprecated keyword argument
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class MyClass:
             def mymethod1(self, arg1, deprecated_arg1):
                 pass
 
         MyClass().mymethod1(None, deprecated_arg1='deprecated')
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-argument",
@@ -336,29 +312,25 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_method_deprecated_not_used(self) -> None:
         # Tests raising error when calling method without deprecated argument
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class MyClass:
             def mymethod1(self, arg1, deprecated_arg1):
                 pass
 
         MyClass().mymethod1(None)
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.checker.visit_call(node)
 
     def test_method_deprecated_kwarg_only(self) -> None:
         # Tests raising error when calling method with deprecated keyword only argument
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class MyClass:
             def mymethod3(self, arg1, *, deprecated_arg1):
                 pass
 
         MyClass().mymethod3(None, deprecated_arg1='deprecated')
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-argument",
@@ -376,14 +348,12 @@ class TestDeprecatedChecker(CheckerTestCase):
     def test_function_deprecated_arg_kwargs(self) -> None:
         # Tests raising error when calling function with deprecated argument
         # and keyword argument
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def myfunction2(arg1, deprecated_arg1, arg2='foo', deprecated_arg2='spam'):
             pass
 
         myfunction2(None, 'deprecated', deprecated_arg2='deprecated')
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-argument",
@@ -410,14 +380,12 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_function_deprecated_kwarg_kwarg(self) -> None:
         # Tests raising error when calling function with deprecated keyword arguments
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def myfunction2(arg1, deprecated_arg1, arg2='foo', deprecated_arg2='spam'):
             pass
 
         myfunction2(None, deprecated_arg1='deprecated', deprecated_arg2='deprecated')
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-argument",
@@ -445,15 +413,13 @@ class TestDeprecatedChecker(CheckerTestCase):
     def test_method_deprecated_arg_kwargs(self) -> None:
         # Tests raising error when calling method with deprecated argument
         # and keyword argument
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class MyClass:
             def mymethod2(self, arg1, deprecated_arg1, arg2='foo', deprecated_arg2='spam'):
                 pass
 
         MyClass().mymethod2(None, 'deprecated', deprecated_arg2='deprecated')
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-argument",
@@ -480,15 +446,13 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_method_deprecated_kwarg_kwarg(self) -> None:
         # Tests raising error when calling method with deprecated keyword arguments
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class MyClass:
             def mymethod2(self, arg1, deprecated_arg1, arg2='foo', deprecated_arg2='spam'):
                 pass
 
         MyClass().mymethod2(None, deprecated_arg1='deprecated', deprecated_arg2='deprecated')
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-argument",
@@ -514,15 +478,13 @@ class TestDeprecatedChecker(CheckerTestCase):
             self.checker.visit_call(node)
 
     def test_class_deprecated_arguments(self) -> None:
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class MyClass:
             def __init__(self, deprecated_arg=None):
                 pass
 
         MyClass(5)
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-argument",
@@ -539,11 +501,9 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_deprecated_module(self) -> None:
         # Tests detecting deprecated module
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         import deprecated_module
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-module",
@@ -560,11 +520,9 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_deprecated_module_from(self) -> None:
         # Tests detecting deprecated module
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         from deprecated_module import myfunction
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-module",
@@ -581,11 +539,9 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_deprecated_class_import_from(self) -> None:
         # Tests detecting deprecated class via import from
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         from deprecated import DeprecatedClass
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-class",
@@ -602,11 +558,9 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_deprecated_class_import(self) -> None:
         # Tests detecting deprecated class via import
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         import deprecated.DeprecatedClass
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-class",
@@ -623,12 +577,10 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_deprecated_class_call(self) -> None:
         # Tests detecting deprecated class via call
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         import deprecated
         deprecated.DeprecatedClass()
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-class",
@@ -645,8 +597,7 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_deprecated_decorator(self) -> None:
         # Tests detecting deprecated decorator
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def deprecated_decorator(f):
             def wrapper():
                 return f()
@@ -655,8 +606,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         @deprecated_decorator #@
         def function():
             pass
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-decorator",
@@ -673,8 +623,7 @@ class TestDeprecatedChecker(CheckerTestCase):
 
     def test_deprecated_decorator_with_arguments(self) -> None:
         # Tests detecting deprecated decorator with arguments
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def deprecated_decorator(arg1, arg2):
             def wrapper(f):
                 def wrapped():
@@ -685,8 +634,7 @@ class TestDeprecatedChecker(CheckerTestCase):
         @deprecated_decorator(2, 3) #@
         def function():
             pass
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 msg_id="deprecated-decorator",

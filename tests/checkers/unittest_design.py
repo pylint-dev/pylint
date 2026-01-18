@@ -19,8 +19,7 @@ class TestDesignChecker(CheckerTestCase):
         """Make sure that classes listed in ``ignored-parents`` aren't counted
         by the too-many-ancestors message.
         """
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         class Aaaa(object):
             pass
         class Bbbb(Aaaa):
@@ -31,8 +30,7 @@ class TestDesignChecker(CheckerTestCase):
             pass
         class Eeee(Dddd):
             pass
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.checker.visit_classdef(node)
 

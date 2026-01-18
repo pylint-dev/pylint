@@ -3,6 +3,7 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Check for use of dictionary mutation after initialization."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

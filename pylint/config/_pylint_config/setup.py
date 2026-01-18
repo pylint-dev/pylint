@@ -4,7 +4,6 @@
 
 """Everything related to the setup of the 'pylint-config' command."""
 
-
 from __future__ import annotations
 
 import argparse

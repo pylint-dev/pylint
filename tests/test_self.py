@@ -302,14 +302,12 @@ class TestRunTC:
 
     def test_enable_all_works(self) -> None:
         module = join(HERE, "data", "clientmodule_test.py")
-        expected = textwrap.dedent(
-            f"""
+        expected = textwrap.dedent(f"""
         ************* Module data.clientmodule_test
         {module}:9:8: W0612: Unused variable 'local_variable' (unused-variable)
         {module}:17:4: C0116: Missing function or method docstring (missing-function-docstring)
         {module}:21:0: C0115: Missing class docstring (missing-class-docstring)
-        """
-        )
+        """)
         self._test_output(
             [module, "--disable=I", "--enable=all", "-rn"], expected_output=expected
         )
@@ -317,12 +315,10 @@ class TestRunTC:
     def test_wrong_import_position_when_others_disabled(self) -> None:
         module1 = join(HERE, "regrtest_data", "import_something.py")
         module2 = join(HERE, "regrtest_data", "wrong_import_position.py")
-        expected_output = textwrap.dedent(
-            f"""
+        expected_output = textwrap.dedent(f"""
         ************* Module wrong_import_position
         {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
-        """
-        )
+        """)
         args = [
             module2,
             module1,
@@ -360,8 +356,7 @@ class TestRunTC:
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue().strip())
 
-        expected_output = textwrap.dedent(
-            f"""
+        expected_output = textwrap.dedent(f"""
         Using config file pylint/testutils/testing_pylintrc
         Get ASTs.
         AST for {module2}
@@ -371,8 +366,7 @@ class TestRunTC:
         ************* Module wrong_import_position
         {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
         {module1} (2 of 2)
-        """
-        )
+        """)
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     def test_progress_reporting_not_shown_if_not_verbose(self) -> None:
@@ -390,12 +384,10 @@ class TestRunTC:
         self._run_pylint(args, out=out)
         actual_output = self._clean_paths(out.getvalue().strip())
 
-        expected_output = textwrap.dedent(
-            f"""
+        expected_output = textwrap.dedent(f"""
         ************* Module wrong_import_position
         {module2}:11:0: C0413: Import "import os" should be placed at the top of the module (wrong-import-position)
-        """
-        )
+        """)
         assert self._clean_paths(expected_output.strip()) == actual_output.strip()
 
     def test_type_annotation_names(self) -> None:
@@ -412,12 +404,10 @@ class TestRunTC:
         module2 = join(
             HERE, "regrtest_data", "imported_module_in_typehint", "module_b.py"
         )
-        expected_output = textwrap.dedent(
-            f"""
+        expected_output = textwrap.dedent(f"""
         ************* Module module_b
         {module2}:1:0: W0611: Unused import uuid (unused-import)
-        """
-        )
+        """)
         args = [
             module1,
             module2,
@@ -519,12 +509,10 @@ class TestRunTC:
 
     def test_error_mode_shows_no_score(self) -> None:
         module = join(HERE, "regrtest_data", "application_crash.py")
-        expected_output = textwrap.dedent(
-            f"""
+        expected_output = textwrap.dedent(f"""
         ************* Module application_crash
         {module}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        """
-        )
+        """)
         self._test_output([module, "-E"], expected_output=expected_output)
 
     def test_evaluation_score_shown_by_default(self) -> None:
@@ -576,14 +564,12 @@ class TestRunTC:
     def test_pylintrc_comments_in_values(self) -> None:
         path = join(HERE, "regrtest_data", "test_pylintrc_comments.py")
         config_path = join(HERE, "regrtest_data", "comments_pylintrc")
-        expected = textwrap.dedent(
-            f"""
+        expected = textwrap.dedent(f"""
         ************* Module test_pylintrc_comments
         {path}:2:0: W0311: Bad indentation. Found 1 spaces, expected 4 (bad-indentation)
         {path}:1:0: C0114: Missing module docstring (missing-module-docstring)
         {path}:1:0: C0116: Missing function or method docstring (missing-function-docstring)
-        """
-        )
+        """)
         self._test_output(
             [path, f"--rcfile={config_path}", "-rn"], expected_output=expected
         )
@@ -595,11 +581,9 @@ class TestRunTC:
 
     def test_getdefaultencoding_crashes_with_lc_ctype_utf8(self) -> None:
         module = join(HERE, "regrtest_data", "application_crash.py")
-        expected_output = textwrap.dedent(
-            f"""
+        expected_output = textwrap.dedent(f"""
         {module}:1:6: E0602: Undefined variable 'something_undefined' (undefined-variable)
-        """
-        )
+        """)
         with _configure_lc_ctype("UTF-8"):
             self._test_output([module, "-E"], expected_output=expected_output)
 
@@ -652,22 +636,18 @@ class TestRunTC:
     def test_relative_imports(self, write_bpy_to_disk: bool, tmp_path: Path) -> None:
         a = tmp_path / "a"
 
-        b_code = textwrap.dedent(
-            """
+        b_code = textwrap.dedent("""
             from .c import foobar
             from .d import bla  # module does not exist
 
             foobar('hello')
             bla()
-            """
-        )
+            """)
 
-        c_code = textwrap.dedent(
-            """
+        c_code = textwrap.dedent("""
             def foobar(arg):
                 pass
-            """
-        )
+            """)
 
         a.mkdir()
         (a / "__init__.py").write_text("")
@@ -1212,12 +1192,10 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
     def test_output_file_specified_in_rcfile(self, tmp_path: Path) -> None:
         output_file = tmp_path / "output.txt"
         rcfile = tmp_path / "pylintrc"
-        rcfile_contents = textwrap.dedent(
-            f"""
+        rcfile_contents = textwrap.dedent(f"""
         [MAIN]
         output={output_file}
-        """
-        )
+        """)
         rcfile.write_text(rcfile_contents, encoding="utf-8")
         path = join(HERE, "regrtest_data", "unused_variable.py")
         expected = "Your code has been rated at 7.50/10"
@@ -1414,12 +1392,10 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         warning please contact open a Pylint PR!
         """
         module = join(HERE, "regrtest_data", "line_too_long_no_code.py")
-        expected = textwrap.dedent(
-            f"""
+        expected = textwrap.dedent(f"""
         {module}:1:0: I0011: Locally disabling line-too-long (C0301) (locally-disabled)
         {module}:1:0: I0021: Useless suppression of 'line-too-long' (useless-suppression)
-        """
-        )
+        """)
 
         self._test_output([module, "--enable=all"], expected_output=expected)
 
