@@ -5,6 +5,7 @@
 """This script updates towncrier.toml and creates a new newsfile and intermediate
 folders if necessary.
 """
+
 from __future__ import annotations
 
 import argparse

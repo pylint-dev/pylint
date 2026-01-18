@@ -409,13 +409,11 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_handle_words_joined_by_forward_slash(self) -> None:
-        stmt = astroid.extract_node(
-            '''
+        stmt = astroid.extract_node('''
         class ComentAbc(object):
             """This is Comment/Abcz with a bad comment"""
             pass
-        '''
-        )
+        ''')
         with self.assertAddsMessages(
             MessageTest(
                 "wrong-spelling-in-docstring",
@@ -490,12 +488,10 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_1(self) -> None:
-        stmt = astroid.extract_node(
-            '''def f():
+        stmt = astroid.extract_node('''def f():
     """
     # msitake
-    """'''
-        )
+    """''')
         with self.assertAddsMessages(
             MessageTest(
                 "wrong-spelling-in-docstring",
@@ -513,10 +509,8 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_2(self) -> None:
-        stmt = astroid.extract_node(
-            '''def f():
-    """# msitake"""'''
-        )
+        stmt = astroid.extract_node('''def f():
+    """# msitake"""''')
         with self.assertAddsMessages(
             MessageTest(
                 "wrong-spelling-in-docstring",
@@ -534,12 +528,10 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_3(self) -> None:
-        stmt = astroid.extract_node(
-            '''def f():
+        stmt = astroid.extract_node('''def f():
     """
 # msitake
-    """'''
-        )
+    """''')
         with self.assertAddsMessages(
             MessageTest(
                 "wrong-spelling-in-docstring",
@@ -557,24 +549,20 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_4(self) -> None:
-        stmt = astroid.extract_node(
-            '''def f():
+        stmt = astroid.extract_node('''def f():
     """
     # cat
-    """'''
-        )
+    """''')
         with self.assertAddsMessages():
             self.checker.visit_functiondef(stmt)
 
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_5(self) -> None:
-        stmt = astroid.extract_node(
-            '''def f():
+        stmt = astroid.extract_node('''def f():
     """
     msitake # cat
-    """'''
-        )
+    """''')
         with self.assertAddsMessages(
             MessageTest(
                 "wrong-spelling-in-docstring",
@@ -592,12 +580,10 @@ class TestSpellingChecker(CheckerTestCase):  # pylint:disable=too-many-public-me
     @skip_on_missing_package_or_dict
     @set_config(spelling_dict=spell_dict)
     def test_docstring_lines_that_look_like_comments_6(self) -> None:
-        stmt = astroid.extract_node(
-            '''def f():
+        stmt = astroid.extract_node('''def f():
     """
     cat # msitake
-    """'''
-        )
+    """''')
         with self.assertAddsMessages(
             MessageTest(
                 "wrong-spelling-in-docstring",

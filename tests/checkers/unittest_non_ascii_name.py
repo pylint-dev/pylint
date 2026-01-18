@@ -21,8 +21,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
 
     def test_kwargs_and_position_only(self) -> None:
         """Even the new position only and keyword only should be found."""
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
                 def name(
                     ok,
                     not_økay,
@@ -35,8 +34,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
                     kw_arg_not_økay,
                 ):
                     ...
-            """
-        )
+            """)
         assert isinstance(node, nodes.FunctionDef)
         arguments = node.args
 

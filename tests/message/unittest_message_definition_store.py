@@ -172,9 +172,7 @@ def test_format_help(capsys: CaptureFixture, store: MessageDefinitionStore) -> N
     assert captured.out == ""
     store.help_message(["W1234", "E1234", "C1234"])
     captured = capsys.readouterr()
-    assert (
-        captured.out
-        == """:msg-symbol (W1234): *message*
+    assert captured.out == """:msg-symbol (W1234): *message*
   msg description. This message belongs to the achecker checker.
 
 :duplicate-keyword-arg (E1234): *Duplicate keyword argument %r in %s call*
@@ -185,7 +183,6 @@ def test_format_help(capsys: CaptureFixture, store: MessageDefinitionStore) -> N
 No such message id or symbol 'C1234'.
 
 """
-    )
 
 
 def test_get_msg_display_string(store: MessageDefinitionStore) -> None:

@@ -14,6 +14,7 @@ pylint --help-msg <msg-id>[,<msg-id>]
 
 Display help messages about given message identifiers and exit.
 """
+
 import sys
 
 from pylint.config.exceptions import ArgumentPreprocessingError
