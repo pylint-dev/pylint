@@ -24,6 +24,7 @@ from astroid.typing import InferenceResult
 from pylint import constants
 from pylint.checkers.utils import safe_infer
 from pylint.pyreverse import utils
+from pylint.pyreverse.node_info import ClassInfo
 
 _WrapperFuncT = Callable[
     [Callable[[str], nodes.Module], str, bool], nodes.Module | None
@@ -318,7 +319,10 @@ class RelationshipHandlerInterface(ABC):
 
     @abstractmethod
     def handle(
-        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+        self,
+        node: nodes.AssignAttr | nodes.AssignName,
+        parent: nodes.ClassDef,
+        info: ClassInfo,
     ) -> None:
         pass
 
@@ -345,21 +349,27 @@ class AbstractRelationshipHandler(RelationshipHandlerInterface):
 
     @abstractmethod
     def handle(
-        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+        self,
+        node: nodes.AssignAttr | nodes.AssignName,
+        parent: nodes.ClassDef,
+        info: ClassInfo,
     ) -> None:
         if self._next_handler:
-            self._next_handler.handle(node, parent)
+            self._next_handler.handle(node, parent, info)
 
 
 class CompositionsHandler(AbstractRelationshipHandler):
     """Handle composition relationships where parent creates child objects."""
 
     def handle(
-        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+        self,
+        node: nodes.AssignAttr | nodes.AssignName,
+        parent: nodes.ClassDef,
+        info: ClassInfo,
     ) -> None:
         # If the node is not part of an assignment, pass to next handler
         if not isinstance(node.parent, (nodes.AnnAssign, nodes.Assign)):
-            super().handle(node, parent)
+            super().handle(node, parent, info)
             return
 
         value = node.parent.value
@@ -375,8 +385,8 @@ class CompositionsHandler(AbstractRelationshipHandler):
             # Resolve nodes to actual class definitions
             resolved_types = resolve_to_class_def(element_types)
 
-            current = set(parent.compositions_type[name])
-            parent.compositions_type[name] = list(current | resolved_types)
+            current = set(info.compositions_type[name])
+            info.compositions_type[name] = list(current | resolved_types)
             return
 
         # Composition: comprehensions with object creation (self.x = [P() for ...])
@@ -396,23 +406,26 @@ class CompositionsHandler(AbstractRelationshipHandler):
                 # Resolve nodes to actual class definitions
                 resolved_types = resolve_to_class_def(element_types)
 
-                current = set(parent.compositions_type[name])
-                parent.compositions_type[name] = list(current | resolved_types)
+                current = set(info.compositions_type[name])
+                info.compositions_type[name] = list(current | resolved_types)
                 return
 
         # Not a composition, pass to next handler
-        super().handle(node, parent)
+        super().handle(node, parent, info)
 
 
 class AggregationsHandler(AbstractRelationshipHandler):
     """Handle aggregation relationships where parent receives child objects."""
 
     def handle(
-        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+        self,
+        node: nodes.AssignAttr | nodes.AssignName,
+        parent: nodes.ClassDef,
+        info: ClassInfo,
     ) -> None:
         # If the node is not part of an assignment, pass to next handler
         if not isinstance(node.parent, (nodes.AnnAssign, nodes.Assign)):
-            super().handle(node, parent)
+            super().handle(node, parent, info)
             return
 
         value = node.parent.value
@@ -428,8 +441,8 @@ class AggregationsHandler(AbstractRelationshipHandler):
             # Resolve nodes to actual class definitions
             resolved_types = resolve_to_class_def(element_types)
 
-            current = set(parent.aggregations_type[name])
-            parent.aggregations_type[name] = list(current | resolved_types)
+            current = set(info.aggregations_type[name])
+            info.aggregations_type[name] = list(current | resolved_types)
             return
 
         # Aggregation: comprehensions without object creation (self.x = [existing_obj for ...])
@@ -449,19 +462,22 @@ class AggregationsHandler(AbstractRelationshipHandler):
                 # Resolve nodes to actual class definitions
                 resolved_types = resolve_to_class_def(element_types)
 
-                current = set(parent.aggregations_type[name])
-                parent.aggregations_type[name] = list(current | resolved_types)
+                current = set(info.aggregations_type[name])
+                info.aggregations_type[name] = list(current | resolved_types)
                 return
 
         # Not an aggregation, pass to next handler
-        super().handle(node, parent)
+        super().handle(node, parent, info)
 
 
 class AssociationsHandler(AbstractRelationshipHandler):
     """Handle regular association relationships."""
 
     def handle(
-        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+        self,
+        node: nodes.AssignAttr | nodes.AssignName,
+        parent: nodes.ClassDef,
+        info: ClassInfo,
     ) -> None:
         # Extract the name to handle both AssignAttr and AssignName nodes
         name = node.attrname if isinstance(node, nodes.AssignAttr) else node.name
@@ -475,18 +491,18 @@ class AssociationsHandler(AbstractRelationshipHandler):
             # Resolve nodes to actual class definitions
             resolved_types = resolve_to_class_def(element_types)
 
-            current = set(parent.associations_type[name])
-            parent.associations_type[name] = list(current | resolved_types)
+            current = set(info.associations_type[name])
+            info.associations_type[name] = list(current | resolved_types)
             return
 
         # Everything else is also association (fallback)
-        current = set(parent.associations_type[name])
+        current = set(info.associations_type[name])
         inferred_types = utils.infer_node(node)
         element_types = extract_element_types(inferred_types)
 
         # Resolve Name nodes to actual class definitions
         resolved_types = resolve_to_class_def(element_types)
-        parent.associations_type[name] = list(current | resolved_types)
+        info.associations_type[name] = list(current | resolved_types)
 
 
 def resolve_to_class_def(types: set[nodes.NodeNG]) -> set[nodes.ClassDef]:
