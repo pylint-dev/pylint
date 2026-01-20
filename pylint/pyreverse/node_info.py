@@ -37,7 +37,14 @@ class InfoDict(dict[K, V], Generic[K, V]):
 
 @dataclass
 class ModuleInfo:
-    """Analysis info for Module nodes."""
+    """Analysis info for Module nodes.
+
+    Attributes:
+        locals_type: Mapping from local names to inferred types.
+        depends: List of module dependencies.
+        type_depends: List of type-checking-only dependencies.
+        uid: Unique identifier (only set if Linker tag=True).
+    """
 
     locals_type: defaultdict[str, list[nodes.NodeNG]] = field(
         default_factory=lambda: defaultdict(list)
@@ -49,7 +56,17 @@ class ModuleInfo:
 
 @dataclass
 class ClassInfo:
-    """Analysis info for ClassDef nodes."""
+    """Analysis info for ClassDef nodes.
+
+    Attributes:
+        locals_type: Mapping from local names to inferred types.
+        instance_attrs_type: Mapping from instance attribute names to types.
+        compositions_type: Attributes representing composition relationships.
+        aggregations_type: Attributes representing aggregation relationships.
+        associations_type: Attributes representing association relationships.
+        specializations: List of subclasses.
+        uid: Unique identifier (only set if Linker tag=True).
+    """
 
     locals_type: defaultdict[str, list[nodes.NodeNG]] = field(
         default_factory=lambda: defaultdict(list)
@@ -72,7 +89,12 @@ class ClassInfo:
 
 @dataclass
 class FunctionInfo:
-    """Analysis info for FunctionDef nodes."""
+    """Analysis info for FunctionDef nodes.
+
+    Attributes:
+        locals_type: Mapping from local names to inferred types.
+        uid: Unique identifier (only set if Linker tag=True).
+    """
 
     locals_type: defaultdict[str, list[nodes.NodeNG]] = field(
         default_factory=lambda: defaultdict(list)
