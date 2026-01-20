@@ -94,30 +94,11 @@ class Project:
 class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     """Walk on the project tree and resolve relationships.
 
-    According to options the following attributes may be
-    added to visited nodes:
+    Analysis data is stored in info dictionaries (class_info, module_info,
+    function_info) rather than on AST nodes. See node_info module for details
+    on the stored attributes.
 
-    * uid,
-      a unique identifier for the node (on astroid.Project, nodes.Module,
-      nodes.Class and astroid.locals_type). Only if the linker
-      has been instantiated with tag=True parameter (False by default).
-
-    * Function
-      a mapping from locals names to their bounded value, which may be a
-      constant like a string or an integer, or an astroid node
-      (on nodes.Module, nodes.Class and nodes.Function).
-
-    * instance_attrs_type
-      as locals_type but for klass member attributes (only on nodes.Class)
-
-    * associations_type
-      as instance_attrs_type but for association relationships
-
-    * aggregations_type
-      as instance_attrs_type but for aggregations relationships
-
-    * compositions_type
-      as instance_attrs_type but for compositions relationships
+    If tag=True, unique identifiers are generated for visited nodes.
     """
 
     def __init__(self, project: Project, tag: bool = False) -> None:
