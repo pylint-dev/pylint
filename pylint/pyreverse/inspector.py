@@ -9,7 +9,6 @@ Try to resolve definitions (namespace) dictionary, relationship...
 
 from __future__ import annotations
 
-import collections
 import os
 import traceback
 from abc import ABC, abstractmethod
@@ -24,7 +23,7 @@ from astroid.typing import InferenceResult
 from pylint import constants
 from pylint.checkers.utils import safe_infer
 from pylint.pyreverse import utils
-from pylint.pyreverse.node_info import ClassInfo
+from pylint.pyreverse.node_info import ClassInfo, FunctionInfo, InfoDict, ModuleInfo
 
 _WrapperFuncT = Callable[
     [Callable[[str], nodes.Module], str, bool], nodes.Module | None
@@ -129,6 +128,14 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         # visited project
         self.project = project
 
+        # Info storage (auto-creating dicts)
+        self.class_info: InfoDict[nodes.ClassDef, ClassInfo] = InfoDict(ClassInfo)
+        self.module_info: InfoDict[nodes.Module, ModuleInfo] = InfoDict(ModuleInfo)
+        self.function_info: InfoDict[nodes.FunctionDef, FunctionInfo] = InfoDict(
+            FunctionInfo
+        )
+        self._handled_assigns: set[int] = set()
+
         # Chain: Composition → Aggregation → Association
         self.compositions_handler = CompositionsHandler()
         aggregation_handler = AggregationsHandler()
@@ -154,13 +161,11 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         * set the depends mapping
         * optionally tag the node with a unique id
         """
-        if hasattr(node, "locals_type"):
+        info = self.module_info[node]
+        if info.uid is not None or info.depends:
             return
-        node.locals_type = collections.defaultdict(list)
-        node.depends = []
-        node.type_depends = []
         if self.tag:
-            node.uid = self.generate_id()
+            info.uid = self.generate_id()
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Visit an nodes.Class node.
@@ -168,26 +173,21 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         * set the locals_type and instance_attrs_type mappings
         * optionally tag the node with a unique id
         """
-        if hasattr(node, "locals_type"):
+        info = self.class_info[node]
+        if info.uid is not None or info.instance_attrs_type:
             return
-        node.locals_type = collections.defaultdict(list)
         if self.tag:
-            node.uid = self.generate_id()
+            info.uid = self.generate_id()
         # resolve ancestors
         for baseobj in node.ancestors(recurs=False):
-            specializations = getattr(baseobj, "specializations", [])
-            specializations.append(node)
-            baseobj.specializations = specializations
+            base_info = self.class_info[baseobj]
+            base_info.specializations.append(node)
         # resolve instance attributes
-        node.compositions_type = collections.defaultdict(list)
-        node.instance_attrs_type = collections.defaultdict(list)
-        node.aggregations_type = collections.defaultdict(list)
-        node.associations_type = collections.defaultdict(list)
         for assignattrs in tuple(node.instance_attrs.values()):
             for assignattr in assignattrs:
                 if not isinstance(assignattr, nodes.Unknown):
-                    self.compositions_handler.handle(assignattr, node)
-                    self.handle_assignattr_type(assignattr, node)
+                    self.compositions_handler.handle(assignattr, node, info)
+                    self.handle_assignattr_type(assignattr, info)
 
         # Process class attributes
         for local_nodes in node.locals.values():
@@ -195,7 +195,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 if isinstance(local_node, nodes.AssignName) and isinstance(
                     local_node.parent, nodes.Assign
                 ):
-                    self.compositions_handler.handle(local_node, node)
+                    self.compositions_handler.handle(local_node, node, info)
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
         """Visit an nodes.Function node.
@@ -203,11 +203,11 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         * set the locals_type mapping
         * optionally tag the node with a unique id
         """
-        if hasattr(node, "locals_type"):
+        info = self.function_info[node]
+        if info.uid is not None or info.locals_type:
             return
-        node.locals_type = collections.defaultdict(list)
         if self.tag:
-            node.uid = self.generate_id()
+            info.uid = self.generate_id()
 
     def visit_assignname(self, node: nodes.AssignName) -> None:
         """Visit an nodes.AssignName node.
@@ -216,39 +216,36 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         """
         # avoid double parsing done by different Linkers.visit
         # running over the same project:
-        if hasattr(node, "_handled"):
+        node_id = id(node)
+        if node_id in self._handled_assigns:
             return
-        node._handled = True
+        self._handled_assigns.add(node_id)
         if node.name in node.frame():
             frame = node.frame()
         else:
             # the name has been defined as 'global' in the frame and belongs
             # there.
             frame = node.root()
-        if not hasattr(frame, "locals_type"):
-            # If the frame doesn't have a locals_type yet,
-            # it means it wasn't yet visited. Visit it now
-            # to add what's missing from it.
-            if isinstance(frame, nodes.ClassDef):
-                self.visit_classdef(frame)
-            elif isinstance(frame, nodes.FunctionDef):
-                self.visit_functiondef(frame)
-            else:
-                self.visit_module(frame)
 
-        current = frame.locals_type[node.name]
-        frame.locals_type[node.name] = list(set(current) | utils.infer_node(node))
+        # Get the info object for the frame
+        if isinstance(frame, nodes.ClassDef):
+            locals_type = self.class_info[frame].locals_type
+        elif isinstance(frame, nodes.FunctionDef):
+            locals_type = self.function_info[frame].locals_type
+        else:
+            locals_type = self.module_info[frame].locals_type
+
+        current = locals_type[node.name]
+        locals_type[node.name] = list(set(current) | utils.infer_node(node))
 
     @staticmethod
-    def handle_assignattr_type(node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+    def handle_assignattr_type(node: nodes.AssignAttr, info: ClassInfo) -> None:
         """Handle an astroid.assignattr node.
 
         handle instance_attrs_type
         """
-        current = set(parent.instance_attrs_type[node.attrname])
-        parent.instance_attrs_type[node.attrname] = list(
-            current | utils.infer_node(node)
-        )
+        current = set(info.instance_attrs_type[node.attrname])
+        info.instance_attrs_type[node.attrname] = list(current | utils.infer_node(node))
 
     def visit_import(self, node: nodes.Import) -> None:
         """Visit an nodes.Import node.
@@ -303,11 +300,9 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             mod_path = f"{'.'.join(context_name.split('.')[:-1])}.{mod_path}"
         if self.compute_module(context_name, mod_path):
             # handle dependencies
-            if not hasattr(module, "depends"):
-                module.depends = []
-            mod_paths = module.depends
-            if mod_path not in mod_paths:
-                mod_paths.append(mod_path)
+            info = self.module_info[module]
+            if mod_path not in info.depends:
+                info.depends.append(mod_path)
 
 
 class RelationshipHandlerInterface(ABC):
