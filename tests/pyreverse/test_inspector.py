@@ -16,8 +16,7 @@ from pathlib import Path
 import astroid
 import pytest
 
-from pylint.pyreverse import inspector
-from pylint.pyreverse.inspector import Project
+from pylint.pyreverse.inspector import Linker, Project
 from pylint.testutils.utils import _test_cwd
 from pylint.typing import GetProjectCallable
 
@@ -26,20 +25,21 @@ TESTS = HERE.parent.parent
 
 
 @pytest.fixture
-def project(get_project: GetProjectCallable) -> Generator[Project]:
+def test_context(get_project: GetProjectCallable) -> Generator[tuple[Project, Linker]]:
     with _test_cwd(TESTS):
         project = get_project("data", "data")
-        linker = inspector.Linker(project)
+        linker = Linker(project)
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             linker.visit(project)
-        yield project
+        yield project, linker
 
 
-def test_locals_assignment_resolution(project: Project) -> None:
-    klass = project.get_module("data.clientmodule_test")["Specialization"]
-    assert hasattr(klass, "locals_type")
-    type_dict = klass.locals_type
+def test_locals_assignment_resolution(test_context: tuple[Project, Linker]) -> None:
+    proj, linker = test_context
+    klass = proj.get_module("data.clientmodule_test")["Specialization"]
+    info = linker.class_info[klass]
+    type_dict = info.locals_type
     assert len(type_dict) == 2
     keys = sorted(type_dict.keys())
     assert keys == ["TYPE", "top"]
@@ -49,10 +49,11 @@ def test_locals_assignment_resolution(project: Project) -> None:
     assert type_dict["top"][0].value == "class"
 
 
-def test_instance_attrs_resolution(project: Project) -> None:
-    klass = project.get_module("data.clientmodule_test")["Specialization"]
-    assert hasattr(klass, "instance_attrs_type")
-    type_dict = klass.instance_attrs_type
+def test_instance_attrs_resolution(test_context: tuple[Project, Linker]) -> None:
+    proj, linker = test_context
+    klass = proj.get_module("data.clientmodule_test")["Specialization"]
+    info = linker.class_info[klass]
+    type_dict = info.instance_attrs_type
     assert len(type_dict) == 3
     keys = sorted(type_dict.keys())
     assert keys == ["_id", "relation", "relation2"]
@@ -63,13 +64,15 @@ def test_instance_attrs_resolution(project: Project) -> None:
     assert type_dict["_id"][0] is astroid.Uninferable
 
 
-def test_from_directory(project: Project) -> None:
+def test_from_directory(test_context: tuple[Project, Linker]) -> None:
+    proj, _ = test_context
     expected = os.path.join("tests", "data", "__init__.py")
-    assert project.name == "data"
-    assert project.path.endswith(expected)
+    assert proj.name == "data"
+    assert proj.path.endswith(expected)
 
 
-def test_project_node(project: Project) -> None:
+def test_project_node(test_context: tuple[Project, Linker]) -> None:
+    proj, _ = test_context
     expected = [
         "data",
         "data.clientmodule_test",
@@ -77,4 +80,4 @@ def test_project_node(project: Project) -> None:
         "data.property_pattern",
         "data.suppliermodule_test",
     ]
-    assert sorted(project.keys()) == expected
+    assert sorted(proj.keys()) == expected
