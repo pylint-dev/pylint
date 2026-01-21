@@ -143,8 +143,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         * optionally tag the node with a unique id
         """
         info = self.module_info[node]
-        if info.uid is not None or info.depends:
-            return
         if self.tag:
             info.uid = self.generate_id()
 
@@ -155,8 +153,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         * optionally tag the node with a unique id
         """
         info = self.class_info[node]
-        if info.uid is not None or info.instance_attrs_type:
-            return
         if self.tag:
             info.uid = self.generate_id()
         # resolve ancestors
@@ -185,8 +181,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         * optionally tag the node with a unique id
         """
         info = self.function_info[node]
-        if info.uid is not None or info.locals_type:
-            return
         if self.tag:
             info.uid = self.generate_id()
 
@@ -198,8 +192,6 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         # avoid double parsing done by different Linkers.visit
         # running over the same project:
         node_id = id(node)
-        if node_id in self._handled_assigns:
-            return
         self._handled_assigns.add(node_id)
         if node.name in node.frame():
             frame = node.frame()
