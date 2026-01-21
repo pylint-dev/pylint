@@ -291,7 +291,7 @@ class RelationshipHandlerInterface(ABC):
     def set_next(
         self, handler: RelationshipHandlerInterface
     ) -> RelationshipHandlerInterface:
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def handle(
@@ -300,7 +300,7 @@ class RelationshipHandlerInterface(ABC):
         parent: nodes.ClassDef,
         info: ClassInfo,
     ) -> None:
-        pass
+        raise NotImplementedError()
 
 
 class AbstractRelationshipHandler(RelationshipHandlerInterface):
