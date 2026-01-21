@@ -24,11 +24,13 @@ HERE = Path(__file__)
 TESTS = HERE.parent.parent
 
 
-@pytest.fixture
-def test_context(get_project: GetProjectCallable) -> Generator[tuple[Project, Linker]]:
+@pytest.fixture(params=[True, False], ids=["tag=True", "tag=False"])
+def test_context(
+    request: pytest.FixtureRequest, get_project: GetProjectCallable
+) -> Generator[tuple[Project, Linker]]:
     with _test_cwd(TESTS):
         project = get_project("data", "data")
-        linker = Linker(project)
+        linker = Linker(project, tag=request.param)
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             linker.visit(project)
