@@ -509,7 +509,10 @@ class NameChecker(_BasicChecker):
                     if not self._meets_exception_for_non_consts(
                         inferred_assign_type, node.name
                     ):
-                        self._check_name("const", node.name, node)
+                        node_type = (
+                            "variable" if utils.is_in_main_block(node) else "const"
+                        )
+                        self._check_name(node_type, node.name, node)
                 else:
                     node_type = "variable"
                     iattrs = tuple(node.frame().igetattr(node.name))
