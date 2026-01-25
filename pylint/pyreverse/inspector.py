@@ -126,32 +126,20 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         aggregation_handler.set_next(association_handler)
 
     def visit_project(self, node: Project) -> None:
-        """Visit a pyreverse.utils.Project node.
-
-        * optionally tag the node with a unique id
-        """
+        """Visit a pyreverse.utils.Project node and optionally assign a unique id."""
         if self.tag:
             node.uid = self.generate_id()
         for module in node.modules:
             self.visit(module)
 
     def visit_module(self, node: nodes.Module) -> None:
-        """Visit an nodes.Module node.
-
-        * set the locals_type mapping
-        * set the depends mapping
-        * optionally tag the node with a unique id
-        """
+        """Visit an nodes.Module node and optionally assign a unique id."""
         info = self.module_info[node]
         if self.tag:
             info.uid = self.generate_id()
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        """Visit an nodes.Class node.
-
-        * set the locals_type and instance_attrs_type mappings
-        * optionally tag the node with a unique id
-        """
+        """Visit an nodes.Class node and optionally assign a unique id."""
         info = self.class_info[node]
         if self.tag:
             info.uid = self.generate_id()
@@ -175,11 +163,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                     self.compositions_handler.handle(local_node, node, info)
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        """Visit an nodes.Function node.
-
-        * set the locals_type mapping
-        * optionally tag the node with a unique id
-        """
+        """Visit an nodes.Function node and optionally assign a unique id."""
         info = self.function_info[node]
         if self.tag:
             info.uid = self.generate_id()
