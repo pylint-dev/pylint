@@ -115,7 +115,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         self.function_info: InfoDict[nodes.FunctionDef, FunctionInfo] = InfoDict(
             FunctionInfo
         )
-        self._handled_assigns: set[int] = set()
+        self._handled_assigns: set[nodes.AssignName] = set()
 
         # Chain: Composition → Aggregation → Association
         self.compositions_handler = CompositionsHandler()
