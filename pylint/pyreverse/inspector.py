@@ -169,14 +169,12 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             info.uid = self.generate_id()
 
     def visit_assignname(self, node: nodes.AssignName) -> None:
-        """Visit an nodes.AssignName node.
+        """Visit an AssignName node and update locals_type for its frame."""
+        # avoid double parsing done by different Linkers.visit running over the same project:
+        if node in self._handled_assigns:
+            return
+        self._handled_assigns.add(node)
 
-        handle locals_type
-        """
-        # avoid double parsing done by different Linkers.visit
-        # running over the same project:
-        node_id = id(node)
-        self._handled_assigns.add(node_id)
         if node.name in node.frame():
             frame = node.frame()
         else:
