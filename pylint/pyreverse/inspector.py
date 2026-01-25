@@ -95,7 +95,7 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     """Walk on the project tree and resolve relationships.
 
     Analysis data is stored in info dictionaries (class_info, module_info,
-    function_info) rather than on AST nodes. See node_info module for details
+    function_info). See node_info module for details
     on the stored attributes.
 
     If tag=True, unique identifiers are generated for visited nodes.
