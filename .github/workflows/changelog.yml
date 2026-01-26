@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v6.0.1
+        uses: actions/checkout@v6.0.2
         with:
           # `towncrier check` runs `git diff --name-only origin/main...`, which
           # needs a non-shallow clone.
