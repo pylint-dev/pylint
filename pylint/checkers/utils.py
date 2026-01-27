@@ -2355,3 +2355,20 @@ def is_enum_member(node: nodes.AssignName) -> bool:
     if members is None:
         return False
     return node.name in [name_obj.name for value, name_obj in members[0].items]
+
+
+def is_in_main_block(node: nodes.NodeNG) -> bool:
+    """Check if the node is nested within an 'if __name__ == "__main__":' block."""
+    for ancestor in node.node_ancestors():
+        if isinstance(ancestor, nodes.If):
+            test = ancestor.test
+            # Pattern: if __name__ == "__main__"
+            if (
+                isinstance(test, nodes.Compare)
+                and isinstance(test.left, nodes.Name)
+                and test.left.name == "__name__"
+            ):
+                return True
+        if isinstance(ancestor, (nodes.FunctionDef, nodes.ClassDef)):
+            break
+    return False

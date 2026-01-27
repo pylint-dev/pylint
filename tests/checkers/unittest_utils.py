@@ -610,3 +610,28 @@ def test_is_terminating_func_overload_with_noreturn_implementation() -> None:
 """)
     result = utils.is_terminating_func(node)
     assert result is True
+
+
+def test_is_in_main_block_true() -> None:
+    node = astroid.extract_node("""
+    if __name__ == "__main__":
+        var = 0 #@
+    """)
+    assert utils.is_in_main_block(node) is True
+
+
+def test_is_in_main_block_nested() -> None:
+    node = astroid.extract_node("""
+    if __name__ == "__main__":
+        for i in range(10):
+            var = i #@
+    """)
+    assert utils.is_in_main_block(node) is True
+
+
+def test_is_in_main_block_false() -> None:
+    node = astroid.extract_node("""
+    if True:
+        var = 0 #@
+    """)
+    assert utils.is_in_main_block(node) is False

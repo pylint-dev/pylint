@@ -1,4 +1,4 @@
-# pylint:disable=too-few-public-methods
+# pylint:disable=too-few-public-methods, invalid-name
 """Checks that class variables are seen as inherited !"""
 
 
