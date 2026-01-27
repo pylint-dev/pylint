@@ -545,9 +545,9 @@ class PyLinter(
         if isinstance(self.reporter, ColorizedTextReporter):
             self.reporter.set_fail_on_symbols(self.fail_on_symbols)
         elif isinstance(self.reporter, reporters.MultiReporter):
-            for _reporter in self.reporter._sub_reporters:
-                if isinstance(self.reporter, ColorizedTextReporter):
-                    self.reporter.set_fail_on_symbols(self.fail_on_symbols)
+            for reporter in self.reporter._sub_reporters:
+                if isinstance(reporter, ColorizedTextReporter):
+                    reporter.set_fail_on_symbols(self.fail_on_symbols)
 
     def disable_reporters(self) -> None:
         """Disable all reporters."""
