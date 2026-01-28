@@ -185,6 +185,18 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             },
         ),
         (
+            "ignore-long-lines-portion",
+            {
+                "type": "regexp",
+                "metavar": "<regexp>",
+                "default": None,
+                "help": (
+                    "Regexp for a part of a line that will be ignored (removed) when "
+                    "calculating the line length."
+                ),
+            },
+        ),
+        (
             "single-line-if-stmt",
             {
                 "default": False,
@@ -699,6 +711,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 checker_off = True
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
+
+        ignore_long_lines_portion = self.linter.config.ignore_long_lines_portion
+        if ignore_long_lines_portion:
+            lines = ignore_long_lines_portion.sub("", lines)
 
         # here we re-run specific_splitlines since we have filtered out pylint options above
         for offset, line in enumerate(self.specific_splitlines(lines)):
