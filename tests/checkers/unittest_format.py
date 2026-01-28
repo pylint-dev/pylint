@@ -202,7 +202,11 @@ class TestIgnoreLongLinesPortion(CheckerTestCase):
             (
                 MessageTest("line-too-long", line=1, args=(26, 20)),
                 "x = '12345678901234567890'  # type: ignore",
-            )
+            ),
+            (
+                MessageTest("line-too-long", line=1, args=(38, 20)),
+                "x = '12345'            # other: ignore",
+            ),
         ]
         for msg, code in cases:
             with self.assertAddsMessages(msg):
