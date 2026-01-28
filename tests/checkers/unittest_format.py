@@ -5,9 +5,9 @@
 """Check format checker helper functions."""
 
 import os
+import re
 import tempfile
 import tokenize
-import re
 
 import astroid
 
@@ -186,7 +186,9 @@ class TestIgnoreLongLinesPortion(CheckerTestCase):
 
     def test_ignore_long_lines_portion(self) -> None:
         self.checker.linter.config.max_line_length = 20
-        self.checker.linter.config.ignore_long_lines_portion = re.compile(r"\s*# type: ignore")
+        self.checker.linter.config.ignore_long_lines_portion = re.compile(
+            r"\s*# type: ignore"
+        )
         cases = [
             ("x = '12345'            # type: ignore", 0),
             ("x = '12345678901234'   # type: ignore", 0),
@@ -197,7 +199,9 @@ class TestIgnoreLongLinesPortion(CheckerTestCase):
 
     def test_ignore_long_lines_portion_still_catches_too_long_code(self) -> None:
         self.checker.linter.config.max_line_length = 20
-        self.checker.linter.config.ignore_long_lines_portion = re.compile(r"\s*# type: ignore")
+        self.checker.linter.config.ignore_long_lines_portion = re.compile(
+            r"\s*# type: ignore"
+        )
         cases = [
             (
                 MessageTest("line-too-long", line=1, args=(26, 20)),
