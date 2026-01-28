@@ -9,7 +9,6 @@ Try to resolve definitions (namespace) dictionary, relationship...
 
 from __future__ import annotations
 
-import collections
 import os
 import traceback
 from abc import ABC, abstractmethod
@@ -24,6 +23,7 @@ from astroid.typing import InferenceResult
 from pylint import constants
 from pylint.checkers.utils import safe_infer
 from pylint.pyreverse import utils
+from pylint.pyreverse.node_info import ClassInfo, FunctionInfo, InfoDict, ModuleInfo
 
 _WrapperFuncT = Callable[
     [Callable[[str], nodes.Module], str, bool], nodes.Module | None
@@ -94,30 +94,11 @@ class Project:
 class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
     """Walk on the project tree and resolve relationships.
 
-    According to options the following attributes may be
-    added to visited nodes:
+    Analysis data is stored in info dictionaries (class_info, module_info,
+    function_info). See node_info module for details
+    on the stored attributes.
 
-    * uid,
-      a unique identifier for the node (on astroid.Project, nodes.Module,
-      nodes.Class and astroid.locals_type). Only if the linker
-      has been instantiated with tag=True parameter (False by default).
-
-    * Function
-      a mapping from locals names to their bounded value, which may be a
-      constant like a string or an integer, or an astroid node
-      (on nodes.Module, nodes.Class and nodes.Function).
-
-    * instance_attrs_type
-      as locals_type but for klass member attributes (only on nodes.Class)
-
-    * associations_type
-      as instance_attrs_type but for association relationships
-
-    * aggregations_type
-      as instance_attrs_type but for aggregations relationships
-
-    * compositions_type
-      as instance_attrs_type but for compositions relationships
+    If tag=True, unique identifiers are generated for visited nodes.
     """
 
     def __init__(self, project: Project, tag: bool = False) -> None:
@@ -128,6 +109,14 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         # visited project
         self.project = project
 
+        # Info storage (auto-creating dicts)
+        self.class_info: InfoDict[nodes.ClassDef, ClassInfo] = InfoDict(ClassInfo)
+        self.module_info: InfoDict[nodes.Module, ModuleInfo] = InfoDict(ModuleInfo)
+        self.function_info: InfoDict[nodes.FunctionDef, FunctionInfo] = InfoDict(
+            FunctionInfo
+        )
+        self._handled_assigns: set[nodes.AssignName] = set()
+
         # Chain: Composition → Aggregation → Association
         self.compositions_handler = CompositionsHandler()
         aggregation_handler = AggregationsHandler()
@@ -137,56 +126,33 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
         aggregation_handler.set_next(association_handler)
 
     def visit_project(self, node: Project) -> None:
-        """Visit a pyreverse.utils.Project node.
-
-        * optionally tag the node with a unique id
-        """
+        """Visit a pyreverse.utils.Project node and optionally assign a unique id."""
         if self.tag:
             node.uid = self.generate_id()
         for module in node.modules:
             self.visit(module)
 
     def visit_module(self, node: nodes.Module) -> None:
-        """Visit an nodes.Module node.
-
-        * set the locals_type mapping
-        * set the depends mapping
-        * optionally tag the node with a unique id
-        """
-        if hasattr(node, "locals_type"):
-            return
-        node.locals_type = collections.defaultdict(list)
-        node.depends = []
-        node.type_depends = []
+        """Visit an nodes.Module node and optionally assign a unique id."""
+        info = self.module_info[node]
         if self.tag:
-            node.uid = self.generate_id()
+            info.uid = self.generate_id()
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        """Visit an nodes.Class node.
-
-        * set the locals_type and instance_attrs_type mappings
-        * optionally tag the node with a unique id
-        """
-        if hasattr(node, "locals_type"):
-            return
-        node.locals_type = collections.defaultdict(list)
+        """Visit an nodes.Class node and optionally assign a unique id."""
+        info = self.class_info[node]
         if self.tag:
-            node.uid = self.generate_id()
+            info.uid = self.generate_id()
         # resolve ancestors
         for baseobj in node.ancestors(recurs=False):
-            specializations = getattr(baseobj, "specializations", [])
-            specializations.append(node)
-            baseobj.specializations = specializations
+            base_info = self.class_info[baseobj]
+            base_info.specializations.append(node)
         # resolve instance attributes
-        node.compositions_type = collections.defaultdict(list)
-        node.instance_attrs_type = collections.defaultdict(list)
-        node.aggregations_type = collections.defaultdict(list)
-        node.associations_type = collections.defaultdict(list)
         for assignattrs in tuple(node.instance_attrs.values()):
             for assignattr in assignattrs:
                 if not isinstance(assignattr, nodes.Unknown):
-                    self.compositions_handler.handle(assignattr, node)
-                    self.handle_assignattr_type(assignattr, node)
+                    self.compositions_handler.handle(assignattr, node, info)
+                    self.handle_assignattr_type(assignattr, info)
 
         # Process class attributes
         for local_nodes in node.locals.values():
@@ -194,60 +160,47 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
                 if isinstance(local_node, nodes.AssignName) and isinstance(
                     local_node.parent, nodes.Assign
                 ):
-                    self.compositions_handler.handle(local_node, node)
+                    self.compositions_handler.handle(local_node, node, info)
 
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:
-        """Visit an nodes.Function node.
-
-        * set the locals_type mapping
-        * optionally tag the node with a unique id
-        """
-        if hasattr(node, "locals_type"):
-            return
-        node.locals_type = collections.defaultdict(list)
+        """Visit an nodes.Function node and optionally assign a unique id."""
+        info = self.function_info[node]
         if self.tag:
-            node.uid = self.generate_id()
+            info.uid = self.generate_id()
 
     def visit_assignname(self, node: nodes.AssignName) -> None:
-        """Visit an nodes.AssignName node.
-
-        handle locals_type
-        """
-        # avoid double parsing done by different Linkers.visit
-        # running over the same project:
-        if hasattr(node, "_handled"):
+        """Visit an AssignName node and update locals_type for its frame."""
+        # avoid double parsing done by different Linkers.visit running over the same project:
+        if node in self._handled_assigns:
             return
-        node._handled = True
+        self._handled_assigns.add(node)
+
         if node.name in node.frame():
             frame = node.frame()
         else:
             # the name has been defined as 'global' in the frame and belongs
             # there.
             frame = node.root()
-        if not hasattr(frame, "locals_type"):
-            # If the frame doesn't have a locals_type yet,
-            # it means it wasn't yet visited. Visit it now
-            # to add what's missing from it.
-            if isinstance(frame, nodes.ClassDef):
-                self.visit_classdef(frame)
-            elif isinstance(frame, nodes.FunctionDef):
-                self.visit_functiondef(frame)
-            else:
-                self.visit_module(frame)
 
-        current = frame.locals_type[node.name]
-        frame.locals_type[node.name] = list(set(current) | utils.infer_node(node))
+        # Get the info object for the frame
+        if isinstance(frame, nodes.ClassDef):
+            locals_type = self.class_info[frame].locals_type
+        elif isinstance(frame, nodes.FunctionDef):
+            locals_type = self.function_info[frame].locals_type
+        else:
+            locals_type = self.module_info[frame].locals_type
+
+        current = locals_type[node.name]
+        locals_type[node.name] = list(set(current) | utils.infer_node(node))
 
     @staticmethod
-    def handle_assignattr_type(node: nodes.AssignAttr, parent: nodes.ClassDef) -> None:
+    def handle_assignattr_type(node: nodes.AssignAttr, info: ClassInfo) -> None:
         """Handle an astroid.assignattr node.
 
         handle instance_attrs_type
         """
-        current = set(parent.instance_attrs_type[node.attrname])
-        parent.instance_attrs_type[node.attrname] = list(
-            current | utils.infer_node(node)
-        )
+        current = set(info.instance_attrs_type[node.attrname])
+        info.instance_attrs_type[node.attrname] = list(current | utils.infer_node(node))
 
     def visit_import(self, node: nodes.Import) -> None:
         """Visit an nodes.Import node.
@@ -302,11 +255,9 @@ class Linker(IdGeneratorMixIn, utils.LocalsVisitor):
             mod_path = f"{'.'.join(context_name.split('.')[:-1])}.{mod_path}"
         if self.compute_module(context_name, mod_path):
             # handle dependencies
-            if not hasattr(module, "depends"):
-                module.depends = []
-            mod_paths = module.depends
-            if mod_path not in mod_paths:
-                mod_paths.append(mod_path)
+            info = self.module_info[module]
+            if mod_path not in info.depends:
+                info.depends.append(mod_path)
 
 
 class RelationshipHandlerInterface(ABC):
@@ -314,13 +265,16 @@ class RelationshipHandlerInterface(ABC):
     def set_next(
         self, handler: RelationshipHandlerInterface
     ) -> RelationshipHandlerInterface:
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def handle(
-        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+        self,
+        node: nodes.AssignAttr | nodes.AssignName,
+        parent: nodes.ClassDef,
+        info: ClassInfo,
     ) -> None:
-        pass
+        raise NotImplementedError()
 
 
 class AbstractRelationshipHandler(RelationshipHandlerInterface):
@@ -345,21 +299,27 @@ class AbstractRelationshipHandler(RelationshipHandlerInterface):
 
     @abstractmethod
     def handle(
-        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+        self,
+        node: nodes.AssignAttr | nodes.AssignName,
+        parent: nodes.ClassDef,
+        info: ClassInfo,
     ) -> None:
         if self._next_handler:
-            self._next_handler.handle(node, parent)
+            self._next_handler.handle(node, parent, info)
 
 
 class CompositionsHandler(AbstractRelationshipHandler):
     """Handle composition relationships where parent creates child objects."""
 
     def handle(
-        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+        self,
+        node: nodes.AssignAttr | nodes.AssignName,
+        parent: nodes.ClassDef,
+        info: ClassInfo,
     ) -> None:
         # If the node is not part of an assignment, pass to next handler
         if not isinstance(node.parent, (nodes.AnnAssign, nodes.Assign)):
-            super().handle(node, parent)
+            super().handle(node, parent, info)
             return
 
         value = node.parent.value
@@ -375,8 +335,8 @@ class CompositionsHandler(AbstractRelationshipHandler):
             # Resolve nodes to actual class definitions
             resolved_types = resolve_to_class_def(element_types)
 
-            current = set(parent.compositions_type[name])
-            parent.compositions_type[name] = list(current | resolved_types)
+            current = set(info.compositions_type[name])
+            info.compositions_type[name] = list(current | resolved_types)
             return
 
         # Composition: comprehensions with object creation (self.x = [P() for ...])
@@ -396,23 +356,26 @@ class CompositionsHandler(AbstractRelationshipHandler):
                 # Resolve nodes to actual class definitions
                 resolved_types = resolve_to_class_def(element_types)
 
-                current = set(parent.compositions_type[name])
-                parent.compositions_type[name] = list(current | resolved_types)
+                current = set(info.compositions_type[name])
+                info.compositions_type[name] = list(current | resolved_types)
                 return
 
         # Not a composition, pass to next handler
-        super().handle(node, parent)
+        super().handle(node, parent, info)
 
 
 class AggregationsHandler(AbstractRelationshipHandler):
     """Handle aggregation relationships where parent receives child objects."""
 
     def handle(
-        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+        self,
+        node: nodes.AssignAttr | nodes.AssignName,
+        parent: nodes.ClassDef,
+        info: ClassInfo,
     ) -> None:
         # If the node is not part of an assignment, pass to next handler
         if not isinstance(node.parent, (nodes.AnnAssign, nodes.Assign)):
-            super().handle(node, parent)
+            super().handle(node, parent, info)
             return
 
         value = node.parent.value
@@ -428,8 +391,8 @@ class AggregationsHandler(AbstractRelationshipHandler):
             # Resolve nodes to actual class definitions
             resolved_types = resolve_to_class_def(element_types)
 
-            current = set(parent.aggregations_type[name])
-            parent.aggregations_type[name] = list(current | resolved_types)
+            current = set(info.aggregations_type[name])
+            info.aggregations_type[name] = list(current | resolved_types)
             return
 
         # Aggregation: comprehensions without object creation (self.x = [existing_obj for ...])
@@ -449,19 +412,22 @@ class AggregationsHandler(AbstractRelationshipHandler):
                 # Resolve nodes to actual class definitions
                 resolved_types = resolve_to_class_def(element_types)
 
-                current = set(parent.aggregations_type[name])
-                parent.aggregations_type[name] = list(current | resolved_types)
+                current = set(info.aggregations_type[name])
+                info.aggregations_type[name] = list(current | resolved_types)
                 return
 
         # Not an aggregation, pass to next handler
-        super().handle(node, parent)
+        super().handle(node, parent, info)
 
 
 class AssociationsHandler(AbstractRelationshipHandler):
     """Handle regular association relationships."""
 
     def handle(
-        self, node: nodes.AssignAttr | nodes.AssignName, parent: nodes.ClassDef
+        self,
+        node: nodes.AssignAttr | nodes.AssignName,
+        parent: nodes.ClassDef,
+        info: ClassInfo,
     ) -> None:
         # Extract the name to handle both AssignAttr and AssignName nodes
         name = node.attrname if isinstance(node, nodes.AssignAttr) else node.name
@@ -475,18 +441,18 @@ class AssociationsHandler(AbstractRelationshipHandler):
             # Resolve nodes to actual class definitions
             resolved_types = resolve_to_class_def(element_types)
 
-            current = set(parent.associations_type[name])
-            parent.associations_type[name] = list(current | resolved_types)
+            current = set(info.associations_type[name])
+            info.associations_type[name] = list(current | resolved_types)
             return
 
         # Everything else is also association (fallback)
-        current = set(parent.associations_type[name])
+        current = set(info.associations_type[name])
         inferred_types = utils.infer_node(node)
         element_types = extract_element_types(inferred_types)
 
         # Resolve Name nodes to actual class definitions
         resolved_types = resolve_to_class_def(element_types)
-        parent.associations_type[name] = list(current | resolved_types)
+        info.associations_type[name] = list(current | resolved_types)
 
 
 def resolve_to_class_def(types: set[nodes.NodeNG]) -> set[nodes.ClassDef]:
