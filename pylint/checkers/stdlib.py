@@ -718,6 +718,14 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                     self._check_for_check_kw_in_run(node)
                 elif name in DEBUG_BREAKPOINTS:
                     self.add_message("forgotten-debug-statement", node=node)
+            elif (
+                isinstance(inferred, astroid.BoundMethod)
+                and self._is_os_environ_get(node)
+                and utils.is_builtin_object(inferred)
+            ):
+                # when os.environ.get() is inferred it creates a "builtins.dict" and "_collections_abc.Mapping"
+                self._check_env_function(node, inferred)
+
             self.check_deprecated_method(node, inferred)
 
     @utils.only_required_for_messages("boolean-datetime")
@@ -919,7 +927,9 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                         "unspecified-encoding", node=node, confidence=confidence
                     )
 
-    def _check_env_function(self, node: nodes.Call, infer: nodes.FunctionDef) -> None:
+    def _check_env_function(
+        self, node: nodes.Call, infer: nodes.FunctionDef | astroid.BoundMethod
+    ) -> None:
         env_name_kwarg = "key"
         env_value_kwarg = "default"
         if node.keywords:
@@ -961,12 +971,20 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
     def _check_invalid_envvar_value(
         self,
         node: nodes.Call,
-        infer: nodes.FunctionDef,
+        infer: nodes.FunctionDef | astroid.BoundMethod,
         message: str,
         call_arg: InferenceResult | None,
         allow_none: bool,
     ) -> None:
         if call_arg is None or isinstance(call_arg, util.UninferableBase):
+            return
+
+        if (
+            message == "invalid-envvar-default"
+            and isinstance(node.parent, nodes.Call)
+            and isinstance(node.parent.func, nodes.Name)
+            and node.parent.func.name in {"int", "float"}
+        ):
             return
 
         name = infer.qname()
@@ -980,9 +998,34 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
                 case _:
                     emit = True
             if emit:
-                self.add_message(message, node=node, args=(name, call_arg.pytype()))
+                self.add_message(
+                    message,
+                    node=node,
+                    args=(
+                        "os.environ.get" if self._is_os_environ_get(node) else name,
+                        call_arg.pytype(),
+                    ),
+                )
         else:
-            self.add_message(message, node=node, args=(name, call_arg.pytype()))
+            self.add_message(
+                message,
+                node=node,
+                args=(
+                    "os.environ.get" if self._is_os_environ_get(node) else name,
+                    call_arg.pytype(),
+                ),
+            )
+
+    def _is_os_environ_get(self, node: nodes.Call) -> bool:
+        try:
+            return (
+                isinstance(node.func, nodes.Attribute)
+                and node.func.attrname == "get"
+                and node.func.expr.attrname == "environ"
+                and node.func.expr.expr.name == "os"
+            )
+        except AttributeError:
+            return False
 
     def deprecated_methods(self) -> set[str]:
         return self._deprecated_methods
