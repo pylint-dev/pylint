@@ -1,0 +1,4 @@
+function-return-not-assigned:9:0:9:29::Function returned value which is never used:UNDEFINED
+function-return-not-assigned:47:0:47:18::Function returned value which is never used:UNDEFINED
+function-return-not-assigned:50:0:50:22::Function returned value which is never used:UNDEFINED
+function-return-not-assigned:54:0:54:18::Function returned value which is never used:UNDEFINED
