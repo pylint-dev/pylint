@@ -5,6 +5,7 @@
 """Check format checker helper functions."""
 
 import os
+import re
 import tempfile
 import tokenize
 
@@ -178,3 +179,39 @@ def test_disable_global_option_end_of_line() -> None:
         assert not myreporter.messages
     finally:
         os.remove(file_.name)
+
+
+class TestIgnorePatternInLongLines(CheckerTestCase):
+    CHECKER_CLASS = FormatChecker
+
+    def test_ignore_pattern_in_long_lines(self) -> None:
+        self.checker.linter.config.max_line_length = 20
+        self.checker.linter.config.ignore_pattern_in_long_lines = re.compile(
+            r"\s*# type: ignore"
+        )
+        cases = [
+            "x = '12345'            # type: ignore",
+            "x = '12345678901234'   # type: ignore",
+        ]
+        with self.assertNoMessages():
+            for code in cases:
+                self.checker.process_tokens(_tokenize_str(code + "\n"))
+
+    def test_ignore_pattern_in_long_lines_still_catches_too_long_code(self) -> None:
+        self.checker.linter.config.max_line_length = 20
+        self.checker.linter.config.ignore_pattern_in_long_lines = re.compile(
+            r"\s*# type: ignore"
+        )
+        cases = [
+            (
+                MessageTest("line-too-long", line=1, args=(26, 20)),
+                "x = '12345678901234567890'  # type: ignore",
+            ),
+            (
+                MessageTest("line-too-long", line=1, args=(38, 20)),
+                "x = '12345'            # other: ignore",
+            ),
+        ]
+        for msg, code in cases:
+            with self.assertAddsMessages(msg):
+                self.checker.process_tokens(_tokenize_str(code + "\n"))
