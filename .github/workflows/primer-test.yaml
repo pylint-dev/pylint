@@ -54,7 +54,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v5.0.2
+        uses: actions/cache@v5.0.3
         with:
           path: venv
           key: >-
@@ -81,7 +81,7 @@ jobs:
       - *setup-python
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache/restore@v5.0.2
+        uses: actions/cache/restore@v5.0.3
         with:
           path: venv
           fail-on-cache-miss: true
