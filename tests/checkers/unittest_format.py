@@ -9,10 +9,11 @@ import tempfile
 import tokenize
 
 import astroid
+import pytest
 
 from pylint import lint, reporters
 from pylint.checkers.base.basic_checker import BasicChecker
-from pylint.checkers.format import FormatChecker
+from pylint.checkers.format import FloatFormatterHelper, FormatChecker
 from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str
 
 
@@ -178,3 +179,89 @@ def test_disable_global_option_end_of_line() -> None:
         assert not myreporter.messages
     finally:
         os.remove(file_.name)
+
+
+@pytest.mark.parametrize(
+    "value,expected_scientific,expected_engineering,expected_underscore",
+    [
+        ("0", "0.0", "0.0", "0.0"),
+        ("0e10", "0.0", "0.0", "0.0"),
+        ("0e-10", "0.0", "0.0", "0.0"),
+        ("0.0e10", "0.0", "0.0", "0.0"),
+        ("1e0", "1.0", "1.0", "1.0"),
+        ("1e10", "1e10", "10e9", "10_000_000_000.0"),
+        # no reason to not use exponential notation for very low number
+        # even for strict underscore grouping notation
+        ("1e-10", "1e-10", "100e-12", "1e-10"),
+        ("2e1", "2e1", "20.0", "20.0"),
+        ("2e-1", "2e-1", "200e-3", "0.2"),
+        ("3.456e2", "3.456e2", "345.6", "345.6"),
+        ("3.456e-2", "3.456e-2", "34.56e-3", "0.03456"),
+        ("4e2", "4e2", "400.0", "400.0"),
+        ("4e-2", "4e-2", "40e-3", "0.04"),
+        ("50e2", "5e3", "5e3", "5_000.0"),
+        ("50e-2", "5e-1", "500e-3", "0.5"),
+        ("6e6", "6e6", "6e6", "6_000_000.0"),
+        ("6e-6", "6e-6", "6e-6", "6e-06"),  # 6e-06 is what python offer on str(float)
+        ("10e5", "1e6", "1e6", "1_000_000.0"),
+        ("10e-5", "1e-4", "100e-6", "0.0001"),
+        ("1_000_000", "1e6", "1e6", "1_000_000.0"),
+        ("1000_000", "1e6", "1e6", "1_000_000.0"),
+        ("20e9", "2e10", "20e9", "20_000_000_000.0"),
+        ("20e-9", "2e-8", "20e-9", "2e-08"),  # 2e-08 is what python offer on str(float)
+        (
+            # 15 significant digits because we get rounding error otherwise
+            # and 15 seems enough especially since we don't auto-fix
+            "10_5415_456_465498.16354698489",
+            "1.05415456465498e14",
+            "105.415456465498e12",
+            "105_415_456_465_498.16",
+        ),
+    ],
+)
+def test_to_another_standard_notation(
+    value: str,
+    expected_scientific: str,
+    expected_engineering: str,
+    expected_underscore: str,
+) -> None:
+    """Test the conversion of numbers to all possible notations."""
+    float_value = float(value)
+    scientific = FloatFormatterHelper.to_standard_scientific_notation(float_value)
+    assert (
+        scientific == expected_scientific
+    ), f"Scientific notation mismatch expected {expected_scientific}, got {scientific}"
+    engineering = FloatFormatterHelper.to_standard_engineering_notation(float_value)
+    assert (
+        engineering == expected_engineering
+    ), f"Engineering notation mismatch expected {expected_engineering}, got {engineering}"
+    underscore = FloatFormatterHelper.to_standard_underscore_grouping(float_value)
+    assert (
+        underscore == expected_underscore
+    ), f"Underscore grouping mismatch expected {expected_underscore}, got {underscore}"
+    time = FloatFormatterHelper.to_understandable_time(float_value)
+    assert (
+        time == ""
+    ), f"Time notation mismatch expected {expected_underscore}, got {time}"
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        (3600, "60 * 60"),
+        (3600 * 1e12, "3600 * 1e12"),
+        (3600 * 1e6 * 24, "3600 * 24 * 1e6"),
+        (3600 * 24, "3600 * 24"),
+        (3600 * 24 * 7, "3600 * 24 * 7"),
+        (3600 * 24 * 30, "3600 * 24 * 30"),
+        (3600 * 24 * 365, "3600 * 24 * 365"),
+        (3600 * 24 * 14 - (8 * 3600), "(3600 * 24 * 13) + (16 * 3600)"),
+        (3600 * 24 * 365 * 10, "3600 * 24 * 365 * 10"),
+        (428182 * 3600, "(3600 * 24 * 365 * 48) + (320 * 3600 * 24) + (22 * 3600)"),
+        (428184 * 3600, "(3600 * 24 * 365 * 48) + (321 * 3600 * 24)"),
+        (1541484000, "(3600 * 24 * 365 * 48) + (321 * 3600 * 24) + (6 * 3600)"),
+    ],
+)
+def test_to_understandable_time(value: int, expected: str) -> None:
+    actual = FloatFormatterHelper.to_understandable_time(value)
+    assert actual == expected, f"Expected {expected!r} for {value!r}, got {actual!r}"
