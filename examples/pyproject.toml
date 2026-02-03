@@ -1,102 +1,35 @@
-[tool.pylint.main]
-# Analyse import fallback blocks. This can be used to support both Python 2 and 3
-# compatible code, which means that the block might have code that exists only in
-# one or another interpreter, leading to false positives when analysed.
-# analyse-fallback-blocks =
+[tool.pylint."messages control"]
+# Only show warnings with the listed confidence levels. Leave empty to show all.
+# Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED.
+confidence = [ "HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED" ]
 
-# Clear in-memory caches upon conclusion of linting. Useful if running pylint in
-# a server-like mode.
-# clear-cache-post-run =
+# Disable the message, report, category or checker with the given id(s). You can
+# either give multiple identifiers separated by comma (,) or put this option
+# multiple times (only on the command line, not in the configuration file where
+# it should appear only once). You can also use "--disable=all" to disable
+# everything first and then re-enable specific checks. For example, if you want
+# to run only the similarities checker, you can use "--disable=all
+# --enable=similarities". If you want to run only the classes checker, but have
+# no Warning level messages displayed, use "--disable=all --enable=classes
+# --disable=W".
+disable = [
+  "raw-checker-failed",
+  "bad-inline-option",
+  "locally-disabled",
+  "file-ignored",
+  "suppressed-message",
+  "useless-suppression",
+  "deprecated-pragma",
+  "use-implicit-booleaness-not-comparison-to-string",
+  "use-implicit-booleaness-not-comparison-to-zero",
+  "use-symbolic-message-instead",
+]
 
-# Always return a 0 (non-error) status code, even if lint errors are found. This
-# is primarily useful in continuous integration scripts.
-# exit-zero =
-
-# A comma-separated list of package or module names from where C extensions may
-# be loaded. Extensions are loading into the active Python interpreter and may
-# run arbitrary code.
-# extension-pkg-allow-list =
-
-# A comma-separated list of package or module names from where C extensions may
-# be loaded. Extensions are loading into the active Python interpreter and may
-# run arbitrary code. (This is an alternative name to extension-pkg-allow-list
-# for backward compatibility.)
-# extension-pkg-whitelist =
-
-# Return non-zero exit code if any of these messages/categories are detected,
-# even if score is above --fail-under value. Syntax same as enable. Messages
-# specified are enabled, while categories only check already-enabled messages.
-# fail-on =
-
-# Specify a score threshold under which the program will exit with error.
-fail-under = 10
-
-# Interpret the stdin as a python script, whose filename needs to be passed as
-# the module_or_package argument.
-# from-stdin =
-
-# Files or directories to be skipped. They should be base names, not paths.
-ignore = [ "CVS" ]
-
-# Add files or directories matching the regular expressions patterns to the
-# ignore-list. The regex matches against paths and can be in Posix or Windows
-# format. Because '\\' represents the directory delimiter on Windows systems, it
-# can't be used as an escape character.
-# ignore-paths =
-
-# Files or directories matching the regular expression patterns are skipped. The
-# regex matches against base names, not paths. The default value ignores Emacs
-# file locks
-ignore-patterns = [ "^\\.#" ]
-
-# List of module names for which member attributes should not be checked and will
-# not be imported (useful for modules/projects where namespaces are manipulated
-# during runtime and thus existing member attributes cannot be deduced by static
-# analysis). It supports qualified module names, as well as Unix pattern
-# matching.
-# ignored-modules =
-
-# Python code to execute, usually for sys.path manipulation such as
-# pygtk.require().
-# init-hook =
-
-# Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
-# number of processors available to use, and will cap the count on Windows to
-# avoid hangs.
-jobs = 1
-
-# Control the amount of potential inferred values when inferring a single object.
-# This can help the performance when dealing with large functions or complex,
-# nested conditions.
-limit-inference-results = 100
-
-# List of plugins (as comma separated values of python module names) to load,
-# usually to register additional checkers.
-# load-plugins =
-
-# Pickle collected data for later comparisons.
-persistent = true
-
-# Resolve imports to .pyi stubs if available. May reduce no-member messages and
-# increase not-an-iterable messages.
-# prefer-stubs =
-
-# Minimum Python version to use for version dependent checks. Will default to the
-# version used to run pylint.
-py-version = "3.12"
-
-# Discover python modules and packages in the file system subtree.
-# recursive =
-
-# Add paths to the list of the source roots. Supports globbing patterns. The
-# source root is an absolute path or a path relative to the current working
-# directory used to determine a package namespace for modules located under the
-# source root.
-# source-roots =
-
-# Allow loading of arbitrary C extensions. Extensions are imported into the
-# active Python interpreter and may run arbitrary code.
-# unsafe-load-any-extension =
+# Enable the message, report, category or checker with the given id(s). You can
+# either give multiple identifier separated by comma (,) or put this option
+# multiple time (only on the command line, not in the configuration file where it
+# should appear only once). See also the "--disable" option for examples.
+# enable =
 
 [tool.pylint.basic]
 # Naming style matching correct argument names.
@@ -368,38 +301,105 @@ logging-format-style = "old"
 # function parameter format.
 logging-modules = [ "logging" ]
 
-[tool.pylint."messages control"]
-# Only show warnings with the listed confidence levels. Leave empty to show all.
-# Valid levels: HIGH, CONTROL_FLOW, INFERENCE, INFERENCE_FAILURE, UNDEFINED.
-confidence = [ "HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED" ]
+[tool.pylint.main]
+# Analyse import fallback blocks. This can be used to support both Python 2 and 3
+# compatible code, which means that the block might have code that exists only in
+# one or another interpreter, leading to false positives when analysed.
+# analyse-fallback-blocks =
 
-# Disable the message, report, category or checker with the given id(s). You can
-# either give multiple identifiers separated by comma (,) or put this option
-# multiple times (only on the command line, not in the configuration file where
-# it should appear only once). You can also use "--disable=all" to disable
-# everything first and then re-enable specific checks. For example, if you want
-# to run only the similarities checker, you can use "--disable=all
-# --enable=similarities". If you want to run only the classes checker, but have
-# no Warning level messages displayed, use "--disable=all --enable=classes
-# --disable=W".
-disable = [
-  "raw-checker-failed",
-  "bad-inline-option",
-  "locally-disabled",
-  "file-ignored",
-  "suppressed-message",
-  "useless-suppression",
-  "deprecated-pragma",
-  "use-implicit-booleaness-not-comparison-to-string",
-  "use-implicit-booleaness-not-comparison-to-zero",
-  "use-symbolic-message-instead",
-]
+# Clear in-memory caches upon conclusion of linting. Useful if running pylint in
+# a server-like mode.
+# clear-cache-post-run =
 
-# Enable the message, report, category or checker with the given id(s). You can
-# either give multiple identifier separated by comma (,) or put this option
-# multiple time (only on the command line, not in the configuration file where it
-# should appear only once). See also the "--disable" option for examples.
-# enable =
+# Always return a 0 (non-error) status code, even if lint errors are found. This
+# is primarily useful in continuous integration scripts.
+# exit-zero =
+
+# A comma-separated list of package or module names from where C extensions may
+# be loaded. Extensions are loading into the active Python interpreter and may
+# run arbitrary code.
+# extension-pkg-allow-list =
+
+# A comma-separated list of package or module names from where C extensions may
+# be loaded. Extensions are loading into the active Python interpreter and may
+# run arbitrary code. (This is an alternative name to extension-pkg-allow-list
+# for backward compatibility.)
+# extension-pkg-whitelist =
+
+# Return non-zero exit code if any of these messages/categories are detected,
+# even if score is above --fail-under value. Syntax same as enable. Messages
+# specified are enabled, while categories only check already-enabled messages.
+# fail-on =
+
+# Specify a score threshold under which the program will exit with error.
+fail-under = 10
+
+# Interpret the stdin as a python script, whose filename needs to be passed as
+# the module_or_package argument.
+# from-stdin =
+
+# Files or directories to be skipped. They should be base names, not paths.
+ignore = [ "CVS" ]
+
+# Add files or directories matching the regular expressions patterns to the
+# ignore-list. The regex matches against paths and can be in Posix or Windows
+# format. Because '\\' represents the directory delimiter on Windows systems, it
+# can't be used as an escape character.
+# ignore-paths =
+
+# Files or directories matching the regular expression patterns are skipped. The
+# regex matches against base names, not paths. The default value ignores Emacs
+# file locks
+ignore-patterns = [ "^\\.#" ]
+
+# List of module names for which member attributes should not be checked and will
+# not be imported (useful for modules/projects where namespaces are manipulated
+# during runtime and thus existing member attributes cannot be deduced by static
+# analysis). It supports qualified module names, as well as Unix pattern
+# matching.
+# ignored-modules =
+
+# Python code to execute, usually for sys.path manipulation such as
+# pygtk.require().
+# init-hook =
+
+# Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
+# number of processors available to use, and will cap the count on Windows to
+# avoid hangs.
+jobs = 1
+
+# Control the amount of potential inferred values when inferring a single object.
+# This can help the performance when dealing with large functions or complex,
+# nested conditions.
+limit-inference-results = 100
+
+# List of plugins (as comma separated values of python module names) to load,
+# usually to register additional checkers.
+# load-plugins =
+
+# Pickle collected data for later comparisons.
+persistent = true
+
+# Resolve imports to .pyi stubs if available. May reduce no-member messages and
+# increase not-an-iterable messages.
+# prefer-stubs =
+
+# Minimum Python version to use for version dependent checks. Will default to the
+# version used to run pylint.
+py-version = "3.12"
+
+# Discover python modules and packages in the file system subtree.
+# recursive =
+
+# Add paths to the list of the source roots. Supports globbing patterns. The
+# source root is an absolute path or a path relative to the current working
+# directory used to determine a package namespace for modules located under the
+# source root.
+# source-roots =
+
+# Allow loading of arbitrary C extensions. Extensions are imported into the
+# active Python interpreter and may run arbitrary code.
+# unsafe-load-any-extension =
 
 [tool.pylint.method_args]
 # List of qualified names (i.e., library.method) which require a timeout

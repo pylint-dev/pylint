@@ -8,7 +8,7 @@ name = "pylint"
 description = "python code static checker"
 readme = "README.rst"
 keywords = [ "lint", "linter", "python", "static code analysis" ]
-license = "GPL-2.0-or-later"
+license = "GPL-2.0-OR-later"
 license-files = [ "LICENSE", "CONTRIBUTORS.txt" ]
 authors = [
   { name = "Python Code Quality Authority", email = "code-quality@python.org" },
@@ -105,8 +105,11 @@ test-min = [
   "typing-extensions~=4.15",
 ]
 
-[tool.setuptools.packages.find]
-include = [ "pylint*" ]
+[tool.setuptools.dynamic]
+version = { attr = "pylint.__pkginfo__.__version__" }
+
+[tool.setuptools.package-data]
+pylint = [ "testutils/testing_pylintrc", "py.typed" ]
 
 [tool.setuptools.package-dir]
 # Simulate editable_mode=compat, described at:
@@ -115,11 +118,8 @@ include = [ "pylint*" ]
 # https://github.com/pylint-dev/astroid/pull/2267#issuecomment-1666642781
 "" = "."
 
-[tool.setuptools.package-data]
-pylint = [ "testutils/testing_pylintrc", "py.typed" ]
-
-[tool.setuptools.dynamic]
-version = { attr = "pylint.__pkginfo__.__version__" }
+[tool.setuptools.packages.find]
+include = [ "pylint*" ]
 
 [tool.ruff]
 

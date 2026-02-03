@@ -165,10 +165,10 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.11.1"
+    rev: "v2.12.1"
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24.1
+    rev: v0.25
     hooks:
       - id: validate-pyproject
