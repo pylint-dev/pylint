@@ -1,0 +1,3 @@
+Fix a false positive for ``invalid-name`` (C0103) when lowercase variables are used within an ``if __name__ == "__main__":`` block.
+
+Closes #10766

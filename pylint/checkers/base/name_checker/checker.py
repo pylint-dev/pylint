@@ -667,6 +667,12 @@ class NameChecker(_BasicChecker):
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)
 
+        if match is None and node_type == "const" and not disallowed_check_only:
+            if utils.is_in_main_block(node):
+                node_type = "variable"
+                regexp = self._name_regexps[node_type]
+                match = regexp.match(name)
+
         if _is_multi_naming_match(match, node_type, confidence):
             name_group = self._find_name_group(node_type)
             bad_name_group = self._bad_names.setdefault(name_group, {})
