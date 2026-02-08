@@ -12,6 +12,14 @@ on:
       - main
       - "maintenance/**"
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      repository:
+        required: false
+        type: string
+      astroid_sha:
+        required: false
+        type: string
 
 env:
   CACHE_VERSION: 5
@@ -47,6 +55,8 @@ jobs:
       - &checkout
         name: Check out code from GitHub
         uses: actions/checkout@v6.0.2
+        with:
+          repository: ${{ inputs.repository || github.repository }}
       - &setup-python
         name: Set up Python ${{ matrix.python-version }}
         id: python
@@ -59,6 +69,7 @@ jobs:
         id: generate-python-key
         run: >-
           echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
+            inputs.astroid_sha }}-${{
             hashFiles('pyproject.toml', 'requirements_test.txt',
           'requirements_test_min.txt', 'requirements_test_pre_commit.txt') }}" >>
           $GITHUB_OUTPUT
@@ -78,6 +89,11 @@ jobs:
           . venv/bin/activate
           python -m pip install --upgrade pip
           pip install --upgrade --requirement requirements_test.txt
+      - name: Install requested astroid SHA
+        if: inputs.astroid_sha != ''
+        run: |
+          . venv/bin/activate
+          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository }}@${{ inputs.astroid_sha }}
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -190,6 +206,7 @@ jobs:
         id: generate-python-key
         run: >-
           echo "key=venv-${{ env.CACHE_VERSION }}-${{
+            inputs.astroid_sha }}-${{
             hashFiles('pyproject.toml', 'requirements_test_min.txt')
           }}" >> $env:GITHUB_OUTPUT
       - *cache-python
@@ -200,6 +217,11 @@ jobs:
           . venv\\Scripts\\activate
           python -m pip install --upgrade pip
           pip install --upgrade --requirement requirements_test_min.txt
+      - name: Install requested astroid SHA
+        if: inputs.astroid_sha != ''
+        run: |
+          . venv\\Scripts\\activate
+          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository }}@${{ inputs.astroid_sha }}
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
