@@ -30,6 +30,6 @@ undefined-variable:234:25:234:37:LambdaClass5.<lambda>:Undefined variable 'Lambd
 undefined-variable:291:18:291:24:not_using_loop_variable_accordingly:Undefined variable 'iteree':UNDEFINED
 undefined-variable:308:27:308:28:undefined_annotation:Undefined variable 'x':UNDEFINED
 used-before-assignment:309:7:309:8:undefined_annotation:Using variable 'x' before assignment:HIGH
-undefined-variable:339:11:339:12:decorated3:Undefined variable 'x':UNDEFINED
-undefined-variable:344:19:344:20:decorated4:Undefined variable 'y':UNDEFINED
+undefined-variable:339:11:339:12::Undefined variable 'x':UNDEFINED
+undefined-variable:344:19:344:20::Undefined variable 'y':UNDEFINED
 undefined-variable:365:10:365:20:global_var_mixed_assignment:Undefined variable 'GLOBAL_VAR':HIGH
