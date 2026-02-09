@@ -14,9 +14,6 @@ on:
   workflow_dispatch:
   workflow_call:
     inputs:
-      repository:
-        required: true
-        type: string
       astroid_sha:
         required: true
         type: string
@@ -56,7 +53,7 @@ jobs:
         name: Check out code from GitHub
         uses: actions/checkout@v6.0.2
         with:
-          repository: ${{ inputs.repository || github.repository }}
+          repository: ${{ github.repository }}
       - &setup-python
         name: Set up Python ${{ matrix.python-version }}
         id: python
@@ -93,7 +90,7 @@ jobs:
         if: inputs.astroid_sha != ''
         run: |
           . venv/bin/activate
-          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository }}@${{ inputs.astroid_sha }}
+          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository_owner }}/astroid@${{ inputs.astroid_sha }}
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -221,7 +218,7 @@ jobs:
         if: inputs.astroid_sha != ''
         run: |
           . venv\\Scripts\\activate
-          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository }}@${{ inputs.astroid_sha }}
+          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository_owner }}/astroid@${{ inputs.astroid_sha }}
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate
