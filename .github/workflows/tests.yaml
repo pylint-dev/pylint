@@ -15,10 +15,10 @@ on:
   workflow_call:
     inputs:
       repository:
-        required: false
+        required: true
         type: string
       astroid_sha:
-        required: false
+        required: true
         type: string
 
 env:
