@@ -6,7 +6,9 @@ from __future__ import annotations
 
 __all__ = [
     "__version__",
+    "core",
     "modify_sys_path",
+    "recommended",
     "run_pylint",
     "run_pyreverse",
     "run_symilar",
@@ -19,6 +21,7 @@ from collections.abc import Sequence
 from typing import NoReturn
 
 from pylint.__pkginfo__ import __version__
+from pylint.message_sets import core, recommended
 
 # pylint: disable=import-outside-toplevel
 
