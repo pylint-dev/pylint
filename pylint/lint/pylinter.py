@@ -54,6 +54,7 @@ from pylint.lint.utils import (
     augmented_sys_path,
     get_fatal_error_message,
     prepare_crash_report,
+    realpath_transformer,
 )
 from pylint.message import Message, MessageDefinition, MessageDefinitionStore
 from pylint.reporters.base_reporter import BaseReporter
@@ -715,6 +716,10 @@ class PyLinter(
                 ]
             ).keys()
         )
+        # Prefer package paths detected per module over user-defined PYTHONPATH additions
+        extra_sys_paths = extra_packages_paths + realpath_transformer(
+            self.config.pythonpath
+        )
 
         # TODO: Move the parallel invocation into step 3 of the checking process
         if not self.config.from_stdin and self.config.jobs > 1:
@@ -723,7 +728,7 @@ class PyLinter(
                 self,
                 self.config.jobs,
                 self._iterate_file_descrs(files_or_modules),
-                extra_packages_paths,
+                extra_sys_paths,
             )
             sys.path = original_sys_path
             return
@@ -731,7 +736,7 @@ class PyLinter(
         progress_reporter = ProgressReporter(self.verbose)
 
         # 1) Get all FileItems
-        with augmented_sys_path(extra_packages_paths):
+        with augmented_sys_path(extra_sys_paths):
             if self.config.from_stdin:
                 fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
                 data: str | None = _read_stdin()
@@ -740,7 +745,7 @@ class PyLinter(
                 data = None
 
         # The contextmanager also opens all checkers and sets up the PyLinter class
-        with augmented_sys_path(extra_packages_paths):
+        with augmented_sys_path(extra_sys_paths):
             with self._astroid_module_checker() as check_astroid_module:
                 # 2) Get the AST for each FileItem
                 ast_per_fileitem = self._get_asts(fileitems, data, progress_reporter)
