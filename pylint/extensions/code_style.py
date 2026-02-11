@@ -5,16 +5,24 @@
 from __future__ import annotations
 
 import difflib
+from copy import copy
+from enum import IntFlag, auto
 from typing import TYPE_CHECKING, TypeGuard, cast
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import only_required_for_messages, safe_infer
-from pylint.interfaces import INFERENCE
+from pylint.interfaces import HIGH, INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
+
+
+class InvertibleValues(IntFlag):
+    NO = 0
+    YES = auto()
+    EXPLICIT_NEGATION = auto()
 
 
 class CodeStyleChecker(BaseChecker):
@@ -81,6 +89,16 @@ class CodeStyleChecker(BaseChecker):
             "Using math.inf or math.nan permits to benefit from typing and it is up "
             "to 4 times faster than a float call (after the initial import of math). "
             "This check also catches typos in float calls as a side effect.",
+        ),
+        "R6107": (
+            "Consider rewriting conditional expression to '%s'",
+            "consider-rewriting-conditional",
+            "Rewrite negated if expressions to improve readability. This style is simpler "
+            "and also permits converting long if/elif chains to match case with more ease.\n"
+            "Disabled by default!",
+            {
+                "default_enabled": False,
+            },
         ),
     }
     options = (
@@ -354,6 +372,89 @@ class CodeStyleChecker(BaseChecker):
                 line=node.lineno,
                 col_offset=node.col_offset,
                 confidence=INFERENCE,
+            )
+
+    @staticmethod
+    def _can_be_inverted(values: list[nodes.NodeNG]) -> InvertibleValues:
+        invertible = InvertibleValues.NO
+        for node in values:
+            match node:
+                case nodes.UnaryOp(op="not"):
+                    invertible |= InvertibleValues.EXPLICIT_NEGATION
+                case nodes.Compare(ops=[("!=" | "not in" | "is not" as op, n)]) if not (
+                    op == "is not" and isinstance(n, nodes.Const) and n.value is None
+                ):
+                    invertible |= InvertibleValues.EXPLICIT_NEGATION
+                case nodes.Compare(
+                    ops=[("<" | "<=" | ">" | ">=", nodes.Const(value=int()))]
+                ):
+                    invertible |= InvertibleValues.YES
+                case _:
+                    return InvertibleValues.NO
+        return invertible
+
+    @staticmethod
+    def _invert_node(node: nodes.NodeNG) -> nodes.NodeNG:
+        match node:
+            case nodes.UnaryOp(op="not"):
+                new_node = copy(node.operand)
+                new_node.parent = node
+                return new_node
+            case nodes.Compare(left=left, ops=[(op, n)]):
+                new_node = copy(node)
+                match op:
+                    case "!=":
+                        new_op = "=="
+                    case "not in":
+                        new_op = "in"
+                    case "is not":
+                        new_op = "is"
+                    case "<":
+                        new_op = ">="
+                    case "<=":
+                        new_op = ">"
+                    case ">":
+                        new_op = "<="
+                    case ">=":
+                        new_op = "<"
+                    case _:  # pragma: no cover
+                        raise AssertionError
+                new_node.postinit(left=left, ops=[(new_op, n)])
+                return new_node
+            case _:  # pragma: no cover
+                raise AssertionError
+
+    @only_required_for_messages("consider-rewriting-conditional")
+    def visit_boolop(self, node: nodes.BoolOp) -> None:
+        if (
+            node.op == "or"
+            and (invertible := self._can_be_inverted(node.values))
+            and invertible & InvertibleValues.EXPLICIT_NEGATION
+        ):
+            new_boolop = copy(node)
+            new_boolop.op = "and"
+            new_boolop.postinit([self._invert_node(val) for val in node.values])
+
+            if isinstance(node.parent, nodes.UnaryOp) and node.parent.op == "not":
+                target_node = node.parent
+                new_node = new_boolop
+            else:
+                target_node = node
+                new_node = nodes.UnaryOp(
+                    op="not",
+                    lineno=0,
+                    col_offset=0,
+                    end_lineno=None,
+                    end_col_offset=None,
+                    parent=node.parent,
+                )
+                new_node.postinit(operand=new_boolop)
+
+            self.add_message(
+                "consider-rewriting-conditional",
+                node=target_node,
+                args=(new_node.as_string(),),
+                confidence=HIGH,
             )
 
 
