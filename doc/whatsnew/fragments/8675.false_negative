@@ -1,0 +1,3 @@
+Fix a false positive for `too-many-arguments` in (non static) method and classmethod.
+
+Closes #8675
