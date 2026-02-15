@@ -1,0 +1,4 @@
+Ensure the default value of 4 spaces for the `--indent-string` flag
+does not compress when using reStructuredText to make docs.
+
+Closes #8392
