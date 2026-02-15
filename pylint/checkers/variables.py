@@ -2210,13 +2210,7 @@ class VariablesChecker(BaseChecker):
         in_annotation_or_default_or_decorator = False
         if isinstance(frame, nodes.FunctionDef) and node.statement() is frame:
             in_annotation_or_default_or_decorator = (
-                (
-                    node in frame.args.annotations
-                    or node in frame.args.posonlyargs_annotations
-                    or node in frame.args.kwonlyargs_annotations
-                    or node is frame.args.varargannotation
-                    or node is frame.args.kwargannotation
-                )
+                node in frame.args.get_annotations()
                 or frame.args.parent_of(node)
                 or (frame.decorators and frame.decorators.parent_of(node))
                 or (
