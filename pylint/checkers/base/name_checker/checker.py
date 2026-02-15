@@ -509,6 +509,7 @@ class NameChecker(_BasicChecker):
                     if not self._meets_exception_for_non_consts(
                         inferred_assign_type, node.name
                     ):
+
                         self._check_name("const", node.name, node)
                 else:
                     node_type = "variable"
@@ -679,6 +680,13 @@ class NameChecker(_BasicChecker):
             and not disallowed_check_only
             and not _should_exempt_from_invalid_name(node)
         ):
+            if node_type == "const" and utils.is_in_main_block(node):
+                node_type = "variable"
+                regexp = self._name_regexps[node_type]
+                match = regexp.match(name)
+                if match is not None:
+                    return
+
             self._raise_name_warning(None, node, node_type, name, confidence)
 
         # Check TypeVar names for variance suffixes

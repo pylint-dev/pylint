@@ -1,4 +1,4 @@
-# pylint: disable=import-error, unused-import, missing-docstring
+# pylint: disable=import-error, unused-import, missing-docstring, invalid-name
 CONS = 42
 
 if __name__ == '__main__':
