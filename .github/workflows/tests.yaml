@@ -14,6 +14,9 @@ on:
   workflow_dispatch:
   workflow_call:
     inputs:
+      repository:
+        required: true
+        type: string
       astroid_sha:
         required: true
         type: string
@@ -53,7 +56,7 @@ jobs:
         name: Check out code from GitHub
         uses: actions/checkout@v6.0.2
         with:
-          repository: ${{ github.repository }}
+          repository: ${{ inputs.repository || github.repository }}
       - &setup-python
         name: Set up Python ${{ matrix.python-version }}
         id: python
