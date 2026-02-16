@@ -20,7 +20,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.15.0"
+    rev: "v0.15.1"
     hooks:
       - id: ruff-check
         args: ["--fix"]
@@ -165,7 +165,7 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.15.0"
+    rev: "v2.16.0"
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/abravalheri/validate-pyproject
