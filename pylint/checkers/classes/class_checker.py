@@ -933,6 +933,9 @@ a metaclass class method.",
             self.add_message("inconsistent-mro", args=node.name, node=node)
         except astroid.DuplicateBasesError:
             self.add_message("duplicate-bases", args=node.name, node=node)
+        except RecursionError:
+            # Circular MRO inference (e.g., class patched onto its own module).
+            self.add_message("inconsistent-mro", args=node.name, node=node)
 
     def _check_enum_base(self, node: nodes.ClassDef, ancestor: nodes.ClassDef) -> None:
         match ancestor.getattr("__members__"):
@@ -1763,16 +1766,20 @@ a metaclass class method.",
             return
         # If `__setattr__` is defined on the class, then we can't reason about
         # what will happen when assigning to an attribute.
+        try:
+            mro = klass.mro()
+        except (astroid.MroError, RecursionError):
+            return
         if any(
             base.locals.get("__setattr__")
-            for base in klass.mro()
+            for base in mro
             if base.qname() != "builtins.object"
         ):
             return
 
         # If 'typing.Generic' is a base of bases of klass, the cached version
         # of 'slots()' might have been evaluated incorrectly, thus deleted cache entry.
-        if any(base.qname() == "typing.Generic" for base in klass.mro()):
+        if any(base.qname() == "typing.Generic" for base in mro):
             cache = getattr(klass, "__cache", None)
             if cache and cache.get(klass.slots) is not None:
                 del cache[klass.slots]

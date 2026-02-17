@@ -1,0 +1,5 @@
+Fix crash (``RecursionError``) when a class inherits from a re-imported module
+member that creates circular MRO inference (e.g., subclassing ``pdb.Pdb`` and
+patching it back onto the module).
+
+Closes #10821

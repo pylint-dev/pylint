@@ -145,7 +145,7 @@ def _(node: nodes.ClassDef | bases.Instance) -> Iterable[str]:
 
     try:
         mro = node.mro()[1:]
-    except (NotImplementedError, TypeError, astroid.MroError):
+    except (NotImplementedError, TypeError, astroid.MroError, RecursionError):
         mro = node.ancestors()
 
     other_values = [value for cls in mro for value in _node_names(cls)]
@@ -488,7 +488,10 @@ def _emit_no_member(
             owner.super_mro()
         except (astroid.MroError, astroid.SuperError):
             return False
-        if not all(has_known_bases(base) for base in owner.type.mro()):
+        try:
+            if not all(has_known_bases(base) for base in owner.type.mro()):
+                return False
+        except RecursionError:
             return False
     if isinstance(owner, nodes.Module):
         try:
@@ -749,7 +752,7 @@ def _no_context_variadic(
 def _is_invalid_metaclass(metaclass: nodes.ClassDef) -> bool:
     try:
         mro = metaclass.mro()
-    except (astroid.DuplicateBasesError, astroid.InconsistentMroError):
+    except (astroid.DuplicateBasesError, astroid.InconsistentMroError, RecursionError):
         return True
     return not any(is_builtin_object(cls) and cls.name == "type" for cls in mro)
 

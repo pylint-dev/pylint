@@ -1,1 +1,3 @@
 inconsistent-mro:8:0:8:18:Inconsistent:Inconsistent method resolution order for class 'Inconsistent':UNDEFINED
+inconsistent-mro:17:0:17:9:Pdb:Inconsistent method resolution order for class 'Pdb':UNDEFINED
+inconsistent-mro:20:0:20:16:PatchedPdb:Inconsistent method resolution order for class 'PatchedPdb':UNDEFINED

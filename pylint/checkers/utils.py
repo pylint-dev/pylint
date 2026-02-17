@@ -958,7 +958,7 @@ def unimplemented_abstract_methods(
     visited: dict[str, nodes.FunctionDef] = {}
     try:
         mro = reversed(node.mro())
-    except astroid.ResolveError:
+    except (astroid.ResolveError, RecursionError):
         # Probably inconsistent hierarchy, don't try to figure this out here.
         return {}
     for ancestor in mro:

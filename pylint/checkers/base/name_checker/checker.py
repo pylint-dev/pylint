@@ -577,16 +577,16 @@ class NameChecker(_BasicChecker):
     ) -> bool:
         if isinstance(inferred_assign_type, nodes.ClassDef):
             return True
-        if isinstance(inferred_assign_type, bases.Instance) and {
-            "EnumMeta",
-            "TypedDict",
-        }.intersection(
-            {
-                ancestor.name
-                for ancestor in cast(InferenceResult, inferred_assign_type).mro()
-            }
-        ):
-            return True
+        if isinstance(inferred_assign_type, bases.Instance):
+            try:
+                mro_names = {
+                    ancestor.name
+                    for ancestor in cast(InferenceResult, inferred_assign_type).mro()
+                }
+            except RecursionError:
+                return False
+            if {"EnumMeta", "TypedDict"}.intersection(mro_names):
+                return True
         if (
             isinstance(inferred_assign_type, nodes.FunctionDef)
             and inferred_assign_type.qname() == "typing.Annotated"
