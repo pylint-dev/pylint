@@ -107,3 +107,31 @@ def loop_conditional_annotated_assignment():
             data={"cat": "harf"}
     token: str = data.get("cat")  # [possibly-used-before-assignment]
     print(token)
+
+
+def bare_annotation_with_except_assignment():
+    """A bare type annotation should not suppress used-before-assignment
+    when the only real assignments are in except blocks.
+
+    https://github.com/pylint-dev/pylint/issues/10847
+    """
+    result = None
+    err: int  # pylint: disable=unused-variable
+    try:
+        result = 1
+    except Exception:  # pylint: disable=broad-exception-caught
+        err = 1
+    if not result:
+        print(err)  # [used-before-assignment]
+
+
+def bare_annotation_with_value_and_except():
+    """A type annotation with a value should suppress the warning."""
+    result = None
+    err: int = 0
+    try:
+        result = 1
+    except Exception:  # pylint: disable=broad-exception-caught
+        err = 1
+    if not result:
+        print(err)

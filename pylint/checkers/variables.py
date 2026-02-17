@@ -651,6 +651,19 @@ scope_type : {self.scope_type}
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
+        # Filter out bare type annotations (AnnAssign without a value) when there
+        # are uncertain definitions. A bare annotation like `x: int` does not actually
+        # assign a value, so it should not suppress possibly-used-before-assignment
+        # when the real assignments are uncertain (e.g., in except blocks).
+        if found_nodes and self.consumed_uncertain.get(name):
+            found_nodes = [
+                n
+                for n in found_nodes
+                if not (
+                    isinstance(n.parent, nodes.AnnAssign) and n.parent.value is None
+                )
+            ]
+
         return found_nodes
 
     def _inferred_to_define_name_raise_or_return(
