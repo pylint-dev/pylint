@@ -1,0 +1,5 @@
+Fix false positive ``no-name-in-module`` when a module is imported with an alias
+that shadows its parent package and a method named ``format`` (or any builtin) is
+called on it.
+
+Closes #10193

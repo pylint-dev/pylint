@@ -201,9 +201,15 @@ def _detect_global_scope(
 
 
 def _infer_name_module(node: nodes.Import, name: str) -> Generator[InferenceResult]:
-    context = astroid.context.InferenceContext()
-    context.lookupname = name
-    return node.infer(context, asname=False)  # type: ignore[no-any-return]
+    # Import the module by name directly instead of going through
+    # node.infer(asname=False).  node.infer() caches results keyed on
+    # (node, lookupname, ...) but does NOT include the `asname` flag in the
+    # key, so a prior asname=True inference (from attribute access resolution)
+    # can poison the cache and return the aliased module instead.
+    try:
+        yield node.do_import_module(name)
+    except astroid.AstroidBuildingError as exc:
+        raise astroid.InferenceError(node=node) from exc
 
 
 def _fix_dot_imports(
