@@ -74,6 +74,52 @@ to your liking.
 
 .. towncrier release notes start
 
+What's new in Pylint 4.0.5?
+---------------------------
+Release date: 2026-02-20
+
+
+False Positives Fixed
+---------------------
+
+- Fix possibly-used-before-assignment false positive when using self.fail() in tests.
+
+  Closes #10743 (`#10743 <https://github.com/pylint-dev/pylint/issues/10743>`_)
+
+- Fixed false positive for ``logging-unsupported-format`` when no arguments are provided to logging functions.
+
+  According to Python's logging documentation, no formatting is performed when no arguments are supplied, so strings like ``logging.error("%test")`` are valid.
+
+  Closes #10752 (`#10752 <https://github.com/pylint-dev/pylint/issues/10752>`_)
+
+- Fix a false positive for ``invalid-name`` where a dataclass field typed with ``Final``
+  was evaluated against the ``class_const`` regex instead of the ``class_attribute`` regex.
+
+  Closes #10790 (`#10790 <https://github.com/pylint-dev/pylint/issues/10790>`_)
+
+- Avoid emitting `unspecified-encoding` (W1514) when `py-version` is 3.15+.
+
+  Refs #10791 (`#10791 <https://github.com/pylint-dev/pylint/issues/10791>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix `--known_third_party` config being ignored.
+
+  Closes #10801 (`#10801 <https://github.com/pylint-dev/pylint/issues/10801>`_)
+
+- Fixed dynamic color mapping for "fail-on" messages when using multiple reporter/output formats.
+
+  Closes #10825 (`#10825 <https://github.com/pylint-dev/pylint/issues/10825>`_)
+
+- dependency on isort is now set to <9, permitting to use isort 8.
+
+  Closes #10857 (`#10857 <https://github.com/pylint-dev/pylint/issues/10857>`_)
+
+
+
 What's new in Pylint 4.0.4?
 --------------------------------
 Release date: 2025-11-30

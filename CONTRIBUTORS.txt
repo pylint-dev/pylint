@@ -313,6 +313,7 @@ contributors:
 - Grizzly Nyo <grizzly.nyo@gmail.com>
 - Gabriel R. Sezefredo <g@briel.dev>: Fixed "exception-escape" false positive with generators
 - Filipe Brandenburger <filbranden@google.com>
+- Felix Preuschoff <37065638+felixp98@users.noreply.github.com>
 - Fantix King <fantix@uchicago.edu> (UChicago)
 - Eric McDonald <221418+emcd@users.noreply.github.com>
 - Elias Dorneles <eliasdorneles@gmail.com>: minor adjust to config defaults and docs
@@ -494,6 +495,7 @@ contributors:
 - Michael Giuffrida <mgiuffrida@users.noreply.github.com>
 - Melvin Hazeleger <31448155+melvio@users.noreply.github.com>
 - Meltem Kenis <meltem.kenis@plentific.com>
+- Mehraz Hossain Rumman <59512321+MehrazRumman@users.noreply.github.com>
 - Mehdi Drissi <mdrissi@hmc.edu>
 - Matěj Grabovský <mgrabovs@redhat.com>
 - Matthijs Blom <19817960+MatthijsBlom@users.noreply.github.com>
@@ -524,6 +526,7 @@ contributors:
 - Kayran Schmidt <59456929+yumasheta@users.noreply.github.com>
 - Karthik Nadig <kanadig@microsoft.com>
 - Jürgen Hermann <jh@web.de>
+- Julfried <julian.grimm8@gmail.com>
 - Josselin Feist <josselin@trailofbits.com>
 - Jonathan Kotta <KottaJonathan@JohnDeere.com>
 - John Paraskevopoulos <io.paraskev@gmail.com>: add 'differing-param-doc' and 'differing-type-doc'
@@ -565,7 +568,6 @@ contributors:
 - Giuseppe Valente <gvalente@arista.com>
 - Gary Tyler McLeod <mail@garytyler.com>
 - Felix von Drigalski <FvDrigalski@gmail.com>
-- Felix Preuschoff <37065638+felixp98@users.noreply.github.com>
 - Fabrice Douchant <Fabrice.Douchant@logilab.fr>
 - Fabio Natali <me@fabionatali.com>
 - Fabian Damken <fdamken+github@frisp.org>

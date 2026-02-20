@@ -1,5 +1,0 @@
-Fixed false positive for ``logging-unsupported-format`` when no arguments are provided to logging functions.
-
-According to Python's logging documentation, no formatting is performed when no arguments are supplied, so strings like ``logging.error("%test")`` are valid.
-
-Closes #10752

@@ -1085,7 +1085,8 @@ Stdlib checker Messages
 :unspecified-encoding (W1514): *Using open without explicitly specifying an encoding*
   It is better to specify an encoding when opening documents. Using the system
   default implicitly can create problems on other operating systems. See
-  https://peps.python.org/pep-0597/
+  https://peps.python.org/pep-0597/ This message can't be emitted when using
+  Python >= 3.15.
 :forgotten-debug-statement (W1515): *Leaving functions creating breakpoints in production code is not recommended*
   Calls to breakpoint(), sys.breakpointhook() and pdb.set_trace() should be
   removed from code that is not actively being debugged.

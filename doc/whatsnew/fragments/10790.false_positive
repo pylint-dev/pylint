@@ -1,4 +1,0 @@
-Fix a false positive for ``invalid-name`` where a dataclass field typed with ``Final``
-was evaluated against the ``class_const`` regex instead of the ``class_attribute`` regex.
-
-Closes #10790
