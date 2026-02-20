@@ -1211,6 +1211,12 @@ class PyLinter(
                     f" skipped {unchecked_files_count} files/modules"
                 )
 
+            if note is not None and note < self.config.fail_under:
+                msg += (
+                    f"\nYour score {note:.2f} is below the"
+                    f" fail-under threshold of {self.config.fail_under}"
+                )
+
         if self.config.score:
             sect = report_nodes.EvaluationSection(msg)
             self.reporter.display_reports(sect)
