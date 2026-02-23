@@ -36,11 +36,11 @@ jobs:
     steps:
       - &checkout
         name: Check out code from GitHub
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.2
       - &setup-python
         name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v6.0.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
@@ -54,7 +54,7 @@ jobs:
           $GITHUB_OUTPUT
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.3.0
+        uses: actions/cache@v5.0.3
         with:
           path: venv
           key: >-
@@ -81,7 +81,7 @@ jobs:
       - *setup-python
       - name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache/restore@v4.3.0
+        uses: actions/cache/restore@v5.0.3
         with:
           path: venv
           fail-on-cache-miss: true

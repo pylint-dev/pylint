@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-import _string  # pylint: disable=wrong-import-order # Ruff and Isort disagree about the order here
+import _string
 import builtins
 import fnmatch
 import itertools
@@ -238,7 +238,13 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
 SINGLETON_VALUES = {True, False, None}
 
 TERMINATING_FUNCS_QNAMES = frozenset(
-    {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
+    {
+        "_sitebuiltins.Quitter",
+        "sys.exit",
+        "posix._exit",
+        "nt._exit",
+        "unittest.case.TestCase.fail",
+    }
 )
 
 
@@ -1756,6 +1762,22 @@ def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> b
     return False
 
 
+def is_assign_name_annotated_with_class_var_typing_name(
+    node: nodes.AssignName, typing_name: str
+) -> bool:
+    if not is_assign_name_annotated_with(node, "ClassVar"):
+        return False
+    annotation = node.parent.annotation
+    if isinstance(annotation, nodes.Subscript):
+        annotation = annotation.slice
+        if isinstance(annotation, nodes.Subscript):
+            annotation = annotation.value
+    match annotation:
+        case nodes.Name(name=n) | nodes.Attribute(attrname=n) if n == typing_name:
+            return True
+    return False
+
+
 def get_iterating_dictionary_name(node: nodes.For | nodes.Comprehension) -> str | None:
     """Get the name of the dictionary which keys are being iterated over on
     a ``nodes.For`` or ``nodes.Comprehension`` node.
@@ -1843,28 +1865,50 @@ def is_sys_guard(node: nodes.If) -> bool:
     return False
 
 
+def _is_node_in_same_scope(
+    candidate: nodes.NodeNG, node_scope: nodes.LocalsDictNodeNG
+) -> bool:
+    if isinstance(candidate, (nodes.ClassDef, nodes.FunctionDef)):
+        return candidate.parent is not None and candidate.parent.scope() is node_scope
+    return candidate.scope() is node_scope
+
+
+def _is_reassigned_relative_to_current(
+    node: nodes.NodeNG, varname: str, before: bool
+) -> bool:
+    """Check if the given variable name is reassigned in the same scope relative to
+    the current node.
+    """
+    node_scope = node.scope()
+    node_lineno = node.lineno
+    if node_lineno is None:
+        return False
+    for a in node_scope.nodes_of_class(
+        (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
+    ):
+        if a.name == varname and a.lineno is not None:
+            if before:
+                if a.lineno < node_lineno:
+                    if _is_node_in_same_scope(a, node_scope):
+                        return True
+            elif a.lineno > node_lineno:
+                if _is_node_in_same_scope(a, node_scope):
+                    return True
+    return False
+
+
 def is_reassigned_before_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope before the
     current node.
     """
-    return any(
-        a.name == varname and a.lineno < node.lineno
-        for a in node.scope().nodes_of_class(
-            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
-        )
-    )
+    return _is_reassigned_relative_to_current(node, varname, before=True)
 
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope after the
     current node.
     """
-    return any(
-        a.name == varname and a.lineno > node.lineno
-        for a in node.scope().nodes_of_class(
-            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
-        )
-    )
+    return _is_reassigned_relative_to_current(node, varname, before=False)
 
 
 def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
@@ -2172,41 +2216,40 @@ def is_terminating_func(node: nodes.Call) -> bool:
         node.parent, nodes.Lambda
     ):
         return False
-
     try:
-        for inferred in node.func.infer():
-            if (
-                hasattr(inferred, "qname")
-                and inferred.qname() in TERMINATING_FUNCS_QNAMES
-            ):
-                return True
-            match inferred:
-                case astroid.BoundMethod(_proxied=astroid.UnboundMethod(_proxied=p)):
-                    # Unwrap to get the actual function node object
-                    inferred = p
-            if (  # pylint: disable=too-many-boolean-expressions
-                isinstance(inferred, nodes.FunctionDef)
-                and (
-                    not isinstance(inferred, nodes.AsyncFunctionDef)
-                    or isinstance(node.parent, nodes.Await)
-                )
-                and isinstance(inferred.returns, nodes.Name)
-                and (inferred_func := safe_infer(inferred.returns))
-                and hasattr(inferred_func, "qname")
-                and inferred_func.qname()
-                in (
-                    *TYPING_NEVER,
-                    *TYPING_NORETURN,
-                    # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
-                    # "typing._SpecialForm",
-                    # But 'typing.Any' also inherits _SpecialForm
-                    # See #9751
-                )
-            ):
-                return True
+        inferred_funcs = list(node.func.infer())
     except (StopIteration, astroid.InferenceError):
-        pass
+        return False
 
+    for inferred in inferred_funcs:
+        if hasattr(inferred, "qname") and inferred.qname() in TERMINATING_FUNCS_QNAMES:
+            return True
+        match inferred:
+            case astroid.BoundMethod(_proxied=astroid.UnboundMethod(_proxied=p)):
+                # Unwrap to get the actual function node object
+                inferred = p
+        if is_overload_stub(inferred):
+            continue
+        if (  # pylint: disable=too-many-boolean-expressions
+            isinstance(inferred, nodes.FunctionDef)
+            and (
+                not isinstance(inferred, nodes.AsyncFunctionDef)
+                or isinstance(node.parent, nodes.Await)
+            )
+            and isinstance(inferred.returns, nodes.Name)
+            and (inferred_func := safe_infer(inferred.returns))
+            and hasattr(inferred_func, "qname")
+            and inferred_func.qname()
+            in (
+                *TYPING_NEVER,
+                *TYPING_NORETURN,
+                # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
+                # "typing._SpecialForm",
+                # But 'typing.Any' also inherits _SpecialForm
+                # See #9751
+            )
+        ):
+            return True
     return False
 
 

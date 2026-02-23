@@ -19,7 +19,7 @@ Release date: 2014-04-30
 
   Closes BitBucket #176
 
-* Do not warn about \u escapes in string literals when Unicode literals
+* Do not warn about ``\u`` escapes in string literals when Unicode literals
   are used for Python 2.*.
 
   Closes BitBucket #151

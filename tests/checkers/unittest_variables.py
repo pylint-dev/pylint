@@ -44,32 +44,26 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
     @set_config(callbacks=("callback_", "_callback"))
     def test_custom_callback_string(self) -> None:
         """Test the --callbacks option works."""
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def callback_one(abc):
              ''' should not emit unused-argument. '''
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
 
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def two_callback(abc, defg):
              ''' should not emit unused-argument. '''
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
 
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def normal_func(abc):
              ''' should emit unused-argument. '''
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 "unused-argument",
@@ -85,12 +79,10 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
             self.checker.visit_functiondef(node)
             self.checker.leave_functiondef(node)
 
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def cb_func(abc):
              ''' Previous callbacks are overridden. '''
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 "unused-argument",
@@ -108,11 +100,9 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
     @set_config(redefining_builtins_modules=("os",))
     def test_redefined_builtin_modname_not_ignored(self) -> None:
-        node = astroid.parse(
-            """
+        node = astroid.parse("""
         from future.builtins import open
-        """
-        )
+        """)
         with self.assertAddsMessages(
             MessageTest(
                 "redefined-builtin",
@@ -128,22 +118,18 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
     @set_config(redefining_builtins_modules=("os",))
     def test_redefined_builtin_in_function(self) -> None:
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         def test():
             from os import open
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.checker.visit_module(node.root())
             self.checker.visit_functiondef(node)
 
     def test_import_as_underscore(self) -> None:
-        node = astroid.parse(
-            """
+        node = astroid.parse("""
         import math as _
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.walk(node)
 
@@ -153,13 +139,11 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
         # Issue 1824
         # https://github.com/pylint-dev/pylint/issues/1824
-        node = astroid.parse(
-            """
+        node = astroid.parse("""
         class MyObject(object):
             method1 = lambda func: func()
             method2 = lambda function: function()
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.walk(node)
 
@@ -169,11 +153,9 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
 
         https://github.com/pylint-dev/pylint/issues/760
         """
-        node = astroid.parse(
-            """
+        node = astroid.parse("""
         lambda x: lambda: x + 1
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.walk(node)
 
@@ -182,23 +164,19 @@ class TestVariablesCheckerWithTearDown(CheckerTestCase):
         """Make sure is_ignored_argument_names properly ignores
         function arguments.
         """
-        node = astroid.parse(
-            """
+        node = astroid.parse("""
         def fooby(arg):
             pass
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.walk(node)
 
     @set_config(ignored_argument_names=re.compile("args|kwargs"))
     def test_ignored_argument_names_starred_args(self) -> None:
-        node = astroid.parse(
-            """
+        node = astroid.parse("""
         def fooby(*args, **kwargs):
             pass
-        """
-        )
+        """)
         with self.assertNoMessages():
             self.walk(node)
 

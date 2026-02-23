@@ -1200,28 +1200,22 @@ def test_relative_imports(initialized_linter: PyLinter) -> None:
     with tempdir() as tmpdir:
         create_files(["x/y/__init__.py", "x/y/one.py", "x/y/two.py"], tmpdir)
         with open("x/y/__init__.py", "w", encoding="utf-8") as f:
-            f.write(
-                """
+            f.write("""
 \"\"\"Module x.y\"\"\"
 from .one import ONE
 from .two import TWO
-"""
-            )
+""")
         with open("x/y/one.py", "w", encoding="utf-8") as f:
-            f.write(
-                """
+            f.write("""
 \"\"\"Module x.y.one\"\"\"
 ONE = 1
-"""
-            )
+""")
         with open("x/y/two.py", "w", encoding="utf-8") as f:
-            f.write(
-                """
+            f.write("""
 \"\"\"Module x.y.two\"\"\"
 from .one import ONE
 TWO = ONE + ONE
-"""
-            )
+""")
         linter.check(["x/y"])
     assert not linter.stats.by_msg
 
@@ -1235,12 +1229,10 @@ def test_import_sibling_module_from_namespace(initialized_linter: PyLinter) -> N
         create_files(["namespace/submodule1.py", "namespace/submodule2.py"])
         second_path = Path("namespace/submodule2.py")
         with open(second_path, "w", encoding="utf-8") as f:
-            f.write(
-                """\"\"\"This module imports submodule1.\"\"\"
+            f.write("""\"\"\"This module imports submodule1.\"\"\"
 import submodule1
 print(submodule1)
-"""
-            )
+""")
         os.chdir("namespace")
         extra_sys_paths = [expand_modules.discover_package_path(tmpdir, [])]
 

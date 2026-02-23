@@ -26,51 +26,42 @@ def test_space_indentation(string: str, count: int) -> None:
     "raise_node,expected",
     [
         (
-            astroid.extract_node(
-                """
+            astroid.extract_node("""
     def my_func():
         raise NotImplementedError #@
-    """
-            ),
+    """),
             {"NotImplementedError"},
         ),
         (
-            astroid.extract_node(
-                """
+            astroid.extract_node("""
     def my_func():
         raise NotImplementedError("Not implemented!") #@
-    """
-            ),
+    """),
             {"NotImplementedError"},
         ),
         (
-            astroid.extract_node(
-                """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
         except RuntimeError:
             raise #@
-    """
-            ),
+    """),
             {"RuntimeError"},
         ),
         (
-            astroid.extract_node(
-                """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
         except RuntimeError:
             if another_func():
                 raise #@
-    """
-            ),
+    """),
             {"RuntimeError"},
         ),
         (
-            astroid.extract_node(
-                """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
@@ -80,13 +71,11 @@ def test_space_indentation(string: str, count: int) -> None:
                 raise #@
             except NameError:
                 pass
-    """
-            ),
+    """),
             {"RuntimeError"},
         ),
         (
-            astroid.extract_node(
-                """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
@@ -95,45 +84,38 @@ def test_space_indentation(string: str, count: int) -> None:
                 another_func()
             except NameError:
                 raise #@
-    """
-            ),
+    """),
             {"NameError"},
         ),
         (
-            astroid.extract_node(
-                """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
         except:
             raise #@
-    """
-            ),
+    """),
             set(),
         ),
         (
-            astroid.extract_node(
-                """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
         except (RuntimeError, ValueError):
             raise #@
-    """
-            ),
+    """),
             {"RuntimeError", "ValueError"},
         ),
         (
-            astroid.extract_node(
-                """
+            astroid.extract_node("""
     import not_a_module
     def my_func():
         try:
             fake_func()
         except not_a_module.Error:
             raise #@
-    """
-            ),
+    """),
             set(),
         ),
     ],
@@ -146,11 +128,9 @@ def test_exception(raise_node: nodes.NodeNG, expected: set[str]) -> None:
 
 
 def test_possible_exc_types_raising_potential_none() -> None:
-    raise_node = astroid.extract_node(
-        """
+    raise_node = astroid.extract_node("""
     def a():
         return
     raise a()  #@
-    """
-    )
+    """)
     assert utils.possible_exc_types(raise_node) == set()

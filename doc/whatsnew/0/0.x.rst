@@ -54,7 +54,7 @@ Release date: 2013-02-26
 * #113231: logging checker now looks at instances of Logger classes
   in addition to the base logging module. (patch by Mike Bryant)
 
-* #111799: don't warn about octal escape sequence, but warn about \o
+* #111799: don't warn about octal escape sequence, but warn about ``\o``
   which is not octal in Python (patch by Martin Pool)
 
 * #110839: bind <F5> to Run button in pylint-gui
@@ -940,7 +940,7 @@ Release date: 2005-02-16
 * fix false positive on W0706 ("identifier used to raise an exception
   assigned to...")
 
-* fix interpretation of "\t" as value for the indent-string
+* fix interpretation of ``\t`` as value for the indent-string
   configuration variable
 
 * fix --rcfile so that --rcfile=pylintrc (only --rcfile pylintrc was

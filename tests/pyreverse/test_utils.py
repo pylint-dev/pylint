@@ -133,16 +133,14 @@ def test_infer_node_3() -> None:
     """Return a set containing a nodes.ClassDef object when the attribute
     has a type annotation.
     """
-    node = astroid.extract_node(
-        """
+    node = astroid.extract_node("""
         class Component:
             pass
 
         class Composite:
             def __init__(self, component: Component):
                 self.component = component
-    """
-    )
+    """)
     instance_attr = node.instance_attrs.get("component")[0]
     assert isinstance(infer_node(instance_attr), set)
     assert isinstance(infer_node(instance_attr).pop(), nodes.ClassDef)
@@ -152,13 +150,11 @@ def test_infer_node_4() -> None:
     """Verify the label for an argument with a typehint of the type
     nodes.Subscript.
     """
-    node = astroid.extract_node(
-        """
+    node = astroid.extract_node("""
         class MyClass:
             def __init__(self, my_int: Optional[int] = None):
                 self.my_test_int = my_int
-    """
-    )
+    """)
 
     instance_attr = node.instance_attrs.get("my_test_int")[0]
     assert isinstance(instance_attr, nodes.AssignAttr)

@@ -12,6 +12,14 @@ on:
       - main
       - "maintenance/**"
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      repository:
+        required: true
+        type: string
+      astroid_sha:
+        required: true
+        type: string
 
 env:
   CACHE_VERSION: 5
@@ -46,11 +54,13 @@ jobs:
     steps:
       - &checkout
         name: Check out code from GitHub
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.2
+        with:
+          repository: ${{ inputs.repository || github.repository }}
       - &setup-python
         name: Set up Python ${{ matrix.python-version }}
         id: python
-        uses: actions/setup-python@v6.0.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
@@ -59,13 +69,14 @@ jobs:
         id: generate-python-key
         run: >-
           echo "key=${{ env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{
+            inputs.astroid_sha }}-${{
             hashFiles('pyproject.toml', 'requirements_test.txt',
           'requirements_test_min.txt', 'requirements_test_pre_commit.txt') }}" >>
           $GITHUB_OUTPUT
       - &cache-python
         name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v4.3.0
+        uses: actions/cache@v5.0.3
         with:
           path: venv
           key: >-
@@ -78,6 +89,11 @@ jobs:
           . venv/bin/activate
           python -m pip install --upgrade pip
           pip install --upgrade --requirement requirements_test.txt
+      - name: Install requested astroid SHA
+        if: inputs.astroid_sha != ''
+        run: |
+          . venv/bin/activate
+          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository_owner }}/astroid@${{ inputs.astroid_sha }}
       - name: Run pytest
         run: |
           . venv/bin/activate
@@ -91,7 +107,7 @@ jobs:
           python -m pytest -vv --minimal-messages-config tests/test_functional.py --benchmark-disable
       - name: Upload coverage artifact
         if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: coverage-${{ matrix.python-version }}
           include-hidden-files: true
@@ -106,14 +122,14 @@ jobs:
       - *checkout
       - name: Set up Python 3.13
         id: python
-        uses: actions/setup-python@v6.0.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: "3.13"
           check-latest: true
       - &cache-restore-python
         name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache/restore@v4.3.0
+        uses: actions/cache/restore@v5.0.3
         with:
           path: venv
           fail-on-cache-miss: true
@@ -121,7 +137,7 @@ jobs:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.tests.outputs.python-key }}
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v5.0.0
+        uses: actions/download-artifact@v7.0.0
       - name: Combine coverage results
         run: |
           . venv/bin/activate
@@ -162,7 +178,7 @@ jobs:
         run: >-
           echo "datetime="$(date "+%Y%m%d_%H%M") >> $GITHUB_OUTPUT
       - name: Upload benchmark artifact
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v6.0.0
         with:
           name:
             benchmark-${{ runner.os }}-${{ matrix.python-version }}_${{
@@ -190,6 +206,7 @@ jobs:
         id: generate-python-key
         run: >-
           echo "key=venv-${{ env.CACHE_VERSION }}-${{
+            inputs.astroid_sha }}-${{
             hashFiles('pyproject.toml', 'requirements_test_min.txt')
           }}" >> $env:GITHUB_OUTPUT
       - *cache-python
@@ -200,6 +217,11 @@ jobs:
           . venv\\Scripts\\activate
           python -m pip install --upgrade pip
           pip install --upgrade --requirement requirements_test_min.txt
+      - name: Install requested astroid SHA
+        if: inputs.astroid_sha != ''
+        run: |
+          . venv\\Scripts\\activate
+          pip install --force-reinstall --no-deps git+https://github.com/${{ github.repository_owner }}/astroid@${{ inputs.astroid_sha }}
       - name: Run pytest
         run: |
           . venv\\Scripts\\activate

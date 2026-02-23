@@ -74,6 +74,121 @@ to your liking.
 
 .. towncrier release notes start
 
+What's new in Pylint 4.0.5?
+---------------------------
+Release date: 2026-02-20
+
+
+False Positives Fixed
+---------------------
+
+- Fix possibly-used-before-assignment false positive when using self.fail() in tests.
+
+  Closes #10743 (`#10743 <https://github.com/pylint-dev/pylint/issues/10743>`_)
+
+- Fixed false positive for ``logging-unsupported-format`` when no arguments are provided to logging functions.
+
+  According to Python's logging documentation, no formatting is performed when no arguments are supplied, so strings like ``logging.error("%test")`` are valid.
+
+  Closes #10752 (`#10752 <https://github.com/pylint-dev/pylint/issues/10752>`_)
+
+- Fix a false positive for ``invalid-name`` where a dataclass field typed with ``Final``
+  was evaluated against the ``class_const`` regex instead of the ``class_attribute`` regex.
+
+  Closes #10790 (`#10790 <https://github.com/pylint-dev/pylint/issues/10790>`_)
+
+- Avoid emitting `unspecified-encoding` (W1514) when `py-version` is 3.15+.
+
+  Refs #10791 (`#10791 <https://github.com/pylint-dev/pylint/issues/10791>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix `--known_third_party` config being ignored.
+
+  Closes #10801 (`#10801 <https://github.com/pylint-dev/pylint/issues/10801>`_)
+
+- Fixed dynamic color mapping for "fail-on" messages when using multiple reporter/output formats.
+
+  Closes #10825 (`#10825 <https://github.com/pylint-dev/pylint/issues/10825>`_)
+
+- dependency on isort is now set to <9, permitting to use isort 8.
+
+  Closes #10857 (`#10857 <https://github.com/pylint-dev/pylint/issues/10857>`_)
+
+
+
+What's new in Pylint 4.0.4?
+--------------------------------
+Release date: 2025-11-30
+
+
+False Positives Fixed
+---------------------
+
+- Fixed false positive for ``invalid-name`` where module-level constants were incorrectly classified as variables when a class-level attribute with the same name exists.
+
+  Closes #10719 (`#10719 <https://github.com/pylint-dev/pylint/issues/10719>`_)
+
+- Fix a false positive for ``invalid-name`` on an UPPER_CASED name inside an ``if`` branch that assigns an object.
+
+  Closes #10745 (`#10745 <https://github.com/pylint-dev/pylint/issues/10745>`_)
+
+
+
+What's new in Pylint 4.0.3?
+---------------------------
+Release date: 2025-11-13
+
+
+False Positives Fixed
+---------------------
+
+- Add Enum dunder methods ``_generate_next_value_``, ``_missing_``, ``_numeric_repr_``, ``_add_alias_``, and ``_add_value_alias_`` to the list passed to ``--good-dunder-names``.
+
+  Closes #10435 (`#10435 <https://github.com/pylint-dev/pylint/issues/10435>`_)
+
+- Fixed false positive for ``invalid-name`` with ``typing.Annotated``.
+
+  Closes #10696 (`#10696 <https://github.com/pylint-dev/pylint/issues/10696>`_)
+
+- Fix false positive for ``f-string-without-interpolation`` with template strings
+  when using format spec.
+
+  Closes #10702 (`#10702 <https://github.com/pylint-dev/pylint/issues/10702>`_)
+
+- Fix a false positive when an UPPER_CASED class attribute was raising an
+  ``invalid-name`` when typed with ``Final``.
+
+  Closes #10711 (`#10711 <https://github.com/pylint-dev/pylint/issues/10711>`_)
+
+- Fix a false positive for ``unbalanced-tuple-unpacking`` when a tuple is assigned to a function call and the structure of the function's return value is ambiguous.
+
+  Closes #10721 (`#10721 <https://github.com/pylint-dev/pylint/issues/10721>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Make 'ignore' option work as expected again.
+
+  Closes #10669 (`#10669 <https://github.com/pylint-dev/pylint/issues/10669>`_)
+
+- Fix crash for ``consider-using-assignment-expr`` when a variable annotation without assignment
+  is used as the ``if`` test expression.
+
+  Closes #10707 (`#10707 <https://github.com/pylint-dev/pylint/issues/10707>`_)
+
+- Fix crash for ``prefer-typing-namedtuple`` and ``consider-math-not-float`` when
+  a ``slice`` object is called.
+
+  Closes #10708 (`#10708 <https://github.com/pylint-dev/pylint/issues/10708>`_)
+
+
+
 What's new in Pylint 4.0.2?
 --------------------------------
 Release date: 2025-10-20

@@ -29,12 +29,10 @@ class TestTypeChecker(CheckerTestCase):
 
     @needs_c_extension
     def test_nomember_on_c_extension_info_msg(self) -> None:
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
         from coverage import tracer
         tracer.CTracer  #@
-        """
-        )
+        """)
         message = MessageTest(
             "c-extension-no-member",
             node=node,
@@ -79,12 +77,10 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
 
     def getitem_on_modules(self) -> None:
         """Mainly validate the code won't crash if we're not having a function."""
-        module = astroid.parse(
-            """
+        module = astroid.parse("""
         import collections
         test = collections[int]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertAddsMessages(
             MessageTest(
@@ -101,27 +97,22 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
             self.checker.visit_subscript(subscript)
 
     def typing_objects_are_subscriptable(self, generic: str) -> None:
-        module = astroid.parse(
-            f"""
+        module = astroid.parse(f"""
         import typing
         test = typing.{generic}[int]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
 
     def decorated_by_a_subscriptable_class(self, decorators: str) -> None:
-        module = astroid.parse(
-            decorators
-            + """
+        module = astroid.parse(decorators + """
         @Subscriptable
         def decorated():
             ...
 
         test = decorated[None]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
@@ -129,17 +120,14 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
     def decorated_by_subscriptable_then_unsubscriptable_class(
         self, decorators: str
     ) -> None:
-        module = astroid.parse(
-            decorators
-            + """
+        module = astroid.parse(decorators + """
         @Unsubscriptable
         @Subscriptable
         def decorated():
             ...
 
         test = decorated[None]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertAddsMessages(
             MessageTest(
@@ -158,32 +146,26 @@ class TestTypeCheckerOnDecorators(CheckerTestCase):
     def decorated_by_unsubscriptable_then_subscriptable_class(
         self, decorators: str
     ) -> None:
-        module = astroid.parse(
-            decorators
-            + """
+        module = astroid.parse(decorators + """
         @Subscriptable
         @Unsubscriptable
         def decorated():
             ...
 
         test = decorated[None]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertNoMessages():
             self.checker.visit_subscript(subscript)
 
     def decorated_by_an_unsubscriptable_class(self, decorators: str) -> None:
-        module = astroid.parse(
-            decorators
-            + """
+        module = astroid.parse(decorators + """
         @Unsubscriptable
         def decorated():
             ...
 
         test = decorated[None]
-        """
-        )
+        """)
         subscript = module.body[-1].value
         with self.assertAddsMessages(
             MessageTest(

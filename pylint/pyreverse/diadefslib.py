@@ -159,8 +159,9 @@ class DiaDefGenerator:
         """Return associated nodes of a class node."""
         if level == 0:
             return
-        for association_nodes in list(klass_node.instance_attrs_type.values()) + list(
-            klass_node.locals_type.values()
+        info = self.linker.class_info[klass_node]
+        for association_nodes in list(info.instance_attrs_type.values()) + list(
+            info.locals_type.values()
         ):
             for node in association_nodes:
                 if isinstance(node, astroid.Instance):
@@ -203,11 +204,11 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         mode = self.config.mode
         if len(node.modules) > 1:
             self.pkgdiagram: PackageDiagram | None = PackageDiagram(
-                f"packages {node.name}", mode
+                f"packages {node.name}", mode, self.linker
             )
         else:
             self.pkgdiagram = None
-        self.classdiagram = ClassDiagram(f"classes {node.name}", mode)
+        self.classdiagram = ClassDiagram(f"classes {node.name}", mode, self.linker)
 
     def leave_project(self, _: Project) -> Any:
         """Leave the pyreverse.utils.Project node.
@@ -248,7 +249,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
 
     def class_diagram(self, project: Project, klass: nodes.ClassDef) -> ClassDiagram:
         """Return a class diagram definition for the class and related classes."""
-        self.classdiagram = ClassDiagram(klass, self.config.mode)
+        self.classdiagram = ClassDiagram(klass, self.config.mode, self.linker)
         if len(project.modules) > 1:
             module, klass = klass.rsplit(".", 1)
             module = project.get_module(module)

@@ -2162,11 +2162,10 @@ class VariablesChecker(BaseChecker):
         # Check if we have starred nodes.
         if any(isinstance(target, nodes.Starred) for target in targets):
             return
-
         try:
-            inferred = utils.safe_infer(node.value)
-            if inferred is not None:
-                self._check_unpacking(inferred, node, targets)
+            inferred = node.value.inferred()
+            if inferred is not None and len(inferred) == 1:
+                self._check_unpacking(inferred[0], node, targets)
         except astroid.InferenceError:
             return
 
@@ -3388,27 +3387,29 @@ class VariablesChecker(BaseChecker):
 
     def _check_metaclasses(self, node: nodes.Module | nodes.FunctionDef) -> None:
         """Update consumption analysis for metaclasses."""
-        consumed: list[tuple[Consumption, str]] = []
+        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
 
         for child_node in node.get_children():
             if isinstance(child_node, nodes.ClassDef):
                 consumed.extend(self._check_classdef_metaclasses(child_node, node))
 
-        # Pop the consumed items, in order to avoid having
-        # unused-import and unused-variable false positives
-        for scope_locals, name in consumed:
-            scope_locals.pop(name, None)
+        # Mark the consumed items properly so they move from to_consume
+        # to consumed, avoiding unused-import/unused-variable false positives
+        # while still allowing subsequent references to resolve.
+        for consumer, name, found_nodes in consumed:
+            if name in consumer.to_consume:
+                consumer.mark_as_consumed(name, found_nodes)
 
     def _check_classdef_metaclasses(
         self,
         klass: nodes.ClassDef,
         parent_node: nodes.Module | nodes.FunctionDef,
-    ) -> list[tuple[Consumption, str]]:
+    ) -> list[tuple[NamesConsumer, str, list[nodes.NodeNG]]]:
         if not klass._metaclass:
             # Skip if this class doesn't use explicitly a metaclass, but inherits it from ancestors
             return []
 
-        consumed: list[tuple[Consumption, str]] = []
+        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
         metaclass = klass.metaclass()
         name = ""
         match klass._metaclass:
@@ -3434,7 +3435,7 @@ class VariablesChecker(BaseChecker):
                 found_nodes = scope_locals.get(name, [])
                 for found_node in found_nodes:
                     if found_node.lineno <= klass.lineno:
-                        consumed.append((scope_locals, name))
+                        consumed.append((to_consume, name, found_nodes))
                         found = True
                         break
             # Check parent scope

@@ -24,6 +24,7 @@ asynccontextmanager
 attr
 attrib
 attrname
+attrs
 backport
 BaseChecker
 basename
@@ -144,6 +145,7 @@ gv
 hashable
 hmac
 html
+iattrs
 idgeneratormixin
 ifexpr
 igetattr

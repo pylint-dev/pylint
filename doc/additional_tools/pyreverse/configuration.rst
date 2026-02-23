@@ -136,6 +136,13 @@ Display Options
 **Default:**  ``False``
 
 
+--no-signatures
+---------------
+*Show method names without parameter lists or return type annotations.*
+
+**Default:**  ``False``
+
+
 --only-classnames
 -----------------
 *Don't show attributes and methods in the class boxes; this disables -f values.*

@@ -113,7 +113,7 @@ class CodeStyleChecker(BaseChecker):
     def visit_call(self, node: nodes.Call) -> None:
         if self._py36_plus:
             called = safe_infer(node.func)
-            if not called:
+            if not (called and isinstance(called, (nodes.FunctionDef, nodes.ClassDef))):
                 return
             if called.qname() == "collections.namedtuple":
                 self.add_message(
@@ -314,7 +314,7 @@ class CodeStyleChecker(BaseChecker):
             case nodes.Assign(
                 targets=[nodes.AssignName(name=target_name)]
             ) | nodes.AnnAssign(target=nodes.AssignName(name=target_name)):
-                return target_name == name  # type: ignore[no-any-return]
+                return target_name == name and prev_sibling.value is not None
         return False
 
     @staticmethod

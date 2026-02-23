@@ -79,8 +79,8 @@ contributors:
   * redefined-variable-type
 - Harutaka Kawamura <hkawamura0130@gmail.com>
 - Alexandre Fayolle <alexandre.fayolle@logilab.fr> (Logilab): TkInter gui, documentation, debian support
-- Ville Skyttä <ville.skytta@iki.fi>
 - Zen Lee <53538590+zenlyj@users.noreply.github.com>
+- Ville Skyttä <ville.skytta@iki.fi>
 - Julien Cristau <julien.cristau@logilab.fr> (Logilab): python 3 support
 - Moisés López <6644187+moylop260@users.noreply.github.com>:
   * Support for deprecated-modules in modules not installed,
@@ -177,6 +177,7 @@ contributors:
 - Bastien Vallet <bastien.vallet@gmail.com> (Djailla)
 - Aru Sahni <arusahni@gmail.com>: Git ignoring, regex-based ignores
 - Andreas Freimuth <andreas.freimuth@united-bits.de>: fix indentation checking with tabs
+- Alvaro Frias <alvarofriasgaray@gmail.com>
 - Alexandru Coman <fcoman@bitdefender.com>
 - jpkotta <jpkotta@gmail.com>
 - Thomas Grainger <tagrain@gmail.com>
@@ -206,12 +207,12 @@ contributors:
 - James Addison <55152140+jayaddison@users.noreply.github.com>
 - Ionel Maries Cristian <contact@ionelmc.ro>
 - Gergely Kalmár <gergely.kalmar@logikal.jp>
+- Emmanuel Ferdman <emmanuelferdman@gmail.com>
 - Damien Baty <damien.baty@polyconseil.fr>
 - Benjamin Drung <benjamin.drung@profitbricks.com>: contributing Debian Developer
 - Anubhav <35621759+anubh-v@users.noreply.github.com>
 - Antonio Quarta <sgheppy88@gmail.com>
 - Andrew J. Simmons <anjsimmo@gmail.com>
-- Alvaro Frias <alvarofriasgaray@gmail.com>
 - Alexey Pelykh <alexey.pelykh@gmail.com>
 - Alex Prabhat Bara <alexpbara@gmail.com>
 - wtracy <afishionado@gmail.com>
@@ -244,10 +245,10 @@ contributors:
 - Gideon <87426140+GideonBear@users.noreply.github.com>
 - Ganden Schaffner <gschaffner@pm.me>
 - Frost Ming <frostming@tencent.com>
+- Felix Preuschoff <37065638+felixp98@users.noreply.github.com>
 - Federico Bond <federicobond@gmail.com>
 - Erik Wright <erik.wright@shopify.com>
 - Erik Eriksson <molobrakos@users.noreply.github.com>: Added overlapping-except error check.
-- Emmanuel Ferdman <emmanuelferdman@gmail.com>
 - Dave Bunten <dave.bunten@cuanschutz.edu>
 - Daniel Wang <danielwang405@gmail.com>
 - Daniel Mouritzen <dmrtzn@gmail.com>
@@ -266,6 +267,7 @@ contributors:
 - craig-sh <craig-sh@users.noreply.github.com>
 - bernie gray <bfgray3@users.noreply.github.com>
 - azinneck0485 <123660683+azinneck0485@users.noreply.github.com>
+- Zachary Wilkins-Olson <102660451+CodePapayas@users.noreply.github.com>
 - Wing Lian <wing.lian@gmail.com>
 - Wes Turner <westurner@google.com> (Google): added new check 'inconsistent-quotes'
 - Tyler Thieding <tyler@thieding.com>
@@ -291,6 +293,7 @@ contributors:
 - Nedelcu Ioan-Andrei <138256980+nedelcu-ioan@users.noreply.github.com>
 - Nathan Marrow <nmarrow@google.com>
 - Mikhail Fesenko <m.fesenko@corp.vk.com>
+- Mehraz Hossain Rumman <59512321+MehrazRumman@users.noreply.github.com>
 - Matthew Suozzo <msuozzo@google.com>
 - Matthew Beckers <17108752+mattlbeck@users.noreply.github.com> (mattlbeck)
 - Mark Roman Miller <mtmiller@users.noreply.github.com>: fix inline defs in too-many-statements
@@ -301,6 +304,7 @@ contributors:
 - LCD 47 <lcd047@gmail.com>
 - Jérome Perrin <perrinjerome@gmail.com>
 - Justin Li <justinnhli@gmail.com>
+- Julfried <julian.grimm8@gmail.com>
 - John Kirkham <jakirkham@gmail.com>
 - Jens H. Nielsen <Jens.Nielsen@microsoft.com>
 - Jake Lishman <jake.lishman@ibm.com>
@@ -336,6 +340,7 @@ contributors:
 - Batuhan Taskaya <batuhanosmantaskaya@gmail.com>
 - Artem Yurchenko <artemyurchenko@zoho.com>
 - Alexander Kapshuna <kapsh@kap.sh>
+- Alexander Grund <Flamefire@users.noreply.github.com>
 - Akshay Choudhary <153769403+Akshay9715@users.noreply.github.com>
 - Adam Parkin <pzelnip@users.noreply.github.com>
 - 谭九鼎 <109224573@qq.com>
@@ -348,6 +353,7 @@ contributors:
 - temyurchenko <44875844+temyurchenko@users.noreply.github.com>
 - syutbai <syutbai@gmail.com>
 - sur.la.route <17788706+christopherpickering@users.noreply.github.com>
+- shifqu <sonny@softllama.net>
 - sdet_liang <liangway@users.noreply.github.com>
 - pavan-msys <149513767+pavan-msys@users.noreply.github.com>
 - paschich <millen@gridium.com>
@@ -405,6 +411,7 @@ contributors:
 - Val Lorentz <progval+github@progval.net>
 - Ulrich Eckhardt <UlrichEckhardt@users.noreply.github.com>
 - Udi Fuchs <udifuchs@gmail.com>
+- Trinh Quoc Anh <trinhquocanh94@gmail.com>
 - Trevor Bekolay <tbekolay@gmail.com>
   * Added --list-msgs-enabled command
 - Tomer Chachamu <tomer.chachamu@gmail.com>: simplifiable-if-expression
@@ -444,6 +451,7 @@ contributors:
 - Roman Ivanov <me@roivanov.com>
 - Robert Schweizer <robert_schweizer@gmx.de>
 - Reverb Chu <reverbc@users.noreply.github.com>
+- RetroEdit <retroeditcode@gmail.com>
 - Renat Galimov <renat2017@gmail.com>
 - Rebecca Turner <rbt@sent.as> (9999years)
 - Randall Leeds <randall@bleeds.info>
@@ -521,6 +529,7 @@ contributors:
 - Kevin Phillips <thefriendlycoder@gmail.com>
 - Kevin Jing Qiu <kevin.jing.qiu@gmail.com>
 - Kenneth Schackart <schackartk1@gmail.com>
+- Kelvin Chiu <kelvin.chiu021@outlook.com>
 - Kayran Schmidt <59456929+yumasheta@users.noreply.github.com>
 - Karthik Nadig <kanadig@microsoft.com>
 - Jürgen Hermann <jh@web.de>
@@ -533,6 +542,7 @@ contributors:
 - Johannes Maron <johannes@maron.family>
 - Joffrey Mander <joffrey.mander+pro@gmail.com>
 - Jochen Preusche <iilei@users.noreply.github.com>
+- Joao Faria <joaovitorfaria.dev@gmail.com>
 - Jeroen Seegers <jeroenseegers@users.noreply.github.com>:
   * Fixed `toml` dependency issue
 - Jeremy Fleischman <jeremyfleischman@gmail.com>
@@ -565,7 +575,6 @@ contributors:
 - Giuseppe Valente <gvalente@arista.com>
 - Gary Tyler McLeod <mail@garytyler.com>
 - Felix von Drigalski <FvDrigalski@gmail.com>
-- Felix Preuschoff <37065638+felixp98@users.noreply.github.com>
 - Fabrice Douchant <Fabrice.Douchant@logilab.fr>
 - Fabio Natali <me@fabionatali.com>
 - Fabian Damken <fdamken+github@frisp.org>
@@ -617,6 +626,7 @@ contributors:
 - Brandon W Maister <quodlibetor@gmail.com>
 - BioGeek <jeroen.vangoey@gmail.com>
 - Berker ŞAL <brkr.sal@gmail.com>
+- Benjamin T. Vincent <inferencelab@gmail.com>
 - Benjamin Partzsch <32679788+bnjmnp@users.noreply.github.com>
 - Benjamin Graham <benwilliamgraham@gmail.com>
 - Benedikt Morbach <benedikt.morbach@googlemail.com>
@@ -659,6 +669,7 @@ contributors:
 - Adrian Chirieac <chirieacam@gmail.com>
 - Aditya Gupta <adityagupta1089@users.noreply.github.com> (adityagupta1089)
   * Added ignore_signatures to duplicate checker
+- Adarsh Kumar <kumaradarsh.cse@gmail.com>
 - Adam Tuft <73994535+adamtuft@users.noreply.github.com>
 - Adam Dangoor <adamdangoor@gmail.com>
 - 243f6a88 85a308d3 <33170174+243f6a8885a308d313198a2e037@users.noreply.github.com>

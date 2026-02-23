@@ -409,7 +409,7 @@ class StringFormatChecker(BaseChecker):
         self._check_interpolation(node)
 
     def _check_interpolation(self, node: nodes.JoinedStr) -> None:
-        if isinstance(node.parent, nodes.FormattedValue):
+        if isinstance(node.parent, (nodes.TemplateStr, nodes.FormattedValue)):
             return
         for value in node.values:
             if isinstance(value, nodes.FormattedValue):

@@ -135,7 +135,7 @@ localized using the following rules:
 * "pylint" subdirectory of the user's XDG_CACHE_HOME if the environment variable is set, otherwise
     - Linux: "~/.cache/pylint"
     - macOS: "~/Library/Caches/pylint"
-    - Windows: "C:\Users\<username>\AppData\Local\pylint"
+    - Windows: "C:\\Users\\<username>\\AppData\\Local\\pylint"
 * ".pylint.d" directory in the current directory
 
 How does the website pylint dot org relate to this project?
