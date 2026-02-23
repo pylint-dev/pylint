@@ -116,10 +116,10 @@ def bare_annotation_with_except_assignment():
     https://github.com/pylint-dev/pylint/issues/10847
     """
     result = None
-    err: int  # pylint: disable=unused-variable
+    err: int
     try:
         result = 1
-    except Exception:  # pylint: disable=broad-exception-caught
+    except ValueError:
         err = 1
     if not result:
         print(err)  # [used-before-assignment]
@@ -131,7 +131,7 @@ def bare_annotation_with_value_and_except():
     err: int = 0
     try:
         result = 1
-    except Exception:  # pylint: disable=broad-exception-caught
+    except ValueError:
         err = 1
     if not result:
         print(err)
