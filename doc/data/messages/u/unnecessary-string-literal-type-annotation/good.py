@@ -1,0 +1,6 @@
+class Foo:
+    def some_function(self) -> Bar: ...
+
+
+class Bar:
+    def another_function(self) -> Foo: ...

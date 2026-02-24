@@ -557,6 +557,7 @@ All messages in the refactor category:
    refactor/unnecessary-default-type-args
    refactor/unnecessary-dict-index-lookup
    refactor/unnecessary-list-index-lookup
+   refactor/unnecessary-string-literal-type-annotation
    refactor/use-a-generator
    refactor/use-dict-literal
    refactor/use-list-literal

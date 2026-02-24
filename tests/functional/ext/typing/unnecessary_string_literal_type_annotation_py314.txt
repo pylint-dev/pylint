@@ -1,0 +1,5 @@
+unnecessary-string-literal-type-annotation:12:31:12:36:Foo.some_function:Unnecessary string literal 'Bar' in type annotation. Use Bar instead.:HIGH
+unnecessary-string-literal-type-annotation:17:34:17:39:Bar.another_function:Unnecessary string literal 'Foo' in type annotation. Use Foo instead.:HIGH
+unnecessary-string-literal-type-annotation:21:24:21:29:f:Unnecessary string literal 'Bar' in type annotation. Use Bar instead.:HIGH
+unnecessary-string-literal-type-annotation:21:9:21:14:f:Unnecessary string literal 'Foo' in type annotation. Use Foo instead.:HIGH
+unnecessary-string-literal-type-annotation:28:32:28:37::Unnecessary string literal 'Foo' in type annotation. Use Foo instead.:HIGH

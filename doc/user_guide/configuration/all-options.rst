@@ -904,6 +904,13 @@ Standard Checkers
 **Default:**  ``^\s*(# )?<?https?://\S+>?$``
 
 
+--ignore-pattern-in-long-lines
+""""""""""""""""""""""""""""""
+*Regexp for a part of a line that will not be counted when calculating the line length.*
+
+**Default:**  ``None``
+
+
 --indent-after-paren
 """"""""""""""""""""
 *Number of spaces of indent required inside a hanging or continued line.*
@@ -961,6 +968,8 @@ Standard Checkers
    expected-line-ending-format = ""
 
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+
+   # ignore-pattern-in-long-lines =
 
    indent-after-paren = 4
 
@@ -1034,16 +1043,16 @@ Standard Checkers
 **Default:** ``""``
 
 
---known-standard-library
-""""""""""""""""""""""""
-*Force import order to recognize a module as part of the standard compatibility libraries.*
+--known-first-party
+"""""""""""""""""""
+*Force import order to recognize a module as part of a first party library.*
 
 **Default:**  ``()``
 
 
---known-first-party
-"""""""""""""""""""
-*Force import order to recognize a module as part of a first party library.*
+--known-standard-library
+""""""""""""""""""""""""
+*Force import order to recognize a module as part of the standard compatibility libraries.*
 
 **Default:**  ``()``
 
@@ -1087,9 +1096,9 @@ Standard Checkers
 
    int-import-graph = ""
 
-   known-standard-library = []
-
    known-first-party = []
+
+   known-standard-library = []
 
    known-third-party = ["enchant"]
 

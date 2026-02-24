@@ -13,6 +13,7 @@ from pylint.checkers.utils import (
     in_type_checking_block,
     is_node_in_type_annotation_context,
     is_postponed_evaluation_enabled,
+    is_typing_member,
     only_required_for_messages,
     safe_infer,
 )
@@ -139,6 +140,13 @@ class TypingChecker(BaseChecker):
             "unnecessary-default-type-args",
             "Emitted when types have default type args which can be omitted. "
             "Mainly used for `typing.Generator` and `typing.AsyncGenerator`.",
+        ),
+        "R6008": (
+            "Unnecessary string literal %r in type annotation. Use %s instead.",
+            "unnecessary-string-literal-type-annotation",
+            "Emitted when a type annotation is a string literal even though "
+            "annotations are evaluated lazily "
+            "(when the ``py-version`` option is set to Python 3.14 or higher).",
         ),
     }
     options = (
@@ -294,6 +302,91 @@ class TypingChecker(BaseChecker):
                 node=node,
                 confidence=HIGH,
             )
+
+    @only_required_for_messages("unnecessary-string-literal-type-annotation")
+    def visit_const(self, node: nodes.Const) -> None:
+        if not (self._py314_plus and isinstance(node.value, str)):
+            return
+        if not is_node_in_type_annotation_context(node):
+            return
+        if self._is_exempt_string_literal_type_annotation(node):
+            return
+        self.add_message(
+            "unnecessary-string-literal-type-annotation",
+            node=node,
+            args=(node.value, node.value),
+            confidence=HIGH,
+        )
+
+    @staticmethod
+    def _is_typing_or_typing_extensions_member(
+        node: nodes.NodeNG, names_to_check: tuple[str, ...]
+    ) -> bool:
+        """Like ``is_typing_member`` but includes ``typing_extensions``."""
+        if is_typing_member(node, names_to_check):
+            return True
+        match node:
+            case nodes.Name():
+                try:
+                    import_from = node.lookup(node.name)[1][0]
+                except IndexError:
+                    return False
+                match import_from:
+                    case nodes.ImportFrom(modname="typing_extensions"):
+                        return import_from.real_name(node.name) in names_to_check
+                return False
+            case nodes.Attribute():
+                match safe_infer(node.expr):
+                    case nodes.Module(name="typing_extensions"):
+                        return node.attrname in names_to_check
+                return False
+        return False
+
+    def _is_exempt_string_literal_type_annotation(self, node: nodes.Const) -> bool:
+        """Return True if this string literal should not be flagged.
+
+        Exemptions:
+        - string literal is an argument to a call (e.g. ``ForwardRef("T")``)
+        - string literal used inside ``(typing|typing_extensions).Literal[...]``
+        - string literal used as metadata inside ``(typing|typing_extensions).Annotated[...]``
+        """
+        current = node
+        while not isinstance(current, nodes.Module):
+            parent = current.parent
+            if isinstance(parent, nodes.Call):
+                return True
+
+            # Special-case typing.Literal / typing.Annotated
+            if isinstance(parent, nodes.Tuple) and isinstance(
+                parent.parent, nodes.Subscript
+            ):
+                subscript = parent.parent
+            elif isinstance(parent, nodes.Subscript):
+                subscript = parent
+            else:
+                current = parent
+                continue
+
+            origin = next(subscript.get_children(), None)
+            if origin is None:
+                current = parent
+                continue
+
+            if self._is_typing_or_typing_extensions_member(origin, ("Literal",)):
+                return True
+
+            if self._is_typing_or_typing_extensions_member(
+                origin, ("Annotated",)
+            ) and isinstance(subscript.slice, nodes.Tuple):
+                metadata_elts = subscript.slice.elts[1:]
+                tmp: nodes.NodeNG = node
+                while tmp is not subscript:
+                    if any(tmp is elt for elt in metadata_elts):
+                        return True
+                    tmp = tmp.parent
+
+            current = parent
+        return False
 
     @staticmethod
     def _is_deprecated_union_annotation(

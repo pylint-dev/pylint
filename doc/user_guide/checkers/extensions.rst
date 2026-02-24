@@ -701,6 +701,10 @@ Typing checker Messages
 :unnecessary-default-type-args (R6007): *Type `%s` has unnecessary default type args. Change it to `%s`.*
   Emitted when types have default type args which can be omitted. Mainly used
   for `typing.Generator` and `typing.AsyncGenerator`.
+:unnecessary-string-literal-type-annotation (R6008): *Unnecessary string literal %r in type annotation. Use %s instead.*
+  Emitted when a type annotation is a string literal even though postponed
+  evaluation of annotations is enabled (Python 3.14+ or ``from __future__
+  import annotations``).
 
 
 .. _pylint.extensions.while_used:

@@ -1,0 +1,4 @@
+Add a new ``unnecessary-string-literal-type-annotation`` message in the ``pylint.extensions.typing`` plugin
+to flag string-literal type annotations when ``py-version`` is set to Python 3.14 or higher.
+
+Refs #10805

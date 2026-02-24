@@ -1,0 +1,2 @@
+- `PEP 649 – Deferred Evaluation Of Annotations <https://peps.python.org/pep-0649/>`_
+- `PEP 749 – Interpreting and Inlining Type Aliases <https://peps.python.org/pep-0749/>`_
