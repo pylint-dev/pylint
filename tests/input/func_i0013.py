@@ -4,5 +4,5 @@
 # no warning should be issued
 try:
     import this
-except:
+except Exception:
     pass

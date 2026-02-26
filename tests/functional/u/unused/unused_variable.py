@@ -131,7 +131,7 @@ def func2():
     except ZeroDivisionError as error:
         try:
             1 / 0
-        except:
+        except Exception:
             raise Exception("") from error
 
 def func3():

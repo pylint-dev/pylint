@@ -135,7 +135,7 @@ class ClassLevelMessage:
             attr3 = attr1+attr2
         except ValueError:
             attr3 = None
-        except:
+        except Exception:
             return 'duh', self
         if attr1:
             for i in attr1:

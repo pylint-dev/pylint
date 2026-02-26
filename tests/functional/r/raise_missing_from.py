@@ -3,7 +3,7 @@
 
 try:
     1 / 0
-except:
+except Exception:
     raise ValueError('Invalid integer')  # [raise-missing-from]
 
 try:
@@ -44,7 +44,7 @@ except ZeroDivisionError as e:
                 try:
                     # +1: [raise-missing-from]
                     raise KeyError
-                except:
+                except Exception:
                     pass
 
 try:
@@ -113,7 +113,7 @@ except ZeroDivisionError as e:
             with whatever:
                 try:
                     raise KeyError from foo
-                except:
+                except Exception:
                     pass
 
 try:

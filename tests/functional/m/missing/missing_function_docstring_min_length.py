@@ -14,7 +14,7 @@ def func_two(tion):  # [missing-function-docstring]
 def func_three(tion):  # [missing-function-docstring]
     try:
         pass
-    except:
+    except Exception:
         pass
 
 

@@ -153,7 +153,7 @@ def cm_bare_handler():
     print("cm enter")
     try:
         yield contextvar
-    except:
+    except Exception:
         print("cm exit")
 
 

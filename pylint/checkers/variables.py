@@ -1030,7 +1030,7 @@ scope_type : {self.scope_type}
         for _ in range(3):
             try:
                 do_something()
-            except:
+            except Exception:
                 name = 1  <-- only non-break exit from loop
             else:
                 break

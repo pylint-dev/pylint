@@ -16,7 +16,7 @@ finally:
 
 try:
     pass
-except:
+except Exception:
     false_positive = 1
     false_positive  # here pylint claims used-before-assignment
 finally:

@@ -267,7 +267,7 @@ def outer_():
             print(a)  # [used-before-assignment] FALSE POSITIVE
             a = 2
             print(a)
-        except:
+        except Exception:
             pass
 
     def inner_while():

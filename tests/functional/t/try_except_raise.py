@@ -7,7 +7,7 @@ except:  # [try-except-raise]
 
 try:
     int("9a")
-except:
+except Exception:
     raise ValueError('Invalid integer')
 
 
@@ -19,7 +19,7 @@ except:  # [try-except-raise]
 
 try:
     int("9a")
-except:
+except Exception:
     print('caught exception')
     raise
 
@@ -57,12 +57,12 @@ try:
     pass
 except RuntimeError:
     raise
-except:
+except Exception:
     print("a failure")
 
 try:
     pass
-except:
+except Exception:
     print("a failure")
 except RuntimeError:  # [try-except-raise]
     raise

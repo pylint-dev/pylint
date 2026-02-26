@@ -92,7 +92,7 @@ def test_space_indentation(string: str, count: int) -> None:
     def my_func():
         try:
             fake_func()
-        except:
+        except Exception:
             raise #@
     """),
             set(),

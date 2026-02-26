@@ -33,7 +33,7 @@ class MyError(Exception): a='a'; b='b'  # [multiple-statements]
 
 try:  #@
     pass
-except:
+except Exception:
     pass
 finally:
     pass
@@ -52,14 +52,14 @@ finally: pass  # [multiple-statements]
 # Test for multiple statements on else line
 try:
     pass
-except:
+except Exception:
     pass
 else: pass  # [multiple-statements]
 
 # Test for multiple statements on else and finally lines
 try:
     pass
-except:
+except Exception:
     pass
 else: pass  # [multiple-statements]
 finally: pass  # [multiple-statements]

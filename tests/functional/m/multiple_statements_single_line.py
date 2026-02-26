@@ -31,7 +31,7 @@ class MyError(Exception): a='a'; b='b'  # [multiple-statements]
 
 try:  #@
     pass
-except:
+except Exception:
     pass
 finally:
     pass

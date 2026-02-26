@@ -25,7 +25,7 @@ except (IndexError, UnboundLocalError): # [bad-except-order, bad-except-order]
 
 try: # [bad-except-order]
     __revision__ += 1
-except:
+except Exception:
     pass
 except Exception:
     pass
@@ -34,12 +34,12 @@ try:
     __revision__ += 1
 except TypeError:
     __revision__ = 0
-except:
+except Exception:
     __revision__ = 0
 
 try:
     __revision__ += 1
 except Exception:
     pass
-except:
+except Exception:
     pass

@@ -89,7 +89,7 @@ def test_node_ignores_exception() -> None:
         pass
     try:
         2/0 #@
-    except:
+    except Exception:
         pass
     try:
         1/0 #@
@@ -336,7 +336,7 @@ def test_get_node_last_lineno_combined() -> None:
             def y(self):
                 try:
                     pass
-                except:
+                except Exception:
                     pass
                 finally:
                     pass

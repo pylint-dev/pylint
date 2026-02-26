@@ -113,7 +113,7 @@ def bar4(x):
 def try_one_except() -> bool:
     try:  # [no-else-return]
         print('asdf')
-    except:
+    except Exception:
         print("bad")
         return False
     else:
@@ -147,7 +147,7 @@ def try_not_all_except_return() -> bool:  # [inconsistent-return-statements]
 def try_except_raises() -> bool:
     try:  # [no-else-raise]
         print('asdf')
-    except:
+    except Exception:
         raise ValueError
     else:
         return True
