@@ -109,29 +109,29 @@ def loop_conditional_annotated_assignment():
     print(token)
 
 
-def bare_annotation_with_except_assignment():
+def bare_annotation_with_except_assignment(text):
     """A bare type annotation should not suppress used-before-assignment
     when the only real assignments are in except blocks.
 
     https://github.com/pylint-dev/pylint/issues/10847
     """
-    result = None
     err: int
     try:
-        result = 1
-    except ValueError:
+        result = int(text)
+    except (TypeError, OverflowError):
         err = 1
-    if not result:
+        result = -1
+    if result < 0:
         print(err)  # [used-before-assignment]
 
 
-def bare_annotation_with_value_and_except():
+def bare_annotation_with_value_and_except(text):
     """A type annotation with a value should suppress the warning."""
-    result = None
     err: int = 0
     try:
-        result = 1
-    except ValueError:
+        result = int(text)
+    except (TypeError, OverflowError):
         err = 1
-    if not result:
+        result = -1
+    if result < 0:
         print(err)
