@@ -1,3 +1,0 @@
-Fixed a typo in the ``multiple-statements`` message text in ``pylint/checkers/format.py``.
-
-Closes #10870
