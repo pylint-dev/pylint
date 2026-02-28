@@ -898,13 +898,6 @@ Remember that only ``tool.pylint`` is required, the section title is not. There 
 **Default:** ``""``
 
 
---number-notation-threshold
-"""""""""""""""""""""""""""
-*Threshold for number literals to be expected to be written using the scientific, engineering or underscore notation. If the absolute value of a number literal is greater than this value (or smaller than the inverse of this value for scientific and engineering notation), it will be checked.*
-
-**Default:**  ``1e6``
-
-
 --ignore-long-lines
 """""""""""""""""""
 *Regexp for a line that is allowed to be longer than the limit.*
@@ -947,6 +940,20 @@ Remember that only ``tool.pylint`` is required, the section title is not. There 
 **Default:**  ``1000``
 
 
+--number-notation-style
+"""""""""""""""""""""""
+*Enforce a specific notation for number literals above 'number-notation-threshold'. Choices: empty (allow all standard notations), 'scientific', 'engineering', or 'underscore' (PEP 515).*
+
+**Default:** ``""``
+
+
+--number-notation-threshold
+"""""""""""""""""""""""""""
+*Threshold for number literals to be expected to be written using the scientific, engineering or underscore notation. If the absolute value of a number literal is greater than this value (or smaller than the inverse of this value for scientific and engineering notation), it will be checked.*
+
+**Default:**  ``1e6``
+
+
 --single-line-class-stmt
 """"""""""""""""""""""""
 *Allow the body of a class to be on the same line as the declaration if body contains single statement.*
@@ -959,13 +966,6 @@ Remember that only ``tool.pylint`` is required, the section title is not. There 
 *Allow the body of an if to be on the same line as the test if there is no else.*
 
 **Default:**  ``False``
-
-
---number-notation-style
-"""""""""""""""""""""""
-*Enforce a specific notation for number literals above 'number-notation-threshold'. Choices: empty (allow all standard notations), 'scientific', 'engineering', or 'underscore' (PEP 515).*
-
-**Default:**  ``""``
 
 
 
@@ -982,8 +982,6 @@ Remember that only ``tool.pylint`` is required, the section title is not. There 
    # Possible choices: ['', 'LF', 'CRLF']
    expected-line-ending-format = ""
 
-   number-notation-threshold = 1000000.0
-
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 
    # ignore-pattern-in-long-lines =
@@ -996,11 +994,14 @@ Remember that only ``tool.pylint`` is required, the section title is not. There 
 
    max-module-lines = 1000
 
+   # Possible choices: ['', 'scientific', 'engineering', 'underscore']
+   number-notation-style = ""
+
+   number-notation-threshold = 1000000.0
+
    single-line-class-stmt = false
 
    single-line-if-stmt = false
-
-   number-notation-style =
 
 
 
