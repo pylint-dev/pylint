@@ -67,7 +67,6 @@ class FloatFormatterHelper:
         scientific: bool = True,
         engineering: bool = True,
         pep515: bool = True,
-        time_suggestion: bool = False,
     ) -> str:
         dec_number = Decimal(original_string)
         sig_figs = len(dec_number.as_tuple().digits)
@@ -79,10 +78,6 @@ class FloatFormatterHelper:
             suggested.add(cls.to_standard_engineering_notation(dec_number, sig_figs))
         if pep515:
             suggested.add(cls.to_standard_underscore_grouping(number))
-        if time_suggestion:
-            maybe_a_time = cls.to_understandable_time(number)
-            if maybe_a_time:
-                suggested.add(maybe_a_time)
         return "' or '".join(sorted(suggested))
 
     @classmethod
@@ -137,59 +132,6 @@ class FloatFormatterHelper:
             base_str += ".0"
 
         return f"{base_str}e{exponent}"
-
-    @classmethod
-    def to_understandable_time(cls, number: float) -> str:
-        if (
-            number % 3600 != 0  # not a multiple of the number of second in an hour
-            or number == 0.0  # 0 is congruent to 3600, but not a time
-        ):
-            return ""
-        if number // 3600 == 1:
-            # If we have to advise a proper time for 3600, it means the threshold
-            # was under 3600, so we advise even more decomposition
-            return "60 * 60"
-        parts: list[int | str] = [3600]
-        number //= 3600
-        for divisor in (24, 365):
-            if number % divisor == 0:
-                parts.append(divisor)
-                number //= divisor
-        remainder = int(number)
-        days_to_add = None
-        hours_to_add = None
-        exp = 0
-        while remainder > 1 and remainder % 1000 == 0:
-            # suspected watt hour remove prior to decomposition
-            remainder //= 1000
-            exp += 3
-        if exp:
-            parts.append(f"1e{exp}")
-        else:
-            days = int(remainder // 24)
-            hours_to_remove = remainder % 24
-            if days > 1 and hours_to_remove != 0 and 24 not in parts:
-                parts += [24]
-                hours_to_add = f" + ({hours_to_remove} * 3600)"
-                remainder -= hours_to_remove
-                remainder //= 24
-            year = int(remainder // 365)
-            days_to_remove = remainder % 365
-            if year > 1 and days_to_remove != 0 and 365 not in parts:
-                parts += [365]
-                days_to_add = f" + ({days_to_remove} * 3600 * 24)"
-                remainder -= days_to_remove
-                remainder //= 365
-        if remainder != 1:
-            parts.append(remainder)
-        result = " * ".join([str(p) for p in parts])
-        if days_to_add:
-            result = f"({result}){days_to_add}"
-            if hours_to_add:
-                result += hours_to_add
-        elif hours_to_add:
-            result = f"({result}){hours_to_add}"
-        return result
 
     @classmethod
     def to_standard_engineering_notation(
@@ -800,16 +742,13 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             or self.linter.config.strict_underscore_notation
         )
 
-        def raise_bad_float_notation(
-            reason: str, time_suggestion: bool = False
-        ) -> None:
+        def raise_bad_float_notation(reason: str) -> None:
             suggestion = FloatFormatterHelper.standardize(
                 value,
                 string,  # ← ADD THIS: Pass original string
                 scientific,
                 engineering,
                 pep515,
-                time_suggestion,
             )
             return self.add_message(
                 "bad-float-notation",
@@ -866,9 +805,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 return raise_bad_float_notation(
                     f"is smaller than {close_to_zero_threshold}"
                 )
-            return raise_bad_float_notation(
-                f"is bigger than {threshold}", time_suggestion=True
-            )
+            return raise_bad_float_notation(f"is bigger than {threshold}")
         if has_exponent:
             if self.linter.config.strict_underscore_notation or has_underscore:
                 # If we have exponent it means it's not proper underscore
