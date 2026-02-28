@@ -17,7 +17,7 @@ import decimal
 import math
 import re
 import tokenize
-from decimal import Decimal, getcontext
+from decimal import Decimal, localcontext
 from functools import reduce
 from re import Match
 from typing import TYPE_CHECKING, Literal
@@ -33,8 +33,6 @@ from pylint.utils.pragma_parser import OPTION_PO, PragmaParserError, parse_pragm
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
-
-getcontext().prec = 50
 
 
 _KEYWORD_TOKENS = {
@@ -117,13 +115,15 @@ class FloatFormatterHelper:
                 base_str += ".0"
             return base_str
 
-        try:
-            base_value = dec_number / (Decimal(10) ** exponent)
-        except decimal.Overflow:
-            # Extreme exponents (e.g. 1e12_000_000) overflow Decimal arithmetic;
-            # fall back to float-based computation.
-            base, exp_str = cls.to_standard_or_engineering_base(float(dec_number))
-            return f"{base}e{exp_str}" if exp_str != "0" else base
+        with localcontext() as ctx:
+            ctx.prec = 50
+            try:
+                base_value = dec_number / (Decimal(10) ** exponent)
+            except decimal.Overflow:
+                # Extreme exponents (e.g. 1e12_000_000) overflow Decimal arithmetic;
+                # fall back to float-based computation.
+                base, exp_str = cls.to_standard_or_engineering_base(float(dec_number))
+                return f"{base}e{exp_str}" if exp_str != "0" else base
         # Cap at 15 significant digits (float precision limit) to avoid
         # g-format switching to scientific notation for intermediate values.
         base_str = f"{float(base_value):.{min(sig_figs, 15)}g}"
@@ -146,24 +146,26 @@ class FloatFormatterHelper:
 
         remainder = exponent % 3
 
-        try:
-            if exponent < 0:
-                adjustment = 3 - ((-exponent) % 3)
-                if adjustment == 3:
-                    adjustment = 0
-                exp_value = exponent - adjustment
-                base_value = dec_number / (Decimal(10) ** exp_value)
-            elif remainder != 0:
-                exp_value = exponent - remainder
-                base_value = dec_number / (Decimal(10) ** exp_value)
-            else:
-                exp_value = exponent
-                base_value = dec_number / (Decimal(10) ** exponent)
-        except decimal.Overflow:
-            # Extreme exponents overflow Decimal arithmetic; fall back to
-            # float-based scientific notation.
-            base, exp_str = cls.to_standard_or_engineering_base(float(dec_number))
-            return f"{base}e{exp_str}" if exp_str != "0" else base
+        with localcontext() as ctx:
+            ctx.prec = 50
+            try:
+                if exponent < 0:
+                    adjustment = 3 - ((-exponent) % 3)
+                    if adjustment == 3:
+                        adjustment = 0
+                    exp_value = exponent - adjustment
+                    base_value = dec_number / (Decimal(10) ** exp_value)
+                elif remainder != 0:
+                    exp_value = exponent - remainder
+                    base_value = dec_number / (Decimal(10) ** exp_value)
+                else:
+                    exp_value = exponent
+                    base_value = dec_number / (Decimal(10) ** exponent)
+            except decimal.Overflow:
+                # Extreme exponents overflow Decimal arithmetic; fall back to
+                # float-based scientific notation.
+                base, exp_str = cls.to_standard_or_engineering_base(float(dec_number))
+                return f"{base}e{exp_str}" if exp_str != "0" else base
 
         # Use at least 3 significant digits to prevent g-format from switching
         # to scientific notation (engineering base is always < 1000), and cap
@@ -458,7 +460,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": "Only allow engineering notation for float literals with "
-                "absolute value bigger than 'float-notation-threshold' or smaller"
+                "absolute value bigger than 'float-notation-threshold' or smaller "
                 "than the inverse of 'float-notation-threshold'.",
             },
         ),
@@ -469,7 +471,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "type": "yn",
                 "metavar": "<y or n>",
                 "help": "Only allow scientific notation for float literals with "
-                "absolute value bigger than 'float-notation-threshold' or smaller"
+                "absolute value bigger than 'float-notation-threshold' or smaller "
                 "than the inverse of 'float-notation-threshold'.",
             },
         ),
@@ -499,19 +501,17 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "can be set to True at a time."
             )
         self.all_float_notation_allowed = number_of_strict_float_notation == 0
-        if (
-            self.linter.config.float_notation_threshold < 10
-            and self.linter.config.strict_scientific_notation
-        ):
-            raise ValueError(
-                "'float-notation-threshold' must be at least 10 "
-                "when 'strict-scientific-notation' is enabled, got "
-                f"{self.linter.config.float_notation_threshold}."
-            )
-        if self.linter.config.float_notation_threshold < 1000:
+        if self.linter.config.strict_scientific_notation:
+            if self.linter.config.float_notation_threshold < 10:
+                raise ValueError(
+                    "'float-notation-threshold' must be at least 10 "
+                    "when 'strict-scientific-notation' is enabled, got "
+                    f"{self.linter.config.float_notation_threshold}."
+                )
+        elif self.linter.config.float_notation_threshold < 1000:
             raise ValueError(
                 "'float-notation-threshold' must be at least 1000 "
-                f"when 'strict-scientific-notation' is disabled, got "
+                "when 'strict-scientific-notation' is disabled, got "
                 f"{self.linter.config.float_notation_threshold}."
             )
 
@@ -752,16 +752,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     line_num, start, string, 3, r"[0-9]", "digits", "", 0
                 )
 
-    def _check_bad_float_notation(  # pylint: disable=too-many-locals,too-many-return-statements
+    def _check_bad_float_notation(  # pylint: disable=too-many-locals
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
 
-        has_dot = "." in string
         has_exponent = "e" in string or "E" in string
-        if not (has_dot or has_exponent):
-            # it's an int, need special treatment later on
-            return None
-
         value = float(string.replace("_", ""))
         engineering = (
             self.all_float_notation_allowed
