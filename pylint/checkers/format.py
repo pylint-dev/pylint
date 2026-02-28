@@ -279,7 +279,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     ),
     "C0329": (
         "'%s' %s, and it should be written as '%s' instead",
-        "bad-float-notation",
+        "bad-number-notation",
         "Emitted when a number is written in a non-standard notation. The three "
         "allowed notation above the threshold are the scientific notation, the "
         "engineering notation, and the underscore grouping notation defined in PEP515.",
@@ -698,7 +698,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
 
             if tok_type == tokenize.NUMBER:
                 if (
-                    self.linter.is_message_enabled("bad-float-notation")
+                    self.linter.is_message_enabled("bad-number-notation")
                     and "j" not in string  # complex number, not handled
                 ):
                     self._check_number_notation(line_num, start, string)
@@ -780,7 +780,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 pep515,
             )
             return self.add_message(
-                "bad-float-notation",
+                "bad-number-notation",
                 line=line_num,
                 col_offset=start[1],
                 end_lineno=line_num,
@@ -909,7 +909,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     string, group_size, prefix_length
                 )
                 self.add_message(
-                    "bad-float-notation",
+                    "bad-number-notation",
                     line=line_num,
                     col_offset=start[1],
                     end_lineno=line_num,
@@ -931,7 +931,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 dec_threshold, len(dec_threshold.as_tuple().digits)
             )
             self.add_message(
-                "bad-float-notation",
+                "bad-number-notation",
                 line=line_num,
                 col_offset=start[1],
                 end_lineno=line_num,
