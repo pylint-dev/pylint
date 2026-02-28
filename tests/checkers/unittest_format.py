@@ -293,3 +293,52 @@ def test_to_another_standard_notation(
     assert (
         underscore == expected_underscore
     ), f"Underscore grouping mismatch expected {expected_underscore}, got {underscore}"
+
+
+@pytest.mark.parametrize(
+    "value,group_size,expected",
+    [
+        # Hex (group by 4)
+        ("0x0", 4, "0x0"),
+        ("0xA", 4, "0xA"),
+        ("0xFF", 4, "0xFF"),
+        ("0xABCD", 4, "0xABCD"),
+        ("0x1_0000", 4, "0x1_0000"),
+        ("0xDEADBEEF", 4, "0xDEAD_BEEF"),
+        ("0x12c_456", 4, "0x12_c456"),
+        ("0xDE_AD_BE_EF", 4, "0xDEAD_BEEF"),
+        ("0x1234567890ABCDEF", 4, "0x1234_5678_90AB_CDEF"),
+        ("0xABCDE_F", 4, "0xAB_CDEF"),
+        ("0xA_B", 4, "0xAB"),
+        ("0XFF", 4, "0xFF"),
+        # Binary (group by 4)
+        ("0b0", 4, "0b0"),
+        ("0b1010", 4, "0b1010"),
+        ("0b11110100001001000000", 4, "0b1111_0100_0010_0100_0000"),
+        ("0b1111_001", 4, "0b111_1001"),
+        ("0B1010", 4, "0b1010"),
+        # Octal (group by 3)
+        ("0o0", 3, "0o0"),
+        ("0o777", 3, "0o777"),
+        ("0o123456", 3, "0o123_456"),
+        ("0o3641100", 3, "0o3_641_100"),
+        ("0o12_3456", 3, "0o123_456"),
+        ("0O777", 3, "0o777"),
+        # Decimal integers (group by 3, no prefix)
+        ("0", 3, "0"),
+        ("999", 3, "999"),
+        ("1234567", 3, "1_234_567"),
+        ("1_23_456", 3, "123_456"),
+        ("1000000", 3, "1_000_000"),
+    ],
+)
+def test_to_standard_non_decimal_grouping(
+    value: str, group_size: int, expected: str
+) -> None:
+    prefix_length = 2 if value[:2].lower() in {"0x", "0b", "0o"} else 0
+    result = FloatFormatterHelper.to_standard_non_decimal_grouping(
+        value, group_size, prefix_length
+    )
+    assert (
+        result == expected
+    ), f"Non-decimal grouping mismatch: expected {expected!r}, got {result!r}"

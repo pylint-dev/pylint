@@ -63,7 +63,7 @@ class FloatFormatterHelper:
     def standardize(
         cls,
         number: float,
-        original_string: str,  # ← ADD THIS PARAMETER
+        original_string: str,
         scientific: bool = True,
         engineering: bool = True,
         pep515: bool = True,
@@ -197,6 +197,22 @@ class FloatFormatterHelper:
                 grouped_int_part = "_" + grouped_int_part
             grouped_int_part = digit + grouped_int_part
         return f"{grouped_int_part}.{dec_part}"
+
+    @classmethod
+    def to_standard_non_decimal_grouping(
+        cls, string: str, group_size: int, prefix_length: int = 2
+    ) -> str:
+        clean = string.replace("_", "")
+        prefix = clean[:prefix_length].lower() if prefix_length else ""
+        digits = clean[prefix_length:]
+        if len(digits) <= group_size:
+            return f"{prefix}{digits}"
+        grouped = ""
+        for i, digit in enumerate(reversed(digits)):
+            if i > 0 and i % group_size == 0:
+                grouped = "_" + grouped
+            grouped = digit + grouped
+        return f"{prefix}{grouped}"
 
 
 MSGS: dict[str, MessageDefinitionTuple] = {
@@ -683,14 +699,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             if tok_type == tokenize.NUMBER:
                 if (
                     self.linter.is_message_enabled("bad-float-notation")
-                    # You don't deserve a linter if you mix non-decimal notation and
-                    # exponential or underscore,
-                    and "x" not in string  # not a hexadecimal
-                    and "o" not in string  # not an octal
-                    and "j" not in string  # not a complex
-                    and "b" not in string  # not a binary
+                    and "j" not in string  # complex number, not handled
                 ):
-                    self._check_bad_float_notation(line_num, start, string)
+                    self._check_number_notation(line_num, start, string)
 
             if string in _KEYWORD_TOKENS:
                 self._check_keyword_parentheses(tokens, idx)
@@ -717,6 +728,29 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         # files like __init__.py markers.
         if line_num == last_blank_line_num and line_num > 0:
             self.add_message("trailing-newlines", line=line_num)
+
+    def _check_number_notation(
+        self, line_num: int, start: tuple[int, int], string: str
+    ) -> None:
+        match string[1:2].lower():
+            case "x":
+                self._check_non_decimal_notation(
+                    line_num, start, string, 4, r"[0-9a-fA-F]", "hex digits"
+                )
+            case "b":
+                self._check_non_decimal_notation(
+                    line_num, start, string, 4, r"[01]", "binary digits"
+                )
+            case "o":
+                self._check_non_decimal_notation(
+                    line_num, start, string, 3, r"[0-7]", "octal digits"
+                )
+            case _ if "." in string or "e" in string or "E" in string:
+                self._check_bad_float_notation(line_num, start, string)
+            case _:
+                self._check_non_decimal_notation(
+                    line_num, start, string, 3, r"[0-9]", "digits", "", 0
+                )
 
     def _check_bad_float_notation(  # pylint: disable=too-many-locals,too-many-return-statements
         self, line_num: int, start: tuple[int, int], string: str
@@ -745,7 +779,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         def raise_bad_float_notation(reason: str) -> None:
             suggestion = FloatFormatterHelper.standardize(
                 value,
-                string,  # ← ADD THIS: Pass original string
+                string,
                 scientific,
                 engineering,
                 pep515,
@@ -859,6 +893,61 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     "has underscores that are not delimiting packs of three digits"
                 )
         return None
+
+    def _check_non_decimal_notation(
+        self,
+        line_num: int,
+        start: tuple[int, int],
+        string: str,
+        group_size: int,
+        digit_pattern: str,
+        group_name: str,
+        prefix_pattern: str = "0[a-zA-Z]_?",
+        prefix_length: int = 2,
+    ) -> None:
+        has_underscore = "_" in string
+        value = int(string.replace("_", ""), 0)
+        if has_underscore:
+            pattern = rf"^{prefix_pattern}{digit_pattern}{{1,{group_size}}}(_{digit_pattern}{{{group_size}}})*$"
+            if not re.match(pattern, string):
+                suggestion = FloatFormatterHelper.to_standard_non_decimal_grouping(
+                    string, group_size, prefix_length
+                )
+                self.add_message(
+                    "bad-float-notation",
+                    line=line_num,
+                    col_offset=start[1],
+                    end_lineno=line_num,
+                    end_col_offset=start[1] + len(string),
+                    args=(
+                        string,
+                        f"has underscores that are not grouping {group_name} by {group_size}",
+                        suggestion,
+                    ),
+                    confidence=HIGH,
+                )
+        elif value >= self.linter.config.float_notation_threshold:
+            suggestion = FloatFormatterHelper.to_standard_non_decimal_grouping(
+                string, group_size, prefix_length
+            )
+            threshold = self.linter.config.float_notation_threshold
+            dec_threshold = Decimal(str(threshold))
+            threshold_str = FloatFormatterHelper.to_standard_scientific_notation(
+                dec_threshold, len(dec_threshold.as_tuple().digits)
+            )
+            self.add_message(
+                "bad-float-notation",
+                line=line_num,
+                col_offset=start[1],
+                end_lineno=line_num,
+                end_col_offset=start[1] + len(string),
+                args=(
+                    string,
+                    f"is bigger than {threshold_str}",
+                    suggestion,
+                ),
+                confidence=HIGH,
+            )
 
     def _check_line_ending(self, line_ending: str, line_num: int) -> None:
         # check if line endings are mixed
