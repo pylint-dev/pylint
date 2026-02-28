@@ -69,13 +69,16 @@ class NumberFormatterHelper:
         dec_number = Decimal(original_string)
         sig_figs = len(dec_number.as_tuple().digits)
 
-        suggested = set()
+        suggested: set[str] = set()
         if scientific:
             suggested.add(cls.to_standard_scientific_notation(dec_number, sig_figs))
         if engineering:
             suggested.add(cls.to_standard_engineering_notation(dec_number, sig_figs))
         if pep515:
-            suggested.add(cls.to_standard_underscore_grouping(number))
+            # str(float) uses 'e+' for positive exponents (e.g. '1.2e+10')
+            # while our scientific/engineering formatters use 'e' without '+'.
+            s = cls.to_standard_underscore_grouping(number)
+            suggested.add(s.replace("e+", "e"))
         return "' or '".join(sorted(suggested))
 
     @classmethod
