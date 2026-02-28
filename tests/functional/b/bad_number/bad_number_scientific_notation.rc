@@ -1,5 +1,3 @@
-[tool.pylint.format]
-strict-engineering-notation = false
-strict-scientific-notation = true
-strict-underscore-notation = false
+[main]
+float-notation-style=scientific
 float-notation-threshold=1e6

@@ -1,5 +1,3 @@
 [main]
-strict-engineering-notation = false
-strict-scientific-notation = false
-strict-underscore-notation = true
+float-notation-style=underscore
 float-notation-threshold=1e6
