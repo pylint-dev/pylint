@@ -906,9 +906,9 @@ Standard Checkers
 **Default:** ``""``
 
 
---float-notation-threshold
-""""""""""""""""""""""""""
-*Threshold for float literals to be expected to be written using the scientific, engineering or underscore notation. If the absolute value of a float literal is greater than this value (or smaller than the inverse of this value for scientific and engineering notation), it will be checked.*
+--number-notation-threshold
+"""""""""""""""""""""""""""
+*Threshold for number literals to be expected to be written using the scientific, engineering or underscore notation. If the absolute value of a number literal is greater than this value (or smaller than the inverse of this value for scientific and engineering notation), it will be checked.*
 
 **Default:**  ``1e6``
 
@@ -969,9 +969,9 @@ Standard Checkers
 **Default:**  ``False``
 
 
---float-notation-style
-""""""""""""""""""""""
-*Enforce a specific notation for number literals above 'float-notation-threshold'. Choices: empty (allow all standard notations), 'scientific', 'engineering', or 'underscore' (PEP 515).*
+--number-notation-style
+"""""""""""""""""""""""
+*Enforce a specific notation for number literals above 'number-notation-threshold'. Choices: empty (allow all standard notations), 'scientific', 'engineering', or 'underscore' (PEP 515).*
 
 **Default:**  ``""``
 
@@ -990,7 +990,7 @@ Standard Checkers
    # Possible choices: ['', 'LF', 'CRLF']
    expected-line-ending-format = ""
 
-   float-notation-threshold = 1000000.0
+   number-notation-threshold = 1000000.0
 
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
 
@@ -1008,7 +1008,7 @@ Standard Checkers
 
    single-line-if-stmt = false
 
-   float-notation-style =
+   number-notation-style =
 
 
 
