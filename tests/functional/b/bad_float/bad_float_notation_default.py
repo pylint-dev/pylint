@@ -101,8 +101,8 @@ valid_underscore_float = 1_000_000.12345
 valid_underscore_float_exp = 123_000_000.12345e12_000_000 # [bad-float-notation]
 valid_underscore_float_exp_cap = 123_000_000.12345E123_000_000 # [bad-float-notation]
 
-invalid_underscore_octal = 0o123_456 # octal with underscores bypassed
-invalid_underscore_hexa = 0x12c_456 # hexa with underscores bypassed
+valid_underscore_octal = 0o123_456  # correctly grouped by 3, below threshold
+invalid_underscore_hexa = 0x12c_456  # [bad-float-notation]
 
 invalid_underscore_float_no_int = .123_456 # [bad-float-notation]
 invalid_underscore_float_no_frac = 123_456.123_456 # [bad-float-notation]
@@ -138,3 +138,8 @@ for i in range(10):
     if i < 0:
         continue
     print("Let's not be really annoying.")
+
+bad_int_grouping = 1_23_456  # [bad-float-notation]
+big_int_no_grouping = 1234567  # [bad-float-notation]
+valid_small_int = 999
+valid_grouped_int = 1_000_000
