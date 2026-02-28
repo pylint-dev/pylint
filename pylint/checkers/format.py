@@ -839,13 +839,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
 
         abs_value = abs(value)
         under_threshold = abs_value < self.linter.config.float_notation_threshold
-        should_not_be_checked_because_of_threshold = (
-            under_threshold  # under threshold
-            and (  # use scientific or engineering notation and under 1/threshold
-                self.linter.config.strict_underscore_notation
-                or abs_value != 0
-                or abs_value >= 1 / self.linter.config.float_notation_threshold
-            )
+        should_not_be_checked_because_of_threshold = under_threshold and (
+            # Underscore notation doesn't need to check close-to-zero values
+            self.linter.config.strict_underscore_notation
+            # For scientific/engineering: also skip if not in the close-to-zero range
+            # (values like 0.00012e-26 that are < 1/threshold should still be checked)
+            or abs_value >= 1 / self.linter.config.float_notation_threshold
         )
         if not is_written_complexly:
             if should_not_be_checked_because_of_threshold:
