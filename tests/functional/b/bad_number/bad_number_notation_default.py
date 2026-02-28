@@ -140,6 +140,6 @@ for i in range(10):
     print("Let's not be really annoying.")
 
 bad_int_grouping = 1_23_456  # [bad-number-notation]
-big_int_no_grouping = 1234567  # [bad-number-notation]
+big_int_no_grouping = 1234567
 valid_small_int = 999
 valid_grouped_int = 1_000_000

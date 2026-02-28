@@ -468,6 +468,21 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 ),
             },
         ),
+        (
+            "suggest-int-underscore",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": (
+                    "Suggest PEP 515 underscore grouping for integer literals "
+                    "above 'number-notation-threshold' that don't already use "
+                    "underscores. Applies to all bases (decimal, hex, octal, "
+                    "binary). Integers with existing but incorrect underscore "
+                    "grouping are always flagged regardless of this option."
+                ),
+            },
+        ),
     )
 
     def open(self) -> None:
@@ -870,7 +885,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     ),
                     confidence=HIGH,
                 )
-        elif value >= self.linter.config.number_notation_threshold:
+        elif (
+            self.linter.config.suggest_int_underscore
+            and value >= self.linter.config.number_notation_threshold
+        ):
             suggestion = NumberFormatterHelper.to_standard_non_decimal_grouping(
                 string, group_size, prefix_length
             )
