@@ -1,0 +1,4 @@
+bad-number-notation:4:19:4:29::'0b1111_001' has underscores that are not grouping binary digits by 4, and it should be written as '0b111_1001' instead:HIGH
+bad-number-notation:5:19:5:31::'0b11111_0011' has underscores that are not grouping binary digits by 4, and it should be written as '0b1_1111_0011' instead:HIGH
+bad-number-notation:6:19:6:30::'0b1_11_0011' has underscores that are not grouping binary digits by 4, and it should be written as '0b111_0011' instead:HIGH
+bad-number-notation:9:10:9:32::'0b11110100001001000000' is bigger than 1.0e6, and it should be written as '0b1111_0100_0010_0100_0000' instead:HIGH
