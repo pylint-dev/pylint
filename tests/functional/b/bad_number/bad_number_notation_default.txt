@@ -5,9 +5,7 @@ bad-number-notation:12:35:12:46::'123456789.0' is bigger than 1.0e6, and it shou
 bad-number-notation:18:33:18:38::'123e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.23e6' or '1_230_000.0' instead:HIGH
 bad-number-notation:19:38:19:45::'12345e6' has a base, '12345.0', that is not between 1 and 1000, and it should be written as '1.2345e10' or '12.345e9' or '12_345_000_000.0' instead:HIGH
 bad-number-notation:20:35:20:45::'10000000.0' is bigger than 1.0e6, and it should be written as '1.0e7' or '10.0e6' or '10_000_000.0' instead:HIGH
-bad-number-notation:21:33:21:38::'9.9e2' has underscore or exponent, and it should be written as '9.9e2' or '990.0' instead:HIGH
 bad-number-notation:28:37:28:47::'10000000.0' is bigger than 1.0e6, and it should be written as '1.0e7' or '10.0e6' or '10_000_000.0' instead:HIGH
-bad-number-notation:29:26:29:31::'9.9e0' has underscore or exponent, and it should be written as '9.9' instead:HIGH
 bad-number-notation:34:22:34:28::'1504e2' has a base, '1504.0', that is not between 1 and 1000, and it should be written as '1.504e5' or '150.4e3' or '150_400.0' instead:HIGH
 bad-number-notation:35:12:35:18::'45.3e7' has an exponent '7' that is not a multiple of 3, and it should be written as '4.53e8' or '453.0e6' or '453_000_000.0' instead:HIGH
 bad-number-notation:36:20:36:26::'45.3E7' has an exponent '7' that is not a multiple of 3, and it should be written as '4.53e8' or '453.0e6' or '453_000_000.0' instead:HIGH
@@ -17,14 +15,11 @@ bad-number-notation:39:26:39:30::'10e5' has an exponent '5' that is not a multip
 bad-number-notation:40:18:40:26::'11000e27' has a base, '11000.0', that is not between 1 and 1000, and it should be written as '1.1e+31' or '1.1e31' or '11.0e30' instead:HIGH
 bad-number-notation:41:26:41:30::'12e8' has an exponent '8' that is not a multiple of 3, and it should be written as '1.2e9' or '1_200_000_000.0' instead:HIGH
 bad-number-notation:43:28:43:37::'0.0001e-5' has a base, '0.0001', that is not between 1 and 1000, and it should be written as '1.0e-9' or '1e-09' instead:HIGH
-bad-number-notation:44:26:44:34::'0.0001e5' has underscore or exponent, and it should be written as '1.0e1' or '10.0' instead:HIGH
+bad-number-notation:44:26:44:34::'0.0001e5' has a base, '0.0001', that is not between 1 and 1000, and it should be written as '1.0e1' or '10.0' instead:HIGH
 bad-number-notation:45:20:45:26::'0.5e10' has a base, '0.5', that is not between 1 and 1000, and it should be written as '5.0e9' or '5_000_000_000.0' instead:HIGH
 bad-number-notation:46:12:46:16::'0e10' has a base, '0.0', that is not between 1 and 1000, and it should be written as '0.0' instead:HIGH
 bad-number-notation:51:22:51:26::'00.0' is smaller than 1.0e-6, and it should be written as '0.0' instead:HIGH
 bad-number-notation:55:19:55:28::'0.0000001' is smaller than 1.0e-6, and it should be written as '1.0e-7' or '100.0e-9' or '1e-07' instead:HIGH
-bad-number-notation:70:25:70:30::'1.5e1' has underscore or exponent, and it should be written as '1.5e1' or '15.0' instead:HIGH
-bad-number-notation:71:16:71:19::'9e0' has underscore or exponent, and it should be written as '9.0' instead:HIGH
-bad-number-notation:72:15:72:20::'1.0e0' has underscore or exponent, and it should be written as '1.0' instead:HIGH
 bad-number-notation:88:23:88:27::'15e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.5e5' or '150.0e3' or '150_000.0' instead:HIGH
 bad-number-notation:93:28:93:34::'10.0e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.0e5' or '100.0e3' or '100_000.0' instead:HIGH
 bad-number-notation:93:48:93:54::'20.0e5' has an exponent '5' that is not a multiple of 3, and it should be written as '2.0e6' or '2_000_000.0' instead:HIGH

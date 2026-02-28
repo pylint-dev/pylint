@@ -762,16 +762,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             # engineering notation when checking if a number is under 1/threshold
             return None
         has_underscore = "_" in string
-        should_be_written_simply = (
-            1 <= value < 10 and self.strict_scientific
-        ) or 1 <= value < 1000
-        is_written_complexly = has_underscore or has_exponent
-        if should_be_written_simply and is_written_complexly:
-            # If the value does not deserve a complex notation then write it in a simple way.
-            # The threshold is guaranteed to be higher than those value.
-            # When 1 <= value < 10 the engineering notation is equivalent to the scientific notation
-            return raise_bad_float_notation("has underscore or exponent")
-
         abs_value = abs(value)
         under_threshold = abs_value < self.linter.config.float_notation_threshold
         should_not_be_checked_because_of_threshold = under_threshold and (
@@ -781,7 +771,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             # (values like 0.00012e-26 that are < 1/threshold should still be checked)
             or abs_value >= 1 / self.linter.config.float_notation_threshold
         )
-        if not is_written_complexly:
+        if not (has_underscore or has_exponent):
             if should_not_be_checked_because_of_threshold:
                 # This number is free style, we do not have to check it, unless it's
                 # written complexly, then it could be badly written
