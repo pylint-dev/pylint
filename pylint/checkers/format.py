@@ -487,7 +487,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 )
         elif self.linter.config.float_notation_threshold < 1000:
             raise ValueError(
-                "'float-notation-threshold' must be at least 1000, got "
+                "'float-notation-threshold' must be at least 1000, when engineering"
+                " or underscore notation is allowed got "
                 f"{self.linter.config.float_notation_threshold}."
             )
 
