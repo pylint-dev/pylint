@@ -50,6 +50,11 @@ zero_float_v2 = 0.
 annoying_zero_int = 00
 annoying_zero_float = 00.0 # [bad-float-notation]
 
+# Very small floats written without exponent should be flagged when
+# below 1/threshold
+very_small_plain = 0.0000001  # [bad-float-notation]
+not_that_small_plain = 0.001
+
 one_only = 1e6
 correct_1 = 4.53e7
 uppercase_e_correct = 4.53E7
