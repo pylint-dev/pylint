@@ -969,25 +969,11 @@ Standard Checkers
 **Default:**  ``False``
 
 
---strict-engineering-notation
-"""""""""""""""""""""""""""""
-*Only allow engineering notation for float literals with absolute value bigger than 'float-notation-threshold' or smallerthan the inverse of 'float-notation-threshold'.*
+--float-notation-style
+""""""""""""""""""""""
+*Enforce a specific notation for number literals above 'float-notation-threshold'. Choices: empty (allow all standard notations), 'scientific', 'engineering', or 'underscore' (PEP 515).*
 
-**Default:**  ``False``
-
-
---strict-scientific-notation
-""""""""""""""""""""""""""""
-*Only allow scientific notation for float literals with absolute value bigger than 'float-notation-threshold' or smallerthan the inverse of 'float-notation-threshold'.*
-
-**Default:**  ``False``
-
-
---strict-underscore-notation
-""""""""""""""""""""""""""""
-*Only allow underscore notation for float literals bigger than 'float-notation-threshold'.*
-
-**Default:**  ``False``
+**Default:**  ``""``
 
 
 
@@ -1022,11 +1008,7 @@ Standard Checkers
 
    single-line-if-stmt = false
 
-   strict-engineering-notation = false
-
-   strict-scientific-notation = false
-
-   strict-underscore-notation = false
+   float-notation-style =
 
 
 
