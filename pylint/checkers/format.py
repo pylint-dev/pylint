@@ -281,8 +281,8 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "'%s' %s, and it should be written as '%s' instead",
         "bad-number-notation",
         "Emitted when a number is written in a non-standard notation. The three "
-        "allowed notation above the threshold are the scientific notation, the "
-        "engineering notation, and the underscore grouping notation defined in PEP515.",
+        "allowed notations above the threshold are the scientific notation, the "
+        "engineering notation, and the underscore grouping notation defined in PEP 515.",
     ),
 }
 
@@ -487,8 +487,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 )
         elif self.linter.config.number_notation_threshold < 1000:
             raise ValueError(
-                "'number-notation-threshold' must be at least 1000, when engineering"
-                " or underscore notation is allowed got "
+                "'number-notation-threshold' must be at least 1000, got "
                 f"{self.linter.config.number_notation_threshold}."
             )
 
