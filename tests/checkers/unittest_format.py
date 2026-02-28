@@ -342,3 +342,73 @@ def test_to_standard_non_decimal_grouping(
     assert (
         result == expected
     ), f"Non-decimal grouping mismatch: expected {expected!r}, got {result!r}"
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        (Decimal("Infinity"), "math.inf"),
+        (Decimal("-Infinity"), "math.inf"),
+    ],
+)
+def test_scientific_notation_infinity(value: Decimal, expected: str) -> None:
+    """Infinity values should return 'math.inf'."""
+    result = NumberFormatterHelper.to_standard_scientific_notation(value, 1)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        (Decimal("Infinity"), "math.inf"),
+        (Decimal("-Infinity"), "math.inf"),
+    ],
+)
+def test_engineering_notation_infinity(value: Decimal, expected: str) -> None:
+    """Infinity values should return 'math.inf'."""
+    result = NumberFormatterHelper.to_standard_engineering_notation(value, 1)
+    assert result == expected
+
+
+def test_scientific_notation_extreme_exponent() -> None:
+    """Extreme exponents that overflow Decimal arithmetic should still produce
+    correct suggestions via the tuple-based fallback.
+    """
+    dec = Decimal("1e12000000")
+    sig_figs = len(dec.as_tuple().digits)
+    result = NumberFormatterHelper.to_standard_scientific_notation(dec, sig_figs)
+    assert result == "1.0e12000000"
+
+
+def test_engineering_notation_extreme_exponent() -> None:
+    """Extreme exponents that overflow Decimal arithmetic should still produce
+    correct engineering notation via the tuple-based fallback.
+    """
+    dec = Decimal("1e12000000")
+    sig_figs = len(dec.as_tuple().digits)
+    result = NumberFormatterHelper.to_standard_engineering_notation(dec, sig_figs)
+    assert result == "1.0e12000000"
+
+    # Non-multiple-of-3 exponent
+    dec2 = Decimal("1.5e12000001")
+    sig_figs2 = len(dec2.as_tuple().digits)
+    result2 = NumberFormatterHelper.to_standard_engineering_notation(dec2, sig_figs2)
+    assert result2 == "15.0e12000000"
+
+
+def test_number_notation_threshold_too_low() -> None:
+    """number-notation-threshold below 1000 should raise ValueError."""
+    checker = FormatChecker(lint.PyLinter())
+    checker.linter.config.number_notation_style = "engineering"
+    checker.linter.config.number_notation_threshold = 999
+    with pytest.raises(ValueError, match="must be at least 1000"):
+        checker.open()
+
+
+def test_number_notation_scientific_threshold_too_low() -> None:
+    """number-notation-threshold below 10 with scientific style should raise ValueError."""
+    checker = FormatChecker(lint.PyLinter())
+    checker.linter.config.number_notation_style = "scientific"
+    checker.linter.config.number_notation_threshold = 9
+    with pytest.raises(ValueError, match="must be at least 10"):
+        checker.open()
