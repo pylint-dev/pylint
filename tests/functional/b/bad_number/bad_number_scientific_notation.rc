@@ -1,3 +1,3 @@
 [main]
-float-notation-style=scientific
-float-notation-threshold=1e6
+number-notation-style=scientific
+number-notation-threshold=1e6
