@@ -79,28 +79,6 @@ class NumberFormatterHelper:
         return "' or '".join(sorted(suggested))
 
     @classmethod
-    def to_standard_or_engineering_base(cls, number: float) -> tuple[str, str]:
-        """Calculate scientific notation components (base, exponent) for a number.
-
-        Returns a tuple (base, exponent) where:
-        - base is a number between 1 and 10 (or exact 0)
-        - exponent is the power of 10 needed to represent the original number
-        """
-        if number == 0:
-            return "0", "0"
-        if number == math.inf:
-            return "math.inf", "0"
-        exponent = math.floor(math.log10(abs(number)))
-        if exponent == 0:
-            return str(number), "0"
-        base_value = number / (10**exponent)
-        # 15 significant digits because if we add more precision then
-        # we get into rounding errors territory
-        base_str = f"{base_value:.15g}".rstrip("0").rstrip(".")
-        exp_str = str(exponent)
-        return base_str, exp_str
-
-    @classmethod
     def to_standard_scientific_notation(cls, dec_number: Decimal, sig_figs: int) -> str:
         if dec_number == 0:
             return "0.0"
@@ -120,10 +98,10 @@ class NumberFormatterHelper:
             try:
                 base_value = dec_number / (Decimal(10) ** exponent)
             except decimal.Overflow:
-                # Extreme exponents (e.g. 1e12_000_000) overflow Decimal arithmetic;
-                # fall back to float-based computation.
-                base, exp_str = cls.to_standard_or_engineering_base(float(dec_number))
-                return f"{base}e{exp_str}" if exp_str != "0" else base
+                # Extreme exponents (e.g. 1e12_000_000) overflow Decimal arithmetic.
+                # Compute base directly from the Decimal tuple to avoid division.
+                sign, digits, _ = dec_number.as_tuple()
+                base_value = Decimal((sign, digits, -len(digits) + 1))
         # Cap at 15 significant digits (float precision limit) to avoid
         # g-format switching to scientific notation for intermediate values.
         base_str = f"{float(base_value):.{min(sig_figs, 15)}g}"
@@ -146,26 +124,26 @@ class NumberFormatterHelper:
 
         remainder = exponent % 3
 
+        if exponent < 0:
+            adjustment = 3 - ((-exponent) % 3)
+            if adjustment == 3:
+                adjustment = 0
+            exp_value = exponent - adjustment
+        elif remainder != 0:
+            exp_value = exponent - remainder
+        else:
+            exp_value = exponent
+
         with localcontext() as ctx:
             ctx.prec = 50
             try:
-                if exponent < 0:
-                    adjustment = 3 - ((-exponent) % 3)
-                    if adjustment == 3:
-                        adjustment = 0
-                    exp_value = exponent - adjustment
-                    base_value = dec_number / (Decimal(10) ** exp_value)
-                elif remainder != 0:
-                    exp_value = exponent - remainder
-                    base_value = dec_number / (Decimal(10) ** exp_value)
-                else:
-                    exp_value = exponent
-                    base_value = dec_number / (Decimal(10) ** exponent)
+                base_value = dec_number / (Decimal(10) ** exp_value)
             except decimal.Overflow:
-                # Extreme exponents overflow Decimal arithmetic; fall back to
-                # float-based scientific notation.
-                base, exp_str = cls.to_standard_or_engineering_base(float(dec_number))
-                return f"{base}e{exp_str}" if exp_str != "0" else base
+                # Extreme exponents (e.g. 1e12_000_000) overflow Decimal arithmetic.
+                # Compute base directly from the Decimal tuple to avoid division.
+                sign, digits, _ = dec_number.as_tuple()
+                shift = exponent - exp_value
+                base_value = Decimal((sign, digits, -len(digits) + 1 + shift))
 
         # Use at least 3 significant digits to prevent g-format from switching
         # to scientific notation (engineering base is always < 1000), and cap
@@ -182,6 +160,8 @@ class NumberFormatterHelper:
 
     @classmethod
     def to_standard_underscore_grouping(cls, number: float) -> str:
+        if number in (math.inf, -math.inf):
+            return "math.inf"
         number_str = str(number)
         if "e" in number_str or "E" in number_str:
             # python itself want to display this as exponential there's no reason to
