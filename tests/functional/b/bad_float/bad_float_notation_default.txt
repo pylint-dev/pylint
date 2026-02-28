@@ -54,6 +54,3 @@ bad-float-notation:127:21:127:28::'1.5_6e3' has exponent and underscore at the s
 bad-float-notation:128:27:128:33::'15_6e2' has exponent and underscore at the same time, and it should be written as '1.56e4' or '15.6e3' or '15_600.0' instead:HIGH
 bad-float-notation:131:35:131:43::'10.0_0e3' has exponent and underscore at the same time, and it should be written as '1.0e4' or '10.0e3' or '10_000.0' instead:HIGH
 bad-float-notation:131:57:131:65::'20.0_0e3' has exponent and underscore at the same time, and it should be written as '2.0e4' or '20.0e3' or '20_000.0' instead:HIGH
-bad-float-notation:146:37:146:46::'1180800.0' is bigger than 1.0e6, and it should be written as '(3600 * 24 * 13) + (16 * 3600)' or '1.1808e6' or '1_180_800.0' instead:HIGH
-bad-float-notation:147:28:147:38::'31536000.0' is bigger than 1.0e6, and it should be written as '3.1536e7' or '31.536e6' or '31_536_000.0' or '3600 * 24 * 365' instead:HIGH
-bad-float-notation:148:29:148:38::'2592000.0' is bigger than 1.0e6, and it should be written as '2.592e6' or '2_592_000.0' or '3600 * 24 * 30' instead:HIGH
