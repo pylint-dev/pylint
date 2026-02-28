@@ -738,7 +738,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         scientific = self.all_float_notation_allowed or self.strict_scientific
         pep515 = self.all_float_notation_allowed or self.strict_underscore
 
-        def raise_bad_float_notation(reason: str) -> None:
+        def add_bad_notation_message(reason: str) -> None:
             suggestion = FloatFormatterHelper.standardize(
                 value,
                 string,
@@ -746,7 +746,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 engineering,
                 pep515,
             )
-            return self.add_message(
+            self.add_message(
                 "bad-number-notation",
                 line=line_num,
                 col_offset=start[1],
@@ -788,21 +788,21 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 dec_threshold, len(dec_threshold.as_tuple().digits)
             )
             if under_threshold:
-                return raise_bad_float_notation(
+                return add_bad_notation_message(
                     f"is smaller than {close_to_zero_threshold}"
                 )
-            return raise_bad_float_notation(f"is bigger than {threshold}")
+            return add_bad_notation_message(f"is bigger than {threshold}")
         if has_exponent:
             if self.strict_underscore or has_underscore:
                 # If we have exponent it means it's not proper underscore
-                return raise_bad_float_notation(
+                return add_bad_notation_message(
                     "has exponent and underscore at the same time"
                 )
             base_as_str, exponent_as_str = string.lower().split("e")
             base = float(base_as_str)
             wrong_scientific_notation = not (1 <= base < 10)
             if self.strict_scientific and wrong_scientific_notation:
-                return raise_bad_float_notation(
+                return add_bad_notation_message(
                     f"has a base, '{base}', that is not strictly inferior to 10"
                     if base == 10
                     else f"has a base, '{base}', that is not between 1 and 10"
@@ -813,7 +813,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             if (self.strict_engineering and wrong_engineering_notation) or (
                 wrong_scientific_notation and wrong_engineering_notation
             ):
-                return raise_bad_float_notation(
+                return add_bad_notation_message(
                     f"has an exponent '{exponent_as_str}' that is not a multiple of 3"
                     if 1 <= base < 1000
                     else (
@@ -825,7 +825,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         elif has_underscore:
             # If we have underscore and exponent, we suggest exponent by default
             if self.strict_scientific or self.strict_engineering:
-                return raise_bad_float_notation(
+                return add_bad_notation_message(
                     "use underscore instead of exponents" + ""
                     if self.strict_scientific
                     else " that are multiple of 3"
@@ -834,7 +834,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 r"^\d{0,3}(_\d{3})*\.?\d*([eE]-?\d{0,3}(_\d{3})*)?$", string
             )
             if pep515 and wrong_underscore_notation:
-                return raise_bad_float_notation(
+                return add_bad_notation_message(
                     "has underscores that are not delimiting packs of three digits"
                 )
         return None
