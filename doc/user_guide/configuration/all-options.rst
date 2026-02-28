@@ -962,6 +962,13 @@ Standard Checkers
 **Default:**  ``1e6``
 
 
+--suggest-int-underscore
+""""""""""""""""""""""""
+*Suggest PEP 515 underscore grouping for integer literals above 'number-notation-threshold' that don't already use underscores. Applies to all bases (decimal, hex, octal, binary). Integers with existing but incorrect underscore grouping are always flagged regardless of this option.*
+
+**Default:**  ``False``
+
+
 --single-line-class-stmt
 """"""""""""""""""""""""
 *Allow the body of a class to be on the same line as the declaration if body contains single statement.*
@@ -1006,6 +1013,8 @@ Standard Checkers
    number-notation-style = ""
 
    number-notation-threshold = 1000000.0
+
+   suggest-int-underscore = false
 
    single-line-class-stmt = false
 
