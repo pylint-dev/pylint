@@ -823,12 +823,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     )
                 )
         elif has_underscore:
-            # If we have underscore and exponent, we suggest exponent by default
             if self.strict_scientific or self.strict_engineering:
                 return add_bad_notation_message(
-                    "use underscore instead of exponents" + ""
+                    "has underscores instead of scientific notation"
                     if self.strict_scientific
-                    else " that are multiple of 3"
+                    else "has underscores instead of engineering notation"
                 )
             wrong_underscore_notation = not re.match(
                 r"^\d{0,3}(_\d{3})*\.?\d*([eE]-?\d{0,3}(_\d{3})*)?$", string
