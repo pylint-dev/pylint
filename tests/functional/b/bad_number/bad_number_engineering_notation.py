@@ -7,3 +7,4 @@ under_a_thousand_with_exponent = 9.9e2  # [bad-number-notation]
 exponent_multiple_of_three = 1.23e6
 base_between_one_and_a_thousand = 12.345e9
 under_a_thousand = 990.0
+above_threshold_with_underscore = 10_000_000.0  # [bad-number-notation]
