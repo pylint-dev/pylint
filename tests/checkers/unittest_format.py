@@ -15,7 +15,7 @@ import pytest
 
 from pylint import lint, reporters
 from pylint.checkers.base.basic_checker import BasicChecker
-from pylint.checkers.format import FloatFormatterHelper, FormatChecker
+from pylint.checkers.format import FormatChecker, NumberFormatterHelper
 from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str
 
 
@@ -277,19 +277,19 @@ def test_to_another_standard_notation(
     float_value = float(value)
     dec_value = Decimal(value)
     sig_figs = len(dec_value.as_tuple().digits)
-    scientific = FloatFormatterHelper.to_standard_scientific_notation(
+    scientific = NumberFormatterHelper.to_standard_scientific_notation(
         dec_value, sig_figs
     )
     assert (
         scientific == expected_scientific
     ), f"Scientific notation mismatch expected {expected_scientific}, got {scientific}"
-    engineering = FloatFormatterHelper.to_standard_engineering_notation(
+    engineering = NumberFormatterHelper.to_standard_engineering_notation(
         dec_value, sig_figs
     )
     assert (
         engineering == expected_engineering
     ), f"Engineering notation mismatch expected {expected_engineering}, got {engineering}"
-    underscore = FloatFormatterHelper.to_standard_underscore_grouping(float_value)
+    underscore = NumberFormatterHelper.to_standard_underscore_grouping(float_value)
     assert (
         underscore == expected_underscore
     ), f"Underscore grouping mismatch expected {expected_underscore}, got {underscore}"
@@ -336,7 +336,7 @@ def test_to_standard_non_decimal_grouping(
     value: str, group_size: int, expected: str
 ) -> None:
     prefix_length = 2 if value[:2].lower() in {"0x", "0b", "0o"} else 0
-    result = FloatFormatterHelper.to_standard_non_decimal_grouping(
+    result = NumberFormatterHelper.to_standard_non_decimal_grouping(
         value, group_size, prefix_length
     )
     assert (

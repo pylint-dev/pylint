@@ -55,7 +55,7 @@ _KEYWORD_TOKENS = {
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
 
-class FloatFormatterHelper:
+class NumberFormatterHelper:
 
     @classmethod
     def standardize(
@@ -437,7 +437,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             },
         ),
         (
-            "float-notation-threshold",
+            "number-notation-threshold",
             {
                 # default big enough to not trigger on pixel perfect web design
                 # on big screen
@@ -445,16 +445,16 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "type": "float",
                 "metavar": "<float>",
                 "help": (
-                    "Threshold for float literals to be expected to be written "
+                    "Threshold for number literals to be expected to be written "
                     "using the scientific, engineering or underscore notation."
-                    " If the absolute value of a float literal is greater than this "
+                    " If the absolute value of a number literal is greater than this "
                     "value (or smaller than the inverse of this value for scientific "
                     "and engineering notation), it will be checked."
                 ),
             },
         ),
         (
-            "float-notation-style",
+            "number-notation-style",
             {
                 "type": "choice",
                 "metavar": "<style>",
@@ -462,7 +462,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "choices": ["", "scientific", "engineering", "underscore"],
                 "help": (
                     "Enforce a specific notation for number literals above "
-                    "'float-notation-threshold'. Choices: empty (allow all "
+                    "'number-notation-threshold'. Choices: empty (allow all "
                     "standard notations), 'scientific', 'engineering', or "
                     "'underscore' (PEP 515)."
                 ),
@@ -473,23 +473,23 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def open(self) -> None:
         self._lines: dict[int, str] = {}
         self._visited_lines: dict[int, Literal[1, 2]] = {}
-        style = self.linter.config.float_notation_style
-        self.all_float_notation_allowed = style == ""
+        style = self.linter.config.number_notation_style
+        self.all_number_notation_allowed = style == ""
         self.strict_scientific = style == "scientific"
         self.strict_engineering = style == "engineering"
         self.strict_underscore = style == "underscore"
         if self.strict_scientific:
-            if self.linter.config.float_notation_threshold < 10:
+            if self.linter.config.number_notation_threshold < 10:
                 raise ValueError(
-                    "'float-notation-threshold' must be at least 10 "
-                    "when 'float-notation-style' is 'scientific', got "
-                    f"{self.linter.config.float_notation_threshold}."
+                    "'number-notation-threshold' must be at least 10 "
+                    "when 'number-notation-style' is 'scientific', got "
+                    f"{self.linter.config.number_notation_threshold}."
                 )
-        elif self.linter.config.float_notation_threshold < 1000:
+        elif self.linter.config.number_notation_threshold < 1000:
             raise ValueError(
-                "'float-notation-threshold' must be at least 1000, when engineering"
+                "'number-notation-threshold' must be at least 1000, when engineering"
                 " or underscore notation is allowed got "
-                f"{self.linter.config.float_notation_threshold}."
+                f"{self.linter.config.number_notation_threshold}."
             )
 
     def new_line(self, tokens: TokenWrapper, line_end: int, line_start: int) -> None:
@@ -723,24 +723,24 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     line_num, start, string, 3, r"[0-7]", "octal digits"
                 )
             case _ if "." in string or "e" in string or "E" in string:
-                self._check_bad_float_notation(line_num, start, string)
+                self._check_bad_number_notation(line_num, start, string)
             case _:
                 self._check_non_decimal_notation(
                     line_num, start, string, 3, r"[0-9]", "digits", "", 0
                 )
 
-    def _check_bad_float_notation(  # pylint: disable=too-many-locals
+    def _check_bad_number_notation(  # pylint: disable=too-many-locals
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
 
         has_exponent = "e" in string or "E" in string
         value = float(string.replace("_", ""))
-        engineering = self.all_float_notation_allowed or self.strict_engineering
-        scientific = self.all_float_notation_allowed or self.strict_scientific
-        pep515 = self.all_float_notation_allowed or self.strict_underscore
+        engineering = self.all_number_notation_allowed or self.strict_engineering
+        scientific = self.all_number_notation_allowed or self.strict_scientific
+        pep515 = self.all_number_notation_allowed or self.strict_underscore
 
         def add_bad_notation_message(reason: str) -> None:
-            suggestion = FloatFormatterHelper.standardize(
+            suggestion = NumberFormatterHelper.standardize(
                 value,
                 string,
                 scientific,
@@ -764,28 +764,28 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             return None
         has_underscore = "_" in string
         abs_value = abs(value)
-        under_threshold = abs_value < self.linter.config.float_notation_threshold
+        under_threshold = abs_value < self.linter.config.number_notation_threshold
         should_not_be_checked_because_of_threshold = under_threshold and (
             # Underscore notation doesn't need to check close-to-zero values
             self.strict_underscore
             # For scientific/engineering: also skip if not in the close-to-zero range
             # (values like 0.00012e-26 that are < 1/threshold should still be checked)
-            or abs_value >= 1 / self.linter.config.float_notation_threshold
+            or abs_value >= 1 / self.linter.config.number_notation_threshold
         )
         if not (has_underscore or has_exponent):
             if should_not_be_checked_because_of_threshold:
                 # This number is free style, we do not have to check it, unless it's
                 # written complexly, then it could be badly written
                 return None
-            threshold = self.linter.config.float_notation_threshold
+            threshold = self.linter.config.number_notation_threshold
             dec_threshold = Decimal(str(threshold))
             dec_close = Decimal(str(1 / threshold))
             close_to_zero_threshold = (
-                FloatFormatterHelper.to_standard_scientific_notation(
+                NumberFormatterHelper.to_standard_scientific_notation(
                     dec_close, len(dec_close.as_tuple().digits)
                 )
             )
-            threshold = FloatFormatterHelper.to_standard_scientific_notation(
+            threshold = NumberFormatterHelper.to_standard_scientific_notation(
                 dec_threshold, len(dec_threshold.as_tuple().digits)
             )
             if under_threshold:
@@ -855,7 +855,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         if has_underscore:
             pattern = rf"^{prefix_pattern}{digit_pattern}{{1,{group_size}}}(_{digit_pattern}{{{group_size}}})*$"
             if not re.match(pattern, string):
-                suggestion = FloatFormatterHelper.to_standard_non_decimal_grouping(
+                suggestion = NumberFormatterHelper.to_standard_non_decimal_grouping(
                     string, group_size, prefix_length
                 )
                 self.add_message(
@@ -871,13 +871,13 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     ),
                     confidence=HIGH,
                 )
-        elif value >= self.linter.config.float_notation_threshold:
-            suggestion = FloatFormatterHelper.to_standard_non_decimal_grouping(
+        elif value >= self.linter.config.number_notation_threshold:
+            suggestion = NumberFormatterHelper.to_standard_non_decimal_grouping(
                 string, group_size, prefix_length
             )
-            threshold = self.linter.config.float_notation_threshold
+            threshold = self.linter.config.number_notation_threshold
             dec_threshold = Decimal(str(threshold))
-            threshold_str = FloatFormatterHelper.to_standard_scientific_notation(
+            threshold_str = NumberFormatterHelper.to_standard_scientific_notation(
                 dec_threshold, len(dec_threshold.as_tuple().digits)
             )
             self.add_message(
