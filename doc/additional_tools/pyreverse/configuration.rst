@@ -129,16 +129,16 @@ Display Options
 **Default:**  ``None``
 
 
---no-standalone
+--no-signatures
 ---------------
-*Only show nodes with connections.*
+*Show method names without parameter lists or return type annotations.*
 
 **Default:**  ``False``
 
 
---no-signatures
+--no-standalone
 ---------------
-*Show method names without parameter lists or return type annotations.*
+*Only show nodes with connections.*
 
 **Default:**  ``False``
 
