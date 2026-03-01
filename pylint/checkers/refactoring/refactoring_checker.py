@@ -127,18 +127,13 @@ def _is_trailing_comma(tokens: list[tokenize.TokenInfo], index: int) -> bool:
     if not more_tokens_on_line:
         return False
 
-    # Walk backwards to find the start of the current line.
-    # See Lib/tokenize.py and Lib/token.py in cpython for more info
-    curline_start = 0
     for j in range(index - 1, -1, -1):
-        if tokens[j].type == tokenize.NEWLINE:
-            curline_start = j + 1
+        prevtoken = tokens[j]
+        if prevtoken.type == tokenize.NEWLINE:
             break
-
-    return any(
-        "=" in prevtoken.string or prevtoken.string in _TRAILING_COMMA_KEYWORDS
-        for prevtoken in tokens[curline_start:index]
-    )
+        if "=" in prevtoken.string or prevtoken.string in _TRAILING_COMMA_KEYWORDS:
+            return True
+    return False
 
 
 def _is_inside_context_manager(node: nodes.Call) -> bool:
