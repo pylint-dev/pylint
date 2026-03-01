@@ -78,10 +78,10 @@ class NumberFormatterHelper:
             s = cls.to_standard_underscore_grouping(number)
             if s is not None:
                 suggested.add(s)
-        if not suggested:
-            # Fallback when no formatter could produce a suggestion (e.g.
-            # pep515-only mode with a number too large for underscore grouping)
-            suggested.add(cls.to_standard_scientific_notation(dec_number, sig_figs))
+            elif not suggested:
+                # No other suggestion so we're in pep515-only mode but the number is
+                # too large for underscore grouping so we fall back to scientific notation
+                suggested.add(cls.to_standard_scientific_notation(dec_number, sig_figs))
         return "' or '".join(sorted(suggested))
 
     @classmethod
