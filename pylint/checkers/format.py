@@ -179,8 +179,7 @@ class NumberFormatterHelper:
         int_part, dec_part = number_str.split(".")
         # For very large or very small expanded numbers, underscore
         # grouping isn't useful — let scientific/engineering handle it.
-        abs_int_part = int_part.lstrip("-")
-        if len(abs_int_part) > 16 or len(dec_part) > 16:
+        if len(int_part) > 16 or len(dec_part) > 16:
             return None
         return f"{cls._group_right(int_part)}.{cls._group_left(dec_part)}"
 
@@ -198,16 +197,12 @@ class NumberFormatterHelper:
     @staticmethod
     def _group_right(s: str, size: int = 3) -> str:
         """Group digits with underscores from the right: '1234567' -> '1_234_567'."""
-        if s.startswith("-"):
-            prefix = "-"
-            s = s[1:]
-        else:
-            prefix = ""
+        # s cannot be a negative number as tokenization separates the unary operator
         remainder = len(s) % size
         parts = [s[:remainder]] if remainder else []
         for i in range(remainder, len(s), size):
             parts.append(s[i : i + size])
-        return prefix + "_".join(parts)
+        return "_".join(parts)
 
     @staticmethod
     def _group_left(s: str, size: int = 3) -> str:
