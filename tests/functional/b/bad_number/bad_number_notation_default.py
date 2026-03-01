@@ -60,6 +60,10 @@ negative_zero_trailing = -0.00  # [bad-number-notation]
 very_small_plain = 0.0000001  # [bad-number-notation]
 not_that_small_plain = 0.001
 
+# Large numbers that should suggest underscore grouping (no near-duplicate exponential)
+large_plain = 1541455200.0  # [bad-number-notation]
+large_round = 1000000.0  # [bad-number-notation]
+
 one_only = 1e6
 correct_1 = 4.53e7
 uppercase_e_correct = 4.53E7
