@@ -97,7 +97,7 @@ class NumberFormatterHelper:
         sig_figs: int,
         dec_tuple: DecimalTuple | None = None,
     ) -> str:
-        if dec_number == 0:
+        if not dec_number:
             return "0.0"
         if dec_number.is_infinite():
             return "math.inf"
@@ -133,24 +133,17 @@ class NumberFormatterHelper:
         sig_figs: int,
         dec_tuple: DecimalTuple | None = None,
     ) -> str:
-        if dec_number == 0:
+        if not dec_number:
             return "0.0"
         if dec_number.is_infinite():
             return "math.inf"
 
         exponent = dec_number.adjusted()
 
-        remainder = exponent % 3
-
-        if exponent < 0:
-            adjustment = 3 - ((-exponent) % 3)
-            if adjustment == 3:
-                adjustment = 0
-            exp_value = exponent - adjustment
-        elif remainder != 0:
-            exp_value = exponent - remainder
-        else:
-            exp_value = exponent
+        # Round exponent down to nearest multiple of 3.
+        # Python's % always returns non-negative for positive divisor,
+        # so this works for both positive and negative exponents.
+        exp_value = exponent - (exponent % 3)
 
         # Compute base by shifting the decimal tuple instead of dividing,
         # which avoids localcontext() overhead and handles extreme exponents.
@@ -176,7 +169,7 @@ class NumberFormatterHelper:
 
     @classmethod
     def to_standard_underscore_grouping(cls, number: float) -> str | None:
-        if number in (math.inf, -math.inf):
+        if math.isinf(number):
             return "math.inf"
         number_str = str(number)
         if "e" in number_str or "E" in number_str:
