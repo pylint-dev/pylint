@@ -49,6 +49,11 @@ zero_float = 0.0
 zero_float_v2 = 0.
 annoying_zero_int = 00
 annoying_zero_float = 00.0 # [bad-number-notation]
+zero_trailing = 0.00  # [bad-number-notation]
+zero_trailing_2 = 0.000  # [bad-number-notation]
+zero_exponent = 0e0  # [bad-number-notation]
+zero_float_exponent = 0.0e0  # [bad-number-notation]
+negative_zero_trailing = -0.00  # [bad-number-notation]
 
 # Very small floats written without exponent should be flagged when
 # below 1/threshold
