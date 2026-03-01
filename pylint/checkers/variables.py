@@ -617,43 +617,36 @@ scope_type : {self.scope_type}
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
-        # Filter out assignments in an Except clause that the node is not
-        # contained in, assuming they may fail
+        # Filter out assignments in except/try blocks, tracking whether any
+        # uncertainty came from these blocks (as opposed to if/elif tests).
         has_except_uncertainty = False
         if found_nodes:
             uncertain_nodes = self._uncertain_nodes_in_except_blocks(
                 found_nodes, node, node_statement
             )
-            if uncertain_nodes:
-                has_except_uncertainty = True
+            has_except_uncertainty = has_except_uncertainty or bool(uncertain_nodes)
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
-        # If this node is in a Finally block of a Try/Finally,
-        # filter out assignments in the try portion, assuming they may fail
         if found_nodes:
             uncertain_nodes = (
                 self._uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
                     found_nodes, node_statement, name
                 )
             )
-            if uncertain_nodes:
-                has_except_uncertainty = True
+            has_except_uncertainty = has_except_uncertainty or bool(uncertain_nodes)
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
-        # If this node is in an ExceptHandler,
-        # filter out assignments in the try portion, assuming they may fail
         if found_nodes:
             uncertain_nodes = (
                 self._uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
                     found_nodes, node_statement
                 )
             )
-            if uncertain_nodes:
-                has_except_uncertainty = True
+            has_except_uncertainty = has_except_uncertainty or bool(uncertain_nodes)
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
