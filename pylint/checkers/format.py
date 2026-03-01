@@ -754,10 +754,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 confidence=HIGH,
             )
 
-        if string in {"0", "0.0", "0."}:
+        if value == 0:
             # 0 is a special case because it is used very often, and float approximation
             # being what they are it needs to be special cased anyway for scientific and
             # engineering notation when checking if a number is under 1/threshold
+            if string not in {"0", "0.0", "0."}:
+                add_bad_notation_message("is an unconventional zero literal")
             return None
         has_underscore = "_" in string
         abs_value = abs(value)
