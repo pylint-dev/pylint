@@ -194,6 +194,7 @@ linkers
 linter
 linux
 listcomp
+localcontext
 Logilab
 longstring
 lsp

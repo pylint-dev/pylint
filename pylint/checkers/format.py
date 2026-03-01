@@ -54,6 +54,16 @@ _KEYWORD_TOKENS = {
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
 
+def _decimal_g_format(value: Decimal, precision: int) -> str:
+    """Format a Decimal with g-specifier via float conversion.
+
+    Decimal's g-format preserves its internal exponent representation
+    (e.g. Decimal('1E+1') formats as '1e+1' instead of '10').
+    Converting to float first normalises the value.
+    """
+    return f"{float(value):.{precision}g}"
+
+
 class NumberFormatterHelper:
 
     @classmethod
@@ -105,21 +115,18 @@ class NumberFormatterHelper:
         exponent = dec_number.adjusted()
 
         if exponent == 0:
-            base_str = f"{float(dec_number):.{min(sig_figs, 15)}g}"
+            base_str = _decimal_g_format(dec_number, min(sig_figs, 15))
             if "." not in base_str:
                 base_str += ".0"
             return base_str
 
-        # Compute base by shifting the decimal tuple instead of dividing,
-        # which avoids localcontext() overhead and handles extreme exponents.
+        # Compute base by shifting the decimal tuple instead of dividing
         if dec_tuple is None:
             dec_tuple = dec_number.as_tuple()
         base_value = Decimal(
             (dec_tuple.sign, dec_tuple.digits, -len(dec_tuple.digits) + 1)
         )
-        # Cap at 15 significant digits (float precision limit) to avoid
-        # g-format switching to scientific notation for intermediate values.
-        base_str = f"{float(base_value):.{min(sig_figs, 15)}g}"
+        base_str = _decimal_g_format(base_value, min(sig_figs, 15))
 
         if "." not in base_str and "e" not in base_str.lower():
             base_str += ".0"
@@ -146,7 +153,7 @@ class NumberFormatterHelper:
         exp_value = exponent - (exponent % 3)
 
         # Compute base by shifting the decimal tuple instead of dividing,
-        # which avoids localcontext() overhead and handles extreme exponents.
+        # which avoids 'localcontext()' overhead and handles extreme exponents.
         if dec_tuple is None:
             dec_tuple = dec_number.as_tuple()
         shift = exponent - exp_value
@@ -155,10 +162,9 @@ class NumberFormatterHelper:
         )
 
         # Use at least 3 significant digits to prevent g-format from switching
-        # to scientific notation (engineering base is always < 1000), and cap
-        # at 15 (float precision limit).
+        # to scientific notation (engineering base is always < 1000).
         precision = max(min(sig_figs, 15), 3)
-        base_str = f"{float(base_value):.{precision}g}"
+        base_str = _decimal_g_format(base_value, precision)
 
         if "." not in base_str and "e" not in base_str.lower():
             base_str += ".0"
@@ -770,9 +776,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             )
 
         if value == 0:
-            # 0 is a special case because it is used very often, and float approximation
-            # being what they are it needs to be special cased anyway for scientific and
-            # engineering notation when checking if a number is under 1/threshold
+            # Zero is special-cased: it is below any threshold and
+            # 1/threshold comparisons are meaningless for it.
             if string not in {"0", "0.0", "0."}:
                 add_bad_notation_message("is an unconventional zero literal")
             return None
@@ -788,8 +793,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         )
         if not (has_underscore or has_exponent):
             if should_not_be_checked_because_of_threshold:
-                # This number is free style, we do not have to check it, unless it's
-                # written complexly, then it could be badly written
+                # Plain number below threshold — nothing to flag.
                 return None
             threshold = self.linter.config.number_notation_threshold
             dec_threshold = Decimal(str(threshold))
