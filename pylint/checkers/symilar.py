@@ -33,7 +33,6 @@ import argparse
 import copy
 import functools
 import itertools
-import operator
 import re
 import sys
 import warnings
@@ -71,9 +70,9 @@ class LineSpecifs(NamedTuple):
     text: str
 
 
-# Links LinesChunk object to the starting indices (in lineset's stripped lines)
-# of the different chunk of lines that are used to compute the hash
-HashToIndex_T = dict["LinesChunk", list[Index]]
+# Maps the hash of successive stripped lines to the starting indices
+# (in lineset's stripped lines) of the chunks that produced that hash.
+HashToIndex_T = dict[int, list[Index]]
 
 # Links index in the lineset's stripped lines to the real lines in the file
 IndexToLines_T = dict[Index, "SuccessiveLinesLimits"]
@@ -103,45 +102,6 @@ class CplSuccessiveLinesLimits:
 # Links the indices to the starting line in both lineset's stripped lines to
 # the start and end lines in both files
 CplIndexToCplLines_T = dict["LineSetStartCouple", CplSuccessiveLinesLimits]
-
-
-class LinesChunk:
-    """The LinesChunk object computes and stores the hash of some consecutive stripped
-    lines of a lineset.
-    """
-
-    __slots__ = ("_fileid", "_hash", "_index")
-
-    def __init__(self, fileid: str, num_line: int, *lines: Iterable[str]) -> None:
-        self._fileid: str = fileid
-        """The name of the file from which the LinesChunk object is generated."""
-
-        self._index: Index = Index(num_line)
-        """The index in the stripped lines that is the starting of consecutive
-        lines.
-        """
-
-        self._hash: int = sum(hash(lin) for lin in lines)
-        """The hash of some consecutive lines."""
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, LinesChunk):
-            return NotImplemented
-        return self._hash == o._hash
-
-    def __hash__(self) -> int:
-        return self._hash
-
-    def __repr__(self) -> str:
-        return (
-            f"<LinesChunk object for file {self._fileid} ({self._index}, {self._hash})>"
-        )
-
-    def __str__(self) -> str:
-        return (
-            f"LinesChunk object for file {self._fileid}, starting at line {self._index} \n"
-            f"Hash is {self._hash}"
-        )
 
 
 class SuccessiveLinesLimits:
@@ -247,11 +207,7 @@ def hash_lineset(
             start=start_linenumber, end=end_linenumber
         )
 
-        l_c = LinesChunk.__new__(LinesChunk)
-        l_c._fileid = lineset.name
-        l_c._index = index
-        l_c._hash = rolling
-        hash2index[l_c].append(index)
+        hash2index[rolling].append(index)
 
         # Slide the window: subtract the leaving line, add the entering line
         if end_idx <= last_stripped:
@@ -515,18 +471,13 @@ class Symilar:
                 lineset2, self.namespace.min_similarity_lines
             )
 
-        hash_1: frozenset[LinesChunk] = frozenset(hash_to_index_1.keys())
-        hash_2: frozenset[LinesChunk] = frozenset(hash_to_index_2.keys())
-
-        common_hashes: Iterable[LinesChunk] = sorted(
-            hash_1 & hash_2, key=lambda m: hash_to_index_1[m][0]
-        )
+        common_hashes = hash_to_index_1.keys() & hash_to_index_2.keys()
 
         # all_couples is a dict that links the couple of indices in both linesets that mark the beginning of
         # successive common lines, to the corresponding starting and ending number lines in both files
         all_couples: CplIndexToCplLines_T = {}
 
-        for c_hash in sorted(common_hashes, key=operator.attrgetter("_index")):
+        for c_hash in sorted(common_hashes, key=lambda h: hash_to_index_1[h][0]):
             for indices_in_linesets in itertools.product(
                 hash_to_index_1[c_hash], hash_to_index_2[c_hash]
             ):
