@@ -171,11 +171,7 @@ class NumberFormatterHelper:
             # not use exponential notation for very small number even for strict
             # underscore grouping notation
             return number_str
-        if "." in number_str:
-            int_part, dec_part = number_str.split(".")
-        else:
-            int_part = number_str
-            dec_part = "0"
+        int_part, dec_part = number_str.split(".")
         grouped_int_part = ""
         for i, digit in enumerate(reversed(int_part)):
             if i > 0 and i % 3 == 0:
