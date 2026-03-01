@@ -14,7 +14,7 @@ bad-number-notation:38:26:38:37::'0.00012E-26' has a base, '0.00012', that is no
 bad-number-notation:39:26:39:30::'10e5' has an exponent '5' that is not a multiple of 3, and it should be written as '1.0e6' or '1_000_000.0' instead:HIGH
 bad-number-notation:40:18:40:26::'11000e27' has a base, '11000.0', that is not between 1 and 1000, and it should be written as '1.1e31' or '11.0e30' instead:HIGH
 bad-number-notation:41:26:41:30::'12e8' has an exponent '8' that is not a multiple of 3, and it should be written as '1.2e9' or '1_200_000_000.0' instead:HIGH
-bad-number-notation:43:28:43:37::'0.0001e-5' has a base, '0.0001', that is not between 1 and 1000, and it should be written as '1.0e-9' or '1e-09' instead:HIGH
+bad-number-notation:43:28:43:37::'0.0001e-5' has a base, '0.0001', that is not between 1 and 1000, and it should be written as '0.000_000_001' or '1.0e-9' instead:HIGH
 bad-number-notation:44:26:44:34::'0.0001e5' has a base, '0.0001', that is not between 1 and 1000, and it should be written as '1.0e1' or '10.0' instead:HIGH
 bad-number-notation:45:20:45:26::'0.5e10' has a base, '0.5', that is not between 1 and 1000, and it should be written as '5.0e9' or '5_000_000_000.0' instead:HIGH
 bad-number-notation:46:12:46:16::'0e10' is an unconventional zero literal, and it should be written as '0.0' instead:HIGH
@@ -24,7 +24,7 @@ bad-number-notation:53:18:53:23::'0.000' is an unconventional zero literal, and 
 bad-number-notation:54:16:54:19::'0e0' is an unconventional zero literal, and it should be written as '0.0' instead:HIGH
 bad-number-notation:55:22:55:27::'0.0e0' is an unconventional zero literal, and it should be written as '0.0' instead:HIGH
 bad-number-notation:56:26:56:30::'0.00' is an unconventional zero literal, and it should be written as '0.0' instead:HIGH
-bad-number-notation:60:19:60:28::'0.0000001' is smaller than 1.0e-6, and it should be written as '1.0e-7' or '100.0e-9' or '1e-07' instead:HIGH
+bad-number-notation:60:19:60:28::'0.0000001' is smaller than 1.0e-6, and it should be written as '0.000_000_1' or '1.0e-7' or '100.0e-9' instead:HIGH
 bad-number-notation:93:23:93:27::'15e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.5e5' or '150.0e3' or '150_000.0' instead:HIGH
 bad-number-notation:98:28:98:34::'10.0e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.0e5' or '100.0e3' or '100_000.0' instead:HIGH
 bad-number-notation:98:48:98:54::'20.0e5' has an exponent '5' that is not a multiple of 3, and it should be written as '2.0e6' or '2_000_000.0' instead:HIGH
@@ -33,12 +33,12 @@ bad-number-notation:102:27:102:33::'20.0e4' has an exponent '4' that is not a mu
 bad-number-notation:106:29:106:57::'123_000_000.12345e12_000_000' has exponent and underscore at the same time, and it should be written as '1.2300000012345e12000008' or '123.00000012345e12000006' or 'math.inf' instead:HIGH
 bad-number-notation:107:33:107:62::'123_000_000.12345E123_000_000' has exponent and underscore at the same time, and it should be written as '1.2300000012345e123000008' or '123.00000012345e123000006' or 'math.inf' instead:HIGH
 bad-number-notation:110:26:110:35::'0x12c_456' has underscores that are not grouping hex digits by 4, and it should be written as '0x12_c456' instead:HIGH
-bad-number-notation:112:34:112:42::'.123_456' has underscores that are not delimiting packs of three digits, and it should be written as '0.123456' or '1.23456e-1' or '123.456e-3' instead:HIGH
-bad-number-notation:113:35:113:50::'123_456.123_456' has underscores that are not delimiting packs of three digits, and it should be written as '1.23456123456e5' or '123.456123456e3' or '123_456.123456' instead:HIGH
+bad-number-notation:112:34:112:42::'.123_456' has underscores that are not delimiting packs of three digits, and it should be written as '0.123_456' or '1.23456e-1' or '123.456e-3' instead:HIGH
+bad-number-notation:113:35:113:50::'123_456.123_456' has underscores that are not delimiting packs of three digits, and it should be written as '1.23456123456e5' or '123.456123456e3' or '123_456.123_456' instead:HIGH
 bad-number-notation:114:27:114:38::'1.234_567e6' has exponent and underscore at the same time, and it should be written as '1.234567e6' or '1_234_567.0' instead:HIGH
 bad-number-notation:115:26:115:37::'1.234_567E6' has exponent and underscore at the same time, and it should be written as '1.234567e6' or '1_234_567.0' instead:HIGH
 bad-number-notation:116:31:116:38::'1.2e1_0' has exponent and underscore at the same time, and it should be written as '1.2e10' or '12.0e9' or '12_000_000_000.0' instead:HIGH
-bad-number-notation:117:27:117:39::'1_234.567_89' has underscores that are not delimiting packs of three digits, and it should be written as '1.23456789e3' or '1_234.56789' instead:HIGH
+bad-number-notation:117:27:117:39::'1_234.567_89' has underscores that are not delimiting packs of three digits, and it should be written as '1.23456789e3' or '1_234.567_89' instead:HIGH
 bad-number-notation:118:23:118:32::'45.3_45e6' has exponent and underscore at the same time, and it should be written as '4.5345e7' or '45.345e6' or '45_345_000.0' instead:HIGH
 bad-number-notation:119:25:119:37::'0.000_12e-26' has exponent and underscore at the same time, and it should be written as '1.2e-30' instead:HIGH
 bad-number-notation:120:37:120:42::'1_2e8' has exponent and underscore at the same time, and it should be written as '1.2e9' or '1_200_000_000.0' instead:HIGH
