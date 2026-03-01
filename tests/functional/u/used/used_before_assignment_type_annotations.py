@@ -135,3 +135,18 @@ def bare_annotation_with_value_and_except(text):
         result = -1
     if result < 0:
         print(err)
+
+
+def bare_annotation_with_if_elif(axis):
+    """A bare type annotation with if/elif should not be a false positive.
+
+    Regression test: the pandas pattern where a bare annotation precedes
+    an if/elif chain that covers all runtime values.
+    https://github.com/pylint-dev/pylint/pull/10852#pullrequestreview-3872486590
+    """
+    klass: type
+    if axis == 0:
+        klass = int
+    elif axis == 1:
+        klass = str
+    return klass

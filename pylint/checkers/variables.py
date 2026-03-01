@@ -619,10 +619,13 @@ scope_type : {self.scope_type}
 
         # Filter out assignments in an Except clause that the node is not
         # contained in, assuming they may fail
+        has_except_uncertainty = False
         if found_nodes:
             uncertain_nodes = self._uncertain_nodes_in_except_blocks(
                 found_nodes, node, node_statement
             )
+            if uncertain_nodes:
+                has_except_uncertainty = True
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
@@ -635,6 +638,8 @@ scope_type : {self.scope_type}
                     found_nodes, node_statement, name
                 )
             )
+            if uncertain_nodes:
+                has_except_uncertainty = True
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
@@ -647,16 +652,21 @@ scope_type : {self.scope_type}
                     found_nodes, node_statement
                 )
             )
+            if uncertain_nodes:
+                has_except_uncertainty = True
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
         # Treat bare type annotations (AnnAssign without a value) as uncertain
-        # when there are other uncertain definitions. A bare annotation like
-        # `x: int` does not actually assign a value, so it should not suppress
-        # possibly-used-before-assignment when the real assignments are uncertain
-        # (e.g., in except blocks).
-        if found_nodes and self.consumed_uncertain.get(name):
+        # when there are uncertain definitions from except/try blocks.
+        # A bare annotation like `x: int` does not actually assign a value,
+        # so it should not suppress possibly-used-before-assignment when the
+        # real assignments are in except blocks that may not execute.
+        # We only do this for except/try uncertainty, not for if/elif
+        # uncertainty, because if/elif branches are guaranteed to execute
+        # one path (the bare annotation masking is correct there).
+        if found_nodes and has_except_uncertainty:
             bare_annotations = [
                 n
                 for n in found_nodes
