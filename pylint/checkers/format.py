@@ -795,10 +795,13 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 )
             return add_bad_notation_message(f"is bigger than {threshold}")
         if has_exponent:
-            if self.strict_underscore or has_underscore:
-                # If we have exponent it means it's not proper underscore
+            if has_underscore:
                 return add_bad_notation_message(
                     "has exponent and underscore at the same time"
+                )
+            if self.strict_underscore:
+                return add_bad_notation_message(
+                    "uses exponent notation instead of underscore grouping"
                 )
             base_as_str, exponent_as_str = string.lower().split("e")
             base = float(base_as_str)
