@@ -75,10 +75,9 @@ class NumberFormatterHelper:
         if engineering:
             suggested.add(cls.to_standard_engineering_notation(dec_number, sig_figs))
         if pep515:
-            # str(float) uses 'e+' for positive exponents (e.g. '1.2e+10')
-            # while our scientific/engineering formatters use 'e' without '+'.
             s = cls.to_standard_underscore_grouping(number)
-            suggested.add(s.replace("e+", "e"))
+            if s is not None:
+                suggested.add(s)
         return "' or '".join(sorted(suggested))
 
     @classmethod
@@ -162,22 +161,29 @@ class NumberFormatterHelper:
         return base_str
 
     @classmethod
-    def to_standard_underscore_grouping(cls, number: float) -> str:
+    def to_standard_underscore_grouping(cls, number: float) -> str | None:
         if number in (math.inf, -math.inf):
             return "math.inf"
-        number_str = str(number)
-        if "e" in number_str or "E" in number_str:
-            # python itself want to display this as exponential there's no reason to
-            # not use exponential notation for very small number even for strict
-            # underscore grouping notation
-            return number_str
+        number_str = format(Decimal(str(number)), "f")
+        if "." not in number_str:
+            number_str += ".0"
         int_part, dec_part = number_str.split(".")
+        # For very large or very small expanded numbers, underscore
+        # grouping isn't useful — let scientific/engineering handle it.
+        abs_int_part = int_part.lstrip("-")
+        if len(abs_int_part) > 16 or len(dec_part) > 16:
+            return None
         grouped_int_part = ""
         for i, digit in enumerate(reversed(int_part)):
             if i > 0 and i % 3 == 0:
                 grouped_int_part = "_" + grouped_int_part
             grouped_int_part = digit + grouped_int_part
-        return f"{grouped_int_part}.{dec_part}"
+        grouped_dec_part = ""
+        for i, digit in enumerate(dec_part):
+            if i > 0 and i % 3 == 0:
+                grouped_dec_part += "_"
+            grouped_dec_part += digit
+        return f"{grouped_int_part}.{grouped_dec_part}"
 
     @classmethod
     def to_standard_non_decimal_grouping(
