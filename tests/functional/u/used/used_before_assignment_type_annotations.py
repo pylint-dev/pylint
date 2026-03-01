@@ -118,7 +118,7 @@ def bare_annotation_with_except_assignment(text):
     err: int
     try:
         result = int(text)
-    except (TypeError, OverflowError):
+    except ValueError:
         err = 1
         result = -1
     if result < 0:
@@ -130,7 +130,7 @@ def bare_annotation_with_value_and_except(text):
     err: int = 0
     try:
         result = int(text)
-    except (TypeError, OverflowError):
+    except ValueError:
         err = 1
         result = -1
     if result < 0:
