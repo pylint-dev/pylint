@@ -33,7 +33,6 @@ import argparse
 import copy
 import functools
 import itertools
-import operator
 import re
 import sys
 import warnings
@@ -71,9 +70,9 @@ class LineSpecifs(NamedTuple):
     text: str
 
 
-# Links LinesChunk object to the starting indices (in lineset's stripped lines)
-# of the different chunk of lines that are used to compute the hash
-HashToIndex_T = dict["LinesChunk", list[Index]]
+# Maps the hash of successive stripped lines to the starting indices
+# (in lineset's stripped lines) of the chunks that produced that hash.
+HashToIndex_T = dict[int, list[Index]]
 
 # Links index in the lineset's stripped lines to the real lines in the file
 IndexToLines_T = dict[Index, "SuccessiveLinesLimits"]
@@ -103,45 +102,6 @@ class CplSuccessiveLinesLimits:
 # Links the indices to the starting line in both lineset's stripped lines to
 # the start and end lines in both files
 CplIndexToCplLines_T = dict["LineSetStartCouple", CplSuccessiveLinesLimits]
-
-
-class LinesChunk:
-    """The LinesChunk object computes and stores the hash of some consecutive stripped
-    lines of a lineset.
-    """
-
-    __slots__ = ("_fileid", "_hash", "_index")
-
-    def __init__(self, fileid: str, num_line: int, *lines: Iterable[str]) -> None:
-        self._fileid: str = fileid
-        """The name of the file from which the LinesChunk object is generated."""
-
-        self._index: Index = Index(num_line)
-        """The index in the stripped lines that is the starting of consecutive
-        lines.
-        """
-
-        self._hash: int = sum(hash(lin) for lin in lines)
-        """The hash of some consecutive lines."""
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, LinesChunk):
-            return NotImplemented
-        return self._hash == o._hash
-
-    def __hash__(self) -> int:
-        return self._hash
-
-    def __repr__(self) -> str:
-        return (
-            f"<LinesChunk object for file {self._fileid} ({self._index}, {self._hash})>"
-        )
-
-    def __str__(self) -> str:
-        return (
-            f"LinesChunk object for file {self._fileid}, starting at line {self._index} \n"
-            f"Hash is {self._hash}"
-        )
 
 
 class SuccessiveLinesLimits:
@@ -219,30 +179,41 @@ def hash_lineset(
     :return: a dict linking hashes to corresponding start index and a dict that links this
              index to the start and end lines in the file
     """
-    hash2index = defaultdict(list)
-    index2lines = {}
-    # Comments, docstring and other specific patterns maybe excluded -> call to stripped_lines
-    # to get only what is desired
-    lines = tuple(x.text for x in lineset.stripped_lines)
-    # Need different iterators on same lines but each one is shifted 1 from the precedent
-    shifted_lines = [iter(lines[i:]) for i in range(min_common_lines)]
+    hash_to_index: HashToIndex_T = defaultdict(list)
+    index_to_lines: IndexToLines_T = {}
+    stripped = lineset.stripped_lines
+    num_lines = len(stripped)
+    if num_lines < min_common_lines:
+        return hash_to_index, index_to_lines
 
-    for i, *succ_lines in enumerate(zip(*shifted_lines)):
-        start_linenumber = LineNumber(lineset.stripped_lines[i].line_number)
-        try:
-            end_linenumber = lineset.stripped_lines[i + min_common_lines].line_number
-        except IndexError:
-            end_linenumber = LineNumber(lineset.stripped_lines[-1].line_number + 1)
+    # Pre-compute per-line hashes for the rolling window
+    line_hashes = [hash(spec.text) for spec in stripped]
+
+    # Seed the rolling hash with the first window
+    window_hash = sum(line_hashes[:min_common_lines])
+
+    last_index = num_lines - 1
+    for i in range(num_lines - min_common_lines + 1):
+        start_linenumber = LineNumber(stripped[i].line_number)
+        window_end = i + min_common_lines
+        end_linenumber = (
+            stripped[window_end].line_number
+            if window_end <= last_index
+            else LineNumber(stripped[last_index].line_number + 1)
+        )
 
         index = Index(i)
-        index2lines[index] = SuccessiveLinesLimits(
+        index_to_lines[index] = SuccessiveLinesLimits(
             start=start_linenumber, end=end_linenumber
         )
 
-        l_c = LinesChunk(lineset.name, index, *succ_lines)
-        hash2index[l_c].append(index)
+        hash_to_index[window_hash].append(index)
 
-    return hash2index, index2lines
+        # Slide the window: subtract the leaving line, add the entering line
+        if window_end <= last_index:
+            window_hash = window_hash - line_hashes[i] + line_hashes[window_end]
+
+    return hash_to_index, index_to_lines
 
 
 def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
@@ -465,7 +436,11 @@ class Symilar:
 
     # pylint: disable = too-many-locals
     def _find_common(
-        self, lineset1: LineSet, lineset2: LineSet
+        self,
+        lineset1: LineSet,
+        lineset2: LineSet,
+        hashes1: tuple[HashToIndex_T, IndexToLines_T] | None = None,
+        hashes2: tuple[HashToIndex_T, IndexToLines_T] | None = None,
     ) -> Generator[Commonality]:
         """Find similarities in the two given linesets.
 
@@ -483,27 +458,28 @@ class Symilar:
         hash_to_index_2: HashToIndex_T
         index_to_lines_1: IndexToLines_T
         index_to_lines_2: IndexToLines_T
-        hash_to_index_1, index_to_lines_1 = hash_lineset(
-            lineset1, self.namespace.min_similarity_lines
-        )
-        hash_to_index_2, index_to_lines_2 = hash_lineset(
-            lineset2, self.namespace.min_similarity_lines
-        )
+        if hashes1 is not None:
+            hash_to_index_1, index_to_lines_1 = hashes1
+        else:
+            hash_to_index_1, index_to_lines_1 = hash_lineset(
+                lineset1, self.namespace.min_similarity_lines
+            )
+        if hashes2 is not None:
+            hash_to_index_2, index_to_lines_2 = hashes2
+        else:
+            hash_to_index_2, index_to_lines_2 = hash_lineset(
+                lineset2, self.namespace.min_similarity_lines
+            )
 
-        hash_1: frozenset[LinesChunk] = frozenset(hash_to_index_1.keys())
-        hash_2: frozenset[LinesChunk] = frozenset(hash_to_index_2.keys())
-
-        common_hashes: Iterable[LinesChunk] = sorted(
-            hash_1 & hash_2, key=lambda m: hash_to_index_1[m][0]
-        )
+        common_hashes = hash_to_index_1.keys() & hash_to_index_2.keys()
 
         # all_couples is a dict that links the couple of indices in both linesets that mark the beginning of
         # successive common lines, to the corresponding starting and ending number lines in both files
         all_couples: CplIndexToCplLines_T = {}
 
-        for c_hash in sorted(common_hashes, key=operator.attrgetter("_index")):
+        for chunk_hash in sorted(common_hashes, key=lambda h: hash_to_index_1[h][0]):
             for indices_in_linesets in itertools.product(
-                hash_to_index_1[c_hash], hash_to_index_2[c_hash]
+                hash_to_index_1[chunk_hash], hash_to_index_2[chunk_hash]
             ):
                 index_1 = indices_in_linesets[0]
                 index_2 = indices_in_linesets[1]
@@ -543,9 +519,21 @@ class Symilar:
         """Iterate on similarities among all files, by making a Cartesian
         product.
         """
+        min_lines = self.namespace.min_similarity_lines
+        # Cache hash_lineset results: each lineset is compared against every
+        # other, so without caching it gets hashed (N-1) times.
+        cache: dict[int, tuple[HashToIndex_T, IndexToLines_T]] = {}
         for idx, lineset in enumerate(self.linesets[:-1]):
             for lineset2 in self.linesets[idx + 1 :]:
-                yield from self._find_common(lineset, lineset2)
+                lid1 = id(lineset)
+                if lid1 not in cache:
+                    cache[lid1] = hash_lineset(lineset, min_lines)
+                lid2 = id(lineset2)
+                if lid2 not in cache:
+                    cache[lid2] = hash_lineset(lineset2, min_lines)
+                yield from self._find_common(
+                    lineset, lineset2, cache[lid1], cache[lid2]
+                )
 
     def get_map_data(self) -> list[LineSet]:
         """Returns the data we can use for a map/reduce process.

@@ -1,0 +1,5 @@
+Speed up the ``duplicate-code`` checker by using C-based hash, a rolling hash window,
+and caching results across file pairs. Expect pylint to be ~25% faster on ~25k SLOC
+(astroid) and ~70% faster on ~130k SLOC (django) overall when duplicate-code is activated.
+
+Refs #10881
