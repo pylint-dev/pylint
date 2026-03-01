@@ -78,6 +78,10 @@ class NumberFormatterHelper:
             s = cls.to_standard_underscore_grouping(number)
             if s is not None:
                 suggested.add(s)
+        if not suggested:
+            # Fallback when no formatter could produce a suggestion (e.g.
+            # pep515-only mode with a number too large for underscore grouping)
+            suggested.add(cls.to_standard_scientific_notation(dec_number, sig_figs))
         return "' or '".join(sorted(suggested))
 
     @classmethod
@@ -746,6 +750,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 engineering,
                 pep515,
             )
+            if suggestion == string.lower():
+                return
             self.add_message(
                 "bad-number-notation",
                 line=line_num,
