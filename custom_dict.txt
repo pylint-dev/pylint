@@ -125,6 +125,7 @@ fixme
 Flymake
 fmt
 formatter
+formatters
 formfeed
 fromlineno
 fullname
