@@ -1,5 +1,15 @@
-too-many-arguments:5:4:5:21:RegularMethods.regular_fail1:Too many arguments (7/6):UNDEFINED
-too-many-positional-arguments:5:4:5:21:RegularMethods.regular_fail1:Too many positional arguments (7/6):HIGH
-too-many-arguments:8:4:8:21:RegularMethods.regular_fail2:Too many arguments (7/6):UNDEFINED
-too-many-positional-arguments:8:4:8:21:RegularMethods.regular_fail2:Too many positional arguments (7/6):HIGH
-too-many-arguments:11:4:11:21:RegularMethods.regular_okay1:Too many arguments (7/6):UNDEFINED
+too-many-arguments:6:4:6:21:RegularMethods.regular_fail1:Too many arguments (7/6):UNDEFINED
+too-many-positional-arguments:6:4:6:21:RegularMethods.regular_fail1:Too many positional arguments (7/6):HIGH
+too-many-arguments:9:4:9:21:RegularMethods.regular_fail2:Too many arguments (7/6):UNDEFINED
+too-many-positional-arguments:9:4:9:21:RegularMethods.regular_fail2:Too many positional arguments (7/6):HIGH
+too-many-arguments:12:4:12:21:RegularMethods.regular_okay1:Too many arguments (7/6):UNDEFINED
+too-many-arguments:24:4:24:20:StaticMethods.static_fail1:Too many arguments (6/5):UNDEFINED
+too-many-positional-arguments:24:4:24:20:StaticMethods.static_fail1:Too many positional arguments (6/5):HIGH
+too-many-arguments:28:4:28:20:StaticMethods.static_fail2:Too many arguments (6/5):UNDEFINED
+too-many-positional-arguments:28:4:28:20:StaticMethods.static_fail2:Too many positional arguments (6/5):HIGH
+too-many-arguments:32:4:32:20:StaticMethods.static_okay1:Too many arguments (6/5):UNDEFINED
+too-many-arguments:45:4:45:19:ClassMethods.class_fail1:Too many arguments (7/6):UNDEFINED
+too-many-positional-arguments:45:4:45:19:ClassMethods.class_fail1:Too many positional arguments (7/6):HIGH
+too-many-arguments:49:4:49:19:ClassMethods.class_fail2:Too many arguments (7/6):UNDEFINED
+too-many-positional-arguments:49:4:49:19:ClassMethods.class_fail2:Too many positional arguments (7/6):HIGH
+too-many-arguments:53:4:53:19:ClassMethods.class_okay1:Too many arguments (7/6):UNDEFINED
