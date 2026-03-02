@@ -165,7 +165,9 @@ class UnsupportedVersionChecker(BaseChecker):
             )
 
     @only_required_for_messages("using-generic-type-syntax-in-unsupported-version")
-    def visit_typealias(self, node: nodes.TypeAlias) -> None:
+    def visit_typealias(
+        self, node: nodes.TypeAlias | nodes.TypeVar | nodes.TypeVarTuple
+    ) -> None:
         if not self._py312_plus:
             self.add_message(
                 "using-generic-type-syntax-in-unsupported-version",
@@ -173,23 +175,8 @@ class UnsupportedVersionChecker(BaseChecker):
                 confidence=HIGH,
             )
 
-    @only_required_for_messages("using-generic-type-syntax-in-unsupported-version")
-    def visit_typevar(self, node: nodes.TypeVar) -> None:
-        if not self._py312_plus:
-            self.add_message(
-                "using-generic-type-syntax-in-unsupported-version",
-                node=node,
-                confidence=HIGH,
-            )
-
-    @only_required_for_messages("using-generic-type-syntax-in-unsupported-version")
-    def visit_typevartuple(self, node: nodes.TypeVarTuple) -> None:
-        if not self._py312_plus:
-            self.add_message(
-                "using-generic-type-syntax-in-unsupported-version",
-                node=node,
-                confidence=HIGH,
-            )
+    visit_typevar = visit_typealias
+    visit_typevartuple = visit_typealias
 
 
 def register(linter: PyLinter) -> None:
