@@ -445,6 +445,20 @@ def test_disable_similar(initialized_linter: PyLinter) -> None:
     assert "similarities" not in [c.name for c in linter.prepare_checkers()]
 
 
+def test_disable_similar_with_reports(initialized_linter: PyLinter) -> None:
+    """Disabling R0801 should exclude the similarities checker even with reports enabled.
+
+    Regression test for https://github.com/pylint-dev/pylint/issues/3443
+    """
+    linter = initialized_linter
+    linter.set_option("reports", True)
+    linter.set_option("disable", "R0801")
+    checker_names = [c.name for c in linter.prepare_checkers()]
+    assert "similarities" not in checker_names
+    # Report-only checkers (no messages) should still be included
+    assert "metrics" in checker_names
+
+
 def test_disable_alot(linter: PyLinter) -> None:
     """Check that we disabled a lot of checkers."""
     linter.set_option("reports", False)
