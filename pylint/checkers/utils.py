@@ -558,22 +558,23 @@ def parse_format_string(
             # Parse the conversion flags (optional).
             while char in "#0- +":
                 i, char = next_char(i)
-            # Parse the minimum field width (optional).
-            if char == "*":
-                num_args += 1
-                i, char = next_char(i)
-            else:
-                while char in string.digits:
-                    i, char = next_char(i)
-            # Parse the precision (optional).
-            if char == ".":
-                i, char = next_char(i)
+
+            def _parse_width_or_precision() -> None:
+                """Parse a *-or-digits field, mutating i, char, num_args via nonlocal."""
+                nonlocal i, char, num_args
                 if char == "*":
                     num_args += 1
                     i, char = next_char(i)
                 else:
                     while char in string.digits:
                         i, char = next_char(i)
+
+            # Parse the minimum field width (optional).
+            _parse_width_or_precision()
+            # Parse the precision (optional).
+            if char == ".":
+                i, char = next_char(i)
+                _parse_width_or_precision()
             # Parse the length modifier (optional).
             if char in "hlL":
                 i, char = next_char(i)
