@@ -515,16 +515,16 @@ class Symilar:
         # Cache hash_lineset results: each lineset is compared against every
         # other, so without caching it gets hashed (N-1) times.
         cache: dict[int, LineSetHashResult] = {}
-        for idx, lineset in enumerate(self.linesets[:-1]):
+        for idx, lineset1 in enumerate(self.linesets[:-1]):
             for lineset2 in self.linesets[idx + 1 :]:
-                lid1 = id(lineset)
-                if lid1 not in cache:
-                    cache[lid1] = hash_lineset(lineset, min_lines)
-                lid2 = id(lineset2)
-                if lid2 not in cache:
-                    cache[lid2] = hash_lineset(lineset2, min_lines)
+                key1 = id(lineset1)
+                if key1 not in cache:
+                    cache[key1] = hash_lineset(lineset1, min_lines)
+                key2 = id(lineset2)
+                if key2 not in cache:
+                    cache[key2] = hash_lineset(lineset2, min_lines)
                 yield from self._find_common(
-                    lineset, lineset2, cache[lid1], cache[lid2]
+                    lineset1, lineset2, cache[key1], cache[key2]
                 )
 
     def get_map_data(self) -> list[LineSet]:
