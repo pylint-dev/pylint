@@ -1,0 +1,3 @@
+The ``duplicate-code`` checker now detects similar code within a single file, not only across multiple files.
+
+Closes #1457

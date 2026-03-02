@@ -461,12 +461,15 @@ class Symilar:
         account common chunk of lines that have more than the minimal number of
         successive lines required.
         """
+        if lineset1 is lineset2:
+            hashes2 = hashes1
         common_hashes = hashes1.hash_to_index.keys() & hashes2.hash_to_index.keys()
 
         # all_couples is a dict that links the couple of indices in both linesets that mark the beginning of
         # successive common lines, to the corresponding starting and ending number lines in both files
         all_couples: CplIndexToCplLines_T = {}
 
+        same_file = lineset1 is lineset2
         for chunk_hash in sorted(
             common_hashes, key=lambda h: hashes1.hash_to_index[h][0]
         ):
@@ -475,6 +478,10 @@ class Symilar:
             ):
                 index_1 = indices_in_linesets[0]
                 index_2 = indices_in_linesets[1]
+                # For within-file comparison, skip trivial self-matches
+                # and duplicates (only keep index_1 < index_2).
+                if same_file and index_1 >= index_2:
+                    continue
                 all_couples[LineSetStartCouple(index_1, index_2)] = (
                     CplSuccessiveLinesLimits(
                         copy.copy(hashes1.index_to_lines[index_1]),
@@ -509,23 +516,28 @@ class Symilar:
 
     def _iter_sims(self) -> Generator[Commonality]:
         """Iterate on similarities among all files, by making a Cartesian
-        product.
+        product, and also within each file.
         """
         min_lines = self.namespace.min_similarity_lines
         # Cache hash_lineset results: each lineset is compared against every
         # other, so without caching it gets hashed (N-1) times.
         cache: dict[int, LineSetHashResult] = {}
-        for idx, lineset1 in enumerate(self.linesets[:-1]):
+        for idx, lineset1 in enumerate(self.linesets):
+            key1 = id(lineset1)
+            if key1 not in cache:
+                cache[key1] = hash_lineset(lineset1, min_lines)
+            # Compare lineset against itself (within-file duplicates)
+            yield from self._find_common(lineset1, lineset1, cache[key1], cache[key1])
+            # Compare against all subsequent linesets (cross-file duplicates)
             for lineset2 in self.linesets[idx + 1 :]:
-                key1 = id(lineset1)
-                if key1 not in cache:
-                    cache[key1] = hash_lineset(lineset1, min_lines)
                 key2 = id(lineset2)
                 if key2 not in cache:
                     cache[key2] = hash_lineset(lineset2, min_lines)
                 yield from self._find_common(
                     lineset1, lineset2, cache[key1], cache[key2]
                 )
+            # lineset1 is never compared again after this point.
+            del cache[key1]
 
     def get_map_data(self) -> list[LineSet]:
         """Returns the data we can use for a map/reduce process.
@@ -700,8 +712,8 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Similar lines in %s files\n%s",
         "duplicate-code",
         "Indicates that a set of similar lines has been detected "
-        "among multiple file. This usually means that the code should "
-        "be refactored to avoid this duplication.",
+        "among multiple files or within a single file. This usually means "
+        "that the code should be refactored to avoid this duplication.",
     )
 }
 

@@ -2,6 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+# pylint: disable=duplicate-code
 from __future__ import annotations
 
 import os
@@ -15,6 +16,7 @@ import pytest
 
 from pylint.reporters.text import TextReporter
 from pylint.testutils._run import _Run as Run
+from pylint.testutils.reporter_for_tests import GenericTestReporter
 from pylint.testutils.utils import _patch_streams
 
 HERE = abspath(dirname(__file__))
@@ -265,6 +267,33 @@ class TestSymilarCodeChecker:
             exit=False,
         )
         assert not runner.linter.stats.by_msg
+
+    @staticmethod
+    def test_duplicate_code_within_file() -> None:
+        """Duplicate code within a single file should be detected.
+
+        Regression test for https://github.com/pylint-dev/pylint/issues/1457
+        """
+        path = join(DATA, "within_file", "single_file.py")
+        reporter = GenericTestReporter()
+        Run(
+            [
+                path,
+                "--disable=all",
+                "--enable=duplicate-code",
+                "--min-similarity-lines=4",
+            ],
+            reporter=reporter,
+            exit=False,
+        )
+        messages = reporter.messages
+        assert messages, "Expected at least one R0801 message"
+        msg = messages[0]
+        assert msg.symbol == "duplicate-code"
+        # Both locations should be in the same file
+        involved = re.findall(r"==(\S+?):\[", msg.msg)
+        assert len(involved) == 2
+        assert involved[0] == involved[1]
 
     def test_conditional_imports(self) -> None:
         """Tests enabling ignore-imports with conditional imports works correctly."""
