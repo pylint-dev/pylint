@@ -77,6 +77,14 @@ HashToIndex_T = dict[int, list[Index]]
 # Links index in the lineset's stripped lines to the real lines in the file
 IndexToLines_T = dict[Index, "SuccessiveLinesLimits"]
 
+
+class LineSetHashResult(NamedTuple):
+    """Pre-computed hash data for a LineSet, used to speed up similarity lookups."""
+
+    hash_to_index: HashToIndex_T
+    index_to_lines: IndexToLines_T
+
+
 # The types the streams read by pylint can take. Originating from astroid.nodes.Module.stream() and open()
 STREAM_TYPES: TypeAlias = TextIO | BufferedReader | BytesIO
 
@@ -166,25 +174,25 @@ LinesChunkLimits_T = tuple["LineSet", LineNumber, LineNumber]
 
 def hash_lineset(
     lineset: LineSet, min_common_lines: int = DEFAULT_MIN_SIMILARITY_LINE
-) -> tuple[HashToIndex_T, IndexToLines_T]:
-    """Return two dicts.
+) -> LineSetHashResult:
+    """Return pre-computed hash data for a lineset.
 
-    The first associates the hash of successive stripped lines of a lineset
-    to the indices of the starting lines.
-    The second dict, associates the index of the starting line in the lineset's stripped lines to the
-    couple [start, end] lines number in the corresponding file.
+    The result contains two dicts:
+    - hash_to_index: maps the hash of successive stripped lines to the starting
+      indices (in lineset's stripped lines) of the chunks that produced that hash.
+    - index_to_lines: maps the index of the starting line in the lineset's stripped
+      lines to the start and end line numbers in the corresponding file.
 
     :param lineset: lineset object (i.e the lines in a file)
     :param min_common_lines: number of successive lines that are used to compute the hash
-    :return: a dict linking hashes to corresponding start index and a dict that links this
-             index to the start and end lines in the file
+    :return: a LineSetHashResult with hash-to-index and index-to-lines mappings
     """
     hash_to_index: HashToIndex_T = defaultdict(list)
     index_to_lines: IndexToLines_T = {}
     stripped = lineset.stripped_lines
     num_lines = len(stripped)
     if num_lines < min_common_lines:
-        return hash_to_index, index_to_lines
+        return LineSetHashResult(hash_to_index, index_to_lines)
 
     # Pre-compute per-line hashes for the rolling window
     line_hashes = [hash(spec.text) for spec in stripped]
@@ -213,7 +221,7 @@ def hash_lineset(
         if window_end <= last_index:
             window_hash = window_hash - line_hashes[i] + line_hashes[window_end]
 
-    return hash_to_index, index_to_lines
+    return LineSetHashResult(hash_to_index, index_to_lines)
 
 
 def remove_successive(all_couples: CplIndexToCplLines_T) -> None:
@@ -434,13 +442,12 @@ class Symilar:
         )
         return report
 
-    # pylint: disable = too-many-locals
     def _find_common(
         self,
         lineset1: LineSet,
         lineset2: LineSet,
-        hashes1: tuple[HashToIndex_T, IndexToLines_T] | None = None,
-        hashes2: tuple[HashToIndex_T, IndexToLines_T] | None = None,
+        hashes1: LineSetHashResult,
+        hashes2: LineSetHashResult,
     ) -> Generator[Commonality]:
         """Find similarities in the two given linesets.
 
@@ -454,39 +461,24 @@ class Symilar:
         account common chunk of lines that have more than the minimal number of
         successive lines required.
         """
-        hash_to_index_1: HashToIndex_T
-        hash_to_index_2: HashToIndex_T
-        index_to_lines_1: IndexToLines_T
-        index_to_lines_2: IndexToLines_T
-        if hashes1 is not None:
-            hash_to_index_1, index_to_lines_1 = hashes1
-        else:
-            hash_to_index_1, index_to_lines_1 = hash_lineset(
-                lineset1, self.namespace.min_similarity_lines
-            )
-        if hashes2 is not None:
-            hash_to_index_2, index_to_lines_2 = hashes2
-        else:
-            hash_to_index_2, index_to_lines_2 = hash_lineset(
-                lineset2, self.namespace.min_similarity_lines
-            )
-
-        common_hashes = hash_to_index_1.keys() & hash_to_index_2.keys()
+        common_hashes = hashes1.hash_to_index.keys() & hashes2.hash_to_index.keys()
 
         # all_couples is a dict that links the couple of indices in both linesets that mark the beginning of
         # successive common lines, to the corresponding starting and ending number lines in both files
         all_couples: CplIndexToCplLines_T = {}
 
-        for chunk_hash in sorted(common_hashes, key=lambda h: hash_to_index_1[h][0]):
+        for chunk_hash in sorted(
+            common_hashes, key=lambda h: hashes1.hash_to_index[h][0]
+        ):
             for indices_in_linesets in itertools.product(
-                hash_to_index_1[chunk_hash], hash_to_index_2[chunk_hash]
+                hashes1.hash_to_index[chunk_hash], hashes2.hash_to_index[chunk_hash]
             ):
                 index_1 = indices_in_linesets[0]
                 index_2 = indices_in_linesets[1]
                 all_couples[LineSetStartCouple(index_1, index_2)] = (
                     CplSuccessiveLinesLimits(
-                        copy.copy(index_to_lines_1[index_1]),
-                        copy.copy(index_to_lines_2[index_2]),
+                        copy.copy(hashes1.index_to_lines[index_1]),
+                        copy.copy(hashes2.index_to_lines[index_2]),
                         effective_cmn_lines_nb=self.namespace.min_similarity_lines,
                     )
                 )
@@ -522,7 +514,7 @@ class Symilar:
         min_lines = self.namespace.min_similarity_lines
         # Cache hash_lineset results: each lineset is compared against every
         # other, so without caching it gets hashed (N-1) times.
-        cache: dict[int, tuple[HashToIndex_T, IndexToLines_T]] = {}
+        cache: dict[int, LineSetHashResult] = {}
         for idx, lineset in enumerate(self.linesets[:-1]):
             for lineset2 in self.linesets[idx + 1 :]:
                 lid1 = id(lineset)
