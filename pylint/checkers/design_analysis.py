@@ -542,8 +542,10 @@ class MisdesignChecker(BaseChecker):
         # init branch and returns counters
         self._returns.append(0)
         # check number of arguments
-        args = node.args.args + node.args.posonlyargs + node.args.kwonlyargs
-        pos_args = node.args.args + node.args.posonlyargs
+        pos_args = node.args.posonlyargs + node.args.args
+        if node.type in {"method", "classmethod"}:
+            pos_args = pos_args[1:]
+        args = pos_args + node.args.kwonlyargs
         ignored_argument_names = self.linter.config.ignored_argument_names
         if args is not None:
             ignored_args_num = 0
@@ -559,25 +561,20 @@ class MisdesignChecker(BaseChecker):
                 ignored_args_num = ignored_pos_args_num + ignored_kwonly_args_num
 
             argnum = len(args) - ignored_args_num
-            max_args = self.linter.config.max_args
-            max_positional_arguments = self.linter.config.max_positional_arguments
-            if node.type in {"method", "classmethod"}:
-                max_args = max_args + 1
-                max_positional_arguments = max_positional_arguments + 1
-            if argnum > max_args:
+            if argnum > self.linter.config.max_args:
                 self.add_message(
                     "too-many-arguments",
                     node=node,
-                    args=(len(args), max_args),
+                    args=(len(args), self.linter.config.max_args),
                 )
             pos_args_count = (
                 len(args) - len(node.args.kwonlyargs) - ignored_pos_args_num
             )
-            if pos_args_count > max_positional_arguments:
+            if pos_args_count > self.linter.config.max_positional_arguments:
                 self.add_message(
                     "too-many-positional-arguments",
                     node=node,
-                    args=(pos_args_count, max_positional_arguments),
+                    args=(pos_args_count, self.linter.config.max_positional_arguments),
                     confidence=HIGH,
                 )
         else:
