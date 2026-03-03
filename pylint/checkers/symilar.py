@@ -57,6 +57,12 @@ DEFAULT_MIN_SIMILARITY_LINE = 4
 
 REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")
 
+# When two files share a hash bucket whose Cartesian product exceeds this
+# limit, fall back to aligned (zip) pairing instead of the full product.
+# This prevents quadratic blow-up on files with many identical lines (e.g.
+# auto-generated data).  The result is a correct lower bound on duplicates.
+_HASH_BUCKET_PRODUCT_LIMIT: int = 500
+
 # Index defines a location in a LineSet stripped lines collection
 Index = NewType("Index", int)
 
@@ -475,11 +481,19 @@ class Symilar:
         for chunk_hash in sorted(
             common_hashes, key=lambda h: hashes1.hash_to_index[h][0]
         ):
-            for indices_in_linesets in itertools.product(
-                hashes1.hash_to_index[chunk_hash], hashes2.hash_to_index[chunk_hash]
-            ):
-                index_1 = indices_in_linesets[0]
-                index_2 = indices_in_linesets[1]
+            indices_1 = hashes1.hash_to_index[chunk_hash]
+            indices_2 = hashes2.hash_to_index[chunk_hash]
+
+            # When both buckets are large the Cartesian product becomes
+            # quadratic (e.g. 4000 x 22000 = 88M pairs for repeated data
+            # lines).  Fall back to aligned pairing which is O(min(N, M))
+            # and still lets remove_successive coalesce consecutive matches.
+            if len(indices_1) * len(indices_2) > _HASH_BUCKET_PRODUCT_LIMIT:
+                pairs: Iterable[tuple[Index, Index]] = zip(indices_1, indices_2)
+            else:
+                pairs = itertools.product(indices_1, indices_2)
+
+            for index_1, index_2 in pairs:
                 all_couples[LineSetStartCouple(index_1, index_2)] = (
                     CplSuccessiveLinesLimits(
                         copy.copy(hashes1.index_to_lines[index_1]),
@@ -493,24 +507,25 @@ class Symilar:
         for cml_stripped_l, cmn_l in all_couples.items():
             start_index_1 = cml_stripped_l.fst_lineset_index
             start_index_2 = cml_stripped_l.snd_lineset_index
-            nb_common_lines = cmn_l.effective_cmn_lines_nb
-
-            com = Commonality(
-                cmn_lines_nb=nb_common_lines,
-                fst_lset=lineset1,
-                fst_file_start=cmn_l.first_file.start,
-                fst_file_end=cmn_l.first_file.end,
-                snd_lset=lineset2,
-                snd_file_start=cmn_l.second_file.start,
-                snd_file_end=cmn_l.second_file.end,
-            )
 
             eff_cmn_nb = filter_noncode_lines(
-                lineset1, start_index_1, lineset2, start_index_2, nb_common_lines
+                lineset1,
+                start_index_1,
+                lineset2,
+                start_index_2,
+                cmn_l.effective_cmn_lines_nb,
             )
 
             if eff_cmn_nb > self.namespace.min_similarity_lines:
-                yield com
+                yield Commonality(
+                    cmn_lines_nb=cmn_l.effective_cmn_lines_nb,
+                    fst_lset=lineset1,
+                    fst_file_start=cmn_l.first_file.start,
+                    fst_file_end=cmn_l.first_file.end,
+                    snd_lset=lineset2,
+                    snd_file_start=cmn_l.second_file.start,
+                    snd_file_end=cmn_l.second_file.end,
+                )
 
     def _iter_sims(self) -> Generator[Commonality]:
         """Iterate on similarities among all files, by making a Cartesian
