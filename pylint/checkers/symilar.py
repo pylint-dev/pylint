@@ -336,7 +336,11 @@ class Symilar:
         self.linesets: list[LineSet] = []
 
     def append_stream(
-        self, streamid: str, stream: STREAM_TYPES, encoding: str | None = None
+        self,
+        streamid: str,
+        stream: STREAM_TYPES,
+        encoding: str | None = None,
+        tree: nodes.Module | None = None,
     ) -> None:
         """Append a file to search for similarities."""
         if isinstance(stream, BufferedIOBase):
@@ -365,6 +369,7 @@ class Symilar:
                     if hasattr(self, "linter")
                     else None
                 ),
+                tree=tree,
             )
         )
 
@@ -550,6 +555,7 @@ def stripped_lines(
     ignore_imports: bool,
     ignore_signatures: bool,
     line_enabled_callback: Callable[[str, int], bool] | None = None,
+    tree: nodes.Module | None = None,
 ) -> list[LineSpecifs]:
     """Return tuples of line/line number/line type with leading/trailing white-space and
     any ignored code features removed.
@@ -561,11 +567,13 @@ def stripped_lines(
     :param ignore_signatures: if true, any line that is part of a function signature is removed from the result
     :param line_enabled_callback: If called with "R0801" and a line number, a return value of False will disregard
            the line
+    :param tree: pre-parsed AST; when provided the redundant astroid.parse() call is skipped
     :return: the collection of line/line number/line type tuples
     """
     ignore_lines: set[int] = set()
     if ignore_imports or ignore_signatures:
-        tree = astroid.parse("".join(lines))
+        if tree is None:
+            tree = astroid.parse("".join(lines))
         if ignore_imports:
             ignore_lines.update(
                 chain.from_iterable(
@@ -654,6 +662,7 @@ class LineSet:
         ignore_imports: bool = False,
         ignore_signatures: bool = False,
         line_enabled_callback: Callable[[str, int], bool] | None = None,
+        tree: nodes.Module | None = None,
     ) -> None:
         self.name = name
         self._real_lines = lines
@@ -664,6 +673,7 @@ class LineSet:
             ignore_imports,
             ignore_signatures,
             line_enabled_callback=line_enabled_callback,
+            tree=tree,
         )
 
     def __str__(self) -> str:
@@ -816,7 +826,9 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 stacklevel=2,
             )
         with node.stream() as stream:
-            self.append_stream(self.linter.current_name, stream, node.file_encoding)
+            self.append_stream(
+                self.linter.current_name, stream, node.file_encoding, tree=node
+            )
 
     def close(self) -> None:
         """Compute and display similarities on closing (i.e. end of parsing)."""
