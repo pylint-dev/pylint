@@ -15,9 +15,11 @@ from collections.abc import ItemsView, Sequence
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
+if TYPE_CHECKING:
+    import isort
+
 import astroid
 import astroid.modutils
-import isort
 from astroid import nodes
 from astroid.nodes._base_nodes import ImportNode
 
@@ -768,6 +770,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         Only valid after CLI parsing finished, i.e. not in __init__
         """
+        import isort  # pylint: disable=import-outside-toplevel
+
         return isort.Config(
             # There is no typo here. EXTRA_standard_library is
             # what most users want. The option has been named
@@ -778,7 +782,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             known_third_party=self.linter.config.known_third_party,
         )
 
-    def _check_imports_order(self, _module_node: nodes.Module) -> tuple[
+    def _check_imports_order(  # pylint: disable=too-many-statements
+        self, _module_node: nodes.Module
+    ) -> tuple[
         list[tuple[ImportNode, str]],
         list[tuple[ImportNode, str]],
         list[tuple[ImportNode, str]],
@@ -787,6 +793,8 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         Imports must follow this order: standard, 3rd party, 1st party, local
         """
+        import isort  # pylint: disable=import-outside-toplevel
+
         std_imports: list[tuple[ImportNode, str]] = []
         third_party_imports: list[tuple[ImportNode, str]] = []
         first_party_imports: list[tuple[ImportNode, str]] = []
