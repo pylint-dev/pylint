@@ -555,6 +555,55 @@ class Symilar:
         self.linesets = [line for lineset in linesets_collection for line in lineset]
 
 
+def _has_trivial_body(
+    func: nodes.FunctionDef | nodes.AsyncFunctionDef,
+) -> bool:
+    """Return True if *func*'s body is a trivial placeholder.
+
+    A trivial body contains only a single placeholder statement such as
+    ``pass``, ``...``, ``raise NotImplementedError``, or
+    ``return NotImplemented``.  A preceding docstring is allowed because
+    astroid stores it in ``func.doc_node`` and removes it from ``body``.
+    """
+    if not func.body:
+        return True
+
+    if len(func.body) != 1:
+        return False
+
+    stmt = func.body[0]
+
+    if isinstance(stmt, nodes.Pass):
+        return True
+
+    if (
+        isinstance(stmt, nodes.Expr)
+        and isinstance(stmt.value, nodes.Const)
+        and stmt.value.value is ...
+    ):
+        return True
+
+    if isinstance(stmt, nodes.Raise) and stmt.exc is not None:
+        exc = stmt.exc
+        if isinstance(exc, nodes.Name) and exc.name == "NotImplementedError":
+            return True
+        if (
+            isinstance(exc, nodes.Call)
+            and isinstance(exc.func, nodes.Name)
+            and exc.func.name == "NotImplementedError"
+        ):
+            return True
+
+    if (
+        isinstance(stmt, nodes.Return)
+        and isinstance(stmt.value, nodes.Name)
+        and stmt.value.name == "NotImplemented"
+    ):
+        return True
+
+    return False
+
+
 def stripped_lines(
     lines: Iterable[str],
     ignore_comments: bool,
@@ -612,7 +661,13 @@ def stripped_lines(
                 chain.from_iterable(
                     range(
                         func.lineno,
-                        func.body[0].lineno if func.body else func.tolineno + 1,
+                        (
+                            func.tolineno + 1
+                            if _has_trivial_body(func)
+                            else (
+                                func.body[0].lineno if func.body else func.tolineno + 1
+                            )
+                        ),
                     )
                     for func in functions
                 )
@@ -743,7 +798,11 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
     IGNORE_COMMENTS_HELP = "Comments are removed from the similarity computation"
     IGNORE_DOCSTRINGS_HELP = "Docstrings are removed from the similarity computation"
     IGNORE_IMPORTS_HELP = "Imports are removed from the similarity computation"
-    IGNORE_SIGNATURES_HELP = "Signatures are removed from the similarity computation"
+    IGNORE_SIGNATURES_HELP = (
+        "Signatures are removed from the similarity computation. "
+        "Functions with trivial bodies (pass, ..., raise NotImplementedError, "
+        "return NotImplemented) are also ignored entirely."
+    )
     # for available dict keys/values see the option parser 'add_option' method
     options: Options = (
         (

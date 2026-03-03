@@ -24,6 +24,8 @@ SIMILAR_CLS_A = str(INPUT / "similar_cls_a.py")
 SIMILAR_CLS_B = str(INPUT / "similar_cls_b.py")
 EMPTY_FUNCTION_1 = str(INPUT / "similar_empty_func_1.py")
 EMPTY_FUNCTION_2 = str(INPUT / "similar_empty_func_2.py")
+STUB_METHODS_A = str(INPUT / "similar_stub_methods_a.py")
+STUB_METHODS_B = str(INPUT / "similar_stub_methods_b.py")
 MULTILINE = str(INPUT / "multiline-import")
 HIDE_CODE_WITH_IMPORTS = str(INPUT / "hide_code_with_imports.py")
 
@@ -243,6 +245,21 @@ def test_ignore_signatures_empty_functions_pass() -> None:
     assert ex.value.code == 0
     assert output.getvalue().strip() == """
 TOTAL lines=14 duplicates=0 percent=0.00
+""".strip()
+
+
+def test_ignore_signatures_stub_methods_pass() -> None:
+    """Stub methods with only ``pass`` bodies should NOT trigger duplication
+    when ignore-signatures is enabled.
+
+    Regression test for https://github.com/pylint-dev/pylint/issues/7213
+    """
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        symilar.Run(["--ignore-signatures", STUB_METHODS_A, STUB_METHODS_B])
+    assert ex.value.code == 0
+    assert output.getvalue().strip() == """
+TOTAL lines=30 duplicates=0 percent=0.00
 """.strip()
 
 
