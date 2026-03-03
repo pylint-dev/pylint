@@ -322,6 +322,11 @@ DEFAULT_KNOWN_FIRST_PARTY = ()
 DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
 DEFAULT_PREFERRED_MODULES = ()
 
+# Messages that require isort-based import classification.
+ISORT_MESSAGES = frozenset(
+    ("wrong-import-order", "ungrouped-imports", "wrong-import-position")
+)
+
 
 class ImportsChecker(DeprecatedMixin, BaseChecker):
     """BaseChecker for import statements.
@@ -590,6 +595,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._add_imported_module(node, imported_module.name)
 
     def leave_module(self, node: nodes.Module) -> None:
+        # Skip the expensive isort-based classification when no
+        # import-ordering message is enabled (e.g. only cyclic-import).
+        if any(self.linter.is_message_enabled(m) for m in ISORT_MESSAGES):
+            self.isort_leave_module(node)
+        self._imports_stack = []
+        self._non_import_nodes = []
+
+    def isort_leave_module(self, node: nodes.Module) -> None:
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
 
@@ -617,9 +630,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ):
                 continue
             met.add(package)
-
-        self._imports_stack = []
-        self._non_import_nodes = []
 
     def compute_first_non_import_node(
         self,
@@ -762,7 +772,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         imports = [import_node for (import_node, _) in imports]
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
-    @property
+    @cached_property
     def _isort_config(self) -> isort.Config:
         """Get the config for use with isort.
 
