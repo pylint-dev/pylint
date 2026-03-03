@@ -1,0 +1,7 @@
+Lazy-import ``isort`` so it is only loaded when import-ordering
+messages are enabled (``wrong-import-order``, ``ungrouped-imports``,
+``wrong-import-position``).  ``import isort`` alone takes ~60 ms,
+and lazy loading isort saves ~10% of ``pylint`` startup time when
+loading checkers from 220 ms to 190 ms.
+
+Closes #2866
