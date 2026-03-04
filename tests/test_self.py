@@ -1079,6 +1079,48 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         )
         self._test_output([path, "-j2"], expected_output="")
 
+    @pytest.mark.needs_two_cores
+    @pytest.mark.parametrize(
+        "args",
+        [
+            [
+                "--jobs",
+                "0",
+                "--disable=all",
+                "--enable=relative-beyond-top-level",
+                "--source-roots",
+                ".",
+                "a/",
+            ],
+            [
+                "--jobs",
+                "1",
+                "--disable=all",
+                "--enable=relative-beyond-top-level",
+                "--source-roots",
+                ".",
+                "a/c/d.py",
+            ],
+            [
+                "--jobs",
+                "0",
+                "--disable=all",
+                "--enable=relative-beyond-top-level",
+                "--source-roots",
+                ".",
+                "a/c/d.py",
+            ],
+        ],
+        ids=["jobs-0-dir", "jobs-1-file", "jobs-0-file"],
+    )
+    def test_issue_10794_relative_beyond_top_level_parallel_specific_file(
+        self, args: list[str]
+    ) -> None:
+        """Regression test for https://github.com/pylint-dev/pylint/issues/10794."""
+        path = join(HERE, "regrtest_data", "pep420", "issue_10794")
+        with _test_cwd(path):
+            self._runtest(args, code=0)
+
     def test_output_file_valid_path(self, tmp_path: Path) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
         output_file = tmp_path / "output.txt"
