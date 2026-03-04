@@ -26,7 +26,6 @@ from pylint.lint.pylinter import MANAGER, PyLinter
 from pylint.reporters.base_reporter import BaseReporter
 
 
-
 def _query_cpu() -> int | None:
     """Try to determine number of CPUs allotted in a docker container.
 
@@ -211,7 +210,9 @@ group are mutually exclusive.",
             sys.exit(32)
         if linter.config.jobs > 1 or linter.config.jobs == 0:
             try:
-                from concurrent.futures import ProcessPoolExecutor  # pylint: disable=import-outside-toplevel,unused-import  # noqa: F811
+                from concurrent.futures import (
+                    ProcessPoolExecutor,  # pylint: disable=import-outside-toplevel,unused-import
+                )
             except ImportError:
                 print(
                     "concurrent.futures module is missing, fallback to single process",

@@ -46,10 +46,12 @@ MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 # on all project using [MAIN] in their rcfile.
 MAIN_CHECKER_NAME = "main"
 
+
 def _default_pylint_home() -> str:
     import platformdirs  # pylint: disable=import-outside-toplevel
 
     return platformdirs.user_cache_dir("pylint")
+
 
 DEFAULT_IGNORE_LIST = ("CVS",)
 
@@ -105,7 +107,6 @@ def _get_pylint_home() -> str:
     if "PYLINTHOME" in os.environ:
         return os.environ["PYLINTHOME"]
     return _default_pylint_home()
-
 
 
 TYPING_NORETURN = frozenset(

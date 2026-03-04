@@ -16,7 +16,6 @@ from pylint.typing import FileItem
 from pylint.utils import LinterStats, merge_stats
 
 if TYPE_CHECKING:
-    import multiprocessing
 
     from pylint.lint import PyLinter
 
@@ -138,8 +137,11 @@ def check_parallel(
     initializer = functools.partial(
         _worker_initialize, extra_packages_paths=extra_packages_paths
     )
+    from concurrent.futures import (
+        ProcessPoolExecutor,  # pylint: disable=import-outside-toplevel
+    )
+
     import dill  # pylint: disable=import-outside-toplevel
-    from concurrent.futures import ProcessPoolExecutor  # pylint: disable=import-outside-toplevel
 
     with ProcessPoolExecutor(
         max_workers=jobs, initializer=initializer, initargs=(dill.dumps(linter),)
