@@ -9,8 +9,6 @@ from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any
 
-import dill
-
 from pylint import reporters
 from pylint.lint.utils import _augment_sys_path
 from pylint.message import Message
@@ -44,6 +42,8 @@ def _worker_initialize(
     :param extra_packages_paths: Extra entries to be added to `sys.path`
     """
     global _worker_linter  # pylint: disable=global-statement
+    import dill  # pylint: disable=import-outside-toplevel
+
     _worker_linter = dill.loads(linter)
     assert _worker_linter
 
@@ -144,6 +144,8 @@ def check_parallel(
     initializer = functools.partial(
         _worker_initialize, extra_packages_paths=extra_packages_paths
     )
+    import dill  # pylint: disable=import-outside-toplevel
+
     with ProcessPoolExecutor(
         max_workers=jobs, initializer=initializer, initargs=(dill.dumps(linter),)
     ) as executor:
