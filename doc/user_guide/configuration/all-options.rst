@@ -8,6 +8,7 @@
 Standard Checkers
 ^^^^^^^^^^^^^^^^^
 
+Remember that only ``tool.pylint`` is required, the section title is not. There are specific notes under each example that cover this.
 
 .. _main-options:
 
