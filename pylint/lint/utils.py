@@ -12,12 +12,13 @@ from collections.abc import Iterator, Sequence
 from datetime import datetime
 from pathlib import Path
 
-from pylint.constants import PYLINT_HOME, full_version
+from pylint import constants
+from pylint.constants import full_version
 
 
 def prepare_crash_report(ex: Exception, filepath: str, crash_file_path: str) -> Path:
     issue_template_path = (
-        Path(PYLINT_HOME) / datetime.now().strftime(str(crash_file_path))
+        Path(constants.PYLINT_HOME) / datetime.now().strftime(str(crash_file_path))
     ).resolve()
     with open(filepath, encoding="utf8") as f:
         file_content = f.read()

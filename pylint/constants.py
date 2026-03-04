@@ -9,7 +9,6 @@ import platform
 import sys
 
 import astroid
-import platformdirs
 
 from pylint.__pkginfo__ import __version__
 from pylint.typing import MessageTypesFullName
@@ -47,7 +46,10 @@ MSG_TYPES_STATUS = {"I": 0, "C": 16, "R": 8, "W": 4, "E": 2, "F": 1}
 # on all project using [MAIN] in their rcfile.
 MAIN_CHECKER_NAME = "main"
 
-DEFAULT_PYLINT_HOME = platformdirs.user_cache_dir("pylint")
+def _default_pylint_home() -> str:
+    import platformdirs  # pylint: disable=import-outside-toplevel
+
+    return platformdirs.user_cache_dir("pylint")
 
 DEFAULT_IGNORE_LIST = ("CVS",)
 
@@ -102,10 +104,9 @@ def _get_pylint_home() -> str:
     """Return the pylint home."""
     if "PYLINTHOME" in os.environ:
         return os.environ["PYLINTHOME"]
-    return DEFAULT_PYLINT_HOME
+    return _default_pylint_home()
 
 
-PYLINT_HOME = _get_pylint_home()
 
 TYPING_NORETURN = frozenset(
     (
@@ -282,3 +283,11 @@ UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS = [
 ]
 
 MAX_NUMBER_OF_IMPORT_SHOWN = 6
+
+
+def __getattr__(name: str) -> str:
+    if name == "PYLINT_HOME":
+        return _get_pylint_home()
+    if name == "DEFAULT_PYLINT_HOME":
+        return _default_pylint_home()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

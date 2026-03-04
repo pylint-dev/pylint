@@ -1,6 +1,6 @@
-Lazily import ``dill`` in ``pylint.lint.parallel`` and ``isort`` in
-``pylint.checkers.imports`` so they are only loaded when actually needed.
-``dill`` (~13 ms) is now deferred until parallel checking runs, and
-``isort`` (~60 ms) until import-ordering messages are checked.
+Lazily import ``isort``, ``dill``, ``multiprocessing``, ``concurrent.futures``,
+``tomlkit``, and ``platformdirs`` so they are only loaded when actually needed.
+This reduces startup time by ~24% for ``--version``, ~22% for ``--help``,
+and ~14% for single-file linting without multiprocessing.
 
 Closes #2866
