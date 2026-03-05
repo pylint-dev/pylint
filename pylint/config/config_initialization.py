@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import sys
 import warnings
+from copy import copy
 from glob import glob
 from itertools import chain
 from pathlib import Path
@@ -58,8 +59,12 @@ def _config_initialization(  # pylint: disable=too-many-statements
         exec(utils._unquote(config_data["init-hook"]))  # pylint: disable=exec-used
 
     # Load plugins if specified in the config file
+    default_checkers = copy(linter._registered_checkers)
     if "load-plugins" in config_data:
         linter.load_plugin_modules(utils._splitstrip(config_data["load-plugins"]))
+    linter._registered_dynamic_plugin_checkers = linter._registered_checkers.difference(
+        default_checkers
+    )
 
     unrecognized_options_message = None
     # First we parse any options from a configuration file

@@ -243,13 +243,6 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "binascii.a2b_hqx",
             "binascii.rlecode_hqx",
             "binascii.rledecode_hqx",
-            "importlib.resources.contents",
-            "importlib.resources.is_resource",
-            "importlib.resources.open_binary",
-            "importlib.resources.open_text",
-            "importlib.resources.path",
-            "importlib.resources.read_binary",
-            "importlib.resources.read_text",
         },
         (3, 10, 0): {
             "_sqlite3.enable_shared_cache",
@@ -269,6 +262,7 @@ DEPRECATED_METHODS: dict[int, DeprecationDict] = {
             "cgi.log",
         },
         (3, 11, 0): {
+            "importlib.resources.contents",
             "locale.getdefaultlocale",
             "locale.resetlocale",
             "re.template",
@@ -586,6 +580,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
             "It is better to specify an encoding when opening documents. "
             "Using the system default implicitly can create problems on other operating systems. "
             "See https://peps.python.org/pep-0597/",
+            {"maxversion": (3, 15)},
         ),
         "W1515": (
             "Leaving functions creating breakpoints in production code is not recommended",
@@ -641,7 +636,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
         if "target" in func_kwargs:
             return
 
-        if len(node.args) < 2 and (not node.kwargs or "target" not in func_kwargs):
+        if len(node.args) < 2 and not (node.kwargs and "target" in func_kwargs):
             self.add_message(
                 "bad-thread-instantiation", node=node, confidence=interfaces.HIGH
             )
@@ -885,7 +880,7 @@ class StdlibChecker(DeprecatedMixin, BaseChecker):
 
         if not mode_arg or (
             isinstance(mode_arg, nodes.Const)
-            and (not mode_arg.value or "b" not in str(mode_arg.value))
+            and not (mode_arg.value and "b" in str(mode_arg.value))
         ):
             confidence = HIGH
             try:

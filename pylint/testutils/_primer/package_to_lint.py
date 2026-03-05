@@ -20,16 +20,14 @@ class DirtyPrimerDirectoryException(Exception):
     """We can't pull if there's local changes."""
 
     def __init__(self, path: Path | str) -> None:
-        super().__init__(
-            rf"""
+        super().__init__(rf"""
 
 /!\ Can't pull /!\
 
 In order for the prepare command to be able to pull please cleanup your local repo:
 cd {path}
 git diff
-"""
-        )
+""")
 
 
 @dataclass(frozen=True)

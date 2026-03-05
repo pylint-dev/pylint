@@ -219,26 +219,31 @@ DUNDER_METHODS: dict[tuple[int, int], dict[str, str]] = {
         "__anext__": "Use anext built-in function",
     },
 }
-
-EXTRA_DUNDER_METHODS = [
-    "__new__",
-    "__subclasses__",
-    "__init_subclass__",
-    "__set_name__",
-    "__class_getitem__",
-    "__missing__",
-    "__exit__",
-    "__await__",
-    "__aexit__",
-    "__getnewargs_ex__",
-    "__getnewargs__",
-    "__getstate__",
-    "__index__",
-    "__setstate__",
-    "__reduce__",
-    "__reduce_ex__",
-    "__post_init__",  # part of `dataclasses` module
-]
+EXTRA_DUNDER_METHODS: dict[tuple[int, int], list[str]] = {
+    (0, 0): [
+        "__new__",
+        "__subclasses__",
+        "__init_subclass__",
+        "__set_name__",
+        "__class_getitem__",
+        "__missing__",
+        "__exit__",
+        "__await__",
+        "__aexit__",
+        "__getnewargs_ex__",
+        "__getnewargs__",
+        "__getstate__",
+        "__index__",
+        "__setstate__",
+        "__reduce__",
+        "__reduce_ex__",
+        "__post_init__",  # part of `dataclasses` module
+        "_generate_next_value_",
+        "_missing_",
+        "_numeric_repr_",
+    ],
+    (3, 13): ["_add_alias_", "_add_value_alias_"],
+}
 
 DUNDER_PROPERTIES = [
     "__class__",

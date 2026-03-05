@@ -1,7 +1,7 @@
 github_url = "https://github.com/pylint-dev/pylint"
 
 [version]
-current = "4.0.0-dev0"
+current = "4.1.0-dev0"
 regex = '''
 ^(?P<major>0|[1-9]\d*)
 \.
@@ -24,6 +24,10 @@ src = "pylint/__pkginfo__.py"
 # You can specify a list of commands to
 # run after the files have been patched
 # and before the git commit is made
+
+[[before_commit]]
+name = "Clean-up / normalize functional tests output"
+cmd = "python tests/test_functional.py --update-functional-output"
 
 [[before_commit]]
 name = "Normalize file ending"

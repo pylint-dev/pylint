@@ -172,7 +172,6 @@ group are mutually exclusive.",
         self.linter = linter = self.LinterClass(
             _make_run_options(self),
             option_groups=self.option_groups,
-            pylintrc=self._rcfile,
         )
         # register standard checkers
         linter.load_default_plugins()

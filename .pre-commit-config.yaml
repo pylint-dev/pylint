@@ -20,7 +20,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.13.0"
+    rev: "v0.15.4"
     hooks:
       - id: ruff-check
         args: ["--fix"]
@@ -38,12 +38,12 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/PyCQA/isort
-    rev: 6.0.1
+    rev: 8.0.1
     hooks:
       - id: isort
         exclude: doc/data/messages/
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.1.0
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -128,11 +128,9 @@ repos:
       - id: rstcheck
         args: ["--report-level=warning"]
         files: ^(doc/(.*/)*.*\.rst)
-        # TODO remove pydantic once 2.12.0 is released
-        additional_dependencies:
-          ["Sphinx==7.4.3", "pydantic>=2.12.0a1;python_version>='3.14'"]
+        additional_dependencies: ["Sphinx==7.4.3"]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.18.1
+    rev: v1.19.1
     hooks:
       - id: mypy
         name: mypy
@@ -141,7 +139,7 @@ repos:
           ["isort>=5", "platformdirs==2.2.0", "py==1.11", "tomlkit>=0.10.1"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.6.2
+    rev: v3.8.1
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
@@ -154,7 +152,7 @@ repos:
         args: ["--max-summary-lines=2", "--linewrap-full-docstring"]
         files: "pylint"
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.6
+    rev: 1.9.4
     hooks:
       - id: bandit
         args: ["-r", "-lll"]
@@ -167,10 +165,10 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.6.0"
+    rev: "v2.16.2"
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24.1
+    rev: v0.25
     hooks:
       - id: validate-pyproject

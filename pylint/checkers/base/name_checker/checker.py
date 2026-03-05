@@ -14,10 +14,10 @@ import sys
 from collections.abc import Iterable
 from enum import Enum, auto
 from re import Pattern
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import astroid
-from astroid import nodes
+from astroid import bases, nodes, util
 from astroid.typing import InferenceResult
 
 from pylint import constants, interfaces
@@ -99,7 +99,7 @@ def _redefines_import(node: nodes.AssignName) -> bool:
     current = node
     while current and not isinstance(current.parent, nodes.ExceptHandler):
         current = current.parent
-    if not current or not utils.error_of_type(current.parent, ImportError):
+    if not (current and utils.error_of_type(current.parent, ImportError)):
         return False
     try_block = current.parent.parent
     for import_node in try_block.nodes_of_class((nodes.ImportFrom, nodes.Import)):
@@ -160,7 +160,7 @@ def _is_multi_naming_match(
         match is not None
         and match.lastgroup is not None
         and match.lastgroup not in EXEMPT_NAME_CATEGORIES
-        and (node_type != "method" or confidence != interfaces.INFERENCE_FAILURE)
+        and not (node_type == "method" and confidence == interfaces.INFERENCE_FAILURE)
     )
 
 
@@ -373,7 +373,9 @@ class NameChecker(_BasicChecker):
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         self._check_name("class", node.name, node)
         for attr, anodes in node.instance_attrs.items():
-            if not any(node.instance_attr_ancestors(attr)):
+            if not any(
+                node.instance_attr_ancestors(attr)
+            ) and not utils.is_assign_name_annotated_with(anodes[0], "Final"):
                 self._check_name("attr", attr, anodes[0])
 
     @utils.only_required_for_messages("disallowed-name", "invalid-name")
@@ -484,12 +486,12 @@ class NameChecker(_BasicChecker):
                         )
                         return
 
-                # Check classes (TypeVar's are classes so they need to be excluded first)
-                elif isinstance(inferred_assign_type, nodes.ClassDef):
-                    self._check_name("class", node.name, node)
-
-                elif inferred_assign_type in (None, astroid.util.Uninferable):
+                elif inferred_assign_type in (None, util.Uninferable):
                     return
+
+                # Check classes (TypeVar's are classes so they need to be excluded first)
+                elif self._should_check_class_regex(inferred_assign_type):
+                    self._check_name("class", node.name, node)
 
                 # Don't emit if the name redefines an import in an ImportError except handler
                 # nor any other reassignment.
@@ -510,19 +512,29 @@ class NameChecker(_BasicChecker):
                         self._check_name("const", node.name, node)
                 else:
                     node_type = "variable"
+                    iattrs = tuple(node.frame().igetattr(node.name))
                     if (
-                        (iattrs := tuple(node.frame().igetattr(node.name)))
-                        and astroid.util.Uninferable not in iattrs
-                        and len(iattrs) == 2
-                        and astroid.are_exclusive(*iattrs)
+                        util.Uninferable in iattrs
+                        and self._name_regexps["const"].match(node.name) is not None
+                    ):
+                        return
+                    # Do the exclusive assignment analysis on attrs, not iattrs.
+                    # iattrs locations could be anywhere (inference result).
+                    attrs = tuple(node.frame().getattr(node.name))
+                    if len(attrs) > 1 and all(
+                        astroid.are_exclusive(*combo)
+                        for combo in itertools.combinations(attrs, 2)
                     ):
                         node_type = "const"
-                    self._check_name(
-                        node_type,
-                        node.name,
-                        node,
-                        disallowed_check_only=redefines_import,
-                    )
+                    if not self._meets_exception_for_non_consts(
+                        inferred_assign_type, node.name
+                    ):
+                        self._check_name(
+                            node_type,
+                            node.name,
+                            node,
+                            disallowed_check_only=redefines_import,
+                        )
 
         # Check names defined in function scopes
         elif isinstance(frame, nodes.FunctionDef):
@@ -540,9 +552,14 @@ class NameChecker(_BasicChecker):
         elif isinstance(frame, nodes.ClassDef) and not any(
             frame.local_attr_ancestors(node.name)
         ):
-            if utils.is_enum_member(node) or utils.is_assign_name_annotated_with(
-                node, "Final"
-            ):
+            if utils.is_assign_name_annotated_with_class_var_typing_name(node, "Final"):
+                self._check_name("class_const", node.name, node)
+            elif utils.is_assign_name_annotated_with(node, "Final"):
+                if frame.is_dataclass:
+                    self._check_name("class_attribute", node.name, node)
+                else:
+                    self._check_name("class_const", node.name, node)
+            elif utils.is_enum_member(node):
                 self._check_name("class_const", node.name, node)
             else:
                 self._check_name("class_attribute", node.name, node)
@@ -554,6 +571,28 @@ class NameChecker(_BasicChecker):
             return False
         regexp = self._name_regexps["variable"]
         return regexp.match(name) is not None
+
+    def _should_check_class_regex(
+        self, inferred_assign_type: InferenceResult | None
+    ) -> bool:
+        if isinstance(inferred_assign_type, nodes.ClassDef):
+            return True
+        if isinstance(inferred_assign_type, bases.Instance) and {
+            "EnumMeta",
+            "TypedDict",
+        }.intersection(
+            {
+                ancestor.name
+                for ancestor in cast(InferenceResult, inferred_assign_type).mro()
+            }
+        ):
+            return True
+        if (
+            isinstance(inferred_assign_type, nodes.FunctionDef)
+            and inferred_assign_type.qname() == "typing.Annotated"
+        ):
+            return True
+        return False
 
     def _recursive_check_names(self, args: list[nodes.AssignName]) -> None:
         """Check names in a possibly recursive list <arg>."""
@@ -649,9 +688,9 @@ class NameChecker(_BasicChecker):
     @staticmethod
     def _assigns_typevar(node: nodes.NodeNG | None) -> str | None:
         """Check if a node is assigning a TypeVar and return TypeVar type."""
-        if isinstance(node, astroid.Call):
+        if isinstance(node, nodes.Call):
             inferred = utils.safe_infer(node.func)
-            if isinstance(inferred, astroid.ClassDef):
+            if isinstance(inferred, nodes.ClassDef):
                 qname = inferred.qname()
                 for typevar_node_typ, qnames in TYPE_VAR_QNAMES.items():
                     if qname in qnames:
@@ -662,7 +701,7 @@ class NameChecker(_BasicChecker):
     def _assigns_typealias(node: nodes.NodeNG | None) -> bool:
         """Check if a node is assigning a TypeAlias."""
         inferred = utils.safe_infer(node)
-        if isinstance(inferred, (nodes.ClassDef, astroid.bases.UnionType)):
+        if isinstance(inferred, (nodes.ClassDef, bases.UnionType)):
             qname = inferred.qname()
             if qname == "typing.TypeAlias":
                 return True

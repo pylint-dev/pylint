@@ -41,9 +41,7 @@ def get_setters_property_name(node: nodes.FunctionDef) -> str | None:
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
         match decorator:
-            case nodes.Attribute(attrname=attrname, expr=nodes.Name(name=name)) if (
-                attrname == "setter"
-            ):
+            case nodes.Attribute(attrname="setter", expr=nodes.Name(name=name)):
                 return name  # type: ignore[no-any-return]
     return None
 
@@ -76,18 +74,16 @@ def returns_something(return_node: nodes.Return) -> bool:
     """Check if a return node returns a value other than None.
 
     :param return_node: The return node to check.
-    :type return_node: astroid.Return
+    :type return_node: nodes.Return
 
     :rtype: bool
     :return: True if the return node returns a value other than None,
         False otherwise.
     """
     returns = return_node.value
-
-    if returns is None:
-        return False
-
-    return not (isinstance(returns, nodes.Const) and returns.value is None)
+    return not (
+        returns is None or (isinstance(returns, nodes.Const) and returns.value is None)
+    )
 
 
 def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | UninferableBase | None:

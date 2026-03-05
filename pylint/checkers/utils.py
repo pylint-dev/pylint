@@ -18,8 +18,10 @@ from functools import lru_cache, partial
 from re import Match
 from typing import TYPE_CHECKING, TypeVar
 
-import astroid.objects
-from astroid import TooManyLevelsError, nodes, util
+import astroid
+import astroid.exceptions
+import astroid.helpers
+from astroid import TooManyLevelsError, bases, nodes, objects, util
 from astroid.context import InferenceContext
 from astroid.exceptions import AstroidError
 from astroid.nodes._base_nodes import ImportNode, Statement
@@ -236,7 +238,13 @@ SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
 SINGLETON_VALUES = {True, False, None}
 
 TERMINATING_FUNCS_QNAMES = frozenset(
-    {"_sitebuiltins.Quitter", "sys.exit", "posix._exit", "nt._exit"}
+    {
+        "_sitebuiltins.Quitter",
+        "sys.exit",
+        "posix._exit",
+        "nt._exit",
+        "unittest.case.TestCase.fail",
+    }
 )
 
 
@@ -437,7 +445,7 @@ def is_func_decorator(node: nodes.NodeNG) -> bool:
 
 
 def is_ancestor_name(frame: nodes.ClassDef, node: nodes.NodeNG) -> bool:
-    """Return whether `frame` is an astroid.Class node with `node` in the
+    """Return whether `frame` is an nodes.Class node with `node` in the
     subtree of its bases attribute.
     """
     if not isinstance(frame, nodes.ClassDef):
@@ -691,11 +699,11 @@ def node_frame_class(node: nodes.NodeNG) -> nodes.ClassDef | None:
     return klass
 
 
-def get_outer_class(class_node: astroid.ClassDef) -> astroid.ClassDef | None:
+def get_outer_class(class_node: nodes.ClassDef) -> nodes.ClassDef | None:
     """Return the class that is the outer class of given (nested) class_node."""
     parent_klass = class_node.parent.frame()
 
-    return parent_klass if isinstance(parent_klass, astroid.ClassDef) else None
+    return parent_klass if isinstance(parent_klass, nodes.ClassDef) else None
 
 
 def is_attr_private(attrname: str) -> Match[str] | None:
@@ -852,7 +860,7 @@ def _is_property_decorator(decorator: nodes.Name) -> bool:
                 inferred = safe_infer(returns[0].value)
                 if (
                     inferred
-                    and isinstance(inferred, astroid.objects.Property)
+                    and isinstance(inferred, objects.Property)
                     and isinstance(inferred.function, nodes.FunctionDef)
                 ):
                     return decorated_with_property(inferred.function)
@@ -913,7 +921,7 @@ def uninferable_final_decorators(
             continue
         import_node = import_nodes[0]
 
-        if not isinstance(import_node, (astroid.Import, astroid.ImportFrom)):
+        if not isinstance(import_node, (nodes.Import, nodes.ImportFrom)):
             continue
 
         import_names = dict(import_node.names)
@@ -1006,7 +1014,7 @@ def find_except_wrapper_node_in_scope(
     """Return the ExceptHandler in which the node is, without going out of scope."""
     for current in node.node_ancestors():
         match current:
-            case astroid.scoped_nodes.LocalsDictNodeNG():
+            case nodes.LocalsDictNodeNG():
                 # If we're inside a function/class definition, we don't want to keep checking
                 # higher ancestors for `except` clauses, because if these exist, it means our
                 # function/class was defined in an `except` clause, rather than the current code
@@ -1287,9 +1295,7 @@ def _supports_protocol(
         case nodes.ComprehensionScope():
             return True
 
-        case astroid.bases.Proxy(
-            _proxied=astroid.BaseInstance() as p
-        ) if has_known_bases(p):
+        case bases.Proxy(_proxied=astroid.BaseInstance() as p) if has_known_bases(p):
             return protocol_callback(p)
 
     return False
@@ -1520,14 +1526,13 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
     for decorator in decorators:
         # func.register are function calls or register attributes
         # when the function is annotated with types
-        if isinstance(decorator, nodes.Call):
-            func = decorator.func
-        elif isinstance(decorator, nodes.Attribute):
-            func = decorator
-        else:
-            continue
+        match decorator:
+            case nodes.Call(func=func) | (nodes.Attribute() as func):
+                pass
+            case _:
+                continue
 
-        if not isinstance(func, nodes.Attribute) or func.attrname != "register":
+        if not (isinstance(func, nodes.Attribute) and func.attrname == "register"):
             continue
 
         try:
@@ -1544,14 +1549,13 @@ def is_registered_in_singledispatch_function(node: nodes.FunctionDef) -> bool:
 def find_inferred_fn_from_register(node: nodes.NodeNG) -> nodes.FunctionDef | None:
     # func.register are function calls or register attributes
     # when the function is annotated with types
-    if isinstance(node, nodes.Call):
-        func = node.func
-    elif isinstance(node, nodes.Attribute):
-        func = node
-    else:
-        return None
+    match node:
+        case nodes.Call(func=func) | (nodes.Attribute() as func):
+            pass
+        case _:
+            return None
 
-    if not isinstance(func, nodes.Attribute) or func.attrname != "register":
+    if not (isinstance(func, nodes.Attribute) and func.attrname == "register"):
         return None
 
     func_def = safe_infer(func.expr)
@@ -1618,13 +1622,7 @@ def is_node_in_type_annotation_context(node: nodes.NodeNG) -> bool:
         match parent_node:
             case nodes.AnnAssign(annotation=ann) if ann == current_node:
                 return True
-            case nodes.Arguments() if current_node in (
-                *parent_node.annotations,
-                *parent_node.posonlyargs_annotations,
-                *parent_node.kwonlyargs_annotations,
-                parent_node.varargannotation,
-                parent_node.kwargannotation,
-            ):
+            case nodes.Arguments() if current_node in parent_node.get_annotations():
                 return True
             case nodes.FunctionDef(returns=ret) if ret == current_node:
                 return True
@@ -1706,8 +1704,7 @@ def is_test_condition(
     parent: nodes.NodeNG | None = None,
 ) -> bool:
     """Returns true if the given node is being tested for truthiness."""
-    parent = parent or node.parent
-    match parent:
+    match parent := parent or node.parent:
         case nodes.While() | nodes.If() | nodes.IfExp() | nodes.Assert():
             return node is parent.test or parent.test.parent_of(node)
         case nodes.Comprehension():
@@ -1753,6 +1750,22 @@ def is_assign_name_annotated_with(node: nodes.AssignName, typing_name: str) -> b
     annotation = node.parent.annotation
     if isinstance(annotation, nodes.Subscript):
         annotation = annotation.value
+    match annotation:
+        case nodes.Name(name=n) | nodes.Attribute(attrname=n) if n == typing_name:
+            return True
+    return False
+
+
+def is_assign_name_annotated_with_class_var_typing_name(
+    node: nodes.AssignName, typing_name: str
+) -> bool:
+    if not is_assign_name_annotated_with(node, "ClassVar"):
+        return False
+    annotation = node.parent.annotation
+    if isinstance(annotation, nodes.Subscript):
+        annotation = annotation.slice
+        if isinstance(annotation, nodes.Subscript):
+            annotation = annotation.value
     match annotation:
         case nodes.Name(name=n) | nodes.Attribute(attrname=n) if n == typing_name:
             return True
@@ -1846,28 +1859,50 @@ def is_sys_guard(node: nodes.If) -> bool:
     return False
 
 
+def _is_node_in_same_scope(
+    candidate: nodes.NodeNG, node_scope: nodes.LocalsDictNodeNG
+) -> bool:
+    if isinstance(candidate, (nodes.ClassDef, nodes.FunctionDef)):
+        return candidate.parent is not None and candidate.parent.scope() is node_scope
+    return candidate.scope() is node_scope
+
+
+def _is_reassigned_relative_to_current(
+    node: nodes.NodeNG, varname: str, before: bool
+) -> bool:
+    """Check if the given variable name is reassigned in the same scope relative to
+    the current node.
+    """
+    node_scope = node.scope()
+    node_lineno = node.lineno
+    if node_lineno is None:
+        return False
+    for a in node_scope.nodes_of_class(
+        (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
+    ):
+        if a.name == varname and a.lineno is not None:
+            if before:
+                if a.lineno < node_lineno:
+                    if _is_node_in_same_scope(a, node_scope):
+                        return True
+            elif a.lineno > node_lineno:
+                if _is_node_in_same_scope(a, node_scope):
+                    return True
+    return False
+
+
 def is_reassigned_before_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope before the
     current node.
     """
-    return any(
-        a.name == varname and a.lineno < node.lineno
-        for a in node.scope().nodes_of_class(
-            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
-        )
-    )
+    return _is_reassigned_relative_to_current(node, varname, before=True)
 
 
 def is_reassigned_after_current(node: nodes.NodeNG, varname: str) -> bool:
     """Check if the given variable name is reassigned in the same scope after the
     current node.
     """
-    return any(
-        a.name == varname and a.lineno > node.lineno
-        for a in node.scope().nodes_of_class(
-            (nodes.AssignName, nodes.ClassDef, nodes.FunctionDef)
-        )
-    )
+    return _is_reassigned_relative_to_current(node, varname, before=False)
 
 
 def is_deleted_after_current(node: nodes.NodeNG, varname: str) -> bool:
@@ -2171,46 +2206,44 @@ def is_terminating_func(node: nodes.Call) -> bool:
     """Detect call to exit(), quit(), os._exit(), sys.exit(), or
     functions annotated with `typing.NoReturn` or `typing.Never`.
     """
-    if (
-        not isinstance(node.func, nodes.Attribute)
-        and not (isinstance(node.func, nodes.Name))
-    ) or isinstance(node.parent, nodes.Lambda):
+    if not isinstance(node.func, (nodes.Attribute, nodes.Name)) or isinstance(
+        node.parent, nodes.Lambda
+    ):
+        return False
+    try:
+        inferred_funcs = list(node.func.infer())
+    except (StopIteration, astroid.InferenceError):
         return False
 
-    try:
-        for inferred in node.func.infer():
-            if (
-                hasattr(inferred, "qname")
-                and inferred.qname() in TERMINATING_FUNCS_QNAMES
-            ):
-                return True
-            match inferred:
-                case astroid.BoundMethod(_proxied=astroid.UnboundMethod(_proxied=p)):
-                    # Unwrap to get the actual function node object
-                    inferred = p
-            if (  # pylint: disable=too-many-boolean-expressions
-                isinstance(inferred, nodes.FunctionDef)
-                and (
-                    not isinstance(inferred, nodes.AsyncFunctionDef)
-                    or isinstance(node.parent, nodes.Await)
-                )
-                and isinstance(inferred.returns, nodes.Name)
-                and (inferred_func := safe_infer(inferred.returns))
-                and hasattr(inferred_func, "qname")
-                and inferred_func.qname()
-                in (
-                    *TYPING_NEVER,
-                    *TYPING_NORETURN,
-                    # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
-                    # "typing._SpecialForm",
-                    # But 'typing.Any' also inherits _SpecialForm
-                    # See #9751
-                )
-            ):
-                return True
-    except (StopIteration, astroid.InferenceError):
-        pass
-
+    for inferred in inferred_funcs:
+        if hasattr(inferred, "qname") and inferred.qname() in TERMINATING_FUNCS_QNAMES:
+            return True
+        match inferred:
+            case astroid.BoundMethod(_proxied=astroid.UnboundMethod(_proxied=p)):
+                # Unwrap to get the actual function node object
+                inferred = p
+        if is_overload_stub(inferred):
+            continue
+        if (  # pylint: disable=too-many-boolean-expressions
+            isinstance(inferred, nodes.FunctionDef)
+            and (
+                not isinstance(inferred, nodes.AsyncFunctionDef)
+                or isinstance(node.parent, nodes.Await)
+            )
+            and isinstance(inferred.returns, nodes.Name)
+            and (inferred_func := safe_infer(inferred.returns))
+            and hasattr(inferred_func, "qname")
+            and inferred_func.qname()
+            in (
+                *TYPING_NEVER,
+                *TYPING_NORETURN,
+                # In Python 3.7 - 3.8, NoReturn is alias of '_SpecialForm'
+                # "typing._SpecialForm",
+                # But 'typing.Any' also inherits _SpecialForm
+                # See #9751
+            )
+        ):
+            return True
     return False
 
 

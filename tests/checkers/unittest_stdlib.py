@@ -61,10 +61,8 @@ class TestStdlibChecker(CheckerTestCase):
         manager = astroid.MANAGER
         transform = astroid.inference_tip(infer_func)
         with _add_transform(manager, nodes.Name, transform):
-            node = astroid.extract_node(
-                """
+            node = astroid.extract_node("""
             call_something()
-            """
-            )
+            """)
             with self.assertNoMessages():
                 self.checker.visit_call(node)

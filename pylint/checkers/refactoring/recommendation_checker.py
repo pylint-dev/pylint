@@ -210,15 +210,14 @@ class RecommendationChecker(checkers.BaseChecker):
             return
 
         # Is it a proper len call?
-        if not isinstance(node.iter.args[-1], nodes.Call):
-            return
-        second_func = node.iter.args[-1].func
-        if not self._is_builtin(second_func, "len"):
-            return
-        len_args = node.iter.args[-1].args
-        if not len_args or len(len_args) != 1:
-            return
-        iterating_object = len_args[0]
+        match node.iter.args:
+            case [
+                *_,
+                nodes.Call(func=second_func, args=[iterating_object]),
+            ] if self._is_builtin(second_func, "len"):
+                pass
+            case _:
+                return
         if isinstance(iterating_object, nodes.Name):
             expected_subscript_val_type = nodes.Name
         elif isinstance(iterating_object, nodes.Attribute):
@@ -282,10 +281,10 @@ class RecommendationChecker(checkers.BaseChecker):
                     continue
 
                 value = subscript.slice
-                if (
-                    not isinstance(value, nodes.Name)
-                    or value.name != node.target.name
-                    or iterating_object_name != subscript.value.as_string()
+                if not (
+                    isinstance(value, nodes.Name)
+                    and value.name == node.target.name
+                    and iterating_object_name == subscript.value.as_string()
                 ):
                     continue
                 last_definition_lineno = value.lookup(value.name)[1][-1].lineno
@@ -335,10 +334,10 @@ class RecommendationChecker(checkers.BaseChecker):
                     continue
 
                 value = subscript.slice
-                if (
-                    not isinstance(value, nodes.Name)
-                    or value.name != node.target.name
-                    or iterating_object_name != subscript.value.as_string()
+                if not (
+                    isinstance(value, nodes.Name)
+                    and value.name == node.target.name
+                    and iterating_object_name == subscript.value.as_string()
                 ):
                     continue
 
@@ -393,10 +392,7 @@ class RecommendationChecker(checkers.BaseChecker):
                     # If star expressions with more than 1 element are being used
                     if isinstance(arg, nodes.Starred):
                         inferred = utils.safe_infer(arg.value)
-                        if (
-                            isinstance(inferred, astroid.List)
-                            and len(inferred.elts) > 1
-                        ):
+                        if isinstance(inferred, nodes.List) and len(inferred.elts) > 1:
                             return
                     # Backslashes can't be in f-string expressions
                     if "\\" in arg.as_string():
@@ -432,8 +428,9 @@ class RecommendationChecker(checkers.BaseChecker):
                 return
 
             # If % applied to another type than str, it's modulo and can't be replaced by formatting
-            if not hasattr(node.parent.left, "value") or not isinstance(
-                node.parent.left.value, str
+            if not (
+                hasattr(node.parent.left, "value")
+                and isinstance(node.parent.left.value, str)
             ):
                 return
 

@@ -1,4 +1,5 @@
 """Tests for used-before-assignment with python 3.10's pattern matching"""
+# pylint: disable=wrong-import-position
 
 match ("example", "one"):
     case (x, y) if x == "example":

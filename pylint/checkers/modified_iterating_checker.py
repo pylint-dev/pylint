@@ -180,12 +180,12 @@ class ModifiedIterationChecker(checkers.BaseChecker):
     def _deleted_iteration_target_cond(
         self, node: nodes.DelName, iter_obj: nodes.NodeNG
     ) -> bool:
-        if not isinstance(node, nodes.DelName):
-            return False
-        if not isinstance(iter_obj.parent, nodes.For):
-            return False
-        if not isinstance(
-            iter_obj.parent.target, (nodes.AssignName, nodes.BaseContainer)
+        if not (
+            isinstance(node, nodes.DelName)
+            and isinstance(iter_obj.parent, nodes.For)
+            and isinstance(
+                iter_obj.parent.target, (nodes.AssignName, nodes.BaseContainer)
+            )
         ):
             return False
         return any(

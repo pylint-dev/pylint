@@ -14,6 +14,45 @@ Summary -- Release highlights
 
 .. towncrier release notes start
 
+What's new in Pylint 3.3.9?
+---------------------------
+Release date: 2025-10-05
+
+
+False Positives Fixed
+---------------------
+
+- Fix :ref:`used-before-assignment` for PEP 695 type aliases and parameters.
+
+  Closes #9815 (`#9815 <https://github.com/pylint-dev/pylint/issues/9815>`_)
+
+- No longer flag undeprecated functions in ``importlib.resources`` as deprecated.
+
+  Closes #10593 (`#10593 <https://github.com/pylint-dev/pylint/issues/10593>`_)
+
+- Fix false positive ``inconsistent-return-statements`` when using ``quit()`` or ``exit()`` functions.
+
+  Closes #10508 (`#10508 <https://github.com/pylint-dev/pylint/issues/10508>`_)
+
+- Fix false positive ``undefined-variable`` (E0602) for for-loop variable shadowing patterns like ``for item in item:`` when the variable was previously defined.
+
+  Closes #10562 (`#10562 <https://github.com/pylint-dev/pylint/issues/10562>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fixed crash in ``unnecessary-list-index-lookup`` when starting an enumeration using
+  minus the length of an iterable inside a dict comprehension when the len call was only
+  made in this dict comprehension, and not elsewhere. Also changed the approach,
+  to use inference in all cases but the simple ones, so we don't have to fix crashes
+  one by one for arbitrarily complex expressions in enumerate.
+
+  Closes #10510 (`#10510 <https://github.com/pylint-dev/pylint/issues/10510>`_)
+
+
+
 What's new in Pylint 3.3.8?
 ---------------------------
 Release date: 2025-08-09
@@ -319,7 +358,7 @@ New Checks
 False Negatives Fixed
 ---------------------
 
-- Fix computation of never-returning function: :py:class:`typing.Never` is handled in addition to :py:class:`typing.NoReturn`, and priority is given to the explicit `--never-returning-functions` option.
+- Fix computation of never-returning function: :py:data:`typing.Never` is handled in addition to :py:data:`typing.NoReturn`, and priority is given to the explicit `--never-returning-functions` option.
 
   Closes #7565. (`#7565 <https://github.com/pylint-dev/pylint/issues/7565>`_)
 
@@ -385,7 +424,7 @@ Internal Changes
 ----------------
 
 - All variables, classes, functions and file names containing the word 'similar', when it was,
-  in fact, referring to 'symilar' (the standalone program for the duplicate-code check) were renamed
+  in fact, referring to 'symilar' (the standalone program for the :ref:`duplicate-code` check) were renamed
   to 'symilar'.
 
   Closes #9734 (`#9734 <https://github.com/pylint-dev/pylint/issues/9734>`_)

@@ -102,23 +102,21 @@ class MessageIdStore:
     @staticmethod
     def _raise_duplicate_symbol(msgid: str, symbol: str, other_symbol: str) -> NoReturn:
         """Raise an error when a symbol is duplicated."""
-        symbols = [symbol, other_symbol]
-        symbols.sort()
-        error_message = f"Message id '{msgid}' cannot have both "
-        error_message += f"'{symbols[0]}' and '{symbols[1]}' as symbolic name."
-        raise InvalidMessageError(error_message)
+        symbol_a, symbol_b = sorted([symbol, other_symbol])
+        raise InvalidMessageError(
+            f"Message id '{msgid}' cannot have both "
+            f"'{symbol_a}' and '{symbol_b}' as symbolic name."
+        )
 
     @staticmethod
     def _raise_duplicate_msgid(symbol: str, msgid: str, other_msgid: str) -> NoReturn:
         """Raise an error when a msgid is duplicated."""
-        msgids = [msgid, other_msgid]
-        msgids.sort()
-        error_message = (
+        msgid_a, msgid_b = sorted([msgid, other_msgid])
+        raise InvalidMessageError(
             f"Message symbol '{symbol}' cannot be used for "
-            f"'{msgids[0]}' and '{msgids[1]}' at the same time."
+            f"'{msgid_a}' and '{msgid_b}' at the same time."
             f" If you're creating an 'old_names' use 'old-{symbol}' as the old symbol."
         )
-        raise InvalidMessageError(error_message)
 
     def get_active_msgids(self, msgid_or_symbol: str) -> list[str]:
         """Return msgids but the input can be a symbol.
@@ -149,7 +147,7 @@ class MessageIdStore:
                 deletion_reason = is_deleted_symbol(symbol)
                 if deletion_reason is None:
                     moved_reason = is_moved_symbol(symbol)
-        if not msgid or not symbol:
+        if not (msgid and symbol):
             if deletion_reason is not None:
                 raise DeletedMessageError(msgid_or_symbol, deletion_reason)
             if moved_reason is not None:

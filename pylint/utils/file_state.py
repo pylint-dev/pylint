@@ -63,8 +63,10 @@ class FileState:
         """Recursively walk (depth first) AST to collect block level options
         line numbers and set the state correctly.
         """
-        for child in node.get_children():
-            self._set_state_on_block_lines(msgs_store, child, msg, msg_state)
+        # Avoid recursing into child nodes on the same line.
+        if node.lineno != node.end_lineno:
+            for child in node.get_children():
+                self._set_state_on_block_lines(msgs_store, child, msg, msg_state)
         # first child line number used to distinguish between disable
         # which are the first child of scoped node with those defined later.
         # For instance in the code below:

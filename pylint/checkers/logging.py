@@ -355,12 +355,16 @@ class LoggingChecker(checkers.BaseChecker):
                         keyword_args_cnt + implicit_pos_args + explicit_pos_args
                     )
             except utils.UnsupportedFormatCharacter as ex:
-                char = format_string[ex.index]
-                self.add_message(
-                    "logging-unsupported-format",
-                    node=node,
-                    args=(char, ord(char), ex.index),
-                )
+                if num_args > 0:
+                    # Only report unsupported format characters if arguments are provided
+                    # When no arguments are supplied, no formatting is performed
+                    # https://docs.python.org/3/library/logging.html#logging.Logger.debug
+                    char = format_string[ex.index]
+                    self.add_message(
+                        "logging-unsupported-format",
+                        node=node,
+                        args=(char, ord(char), ex.index),
+                    )
                 return
             except utils.IncompleteFormatString:
                 self.add_message("logging-format-truncated", node=node)
@@ -374,9 +378,7 @@ class LoggingChecker(checkers.BaseChecker):
 def is_complex_format_str(node: nodes.NodeNG) -> bool:
     """Return whether the node represents a string with complex formatting specs."""
     inferred = utils.safe_infer(node)
-    if inferred is None or not (
-        isinstance(inferred, nodes.Const) and isinstance(inferred.value, str)
-    ):
+    if not (isinstance(inferred, nodes.Const) and isinstance(inferred.value, str)):
         return True
     try:
         parsed = list(string.Formatter().parse(inferred.value))

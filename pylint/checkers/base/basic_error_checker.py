@@ -27,10 +27,10 @@ def _get_break_loop_node(break_node: nodes.Break) -> nodes.For | nodes.While | N
     """Returns the loop node that holds the break node in arguments.
 
     Args:
-        break_node (astroid.Break): the break node of interest.
+        break_node (nodes.Break): the break node of interest.
 
     Returns:
-        astroid.For or astroid.While: the loop node holding the break node.
+        nodes.For or nodes.While: the loop node holding the break node.
     """
     loop_nodes = (nodes.For, nodes.While)
     parent = break_node.parent
@@ -48,7 +48,7 @@ def _loop_exits_early(loop: nodes.For | nodes.While) -> bool:
     """Returns true if a loop may end with a break statement.
 
     Args:
-        loop (astroid.For, astroid.While): the loop node inspected.
+        loop (nodes.For, nodes.While): the loop node inspected.
 
     Returns:
         bool: True if the loop may end with a break statement, False otherwise.
@@ -92,6 +92,71 @@ def redefined_by_decorator(node: nodes.FunctionDef) -> bool:
                 and getattr(decorator.expr, "name", None) == node.name
             ):
                 return True
+    return False
+
+
+def _extract_register_target(dec: nodes.NodeNG) -> nodes.NodeNG | None:
+    """
+    If decorator `dec` looks like `@func.register(...)` or `@func.register`,
+    return the `func` target node (Name or Attribute). Otherwise return None.
+    """
+    if isinstance(dec, nodes.Call):
+        func_part = dec.func
+        if isinstance(func_part, nodes.Attribute) and func_part.attrname == "register":
+            return func_part.expr
+        return None
+
+    if isinstance(dec, nodes.Attribute) and dec.attrname == "register":
+        return dec.expr
+
+    return None
+
+
+def _inferred_has_singledispatchmethod(target: nodes.NodeNG) -> bool:
+    """
+    Infer `target` and return True if the inferred object has a
+    @singledispatchmethod decorator.
+    """
+    inferred = utils.safe_infer(target)
+    if not inferred:
+        return False
+
+    if isinstance(inferred, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
+        decorators = inferred.decorators
+        if isinstance(decorators, nodes.Decorators):
+            for dec in decorators.nodes:
+                inferred_dec = utils.safe_infer(dec)
+                if (
+                    inferred_dec
+                    and inferred_dec.qname() == "functools.singledispatchmethod"
+                ):
+                    return True
+
+    return False
+
+
+def _is_singledispatchmethod_registration(node: nodes.FunctionDef) -> bool:
+    """
+    Return True if `node` is a function decorated like:
+
+        @func.register(...)
+        def _(…): ...
+
+    where `func` is a singledispatchmethod (i.e. its base was decorated
+    with @singledispatchmethod).
+    """
+    decorators = node.decorators
+    if not decorators:
+        return False
+
+    for dec in decorators.nodes:
+        target = _extract_register_target(dec)
+        if target is None:
+            continue
+
+        if _inferred_has_singledispatchmethod(target):
+            return True
+
     return False
 
 
@@ -536,32 +601,29 @@ class BasicErrorChecker(_BasicChecker):
             ):
                 return
 
+            if _is_singledispatchmethod_registration(node):
+                return
+
             # Skip typing.overload() functions.
             if utils.is_overload_stub(node):
                 return
 
             # Exempt functions redefined on a condition.
             if isinstance(node.parent, nodes.If):
-                # Exempt "if not <func>" cases
-                if (
-                    isinstance(node.parent.test, nodes.UnaryOp)
-                    and node.parent.test.op == "not"
-                    and isinstance(node.parent.test.operand, nodes.Name)
-                    and node.parent.test.operand.name == node.name
-                ):
-                    return
-
-                # Exempt "if <func> is not None" cases
-                # pylint: disable=too-many-boolean-expressions
-                if (
-                    isinstance(node.parent.test, nodes.Compare)
-                    and isinstance(node.parent.test.left, nodes.Name)
-                    and node.parent.test.left.name == node.name
-                    and node.parent.test.ops[0][0] == "is"
-                    and isinstance(node.parent.test.ops[0][1], nodes.Const)
-                    and node.parent.test.ops[0][1].value is None
-                ):
-                    return
+                match node.parent.test:
+                    case nodes.UnaryOp(op="not", operand=nodes.Name(name=name)) if (
+                        name == node.name
+                    ):
+                        # Exempt "if not <func>" cases
+                        return
+                    case nodes.Compare(
+                        left=nodes.Name(name=name),
+                        ops=[["is", nodes.Const(value=None)]],
+                    ) if (
+                        name == node.name
+                    ):
+                        # Exempt "if <func> is not None" cases
+                        return
 
             # Check if we have forward references for this node.
             try:
@@ -578,9 +640,6 @@ class BasicErrorChecker(_BasicChecker):
                     ):
                         return
 
-            dummy_variables_rgx = self.linter.config.dummy_variables_rgx
-            if dummy_variables_rgx and dummy_variables_rgx.match(node.name):
-                return
             self.add_message(
                 "function-redefined",
                 node=node,

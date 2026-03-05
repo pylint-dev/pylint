@@ -1,7 +1,11 @@
-"""Checks that disabling 'wrong-import-position' on a statement prevents it from
-invalidating subsequent imports."""
+"""Test wrong-import-position pragma on non-import statement."""
 # pylint: disable=unused-import
 
-CONSTANT = True  # pylint: disable=wrong-import-position
-
+import os
 import sys
+
+CONSTANT_A = False  # pylint: disable=wrong-import-position
+import time
+
+CONSTANT_B = True
+import logging  # [wrong-import-position]

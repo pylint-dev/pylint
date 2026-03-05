@@ -4,7 +4,6 @@
 
 """Test for the 'pylint-config generate' command."""
 
-
 import os
 import tempfile
 import warnings

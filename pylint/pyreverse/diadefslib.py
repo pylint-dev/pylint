@@ -159,8 +159,9 @@ class DiaDefGenerator:
         """Return associated nodes of a class node."""
         if level == 0:
             return
-        for association_nodes in list(klass_node.instance_attrs_type.values()) + list(
-            klass_node.locals_type.values()
+        info = self.linker.class_info[klass_node]
+        for association_nodes in list(info.instance_attrs_type.values()) + list(
+            info.locals_type.values()
         ):
             for node in association_nodes:
                 if isinstance(node, astroid.Instance):
@@ -203,11 +204,11 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         mode = self.config.mode
         if len(node.modules) > 1:
             self.pkgdiagram: PackageDiagram | None = PackageDiagram(
-                f"packages {node.name}", mode
+                f"packages {node.name}", mode, self.linker
             )
         else:
             self.pkgdiagram = None
-        self.classdiagram = ClassDiagram(f"classes {node.name}", mode)
+        self.classdiagram = ClassDiagram(f"classes {node.name}", mode, self.linker)
 
     def leave_project(self, _: Project) -> Any:
         """Leave the pyreverse.utils.Project node.
@@ -219,7 +220,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         return (self.classdiagram,)
 
     def visit_module(self, node: nodes.Module) -> None:
-        """Visit an astroid.Module node.
+        """Visit an nodes.Module node.
 
         add this class to the package diagram definition
         """
@@ -228,7 +229,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
             self.pkgdiagram.add_object(node.name, node)
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
-        """Visit an astroid.Class node.
+        """Visit an nodes.Class node.
 
         add this class to the class diagram definition
         """
@@ -236,7 +237,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         self.extract_classes(node, anc_level, association_level)
 
     def visit_importfrom(self, node: nodes.ImportFrom) -> None:
-        """Visit astroid.ImportFrom  and catch modules for package diagram."""
+        """Visit nodes.ImportFrom  and catch modules for package diagram."""
         if self.pkgdiagram and self._should_include_by_depth(node):
             self.pkgdiagram.add_from_depend(node, node.modname)
 
@@ -248,7 +249,7 @@ class ClassDiadefGenerator(DiaDefGenerator):
 
     def class_diagram(self, project: Project, klass: nodes.ClassDef) -> ClassDiagram:
         """Return a class diagram definition for the class and related classes."""
-        self.classdiagram = ClassDiagram(klass, self.config.mode)
+        self.classdiagram = ClassDiagram(klass, self.config.mode, self.linker)
         if len(project.modules) > 1:
             module, klass = klass.rsplit(".", 1)
             module = project.get_module(module)

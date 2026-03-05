@@ -12,8 +12,9 @@ import os
 import sys
 import tokenize
 import traceback
+import warnings
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Callable, Collection, Iterable, Iterator, Sequence
 from io import TextIOWrapper
 from pathlib import Path
 from re import Pattern
@@ -21,6 +22,8 @@ from types import ModuleType
 from typing import Any, Protocol
 
 import astroid
+import astroid.builder
+import astroid.modutils
 from astroid import nodes
 
 from pylint import checkers, exceptions, interfaces, reporters
@@ -289,11 +292,17 @@ class PyLinter(
         options: Options = (),
         reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
         option_groups: tuple[tuple[str, str], ...] = (),
-        # TODO: Deprecate passing the pylintrc parameter
-        pylintrc: str | None = None,  # pylint: disable=unused-argument
+        pylintrc: str | None = None,
     ) -> None:
         _ArgumentsManager.__init__(self, prog="pylint")
         _MessageStateHandler.__init__(self, self)
+
+        if pylintrc is not None:
+            warnings.warn(
+                "The pylintrc argument will be removed in pylint 5.0.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         # Some stuff has to be done before initialization of other ancestors...
         # messages store / checkers / reporter / astroid manager
@@ -314,6 +323,16 @@ class PyLinter(
         """Dictionary of registered and initialized checkers."""
         self._dynamic_plugins: dict[str, ModuleType | ModuleNotFoundError | bool] = {}
         """Set of loaded plugin names."""
+        self._registered_checkers: set[tuple[str, checkers.BaseChecker, int]] = set()
+        """Set of tuples with loaded checker name, reference to checker
+        and checker object id.
+        """
+        self._registered_dynamic_plugin_checkers: set[
+            tuple[str, checkers.BaseChecker, int]
+        ] = set()
+        """Set of tuples with loaded dynamic plugin checker name, reference to
+        checker and checker object id.
+        """
 
         # Attributes related to stats
         self.stats = LinterStats()
@@ -347,6 +366,7 @@ class PyLinter(
         self.msgs_store = MessageDefinitionStore(self.config.py_version)
         self.msg_status = 0
         self._by_id_managed_msgs: list[ManagedMessage] = []
+        self._freeze_register_msgs = False
 
         # Attributes related to visiting files
         self.file_state = FileState("", self.msgs_store, is_base_filestate=True)
@@ -486,16 +506,29 @@ class PyLinter(
     def register_checker(self, checker: checkers.BaseChecker) -> None:
         """This method auto registers the checker."""
         self._checkers[checker.name].append(checker)
+        self._registered_checkers.add((checker.name, checker, id(checker)))
         for r_id, r_title, r_cb in checker.reports:
             self.register_report(r_id, r_title, r_cb, checker)
-        if hasattr(checker, "msgs"):
+        if not self._freeze_register_msgs and hasattr(checker, "msgs"):
             self.msgs_store.register_messages_from_checker(checker)
             for message in checker.messages:
                 if not message.default_enabled:
                     self.disable(message.msgid)
         # Register the checker, but disable all of its messages.
-        if not getattr(checker, "enabled", True):
+        if not (self._freeze_register_msgs or getattr(checker, "enabled", True)):
             self.disable(checker.name)
+
+    def _deregister_checkers(
+        self, checker_collection: Collection[tuple[str, checkers.BaseChecker, int]]
+    ) -> None:
+        """De-registered a collection of checkers with its reports.
+
+        Leave messages in place as re-registering them is a no-op.
+        """
+        for checker_name, checker, _ in checker_collection:
+            self._checkers[checker_name].remove(checker)
+            if checker.reports:
+                self.deregister_reports(checker)
 
     def enable_fail_on_messages(self) -> None:
         """Enable 'fail on' msgs.
@@ -536,9 +569,9 @@ class PyLinter(
         if isinstance(self.reporter, ColorizedTextReporter):
             self.reporter.set_fail_on_symbols(self.fail_on_symbols)
         elif isinstance(self.reporter, reporters.MultiReporter):
-            for _reporter in self.reporter._sub_reporters:
-                if isinstance(self.reporter, ColorizedTextReporter):
-                    self.reporter.set_fail_on_symbols(self.fail_on_symbols)
+            for reporter in self.reporter._sub_reporters:
+                if isinstance(reporter, ColorizedTextReporter):
+                    reporter.set_fail_on_symbols(self.fail_on_symbols)
 
     def disable_reporters(self) -> None:
         """Disable all reporters."""
@@ -584,7 +617,10 @@ class PyLinter(
         needed_checkers: list[BaseChecker] = [self]
         for checker in self.get_checkers()[1:]:
             messages = {msg for msg in checker.msgs if self.is_message_enabled(msg)}
-            if messages or any(self.report_is_enabled(r[0]) for r in checker.reports):
+            if messages or (
+                not checker.msgs
+                and any(self.report_is_enabled(r[0]) for r in checker.reports)
+            ):
                 needed_checkers.append(checker)
         return needed_checkers
 

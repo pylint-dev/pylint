@@ -92,7 +92,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "C0321": (
         "More than one statement on a single line",
         "multiple-statements",
-        "Used when more than on statement are found on the same line.",
+        "Used when more than one statement is found on the same line.",
         {"scope": WarningScope.NODE},
     ),
     "C0325": (
@@ -181,6 +181,18 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 "default": r"^\s*(# )?<?https?://\S+>?$",
                 "help": (
                     "Regexp for a line that is allowed to be longer than the limit."
+                ),
+            },
+        ),
+        (
+            "ignore-pattern-in-long-lines",
+            {
+                "type": "regexp",
+                "metavar": "<regexp>",
+                "default": None,
+                "help": (
+                    "Regexp for a part of a line that will not be counted when "
+                    "calculating the line length."
                 ),
             },
         ),
@@ -439,9 +451,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         check_equal = False
                         self.check_indent_level(line, indents[-1], line_num)
 
-            if tok_type == tokenize.NUMBER and string.endswith("l"):
-                self.add_message("lowercase-l-suffix", line=line_num)
-
             if string in _KEYWORD_TOKENS:
                 self._check_keyword_parentheses(tokens, idx)
 
@@ -699,6 +708,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 checker_off = True
             # The 'pylint: disable whatever' should not be taken into account for line length count
             lines = self.remove_pylint_option_from_lines(mobj)
+
+        ignore_pattern_in_long_lines = self.linter.config.ignore_pattern_in_long_lines
+        if ignore_pattern_in_long_lines:
+            lines = ignore_pattern_in_long_lines.sub("", lines)
 
         # here we re-run specific_splitlines since we have filtered out pylint options above
         for offset, line in enumerate(self.specific_splitlines(lines)):

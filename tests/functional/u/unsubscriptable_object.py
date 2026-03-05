@@ -32,3 +32,15 @@ class Dog(Animal[Identity]):
 
 DOG = Dog(identity=Identity(name="Dog"))
 print(DOG.identity["name"])
+
+
+# Regression test for https://github.com/pylint-dev/pylint/issues/9515
+class Parents():  # pylint: disable=missing-class-docstring, missing-function-docstring
+    name: str
+    age: int
+    children_name: typing.Optional[list[str]] = None
+
+    def get_first_children_name(self) -> typing.Optional[str]:
+        if self.children_name:
+            return self.children_name[0]
+        return None

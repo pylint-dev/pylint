@@ -8,6 +8,7 @@
 Standard Checkers
 ^^^^^^^^^^^^^^^^^
 
+Remember that only ``tool.pylint`` is required, the section title is not. There are specific notes under each example that cover this.
 
 .. _main-options:
 
@@ -1041,6 +1042,13 @@ Standard Checkers
 **Default:**  ``()``
 
 
+--known-first-party
+"""""""""""""""""""
+*Force import order to recognize a module as part of a first party library.*
+
+**Default:**  ``()``
+
+
 --known-third-party
 """""""""""""""""""
 *Force import order to recognize a module as part of a third party library.*
@@ -1081,6 +1089,8 @@ Standard Checkers
    int-import-graph = ""
 
    known-standard-library = []
+
+   known-first-party = []
 
    known-third-party = ["enchant"]
 

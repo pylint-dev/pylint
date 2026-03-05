@@ -4,17 +4,6 @@
 
 from __future__ import annotations
 
-try:
-    import isort.api
-    import isort.settings
-
-    HAS_ISORT_5 = True
-except ImportError:  # isort < 5
-    import isort
-
-    HAS_ISORT_5 = False
-
-import argparse
 import codecs
 import os
 import re
@@ -28,7 +17,7 @@ from io import BufferedReader, BytesIO
 from re import Pattern
 from typing import TYPE_CHECKING, Any, Literal, TextIO, TypeVar
 
-from astroid import Module, modutils, nodes
+from astroid import modutils, nodes
 
 from pylint.constants import PY_EXTS
 from pylint.typing import OptionDict
@@ -104,7 +93,7 @@ def get_module_and_frameid(node: nodes.NodeNG) -> tuple[str, str]:
     frame = node.frame()
     module, obj = "", []
     while frame:
-        if isinstance(frame, Module):
+        if isinstance(frame, nodes.Module):
             module = frame.name
         else:
             obj.append(getattr(frame, "name", "<lambda>"))
@@ -344,30 +333,3 @@ def _ini_format(stream: TextIO, options: list[tuple[str, OptionDict, Any]]) -> N
                 # remove trailing ',' from last element of the list
                 value = value[:-1]
             print(f"{optname}={value}", file=stream)
-
-
-class IsortDriver:
-    """A wrapper around isort API that changed between versions 4 and 5."""
-
-    def __init__(self, config: argparse.Namespace) -> None:
-        if HAS_ISORT_5:
-            self.isort5_config = isort.settings.Config(
-                # There is no typo here. EXTRA_standard_library is
-                # what most users want. The option has been named
-                # KNOWN_standard_library for ages in pylint, and we
-                # don't want to break compatibility.
-                extra_standard_library=config.known_standard_library,
-                known_third_party=config.known_third_party,
-            )
-        else:
-            # pylint: disable-next=no-member
-            self.isort4_obj = isort.SortImports(  # type: ignore[attr-defined]
-                file_contents="",
-                known_standard_library=config.known_standard_library,
-                known_third_party=config.known_third_party,
-            )
-
-    def place_module(self, package: str) -> str:
-        if HAS_ISORT_5:
-            return isort.api.place_module(package, self.isort5_config)
-        return self.isort4_obj.place_module(package)  # type: ignore[no-any-return]

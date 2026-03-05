@@ -18,7 +18,8 @@ from typing import TYPE_CHECKING
 
 import astroid
 import astroid.exceptions
-from astroid import bases, extract_node, nodes, util
+import astroid.modutils
+from astroid import bases, extract_node, nodes, objects, util
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -55,10 +56,10 @@ BUILTIN_RANGE = "builtins.range"
 TYPING_MODULE = "typing"
 
 DICT_TYPES = (
-    astroid.objects.DictValues,
-    astroid.objects.DictKeys,
-    astroid.objects.DictItems,
-    astroid.nodes.node_classes.Dict,
+    objects.DictValues,
+    objects.DictKeys,
+    objects.DictItems,
+    nodes.Dict,
 )
 
 NODES_WITH_VALUE_ATTR = (
@@ -585,7 +586,12 @@ scope_type : {self.scope_type}
             and parent_node.iter == node
             and parent_node.target in found_nodes
         ):
-            found_nodes = None
+            # Only filter out the for-loop target if there are other definitions besides the target
+            other_definitions = [fn for fn in found_nodes if fn != parent_node.target]
+            if other_definitions:
+                found_nodes = other_definitions
+            else:
+                found_nodes = None
 
         # Before filtering, check that this node's name is not a nonlocal
         if _is_nonlocal_name(node, node.frame()):
@@ -1033,7 +1039,7 @@ scope_type : {self.scope_type}
         """
         if not other_node_try_except.orelse:
             return False
-        closest_loop: None | (nodes.For | nodes.While) = (
+        closest_loop: nodes.For | nodes.While | None = (
             utils.get_node_first_ancestor_of_type(node, (nodes.For, nodes.While))
         )
         if closest_loop is None:
@@ -1352,7 +1358,7 @@ class VariablesChecker(BaseChecker):
             # no dict items returned
             return
 
-        if isinstance(inferred, astroid.objects.DictItems):
+        if isinstance(inferred, objects.DictItems):
             # dict.items() is a bit special because values will be a tuple
             # So as long as there are always 2 targets and values each are
             # a tuple with two items, this will unpack correctly.
@@ -1602,7 +1608,7 @@ class VariablesChecker(BaseChecker):
 
         module = frame.root()
         default_message = True
-        locals_ = node.scope().locals
+        module_locals = node.root().locals
         for name in node.names:
             try:
                 assign_nodes = module.getattr(name)
@@ -1612,7 +1618,7 @@ class VariablesChecker(BaseChecker):
 
             not_defined_locally_by_import = not any(
                 isinstance(local, (nodes.Import, nodes.ImportFrom))
-                for local in locals_.get(name, ())
+                for local in module_locals.get(name, ())
             )
             if (
                 not utils.is_reassigned_after_current(node, name)
@@ -1682,7 +1688,7 @@ class VariablesChecker(BaseChecker):
 
     @utils.only_required_for_messages("redefined-outer-name")
     def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
-        if not node.name or not isinstance(node.name, nodes.AssignName):
+        if not isinstance(node.name, nodes.AssignName):
             return
 
         for outer_except, outer_except_assign_name in self._except_handler_names_queue:
@@ -1698,7 +1704,7 @@ class VariablesChecker(BaseChecker):
 
     @utils.only_required_for_messages("redefined-outer-name")
     def leave_excepthandler(self, node: nodes.ExceptHandler) -> None:
-        if not node.name or not isinstance(node.name, nodes.AssignName):
+        if not (node.name and isinstance(node.name, nodes.AssignName)):
             return
         self._except_handler_names_queue.pop()
 
@@ -1855,9 +1861,9 @@ class VariablesChecker(BaseChecker):
         if (
             is_recursive_klass
             and utils.get_node_first_ancestor_of_type(node, nodes.Lambda)
-            and (
-                not utils.is_default_argument(node)
-                or node.scope().parent.scope() is not defframe
+            and not (
+                utils.is_default_argument(node)
+                and node.scope().parent.scope() is defframe
             )
         ):
             # Self-referential class references are fine in lambda's --
@@ -2156,11 +2162,10 @@ class VariablesChecker(BaseChecker):
         # Check if we have starred nodes.
         if any(isinstance(target, nodes.Starred) for target in targets):
             return
-
         try:
-            inferred = utils.safe_infer(node.value)
-            if inferred is not None:
-                self._check_unpacking(inferred, node, targets)
+            inferred = node.value.inferred()
+            if inferred is not None and len(inferred) == 1:
+                self._check_unpacking(inferred[0], node, targets)
         except astroid.InferenceError:
             return
 
@@ -2205,13 +2210,7 @@ class VariablesChecker(BaseChecker):
         in_annotation_or_default_or_decorator = False
         if isinstance(frame, nodes.FunctionDef) and node.statement() is frame:
             in_annotation_or_default_or_decorator = (
-                (
-                    node in frame.args.annotations
-                    or node in frame.args.posonlyargs_annotations
-                    or node in frame.args.kwonlyargs_annotations
-                    or node is frame.args.varargannotation
-                    or node is frame.args.kwargannotation
-                )
+                node in frame.args.get_annotations()
                 or frame.args.parent_of(node)
                 or (frame.decorators and frame.decorators.parent_of(node))
                 or (
@@ -2476,7 +2475,7 @@ class VariablesChecker(BaseChecker):
         defstmt: _base_nodes.Statement,
     ) -> bool:
         """Check if variable only gets assigned a type and never a value."""
-        if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
+        if not (isinstance(defstmt, nodes.AnnAssign) and defstmt.value is None):
             return False
 
         defstmt_frame = defstmt.frame()
@@ -2617,7 +2616,7 @@ class VariablesChecker(BaseChecker):
         )
 
     # pylint: disable-next=too-many-branches,too-many-statements
-    def _loopvar_name(self, node: astroid.Name) -> None:
+    def _loopvar_name(self, node: nodes.Name) -> None:
         # filter variables according to node's scope
         astmts = [s for s in node.lookup(node.name)[1] if hasattr(s, "assign_type")]
         # If this variable usage exists inside a function definition
@@ -2755,7 +2754,7 @@ class VariablesChecker(BaseChecker):
                 nodes.Tuple,
                 nodes.Dict,
                 nodes.Set,
-                astroid.objects.FrozenSet,
+                objects.FrozenSet,
             )
             if not isinstance(inferred, sequences):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
@@ -2969,7 +2968,7 @@ class VariablesChecker(BaseChecker):
             return
 
         assign_scope, stmts = node.lookup(node.name)
-        if not stmts or not assign_scope.parent_of(node_scope):
+        if not (stmts and assign_scope.parent_of(node_scope)):
             return
 
         if utils.is_comprehension(assign_scope):
@@ -3029,7 +3028,7 @@ class VariablesChecker(BaseChecker):
                 return
 
         match type_annotation.value:
-            case nodes.Attribute(expr=nodes.Name(name=n)) if n == TYPING_MODULE:
+            case nodes.Attribute(expr=nodes.Name(name=name)) if name == TYPING_MODULE:
                 self._type_annotation_names.append(TYPING_MODULE)
                 return
 
@@ -3237,8 +3236,8 @@ class VariablesChecker(BaseChecker):
             if not elt_name.parent:
                 continue
 
-            if not isinstance(elt_name, nodes.Const) or not isinstance(
-                elt_name.value, str
+            if not (
+                isinstance(elt_name, nodes.Const) and isinstance(elt_name.value, str)
             ):
                 self.add_message("invalid-all-object", args=elt.as_string(), node=elt)
                 continue
@@ -3278,6 +3277,14 @@ class VariablesChecker(BaseChecker):
                 if in_type_checking_block(node):
                     continue
                 if self._is_exception_binding_used_in_handler(node, name):
+                    continue
+                if isinstance(node, nodes.AssignName) and node.name == "__all__":
+                    continue
+                if (
+                    isinstance(node, nodes.ImportFrom)
+                    and name == "annotations"
+                    and node.modname == "__future__"
+                ):
                     continue
                 self.add_message("unused-variable", args=(name,), node=node)
 
@@ -3374,42 +3381,44 @@ class VariablesChecker(BaseChecker):
 
     def _check_metaclasses(self, node: nodes.Module | nodes.FunctionDef) -> None:
         """Update consumption analysis for metaclasses."""
-        consumed: list[tuple[Consumption, str]] = []
+        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
 
         for child_node in node.get_children():
             if isinstance(child_node, nodes.ClassDef):
                 consumed.extend(self._check_classdef_metaclasses(child_node, node))
 
-        # Pop the consumed items, in order to avoid having
-        # unused-import and unused-variable false positives
-        for scope_locals, name in consumed:
-            scope_locals.pop(name, None)
+        # Mark the consumed items properly so they move from to_consume
+        # to consumed, avoiding unused-import/unused-variable false positives
+        # while still allowing subsequent references to resolve.
+        for consumer, name, found_nodes in consumed:
+            if name in consumer.to_consume:
+                consumer.mark_as_consumed(name, found_nodes)
 
     def _check_classdef_metaclasses(
         self,
         klass: nodes.ClassDef,
         parent_node: nodes.Module | nodes.FunctionDef,
-    ) -> list[tuple[Consumption, str]]:
+    ) -> list[tuple[NamesConsumer, str, list[nodes.NodeNG]]]:
         if not klass._metaclass:
             # Skip if this class doesn't use explicitly a metaclass, but inherits it from ancestors
             return []
 
-        consumed: list[tuple[Consumption, str]] = []
+        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
         metaclass = klass.metaclass()
         name = ""
-        if isinstance(klass._metaclass, nodes.Name):
-            name = klass._metaclass.name
-        elif isinstance(klass._metaclass, nodes.Attribute) and klass._metaclass.expr:
-            attr = klass._metaclass.expr
-            while not isinstance(attr, nodes.Name):
-                attr = attr.expr
-            name = attr.name
-        elif isinstance(klass._metaclass, nodes.Call) and isinstance(
-            klass._metaclass.func, nodes.Name
-        ):
-            name = klass._metaclass.func.name
-        elif metaclass:
-            name = metaclass.root().name
+        match klass._metaclass:
+            case nodes.Name(name=name):
+                # bind name
+                pass
+            case nodes.Attribute(expr=attr):
+                while not isinstance(attr, nodes.Name):
+                    attr = attr.expr
+                name = attr.name
+            case nodes.Call(func=nodes.Name(name=name)):
+                # bind name
+                pass
+            case _ if metaclass:
+                name = metaclass.root().name
 
         found = False
         name = METACLASS_NAME_TRANSFORMS.get(name, name)
@@ -3420,7 +3429,7 @@ class VariablesChecker(BaseChecker):
                 found_nodes = scope_locals.get(name, [])
                 for found_node in found_nodes:
                     if found_node.lineno <= klass.lineno:
-                        consumed.append((scope_locals, name))
+                        consumed.append((to_consume, name, found_nodes))
                         found = True
                         break
             # Check parent scope
@@ -3467,8 +3476,9 @@ class VariablesChecker(BaseChecker):
     ) -> None:
         """Check for the potential-index-error message."""
         # Currently we only check simple slices of a single integer
-        if not isinstance(inferred_slice, nodes.Const) or not isinstance(
-            inferred_slice.value, int
+        if not (
+            isinstance(inferred_slice, nodes.Const)
+            and isinstance(inferred_slice.value, int)
         ):
             return
 

@@ -16,6 +16,8 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any
 
 import astroid
+import astroid.modutils
+import isort
 from astroid import nodes
 from astroid.nodes._base_nodes import ImportNode
 
@@ -34,7 +36,6 @@ from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import HIGH
 from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
 from pylint.typing import MessageDefinitionTuple
-from pylint.utils import IsortDriver
 from pylint.utils.linterstats import LinterStats
 
 if TYPE_CHECKING:
@@ -317,6 +318,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 
 
 DEFAULT_STANDARD_LIBRARY = ()
+DEFAULT_KNOWN_FIRST_PARTY = ()
 DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
 DEFAULT_PREFERRED_MODULES = ()
 
@@ -401,6 +403,16 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             },
         ),
         (
+            "known-first-party",
+            {
+                "default": DEFAULT_KNOWN_FIRST_PARTY,
+                "type": "csv",
+                "metavar": "<modules>",
+                "help": "Force import order to recognize a module as part of "
+                "a first party library.",
+            },
+        ),
+        (
             "known-third-party",
             {
                 "default": DEFAULT_KNOWN_THIRD_PARTY,
@@ -446,7 +458,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         BaseChecker.__init__(self, linter)
         self.import_graph: defaultdict[str, set[str]] = defaultdict(set)
         self._imports_stack: list[tuple[ImportNode, str]] = []
-        self._first_non_import_node = None
+        self._non_import_nodes: list[nodes.NodeNG] = []
         self._module_pkg: dict[Any, Any] = (
             {}
         )  # mapping of modules to the pkg they belong in
@@ -607,31 +619,20 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             met.add(package)
 
         self._imports_stack = []
-        self._first_non_import_node = None
+        self._non_import_nodes = []
 
     def compute_first_non_import_node(
         self,
         node: (
-            nodes.If
-            | nodes.Expr
+            nodes.Expr
             | nodes.Comprehension
             | nodes.IfExp
             | nodes.Assign
             | nodes.AssignAttr
-            | nodes.Try
         ),
     ) -> None:
-        # if the node does not contain an import instruction, and if it is the
-        # first node of the module, keep a track of it (all the import positions
-        # of the module will be compared to the position of this first
-        # instruction)
-        if self._first_non_import_node:
-            return
+        # Track non-import nodes at module level
         if not isinstance(node.parent, nodes.Module):
-            return
-        if isinstance(node, nodes.Try) and any(
-            node.nodes_of_class((nodes.Import, nodes.ImportFrom))
-        ):
             return
         if isinstance(node, nodes.Assign):
             # Add compatibility for module level dunder names
@@ -644,35 +645,31 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ]
             if all(valid_targets):
                 return
-        self._first_non_import_node = node
 
-    visit_try = visit_assignattr = visit_assign = visit_ifexp = visit_comprehension = (
-        visit_expr
-    ) = visit_if = compute_first_non_import_node
+        self._non_import_nodes.append(node)
+
+    visit_assignattr = visit_assign = visit_ifexp = visit_comprehension = visit_expr = (
+        compute_first_non_import_node
+    )
 
     def visit_functiondef(
-        self, node: nodes.FunctionDef | nodes.While | nodes.For | nodes.ClassDef
+        self,
+        node: (
+            nodes.FunctionDef
+            | nodes.AsyncFunctionDef
+            | nodes.While
+            | nodes.For
+            | nodes.ClassDef
+        ),
     ) -> None:
-        # If it is the first non import instruction of the module, record it.
-        if self._first_non_import_node:
+        # Track non-import nodes at module level
+        if not isinstance(node.parent, nodes.Module):
             return
+        self._non_import_nodes.append(node)
 
-        # Check if the node belongs to an `If` or a `Try` block. If they
-        # contain imports, skip recording this node.
-        if not isinstance(node.parent.scope(), nodes.Module):
-            return
-
-        root = node
-        while not isinstance(root.parent, nodes.Module):
-            root = root.parent
-
-        if isinstance(root, (nodes.If, nodes.Try)):
-            if any(root.nodes_of_class((nodes.Import, nodes.ImportFrom))):
-                return
-
-        self._first_non_import_node = node
-
-    visit_classdef = visit_for = visit_while = visit_functiondef
+    visit_asyncfunctiondef = visit_classdef = visit_for = visit_while = (
+        visit_functiondef
+    )
 
     def _check_misplaced_future(self, node: nodes.ImportFrom) -> None:
         basename = node.modname
@@ -699,19 +696,39 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         Send a message  if `node` comes before another instruction
         """
-        # if a first non-import instruction has already been encountered,
-        # it means the import comes after it and therefore is not well placed
-        if self._first_non_import_node:
-            if self.linter.is_message_enabled(
-                "wrong-import-position", self._first_non_import_node.fromlineno
+        # Check if import comes after a non-import statement
+        if self._non_import_nodes:
+            # Check for inline pragma on the import line
+            if not self.linter.is_message_enabled(
+                "wrong-import-position", node.fromlineno
             ):
-                self.add_message(
-                    "wrong-import-position", node=node, args=node.as_string()
-                )
-            else:
                 self.linter.add_ignored_message(
                     "wrong-import-position", node.fromlineno, node
                 )
+                return
+
+            # Check for pragma on the preceding non-import statement
+            most_recent_non_import = None
+            for non_import_node in self._non_import_nodes:
+                if non_import_node.fromlineno < node.fromlineno:
+                    most_recent_non_import = non_import_node
+                else:
+                    break
+
+            if most_recent_non_import:
+                check_line = most_recent_non_import.fromlineno
+                if not self.linter.is_message_enabled(
+                    "wrong-import-position", check_line
+                ):
+                    self.linter.add_ignored_message(
+                        "wrong-import-position", check_line, most_recent_non_import
+                    )
+                    self.linter.add_ignored_message(
+                        "wrong-import-position", node.fromlineno, node
+                    )
+                    return
+
+            self.add_message("wrong-import-position", node=node, args=node.as_string())
 
     def _record_import(
         self,
@@ -745,7 +762,22 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         imports = [import_node for (import_node, _) in imports]
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
-    # pylint: disable = too-many-statements
+    @property
+    def _isort_config(self) -> isort.Config:
+        """Get the config for use with isort.
+
+        Only valid after CLI parsing finished, i.e. not in __init__
+        """
+        return isort.Config(
+            # There is no typo here. EXTRA_standard_library is
+            # what most users want. The option has been named
+            # KNOWN_standard_library for ages in pylint, and we
+            # don't want to break compatibility.
+            extra_standard_library=self.linter.config.known_standard_library,
+            known_first_party=self.linter.config.known_first_party,
+            known_third_party=self.linter.config.known_third_party,
+        )
+
     def _check_imports_order(self, _module_node: nodes.Module) -> tuple[
         list[tuple[ImportNode, str]],
         list[tuple[ImportNode, str]],
@@ -753,7 +785,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     ]:
         """Checks imports of module `node` are grouped by category.
 
-        Imports must follow this order: standard, 3rd party, local
+        Imports must follow this order: standard, 3rd party, 1st party, local
         """
         std_imports: list[tuple[ImportNode, str]] = []
         third_party_imports: list[tuple[ImportNode, str]] = []
@@ -764,7 +796,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         third_party_not_ignored: list[tuple[ImportNode, str]] = []
         first_party_not_ignored: list[tuple[ImportNode, str]] = []
         local_not_ignored: list[tuple[ImportNode, str]] = []
-        isort_driver = IsortDriver(self.linter.config)
         for node, modname in self._imports_stack:
             if modname.startswith("."):
                 package = "." + modname.split(".")[1]
@@ -774,7 +805,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ignore_for_import_order = not self.linter.is_message_enabled(
                 "wrong-import-order", node.fromlineno
             )
-            import_category = isort_driver.place_module(package)
+            import_category = isort.place_module(package, config=self._isort_config)
             node_and_package_import = (node, package)
 
             match import_category:
@@ -1081,7 +1112,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         """Check if the module has a preferred replacement."""
         mod_compare = [mod_path]
         # build a comparison list of possible names using importfrom
-        if isinstance(node, astroid.nodes.node_classes.ImportFrom):
+        if isinstance(node, nodes.ImportFrom):
             mod_compare = [f"{node.modname}.{name[0]}" for name in node.names]
 
         # find whether there are matches with the import vs preferred_modules keys
@@ -1171,10 +1202,13 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     ) -> None:
         """Write dependencies as a dot (graphviz) file."""
         dep_info = self.linter.stats.dependencies
-        if not dep_info or not (
-            self.linter.config.import_graph
-            or self.linter.config.ext_import_graph
-            or self.linter.config.int_import_graph
+        if not (
+            dep_info
+            and (
+                self.linter.config.import_graph
+                or self.linter.config.ext_import_graph
+                or self.linter.config.int_import_graph
+            )
         ):
             raise EmptyReportError()
         filename = self.linter.config.import_graph

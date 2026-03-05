@@ -146,15 +146,13 @@ def _get_demo_code_for(data_path: Path, example_type: ExampleType) -> str:
         for file_as_str in sorted([str(p) for p in multiple_code_path.iterdir()]):
             file = Path(file_as_str)
             if file.suffix == ".py":
-                files.append(
-                    f"""\
+                files.append(f"""\
 ``{file.name}``:
 
 .. literalinclude:: /{file.relative_to(Path.cwd())}
     :language: python
 
-"""
-                )
+""")
         return _get_titled_rst(title=title, text="\n".join(files))
     raise AssertionError(
         f"Please add a {example_type.value} code example for {data_path}"
@@ -402,8 +400,7 @@ def _write_messages_list_page(
     with open(messages_file, "w", encoding="utf-8") as stream:
         # Write header of file
         title = "Messages overview"
-        stream.write(
-            f"""
+        stream.write(f"""
 .. _messages-overview:
 
 {"#" * len(title)}
@@ -414,8 +411,7 @@ def _write_messages_list_page(
 
 Pylint can emit the following messages:
 
-"""
-        )
+""")
         # Iterate over tuple to keep same order
         for category in (
             "fatal",
@@ -439,8 +435,7 @@ Pylint can emit the following messages:
             )
             # Write list per category. We need the '-category' suffix in the reference
             # because 'fatal' is also a message's symbol
-            stream.write(
-                f"""
+            stream.write(f"""
 .. _{category.lower()}-category:
 
 {get_rst_title(category.capitalize(), "*")}
@@ -457,8 +452,7 @@ All renamed messages in the {category} category:
    :maxdepth: 1
    :titlesonly:
 
-{old_messages_string}"""
-            )
+{old_messages_string}""")
 
 
 def _write_redirect_pages(old_messages: OldMessagesDict) -> None:

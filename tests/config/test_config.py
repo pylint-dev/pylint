@@ -45,14 +45,12 @@ def check_configuration_file_reader(
 def test_can_read_toml_env_variable(tmp_path: Path, file_to_lint_path: str) -> None:
     """We can read and open a properly formatted toml file."""
     config_file = tmp_path / "pyproject.toml"
-    config_file.write_text(
-        """
+    config_file.write_text("""
 [tool.pylint."messages control"]
 disable = "logging-not-lazy,logging-format-interpolation"
 jobs = "10"
 reports = "yes"
-"""
-    )
+""")
     env_var = "tmp_path_env"
     os.environ[env_var] = str(config_file)
     runner = run_using_a_configuration_file(f"${env_var}", file_to_lint_path)

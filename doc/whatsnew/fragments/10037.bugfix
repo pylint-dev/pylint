@@ -1,0 +1,3 @@
+Fix enabling checks from extensions which are disabled by default if multiple jobs are used.
+
+Closes #10037
