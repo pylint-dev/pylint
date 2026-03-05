@@ -1090,6 +1090,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
                 "--enable=relative-beyond-top-level",
                 "--source-roots",
                 ".",
+                "--recursive=y",
                 "a/",
             ],
             [
