@@ -553,7 +553,7 @@ Format checker Messages
 :trailing-newlines (C0305): *Trailing newlines*
   Used when there are trailing blank lines in a file.
 :multiple-statements (C0321): *More than one statement on a single line*
-  Used when more than on statement are found on the same line.
+  Used when more than one statement is found on the same line.
 :superfluous-parens (C0325): *Unnecessary parens after %r keyword*
   Used when a single item in parentheses follows an if, for, or other keyword.
 :mixed-line-endings (C0327): *Mixed line endings LF and CRLF*

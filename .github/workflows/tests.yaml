@@ -107,7 +107,7 @@ jobs:
           python -m pytest -vv --minimal-messages-config tests/test_functional.py --benchmark-disable
       - name: Upload coverage artifact
         if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v6.0.0
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: coverage-${{ matrix.python-version }}
           include-hidden-files: true
@@ -137,7 +137,7 @@ jobs:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.tests.outputs.python-key }}
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v7.0.0
+        uses: actions/download-artifact@v8.0.0
       - name: Combine coverage results
         run: |
           . venv/bin/activate
@@ -178,7 +178,7 @@ jobs:
         run: >-
           echo "datetime="$(date "+%Y%m%d_%H%M") >> $GITHUB_OUTPUT
       - name: Upload benchmark artifact
-        uses: actions/upload-artifact@v6.0.0
+        uses: actions/upload-artifact@v7.0.0
         with:
           name:
             benchmark-${{ runner.os }}-${{ matrix.python-version }}_${{

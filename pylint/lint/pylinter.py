@@ -617,7 +617,10 @@ class PyLinter(
         needed_checkers: list[BaseChecker] = [self]
         for checker in self.get_checkers()[1:]:
             messages = {msg for msg in checker.msgs if self.is_message_enabled(msg)}
-            if messages or any(self.report_is_enabled(r[0]) for r in checker.reports):
+            if messages or (
+                not checker.msgs
+                and any(self.report_is_enabled(r[0]) for r in checker.reports)
+            ):
                 needed_checkers.append(checker)
         return needed_checkers
 

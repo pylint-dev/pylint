@@ -92,7 +92,7 @@ MSGS: dict[str, MessageDefinitionTuple] = {
     "C0321": (
         "More than one statement on a single line",
         "multiple-statements",
-        "Used when more than on statement are found on the same line.",
+        "Used when more than one statement is found on the same line.",
         {"scope": WarningScope.NODE},
     ),
     "C0325": (
@@ -450,9 +450,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     if check_equal:
                         check_equal = False
                         self.check_indent_level(line, indents[-1], line_num)
-
-            if tok_type == tokenize.NUMBER and string.endswith("l"):
-                self.add_message("lowercase-l-suffix", line=line_num)
 
             if string in _KEYWORD_TOKENS:
                 self._check_keyword_parentheses(tokens, idx)

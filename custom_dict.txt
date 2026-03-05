@@ -286,6 +286,7 @@ readlines
 recognise
 recurse
 recurses
+recursing
 redef
 reportid
 rgx
