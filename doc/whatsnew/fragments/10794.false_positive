@@ -1,0 +1,4 @@
+Fix a false positive ``relative-beyond-top-level`` error when linting a specific file in parallel mode with
+namespace packages by also using the augmented ``sys.path``.
+
+Closes #10794
