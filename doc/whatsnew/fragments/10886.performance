@@ -1,10 +1,6 @@
-Skip expensive isort-based import classification in ``leave_module``
-when no import-ordering message is enabled (``wrong-import-order``,
-``ungrouped-imports``, ``wrong-import-position``).  Also cache the
-``isort.Config`` object so it is built once instead of once per import
-statement.  Both changes save ~6 s on ansible (564 files), a 17%
-reduction whether only ``cyclic-import`` is enabled (isort skipped
-entirely) or import-ordering checks are active (cached config avoids
-rebuilding it per import).
+Skip isort classification in the import checker when no import-ordering message is enabled,
+and cache the isort configuration so it is built once instead of once per import statement.
+Skipping the isort processing become a negligible improvement once the caching is applied.
+pylint became ~17% faster on ansible (~=4500 imports) even with isort enabled.
 
 Refs #10886, #2866, #10637
