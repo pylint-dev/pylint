@@ -617,39 +617,58 @@ scope_type : {self.scope_type}
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
-        # Filter out assignments in an Except clause that the node is not
-        # contained in, assuming they may fail
+        # Filter out assignments in except/try blocks, tracking whether any
+        # uncertainty came from these blocks (as opposed to if/elif tests).
+        has_except_uncertainty = False
         if found_nodes:
             uncertain_nodes = self._uncertain_nodes_in_except_blocks(
                 found_nodes, node, node_statement
             )
+            has_except_uncertainty = has_except_uncertainty or bool(uncertain_nodes)
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
-        # If this node is in a Finally block of a Try/Finally,
-        # filter out assignments in the try portion, assuming they may fail
         if found_nodes:
             uncertain_nodes = (
                 self._uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
                     found_nodes, node_statement, name
                 )
             )
+            has_except_uncertainty = has_except_uncertainty or bool(uncertain_nodes)
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
-        # If this node is in an ExceptHandler,
-        # filter out assignments in the try portion, assuming they may fail
         if found_nodes:
             uncertain_nodes = (
                 self._uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
                     found_nodes, node_statement
                 )
             )
+            has_except_uncertainty = has_except_uncertainty or bool(uncertain_nodes)
             self.consumed_uncertain[node.name] += uncertain_nodes
             uncertain_nodes_set = set(uncertain_nodes)
             found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
+
+        # Treat bare type annotations (AnnAssign without a value) as uncertain
+        # when there are uncertain definitions from except/try blocks.
+        # A bare annotation like `x: int` does not actually assign a value,
+        # so it should not suppress possibly-used-before-assignment when the
+        # real assignments are in except blocks that may not execute.
+        # We only do this for except/try uncertainty, not for if/elif
+        # uncertainty, because if/elif branches are guaranteed to execute
+        # one path (the bare annotation masking is correct there).
+        if found_nodes and has_except_uncertainty:
+            bare_annotations = [
+                n
+                for n in found_nodes
+                if isinstance(n.parent, nodes.AnnAssign) and n.parent.value is None
+            ]
+            if bare_annotations:
+                self.consumed_uncertain[name] += bare_annotations
+                bare_set = set(bare_annotations)
+                found_nodes = [n for n in found_nodes if n not in bare_set]
 
         return found_nodes
 
