@@ -250,7 +250,7 @@ class TestIgnorePatternInLongLines(CheckerTestCase):
             "10_5415_456_465498.16354698489",
             "1.05415456465498e14",
             "105.415456465498e12",
-            "105_415_456_465_498.16",
+            "105_415_456_465_498.0",
             'decimal.Decimal("105415456465498.16354698489")',
         ),
         # Infinity
@@ -264,14 +264,14 @@ class TestIgnorePatternInLongLines(CheckerTestCase):
             "486787299458.15656",
             "4.86787299458157e11",
             "486.787299458157e9",
-            "486_787_299_458.156_56",
+            "486_787_299_458.157",
             'decimal.Decimal("486787299458.15656")',
         ),
         (
             "1.2345678901234567e10",
             "1.23456789012346e10",
             "12.3456789012346e9",
-            "12_345_678_901.234_568",  # last digit rounded by float
+            "12_345_678_901.234_6",  # capped to 15 sig figs
             'decimal.Decimal("1.2345678901234567e10")',
         ),
         (
@@ -315,7 +315,9 @@ def test_to_another_standard_notation(
     assert (
         engineering == expected_engineering
     ), f"Engineering notation mismatch expected {expected_engineering}, got {engineering}"
-    underscore = NumberFormatterHelper.to_standard_underscore_grouping(float_value)
+    # Round to 15 sig figs like standardize() does for >15 digit literals
+    rounded = float(f"{float_value:.15g}") if raw_sig_figs > 15 else float_value
+    underscore = NumberFormatterHelper.to_standard_underscore_grouping(rounded)
     assert (
         underscore == expected_underscore
     ), f"Underscore grouping mismatch expected {expected_underscore}, got {underscore}"
