@@ -828,9 +828,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             wrong_scientific_notation = not (1 <= base < 10)
             if self.strict_scientific and wrong_scientific_notation:
                 return add_bad_notation_message(
-                    f"has a base, '{base}', that is not strictly inferior to 10"
+                    f"has a base, '{base_as_str}', that is not strictly inferior to 10"
                     if base == 10
-                    else f"has a base, '{base}', that is not between 1 and 10"
+                    else f"has a base, '{base_as_str}', that is not between 1 and 10"
                 )
             wrong_engineering_notation = not (
                 1 <= base < 1000 and int(exponent_as_str) % 3 == 0
@@ -842,9 +842,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     f"has an exponent '{exponent_as_str}' that is not a multiple of 3"
                     if 1 <= base < 1000
                     else (
-                        f"has a base, '{base}', that is not strictly inferior to 1000"
+                        f"has a base, '{base_as_str}', that is not strictly inferior to 1000"
                         if base == 1000
-                        else f"has a base, '{base}', that is not between 1 and 1000"
+                        else f"has a base, '{base_as_str}', that is not between 1 and 1000"
                     )
                 )
         elif has_underscore:
