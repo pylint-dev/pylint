@@ -431,6 +431,8 @@ def _called_in_methods(
         except astroid.NotFoundError:
             continue
         for infer_method in inferred:
+            if not isinstance(infer_method, nodes.NodeNG):
+                continue
             for call in infer_method.nodes_of_class(nodes.Call):
                 try:
                     bound = next(call.func.infer())
