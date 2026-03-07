@@ -101,12 +101,13 @@ jobs:
           pip list | grep 'astroid\|pylint'
           python -m pytest --durations=10 --benchmark-disable --cov --cov-report= tests/
       - name: Run functional tests with minimal messages config
+        if: inputs.astroid_sha != ''
         run: |
           . venv/bin/activate
           pip list | grep 'astroid\|pylint'
           python -m pytest -vv --minimal-messages-config tests/test_functional.py --benchmark-disable
       - name: Upload coverage artifact
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && inputs.astroid_sha != ''
         uses: actions/upload-artifact@v7.0.0
         with:
           name: coverage-${{ matrix.python-version }}
@@ -116,6 +117,7 @@ jobs:
   coverage:
     name: process / coverage
     runs-on: ubuntu-latest
+    if: inputs.astroid_sha != ''
     timeout-minutes: 5
     needs: [tests]
     steps:
@@ -152,6 +154,7 @@ jobs:
   benchmark-linux:
     name: run benchmark / ${{ matrix.python-version }} / Linux
     runs-on: ubuntu-latest
+    if: inputs.astroid_sha != ''
     timeout-minutes: 10
     needs: [tests]
     strategy:
