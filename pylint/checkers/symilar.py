@@ -846,8 +846,6 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
         total = sum(len(lineset) for lineset in self.linesets)
         duplicated = 0
         stats = self.linter.stats
-        original_name = self.linter.current_name
-        original_file = self.linter.current_file
         for num, couples in self._compute_sims():
             msg = []
             lineset = start_line = end_line = None
@@ -862,12 +860,13 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
             # Attribute the message to the first involved module rather than
             # the last-checked module which may be unrelated (see #2368).
             first_module = min(c[0].name for c in couples)
-            self.linter.current_name = first_module
-            self.linter.current_file = self._module_filepaths.get(first_module)
-            self.add_message("R0801", args=(len(couples), "\n".join(msg)))
+            self.add_message(
+                "R0801",
+                args=(len(couples), "\n".join(msg)),
+                module=first_module,
+                filepath=self._module_filepaths.get(first_module),
+            )
             duplicated += num * (len(couples) - 1)
-        self.linter.current_name = original_name
-        self.linter.current_file = original_file
         stats.nb_duplicated_lines += int(duplicated)
         stats.percent_duplicated_lines += float(total and duplicated * 100.0 / total)
 
