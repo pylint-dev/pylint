@@ -1,18 +1,18 @@
-bad-number-notation:4:19:4:25::'1504e5' has a base, '1504.0', that is not between 1 and 1000, and it should be written as '1.504e8' or '150.4e6' or '150_400_000.0' instead:HIGH
+bad-number-notation:4:19:4:25::'1504e5' has a base, '1504', that is not between 1 and 1000, and it should be written as '1.504e8' or '150.4e6' or '150_400_000.0' instead:HIGH
 bad-number-notation:10:23:10:38::'1_23_456_7_89.0' has underscores that are not delimiting packs of three digits, and it should be written as '1.23456789e8' or '123.456789e6' or '123_456_789.0' instead:HIGH
 bad-number-notation:11:23:11:38::'1_23_4_5_67_8e9' has exponent and underscore at the same time, and it should be written as '1.2345678e16' or '12.345678e15' instead:HIGH
 bad-number-notation:12:35:12:46::'123456789.0' is bigger than 1.0e6, and it should be written as '1.23456789e8' or '123.456789e6' or '123_456_789.0' instead:HIGH
 bad-number-notation:18:33:18:38::'123e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.23e6' or '1_230_000.0' instead:HIGH
-bad-number-notation:19:38:19:45::'12345e6' has a base, '12345.0', that is not between 1 and 1000, and it should be written as '1.2345e10' or '12.345e9' or '12_345_000_000.0' instead:HIGH
+bad-number-notation:19:38:19:45::'12345e6' has a base, '12345', that is not between 1 and 1000, and it should be written as '1.2345e10' or '12.345e9' or '12_345_000_000.0' instead:HIGH
 bad-number-notation:20:35:20:45::'10000000.0' is bigger than 1.0e6, and it should be written as '1.0e7' or '10.0e6' or '10_000_000.0' instead:HIGH
 bad-number-notation:28:37:28:47::'10000000.0' is bigger than 1.0e6, and it should be written as '1.0e7' or '10.0e6' or '10_000_000.0' instead:HIGH
-bad-number-notation:34:22:34:28::'1504e2' has a base, '1504.0', that is not between 1 and 1000, and it should be written as '1.504e5' or '150.4e3' or '150_400.0' instead:HIGH
+bad-number-notation:34:22:34:28::'1504e2' has a base, '1504', that is not between 1 and 1000, and it should be written as '1.504e5' or '150.4e3' or '150_400.0' instead:HIGH
 bad-number-notation:35:12:35:18::'45.3e7' has an exponent '7' that is not a multiple of 3, and it should be written as '4.53e8' or '453.0e6' or '453_000_000.0' instead:HIGH
 bad-number-notation:36:20:36:26::'45.3E7' has an exponent '7' that is not a multiple of 3, and it should be written as '4.53e8' or '453.0e6' or '453_000_000.0' instead:HIGH
 bad-number-notation:37:14:37:25::'0.00012e-26' has a base, '0.00012', that is not between 1 and 1000, and it should be written as '1.2e-30' instead:HIGH
 bad-number-notation:38:26:38:37::'0.00012E-26' has a base, '0.00012', that is not between 1 and 1000, and it should be written as '1.2e-30' instead:HIGH
 bad-number-notation:39:26:39:30::'10e5' has an exponent '5' that is not a multiple of 3, and it should be written as '1.0e6' or '1_000_000.0' instead:HIGH
-bad-number-notation:40:18:40:26::'11000e27' has a base, '11000.0', that is not between 1 and 1000, and it should be written as '1.1e31' or '11.0e30' instead:HIGH
+bad-number-notation:40:18:40:26::'11000e27' has a base, '11000', that is not between 1 and 1000, and it should be written as '1.1e31' or '11.0e30' instead:HIGH
 bad-number-notation:41:26:41:30::'12e8' has an exponent '8' that is not a multiple of 3, and it should be written as '1.2e9' or '1_200_000_000.0' instead:HIGH
 bad-number-notation:43:28:43:37::'0.0001e-5' has a base, '0.0001', that is not between 1 and 1000, and it should be written as '0.000_000_001' or '1.0e-9' instead:HIGH
 bad-number-notation:44:26:44:34::'0.0001e5' has a base, '0.0001', that is not between 1 and 1000, and it should be written as '1.0e1' or '10.0' instead:HIGH
