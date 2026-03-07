@@ -185,7 +185,10 @@ class NumberFormatterHelper:
         int_part, dec_part = number_str.split(".")
         # For very large or very small expanded numbers, underscore
         # grouping isn't useful — let scientific/engineering handle it.
-        if len(int_part) > 16 or len(dec_part) > 16:
+        # 15 digits means at most 5 groups of 3, e.g. '0.000_000_000_000_002'
+        # or '100_000_000_000_000.0'. Beyond that it's less readable than
+        # scientific notation.
+        if len(int_part) > 15 or len(dec_part) > 15:
             return None
         return f"{cls._group_right(int_part)}.{cls._group_left(dec_part)}"
 
