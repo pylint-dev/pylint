@@ -16,7 +16,6 @@ from pylint.typing import FileItem
 from pylint.utils import LinterStats, merge_stats
 
 if TYPE_CHECKING:
-
     from pylint.lint import PyLinter
 
 # PyLinter object used by worker processes when checking files using parallel mode
