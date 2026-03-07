@@ -63,6 +63,8 @@ not_that_small_plain = 0.001
 # Large numbers that should suggest underscore grouping (no near-duplicate exponential)
 large_plain = 1541455200.0  # [bad-number-notation]
 large_round = 1000000.0  # [bad-number-notation]
+# More than 15 significant digits: suggest decimal.Decimal
+many_sig_figs = 486787299458.15656  # [bad-number-notation]
 
 one_only = 1e6
 correct_1 = 4.53e7
