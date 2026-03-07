@@ -1,4 +1,9 @@
 {
+  "astropy": {
+    "branch": "main",
+    "directories": ["astropy"],
+    "url": "https://github.com/astropy/astropy"
+  },
   "ansible": {
     "branch": "devel",
     "directories": ["lib/ansible"],
