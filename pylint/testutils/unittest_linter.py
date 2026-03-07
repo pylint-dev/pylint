@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any, Literal, overload
 
 from astroid import nodes
 
@@ -28,7 +28,36 @@ class UnittestLinter(PyLinter):
         finally:
             self._messages = []
 
+    @overload
     def add_message(
+        self,
+        msgid: str,
+        line: int | None = None,
+        node: nodes.NodeNG = ...,
+        args: Any = None,
+        confidence: Confidence | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
+    ) -> None: ...
+
+    @overload
+    def add_message(  # pylint: disable=too-many-arguments
+        self,
+        msgid: str,
+        line: int | None = None,
+        node: None = None,
+        args: Any = None,
+        confidence: Confidence | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
+        module: str | None = None,
+        filepath: str | None = None,
+    ) -> None: ...
+
+    # pylint: disable-next=too-many-arguments
+    def add_message(  # pylint: disable=unused-argument
         self,
         msgid: str,
         line: int | None = None,
@@ -39,6 +68,8 @@ class UnittestLinter(PyLinter):
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
+        module: str | None = None,
+        filepath: str | None = None,
     ) -> None:
         """Add a MessageTest to the _messages attribute of the linter class."""
         # If confidence is None we set it to UNDEFINED as well in PyLinter
