@@ -2,6 +2,4 @@
 # pylint: disable=unused-import
 import isort
 import pytest
-import six
-from six import moves
-from six.moves import xrange
+from pytest import mark
