@@ -562,8 +562,9 @@ Format checker Messages
   Used when there is different newline than expected.
 :bad-number-notation (C0329): *'%s' %s, and it should be written as '%s' instead*
   Emitted when a number is written in a non-standard notation. The three
-  allowed notation above the threshold are the scientific notation, the
-  engineering notation, and the underscore grouping notation defined in PEP515.
+  allowed notations above the threshold are the scientific notation, the
+  engineering notation, and the underscore grouping notation defined in PEP
+  515.
 
 
 Imports checker
