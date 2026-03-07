@@ -515,6 +515,45 @@ def test_addmessage(linter: PyLinter) -> None:
     )
 
 
+def test_addmessage_module_and_filepath_override(linter: PyLinter) -> None:
+    """Module and filepath override current_name/current_file when node is None."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("current_module")
+    linter.add_message(
+        "C0301",
+        line=1,
+        args=(1, 2),
+        module="overridden_module",
+        filepath="/fake/path.py",
+    )
+    assert len(linter.reporter.messages) == 1
+    msg = linter.reporter.messages[0]
+    assert msg.location.module == "overridden_module"
+    assert msg.location.abspath == "/fake/path.py"
+    assert msg.location.path == "/fake/path.py"
+
+
+def test_addmessage_module_and_filepath_override_with_node(linter: PyLinter) -> None:
+    """Module and filepath override node-derived values; line/col still come from node."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("current_module")
+    module_node = astroid.parse("x = 1")
+    node = module_node.body[0]
+    linter.add_message(
+        "C0321",
+        node=node,
+        module="overridden_module",
+        filepath="/fake/path.py",
+    )
+    assert len(linter.reporter.messages) == 1
+    msg = linter.reporter.messages[0]
+    assert msg.location.module == "overridden_module"
+    assert msg.location.abspath == "/fake/path.py"
+    assert msg.location.line == node.fromlineno
+
+
 def test_addmessage_invalid(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
     linter.open()

@@ -1341,7 +1341,9 @@ class PyLinter(
         must provide the line argument.
 
         The module and filepath parameters allow overriding the module name
-        and file path reported in the message location.
+        and file path reported in the message location. When used with a node,
+        line/column are still derived from the node but the reported
+        module/filepath are overridden.
         """
         if confidence is None:
             confidence = interfaces.UNDEFINED
