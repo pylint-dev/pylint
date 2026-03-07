@@ -28,6 +28,7 @@ class UnittestLinter(PyLinter):
         finally:
             self._messages = []
 
+    # pylint: disable-next=too-many-arguments
     def add_message(
         self,
         msgid: str,
@@ -39,6 +40,8 @@ class UnittestLinter(PyLinter):
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
+        module: str | None = None,
+        filepath: str | None = None,
     ) -> None:
         """Add a MessageTest to the _messages attribute of the linter class."""
         # If confidence is None we set it to UNDEFINED as well in PyLinter
