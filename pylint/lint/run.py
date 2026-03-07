@@ -25,17 +25,6 @@ from pylint.lint.base_options import _make_run_options
 from pylint.lint.pylinter import MANAGER, PyLinter
 from pylint.reporters.base_reporter import BaseReporter
 
-try:
-    import multiprocessing
-    from multiprocessing import synchronize  # noqa pylint: disable=unused-import
-except ImportError:
-    multiprocessing = None  # type: ignore[assignment]
-
-try:
-    from concurrent.futures import ProcessPoolExecutor
-except ImportError:
-    ProcessPoolExecutor = None  # type: ignore[assignment,misc]
-
 
 def _query_cpu() -> int | None:
     """Try to determine number of CPUs allotted in a docker container.
@@ -110,10 +99,13 @@ def _cpu_count() -> int:
     # pylint: disable=not-callable,using-constant-test,useless-suppression
     if sched_getaffinity:
         cpu_count = len(sched_getaffinity(0))
-    elif multiprocessing:
-        cpu_count = multiprocessing.cpu_count()
     else:
-        cpu_count = 1
+        try:
+            import multiprocessing  # pylint: disable=import-outside-toplevel
+
+            cpu_count = multiprocessing.cpu_count()
+        except ImportError:
+            cpu_count = 1
     if sys.platform == "win32":
         # See also https://github.com/python/cpython/issues/94242
         cpu_count = min(cpu_count, 56)  # pragma: no cover
@@ -217,13 +209,17 @@ group are mutually exclusive.",
             )
             sys.exit(32)
         if linter.config.jobs > 1 or linter.config.jobs == 0:
-            if ProcessPoolExecutor is None:
+            try:
+                from concurrent.futures import (
+                    ProcessPoolExecutor,  # pylint: disable=import-outside-toplevel,unused-import
+                )
+            except ImportError:
                 print(
                     "concurrent.futures module is missing, fallback to single process",
                     file=sys.stderr,
                 )
                 linter.set_option("jobs", 1)
-            elif linter.config.jobs == 0:
+            if linter.config.jobs == 0:
                 linter.config.jobs = _cpu_count()
 
         if self._output:

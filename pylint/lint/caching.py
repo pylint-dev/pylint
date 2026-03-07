@@ -9,15 +9,15 @@ import sys
 import warnings
 from pathlib import Path
 
-from pylint.constants import PYLINT_HOME
+from pylint import constants
 from pylint.utils import LinterStats
-
-PYLINT_HOME_AS_PATH = Path(PYLINT_HOME)
 
 
 def _get_pdata_path(
-    base_name: Path, recurs: int, pylint_home: Path = PYLINT_HOME_AS_PATH
+    base_name: Path, recurs: int, pylint_home: Path | None = None
 ) -> Path:
+    if pylint_home is None:
+        pylint_home = Path(constants.PYLINT_HOME)
     # We strip all characters that can't be used in a filename. Also strip '/' and
     # '\\' because we want to create a single file, not sub-directories.
     underscored_name = "_".join(
@@ -28,8 +28,10 @@ def _get_pdata_path(
 
 
 def load_results(
-    base: str | Path, pylint_home: str | Path = PYLINT_HOME
+    base: str | Path, pylint_home: str | Path | None = None
 ) -> LinterStats | None:
+    if pylint_home is None:
+        pylint_home = constants.PYLINT_HOME
     base = Path(base)
     pylint_home = Path(pylint_home)
     data_file = _get_pdata_path(base, 1, pylint_home)
@@ -55,8 +57,10 @@ def load_results(
 
 
 def save_results(
-    results: LinterStats, base: str | Path, pylint_home: str | Path = PYLINT_HOME
+    results: LinterStats, base: str | Path, pylint_home: str | Path | None = None
 ) -> None:
+    if pylint_home is None:
+        pylint_home = constants.PYLINT_HOME
     base = Path(base)
     pylint_home = Path(pylint_home)
     try:

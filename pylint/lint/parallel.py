@@ -9,23 +9,11 @@ from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any
 
-import dill
-
 from pylint import reporters
 from pylint.lint.utils import _augment_sys_path
 from pylint.message import Message
 from pylint.typing import FileItem
 from pylint.utils import LinterStats, merge_stats
-
-try:
-    import multiprocessing
-except ImportError:
-    multiprocessing = None  # type: ignore[assignment]
-
-try:
-    from concurrent.futures import ProcessPoolExecutor
-except ImportError:
-    ProcessPoolExecutor = None  # type: ignore[assignment,misc]
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
@@ -44,6 +32,8 @@ def _worker_initialize(
     :param extra_packages_paths: Extra entries to be added to `sys.path`
     """
     global _worker_linter  # pylint: disable=global-statement
+    import dill  # pylint: disable=import-outside-toplevel
+
     _worker_linter = dill.loads(linter)
     assert _worker_linter
 
@@ -79,6 +69,8 @@ def _worker_check_single_file(
     int,
     defaultdict[str, list[Any]],
 ]:
+    import multiprocessing  # pylint: disable=import-outside-toplevel
+
     if not _worker_linter:
         raise RuntimeError("Worker linter not yet initialised")
     _worker_linter.open()
@@ -144,6 +136,12 @@ def check_parallel(
     initializer = functools.partial(
         _worker_initialize, extra_packages_paths=extra_packages_paths
     )
+    from concurrent.futures import (
+        ProcessPoolExecutor,  # pylint: disable=import-outside-toplevel
+    )
+
+    import dill  # pylint: disable=import-outside-toplevel
+
     with ProcessPoolExecutor(
         max_workers=jobs, initializer=initializer, initargs=(dill.dumps(linter),)
     ) as executor:

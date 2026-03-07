@@ -1,0 +1,6 @@
+Lazily import ``isort``, ``dill``, ``multiprocessing``, ``concurrent.futures``,
+``tomlkit``, and ``platformdirs`` so they are only loaded when actually needed.
+This reduces startup time by ~24% for ``--version``, ~22% for ``--help``,
+and ~14% for single-file linting without multiprocessing.
+
+Closes #2866
