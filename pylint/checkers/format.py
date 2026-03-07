@@ -107,7 +107,10 @@ class NumberFormatterHelper:
                 cls.to_standard_engineering_notation(dec_number, sig_figs, dec_tuple)
             )
         if pep515:
-            s = cls.to_standard_underscore_grouping(number)
+            # Round to 15 sig figs so underscore suggestion doesn't imply
+            # more precision than float can represent.
+            rounded = float(f"{number:.15g}") if len(dec_tuple.digits) > 15 else number
+            s = cls.to_standard_underscore_grouping(rounded)
             if s is not None:
                 suggested.add(s)
             elif not suggested:
