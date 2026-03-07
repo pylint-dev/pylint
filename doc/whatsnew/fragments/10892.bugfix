@@ -1,0 +1,3 @@
+Fix crash when checking ``attribute-defined-outside-init`` on classes that inherit from a base class pylint cannot fully analyze.
+
+Closes #10892
