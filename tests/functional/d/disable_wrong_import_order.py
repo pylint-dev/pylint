@@ -7,5 +7,5 @@ from first_party.foo import bar # pylint: disable=wrong-import-order
 import logging
 import os.path
 import sys
-from astroid import are_exclusive
+from pytest import are_exclusive
 from first_party.bar import foo # [ungrouped-imports]
