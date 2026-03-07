@@ -220,57 +220,89 @@ class TestIgnorePatternInLongLines(CheckerTestCase):
 
 
 @pytest.mark.parametrize(
-    "value,expected_scientific,expected_engineering,expected_underscore",
+    "value,expected_scientific,expected_engineering,expected_underscore,expected_decimal",
     [
-        ("0", "0.0", "0.0", "0.0"),
-        ("0e10", "0.0", "0.0", "0.0"),
-        ("0e-10", "0.0", "0.0", "0.0"),
-        ("0.0e10", "0.0", "0.0", "0.0"),
-        ("1e0", "1.0", "1.0", "1.0"),
-        ("1e10", "1.0e10", "10.0e9", "10_000_000_000.0"),
-        ("1e-10", "1.0e-10", "100.0e-12", "0.000_000_000_1"),
-        ("2e1", "2.0e1", "20.0", "20.0"),
-        ("2e-1", "2.0e-1", "200.0e-3", "0.2"),
-        ("3.456e2", "3.456e2", "345.6", "345.6"),
-        ("3.456e-2", "3.456e-2", "34.56e-3", "0.034_56"),
-        ("4e2", "4.0e2", "400.0", "400.0"),
-        ("4e-2", "4.0e-2", "40.0e-3", "0.04"),
-        ("50e2", "5.0e3", "5.0e3", "5_000.0"),
-        ("50e-2", "5.0e-1", "500.0e-3", "0.5"),
-        ("6e6", "6.0e6", "6.0e6", "6_000_000.0"),
-        ("6e-6", "6.0e-6", "6.0e-6", "0.000_006"),
-        ("10e5", "1.0e6", "1.0e6", "1_000_000.0"),
-        ("10e-5", "1.0e-4", "100.0e-6", "0.000_1"),
-        ("1_000_000", "1.0e6", "1.0e6", "1_000_000.0"),
-        ("1000_000", "1.0e6", "1.0e6", "1_000_000.0"),
-        ("20e9", "2.0e10", "20.0e9", "20_000_000_000.0"),
-        ("20e-9", "2.0e-8", "20.0e-9", "0.000_000_02"),
+        ("0", "0.0", "0.0", "0.0", None),
+        ("0e10", "0.0", "0.0", "0.0", None),
+        ("0e-10", "0.0", "0.0", "0.0", None),
+        ("0.0e10", "0.0", "0.0", "0.0", None),
+        ("1e0", "1.0", "1.0", "1.0", None),
+        ("1e10", "1.0e10", "10.0e9", "10_000_000_000.0", None),
+        ("1e-10", "1.0e-10", "100.0e-12", "0.000_000_000_1", None),
+        ("2e1", "2.0e1", "20.0", "20.0", None),
+        ("2e-1", "2.0e-1", "200.0e-3", "0.2", None),
+        ("3.456e2", "3.456e2", "345.6", "345.6", None),
+        ("3.456e-2", "3.456e-2", "34.56e-3", "0.034_56", None),
+        ("4e2", "4.0e2", "400.0", "400.0", None),
+        ("4e-2", "4.0e-2", "40.0e-3", "0.04", None),
+        ("50e2", "5.0e3", "5.0e3", "5_000.0", None),
+        ("50e-2", "5.0e-1", "500.0e-3", "0.5", None),
+        ("6e6", "6.0e6", "6.0e6", "6_000_000.0", None),
+        ("6e-6", "6.0e-6", "6.0e-6", "0.000_006", None),
+        ("10e5", "1.0e6", "1.0e6", "1_000_000.0", None),
+        ("10e-5", "1.0e-4", "100.0e-6", "0.000_1", None),
+        ("1_000_000", "1.0e6", "1.0e6", "1_000_000.0", None),
+        ("1000_000", "1.0e6", "1.0e6", "1_000_000.0", None),
+        ("20e9", "2.0e10", "20.0e9", "20_000_000_000.0", None),
+        ("20e-9", "2.0e-8", "20.0e-9", "0.000_000_02", None),
         (
-            # 15 significant digits because we get rounding error otherwise
-            # and 15 seems enough especially since we don't auto-fix
+            # 25 significant digits, capped to 15 for scientific/engineering
             "10_5415_456_465498.16354698489",
             "1.05415456465498e14",
             "105.415456465498e12",
             "105_415_456_465_498.16",
+            'decimal.Decimal("105415456465498.16354698489")',
         ),
         # Infinity
-        ("Infinity", "math.inf", "math.inf", "math.inf"),
-        ("-Infinity", "math.inf", "math.inf", "math.inf"),
+        ("Infinity", "math.inf", "math.inf", "math.inf", None),
+        ("-Infinity", "math.inf", "math.inf", "math.inf", None),
         # Extreme exponents (overflow float, tuple-based fallback)
-        ("1e12000000", "1.0e12000000", "1.0e12000000", "math.inf"),
-        ("1.5e12000001", "1.5e12000001", "15.0e12000000", "math.inf"),
+        ("1e12000000", "1.0e12000000", "1.0e12000000", "math.inf", None),
+        ("1.5e12000001", "1.5e12000001", "15.0e12000000", "math.inf", None),
+        # More than 15 significant digits: to_decimal_suggestion is used
+        (
+            "486787299458.15656",
+            "4.86787299458157e11",
+            "486.787299458157e9",
+            "486_787_299_458.156_56",
+            'decimal.Decimal("486787299458.15656")',
+        ),
+        (
+            "1.2345678901234567e10",
+            "1.23456789012346e10",
+            "12.3456789012346e9",
+            "12_345_678_901.234_568",  # last digit rounded by float
+            'decimal.Decimal("1.2345678901234567e10")',
+        ),
+        (
+            "1_234_567_890_123_456_7.0",
+            "1.23456789012346e16",
+            "12.3456789012346e15",
+            None,
+            'decimal.Decimal("12345678901234567.0")',
+        ),
+        (
+            "0.00012345678901234567",
+            "1.23456789012346e-4",
+            "123.456789012346e-6",
+            None,  # 20 decimal digits, exceeds underscore limit
+            'decimal.Decimal("0.00012345678901234567")',
+        ),
     ],
 )
 def test_to_another_standard_notation(
     value: str,
     expected_scientific: str,
     expected_engineering: str,
-    expected_underscore: str,
+    expected_underscore: str | None,
+    expected_decimal: str | None,
 ) -> None:
     """Test the conversion of numbers to all possible notations."""
     float_value = float(value)
     dec_value = Decimal(value)
-    sig_figs = len(dec_value.as_tuple().digits)
+    raw_sig_figs = len(dec_value.as_tuple().digits)
+    # Cap to 15 like standardize() does — float64 can't represent more
+    sig_figs = min(raw_sig_figs, 15)
     scientific = NumberFormatterHelper.to_standard_scientific_notation(
         dec_value, sig_figs
     )
@@ -287,6 +319,14 @@ def test_to_another_standard_notation(
     assert (
         underscore == expected_underscore
     ), f"Underscore grouping mismatch expected {expected_underscore}, got {underscore}"
+    decimal_suggestion = (
+        NumberFormatterHelper.to_decimal_suggestion(value)
+        if raw_sig_figs > 15
+        else None
+    )
+    assert (
+        decimal_suggestion == expected_decimal
+    ), f"Decimal suggestion mismatch expected {expected_decimal}, got {decimal_suggestion}"
 
 
 @pytest.mark.parametrize(
