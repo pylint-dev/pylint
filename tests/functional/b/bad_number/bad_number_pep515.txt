@@ -1,0 +1,5 @@
+bad-number-notation:3:23:3:38::'1_23_456_7_89.0' has underscores that are not delimiting packs of three digits, and it should be written as '123_456_789.0' instead:HIGH
+bad-number-notation:4:23:4:38::'1_23_4_5_67_8e9' has exponent and underscore at the same time, and it should be written as '1.2345678e16' instead:HIGH
+bad-number-notation:5:35:5:46::'123456789.0' is bigger than 1.0e6, and it should be written as '123_456_789.0' instead:HIGH
+bad-number-notation:6:22:6:34::'1.2345678e13' uses exponent notation instead of underscore grouping, and it should be written as '12_345_678_000_000.0' instead:HIGH
+bad-number-notation:7:23:7:35::'12.345678e14' uses exponent notation instead of underscore grouping, and it should be written as '1.2345678e15' instead:HIGH

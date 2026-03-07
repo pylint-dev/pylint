@@ -13,7 +13,10 @@ Some parts of the process_token method is based from The Tab Nanny std module.
 
 from __future__ import annotations
 
+import math
+import re
 import tokenize
+from decimal import Decimal, DecimalTuple
 from functools import reduce
 from re import Match
 from typing import TYPE_CHECKING, Literal
@@ -49,6 +52,202 @@ _KEYWORD_TOKENS = {
     ":=",
 }
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
+
+
+def _decimal_g_format(value: Decimal, precision: int) -> str:
+    """Format a Decimal like a g-specifier without float precision loss.
+
+    We avoid ``float(value)`` because it silently rounds numbers with more
+    than ~15 significant digits, producing wrong suggestions.  Instead we
+    use Decimal's own fixed-point format and strip trailing zeros manually.
+    This also side-steps Decimal's g-format quirk of preserving its internal
+    exponent (e.g. ``Decimal('1E+1')`` formatting as ``'1e+1'``).
+    """
+    if not value:
+        return "0"
+    abs_val = abs(value)
+    if abs_val >= 1:
+        int_digits = len(str(int(abs_val)))
+        dec_places = max(precision - int_digits, 0)
+    else:
+        # Count leading zeros so we keep *precision* significant digits.
+        frac = format(abs_val, "f").split(".")[1]
+        leading_zeros = len(frac) - len(frac.lstrip("0"))
+        dec_places = precision + leading_zeros
+    result = format(value, f".{dec_places}f")
+    if "." in result:
+        result = result.rstrip("0").rstrip(".")
+    return result
+
+
+class NumberFormatterHelper:
+
+    @classmethod
+    def standardize(
+        cls,
+        number: float,
+        original_string: str,
+        scientific: bool = True,
+        engineering: bool = True,
+        pep515: bool = True,
+    ) -> str:
+        dec_number = Decimal(original_string)
+        dec_tuple = dec_number.as_tuple()
+        # float64 guarantees only 15 significant digits; cap suggestions
+        # to avoid implying false precision.
+        sig_figs = min(len(dec_tuple.digits), 15)
+
+        suggested: set[str] = set()
+        if scientific:
+            suggested.add(
+                cls.to_standard_scientific_notation(dec_number, sig_figs, dec_tuple)
+            )
+        if engineering:
+            suggested.add(
+                cls.to_standard_engineering_notation(dec_number, sig_figs, dec_tuple)
+            )
+        if pep515:
+            # Round to 15 sig figs so underscore suggestion doesn't imply
+            # more precision than float can represent.
+            rounded = float(f"{number:.15g}") if len(dec_tuple.digits) > 15 else number
+            s = cls.to_standard_underscore_grouping(rounded)
+            if s is not None:
+                suggested.add(s)
+            elif not suggested:
+                # No other suggestion so we're in pep515-only mode but the number is
+                # too large for underscore grouping so we fall back to scientific notation
+                suggested.add(
+                    cls.to_standard_scientific_notation(dec_number, sig_figs, dec_tuple)
+                )
+        if len(dec_tuple.digits) > 15:
+            suggested.add(cls.to_decimal_suggestion(original_string))
+        return "' or '".join(sorted(suggested))
+
+    @classmethod
+    def to_standard_scientific_notation(
+        cls,
+        dec_number: Decimal,
+        sig_figs: int,
+        dec_tuple: DecimalTuple | None = None,
+    ) -> str:
+        if not dec_number:
+            return "0.0"
+        if dec_number.is_infinite():
+            return "math.inf"
+
+        exponent = dec_number.adjusted()
+
+        if exponent == 0:
+            base_str = _decimal_g_format(dec_number, sig_figs)
+            if "." not in base_str:
+                base_str += ".0"
+            return base_str
+
+        # Compute base by shifting the decimal tuple instead of dividing
+        if dec_tuple is None:
+            dec_tuple = dec_number.as_tuple()
+        base_value = Decimal(
+            (dec_tuple.sign, dec_tuple.digits, -len(dec_tuple.digits) + 1)
+        )
+        base_str = _decimal_g_format(base_value, sig_figs)
+
+        if "." not in base_str and "e" not in base_str.lower():
+            base_str += ".0"
+
+        return f"{base_str}e{exponent}"
+
+    @classmethod
+    def to_standard_engineering_notation(
+        cls,
+        dec_number: Decimal,
+        sig_figs: int,
+        dec_tuple: DecimalTuple | None = None,
+    ) -> str:
+        if not dec_number:
+            return "0.0"
+        if dec_number.is_infinite():
+            return "math.inf"
+
+        exponent = dec_number.adjusted()
+
+        # Round exponent down to nearest multiple of 3.
+        # Python's % always returns non-negative for positive divisor,
+        # so this works for both positive and negative exponents.
+        exp_value = exponent - (exponent % 3)
+
+        # Compute base by shifting the decimal tuple instead of dividing,
+        # which avoids 'localcontext()' overhead and handles extreme exponents.
+        if dec_tuple is None:
+            dec_tuple = dec_number.as_tuple()
+        shift = exponent - exp_value
+        base_value = Decimal(
+            (dec_tuple.sign, dec_tuple.digits, -len(dec_tuple.digits) + 1 + shift)
+        )
+
+        # Use at least 3 significant digits to prevent g-format from switching
+        # to scientific notation (engineering base is always < 1000).
+        precision = max(sig_figs, 3)
+        base_str = _decimal_g_format(base_value, precision)
+
+        if "." not in base_str and "e" not in base_str.lower():
+            base_str += ".0"
+
+        if exp_value != 0:
+            return f"{base_str}e{exp_value}"
+        return base_str
+
+    @classmethod
+    def to_standard_underscore_grouping(cls, number: float) -> str | None:
+        if math.isinf(number):
+            return "math.inf"
+        number_str = str(number)
+        if "e" in number_str or "E" in number_str:
+            number_str = format(Decimal(number_str), "f")
+        if "." not in number_str:
+            number_str += ".0"
+        int_part, dec_part = number_str.split(".")
+        # For very large or very small expanded numbers, underscore
+        # grouping isn't useful — let scientific/engineering handle it.
+        # 15 digits means at most 5 groups of 3, e.g. '0.000_000_000_000_002'
+        # or '100_000_000_000_000.0'. Beyond that it's less readable than
+        # scientific notation.
+        if len(int_part) > 15 or len(dec_part) > 15:
+            return None
+        return f"{cls._group_right(int_part)}.{cls._group_left(dec_part)}"
+
+    @staticmethod
+    def to_decimal_suggestion(original_string: str) -> str:
+        clean = original_string.replace("_", "")
+        return f'decimal.Decimal("{clean}")'
+
+    @classmethod
+    def to_standard_non_decimal_grouping(
+        cls, string: str, group_size: int, prefix_length: int = 2
+    ) -> str:
+        clean = string.replace("_", "")
+        prefix = clean[:prefix_length].lower() if prefix_length else ""
+        digits = clean[prefix_length:]
+        if len(digits) <= group_size:
+            return f"{prefix}{digits}"
+        return f"{prefix}{cls._group_right(digits, group_size)}"
+
+    @staticmethod
+    def _group_right(s: str, size: int = 3) -> str:
+        """Group digits with underscores from the right: '1234567' -> '1_234_567'."""
+        # s cannot be a negative number as tokenization separates the unary operator
+        remainder = len(s) % size
+        parts = [s[:remainder]] if remainder else []
+        for i in range(remainder, len(s), size):
+            parts.append(s[i : i + size])
+        return "_".join(parts)
+
+    @staticmethod
+    def _group_left(s: str, size: int = 3) -> str:
+        """Group digits with underscores from the left: '123456' -> '123_456'."""
+        parts = []
+        for i in range(0, len(s), size):
+            parts.append(s[i : i + size])
+        return "_".join(parts)
 
 
 MSGS: dict[str, MessageDefinitionTuple] = {
@@ -110,6 +309,13 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Unexpected line ending format. There is '%s' while it should be '%s'.",
         "unexpected-line-ending-format",
         "Used when there is different newline than expected.",
+    ),
+    "C0329": (
+        "'%s' %s, and it should be written as '%s' instead",
+        "bad-number-notation",
+        "Emitted when a number is written in a non-standard notation. The three "
+        "allowed notations above the threshold are the scientific notation, the "
+        "engineering notation, and the underscore grouping notation defined in PEP 515.",
     ),
 }
 
@@ -263,12 +469,75 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 ),
             },
         ),
+        (
+            "number-notation-threshold",
+            {
+                # default big enough to not trigger on pixel perfect web design
+                # on big screen
+                "default": "1e6",
+                "type": "float",
+                "metavar": "<float>",
+                "help": (
+                    "Threshold for number literals to be expected to be written "
+                    "using the scientific, engineering or underscore notation."
+                    " If the absolute value of a number literal is greater than this "
+                    "value (or smaller than the inverse of this value for scientific "
+                    "and engineering notation), it will be checked."
+                ),
+            },
+        ),
+        (
+            "number-notation-style",
+            {
+                "type": "choice",
+                "metavar": "<style>",
+                "default": "",
+                "choices": ["", "scientific", "engineering", "underscore"],
+                "help": (
+                    "Enforce a specific notation for number literals above "
+                    "'number-notation-threshold'. Choices: empty (allow all "
+                    "standard notations), 'scientific', 'engineering', or "
+                    "'underscore' (PEP 515)."
+                ),
+            },
+        ),
+        (
+            "suggest-int-underscore",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": (
+                    "Suggest PEP 515 underscore grouping for integer literals "
+                    "above 'number-notation-threshold' that don't already use "
+                    "underscores. Applies to all bases (decimal, hex, octal, "
+                    "binary). Integers with existing but incorrect underscore "
+                    "grouping are always flagged regardless of this option."
+                ),
+            },
+        ),
     )
 
-    def __init__(self, linter: PyLinter) -> None:
-        super().__init__(linter)
+    def open(self) -> None:
         self._lines: dict[int, str] = {}
         self._visited_lines: dict[int, Literal[1, 2]] = {}
+        style = self.linter.config.number_notation_style
+        self.all_number_notation_allowed = style == ""
+        self.strict_scientific = style == "scientific"
+        self.strict_engineering = style == "engineering"
+        self.strict_underscore = style == "underscore"
+        if self.strict_scientific:
+            if self.linter.config.number_notation_threshold < 10:
+                raise ValueError(
+                    "'number-notation-threshold' must be at least 10 "
+                    "when 'number-notation-style' is 'scientific', got "
+                    f"{self.linter.config.number_notation_threshold}."
+                )
+        elif self.linter.config.number_notation_threshold < 1000:
+            raise ValueError(
+                "'number-notation-threshold' must be at least 1000, got "
+                f"{self.linter.config.number_notation_threshold}."
+            )
 
     def new_line(self, tokens: TokenWrapper, line_end: int, line_start: int) -> None:
         """A new line has been encountered, process it if necessary."""
@@ -451,6 +720,13 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         check_equal = False
                         self.check_indent_level(line, indents[-1], line_num)
 
+            if tok_type == tokenize.NUMBER:
+                if (
+                    self.linter.is_message_enabled("bad-number-notation")
+                    and "j" not in string  # complex number, not handled
+                ):
+                    self._check_number_notation(line_num, start, string)
+
             if string in _KEYWORD_TOKENS:
                 self._check_keyword_parentheses(tokens, idx)
 
@@ -476,6 +752,209 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         # files like __init__.py markers.
         if line_num == last_blank_line_num and line_num > 0:
             self.add_message("trailing-newlines", line=line_num)
+
+    def _check_number_notation(
+        self, line_num: int, start: tuple[int, int], string: str
+    ) -> None:
+        match string[1:2].lower():
+            case "x":
+                self._check_non_decimal_notation(
+                    line_num, start, string, 4, r"[0-9a-fA-F]", "hex digits"
+                )
+            case "b":
+                self._check_non_decimal_notation(
+                    line_num, start, string, 4, r"[01]", "binary digits"
+                )
+            case "o":
+                self._check_non_decimal_notation(
+                    line_num, start, string, 3, r"[0-7]", "octal digits"
+                )
+            case _ if "." in string or "e" in string or "E" in string:
+                self._check_bad_number_notation(line_num, start, string)
+            case _:
+                self._check_non_decimal_notation(
+                    line_num, start, string, 3, r"[0-9]", "digits", "", 0
+                )
+
+    def _check_bad_number_notation(  # pylint: disable=too-many-locals
+        self, line_num: int, start: tuple[int, int], string: str
+    ) -> None:
+
+        has_exponent = "e" in string or "E" in string
+        value = float(string.replace("_", ""))
+        engineering = self.all_number_notation_allowed or self.strict_engineering
+        scientific = self.all_number_notation_allowed or self.strict_scientific
+        pep515 = self.all_number_notation_allowed or self.strict_underscore
+
+        sig_figs = len(Decimal(string.replace("_", "")).as_tuple().digits)
+
+        def add_bad_notation_message(reason: str) -> None:
+            suggestion = NumberFormatterHelper.standardize(
+                value,
+                string,
+                scientific,
+                engineering,
+                pep515,
+            )
+            if suggestion == string.lower():
+                return
+            if sig_figs > 15:
+                reason += (
+                    f", and have {sig_figs} significant digits,"
+                    " more than the 15 python guarantee"
+                )
+            self.add_message(
+                "bad-number-notation",
+                line=line_num,
+                col_offset=start[1],
+                end_lineno=line_num,
+                end_col_offset=start[1] + len(string),
+                args=(string, reason, suggestion),
+                confidence=HIGH,
+            )
+
+        if value == 0:
+            # Zero is special-cased: it is below any threshold and
+            # 1/threshold comparisons are meaningless for it.
+            if string not in {"0", "0.0", "0."}:
+                add_bad_notation_message("is an unconventional zero literal")
+            return None
+        has_underscore = "_" in string
+        abs_value = abs(value)
+        under_threshold = abs_value < self.linter.config.number_notation_threshold
+        should_not_be_checked_because_of_threshold = under_threshold and (
+            # Underscore notation doesn't need to check close-to-zero values
+            self.strict_underscore
+            # For scientific/engineering: also skip if not in the close-to-zero range
+            # (values like 0.00012e-26 that are < 1/threshold should still be checked)
+            or abs_value >= 1 / self.linter.config.number_notation_threshold
+        )
+        if not (has_underscore or has_exponent):
+            if should_not_be_checked_because_of_threshold:
+                # Plain number below threshold — nothing to flag.
+                return None
+            threshold = self.linter.config.number_notation_threshold
+            dec_threshold = Decimal(str(threshold))
+            dec_close = Decimal(str(1 / threshold))
+            close_to_zero_threshold = (
+                NumberFormatterHelper.to_standard_scientific_notation(
+                    dec_close, len(dec_close.as_tuple().digits)
+                )
+            )
+            threshold = NumberFormatterHelper.to_standard_scientific_notation(
+                dec_threshold, len(dec_threshold.as_tuple().digits)
+            )
+            if under_threshold:
+                return add_bad_notation_message(
+                    f"is smaller than {close_to_zero_threshold}"
+                )
+            return add_bad_notation_message(f"is bigger than {threshold}")
+        if has_exponent:
+            if has_underscore:
+                return add_bad_notation_message(
+                    "has exponent and underscore at the same time"
+                )
+            if self.strict_underscore:
+                return add_bad_notation_message(
+                    "uses exponent notation instead of underscore grouping"
+                )
+            base_as_str, exponent_as_str = string.lower().split("e")
+            base = float(base_as_str)
+            wrong_scientific_notation = not (1 <= base < 10)
+            if self.strict_scientific and wrong_scientific_notation:
+                return add_bad_notation_message(
+                    f"has a base, '{base_as_str}', that is not strictly inferior to 10"
+                    if base == 10
+                    else f"has a base, '{base_as_str}', that is not between 1 and 10"
+                )
+            wrong_engineering_notation = not (
+                1 <= base < 1000 and int(exponent_as_str) % 3 == 0
+            )
+            if (self.strict_engineering and wrong_engineering_notation) or (
+                wrong_scientific_notation and wrong_engineering_notation
+            ):
+                return add_bad_notation_message(
+                    f"has an exponent '{exponent_as_str}' that is not a multiple of 3"
+                    if 1 <= base < 1000
+                    else (
+                        f"has a base, '{base_as_str}', that is not strictly inferior to 1000"
+                        if base == 1000
+                        else f"has a base, '{base_as_str}', that is not between 1 and 1000"
+                    )
+                )
+        elif has_underscore:
+            if self.strict_scientific or self.strict_engineering:
+                return add_bad_notation_message(
+                    "has underscores instead of scientific notation"
+                    if self.strict_scientific
+                    else "has underscores instead of engineering notation"
+                )
+            wrong_underscore_notation = not re.match(
+                r"^\d{0,3}(_\d{3})*\.?\d*([eE]-?\d{0,3}(_\d{3})*)?$", string
+            )
+            if pep515 and wrong_underscore_notation:
+                return add_bad_notation_message(
+                    "has underscores that are not delimiting packs of three digits"
+                )
+        return None
+
+    def _check_non_decimal_notation(
+        self,
+        line_num: int,
+        start: tuple[int, int],
+        string: str,
+        group_size: int,
+        digit_pattern: str,
+        group_name: str,
+        prefix_pattern: str = "0[a-zA-Z]_?",
+        prefix_length: int = 2,
+    ) -> None:
+        has_underscore = "_" in string
+        value = int(string.replace("_", ""), 0)
+        if has_underscore:
+            pattern = rf"^{prefix_pattern}{digit_pattern}{{1,{group_size}}}(_{digit_pattern}{{{group_size}}})*$"
+            if not re.match(pattern, string):
+                suggestion = NumberFormatterHelper.to_standard_non_decimal_grouping(
+                    string, group_size, prefix_length
+                )
+                self.add_message(
+                    "bad-number-notation",
+                    line=line_num,
+                    col_offset=start[1],
+                    end_lineno=line_num,
+                    end_col_offset=start[1] + len(string),
+                    args=(
+                        string,
+                        f"has underscores that are not grouping {group_name} by {group_size}",
+                        suggestion,
+                    ),
+                    confidence=HIGH,
+                )
+        elif (
+            self.linter.config.suggest_int_underscore
+            and value >= self.linter.config.number_notation_threshold
+        ):
+            suggestion = NumberFormatterHelper.to_standard_non_decimal_grouping(
+                string, group_size, prefix_length
+            )
+            threshold = self.linter.config.number_notation_threshold
+            dec_threshold = Decimal(str(threshold))
+            threshold_str = NumberFormatterHelper.to_standard_scientific_notation(
+                dec_threshold, len(dec_threshold.as_tuple().digits)
+            )
+            self.add_message(
+                "bad-number-notation",
+                line=line_num,
+                col_offset=start[1],
+                end_lineno=line_num,
+                end_col_offset=start[1] + len(string),
+                args=(
+                    string,
+                    f"is bigger than {threshold_str}",
+                    suggestion,
+                ),
+                confidence=HIGH,
+            )
 
     def _check_line_ending(self, line_ending: str, line_num: int) -> None:
         # check if line endings are mixed
