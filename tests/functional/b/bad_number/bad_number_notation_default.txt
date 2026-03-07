@@ -27,7 +27,7 @@ bad-number-notation:56:26:56:30::'0.00' is an unconventional zero literal, and i
 bad-number-notation:60:19:60:28::'0.0000001' is smaller than 1.0e-6, and it should be written as '0.000_000_1' or '1.0e-7' or '100.0e-9' instead:HIGH
 bad-number-notation:64:14:64:26::'1541455200.0' is bigger than 1.0e6, and it should be written as '1.5414552e9' or '1_541_455_200.0' instead:HIGH
 bad-number-notation:65:14:65:23::'1000000.0' is bigger than 1.0e6, and it should be written as '1.0e6' or '1_000_000.0' instead:HIGH
-bad-number-notation:67:16:67:34::'486787299458.15656' is bigger than 1.0e6, and have 17 significant digits, more than the 15 python guarantee, and it should be written as '4.86787299458157e11' or '486.787299458157e9' or '486_787_299_458.156_56' or 'decimal.Decimal("486787299458.15656")' instead:HIGH
+bad-number-notation:67:16:67:34::'486787299458.15656' is bigger than 1.0e6, and have 17 significant digits, more than the 15 python guarantee, and it should be written as '4.86787299458157e11' or '486.787299458157e9' or '486_787_299_458.157' or 'decimal.Decimal("486787299458.15656")' instead:HIGH
 bad-number-notation:99:23:99:27::'15e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.5e5' or '150.0e3' or '150_000.0' instead:HIGH
 bad-number-notation:104:28:104:34::'10.0e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.0e5' or '100.0e3' or '100_000.0' instead:HIGH
 bad-number-notation:104:48:104:54::'20.0e5' has an exponent '5' that is not a multiple of 3, and it should be written as '2.0e6' or '2_000_000.0' instead:HIGH
