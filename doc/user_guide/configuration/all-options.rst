@@ -8,7 +8,6 @@
 Standard Checkers
 ^^^^^^^^^^^^^^^^^
 
-Remember that only ``tool.pylint`` is required, the section title is not. There are specific notes under each example that cover this.
 
 .. _main-options:
 
@@ -954,13 +953,6 @@ Remember that only ``tool.pylint`` is required, the section title is not. There 
 **Default:**  ``1e6``
 
 
---suggest-int-underscore
-""""""""""""""""""""""""
-*Suggest PEP 515 underscore grouping for integer literals above 'number-notation-threshold' that don't already use underscores. Applies to all bases (decimal, hex, octal, binary). Integers with existing but incorrect underscore grouping are always flagged regardless of this option.*
-
-**Default:**  ``False``
-
-
 --single-line-class-stmt
 """"""""""""""""""""""""
 *Allow the body of a class to be on the same line as the declaration if body contains single statement.*
@@ -971,6 +963,13 @@ Remember that only ``tool.pylint`` is required, the section title is not. There 
 --single-line-if-stmt
 """""""""""""""""""""
 *Allow the body of an if to be on the same line as the test if there is no else.*
+
+**Default:**  ``False``
+
+
+--suggest-int-underscore
+""""""""""""""""""""""""
+*Suggest PEP 515 underscore grouping for integer literals above 'number-notation-threshold' that don't already use underscores. Applies to all bases (decimal, hex, octal, binary). Integers with existing but incorrect underscore grouping are always flagged regardless of this option.*
 
 **Default:**  ``False``
 
@@ -1006,11 +1005,11 @@ Remember that only ``tool.pylint`` is required, the section title is not. There 
 
    number-notation-threshold = 1000000.0
 
-   suggest-int-underscore = false
-
    single-line-class-stmt = false
 
    single-line-if-stmt = false
+
+   suggest-int-underscore = false
 
 
 
