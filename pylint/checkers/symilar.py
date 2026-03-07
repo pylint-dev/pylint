@@ -857,8 +857,8 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 for line in lineset.real_lines[start_line:end_line]:
                     msg.append(line.rstrip())
 
-            # Attribute the message to the first involved module rather than
-            # the last-checked module which may be unrelated (see #2368).
+            # Attribute the message to the first module in alphabetical order rather
+            # than the last-checked module which may be unrelated (see #2368).
             first_module = min(c[0].name for c in couples)
             self.add_message(
                 "R0801",
