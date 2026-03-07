@@ -542,11 +542,13 @@ class MisdesignChecker(BaseChecker):
         # init branch and returns counters
         self._returns.append(0)
         # check number of arguments
-        args = node.args.args + node.args.posonlyargs + node.args.kwonlyargs
-        pos_args = node.args.args + node.args.posonlyargs
+        pos_args = node.args.posonlyargs + node.args.args
+        if node.type in {"method", "classmethod"}:
+            pos_args = pos_args[1:]
+        args = pos_args + node.args.kwonlyargs
         ignored_argument_names = self.linter.config.ignored_argument_names
-        if args is not None:
-            ignored_args_num = 0
+        ignored_args_num = 0
+        if args:
             if ignored_argument_names:
                 ignored_pos_args_num = sum(
                     1 for arg in pos_args if ignored_argument_names.match(arg.name)
@@ -575,8 +577,7 @@ class MisdesignChecker(BaseChecker):
                     args=(pos_args_count, self.linter.config.max_positional_arguments),
                     confidence=HIGH,
                 )
-        else:
-            ignored_args_num = 0
+
         # check number of local variables
         locnum = len(node.locals) - ignored_args_num
 
