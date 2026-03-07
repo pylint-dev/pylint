@@ -55,13 +55,29 @@ _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
 
 def _decimal_g_format(value: Decimal, precision: int) -> str:
-    """Format a Decimal with g-specifier via float conversion.
+    """Format a Decimal like a g-specifier without float precision loss.
 
-    Decimal's g-format preserves its internal exponent representation
-    (e.g. Decimal('1E+1') formats as '1e+1' instead of '10').
-    Converting to float first normalises the value.
+    We avoid ``float(value)`` because it silently rounds numbers with more
+    than ~15 significant digits, producing wrong suggestions.  Instead we
+    use Decimal's own fixed-point format and strip trailing zeros manually.
+    This also side-steps Decimal's g-format quirk of preserving its internal
+    exponent (e.g. ``Decimal('1E+1')`` formatting as ``'1e+1'``).
     """
-    return f"{float(value):.{precision}g}"
+    if not value:
+        return "0"
+    abs_val = abs(value)
+    if abs_val >= 1:
+        int_digits = len(str(int(abs_val)))
+        dec_places = max(precision - int_digits, 0)
+    else:
+        # Count leading zeros so we keep *precision* significant digits.
+        frac = format(abs_val, "f").split(".")[1]
+        leading_zeros = len(frac) - len(frac.lstrip("0"))
+        dec_places = precision + leading_zeros
+    result = format(value, f".{dec_places}f")
+    if "." in result:
+        result = result.rstrip("0").rstrip(".")
+    return result
 
 
 class NumberFormatterHelper:
@@ -77,7 +93,9 @@ class NumberFormatterHelper:
     ) -> str:
         dec_number = Decimal(original_string)
         dec_tuple = dec_number.as_tuple()
-        sig_figs = len(dec_tuple.digits)
+        # float64 guarantees only 15 significant digits; cap suggestions
+        # to avoid implying false precision.
+        sig_figs = min(len(dec_tuple.digits), 15)
 
         suggested: set[str] = set()
         if scientific:
@@ -98,6 +116,8 @@ class NumberFormatterHelper:
                 suggested.add(
                     cls.to_standard_scientific_notation(dec_number, sig_figs, dec_tuple)
                 )
+        if len(dec_tuple.digits) > 15:
+            suggested.add(cls.to_decimal_suggestion(original_string))
         return "' or '".join(sorted(suggested))
 
     @classmethod
@@ -115,7 +135,7 @@ class NumberFormatterHelper:
         exponent = dec_number.adjusted()
 
         if exponent == 0:
-            base_str = _decimal_g_format(dec_number, min(sig_figs, 15))
+            base_str = _decimal_g_format(dec_number, sig_figs)
             if "." not in base_str:
                 base_str += ".0"
             return base_str
@@ -126,7 +146,7 @@ class NumberFormatterHelper:
         base_value = Decimal(
             (dec_tuple.sign, dec_tuple.digits, -len(dec_tuple.digits) + 1)
         )
-        base_str = _decimal_g_format(base_value, min(sig_figs, 15))
+        base_str = _decimal_g_format(base_value, sig_figs)
 
         if "." not in base_str and "e" not in base_str.lower():
             base_str += ".0"
@@ -163,7 +183,7 @@ class NumberFormatterHelper:
 
         # Use at least 3 significant digits to prevent g-format from switching
         # to scientific notation (engineering base is always < 1000).
-        precision = max(min(sig_figs, 15), 3)
+        precision = max(sig_figs, 3)
         base_str = _decimal_g_format(base_value, precision)
 
         if "." not in base_str and "e" not in base_str.lower():
@@ -191,6 +211,11 @@ class NumberFormatterHelper:
         if len(int_part) > 15 or len(dec_part) > 15:
             return None
         return f"{cls._group_right(int_part)}.{cls._group_left(dec_part)}"
+
+    @staticmethod
+    def to_decimal_suggestion(original_string: str) -> str:
+        clean = original_string.replace("_", "")
+        return f'decimal.Decimal("{clean}")'
 
     @classmethod
     def to_standard_non_decimal_grouping(
@@ -758,6 +783,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         scientific = self.all_number_notation_allowed or self.strict_scientific
         pep515 = self.all_number_notation_allowed or self.strict_underscore
 
+        sig_figs = len(Decimal(string.replace("_", "")).as_tuple().digits)
+
         def add_bad_notation_message(reason: str) -> None:
             suggestion = NumberFormatterHelper.standardize(
                 value,
@@ -768,6 +795,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             )
             if suggestion == string.lower():
                 return
+            if sig_figs > 15:
+                reason += (
+                    f", and have {sig_figs} significant digits,"
+                    " more than the 15 python guarantee"
+                )
             self.add_message(
                 "bad-number-notation",
                 line=line_num,
