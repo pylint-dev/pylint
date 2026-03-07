@@ -182,6 +182,13 @@ Remember that only ``tool.pylint`` is required, the section title is not. There 
 **Default:**  ``sys.version_info[:2]``
 
 
+--pythonpath
+""""""""""""
+*Add paths to sys.path. Supports globbing patterns. Paths are absolute or relative to the current working directory.*
+
+**Default:**  ``()``
+
+
 --recursive
 """""""""""
 *Discover python modules and packages in the file system subtree.*
@@ -275,6 +282,8 @@ Remember that only ``tool.pylint`` is required, the section title is not. There 
    prefer-stubs = false
 
    py-version = "sys.version_info[:2]"
+
+   pythonpath = []
 
    recursive = false
 
