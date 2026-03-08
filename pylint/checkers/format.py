@@ -53,6 +53,14 @@ _KEYWORD_TOKENS = {
 }
 _JUNK_TOKENS = {tokenize.COMMENT, tokenize.NL}
 
+# Pre-compiled patterns for underscore grouping validation in integer literals.
+_GROUPING_PATTERNS: dict[str, re.Pattern[str]] = {
+    "hex": re.compile(r"^0[a-zA-Z]_?[0-9a-fA-F]{1,4}(_[0-9a-fA-F]{4})*$"),
+    "binary": re.compile(r"^0[a-zA-Z]_?[01]{1,4}(_[01]{4})*$"),
+    "octal": re.compile(r"^0[a-zA-Z]_?[0-7]{1,3}(_[0-7]{3})*$"),
+    "decimal": re.compile(r"^[0-9]{1,3}(_[0-9]{3})*$"),
+}
+
 
 def _decimal_g_format(value: Decimal, precision: int) -> str:
     """Format a Decimal like a g-specifier without float precision loss.
@@ -765,21 +773,21 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         match string[1:2].lower():
             case "x":
                 self._check_non_decimal_notation(
-                    line_num, start, string, 4, r"[0-9a-fA-F]", "hex digits"
+                    line_num, start, string, "hex", 4, "hex digits"
                 )
             case "b":
                 self._check_non_decimal_notation(
-                    line_num, start, string, 4, r"[01]", "binary digits"
+                    line_num, start, string, "binary", 4, "binary digits"
                 )
             case "o":
                 self._check_non_decimal_notation(
-                    line_num, start, string, 3, r"[0-7]", "octal digits"
+                    line_num, start, string, "octal", 3, "octal digits"
                 )
             case _ if "." in string or "e" in string or "E" in string:
                 self._check_bad_number_notation(line_num, start, string)
             case _:
                 self._check_non_decimal_notation(
-                    line_num, start, string, 3, r"[0-9]", "digits", "", 0
+                    line_num, start, string, "decimal", 3, "digits", 0
                 )
 
     def _check_bad_number_notation(  # pylint: disable=too-many-locals
@@ -898,17 +906,15 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         line_num: int,
         start: tuple[int, int],
         string: str,
+        pattern_key: str,
         group_size: int,
-        digit_pattern: str,
         group_name: str,
-        prefix_pattern: str = "0[a-zA-Z]_?",
         prefix_length: int = 2,
     ) -> None:
         has_underscore = "_" in string
         value = int(string.replace("_", ""), 0)
         if has_underscore:
-            pattern = rf"^{prefix_pattern}{digit_pattern}{{1,{group_size}}}(_{digit_pattern}{{{group_size}}})*$"
-            if not re.match(pattern, string):
+            if not _GROUPING_PATTERNS[pattern_key].match(string):
                 suggestion = NumberFormatterHelper.to_standard_non_decimal_grouping(
                     string, group_size, prefix_length
                 )
