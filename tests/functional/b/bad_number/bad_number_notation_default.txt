@@ -1,5 +1,5 @@
 bad-number-notation:4:19:4:25::'1504e5' has a base, '1504', that is not between 1 and 1000, and it should be written as '1.504e8' or '150.4e6' or '150_400_000.0' instead:HIGH
-bad-number-notation:10:23:10:38::'1_23_456_7_89.0' has underscores that are not delimiting packs of three digits, and it should be written as '1.23456789e8' or '123.456789e6' or '123_456_789.0' instead:HIGH
+bad-number-notation:10:23:10:38::'1_23_456_7_89.0' has non-standard underscore grouping, and it should be written as '1.23456789e8' or '123.456789e6' or '123_456_789.0' instead:HIGH
 bad-number-notation:11:23:11:38::'1_23_4_5_67_8e9' has exponent and underscore at the same time, and it should be written as '1.2345678e16' or '12.345678e15' instead:HIGH
 bad-number-notation:12:35:12:46::'123456789.0' is bigger than 1.0e6, and it should be written as '1.23456789e8' or '123.456789e6' or '123_456_789.0' instead:HIGH
 bad-number-notation:18:33:18:38::'123e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.23e6' or '1_230_000.0' instead:HIGH
@@ -27,7 +27,7 @@ bad-number-notation:56:26:56:30::'0.00' is an unconventional zero literal, and i
 bad-number-notation:60:19:60:28::'0.0000001' is smaller than 1.0e-6, and it should be written as '0.000_000_1' or '1.0e-7' or '100.0e-9' instead:HIGH
 bad-number-notation:64:14:64:26::'1541455200.0' is bigger than 1.0e6, and it should be written as '1.5414552e9' or '1_541_455_200.0' instead:HIGH
 bad-number-notation:65:14:65:23::'1000000.0' is bigger than 1.0e6, and it should be written as '1.0e6' or '1_000_000.0' instead:HIGH
-bad-number-notation:67:16:67:34::'486787299458.15656' is bigger than 1.0e6, and have 17 significant digits, more than the 15 python guarantee, and it should be written as '4.86787299458157e11' or '486.787299458157e9' or '486_787_299_458.157' or 'decimal.Decimal("486787299458.15656")' instead:HIGH
+bad-number-notation:67:16:67:34::"'486787299458.15656' is bigger than 1.0e6, and have 17 significant digits, more than the 15 python guarantee, and it should be written as '4.86787299458157e11' or '486.787299458157e9' or '486_787_299_458.157' or 'decimal.Decimal(""486787299458.15656"")' instead":HIGH
 bad-number-notation:99:23:99:27::'15e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.5e5' or '150.0e3' or '150_000.0' instead:HIGH
 bad-number-notation:104:28:104:34::'10.0e4' has an exponent '4' that is not a multiple of 3, and it should be written as '1.0e5' or '100.0e3' or '100_000.0' instead:HIGH
 bad-number-notation:104:48:104:54::'20.0e5' has an exponent '5' that is not a multiple of 3, and it should be written as '2.0e6' or '2_000_000.0' instead:HIGH
@@ -36,26 +36,25 @@ bad-number-notation:108:27:108:33::'20.0e4' has an exponent '4' that is not a mu
 bad-number-notation:112:29:112:57::'123_000_000.12345e12_000_000' has exponent and underscore at the same time, and it should be written as '1.2300000012345e12000008' or '123.00000012345e12000006' or 'math.inf' instead:HIGH
 bad-number-notation:113:33:113:62::'123_000_000.12345E123_000_000' has exponent and underscore at the same time, and it should be written as '1.2300000012345e123000008' or '123.00000012345e123000006' or 'math.inf' instead:HIGH
 bad-number-notation:116:26:116:35::'0x12c_456' has underscores that are not grouping hex digits by 4, and it should be written as '0x12_c456' instead:HIGH
-bad-number-notation:118:34:118:42::'.123_456' has underscores that are not delimiting packs of three digits, and it should be written as '0.123_456' or '1.23456e-1' or '123.456e-3' instead:HIGH
-bad-number-notation:119:35:119:50::'123_456.123_456' has underscores that are not delimiting packs of three digits, and it should be written as '1.23456123456e5' or '123.456123456e3' or '123_456.123_456' instead:HIGH
+bad-number-notation:118:34:118:42::'.123_456' has non-standard underscore grouping, and it should be written as '0.123_456' or '1.23456e-1' or '123.456e-3' instead:HIGH
 bad-number-notation:120:27:120:38::'1.234_567e6' has exponent and underscore at the same time, and it should be written as '1.234567e6' or '1_234_567.0' instead:HIGH
 bad-number-notation:121:26:121:37::'1.234_567E6' has exponent and underscore at the same time, and it should be written as '1.234567e6' or '1_234_567.0' instead:HIGH
 bad-number-notation:122:31:122:38::'1.2e1_0' has exponent and underscore at the same time, and it should be written as '1.2e10' or '12.0e9' or '12_000_000_000.0' instead:HIGH
-bad-number-notation:123:27:123:39::'1_234.567_89' has underscores that are not delimiting packs of three digits, and it should be written as '1.23456789e3' or '1_234.567_89' instead:HIGH
-bad-number-notation:124:23:124:32::'45.3_45e6' has exponent and underscore at the same time, and it should be written as '4.5345e7' or '45.345e6' or '45_345_000.0' instead:HIGH
-bad-number-notation:125:25:125:37::'0.000_12e-26' has exponent and underscore at the same time, and it should be written as '1.2e-30' instead:HIGH
-bad-number-notation:126:37:126:42::'1_2e8' has exponent and underscore at the same time, and it should be written as '1.2e9' or '1_200_000_000.0' instead:HIGH
-bad-number-notation:127:37:127:43::'12_3e3' has exponent and underscore at the same time, and it should be written as '1.23e5' or '123.0e3' or '123_000.0' instead:HIGH
-bad-number-notation:128:25:128:40::'1_234.567_89e10' has exponent and underscore at the same time, and it should be written as '1.23456789e13' or '12.3456789e12' or '12_345_678_900_000.0' instead:HIGH
-bad-number-notation:129:29:129:36::'1.2e1_0' has exponent and underscore at the same time, and it should be written as '1.2e10' or '12.0e9' or '12_000_000_000.0' instead:HIGH
-bad-number-notation:130:34:130:45::'1_2.3_4e5_6' has exponent and underscore at the same time, and it should be written as '1.234e57' instead:HIGH
-bad-number-notation:131:24:131:39::'1_234.567_89E10' has exponent and underscore at the same time, and it should be written as '1.23456789e13' or '12.3456789e12' or '12_345_678_900_000.0' instead:HIGH
-bad-number-notation:132:20:132:25::'1_0e6' has exponent and underscore at the same time, and it should be written as '1.0e7' or '10.0e6' or '10_000_000.0' instead:HIGH
-bad-number-notation:133:21:133:35::'1_000_000.0e-3' has exponent and underscore at the same time, and it should be written as '1.0e3' or '1_000.0' instead:HIGH
-bad-number-notation:134:21:134:32::'0.000_001e3' has exponent and underscore at the same time, and it should be written as '0.001' or '1.0e-3' instead:HIGH
-bad-number-notation:135:21:135:28::'1_0.0e2' has exponent and underscore at the same time, and it should be written as '1.0e3' or '1_000.0' instead:HIGH
-bad-number-notation:138:21:138:28::'1.5_6e3' has exponent and underscore at the same time, and it should be written as '1.56e3' or '1_560.0' instead:HIGH
-bad-number-notation:139:27:139:33::'15_6e2' has exponent and underscore at the same time, and it should be written as '1.56e4' or '15.6e3' or '15_600.0' instead:HIGH
-bad-number-notation:142:35:142:43::'10.0_0e3' has exponent and underscore at the same time, and it should be written as '1.0e4' or '10.0e3' or '10_000.0' instead:HIGH
-bad-number-notation:142:57:142:65::'20.0_0e3' has exponent and underscore at the same time, and it should be written as '2.0e4' or '20.0e3' or '20_000.0' instead:HIGH
-bad-number-notation:153:19:153:27::'1_23_456' has underscores that are not grouping digits by 3, and it should be written as '123_456' instead:HIGH
+bad-number-notation:124:20:124:33::'1_000.12_3456' has non-standard underscore grouping, and it should be written as '1.000123456e3' or '1_000.123_456' instead:HIGH
+bad-number-notation:125:23:125:32::'45.3_45e6' has exponent and underscore at the same time, and it should be written as '4.5345e7' or '45.345e6' or '45_345_000.0' instead:HIGH
+bad-number-notation:126:25:126:37::'0.000_12e-26' has exponent and underscore at the same time, and it should be written as '1.2e-30' instead:HIGH
+bad-number-notation:127:37:127:42::'1_2e8' has exponent and underscore at the same time, and it should be written as '1.2e9' or '1_200_000_000.0' instead:HIGH
+bad-number-notation:128:37:128:43::'12_3e3' has exponent and underscore at the same time, and it should be written as '1.23e5' or '123.0e3' or '123_000.0' instead:HIGH
+bad-number-notation:129:25:129:40::'1_234.567_89e10' has exponent and underscore at the same time, and it should be written as '1.23456789e13' or '12.3456789e12' or '12_345_678_900_000.0' instead:HIGH
+bad-number-notation:130:29:130:36::'1.2e1_0' has exponent and underscore at the same time, and it should be written as '1.2e10' or '12.0e9' or '12_000_000_000.0' instead:HIGH
+bad-number-notation:131:34:131:45::'1_2.3_4e5_6' has exponent and underscore at the same time, and it should be written as '1.234e57' instead:HIGH
+bad-number-notation:132:24:132:39::'1_234.567_89E10' has exponent and underscore at the same time, and it should be written as '1.23456789e13' or '12.3456789e12' or '12_345_678_900_000.0' instead:HIGH
+bad-number-notation:133:20:133:25::'1_0e6' has exponent and underscore at the same time, and it should be written as '1.0e7' or '10.0e6' or '10_000_000.0' instead:HIGH
+bad-number-notation:134:21:134:35::'1_000_000.0e-3' has exponent and underscore at the same time, and it should be written as '1.0e3' or '1_000.0' instead:HIGH
+bad-number-notation:135:21:135:32::'0.000_001e3' has exponent and underscore at the same time, and it should be written as '0.001' or '1.0e-3' instead:HIGH
+bad-number-notation:136:21:136:28::'1_0.0e2' has exponent and underscore at the same time, and it should be written as '1.0e3' or '1_000.0' instead:HIGH
+bad-number-notation:139:21:139:28::'1.5_6e3' has exponent and underscore at the same time, and it should be written as '1.56e3' or '1_560.0' instead:HIGH
+bad-number-notation:140:27:140:33::'15_6e2' has exponent and underscore at the same time, and it should be written as '1.56e4' or '15.6e3' or '15_600.0' instead:HIGH
+bad-number-notation:143:35:143:43::'10.0_0e3' has exponent and underscore at the same time, and it should be written as '1.0e4' or '10.0e3' or '10_000.0' instead:HIGH
+bad-number-notation:143:57:143:65::'20.0_0e3' has exponent and underscore at the same time, and it should be written as '2.0e4' or '20.0e3' or '20_000.0' instead:HIGH
+bad-number-notation:154:19:154:27::'1_23_456' has underscores that are not grouping digits by 3, and it should be written as '123_456' instead:HIGH
