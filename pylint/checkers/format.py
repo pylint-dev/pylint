@@ -91,8 +91,10 @@ class NumberFormatterHelper:
         scientific: bool = True,
         engineering: bool = True,
         pep515: bool = True,
+        dec_number: Decimal | None = None,
     ) -> str:
-        dec_number = Decimal(original_string)
+        if dec_number is None:
+            dec_number = Decimal(original_string)
         dec_tuple = dec_number.as_tuple()
         # float64 guarantees only 15 significant digits; cap suggestions
         # to avoid implying false precision.
@@ -795,12 +797,14 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     ) -> None:
 
         has_exponent = "e" in string or "E" in string
-        value = float(string.replace("_", ""))
+        clean = string.replace("_", "")
+        value = float(clean)
         engineering = self.all_number_notation_allowed or self.strict_engineering
         scientific = self.all_number_notation_allowed or self.strict_scientific
         pep515 = self.all_number_notation_allowed or self.strict_underscore
 
-        sig_figs = len(Decimal(string.replace("_", "")).as_tuple().digits)
+        dec_number = Decimal(clean)
+        sig_figs = len(dec_number.as_tuple().digits)
 
         def add_bad_notation_message(reason: str) -> None:
             suggestion = NumberFormatterHelper.standardize(
@@ -809,6 +813,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 scientific,
                 engineering,
                 pep515,
+                dec_number,
             )
             if suggestion == string.lower():
                 return
