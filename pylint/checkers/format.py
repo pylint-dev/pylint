@@ -514,22 +514,35 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def open(self) -> None:
         self._lines: dict[int, str] = {}
         self._visited_lines: dict[int, Literal[1, 2]] = {}
-        style = self.linter.config.number_notation_style
-        self.all_number_notation_allowed = style == ""
-        self.strict_scientific = style == "scientific"
-        self.strict_engineering = style == "engineering"
-        self.strict_underscore = style == "underscore"
-        if self.strict_scientific:
-            if self.linter.config.number_notation_threshold < 10:
+        if self.linter.is_message_enabled("bad-number-notation"):
+            style = self.linter.config.number_notation_style
+            self.all_number_notation_allowed = style == ""
+            self.strict_scientific = style == "scientific"
+            self.strict_engineering = style == "engineering"
+            self.strict_underscore = style == "underscore"
+            if self.strict_scientific:
+                if self.linter.config.number_notation_threshold < 10:
+                    raise ValueError(
+                        "'number-notation-threshold' must be at least 10 "
+                        "when 'number-notation-style' is 'scientific', got "
+                        f"{self.linter.config.number_notation_threshold}."
+                    )
+            elif self.linter.config.number_notation_threshold < 1000:
                 raise ValueError(
-                    "'number-notation-threshold' must be at least 10 "
-                    "when 'number-notation-style' is 'scientific', got "
+                    "'number-notation-threshold' must be at least 1000, got "
                     f"{self.linter.config.number_notation_threshold}."
                 )
-        elif self.linter.config.number_notation_threshold < 1000:
-            raise ValueError(
-                "'number-notation-threshold' must be at least 1000, got "
-                f"{self.linter.config.number_notation_threshold}."
+            # Pre-format threshold strings used in messages.
+            threshold = self.linter.config.number_notation_threshold
+            dec_threshold = Decimal(str(threshold))
+            self._threshold_str = NumberFormatterHelper.to_standard_scientific_notation(
+                dec_threshold, len(dec_threshold.as_tuple().digits)
+            )
+            dec_close = Decimal(str(1 / threshold))
+            self._close_to_zero_threshold_str = (
+                NumberFormatterHelper.to_standard_scientific_notation(
+                    dec_close, len(dec_close.as_tuple().digits)
+                )
             )
 
     def new_line(self, tokens: TokenWrapper, line_end: int, line_start: int) -> None:
@@ -826,22 +839,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             if should_not_be_checked_because_of_threshold:
                 # Plain number below threshold — nothing to flag.
                 return None
-            threshold = self.linter.config.number_notation_threshold
-            dec_threshold = Decimal(str(threshold))
-            dec_close = Decimal(str(1 / threshold))
-            close_to_zero_threshold = (
-                NumberFormatterHelper.to_standard_scientific_notation(
-                    dec_close, len(dec_close.as_tuple().digits)
-                )
-            )
-            threshold = NumberFormatterHelper.to_standard_scientific_notation(
-                dec_threshold, len(dec_threshold.as_tuple().digits)
-            )
             if under_threshold:
                 return add_bad_notation_message(
-                    f"is smaller than {close_to_zero_threshold}"
+                    f"is smaller than {self._close_to_zero_threshold_str}"
                 )
-            return add_bad_notation_message(f"is bigger than {threshold}")
+            return add_bad_notation_message(f"is bigger than {self._threshold_str}")
         if has_exponent:
             if has_underscore:
                 return add_bad_notation_message(
@@ -930,11 +932,6 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             suggestion = NumberFormatterHelper.to_standard_non_decimal_grouping(
                 string, group_size, prefix_length
             )
-            threshold = self.linter.config.number_notation_threshold
-            dec_threshold = Decimal(str(threshold))
-            threshold_str = NumberFormatterHelper.to_standard_scientific_notation(
-                dec_threshold, len(dec_threshold.as_tuple().digits)
-            )
             self.add_message(
                 "bad-number-notation",
                 line=line_num,
@@ -943,7 +940,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 end_col_offset=start[1] + len(string),
                 args=(
                     string,
-                    f"is bigger than {threshold_str}",
+                    f"is bigger than {self._threshold_str}",
                     suggestion,
                 ),
                 confidence=HIGH,
