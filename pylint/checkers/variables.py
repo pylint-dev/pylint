@@ -3292,6 +3292,8 @@ class VariablesChecker(BaseChecker):
                     and node.modname == "__future__"
                 ):
                     continue
+                if self._is_name_ignored(node, name):
+                    continue
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches
