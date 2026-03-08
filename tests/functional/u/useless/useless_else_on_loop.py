@@ -6,16 +6,16 @@ def test_return_for():
     for i in range(10):
         if i % 2:
             return i
-    else:  # [useless-else-on-loop]
-        print('math is broken')
+    else:
+        print('math is broken')  # [useless-else-on-loop]
     return None
 
 def test_return_while():
     """else + return is not acceptable."""
     while True:
         return 1
-    else:  # [useless-else-on-loop]
-        print('math is broken')
+    else:
+        print('math is broken')  # [useless-else-on-loop]
     return None
 
 
@@ -24,20 +24,20 @@ while True:
         """A function with a loop."""
         for _ in range(10):
             break
-else:  # [useless-else-on-loop]
-    print('or else!')
+else:
+    print('or else!')  # [useless-else-on-loop]
 
 
 while True:
     while False:
         break
-else:  # [useless-else-on-loop]
-    print('or else!')
+else:
+    print('or else!')  # [useless-else-on-loop]
 
 for j in range(10):
     pass
-else:  # [useless-else-on-loop]
-    print('fat chance')
+else:
+    print('fat chance')  # [useless-else-on-loop]
     for j in range(10):
         break
 
@@ -83,8 +83,8 @@ def test_break_in_orelse_deep2():
                     break
             else:
                 print("all right")
-    else:  # [useless-else-on-loop]
-        return True
+    else:
+        return True  # [useless-else-on-loop]
     return False
 
 

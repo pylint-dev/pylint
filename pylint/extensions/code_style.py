@@ -351,8 +351,6 @@ class CodeStyleChecker(BaseChecker):
                 "consider-using-augmented-assign",
                 args=f"{op}=",
                 node=node,
-                line=node.lineno,
-                col_offset=node.col_offset,
                 confidence=INFERENCE,
             )
 

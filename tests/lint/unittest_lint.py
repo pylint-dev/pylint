@@ -524,12 +524,8 @@ def test_addmessage_invalid(linter: PyLinter) -> None:
         linter.add_message("line-too-long", args=(1, 2))
     assert str(cm.value) == "Message C0301 must provide line, got None"
 
-    with pytest.raises(InvalidMessageError) as cm:
+    with pytest.raises(TypeError, match="does not accept location overrides"):
         linter.add_message("line-too-long", line=2, node="fake_node", args=(1, 2))
-    assert (
-        str(cm.value)
-        == "Message C0301 must only provide line, got line=2, node=fake_node"
-    )
 
     with pytest.raises(InvalidMessageError) as cm:
         linter.add_message("C0321")

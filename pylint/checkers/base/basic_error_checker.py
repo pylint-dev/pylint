@@ -543,11 +543,7 @@ class BasicErrorChecker(_BasicChecker):
         if node.orelse and not _loop_exits_early(node):
             self.add_message(
                 "useless-else-on-loop",
-                node=node,
-                # This is not optimal, but the line previous
-                # to the first statement in the else clause
-                # will usually be the one that contains the else:.
-                line=node.orelse[0].lineno - 1,
+                node=node.orelse[0],
             )
 
     def _check_in_loop(
