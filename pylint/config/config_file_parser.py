@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import argparse
 import configparser
 import os
 import sys
@@ -60,7 +61,9 @@ class _RawConfParser:
         return False
 
     @staticmethod
-    def parse_toml_file(file_path: Path) -> PylintConfigFileData:
+    def parse_toml_file(
+        file_path: Path, store_true_options: set[str] | None = None
+    ) -> PylintConfigFileData:
         """Parse and handle errors of a toml configuration file.
 
         Raises ``tomllib.TOMLDecodeError``.
@@ -77,18 +80,30 @@ class _RawConfParser:
         for opt, values in sections_values.items():
             if isinstance(values, dict):
                 for config, value in values.items():
-                    value = _parse_rich_type_value(value)
-                    config_content[config] = value
-                    options += [f"--{config}", value]
+                    if isinstance(value, bool) and store_true_options and config in store_true_options:
+                        config_content[config] = str(value)
+                        if value:
+                            options.append(f"--{config}")
+                    else:
+                        value = _parse_rich_type_value(value)
+                        config_content[config] = value
+                        options += [f"--{config}", value]
             else:
-                values = _parse_rich_type_value(values)
-                config_content[opt] = values
-                options += [f"--{opt}", values]
+                if isinstance(values, bool) and store_true_options and opt in store_true_options:
+                    config_content[opt] = str(values)
+                    if values:
+                        options.append(f"--{opt}")
+                else:
+                    values = _parse_rich_type_value(values)
+                    config_content[opt] = values
+                    options += [f"--{opt}", values]
         return config_content, options
 
     @staticmethod
     def parse_config_file(
-        file_path: Path | None, verbose: bool
+        file_path: Path | None,
+        verbose: bool,
+        store_true_options: set[str] | None = None,
     ) -> PylintConfigFileData:
         """Parse a config file and return str-str pairs.
 
@@ -109,7 +124,7 @@ class _RawConfParser:
             print(f"Using config file {file_path}", file=sys.stderr)
 
         if file_path.suffix == ".toml":
-            return _RawConfParser.parse_toml_file(file_path)
+            return _RawConfParser.parse_toml_file(file_path, store_true_options)
         return _RawConfParser.parse_ini_file(file_path)
 
 
@@ -122,8 +137,18 @@ class _ConfigurationFileParser:
 
     def parse_config_file(self, file_path: Path | None) -> PylintConfigFileData:
         """Parse a config file and return str-str pairs."""
+        # Build a set of store_true option names (bare, without --)
+        # so parse_toml_file can handle boolean values correctly.
+        store_true_options: set[str] = set()
+        for action in self.linter._arg_parser._actions:
+            if isinstance(action, argparse._StoreTrueAction):
+                for opt_string in action.option_strings:
+                    store_true_options.add(opt_string.lstrip("-"))
+
         try:
-            return _RawConfParser.parse_config_file(file_path, self.verbose_mode)
+            return _RawConfParser.parse_config_file(
+                file_path, self.verbose_mode, store_true_options
+            )
         except (configparser.Error, tomllib.TOMLDecodeError) as e:
             self.linter.add_message("config-parse-error", line=0, args=str(e))
             return {}, []
