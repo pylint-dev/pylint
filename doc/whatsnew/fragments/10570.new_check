@@ -1,0 +1,2 @@
+Added a new checker `looping-through-iterator` (W4801) to detect when an iterator from an outer scope is consumed in a nested loop, which can lead to the iterator being unexpectedly exhausted.
+closes #10570

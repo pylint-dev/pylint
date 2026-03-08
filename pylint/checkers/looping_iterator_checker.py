@@ -25,7 +25,10 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         "W4801": (
             "Iterator '%s' from an outer scope is re-used or consumed in a nested loop.",
             "looping-through-iterator",
-            "...",
+            "Used when an iterator defined in an outer loop scope is consumed in a "
+            "nested loop. Because iterators are stateful and exhausted upon consumption, "
+            "the inner loop will fully consume the iterator during the first iteration "
+            "of the outer loop, leaving it empty for all subsequent iterations.",
         )
     }
 
