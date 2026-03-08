@@ -116,11 +116,12 @@ valid_underscore_octal = 0o123_456  # correctly grouped by 3, below threshold
 invalid_underscore_hexa = 0x12c_456  # [bad-number-notation]
 
 invalid_underscore_float_no_int = .123_456 # [bad-number-notation]
-invalid_underscore_float_no_frac = 123_456.123_456 # [bad-number-notation]
+valid_underscore_float_both_parts = 123_456.123_456
 incorrect_sci_underscore = 1.234_567e6 # [bad-number-notation]
 incorrect_sci_uppercase = 1.234_567E6 # [bad-number-notation]
 incorrect_sci_underscore_exp = 1.2e1_0  # [bad-number-notation]
-invalid_underscore_float = 1_234.567_89 # [bad-number-notation]
+valid_underscore_float_frac = 1_234.567_89
+bad_frac_grouping = 1_000.12_3456  # [bad-number-notation]
 wrong_big_underscore = 45.3_45e6 # [bad-number-notation]
 wrong_small_underscore = 0.000_12e-26  # [bad-number-notation]
 scientific_double_digit_underscore = 1_2e8   # [bad-number-notation]

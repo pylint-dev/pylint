@@ -898,12 +898,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     else "has underscores instead of engineering notation"
                 )
             wrong_underscore_notation = not re.match(
-                r"^\d{0,3}(_\d{3})*\.?\d*([eE]-?\d{0,3}(_\d{3})*)?$", string
+                r"^\d{1,3}(_\d{3})*\.?(\d{3}(_\d{3})*(_\d{1,2})?|\d*)([eE]-?\d{0,3}(_\d{3})*)?$",
+                string,
             )
             if pep515 and wrong_underscore_notation:
-                return add_bad_notation_message(
-                    "has underscores that are not delimiting packs of three digits"
-                )
+                return add_bad_notation_message("has non-standard underscore grouping")
         return None
 
     def _check_non_decimal_notation(
