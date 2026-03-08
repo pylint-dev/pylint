@@ -15,17 +15,8 @@ from pylint.message import Message
 from pylint.typing import FileItem
 from pylint.utils import LinterStats, merge_stats
 
-try:
-    import multiprocessing
-except ImportError:
-    multiprocessing = None  # type: ignore[assignment]
-
-try:
-    from concurrent.futures import ProcessPoolExecutor
-except ImportError:
-    ProcessPoolExecutor = None  # type: ignore[assignment,misc]
-
 if TYPE_CHECKING:
+
     from pylint.lint import PyLinter
 
 # PyLinter object used by worker processes when checking files using parallel mode
@@ -79,6 +70,8 @@ def _worker_check_single_file(
     int,
     defaultdict[str, list[Any]],
 ]:
+    import multiprocessing  # pylint: disable=import-outside-toplevel
+
     if not _worker_linter:
         raise RuntimeError("Worker linter not yet initialised")
     _worker_linter.open()
@@ -144,6 +137,9 @@ def check_parallel(
     initializer = functools.partial(
         _worker_initialize, extra_packages_paths=extra_packages_paths
     )
+    # pylint: disable-next=import-outside-toplevel
+    from concurrent.futures import ProcessPoolExecutor
+
     import dill  # pylint: disable=import-outside-toplevel
 
     with ProcessPoolExecutor(
