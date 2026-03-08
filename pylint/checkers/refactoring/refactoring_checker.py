@@ -912,6 +912,17 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         self._check_consider_get(node)
         self._check_consider_using_min_max_builtin(node)
 
+    @staticmethod
+    def _is_inside_loop(node: nodes.If) -> bool:
+        """Check if the if statement is inside a for or while loop."""
+        frame = node.frame()
+        for parent in node.node_ancestors():
+            if parent is frame:
+                break
+            if isinstance(parent, (nodes.For, nodes.While)):
+                return True
+        return False
+
     def _check_consider_using_min_max_builtin(self, node: nodes.If) -> None:
         """Check if the given if node can be refactored as a min/max python builtin."""
         # This function is written expecting a test condition of form:
@@ -921,6 +932,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         #    a = b
         if self._is_actual_elif(node) or node.orelse:
             # Not interested in if statements with multiple branches.
+            return
+
+        # Do not suggest min/max inside loops as it's slower than if statements
+        # See https://github.com/pylint-dev/pylint/issues/9864
+        if self._is_inside_loop(node):
             return
 
         if len(node.body) != 1:

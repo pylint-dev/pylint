@@ -130,3 +130,27 @@ if var == -1:
 var2 = 1
 if var2 in [1, 2]:
     var2 = None
+
+
+# https://github.com/pylint-dev/pylint/issues/9864
+# Do not suggest min/max inside loops as it's slower than if statements
+values = [1, 2, 3]
+min_a = float('inf')
+max_a = 0
+
+# These should NOT trigger consider-using-min-builtin or consider-using-max-builtin
+# because they are inside a for loop
+for i in values:
+    if i < min_a:
+        min_a = i
+    if i > max_a:
+        max_a = i
+
+# Also should NOT trigger inside a while loop
+i = 0
+while i < len(values):
+    if values[i] < min_a:
+        min_a = values[i]
+    if values[i] > max_a:
+        max_a = values[i]
+    i += 1
