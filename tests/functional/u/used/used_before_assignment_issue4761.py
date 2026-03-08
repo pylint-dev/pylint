@@ -122,8 +122,8 @@ def invalid_no_break():
             error = verr
         else:
             pass
-    else:
-        raise error  # pylint: disable=useless-else-on-loop  # [used-before-assignment]
+    else:  # pylint: disable=useless-else-on-loop
+        raise error  # [used-before-assignment]
 
 
 def invalid_other_non_break_exit_from_loop_besides_except_handler():

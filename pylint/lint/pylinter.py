@@ -1235,18 +1235,26 @@ class PyLinter(
         """
         message_definition.check_message_definition(line, node)
 
-        # Look up "location" data of node
+        # Look up "location" data of node if not yet supplied
         if node:
             if node.position:
-                line = node.position.lineno
-                col_offset = node.position.col_offset
-                end_lineno = node.position.end_lineno
-                end_col_offset = node.position.end_col_offset
+                if not line:
+                    line = node.position.lineno
+                if not col_offset:
+                    col_offset = node.position.col_offset
+                if not end_lineno:
+                    end_lineno = node.position.end_lineno
+                if not end_col_offset:
+                    end_col_offset = node.position.end_col_offset
             else:
-                line = node.fromlineno
-                col_offset = node.col_offset
-                end_lineno = node.end_lineno
-                end_col_offset = node.end_col_offset
+                if not line:
+                    line = node.fromlineno
+                if not col_offset:
+                    col_offset = node.col_offset
+                if not end_lineno:
+                    end_lineno = node.end_lineno
+                if not end_col_offset:
+                    end_col_offset = node.end_col_offset
 
         # should this message be displayed
         if not self.is_message_enabled(message_definition.msgid, line, confidence):
@@ -1322,25 +1330,6 @@ class PyLinter(
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
-        if node is not None and any(
-            v is not None for v in (line, col_offset, end_lineno, end_col_offset)
-        ):
-            overrides = {
-                k: v
-                for k, v in {
-                    "line": line,
-                    "col_offset": col_offset,
-                    "end_lineno": end_lineno,
-                    "end_col_offset": end_col_offset,
-                }.items()
-                if v is not None
-            }
-            raise TypeError(
-                f"add_message() does not accept location overrides when 'node' is "
-                f"provided. Got node={node!r} and {overrides}. Pass either 'node' to "
-                f"derive location from the AST, or explicit location parameters without "
-                f"'node'."
-            )
         if confidence is None:
             confidence = interfaces.UNDEFINED
         message_definitions = self.msgs_store.get_message_definitions(msgid)

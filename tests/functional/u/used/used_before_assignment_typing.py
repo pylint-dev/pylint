@@ -43,12 +43,12 @@ elif input():
 elif input():
     for i in range(1,2):
         email = None
-    else:
-        json = None  # pylint: disable=useless-else-on-loop
+    else:  # pylint: disable=useless-else-on-loop
+        json = None
     while input():
         import mailbox
-    else:
-        mimetypes = None  # pylint: disable=useless-else-on-loop
+    else:  # pylint: disable=useless-else-on-loop
+        mimetypes = None
 elif input():
     with input() as base64:
         pass
