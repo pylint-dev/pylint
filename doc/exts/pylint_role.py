@@ -35,7 +35,9 @@ def _get_message_category_map() -> dict[str, str]:
     from pylint.lint import PyLinter
 
     # Create mapping of message type codes to category names
-    msg_types_doc = {k: v if v != "info" else "information" for k, v in MSG_TYPES.items()}
+    msg_types_doc = {
+        k: v if v != "info" else "information" for k, v in MSG_TYPES.items()
+    }
 
     # Initialize linter and register all checkers
     linter = PyLinter()
