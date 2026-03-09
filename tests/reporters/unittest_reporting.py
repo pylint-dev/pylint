@@ -189,6 +189,7 @@ def test_multi_format_output(tmp_path: Path) -> None:
         linter.set_option("score", True)
         linter.set_option("score", True)
         linter.set_option("output-format", formats)
+        linter.set_option("fail-under", -10)
 
         assert linter.reporter.linter is linter
         with pytest.raises(NotImplementedError):
