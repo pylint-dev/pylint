@@ -24,6 +24,8 @@ too-complex:233:4:233:22:ExampleComplexityClass.highly_complex:'highly_complex' 
 too-many-branches:233:4:233:22:ExampleComplexityClass.highly_complex:Too many branches (19/12):UNDEFINED
 too-complex:286:0:293:15::This 'for' is too complex. The McCabe rating is 4:HIGH
 too-complex:296:0:296:31:try_finally_with_nested_ifs:'try_finally_with_nested_ifs' is too complex. The McCabe rating is 3:HIGH
-too-complex:308:0:308:14:match_case:'match_case' is too complex. The McCabe rating is 4:HIGH
-too-complex:323:0:323:21:nested_match_case:'nested_match_case' is too complex. The McCabe rating is 8:HIGH
+too-complex:308:0:308:14:match_case:'match_case' is too complex. The McCabe rating is 3:HIGH
+too-complex:323:0:323:21:nested_match_case:'nested_match_case' is too complex. The McCabe rating is 6:HIGH
 too-complex:345:0:345:21:yield_in_for_loop:'yield_in_for_loop' is too complex. The McCabe rating is 4:HIGH
+too-complex:355:0:364:8::This 'try' is too complex. The McCabe rating is 5:HIGH
+too-complex:367:0:375:23::This 'match' is too complex. The McCabe rating is 3:HIGH
