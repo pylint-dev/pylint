@@ -50,7 +50,7 @@ class PathGraphingAstVisitor:
     _VISITORS: dict[type, Any] = {}
 
     def __init__(self) -> None:
-        self.graphs: dict[int, tuple[_ComplexityResult, nodes.NodeNG]] = {}
+        self.graphs: dict[nodes.NodeNG, _ComplexityResult] = {}
         # Graph counters - modified in-place, snapshotted when a scope closes.
         self._num_nodes = 0
         self._num_edges = 0
@@ -93,10 +93,7 @@ class PathGraphingAstVisitor:
         self._active = True
         self._tail = 0
         self._walk_body(node.body)
-        self.graphs[id(node)] = (
-            _ComplexityResult(self._num_edges, self._num_nodes),
-            node,
-        )
+        self.graphs[node] = _ComplexityResult(self._num_edges, self._num_nodes)
         self._num_nodes, self._num_edges, self._tail = old_n, old_e, old_tail
         self._active = False
 
@@ -138,10 +135,7 @@ class PathGraphingAstVisitor:
         self._tail = merge
 
         if is_toplevel:
-            self.graphs[id(node)] = (
-                _ComplexityResult(self._num_edges, self._num_nodes),
-                node,
-            )
+            self.graphs[node] = _ComplexityResult(self._num_edges, self._num_nodes)
             self._num_nodes, self._num_edges, self._tail = (
                 old_n,
                 old_e,
@@ -187,10 +181,7 @@ class PathGraphingAstVisitor:
         self._tail = merge
 
         if is_toplevel:
-            self.graphs[id(node)] = (
-                _ComplexityResult(self._num_edges, self._num_nodes),
-                node,
-            )
+            self.graphs[node] = _ComplexityResult(self._num_edges, self._num_nodes)
             self._num_nodes, self._num_edges, self._tail = (
                 old_n,
                 old_e,
@@ -274,7 +265,7 @@ class McCabeMethodChecker(checkers.BaseChecker):
         visitor = PathGraphingAstVisitor()
         for child in module.body:
             visitor.dispatch(child)
-        for graph, node in visitor.graphs.values():
+        for node, graph in visitor.graphs.items():
             complexity = graph.complexity()
             if complexity <= self.linter.config.max_complexity:
                 continue
