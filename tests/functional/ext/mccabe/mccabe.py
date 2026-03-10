@@ -350,3 +350,26 @@ def yield_in_for_loop(a=None, b=None, c=None):  # [too-complex]
             yield elt
     if c is not None:
         yield c
+
+
+try:  # [too-complex]
+    # McCabe rating: 5
+    if True:
+        pass
+    else:
+        pass
+except TypeA:
+    pass
+except TypeB:
+    pass
+
+
+match avg:  # [too-complex]
+    # McCabe rating: 3
+    # pylint: disable=bare-name-capture-pattern
+    case avg if avg < 0.3:
+        avg_grade = "F"
+    case avg if avg < 0.7:
+        avg_grade = "E+"
+    case _:
+        avg_grade = "A"
