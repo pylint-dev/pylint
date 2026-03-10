@@ -43,6 +43,8 @@ class PathGraphingAstVisitor:
     increment method-call overhead (~1 M calls eliminated on ansible).
     """
 
+    __slots__ = ("_active", "_num_edges", "_num_nodes", "_tail", "graphs")
+
     # Dispatch table mapping node types to unbound visitor methods.
     # Created once at class level to avoid rebuilding per instance.
     _VISITORS: dict[type, Any] = {}
