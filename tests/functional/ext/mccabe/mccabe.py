@@ -306,7 +306,7 @@ def try_finally_with_nested_ifs():  # [too-complex]
 
 
 def match_case(avg):  # [too-complex]
-    """McCabe rating: 4
+    """McCabe rating: 3
     See https://github.com/astral-sh/ruff/issues/11421
     """
     # pylint: disable=bare-name-capture-pattern
@@ -321,7 +321,7 @@ def match_case(avg):  # [too-complex]
 
 
 def nested_match_case(data):  # [too-complex]
-    """McCabe rating: 8
+    """McCabe rating: 6
 
     Nested match statements."""
     match data:
