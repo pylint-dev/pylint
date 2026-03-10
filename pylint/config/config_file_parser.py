@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import argparse
 import configparser
 import os
 import sys
@@ -120,10 +121,44 @@ class _ConfigurationFileParser:
         self.verbose_mode = verbose
         self.linter = linter
 
+    def _fix_store_true_options(self, options: list[str]) -> list[str]:
+        """Fix boolean values for store_true argparse actions.
+
+        TOML files can express boolean values natively (true/false). When these
+        are converted to strings and passed as ["--flag", "True"/"False"],
+        argparse store_true actions ignore the value and always set True just
+        from the flag's presence. This method removes the stringified value for
+        store_true options, and drops the flag entirely when the value is False.
+        """
+        # Build a set of store_true option names from the linter's arg parser
+        store_true_options: set[str] = set()
+        for action in self.linter._arg_parser._actions:
+            if isinstance(action, argparse._StoreTrueAction):
+                store_true_options.update(action.option_strings)
+
+        fixed: list[str] = []
+        i = 0
+        while i < len(options):
+            opt = options[i]
+            if opt in store_true_options and i + 1 < len(options):
+                value = options[i + 1].lower()
+                if value in ("true", "1", "yes"):
+                    fixed.append(opt)
+                # When False, omit the flag entirely so argparse uses the default.
+                i += 2  # Skip the value in either case
+            else:
+                fixed.append(opt)
+                i += 1
+        return fixed
+
     def parse_config_file(self, file_path: Path | None) -> PylintConfigFileData:
         """Parse a config file and return str-str pairs."""
         try:
-            return _RawConfParser.parse_config_file(file_path, self.verbose_mode)
+            config_content, options = _RawConfParser.parse_config_file(
+                file_path, self.verbose_mode
+            )
+            options = self._fix_store_true_options(options)
+            return config_content, options
         except (configparser.Error, tomllib.TOMLDecodeError) as e:
             self.linter.add_message("config-parse-error", line=0, args=str(e))
             return {}, []
