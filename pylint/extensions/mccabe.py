@@ -20,15 +20,15 @@ class PathGraphingAstVisitor:
     """Compute McCabe cyclomatic complexity via control flow graph on astroid AST.
 
     Builds a simplified CFG tracking only compound statements (if, for, while,
-    try, with, match, function/class defs).  Simple statements are omitted since
-    collapsing a linear chain of nodes does not change E - N + 2.
+    try, with, match, function/class definitions).  Simple statements are
+    omitted since collapsing a linear chain of nodes does not change E - N + 2.
 
-    Reproduces the same complexity scores as the ``mccabe`` library, but operates
-    directly on astroid trees (no re-parsing) and uses a dict-based dispatch table
-    instead of getattr, skipping expression subtrees entirely.
+    Reproduces the same complexity scores as the ``mccabe`` library, but
+    operates directly on astroid trees (no re-parsing) and uses a dict-based
+    dispatch table instead of getattr, skipping expression sub-trees entirely.
 
-    Edge and node counts are kept as visitor instance variables to avoid per-
-    increment method-call overhead (~1 M calls eliminated on ansible).
+    Edge and node counts are kept as visitor instance variables to avoid
+    per-increment method-call overhead (~1 M calls eliminated on Ansible).
     """
 
     __slots__ = ("_active", "_num_edges", "_num_nodes", "_tail", "graphs")
@@ -40,7 +40,7 @@ class PathGraphingAstVisitor:
     def __init__(self) -> None:
         # Maps each scope node to its computed complexity (int).
         self.graphs: dict[nodes.NodeNG, int] = {}
-        # Graph counters - modified in-place, snapshotted when a scope closes.
+        # Graph counters - modified in-place, saved when a scope closes.
         self._num_nodes = 0
         self._num_edges = 0
         self._active = False  # True while inside a graph scope
@@ -57,13 +57,13 @@ class PathGraphingAstVisitor:
 
     def _visit_function(self, node: nodes.FunctionDef) -> None:
         if self._active:
-            # Closure: modelled as a decision point (enter body or skip).
+            # Closure: modeled as a decision point (enter body or skip).
             n = self._num_nodes
             self._num_nodes = n + 1
             self._num_edges += 1
             self._tail = n
             self._walk_body(node.body)
-            # Merge node: body-end -> merge + pathnode -> merge (skip edge).
+            # Merge node: body-end -> merge + path-node -> merge (skip edge).
             merge = n + 1 if self._num_nodes == n + 1 else self._num_nodes
             self._num_nodes = merge + 1
             self._num_edges += 2
@@ -96,7 +96,7 @@ class PathGraphingAstVisitor:
                 self._num_edges,
                 self._tail,
             )
-            self._num_nodes = 1  # pathnode (id 0)
+            self._num_nodes = 1  # path-node (id 0)
             self._num_edges = 0
             self._active = True
             pathnode = 0
@@ -105,14 +105,14 @@ class PathGraphingAstVisitor:
             self._num_nodes = pathnode + 1
             self._num_edges += 1
 
-        # -- inlined subgraph parse (no extra_blocks for if/for/while) --
+        # -- inline sub-graph parse (no extra_blocks for if/for/while) --
         walk = self._walk_body
         self._tail = pathnode
         walk(node.body)
         if node.orelse:
             self._tail = pathnode
             walk(node.orelse)
-        # Always 2 loose ends: body + (orelse or fall-through pathnode).
+        # Always 2 loose ends: body + (orelse or fall-through path-node).
         merge = self._num_nodes
         self._num_nodes = merge + 1
         self._num_edges += 2
@@ -145,7 +145,7 @@ class PathGraphingAstVisitor:
             self._num_nodes = pathnode + 1
             self._num_edges += 1
 
-        # -- inlined subgraph parse with extra_blocks = node.handlers --
+        # -- inline sub-graph parse with extra_blocks = node.handlers --
         walk = self._walk_body
         num_loose_ends = 1  # main body
         self._tail = pathnode
@@ -175,11 +175,22 @@ class PathGraphingAstVisitor:
             self._active = False
 
     def _visit_match(self, node: nodes.Match) -> None:
-        if not self._active:
-            return
-        pathnode = self._num_nodes
-        self._num_nodes = pathnode + 1
-        self._num_edges += 1
+        is_toplevel = not self._active
+        if is_toplevel:
+            old_n, old_e, old_tail = (
+                self._num_nodes,
+                self._num_edges,
+                self._tail,
+            )
+            self._num_nodes = 1
+            self._num_edges = 0
+            self._active = True
+            pathnode = 0
+        else:
+            pathnode = self._num_nodes
+            self._num_nodes = pathnode + 1
+            self._num_edges += 1
+
         self._tail = pathnode
         walk = self._walk_body
         num_cases = 0
@@ -191,6 +202,15 @@ class PathGraphingAstVisitor:
         self._num_nodes = merge + 1
         self._num_edges += num_cases
         self._tail = merge
+
+        if is_toplevel:
+            self.graphs[node] = self._num_edges - self._num_nodes + 2
+            self._num_nodes, self._num_edges, self._tail = (
+                old_n,
+                old_e,
+                old_tail,
+            )
+            self._active = False
 
 
 # Module-level dispatch table - built once, shared by all visitor instances.
