@@ -16,18 +16,6 @@ if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
 
-class _ComplexityResult:
-    """Frozen snapshot of E - N + 2 computed when a scope is closed."""
-
-    __slots__ = ("_complexity",)
-
-    def __init__(self, num_edges: int, num_nodes: int) -> None:
-        self._complexity = num_edges - num_nodes + 2
-
-    def complexity(self) -> int:
-        return self._complexity
-
-
 class PathGraphingAstVisitor:
     """Compute McCabe cyclomatic complexity via control flow graph on astroid AST.
 
@@ -50,17 +38,13 @@ class PathGraphingAstVisitor:
     _VISITORS: dict[type, Any] = {}
 
     def __init__(self) -> None:
-        self.graphs: dict[nodes.NodeNG, _ComplexityResult] = {}
+        # Maps each scope node to its computed complexity (int).
+        self.graphs: dict[nodes.NodeNG, int] = {}
         # Graph counters - modified in-place, snapshotted when a scope closes.
         self._num_nodes = 0
         self._num_edges = 0
         self._active = False  # True while inside a graph scope
         self._tail = 0
-
-    def dispatch(self, node: nodes.NodeNG) -> None:
-        handler = _VISITORS.get(type(node))
-        if handler is not None:
-            handler(self, node)
 
     def _walk_body(self, body: list[nodes.NodeNG]) -> None:
         visitors = _VISITORS
@@ -74,13 +58,12 @@ class PathGraphingAstVisitor:
     def _visit_function(self, node: nodes.FunctionDef) -> None:
         if self._active:
             # Closure: modelled as a decision point (enter body or skip).
-            # Inline _append_node: new node + edge from tail.
             n = self._num_nodes
             self._num_nodes = n + 1
             self._num_edges += 1
             self._tail = n
             self._walk_body(node.body)
-            # Merge node: body-end → merge + pathnode → merge (skip edge).
+            # Merge node: body-end -> merge + pathnode -> merge (skip edge).
             merge = n + 1 if self._num_nodes == n + 1 else self._num_nodes
             self._num_nodes = merge + 1
             self._num_edges += 2
@@ -93,20 +76,21 @@ class PathGraphingAstVisitor:
         self._active = True
         self._tail = 0
         self._walk_body(node.body)
-        self.graphs[node] = _ComplexityResult(self._num_edges, self._num_nodes)
+        self.graphs[node] = self._num_edges - self._num_nodes + 2
         self._num_nodes, self._num_edges, self._tail = old_n, old_e, old_tail
         self._active = False
 
-    def _visit_classdef(self, node: nodes.ClassDef) -> None:
-        # Don't reset the graph: methods inside a nested class (within a
-        # function) are treated as closures of the enclosing function.
+    def _visit_body(self, node: nodes.NodeNG) -> None:
+        # ClassDef and With both just recurse into the body.
+        # ClassDef: don't reset the graph -- methods inside a nested class
+        # (within a function) are treated as closures of the enclosing function.
+        # With: no complexity added, but body may contain compound statements.
         self._walk_body(node.body)
 
     def _visit_subgraph(self, node: nodes.NodeNG) -> None:
         """Handle if / for / while as branching subgraphs."""
         is_toplevel = not self._active
         if is_toplevel:
-            # Top-level construct (module-level if/for): own graph.
             old_n, old_e, old_tail = (
                 self._num_nodes,
                 self._num_edges,
@@ -121,21 +105,21 @@ class PathGraphingAstVisitor:
             self._num_nodes = pathnode + 1
             self._num_edges += 1
 
-        # -- inlined _subgraph_parse (no extra_blocks for if/for/while) --
+        # -- inlined subgraph parse (no extra_blocks for if/for/while) --
+        walk = self._walk_body
         self._tail = pathnode
-        self._walk_body(node.body)
+        walk(node.body)
         if node.orelse:
             self._tail = pathnode
-            self._walk_body(node.orelse)
+            walk(node.orelse)
         # Always 2 loose ends: body + (orelse or fall-through pathnode).
-        num_loose_ends = 2
         merge = self._num_nodes
         self._num_nodes = merge + 1
-        self._num_edges += num_loose_ends
+        self._num_edges += 2
         self._tail = merge
 
         if is_toplevel:
-            self.graphs[node] = _ComplexityResult(self._num_edges, self._num_nodes)
+            self.graphs[node] = self._num_edges - self._num_nodes + 2
             self._num_nodes, self._num_edges, self._tail = (
                 old_n,
                 old_e,
@@ -161,17 +145,18 @@ class PathGraphingAstVisitor:
             self._num_nodes = pathnode + 1
             self._num_edges += 1
 
-        # -- inlined _subgraph_parse with extra_blocks = node.handlers --
+        # -- inlined subgraph parse with extra_blocks = node.handlers --
+        walk = self._walk_body
         num_loose_ends = 1  # main body
         self._tail = pathnode
-        self._walk_body(node.body)
+        walk(node.body)
         for handler in node.handlers:
             self._tail = pathnode
-            self._walk_body(handler.body)
+            walk(handler.body)
             num_loose_ends += 1
         if node.orelse:
             self._tail = pathnode
-            self._walk_body(node.orelse)
+            walk(node.orelse)
             num_loose_ends += 1
         else:
             num_loose_ends += 1  # fall-through
@@ -181,7 +166,7 @@ class PathGraphingAstVisitor:
         self._tail = merge
 
         if is_toplevel:
-            self.graphs[node] = _ComplexityResult(self._num_edges, self._num_nodes)
+            self.graphs[node] = self._num_edges - self._num_nodes + 2
             self._num_nodes, self._num_edges, self._tail = (
                 old_n,
                 old_e,
@@ -189,21 +174,18 @@ class PathGraphingAstVisitor:
             )
             self._active = False
 
-    def _visit_with(self, node: nodes.With) -> None:
-        self._walk_body(node.body)
-
     def _visit_match(self, node: nodes.Match) -> None:
         if not self._active:
             return
-        # Inline _append_node for the match head.
         pathnode = self._num_nodes
         self._num_nodes = pathnode + 1
         self._num_edges += 1
         self._tail = pathnode
+        walk = self._walk_body
         num_cases = 0
         for case in node.cases:
             self._tail = pathnode
-            self._walk_body(case.body)
+            walk(case.body)
             num_cases += 1
         merge = self._num_nodes
         self._num_nodes = merge + 1
@@ -211,20 +193,20 @@ class PathGraphingAstVisitor:
         self._tail = merge
 
 
-# Module-level dispatch table — built once, shared by all visitor instances.
+# Module-level dispatch table - built once, shared by all visitor instances.
 # Uses unbound methods; callers pass ``self`` explicitly.
 _VISITORS: dict[type, Any] = {
     nodes.FunctionDef: PathGraphingAstVisitor._visit_function,
     nodes.AsyncFunctionDef: PathGraphingAstVisitor._visit_function,
-    nodes.ClassDef: PathGraphingAstVisitor._visit_classdef,
+    nodes.ClassDef: PathGraphingAstVisitor._visit_body,
     nodes.If: PathGraphingAstVisitor._visit_subgraph,
     nodes.For: PathGraphingAstVisitor._visit_subgraph,
     nodes.AsyncFor: PathGraphingAstVisitor._visit_subgraph,
     nodes.While: PathGraphingAstVisitor._visit_subgraph,
     nodes.Try: PathGraphingAstVisitor._visit_try,
     nodes.TryStar: PathGraphingAstVisitor._visit_try,
-    nodes.With: PathGraphingAstVisitor._visit_with,
-    nodes.AsyncWith: PathGraphingAstVisitor._visit_with,
+    nodes.With: PathGraphingAstVisitor._visit_body,
+    nodes.AsyncWith: PathGraphingAstVisitor._visit_body,
     nodes.Match: PathGraphingAstVisitor._visit_match,
 }
 PathGraphingAstVisitor._VISITORS = _VISITORS
@@ -263,11 +245,10 @@ class McCabeMethodChecker(checkers.BaseChecker):
         add message if is greater than max_complexity stored from options.
         """
         visitor = PathGraphingAstVisitor()
-        for child in module.body:
-            visitor.dispatch(child)
-        for node, graph in visitor.graphs.items():
-            complexity = graph.complexity()
-            if complexity <= self.linter.config.max_complexity:
+        visitor._walk_body(module.body)
+        max_complexity = self.linter.config.max_complexity
+        for node, complexity in visitor.graphs.items():
+            if complexity <= max_complexity:
                 continue
             if hasattr(node, "name"):
                 node_name = f"'{node.name}'"
