@@ -788,6 +788,36 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             code=22,
         )
 
+    def test_fail_under_visual_indication(self) -> None:
+        """Test that --fail-under shows a visual message when score is below threshold."""
+        # When score is below fail-under, output should contain visual indication
+        out = StringIO()
+        self._run_pylint(
+            [
+                "--fail-under",
+                "7.6",
+                "--enable=all",
+                join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
+            ],
+            out=out,
+        )
+        output = out.getvalue()
+        assert "below the fail-under threshold" in output
+
+        # When score meets fail-under, output should NOT contain the warning
+        out = StringIO()
+        self._run_pylint(
+            [
+                "--fail-under",
+                "7.5",
+                "--enable=all",
+                join(HERE, "regrtest_data", "fail_under_plus7_5.py"),
+            ],
+            out=out,
+        )
+        output = out.getvalue()
+        assert "below the fail-under threshold" not in output
+
     @pytest.mark.parametrize(
         "fu_score,fo_msgs,fname,out",
         [
