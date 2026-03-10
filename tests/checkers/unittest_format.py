@@ -8,12 +8,14 @@ import os
 import re
 import tempfile
 import tokenize
+from decimal import Decimal
 
 import astroid
+import pytest
 
 from pylint import lint, reporters
 from pylint.checkers.base.basic_checker import BasicChecker
-from pylint.checkers.format import FormatChecker
+from pylint.checkers.format import FormatChecker, NumberFormatterHelper
 from pylint.testutils import CheckerTestCase, MessageTest, _tokenize_str
 
 
@@ -215,3 +217,181 @@ class TestIgnorePatternInLongLines(CheckerTestCase):
         for msg, code in cases:
             with self.assertAddsMessages(msg):
                 self.checker.process_tokens(_tokenize_str(code + "\n"))
+
+
+@pytest.mark.parametrize(
+    "value,expected_scientific,expected_engineering,expected_underscore,expected_decimal",
+    [
+        ("0", "0.0", "0.0", "0.0", None),
+        ("0e10", "0.0", "0.0", "0.0", None),
+        ("0e-10", "0.0", "0.0", "0.0", None),
+        ("0.0e10", "0.0", "0.0", "0.0", None),
+        ("1e0", "1.0", "1.0", "1.0", None),
+        ("1e10", "1.0e10", "10.0e9", "10_000_000_000.0", None),
+        ("1e-10", "1.0e-10", "100.0e-12", "0.000_000_000_1", None),
+        ("2e1", "2.0e1", "20.0", "20.0", None),
+        ("2e-1", "2.0e-1", "200.0e-3", "0.2", None),
+        ("3.456e2", "3.456e2", "345.6", "345.6", None),
+        ("3.456e-2", "3.456e-2", "34.56e-3", "0.034_56", None),
+        ("4e2", "4.0e2", "400.0", "400.0", None),
+        ("4e-2", "4.0e-2", "40.0e-3", "0.04", None),
+        ("50e2", "5.0e3", "5.0e3", "5_000.0", None),
+        ("50e-2", "5.0e-1", "500.0e-3", "0.5", None),
+        ("6e6", "6.0e6", "6.0e6", "6_000_000.0", None),
+        ("6e-6", "6.0e-6", "6.0e-6", "0.000_006", None),
+        ("10e5", "1.0e6", "1.0e6", "1_000_000.0", None),
+        ("10e-5", "1.0e-4", "100.0e-6", "0.000_1", None),
+        ("1_000_000", "1.0e6", "1.0e6", "1_000_000.0", None),
+        ("1000_000", "1.0e6", "1.0e6", "1_000_000.0", None),
+        ("20e9", "2.0e10", "20.0e9", "20_000_000_000.0", None),
+        ("20e-9", "2.0e-8", "20.0e-9", "0.000_000_02", None),
+        (
+            # 25 significant digits, capped to 15 for scientific/engineering
+            "10_5415_456_465498.16354698489",
+            "1.05415456465498e14",
+            "105.415456465498e12",
+            "105_415_456_465_498.0",
+            'decimal.Decimal("105415456465498.16354698489")',
+        ),
+        # Infinity
+        ("Infinity", "math.inf", "math.inf", "math.inf", None),
+        ("-Infinity", "math.inf", "math.inf", "math.inf", None),
+        # Extreme exponents (overflow float, tuple-based fallback)
+        ("1e12000000", "1.0e12000000", "1.0e12000000", "math.inf", None),
+        ("1.5e12000001", "1.5e12000001", "15.0e12000000", "math.inf", None),
+        # More than 15 significant digits: to_decimal_suggestion is used
+        (
+            "486787299458.15656",
+            "4.86787299458157e11",
+            "486.787299458157e9",
+            "486_787_299_458.157",
+            'decimal.Decimal("486787299458.15656")',
+        ),
+        (
+            "1.2345678901234567e10",
+            "1.23456789012346e10",
+            "12.3456789012346e9",
+            "12_345_678_901.234_6",  # capped to 15 sig figs
+            'decimal.Decimal("1.2345678901234567e10")',
+        ),
+        (
+            "1_234_567_890_123_456_7.0",
+            "1.23456789012346e16",
+            "12.3456789012346e15",
+            None,
+            'decimal.Decimal("12345678901234567.0")',
+        ),
+        (
+            "0.00012345678901234567",
+            "1.23456789012346e-4",
+            "123.456789012346e-6",
+            None,  # 20 decimal digits, exceeds underscore limit
+            'decimal.Decimal("0.00012345678901234567")',
+        ),
+    ],
+)
+def test_to_another_standard_notation(
+    value: str,
+    expected_scientific: str,
+    expected_engineering: str,
+    expected_underscore: str | None,
+    expected_decimal: str | None,
+) -> None:
+    """Test the conversion of numbers to all possible notations."""
+    float_value = float(value)
+    dec_value = Decimal(value)
+    raw_sig_figs = len(dec_value.as_tuple().digits)
+    # Cap to 15 like standardize() does — float64 can't represent more
+    sig_figs = min(raw_sig_figs, 15)
+    scientific = NumberFormatterHelper.to_standard_scientific_notation(
+        dec_value, sig_figs
+    )
+    assert (
+        scientific == expected_scientific
+    ), f"Scientific notation mismatch expected {expected_scientific}, got {scientific}"
+    engineering = NumberFormatterHelper.to_standard_engineering_notation(
+        dec_value, sig_figs
+    )
+    assert (
+        engineering == expected_engineering
+    ), f"Engineering notation mismatch expected {expected_engineering}, got {engineering}"
+    # Round to 15 sig figs like standardize() does for >15 digit literals
+    rounded = float(f"{float_value:.15g}") if raw_sig_figs > 15 else float_value
+    underscore = NumberFormatterHelper.to_standard_underscore_grouping(rounded)
+    assert (
+        underscore == expected_underscore
+    ), f"Underscore grouping mismatch expected {expected_underscore}, got {underscore}"
+    decimal_suggestion = (
+        NumberFormatterHelper.to_decimal_suggestion(value)
+        if raw_sig_figs > 15
+        else None
+    )
+    assert (
+        decimal_suggestion == expected_decimal
+    ), f"Decimal suggestion mismatch expected {expected_decimal}, got {decimal_suggestion}"
+
+
+@pytest.mark.parametrize(
+    "value,group_size,expected",
+    [
+        # Hex (group by 4)
+        ("0x0", 4, "0x0"),
+        ("0xA", 4, "0xA"),
+        ("0xFF", 4, "0xFF"),
+        ("0xABCD", 4, "0xABCD"),
+        ("0x1_0000", 4, "0x1_0000"),
+        ("0xDEADBEEF", 4, "0xDEAD_BEEF"),
+        ("0x12c_456", 4, "0x12_c456"),
+        ("0xDE_AD_BE_EF", 4, "0xDEAD_BEEF"),
+        ("0x1234567890ABCDEF", 4, "0x1234_5678_90AB_CDEF"),
+        ("0xABCDE_F", 4, "0xAB_CDEF"),
+        ("0xA_B", 4, "0xAB"),
+        ("0XFF", 4, "0xFF"),
+        # Binary (group by 4)
+        ("0b0", 4, "0b0"),
+        ("0b1010", 4, "0b1010"),
+        ("0b11110100001001000000", 4, "0b1111_0100_0010_0100_0000"),
+        ("0b1111_001", 4, "0b111_1001"),
+        ("0B1010", 4, "0b1010"),
+        # Octal (group by 3)
+        ("0o0", 3, "0o0"),
+        ("0o777", 3, "0o777"),
+        ("0o123456", 3, "0o123_456"),
+        ("0o3641100", 3, "0o3_641_100"),
+        ("0o12_3456", 3, "0o123_456"),
+        ("0O777", 3, "0o777"),
+        # Decimal integers (group by 3, no prefix)
+        ("0", 3, "0"),
+        ("999", 3, "999"),
+        ("1234567", 3, "1_234_567"),
+        ("1_23_456", 3, "123_456"),
+        ("1000000", 3, "1_000_000"),
+    ],
+)
+def test_to_standard_non_decimal_grouping(
+    value: str, group_size: int, expected: str
+) -> None:
+    prefix_length = 2 if value[:2].lower() in {"0x", "0b", "0o"} else 0
+    result = NumberFormatterHelper.to_standard_non_decimal_grouping(
+        value, group_size, prefix_length
+    )
+    assert (
+        result == expected
+    ), f"Non-decimal grouping mismatch: expected {expected!r}, got {result!r}"
+
+
+@pytest.mark.parametrize(
+    "style,threshold,match",
+    [
+        ("engineering", 999, "must be at least 1000"),
+        ("scientific", 9, "must be at least 10"),
+    ],
+)
+def test_number_notation_threshold_too_low(
+    style: str, threshold: int, match: str
+) -> None:
+    checker = FormatChecker(lint.PyLinter())
+    checker.linter.config.number_notation_style = style
+    checker.linter.config.number_notation_threshold = threshold
+    with pytest.raises(ValueError, match=match):
+        checker.open()

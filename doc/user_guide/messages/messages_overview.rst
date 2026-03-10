@@ -407,6 +407,7 @@ All messages in the convention category:
    convention/bad-file-encoding
    convention/bad-mcs-classmethod-argument
    convention/bad-mcs-method-argument
+   convention/bad-number-notation
    convention/consider-iterating-dictionary
    convention/consider-using-any-or-all
    convention/consider-using-dict-items
