@@ -13,7 +13,4 @@ https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L
 
 </details>
 
-
-</details>
-
 *This comment was generated for commit v2.14.2*

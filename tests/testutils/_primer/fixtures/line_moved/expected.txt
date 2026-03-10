@@ -1,0 +1,16 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+The following messages have been changed:
+
+<details>
+
+1) too-complex:
+Was raised on 100:0 to 100:15, now on 103:0 to 103:15.
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L103
+
+</details>
+
+*This comment was generated for commit v2.14.2*
