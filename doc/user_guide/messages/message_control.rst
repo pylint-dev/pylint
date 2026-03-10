@@ -194,6 +194,33 @@ Here's an example with all these rules in a single place:
             print(self.blop)
 
 
+.. _conflict-c0209-w1203:
+
+C0209 and W1203 conflict
+------------------------
+
+These two messages are mutually exclusive when working with logging:
+
+- **C0209** (`consider-using-f-string`) recommends using f-strings
+- **W1203** (`logging-fstring-interpolation`) recommends using `%` formatting for performance reasons
+
+This causes a conflict if both are enabled. You can resolve it by choosing one of the following:
+
+- **Option 1:** Disable W1203 to allow f-strings in logging:
+
+  .. code-block:: ini
+
+      [MESSAGES CONTROL]
+      disable=W1203
+
+- **Option 2:** Disable C0209 to prefer `%` formatting in logging:
+
+  .. code-block:: ini
+
+      [MESSAGES CONTROL]
+      disable=C0209
+
+
 Detecting useless disables
 --------------------------
 
