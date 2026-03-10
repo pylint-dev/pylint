@@ -28,7 +28,8 @@ class PathGraphingAstVisitor:
     dispatch table instead of getattr, skipping expression sub-trees entirely.
 
     Edge and node counts are kept as visitor instance variables to avoid
-    per-increment method-call overhead (~1 M calls eliminated on Ansible).
+    per-increment method-call overhead (~1 M calls eliminated on repos
+    with ~=2000 files).
     """
 
     __slots__ = ("_active", "_num_edges", "_num_nodes", "_tail", "graphs")
