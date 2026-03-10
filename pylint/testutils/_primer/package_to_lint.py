@@ -109,11 +109,38 @@ class PackageToLint:
         repo = Repo.clone_from(
             url=self.url, to_path=self.clone_directory, branch=self.branch, depth=1
         )
+        if self.commit:
+            repo.git.fetch("origin", self.commit, depth=1)
+            repo.git.checkout(self.commit)
         return str(repo.head.object.hexsha)
 
     def _pull_repository(self) -> str:
+        repo = Repo(self.clone_directory)
+        local_sha1_commit = str(repo.head.object.hexsha)
+
+        target_commit = self.commit
+        if target_commit and local_sha1_commit.startswith(target_commit):
+            logging.info("Repository already at pinned commit %s.", target_commit)
+            return local_sha1_commit
+
+        if target_commit:
+            logging.info(
+                "Pinned commit is '%s' while local is '%s': fetching",
+                target_commit,
+                local_sha1_commit,
+            )
+            try:
+                if repo.is_dirty():
+                    raise DirtyPrimerDirectoryException(self.clone_directory)
+                repo.git.fetch("origin", target_commit, depth=1)
+                repo.git.checkout(target_commit)
+            except GitCommandError as e:
+                raise SystemError(
+                    f"Failed to fetch pinned commit for {self.clone_directory}"
+                ) from e
+            return str(repo.head.object.hexsha)
+
         remote_sha1_commit = Git().ls_remote(self.url, self.branch).split("\t")[0]
-        local_sha1_commit = Repo(self.clone_directory).head.object.hexsha
         if remote_sha1_commit != local_sha1_commit:
             logging.info(
                 "Remote sha is '%s' while local sha is '%s': pulling new commits",
@@ -121,7 +148,6 @@ class PackageToLint:
                 local_sha1_commit,
             )
             try:
-                repo = Repo(self.clone_directory)
                 if repo.is_dirty():
                     raise DirtyPrimerDirectoryException(self.clone_directory)
                 origin = repo.remotes.origin
