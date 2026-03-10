@@ -106,8 +106,9 @@ class PathGraphingAstVisitor:
         self._walk_body(node.body)
 
     def _visit_subgraph(self, node: nodes.NodeNG) -> None:
-        """Handle if / for / while as branching subgraphs (no extra blocks)."""
-        if not self._active:
+        """Handle if / for / while as branching subgraphs."""
+        is_toplevel = not self._active
+        if is_toplevel:
             # Top-level construct (module-level if/for): own graph.
             old_n, old_e, old_tail = (
                 self._num_nodes,
@@ -117,26 +118,41 @@ class PathGraphingAstVisitor:
             self._num_nodes = 1  # pathnode (id 0)
             self._num_edges = 0
             self._active = True
-            self._tail = 0
-            self._subgraph_parse(node, 0, ())
+            pathnode = 0
+        else:
+            pathnode = self._num_nodes
+            self._num_nodes = pathnode + 1
+            self._num_edges += 1
+
+        # -- inlined _subgraph_parse (no extra_blocks for if/for/while) --
+        self._tail = pathnode
+        self._walk_body(node.body)
+        if node.orelse:
+            self._tail = pathnode
+            self._walk_body(node.orelse)
+        # Always 2 loose ends: body + (orelse or fall-through pathnode).
+        num_loose_ends = 2
+        merge = self._num_nodes
+        self._num_nodes = merge + 1
+        self._num_edges += num_loose_ends
+        self._tail = merge
+
+        if is_toplevel:
             self.graphs[id(node)] = (
                 _ComplexityResult(self._num_edges, self._num_nodes),
                 node,
             )
-            self._num_nodes, self._num_edges, self._tail = old_n, old_e, old_tail
+            self._num_nodes, self._num_edges, self._tail = (
+                old_n,
+                old_e,
+                old_tail,
+            )
             self._active = False
-        else:
-            # Inline _append_node for the branch head.
-            pathnode = self._num_nodes
-            self._num_nodes = pathnode + 1
-            self._num_edges += 1
-            self._tail = pathnode
-            self._subgraph_parse(node, pathnode, ())
 
     def _visit_try(self, node: nodes.Try) -> None:
-        """Handle try/except — except handlers are extra branching blocks."""
-        handlers = node.handlers
-        if not self._active:
+        """Handle try/except as branching subgraphs with except handlers."""
+        is_toplevel = not self._active
+        if is_toplevel:
             old_n, old_e, old_tail = (
                 self._num_nodes,
                 self._num_edges,
@@ -145,55 +161,42 @@ class PathGraphingAstVisitor:
             self._num_nodes = 1
             self._num_edges = 0
             self._active = True
-            self._tail = 0
-            self._subgraph_parse(node, 0, handlers)
-            self.graphs[id(node)] = (
-                _ComplexityResult(self._num_edges, self._num_nodes),
-                node,
-            )
-            self._num_nodes, self._num_edges, self._tail = old_n, old_e, old_tail
-            self._active = False
+            pathnode = 0
         else:
             pathnode = self._num_nodes
             self._num_nodes = pathnode + 1
             self._num_edges += 1
-            self._tail = pathnode
-            self._subgraph_parse(node, pathnode, handlers)
 
-    def _subgraph_parse(
-        self,
-        node: nodes.NodeNG,
-        pathnode: int,
-        extra_blocks: tuple[()] | list[nodes.NodeNG],
-    ) -> None:
-        """Build the branching subgraph: body, extra blocks, orelse, merge."""
-        num_loose_ends = 0
-
-        # Main body
+        # -- inlined _subgraph_parse with extra_blocks = node.handlers --
+        num_loose_ends = 1  # main body
         self._tail = pathnode
         self._walk_body(node.body)
-        num_loose_ends += 1
-
-        # Extra blocks (except handlers for try)
-        for extra in extra_blocks:
+        for handler in node.handlers:
             self._tail = pathnode
-            self._walk_body(extra.body)
+            self._walk_body(handler.body)
             num_loose_ends += 1
-
-        # Else branch
         if node.orelse:
             self._tail = pathnode
             self._walk_body(node.orelse)
             num_loose_ends += 1
         else:
-            # No else: the pathnode itself is a loose end (fall-through path).
-            num_loose_ends += 1
-
-        # Merge all loose ends into a single bottom node.
+            num_loose_ends += 1  # fall-through
         merge = self._num_nodes
         self._num_nodes = merge + 1
         self._num_edges += num_loose_ends
         self._tail = merge
+
+        if is_toplevel:
+            self.graphs[id(node)] = (
+                _ComplexityResult(self._num_edges, self._num_nodes),
+                node,
+            )
+            self._num_nodes, self._num_edges, self._tail = (
+                old_n,
+                old_e,
+                old_tail,
+            )
+            self._active = False
 
     def _visit_with(self, node: nodes.With) -> None:
         self._walk_body(node.body)
