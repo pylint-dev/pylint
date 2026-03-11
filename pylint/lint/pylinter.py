@@ -725,7 +725,7 @@ class PyLinter(
             check_parallel(
                 self,
                 self.config.jobs,
-                self._iterate_file_descrs(files_or_modules),
+                self._iterate_file_descrs(files_or_modules, extra_packages_paths),
                 extra_packages_paths,
             )
             sys.path = original_sys_path
