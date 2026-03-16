@@ -119,6 +119,7 @@ def test_pull_repository_dirty_raises(mock_repo_cls: MagicMock) -> None:
     with pytest.raises(DirtyPrimerDirectoryException):
         FAKE_PACKAGE._pull_repository()
 
+
 @patch("pylint.testutils._primer.package_to_lint.Repo")
 def test_pull_repository_git_error_raises_system_error(
     mock_repo_cls: MagicMock,
