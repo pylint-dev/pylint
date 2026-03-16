@@ -160,7 +160,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         try:
             # For a 'for' loop, the inner loop must be in its body.
             inner_loop_index = outer_loop.body.index(inner_loop)
-            statements_after_inner_loop = outer_loop.body[inner_loop_index + 1:]
+            statements_after_inner_loop = outer_loop.body[inner_loop_index + 1 :]
             if self._has_direct_unconditional_exit(statements_after_inner_loop):
                 return
         except (AttributeError, ValueError):
