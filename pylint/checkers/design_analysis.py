@@ -560,21 +560,19 @@ class MisdesignChecker(BaseChecker):
                 )
                 ignored_args_num = ignored_pos_args_num + ignored_kwonly_args_num
 
-            argnum = len(args) - ignored_args_num
-            if argnum > self.linter.config.max_args:
+            args_num = len(args) - ignored_args_num
+            if args_num > self.linter.config.max_args:
                 self.add_message(
                     "too-many-arguments",
                     node=node,
-                    args=(len(args), self.linter.config.max_args),
+                    args=(args_num, self.linter.config.max_args),
                 )
-            pos_args_count = (
-                len(args) - len(node.args.kwonlyargs) - ignored_pos_args_num
-            )
-            if pos_args_count > self.linter.config.max_positional_arguments:
+            pos_args_num = len(pos_args) - ignored_pos_args_num
+            if pos_args_num > self.linter.config.max_positional_arguments:
                 self.add_message(
                     "too-many-positional-arguments",
                     node=node,
-                    args=(pos_args_count, self.linter.config.max_positional_arguments),
+                    args=(pos_args_num, self.linter.config.max_positional_arguments),
                     confidence=HIGH,
                 )
 
