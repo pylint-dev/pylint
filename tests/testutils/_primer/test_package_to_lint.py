@@ -2,7 +2,13 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+from unittest.mock import MagicMock, patch
+
+import pytest
+from git import GitCommandError
+
 from pylint.testutils._primer import PRIMER_DIRECTORY_PATH, PackageToLint
+from pylint.testutils._primer.package_to_lint import DirtyPrimerDirectoryException
 
 
 def test_package_to_lint() -> None:
@@ -50,3 +56,87 @@ def test_package_to_lint_default_value() -> None:
         PRIMER_DIRECTORY_PATH / "pallets" / "flask" / "src" / "flask"
     )
     assert package_to_lint.pylint_args == [str(expected_path_to_lint), "--rcfile="]
+
+
+FAKE_COMMIT = "abc123def456789"
+FAKE_PACKAGE = PackageToLint(
+    url="https://github.com/fake/repo",
+    branch="main",
+    directories=["src"],
+    commit=FAKE_COMMIT,
+)
+
+
+@patch("pylint.testutils._primer.package_to_lint.Repo")
+def test_clone_repository(mock_repo_cls: MagicMock) -> None:
+    """Test _clone_repository clones then checks out the pinned commit."""
+    mock_repo = MagicMock()
+    mock_repo.head.object.hexsha = FAKE_COMMIT
+    mock_repo_cls.clone_from.return_value = mock_repo
+
+    result = FAKE_PACKAGE._clone_repository()  # pylint: disable=protected-access
+
+    mock_repo_cls.clone_from.assert_called_once_with(
+        url=FAKE_PACKAGE.url,
+        to_path=FAKE_PACKAGE.clone_directory,
+        branch="main",
+        depth=1,
+    )
+    mock_repo.git.fetch.assert_called_once_with("origin", FAKE_COMMIT, depth=1)
+    mock_repo.git.checkout.assert_called_once_with(FAKE_COMMIT)
+    assert result == FAKE_COMMIT
+
+
+@patch("pylint.testutils._primer.package_to_lint.Repo")
+def test_pull_repository_already_at_commit(mock_repo_cls: MagicMock) -> None:
+    """Test _pull_repository short-circuits when already at the pinned commit."""
+    mock_repo = MagicMock()
+    mock_repo.head.object.hexsha = FAKE_COMMIT
+    mock_repo_cls.return_value = mock_repo
+
+    result = FAKE_PACKAGE._pull_repository()  # pylint: disable=protected-access
+
+    assert result == FAKE_COMMIT
+    mock_repo.git.fetch.assert_not_called()
+
+
+@patch("pylint.testutils._primer.package_to_lint.Repo")
+def test_pull_repository_fetches_new_commit(mock_repo_cls: MagicMock) -> None:
+    """Test _pull_repository fetches and checks out when commit differs."""
+    mock_repo = MagicMock()
+    mock_repo.head.object.hexsha = "old_commit_hash"
+    mock_repo.is_dirty.return_value = False
+    mock_repo_cls.return_value = mock_repo
+
+    FAKE_PACKAGE._pull_repository()  # pylint: disable=protected-access
+
+    mock_repo.is_dirty.assert_called_once()
+    mock_repo.git.fetch.assert_called_once_with("origin", FAKE_COMMIT, depth=1)
+    mock_repo.git.checkout.assert_called_once_with(FAKE_COMMIT)
+
+
+@patch("pylint.testutils._primer.package_to_lint.Repo")
+def test_pull_repository_dirty_raises(mock_repo_cls: MagicMock) -> None:
+    """Test _pull_repository raises when the local clone is dirty."""
+    mock_repo = MagicMock()
+    mock_repo.head.object.hexsha = "old_commit_hash"
+    mock_repo.is_dirty.return_value = True
+    mock_repo_cls.return_value = mock_repo
+
+    with pytest.raises(DirtyPrimerDirectoryException):
+        FAKE_PACKAGE._pull_repository()  # pylint: disable=protected-access
+
+
+@patch("pylint.testutils._primer.package_to_lint.Repo")
+def test_pull_repository_git_error_raises_system_error(
+    mock_repo_cls: MagicMock,
+) -> None:
+    """Test _pull_repository wraps GitCommandError in SystemError."""
+    mock_repo = MagicMock()
+    mock_repo.head.object.hexsha = "old_commit_hash"
+    mock_repo.is_dirty.return_value = False
+    mock_repo.git.fetch.side_effect = GitCommandError("git fetch", 128)
+    mock_repo_cls.return_value = mock_repo
+
+    with pytest.raises(SystemError, match="Failed to fetch pinned commit"):
+        FAKE_PACKAGE._pull_repository()  # pylint: disable=protected-access

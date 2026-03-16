@@ -14,7 +14,10 @@ from pathlib import Path
 from git.cmd import Git
 
 PACKAGES_FILE = (
-    Path(__file__).resolve().parent.parent / "tests" / "primer" / "packages_to_prime.json"
+    Path(__file__).resolve().parent.parent
+    / "tests"
+    / "primer"
+    / "packages_to_prime.json"
 )
 
 
