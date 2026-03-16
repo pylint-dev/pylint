@@ -69,13 +69,12 @@ FAKE_PACKAGE = PackageToLint(
 
 @patch("pylint.testutils._primer.package_to_lint.Repo")
 def test_clone_repository(mock_repo_cls: MagicMock) -> None:
-    """Test _clone_repository inits, adds remote, and checks out the pinned commit."""
+    """Test _clone_repository initialization, adds remote, and checks out the pinned commit."""
     mock_repo = MagicMock()
     mock_repo.head.object.hexsha = FAKE_COMMIT
     mock_repo_cls.init.return_value = mock_repo
 
-    result = FAKE_PACKAGE._clone_repository()  # pylint: disable=protected-access
-
+    result = FAKE_PACKAGE._clone_repository()
     mock_repo_cls.init.assert_called_once_with(FAKE_PACKAGE.clone_directory)
     mock_repo.create_remote.assert_called_once_with("origin", FAKE_PACKAGE.url)
     mock_repo.git.fetch.assert_called_once_with("origin", FAKE_COMMIT, depth=1)
@@ -90,8 +89,7 @@ def test_pull_repository_already_at_commit(mock_repo_cls: MagicMock) -> None:
     mock_repo.head.object.hexsha = FAKE_COMMIT
     mock_repo_cls.return_value = mock_repo
 
-    result = FAKE_PACKAGE._pull_repository()  # pylint: disable=protected-access
-
+    result = FAKE_PACKAGE._pull_repository()
     assert result == FAKE_COMMIT
     mock_repo.git.fetch.assert_not_called()
 
@@ -104,8 +102,7 @@ def test_pull_repository_fetches_new_commit(mock_repo_cls: MagicMock) -> None:
     mock_repo.is_dirty.return_value = False
     mock_repo_cls.return_value = mock_repo
 
-    FAKE_PACKAGE._pull_repository()  # pylint: disable=protected-access
-
+    FAKE_PACKAGE._pull_repository()
     mock_repo.is_dirty.assert_called_once()
     mock_repo.git.fetch.assert_called_once_with("origin", FAKE_COMMIT, depth=1)
     mock_repo.git.checkout.assert_called_once_with(FAKE_COMMIT)
@@ -120,8 +117,7 @@ def test_pull_repository_dirty_raises(mock_repo_cls: MagicMock) -> None:
     mock_repo_cls.return_value = mock_repo
 
     with pytest.raises(DirtyPrimerDirectoryException):
-        FAKE_PACKAGE._pull_repository()  # pylint: disable=protected-access
-
+        FAKE_PACKAGE._pull_repository()
 
 @patch("pylint.testutils._primer.package_to_lint.Repo")
 def test_pull_repository_git_error_raises_system_error(
@@ -135,4 +131,4 @@ def test_pull_repository_git_error_raises_system_error(
     mock_repo_cls.return_value = mock_repo
 
     with pytest.raises(SystemError, match="Failed to fetch pinned commit"):
-        FAKE_PACKAGE._pull_repository()  # pylint: disable=protected-access
+        FAKE_PACKAGE._pull_repository()
