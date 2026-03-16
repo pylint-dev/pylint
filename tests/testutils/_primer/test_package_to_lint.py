@@ -69,19 +69,15 @@ FAKE_PACKAGE = PackageToLint(
 
 @patch("pylint.testutils._primer.package_to_lint.Repo")
 def test_clone_repository(mock_repo_cls: MagicMock) -> None:
-    """Test _clone_repository clones then checks out the pinned commit."""
+    """Test _clone_repository inits, adds remote, and checks out the pinned commit."""
     mock_repo = MagicMock()
     mock_repo.head.object.hexsha = FAKE_COMMIT
-    mock_repo_cls.clone_from.return_value = mock_repo
+    mock_repo_cls.init.return_value = mock_repo
 
     result = FAKE_PACKAGE._clone_repository()  # pylint: disable=protected-access
 
-    mock_repo_cls.clone_from.assert_called_once_with(
-        url=FAKE_PACKAGE.url,
-        to_path=FAKE_PACKAGE.clone_directory,
-        branch="main",
-        depth=1,
-    )
+    mock_repo_cls.init.assert_called_once_with(FAKE_PACKAGE.clone_directory)
+    mock_repo.create_remote.assert_called_once_with("origin", FAKE_PACKAGE.url)
     mock_repo.git.fetch.assert_called_once_with("origin", FAKE_COMMIT, depth=1)
     mock_repo.git.checkout.assert_called_once_with(FAKE_COMMIT)
     assert result == FAKE_COMMIT

@@ -99,14 +99,12 @@ class PackageToLint:
 
     def _clone_repository(self) -> str:
         logging.info(
-            "Directory does not exist, cloning %s (branch %s, commit %s)",
+            "Directory does not exist, cloning %s at commit %s",
             self.url,
-            self.branch,
             self.commit,
         )
-        repo = Repo.clone_from(
-            url=self.url, to_path=self.clone_directory, branch=self.branch, depth=1
-        )
+        repo = Repo.init(self.clone_directory)
+        repo.create_remote("origin", self.url)
         repo.git.fetch("origin", self.commit, depth=1)
         repo.git.checkout(self.commit)
         return str(repo.head.object.hexsha)
