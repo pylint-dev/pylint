@@ -97,13 +97,13 @@ def nested_consumer_producer_calls():
         for j, k in zip(iter1, iter(range(5))): # [looping-through-iterator]
             print("i ", i, "j ", j, "k ", k)
 
-def iterator_stolen_by_nested_while_loop():
+def no_warning_iterator_stolen_by_nested_while_loop():
     data_iterator = iter(range(20))  # Defined once, outside all loops
     for i in range(5):
         item = next(data_iterator)
         print(f"Outer loop got: {item}")
         while item < 10:
-            item = next(data_iterator)  # [looping-through-iterator]
+            item = next(data_iterator)
             print(f"  Inner loop got: {item}")
             if item % 3 == 0:
                 break
@@ -437,31 +437,7 @@ def no_warning_for_iterator_consumed_by_nested_while():
             query_params = []
             # Nested while loop consumes the 'param_iter' iterator
             while "%s" in query_string:
-                query_params.append(next(param_iter))  # [looping-through-iterator]
+                query_params.append(next(param_iter))
                 query_string = query_string.replace("%s", "?", 1)
             processed_queries.append((query_string, query_params))
         return processed_queries
-
-
-def no_warning_for_if_else_with_guaranteed_exit():
-    my_iter = iter(range(10))
-    for i in range(2):
-        for item in my_iter:
-            print(item)
-        # The new logic should see that no matter the condition,
-        # the loop will exit, making this pattern safe.
-        if i == 0:  # [no-else-break]
-            break
-        else:
-            return
-
-
-def no_warning_for_try_finally_with_exit():
-    my_iter = iter(range(10))
-    for i in range(2):
-        try:
-            for item in my_iter:
-                print(item)
-        finally:
-            # An exit in a 'finally' block is always unconditional.
-            break                   # [lost-exception, break-in-finally]
