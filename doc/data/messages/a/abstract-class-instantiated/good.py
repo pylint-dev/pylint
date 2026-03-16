@@ -1,7 +1,7 @@
 import abc
 
 
-class Animal(abc.ABC):
+class Animal(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def make_sound(self):
         pass
