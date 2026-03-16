@@ -4,7 +4,13 @@ import abc
 class Animal(abc.ABC):
     @abc.abstractmethod
     def make_sound(self):
-        pass
+        """Return the sound the animal makes."""
+        raise NotImplementedError
 
 
-sheep = Animal()  # [abstract-class-instantiated]
+class Sheep(Animal):
+    def make_sound(self):
+        return "baa"
+
+
+sheep = Sheep()
