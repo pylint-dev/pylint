@@ -16,6 +16,7 @@ def test_package_to_lint() -> None:
         url="https://github.com/vimeo/graph-explorer.git",
         branch="main",
         directories=["graph_explorer"],
+        commit="abc123",
         pylintrc_relpath=".pylintrcui",
         pylint_additional_args=args,
     )
@@ -42,6 +43,7 @@ def test_package_to_lint_default_value() -> None:
         url="https://github.com/pallets/flask.git",
         branch="main",
         directories=["src/flask"],  # Must work on Windows (src\\flask)
+        commit="abc123",
     )
     assert package_to_lint.pylintrc == ""
     expected_path_to_lint = (
