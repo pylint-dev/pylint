@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Literal
 
 from git import GitCommandError
-from git.cmd import Git
 from git.repo import Repo
 
 PRIMER_DIRECTORY_PATH = Path("tests") / ".pylint_primer_tests"
@@ -43,7 +42,7 @@ class PackageToLint:
     directories: list[str]
     """Directories within the repository to run pylint over."""
 
-    commit: str | None = None
+    commit: str
     """Commit hash to pin the repository on."""
 
     pylint_additional_args: list[str] = field(default_factory=list)
@@ -99,37 +98,37 @@ class PackageToLint:
         return self._pull_repository()
 
     def _clone_repository(self) -> str:
-        options: dict[str, str | int] = {
-            "url": self.url,
-            "to_path": str(self.clone_directory),
-            "branch": self.branch,
-            "depth": 1,
-        }
-        logging.info("Directory does not exists, cloning: %s", options)
-        repo = Repo.clone_from(
-            url=self.url, to_path=self.clone_directory, branch=self.branch, depth=1
+        logging.info(
+            "Directory does not exist, cloning %s at commit %s",
+            self.url,
+            self.commit,
         )
+        repo = Repo.init(self.clone_directory)
+        repo.create_remote("origin", self.url)
+        repo.git.fetch("origin", self.commit, depth=1)
+        repo.git.checkout(self.commit)
         return str(repo.head.object.hexsha)
 
     def _pull_repository(self) -> str:
-        remote_sha1_commit = Git().ls_remote(self.url, self.branch).split("\t")[0]
-        local_sha1_commit = Repo(self.clone_directory).head.object.hexsha
-        if remote_sha1_commit != local_sha1_commit:
-            logging.info(
-                "Remote sha is '%s' while local sha is '%s': pulling new commits",
-                remote_sha1_commit,
-                local_sha1_commit,
-            )
-            try:
-                repo = Repo(self.clone_directory)
-                if repo.is_dirty():
-                    raise DirtyPrimerDirectoryException(self.clone_directory)
-                origin = repo.remotes.origin
-                origin.pull()
-            except GitCommandError as e:
-                raise SystemError(
-                    f"Failed to clone repository for {self.clone_directory}"
-                ) from e
-        else:
-            logging.info("Repository already up to date.")
-        return str(remote_sha1_commit)
+        repo = Repo(self.clone_directory)
+        local_sha1_commit: str = repo.head.object.hexsha
+
+        if local_sha1_commit.startswith(self.commit):
+            logging.info("Repository already at pinned commit %s.", self.commit)
+            return local_sha1_commit
+
+        logging.info(
+            "Pinned commit is '%s' while local is '%s': fetching",
+            self.commit,
+            local_sha1_commit,
+        )
+        try:
+            if repo.is_dirty():
+                raise DirtyPrimerDirectoryException(self.clone_directory)
+            repo.git.fetch("origin", self.commit, depth=1)
+            repo.git.checkout(self.commit)
+        except GitCommandError as e:
+            raise SystemError(
+                f"Failed to fetch pinned commit for {self.clone_directory}"
+            ) from e
+        return str(repo.head.object.hexsha)
