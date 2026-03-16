@@ -139,7 +139,7 @@ jobs:
             ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
             needs.tests.outputs.python-key }}
       - name: Download all coverage artifacts
-        uses: actions/download-artifact@v8.0.0
+        uses: actions/download-artifact@v8.0.1
       - name: Combine coverage results
         run: |
           . venv/bin/activate
