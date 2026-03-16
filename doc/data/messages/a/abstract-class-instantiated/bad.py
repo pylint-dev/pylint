@@ -7,4 +7,6 @@ class Animal(abc.ABC):
         pass
 
 
-sheep = Animal()  # [abstract-class-instantiated]
+def demo():
+    sheep = Animal()  # [abstract-class-instantiated]
+    return sheep
