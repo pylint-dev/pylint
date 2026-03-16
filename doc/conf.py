@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import os
 import sys
-from datetime import datetime
 
 # Pylint documentation build configuration file, created by
 # sphinx-quickstart on Thu Apr  4 20:31:25 2013.
@@ -27,8 +26,6 @@ sys.path.append(os.path.abspath("exts"))
 sys.path.append(os.path.abspath(".."))
 
 # pylint: disable=wrong-import-position
-from pylint import __version__
-from pylint.__pkginfo__ import numversion
 
 # pylint: enable=wrong-import-position
 
