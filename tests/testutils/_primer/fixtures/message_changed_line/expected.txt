@@ -7,13 +7,14 @@ The following messages have been changed:
 
 <details>
 
-1) locally-disabled:
+1) too-complex:
+Was raised on 100:0 to 100:15, now on 103:0 to 103:15.
 The message changed:
 ```diff
-- Locally disabling redefined-builtin (W0622)
-+ Locally disabling redefined-builtin [we added some text in the message] (W0622)
+- 'my_function' is too complex. The McCabe rating is 18
++ 'my_function' is too complex. The McCabe rating is 17
 ```
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L103
 
 </details>
 
