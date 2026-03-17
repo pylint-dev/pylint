@@ -1155,9 +1155,29 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             ],
         ],
         ids=["jobs-0-dir", "jobs-1-file", "jobs-0-file"],
+        "jobs,to_lint",
+        [
+            [
+                "0",
+                "a/"
+            ],
+            [
+                "1",
+                "a/"
+            ],            
+            [
+                "1",
+                "a/c/d.py"
+            ],
+            [
+                "0",
+                "a/c/d.py"
+            ],
+        ],
+        ids=["jobs-0-dir", "jobs-1-dir", "jobs-1-file", "jobs-0-file"],
     )
     def test_issue_10794_relative_beyond_top_level_parallel_specific_file_subprocess(
-        self, args: list[str]
+        self, jobs: int, to_lint: str
     ) -> None:
         """Regression test for https://github.com/pylint-dev/pylint/issues/10794 invoked in a subprocess."""
         path = join(HERE, "regrtest_data", "pep420", "issue_10794")
@@ -1165,7 +1185,13 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             sys.executable,
             "-m",
             "pylint",
-            *_add_rcfile_default_pylintrc([*args, "--persistent=no"]),
+            *_add_rcfile_default_pylintrc([           "--jobs",
+               jobs,
+                "--disable=all",
+                "--enable=relative-beyond-top-level",
+                "--source-roots",
+                ".",
+                to_lint, "--persistent=no"]),
         ]
         with _test_cwd(path):
             process = subprocess.run(
