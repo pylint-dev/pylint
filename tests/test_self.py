@@ -1164,7 +1164,7 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             [
                 "1",
                 "a/"
-            ],            
+            ],
             [
                 "1",
                 "a/c/d.py"
