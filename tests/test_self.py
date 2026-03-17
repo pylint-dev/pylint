@@ -1124,55 +1124,12 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
 
     @pytest.mark.needs_two_cores
     @pytest.mark.parametrize(
-        "args",
-        [
-            [
-                "--jobs",
-                "0",
-                "--disable=all",
-                "--enable=relative-beyond-top-level",
-                "--source-roots",
-                ".",
-                "a/",
-            ],
-            [
-                "--jobs",
-                "1",
-                "--disable=all",
-                "--enable=relative-beyond-top-level",
-                "--source-roots",
-                ".",
-                "a/c/d.py",
-            ],
-            [
-                "--jobs",
-                "0",
-                "--disable=all",
-                "--enable=relative-beyond-top-level",
-                "--source-roots",
-                ".",
-                "a/c/d.py",
-            ],
-        ],
-        ids=["jobs-0-dir", "jobs-1-file", "jobs-0-file"],
         "jobs,to_lint",
         [
-            [
-                "0",
-                "a/"
-            ],
-            [
-                "1",
-                "a/"
-            ],
-            [
-                "1",
-                "a/c/d.py"
-            ],
-            [
-                "0",
-                "a/c/d.py"
-            ],
+            ["0", "a/"],
+            ["1", "a/"],
+            ["1", "a/c/d.py"],
+            ["0", "a/c/d.py"],
         ],
         ids=["jobs-0-dir", "jobs-1-dir", "jobs-1-file", "jobs-0-file"],
     )
@@ -1185,13 +1142,18 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
             sys.executable,
             "-m",
             "pylint",
-            *_add_rcfile_default_pylintrc([           "--jobs",
-               jobs,
-                "--disable=all",
-                "--enable=relative-beyond-top-level",
-                "--source-roots",
-                ".",
-                to_lint, "--persistent=no"]),
+            *_add_rcfile_default_pylintrc(
+                [
+                    "--jobs",
+                    str(jobs),
+                    "--disable=all",
+                    "--enable=relative-beyond-top-level",
+                    "--source-roots",
+                    ".",
+                    to_lint,
+                    "--persistent=no",
+                ]
+            ),
         ]
         with _test_cwd(path):
             process = subprocess.run(
