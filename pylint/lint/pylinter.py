@@ -933,12 +933,19 @@ class PyLinter(
         The returned generator yield one item for each Python module that should be linted.
         """
         with augmented_sys_path(extra_packages_paths):
-            for descr in self._expand_files(files_or_modules).values():
-                name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
-                if descr["isignored"]:
-                    self.stats.skipped += 1
-                elif self.should_analyze_file(name, filepath, is_argument=is_arg):
-                    yield FileItem(name, filepath, descr["basename"])
+            expanded_files = self._expand_files(files_or_modules)
+        yield from self._iterate_file_descrs_from_expanded_files(expanded_files)
+
+    def _iterate_file_descrs_from_expanded_files(
+        self, expanded_files: dict[str, ModuleDescriptionDict]
+    ) -> Iterator[FileItem]:
+        """Yield file descriptions from already-expanded module descriptions."""
+        for descr in expanded_files.values():
+            name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
+            if descr["isignored"]:
+                self.stats.skipped += 1
+            elif self.should_analyze_file(name, filepath, is_argument=is_arg):
+                yield FileItem(name, filepath, descr["basename"])
 
     def _expand_files(
         self, files_or_modules: Sequence[str]
