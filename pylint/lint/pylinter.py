@@ -722,10 +722,12 @@ class PyLinter(
         # TODO: Move the parallel invocation into step 3 of the checking process
         if not self.config.from_stdin and self.config.jobs > 1:
             original_sys_path = sys.path[:]
+            with augmented_sys_path(extra_packages_paths):
+                expanded_files = self._expand_files(files_or_modules)
             check_parallel(
                 self,
                 self.config.jobs,
-                self._iterate_file_descrs(files_or_modules, extra_packages_paths),
+                self._iterate_file_descrs_from_expanded_files(expanded_files),
                 extra_packages_paths,
             )
             sys.path = original_sys_path
