@@ -38,6 +38,56 @@ class CheckerTestCase:
             yield
 
     @contextlib.contextmanager
+    def assertDoesNotAddMessages(
+        self, *messages: MessageTest, ignore_position: bool = False
+    ) -> Generator[None]:
+        """Assert that the given messages are not added by the given method.
+
+        This is different from ``assertNoMessages`` which asserts that no
+        messages at all are added.  ``assertDoesNotAddMessages`` checks that
+        none of the *specific* messages passed as arguments are emitted, while
+        other messages may still be present.
+        """
+        yield
+        got = self.linter.release_messages()
+        for unwanted in messages:
+            for gotten_msg in got:
+                if not self._messages_match(
+                    unwanted, gotten_msg, ignore_position
+                ):
+                    continue
+                got_str = "\n".join(repr(m) for m in got)
+                msg = (
+                    "Expected the following message to not be raised:\n"
+                    f"\n  {unwanted!r}\n\n"
+                    f"but it was found among the actual messages:\n\n{got_str}\n"
+                )
+                raise AssertionError(msg)
+
+    @staticmethod
+    def _messages_match(
+        expected: MessageTest, actual: MessageTest, ignore_position: bool
+    ) -> bool:
+        if expected.msg_id != actual.msg_id:
+            return False
+        if expected.node != actual.node:
+            return False
+        if expected.args != actual.args:
+            return False
+        if expected.confidence != actual.confidence:
+            return False
+        if not ignore_position:
+            if expected.line != actual.line:
+                return False
+            if expected.col_offset != actual.col_offset:
+                return False
+            if expected.end_line != actual.end_line:
+                return False
+            if expected.end_col_offset != actual.end_col_offset:
+                return False
+        return True
+
+    @contextlib.contextmanager
     def assertAddsMessages(
         self, *messages: MessageTest, ignore_position: bool = False
     ) -> Generator[None]:
