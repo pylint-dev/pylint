@@ -80,7 +80,11 @@ class _RawConfParser:
         for opt, values in sections_values.items():
             if isinstance(values, dict):
                 for config, value in values.items():
-                    if isinstance(value, bool) and store_true_options and config in store_true_options:
+                    if (
+                        isinstance(value, bool)
+                        and store_true_options
+                        and config in store_true_options
+                    ):
                         config_content[config] = str(value)
                         if value:
                             options.append(f"--{config}")
@@ -89,7 +93,11 @@ class _RawConfParser:
                         config_content[config] = value
                         options += [f"--{config}", value]
             else:
-                if isinstance(values, bool) and store_true_options and opt in store_true_options:
+                if (
+                    isinstance(values, bool)
+                    and store_true_options
+                    and opt in store_true_options
+                ):
                     config_content[opt] = str(values)
                     if values:
                         options.append(f"--{opt}")
