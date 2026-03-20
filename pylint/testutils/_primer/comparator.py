@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from collections.abc import Iterator
+from difflib import SequenceMatcher
 from pathlib import Path
 
 from pylint.reporters.json_reporter import OldJsonExport
@@ -66,8 +67,8 @@ def format_span(msg: OldJsonExport) -> str:
     end_line = msg.get("endLine")
     end_col = msg.get("endColumn")
     if end_line is not None and end_col is not None:
-        return f"{start} to {end_line}:{end_col}"
-    return start
+        return f"from `{start}` to `{end_line}:{end_col}`"
+    return f"at `{start}`"
 
 
 def message_diff(old: OldJsonExport, new: OldJsonExport) -> str:
@@ -85,17 +86,43 @@ def message_diff(old: OldJsonExport, new: OldJsonExport) -> str:
     parts: list[str] = []
     # Location: combine line/column/endLine/endColumn into one sentence.
     if changed_keys & _LOCATION_KEYS:
-        parts.append(f"Was raised on {format_span(old)}, now on {format_span(new)}.")
+        parts.append(f"Was raised {format_span(old)}, now {format_span(new)}.")
 
     # Other fields (typically ``message``).
     for key in sorted(changed_keys - _LOCATION_KEYS):
         old_val = old[key]  # type: ignore[literal-required]
         new_val = new[key]  # type: ignore[literal-required]
         if isinstance(old_val, str) and isinstance(new_val, str):
-            parts.append(f"The {key} changed:\n```diff\n- {old_val}\n+ {new_val}\n```")
+            caret_line = _caret_hint(old_val, new_val)
+            diff_block = f"```diff\n- {old_val}\n+ {new_val}\n"
+            if caret_line:
+                diff_block += f"  {caret_line}\n"
+            diff_block += "```"
+            parts.append(diff_block)
         else:
             parts.append(f"{key}: {old_val!r} -> {new_val!r}")
-    return "\n".join(parts)
+    return "\n\n".join(parts)
+
+
+def _caret_hint(old: str, new: str) -> str:
+    """Build a ``^`` marker line highlighting changed spans in *new*.
+
+    Uses SequenceMatcher to find which parts of *new* differ from *old*
+    and places ``^`` characters under them (aligned with the ``+ `` prefix).
+    Returns an empty string when the whole line changed (carets wouldn't help).
+    """
+    matcher = SequenceMatcher(None, old, new)
+    carets = [" "] * len(new)
+    changed_count = 0
+    for tag, _i1, _i2, j1, j2 in matcher.get_opcodes():
+        if tag != "equal":
+            for j in range(j1, j2):
+                carets[j] = "^"
+            changed_count += j2 - j1
+    # If most of the string changed, carets are just noise.
+    if changed_count > len(new) * 0.6:
+        return ""
+    return "".join(carets).rstrip()
 
 
 class Comparator:

@@ -66,18 +66,23 @@ class CompareCommand(PrimerCommand):
             filepath = str(PurePosixPath(msg["path"]).relative_to(clone_dir))
             return f"{url}/blob/{commit}/{filepath}#L{msg['line']}"
 
+        def _details_section(title: str, body: str) -> str:
+            # Two line breaks required after <details> for links to work.
+            return f"{title}\n\n<details>\n\n{body}</details>\n\n"
+
         comment = f"\n**Effect on [{package}]({url}):**\n\n"
 
         # -- Changed messages (same diagnostic, different details) -----------
         if changed_messages:
-            comment += "The following messages have been changed:\n\n<details>\n"
+            body = ""
             for count, (old, new) in enumerate(changed_messages, 1):
-                comment += (
-                    f"{count}) {new['symbol']}:\n"
+                body += (
+                    f"{count}) [{new['symbol']}]({_source_link(new)}):\n"
                     f"{message_diff(old, new)}\n"
-                    f"{_source_link(new)}\n"
                 )
-            comment += "</details>\n\n"
+            comment += _details_section(
+                "The following messages have been changed:", body
+            )
 
         # -- New messages ----------------------------------------------------
         astroid_errors = 0
@@ -101,21 +106,21 @@ class CompareCommand(PrimerCommand):
                 "Please open the GitHub Actions log to see what failed or crashed.\n\n"
             )
         if new_non_astroid_messages:
-            comment += (
-                "The following messages are now emitted:\n\n<details>\n"
-                + new_non_astroid_messages
-                + "</details>\n\n"
+            comment += _details_section(
+                "The following messages are now emitted:", new_non_astroid_messages
             )
 
         # -- Missing messages ------------------------------------------------
         if missing_messages:
-            comment += "The following messages are no longer emitted:\n\n<details>\n"
+            body = ""
             for count, message in enumerate(missing_messages, 1):
-                comment += (
+                body += (
                     f"{count}) {message['symbol']}:\n*{message['message']}*\n"
                     f"{_source_link(message)}\n"
                 )
-            comment += "</details>\n\n"
+            comment += _details_section(
+                "The following messages are no longer emitted:", body
+            )
 
         return comment
 

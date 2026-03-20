@@ -6,10 +6,8 @@
 The following messages have been changed:
 
 <details>
-1) locally-disabled:
-The message changed:
-```diff
-- Locally disabling redefined-builtin (W...
+
+1) [locally-disabled](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/...
 </details>
 
 *This comment was truncated because GitHub allows only 420 characters in a comment.*
