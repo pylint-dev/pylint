@@ -52,9 +52,7 @@ class CheckerTestCase:
         got = self.linter.release_messages()
         for unwanted in messages:
             for gotten_msg in got:
-                if not self._messages_match(
-                    unwanted, gotten_msg, ignore_position
-                ):
+                if not self._messages_match(unwanted, gotten_msg, ignore_position):
                     continue
                 got_str = "\n".join(repr(m) for m in got)
                 msg = (
