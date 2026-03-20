@@ -44,23 +44,34 @@ class CheckerTestCase:
         """Assert that the given messages are not added by the given method.
 
         This is different from ``assertNoMessages`` which asserts that no
-        messages at all are added.  ``assertDoesNotAddMessages`` checks that
+        messages at all are added. ``assertDoesNotAddMessages`` checks that
         none of the *specific* messages passed as arguments are emitted, while
         other messages may still be present.
         """
-        yield
-        got = self.linter.release_messages()
-        for unwanted in messages:
-            for gotten_msg in got:
-                if not self._messages_match(unwanted, gotten_msg, ignore_position):
-                    continue
-                got_str = "\n".join(repr(m) for m in got)
-                msg = (
-                    "Expected the following message to not be raised:\n"
-                    f"\n  {unwanted!r}\n\n"
-                    f"but it was found among the actual messages:\n\n{got_str}\n"
-                )
-                raise AssertionError(msg)
+        if not messages:
+            raise TypeError(
+                "assertDoesNotAddMessages requires at least one MessageTest argument"
+            )
+        try:
+            yield
+        except Exception:
+            self.linter.release_messages()
+            raise
+        else:
+            got = self.linter.release_messages()
+            for unwanted in messages:
+                for gotten_msg in got:
+                    if not self._messages_match(
+                        unwanted, gotten_msg, ignore_position
+                    ):
+                        continue
+                    got_str = "\n".join(repr(m) for m in got)
+                    msg = (
+                        "Expected the following message to not be raised:\n"
+                        f"\n  {unwanted!r}\n\n"
+                        f"but it was found among the actual messages:\n\n{got_str}\n"
+                    )
+                    raise AssertionError(msg)
 
     @staticmethod
     def _messages_match(

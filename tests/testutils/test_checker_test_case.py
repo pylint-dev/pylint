@@ -94,3 +94,21 @@ class TestCheckerTestCase(CheckerTestCase):
         with pytest.raises(AssertionError):
             with self.assertDoesNotAddMessages(_MSG_A, _MSG_B):
                 self.linter.add_message("W9902", line=2)
+
+    def test_assert_does_not_add_messages_no_args_raises(self) -> None:
+        """Calling with no arguments must raise TypeError."""
+        with pytest.raises(TypeError, match="requires at least one"):
+            with self.assertDoesNotAddMessages():
+                pass
+
+    def test_assert_does_not_add_messages_exception_in_body_drains_messages(
+        self,
+    ) -> None:
+        """An exception in the with-block must not leak messages to later tests."""
+        with pytest.raises(RuntimeError):
+            with self.assertDoesNotAddMessages(_MSG_A):
+                self.linter.add_message("W9901", line=1)
+                raise RuntimeError("something went wrong")
+        # Messages must have been drained; a subsequent assertNoMessages should pass.
+        with self.assertNoMessages():
+            pass
