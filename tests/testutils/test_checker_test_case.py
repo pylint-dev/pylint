@@ -128,9 +128,7 @@ class TestCheckerTestCase(CheckerTestCase):
     def test_messages_match_confidence_mismatch(self) -> None:
         from pylint.interfaces import HIGH
 
-        expected = MessageTest(
-            "W9901", line=1, node=None, args=None, confidence=HIGH
-        )
+        expected = MessageTest("W9901", line=1, node=None, args=None, confidence=HIGH)
         actual = MessageTest(
             "W9901", line=1, node=None, args=None, confidence=UNDEFINED
         )
@@ -147,10 +145,6 @@ class TestCheckerTestCase(CheckerTestCase):
         assert not self._messages_match(expected, actual, ignore_position=False)
 
     def test_messages_match_end_col_offset_mismatch(self) -> None:
-        expected = MessageTest(
-            "W9901", line=1, node=None, args=None, end_col_offset=5
-        )
-        actual = MessageTest(
-            "W9901", line=1, node=None, args=None, end_col_offset=10
-        )
+        expected = MessageTest("W9901", line=1, node=None, args=None, end_col_offset=5)
+        actual = MessageTest("W9901", line=1, node=None, args=None, end_col_offset=10)
         assert not self._messages_match(expected, actual, ignore_position=False)
