@@ -41,7 +41,7 @@ class CompareCommand(PrimerCommand):
     def _create_comment_for_package(
         self, package: str, new_messages: PackageData, missing_messages: PackageData
     ) -> str:
-        comment = f"\n\n**Effect on [{package}]({self.packages[package].url}):**\n"
+        comment = f"\n**Effect on [{package}]({self.packages[package].url}):**\n\n"
         # Create comment for new messages
         count = 1
         astroid_errors = 0
@@ -73,15 +73,15 @@ class CompareCommand(PrimerCommand):
             )
         if new_non_astroid_messages:
             comment += (
-                "The following messages are now emitted:\n\n<details>\n\n"
+                "The following messages are now emitted:\n\n<details>\n"
                 + new_non_astroid_messages
-                + "\n</details>\n\n"
+                + "</details>\n\n"
             )
 
         # Create comment for missing messages
         count = 1
         if missing_messages["messages"]:
-            comment += "The following messages are no longer emitted:\n\n<details>\n\n"
+            comment += "The following messages are no longer emitted:\n\n<details>\n"
             print("No longer emitted:")
         for message in missing_messages["messages"]:
             comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
@@ -99,8 +99,8 @@ class CompareCommand(PrimerCommand):
             )
             count += 1
             print(message)
-        if missing_messages:
-            comment += "\n</details>\n\n"
+        if missing_messages["messages"]:
+            comment += "</details>\n\n"
         return comment
 
     def _truncate_comment(self, comment: str) -> str:
