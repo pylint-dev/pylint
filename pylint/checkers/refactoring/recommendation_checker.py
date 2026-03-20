@@ -415,12 +415,7 @@ class RecommendationChecker(checkers.BaseChecker):
                         return
 
             # If all tests pass, then raise message
-            self.add_message(
-                "consider-using-f-string",
-                node=node,
-                line=node.lineno,
-                col_offset=node.col_offset,
-            )
+            self.add_message("consider-using-f-string", node=node)
 
         elif isinstance(node.parent, nodes.BinOp) and node.parent.op == "%":
             # Backslashes can't be in f-string expressions
@@ -444,9 +439,4 @@ class RecommendationChecker(checkers.BaseChecker):
                     return
 
             # If all tests pass, then raise message
-            self.add_message(
-                "consider-using-f-string",
-                node=node,
-                line=node.lineno,
-                col_offset=node.col_offset,
-            )
+            self.add_message("consider-using-f-string", node=node)

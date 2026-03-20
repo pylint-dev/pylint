@@ -20,7 +20,7 @@ HERE = Path(__file__).parent
 TEST_DIR_ROOT = HERE.parent.parent
 PRIMER_DIRECTORY = TEST_DIR_ROOT / ".pylint_primer_tests/"
 PACKAGES_TO_PRIME_PATH = TEST_DIR_ROOT / "primer/packages_to_prime.json"
-FIXTURES_PATH = HERE / "fixtures"
+CASES_PATH = HERE / "cases"
 
 # If you change this, also change DEFAULT_PYTHON in
 # ``.github/workflows/primer_comment.yaml``
@@ -52,20 +52,20 @@ class TestPrimer:
     @pytest.mark.parametrize(
         "directory",
         [
-            pytest.param(p, id=str(p.relative_to(FIXTURES_PATH)))
-            for p in FIXTURES_PATH.iterdir()
-            if p.is_dir() and p.name != "batched"  # tested separately
+            pytest.param(p, id=str(p.relative_to(CASES_PATH)))
+            for p in CASES_PATH.iterdir()
+            if p.is_dir()
         ],
     )
     def test_compare(self, directory: Path) -> None:
         """Test for the standard case.
 
-        Directory in 'fixtures/' with 'main.json', 'pr.json' and 'expected.txt'.
+        Directory in 'cases/' with 'main.json', 'pr.json' and 'expected.txt'.
         """
         self.__assert_expected(directory)
 
     def test_compare_batched(self) -> None:
-        fixture = FIXTURES_PATH / "batched"
+        fixture = HERE / "batched_cases"
         self.__assert_expected(
             fixture,
             fixture / "main_BATCHIDX.json",
@@ -76,7 +76,7 @@ class TestPrimer:
     def test_truncated_compare(self) -> None:
         """Test for the truncation of comments that are too long."""
         max_comment_length = 525
-        directory = FIXTURES_PATH / "message_changed"
+        directory = CASES_PATH / "message_changed"
         with patch(
             "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
             max_comment_length,

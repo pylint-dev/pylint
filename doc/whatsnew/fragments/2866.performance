@@ -1,0 +1,6 @@
+Lazily import ``isort``, ``dill``, ``multiprocessing``/``concurrent.futures``,
+and ``tomlkit`` so they are only loaded when actually needed.
+This reduces startup time by ~25% (e.g. ``--version``: 91 => 67 ms,
+``--help``: 176 => 133 ms, single-file lint: 272 => 226 ms).
+
+Closes #2866

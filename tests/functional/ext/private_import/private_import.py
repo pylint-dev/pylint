@@ -31,7 +31,7 @@ from __future__ import __print_function__
 from private_import import _private  # pylint: disable=import-self
 from private_import.other_file import _private
 from . import _private
-from astroid import _private  # [import-private-name]
+from pytest import _private  # [import-private-name]
 from sys import _private  # [import-private-name]
 
 # Ignore typecheck

@@ -57,9 +57,9 @@ urls."Bug Tracker" = "https://github.com/pylint-dev/pylint/issues"
 urls."Discord Server" = "https://discord.com/invite/Egy6P8AMB5"
 urls."Docs: Contributor Guide" = "https://pylint.readthedocs.io/en/latest/development_guide/contributor_guide/index.html"
 urls."Docs: User Guide" = "https://pylint.readthedocs.io/en/latest/"
-urls."homepage" = "https://github.com/pylint-dev/pylint"
 urls."Source Code" = "https://github.com/pylint-dev/pylint"
-urls."What's New" = "https://pylint.readthedocs.io/en/latest/whatsnew/3/"
+urls."What's New" = "https://pylint.readthedocs.io/en/latest/whatsnew/4/"
+urls.homepage = "https://github.com/pylint-dev/pylint"
 scripts.pylint = "pylint:run_pylint"
 scripts.pylint-config = "pylint:_run_pylint_config"
 scripts.pyreverse = "pylint:run_pyreverse"
@@ -203,24 +203,6 @@ skip = """\
 [tool.pyproject-fmt]
 max_supported_python = "3.14"
 
-[tool.pytest]
-ini_options.testpaths = [ "tests" ]
-ini_options.python_files = [ "*test_*.py" ]
-ini_options.addopts = "--strict-markers"
-ini_options.filterwarnings = [
-  "error",
-  # Added in Python 3.14
-  "ignore:'break' in a 'finally' block:SyntaxWarning",
-  "ignore:'return' in a 'finally' block:SyntaxWarning",
-  "ignore:'continue' in a 'finally' block:SyntaxWarning",
-]
-ini_options.markers = [
-  "primer_stdlib: Checks for crashes and errors when running pylint on stdlib",
-  "benchmark: Baseline of pylint performance, if this regress something serious happened",
-  "timeout: Marks from pytest-timeout.",
-  "needs_two_cores: Checks that need 2 or more cores to be meaningful",
-]
-
 [tool.mypy]
 scripts_are_modules = true
 warn_unused_ignores = true
@@ -253,7 +235,6 @@ module = [
 # [[tool.mypy.overrides]]
 # module = ["astroid.*"]
 # follow_untyped_imports = true
-
 [tool.pyright]
 include = [
   "pylint",
@@ -270,6 +251,24 @@ reportOptionalCall = "none"  # 2 issues
 reportGeneralTypeIssues = "none"  # 1 issue
 reportCallIssue = "none"  # 1 issue
 reportInvalidTypeVarUse = "none"  # 2 warnings
+
+[tool.pytest]
+ini_options.testpaths = [ "tests" ]
+ini_options.python_files = [ "*test_*.py" ]
+ini_options.addopts = "--strict-markers"
+ini_options.filterwarnings = [
+  "error",
+  # Added in Python 3.14
+  "ignore:'break' in a 'finally' block:SyntaxWarning",
+  "ignore:'return' in a 'finally' block:SyntaxWarning",
+  "ignore:'continue' in a 'finally' block:SyntaxWarning",
+]
+ini_options.markers = [
+  "primer_stdlib: Checks for crashes and errors when running pylint on stdlib",
+  "benchmark: Baseline of pylint performance, if this regress something serious happened",
+  "timeout: Marks from pytest-timeout.",
+  "needs_two_cores: Checks that need 2 or more cores to be meaningful",
+]
 
 [tool.aliases]
 test = "pytest"

@@ -544,9 +544,9 @@ class BasicErrorChecker(_BasicChecker):
             self.add_message(
                 "useless-else-on-loop",
                 node=node,
-                # This is not optimal, but the line previous
-                # to the first statement in the else clause
-                # will usually be the one that contains the else:.
+                # The else keyword has no AST node; the line before
+                # the first statement in the else clause is the best
+                # approximation of its location.
                 line=node.orelse[0].lineno - 1,
             )
 
