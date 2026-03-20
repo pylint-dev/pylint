@@ -112,3 +112,45 @@ class TestCheckerTestCase(CheckerTestCase):
         # Messages must have been drained; a subsequent assertNoMessages should pass.
         with self.assertNoMessages():
             pass
+
+    # -- _messages_match branch coverage --------------------------------------
+
+    def test_messages_match_node_mismatch(self) -> None:
+        expected = MessageTest("W9901", line=1, node="sentinel", args=None)
+        actual = MessageTest("W9901", line=1, node=None, args=None)
+        assert not self._messages_match(expected, actual, ignore_position=False)
+
+    def test_messages_match_args_mismatch(self) -> None:
+        expected = MessageTest("W9901", line=1, node=None, args=("x",))
+        actual = MessageTest("W9901", line=1, node=None, args=None)
+        assert not self._messages_match(expected, actual, ignore_position=False)
+
+    def test_messages_match_confidence_mismatch(self) -> None:
+        from pylint.interfaces import HIGH
+
+        expected = MessageTest(
+            "W9901", line=1, node=None, args=None, confidence=HIGH
+        )
+        actual = MessageTest(
+            "W9901", line=1, node=None, args=None, confidence=UNDEFINED
+        )
+        assert not self._messages_match(expected, actual, ignore_position=False)
+
+    def test_messages_match_col_offset_mismatch(self) -> None:
+        expected = MessageTest("W9901", line=1, node=None, args=None, col_offset=5)
+        actual = MessageTest("W9901", line=1, node=None, args=None, col_offset=10)
+        assert not self._messages_match(expected, actual, ignore_position=False)
+
+    def test_messages_match_end_line_mismatch(self) -> None:
+        expected = MessageTest("W9901", line=1, node=None, args=None, end_line=5)
+        actual = MessageTest("W9901", line=1, node=None, args=None, end_line=10)
+        assert not self._messages_match(expected, actual, ignore_position=False)
+
+    def test_messages_match_end_col_offset_mismatch(self) -> None:
+        expected = MessageTest(
+            "W9901", line=1, node=None, args=None, end_col_offset=5
+        )
+        actual = MessageTest(
+            "W9901", line=1, node=None, args=None, end_col_offset=10
+        )
+        assert not self._messages_match(expected, actual, ignore_position=False)
