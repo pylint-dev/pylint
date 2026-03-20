@@ -1157,12 +1157,9 @@ class PyLinter(
             previous_stats = load_results(self.file_state.base_name)
             self.reporter.on_close(self.stats, previous_stats)
             if self.config.reports:
-                sect = self.make_reports(self.stats, previous_stats)
-            else:
-                sect = report_nodes.Section()
-
-            if self.config.reports:
-                self.reporter.display_reports(sect)
+                self.reporter.display_reports(
+                    self.make_reports(self.stats, previous_stats)
+                )
 
             score_value = self._report_evaluation(verbose)
             # save results if persistent run

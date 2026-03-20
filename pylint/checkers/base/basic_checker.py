@@ -574,7 +574,7 @@ class BasicChecker(_BasicChecker):
             if name.lookup(name.name)[0] is node:
                 return
 
-        self.add_message("unnecessary-lambda", line=node.fromlineno, node=node)
+        self.add_message("unnecessary-lambda", node=node)
 
     @utils.only_required_for_messages("dangerous-default-value")
     def visit_functiondef(self, node: nodes.FunctionDef) -> None:

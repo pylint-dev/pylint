@@ -3223,8 +3223,7 @@ class VariablesChecker(BaseChecker):
         if isinstance(assigned, util.UninferableBase):
             return
         if assigned.pytype() not in {"builtins.list", "builtins.tuple"}:
-            line, col = assigned.tolineno, assigned.col_offset
-            self.add_message("invalid-all-format", line=line, col_offset=col, node=node)
+            self.add_message("invalid-all-format", node=assigned)
             return
         for elt in getattr(assigned, "elts", ()):
             try:
@@ -3285,6 +3284,8 @@ class VariablesChecker(BaseChecker):
                     and name == "annotations"
                     and node.modname == "__future__"
                 ):
+                    continue
+                if self._is_name_ignored(node, name):
                     continue
                 self.add_message("unused-variable", args=(name,), node=node)
 

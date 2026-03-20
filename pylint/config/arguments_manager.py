@@ -14,8 +14,6 @@ import warnings
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, TextIO
 
-import tomlkit
-
 from pylint import utils
 from pylint.config.argument import (
     _Argument,
@@ -302,6 +300,8 @@ class _ArgumentsManager:
         """Write a configuration file according to the current configuration into
         stdout.
         """
+        import tomlkit  # pylint: disable=import-outside-toplevel
+
         toml_doc = tomlkit.document()
         tool_table = tomlkit.table(is_super_table=True)
         toml_doc.add(tomlkit.key("tool"), tool_table)

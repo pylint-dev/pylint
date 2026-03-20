@@ -1,0 +1,2 @@
+attribute-defined-outside-init:20:8:20:17:MyClass.setup:Attribute 'attr' defined outside __init__:UNDEFINED
+attribute-defined-outside-init:23:8:23:17:MyClass.method:Attribute 'attr' defined outside __init__:UNDEFINED

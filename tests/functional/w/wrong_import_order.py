@@ -10,14 +10,14 @@ import logging
 
 import six
 import os.path  # [wrong-import-order]
-from astroid import are_exclusive
+from pytest import mark
 import sys  # [wrong-import-order]
 import datetime  # [wrong-import-order]
 import unused_import
 from .package import Class
 import totally_missing  # [wrong-import-order]
 from . import package
-import astroid  # [wrong-import-order]
+import pytest  # [wrong-import-order]
 from . import package2
 import pylint.checkers  # [wrong-import-order]
 from pylint import config  # [wrong-import-order]
