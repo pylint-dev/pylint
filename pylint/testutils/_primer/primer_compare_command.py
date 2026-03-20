@@ -113,11 +113,19 @@ class CompareCommand(PrimerCommand):
                 f"*This comment was truncated because GitHub allows only"
                 f" {MAX_GITHUB_COMMENT_LENGTH} characters in a comment.*"
             )
+            # Reserve space for the suffix and a potential </details> closing tag.
+            suffix = f"\n{truncation_information}\n\n"
+            closing_tag = "</details>\n"
             max_len = (
                 MAX_GITHUB_COMMENT_LENGTH
                 - len(hash_information)
-                - len(truncation_information)
+                - len(suffix)
+                - len(closing_tag)
             )
-            comment = f"{comment[:max_len - 10]}...\n\n{truncation_information}\n\n"
+            comment = comment[: max_len - 10] + "...\n"
+            # Close any <details> tag left open by the truncation.
+            if comment.count("<details>") > comment.count("</details>"):
+                comment += closing_tag
+            comment += suffix
         comment += hash_information
         return comment

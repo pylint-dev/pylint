@@ -86,6 +86,19 @@ class TestPrimer:
             )
         assert len(content) < max_comment_length
 
+    def test_truncated_compare_in_details(self) -> None:
+        """Test for the truncation of comments that are too long inside details."""
+        max_comment_length = 420
+        directory = CASES_PATH / "message_changed"
+        with patch(
+            "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
+            max_comment_length,
+        ):
+            content = self.__assert_expected(
+                directory, expected_file=directory / "expected_truncated_in_details.txt"
+            )
+        assert len(content) < max_comment_length
+
     @staticmethod
     def __assert_expected(
         directory: Path,
