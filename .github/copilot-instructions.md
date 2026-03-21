@@ -133,7 +133,7 @@ expected output files:
   `a, b, c = 1.test # [unbalanced-tuple-unpacking, no-member]`
 - Use offset syntax for special cases: `# +1: [singleton-comparison]`
 - **Run and update:**
-  `python tests/test_functional.py --update-functional-output -k "test_functional[test_name]"`
+  `pytest tests/test_functional.py --remaster -k "test_functional[test_name]"`
 
 ### Test File Organization
 

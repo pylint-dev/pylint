@@ -115,13 +115,15 @@ in a different sub-directory.
 During development, it's sometimes helpful to run all functional tests in your
 current environment in order to have faster feedback. Run from Pylint root directory with::
 
-    python tests/test_functional.py
+    pytest tests/test_functional.py
 
 You can use all the options you would use for pytest_, for example ``-k "test_functional[len_checks]"``.
-Furthermore, if required the .txt file with expected messages can be regenerated based
-on the current output by appending ``--update-functional-output`` to the command line::
+The .txt files with expected messages are golden masters handled by pytest-remaster_:
+when the output changes, the test rewrites the .txt file it compared against and fails,
+so you can review the change with ``git diff`` and run the test again. Pass ``--remaster``
+or ``--no-remaster`` to choose explicitly::
 
-    python tests/test_functional.py --update-functional-output -k "test_functional[len_checks]"
+    pytest tests/test_functional.py --remaster -k "test_functional[len_checks]"
 
 
 .. _writing_config_functional_tests:
