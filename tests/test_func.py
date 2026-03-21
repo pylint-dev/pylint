@@ -11,8 +11,9 @@ import sys
 from os.path import abspath, dirname, join
 
 import pytest
+from pytest_remaster import GoldenMaster  # type: ignore[import-not-found]
 
-from pylint.testutils import UPDATE_FILE, UPDATE_OPTION, _get_tests_info, linter
+from pylint.testutils import _get_tests_info, linter
 from pylint.testutils.reporter_for_tests import GenericTestReporter
 from pylint.testutils.utils import _test_cwd
 
@@ -25,15 +26,6 @@ FILTER_RGX = None
 INFO_TEST_RGX = re.compile(r"^func_i\d\d\d\d$")
 
 
-def exception_str(
-    self: Exception, ex: Exception  # pylint: disable=unused-argument
-) -> str:
-    """Function used to replace default __str__ method of exception instances
-    This function is not typed because it is legacy code.
-    """
-    return f"in {ex.file}\n:: {', '.join(ex.args)}"  # type: ignore[attr-defined] # Defined in the caller
-
-
 class LintTestUsingModule:
     INPUT_DIR: str | None = None
     DEFAULT_PACKAGE = "input"
@@ -42,6 +34,7 @@ class LintTestUsingModule:
     module: str | None = None
     depends: list[tuple[str, str]] | None = None
     output: str | None = None
+    golden_master: GoldenMaster | None = None
 
     def _test_functionality(self) -> None:
         tocheck = [self.package + "." + self.module] if self.module else []
@@ -56,12 +49,15 @@ class LintTestUsingModule:
             self._test(tocheck)
 
     def _check_result(self, got: str) -> None:
-        error_msg = (
-            f"Wrong output for '{self.output}':\n"
-            "You can update the expected output automatically with: '"
-            f"python tests/test_func.py {UPDATE_OPTION}'\n\n"
-        )
-        assert self._get_expected() == got, error_msg
+        if self.golden_master and self.output:
+            self.golden_master.check(got, self.output)
+        else:
+            error_msg = (
+                f"Wrong output for '{self.output}':\n"
+                "You can update the expected output automatically with: '"
+                'pytest --remaster -k "test_functionality"\'\n\n'
+            )
+            assert self._get_expected() == got, error_msg
 
     def _test(self, tocheck: list[str]) -> None:
         if self.module and INFO_TEST_RGX.match(self.module):
@@ -94,17 +90,13 @@ class LintTestUsingModule:
             return ""
 
 
-class LintTestUpdate(LintTestUsingModule):
-    def _check_result(self, got: str) -> None:
-        if not self._has_output():
-            return
-        try:
-            expected = self._get_expected()
-        except OSError:
-            expected = ""
-        if got != expected:
-            with open(self.output or "", "w", encoding="utf-8") as f:
-                f.write(got)
+def exception_str(
+    self: Exception, ex: Exception  # pylint: disable=unused-argument
+) -> str:
+    """Function used to replace default __str__ method of exception instances
+    This function is not typed because it is legacy code.
+    """
+    return f"in {ex.file}\n:: {', '.join(ex.args)}"  # type: ignore[attr-defined] # Defined in the caller
 
 
 def gen_tests(
@@ -123,8 +115,6 @@ def gen_tests(
         base = module_file.replace(".py", "").split("_")[1]
         dependencies = _get_tests_info(INPUT_DIR, MSG_DIR, base, ".py")
         tests.append((module_file, messages_file, dependencies))
-    if UPDATE_FILE.exists():
-        return tests
     assert len(tests) < 13, "Please do not add new test cases here." + "\n".join(
         str(k) for k in tests if not k[2]
     )
@@ -144,8 +134,9 @@ def test_functionality(
     messages_file: str,
     dependencies: list[tuple[str, str]],
     recwarn: pytest.WarningsRecorder,
+    golden_master: GoldenMaster,
 ) -> None:
-    __test_functionality(module_file, messages_file, dependencies)
+    __test_functionality(module_file, messages_file, dependencies, golden_master)
     if recwarn.list:
         if module_file in TEST_WITH_EXPECTED_DEPRECATION and sys.version_info.minor > 5:
             assert any(
@@ -156,25 +147,15 @@ def test_functionality(
 
 
 def __test_functionality(
-    module_file: str, messages_file: str, dependencies: list[tuple[str, str]]
+    module_file: str,
+    messages_file: str,
+    dependencies: list[tuple[str, str]],
+    golden_master: GoldenMaster,
 ) -> None:
-    lint_test = LintTestUpdate() if UPDATE_FILE.exists() else LintTestUsingModule()
+    lint_test = LintTestUsingModule()
     lint_test.module = module_file.replace(".py", "")
     lint_test.output = messages_file
     lint_test.depends = dependencies or None
     lint_test.INPUT_DIR = INPUT_DIR
+    lint_test.golden_master = golden_master
     lint_test._test_functionality()
-
-
-if __name__ == "__main__":
-    if UPDATE_OPTION in sys.argv:
-        UPDATE_FILE.touch()
-        sys.argv.remove(UPDATE_OPTION)
-    if len(sys.argv) > 1:
-        FILTER_RGX = sys.argv[1]
-        del sys.argv[1]
-    try:
-        pytest.main(sys.argv)
-    finally:
-        if UPDATE_FILE.exists():
-            UPDATE_FILE.unlink()

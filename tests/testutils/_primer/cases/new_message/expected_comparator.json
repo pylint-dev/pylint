@@ -1,1 +1,7 @@
-[{ "package": "astroid", "missing": 0, "new": 1 }]
+[
+  {
+    "package": "astroid",
+    "missing": 0,
+    "new": 1
+  }
+]

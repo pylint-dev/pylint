@@ -21,7 +21,7 @@ from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter
 from pylint.message.message import Message
 from pylint.reporters import BaseReporter
-from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
+from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS
 
 # need to import from functional.test_file to avoid cyclic import
 from pylint.testutils.functional.test_file import (
@@ -245,18 +245,25 @@ class LintModuleTest:
             )
         return received_msgs, received_output_lines
 
-    def _runTest(self) -> None:
+    def check_messages(self) -> list[OutputLine]:
+        """Run linter, verify message counts, return actual output lines."""
         __tracebackhide__ = True  # pylint: disable=unused-variable
         modules_to_check = [self._test_file.source]
         self._linter.check(modules_to_check)
-        expected_messages, expected_output = self._get_expected()
+        expected_messages, _ = self._get_expected()
         actual_messages, actual_output = self._get_actual()
         assert (
             expected_messages == actual_messages
         ), self.error_msg_for_unequal_messages(
             actual_messages, expected_messages, actual_output
         )
-        self._check_output_text(expected_messages, expected_output, actual_output)
+        return actual_output
+
+    def _runTest(self) -> None:
+        __tracebackhide__ = True  # pylint: disable=unused-variable
+        actual_output = self.check_messages()
+        _, expected_output = self._get_expected()
+        self._check_output_text(Counter(), expected_output, actual_output)
 
     def error_msg_for_unequal_messages(
         self,
@@ -305,8 +312,7 @@ class LintModuleTest:
                 error_msg += f"{line}\n"
             error_msg += (
                 "\nYou can update the expected output automatically with:\n'"
-                f"python tests/test_functional.py {UPDATE_OPTION} -k "
-                f'"test_functional[{self._test_file.base}]"\'\n\n'
+                f'pytest --remaster -k "test_functional[{self._test_file.base}]"\'\n\n'
                 "Here's the update text in case you can't:\n"
             )
             expected_csv = StringIO()
@@ -327,6 +333,14 @@ class LintModuleTest:
                     for s in line.to_csv()
                 ]
             )
+
+    def serialize_output(self, output: list[OutputLine]) -> str:
+        """Serialize OutputLine list to CSV string."""
+        buf = StringIO()
+        writer = csv.writer(buf, dialect="test")
+        for line in output:
+            self.safe_write_output_line(writer, line)
+        return buf.getvalue()
 
     def _check_output_text(
         self,

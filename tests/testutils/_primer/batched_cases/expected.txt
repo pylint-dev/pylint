@@ -9,10 +9,18 @@ The following messages are no longer emitted:
 
 1) locally-disabled:
 *Locally disabling redefined-builtin (W0622)*
-https://github.com/pylint-dev/astroid/blob/1234567890abcdef/astroid/__init__.py#L91
-2) unknown-option-value:
-*Unknown option value for 'disable', expected a valid pylint message and got 'Ellipsis'*
-https://github.com/pylint-dev/astroid/blob/1234567890abcdef/astroid/__init__.py#L91
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91
+</details>
+
+
+**Effect on [black](https://github.com/psf/black):**
+
+The following messages are now emitted:
+
+<details>
+1) broad-exception-caught:
+*Catching too general exception Exception*
+https://github.com/psf/black/blob/abcdef123456789/src/black/config.py#L15
 </details>
 
 *This comment was generated for commit v2.14.2*

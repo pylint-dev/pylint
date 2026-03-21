@@ -1,32 +1,19 @@
 {
-  "astroid": {
-    "commit": "1234567890abcdef",
+  "black": {
+    "commit": "abcdef123456789",
     "messages": [
       {
-        "type": "info",
-        "module": "astroid",
+        "type": "convention",
+        "module": "black.main",
         "obj": "",
-        "line": 91,
+        "line": 42,
         "column": 0,
-        "endLine": null,
-        "endColumn": null,
-        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py",
-        "symbol": "locally-disabled",
-        "message": "Locally disabling redefined-builtin (W0622)",
-        "message-id": "I0011"
-      },
-      {
-        "type": "warning",
-        "module": "astroid",
-        "obj": "",
-        "line": 91,
-        "column": 0,
-        "endLine": null,
-        "endColumn": null,
-        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py",
-        "symbol": "unknown-option-value",
-        "message": "Unknown option value for 'disable', expected a valid pylint message and got 'Ellipsis'",
-        "message-id": "W0012"
+        "endLine": 42,
+        "endColumn": 120,
+        "path": "tests/.pylint_primer_tests/psf/black/src/black/main.py",
+        "symbol": "line-too-long",
+        "message": "Line too long (120/100)",
+        "message-id": "C0301"
       }
     ]
   }

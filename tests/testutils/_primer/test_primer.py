@@ -12,6 +12,11 @@ from unittest.mock import patch
 
 import pytest
 from _pytest.capture import CaptureFixture
+from pytest_remaster import (  # type: ignore[import-not-found]
+    CaseData,
+    GoldenMaster,
+    discover_test_cases,
+)
 
 from pylint.constants import IS_PYPY
 from pylint.testutils._primer.primer import Primer
@@ -49,31 +54,25 @@ def test_primer_launch_bad_args(args: list[str], capsys: CaptureFixture) -> None
     ),
 )
 class TestPrimer:
-    @pytest.mark.parametrize(
-        "directory",
-        [
-            pytest.param(p, id=str(p.relative_to(CASES_PATH)))
-            for p in CASES_PATH.iterdir()
-            if p.is_dir()
-        ],
-    )
-    def test_compare(self, directory: Path) -> None:
+    @pytest.mark.parametrize("case", discover_test_cases(CASES_PATH))
+    def test_compare(self, case: CaseData, golden_master: GoldenMaster) -> None:
         """Test for the standard case.
 
         Directory in 'cases/' with 'main.json', 'pr.json' and 'expected.txt'.
         """
-        self.__assert_expected(directory)
+        self.__run_and_check(golden_master, case.input)
 
-    def test_compare_batched(self) -> None:
-        fixture = HERE / "batched_cases"
-        self.__assert_expected(
-            fixture,
-            fixture / "main_BATCHIDX.json",
-            fixture / "pr_BATCHIDX.json",
+    def test_compare_batched(self, golden_master: GoldenMaster) -> None:
+        batched_cases = HERE / "batched_cases"
+        self.__run_and_check(
+            golden_master,
+            batched_cases,
+            batched_cases / "main_BATCHIDX.json",
+            batched_cases / "pr_BATCHIDX.json",
             batches=2,
         )
 
-    def test_truncated_compare(self) -> None:
+    def test_truncated_compare(self, golden_master: GoldenMaster) -> None:
         """Test for the truncation of comments that are too long."""
         max_comment_length = 525
         directory = CASES_PATH / "message_changed"
@@ -81,12 +80,14 @@ class TestPrimer:
             "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
             max_comment_length,
         ):
-            content = self.__assert_expected(
-                directory, expected_file=directory / "expected_truncated.txt"
+            content = self.__run_and_check(
+                golden_master,
+                directory,
+                expected_file=directory / "expected_truncated.txt",
             )
         assert len(content) < max_comment_length
 
-    def test_truncated_compare_in_details(self) -> None:
+    def test_truncated_compare_in_details(self, golden_master: GoldenMaster) -> None:
         """Test for the truncation of comments that are too long inside details."""
         max_comment_length = 420
         directory = CASES_PATH / "message_changed"
@@ -94,13 +95,16 @@ class TestPrimer:
             "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
             max_comment_length,
         ):
-            content = self.__assert_expected(
-                directory, expected_file=directory / "expected_truncated_in_details.txt"
+            content = self.__run_and_check(
+                golden_master,
+                directory,
+                expected_file=directory / "expected_truncated_in_details.txt",
             )
         assert len(content) < max_comment_length
 
     @staticmethod
-    def __assert_expected(
+    def __run_and_check(
+        golden_master: GoldenMaster,
         directory: Path,
         main: Path | None = None,
         pr: Path | None = None,
@@ -120,8 +124,5 @@ class TestPrimer:
             Primer(PRIMER_DIRECTORY, PACKAGES_TO_PRIME_PATH).run()
         with open(PRIMER_DIRECTORY / "comment.txt", encoding="utf8") as f:
             content = f.read()
-        with open(expected_file, encoding="utf8") as f:
-            expected = f.read()
-        # rstrip so the expected.txt can end with a newline
-        assert content == expected.rstrip("\n")
+        golden_master.check(content, expected_file)
         return content

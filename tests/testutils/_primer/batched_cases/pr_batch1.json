@@ -1,6 +1,33 @@
 {
-  "astroid": {
-    "commit": "1234567890abcdef",
-    "messages": []
+  "black": {
+    "commit": "abcdef123456789",
+    "messages": [
+      {
+        "type": "convention",
+        "module": "black.main",
+        "obj": "",
+        "line": 42,
+        "column": 0,
+        "endLine": 42,
+        "endColumn": 120,
+        "path": "tests/.pylint_primer_tests/psf/black/src/black/main.py",
+        "symbol": "line-too-long",
+        "message": "Line too long (120/100)",
+        "message-id": "C0301"
+      },
+      {
+        "type": "warning",
+        "module": "black.config",
+        "obj": "load_config",
+        "line": 15,
+        "column": 0,
+        "endLine": 15,
+        "endColumn": 30,
+        "path": "tests/.pylint_primer_tests/psf/black/src/black/config.py",
+        "symbol": "broad-exception-caught",
+        "message": "Catching too general exception Exception",
+        "message-id": "W0718"
+      }
+    ]
   }
 }
