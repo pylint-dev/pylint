@@ -724,14 +724,16 @@ class PyLinter(
             fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
             data: str | None = _read_stdin()
         else:
-            fileitems = self._iterate_file_descrs(files_or_modules)
+            fileitems = self._iterate_file_descrs(
+                files_or_modules,
+                extra_packages_paths=extra_packages_paths,
+            )
             data = None
 
         # 1) Decide if we lint in parallel or not
         if not self.config.from_stdin and self.config.jobs > 1:
             original_sys_path = sys.path[:]
-            with augmented_sys_path(extra_packages_paths):
-                check_parallel(self, self.config.jobs, fileitems, extra_packages_paths)
+            check_parallel(self, self.config.jobs, fileitems, extra_packages_paths)
             sys.path = original_sys_path
             return
 
@@ -920,14 +922,15 @@ class PyLinter(
         yield FileItem(modname, filepath, filepath)
 
     def _iterate_file_descrs(
-        self, files_or_modules: Sequence[str]
+        self, files_or_modules: Sequence[str], extra_packages_paths: Sequence[str] = ()
     ) -> Iterator[FileItem]:
         """Return generator yielding file descriptions (tuples of module name, file
         path, base name).
 
         The returned generator yield one item for each Python module that should be linted.
         """
-        expanded_files = self._expand_files(files_or_modules)
+        with augmented_sys_path(extra_packages_paths):
+            expanded_files = self._expand_files(files_or_modules)
 
         for descr in expanded_files.values():
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
