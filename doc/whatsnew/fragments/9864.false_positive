@@ -1,1 +1,3 @@
 Skip ``consider-using-min-builtin`` and ``consider-using-max-builtin`` inside loops as using ``min()``/``max()`` is slower than if statements in this context.
+
+Closes #9864
