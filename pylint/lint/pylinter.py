@@ -719,7 +719,7 @@ class PyLinter(
             ).keys()
         )
 
-        # 0) Get all FileItems
+        # 0) Gather all FileItems
         if self.config.from_stdin:
             fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
             data: str | None = _read_stdin()
@@ -730,25 +730,24 @@ class PyLinter(
             )
             data = None
 
-        # 1) Decide if we lint in parallel or not
+        # 1) Lint in parallel if requested
         if not self.config.from_stdin and self.config.jobs > 1:
             original_sys_path = sys.path[:]
             check_parallel(self, self.config.jobs, fileitems, extra_packages_paths)
             sys.path = original_sys_path
             return
 
-        progress_reporter = ProgressReporter(self.verbose)
+        # 2) Sequential path: run the AST and linting pipeline.
+        reporter = ProgressReporter(self.verbose)
 
-        # The contextmanager also opens all checkers and sets up the PyLinter class
+        # The context manager also opens all checkers and sets up the PyLinter class.
         with augmented_sys_path(extra_packages_paths):
             with self._astroid_module_checker() as check_astroid_module:
-                # 2) Get the AST for each FileItem
-                ast_per_fileitem = self._get_asts(fileitems, data, progress_reporter)
+                # Get the AST for each FileItem.
+                ast_per_fileitem = self._get_asts(fileitems, data, reporter)
 
-                # 3) Lint each ast
-                self._lint_files(
-                    ast_per_fileitem, check_astroid_module, progress_reporter
-                )
+                # Lint each AST.
+                self._lint_files(ast_per_fileitem, check_astroid_module, reporter)
 
     def _get_asts(
         self,
