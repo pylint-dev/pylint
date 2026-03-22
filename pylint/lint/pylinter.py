@@ -719,30 +719,23 @@ class PyLinter(
             ).keys()
         )
 
-        # TODO: Move the parallel invocation into step 3 of the checking process
+        # 0) Get all FileItems
+        if self.config.from_stdin:
+            fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
+            data: str | None = _read_stdin()
+        else:
+            fileitems = self._iterate_file_descrs(files_or_modules)
+            data = None
+
+        # 1) Decide if we lint in parallel or not
         if not self.config.from_stdin and self.config.jobs > 1:
             original_sys_path = sys.path[:]
             with augmented_sys_path(extra_packages_paths):
-                expanded_files = self._expand_files(files_or_modules)
-            check_parallel(
-                self,
-                self.config.jobs,
-                self._iterate_file_descrs_from_expanded_files(expanded_files),
-                extra_packages_paths,
-            )
+                check_parallel(self, self.config.jobs, fileitems, extra_packages_paths)
             sys.path = original_sys_path
             return
 
         progress_reporter = ProgressReporter(self.verbose)
-
-        # 1) Get all FileItems
-        with augmented_sys_path(extra_packages_paths):
-            if self.config.from_stdin:
-                fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
-                data: str | None = _read_stdin()
-            else:
-                fileitems = self._iterate_file_descrs(files_or_modules)
-                data = None
 
         # The contextmanager also opens all checkers and sets up the PyLinter class
         with augmented_sys_path(extra_packages_paths):
@@ -927,21 +920,15 @@ class PyLinter(
         yield FileItem(modname, filepath, filepath)
 
     def _iterate_file_descrs(
-        self, files_or_modules: Sequence[str], extra_packages_paths: Sequence[str] = ()
+        self, files_or_modules: Sequence[str]
     ) -> Iterator[FileItem]:
         """Return generator yielding file descriptions (tuples of module name, file
         path, base name).
 
         The returned generator yield one item for each Python module that should be linted.
         """
-        with augmented_sys_path(extra_packages_paths):
-            expanded_files = self._expand_files(files_or_modules)
-        yield from self._iterate_file_descrs_from_expanded_files(expanded_files)
+        expanded_files = self._expand_files(files_or_modules)
 
-    def _iterate_file_descrs_from_expanded_files(
-        self, expanded_files: dict[str, ModuleDescriptionDict]
-    ) -> Iterator[FileItem]:
-        """Yield file descriptions from already-expanded module descriptions."""
         for descr in expanded_files.values():
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
             if descr["isignored"]:
