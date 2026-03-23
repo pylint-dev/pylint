@@ -719,7 +719,7 @@ class PyLinter(
             ).keys()
         )
 
-        # 0) Gather all FileItems
+        # 1) Gather all FileItems
         if self.config.from_stdin:
             fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
             data: str | None = _read_stdin()
@@ -730,14 +730,15 @@ class PyLinter(
             )
             data = None
 
-        # 1) Lint in parallel if requested
+        # TODO: Move the parallel invocation into step 3 of the checking process
+        # 2) Lint in parallel if requested
         if not self.config.from_stdin and self.config.jobs > 1:
             original_sys_path = sys.path[:]
             check_parallel(self, self.config.jobs, fileitems, extra_packages_paths)
             sys.path = original_sys_path
             return
 
-        # 2) Sequential path: run the AST and linting pipeline.
+        # 3) Sequential path: run the AST and linting pipeline.
         reporter = ProgressReporter(self.verbose)
 
         # The context manager also opens all checkers and sets up the PyLinter class.
