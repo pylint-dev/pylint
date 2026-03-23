@@ -65,7 +65,9 @@ class DictInitMutateChecker(BaseChecker):
         dict_node: nodes.Dict,
         first_mutation: nodes.Assign,
     ) -> str:
-        """Build a suggested dictionary literal from the init and subsequent mutations."""
+        """Build a suggested dictionary literal from the init and subsequent
+        mutations.
+        """
         items: list[str] = []
 
         # Collect existing items from the dict literal
@@ -79,12 +81,12 @@ class DictInitMutateChecker(BaseChecker):
             match sibling:
                 case nodes.Assign(
                     targets=[
-                        nodes.Subscript(
-                            value=nodes.Name(name=name), slice=key_node
-                        )
+                        nodes.Subscript(value=nodes.Name(name=name), slice=key_node)
                     ],
                     value=val_node,
-                ) if name == dict_name:
+                ) if (
+                    name == dict_name
+                ):
                     items.append(f"{key_node.as_string()}: {val_node.as_string()}")
                 case _:
                     break
