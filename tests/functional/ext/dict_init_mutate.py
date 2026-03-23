@@ -39,3 +39,9 @@ update_dict(config)
 
 config = {}
 globals()["config"]["dir"] = "bin"
+
+# Test case from #7819: dict init with dict comprehension value
+expectedrows = 100
+axes = [("col1", "int"), ("col2", "str")]
+d = {"name": "table", "expectedrows": expectedrows}  # [dict-init-mutate]
+d["description"] = {a[0]: a[1] for a in axes}
