@@ -1,3 +1,3 @@
-dict-init-mutate:15:0:15:11::Declare all known key/values when initializing the dictionary.:HIGH
-dict-init-mutate:18:0:18:11::Declare all known key/values when initializing the dictionary.:HIGH
-dict-init-mutate:27:0:27:11::Declare all known key/values when initializing the dictionary.:HIGH
+dict-init-mutate:15:0:15:11::Declare all known key/values when initializing the dictionary: config = {'pwd': 'hello'}:HIGH
+dict-init-mutate:18:0:18:11::Declare all known key/values when initializing the dictionary: config = {'dir': 'bin', 'user': 'me', 'workers': 5}:HIGH
+dict-init-mutate:27:0:27:11::Declare all known key/values when initializing the dictionary: config = {'options': {}}:HIGH
