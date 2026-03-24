@@ -14,22 +14,22 @@ if z and len(['T', 'E', 'S', 'T']):  # [use-implicit-booleaness-not-len]
 if True or len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
-if len('TEST') == 0:  # Should be fine
+if len('TEST') == 0:  # [use-implicit-booleaness-not-len]
     pass
 
 if len('TEST') < 1:  # Should be fine
     pass
 
-if len('TEST') <= 0:  # Should be fine
+if len('TEST') <= 0:  # [use-implicit-booleaness-not-len]
     pass
 
 if 1 > len('TEST'):  # Should be fine
     pass
 
-if 0 >= len('TEST'):  # Should be fine
+if 0 >= len('TEST'):  # [use-implicit-booleaness-not-len]
     pass
 
-if z and len('TEST') == 0:  # Should be fine
+if z and len('TEST') == 0:  # [use-implicit-booleaness-not-len]
     pass
 
 if 0 == len('TEST') < 10:  # Should be fine

@@ -176,8 +176,11 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         "use-implicit-booleaness-not-comparison",
         "use-implicit-booleaness-not-comparison-to-string",
         "use-implicit-booleaness-not-comparison-to-zero",
+        "use-implicit-booleaness-not-len",
     )
     def visit_compare(self, node: nodes.Compare) -> None:
+        if self.linter.is_message_enabled("use-implicit-booleaness-not-len"):
+            self._check_len_comparison_to_zero(node)
         if self.linter.is_message_enabled("use-implicit-booleaness-not-comparison"):
             self._check_use_implicit_booleaness_not_comparison(node)
         if self.linter.is_message_enabled(
@@ -186,6 +189,36 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "use-implicit-booleaness-not-comparison-to-str"
         ):
             self._check_compare_to_str_or_zero(node)
+
+    def _check_len_comparison_to_zero(self, node: nodes.Compare) -> None:
+        """Flag comparisons like len(x) == 0, len(x) > 0, 0 < len(x)."""
+        if len(node.ops) != 1:
+            return
+
+        operator, right_operand = node.ops[0]
+        left_operand = node.left
+
+        # Check both orientations: len(x) op 0 and 0 op len(x).
+        if utils.is_call_of_name(left_operand, "len") and _is_constant_zero(
+            right_operand
+        ):
+            # len(x) == 0, len(x) != 0, len(x) > 0, len(x) <= 0
+            if operator in ("==", "!=", ">", "<="):
+                self.add_message(
+                    "use-implicit-booleaness-not-len",
+                    node=node,
+                    confidence=HIGH,
+                )
+        elif utils.is_call_of_name(right_operand, "len") and _is_constant_zero(
+            left_operand
+        ):
+            # 0 == len(x), 0 != len(x), 0 < len(x), 0 >= len(x)
+            if operator in ("==", "!=", "<", ">="):
+                self.add_message(
+                    "use-implicit-booleaness-not-len",
+                    node=node,
+                    confidence=HIGH,
+                )
 
     def _check_compare_to_str_or_zero(self, node: nodes.Compare) -> None:
         # Skip check for chained comparisons
