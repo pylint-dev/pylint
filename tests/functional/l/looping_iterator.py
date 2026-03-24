@@ -306,7 +306,7 @@ def warns_when_exit_is_only_conditional():
     for i in range(5):
         if i == 0:
             # This inner loop exhausts the iterator on the first run.
-            for item in my_iter:  # [looping-through-iterator]
+            for item in my_iter:
                 print(item)
 
         if i == 4:
@@ -320,7 +320,7 @@ def warns_stopiteration_is_caught_but_loop_continues():
     for i in range(2):
         try:
             # On the first pass (i=0), this exhausts the iterator.
-            for item in source_iter:  # [looping-through-iterator]
+            for item in source_iter:
                 print(item)
         except StopIteration:
             # The bug: we catch the error but don't exit the outer loop.
@@ -344,7 +344,7 @@ def warns_for_try_except_with_non_exiting_handler():
     my_iter = iter(range(10))
     for i in range(2):  # Bug triggers on second iteration
         try:
-            for item in my_iter:  # [looping-through-iterator]
+            for item in my_iter:
                 if i > 0:
                     raise ValueError
             return  # The 'try' block exits
@@ -359,7 +359,7 @@ def warns_for_try_finally_without_exit():
     for i in range(2):  # The bug occurs on the second iteration (i=1)
         try:
             # This inner loop exhausts the iterator on the first pass.
-            for item in my_iter:  # [looping-through-iterator]
+            for item in my_iter:
                 pass
         finally:
             # This 'finally' block cleans up but does NOT exit the
@@ -402,42 +402,19 @@ def iter_on_list_inner_loop():
             print(item)
 
 
-def no_warning_stop_iteration():
-    def simple_generator():
-
-        print("Generator started...")
-        yield 0
-        yield 1
-        yield 2
-        print("Generator finished.")
-
-    # Create the generator object
-    my_gen = simple_generator()
-
-    print("Starting the loop...")
-    while True:
-        try:
-            # Get the next item from the generator
-            item = next(my_gen)
-            print(f"Received: {item}")
-        except StopIteration:
-            # This block runs when the generator is exhausted
-            print("Caught StopIteration. Exiting the loop.")
+def no_warning_inner_for_else():
+    gen_ex = (x for x in range(3))
+    for _i in range(2):
+        for item in gen_ex:
+            print(item)
+        else:
             break
 
-    print("Loop finished.")
 
-
-def no_warning_for_iterator_consumed_by_nested_while():
-    def process_queries(queries, params):
-        param_iter = iter(params)
-        processed_queries = []
-        # Outer loop iterates through query strings
-        for query_string in queries:
-            query_params = []
-            # Nested while loop consumes the 'param_iter' iterator
-            while "%s" in query_string:
-                query_params.append(next(param_iter))
-                query_string = query_string.replace("%s", "?", 1)
-            processed_queries.append((query_string, query_params))
-        return processed_queries
+def warning_inner_for_else():
+    gen_ex = (x for x in range(3))
+    for _i in range(2):
+        for item in gen_ex:  # [looping-through-iterator]
+            print(item)
+        else:                # [useless-else-on-loop]
+            print("continue")

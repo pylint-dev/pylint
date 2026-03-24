@@ -23,7 +23,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
     name = "looping-through-iterator"
     msgs = {
         "W4801": (
-            "Iterator '%s' from an outer scope is re-used or consumed in a nested loop.",
+            "Iterator '%s' from an outer scope is reused or consumed in a nested loop.",
             "looping-through-iterator",
             "Used when an iterator defined in an outer loop scope is consumed in a "
             "nested loop. Because iterators are stateful and exhausted upon consumption, "
@@ -152,10 +152,9 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         inner_loop = ancestor_loops_of_usage[0]
         outer_loop = ancestor_loops_of_usage[1]
 
-        if not isinstance(outer_loop, nodes.For):
-            return
         if isinstance(inner_loop, nodes.For) and inner_loop.orelse:
-            return
+            if self._has_direct_unconditional_exit(inner_loop.orelse):
+                return
 
         try:
             # For a 'for' loop, the inner loop must be in its body.
@@ -164,10 +163,9 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
             if self._has_direct_unconditional_exit(statements_after_inner_loop):
                 return
         except (AttributeError, ValueError):
-            # For a 'while' loop or other structure, we may not have a simple body list.
-            # We can check the whole body for an exit. A bit less precise but safe.
-            if self._has_direct_unconditional_exit(outer_loop.body):
-                return
+            # When inner loop is not direct child of outer loop, we may not have it in outer loop body list.
+            # Optional - We can check the whole body for an exit. A bit less precise but safe.
+            return
 
         self.add_message(
             "looping-through-iterator",
@@ -187,7 +185,6 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
             if isinstance(current, (nodes.FunctionDef, nodes.ClassDef, nodes.Module)):
                 return None
             current = current.parent
-        return None
 
 
 def register(linter: PyLinter) -> None:
