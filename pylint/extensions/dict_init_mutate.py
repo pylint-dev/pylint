@@ -59,6 +59,8 @@ class DictInitMutateChecker(BaseChecker):
                     confidence=HIGH,
                 )
 
+    _MAX_SUGGESTION_ITEMS = 5
+
     @staticmethod
     def _build_suggestion(
         dict_name: str,
@@ -92,6 +94,14 @@ class DictInitMutateChecker(BaseChecker):
                     break
             sibling = sibling.next_sibling()
 
+        total = len(items)
+        if total > DictInitMutateChecker._MAX_SUGGESTION_ITEMS:
+            shown = items[: DictInitMutateChecker._MAX_SUGGESTION_ITEMS]
+            omitted = total - DictInitMutateChecker._MAX_SUGGESTION_ITEMS
+            return (
+                f"{dict_name} = {{{', '.join(shown)}, "
+                f"... ({omitted} more)}}"
+            )
         return f"{dict_name} = {{{', '.join(items)}}}"
 
 

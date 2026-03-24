@@ -3,3 +3,4 @@ dict-init-mutate:18:0:18:11::Declare all known key/values when initializing the 
 dict-init-mutate:27:0:27:11::Declare all known key/values when initializing the dictionary: config = {'options': {}}:HIGH
 dict-init-mutate:46:0:46:5::Declare all known key/values when initializing the dictionary: d = {'name': 'table', 'expectedrows': expectedrows, 'description': {a[0]: a[1] for a in axes}}:HIGH
 dict-init-mutate:58:0:58:5::Declare all known key/values when initializing the dictionary: d = {'name': 'table', 'expectedrows': expectedrows, 'description': {a.cname: a.typ for a in self_axes}}:HIGH
+dict-init-mutate:63:0:63:14::Declare all known key/values when initializing the dictionary: settings = {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, ... (2 more)}:HIGH

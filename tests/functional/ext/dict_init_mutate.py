@@ -57,3 +57,14 @@ class Axis:
 self_axes = [Axis("col1", "int"), Axis("col2", "str")]
 d = {"name": "table", "expectedrows": expectedrows}  # [dict-init-mutate]
 d["description"] = {a.cname: a.typ for a in self_axes}
+
+
+# Test case: many mutations should be truncated in the suggestion
+settings = {}  # [dict-init-mutate]
+settings["a"] = 1
+settings["b"] = 2
+settings["c"] = 3
+settings["d"] = 4
+settings["e"] = 5
+settings["f"] = 6
+settings["g"] = 7
