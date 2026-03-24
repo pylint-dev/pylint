@@ -45,3 +45,15 @@ expectedrows = 100
 axes = [("col1", "int"), ("col2", "str")]
 d = {"name": "table", "expectedrows": expectedrows}  # [dict-init-mutate]
 d["description"] = {a[0]: a[1] for a in axes}
+
+
+# Test case from #7819 (attribute access form)
+class Axis:
+    """Stub for attribute access test."""
+    def __init__(self, cname, typ):
+        self.cname = cname
+        self.typ = typ
+
+self_axes = [Axis("col1", "int"), Axis("col2", "str")]
+d = {"name": "table", "expectedrows": expectedrows}  # [dict-init-mutate]
+d["description"] = {a.cname: a.typ for a in self_axes}
