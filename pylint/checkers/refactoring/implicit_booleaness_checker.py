@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import itertools
-
 import astroid
 from astroid import bases, nodes, util
 
@@ -176,6 +174,7 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
         "use-implicit-booleaness-not-comparison",
         "use-implicit-booleaness-not-comparison-to-string",
         "use-implicit-booleaness-not-comparison-to-zero",
+        "use-implicit-booleaness-not-len",
     )
     def visit_compare(self, node: nodes.Compare) -> None:
         if self.linter.is_message_enabled("use-implicit-booleaness-not-comparison"):
@@ -186,21 +185,29 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "use-implicit-booleaness-not-comparison-to-str"
         ):
             self._check_compare_to_str_or_zero(node)
+        if self.linter.is_message_enabled("use-implicit-booleaness-not-len"):
+            self._check_len_comparison_with_zero(node)
+
+    def _extract_comparison_operands(
+        self, node: nodes.Compare
+    ) -> tuple[nodes.NodeNG, str, nodes.NodeNG] | None:
+        """Extract left operand, operator, and right operand from a comparison.
+
+        Returns None if this is a chained comparison.
+        """
+        if len(node.ops) != 1:
+            return None
+        operator, right_operand = node.ops[0]
+        left_operand = node.left
+        return left_operand, operator, right_operand
 
     def _check_compare_to_str_or_zero(self, node: nodes.Compare) -> None:
-        # Skip check for chained comparisons
-        if len(node.ops) != 1:
+        operands = self._extract_comparison_operands(node)
+        if operands is None:
             return
+        left_operand, operator, right_operand = operands
 
         negation_redundant_ops = {"!=", "is not"}
-        # note: nodes.Compare has the left most operand in node.left
-        # while the rest are a list of tuples in node.ops
-        # the format of the tuple is ('compare operator sign', node)
-        # here we squash everything into `ops` to make it easier for processing later
-        ops: list[tuple[str, nodes.NodeNG]] = [("", node.left), *node.ops]
-        iter_ops = iter(ops)
-        all_ops = list(itertools.chain(*iter_ops))
-        _, left_operand, operator, right_operand = all_ops
 
         if operator not in self._operators:
             return
@@ -405,6 +412,128 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
                     break
 
         return False
+
+    def _check_len_comparison_with_zero(self, node: nodes.Compare) -> None:
+        """Check for len() comparisons with zero that can be simplified using implicit
+        booleaness.
+        """
+        operands = self._extract_comparison_operands(node)
+        if operands is None:
+            return
+        left_operand, operator, right_operand = operands
+
+        # Check if one side is len() call and other is 0 or 1
+        len_node = None
+        constant_value = None
+        is_len_on_left = False
+
+        if utils.is_call_of_name(left_operand, "len"):
+            len_node = left_operand
+            is_len_on_left = True
+            if isinstance(right_operand, nodes.Const) and right_operand.value in {0, 1}:
+                constant_value = right_operand.value
+        elif utils.is_call_of_name(right_operand, "len"):
+            len_node = right_operand
+            is_len_on_left = False
+            if isinstance(left_operand, nodes.Const) and left_operand.value in {0, 1}:
+                constant_value = left_operand.value
+
+        if len_node is None or constant_value is None:
+            return
+
+        # Check if the comparison should be flagged
+        # The comparison could be nested in boolean operations, e.g. `if z or len(x) > 0:`
+        parent = node.parent
+        has_bool_op = False
+        while isinstance(parent, nodes.BoolOp):
+            has_bool_op = True
+            parent = parent.parent
+
+        # Flag if it's in a test condition, OR directly returned (without being in a BoolOp)
+        is_test_cond = utils.is_test_condition(node, parent)
+        is_direct_return = isinstance(parent, nodes.Return) and not has_bool_op
+
+        if not (is_test_cond or is_direct_return):
+            return
+
+        len_arg = len_node.args[0]
+
+        try:
+            instance = next(len_arg.infer())
+        except astroid.InferenceError:
+            return
+
+        # Check if this is a comprehension (special case handled separately)
+        if isinstance(len_arg, (nodes.ListComp, nodes.SetComp, nodes.DictComp)):
+            return
+
+        mother_classes = self.base_names_of_instance(instance)
+        affected_by_pep8 = any(
+            t in mother_classes for t in ("str", "tuple", "list", "set")
+        )
+        is_range = "range" in mother_classes
+
+        # Only proceed if it's a sequence type and doesn't have custom __bool__
+        if not (affected_by_pep8 or is_range or self.instance_has_bool(instance)):
+            return
+
+        suggestion = self._get_len_comparison_suggestion(
+            operator, constant_value, is_len_on_left, node, len_arg
+        )
+        if suggestion:
+            self.add_message(
+                "use-implicit-booleaness-not-len",
+                node=node,
+                confidence=HIGH,
+            )
+
+    def _get_len_comparison_suggestion(
+        self,
+        operator: str,
+        constant_value: int,
+        is_len_on_left: bool,
+        node: nodes.Compare,
+        len_arg: nodes.NodeNG,
+    ) -> str | None:
+        """Get the appropriate suggestion for len() comparisons with zero."""
+        len_arg_name = len_arg.as_string()
+
+        # Helper to get the appropriate positive suggestion
+        def get_positive_suggestion() -> str:
+            return (
+                len_arg_name
+                if self._in_boolean_context(node)
+                else f"bool({len_arg_name})"
+            )
+
+        # Patterns that should be flagged
+        if is_len_on_left:
+            if constant_value == 0:
+                if operator == "==":
+                    return f"not {len_arg_name}"
+                if operator == "!=":
+                    return get_positive_suggestion()
+                if operator in {"<", "<=", ">=", ">"}:
+                    return f"not {len_arg_name}"
+            elif constant_value == 1:
+                if operator == ">=":
+                    return get_positive_suggestion()
+                if operator == "<":
+                    return f"not {len_arg_name}"
+        elif constant_value == 0:
+            if operator == "==":
+                return f"not {len_arg_name}"
+            if operator in {"!=", ">"}:
+                return get_positive_suggestion()
+            if operator in {"<", "<=", ">="}:
+                return f"not {len_arg_name}"
+        elif constant_value == 1:
+            if operator == "<=":
+                return get_positive_suggestion()
+            if operator == ">":
+                return f"not {len_arg_name}"
+
+        return None
 
     @staticmethod
     def base_names_of_instance(
