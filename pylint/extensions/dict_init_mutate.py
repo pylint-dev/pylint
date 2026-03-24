@@ -98,10 +98,7 @@ class DictInitMutateChecker(BaseChecker):
         if total > DictInitMutateChecker._MAX_SUGGESTION_ITEMS:
             shown = items[: DictInitMutateChecker._MAX_SUGGESTION_ITEMS]
             omitted = total - DictInitMutateChecker._MAX_SUGGESTION_ITEMS
-            return (
-                f"{dict_name} = {{{', '.join(shown)}, "
-                f"... ({omitted} more)}}"
-            )
+            return f"{dict_name} = {{{', '.join(shown)}, " f"... ({omitted} more)}}"
         return f"{dict_name} = {{{', '.join(items)}}}"
 
 
