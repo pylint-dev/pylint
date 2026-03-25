@@ -91,4 +91,3 @@ class TestCheckerTestCase(CheckerTestCase):
         # Messages must have been drained; a subsequent assertNoMessages should pass.
         with self.assertNoMessages():
             pass
-
