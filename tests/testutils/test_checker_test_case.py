@@ -24,7 +24,6 @@ class _DummyChecker(BaseChecker):
 
 
 _MSG_A = MessageTest("W9901", line=1, node=None, args=None, confidence=UNDEFINED)
-_MSG_B = MessageTest("W9902", line=2, node=None, args=None, confidence=UNDEFINED)
 
 
 class TestCheckerTestCase(CheckerTestCase):
@@ -54,46 +53,20 @@ class TestCheckerTestCase(CheckerTestCase):
     def test_assert_does_not_add_messages_failure(self) -> None:
         """Scenario 4: expected not raised / actual raised."""
         with pytest.raises(AssertionError):
-            with self.assertDoesNotAddMessages(_MSG_A):
+            with self.assertDoesNotAddMessages("W9901"):
                 self.linter.add_message("W9901", line=1)
 
     def test_assert_does_not_add_messages_success(self) -> None:
         """Scenario 5: expected not raised / actual not raised."""
-        with self.assertDoesNotAddMessages(_MSG_A):
+        with self.assertDoesNotAddMessages("W9901"):
             pass  # nothing emitted
 
     def test_assert_does_not_add_messages_success_other_raised(self) -> None:
         """Scenario 6: expected not raised / actual not raised but another one raised."""
-        with self.assertDoesNotAddMessages(_MSG_A):
+        with self.assertDoesNotAddMessages("W9901"):
             self.linter.add_message("W9902", line=2)
 
     # -- additional edge cases ------------------------------------------------
-
-    def test_assert_does_not_add_messages_ignore_position(self) -> None:
-        """Position mismatch means no match when ignore_position=False."""
-        # Same msg_id but different line: should pass (not a match)
-        msg_different_line = MessageTest(
-            "W9901", line=99, node=None, args=None, confidence=UNDEFINED
-        )
-        with self.assertDoesNotAddMessages(msg_different_line):
-            self.linter.add_message("W9901", line=1)
-
-    def test_assert_does_not_add_messages_ignore_position_true(self) -> None:
-        """With ignore_position=True, position differences are ignored."""
-        msg_different_line = MessageTest(
-            "W9901", line=99, node=None, args=None, confidence=UNDEFINED
-        )
-        with pytest.raises(AssertionError):
-            with self.assertDoesNotAddMessages(
-                msg_different_line, ignore_position=True
-            ):
-                self.linter.add_message("W9901", line=1)
-
-    def test_assert_does_not_add_messages_multiple_unwanted(self) -> None:
-        """Fails when any of several unwanted messages is found."""
-        with pytest.raises(AssertionError):
-            with self.assertDoesNotAddMessages(_MSG_A, _MSG_B):
-                self.linter.add_message("W9902", line=2)
 
     def test_assert_does_not_add_messages_no_args_raises(self) -> None:
         """Calling with no arguments must raise TypeError."""
@@ -101,50 +74,21 @@ class TestCheckerTestCase(CheckerTestCase):
             with self.assertDoesNotAddMessages():
                 pass
 
+    def test_assert_does_not_add_messages_multiple_unwanted(self) -> None:
+        """Fails when any of the several unwanted message IDs is found."""
+        with pytest.raises(AssertionError):
+            with self.assertDoesNotAddMessages("W9901", "W9902"):
+                self.linter.add_message("W9902", line=2)
+
     def test_assert_does_not_add_messages_exception_in_body_drains_messages(
         self,
     ) -> None:
         """An exception in the with-block must not leak messages to later tests."""
         with pytest.raises(RuntimeError):
-            with self.assertDoesNotAddMessages(_MSG_A):
+            with self.assertDoesNotAddMessages("W9901"):
                 self.linter.add_message("W9901", line=1)
                 raise RuntimeError("something went wrong")
         # Messages must have been drained; a subsequent assertNoMessages should pass.
         with self.assertNoMessages():
             pass
 
-    # -- _messages_match branch coverage --------------------------------------
-
-    def test_messages_match_node_mismatch(self) -> None:
-        expected = MessageTest("W9901", line=1, node="sentinel", args=None)
-        actual = MessageTest("W9901", line=1, node=None, args=None)
-        assert not self._messages_match(expected, actual, ignore_position=False)
-
-    def test_messages_match_args_mismatch(self) -> None:
-        expected = MessageTest("W9901", line=1, node=None, args=("x",))
-        actual = MessageTest("W9901", line=1, node=None, args=None)
-        assert not self._messages_match(expected, actual, ignore_position=False)
-
-    def test_messages_match_confidence_mismatch(self) -> None:
-        from pylint.interfaces import HIGH
-
-        expected = MessageTest("W9901", line=1, node=None, args=None, confidence=HIGH)
-        actual = MessageTest(
-            "W9901", line=1, node=None, args=None, confidence=UNDEFINED
-        )
-        assert not self._messages_match(expected, actual, ignore_position=False)
-
-    def test_messages_match_col_offset_mismatch(self) -> None:
-        expected = MessageTest("W9901", line=1, node=None, args=None, col_offset=5)
-        actual = MessageTest("W9901", line=1, node=None, args=None, col_offset=10)
-        assert not self._messages_match(expected, actual, ignore_position=False)
-
-    def test_messages_match_end_line_mismatch(self) -> None:
-        expected = MessageTest("W9901", line=1, node=None, args=None, end_line=5)
-        actual = MessageTest("W9901", line=1, node=None, args=None, end_line=10)
-        assert not self._messages_match(expected, actual, ignore_position=False)
-
-    def test_messages_match_end_col_offset_mismatch(self) -> None:
-        expected = MessageTest("W9901", line=1, node=None, args=None, end_col_offset=5)
-        actual = MessageTest("W9901", line=1, node=None, args=None, end_col_offset=10)
-        assert not self._messages_match(expected, actual, ignore_position=False)

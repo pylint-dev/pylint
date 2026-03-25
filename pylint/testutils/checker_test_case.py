@@ -38,19 +38,15 @@ class CheckerTestCase:
             yield
 
     @contextlib.contextmanager
-    def assertDoesNotAddMessages(
-        self, *messages: MessageTest, ignore_position: bool = False
-    ) -> Generator[None]:
-        """Assert that the given messages are not added by the given method.
+    def assertDoesNotAddMessages(self, *message_ids: str) -> Generator[None]:
+        """Assert that none of the given message IDs are emitted by the checker.
 
-        This is different from ``assertNoMessages`` which asserts that no
-        messages at all are added. ``assertDoesNotAddMessages`` checks that
-        none of the *specific* messages passed as arguments are emitted, while
-        other messages may still be present.
+        Unlike ``assertNoMessages``, other messages may still be emitted.
+        Only the specified message IDs are checked to be absent.
         """
-        if not messages:
+        if not message_ids:
             raise TypeError(
-                "assertDoesNotAddMessages requires at least one MessageTest argument"
+                "assertDoesNotAddMessages requires at least one message ID argument"
             )
         try:
             yield
@@ -59,40 +55,14 @@ class CheckerTestCase:
             raise
         else:
             got = self.linter.release_messages()
-            for unwanted in messages:
-                for gotten_msg in got:
-                    if not self._messages_match(unwanted, gotten_msg, ignore_position):
-                        continue
+            emitted_ids = {m.msg_id for m in got}
+            for unwanted_id in message_ids:
+                if unwanted_id in emitted_ids:
                     got_str = "\n".join(repr(m) for m in got)
-                    msg = (
-                        "Expected the following message to not be raised:\n"
-                        f"\n  {unwanted!r}\n\n"
-                        f"but it was found among the actual messages:\n\n{got_str}\n"
+                    raise AssertionError(
+                        f"Message '{unwanted_id}' was not expected to be emitted"
+                        f" but it was found among the actual messages:\n\n{got_str}\n"
                     )
-                    raise AssertionError(msg)
-
-    @staticmethod
-    def _messages_match(
-        expected: MessageTest, actual: MessageTest, ignore_position: bool
-    ) -> bool:
-        if expected.msg_id != actual.msg_id:
-            return False
-        if expected.node != actual.node:
-            return False
-        if expected.args != actual.args:
-            return False
-        if expected.confidence != actual.confidence:
-            return False
-        if not ignore_position:
-            if expected.line != actual.line:
-                return False
-            if expected.col_offset != actual.col_offset:
-                return False
-            if expected.end_line != actual.end_line:
-                return False
-            if expected.end_col_offset != actual.end_col_offset:
-                return False
-        return True
 
     @contextlib.contextmanager
     def assertAddsMessages(
