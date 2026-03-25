@@ -107,3 +107,46 @@ def loop_conditional_annotated_assignment():
             data={"cat": "harf"}
     token: str = data.get("cat")  # [possibly-used-before-assignment]
     print(token)
+
+
+def bare_annotation_with_except_assignment(text):
+    """A bare type annotation should not suppress used-before-assignment
+    when the only real assignments are in except blocks.
+
+    https://github.com/pylint-dev/pylint/issues/10847
+    """
+    err: int
+    try:
+        result = int(text)
+    except ValueError:
+        err = 1
+        result = -1
+    if result < 0:
+        print(err)  # [used-before-assignment]
+
+
+def bare_annotation_with_value_and_except(text):
+    """A type annotation with a value should suppress the warning."""
+    err: int = 0
+    try:
+        result = int(text)
+    except ValueError:
+        err = 1
+        result = -1
+    if result < 0:
+        print(err)
+
+
+def bare_annotation_with_if_elif(axis):
+    """A bare type annotation with if/elif should not be a false positive.
+
+    Regression test: the pandas pattern where a bare annotation precedes
+    an if/elif chain that covers all runtime values.
+    https://github.com/pylint-dev/pylint/pull/10852#pullrequestreview-3872486590
+    """
+    klass: type
+    if axis == 0:
+        klass = int
+    elif axis == 1:
+        klass = str
+    return klass
