@@ -18,7 +18,7 @@ DefinitionType = nodes.NodeNG | str
 
 
 class RepeatedIteratorLoopChecker(checkers.BaseChecker):
-    """Checks for exhaustible iterators that are re-used in a nested loop."""
+    """Checks for exhaustible iterators that are reused in a nested loop."""
 
     name = "looping-through-iterator"
     msgs = {
@@ -42,19 +42,19 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         "builtins.reversed",
     }
 
-    def __init__(self, linter: PyLinter | None = None) -> None:
+    def __init__(self, linter: PyLinter) -> None:
         super().__init__(linter)
-        self._scope_stack: list[dict[str, DefinitionType]] = []
+        self._scope_stack: list[dict[str, nodes.NodeNG | str]] = []
 
     # --- Scope Management ---
 
-    def visit_module(self, node: nodes.Module) -> None:
+    def visit_module(self, _node: nodes.Module) -> None:
         self._scope_stack = [{}]
 
-    def visit_functiondef(self, node: nodes.FunctionDef) -> None:
+    def visit_functiondef(self, _node: nodes.FunctionDef) -> None:
         self._scope_stack.append({})
 
-    def leave_functiondef(self, node: nodes.FunctionDef) -> None:
+    def leave_functiondef(self, _node: nodes.FunctionDef) -> None:
         self._scope_stack.pop()
 
     @utils.only_required_for_messages("looping-through-iterator")
@@ -71,7 +71,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
         if isinstance(node.iter, nodes.Name):
             self._check_variable_usage(node.iter)
 
-    def leave_for(self, node: nodes.For) -> None:
+    def leave_for(self, _node: nodes.For) -> None:
         self._scope_stack.pop()
 
     # --- State Building & Reactive Checks ---
@@ -108,16 +108,13 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
 
     # --- Core Logic ---
 
-    def _has_direct_unconditional_exit(self, statements):
+    def _has_direct_unconditional_exit(self, statements: list[nodes.NodeNG]) -> bool:
         """Only checks top-level statements, no branching logic."""
-        for stmt in statements:
-            if isinstance(stmt, (nodes.Return, nodes.Break, nodes.Raise)):
-                return True
-        return False
+        return any(isinstance(stmt, (nodes.Return, nodes.Break, nodes.Raise)) for stmt in statements)
 
     def _check_variable_usage(self, usage_node: nodes.Name) -> None:
         """
-        When a variable is used, this method checks if it is a re-used
+        When a variable is used, this method checks if it is a reused
         exhaustible iterator inside a nested loop.
         """
         iterator_name = usage_node.name
@@ -164,7 +161,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
                 return
         except (AttributeError, ValueError):
             # When inner loop is not direct child of outer loop, we may not have it in outer loop body list.
-            # Optional - We can check the whole body for an exit. A bit less precise but safe.
+            # Optional - We can check the whole body for an exit. A bit less precise but safe.  `
             return
 
         self.add_message(
@@ -185,6 +182,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
             if isinstance(current, (nodes.FunctionDef, nodes.ClassDef, nodes.Module)):
                 return None
             current = current.parent
+        return None  # pragma: no cover — AST always rooted at Module
 
 
 def register(linter: PyLinter) -> None:
