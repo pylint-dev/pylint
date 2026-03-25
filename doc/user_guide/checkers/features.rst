@@ -683,7 +683,7 @@ Verbatim name of the checker is ``looping-through-iterator``.
 
 Looping-Through-Iterator checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:looping-through-iterator (W4801): *Iterator '%s' from an outer scope is re-used or consumed in a nested loop.*
+:looping-through-iterator (W4801): *Iterator '%s' from an outer scope is reused or consumed in a nested loop.*
   Used when an iterator defined in an outer loop scope is consumed in a nested
   loop. Because iterators are stateful and exhausted upon consumption, the
   inner loop will fully consume the iterator during the first iteration of the
