@@ -48,21 +48,23 @@ class CheckerTestCase:
             raise TypeError(
                 "assertDoesNotAddMessages requires at least one message ID argument"
             )
+        exception_raised = False
         try:
             yield
         except Exception:
-            self.linter.release_messages()
+            exception_raised = True
             raise
-        else:
+        finally:
             got = self.linter.release_messages()
-            emitted_ids = {m.msg_id for m in got}
-            for unwanted_id in message_ids:
-                if unwanted_id in emitted_ids:
-                    got_str = "\n".join(repr(m) for m in got)
-                    raise AssertionError(
-                        f"Message '{unwanted_id}' was not expected to be emitted"
-                        f" but it was found among the actual messages:\n\n{got_str}\n"
-                    )
+            if not exception_raised:
+                emitted_ids = {m.msg_id for m in got}
+                for unwanted_id in message_ids:
+                    if unwanted_id in emitted_ids:
+                        got_str = "\n".join(repr(m) for m in got)
+                        raise AssertionError(
+                            f"Message '{unwanted_id}' was not expected to be emitted"
+                            f" but it was found among the actual messages:\n\n{got_str}\n"
+                        )
 
     @contextlib.contextmanager
     def assertAddsMessages(
