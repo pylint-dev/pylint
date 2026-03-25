@@ -110,7 +110,10 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
 
     def _has_direct_unconditional_exit(self, statements: list[nodes.NodeNG]) -> bool:
         """Only checks top-level statements, no branching logic."""
-        return any(isinstance(stmt, (nodes.Return, nodes.Break, nodes.Raise)) for stmt in statements)
+        return any(
+            isinstance(stmt, (nodes.Return, nodes.Break, nodes.Raise))
+            for stmt in statements
+        )
 
     def _check_variable_usage(self, usage_node: nodes.Name) -> None:
         """

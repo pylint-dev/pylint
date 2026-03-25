@@ -12,6 +12,7 @@ for i in range(2):
 
 # 3. Nested producing and consuming calls containing iterator reuse will be warned
 import string
+
 iter1 = map(lambda x: x, string.printable)
 iter2 = set(map(lambda x: x, string.printable))
 for i in range(3):
