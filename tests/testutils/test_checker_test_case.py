@@ -29,7 +29,6 @@ _MSG_A = MessageTest("W9901", line=1, node=None, args=None, confidence=UNDEFINED
 class TestCheckerTestCase(CheckerTestCase):
     CHECKER_CLASS = _DummyChecker
 
-
     def test_assert_adds_messages_success(self) -> None:
         """Scenario 1: expected raised / actual raised."""
         with self.assertAddsMessages(_MSG_A):
@@ -47,7 +46,6 @@ class TestCheckerTestCase(CheckerTestCase):
             with self.assertAddsMessages(_MSG_A):
                 self.linter.add_message("W9902", line=2)
 
-
     def test_assert_does_not_add_messages_failure(self) -> None:
         """Scenario 4: expected not raised / actual raised."""
         with pytest.raises(AssertionError, match="..."):
@@ -63,7 +61,6 @@ class TestCheckerTestCase(CheckerTestCase):
         """Scenario 6: expected not raised / actual not raised but another one raised."""
         with self.assertDoesNotAddMessages("W9901"):
             self.linter.add_message("W9902", line=2)
-
 
     def test_assert_does_not_add_messages_no_args_raises(self) -> None:
         """Calling with no arguments must raise TypeError."""
