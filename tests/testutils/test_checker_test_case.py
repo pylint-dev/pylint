@@ -29,7 +29,6 @@ _MSG_A = MessageTest("W9901", line=1, node=None, args=None, confidence=UNDEFINED
 class TestCheckerTestCase(CheckerTestCase):
     CHECKER_CLASS = _DummyChecker
 
-    # -- assertAddsMessages scenarios (1-3) -----------------------------------
 
     def test_assert_adds_messages_success(self) -> None:
         """Scenario 1: expected raised / actual raised."""
@@ -38,7 +37,7 @@ class TestCheckerTestCase(CheckerTestCase):
 
     def test_assert_adds_messages_failure_not_raised(self) -> None:
         """Scenario 2: expected raised / actual not raised."""
-        with pytest.raises(AssertionError):
+        with pytest.raises(AssertionError, match="..."):
             with self.assertAddsMessages(_MSG_A):
                 pass  # nothing emitted
 
@@ -48,11 +47,10 @@ class TestCheckerTestCase(CheckerTestCase):
             with self.assertAddsMessages(_MSG_A):
                 self.linter.add_message("W9902", line=2)
 
-    # -- assertDoesNotAddMessages scenarios (4-6) -----------------------------
 
     def test_assert_does_not_add_messages_failure(self) -> None:
         """Scenario 4: expected not raised / actual raised."""
-        with pytest.raises(AssertionError):
+        with pytest.raises(AssertionError, match="..."):
             with self.assertDoesNotAddMessages("W9901"):
                 self.linter.add_message("W9901", line=1)
 
@@ -66,7 +64,6 @@ class TestCheckerTestCase(CheckerTestCase):
         with self.assertDoesNotAddMessages("W9901"):
             self.linter.add_message("W9902", line=2)
 
-    # -- additional edge cases ------------------------------------------------
 
     def test_assert_does_not_add_messages_no_args_raises(self) -> None:
         """Calling with no arguments must raise TypeError."""
@@ -76,7 +73,7 @@ class TestCheckerTestCase(CheckerTestCase):
 
     def test_assert_does_not_add_messages_multiple_unwanted(self) -> None:
         """Fails when any of the several unwanted message IDs is found."""
-        with pytest.raises(AssertionError):
+        with pytest.raises(AssertionError, match="..."):
             with self.assertDoesNotAddMessages("W9901", "W9902"):
                 self.linter.add_message("W9902", line=2)
 
