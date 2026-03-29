@@ -719,39 +719,36 @@ class PyLinter(
             ).keys()
         )
 
+        # 1) Gather all FileItems
+        if self.config.from_stdin:
+            fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
+            data: str | None = _read_stdin()
+        else:
+            fileitems = self._iterate_file_descrs(
+                files_or_modules,
+                extra_packages_paths=extra_packages_paths,
+            )
+            data = None
+
         # TODO: Move the parallel invocation into step 3 of the checking process
+        # 2) Lint in parallel if requested
         if not self.config.from_stdin and self.config.jobs > 1:
             original_sys_path = sys.path[:]
-            check_parallel(
-                self,
-                self.config.jobs,
-                self._iterate_file_descrs(files_or_modules),
-                extra_packages_paths,
-            )
+            check_parallel(self, self.config.jobs, fileitems, extra_packages_paths)
             sys.path = original_sys_path
             return
 
-        progress_reporter = ProgressReporter(self.verbose)
+        # 3) Sequential path: run the AST and linting pipeline.
+        reporter = ProgressReporter(self.verbose)
 
-        # 1) Get all FileItems
-        with augmented_sys_path(extra_packages_paths):
-            if self.config.from_stdin:
-                fileitems = self._get_file_descr_from_stdin(files_or_modules[0])
-                data: str | None = _read_stdin()
-            else:
-                fileitems = self._iterate_file_descrs(files_or_modules)
-                data = None
-
-        # The contextmanager also opens all checkers and sets up the PyLinter class
+        # The context manager also opens all checkers and sets up the PyLinter class.
         with augmented_sys_path(extra_packages_paths):
             with self._astroid_module_checker() as check_astroid_module:
-                # 2) Get the AST for each FileItem
-                ast_per_fileitem = self._get_asts(fileitems, data, progress_reporter)
+                # Get the AST for each FileItem.
+                ast_per_fileitem = self._get_asts(fileitems, data, reporter)
 
-                # 3) Lint each ast
-                self._lint_files(
-                    ast_per_fileitem, check_astroid_module, progress_reporter
-                )
+                # Lint each AST.
+                self._lint_files(ast_per_fileitem, check_astroid_module, reporter)
 
     def _get_asts(
         self,
@@ -925,14 +922,17 @@ class PyLinter(
         yield FileItem(modname, filepath, filepath)
 
     def _iterate_file_descrs(
-        self, files_or_modules: Sequence[str]
+        self, files_or_modules: Sequence[str], extra_packages_paths: Sequence[str] = ()
     ) -> Iterator[FileItem]:
         """Return generator yielding file descriptions (tuples of module name, file
         path, base name).
 
         The returned generator yield one item for each Python module that should be linted.
         """
-        for descr in self._expand_files(files_or_modules).values():
+        with augmented_sys_path(extra_packages_paths):
+            expanded_files = self._expand_files(files_or_modules)
+
+        for descr in expanded_files.values():
             name, filepath, is_arg = descr["name"], descr["path"], descr["isarg"]
             if descr["isignored"]:
                 self.stats.skipped += 1
