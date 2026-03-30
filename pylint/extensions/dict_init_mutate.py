@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import only_required_for_messages
+from pylint.checkers.utils import only_required_for_messages, truncated_dict_suggestion
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
@@ -59,8 +59,6 @@ class DictInitMutateChecker(BaseChecker):
                     confidence=HIGH,
                 )
 
-    _MAX_SUGGESTION_ITEMS = 5
-
     @staticmethod
     def _build_suggestion(
         dict_name: str,
@@ -94,12 +92,7 @@ class DictInitMutateChecker(BaseChecker):
                     break
             sibling = sibling.next_sibling()
 
-        total = len(items)
-        if total > DictInitMutateChecker._MAX_SUGGESTION_ITEMS:
-            shown = items[: DictInitMutateChecker._MAX_SUGGESTION_ITEMS]
-            omitted = total - DictInitMutateChecker._MAX_SUGGESTION_ITEMS
-            return f"{dict_name} = {{{', '.join(shown)}, " f"... ({omitted} more)}}"
-        return f"{dict_name} = {{{', '.join(items)}}}"
+        return f"{dict_name} = {truncated_dict_suggestion(items)}"
 
 
 def register(linter: PyLinter) -> None:

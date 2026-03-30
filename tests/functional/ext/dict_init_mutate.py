@@ -1,5 +1,5 @@
 """Example cases for dict-init-mutate"""
-# pylint: disable=use-dict-literal, invalid-name
+# pylint: disable=use-dict-literal, invalid-name, too-few-public-methods
 
 base = {}
 

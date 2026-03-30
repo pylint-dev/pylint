@@ -20,7 +20,7 @@ from astroid.util import UninferableBase
 from pylint import checkers
 from pylint.checkers import utils
 from pylint.checkers.base.basic_error_checker import _loop_exits_early
-from pylint.checkers.utils import node_frame_class
+from pylint.checkers.utils import node_frame_class, truncated_dict_suggestion
 from pylint.interfaces import HIGH, INFERENCE, Confidence
 
 if TYPE_CHECKING:
@@ -1734,16 +1734,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """Return a suggestion of reasonable length."""
         elements: list[str] = []
         for keyword in node.keywords:
-            if len(", ".join(elements)) >= 64:
-                break
             if keyword not in node.kwargs:
                 elements.append(f'"{keyword.arg}": {keyword.value.as_string()}')
         for keyword in node.kwargs:
-            if len(", ".join(elements)) >= 64:
-                break
             elements.append(f"**{keyword.value.as_string()}")
-        suggestion = ", ".join(elements)
-        return f"{{{suggestion}{', ... '  if len(suggestion) > 64 else ''}}}"
+        return truncated_dict_suggestion(elements)
 
     def _name_to_concatenate(self, node: nodes.NodeNG) -> str | None:
         """Try to extract the name used in a concatenation loop."""
