@@ -2351,9 +2351,7 @@ def is_enum_member(node: nodes.AssignName) -> bool:
     return node.name in [name_obj.name for value, name_obj in members[0].items]
 
 
-def truncated_dict_suggestion(
-    elements: list[str], max_chars: int = 64
-) -> str:
+def truncated_dict_suggestion(elements: list[str], max_chars: int = 64) -> str:
     """Build a truncated dict literal suggestion from string elements.
 
     Collects elements until the joined string exceeds *max_chars*, then
