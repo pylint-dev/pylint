@@ -5,15 +5,20 @@ from __future__ import annotations
 
 from pathlib import PurePosixPath
 
-from pylint.testutils._primer.comparator import Comparator
-from pylint.testutils._primer.primer_command import PackageData, PrimerCommand
+from pylint.reporters.json_reporter import OldJsonExport
+from pylint.testutils._primer.comparator import (
+    ChangedMessage,
+    Comparator,
+    message_diff,
+)
+from pylint.testutils._primer.primer_command import PrimerCommand
 
 MAX_GITHUB_COMMENT_LENGTH = 65536
 
 
 class CompareCommand(PrimerCommand):
     def run(self) -> None:
-        comparator = Comparator(
+        comparator = Comparator.from_json(
             self.config.base_file, self.config.new_file, self.config.batches
         )
         comment = self._create_comment(comparator)
@@ -22,11 +27,15 @@ class CompareCommand(PrimerCommand):
 
     def _create_comment(self, comparator: Comparator) -> str:
         comment = ""
-        for package, missing_messages, new_messages in comparator:
+        for package, missing_messages, new_messages, changed_messages in comparator:
             if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
                 break
             comment += self._create_comment_for_package(
-                package, new_messages, missing_messages
+                package,
+                missing_messages,
+                new_messages,
+                changed_messages,
+                comparator.commits[package],
             )
         comment = (
             f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
@@ -39,32 +48,57 @@ class CompareCommand(PrimerCommand):
         return self._truncate_comment(comment)
 
     def _create_comment_for_package(
-        self, package: str, new_messages: PackageData, missing_messages: PackageData
+        self,
+        package: str,
+        missing_messages: list[OldJsonExport],
+        new_messages: list[OldJsonExport],
+        changed_messages: list[ChangedMessage],
+        commit: str,
     ) -> str:
-        comment = f"\n**Effect on [{package}]({self.packages[package].url}):**\n\n"
-        # Create comment for new messages
-        count = 1
+        url = self.packages[package].url
+        clone_dir = self.packages[package].clone_directory
+
+        assert not url.endswith(
+            ".git"
+        ), "You don't need the .git at the end of the github url."
+
+        def _source_link(msg: OldJsonExport) -> str:
+            filepath = str(PurePosixPath(msg["path"]).relative_to(clone_dir))
+            return f"{url}/blob/{commit}/{filepath}#L{msg['line']}"
+
+        def _details_section(title: str, body: str) -> str:
+            # Two line breaks required after <details> for links to work.
+            return f"{title}\n\n<details>\n\n{body}</details>\n\n"
+
+        comment = f"\n**Effect on [{package}]({url}):**\n\n"
+
+        # -- Changed messages (same diagnostic, different details) -----------
+        if changed_messages:
+            body = ""
+            for count, (old, new) in enumerate(changed_messages, 1):
+                body += (
+                    f"{count}) [{new['symbol']}]({_source_link(new)}):\n"
+                    f"{message_diff(old, new)}\n"
+                )
+            comment += _details_section(
+                "The following messages have been changed:", body
+            )
+
+        # -- New messages ----------------------------------------------------
         astroid_errors = 0
         new_non_astroid_messages = ""
-        if new_messages["messages"]:
-            print("Now emitted:")
-        for message in new_messages["messages"]:
-            filepath = str(
-                PurePosixPath(message["path"]).relative_to(
-                    self.packages[package].clone_directory
-                )
-            )
-            # Existing astroid errors may still show up as "new" because the timestamp
-            # in the message is slightly different.
+        count = 0
+        for message in new_messages:
+            # Existing astroid errors may still show up as "new" because the
+            # timestamp in the message is slightly different.
             if message["symbol"] == "astroid-error":
                 astroid_errors += 1
             else:
+                count += 1
                 new_non_astroid_messages += (
                     f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                    f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
+                    f"{_source_link(message)}\n"
                 )
-                print(message)
-                count += 1
 
         if astroid_errors:
             comment += (
@@ -72,35 +106,22 @@ class CompareCommand(PrimerCommand):
                 "Please open the GitHub Actions log to see what failed or crashed.\n\n"
             )
         if new_non_astroid_messages:
-            comment += (
-                "The following messages are now emitted:\n\n<details>\n"
-                + new_non_astroid_messages
-                + "</details>\n\n"
+            comment += _details_section(
+                "The following messages are now emitted:", new_non_astroid_messages
             )
 
-        # Create comment for missing messages
-        count = 1
-        if missing_messages["messages"]:
-            comment += "The following messages are no longer emitted:\n\n<details>\n"
-            print("No longer emitted:")
-        for message in missing_messages["messages"]:
-            comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-            filepath = str(
-                PurePosixPath(message["path"]).relative_to(
-                    self.packages[package].clone_directory
+        # -- Missing messages ------------------------------------------------
+        if missing_messages:
+            body = ""
+            for count, message in enumerate(missing_messages, 1):
+                body += (
+                    f"{count}) {message['symbol']}:\n*{message['message']}*\n"
+                    f"{_source_link(message)}\n"
                 )
+            comment += _details_section(
+                "The following messages are no longer emitted:", body
             )
-            assert not self.packages[package].url.endswith(
-                ".git"
-            ), "You don't need the .git at the end of the github url."
-            comment += (
-                f"{self.packages[package].url}"
-                f"/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
-            )
-            count += 1
-            print(message)
-        if missing_messages["messages"]:
-            comment += "</details>\n\n"
+
         return comment
 
     def _truncate_comment(self, comment: str) -> str:

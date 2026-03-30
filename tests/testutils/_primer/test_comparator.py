@@ -9,28 +9,35 @@ import pytest
 
 from pylint.testutils._primer.comparator import Comparator
 
-CASES_PATH = Path(__file__).parent / "cases"
+FIXTURES_PATH = Path(__file__).parent / "fixtures"
 
 
 @pytest.mark.parametrize(
     "directory",
-    [pytest.param(p, id=p.name) for p in CASES_PATH.iterdir() if p.is_dir()],
+    [
+        pytest.param(p, id=p.name)
+        for p in FIXTURES_PATH.iterdir()
+        if p.is_dir() and p.name != "batched"  # tested separately
+    ],
 )
 def test_comparator(directory: Path) -> None:
     """Test Comparator with each fixture directory."""
-    comparator = Comparator(str(directory / "main.json"), str(directory / "pr.json"))
+    comparator = Comparator.from_json(
+        str(directory / "main.json"), str(directory / "pr.json")
+    )
     expected = json.loads((directory / "expected_comparator.json").read_text("utf-8"))
     results = list(comparator)
     assert len(results) == len(expected)
-    for (package, missing, new), exp in zip(results, expected):
+    for (package, missing, new, changed), exp in zip(results, expected):
         assert package == exp["package"]
-        assert len(missing["messages"]) == exp["missing"]
-        assert len(new["messages"]) == exp["new"]
+        assert len(missing) == exp["missing"]
+        assert len(new) == exp["new"]
+        assert len(changed) == exp["changed"]
 
 
 def test_comparator_batched() -> None:
-    fixture = Path(__file__).parent / "batched_cases"
-    comparator = Comparator(
+    fixture = FIXTURES_PATH / "batched"
+    comparator = Comparator.from_json(
         str(fixture / "main_BATCHIDX.json"),
         str(fixture / "pr_BATCHIDX.json"),
         batches=2,
@@ -38,7 +45,8 @@ def test_comparator_batched() -> None:
     expected = json.loads((fixture / "expected_comparator.json").read_text("utf-8"))
     results = list(comparator)
     assert len(results) == len(expected)
-    for (package, missing, new), exp in zip(results, expected):
+    for (package, missing, new, changed), exp in zip(results, expected):
         assert package == exp["package"]
-        assert len(missing["messages"]) == exp["missing"]
-        assert len(new["messages"]) == exp["new"]
+        assert len(missing) == exp["missing"]
+        assert len(new) == exp["new"]
+        assert len(changed) == exp["changed"]

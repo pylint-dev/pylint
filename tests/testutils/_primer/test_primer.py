@@ -20,7 +20,7 @@ HERE = Path(__file__).parent
 TEST_DIR_ROOT = HERE.parent.parent
 PRIMER_DIRECTORY = TEST_DIR_ROOT / ".pylint_primer_tests/"
 PACKAGES_TO_PRIME_PATH = TEST_DIR_ROOT / "primer/packages_to_prime.json"
-CASES_PATH = HERE / "cases"
+FIXTURES_PATH = HERE / "fixtures"
 
 # If you change this, also change DEFAULT_PYTHON in
 # ``.github/workflows/primer_comment.yaml``
@@ -52,20 +52,20 @@ class TestPrimer:
     @pytest.mark.parametrize(
         "directory",
         [
-            pytest.param(p, id=str(p.relative_to(CASES_PATH)))
-            for p in CASES_PATH.iterdir()
-            if p.is_dir()
+            pytest.param(p, id=str(p.relative_to(FIXTURES_PATH)))
+            for p in FIXTURES_PATH.iterdir()
+            if p.is_dir() and p.name != "batched"  # tested separately
         ],
     )
     def test_compare(self, directory: Path) -> None:
         """Test for the standard case.
 
-        Directory in 'cases/' with 'main.json', 'pr.json' and 'expected.txt'.
+        Directory in 'fixtures/' with 'main.json', 'pr.json' and 'expected.txt'.
         """
         self.__assert_expected(directory)
 
     def test_compare_batched(self) -> None:
-        fixture = HERE / "batched_cases"
+        fixture = FIXTURES_PATH / "batched"
         self.__assert_expected(
             fixture,
             fixture / "main_BATCHIDX.json",
@@ -75,8 +75,8 @@ class TestPrimer:
 
     def test_truncated_compare(self) -> None:
         """Test for the truncation of comments that are too long."""
-        max_comment_length = 525
-        directory = CASES_PATH / "message_changed"
+        max_comment_length = 400
+        directory = FIXTURES_PATH / "message_changed"
         with patch(
             "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
             max_comment_length,
@@ -89,7 +89,7 @@ class TestPrimer:
     def test_truncated_compare_in_details(self) -> None:
         """Test for the truncation of comments that are too long inside details."""
         max_comment_length = 420
-        directory = CASES_PATH / "message_changed"
+        directory = FIXTURES_PATH / "message_changed"
         with patch(
             "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
             max_comment_length,
