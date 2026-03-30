@@ -515,6 +515,41 @@ def test_addmessage(linter: PyLinter) -> None:
     )
 
 
+def test_addmessage_module_and_filepath_override(linter: PyLinter) -> None:
+    """Module and filepath override current_name/current_file when node is None."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("current_module")
+    linter.add_message(
+        "C0301",
+        line=1,
+        args=(1, 2),
+        module="overridden_module",
+        filepath="/fake/path.py",
+    )
+    assert len(linter.reporter.messages) == 1
+    msg = linter.reporter.messages[0]
+    assert msg.location.module == "overridden_module"
+    assert msg.location.abspath == "/fake/path.py"
+    assert msg.location.path == "/fake/path.py"
+
+
+def test_addmessage_node_with_module_filepath_raises(linter: PyLinter) -> None:
+    """Passing both node and module/filepath raises TypeError."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("current_module")
+    module_node = astroid.parse("x = 1")
+    node = module_node.body[0]
+    with pytest.raises(TypeError, match="does not accept both"):
+        linter.add_message(
+            "C0321",
+            node=node,
+            module="overridden_module",
+            filepath="/fake/path.py",
+        )
+
+
 def test_addmessage_invalid(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
     linter.open()
