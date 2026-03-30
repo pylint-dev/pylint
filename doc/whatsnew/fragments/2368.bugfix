@@ -1,0 +1,3 @@
+``duplicate-code`` messages are now attributed to a module that actually contains the duplicated lines, instead of whichever module happened to be checked last.
+
+Closes #2368
