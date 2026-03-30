@@ -43,6 +43,9 @@ def _worker_initialize(
     :param linter: A linter-class (PyLinter) instance pickled with dill
     :param extra_packages_paths: Extra entries to be added to `sys.path`
     """
+    if extra_packages_paths:
+        _augment_sys_path(extra_packages_paths)
+
     global _worker_linter  # pylint: disable=global-statement
     _worker_linter = dill.loads(linter)
     assert _worker_linter
@@ -56,9 +59,6 @@ def _worker_initialize(
     # astroid module that existed when the linter was pickled.
     _worker_linter.load_plugin_modules(_worker_linter._dynamic_plugins, force=True)
     _worker_linter.load_plugin_configuration()
-
-    if extra_packages_paths:
-        _augment_sys_path(extra_packages_paths)
 
 
 def _worker_check_single_file(
