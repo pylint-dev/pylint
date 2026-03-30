@@ -1,0 +1,6 @@
+# Test that boolean false values in TOML config are properly respected
+# for store_true options. Setting exit-zero = false should NOT cause
+# pylint to always exit with code 0.
+
+[tool.pylint.main]
+exit-zero = false
