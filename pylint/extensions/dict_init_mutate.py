@@ -82,9 +82,7 @@ class DictInitMutateChecker(BaseChecker):
                 match sibling:
                     case nodes.Assign(
                         targets=[
-                            nodes.Subscript(
-                                value=nodes.Name(name=name), slice=key_node
-                            )
+                            nodes.Subscript(value=nodes.Name(name=name), slice=key_node)
                         ],
                         value=val_node,
                     ) if (
