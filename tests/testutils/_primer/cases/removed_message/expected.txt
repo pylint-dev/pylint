@@ -6,6 +6,7 @@
 The following messages are no longer emitted:
 
 <details>
+
 1) unknown-option-value:
 *Unknown option value for 'disable', expected a valid pylint message and got 'Ellipsis'*
 https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91
