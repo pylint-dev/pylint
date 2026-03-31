@@ -6,6 +6,7 @@
 The following messages are no longer emitted:
 
 <details>
+
 1) locally-disabled:
 *Locally disabling redefined-builtin (W0622)*
 https://github.com/pylint-dev/astroid/blob/1234567890abcdef/astroid/__init__.py#L91
