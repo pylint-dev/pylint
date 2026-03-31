@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 from astroid import nodes
@@ -68,31 +69,33 @@ class DictInitMutateChecker(BaseChecker):
         """Build a suggested dictionary literal from the init and subsequent
         mutations.
         """
-        items: list[str] = []
 
-        # Collect existing items from the dict literal
-        for key, value in dict_node.items:
-            if key is not None:
-                items.append(f"{key.as_string()}: {value.as_string()}")
+        def _items() -> Iterator[str]:
+            # Existing items from the dict literal
+            for key, value in dict_node.items:
+                if key is not None:
+                    yield f"{key.as_string()}: {value.as_string()}"
 
-        # Collect items from consecutive subscript assignments
-        sibling: nodes.NodeNG | None = first_mutation
-        while sibling is not None:
-            match sibling:
-                case nodes.Assign(
-                    targets=[
-                        nodes.Subscript(value=nodes.Name(name=name), slice=key_node)
-                    ],
-                    value=val_node,
-                ) if (
-                    name == dict_name
-                ):
-                    items.append(f"{key_node.as_string()}: {val_node.as_string()}")
-                case _:
-                    break
-            sibling = sibling.next_sibling()
+            # Items from consecutive subscript assignments
+            sibling: nodes.NodeNG | None = first_mutation
+            while sibling is not None:
+                match sibling:
+                    case nodes.Assign(
+                        targets=[
+                            nodes.Subscript(
+                                value=nodes.Name(name=name), slice=key_node
+                            )
+                        ],
+                        value=val_node,
+                    ) if (
+                        name == dict_name
+                    ):
+                        yield f"{key_node.as_string()}: {val_node.as_string()}"
+                    case _:
+                        break
+                sibling = sibling.next_sibling()
 
-        return f"{dict_name} = {truncated_dict_suggestion(items)}"
+        return f"{dict_name} = {truncated_dict_suggestion(_items())}"
 
 
 def register(linter: PyLinter) -> None:

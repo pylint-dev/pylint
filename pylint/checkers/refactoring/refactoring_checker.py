@@ -1732,13 +1732,15 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     @staticmethod
     def _dict_literal_suggestion(node: nodes.Call) -> str:
         """Return a suggestion of reasonable length."""
-        elements: list[str] = []
-        for keyword in node.keywords:
-            if keyword not in node.kwargs:
-                elements.append(f'"{keyword.arg}": {keyword.value.as_string()}')
-        for keyword in node.kwargs:
-            elements.append(f"**{keyword.value.as_string()}")
-        return truncated_dict_suggestion(elements)
+
+        def _elements() -> Iterator[str]:
+            for keyword in node.keywords:
+                if keyword not in node.kwargs:
+                    yield f'"{keyword.arg}": {keyword.value.as_string()}'
+            for keyword in node.kwargs:
+                yield f"**{keyword.value.as_string()}"
+
+        return truncated_dict_suggestion(_elements())
 
     def _name_to_concatenate(self, node: nodes.NodeNG) -> str | None:
         """Try to extract the name used in a concatenation loop."""

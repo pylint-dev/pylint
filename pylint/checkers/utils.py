@@ -2351,17 +2351,20 @@ def is_enum_member(node: nodes.AssignName) -> bool:
     return node.name in [name_obj.name for value, name_obj in members[0].items]
 
 
-def truncated_dict_suggestion(elements: list[str], max_chars: int = 64) -> str:
+def truncated_dict_suggestion(elements: Iterable[str]) -> str:
     """Build a truncated dict literal suggestion from string elements.
 
-    Collects elements until the joined string exceeds *max_chars*, then
+    Collects elements until the joined string exceeds 64 chars, then
     appends ``', ... '`` to signal truncation.  Used by both
     ``dict-init-mutate`` and ``use-dict-literal`` checkers.
+
+    Accepts an iterator so callers can avoid materializing a full list
+    when the dict is large.
     """
     kept: list[str] = []
     for element in elements:
-        if kept and len(", ".join(kept)) >= max_chars:
+        if kept and len(", ".join(kept)) >= 64:
             break
         kept.append(element)
     suggestion = ", ".join(kept)
-    return f"{{{suggestion}{', ... ' if len(suggestion) > max_chars else ''}}}"
+    return f"{{{suggestion}{', ... ' if len(suggestion) > 64 else ''}}}"
