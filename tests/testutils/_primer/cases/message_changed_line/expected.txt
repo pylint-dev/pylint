@@ -6,6 +6,7 @@
 The following messages are now emitted:
 
 <details>
+
 1) too-complex:
 *'my_function' is too complex. The McCabe rating is 17*
 https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L103
@@ -14,6 +15,7 @@ https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.
 The following messages are no longer emitted:
 
 <details>
+
 1) too-complex:
 *'my_function' is too complex. The McCabe rating is 18*
 https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L100

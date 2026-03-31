@@ -73,7 +73,7 @@ class CompareCommand(PrimerCommand):
             )
         if new_non_astroid_messages:
             comment += (
-                "The following messages are now emitted:\n\n<details>\n"
+                "The following messages are now emitted:\n\n<details>\n\n"
                 + new_non_astroid_messages
                 + "</details>\n\n"
             )
@@ -81,7 +81,7 @@ class CompareCommand(PrimerCommand):
         # Create comment for missing messages
         count = 1
         if missing_messages["messages"]:
-            comment += "The following messages are no longer emitted:\n\n<details>\n"
+            comment += "The following messages are no longer emitted:\n\n<details>\n\n"
             print("No longer emitted:")
         for message in missing_messages["messages"]:
             comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
@@ -122,7 +122,12 @@ class CompareCommand(PrimerCommand):
                 - len(suffix)
                 - len(closing_tag)
             )
-            comment = comment[: max_len - 10] + "...\n"
+            # Cut at the last space before the limit to avoid mid-word truncation.
+            cut_point = comment.rfind(" ", 0, max_len - 10)
+            if cut_point > 0:
+                comment = comment[:cut_point] + "...\n"
+            else:
+                comment = comment[: max_len - 10] + "...\n"
             # Close any <details> tag left open by the truncation.
             if comment.count("<details>") > comment.count("</details>"):
                 comment += closing_tag
