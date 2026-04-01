@@ -73,7 +73,7 @@ def test_lint_module_output_update_remove_useless_txt(
 
 
 def test_lint_module_output_update_does_not_remove_fallback_versioned_output(
-        lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
 ) -> None:
     """Fallback versioned expected output should not be deleted on update."""
     filename, expected_output_file, lmou = lint_module_fixture("fine_name")
@@ -83,8 +83,8 @@ def test_lint_module_output_update_does_not_remove_fallback_versioned_output(
     fallback_output_file.write_text("old output\n", encoding="utf8")
 
     with patch(
-            "pylint.testutils.functional.test_file._CURRENT_VERSION",
-            new=(3, 14),
+        "pylint.testutils.functional.test_file._CURRENT_VERSION",
+        new=(3, 14),
     ):
         assert Path(lmou._test_file.expected_output) == fallback_output_file
         lmou.runTest()
@@ -93,7 +93,7 @@ def test_lint_module_output_update_does_not_remove_fallback_versioned_output(
 
 
 def test_lint_module_output_update_does_not_overwrite_fallback_versioned_output(
-        lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
 ) -> None:
     """Fallback versioned expected output should not be overwritten on update."""
     filename, expected_output_file, lmou = lint_module_fixture("foo")
@@ -103,8 +103,8 @@ def test_lint_module_output_update_does_not_overwrite_fallback_versioned_output(
     fallback_output_file.write_text("old output\n", encoding="utf8")
 
     with patch(
-            "pylint.testutils.functional.test_file._CURRENT_VERSION",
-            new=(3, 14),
+        "pylint.testutils.functional.test_file._CURRENT_VERSION",
+        new=(3, 14),
     ):
         assert Path(lmou._test_file.expected_output) == fallback_output_file
         lmou.runTest()
