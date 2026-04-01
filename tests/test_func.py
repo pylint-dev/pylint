@@ -34,7 +34,7 @@ class LintTestUsingModule:
     module: str | None = None
     depends: list[tuple[str, str]] | None = None
     output: str | None = None
-    golden_master: GoldenMaster | None = None
+    golden_master: GoldenMaster
 
     def _test_functionality(self) -> None:
         tocheck = [self.package + "." + self.module] if self.module else []
@@ -49,15 +49,8 @@ class LintTestUsingModule:
             self._test(tocheck)
 
     def _check_result(self, got: str) -> None:
-        if self.golden_master and self.output:
+        if self.output:
             self.golden_master.check(got, self.output)
-        else:
-            error_msg = (
-                f"Wrong output for '{self.output}':\n"
-                "You can update the expected output automatically with: '"
-                'pytest --remaster -k "test_functionality"\'\n\n'
-            )
-            assert self._get_expected() == got, error_msg
 
     def _test(self, tocheck: list[str]) -> None:
         if self.module and INFO_TEST_RGX.match(self.module):
@@ -76,18 +69,6 @@ class LintTestUsingModule:
             raise
         assert isinstance(self.linter.reporter, GenericTestReporter)
         self._check_result(self.linter.reporter.finalize())
-
-    def _has_output(self) -> bool:
-        return isinstance(self.module, str) and not self.module.startswith(
-            "func_noerror_"
-        )
-
-    def _get_expected(self) -> str:
-        if self._has_output() and self.output:
-            with open(self.output, encoding="utf-8") as fobj:
-                return fobj.read().strip() + "\n"
-        else:
-            return ""
 
 
 def exception_str(
