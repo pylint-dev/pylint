@@ -18,7 +18,7 @@ CASES_PATH = Path(__file__).parent / "cases"
 )
 def test_comparator(directory: Path) -> None:
     """Test Comparator with each fixture directory."""
-    comparator = Comparator(str(directory / "main.json"), str(directory / "pr.json"))
+    comparator = Comparator.from_json(directory / "main.json", directory / "pr.json")
     expected = json.loads((directory / "expected_comparator.json").read_text("utf-8"))
     results = list(comparator)
     assert len(results) == len(expected)
@@ -30,9 +30,9 @@ def test_comparator(directory: Path) -> None:
 
 def test_comparator_batched() -> None:
     fixture = Path(__file__).parent / "batched_cases"
-    comparator = Comparator(
-        str(fixture / "main_BATCHIDX.json"),
-        str(fixture / "pr_BATCHIDX.json"),
+    comparator = Comparator.from_json(
+        fixture / "main_BATCHIDX.json",
+        fixture / "pr_BATCHIDX.json",
         batches=2,
     )
     expected = json.loads((fixture / "expected_comparator.json").read_text("utf-8"))
