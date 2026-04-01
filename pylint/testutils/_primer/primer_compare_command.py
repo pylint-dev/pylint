@@ -13,7 +13,7 @@ MAX_GITHUB_COMMENT_LENGTH = 65536
 
 class CompareCommand(PrimerCommand):
     def run(self) -> None:
-        comparator = Comparator(
+        comparator = Comparator.from_json(
             self.config.base_file, self.config.new_file, self.config.batches
         )
         comment = self._create_comment(comparator)
