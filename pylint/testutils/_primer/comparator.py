@@ -8,7 +8,7 @@ import json
 from collections.abc import Generator
 from pathlib import Path
 
-from pylint.reporters.json_reporter import OldJsonExport
+from pylint.reporters.json_reporter import JSONMessage
 from pylint.testutils._primer.primer_command import (
     PackageData,
     PackageMessages,
@@ -51,7 +51,7 @@ class Comparator:
 
         missing_messages: PackageMessages = {}
         for package, data in main_data.items():
-            package_missing_messages: list[OldJsonExport] = []
+            package_missing_messages: list[JSONMessage] = []
             for message in data["messages"]:
                 try:
                     pr_data[package]["messages"].remove(message)
