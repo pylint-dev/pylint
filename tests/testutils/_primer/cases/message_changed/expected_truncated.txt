@@ -3,12 +3,14 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-The following messages are now emitted:
+The following messages have been changed:
 
 <details>
 
-1) locally-disabled:
-*Locally disabling redefined-builtin [we added some text in the message]...
+1) [locally-disabled](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91):
+```diff
+- Locally disabling redefined-builtin (W0622)
++ Locally disabling...
 </details>
 
 *This comment was truncated because GitHub allows only 525 characters in a comment.*
