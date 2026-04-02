@@ -127,6 +127,55 @@ def test_expected_output_file_matching(files: list[str], output_file_name: str) 
             assert test_file.expected_output == f".{os.path.sep}{output_file_name}"
 
 
+@pytest.mark.parametrize(
+    ["files", "output_file_name", "is_fallback"],
+    [
+        ([], "file.txt", False),
+        (["file.txt"], "file.txt", False),
+        (["file.315.txt"], "file.txt", False),  # don't match 3.15
+        (["file.42.txt"], "file.txt", False),  # don't match 4.2
+        (["file.32.txt", "file.txt"], "file.32.txt", True),
+        (["file.313.txt", "file.txt"], "file.313.txt", True),
+        (["file.314.txt", "file.txt"], "file.314.txt", False),
+        (
+            [
+                "file.310.txt",
+                "file.313.txt",
+                "file.312.txt",
+                "file.314.txt",
+                "file.txt",
+            ],
+            "file.314.txt",
+            False,
+        ),
+        (
+            ["file.310.txt", "file.313.txt", "file.312.txt", "file.txt"],
+            "file.313.txt",
+            True,
+        ),
+        # don't match other test file names accidentally
+        ([".file.313.txt"], "file.txt", False),
+        (["file_other.313.txt"], "file.txt", False),
+        (["other_file.313.txt"], "file.txt", False),
+    ],
+)
+def test_expected_output_fallback_detection(
+    files: list[str], output_file_name: str, is_fallback: bool
+) -> None:
+    """Test output file fallback detection. Pin current Python version to 3.13."""
+    with tempdir():
+        for file in files:
+            with open(file, "w", encoding="utf-8"):
+                ...
+        test_file = FunctionalTestFile(".", "file.py")
+        with patch(
+            "pylint.testutils.functional.test_file._CURRENT_VERSION",
+            new=(3, 14),
+        ):
+            assert test_file.expected_output == f".{os.path.sep}{output_file_name}"
+            assert test_file.expected_output_is_fallback is is_fallback
+
+
 def test_minimal_messages_config_enabled(pytest_config: MagicMock) -> None:
     """Test that all messages not targeted in the functional test are disabled
     when running with --minimal-messages-config.

@@ -66,6 +66,9 @@ def test_functional(
     else:
         actual_output = lint_test.check_messages()
 
-    golden_master.check(
-        lint_test.serialize_output(actual_output), test_file.expected_output
-    )
+    serialized_output = lint_test.serialize_output(actual_output)
+    if test_file.expected_output_is_fallback:
+        expected = Path(test_file.expected_output).read_text(encoding="utf-8")
+        assert serialized_output.rstrip() == expected.rstrip()
+    else:
+        golden_master.check(serialized_output, test_file.expected_output)
