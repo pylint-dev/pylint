@@ -3,6 +3,8 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 from __future__ import annotations
 
+import re
+from collections.abc import Callable
 from pathlib import PurePosixPath
 
 from pylint.reporters.json_reporter import JSONMessage
@@ -14,6 +16,70 @@ from pylint.testutils._primer.comparator import (
 from pylint.testutils._primer.primer_command import PrimerCommand
 
 MAX_GITHUB_COMMENT_LENGTH = 65536
+USELESS_SUPPRESSION_RE = re.compile(r"Useless suppression of '(.+)'")
+
+
+def _format_messages(
+    messages: list[JSONMessage],
+    source_link: Callable[[JSONMessage], str],
+) -> str:
+    """Format a list of messages as a numbered body for a ``<details>`` block."""
+    body = ""
+    for count, msg in enumerate(messages, 1):
+        body += (
+            f"{count}) {msg['symbol']}:\n*{msg['message']}*\n" f"{source_link(msg)}\n"
+        )
+    return body
+
+
+class _ClassifiedMessages:
+    """All message categories for a single package, pre-formatted for display."""
+
+    __slots__ = (
+        "astroid_errors",
+        "changed_messages",
+        "fixed_false_positives",
+        "missing_messages",
+        "new_false_positives",
+        "new_messages",
+    )
+
+    def __init__(
+        self,
+        new_messages: list[JSONMessage],
+        missing_messages: list[JSONMessage],
+        changed_messages: list[ChangedMessage],
+        source_link: Callable[[JSONMessage], str],
+    ) -> None:
+        astroid_errors = 0
+        new_fp: list[JSONMessage] = []
+        fixed_fp: list[JSONMessage] = []
+        other_new: list[JSONMessage] = []
+        for message in new_messages:
+            if message["symbol"] == "astroid-error":
+                astroid_errors += 1
+            elif USELESS_SUPPRESSION_RE.match(message["message"]):
+                fixed_fp.append(message)
+            elif message["symbol"] == "locally-disabled":
+                # A new locally-disabled means a maintainer had to add a
+                # suppression comment — we introduced a false positive.
+                new_fp.append(message)
+            else:
+                other_new.append(message)
+
+        self.astroid_errors = astroid_errors
+        self.fixed_false_positives = _format_messages(fixed_fp, source_link)
+        self.new_false_positives = _format_messages(new_fp, source_link)
+        self.new_messages = _format_messages(other_new, source_link)
+        self.missing_messages = _format_messages(missing_messages, source_link)
+
+        body = ""
+        for count, (old, new) in enumerate(changed_messages, 1):
+            body += (
+                f"{count}) [{new['symbol']}]({source_link(new)}):\n"
+                f"{message_diff(old, new)}\n"
+            )
+        self.changed_messages = body
 
 
 class CompareCommand(PrimerCommand):
@@ -66,63 +132,51 @@ class CompareCommand(PrimerCommand):
             filepath = str(PurePosixPath(msg["path"]).relative_to(clone_dir))
             return f"{url}/blob/{commit}/{filepath}#L{msg['line']}"
 
+        def _details_section(title: str, body: str) -> str:
+            # Blank line after <details> required for GitHub markdown rendering.
+            return f"{title}\n\n<details>\n\n{body}</details>\n\n"
+
+        classified = _ClassifiedMessages(
+            new_messages, missing_messages, changed_messages, _source_link
+        )
         comment = f"\n**Effect on [{package}]({url}):**\n\n"
 
-        # Changed messages
         if changed_messages:
             print("Changed:")
-            comment += "The following messages have been changed:\n\n<details>\n\n"
-            for count, (old, new) in enumerate(changed_messages, 1):
-                comment += (
-                    f"{count}) [{new['symbol']}]({_source_link(new)}):\n"
-                    f"{message_diff(old, new)}\n"
-                )
+            for _, new in changed_messages:
                 print(new)
-            comment += "</details>\n\n"
-
-        # New messages
-        count = 1
-        astroid_errors = 0
-        new_non_astroid_messages = ""
         if new_messages:
             print("Now emitted:")
-        for message in new_messages:
-            if message["symbol"] == "astroid-error":
-                astroid_errors += 1
-            else:
-                new_non_astroid_messages += (
-                    f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                    f"{_source_link(message)}\n"
-                )
-                print(message)
-                count += 1
+            for msg in new_messages:
+                print(msg)
+        if missing_messages:
+            print("No longer emitted:")
+            for msg in missing_messages:
+                print(msg)
 
-        if astroid_errors:
+        if classified.changed_messages:
+            comment += _details_section(
+                "Changed messages:", classified.changed_messages
+            )
+        if classified.astroid_errors:
             comment += (
-                f'{astroid_errors} "astroid error(s)" were found. '
+                f'{classified.astroid_errors} "astroid error(s)" were found. '
                 "Please open the GitHub Actions log to see what failed or crashed.\n\n"
             )
-        if new_non_astroid_messages:
-            comment += (
-                "The following messages are now emitted:\n\n<details>\n\n"
-                + new_non_astroid_messages
-                + "</details>\n\n"
+        if classified.fixed_false_positives:
+            comment += _details_section(
+                "🎉 Fixed false positives:", classified.fixed_false_positives
             )
-
-        # Missing messages
-        count = 1
-        if missing_messages:
-            comment += "The following messages are no longer emitted:\n\n<details>\n\n"
-            print("No longer emitted:")
-        for message in missing_messages:
-            comment += (
-                f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                f"{_source_link(message)}\n"
+        if classified.new_false_positives:
+            comment += _details_section(
+                "😞 New false positives:", classified.new_false_positives
             )
-            count += 1
-            print(message)
-        if missing_messages:
-            comment += "</details>\n\n"
+        if classified.new_messages:
+            comment += _details_section("New messages:", classified.new_messages)
+        if classified.missing_messages:
+            comment += _details_section(
+                "Removed messages:", classified.missing_messages
+            )
         return comment
 
     def _truncate_comment(self, comment: str) -> str:

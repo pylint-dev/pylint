@@ -75,7 +75,7 @@ class TestPrimer:
 
     def test_truncated_compare(self) -> None:
         """Test for the truncation of comments that are too long."""
-        max_comment_length = 525
+        max_comment_length = 450
         directory = CASES_PATH / "message_changed"
         with patch(
             "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
@@ -88,7 +88,7 @@ class TestPrimer:
 
     def test_truncated_compare_in_details(self) -> None:
         """Test for the truncation of comments that are too long inside details."""
-        max_comment_length = 420
+        max_comment_length = 400
         directory = CASES_PATH / "message_changed"
         with patch(
             "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",
