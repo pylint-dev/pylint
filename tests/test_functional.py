@@ -71,6 +71,4 @@ def test_functional(
         expected = Path(test_file.expected_output).read_text(encoding="utf-8")
         assert serialized_output.rstrip() == expected.rstrip()
     else:
-        golden_master.check(
-            serialized_output, test_file.expected_output
-        )
+        golden_master.check(serialized_output, test_file.expected_output)

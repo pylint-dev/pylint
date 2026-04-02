@@ -137,8 +137,22 @@ def test_expected_output_file_matching(files: list[str], output_file_name: str) 
         (["file.32.txt", "file.txt"], "file.32.txt", True),
         (["file.313.txt", "file.txt"], "file.313.txt", True),
         (["file.314.txt", "file.txt"], "file.314.txt", False),
-        (["file.310.txt", "file.313.txt", "file.312.txt", "file.314.txt", "file.txt"], "file.314.txt", False),
-        (["file.310.txt", "file.313.txt", "file.312.txt", "file.txt"], "file.313.txt", True),
+        (
+            [
+                "file.310.txt",
+                "file.313.txt",
+                "file.312.txt",
+                "file.314.txt",
+                "file.txt",
+            ],
+            "file.314.txt",
+            False,
+        ),
+        (
+            ["file.310.txt", "file.313.txt", "file.312.txt", "file.txt"],
+            "file.313.txt",
+            True,
+        ),
         # don't match other test file names accidentally
         ([".file.313.txt"], "file.txt", False),
         (["file_other.313.txt"], "file.txt", False),
@@ -146,7 +160,7 @@ def test_expected_output_file_matching(files: list[str], output_file_name: str) 
     ],
 )
 def test_expected_output_fallback_detection(
-        files: list[str], output_file_name: str, is_fallback: bool
+    files: list[str], output_file_name: str, is_fallback: bool
 ) -> None:
     """Test output file fallback detection. Pin current Python version to 3.13."""
     with tempdir():
