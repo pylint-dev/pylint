@@ -29,7 +29,7 @@
         "symbol": "too-complex",
         "message": "'my_function' is too complex. The McCabe rating is 17",
         "messageId": "R1260",
-        "confidence": "UNDEFINED",
+        "confidence": "HIGH",
         "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/node_classes.py"
       },
       {
@@ -44,7 +44,7 @@
         "symbol": "unknown-option-value",
         "message": "Unknown option value for 'disable', expected a valid pylint message and got 'Ellipsis'",
         "messageId": "W0012",
-        "confidence": "UNDEFINED",
+        "confidence": "HIGH",
         "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/__init__.py"
       }
     ]
