@@ -3,28 +3,28 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-The following messages are now emitted:
+The following messages have been changed:
 
 <details>
 
-1) locally-disabled:
-*Locally disabling redefined-builtin [we added some text in the message] (W0622)*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91
-2) too-complex:
-*'my_function' is too complex. The McCabe rating is 17*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L105
-</details>
+1) [locally-disabled](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91):
+```diff
+- Locally disabling redefined-builtin (W0622)
++ Locally disabling redefined-builtin [we added some text in the message] (W0622)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+2) [too-complex](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L105):
+Was raised from `100:0` to `100:15`, now from `105:0` to `105:15`.
 
-The following messages are no longer emitted:
+confidence: `UNDEFINED` → `HIGH`
 
-<details>
-
-1) locally-disabled:
-*Locally disabling redefined-builtin (W0622)*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91
-2) too-complex:
-*'my_function' is too complex. The McCabe rating is 18*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L100
+```diff
+- 'my_function' is too complex. The McCabe rating is 18
++ 'my_function' is too complex. The McCabe rating is 17
+                                                      ^
+```
+3) [unknown-option-value](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91):
+confidence: `UNDEFINED` → `HIGH`
 </details>
 
 *This comment was generated for commit v2.14.2*

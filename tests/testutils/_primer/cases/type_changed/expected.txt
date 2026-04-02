@@ -3,22 +3,12 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-The following messages are now emitted:
+The following messages have been changed:
 
 <details>
 
-1) line-too-long:
-*Line too long (120/100)*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L50
-</details>
-
-The following messages are no longer emitted:
-
-<details>
-
-1) line-too-long:
-*Line too long (120/100)*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L50
+1) [line-too-long](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L50):
+type: `convention` → `warning`
 </details>
 
 *This comment was generated for commit v2.14.2*

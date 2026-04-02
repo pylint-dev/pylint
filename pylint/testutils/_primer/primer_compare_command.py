@@ -5,8 +5,13 @@ from __future__ import annotations
 
 from pathlib import PurePosixPath
 
-from pylint.testutils._primer.comparator import Comparator
-from pylint.testutils._primer.primer_command import PackageData, PrimerCommand
+from pylint.reporters.json_reporter import JSONMessage
+from pylint.testutils._primer.comparator import (
+    Comparator,
+    PackageDiff,
+    message_diff,
+)
+from pylint.testutils._primer.primer_command import PrimerCommand
 
 MAX_GITHUB_COMMENT_LENGTH = 65536
 
@@ -25,10 +30,7 @@ class CompareCommand(PrimerCommand):
         for diff in comparator:
             if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
                 break
-            package = diff.package
-            comment += f"\n**Effect on [{package}]({self.packages[package].url}):**\n\n"
-            comment += self._format_new_messages(package, diff.new)
-            comment += self._format_missing_messages(package, diff.missing)
+            comment += self._create_comment_for_package(diff)
         comment = (
             f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
             if comment
@@ -39,27 +41,47 @@ class CompareCommand(PrimerCommand):
         )
         return self._truncate_comment(comment)
 
-    def _format_new_messages(self, package: str, new_messages: PackageData) -> str:
-        comment = ""
+    def _create_comment_for_package(self, diff: PackageDiff) -> str:
+        package = diff.package
+        url = self.packages[package].url
+        clone_dir = self.packages[package].clone_directory
+        commit = diff.new["commit"]
+
+        assert not url.endswith(
+            ".git"
+        ), "You don't need the .git at the end of the github url."
+
+        def _source_link(msg: JSONMessage) -> str:
+            filepath = str(PurePosixPath(msg["path"]).relative_to(clone_dir))
+            return f"{url}/blob/{commit}/{filepath}#L{msg['line']}"
+
+        comment = f"\n**Effect on [{package}]({url}):**\n\n"
+
+        # Changed messages
+        if diff.changed:
+            print("Changed:")
+            comment += "The following messages have been changed:\n\n<details>\n\n"
+            for count, (old, new) in enumerate(diff.changed, 1):
+                comment += (
+                    f"{count}) [{new['symbol']}]({_source_link(new)}):\n"
+                    f"{message_diff(old, new)}\n"
+                )
+                print(new)
+            comment += "</details>\n\n"
+
+        # New messages
         count = 1
         astroid_errors = 0
         new_non_astroid_messages = ""
-        if new_messages["messages"]:
+        if diff.new["messages"]:
             print("Now emitted:")
-        for message in new_messages["messages"]:
-            filepath = str(
-                PurePosixPath(message["path"]).relative_to(
-                    self.packages[package].clone_directory
-                )
-            )
-            # Existing astroid errors may still show up as "new" because the timestamp
-            # in the message is slightly different.
+        for message in diff.new["messages"]:
             if message["symbol"] == "astroid-error":
                 astroid_errors += 1
             else:
                 new_non_astroid_messages += (
                     f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                    f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
+                    f"{_source_link(message)}\n"
                 )
                 print(message)
                 count += 1
@@ -75,33 +97,20 @@ class CompareCommand(PrimerCommand):
                 + new_non_astroid_messages
                 + "</details>\n\n"
             )
-        return comment
 
-    def _format_missing_messages(
-        self, package: str, missing_messages: PackageData
-    ) -> str:
-        comment = ""
+        # Missing messages
         count = 1
-        if missing_messages["messages"]:
+        if diff.missing["messages"]:
             comment += "The following messages are no longer emitted:\n\n<details>\n\n"
             print("No longer emitted:")
-        for message in missing_messages["messages"]:
-            comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-            filepath = str(
-                PurePosixPath(message["path"]).relative_to(
-                    self.packages[package].clone_directory
-                )
-            )
-            assert not self.packages[package].url.endswith(
-                ".git"
-            ), "You don't need the .git at the end of the github url."
+        for message in diff.missing["messages"]:
             comment += (
-                f"{self.packages[package].url}"
-                f"/blob/{missing_messages['commit']}/{filepath}#L{message['line']}\n"
+                f"{count}) {message['symbol']}:\n*{message['message']}*\n"
+                f"{_source_link(message)}\n"
             )
             count += 1
             print(message)
-        if missing_messages["messages"]:
+        if diff.missing["messages"]:
             comment += "</details>\n\n"
         return comment
 

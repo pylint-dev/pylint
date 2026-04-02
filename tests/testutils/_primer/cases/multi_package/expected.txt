@@ -24,7 +24,7 @@ https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.
 
 **Effect on [astropy](https://github.com/astropy/astropy):**
 
-The following messages are now emitted:
+😞 The following false positives have been introduced:
 
 <details>
 

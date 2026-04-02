@@ -3,22 +3,16 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-The following messages are now emitted:
+The following messages have been changed:
 
 <details>
 
-1) locally-disabled:
-*Locally disabling redefined-builtin [we added some text in the message] (W0622)*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91
-</details>
-
-The following messages are no longer emitted:
-
-<details>
-
-1) locally-disabled:
-*Locally disabling redefined-builtin (W0622)*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91
+1) [locally-disabled](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91):
+```diff
+- Locally disabling redefined-builtin (W0622)
++ Locally disabling redefined-builtin [we added some text in the message] (W0622)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
 </details>
 
 *This comment was generated for commit v2.14.2*

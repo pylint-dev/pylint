@@ -22,10 +22,11 @@ def test_comparator(directory: Path) -> None:
     expected = json.loads((directory / "expected_comparator.json").read_text("utf-8"))
     results = list(comparator)
     assert len(results) == len(expected)
-    for (package, missing, new), exp in zip(results, expected):
+    for (package, missing, new, changed), exp in zip(results, expected):
         assert package == exp["package"]
         assert len(missing["messages"]) == exp["missing"]
         assert len(new["messages"]) == exp["new"]
+        assert len(changed) == exp["changed"]
 
 
 def test_comparator_batched() -> None:
@@ -38,7 +39,8 @@ def test_comparator_batched() -> None:
     expected = json.loads((fixture / "expected_comparator.json").read_text("utf-8"))
     results = list(comparator)
     assert len(results) == len(expected)
-    for (package, missing, new), exp in zip(results, expected):
+    for (package, missing, new, changed), exp in zip(results, expected):
         assert package == exp["package"]
         assert len(missing["messages"]) == exp["missing"]
         assert len(new["messages"]) == exp["new"]
+        assert len(changed) == exp["changed"]
