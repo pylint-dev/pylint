@@ -75,8 +75,8 @@ def format_span(msg: JSONMessage) -> str:
     end_line = msg.get("endLine")
     end_col = msg.get("endColumn")
     if end_line is not None and end_col is not None:
-        return f"from `{start}` to `{end_line}:{end_col}`"
-    return f"at `{start}`"
+        return f"`{start}`-`{end_line}:{end_col}`"
+    return f"`{start}`"
 
 
 def message_diff(old: JSONMessage, new: JSONMessage) -> str:
@@ -87,14 +87,14 @@ def message_diff(old: JSONMessage, new: JSONMessage) -> str:
     renders them with red/green highlighting.
     """
     changed_keys: set[str] = set()
-    for key in old:
-        if old[key] != new[key]:  # type: ignore[literal-required]
+    for key in set(old) | set(new):
+        if old.get(key) != new.get(key):
             changed_keys.add(key)
 
     parts: list[str] = []
     # Location: combine line/column/endLine/endColumn into one sentence.
     if changed_keys & _LOCATION_KEYS:
-        parts.append(f"Was raised {format_span(old)}, now {format_span(new)}.")
+        parts.append(f"Moved from {format_span(old)} to {format_span(new)}.")
 
     # Other fields (typically ``message`` or ``type``).
     for key in sorted(changed_keys - _LOCATION_KEYS):
