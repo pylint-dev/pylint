@@ -8,7 +8,7 @@ Changed messages:
 <details>
 
 1) [too-complex](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L105):
-Was raised from `100:0` to `100:15`, now from `105:0` to `105:15`.
+Moved from `100:0`-`100:15` to `105:0`-`105:15`.
 
 ```diff
 - 'my_function' is too complex. The McCabe rating is 18
