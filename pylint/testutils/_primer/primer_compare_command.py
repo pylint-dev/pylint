@@ -3,12 +3,83 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 from __future__ import annotations
 
+import re
+from collections.abc import Callable
 from pathlib import PurePosixPath
 
-from pylint.testutils._primer.comparator import Comparator
-from pylint.testutils._primer.primer_command import PackageData, PrimerCommand
+from pylint.reporters.json_reporter import JSONMessage
+from pylint.testutils._primer.comparator import (
+    ChangedMessage,
+    Comparator,
+    message_diff,
+)
+from pylint.testutils._primer.primer_command import PrimerCommand
 
 MAX_GITHUB_COMMENT_LENGTH = 65536
+USELESS_SUPPRESSION_RE = re.compile(r"Useless suppression of '(.+)'")
+
+
+def _format_messages(
+    messages: list[JSONMessage],
+    source_link: Callable[[JSONMessage], str],
+) -> str:
+    """Format a list of messages as a numbered body for a ``<details>`` block."""
+    body = ""
+    for count, msg in enumerate(messages, 1):
+        body += (
+            f"{count}) {msg['symbol']}:\n*{msg['message']}*\n" f"{source_link(msg)}\n"
+        )
+    return body
+
+
+class _ClassifiedMessages:
+    """All message categories for a single package, pre-formatted for display."""
+
+    __slots__ = (
+        "astroid_errors",
+        "changed_messages",
+        "fixed_false_positives",
+        "missing_messages",
+        "new_false_positives",
+        "new_messages",
+    )
+
+    def __init__(
+        self,
+        new_messages: list[JSONMessage],
+        missing_messages: list[JSONMessage],
+        changed_messages: list[ChangedMessage],
+        source_link: Callable[[JSONMessage], str],
+    ) -> None:
+        astroid_errors = 0
+        new_fp: list[JSONMessage] = []
+        fixed_fp: list[JSONMessage] = []
+        other_new: list[JSONMessage] = []
+        for message in new_messages:
+            if message["symbol"] == "astroid-error":
+                astroid_errors += 1
+            elif USELESS_SUPPRESSION_RE.match(message["message"]):
+                fixed_fp.append(message)
+            elif message["symbol"] == "locally-disabled":
+                # A new locally-disabled means a maintainer had to add a
+                # suppression comment — we introduced a false positive.
+                new_fp.append(message)
+            else:
+                other_new.append(message)
+
+        self.astroid_errors = astroid_errors
+        self.fixed_false_positives = _format_messages(fixed_fp, source_link)
+        self.new_false_positives = _format_messages(new_fp, source_link)
+        self.new_messages = _format_messages(other_new, source_link)
+        self.missing_messages = _format_messages(missing_messages, source_link)
+
+        body = ""
+        for count, (old, new) in enumerate(changed_messages, 1):
+            body += (
+                f"{count}) [{new['symbol']}]({source_link(new)}):\n"
+                f"{message_diff(old, new)}\n"
+            )
+        self.changed_messages = body
 
 
 class CompareCommand(PrimerCommand):
@@ -22,11 +93,15 @@ class CompareCommand(PrimerCommand):
 
     def _create_comment(self, comparator: Comparator) -> str:
         comment = ""
-        for package, missing_messages, new_messages in comparator:
+        for package, missing_messages, new_messages, changed_messages in comparator:
             if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
                 break
             comment += self._create_comment_for_package(
-                package, new_messages, missing_messages
+                package,
+                missing_messages,
+                new_messages,
+                changed_messages,
+                comparator.commits[package],
             )
         comment = (
             f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
@@ -39,68 +114,69 @@ class CompareCommand(PrimerCommand):
         return self._truncate_comment(comment)
 
     def _create_comment_for_package(
-        self, package: str, new_messages: PackageData, missing_messages: PackageData
+        self,
+        package: str,
+        missing_messages: list[JSONMessage],
+        new_messages: list[JSONMessage],
+        changed_messages: list[ChangedMessage],
+        commit: str,
     ) -> str:
-        comment = f"\n**Effect on [{package}]({self.packages[package].url}):**\n\n"
-        # Create comment for new messages
-        count = 1
-        astroid_errors = 0
-        new_non_astroid_messages = ""
-        if new_messages["messages"]:
-            print("Now emitted:")
-        for message in new_messages["messages"]:
-            filepath = str(
-                PurePosixPath(message["path"]).relative_to(
-                    self.packages[package].clone_directory
-                )
-            )
-            # Existing astroid errors may still show up as "new" because the timestamp
-            # in the message is slightly different.
-            if message["symbol"] == "astroid-error":
-                astroid_errors += 1
-            else:
-                new_non_astroid_messages += (
-                    f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-                    f"{self.packages[package].url}/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
-                )
-                print(message)
-                count += 1
+        url = self.packages[package].url
+        clone_dir = self.packages[package].clone_directory
 
-        if astroid_errors:
+        assert not url.endswith(
+            ".git"
+        ), "You don't need the .git at the end of the github url."
+
+        def _source_link(msg: JSONMessage) -> str:
+            filepath = str(PurePosixPath(msg["path"]).relative_to(clone_dir))
+            return f"{url}/blob/{commit}/{filepath}#L{msg['line']}"
+
+        def _details_section(title: str, body: str) -> str:
+            # Blank line after <details> required for GitHub markdown rendering.
+            return f"{title}\n\n<details>\n\n{body}</details>\n\n"
+
+        classified = _ClassifiedMessages(
+            new_messages, missing_messages, changed_messages, _source_link
+        )
+        comment = f"\n**Effect on [{package}]({url}):**\n\n"
+
+        if changed_messages:
+            print("Changed:")
+            for _, new in changed_messages:
+                print(new)
+        if new_messages:
+            print("Now emitted:")
+            for msg in new_messages:
+                print(msg)
+        if missing_messages:
+            print("No longer emitted:")
+            for msg in missing_messages:
+                print(msg)
+
+        if classified.changed_messages:
+            comment += _details_section(
+                "Changed messages:", classified.changed_messages
+            )
+        if classified.astroid_errors:
             comment += (
-                f'{astroid_errors} "astroid error(s)" were found. '
+                f'{classified.astroid_errors} "astroid error(s)" were found. '
                 "Please open the GitHub Actions log to see what failed or crashed.\n\n"
             )
-        if new_non_astroid_messages:
-            comment += (
-                "The following messages are now emitted:\n\n<details>\n\n"
-                + new_non_astroid_messages
-                + "</details>\n\n"
+        if classified.fixed_false_positives:
+            comment += _details_section(
+                "🎉 Fixed false positives:", classified.fixed_false_positives
             )
-
-        # Create comment for missing messages
-        count = 1
-        if missing_messages["messages"]:
-            comment += "The following messages are no longer emitted:\n\n<details>\n\n"
-            print("No longer emitted:")
-        for message in missing_messages["messages"]:
-            comment += f"{count}) {message['symbol']}:\n*{message['message']}*\n"
-            filepath = str(
-                PurePosixPath(message["path"]).relative_to(
-                    self.packages[package].clone_directory
-                )
+        if classified.new_false_positives:
+            comment += _details_section(
+                "😞 New false positives:", classified.new_false_positives
             )
-            assert not self.packages[package].url.endswith(
-                ".git"
-            ), "You don't need the .git at the end of the github url."
-            comment += (
-                f"{self.packages[package].url}"
-                f"/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
+        if classified.new_messages:
+            comment += _details_section("New messages:", classified.new_messages)
+        if classified.missing_messages:
+            comment += _details_section(
+                "Removed messages:", classified.missing_messages
             )
-            count += 1
-            print(message)
-        if missing_messages["messages"]:
-            comment += "</details>\n\n"
         return comment
 
     def _truncate_comment(self, comment: str) -> str:
