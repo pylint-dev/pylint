@@ -1,0 +1,18 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astropy](https://github.com/astropy/astropy):**
+
+The following messages are now emitted:
+
+<details>
+
+1) locally-disabled:
+*Locally disabling looping-through-iterator (W4801)*
+https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/coordinates/angles/angle_parsetab.py#L14
+2) useless-suppression:
+*Useless suppression of 'looping-through-iterator'*
+https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/coordinates/angles/angle_parsetab.py#L14
+</details>
+
+*This comment was generated for commit v2.14.2*

@@ -6,8 +6,9 @@
 The following messages are now emitted:
 
 <details>
+
 1) locally-disabled:
-*Locally disabling redefined-builtin [we added some text in the message...
+*Locally disabling redefined-builtin [we added some text in the...
 </details>
 
 *This comment was truncated because GitHub allows only 420 characters in a comment.*

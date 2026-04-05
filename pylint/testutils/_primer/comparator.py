@@ -8,7 +8,7 @@ import json
 from collections.abc import Generator
 from pathlib import Path
 
-from pylint.reporters.json_reporter import OldJsonExport
+from pylint.reporters.json_reporter import JSONMessage
 from pylint.testutils._primer.primer_command import (
     PackageData,
     PackageMessages,
@@ -16,36 +16,42 @@ from pylint.testutils._primer.primer_command import (
 
 
 class Comparator:
-    def __init__(
-        self, base_file: str, new_file: str, batches: int | None = None
-    ) -> None:
-        self._base_file = base_file
-        self._new_file = new_file
-        self._batches = batches
+    """Cross-reference two primer JSON outputs and iterate over differences."""
 
-    def __iter__(self) -> Generator[tuple[str, PackageData, PackageData]]:
+    def __init__(self, main_data: PackageMessages, pr_data: PackageMessages) -> None:
+        self._main_data = main_data
+        self._pr_data = pr_data
+
+    @staticmethod
+    def from_json(
+        base_file: Path | str, new_file: Path | str, batches: int | None = None
+    ) -> Comparator:
+        """Build a Comparator from JSON file paths, handling batched runs."""
         main_data: PackageMessages
-        if self._batches is None:
-            main_data = self._load_json(self._base_file)
-            pr_data = self._load_json(self._new_file)
+        pr_data: PackageMessages
+        if batches is None:
+            main_data = Comparator._load_json(base_file)
+            pr_data = Comparator._load_json(new_file)
         else:
             main_data = {}
             pr_data = {}
-            for idx in range(self._batches):
+            for idx in range(batches):
+                suffix = f"batch{idx}"
                 main_data.update(
-                    self._load_json(
-                        self._base_file.replace("BATCHIDX", "batch" + str(idx))
-                    )
+                    Comparator._load_json(str(base_file).replace("BATCHIDX", suffix))
                 )
                 pr_data.update(
-                    self._load_json(
-                        self._new_file.replace("BATCHIDX", "batch" + str(idx))
-                    )
+                    Comparator._load_json(str(new_file).replace("BATCHIDX", suffix))
                 )
+        return Comparator(main_data, pr_data)
+
+    def __iter__(self) -> Generator[tuple[str, PackageData, PackageData]]:
+        main_data = self._main_data
+        pr_data = self._pr_data
 
         missing_messages: PackageMessages = {}
         for package, data in main_data.items():
-            package_missing_messages: list[OldJsonExport] = []
+            package_missing_messages: list[JSONMessage] = []
             for message in data["messages"]:
                 try:
                     pr_data[package]["messages"].remove(message)

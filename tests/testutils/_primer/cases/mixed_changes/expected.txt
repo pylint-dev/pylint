@@ -10,6 +10,9 @@ The following messages are now emitted:
 1) locally-disabled:
 *Locally disabling redefined-builtin [we added some text in the message] (W0622)*
 https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91
+2) too-complex:
+*'my_function' is too complex. The McCabe rating is 17*
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L105
 </details>
 
 The following messages are no longer emitted:
@@ -19,6 +22,9 @@ The following messages are no longer emitted:
 1) locally-disabled:
 *Locally disabling redefined-builtin (W0622)*
 https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/__init__.py#L91
+2) too-complex:
+*'my_function' is too complex. The McCabe rating is 18*
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L100
 </details>
 
 *This comment was generated for commit v2.14.2*
