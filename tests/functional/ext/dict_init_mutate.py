@@ -57,7 +57,24 @@ class Axis:
 self_axes = [Axis("col1", "int"), Axis("col2", "str")]
 d = {"name": "table", "expectedrows": expectedrows}  # [dict-init-mutate]
 d["description"] = {a.cname: a.typ for a in self_axes}
+# Taken from a false positive in pytest https://github.com/pytest-dev/pytest/blob/728652641b378bb6ff31843698e562fc45536634/src/_pytest/junitxml.py#L74-L83
 
+def merge_family(left, right) -> None:
+    result = {}
+    for kl, vl in left.items():
+        for kr, vr in right.items():
+            if not isinstance(vl, list):
+                raise TypeError(type(vl))
+            result[kl] = vl + vr
+    left.update(result)
+
+families = {
+    "_base": {"testcase": ["classname", "name"]},
+    "_base_legacy": {"testcase": ["file", "line", "url"]},
+}
+families["xunit1"] = families["_base"].copy()
+merge_family(families["xunit1"], families["_base_legacy"])
+families["xunit2"] = families["_base"]
 
 # Test case: many mutations should be truncated in the suggestion
 settings = {}  # [dict-init-mutate]
