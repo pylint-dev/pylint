@@ -1,3 +1,7 @@
-dict-init-mutate:15:0:15:11::Declare all known key/values when initializing the dictionary.:HIGH
-dict-init-mutate:18:0:18:11::Declare all known key/values when initializing the dictionary.:HIGH
-dict-init-mutate:27:0:27:11::Declare all known key/values when initializing the dictionary.:HIGH
+dict-init-mutate:15:0:15:11::"Declare all known key/values when initializing the dictionary: config = {'pwd': 'hello'}":HIGH
+dict-init-mutate:18:0:18:11::"Declare all known key/values when initializing the dictionary: config = {'dir': 'bin', 'user': 'me', 'workers': 5}":HIGH
+dict-init-mutate:27:0:27:11::"Declare all known key/values when initializing the dictionary: config = {'options': {}}":HIGH
+dict-init-mutate:46:0:46:51::"Declare all known key/values when initializing the dictionary: d = {'name': 'table', 'expectedrows': expectedrows, 'description': {a[0]: a[1] for a in axes}, ... }":HIGH
+dict-init-mutate:58:0:58:51::"Declare all known key/values when initializing the dictionary: d = {'name': 'table', 'expectedrows': expectedrows, 'description': {a.cname: a.typ for a in self_axes}, ... }":HIGH
+dict-init-mutate:72:0:75:1::"Declare all known key/values when initializing the dictionary: families = {'_base': {'testcase': ['classname', 'name']}, '_base_legacy': {'testcase': ['file', 'line', 'url']}, ... }":HIGH
+dict-init-mutate:81:0:81:13::"Declare all known key/values when initializing the dictionary: settings = {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5, 'f': 6, 'g': 7}":HIGH
