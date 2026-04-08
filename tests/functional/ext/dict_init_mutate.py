@@ -57,18 +57,19 @@ class Axis:
 self_axes = [Axis("col1", "int"), Axis("col2", "str")]
 d = {"name": "table", "expectedrows": expectedrows}  # [dict-init-mutate]
 d["description"] = {a.cname: a.typ for a in self_axes}
-# Taken from a false positive in pytest https://github.com/pytest-dev/pytest/blob/728652641b378bb6ff31843698e562fc45536634/src/_pytest/junitxml.py#L74-L83
-
+# Taken from a false positive in pytest
+# https://github.com/pytest-dev/pytest/blob/728652641b378bb6ff31843698e562fc45536634/src/_pytest/junitxml.py#L74-L83
+# pylint: disable-next=missing-function-docstring
 def merge_family(left, right) -> None:
     result = {}
     for kl, vl in left.items():
-        for kr, vr in right.items():
+        for kr, vr in right.items():  # pylint: disable=unused-variable
             if not isinstance(vl, list):
                 raise TypeError(type(vl))
             result[kl] = vl + vr
     left.update(result)
 
-families = {
+families = {  # [dict-init-mutate]
     "_base": {"testcase": ["classname", "name"]},
     "_base_legacy": {"testcase": ["file", "line", "url"]},
 }
