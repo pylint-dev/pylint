@@ -250,7 +250,7 @@ class LintModuleTest:
         __tracebackhide__ = True  # pylint: disable=unused-variable
         modules_to_check = [self._test_file.source]
         self._linter.check(modules_to_check)
-        actual_messages, actual_output = self._get_actual()
+        _, actual_output = self._get_actual()
         return actual_output
 
     def _runTest(self) -> None:
