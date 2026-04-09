@@ -102,6 +102,10 @@ class FunctionalTestFile:
         return ".".join([package, self.base])
 
     @property
+    def expected_output_base(self) -> str:
+        return join(self._directory, self.base + ".txt")
+
+    @property
     def expected_output(self) -> str:
         files = [
             p.stem

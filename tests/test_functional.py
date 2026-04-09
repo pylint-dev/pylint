@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import sys
 from collections.abc import Iterator
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -67,5 +68,10 @@ def test_functional(
         actual_output = lint_test.check_messages()
 
     golden_master.check(
-        lint_test.serialize_output(actual_output), test_file.expected_output
+        lint_test.serialize_output(actual_output),
+        test_file.expected_output_base,
+        dimensions={
+            "version": f"{sys.version_info[0]}{sys.version_info[1]}",
+            "platform": sys.platform,
+        },
     )
