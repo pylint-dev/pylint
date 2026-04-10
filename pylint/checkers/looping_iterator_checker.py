@@ -101,9 +101,6 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
 
     @utils.only_required_for_messages("looping-through-iterator")
     def visit_call(self, node: nodes.Call) -> None:
-        # when user uses next() on an iterator, it's easy to understand that they are consuming it,
-        # so we can skip the check for any variables used as arguments in this call.
-        # This allows common patterns like `while True: item = next(iterator)` without false positives.
         if isinstance(node.func, nodes.Name) and node.func.name == "next":
             # When the user use 'next' it's easy to raise a false positive
             # and the user usually know what they do so the primer looked
