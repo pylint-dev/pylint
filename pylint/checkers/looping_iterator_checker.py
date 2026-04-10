@@ -14,8 +14,6 @@ from pylint.checkers import utils
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-DefinitionType = nodes.NodeNG | str
-
 
 class RepeatedIteratorLoopChecker(checkers.BaseChecker):
     """Checks for exhaustible iterators that are reused in a nested loop."""
@@ -34,7 +32,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
 
     options = ()
 
-    KNOWN_ITERATOR_PRODUCING_FUNCTIONS: set[str] = {
+    KNOWN_ITERATOR_PRODUCING_FUNCTION_QNAMES: set[str] = {
         "builtins.map",
         "builtins.filter",
         "builtins.zip",
@@ -48,12 +46,15 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
 
     # --- Scope Management ---
 
+    @utils.only_required_for_messages("looping-through-iterator")
     def visit_module(self, _node: nodes.Module) -> None:
         self._scope_stack = [{}]
 
+    @utils.only_required_for_messages("looping-through-iterator")
     def visit_functiondef(self, _node: nodes.FunctionDef) -> None:
         self._scope_stack.append({})
 
+    @utils.only_required_for_messages("looping-through-iterator")
     def leave_functiondef(self, _node: nodes.FunctionDef) -> None:
         self._scope_stack.pop()
 
@@ -86,7 +87,7 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
             # Use `safe_infer` for a robust check of the function being called
             inferred_func = utils.safe_infer(value_node.func)
             if inferred_func and hasattr(inferred_func, "qname"):
-                if inferred_func.qname() in self.KNOWN_ITERATOR_PRODUCING_FUNCTIONS:
+                if inferred_func.qname() in self.KNOWN_ITERATOR_PRODUCING_FUNCTION_QNAMES:
                     is_iterator_definition = True
 
         current_scope = self._scope_stack[-1]
@@ -100,6 +101,9 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
 
     @utils.only_required_for_messages("looping-through-iterator")
     def visit_call(self, node: nodes.Call) -> None:
+        # when user uses next() on an iterator, it's easy to understand that they are consuming it,
+        # so we can skip the check for any variables used as arguments in this call.
+        # This allows common patterns like `while True: item = next(iterator)` without false positives.
         if isinstance(node.func, nodes.Name) and node.func.name == "next":
             # When the user use 'next' it's easy to raise a false positive
             # and the user usually know what they do so the primer looked
