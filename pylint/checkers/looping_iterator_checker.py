@@ -87,7 +87,10 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
             # Use `safe_infer` for a robust check of the function being called
             inferred_func = utils.safe_infer(value_node.func)
             if inferred_func and hasattr(inferred_func, "qname"):
-                if inferred_func.qname() in self.KNOWN_ITERATOR_PRODUCING_FUNCTION_QNAMES:
+                if (
+                    inferred_func.qname()
+                    in self.KNOWN_ITERATOR_PRODUCING_FUNCTION_QNAMES
+                ):
                     is_iterator_definition = True
 
         current_scope = self._scope_stack[-1]
