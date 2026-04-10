@@ -101,6 +101,9 @@ class RepeatedIteratorLoopChecker(checkers.BaseChecker):
     @utils.only_required_for_messages("looping-through-iterator")
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name) and node.func.name == "next":
+            # When the user use 'next' it's easy to raise a false positive 
+            # and the user usually know what they do so the primer looked 
+            # especially bad.
             return
         for arg in node.args:
             if isinstance(arg, nodes.Name):
