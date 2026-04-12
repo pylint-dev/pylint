@@ -1,0 +1,10 @@
+{
+  "classdef": {
+    "commit": "1234567890abcdef",
+    "diagram": "classDiagram\n  class ClassDef {\n    infer()\n  }\n"
+  },
+  "functiondef": {
+    "commit": "1234567890abcdef",
+    "diagram": "classDiagram\n  class FunctionDef {\n    args\n  }\n"
+  }
+}
