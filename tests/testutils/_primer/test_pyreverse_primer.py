@@ -56,7 +56,7 @@ def test_pyreverse_primer_launch_bad_args(
     ],
 )
 def test_compare(directory: Path, tmp_path: Path) -> None:
-    expected_file = directory / "expected.md"
+    expected_file = directory / "expected_comment.md"
     with patch(
         "sys.argv",
         [
@@ -95,7 +95,7 @@ def test_truncated_compare(tmp_path: Path) -> None:
                 PYREVERSE_TARGETS_TO_PRIME_PATH,
             ).run()
     content = (tmp_path / "comment.txt").read_text(encoding="utf-8")
-    expected = (directory / "expected_truncated.md").read_text(encoding="utf-8")
+    expected = (directory / "expected_comment_truncated.md").read_text(encoding="utf-8")
     assert content == expected.rstrip("\n")
     assert len(content) < 525
 
