@@ -1,6 +1,0 @@
-{
-  "classdef": {
-    "commit": "1234567890abcdef",
-    "diagram": "classDiagram\n  class ClassDef {\n    infer()\n  }\n"
-  }
-}
