@@ -33,7 +33,7 @@ DEFAULT_ARGS = [
 COMMIT = "1234567890abcdef"
 
 
-def _load_fixture(directory: Path, filename: str) -> dict:
+def _load_fixture(directory: Path, filename: str) -> dict[str, dict[str, str]]:
     data: dict[str, dict[str, str]] = {}
     path = directory / filename
     if path.exists():
