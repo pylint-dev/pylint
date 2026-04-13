@@ -34,7 +34,7 @@ jobs:
         run: |
           python -m build
       - name: Upload release assets
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: release-assets
           path: dist/
