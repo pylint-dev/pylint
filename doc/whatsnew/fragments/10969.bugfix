@@ -1,0 +1,7 @@
+Fix an issue where discovery can miss a similarly named directory if a shorter named directory is processed first.
+
+If you have directories named say `applications` and `applications_api` in a
+project, and the former is encountered by the tree walk first during discovery,
+the second directory would be skipped even if it was a valid package. This fixes
+the issue by appending the OS filepath separator to the name in the case where
+the path was known to be a directory due to having an `__init__.py` in it.
