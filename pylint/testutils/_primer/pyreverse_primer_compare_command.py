@@ -73,7 +73,7 @@ class CompareCommand(PyreversePrimerCommand):
             "<details>\n<summary>Diagram diff</summary>\n\n"
             f"```diff\n{diff}```\n"
             "</details>\n\n"
-            "<details>\n<summary>Rendered diagram</summary>\n\n"
+            "<details>\n<summary>Rendered diagram after this change</summary>\n\n"
             f"```mermaid\n{new_target_data['diagram'].rstrip()}\n```\n"
             "</details>\n\n"
         )
