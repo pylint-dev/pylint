@@ -9,16 +9,14 @@
 ```diff
 --- main
 +++ pr
-@@ -1,3 +1,4 @@
- classDiagram
-   class ClassDef {
-+    infer()
+@@ -29,12 +29,15 @@
    }
-```
-</details>
-
-<details>
-<summary>Rendered...
+   class ClassDef {
+   }
++  class Decorators {
++  }
+   BaseInstance --|> Proxy
+   Instance --|>...
 </details>
 
 *This comment was truncated because GitHub allows only 525 characters in a comment.*

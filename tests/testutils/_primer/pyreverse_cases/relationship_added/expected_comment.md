@@ -9,13 +9,47 @@
 ```diff
 --- main
 +++ pr
-@@ -1,3 +1,6 @@
- classDiagram
+@@ -29,23 +29,40 @@
+   }
    class ClassDef {
    }
-+  class NodeNG {
++  class AssignTypeNode {
 +  }
-+  ClassDef --|> NodeNG
++  class Arguments {
++  }
++  class Decorators {
++  }
++  class FunctionDef {
++  }
+   BaseInstance --|> Proxy
+   Instance --|> BaseInstance
+   ClassModel --|> ObjectModel
+   InstanceModel --|> ObjectModel
+   FilterStmtsBaseNode --|> NodeNG
+   LookupMixIn --|> NodeNG
++  AssignTypeNode --|> NodeNG
++  Arguments --|> AssignTypeNode
++  Decorators --|> NodeNG
+   Statement --|> NodeNG
+   LocalsDictNodeNG --|> LookupMixIn
+   ClassDef --|> FilterStmtsBaseNode
+   ClassDef --|> Statement
+   ClassDef --|> LocalsDictNodeNG
++  FunctionDef --|> FilterStmtsBaseNode
++  FunctionDef --|> Statement
++  FunctionDef --|> LocalsDictNodeNG
+   BaseInstance --> ObjectModel : special_attributes
+   ClassDef --> NodeNG : instance_attrs
+   CallContext --* InferenceContext : callcontext
+   InferenceContext --* ClassModel : context
+   ClassModel --* ClassDef : special_attributes
+   InstanceModel --* Instance : special_attributes
++  ClassDef --* FunctionDef : methods
++  Arguments --o FunctionDef : args
++  Decorators --o ClassDef : decorators
+   Union --o InferenceContext : boundnode
+   Instance --o InferenceContext : boundnode
+   InferenceContext --o InferenceContext : boundnode
 ```
 </details>
 
@@ -24,11 +58,73 @@
 
 ```mermaid
 classDiagram
-  class ClassDef {
+  class Union {
+  }
+  class BaseInstance {
+  }
+  class Instance {
+  }
+  class Proxy {
+  }
+  class CallContext {
+  }
+  class InferenceContext {
+  }
+  class ClassModel {
+  }
+  class InstanceModel {
+  }
+  class ObjectModel {
+  }
+  class FilterStmtsBaseNode {
+  }
+  class LookupMixIn {
+  }
+  class Statement {
   }
   class NodeNG {
   }
-  ClassDef --|> NodeNG
+  class LocalsDictNodeNG {
+  }
+  class ClassDef {
+  }
+  class AssignTypeNode {
+  }
+  class Arguments {
+  }
+  class Decorators {
+  }
+  class FunctionDef {
+  }
+  BaseInstance --|> Proxy
+  Instance --|> BaseInstance
+  ClassModel --|> ObjectModel
+  InstanceModel --|> ObjectModel
+  FilterStmtsBaseNode --|> NodeNG
+  LookupMixIn --|> NodeNG
+  AssignTypeNode --|> NodeNG
+  Arguments --|> AssignTypeNode
+  Decorators --|> NodeNG
+  Statement --|> NodeNG
+  LocalsDictNodeNG --|> LookupMixIn
+  ClassDef --|> FilterStmtsBaseNode
+  ClassDef --|> Statement
+  ClassDef --|> LocalsDictNodeNG
+  FunctionDef --|> FilterStmtsBaseNode
+  FunctionDef --|> Statement
+  FunctionDef --|> LocalsDictNodeNG
+  BaseInstance --> ObjectModel : special_attributes
+  ClassDef --> NodeNG : instance_attrs
+  CallContext --* InferenceContext : callcontext
+  InferenceContext --* ClassModel : context
+  ClassModel --* ClassDef : special_attributes
+  InstanceModel --* Instance : special_attributes
+  ClassDef --* FunctionDef : methods
+  Arguments --o FunctionDef : args
+  Decorators --o ClassDef : decorators
+  Union --o InferenceContext : boundnode
+  Instance --o InferenceContext : boundnode
+  InferenceContext --o InferenceContext : boundnode
 ```
 </details>
 

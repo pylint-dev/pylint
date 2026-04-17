@@ -1,4 +1,51 @@
 classDiagram
-  class FunctionDef {
-    args
+  class FunctionModel {
   }
+  class ObjectModel {
+  }
+  class AssignTypeNode {
+  }
+  class FilterStmtsBaseNode {
+  }
+  class LookupMixIn {
+  }
+  class MultiLineBlockNode {
+  }
+  class Statement {
+  }
+  class Arguments {
+  }
+  class NodeNG {
+  }
+  class LocalsDictNodeNG {
+  }
+  class FunctionDef {
+  }
+  class CallContext {
+  }
+  class ClassDef {
+  }
+  class InferenceContext {
+  }
+  FunctionModel --|> ObjectModel
+  AssignTypeNode --|> NodeNG
+  FilterStmtsBaseNode --|> NodeNG
+  LookupMixIn --|> NodeNG
+  MultiLineBlockNode --|> NodeNG
+  Statement --|> NodeNG
+  Arguments --|> AssignTypeNode
+  LocalsDictNodeNG --|> LookupMixIn
+  FunctionDef --|> FilterStmtsBaseNode
+  FunctionDef --|> MultiLineBlockNode
+  FunctionDef --|> Statement
+  FunctionDef --|> LocalsDictNodeNG
+  ClassDef --|> FilterStmtsBaseNode
+  ClassDef --|> Statement
+  ClassDef --|> LocalsDictNodeNG
+  FunctionModel --* FunctionDef : special_attributes
+  CallContext --* InferenceContext : callcontext
+  ClassDef --> NodeNG : instance_attrs
+  Arguments --o FunctionDef : args
+  NodeNG --o FunctionDef : body
+  ClassDef --o InferenceContext : boundnode
+  ClassDef --o FunctionDef : parent
