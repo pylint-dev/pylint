@@ -37,7 +37,7 @@
 </details>
 
 <details>
-<summary>Rendered diagram</summary>
+<summary>Rendered diagram after this change</summary>
 
 ```mermaid
 classDiagram
