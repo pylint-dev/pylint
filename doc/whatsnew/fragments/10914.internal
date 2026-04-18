@@ -1,5 +1,5 @@
 The primer now pairs residual messages by ``(symbol, path, obj)`` and reports altered
-diagnostics as a single *changed* entry with a compact diff, rather than as a separate
+messages as a single *changed* entry with a compact diff, rather than as a separate
 removal + addition. New messages are classified into genuine new messages, fixed false
 positives (``useless-suppression``), new false positives (``locally-disabled``), and
 ``astroid-error`` fatal errors.

@@ -11,7 +11,6 @@ from pylint.reporters.json_reporter import JSONMessage
 from pylint.testutils._primer.comparator import (
     ChangedMessage,
     Comparator,
-    PackageDiff,
     message_diff,
 )
 from pylint.testutils._primer.primer_command import PrimerCommand
@@ -33,54 +32,9 @@ def _format_messages(
     return body
 
 
-class _ClassifiedMessages:
-    """All message categories for a single package, pre-formatted for display."""
-
-    __slots__ = (
-        "astroid_errors",
-        "changed_messages",
-        "fixed_false_positives",
-        "missing_messages",
-        "new_false_positives",
-        "new_messages",
-    )
-
-    def __init__(
-        self,
-        new_messages: list[JSONMessage],
-        missing_messages: list[JSONMessage],
-        changed_messages: list[ChangedMessage],
-        source_link: Callable[[JSONMessage], str],
-    ) -> None:
-        astroid_errors = 0
-        new_fp: list[JSONMessage] = []
-        fixed_fp: list[JSONMessage] = []
-        other_new: list[JSONMessage] = []
-        for message in new_messages:
-            if message["symbol"] == "astroid-error":
-                astroid_errors += 1
-            elif USELESS_SUPPRESSION_RE.match(message["message"]):
-                fixed_fp.append(message)
-            elif message["symbol"] == "locally-disabled":
-                # A new locally-disabled means a maintainer had to add a
-                # suppression comment — we introduced a false positive.
-                new_fp.append(message)
-            else:
-                other_new.append(message)
-
-        self.astroid_errors = astroid_errors
-        self.fixed_false_positives = _format_messages(fixed_fp, source_link)
-        self.new_false_positives = _format_messages(new_fp, source_link)
-        self.new_messages = _format_messages(other_new, source_link)
-        self.missing_messages = _format_messages(missing_messages, source_link)
-
-        body = ""
-        for count, (old, new) in enumerate(changed_messages, 1):
-            body += (
-                f"{count}) [{new['symbol']}]({source_link(new)}):\n"
-                f"{message_diff(old, new)}\n"
-            )
-        self.changed_messages = body
+def _details_section(title: str, body: str) -> str:
+    # Blank line after <details> required for GitHub markdown rendering.
+    return f"{title}\n\n<details>\n\n{body}</details>\n\n"
 
 
 class CompareCommand(PrimerCommand):
@@ -97,7 +51,18 @@ class CompareCommand(PrimerCommand):
         for diff in comparator:
             if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
                 break
-            comment += self._create_comment_for_package(diff)
+            package = diff.package
+            url = self.packages[package].url
+            assert not url.endswith(
+                ".git"
+            ), "You don't need the .git at the end of the github url."
+            source_link = self._source_link_for(package, diff.new["commit"])
+            comment += f"\n**Effect on [{package}]({url}):**\n\n"
+            comment += self._format_changed_messages(diff.changed, source_link)
+            comment += self._format_new_messages(diff.new["messages"], source_link)
+            comment += self._format_missing_messages(
+                diff.missing["messages"], source_link
+            )
         comment = (
             f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
             if comment
@@ -108,66 +73,93 @@ class CompareCommand(PrimerCommand):
         )
         return self._truncate_comment(comment)
 
-    def _create_comment_for_package(self, diff: PackageDiff) -> str:
-        package = diff.package
-        url = self.packages[package].url
+    def _source_link_for(
+        self, package: str, commit: str
+    ) -> Callable[[JSONMessage], str]:
         clone_dir = self.packages[package].clone_directory
-        commit = diff.new["commit"]
+        url = self.packages[package].url
 
-        assert not url.endswith(
-            ".git"
-        ), "You don't need the .git at the end of the github url."
-
-        def _source_link(msg: JSONMessage) -> str:
+        def _link(msg: JSONMessage) -> str:
             filepath = str(PurePosixPath(msg["path"]).relative_to(clone_dir))
             return f"{url}/blob/{commit}/{filepath}#L{msg['line']}"
 
-        def _details_section(title: str, body: str) -> str:
-            # Blank line after <details> required for GitHub markdown rendering.
-            return f"{title}\n\n<details>\n\n{body}</details>\n\n"
+        return _link
 
-        classified = _ClassifiedMessages(
-            diff.new["messages"], diff.missing["messages"], diff.changed, _source_link
-        )
-        comment = f"\n**Effect on [{package}]({url}):**\n\n"
-
-        if diff.changed:
-            print("Changed:")
-            for _, new in diff.changed:
-                print(new)
-        if diff.new["messages"]:
-            print("Now emitted:")
-            for msg in diff.new["messages"]:
-                print(msg)
-        if diff.missing["messages"]:
-            print("No longer emitted:")
-            for msg in diff.missing["messages"]:
-                print(msg)
-
-        if classified.changed_messages:
-            comment += _details_section(
-                "Changed messages:", classified.changed_messages
+    def _format_changed_messages(
+        self,
+        changed: list[ChangedMessage],
+        source_link: Callable[[JSONMessage], str],
+    ) -> str:
+        if not changed:
+            return ""
+        print("Changed:")
+        body = ""
+        for count, change in enumerate(changed, 1):
+            print(change.new)
+            body += (
+                f"{count}) [{change.new['symbol']}]({source_link(change.new)}):\n"
+                f"{message_diff(change)}\n"
             )
-        if classified.astroid_errors:
-            comment += (
-                f'{classified.astroid_errors} "astroid error(s)" were found. '
+        return _details_section("Changed messages:", body)
+
+    def _format_new_messages(
+        self,
+        messages: list[JSONMessage],
+        source_link: Callable[[JSONMessage], str],
+    ) -> str:
+        if not messages:
+            return ""
+        print("Now emitted:")
+        astroid_errors = 0
+        fixed_fp: list[JSONMessage] = []
+        new_fp: list[JSONMessage] = []
+        other_new: list[JSONMessage] = []
+        for message in messages:
+            print(message)
+            if message["symbol"] == "astroid-error":
+                astroid_errors += 1
+            elif USELESS_SUPPRESSION_RE.match(message["message"]):
+                fixed_fp.append(message)
+            elif message["symbol"] == "locally-disabled":
+                # A new locally-disabled means a maintainer had to add a
+                # suppression comment — we introduced a false positive.
+                new_fp.append(message)
+            else:
+                other_new.append(message)
+
+        out = ""
+        if astroid_errors:
+            out += (
+                f'{astroid_errors} "astroid error(s)" were found. '
                 "Please open the GitHub Actions log to see what failed or crashed.\n\n"
             )
-        if classified.fixed_false_positives:
-            comment += _details_section(
-                "🎉 Fixed false positives:", classified.fixed_false_positives
+        if fixed_fp:
+            out += _details_section(
+                "🎉 Fixed false positives:", _format_messages(fixed_fp, source_link)
             )
-        if classified.new_false_positives:
-            comment += _details_section(
-                "😞 New false positives:", classified.new_false_positives
+        if new_fp:
+            out += _details_section(
+                "😞 New false positives:", _format_messages(new_fp, source_link)
             )
-        if classified.new_messages:
-            comment += _details_section("New messages:", classified.new_messages)
-        if classified.missing_messages:
-            comment += _details_section(
-                "Removed messages:", classified.missing_messages
+        if other_new:
+            out += _details_section(
+                "New messages:", _format_messages(other_new, source_link)
             )
-        return comment
+        return out
+
+    def _format_missing_messages(
+        self,
+        messages: list[JSONMessage],
+        source_link: Callable[[JSONMessage], str],
+    ) -> str:
+        if not messages:
+            return ""
+        print("No longer emitted:")
+        for message in messages:
+            print(message)
+        return _details_section(
+            "Removed messages:", _format_messages(messages, source_link)
+        )
 
     def _truncate_comment(self, comment: str) -> str:
         """GitHub allows only a set number of characters in a comment."""
