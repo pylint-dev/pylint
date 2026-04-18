@@ -31,15 +31,15 @@ class PackageDiff(NamedTuple):
     package: str
     missing: PackageData  # emitted on main but not on the PR
     new: PackageData  # emitted on the PR but not on main
-    changed: list[ChangedMessage]  # same diagnostic, altered line / text
+    changed: list[ChangedMessage]  # same message, altered line / text
 
 
-def _match_residuals(
+def _pair_by_position(
     old_residuals: list[JSONMessage], new_residuals: list[JSONMessage]
 ) -> tuple[list[ChangedMessage], list[JSONMessage], list[JSONMessage]]:
     """Pair residual messages by ``(symbol, path, obj)``.
 
-    Two messages sharing that key are the "same diagnostic" — if they differ
+    Two messages sharing that key are the "same warning" — if they differ
     only in line numbers or message text, they should be reported as *changed*
     rather than as a separate removal + addition.  Leftovers on each side are
     genuinely missing or genuinely new.
@@ -79,13 +79,14 @@ def format_span(msg: JSONMessage) -> str:
     return f"`{start}`"
 
 
-def message_diff(old: JSONMessage, new: JSONMessage) -> str:
+def message_diff(change: ChangedMessage) -> str:
     """Return a compact summary of changed fields between two messages.
 
     Location changes are merged into a single human-readable span.
     String fields (like ``message``) get a ``diff`` code block so GitHub
     renders them with red/green highlighting.
     """
+    old, new = change.old, change.new
     changed_keys: set[str] = set()
     for key in set(old) | set(new):
         if old.get(key) != new.get(key):
@@ -138,13 +139,7 @@ def _caret_hint(old: str, new: str) -> str:
 
 
 class Comparator:
-    """Cross-reference two primer JSON outputs and iterate over differences.
-
-    Yields ``PackageDiff`` entries carrying missing, new and changed messages
-    for each package that has at least one difference.  *changed* contains
-    pairs of ``(old, new)`` messages that are the same diagnostic but with
-    altered details (line, message text, etc.).
-    """
+    """Cross-reference two primer JSON outputs and iterate over differences."""
 
     def __init__(self, main_data: PackageMessages, pr_data: PackageMessages) -> None:
         self._main_data = main_data
@@ -188,8 +183,8 @@ class Comparator:
                     residual_old.append(message)
 
             # Second pass: pair residuals by position to detect *changed*
-            # messages (same diagnostic, different line or text).
-            paired, final_missing, final_new = _match_residuals(
+            # messages (same warning, different line or text).
+            paired, final_missing, final_new = _pair_by_position(
                 residual_old, pr_messages
             )
 
