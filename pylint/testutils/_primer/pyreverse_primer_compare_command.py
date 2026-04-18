@@ -126,7 +126,8 @@ class CompareCommand(PyreversePrimerCommand):
         base_data: PyreversePrimerOutput,
         new_data: PyreversePrimerOutput,
     ) -> Iterator[tuple[str, PyreverseTargetData, PyreverseTargetData]]:
-        for target_name, base_target_data in base_data.items():
+        for target_name in sorted(base_data):
+            base_target_data = base_data[target_name]
             new_target_data = new_data[target_name]
             if base_target_data["diagram"] == new_target_data["diagram"]:
                 continue
