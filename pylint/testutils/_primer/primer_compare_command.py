@@ -22,12 +22,13 @@ class CompareCommand(PrimerCommand):
 
     def _create_comment(self, comparator: Comparator) -> str:
         comment = ""
-        for package, missing_messages, new_messages in comparator:
+        for diff in comparator:
             if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
                 break
-            comment += self._create_comment_for_package(
-                package, new_messages, missing_messages
-            )
+            package = diff.package
+            comment += f"\n**Effect on [{package}]({self.packages[package].url}):**\n\n"
+            comment += self._format_new_messages(package, diff.new)
+            comment += self._format_missing_messages(package, diff.missing)
         comment = (
             f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
             if comment
@@ -38,11 +39,8 @@ class CompareCommand(PrimerCommand):
         )
         return self._truncate_comment(comment)
 
-    def _create_comment_for_package(
-        self, package: str, new_messages: PackageData, missing_messages: PackageData
-    ) -> str:
-        comment = f"\n**Effect on [{package}]({self.packages[package].url}):**\n\n"
-        # Create comment for new messages
+    def _format_new_messages(self, package: str, new_messages: PackageData) -> str:
+        comment = ""
         count = 1
         astroid_errors = 0
         new_non_astroid_messages = ""
@@ -77,8 +75,12 @@ class CompareCommand(PrimerCommand):
                 + new_non_astroid_messages
                 + "</details>\n\n"
             )
+        return comment
 
-        # Create comment for missing messages
+    def _format_missing_messages(
+        self, package: str, missing_messages: PackageData
+    ) -> str:
+        comment = ""
         count = 1
         if missing_messages["messages"]:
             comment += "The following messages are no longer emitted:\n\n<details>\n\n"
@@ -95,7 +97,7 @@ class CompareCommand(PrimerCommand):
             ), "You don't need the .git at the end of the github url."
             comment += (
                 f"{self.packages[package].url}"
-                f"/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
+                f"/blob/{missing_messages['commit']}/{filepath}#L{message['line']}\n"
             )
             count += 1
             print(message)
