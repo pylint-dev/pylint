@@ -90,7 +90,7 @@ class TestPrimer:
 
     def test_truncated_compare_stops_iterating_packages(self) -> None:
         """Once the comment exceeds MAX, further packages should be skipped."""
-        max_comment_length = 500
+        max_comment_length = 400
         directory = CASES_PATH / "multi_package"
         with patch(
             "pylint.testutils._primer.primer_compare_command.MAX_GITHUB_COMMENT_LENGTH",

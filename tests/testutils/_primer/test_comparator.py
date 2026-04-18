@@ -4,12 +4,38 @@
 
 import json
 from pathlib import Path
+from typing import cast
 
 import pytest
 
-from pylint.testutils._primer.comparator import Comparator
+from pylint.reporters.json_reporter import JSONMessage
+from pylint.testutils._primer.comparator import (
+    Comparator,
+    _caret_hint,
+    format_span,
+)
 
 CASES_PATH = Path(__file__).parent / "cases"
+
+
+def _msg(**overrides: object) -> JSONMessage:
+    base: dict[str, object] = {
+        "type": "warning",
+        "module": "m",
+        "obj": "",
+        "line": 1,
+        "column": 0,
+        "endLine": 1,
+        "endColumn": 5,
+        "path": "m.py",
+        "symbol": "s",
+        "message": "msg",
+        "messageId": "W0000",
+        "confidence": "UNDEFINED",
+        "absolutePath": "m.py",
+    }
+    base.update(overrides)
+    return cast(JSONMessage, base)
 
 
 @pytest.mark.parametrize(
@@ -27,6 +53,18 @@ def test_comparator(directory: Path) -> None:
         assert len(missing["messages"]) == exp["missing"]
         assert len(new["messages"]) == exp["new"]
         assert len(changed) == exp["changed"]
+
+
+def test_format_span_without_end_position() -> None:
+    """Messages missing endLine/endColumn fall back to a start-only span."""
+    assert (
+        format_span(_msg(line=42, column=7, endLine=None, endColumn=None)) == "`42:7`"
+    )
+
+
+def test_caret_hint_returns_empty_when_mostly_changed() -> None:
+    """When more than 60% of the text differs, carets are noise and are skipped."""
+    assert _caret_hint("hello world", "goodbye universe") == ""
 
 
 def test_comparator_batched() -> None:
