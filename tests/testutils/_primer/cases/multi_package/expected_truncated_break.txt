@@ -1,0 +1,16 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+
+The following messages are now emitted:
+
+<details>
+
+1) too-complex:
+*'my_function' is too complex. The McCabe rating is...
+</details>
+
+*This comment was truncated because GitHub allows only 500 characters in a comment.*
+
+*This comment was generated for commit v2.14.2*
