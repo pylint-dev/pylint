@@ -5,14 +5,23 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Generator
+from collections.abc import Iterator
 from pathlib import Path
+from typing import NamedTuple
 
 from pylint.reporters.json_reporter import JSONMessage
 from pylint.testutils._primer.primer_command import (
     PackageData,
     PackageMessages,
 )
+
+
+class PackageDiff(NamedTuple):
+    """Per-package outcome of comparing a main run against a PR run."""
+
+    package: str
+    missing: PackageData  # emitted on main but not on the PR
+    new: PackageData  # emitted on the PR but not on main
 
 
 class Comparator:
@@ -45,7 +54,7 @@ class Comparator:
                 )
         return Comparator(main_data, pr_data)
 
-    def __iter__(self) -> Generator[tuple[str, PackageData, PackageData]]:
+    def __iter__(self) -> Iterator[PackageDiff]:
         main_data = self._main_data
         pr_data = self._pr_data
 
@@ -66,7 +75,7 @@ class Comparator:
             new_messages = pr_data[package]
             if not pkg_missing["messages"] and not new_messages["messages"]:
                 continue
-            yield package, pkg_missing, new_messages
+            yield PackageDiff(package, pkg_missing, new_messages)
 
     @staticmethod
     def _load_json(file_path: Path | str) -> PackageMessages:
