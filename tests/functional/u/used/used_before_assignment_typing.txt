@@ -5,17 +5,17 @@ used-before-assignment:140:35:140:39:MyFourthClass.is_close:Using variable 'math
 used-before-assignment:153:20:153:28:VariableAnnotationsGuardedByTypeChecking:Using variable 'datetime' before assignment:INFERENCE
 possibly-used-before-assignment:170:40:170:48:TypeCheckingMultiBranch.defined_in_elif_branch:Possibly using variable 'calendar' before assignment:INFERENCE
 possibly-used-before-assignment:171:14:171:20:TypeCheckingMultiBranch.defined_in_elif_branch:Possibly using variable 'bisect' before assignment:INFERENCE
-used-before-assignment:175:14:175:22:TypeCheckingMultiBranch.defined_in_else_branch:Using variable 'zoneinfo' before assignment:INFERENCE
-used-before-assignment:176:14:176:20:TypeCheckingMultiBranch.defined_in_else_branch:Using variable 'pprint' before assignment:INFERENCE
-used-before-assignment:177:14:177:25:TypeCheckingMultiBranch.defined_in_else_branch:Using variable 'collections' before assignment:INFERENCE
+possibly-used-before-assignment:175:14:175:22:TypeCheckingMultiBranch.defined_in_else_branch:Possibly using variable 'zoneinfo' before assignment:INFERENCE
+possibly-used-before-assignment:176:14:176:20:TypeCheckingMultiBranch.defined_in_else_branch:Possibly using variable 'pprint' before assignment:INFERENCE
+possibly-used-before-assignment:177:14:177:25:TypeCheckingMultiBranch.defined_in_else_branch:Possibly using variable 'collections' before assignment:INFERENCE
 possibly-used-before-assignment:180:43:180:48:TypeCheckingMultiBranch.defined_in_nested_if_else:Possibly using variable 'heapq' before assignment:INFERENCE
-used-before-assignment:184:39:184:44:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'array' before assignment:INFERENCE
-used-before-assignment:185:14:185:19:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'types' before assignment:INFERENCE
-used-before-assignment:186:14:186:18:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'copy' before assignment:INFERENCE
-used-before-assignment:187:14:187:21:TypeCheckingMultiBranch.defined_in_try_except:Using variable 'numbers' before assignment:INFERENCE
-used-before-assignment:190:34:190:38:TypeCheckingMultiBranch.defined_in_loops:Using variable 'json' before assignment:INFERENCE
-used-before-assignment:191:14:191:19:TypeCheckingMultiBranch.defined_in_loops:Using variable 'email' before assignment:INFERENCE
-used-before-assignment:192:14:192:21:TypeCheckingMultiBranch.defined_in_loops:Using variable 'mailbox' before assignment:INFERENCE
-used-before-assignment:193:14:193:23:TypeCheckingMultiBranch.defined_in_loops:Using variable 'mimetypes' before assignment:INFERENCE
-used-before-assignment:196:33:196:39:TypeCheckingMultiBranch.defined_in_with:Using variable 'base64' before assignment:INFERENCE
-used-before-assignment:197:14:197:22:TypeCheckingMultiBranch.defined_in_with:Using variable 'binascii' before assignment:INFERENCE
+possibly-used-before-assignment:184:39:184:44:TypeCheckingMultiBranch.defined_in_try_except:Possibly using variable 'array' before assignment:INFERENCE
+possibly-used-before-assignment:185:14:185:19:TypeCheckingMultiBranch.defined_in_try_except:Possibly using variable 'types' before assignment:INFERENCE
+possibly-used-before-assignment:186:14:186:18:TypeCheckingMultiBranch.defined_in_try_except:Possibly using variable 'copy' before assignment:INFERENCE
+possibly-used-before-assignment:187:14:187:21:TypeCheckingMultiBranch.defined_in_try_except:Possibly using variable 'numbers' before assignment:INFERENCE
+possibly-used-before-assignment:190:34:190:38:TypeCheckingMultiBranch.defined_in_loops:Possibly using variable 'json' before assignment:INFERENCE
+possibly-used-before-assignment:191:14:191:19:TypeCheckingMultiBranch.defined_in_loops:Possibly using variable 'email' before assignment:INFERENCE
+possibly-used-before-assignment:192:14:192:21:TypeCheckingMultiBranch.defined_in_loops:Possibly using variable 'mailbox' before assignment:INFERENCE
+possibly-used-before-assignment:193:14:193:23:TypeCheckingMultiBranch.defined_in_loops:Possibly using variable 'mimetypes' before assignment:INFERENCE
+possibly-used-before-assignment:196:33:196:39:TypeCheckingMultiBranch.defined_in_with:Possibly using variable 'base64' before assignment:INFERENCE
+possibly-used-before-assignment:197:14:197:22:TypeCheckingMultiBranch.defined_in_with:Possibly using variable 'binascii' before assignment:INFERENCE

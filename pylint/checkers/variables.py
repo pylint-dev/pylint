@@ -730,10 +730,10 @@ scope_type : {self.scope_type}
         # Search both if and else branches
         if_branch_handles = self._branch_handles_name(name, node.body)
         else_branch_handles = self._branch_handles_name(name, node.orelse)
-        if if_branch_handles ^ else_branch_handles:
+        if if_branch_handles and else_branch_handles:
+            self.names_defined_under_one_branch_only.discard(name)
+        elif if_branch_handles ^ else_branch_handles:
             self.names_defined_under_one_branch_only.add(name)
-        elif name in self.names_defined_under_one_branch_only:
-            self.names_defined_under_one_branch_only.remove(name)
         return if_branch_handles and else_branch_handles
 
     def _branch_handles_name(self, name: str, body: Iterable[nodes.NodeNG]) -> bool:

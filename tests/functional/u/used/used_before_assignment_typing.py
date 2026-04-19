@@ -172,29 +172,29 @@ class TypeCheckingMultiBranch:  # pylint: disable=too-few-public-methods,unused-
         return calendar.Calendar()  # >=3.14:[possibly-used-before-assignment]
 
     def defined_in_else_branch(self) -> urlopen:
-        print(zoneinfo)  # [used-before-assignment]
-        print(pprint())  # [used-before-assignment]
-        print(collections())  # [used-before-assignment]
+        print(zoneinfo)  # [possibly-used-before-assignment]
+        print(pprint())  # [possibly-used-before-assignment]
+        print(collections())  # [possibly-used-before-assignment]
         return urlopen
 
     def defined_in_nested_if_else(self) -> heapq:  # <3.14:[possibly-used-before-assignment]
         print(heapq)  # >=3.14:[possibly-used-before-assignment]
         return heapq
 
-    def defined_in_try_except(self) -> array:  # <3.14:[used-before-assignment]
-        print(types)  # [used-before-assignment]
-        print(copy)  # [used-before-assignment]
-        print(numbers)  # [used-before-assignment]
-        return array  # >=3.14:[used-before-assignment]
+    def defined_in_try_except(self) -> array:  # <3.14:[possibly-used-before-assignment]
+        print(types)  # [possibly-used-before-assignment]
+        print(copy)  # [possibly-used-before-assignment]
+        print(numbers)  # [possibly-used-before-assignment]
+        return array  # >=3.14:[possibly-used-before-assignment]
 
-    def defined_in_loops(self) -> json:  # <3.14:[used-before-assignment]
-        print(email)  # [used-before-assignment]
-        print(mailbox)  # [used-before-assignment]
-        print(mimetypes)  # [used-before-assignment]
+    def defined_in_loops(self) -> json:  # <3.14:[possibly-used-before-assignment]
+        print(email)  # [possibly-used-before-assignment]
+        print(mailbox)  # [possibly-used-before-assignment]
+        print(mimetypes)  # [possibly-used-before-assignment]
         return json
 
-    def defined_in_with(self) -> base64:  # <3.14:[used-before-assignment]
-        print(binascii)  # [used-before-assignment]
+    def defined_in_with(self) -> base64:  # <3.14:[possibly-used-before-assignment]
+        print(binascii)  # [possibly-used-before-assignment]
         return base64
 
 
