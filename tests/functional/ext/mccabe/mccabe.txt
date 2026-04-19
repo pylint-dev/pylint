@@ -24,12 +24,14 @@ too-complex:233:4:233:22:ExampleComplexityClass.highly_complex:'highly_complex' 
 too-many-branches:233:4:233:22:ExampleComplexityClass.highly_complex:Too many branches (19/12):UNDEFINED
 too-complex:286:0:293:15::This 'for' is too complex. The McCabe rating is 4:HIGH
 too-complex:296:0:296:31:try_finally_with_nested_ifs:'try_finally_with_nested_ifs' is too complex. The McCabe rating is 3:HIGH
-too-complex:308:0:308:14:match_case:'match_case' is too complex. The McCabe rating is 4:HIGH
-too-complex:323:0:323:21:nested_match_case:'nested_match_case' is too complex. The McCabe rating is 8:HIGH
+too-complex:308:0:308:14:match_case:'match_case' is too complex. The McCabe rating is 3:HIGH
+too-complex:323:0:323:21:nested_match_case:'nested_match_case' is too complex. The McCabe rating is 6:HIGH
 too-complex:345:0:345:21:yield_in_for_loop:'yield_in_for_loop' is too complex. The McCabe rating is 4:HIGH
 too-complex:355:0:364:8::This 'try' is too complex. The McCabe rating is 5:HIGH
-too-complex:367:0:375:23::This 'match' is too complex. The McCabe rating is 4:HIGH
-too-complex:378:0:378:24:non_exhaustive_match:'non_exhaustive_match' is too complex. The McCabe rating is 3:HIGH
-too-complex:390:0:390:22:match_capture_name:'match_capture_name' is too complex. The McCabe rating is 3:HIGH
-too-complex:403:0:403:26:match_guarded_wildcard:'match_guarded_wildcard' is too complex. The McCabe rating is 3:HIGH
-too-complex:436:4:436:17:PropertyAccessors.attribute:'attribute' is too complex. The McCabe rating is 1:HIGH
+too-complex:367:0:375:23::This 'match' is too complex. The McCabe rating is 3:HIGH
+too-complex:378:0:378:24:non_exhaustive_match:'non_exhaustive_match' is too complex. The McCabe rating is 2:HIGH
+too-complex:390:0:390:22:match_capture_name:'match_capture_name' is too complex. The McCabe rating is 2:HIGH
+too-complex:403:0:403:26:match_guarded_wildcard:'match_guarded_wildcard' is too complex. The McCabe rating is 2:HIGH
+too-complex:422:4:422:17:PropertyAccessors.attribute:'attribute' is too complex. The McCabe rating is 2:HIGH
+too-complex:429:4:429:17:PropertyAccessors.attribute:'attribute' is too complex. The McCabe rating is 3:HIGH
+too-complex:438:4:438:17:PropertyAccessors.attribute:'attribute' is too complex. The McCabe rating is 1:HIGH

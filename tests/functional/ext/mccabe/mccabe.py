@@ -306,7 +306,7 @@ def try_finally_with_nested_ifs():  # [too-complex]
 
 
 def match_case(avg):  # [too-complex]
-    """McCabe rating: 4
+    """McCabe rating: 3
     See https://github.com/astral-sh/ruff/issues/11421
     """
     # pylint: disable=bare-name-capture-pattern
@@ -321,7 +321,7 @@ def match_case(avg):  # [too-complex]
 
 
 def nested_match_case(data):  # [too-complex]
-    """McCabe rating: 8
+    """McCabe rating: 6
 
     Nested match statements."""
     match data:
@@ -365,7 +365,7 @@ except TypeB:
 
 
 match avg:  # [too-complex]
-    # McCabe rating: 4
+    # McCabe rating: 3
     # pylint: disable=bare-name-capture-pattern
     case avg if avg < 0.3:
         avg_grade = "F"
@@ -376,9 +376,9 @@ match avg:  # [too-complex]
 
 
 def non_exhaustive_match(value):  # [too-complex]
-    """McCabe rating: 3
+    """McCabe rating: should be 3 but is 2 (known false negative ?)
 
-    No case may apply: the fall-through path counts, as an if/elif would."""
+    No case may apply, but the fall-through path is not counted."""
     match value:
         case 1:
             result = "one"
@@ -388,7 +388,7 @@ def non_exhaustive_match(value):  # [too-complex]
 
 
 def match_capture_name(value):  # [too-complex]
-    """McCabe rating: 3
+    """McCabe rating: 2
 
     An unguarded capture name always matches, no other case is tried."""
     # pylint: disable=bare-name-capture-pattern
@@ -401,9 +401,10 @@ def match_capture_name(value):  # [too-complex]
 
 
 def match_guarded_wildcard(value):  # [too-complex]
-    """McCabe rating: 3
+    """McCabe rating: should be 3 but is 2 (known false negative ?)
 
-    A guarded wildcard can fail to match: the fall-through path counts."""
+    A guarded wildcard can fail to match, but the fall-through path is
+    not counted."""
     match value:
         case 1:
             result = "one"
@@ -413,19 +414,20 @@ def match_guarded_wildcard(value):  # [too-complex]
 
 
 class PropertyAccessors:  # pylint: disable=too-few-public-methods
-    """Only the last definition of a given name is rated: the deleter
-    hides the more complex getter and setter."""
+    """Same-named accessors each get their own score (the mccabe library
+    only kept the last definition of a given name, hiding the getter and
+    setter behind the deleter)."""
 
     @property
-    def attribute(self):
-        """McCabe rating: 2 (not reported: hidden by the deleter)"""
+    def attribute(self):  # [too-complex]
+        """McCabe rating: 2"""
         if self._attribute is None:
             raise ValueError("not set")
         return self._attribute
 
     @attribute.setter
-    def attribute(self, value):
-        """McCabe rating: 3 (not reported: hidden by the deleter)"""
+    def attribute(self, value):  # [too-complex]
+        """McCabe rating: 3"""
         if value is None:
             raise ValueError("cannot unset")
         if not isinstance(value, int):

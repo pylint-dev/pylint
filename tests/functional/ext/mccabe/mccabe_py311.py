@@ -4,9 +4,9 @@
 
 
 def exception_groups(shielded):  # [too-complex]
-    """McCabe rating: 1
+    """McCabe rating: 4
 
-    The mccabe library predates ``except*`` and does not count it."""
+    ``except*`` handlers count like ``except`` handlers."""
     result = "none"
     try:
         shielded()
