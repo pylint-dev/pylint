@@ -37,35 +37,29 @@ class PackageDiff(NamedTuple):
 def _pair_by_position(
     old_residuals: list[JSONMessage], new_residuals: list[JSONMessage]
 ) -> tuple[list[ChangedMessage], list[JSONMessage], list[JSONMessage]]:
-    """Pair residual messages by ``(symbol, path, obj)``.
+    """Pair residual messages by ``(symbol, path, obj)`` in input order.
 
-    Two messages sharing that key are the "same warning" — if they differ
-    only in line numbers or message text, they should be reported as *changed*
+    Two messages sharing that key are the "same warning" — if they differ only
+    in line numbers or message text, they should be reported as *changed*
     rather than as a separate removal + addition.  Leftovers on each side are
     genuinely missing or genuinely new.
-
-    Returns ``(paired, unmatched_old, unmatched_new)``.
     """
-    old_by_key: dict[tuple[str, str, str], list[JSONMessage]] = defaultdict(list)
     new_by_key: dict[tuple[str, str, str], list[JSONMessage]] = defaultdict(list)
-    for m in old_residuals:
-        old_by_key[m["symbol"], m["path"], m["obj"]].append(m)
     for m in new_residuals:
         new_by_key[m["symbol"], m["path"], m["obj"]].append(m)
 
     paired: list[ChangedMessage] = []
-    paired_old_ids: set[int] = set()
-    paired_new_ids: set[int] = set()
-    for key in old_by_key:
-        if key not in new_by_key:
-            continue
-        for old, new in zip(old_by_key[key], new_by_key[key]):
+    final_missing: list[JSONMessage] = []
+    matched_new: set[int] = set()
+    for old in old_residuals:
+        bucket = new_by_key.get((old["symbol"], old["path"], old["obj"]))
+        if bucket:
+            new = bucket.pop(0)
             paired.append(ChangedMessage(old=old, new=new))
-            paired_old_ids.add(id(old))
-            paired_new_ids.add(id(new))
-
-    final_missing = [m for m in old_residuals if id(m) not in paired_old_ids]
-    final_new = [m for m in new_residuals if id(m) not in paired_new_ids]
+            matched_new.add(id(new))
+        else:
+            final_missing.append(old)
+    final_new = [m for m in new_residuals if id(m) not in matched_new]
     return paired, final_missing, final_new
 
 
@@ -88,7 +82,7 @@ def message_diff(change: ChangedMessage) -> str:
     """
     old, new = change.old, change.new
     changed_keys: set[str] = set()
-    for key in set(old) | set(new):
+    for key in old.keys() | new.keys():
         if old.get(key) != new.get(key):
             changed_keys.add(key)
 
