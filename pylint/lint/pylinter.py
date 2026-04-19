@@ -703,7 +703,7 @@ class PyLinter(
         """
         self.initialize()
         if not files_or_modules and not self.config.from_stdin:
-            files_or_modules = (str(Path(".").resolve()),)
+            files_or_modules = (str(Path().resolve()),)
         if self.config.recursive:
             files_or_modules = tuple(self._discover_files(files_or_modules))
         if self.config.from_stdin:
