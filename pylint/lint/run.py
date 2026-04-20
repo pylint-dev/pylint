@@ -175,7 +175,7 @@ group are mutually exclusive.",
         if self._is_pylint_config:
             _register_generate_config_options(linter._arg_parser)
 
-        args = _config_initialization(
+        _config_initialization(
             linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
         )
 
@@ -195,7 +195,7 @@ group are mutually exclusive.",
         disable_all_msg_set = set(
             msg.symbol for msg in linter.msgs_store.messages
         ) - set(msg[1] for msg in linter.default_enabled_messages.values())
-        if not args or (
+        if not linter.config.files or (
             len(linter.config.enable) == 0
             and set(linter.config.disable) == disable_all_msg_set
         ):
@@ -225,13 +225,13 @@ group are mutually exclusive.",
             try:
                 with open(self._output, "w", encoding="utf-8") as output:
                     linter.reporter.out = output
-                    linter.check(args)
+                    linter.check(linter.config.files)
                     score_value = linter.generate_reports(verbose=self.verbose)
             except OSError as ex:
                 print(ex, file=sys.stderr)
                 sys.exit(32)
         else:
-            linter.check(args)
+            linter.check(linter.config.files)
             score_value = linter.generate_reports(verbose=self.verbose)
         if linter.config.clear_cache_post_run:
             clear_lru_caches()

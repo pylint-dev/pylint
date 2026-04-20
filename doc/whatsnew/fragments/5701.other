@@ -1,0 +1,7 @@
+You can now set the ``files`` option in configuration files and on the command line.
+Passing files without the ``--files`` flag is still supported. This allows to set
+``files`` to ``files = my_source_directory`` and invoking ``pylint`` with only
+the ``pylint`` command similar to how other CLI tools allow to do so.
+The help message can always be invoked with ``pylint -h`` or ``pylint --help``.
+
+Closes #5701

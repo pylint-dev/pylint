@@ -30,7 +30,7 @@ def _config_initialization(  # pylint: disable=too-many-statements
     reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,
     config_file: None | str | Path = None,
     verbose_mode: bool = False,
-) -> list[str]:
+) -> None:
     """Parse all available options, read config files and command line arguments and
     set options accordingly.
     """
@@ -153,17 +153,20 @@ def _config_initialization(  # pylint: disable=too-many-statements
     linter._directory_namespaces[Path().resolve()] = (linter.config, {})
 
     # parsed_args_list should now only be a list of inputs to lint.
-    # All other options have been removed from the list.
-    return list(
-        chain.from_iterable(
-            # NOTE: 'or [arg]' is needed in the case the input file or directory does
-            # not exist and 'glob(arg)' cannot find anything. Without this we would
-            # not be able to output the fatal import error for this module later on,
-            # as it would get silently ignored.
-            glob(arg, recursive=True) or [arg]
-            for arg in parsed_args_list
+    # All other options have been removed from the list. If there are any
+    # positional arguments, they override any `files` set in the configuration
+    # file.
+    if parsed_args_list:
+        linter.config.files = list(
+            chain.from_iterable(
+                # NOTE: 'or [arg]' is needed in the case the input file or directory does
+                # not exist and 'glob(arg)' cannot find anything. Without this we would
+                # not be able to output the fatal import error for this module later on,
+                # as it would get silently ignored.
+                glob(arg, recursive=True) or [arg]
+                for arg in parsed_args_list
+            )
         )
-    )
 
 
 def _order_all_first(config_args: list[str], *, joined: bool) -> list[str]:

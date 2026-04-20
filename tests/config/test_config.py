@@ -242,3 +242,39 @@ def test_enable_before_disable_all_takes_effect() -> None:
         / "toml_with_specific_enable_before_disable_all.toml",
     )
     assert toml_runner.linter.is_message_enabled("fixme")
+
+
+def test_files_option_parsed_from_toml() -> None:
+    """The ``files`` option is read from a TOML configuration file."""
+    runner = run_using_a_configuration_file(
+        HERE / "functional" / "toml" / "toml_with_files.toml",
+        file_to_lint=None,
+    )
+    assert runner.linter.config.files == ["src", "tests/regression"]
+
+
+def test_files_option_parsed_from_ini() -> None:
+    """The ``files`` option is read from an INI configuration file."""
+    runner = run_using_a_configuration_file(
+        HERE / "functional" / "ini" / "pylintrc_with_files.ini",
+        file_to_lint=None,
+    )
+    assert runner.linter.config.files == ["src", "tests/regression"]
+
+
+def test_files_option_overridden_by_positional_args() -> None:
+    """Positional CLI arguments override ``files`` set in a config file."""
+    runner = run_using_a_configuration_file(
+        HERE / "functional" / "toml" / "toml_with_files.toml",
+        file_to_lint=str(EMPTY_MODULE),
+    )
+    assert runner.linter.config.files == [str(EMPTY_MODULE)]
+
+
+def test_files_option_overridden_by_files_flag() -> None:
+    """The ``--files`` CLI flag overrides ``files`` set in a config file."""
+    config_path = HERE / "functional" / "toml" / "toml_with_files.toml"
+    runner = Run(
+        ["--rcfile", str(config_path), "--files", str(EMPTY_MODULE)], exit=False
+    )
+    assert runner.linter.config.files == [str(EMPTY_MODULE)]
