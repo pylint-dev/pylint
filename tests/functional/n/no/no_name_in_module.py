@@ -7,8 +7,8 @@ from collections import toto  # [no-name-in-module]
 toto.yo()
 
 from xml.etree import ElementTree
-ElementTree.nonexistent_function()  # <3.15: [no-member]
-ElementTree.another.nonexistent.function()  # <3.15: [no-member]
+ElementTree.nonexistent_function()  # [no-member]
+ElementTree.another.nonexistent.function()  # [no-member]
 
 
 import sys
