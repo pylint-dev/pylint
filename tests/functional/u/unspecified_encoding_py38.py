@@ -74,7 +74,7 @@ Path(FILENAME).write_text("string", encoding="utf8")
 LOCALE_ENCODING = None
 Path(FILENAME).write_text("string")  # [unspecified-encoding]
 Path(FILENAME).write_text("string", encoding=None)  # [unspecified-encoding]
-Path(FILENAME).write_text("string", encoding=LOCALE_ENCODING)  # [unspecified-encoding]
+Path(FILENAME).write_text("string", encoding=LOCALE_ENCODING)  # <3.15: [unspecified-encoding]
 
 LOCALE_ENCODING = locale.getlocale()[1]
 Path(FILENAME).open("w+b")
