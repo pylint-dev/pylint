@@ -7,7 +7,6 @@
 import contextlib
 import os
 import os.path
-import sys
 import shutil
 import tempfile
 from collections.abc import Iterator
@@ -136,21 +135,17 @@ def test_minimal_messages_config_enabled(pytest_config: MagicMock) -> None:
         str(DATA_DIRECTORY / "m"), "minimal_messages_config.py"
     )
     mod_test = testutils.LintModuleTest(test_file, pytest_config)
-    expected_enabled = [
-        "consider-using-with",
-        "consider-using-f-string",
-        # Always enable fatal errors: important not to have false negatives
-        "astroid-error",
-        "fatal",
-        "syntax-error",
-    ]
-    if sys.version_info < (3, 15):
-        # On Python 3.15+, UTF-8 mode is the default (PEP 686), so
-        # unspecified-encoding is no longer enabled by minimal messages config
-        expected_enabled.append("unspecified-encoding")
     assert all(
         mod_test._linter.is_message_enabled(msgid)
-        for msgid in expected_enabled
+        for msgid in (
+            "consider-using-with",
+            "unspecified-encoding",
+            "consider-using-f-string",
+            # Always enable fatal errors: important not to have false negatives
+            "astroid-error",
+            "fatal",
+            "syntax-error",
+        )
     )
     assert not mod_test._linter.is_message_enabled("unused-import")
 

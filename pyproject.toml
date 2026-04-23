@@ -25,7 +25,6 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
-  "Programming Language :: Python :: 3.15",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development :: Debuggers",
@@ -202,7 +201,7 @@ skip = """\
   """
 
 [tool.pyproject-fmt]
-max_supported_python = "3.15"
+max_supported_python = "3.14"
 
 [tool.mypy]
 scripts_are_modules = true
