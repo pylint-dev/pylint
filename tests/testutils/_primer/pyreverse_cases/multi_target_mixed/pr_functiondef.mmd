@@ -1,0 +1,38 @@
+classDiagram
+  class FunctionModel {
+  }
+  class ObjectModel {
+  }
+  class AssignTypeNode {
+  }
+  class FilterStmtsBaseNode {
+  }
+  class LookupMixIn {
+  }
+  class MultiLineBlockNode {
+  }
+  class Statement {
+  }
+  class Arguments {
+  }
+  class NodeNG {
+  }
+  class LocalsDictNodeNG {
+  }
+  class FunctionDef {
+  }
+  FunctionModel --|> ObjectModel
+  AssignTypeNode --|> NodeNG
+  FilterStmtsBaseNode --|> NodeNG
+  LookupMixIn --|> NodeNG
+  MultiLineBlockNode --|> NodeNG
+  Statement --|> NodeNG
+  Arguments --|> AssignTypeNode
+  LocalsDictNodeNG --|> LookupMixIn
+  FunctionDef --|> FilterStmtsBaseNode
+  FunctionDef --|> MultiLineBlockNode
+  FunctionDef --|> Statement
+  FunctionDef --|> LocalsDictNodeNG
+  FunctionModel --* FunctionDef : special_attributes
+  Arguments --o FunctionDef : args
+  NodeNG --o FunctionDef : body

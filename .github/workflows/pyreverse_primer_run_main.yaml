@@ -1,0 +1,116 @@
+name: Pyreverse Primer / Main
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "pylint/pyreverse/**"
+      - "pylint/testutils/_primer/**"
+      - "tests/primer/packages_to_prime.json"
+      - "tests/primer/pyreverse_primer.py"
+      - "tests/primer/pyreverse_targets_to_prime.json"
+      - "tests/primer/test_primer_stdlib.py"
+      - "tests/pyreverse/**"
+      - "requirements*"
+      - ".github/workflows/pyreverse_primer*.yaml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CACHE_VERSION: 1
+  KEY_PREFIX: venv-pyreverse-primer
+  DEFAULT_PYTHON: "3.13"
+
+permissions:
+  contents: read
+
+jobs:
+  run-primer:
+    name: Run
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out code from GitHub
+        uses: actions/checkout@v6.0.2
+      - name: Set up Python ${{ env.DEFAULT_PYTHON }}
+        id: python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+          check-latest: true
+      - name: Restore Python virtual environment cache
+        id: cache-venv
+        uses: actions/cache/restore@v5.0.4
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt',
+            'requirements_test_pre_commit.txt') }}
+      - name: Create Python virtual environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install --upgrade --requirement requirements_test.txt
+      - name: Save Python virtual environment to cache
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5.0.4
+        with:
+          path: venv
+          key: >-
+            ${{ runner.os }}-${{ steps.python.outputs.python-version }}-${{
+            env.KEY_PREFIX }}-${{ env.CACHE_VERSION }}-${{ hashFiles('pyproject.toml',
+            'requirements_test.txt', 'requirements_test_min.txt',
+            'requirements_test_pre_commit.txt') }}
+      - name: Get commit string
+        id: commitstring
+        run: |
+          . venv/bin/activate
+          python tests/primer/pyreverse_primer.py prepare --make-commit-string
+          output=$(python tests/primer/pyreverse_primer.py prepare --read-commit-string)
+          echo "commitstring=$output" >> $GITHUB_OUTPUT
+      - name: Restore projects cache
+        id: cache-projects
+        uses: actions/cache/restore@v5.0.4
+        with:
+          path: tests/.pylint_primer_tests/
+          key: >-
+            ${{ runner.os }}-${{ env.DEFAULT_PYTHON }}-${{
+            steps.commitstring.outputs.commitstring }}-pyreverse-primer
+      - name: Regenerate cache
+        if: steps.cache-projects.outputs.cache-hit != 'true'
+        run: |
+          . venv/bin/activate
+          python tests/primer/pyreverse_primer.py prepare --clone
+      - name: Save projects cache
+        if: steps.cache-projects.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5.0.4
+        with:
+          path: tests/.pylint_primer_tests/
+          key: >-
+            ${{ runner.os }}-${{ env.DEFAULT_PYTHON }}-${{
+            steps.commitstring.outputs.commitstring }}-pyreverse-primer
+      - name: Upload commit string
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: pyreverse_primer_commitstring
+          path:
+            tests/.pyreverse_primer_tests/commit_string_${{ env.DEFAULT_PYTHON }}.txt
+      - name: Run pyreverse primer
+        run: |
+          . venv/bin/activate
+          pip install . --no-deps
+          python tests/primer/pyreverse_primer.py run --type=main
+      - name: Upload output
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: pyreverse_primer_output_main
+          path:
+            tests/.pyreverse_primer_tests/pyreverse_output_${{ env.DEFAULT_PYTHON
+            }}_main.txt
