@@ -685,7 +685,7 @@ class PyLinter(
                         continue
 
                     if "__init__.py" in files:
-                        skip_subtrees.append(root)
+                        skip_subtrees.append(root + os.sep)
                         yield root
                     else:
                         yield from (
