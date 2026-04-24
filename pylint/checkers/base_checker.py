@@ -9,7 +9,7 @@ import functools
 from collections.abc import Iterable, Sequence
 from inspect import cleandoc
 from tokenize import TokenInfo
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, overload
 
 from astroid import nodes
 
@@ -139,6 +139,35 @@ class BaseChecker(_ArgumentsProvider):
         result += "\n"
         return result
 
+    @overload
+    def add_message(
+        self,
+        msgid: str,
+        line: int | None = None,
+        node: nodes.NodeNG = ...,
+        args: Any = None,
+        confidence: Confidence | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
+    ) -> None: ...
+
+    @overload
+    def add_message(  # pylint: disable=too-many-arguments
+        self,
+        msgid: str,
+        line: int | None = None,
+        node: None = None,
+        args: Any = None,
+        confidence: Confidence | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
+        module: str | None = None,
+        filepath: str | None = None,
+    ) -> None: ...
+
+    # pylint: disable-next=too-many-arguments
     def add_message(
         self,
         msgid: str,
@@ -149,9 +178,20 @@ class BaseChecker(_ArgumentsProvider):
         col_offset: int | None = None,
         end_lineno: int | None = None,
         end_col_offset: int | None = None,
+        module: str | None = None,
+        filepath: str | None = None,
     ) -> None:
         self.linter.add_message(
-            msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset
+            msgid,
+            line=line,
+            node=node,
+            args=args,
+            confidence=confidence,
+            col_offset=col_offset,
+            end_lineno=end_lineno,
+            end_col_offset=end_col_offset,
+            module=module,
+            filepath=filepath,
         )
 
     def check_consistency(self) -> None:

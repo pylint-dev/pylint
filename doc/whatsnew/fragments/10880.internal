@@ -1,0 +1,3 @@
+``add_message`` now accepts optional ``module`` and ``filepath`` keyword arguments to override the reported message location. These parameters are mutually exclusive with ``node``; passing both raises ``TypeError``.
+
+Refs #10880
