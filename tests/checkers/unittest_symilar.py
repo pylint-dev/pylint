@@ -470,3 +470,33 @@ def test_bad_short_form_option(capsys: CaptureFixture) -> None:
     assert ex.value.code == 2
     assert not out
     assert "unrecognized arguments: -j=0" in err
+
+
+def test_hash_bucket_product_limit_fallback(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """When a hash bucket's Cartesian product exceeds
+    ``_HASH_BUCKET_PRODUCT_LIMIT``, ``_find_common`` falls back to aligned-zip
+    pairing. Mock the limit to zero so the fallback path is always taken over
+    a file with repeated blocks and verify duplicate detection still reports
+    the expected similar lines.
+
+    Regression test for https://github.com/pylint-dev/pylint/pull/10881.
+    """
+    monkeypatch.setattr(symilar, "_HASH_BUCKET_PRODUCT_LIMIT", 0)
+    # Three copies of the same 5-line block produce hash buckets with more
+    # than one index, exercising the aligned-zip fallback meaningfully.
+    block = "a = 1\nb = 2\nc = 3\nd = 4\ne = 5\n"
+    file_a = tmp_path / "a.py"
+    file_b = tmp_path / "b.py"
+    file_a.write_text(block * 3)
+    file_b.write_text(block * 3)
+
+    output = StringIO()
+    with redirect_stdout(output), pytest.raises(SystemExit) as ex:
+        symilar.Run([str(file_a), str(file_b)])
+    assert ex.value.code == 0
+    out = output.getvalue()
+    assert "15 similar lines in 2 files" in out
+    assert f"=={file_a}:[0:15]" in out
+    assert f"=={file_b}:[0:15]" in out
