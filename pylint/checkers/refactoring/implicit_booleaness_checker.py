@@ -173,11 +173,14 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             )
 
     @utils.only_required_for_messages(
+        "use-implicit-booleaness-not-len",
         "use-implicit-booleaness-not-comparison",
         "use-implicit-booleaness-not-comparison-to-string",
         "use-implicit-booleaness-not-comparison-to-zero",
     )
     def visit_compare(self, node: nodes.Compare) -> None:
+        if self.linter.is_message_enabled("use-implicit-booleaness-not-len"):
+            self._check_len_comparison_to_zero(node)
         if self.linter.is_message_enabled("use-implicit-booleaness-not-comparison"):
             self._check_use_implicit_booleaness_not_comparison(node)
         if self.linter.is_message_enabled(
@@ -186,6 +189,37 @@ class ImplicitBooleanessChecker(checkers.BaseChecker):
             "use-implicit-booleaness-not-comparison-to-str"
         ):
             self._check_compare_to_str_or_zero(node)
+
+    def _check_len_comparison_to_zero(self, node: nodes.Compare) -> None:
+        """Check for len(x) comparisons against literal zero."""
+        if len(node.ops) != 1:
+            return
+
+        operator, right = node.ops[0]
+        left = node.left
+
+        if (
+            utils.is_call_of_name(left, "len")
+            and _is_constant_zero(right)
+            and operator in ("==", "!=", ">", ">=", "<", "<=")
+        ):
+            self.add_message(
+                "use-implicit-booleaness-not-len",
+                node=node,
+                confidence=HIGH,
+            )
+            return
+
+        if (
+            _is_constant_zero(left)
+            and utils.is_call_of_name(right, "len")
+            and operator in ("==", "!=", ">", ">=", "<", "<=")
+        ):
+            self.add_message(
+                "use-implicit-booleaness-not-len",
+                node=node,
+                confidence=HIGH,
+            )
 
     def _check_compare_to_str_or_zero(self, node: nodes.Compare) -> None:
         # Skip check for chained comparisons
