@@ -86,7 +86,6 @@ class NumberFormatterHelper:
     @classmethod
     def standardize(
         cls,
-        number: float,
         original_string: str,
         dec_number: Decimal,
         scientific: bool = True,
@@ -94,33 +93,58 @@ class NumberFormatterHelper:
         pep515: bool = True,
     ) -> str:
         dec_tuple = dec_number.as_tuple()
+        number = float(dec_number)
         # float64 guarantees only 15 significant digits; cap suggestions
         # to avoid implying false precision.
         sig_figs = min(len(dec_tuple.digits), 15)
+        # When float can't represent the literal exactly (>15 sig figs,
+        # underflow to 0, overflow to inf), suggest decimal.Decimal as an
+        # alternative for precision-sensitive uses. >15 sig figs is treated
+        # as "lost" even when binary happens to round-trip, since the user
+        # wrote more digits than the python guarantee.
+        float_loses_value = (
+            len(dec_tuple.digits) > 15 or Decimal(str(number)) != dec_number
+        )
+        # Underflow/overflow: form-canonical rebuilds (scientific, engineering,
+        # underscore) all share the same runtime issue as the source literal,
+        # so they don't help — only math.inf/0.0 (runtime-equivalent) and
+        # decimal.Decimal (precision-preserving) are meaningful alternatives.
+        underflow_or_overflow = math.isinf(number) or (
+            number == 0 and not dec_number.is_zero()
+        )
 
         suggested: set[str] = set()
-        if scientific:
-            suggested.add(
-                cls.to_standard_scientific_notation(dec_number, sig_figs, dec_tuple)
-            )
-        if engineering:
-            suggested.add(
-                cls.to_standard_engineering_notation(dec_number, sig_figs, dec_tuple)
-            )
-        if pep515:
-            # Round to 15 sig figs so underscore suggestion doesn't imply
-            # more precision than float can represent.
-            rounded = float(f"{number:.15g}") if len(dec_tuple.digits) > 15 else number
-            s = cls.to_standard_underscore_grouping(rounded)
-            if s is not None:
-                suggested.add(s)
-            elif not suggested:
-                # No other suggestion so we're in pep515-only mode but the number is
-                # too large for underscore grouping so we fall back to scientific notation
+        if not underflow_or_overflow:
+            if scientific:
                 suggested.add(
                     cls.to_standard_scientific_notation(dec_number, sig_figs, dec_tuple)
                 )
-        if len(dec_tuple.digits) > 15:
+            if engineering:
+                suggested.add(
+                    cls.to_standard_engineering_notation(
+                        dec_number, sig_figs, dec_tuple
+                    )
+                )
+            if pep515:
+                # Round to 15 sig figs so underscore suggestion doesn't imply
+                # more precision than float can represent.
+                rounded = (
+                    float(f"{number:.15g}") if len(dec_tuple.digits) > 15 else number
+                )
+                s = cls.to_standard_underscore_grouping(rounded)
+                if s is not None:
+                    suggested.add(s)
+                elif not suggested:
+                    # pep515-only mode and the number is too large for
+                    # underscore grouping — fall back to scientific notation.
+                    suggested.add(
+                        cls.to_standard_scientific_notation(
+                            dec_number, sig_figs, dec_tuple
+                        )
+                    )
+        else:
+            suggested.add("math.inf" if math.isinf(number) else "0.0")
+        if float_loses_value:
             suggested.add(cls.to_decimal_suggestion(original_string))
         return "' or '".join(sorted(suggested))
 
@@ -790,7 +814,8 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     line_num, start, string, "decimal", 3, "digits", 0
                 )
 
-    def _check_bad_number_notation(  # pylint: disable=too-many-locals
+    # pylint: disable-next=too-many-locals,too-many-return-statements
+    def _check_bad_number_notation(
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
 
@@ -803,10 +828,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
 
         dec_number = Decimal(clean)
         sig_figs = len(dec_number.as_tuple().digits)
+        float_loses_value = sig_figs > 15 or Decimal(str(value)) != dec_number
 
-        def add_bad_notation_message(reason: str) -> None:
+        def add_bad_notation_message(
+            reason: str, *, append_loss_info: bool = True
+        ) -> None:
             suggestion = NumberFormatterHelper.standardize(
-                value,
                 string,
                 dec_number,
                 scientific,
@@ -815,11 +842,16 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             )
             if suggestion == string.lower():
                 return
-            if sig_figs > 15:
-                reason += (
-                    f", and have {sig_figs} significant digits,"
-                    " more than the 15 python guarantee"
-                )
+            if append_loss_info and float_loses_value:
+                if sig_figs > 15:
+                    reason += (
+                        f", and has {sig_figs} significant digits,"
+                        " more than float can represent exactly"
+                    )
+                elif math.isinf(value):
+                    reason += ", and overflows to infinity in float"
+                else:
+                    reason += ", and underflows to zero in float"
             self.add_message(
                 "bad-number-notation",
                 line=line_num,
@@ -830,7 +862,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 confidence=HIGH,
             )
 
-        if value == 0:
+        if not dec_number:
             # Zero is special-cased: it is below any threshold and
             # 1/threshold comparisons are meaningless for it.
             if string not in {"0", "0.0", "0."}:
@@ -901,6 +933,17 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             )
             if pep515 and wrong_underscore_notation:
                 return add_bad_notation_message("has non-standard underscore grouping")
+        # Form is acceptable but float can't represent the literal — flag the
+        # value-fidelity issue (orthogonal to notation form).
+        if float_loses_value:
+            if math.isinf(value):
+                return add_bad_notation_message(
+                    "overflows to infinity in float", append_loss_info=False
+                )
+            if value == 0:
+                return add_bad_notation_message(
+                    "underflows to zero in float", append_loss_info=False
+                )
         return None
 
     def _check_non_decimal_notation(

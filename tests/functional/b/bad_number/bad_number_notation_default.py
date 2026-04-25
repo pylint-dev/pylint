@@ -65,6 +65,11 @@ large_plain = 1541455200.0  # [bad-number-notation]
 large_round = 1000000.0  # [bad-number-notation]
 # More than 15 significant digits: suggest decimal.Decimal
 many_sig_figs = 486787299458.15656  # [bad-number-notation]
+# Underflow to zero in float — flagged for value-fidelity even when form is valid
+tiny_underflow = 1e-1000  # [bad-number-notation]
+tiny_underflow_2 = 1.5e-500  # [bad-number-notation]
+# Overflow to infinity in float — flagged similarly
+huge_overflow = 1.5e500  # [bad-number-notation]
 
 one_only = 1e6
 correct_1 = 4.53e7
