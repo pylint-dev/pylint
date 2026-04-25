@@ -865,7 +865,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         if not dec_number:
             # Zero is special-cased: it is below any threshold and
             # 1/threshold comparisons are meaningless for it.
-            if string not in {"0", "0.0", "0."}:
+            if string not in {"0.0", "0."}:
                 add_bad_notation_message("is an unconventional zero literal")
             return None
         has_underscore = "_" in string
@@ -958,6 +958,20 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     ) -> None:
         has_underscore = "_" in string
         value = int(string.replace("_", ""), 0)
+        if value == 0 and pattern_key == "decimal" and string != "0":
+            # Plain int that evaluates to zero but isn't the canonical form
+            # ('00', '000', '0_0', ...). Prefixed zeros ('0x00', '0b00') can
+            # be intentional padding so we don't flag them.
+            self.add_message(
+                "bad-number-notation",
+                line=line_num,
+                col_offset=start[1],
+                end_lineno=line_num,
+                end_col_offset=start[1] + len(string),
+                args=(string, "is an unconventional zero literal", "0"),
+                confidence=HIGH,
+            )
+            return
         if has_underscore:
             if not _GROUPING_PATTERNS[pattern_key].match(string):
                 suggestion = NumberFormatterHelper.to_standard_non_decimal_grouping(
