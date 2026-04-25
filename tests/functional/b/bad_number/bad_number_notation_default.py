@@ -97,6 +97,8 @@ inside_f_string = f"Value is {1.0} not 10e6"
 complex_number = 1.5e3 + 2.5e3j  # Complex number with scientific notation
 # false negative for complex numbers:
 complex_number_wrong = 15e4 + 25e7j  # [bad-number-notation]
+complex_number_upper_J = 1.5E3J + 2.5E3J  # uppercase J — must not crash
+complex_number_upper_J_wrong = 15E4 + 25E7J  # [bad-number-notation]
 underscore_binary = 0b1010_1010
 
 

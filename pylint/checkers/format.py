@@ -735,10 +735,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         self.check_indent_level(line, indents[-1], line_num)
 
             if tok_type == tokenize.NUMBER:
-                if (
-                    self.linter.is_message_enabled("bad-number-notation")
-                    and "j" not in string  # complex number, not handled
-                ):
+                # Complex literals (suffixed by 'j' or 'J') are not handled.
+                if self.linter.is_message_enabled(
+                    "bad-number-notation"
+                ) and not string.endswith(("j", "J")):
                     self._check_number_notation(line_num, start, string)
 
             if string in _KEYWORD_TOKENS:
