@@ -76,8 +76,10 @@ def _decimal_g_format(value: Decimal, precision: int) -> str:
     This also side-steps Decimal's g-format quirk of preserving its internal
     exponent (e.g. ``Decimal('1E+1')`` formatting as ``'1e+1'``).
     """
-    # assert value and abs(value) >= 1
     abs_val = abs(value)
+    # Precondition: digit-counting via ``int(abs_val)`` only matches the
+    # intended precision when the integer part has at least one digit.
+    assert abs_val >= 1
     int_digits = len(str(int(abs_val)))
     dec_places = max(precision - int_digits, 0)
     result = format(value, f".{dec_places}f")
