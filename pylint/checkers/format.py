@@ -88,13 +88,11 @@ class NumberFormatterHelper:
         cls,
         number: float,
         original_string: str,
+        dec_number: Decimal,
         scientific: bool = True,
         engineering: bool = True,
         pep515: bool = True,
-        dec_number: Decimal | None = None,
     ) -> str:
-        if dec_number is None:
-            dec_number = Decimal(original_string)
         dec_tuple = dec_number.as_tuple()
         # float64 guarantees only 15 significant digits; cap suggestions
         # to avoid implying false precision.
@@ -810,10 +808,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             suggestion = NumberFormatterHelper.standardize(
                 value,
                 string,
+                dec_number,
                 scientific,
                 engineering,
                 pep515,
-                dec_number,
             )
             if suggestion == string.lower():
                 return
