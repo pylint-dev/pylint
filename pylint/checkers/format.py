@@ -846,6 +846,18 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         has_underscore = "_" in string
         clean = string.replace("_", "")
         value = float(clean)
+
+        # Fast path: plain literal in the allowed threshold band — the bulk
+        # of real-world literals. Skip the Decimal/sig_figs/loses-value
+        # machinery since no message would fire anyway.
+        if not (has_exponent or has_underscore):
+            threshold = self.linter.config.number_notation_threshold
+            abs_value = abs(value)
+            if abs_value < threshold and (
+                self.strict_underscore or abs_value >= 1 / threshold
+            ):
+                return
+
         dec_number = Decimal(clean)
         sig_figs = len(dec_number.as_tuple().digits)
         ctx = _NumberContext(
