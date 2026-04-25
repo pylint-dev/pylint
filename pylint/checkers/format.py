@@ -60,6 +60,11 @@ _GROUPING_PATTERNS: dict[str, re.Pattern[str]] = {
     "octal": re.compile(r"^0[a-zA-Z]_?[0-7]{1,3}(_[0-7]{3})*$"),
     "decimal": re.compile(r"^[0-9]{1,3}(_[0-9]{3})*$"),
 }
+# Pattern for PEP 515 underscore grouping in float literals (with optional
+# fractional part and exponent).
+_FLOAT_UNDERSCORE_PATTERN: re.Pattern[str] = re.compile(
+    r"^\d{1,3}(_\d{3})*\.?(\d{3}(_\d{3})*(_\d{1,2})?|\d*)([eE]-?\d{0,3}(_\d{3})*)?$"
+)
 
 
 def _decimal_g_format(value: Decimal, precision: int) -> str:
@@ -927,10 +932,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     if self.strict_scientific
                     else "has underscores instead of engineering notation"
                 )
-            wrong_underscore_notation = not re.match(
-                r"^\d{1,3}(_\d{3})*\.?(\d{3}(_\d{3})*(_\d{1,2})?|\d*)([eE]-?\d{0,3}(_\d{3})*)?$",
-                string,
-            )
+            wrong_underscore_notation = not _FLOAT_UNDERSCORE_PATTERN.match(string)
             if pep515 and wrong_underscore_notation:
                 return add_bad_notation_message("has non-standard underscore grouping")
         # Form is acceptable but float can't represent the literal — flag the
