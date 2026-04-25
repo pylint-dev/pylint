@@ -763,12 +763,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         check_equal = False
                         self.check_indent_level(line, indents[-1], line_num)
 
-            if tok_type == tokenize.NUMBER:
-                # Complex literals (suffixed by 'j' or 'J') are not handled.
-                if self.linter.is_message_enabled(
-                    "bad-number-notation"
-                ) and not string.endswith(("j", "J")):
-                    self._check_number_notation(line_num, start, string)
+            if tok_type == tokenize.NUMBER and self.linter.is_message_enabled(
+                "bad-number-notation"
+            ):
+                self._check_number_notation(line_num, start, string)
 
             if string in _KEYWORD_TOKENS:
                 self._check_keyword_parentheses(tokens, idx)
@@ -799,6 +797,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def _check_number_notation(
         self, line_num: int, start: tuple[int, int], string: str
     ) -> None:
+        if string.endswith(("j", "J")):
+            # Complex literals are not handled.
+            return
         match string[1:2].lower():
             case "x":
                 self._check_non_decimal_notation(
