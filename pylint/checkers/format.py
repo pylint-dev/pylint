@@ -894,7 +894,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 return add_bad_notation_message(
                     f"is smaller than {self._close_to_zero_threshold_str}"
                 )
-            return add_bad_notation_message(f"is bigger than {self._threshold_str}")
+            return add_bad_notation_message(f"is greater than {self._threshold_str}")
         if has_exponent:
             if has_underscore:
                 return add_bad_notation_message(
@@ -1010,7 +1010,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 end_col_offset=start[1] + len(string),
                 args=(
                     string,
-                    f"is bigger than {self._threshold_str}",
+                    f"is greater than {self._threshold_str}",
                     suggestion,
                 ),
                 confidence=HIGH,
