@@ -75,8 +75,6 @@ class _NumberContext(NamedTuple):
     string: str
     value: float
     dec_number: Decimal
-    sig_figs: int
-    float_loses_value: bool
     scientific: bool
     engineering: bool
     pep515: bool
@@ -110,66 +108,68 @@ class NumberFormatterHelper:
     @classmethod
     def standardize(
         cls,
-        original_string: str,
         dec_number: Decimal,
         scientific: bool = True,
         engineering: bool = True,
         pep515: bool = True,
     ) -> str:
+        """Build a notation-alternative suggestion list from a Decimal literal.
+
+        Only emits scientific / engineering / underscore-grouping forms.
+        Precision concerns (overflow, underflow, >15 sig figs) are handled
+        by ``precision_suggestion``.
+        """
         dec_tuple = dec_number.as_tuple()
         number = float(dec_number)
         # float64 guarantees only 15 significant digits; cap suggestions
         # to avoid implying false precision.
         sig_figs = min(len(dec_tuple.digits), 15)
-        # When float can't represent the literal exactly (>15 sig figs,
-        # underflow to 0, overflow to inf), suggest decimal.Decimal as an
-        # alternative for precision-sensitive uses. >15 sig figs is treated
-        # as "lost" even when binary happens to round-trip, since the user
-        # wrote more digits than the python guarantee.
-        float_loses_value = (
-            len(dec_tuple.digits) > 15 or Decimal(str(number)) != dec_number
-        )
-        # Underflow/overflow: form-canonical rebuilds (scientific, engineering,
-        # underscore) all share the same runtime issue as the source literal,
-        # so they don't help — only math.inf/0.0 (runtime-equivalent) and
-        # decimal.Decimal (precision-preserving) are meaningful alternatives.
-        underflow_or_overflow = math.isinf(number) or (
-            number == 0 and not dec_number.is_zero()
-        )
 
         suggested: set[str] = set()
-        if not underflow_or_overflow:
-            if scientific:
+        if scientific:
+            suggested.add(
+                cls.to_standard_scientific_notation(dec_number, sig_figs, dec_tuple)
+            )
+        if engineering:
+            suggested.add(
+                cls.to_standard_engineering_notation(dec_number, sig_figs, dec_tuple)
+            )
+        if pep515:
+            # Round to 15 sig figs so underscore suggestion doesn't imply
+            # more precision than float can represent.
+            rounded = float(f"{number:.15g}") if len(dec_tuple.digits) > 15 else number
+            s = cls.to_standard_underscore_grouping(rounded)
+            if s is not None:
+                suggested.add(s)
+            elif not suggested:
+                # pep515-only mode and the number is too large for
+                # underscore grouping — fall back to scientific notation.
                 suggested.add(
                     cls.to_standard_scientific_notation(dec_number, sig_figs, dec_tuple)
                 )
-            if engineering:
-                suggested.add(
-                    cls.to_standard_engineering_notation(
-                        dec_number, sig_figs, dec_tuple
-                    )
-                )
-            if pep515:
-                # Round to 15 sig figs so underscore suggestion doesn't imply
-                # more precision than float can represent.
-                rounded = (
-                    float(f"{number:.15g}") if len(dec_tuple.digits) > 15 else number
-                )
-                s = cls.to_standard_underscore_grouping(rounded)
-                if s is not None:
-                    suggested.add(s)
-                elif not suggested:
-                    # pep515-only mode and the number is too large for
-                    # underscore grouping — fall back to scientific notation.
-                    suggested.add(
-                        cls.to_standard_scientific_notation(
-                            dec_number, sig_figs, dec_tuple
-                        )
-                    )
+        return "' or '".join(sorted(suggested))
+
+    @classmethod
+    def precision_suggestion(cls, original_string: str, value: float) -> str:
+        """Build a precision-alternative suggestion list.
+
+        For overflow/underflow the runtime equivalent (``math.inf`` / ``0.0``)
+        is offered alongside ``decimal.Decimal(...)``. For literals that float
+        rounds (>15 sig figs but finite nonzero) the rounded ``repr`` is
+        offered instead — but skipped when it equals the source, so the user
+        doesn't see the same string suggested back.
+        """
+        suggested: set[str] = {cls.to_decimal_suggestion(original_string)}
+        if math.isinf(value):
+            suggested.add("math.inf")
+        elif value == 0:
+            suggested.add("0.0")
         else:
-            suggested.add("math.inf" if math.isinf(number) else "0.0")
-        if float_loses_value:
-            suggested.add(cls.to_decimal_suggestion(original_string))
+            # Precision loss only — repr() gives Python's shortest round-trip
+            # decimal, i.e. exactly what float will store at runtime.
+            rounded = repr(value)
+            if rounded != original_string.lower():
+                suggested.add(rounded)
         return "' or '".join(sorted(suggested))
 
     @classmethod
@@ -365,6 +365,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Emitted when a number is written in a non-standard notation. The three "
         "allowed notations above the threshold are the scientific notation, the "
         "engineering notation, and the underscore grouping notation defined in PEP 515.",
+    ),
+    "C0330": (
+        "'%s' %s, and it should be written as '%s' instead",
+        "bad-float-precision",
+        "Emitted when a float literal cannot be represented faithfully by "
+        "float64 — overflows to infinity, underflows to zero, or has more "
+        "significant digits than the ~15 digit float guarantee. Independent "
+        "of the notation form checked by 'bad-number-notation'.",
     ),
 }
 
@@ -782,9 +790,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                         check_equal = False
                         self.check_indent_level(line, indents[-1], line_num)
 
-            if tok_type == tokenize.NUMBER and self.linter.is_message_enabled(
-                "bad-number-notation"
-            ):
+            if tok_type == tokenize.NUMBER:
                 self._check_number_notation(line_num, start, string)
 
             if string in _KEYWORD_TOKENS:
@@ -819,25 +825,31 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         if string.endswith(("j", "J")):
             # Complex literals are not handled.
             return
-        match string[1:2].lower():
-            case "x":
-                self._check_non_decimal_notation(
-                    line_num, start, string, "hex", 4, "hex digits"
-                )
-            case "b":
-                self._check_non_decimal_notation(
-                    line_num, start, string, "binary", 4, "binary digits"
-                )
-            case "o":
-                self._check_non_decimal_notation(
-                    line_num, start, string, "octal", 3, "octal digits"
-                )
-            case _ if "." in string or "e" in string or "E" in string:
-                self._check_bad_number_notation(line_num, start, string)
-            case _:
-                self._check_non_decimal_notation(
-                    line_num, start, string, "decimal", 3, "digits", 0
-                )
+        is_float = string[1:2].lower() not in ("x", "b", "o") and (
+            "." in string or "e" in string or "E" in string
+        )
+        if self.linter.is_message_enabled("bad-number-notation"):
+            match string[1:2].lower():
+                case "x":
+                    self._check_non_decimal_notation(
+                        line_num, start, string, "hex", 4, "hex digits"
+                    )
+                case "b":
+                    self._check_non_decimal_notation(
+                        line_num, start, string, "binary", 4, "binary digits"
+                    )
+                case "o":
+                    self._check_non_decimal_notation(
+                        line_num, start, string, "octal", 3, "octal digits"
+                    )
+                case _ if is_float:
+                    self._check_bad_number_notation(line_num, start, string)
+                case _:
+                    self._check_non_decimal_notation(
+                        line_num, start, string, "decimal", 3, "digits", 0
+                    )
+        if is_float and self.linter.is_message_enabled("bad-float-precision"):
+            self._check_bad_float_precision(line_num, start, string)
 
     def _check_bad_number_notation(
         self, line_num: int, start: tuple[int, int], string: str
@@ -859,15 +871,12 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 return
 
         dec_number = Decimal(clean)
-        sig_figs = len(dec_number.as_tuple().digits)
         ctx = _NumberContext(
             line_num=line_num,
             start=start,
             string=string,
             value=value,
             dec_number=dec_number,
-            sig_figs=sig_figs,
-            float_loses_value=sig_figs > 15 or Decimal(str(value)) != dec_number,
             scientific=self.all_number_notation_allowed or self.strict_scientific,
             engineering=self.all_number_notation_allowed or self.strict_engineering,
             pep515=self.all_number_notation_allowed or self.strict_underscore,
@@ -882,34 +891,16 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             self._handle_plain_threshold(ctx)
             return
         if has_exponent:
-            if self._handle_exponent_form(ctx):
-                return
-        elif self._handle_underscore_form(ctx):
-            return
-        self._handle_value_fidelity(ctx)
+            self._handle_exponent_form(ctx)
+        else:
+            self._handle_underscore_form(ctx)
 
-    def _emit_bad_notation(
-        self,
-        ctx: _NumberContext,
-        reason: str,
-        *,
-        append_loss_info: bool = True,
-    ) -> None:
+    def _emit_bad_notation(self, ctx: _NumberContext, reason: str) -> None:
         suggestion = NumberFormatterHelper.standardize(
-            ctx.string, ctx.dec_number, ctx.scientific, ctx.engineering, ctx.pep515
+            ctx.dec_number, ctx.scientific, ctx.engineering, ctx.pep515
         )
         if suggestion == ctx.string.lower():
             return
-        if append_loss_info and ctx.float_loses_value:
-            if ctx.sig_figs > 15:
-                reason += (
-                    f", and has {ctx.sig_figs} significant digits,"
-                    " more than float can represent exactly"
-                )
-            elif math.isinf(ctx.value):
-                reason += ", and overflows to infinity in float"
-            else:
-                reason += ", and underflows to zero in float"
         self.add_message(
             "bad-number-notation",
             line=ctx.line_num,
@@ -945,20 +936,16 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         else:
             self._emit_bad_notation(ctx, f"is greater than {self._threshold_str}")
 
-    def _handle_exponent_form(self, ctx: _NumberContext) -> bool:
-        """Check exponent literals against scientific/engineering forms.
-
-        Returns True when a form-related message was emitted (so the caller
-        skips the value-fidelity fall-through).
-        """
+    def _handle_exponent_form(self, ctx: _NumberContext) -> None:
+        """Check exponent literals against scientific/engineering forms."""
         if ctx.has_underscore:
             self._emit_bad_notation(ctx, "has exponent and underscore at the same time")
-            return True
+            return
         if self.strict_underscore:
             self._emit_bad_notation(
                 ctx, "uses exponent notation instead of underscore grouping"
             )
-            return True
+            return
         base_as_str, exponent_as_str = ctx.string.lower().split("e")
         base = float(base_as_str)
         wrong_scientific = not (1 <= base < 10)
@@ -971,7 +958,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     else f"has a base, '{base_as_str}', that is not between 1 and 10"
                 ),
             )
-            return True
+            return
         wrong_engineering = not (1 <= base < 1000 and int(exponent_as_str) % 3 == 0)
         if (self.strict_engineering and wrong_engineering) or (
             wrong_scientific and wrong_engineering
@@ -988,14 +975,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     )
                 ),
             )
-            return True
-        return False
 
-    def _handle_underscore_form(self, ctx: _NumberContext) -> bool:
-        """Check underscore literals (no exponent) for PEP 515 grouping.
-
-        Returns True when a form-related message was emitted.
-        """
+    def _handle_underscore_form(self, ctx: _NumberContext) -> None:
+        """Check underscore literals (no exponent) for PEP 515 grouping."""
         if self.strict_scientific or self.strict_engineering:
             self._emit_bad_notation(
                 ctx,
@@ -1005,28 +987,47 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     else "has underscores instead of engineering notation"
                 ),
             )
-            return True
+            return
         if ctx.pep515 and not _FLOAT_UNDERSCORE_PATTERN.match(ctx.string):
             self._emit_bad_notation(ctx, "has non-standard underscore grouping")
-            return True
-        return False
 
-    def _handle_value_fidelity(self, ctx: _NumberContext) -> None:
-        """Flag literals where float can't represent the source value.
-
-        Form is acceptable but the literal underflows to zero or overflows
-        to infinity when stored as a float — orthogonal to notation form.
-        """
-        if not ctx.float_loses_value:
+    def _check_bad_float_precision(
+        self, line_num: int, start: tuple[int, int], string: str
+    ) -> None:
+        """Flag float literals that float64 can't represent faithfully."""
+        # Fast path: plain literals with at most 15 digits — float64 keeps
+        # them exactly, no overflow/underflow possible without an exponent.
+        if "e" not in string and "E" not in string:
+            if sum(c.isdigit() for c in string) <= 15:
+                return
+        clean = string.replace("_", "")
+        value = float(clean)
+        dec_number = Decimal(clean)
+        # Round-trip predicate: float represents the literal faithfully iff
+        # ``str(float)`` parses back to the same Decimal value. Captures
+        # overflow, underflow, and precision loss in one check.
+        if Decimal(str(value)) == dec_number:
             return
-        if math.isinf(ctx.value):
-            self._emit_bad_notation(
-                ctx, "overflows to infinity in float", append_loss_info=False
+        if math.isinf(value):
+            reason = "overflows to infinity in float"
+        elif value == 0:
+            reason = "underflows to zero in float"
+        else:
+            sig_figs = len(dec_number.as_tuple().digits)
+            reason = (
+                f"has {sig_figs} significant digits,"
+                " more than float can represent exactly"
             )
-        elif ctx.value == 0:
-            self._emit_bad_notation(
-                ctx, "underflows to zero in float", append_loss_info=False
-            )
+        suggestion = NumberFormatterHelper.precision_suggestion(string, value)
+        self.add_message(
+            "bad-float-precision",
+            line=line_num,
+            col_offset=start[1],
+            end_lineno=line_num,
+            end_col_offset=start[1] + len(string),
+            args=(string, reason, suggestion),
+            confidence=HIGH,
+        )
 
     def _check_non_decimal_notation(
         self,

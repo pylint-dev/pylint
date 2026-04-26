@@ -565,6 +565,11 @@ Format checker Messages
   allowed notations above the threshold are the scientific notation, the
   engineering notation, and the underscore grouping notation defined in PEP
   515.
+:bad-float-precision (C0330): *'%s' %s, and it should be written as '%s' instead*
+  Emitted when a float literal cannot be represented faithfully by float64 —
+  overflows to infinity, underflows to zero, or has more significant digits
+  than the ~15 digit float guarantee. Independent of the notation form checked
+  by 'bad-number-notation'.
 
 
 Imports checker
