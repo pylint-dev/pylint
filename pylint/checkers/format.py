@@ -614,11 +614,10 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
     def remove_pylint_option_from_lines(options_pattern_obj: Match[str]) -> str:
         """Remove the `# pylint ...` pattern from lines."""
         lines = options_pattern_obj.string
-        purged_lines = (
+        return (
             lines[: options_pattern_obj.start(1)].rstrip()
             + lines[options_pattern_obj.end(1) :]
         )
-        return purged_lines
 
     @staticmethod
     def is_line_length_check_activated(pylint_pattern_match_object: Match[str]) -> bool:

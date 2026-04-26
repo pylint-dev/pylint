@@ -84,8 +84,7 @@ def cmp(a: float, b: float) -> int:
 def diff_string(old: float, new: float) -> str:
     """Given an old and new value, return a string representing the difference."""
     diff = abs(old - new)
-    diff_str = f"{CMPS[cmp(old, new)]}{(diff and f'{diff:.2f}') or ''}"
-    return diff_str
+    return f"{CMPS[cmp(old, new)]}{(diff and f'{diff:.2f}') or ''}"
 
 
 def get_module_and_frameid(node: nodes.NodeNG) -> tuple[str, str]:
