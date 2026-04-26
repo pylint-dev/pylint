@@ -17,3 +17,8 @@ pi_22_digits = 3.14159265358979323846  # [bad-float-precision]
 
 # Boundary: exactly 15 sig figs, no precision loss
 fifteen_digits = 1.23456789012345
+
+# astropy/astropy#19597 (review comment 3143576232): when the source already
+# uses PEP 515 underscore grouping in the mantissa, the suggestion preserves
+# it instead of flattening to a wall of digits.
+OMEGA_EARTH = 1.002_737_811_911_354_48  # [bad-float-precision]

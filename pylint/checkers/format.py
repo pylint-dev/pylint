@@ -126,12 +126,17 @@ class NumberFormatterHelper:
         scientific: bool = True,
         engineering: bool = True,
         pep515: bool = True,
+        has_underscore: bool = False,
     ) -> str:
         """Build a notation-alternative suggestion list from a Decimal literal.
 
         Only emits scientific / engineering / underscore-grouping forms.
         Precision concerns (overflow, underflow, >15 sig figs) are handled
         by ``precision_suggestion``.
+
+        When the original literal already used underscore grouping, the
+        scientific / engineering mantissas are grouped too — preserving the
+        user's choice rather than silently flattening it.
         """
         dec_tuple = dec_number.as_tuple()
         number = float(dec_number)
@@ -142,11 +147,15 @@ class NumberFormatterHelper:
         suggested: set[str] = set()
         if scientific:
             suggested.add(
-                cls.to_standard_scientific_notation(dec_number, sig_figs, dec_tuple)
+                cls.to_standard_scientific_notation(
+                    dec_number, sig_figs, dec_tuple, has_underscore=has_underscore
+                )
             )
         if engineering:
             suggested.add(
-                cls.to_standard_engineering_notation(dec_number, sig_figs, dec_tuple)
+                cls.to_standard_engineering_notation(
+                    dec_number, sig_figs, dec_tuple, has_underscore=has_underscore
+                )
             )
         if pep515:
             # Round to 15 sig figs so underscore suggestion doesn't imply
@@ -159,19 +168,28 @@ class NumberFormatterHelper:
                 # pep515-only mode and the number is too large for
                 # underscore grouping — fall back to scientific notation.
                 suggested.add(
-                    cls.to_standard_scientific_notation(dec_number, sig_figs, dec_tuple)
+                    cls.to_standard_scientific_notation(
+                        dec_number, sig_figs, dec_tuple, has_underscore=has_underscore
+                    )
                 )
         return "' or '".join(sorted(suggested))
 
     @classmethod
-    def precision_suggestion(cls, original_string: str, value: float) -> str:
+    def precision_suggestion(
+        cls,
+        original_string: str,
+        value: float,
+        force_grouping: bool = False,
+    ) -> str:
         """Build a precision-alternative suggestion list.
 
         For overflow/underflow the runtime equivalent (``math.inf`` / ``0.0``)
         is offered alongside ``decimal.Decimal(...)``. For literals that float
         rounds (>15 sig figs but finite nonzero) the rounded ``repr`` is
         offered instead — but skipped when it equals the source, so the user
-        doesn't see the same string suggested back.
+        doesn't see the same string suggested back. The ``repr`` mantissa
+        keeps underscore grouping when the source literal used it, or when
+        ``force_grouping`` is set.
         """
         suggested: set[str] = {cls.to_decimal_suggestion(original_string)}
         if math.isinf(value):
@@ -182,6 +200,8 @@ class NumberFormatterHelper:
             # Precision loss only — repr() gives Python's shortest round-trip
             # decimal, i.e. exactly what float will store at runtime.
             rounded = repr(value)
+            if "_" in original_string or force_grouping:
+                rounded = cls._regroup(rounded)
             if rounded != original_string.lower():
                 suggested.add(rounded)
         return "' or '".join(sorted(suggested))
@@ -192,6 +212,7 @@ class NumberFormatterHelper:
         dec_number: Decimal,
         sig_figs: int,
         dec_tuple: DecimalTuple | None = None,
+        has_underscore: bool = False,
     ) -> str:
         if not dec_number:
             return "0.0"
@@ -204,6 +225,8 @@ class NumberFormatterHelper:
             base_str = _decimal_g_format(dec_number, sig_figs)
             if "." not in base_str:
                 base_str += ".0"
+            if has_underscore:
+                base_str = cls._regroup(base_str)
             return base_str
 
         # Compute base by shifting the decimal tuple instead of dividing
@@ -216,6 +239,8 @@ class NumberFormatterHelper:
 
         if "." not in base_str and "e" not in base_str.lower():
             base_str += ".0"
+        if has_underscore:
+            base_str = cls._regroup(base_str)
 
         return f"{base_str}e{exponent}"
 
@@ -225,6 +250,7 @@ class NumberFormatterHelper:
         dec_number: Decimal,
         sig_figs: int,
         dec_tuple: DecimalTuple | None = None,
+        has_underscore: bool = False,
     ) -> str:
         if not dec_number:
             return "0.0"
@@ -254,6 +280,8 @@ class NumberFormatterHelper:
 
         if "." not in base_str and "e" not in base_str.lower():
             base_str += ".0"
+        if has_underscore:
+            base_str = cls._regroup(base_str)
 
         if exp_value != 0:
             return f"{base_str}e{exp_value}"
@@ -311,6 +339,24 @@ class NumberFormatterHelper:
         for i in range(0, len(s), size):
             parts.append(s[i : i + size])
         return "_".join(parts)
+
+    @classmethod
+    def _regroup(cls, number_str: str) -> str:
+        """Add PEP 515 underscore grouping to a decimal mantissa.
+
+        Splits on the decimal point and an optional ``e``/``E`` exponent,
+        groups the integer part from the right and the fractional part from
+        the left.  Used to preserve the user's choice of underscore-separated
+        notation when rebuilding scientific / engineering / ``repr`` output.
+        """
+        for marker in ("e", "E"):
+            if marker in number_str:
+                base, _, exp = number_str.partition(marker)
+                return f"{cls._regroup(base)}{marker}{exp}"
+        if "." in number_str:
+            int_part, dec_part = number_str.split(".")
+            return f"{cls._group_right(int_part)}.{cls._group_left(dec_part)}"
+        return cls._group_right(number_str)
 
 
 MSGS: dict[str, MessageDefinitionTuple] = {
@@ -584,6 +630,20 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                     "underscores. Applies to all bases (decimal, hex, octal, "
                     "binary). Integers with existing but incorrect underscore "
                     "grouping are always flagged regardless of this option."
+                ),
+            },
+        ),
+        (
+            "suggest-mantissa-underscore",
+            {
+                "default": False,
+                "type": "yn",
+                "metavar": "<y or n>",
+                "help": (
+                    "Always suggest PEP 515 underscore grouping in the mantissa "
+                    "of scientific / engineering / repr replacements, even when "
+                    "the source literal didn't use underscores. By default the "
+                    "grouping is preserved only if the source already used it."
                 ),
             },
         ),
@@ -933,8 +993,19 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             self._handle_underscore_form(ctx)
 
     def _emit_bad_notation(self, ctx: _NumberContext, reason: str) -> None:
+        # Group the mantissa with underscores when the source already did,
+        # or when ``suggest-mantissa-underscore`` is set. Sources that mix
+        # exponent + underscore are excluded either way: pylint flags the
+        # mix itself, so suggesting back a still-mixed mantissa would be
+        # circular.
+        force_grouping = self.linter.config.suggest_mantissa_underscore
+        is_mixed = ctx.has_underscore and ctx.has_exponent
         suggestion = NumberFormatterHelper.standardize(
-            ctx.dec_number, ctx.scientific, ctx.engineering, ctx.pep515
+            ctx.dec_number,
+            ctx.scientific,
+            ctx.engineering,
+            ctx.pep515,
+            has_underscore=(ctx.has_underscore or force_grouping) and not is_mixed,
         )
         if suggestion == ctx.string.lower():
             return
@@ -1062,7 +1133,11 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 f"has {sig_figs} significant digits,"
                 " more than float can represent exactly"
             )
-        suggestion = NumberFormatterHelper.precision_suggestion(string, value)
+        suggestion = NumberFormatterHelper.precision_suggestion(
+            string,
+            value,
+            force_grouping=self.linter.config.suggest_mantissa_underscore,
+        )
         self.add_message(
             "bad-float-precision",
             line=line_num,

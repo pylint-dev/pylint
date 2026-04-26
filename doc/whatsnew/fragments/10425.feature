@@ -5,4 +5,14 @@ Added two related checks:
 
 Both checks can be enabled or disabled independently.
 
+When the source literal already uses PEP 515 underscore grouping in the mantissa
+(e.g. ``1.002_737_811_911_354_48``), the suggested replacement preserves that
+grouping rather than flattening it into a wall of digits.  Mixed
+exponent + underscore literals are still suggested in their unmixed forms
+since pylint disallows the mix.
+
+Added the ``suggest-mantissa-underscore`` option (default off): when enabled,
+scientific / engineering / ``repr`` suggestions always group the mantissa with
+underscores, even when the source literal didn't.
+
 Refs #10425
