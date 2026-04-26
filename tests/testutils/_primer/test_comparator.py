@@ -12,6 +12,7 @@ from pylint.reporters.json_reporter import JSONMessage
 from pylint.testutils._primer.comparator import (
     Comparator,
     _caret_hint,
+    _is_symbol_rename,
     format_span,
 )
 
@@ -65,6 +66,21 @@ def test_format_span_without_end_position() -> None:
 def test_caret_hint_returns_empty_when_mostly_changed() -> None:
     """When more than 60% of the text differs, carets are noise and are skipped."""
     assert _caret_hint("hello world", "goodbye universe") == ""
+
+
+@pytest.mark.parametrize(
+    ("old_symbol", "new_symbol", "expected"),
+    [
+        ("used-before-assignment", "possibly-used-before-assignment", True),
+        ("abstract-method", "no-abstract-method", True),
+        ("useless-suppression", "locally-disabled", False),
+        ("too-complex", "too-many-locals", False),
+    ],
+)
+def test_is_symbol_rename(old_symbol: str, new_symbol: str, expected: bool) -> None:
+    old = _msg(symbol=old_symbol)
+    new = _msg(symbol=new_symbol)
+    assert _is_symbol_rename(old, new) is expected
 
 
 def test_comparator_batched() -> None:

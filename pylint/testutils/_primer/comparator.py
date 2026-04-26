@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Callable, Hashable, Iterator
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import NamedTuple
@@ -34,26 +34,35 @@ class PackageDiff(NamedTuple):
     changed: list[ChangedMessage]  # same message, altered line / text
 
 
-def _pair_by_position(
-    old_residuals: list[JSONMessage], new_residuals: list[JSONMessage]
-) -> tuple[list[ChangedMessage], list[JSONMessage], list[JSONMessage]]:
-    """Pair residual messages by ``(symbol, path, obj)`` in input order.
+SYMBOL_RENAME_SIMILARITY_THRESHOLD = 0.5
 
-    Two messages sharing that key are the "same warning" — if they differ only
+
+def _pair_by_key(
+    old_residuals: list[JSONMessage],
+    new_residuals: list[JSONMessage],
+    key: Callable[[JSONMessage], tuple[Hashable, ...]],
+    accept: Callable[[JSONMessage, JSONMessage], bool] = lambda _o, _n: True,
+) -> tuple[list[ChangedMessage], list[JSONMessage], list[JSONMessage]]:
+    """Pair messages whose ``key`` matches, in input order.
+
+    Two messages sharing the key are the "same warning" — if they differ only
     in line numbers or message text, they should be reported as *changed*
     rather than as a separate removal + addition.  Leftovers on each side are
-    genuinely missing or genuinely new.
+    passed through to the next pass (or reported as missing/new).
+
+    ``accept`` is an optional predicate that can veto a candidate pair (used to
+    avoid pairing two unrelated messages that happen to share the key).
     """
-    new_by_key: dict[tuple[str, str, str], list[JSONMessage]] = defaultdict(list)
+    new_by_key: dict[tuple[Hashable, ...], list[JSONMessage]] = defaultdict(list)
     for m in new_residuals:
-        new_by_key[m["symbol"], m["path"], m["obj"]].append(m)
+        new_by_key[key(m)].append(m)
 
     paired: list[ChangedMessage] = []
     final_missing: list[JSONMessage] = []
     matched_new: set[int] = set()
     for old in old_residuals:
-        bucket = new_by_key.get((old["symbol"], old["path"], old["obj"]))
-        if bucket:
+        bucket = new_by_key.get(key(old))
+        if bucket and accept(old, bucket[0]):
             new = bucket.pop(0)
             paired.append(ChangedMessage(old=old, new=new))
             matched_new.add(id(new))
@@ -61,6 +70,48 @@ def _pair_by_position(
             final_missing.append(old)
     final_new = [m for m in new_residuals if id(m) not in matched_new]
     return paired, final_missing, final_new
+
+
+def _is_symbol_rename(old: JSONMessage, new: JSONMessage) -> bool:
+    """True when the two symbols are textually similar enough to be a rename.
+
+    Used to avoid pairing unrelated messages that happen to share a source
+    position (e.g. ``useless-suppression`` removed and ``locally-disabled``
+    added on the same line — those are conceptually opposite, not a rename).
+    """
+    ratio = SequenceMatcher(None, old["symbol"], new["symbol"]).ratio()
+    return ratio >= SYMBOL_RENAME_SIMILARITY_THRESHOLD
+
+
+def _pair_residuals(
+    old_residuals: list[JSONMessage], new_residuals: list[JSONMessage]
+) -> tuple[list[ChangedMessage], list[JSONMessage], list[JSONMessage]]:
+    """Pair residual messages with two passes of decreasing strictness.
+
+    First by ``(symbol, path, obj)`` — catches line-only or message-only changes
+    for the same warning. Then by exact source location, gated on symbol
+    similarity — catches symbol renames such as ``used-before-assignment`` →
+    ``possibly-used-before-assignment``, where the same code position now
+    emits a renamed message.
+    """
+    paired_by_symbol, missing, new = _pair_by_key(
+        old_residuals,
+        new_residuals,
+        key=lambda m: (m["symbol"], m["path"], m["obj"]),
+    )
+    paired_by_location, missing, new = _pair_by_key(
+        missing,
+        new,
+        key=lambda m: (
+            m["path"],
+            m["line"],
+            m["column"],
+            m.get("endLine"),
+            m.get("endColumn"),
+        ),
+        accept=_is_symbol_rename,
+    )
+    return paired_by_symbol + paired_by_location, missing, new
 
 
 def format_span(msg: JSONMessage) -> str:
@@ -176,9 +227,10 @@ class Comparator:
                 except ValueError:
                     residual_old.append(message)
 
-            # Second pass: pair residuals by position to detect *changed*
-            # messages (same warning, different line or text).
-            paired, final_missing, final_new = _pair_by_position(
+            # Second pass: pair residuals by symbol then by location to
+            # detect *changed* messages (same warning, different line/text,
+            # or a symbol rename at the same source position).
+            paired, final_missing, final_new = _pair_residuals(
                 residual_old, pr_messages
             )
 
