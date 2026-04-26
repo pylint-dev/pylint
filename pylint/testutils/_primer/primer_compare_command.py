@@ -112,7 +112,6 @@ class CompareCommand(PrimerCommand):
         print("Now emitted:")
         astroid_errors = 0
         fixed_fp: list[JSONMessage] = []
-        new_fp: list[JSONMessage] = []
         other_new: list[JSONMessage] = []
         for message in messages:
             print(message)
@@ -120,10 +119,6 @@ class CompareCommand(PrimerCommand):
                 astroid_errors += 1
             elif USELESS_SUPPRESSION_RE.match(message["message"]):
                 fixed_fp.append(message)
-            elif message["symbol"] == "locally-disabled":
-                # A new locally-disabled means a maintainer had to add a
-                # suppression comment — we introduced a false positive.
-                new_fp.append(message)
             else:
                 other_new.append(message)
 
@@ -136,10 +131,6 @@ class CompareCommand(PrimerCommand):
         if fixed_fp:
             out += _details_section(
                 "🎉 Fixed false positives:", _format_messages(fixed_fp, source_link)
-            )
-        if new_fp:
-            out += _details_section(
-                "😞 New false positives:", _format_messages(new_fp, source_link)
             )
         if other_new:
             out += _details_section(

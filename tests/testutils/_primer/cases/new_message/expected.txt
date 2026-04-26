@@ -3,7 +3,7 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-😞 New false positives:
+New messages:
 
 <details>
 
