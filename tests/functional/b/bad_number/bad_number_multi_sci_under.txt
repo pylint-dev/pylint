@@ -1,0 +1,4 @@
+bad-number-notation:14:11:14:19::'12.345e9' has a base, '12.345', that is not between 1 and 10, and it should be written as '1.2345e10' or '12_345_000_000.0' instead:HIGH
+bad-number-notation:15:13:15:20::'150.4e6' has a base, '150.4', that is not between 1 and 10, and it should be written as '1.504e8' or '150_400_000.0' instead:HIGH
+bad-number-notation:18:15:18:29::'1_23_456_789.0' has non-standard underscore grouping, and it should be written as '1.23456789e8' or '123_456_789.0' instead:HIGH
+bad-number-notation:21:18:21:28::'10000000.0' is greater than 1.0e6, and it should be written as '1.0e7' or '10_000_000.0' instead:HIGH
