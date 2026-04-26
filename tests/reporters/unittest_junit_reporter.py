@@ -10,8 +10,6 @@ import xml.etree.ElementTree as ET
 from io import StringIO
 from typing import Any
 
-import pytest
-
 from pylint import checkers
 from pylint.interfaces import HIGH, UNDEFINED
 from pylint.lint import PyLinter
@@ -71,7 +69,8 @@ class TestJUnitReporterOutput:
 
     def test_single_message_output(self) -> None:
         """A single message should produce valid JUnit XML with one testcase
-        and one failure element."""
+        and one failure element.
+        """
         root = _get_junit_output(
             [{"msg": "line-too-long", "line": 1, "args": (100, 80)}]
         )
@@ -95,7 +94,8 @@ class TestJUnitReporterOutput:
 
     def test_multiple_messages_same_module(self) -> None:
         """Multiple messages in the same module should be grouped under one
-        testcase with multiple failure elements."""
+        testcase with multiple failure elements.
+        """
         root = _get_junit_output(
             [
                 {"msg": "line-too-long", "line": 1, "args": (100, 80)},
@@ -231,7 +231,8 @@ class TestJUnitReporterOutput:
 
     def test_failure_message_attribute_format(self) -> None:
         """The failure message attribute should follow the format:
-        '{msg_id}({symbol}): {message} (line {line})'."""
+        '{msg_id}({symbol}): {message} (line {line})'.
+        """
         root = _get_junit_output(
             [{"msg": "line-too-long", "line": 42, "args": (100, 80)}]
         )

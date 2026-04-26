@@ -65,8 +65,7 @@ class JUnitReporter(BaseReporter):
 
             for msg in module_messages:
                 failure_msg = (
-                    f"{msg.msg_id}({msg.symbol}): {msg.msg or ''} "
-                    f"(line {msg.line})"
+                    f"{msg.msg_id}({msg.symbol}): {msg.msg or ''} " f"(line {msg.line})"
                 )
                 failure_el = ET.SubElement(
                     testcase_el,
