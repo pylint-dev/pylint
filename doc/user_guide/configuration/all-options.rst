@@ -950,9 +950,9 @@ Standard Checkers
 
 --number-notation-style
 """""""""""""""""""""""
-*Enforce a specific notation for number literals above 'number-notation-threshold'. Choices: empty (allow all standard notations), 'scientific', 'engineering', or 'underscore' (PEP 515).*
+*Allowed notation styles for number literals above 'number-notation-threshold'. Comma-separated list of 'scientific', 'engineering', and/or 'underscore' (PEP 515). Empty (default) accepts any of the three; list a subset to restrict accepted forms.*
 
-**Default:** ``""``
+**Default:**  ``()``
 
 
 --number-notation-threshold
@@ -1009,8 +1009,7 @@ Standard Checkers
 
    max-module-lines = 1000
 
-   # Possible choices: ['', 'scientific', 'engineering', 'underscore']
-   number-notation-style = ""
+   number-notation-style = []
 
    number-notation-threshold = 1000000.0
 

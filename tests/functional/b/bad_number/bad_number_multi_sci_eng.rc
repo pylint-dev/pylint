@@ -1,0 +1,3 @@
+[main]
+number-notation-style=scientific,engineering
+number-notation-threshold=1e6

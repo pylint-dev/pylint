@@ -65,6 +65,9 @@ _GROUPING_PATTERNS: dict[str, re.Pattern[str]] = {
 _FLOAT_UNDERSCORE_PATTERN: re.Pattern[str] = re.compile(
     r"^\d{1,3}(_\d{3})*\.?(\d{3}(_\d{3})*(_\d{1,2})?|\d*)([eE]-?\d{0,3}(_\d{3})*)?$"
 )
+_NOTATION_STYLES: frozenset[str] = frozenset(
+    {"scientific", "engineering", "underscore"}
+)
 
 
 class _NumberContext(NamedTuple):
@@ -546,15 +549,15 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         (
             "number-notation-style",
             {
-                "type": "choice",
-                "metavar": "<style>",
-                "default": "",
-                "choices": ["", "scientific", "engineering", "underscore"],
+                "type": "csv",
+                "metavar": "<style[,style...]>",
+                "default": (),
                 "help": (
-                    "Enforce a specific notation for number literals above "
-                    "'number-notation-threshold'. Choices: empty (allow all "
-                    "standard notations), 'scientific', 'engineering', or "
-                    "'underscore' (PEP 515)."
+                    "Allowed notation styles for number literals above "
+                    "'number-notation-threshold'. Comma-separated list of "
+                    "'scientific', 'engineering', and/or 'underscore' "
+                    "(PEP 515). Empty (default) accepts any of the three; "
+                    "list a subset to restrict accepted forms."
                 ),
             },
         ),
@@ -579,21 +582,35 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         self._lines: dict[int, str] = {}
         self._visited_lines: dict[int, Literal[1, 2]] = {}
         if self.linter.is_message_enabled("bad-number-notation"):
-            style = self.linter.config.number_notation_style
-            self.all_number_notation_allowed = style == ""
-            self.strict_scientific = style == "scientific"
-            self.strict_engineering = style == "engineering"
-            self.strict_underscore = style == "underscore"
-            if self.strict_scientific:
-                if self.linter.config.number_notation_threshold < 10:
-                    raise ValueError(
-                        "'number-notation-threshold' must be at least 10 "
-                        "when 'number-notation-style' is 'scientific', got "
-                        f"{self.linter.config.number_notation_threshold}."
-                    )
-            elif self.linter.config.number_notation_threshold < 1000:
+            allowed_styles = set(self.linter.config.number_notation_style or ())
+            unknown = allowed_styles - _NOTATION_STYLES
+            if unknown:
                 raise ValueError(
-                    "'number-notation-threshold' must be at least 1000, got "
+                    f"'number-notation-style' got unknown value(s) "
+                    f"{sorted(unknown)!r}; expected any of "
+                    f"{sorted(_NOTATION_STYLES)!r}."
+                )
+            # Empty list = accept any of the three styles.
+            allowed_styles = allowed_styles or set(_NOTATION_STYLES)
+            self.scientific_allowed = "scientific" in allowed_styles
+            self.engineering_allowed = "engineering" in allowed_styles
+            self.underscore_allowed = "underscore" in allowed_styles
+            self.underscore_only = allowed_styles == {"underscore"}
+            # ``scientific`` is the only style that makes sense at threshold 10
+            # (e.g. 10 → 1.0e1). Engineering and underscore both want at least
+            # 1000 since their canonical form needs three-digit groups.
+            scientific_only = allowed_styles == {"scientific"}
+            min_threshold = 10 if scientific_only else 1000
+            if self.linter.config.number_notation_threshold < min_threshold:
+                if scientific_only:
+                    explanation = (
+                        " when 'number-notation-style' restricts to 'scientific'"
+                    )
+                else:
+                    explanation = ""
+                raise ValueError(
+                    f"'number-notation-threshold' must be at least "
+                    f"{min_threshold}{explanation}, got "
                     f"{self.linter.config.number_notation_threshold}."
                 )
             # Pre-format threshold strings used in messages.
@@ -866,7 +883,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             threshold = self.linter.config.number_notation_threshold
             abs_value = abs(value)
             if abs_value < threshold and (
-                self.strict_underscore or abs_value >= 1 / threshold
+                self.underscore_only or abs_value >= 1 / threshold
             ):
                 return
 
@@ -877,9 +894,9 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             string=string,
             value=value,
             dec_number=dec_number,
-            scientific=self.all_number_notation_allowed or self.strict_scientific,
-            engineering=self.all_number_notation_allowed or self.strict_engineering,
-            pep515=self.all_number_notation_allowed or self.strict_underscore,
+            scientific=self.scientific_allowed,
+            engineering=self.engineering_allowed,
+            pep515=self.underscore_allowed,
             has_exponent=has_exponent,
             has_underscore=has_underscore,
         )
@@ -927,7 +944,7 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
         under_threshold = abs_value < threshold
         # Underscore notation doesn't care about the close-to-zero range; for
         # scientific/engineering we also skip when the value is in [1/threshold, threshold].
-        if under_threshold and (self.strict_underscore or abs_value >= 1 / threshold):
+        if under_threshold and (self.underscore_only or abs_value >= 1 / threshold):
             return
         if under_threshold:
             self._emit_bad_notation(
@@ -937,19 +954,28 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
             self._emit_bad_notation(ctx, f"is greater than {self._threshold_str}")
 
     def _handle_exponent_form(self, ctx: _NumberContext) -> None:
-        """Check exponent literals against scientific/engineering forms."""
+        """Check exponent literals against the allowed scientific/engineering forms."""
         if ctx.has_underscore:
             self._emit_bad_notation(ctx, "has exponent and underscore at the same time")
             return
-        if self.strict_underscore:
+        if not self.scientific_allowed and not self.engineering_allowed:
+            # Only ``underscore`` is accepted, but the literal uses an exponent.
             self._emit_bad_notation(
                 ctx, "uses exponent notation instead of underscore grouping"
             )
             return
         base_as_str, exponent_as_str = ctx.string.lower().split("e")
         base = float(base_as_str)
-        wrong_scientific = not (1 <= base < 10)
-        if self.strict_scientific and wrong_scientific:
+        sci_form_ok = 1 <= base < 10
+        eng_form_ok = 1 <= base < 1000 and int(exponent_as_str) % 3 == 0
+        if (self.scientific_allowed and sci_form_ok) or (
+            self.engineering_allowed and eng_form_ok
+        ):
+            return  # at least one allowed form accepts the literal
+        # Pick reason wording: scientific phrasing when scientific is allowed
+        # but engineering isn't; engineering phrasing otherwise (covers
+        # engineering-only, scientific+engineering, or all three allowed).
+        if self.scientific_allowed and not self.engineering_allowed:
             self._emit_bad_notation(
                 ctx,
                 (
@@ -959,36 +985,34 @@ class FormatChecker(BaseTokenChecker, BaseRawFileChecker):
                 ),
             )
             return
-        wrong_engineering = not (1 <= base < 1000 and int(exponent_as_str) % 3 == 0)
-        if (self.strict_engineering and wrong_engineering) or (
-            wrong_scientific and wrong_engineering
-        ):
-            self._emit_bad_notation(
-                ctx,
-                (
-                    f"has an exponent '{exponent_as_str}' that is not a multiple of 3"
-                    if 1 <= base < 1000
-                    else (
-                        f"has a base, '{base_as_str}', that is not strictly less than 1000"
-                        if base == 1000
-                        else f"has a base, '{base_as_str}', that is not between 1 and 1000"
-                    )
-                ),
-            )
+        self._emit_bad_notation(
+            ctx,
+            (
+                f"has an exponent '{exponent_as_str}' that is not a multiple of 3"
+                if 1 <= base < 1000
+                else (
+                    f"has a base, '{base_as_str}', that is not strictly less than 1000"
+                    if base == 1000
+                    else f"has a base, '{base_as_str}', that is not between 1 and 1000"
+                )
+            ),
+        )
 
     def _handle_underscore_form(self, ctx: _NumberContext) -> None:
         """Check underscore literals (no exponent) for PEP 515 grouping."""
-        if self.strict_scientific or self.strict_engineering:
+        if not self.underscore_allowed:
+            # Pick wording from the most permissive remaining allowed style:
+            # engineering when allowed, otherwise scientific.
             self._emit_bad_notation(
                 ctx,
                 (
                     "has underscores instead of scientific notation"
-                    if self.strict_scientific
+                    if self.scientific_allowed and not self.engineering_allowed
                     else "has underscores instead of engineering notation"
                 ),
             )
             return
-        if ctx.pep515 and not _FLOAT_UNDERSCORE_PATTERN.match(ctx.string):
+        if not _FLOAT_UNDERSCORE_PATTERN.match(ctx.string):
             self._emit_bad_notation(ctx, "has non-standard underscore grouping")
 
     def _check_bad_float_precision(

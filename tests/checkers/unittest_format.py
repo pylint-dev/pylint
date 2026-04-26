@@ -383,15 +383,34 @@ def test_to_standard_non_decimal_grouping(
 @pytest.mark.parametrize(
     "style,threshold,match",
     [
-        ("engineering", 999, "must be at least 1000"),
-        ("scientific", 9, "must be at least 10"),
+        (("engineering",), 999, "must be at least 1000"),
+        (("underscore",), 999, "must be at least 1000"),
+        (("scientific", "engineering"), 999, "must be at least 1000"),
+        ((), 999, "must be at least 1000"),
+        (("scientific",), 9, "must be at least 10"),
     ],
 )
 def test_number_notation_threshold_too_low(
-    style: str, threshold: int, match: str
+    style: tuple[str, ...], threshold: int, match: str
 ) -> None:
     checker = FormatChecker(lint.PyLinter())
     checker.linter.config.number_notation_style = style
     checker.linter.config.number_notation_threshold = threshold
+    with pytest.raises(ValueError, match=match):
+        checker.open()
+
+
+@pytest.mark.parametrize(
+    "style,match",
+    [
+        (("foo",), r"got unknown value\(s\) \['foo'\]"),
+        (("scientific", "bar"), r"got unknown value\(s\) \['bar'\]"),
+        (("baz", "qux"), r"got unknown value\(s\) \['baz', 'qux'\]"),
+    ],
+)
+def test_number_notation_style_unknown(style: tuple[str, ...], match: str) -> None:
+    checker = FormatChecker(lint.PyLinter())
+    checker.linter.config.number_notation_style = style
+    checker.linter.config.number_notation_threshold = 1e6
     with pytest.raises(ValueError, match=match):
         checker.open()
