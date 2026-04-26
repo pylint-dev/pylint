@@ -12,7 +12,7 @@
 https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/coordinates/angles/angle_parsetab.py#L14
 </details>
 
-😞 New false positives:
+New messages:
 
 <details>
 

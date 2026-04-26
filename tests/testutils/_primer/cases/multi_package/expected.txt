@@ -20,7 +20,7 @@ Moved from `100:0`-`100:15` to `105:0`-`105:15`.
 
 **Effect on [astropy](https://github.com/astropy/astropy):**
 
-😞 New false positives:
+New messages:
 
 <details>
 
