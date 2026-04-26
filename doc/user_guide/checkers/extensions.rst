@@ -270,7 +270,7 @@ Verbatim name of the checker is ``dict-init-mutate``.
 
 Dict-Init-Mutate checker Messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:dict-init-mutate (C3401): *Declare all known key/values when initializing the dictionary.*
+:dict-init-mutate (C3401): *Declare all known key/values when initializing the dictionary: %s*
   Dictionaries can be initialized with a single statement using dictionary
   literal syntax.
 
