@@ -170,7 +170,6 @@ Confidence: {msg.confidence.name}"""
         # Use ET.tostring for serialization, then pretty-print
         xml_string = ET.tostring(element, encoding="unicode")
         # Basic pretty-printing: add newlines and indentation
-        import re
         # Add XML declaration
         pretty_xml = '<?xml version="1.0" encoding="utf-8"?>\n'
         # Simple indentation-based pretty printing
@@ -180,25 +179,31 @@ Confidence: {msg.confidence.name}"""
         i = 0
         while i < len(xml_string):
             char = xml_string[i]
-            if char == '<':
-                if xml_string[i + 1] == '/':
+            if char == "<":
+                if xml_string[i + 1] == "/":
                     indent_level -= 1
-                    result.append('\n' + '  ' * indent_level)
-                elif i > 0 and xml_string[i - 1] != '\n':
-                    result.append('\n' + '  ' * indent_level)
+                    result.append("\n" + "  " * indent_level)
+                elif i > 0 and xml_string[i - 1] != "\n":
+                    result.append("\n" + "  " * indent_level)
                 result.append(char)
                 in_element = True
-            elif char == '>' and in_element:
+            elif char == ">" and in_element:
                 result.append(char)
-                if xml_string[i - 1] != '/' and not (i + 1 < len(xml_string) and xml_string[i + 1:i + 3] == '</'):
-                    if i + 1 < len(xml_string) and xml_string[i + 1] == '<' and xml_string[i + 2] != '/':
+                if xml_string[i - 1] != "/" and not (
+                    i + 1 < len(xml_string) and xml_string[i + 1 : i + 3] == "</"
+                ):
+                    if (
+                        i + 1 < len(xml_string)
+                        and xml_string[i + 1] == "<"
+                        and xml_string[i + 2] != "/"
+                    ):
                         indent_level += 1
                 in_element = False
             else:
                 result.append(char)
             i += 1
 
-        pretty_xml += ''.join(result).strip()
+        pretty_xml += "".join(result).strip()
         print(pretty_xml, file=self.out)
 
     def display_reports(self, layout: Section) -> None:

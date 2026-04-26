@@ -30,7 +30,9 @@ class TestJUnitReporter:
         # Should contain XML declaration
         assert xml_output.startswith('<?xml version="1.0" encoding="utf-8"?>')
         # Should be parseable XML
-        root = ET.fromstring(xml_output.replace('<?xml version="1.0" encoding="utf-8"?>', ''))
+        root = ET.fromstring(
+            xml_output.replace('<?xml version="1.0" encoding="utf-8"?>', "")
+        )
         assert root.tag == "testsuites"
 
     def test_reporter_name(self) -> None:
@@ -60,10 +62,14 @@ class TestJUnitReporter:
                 end_line=10,
                 end_column=10,
             ),
-            confidence=reporter.linter.config.confidence_level if hasattr(reporter, 'linter') else 2,
+            confidence=(
+                reporter.linter.config.confidence_level
+                if hasattr(reporter, "linter")
+                else 2
+            ),
         )
         # Manually set confidence since we don't have a full linter setup
-        object.__setattr__(msg, 'confidence', msg.confidence)
+        object.__setattr__(msg, "confidence", msg.confidence)
         reporter.handle_message(msg)
         reporter.display_messages(None)
         xml_output = output.getvalue()
@@ -105,7 +111,9 @@ class TestJUnitReporter:
         reporter.on_set_current_module("module_b", "module_b.py")
         reporter.display_messages(None)
         xml_output = output.getvalue()
-        root = ET.fromstring(xml_output.replace('<?xml version="1.0" encoding="utf-8"?>', ''))
+        root = ET.fromstring(
+            xml_output.replace('<?xml version="1.0" encoding="utf-8"?>', "")
+        )
         testsuite = root.find("testsuite")
         assert testsuite is not None
         assert testsuite.get("name") == "pylint"
@@ -118,6 +126,7 @@ class TestJUnitReporter:
     def test_register(self, linter: PyLinter) -> None:
         """Test that the reporter can be registered with a linter."""
         from pylint.reporters.junit_reporter import register
+
         register(linter)
         # Should not raise any exceptions
         assert True
