@@ -158,3 +158,9 @@ jobs:
             echo "Make sure that 'tox -e docs' succeed without any modifications locally." ; \
             exit 1; \
           }
+      - name: Check that generated documentation is up to date
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Generated documentation is out of date. Run 'tox -e docs' locally and commit the changes."
+            exit 1
+          fi
