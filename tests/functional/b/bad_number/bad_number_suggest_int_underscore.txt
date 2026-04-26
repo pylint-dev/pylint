@@ -1,0 +1,6 @@
+bad-number-notation:4:10:4:17::'1234567' is greater than 1.0e6, and it should be written as '1_234_567' instead:HIGH
+bad-number-notation:5:10:5:20::'0xDEADBEEF' is greater than 1.0e6, and it should be written as '0xDEAD_BEEF' instead:HIGH
+bad-number-notation:6:10:6:32::'0b11110100001001000000' is greater than 1.0e6, and it should be written as '0b1111_0100_0010_0100_0000' instead:HIGH
+bad-number-notation:7:10:7:19::'0o3641100' is greater than 1.0e6, and it should be written as '0o3_641_100' instead:HIGH
+bad-number-notation:10:19:10:27::'1_23_456' has underscores that are not grouping digits by 3, and it should be written as '123_456' instead:HIGH
+bad-number-notation:11:19:11:32::'0xDE_AD_BE_EF' has underscores that are not grouping hex digits by 4, and it should be written as '0xDEAD_BEEF' instead:HIGH

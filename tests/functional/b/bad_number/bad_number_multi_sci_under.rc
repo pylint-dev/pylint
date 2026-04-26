@@ -1,0 +1,3 @@
+[main]
+number-notation-style=scientific,underscore
+number-notation-threshold=1e6
