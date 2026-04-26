@@ -1368,6 +1368,15 @@ Standard Checkers
 **Default:**  ``False``
 
 
+.. _suggest-mantissa-underscore-option:
+
+--suggest-mantissa-underscore
+"""""""""""""""""""""""""""""
+*Always suggest PEP 515 underscore grouping in the mantissa of scientific / engineering / repr replacements, even when the source literal didn't use underscores. By default the grouping is preserved only if the source already used it.*
+
+**Default:**  ``False``
+
+
 
 .. raw:: html
 
@@ -1403,6 +1412,8 @@ Standard Checkers
    single-line-if-stmt = false
 
    suggest-int-underscore = false
+
+   suggest-mantissa-underscore = false
 
 
 

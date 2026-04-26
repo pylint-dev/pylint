@@ -1,0 +1,4 @@
+bad-number-notation:5:12:5:22::'12345678.9' is greater than 1.0e6, and it should be written as '1.234_567_89e7' or '12.345_678_9e6' or '12_345_678.9' instead:HIGH
+bad-number-notation:9:15:9:28::'1_2_345_678.9' has non-standard underscore grouping, and it should be written as '1.234_567_89e7' or '12.345_678_9e6' or '12_345_678.9' instead:HIGH
+bad-number-notation:13:8:13:19::'1.234_567e6' has exponent and underscore at the same time, and it should be written as '1.234567e6' or '1_234_567.0' instead:HIGH
+bad-float-precision:16:17:16:39::"'3.14159265358979323846' has 21 significant digits, more than float can represent exactly, and it should be written as '3.141_592_653_589_793' or 'decimal.Decimal(""3.14159265358979323846"")' instead":HIGH
