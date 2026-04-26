@@ -1,0 +1,4 @@
+bad-number-notation:18:10:18:17::'12345e7' has a base, '12345', that is not between 1 and 1000, and it should be written as '1.2345e11' or '123.45e9' instead:HIGH
+bad-number-notation:21:16:21:28::'10_000_000.0' has underscores instead of engineering notation, and it should be written as '1.0e7' or '10.0e6' instead:HIGH
+bad-number-notation:22:25:22:40::'1_000_000_000.5' has underscores instead of engineering notation, and it should be written as '1.0000000005e9' instead:HIGH
+bad-number-notation:25:18:25:28::'10000000.0' is greater than 1.0e6, and it should be written as '1.0e7' or '10.0e6' instead:HIGH

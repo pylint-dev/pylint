@@ -1,0 +1,4 @@
+bad-number-notation:14:11:14:17::'1.5e10' has an exponent '10' that is not a multiple of 3, and it should be written as '15.0e9' or '15_000_000_000.0' instead:HIGH
+bad-number-notation:15:13:15:18::'4.5e7' has an exponent '7' that is not a multiple of 3, and it should be written as '45.0e6' or '45_000_000.0' instead:HIGH
+bad-number-notation:18:15:18:29::'1_23_456_789.0' has non-standard underscore grouping, and it should be written as '123.456789e6' or '123_456_789.0' instead:HIGH
+bad-number-notation:21:18:21:28::'10000000.0' is greater than 1.0e6, and it should be written as '10.0e6' or '10_000_000.0' instead:HIGH
