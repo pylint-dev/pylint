@@ -413,11 +413,52 @@ class BasicChecker(_BasicChecker):
         """Check module name, docstring and required arguments."""
         self.linter.stats.node_count["module"] += 1
 
-    def visit_classdef(self, _: nodes.ClassDef) -> None:
+    @utils.only_required_for_messages("dangerous-default-value")
+    def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Check module name, docstring and redefinition
         increment branch counter.
         """
         self.linter.stats.node_count["klass"] += 1
+        self._check_namedtuple_dangerous_defaults(node)
+
+    def _check_namedtuple_dangerous_defaults(self, node: nodes.ClassDef) -> None:
+        """Check for dangerous default values in typing.NamedTuple fields."""
+        try:
+            if not any(
+                ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
+            ):
+                return
+        except astroid.InferenceError:
+            return
+
+        def is_iterable(internal_node: nodes.NodeNG) -> bool:
+            return isinstance(internal_node, (nodes.List, nodes.Set, nodes.Dict))
+
+        for child in node.body:
+            if not isinstance(child, nodes.AnnAssign) or child.value is None:
+                continue
+            default = child.value
+            try:
+                value = next(default.infer())
+            except astroid.InferenceError:
+                continue
+
+            if (
+                isinstance(value, astroid.Instance)
+                and value.qname() in DEFAULT_ARGUMENT_SYMBOLS
+            ):
+                if value is default:
+                    msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
+                elif isinstance(value, astroid.Instance) or is_iterable(value):
+                    if is_iterable(default):
+                        msg = value.pytype()
+                    elif isinstance(default, nodes.Call):
+                        msg = f"{value.name}() ({value.qname()})"
+                    else:
+                        msg = f"{default.as_string()} ({value.qname()})"
+                else:
+                    msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
+                self.add_message("dangerous-default-value", node=child, args=(msg,))
 
     @utils.only_required_for_messages(
         "pointless-statement",
