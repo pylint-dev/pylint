@@ -1,0 +1,9 @@
+dangerous-default-value:7:4:7:26:BadListDefault:Dangerous default value [] as argument:UNDEFINED
+dangerous-default-value:8:4:8:26:BadListDefault:Dangerous default value [] as argument:UNDEFINED
+dangerous-default-value:12:4:12:19:BadDictDefault:Dangerous default value {} as argument:UNDEFINED
+dangerous-default-value:16:4:16:22:BadSetDefault:Dangerous default value set() (builtins.set) as argument:UNDEFINED
+dangerous-default-value:20:4:20:23:BadSetLiteralDefault:Dangerous default value set() as argument:UNDEFINED
+dangerous-default-value:24:4:24:24:BadListCallDefault:Dangerous default value list() (builtins.list) as argument:UNDEFINED
+dangerous-default-value:28:4:28:23:BadDictCallDefault:Dangerous default value dict() (builtins.dict) as argument:UNDEFINED
+dangerous-default-value:32:4:32:50:BadDequeDefault:Dangerous default value deque() (collections.deque) as argument:UNDEFINED
+dangerous-default-value:45:4:45:20:MixedNamedTuple:Dangerous default value [] as argument:UNDEFINED
