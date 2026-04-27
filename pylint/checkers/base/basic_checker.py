@@ -421,14 +421,11 @@ class BasicChecker(_BasicChecker):
         self.linter.stats.node_count["klass"] += 1
         self._check_namedtuple_dangerous_defaults(node)
 
-    def _check_namedtuple_dangerous_defaults(
-        self, node: nodes.ClassDef
-    ) -> None:
+    def _check_namedtuple_dangerous_defaults(self, node: nodes.ClassDef) -> None:
         """Check for dangerous default values in typing.NamedTuple fields."""
         try:
             if not any(
-                ancestor.qname() == "typing.NamedTuple"
-                for ancestor in node.ancestors()
+                ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
             ):
                 return
         except astroid.InferenceError:
@@ -461,9 +458,7 @@ class BasicChecker(_BasicChecker):
                         msg = f"{default.as_string()} ({value.qname()})"
                 else:
                     msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
-                self.add_message(
-                    "dangerous-default-value", node=child, args=(msg,)
-                )
+                self.add_message("dangerous-default-value", node=child, args=(msg,))
 
     @utils.only_required_for_messages(
         "pointless-statement",
