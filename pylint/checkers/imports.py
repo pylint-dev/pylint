@@ -1022,13 +1022,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         )
         delimiter_first_party2 = ("and " if local else "") if first_party else ""
         delimiter_first_party = f"{delimiter_first_party1}{delimiter_first_party2}"
-        msg = (
+        return (
             f"{third_party}{delimiter_third_party}"
             f"{first_party}{delimiter_first_party}"
             f'{local if local else ""}'
         )
-
-        return msg
 
     def _get_full_import_name(self, importNode: ImportNode) -> str:
         # construct a more descriptive name of the import

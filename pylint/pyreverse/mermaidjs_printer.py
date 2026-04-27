@@ -35,8 +35,7 @@ class MermaidJSPrinter(Printer):
 
     def _escape_mermaid_text(self, text: str) -> str:
         """Escape characters that conflict with Markdown formatting."""
-        text = text.replace("__", r"\_\_")  # Double underscore → escaped
-        return text
+        return text.replace("__", r"\_\_")  # Double underscore → escaped
 
     def emit_node(
         self,

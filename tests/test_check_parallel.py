@@ -46,12 +46,11 @@ def _gen_file_data(idx: int = 0) -> FileItem:
     filepath = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "input", "similar1")
     )
-    file_data = FileItem(
+    return FileItem(
         f"--test-file_data-name-{idx}--",
         filepath,
         f"--test-file_data-modname-{idx}--",
     )
-    return file_data
 
 
 def _gen_file_datas(count: int = 1) -> list[FileItem]:
