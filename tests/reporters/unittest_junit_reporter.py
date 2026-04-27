@@ -10,11 +10,12 @@ import xml.etree.ElementTree as ET
 from io import StringIO
 from typing import Any
 
-from pylint import checkers
+from pylint import checkers, reporters
 from pylint.interfaces import HIGH, UNDEFINED
 from pylint.lint import PyLinter
 from pylint.message import Message
 from pylint.reporters.junit_reporter import JUnitReporter
+from pylint.reporters.ureports.nodes import Section
 from pylint.typing import MessageLocationTuple
 
 
@@ -56,8 +57,6 @@ class TestJUnitReporterRegistration:
 
     def test_reporter_is_registered(self) -> None:
         """The reporter must be discoverable via linter._reporters."""
-        from pylint import reporters
-
         linter = PyLinter()
         checkers.initialize(linter)
         reporters.initialize(linter)
@@ -249,8 +248,6 @@ class TestJUnitReporterOutput:
         linter = PyLinter(reporter=reporter)
         checkers.initialize(linter)
         # _display and display_reports are no-ops — should not raise
-        from pylint.reporters.ureports.nodes import Section
-
         section = Section()
         reporter._display(section)
         assert output.getvalue() == ""
