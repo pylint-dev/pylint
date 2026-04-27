@@ -3,22 +3,12 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-The following messages are now emitted:
+Changed messages:
 
 <details>
 
-1) too-complex:
-*'my_function' is too complex. The McCabe rating is 18*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L103
-</details>
-
-The following messages are no longer emitted:
-
-<details>
-
-1) too-complex:
-*'my_function' is too complex. The McCabe rating is 18*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L100
+1) [too-complex](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L103):
+Moved from `100:0`-`100:15` to `103:0`-`103:15`.
 </details>
 
 *This comment was generated for commit v2.14.2*

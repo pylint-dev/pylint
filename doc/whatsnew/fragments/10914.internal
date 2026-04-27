@@ -1,0 +1,8 @@
+The primer now pairs residual messages — first by ``(symbol, path, obj)`` and then by
+exact source location — and reports altered messages as a single *changed* entry with
+a compact diff, rather than as a separate removal + addition. The location-based pass
+also catches symbol renames at the same code position (e.g. ``used-before-assignment``
+→ ``possibly-used-before-assignment``). New messages are classified into fixed false
+positives (``useless-suppression``), ``astroid-error`` fatal errors, and the rest.
+
+Refs #10914
