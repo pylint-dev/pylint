@@ -20,7 +20,7 @@ repos:
             doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.15.11"
+    rev: "v0.15.12"
     hooks:
       - id: ruff-check
         args: ["--fix"]
@@ -38,7 +38,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
   - repo: https://github.com/PyCQA/isort
-    rev: 8.0.1
+    rev: 9.0.0a3
     hooks:
       - id: isort
         exclude: doc/data/messages/
@@ -130,7 +130,7 @@ repos:
         files: ^(doc/(.*/)*.*\.rst)
         additional_dependencies: ["Sphinx==7.4.3"]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.20.1
+    rev: v1.20.2
     hooks:
       - id: mypy
         name: mypy
