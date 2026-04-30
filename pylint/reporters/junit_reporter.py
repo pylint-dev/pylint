@@ -50,7 +50,15 @@ class JUnitReporter(BaseReporter):
         testsuite_el = ET.SubElement(testsuites_el, "testsuite", name="pylint")
 
         total_failures = 0
+        total_errors = 0
         total_tests = 0
+
+        # Pylint categories that map to JUnit <error> elements.
+        # Fatal means pylint itself couldn't process the file;
+        # error means a likely bug in the user's code.
+        # Everything else (warning, convention, refactor, info)
+        # maps to JUnit <failure>.
+        error_categories = frozenset({"error", "fatal"})
 
         # Create a testcase for each module that has messages
         for module_name in sorted(messages_by_module):
@@ -64,23 +72,30 @@ class JUnitReporter(BaseReporter):
             total_tests += 1
 
             for msg in module_messages:
-                failure_msg = (
+                detail_msg = (
                     f"{msg.msg_id}({msg.symbol}): {msg.msg or ''} " f"(line {msg.line})"
                 )
-                failure_el = ET.SubElement(
+                # Use <error> for error/fatal, <failure> for everything else
+                if msg.category in error_categories:
+                    element_tag = "error"
+                    total_errors += 1
+                else:
+                    element_tag = "failure"
+                    total_failures += 1
+                result_el = ET.SubElement(
                     testcase_el,
-                    "failure",
+                    element_tag,
                     type=msg.category,
-                    message=failure_msg,
+                    message=detail_msg,
                 )
-                failure_el.text = (
+                result_el.text = (
                     f"{msg.abspath}:{msg.line}: [{msg.msg_id}({msg.symbol})] "
                     f"{msg.msg or ''}"
                 )
-                total_failures += 1
 
         # Set testsuite summary attributes
         testsuite_el.set("tests", str(total_tests))
+        testsuite_el.set("errors", str(total_errors))
         testsuite_el.set("failures", str(total_failures))
 
         # Write XML to output

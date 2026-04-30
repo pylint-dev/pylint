@@ -78,6 +78,7 @@ class TestJUnitReporterOutput:
         assert testsuite is not None
         assert testsuite.get("name") == "pylint"
         assert testsuite.get("tests") == "1"
+        assert testsuite.get("errors") == "0"
         assert testsuite.get("failures") == "1"
 
         testcases = testsuite.findall("testcase")
@@ -104,6 +105,7 @@ class TestJUnitReporterOutput:
         testsuite = root.find("testsuite")
         assert testsuite is not None
         assert testsuite.get("tests") == "1"
+        assert testsuite.get("errors") == "0"
         assert testsuite.get("failures") == "2"
 
         testcases = testsuite.findall("testcase")
@@ -134,6 +136,7 @@ class TestJUnitReporterOutput:
         testsuite = root.find("testsuite")
         assert testsuite is not None
         assert testsuite.get("tests") == "2"
+        assert testsuite.get("errors") == "0"
         assert testsuite.get("failures") == "2"
 
         testcases = testsuite.findall("testcase")
@@ -155,6 +158,7 @@ class TestJUnitReporterOutput:
         testsuite = root.find("testsuite")
         assert testsuite is not None
         assert testsuite.get("tests") == "0"
+        assert testsuite.get("errors") == "0"
         assert testsuite.get("failures") == "0"
         assert len(testsuite.findall("testcase")) == 0
 
@@ -254,10 +258,12 @@ class TestJUnitReporterOutput:
 
 
 class TestJUnitReporterWithErrorTypes:
-    """Test that different pylint message categories map correctly."""
+    """Test that different pylint message categories map to the correct
+    JUnit XML elements: error/fatal -> <error>, others -> <failure>.
+    """
 
-    def test_error_category(self) -> None:
-        """Error messages should have type='error' in the failure element."""
+    def test_error_category_produces_error_element(self) -> None:
+        """Error messages should produce an <error> element, not <failure>."""
         output = StringIO()
         reporter = JUnitReporter(output)
         linter = PyLinter(reporter=reporter)
@@ -286,12 +292,20 @@ class TestJUnitReporterWithErrorTypes:
         reporter.display_messages(None)
 
         root = ET.fromstring(output.getvalue())
-        failure = root.find(".//failure")
-        assert failure is not None
-        assert failure.get("type") == "error"
+        # Should be <error>, not <failure>
+        error_el = root.find(".//error")
+        assert error_el is not None
+        assert error_el.get("type") == "error"
+        # No <failure> elements for error-category messages
+        assert root.find(".//failure") is None
 
-    def test_warning_category(self) -> None:
-        """Warning messages should have type='warning' in the failure element."""
+        testsuite = root.find("testsuite")
+        assert testsuite is not None
+        assert testsuite.get("errors") == "1"
+        assert testsuite.get("failures") == "0"
+
+    def test_warning_category_produces_failure_element(self) -> None:
+        """Warning messages should produce a <failure> element."""
         output = StringIO()
         reporter = JUnitReporter(output)
         linter = PyLinter(reporter=reporter)
@@ -323,3 +337,70 @@ class TestJUnitReporterWithErrorTypes:
         failure = root.find(".//failure")
         assert failure is not None
         assert failure.get("type") == "warning"
+        # No <error> elements for warning-category messages
+        assert root.find(".//error") is None
+
+        testsuite = root.find("testsuite")
+        assert testsuite is not None
+        assert testsuite.get("errors") == "0"
+        assert testsuite.get("failures") == "1"
+
+    def test_mixed_error_and_warning_in_same_module(self) -> None:
+        """A module with both error and warning messages should produce
+        both <error> and <failure> elements with correct counts.
+        """
+        output = StringIO()
+        reporter = JUnitReporter(output)
+        linter = PyLinter(reporter=reporter)
+        checkers.initialize(linter)
+        linter.config.persistent = 0
+        linter.open()
+        linter.set_current_module("test_module")
+
+        error_msg = Message(
+            msg_id="E0001",
+            symbol="syntax-error",
+            location=MessageLocationTuple(
+                abspath="/path/to/file.py",
+                path="file.py",
+                module="test_module",
+                obj="",
+                line=1,
+                column=0,
+                end_line=None,
+                end_column=None,
+            ),
+            msg="Syntax error",
+            confidence=HIGH,
+        )
+        warning_msg = Message(
+            msg_id="W0611",
+            symbol="unused-import",
+            location=MessageLocationTuple(
+                abspath="/path/to/file.py",
+                path="file.py",
+                module="test_module",
+                obj="",
+                line=5,
+                column=0,
+                end_line=None,
+                end_column=None,
+            ),
+            msg="Unused import os",
+            confidence=HIGH,
+        )
+        reporter.handle_message(error_msg)
+        reporter.handle_message(warning_msg)
+        reporter.display_messages(None)
+
+        root = ET.fromstring(output.getvalue())
+        testsuite = root.find("testsuite")
+        assert testsuite is not None
+        assert testsuite.get("tests") == "1"
+        assert testsuite.get("errors") == "1"
+        assert testsuite.get("failures") == "1"
+
+        testcase = root.find(".//testcase")
+        assert testcase is not None
+        assert len(testcase.findall("error")) == 1
+        assert len(testcase.findall("failure")) == 1
