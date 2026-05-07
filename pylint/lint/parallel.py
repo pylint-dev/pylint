@@ -74,6 +74,15 @@ def _worker_check_single_file(
 
     if not _worker_linter:
         raise RuntimeError("Worker linter not yet initialised")
+
+    # A worker process can lint multiple files. The parent process expects the
+    # returned LinterStats instance to describe only the current file because it
+    # merges one stats object per _worker_check_single_file() result. If we keep
+    # the worker-level accumulated stats here, values such as stats.by_msg are
+    # counted repeatedly in the final report.
+    _worker_linter.stats = LinterStats()
+    _worker_linter.msg_status = 0
+
     _worker_linter.open()
     _worker_linter.check_single_file_item(file_item)
     mapreduce_data = defaultdict(list)
