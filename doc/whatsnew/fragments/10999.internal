@@ -1,5 +1,0 @@
-Pin the PyPy 3.11 version used by the test workflow to ``pypy-3.11-v7.3.20`` to avoid a collection-time failure in astroid bootstrap with the latest available PyPy 3.11.
-
-This is a temporary CI stabilization workaround until the upstream astroid compatibility issue is fixed.
-
-Refs #10999
