@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 from io import StringIO
-from typing import Any
+from pathlib import Path
+
+import pytest
 
 from pylint import checkers, reporters
 from pylint.interfaces import HIGH, UNDEFINED
@@ -18,30 +20,47 @@ from pylint.reporters.junit_reporter import JUnitReporter
 from pylint.reporters.ureports.nodes import Section
 from pylint.typing import MessageLocationTuple
 
+JUnitLinter = tuple[StringIO, JUnitReporter, PyLinter]
 
-def _get_junit_output(
-    messages: list[dict[str, Any]],
-    module_name: str = "test_module",
-) -> ET.Element:
-    """Helper: create a linter with JUnitReporter, add messages, return parsed XML root."""
+
+@pytest.fixture
+def junit_linter() -> JUnitLinter:
     output = StringIO()
     reporter = JUnitReporter(output)
     linter = PyLinter(reporter=reporter)
     checkers.initialize(linter)
     linter.config.persistent = 0
     linter.open()
-    linter.set_current_module(module_name)
-    for msg in messages:
-        linter.add_message(
-            msg["msg"],
-            line=msg["line"],
-            args=msg.get("args", ()),
-            end_lineno=msg.get("end_line"),
-            end_col_offset=msg.get("end_column"),
-        )
-    reporter.display_messages(None)
-    xml_output = output.getvalue()
-    return ET.fromstring(xml_output)
+    return output, reporter, linter
+
+
+def _message(
+    *,
+    msg_id: str = "C0301",
+    symbol: str = "line-too-long",
+    msg: str = "Line too long (100/80)",
+    abspath: str = "/path/to/file.py",
+    path: str = "file.py",
+    module: str = "test_module",
+    line: int = 1,
+    column: int = 0,
+) -> Message:
+    return Message(
+        msg_id=msg_id,
+        symbol=symbol,
+        location=MessageLocationTuple(
+            abspath=abspath,
+            path=path,
+            module=module,
+            obj="",
+            line=line,
+            column=column,
+            end_line=None,
+            end_column=None,
+        ),
+        msg=msg,
+        confidence=HIGH,
+    )
 
 
 class TestJUnitReporterRegistration:
@@ -66,145 +85,172 @@ class TestJUnitReporterRegistration:
 class TestJUnitReporterOutput:
     """Test the XML structure produced by JUnitReporter."""
 
-    def test_single_message_output(self) -> None:
-        """A single message should produce valid JUnit XML with one testcase
-        and one failure element.
-        """
-        root = _get_junit_output(
-            [{"msg": "line-too-long", "line": 1, "args": (100, 80)}]
-        )
-        assert root.tag == "testsuites"
-        testsuite = root.find("testsuite")
-        assert testsuite is not None
-        assert testsuite.get("name") == "pylint"
-        assert testsuite.get("tests") == "1"
-        assert testsuite.get("errors") == "0"
-        assert testsuite.get("failures") == "1"
-
-        testcases = testsuite.findall("testcase")
-        assert len(testcases) == 1
-        assert testcases[0].get("name") == "test_module"
-        assert testcases[0].get("classname") == "test_module"
-
-        failures = testcases[0].findall("failure")
-        assert len(failures) == 1
-        assert failures[0].get("type") == "convention"
-        assert "C0301" in failures[0].get("message", "")
-        assert "line-too-long" in failures[0].get("message", "")
-
-    def test_multiple_messages_same_module(self) -> None:
-        """Multiple messages in the same module should be grouped under one
-        testcase with multiple failure elements.
-        """
-        root = _get_junit_output(
-            [
-                {"msg": "line-too-long", "line": 1, "args": (100, 80)},
-                {"msg": "line-too-long", "line": 5, "args": (120, 80)},
-            ]
-        )
-        testsuite = root.find("testsuite")
-        assert testsuite is not None
-        assert testsuite.get("tests") == "1"
-        assert testsuite.get("errors") == "0"
-        assert testsuite.get("failures") == "2"
-
-        testcases = testsuite.findall("testcase")
-        assert len(testcases) == 1
-        failures = testcases[0].findall("failure")
-        assert len(failures) == 2
-
-    def test_multiple_modules(self) -> None:
-        """Messages from different modules should produce separate testcases."""
-        output = StringIO()
-        reporter = JUnitReporter(output)
-        linter = PyLinter(reporter=reporter)
-        checkers.initialize(linter)
-        linter.config.persistent = 0
-        linter.open()
-
-        # First module
-        linter.set_current_module("module_a")
-        linter.add_message("line-too-long", line=1, args=(100, 80))
-
-        # Second module
-        linter.set_current_module("module_b")
-        linter.add_message("line-too-long", line=3, args=(110, 80))
+    def test_clean_modules_emit_success_testcases(
+        self, junit_linter: JUnitLinter
+    ) -> None:
+        output, reporter, linter = junit_linter
+        linter.set_current_module("package.clean_a", "package/clean_a.py")
+        linter.set_current_module("package.clean_b", "package/clean_b.py")
 
         reporter.display_messages(None)
-        root = ET.fromstring(output.getvalue())
 
+        assert output.getvalue() == (
+            "<?xml version='1.0' encoding='utf-8'?>\n"
+            '<testsuites tests="2" errors="0" failures="0">\n'
+            '  <testsuite name="package.clean_a" tests="1" errors="0" failures="0">\n'
+            '    <testcase name="package.clean_a:0:0" classname="pylint" '
+            'file="package/clean_a.py" line="0">\n'
+            "      <system-out>All checks passed for: package/clean_a.py</system-out>\n"
+            "    </testcase>\n"
+            "  </testsuite>\n"
+            '  <testsuite name="package.clean_b" tests="1" errors="0" failures="0">\n'
+            '    <testcase name="package.clean_b:0:0" classname="pylint" '
+            'file="package/clean_b.py" line="0">\n'
+            "      <system-out>All checks passed for: package/clean_b.py</system-out>\n"
+            "    </testcase>\n"
+            "  </testsuite>\n"
+            "</testsuites>\n"
+        )
+
+    def test_message_output_matches_golden_master(
+        self, junit_linter: JUnitLinter, tmp_path: Path
+    ) -> None:
+        output, reporter, linter = junit_linter
+        source = tmp_path / "bad.py"
+        source.write_text("x = 1\nprint('hello')\n", encoding="utf-8")
+        linter.set_current_module("package.bad", "bad.py")
+        reporter.handle_message(
+            _message(
+                abspath=str(source),
+                path="bad.py",
+                module="package.bad",
+                line=2,
+                column=4,
+            )
+        )
+
+        reporter.display_messages(None)
+
+        assert output.getvalue() == (
+            "<?xml version='1.0' encoding='utf-8'?>\n"
+            '<testsuites tests="1" errors="0" failures="1">\n'
+            '  <testsuite name="package.bad" tests="1" errors="0" failures="1">\n'
+            '    <testcase name="package.bad:2:4" classname="pylint" file="bad.py" '
+            'line="2" category="convention">\n'
+            '      <failure type="convention" message="line-too-long">C0301:Line too long '
+            "(100/80)\n"
+            "bad.py:2:4:print('hello')</failure>\n"
+            "      <system-out>bad.py:2:4:print('hello')</system-out>\n"
+            '      <system-err>C0301:Line too long (100/80)\n'
+            "bad.py:2:4:print('hello')</system-err>\n"
+            "    </testcase>\n"
+            "  </testsuite>\n"
+            "</testsuites>\n"
+        )
+
+    def test_multiple_messages_in_same_module_are_separate_testcases(
+        self, junit_linter: JUnitLinter
+    ) -> None:
+        output, reporter, linter = junit_linter
+        linter.set_current_module("test_module")
+        reporter.handle_message(_message(line=1, column=0))
+        reporter.handle_message(_message(line=5, column=8))
+
+        reporter.display_messages(None)
+
+        root = ET.fromstring(output.getvalue())
         testsuite = root.find("testsuite")
         assert testsuite is not None
         assert testsuite.get("tests") == "2"
         assert testsuite.get("errors") == "0"
         assert testsuite.get("failures") == "2"
-
         testcases = testsuite.findall("testcase")
-        assert len(testcases) == 2
-        tc_names = {tc.get("name") for tc in testcases}
-        assert tc_names == {"module_a", "module_b"}
+        assert [testcase.get("name") for testcase in testcases] == [
+            "test_module:1:0",
+            "test_module:5:8",
+        ]
+        assert all(testcase.find("failure") is not None for testcase in testcases)
 
-    def test_no_messages(self) -> None:
-        """When there are no messages, testsuite should have zero tests."""
-        output = StringIO()
-        reporter = JUnitReporter(output)
-        linter = PyLinter(reporter=reporter)
-        checkers.initialize(linter)
-        linter.config.persistent = 0
-        linter.open()
+    def test_messages_from_different_modules_produce_separate_testsuites(
+        self, junit_linter: JUnitLinter
+    ) -> None:
+        output, reporter, linter = junit_linter
+        linter.set_current_module("module_a")
+        reporter.handle_message(_message(module="module_a"))
+        linter.set_current_module("module_b")
+        reporter.handle_message(_message(module="module_b", line=3))
+
+        reporter.display_messages(None)
+
+        root = ET.fromstring(output.getvalue())
+        assert root.get("tests") == "2"
+        assert root.get("errors") == "0"
+        assert root.get("failures") == "2"
+        testsuites = root.findall("testsuite")
+        assert [testsuite.get("name") for testsuite in testsuites] == [
+            "module_a",
+            "module_b",
+        ]
+        assert [testsuite.get("tests") for testsuite in testsuites] == ["1", "1"]
+
+    def test_empty_module_falls_back_to_path(self, junit_linter: JUnitLinter) -> None:
+        output, reporter, _linter = junit_linter
+        reporter.handle_message(_message(module="", path="standalone.py", line=7, column=2))
+
         reporter.display_messages(None)
 
         root = ET.fromstring(output.getvalue())
         testsuite = root.find("testsuite")
         assert testsuite is not None
-        assert testsuite.get("tests") == "0"
-        assert testsuite.get("errors") == "0"
-        assert testsuite.get("failures") == "0"
-        assert len(testsuite.findall("testcase")) == 0
+        assert testsuite.get("name") == "standalone.py"
+        testcase = testsuite.find("testcase")
+        assert testcase is not None
+        assert testcase.get("name") == "standalone.py:7:2"
+        assert testcase.get("file") == "standalone.py"
 
-    def test_output_is_valid_xml(self) -> None:
-        """The output must be parseable XML — any malformed output will raise."""
-        root = _get_junit_output(
-            [{"msg": "line-too-long", "line": 1, "args": (100, 80)}]
+    def test_error_category_still_produces_failure_element(
+        self, junit_linter: JUnitLinter
+    ) -> None:
+        output, reporter, linter = junit_linter
+        linter.set_current_module("test_module")
+        reporter.handle_message(
+            _message(
+                msg_id="E0001",
+                symbol="syntax-error",
+                msg="Syntax error in file",
+            )
         )
-        # If we got here, the XML parsed successfully
-        assert root.tag == "testsuites"
 
-    def test_xml_declaration_present(self) -> None:
-        """The output should start with an XML declaration."""
-        output = StringIO()
-        reporter = JUnitReporter(output)
-        linter = PyLinter(reporter=reporter)
-        checkers.initialize(linter)
-        linter.config.persistent = 0
-        linter.open()
         reporter.display_messages(None)
 
-        xml_str = output.getvalue()
-        assert xml_str.startswith("<?xml")
-
-    def test_failure_text_contains_file_info(self) -> None:
-        """The failure element text should contain file path and message details."""
-        root = _get_junit_output(
-            [{"msg": "line-too-long", "line": 10, "args": (100, 80)}]
-        )
+        root = ET.fromstring(output.getvalue())
+        assert root.get("errors") == "0"
+        assert root.get("failures") == "1"
+        assert root.find(".//error") is None
         failure = root.find(".//failure")
         assert failure is not None
-        assert failure.text is not None
-        assert "line-too-long" in failure.text
-        assert "C0301" in failure.text
+        assert failure.get("type") == "error"
+        assert failure.get("message") == "syntax-error"
 
-    def test_special_xml_characters_escaped(self) -> None:
-        """Messages with XML-special characters must be properly escaped."""
-        output = StringIO()
-        reporter = JUnitReporter(output)
-        linter = PyLinter(reporter=reporter)
-        checkers.initialize(linter)
-        linter.config.persistent = 0
-        linter.open()
+    def test_output_is_valid_xml(self, junit_linter: JUnitLinter) -> None:
+        output, reporter, linter = junit_linter
+        linter.set_current_module("test_module")
+        reporter.handle_message(_message())
+        reporter.display_messages(None)
+
+        root = ET.fromstring(output.getvalue())
+        assert root.tag == "testsuites"
+
+    def test_xml_declaration_present(self, junit_linter: JUnitLinter) -> None:
+        output, reporter, _linter = junit_linter
+        reporter.display_messages(None)
+
+        assert output.getvalue().startswith("<?xml")
+
+    def test_special_xml_characters_escaped(self, junit_linter: JUnitLinter) -> None:
+        output, reporter, linter = junit_linter
         linter.set_current_module("test_module")
 
-        # Create a message directly with special characters
         msg = Message(
             msg_id="C0301",
             symbol="line-too-long",
@@ -224,183 +270,15 @@ class TestJUnitReporterOutput:
         reporter.handle_message(msg)
         reporter.display_messages(None)
 
-        # Must not raise — valid XML even with special chars
-        xml_str = output.getvalue()
-        root = ET.fromstring(xml_str)
-        failure = root.find(".//failure")
+        failure = ET.fromstring(output.getvalue()).find(".//failure")
         assert failure is not None
         assert "<special>" in (failure.text or "")
         assert '"characters"' in (failure.text or "")
 
-    def test_failure_message_attribute_format(self) -> None:
-        """The failure message attribute should follow the format:
-        '{msg_id}({symbol}): {message} (line {line})'.
-        """
-        root = _get_junit_output(
-            [{"msg": "line-too-long", "line": 42, "args": (100, 80)}]
-        )
-        failure = root.find(".//failure")
-        assert failure is not None
-        msg_attr = failure.get("message", "")
-        assert msg_attr.startswith("C0301(line-too-long):")
-        assert "(line 42)" in msg_attr
-
-    def test_display_reports_is_noop(self) -> None:
-        """display_reports should not produce any output."""
-        output = StringIO()
-        reporter = JUnitReporter(output)
-        linter = PyLinter(reporter=reporter)
-        checkers.initialize(linter)
-        # _display and display_reports are no-ops — should not raise
+    def test_display_reports_is_noop(self, junit_linter: JUnitLinter) -> None:
+        output, reporter, _linter = junit_linter
         section = Section()
+
         reporter._display(section)
+
         assert output.getvalue() == ""
-
-
-class TestJUnitReporterWithErrorTypes:
-    """Test that different pylint message categories map to the correct
-    JUnit XML elements: error/fatal -> <error>, others -> <failure>.
-    """
-
-    def test_error_category_produces_error_element(self) -> None:
-        """Error messages should produce an <error> element, not <failure>."""
-        output = StringIO()
-        reporter = JUnitReporter(output)
-        linter = PyLinter(reporter=reporter)
-        checkers.initialize(linter)
-        linter.config.persistent = 0
-        linter.open()
-        linter.set_current_module("test_module")
-
-        msg = Message(
-            msg_id="E0001",
-            symbol="syntax-error",
-            location=MessageLocationTuple(
-                abspath="/path/to/file.py",
-                path="file.py",
-                module="test_module",
-                obj="",
-                line=1,
-                column=0,
-                end_line=None,
-                end_column=None,
-            ),
-            msg="Syntax error in file",
-            confidence=HIGH,
-        )
-        reporter.handle_message(msg)
-        reporter.display_messages(None)
-
-        root = ET.fromstring(output.getvalue())
-        # Should be <error>, not <failure>
-        error_el = root.find(".//error")
-        assert error_el is not None
-        assert error_el.get("type") == "error"
-        # No <failure> elements for error-category messages
-        assert root.find(".//failure") is None
-
-        testsuite = root.find("testsuite")
-        assert testsuite is not None
-        assert testsuite.get("errors") == "1"
-        assert testsuite.get("failures") == "0"
-
-    def test_warning_category_produces_failure_element(self) -> None:
-        """Warning messages should produce a <failure> element."""
-        output = StringIO()
-        reporter = JUnitReporter(output)
-        linter = PyLinter(reporter=reporter)
-        checkers.initialize(linter)
-        linter.config.persistent = 0
-        linter.open()
-        linter.set_current_module("test_module")
-
-        msg = Message(
-            msg_id="W0611",
-            symbol="unused-import",
-            location=MessageLocationTuple(
-                abspath="/path/to/file.py",
-                path="file.py",
-                module="test_module",
-                obj="",
-                line=1,
-                column=0,
-                end_line=None,
-                end_column=None,
-            ),
-            msg="Unused import os",
-            confidence=HIGH,
-        )
-        reporter.handle_message(msg)
-        reporter.display_messages(None)
-
-        root = ET.fromstring(output.getvalue())
-        failure = root.find(".//failure")
-        assert failure is not None
-        assert failure.get("type") == "warning"
-        # No <error> elements for warning-category messages
-        assert root.find(".//error") is None
-
-        testsuite = root.find("testsuite")
-        assert testsuite is not None
-        assert testsuite.get("errors") == "0"
-        assert testsuite.get("failures") == "1"
-
-    def test_mixed_error_and_warning_in_same_module(self) -> None:
-        """A module with both error and warning messages should produce
-        both <error> and <failure> elements with correct counts.
-        """
-        output = StringIO()
-        reporter = JUnitReporter(output)
-        linter = PyLinter(reporter=reporter)
-        checkers.initialize(linter)
-        linter.config.persistent = 0
-        linter.open()
-        linter.set_current_module("test_module")
-
-        error_msg = Message(
-            msg_id="E0001",
-            symbol="syntax-error",
-            location=MessageLocationTuple(
-                abspath="/path/to/file.py",
-                path="file.py",
-                module="test_module",
-                obj="",
-                line=1,
-                column=0,
-                end_line=None,
-                end_column=None,
-            ),
-            msg="Syntax error",
-            confidence=HIGH,
-        )
-        warning_msg = Message(
-            msg_id="W0611",
-            symbol="unused-import",
-            location=MessageLocationTuple(
-                abspath="/path/to/file.py",
-                path="file.py",
-                module="test_module",
-                obj="",
-                line=5,
-                column=0,
-                end_line=None,
-                end_column=None,
-            ),
-            msg="Unused import os",
-            confidence=HIGH,
-        )
-        reporter.handle_message(error_msg)
-        reporter.handle_message(warning_msg)
-        reporter.display_messages(None)
-
-        root = ET.fromstring(output.getvalue())
-        testsuite = root.find("testsuite")
-        assert testsuite is not None
-        assert testsuite.get("tests") == "1"
-        assert testsuite.get("errors") == "1"
-        assert testsuite.get("failures") == "1"
-
-        testcase = root.find(".//testcase")
-        assert testcase is not None
-        assert len(testcase.findall("error")) == 1
-        assert len(testcase.findall("failure")) == 1

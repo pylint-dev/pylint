@@ -13,7 +13,8 @@ from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from linecache import getline
+from typing import TYPE_CHECKING, TextIO
 
 from pylint.message import Message
 from pylint.reporters.base_reporter import BaseReporter
@@ -26,9 +27,10 @@ if TYPE_CHECKING:
 class JUnitReporter(BaseReporter):
     """Report messages in JUnit XML format.
 
-    Each linted module is represented as a ``<testcase>`` element. Pylint
-    messages for that module become ``<failure>`` children of the testcase.
-    Modules with no messages produce a passing (empty) testcase.
+    Each linted module is represented as a ``<testsuite>`` element. Every
+    Pylint message for that module becomes a failing ``<testcase>`` so CI
+    systems can report messages independently. Modules with no messages produce
+    a passing testcase.
 
     Usage::
 
@@ -38,72 +40,101 @@ class JUnitReporter(BaseReporter):
     name = "junit"
     extension = "xml"
 
+    def __init__(self, output: TextIO | None = None) -> None:
+        super().__init__(output)
+        self._testsuites: dict[str, ET.Element] = {}
+        self._test_counts: defaultdict[str, int] = defaultdict(int)
+        self._failure_counts: defaultdict[str, int] = defaultdict(int)
+        self._current_module: str | None = None
+        self._current_filepath: str | None = None
+
+    def on_set_current_module(self, module: str, filepath: str | None) -> None:
+        """Track module boundaries so clean modules get passing testcases."""
+        self._add_success_testcase_for_current_module()
+        suite_name = module or filepath or "pylint"
+        self._current_module = suite_name
+        self._current_filepath = filepath
+        if filepath is not None:
+            self._get_testsuite(suite_name)
+
+    def handle_message(self, msg: Message) -> None:
+        """Add a failing testcase for a Pylint message."""
+        super().handle_message(msg)
+        suite_name = msg.module or msg.path or msg.abspath or self._current_module or "pylint"
+        testsuite_el = self._get_testsuite(suite_name)
+        file_path = msg.path or msg.abspath
+        source_line = getline(msg.abspath or msg.path, msg.line).strip()
+        stdout_line = f"{file_path}:{msg.line}:{msg.column}:{source_line}"
+        stderr_line = f"{msg.msg_id}:{msg.msg}\n{stdout_line}"
+        testcase_el = ET.SubElement(
+            testsuite_el,
+            "testcase",
+            name=f"{suite_name}:{msg.line}:{msg.column}",
+            classname="pylint",
+            file=file_path,
+            line=str(msg.line),
+            category=msg.category,
+        )
+        failure_el = ET.SubElement(
+            testcase_el,
+            "failure",
+            type=msg.category,
+            message=msg.symbol,
+        )
+        failure_el.text = stderr_line
+        ET.SubElement(testcase_el, "system-out").text = stdout_line
+        ET.SubElement(testcase_el, "system-err").text = stderr_line
+        self._test_counts[suite_name] += 1
+        self._failure_counts[suite_name] += 1
+
     def display_messages(self, layout: Section | None) -> None:
         """Build and write JUnit XML from collected messages."""
-        # Group messages by module
-        messages_by_module: dict[str, list[Message]] = defaultdict(list)
-        for msg in self.messages:
-            messages_by_module[msg.module].append(msg)
-
-        # Build XML tree
+        self._add_success_testcase_for_current_module()
         testsuites_el = ET.Element("testsuites")
-        testsuite_el = ET.SubElement(testsuites_el, "testsuite", name="pylint")
-
-        total_failures = 0
-        total_errors = 0
         total_tests = 0
-
-        # Pylint categories that map to JUnit <error> elements.
-        # Fatal means pylint itself couldn't process the file;
-        # error means a likely bug in the user's code.
-        # Everything else (warning, convention, refactor, info)
-        # maps to JUnit <failure>.
-        error_categories = frozenset({"error", "fatal"})
-
-        # Create a testcase for each module that has messages
-        for module_name in sorted(messages_by_module):
-            module_messages = messages_by_module[module_name]
-            testcase_el = ET.SubElement(
-                testsuite_el,
-                "testcase",
-                name=module_name,
-                classname=module_name,
-            )
-            total_tests += 1
-
-            for msg in module_messages:
-                detail_msg = (
-                    f"{msg.msg_id}({msg.symbol}): {msg.msg or ''} (line {msg.line})"
-                )
-                # Use <error> for error/fatal, <failure> for everything else
-                if msg.category in error_categories:
-                    element_tag = "error"
-                    total_errors += 1
-                else:
-                    element_tag = "failure"
-                    total_failures += 1
-                result_el = ET.SubElement(
-                    testcase_el,
-                    element_tag,
-                    type=msg.category,
-                    message=detail_msg,
-                )
-                result_el.text = (
-                    f"{msg.abspath}:{msg.line}: [{msg.msg_id}({msg.symbol})] "
-                    f"{msg.msg or ''}"
-                )
-
-        # Set testsuite summary attributes
-        testsuite_el.set("tests", str(total_tests))
-        testsuite_el.set("errors", str(total_errors))
-        testsuite_el.set("failures", str(total_failures))
-
-        # Write XML to output
+        total_failures = 0
+        for suite_name, testsuite_el in self._testsuites.items():
+            tests = self._test_counts[suite_name]
+            failures = self._failure_counts[suite_name]
+            total_tests += tests
+            total_failures += failures
+            testsuite_el.set("tests", str(tests))
+            testsuite_el.set("errors", "0")
+            testsuite_el.set("failures", str(failures))
+            testsuites_el.append(testsuite_el)
+        testsuites_el.set("tests", str(total_tests))
+        testsuites_el.set("errors", "0")
+        testsuites_el.set("failures", str(total_failures))
         tree = ET.ElementTree(testsuites_el)
         ET.indent(tree, space="  ")
         tree.write(self.out, encoding="unicode", xml_declaration=True)
-        # Ensure final newline
         print(file=self.out)
+
+    def _get_testsuite(self, name: str) -> ET.Element:
+        if name not in self._testsuites:
+            self._testsuites[name] = ET.Element("testsuite", name=name)
+        return self._testsuites[name]
+
+    def _add_success_testcase_for_current_module(self) -> None:
+        if (
+            self._current_module is None
+            or self._current_filepath is None
+            or self._test_counts[self._current_module]
+        ):
+            return
+        testsuite_el = self._get_testsuite(self._current_module)
+        file_path = self._current_filepath
+        stdout_line = f"All checks passed for: {file_path}"
+        testcase_el = ET.SubElement(
+            testsuite_el,
+            "testcase",
+            name=f"{self._current_module}:0:0",
+            classname="pylint",
+            file=file_path,
+            line="0",
+        )
+        ET.SubElement(testcase_el, "system-out").text = stdout_line
+        self._test_counts[self._current_module] += 1
 
     def display_reports(self, layout: Section) -> None:
         """Don't do anything in this reporter."""
