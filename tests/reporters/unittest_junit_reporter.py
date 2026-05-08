@@ -141,7 +141,7 @@ class TestJUnitReporterOutput:
             "(100/80)\n"
             "bad.py:2:4:print('hello')</failure>\n"
             "      <system-out>bad.py:2:4:print('hello')</system-out>\n"
-            '      <system-err>C0301:Line too long (100/80)\n'
+            "      <system-err>C0301:Line too long (100/80)\n"
             "bad.py:2:4:print('hello')</system-err>\n"
             "    </testcase>\n"
             "  </testsuite>\n"
@@ -195,7 +195,9 @@ class TestJUnitReporterOutput:
 
     def test_empty_module_falls_back_to_path(self, junit_linter: JUnitLinter) -> None:
         output, reporter, _linter = junit_linter
-        reporter.handle_message(_message(module="", path="standalone.py", line=7, column=2))
+        reporter.handle_message(
+            _message(module="", path="standalone.py", line=7, column=2)
+        )
 
         reporter.display_messages(None)
 

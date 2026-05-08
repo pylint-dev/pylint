@@ -60,7 +60,9 @@ class JUnitReporter(BaseReporter):
     def handle_message(self, msg: Message) -> None:
         """Add a failing testcase for a Pylint message."""
         super().handle_message(msg)
-        suite_name = msg.module or msg.path or msg.abspath or self._current_module or "pylint"
+        suite_name = (
+            msg.module or msg.path or msg.abspath or self._current_module or "pylint"
+        )
         testsuite_el = self._get_testsuite(suite_name)
         file_path = msg.path or msg.abspath
         source_line = getline(msg.abspath or msg.path, msg.line).strip()
