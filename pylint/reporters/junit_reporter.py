@@ -73,7 +73,7 @@ class JUnitReporter(BaseReporter):
 
             for msg in module_messages:
                 detail_msg = (
-                    f"{msg.msg_id}({msg.symbol}): {msg.msg or ''} " f"(line {msg.line})"
+                    f"{msg.msg_id}({msg.symbol}): {msg.msg or ''} (line {msg.line})"
                 )
                 # Use <error> for error/fatal, <failure> for everything else
                 if msg.category in error_categories:
