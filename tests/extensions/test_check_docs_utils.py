@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import astroid
 import pytest
+from astroid import nodes
 
 from pylint.extensions import _check_docs_utils as utils
 
@@ -22,45 +23,45 @@ def test_space_indentation(string: str, count: int) -> None:
 
 
 @pytest.mark.parametrize(
-    "code,expected",
+    "raise_node,expected",
     [
         (
-            """
+            astroid.extract_node("""
     def my_func():
         raise NotImplementedError #@
-    """,
+    """),
             {"NotImplementedError"},
         ),
         (
-            """
+            astroid.extract_node("""
     def my_func():
         raise NotImplementedError("Not implemented!") #@
-    """,
+    """),
             {"NotImplementedError"},
         ),
         (
-            """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
         except RuntimeError:
             raise #@
-    """,
+    """),
             {"RuntimeError"},
         ),
         (
-            """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
         except RuntimeError:
             if another_func():
                 raise #@
-    """,
+    """),
             {"RuntimeError"},
         ),
         (
-            """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
@@ -70,11 +71,11 @@ def test_space_indentation(string: str, count: int) -> None:
                 raise #@
             except NameError:
                 pass
-    """,
+    """),
             {"RuntimeError"},
         ),
         (
-            """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
@@ -83,44 +84,43 @@ def test_space_indentation(string: str, count: int) -> None:
                 another_func()
             except NameError:
                 raise #@
-    """,
+    """),
             {"NameError"},
         ),
         (
-            """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
         except:
             raise #@
-    """,
+    """),
             set(),
         ),
         (
-            """
+            astroid.extract_node("""
     def my_func():
         try:
             fake_func()
         except (RuntimeError, ValueError):
             raise #@
-    """,
+    """),
             {"RuntimeError", "ValueError"},
         ),
         (
-            """
+            astroid.extract_node("""
     import not_a_module
     def my_func():
         try:
             fake_func()
         except not_a_module.Error:
             raise #@
-    """,
+    """),
             set(),
         ),
     ],
 )
-def test_exception(code: str, expected: set[str]) -> None:
-    raise_node = astroid.extract_node(code)
+def test_exception(raise_node: nodes.NodeNG, expected: set[str]) -> None:
     found_nodes = utils.possible_exc_types(raise_node)
     for node in found_nodes:
         assert isinstance(node, astroid.nodes.ClassDef)

@@ -9,6 +9,7 @@ from __future__ import annotations
 import xml.etree.ElementTree as ET
 from io import StringIO
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
 
@@ -23,8 +24,8 @@ from pylint.typing import MessageLocationTuple
 JUnitLinter = tuple[StringIO, JUnitReporter, PyLinter]
 
 
-@pytest.fixture
-def junit_linter() -> JUnitLinter:
+@pytest.fixture(name="junit_linter")
+def fixture_junit_linter() -> JUnitLinter:
     output = StringIO()
     reporter = JUnitReporter(output)
     linter = PyLinter(reporter=reporter)
@@ -94,22 +95,22 @@ class TestJUnitReporterOutput:
 
         reporter.display_messages(None)
 
-        assert output.getvalue() == (
-            "<?xml version='1.0' encoding='utf-8'?>\n"
-            '<testsuites tests="2" errors="0" failures="0">\n'
-            '  <testsuite name="package.clean_a" tests="1" errors="0" failures="0">\n'
-            '    <testcase name="package.clean_a:0:0" classname="pylint" '
-            'file="package/clean_a.py" line="0">\n'
-            "      <system-out>All checks passed for: package/clean_a.py</system-out>\n"
-            "    </testcase>\n"
-            "  </testsuite>\n"
-            '  <testsuite name="package.clean_b" tests="1" errors="0" failures="0">\n'
-            '    <testcase name="package.clean_b:0:0" classname="pylint" '
-            'file="package/clean_b.py" line="0">\n'
-            "      <system-out>All checks passed for: package/clean_b.py</system-out>\n"
-            "    </testcase>\n"
-            "  </testsuite>\n"
-            "</testsuites>\n"
+        assert output.getvalue() == dedent(
+            """\
+            <?xml version='1.0' encoding='utf-8'?>
+            <testsuites tests="2" errors="0" failures="0">
+              <testsuite name="package.clean_a" tests="1" errors="0" failures="0">
+                <testcase name="package.clean_a:0:0" classname="pylint" file="package/clean_a.py" line="0">
+                  <system-out>All checks passed for: package/clean_a.py</system-out>
+                </testcase>
+              </testsuite>
+              <testsuite name="package.clean_b" tests="1" errors="0" failures="0">
+                <testcase name="package.clean_b:0:0" classname="pylint" file="package/clean_b.py" line="0">
+                  <system-out>All checks passed for: package/clean_b.py</system-out>
+                </testcase>
+              </testsuite>
+            </testsuites>
+            """
         )
 
     def test_message_output_matches_golden_master(
@@ -131,21 +132,21 @@ class TestJUnitReporterOutput:
 
         reporter.display_messages(None)
 
-        assert output.getvalue() == (
-            "<?xml version='1.0' encoding='utf-8'?>\n"
-            '<testsuites tests="1" errors="0" failures="1">\n'
-            '  <testsuite name="package.bad" tests="1" errors="0" failures="1">\n'
-            '    <testcase name="package.bad:2:4" classname="pylint" file="bad.py" '
-            'line="2" category="convention">\n'
-            '      <failure type="convention" message="line-too-long">C0301:Line too long '
-            "(100/80)\n"
-            "bad.py:2:4:print('hello')</failure>\n"
-            "      <system-out>bad.py:2:4:print('hello')</system-out>\n"
-            "      <system-err>C0301:Line too long (100/80)\n"
-            "bad.py:2:4:print('hello')</system-err>\n"
-            "    </testcase>\n"
-            "  </testsuite>\n"
-            "</testsuites>\n"
+        assert output.getvalue() == dedent(
+            """\
+            <?xml version='1.0' encoding='utf-8'?>
+            <testsuites tests="1" errors="0" failures="1">
+              <testsuite name="package.bad" tests="1" errors="0" failures="1">
+                <testcase name="package.bad:2:4" classname="pylint" file="bad.py" line="2" category="convention">
+                  <failure type="convention" message="line-too-long">C0301:Line too long (100/80)
+            bad.py:2:4:print('hello')</failure>
+                  <system-out>bad.py:2:4:print('hello')</system-out>
+                  <system-err>C0301:Line too long (100/80)
+            bad.py:2:4:print('hello')</system-err>
+                </testcase>
+              </testsuite>
+            </testsuites>
+            """
         )
 
     def test_multiple_messages_in_same_module_are_separate_testcases(
