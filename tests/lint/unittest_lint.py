@@ -1157,10 +1157,9 @@ def mock_isdir(path: str) -> bool:
     - test_discover_files_does_not_ignore_similarly_named_package_even_if_first_is_ignored
     - test_discover_files_does_not_ignore_similarly_named_package_and_gets_manage_py
     """
-    if path == '.':
+    if path == ".":
         return True
-    else:
-        raise ValueError("Not expecting an isdir call on %s", path)
+    raise ValueError("Not expecting an isdir call on %s", path)
 
 
 def mock_isfile(path: str) -> bool:
@@ -1172,25 +1171,44 @@ def mock_isfile(path: str) -> bool:
     """
     if path == "./__init__.py":
         return False
-    elif path == "./manage.py":
+    if path == "./manage.py":
         return True
-    else:
-        raise ValueError("Not expecting an isfile call on %s", path)
+    raise ValueError("Not expecting an isfile call on %s", path)
 
 
-def test_discover_files_does_not_ignore_similarly_named_package(initialized_linter) -> None:
+def test_discover_files_does_not_ignore_similarly_named_package(
+    initialized_linter,
+) -> None:
     """
     Test to see if we return the expected package/file list even if a shorter named package is processed
     first and does not match an ignore config value.
     """
     with mock.patch("os.walk") as mock_walk:
-        with mock.patch.multiple("os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT) as mock_path:
+        with mock.patch.multiple(
+            "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
+        ) as mock_path:
             mock_walk.return_value = [
-                (".", ["applications", "applications_api"], ["pyproject.toml", "manage.py"]),
-                ("./applications", ["tests"], ["views.py", "models.py", "admin.py", "apps.py", "__init__.py"]),
+                (
+                    ".",
+                    ["applications", "applications_api"],
+                    ["pyproject.toml", "manage.py"],
+                ),
+                (
+                    "./applications",
+                    ["tests"],
+                    ["views.py", "models.py", "admin.py", "apps.py", "__init__.py"],
+                ),
                 ("./applications/tests", [], ["test1.py", "test2.py", "__init__.py"]),
-                ("./applications_api", ["tests"], ["views.py", "models.py", "admin.py", "apps.py", "__init__.py"]),
-                ("./applications_api/tests", [], ["test1.py", "test2.py", "__init__.py"])
+                (
+                    "./applications_api",
+                    ["tests"],
+                    ["views.py", "models.py", "admin.py", "apps.py", "__init__.py"],
+                ),
+                (
+                    "./applications_api/tests",
+                    [],
+                    ["test1.py", "test2.py", "__init__.py"],
+                ),
             ]
             mock_path["isdir"].side_effect = mock_isdir
             mock_path["isfile"].side_effect = mock_isfile
@@ -1198,19 +1216,19 @@ def test_discover_files_does_not_ignore_similarly_named_package(initialized_lint
             results = tuple(initialized_linter._discover_files(["."]))
 
             assert mock_path["isdir"].call_count == 1
-            assert mock_path["isdir"].call_args_list == [
-                mock.call(".")
-            ]
+            assert mock_path["isdir"].call_args_list == [mock.call(".")]
             assert mock_path["isfile"].call_count == 1
             assert mock_path["isfile"].call_args_list == [
                 mock.call("./__init__.py"),
             ]
 
-    assert len(results) == 3;
+    assert len(results) == 3
     assert results == ("./manage.py", "./applications", "./applications_api")
 
 
-def test_discover_files_does_not_ignore_similarly_named_package_even_if_first_ignored(initialized_linter) -> None:
+def test_discover_files_does_not_ignore_similarly_named_package_even_if_first_ignored(
+    initialized_linter,
+) -> None:
     """
     Test to see if we return the expected package/file list even if the shorter named package is processed
     first and matches an ignore config value.
@@ -1218,14 +1236,37 @@ def test_discover_files_does_not_ignore_similarly_named_package_even_if_first_ig
     NOTE: manage.py probably should be ignored.
     """
     with mock.patch("os.walk") as mock_walk:
-        with mock.patch.multiple("os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT) as mock_path:
-            initialized_linter.config.ignore = [".venv", "applications", "node_modules", "manage.py"]
+        with mock.patch.multiple(
+            "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
+        ) as mock_path:
+            initialized_linter.config.ignore = [
+                ".venv",
+                "applications",
+                "node_modules",
+                "manage.py",
+            ]
             mock_walk.return_value = [
-                (".", ["applications", "applications_api"], ["pyproject.toml", "manage.py"]),
-                ("./applications", ["tests"], ["views.py", "models.py", "admin.py", "apps.py", "__init__.py"]),
+                (
+                    ".",
+                    ["applications", "applications_api"],
+                    ["pyproject.toml", "manage.py"],
+                ),
+                (
+                    "./applications",
+                    ["tests"],
+                    ["views.py", "models.py", "admin.py", "apps.py", "__init__.py"],
+                ),
                 ("./applications/tests", [], ["test1.py", "test2.py", "__init__.py"]),
-                ("./applications_api", ["tests"], ["views.py", "models.py", "admin.py", "apps.py", "__init__.py"]),
-                ("./applications_api/tests", [], ["test1.py", "test2.py", "__init__.py"])
+                (
+                    "./applications_api",
+                    ["tests"],
+                    ["views.py", "models.py", "admin.py", "apps.py", "__init__.py"],
+                ),
+                (
+                    "./applications_api/tests",
+                    [],
+                    ["test1.py", "test2.py", "__init__.py"],
+                ),
             ]
             mock_path["isdir"].side_effect = mock_isdir
             mock_path["isfile"].side_effect = mock_isfile
@@ -1233,15 +1274,13 @@ def test_discover_files_does_not_ignore_similarly_named_package_even_if_first_ig
             results = tuple(initialized_linter._discover_files(["."]))
 
             assert mock_path["isdir"].call_count == 1
-            assert mock_path["isdir"].call_args_list == [
-                mock.call(".")
-            ]
+            assert mock_path["isdir"].call_args_list == [mock.call(".")]
             assert mock_path["isfile"].call_count == 1
             assert mock_path["isfile"].call_args_list == [
                 mock.call("./__init__.py"),
             ]
 
-    assert len(results) == 2;
+    assert len(results) == 2
     assert results == ("./manage.py", "./applications_api")
 
 
