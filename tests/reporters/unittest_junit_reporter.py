@@ -95,8 +95,7 @@ class TestJUnitReporterOutput:
 
         reporter.display_messages(None)
 
-        assert output.getvalue() == dedent(
-            """\
+        assert output.getvalue() == dedent("""\
             <?xml version='1.0' encoding='utf-8'?>
             <testsuites tests="2" errors="0" failures="0">
               <testsuite name="package.clean_a" tests="1" errors="0" failures="0">
@@ -110,8 +109,7 @@ class TestJUnitReporterOutput:
                 </testcase>
               </testsuite>
             </testsuites>
-            """
-        )
+            """)
 
     def test_message_output_matches_golden_master(
         self, junit_linter: JUnitLinter, tmp_path: Path
@@ -132,8 +130,7 @@ class TestJUnitReporterOutput:
 
         reporter.display_messages(None)
 
-        assert output.getvalue() == dedent(
-            """\
+        assert output.getvalue() == dedent("""\
             <?xml version='1.0' encoding='utf-8'?>
             <testsuites tests="1" errors="0" failures="1">
               <testsuite name="package.bad" tests="1" errors="0" failures="1">
@@ -146,8 +143,7 @@ class TestJUnitReporterOutput:
                 </testcase>
               </testsuite>
             </testsuites>
-            """
-        )
+            """)
 
     def test_multiple_messages_in_same_module_are_separate_testcases(
         self, junit_linter: JUnitLinter
