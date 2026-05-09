@@ -43,7 +43,9 @@ class JUnitReporter(BaseReporter):
             testsuite = ET.SubElement(testsuites, "testsuite")
             testsuite.set("name", module)
             testsuite.set("tests", str(len(msgs)))
-            failures = sum(1 for m in msgs if m.category in ("warning", "error", "fatal"))
+            failures = sum(
+                1 for m in msgs if m.category in ("warning", "error", "fatal")
+            )
             errors = sum(1 for m in msgs if m.category == "fatal")
             testsuite.set("failures", str(failures))
             testsuite.set("errors", str(errors))
@@ -54,7 +56,14 @@ class JUnitReporter(BaseReporter):
                 testcase.set("classname", module)
                 testcase.set("name", f"{msg.msg_id} ({msg.symbol})")
                 testcase.set("time", "0.0")
-                if msg.category in ("warning", "error", "fatal", "convention", "refactor", "info"):
+                if msg.category in (
+                    "warning",
+                    "error",
+                    "fatal",
+                    "convention",
+                    "refactor",
+                    "info",
+                ):
                     failure = ET.SubElement(testcase, "failure")
                     failure.set("message", msg.msg or "")
                     failure.set("type", msg.category)
