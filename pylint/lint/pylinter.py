@@ -670,7 +670,19 @@ class PyLinter(
                 os.path.join(something, "__init__.py")
             ):
                 skip_subtrees: list[str] = []
-                for root, _, files in os.walk(something):
+                for root, dirnames, files in os.walk(something, topdown=True):
+
+                    # Caution: use of list() wrapping dirnames is required to
+                    # avoid iteration issue.
+                    for dirname in list(dirnames):
+                        if _is_ignored_file(
+                            dirname,
+                            self.config.ignore,
+                            self.config.ignore_patterns,
+                            self.config.ignore_paths
+                        ):
+                            dirnames.remove(dirname)
+
                     if any(root.startswith(s) for s in skip_subtrees):
                         # Skip subtree of already discovered package.
                         continue
