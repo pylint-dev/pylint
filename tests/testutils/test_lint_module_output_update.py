@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import shutil
+import sys
 from collections.abc import Callable
 from pathlib import Path
 
@@ -69,6 +70,70 @@ def test_lint_module_output_update_remove_useless_txt(
     filename.write_text("", encoding="utf8")
     lmou.runTest()
     assert not expected_output_file.exists()
+
+
+def test_lint_module_output_update_preserves_older_version_txt(
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
+) -> None:
+    """Don't delete an older Python version's expected-output file. See #10844.
+
+    When running on Python ``X.Y`` and the only existing expected-output is
+    ``foo.<earlier>.txt`` (i.e. inherited from an older Python version),
+    ``--update-functional-output`` previously deleted that file when
+    ``actual_output`` was empty, silently wiping the older version's
+    expectations. The fix writes an empty current-version file
+    (``foo.<X><Y>.txt``) instead, leaving the inherited file intact.
+    """
+    filename, _expected_output_file, lmou = lint_module_fixture("fine_name")
+    # Pick a version strictly older than the running interpreter so the
+    # resolver picks it as the inherited file.
+    older = (sys.version_info[0], max(sys.version_info[1] - 1, 0))
+    older_suffix = f"{older[0]}{older[1]}"
+    older_path = filename.parent / f"fine_name.{older_suffix}.txt"
+    older_path.write_text("", encoding="utf8")
+    filename.write_text("", encoding="utf8")
+
+    lmou.runTest()
+
+    # Older version's file is untouched.
+    assert older_path.exists(), (
+        f"Expected {older_path.name} to be preserved on Python "
+        f"{sys.version_info[0]}.{sys.version_info[1]} (it belongs to an "
+        f"older Python version)."
+    )
+    # A current-version shadow is written as the empty record.
+    current_suffix = f"{sys.version_info[0]}{sys.version_info[1]}"
+    current_path = filename.parent / f"fine_name.{current_suffix}.txt"
+    assert current_path.exists()
+    assert current_path.read_text(encoding="utf8") == ""
+
+
+def test_lint_module_output_update_writes_current_version_when_inherited(
+    lint_module_fixture: Callable[[str], tuple[Path, Path, LintModuleOutputUpdate]],
+) -> None:
+    """When updating with non-empty output and the resolved file belongs to
+    an older Python version, write a new ``<base>.<current>.txt`` instead
+    of overwriting the inherited file.
+    """
+    filename, _expected_output_file, lmou = lint_module_fixture("foo")
+    older = (sys.version_info[0], max(sys.version_info[1] - 1, 0))
+    older_suffix = f"{older[0]}{older[1]}"
+    older_path = filename.parent / f"foo.{older_suffix}.txt"
+    older_path.write_text("preserved-marker\n", encoding="utf8")
+    filename.write_text("# [disallowed-name]\n", encoding="utf8")
+
+    lmou.runTest()
+
+    # Older version's file is untouched.
+    assert older_path.read_text(encoding="utf8") == "preserved-marker\n"
+    # New current-version file holds the actual output.
+    current_suffix = f"{sys.version_info[0]}{sys.version_info[1]}"
+    current_path = filename.parent / f"foo.{current_suffix}.txt"
+    assert current_path.exists()
+    assert (
+        current_path.read_text(encoding="utf8")
+        == 'disallowed-name:1:0:None:None::"Disallowed name ""foo""":HIGH\n'
+    )
 
 
 @pytest.mark.parametrize(

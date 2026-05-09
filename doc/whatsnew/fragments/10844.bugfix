@@ -1,0 +1,7 @@
+Stop ``test_functional.py --update-functional-output`` from deleting or
+overwriting expected-output files that belong to an older Python version.
+When the resolved expected-output file is e.g. ``foo.313.txt`` while the
+running interpreter is Python 3.14, the inherited file is now left
+untouched and a new ``foo.<current>.txt`` is written instead.
+
+Closes #10844
