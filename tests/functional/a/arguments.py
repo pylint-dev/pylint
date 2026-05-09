@@ -333,3 +333,12 @@ class Foo:
     a = func(42)
 
 isinstance(1) # [no-value-for-parameter]
+
+
+# https://github.com/pylint-dev/pylint/issues/8785
+# **kwargs unpacking should not suppress no-value-for-parameter
+import copy
+import os
+
+copy.copy(**{"y": os.environ})  # [unexpected-keyword-arg, no-value-for-parameter]
+copy.copy(y=os.environ)  # [no-value-for-parameter, unexpected-keyword-arg]
