@@ -1,0 +1,4 @@
+``no-value-for-parameter`` is now emitted when ``**kwargs`` is used in a call
+with an inferable dictionary that does not provide the required parameter.
+
+Closes #8785

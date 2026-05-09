@@ -1686,15 +1686,16 @@ accessed. Python regular expressions are accepted.",
                 )
 
         # 3. Match the **kwargs, if any.
-        if node.kwargs:
+        # When **kwargs is used, only mark parameters as assigned if the
+        # enclosing scope passes through variadic keywords without context
+        # (e.g. def wrapper(**kwargs): f(**kwargs)).  Otherwise, the kwargs
+        # dict was already unpacked by CallSite and its keys were matched
+        # in step 2 above; blindly marking all parameters as assigned would
+        # mask no-value-for-parameter false negatives.  (See #8785.)
+        if node.kwargs and has_no_context_keywords_variadic:
             for i, [(name, _defval), _assigned] in enumerate(parameters):
-                # Assume that *kwargs provides values for all remaining
-                # unassigned named parameters.
                 if name is not None:
                     parameters[i] = (parameters[i][0], True)
-                else:
-                    # **kwargs can't assign to tuples.
-                    pass
 
         # Check that any parameters without a default have been assigned
         # values.
