@@ -2,6 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
+import os
 from unittest import mock
 
 import pytest
@@ -33,9 +34,9 @@ def mock_isfile(path: str) -> bool:
     - test_discover_files_does_not_ignore_similarly_named_package
     - test_discover_files_does_not_ignore_similarly_named_package_even_if_first_is_ignored
     """
-    if path == "./__init__.py":
+    if path == f".{os.sep}__init__.py":
         return False
-    if path == "./manage.py":
+    if path == f".{os.sep}manage.py":
         return True
     raise ValueError(f"Not expecting an isfile call on {path}")
 
@@ -49,18 +50,22 @@ def _mock_tree() -> list[tuple[str, list[str], list[str]]]:
             ["pyproject.toml", "manage.py"],
         ),
         (
-            "./applications",
-            ["tests"],
-            ["views.py", "models.py", "admin.py", "apps.py", "__init__.py"],
-        ),
-        ("./applications/tests", [], ["test1.py", "test2.py", "__init__.py"]),
-        (
-            "./applications_api",
+            f".{os.sep}applications",
             ["tests"],
             ["views.py", "models.py", "admin.py", "apps.py", "__init__.py"],
         ),
         (
-            "./applications_api/tests",
+            f".{os.sep}applications{os.sep}tests",
+            [],
+            ["test1.py", "test2.py", "__init__.py"]
+        ),
+        (
+            f".{os.sep}applications_api",
+            ["tests"],
+            ["views.py", "models.py", "admin.py", "apps.py", "__init__.py"],
+        ),
+        (
+            f".{os.sep}applications_api{os.sep}tests",
             [],
             ["test1.py", "test2.py", "__init__.py"],
         ),
@@ -68,8 +73,8 @@ def _mock_tree() -> list[tuple[str, list[str], list[str]]]:
 
 
 def test_does_not_ignore_similarly_named_package(
-    initialized_linter: PyLinter,
-    mock_tree: list[tuple[str, list[str], list[str]]],
+        initialized_linter: PyLinter,
+        mock_tree: list[tuple[str, list[str], list[str]]],
 ) -> None:
     """
     Test to see if we return the expected package/file list even if a shorter named package is processed
@@ -77,7 +82,7 @@ def test_does_not_ignore_similarly_named_package(
     """
     with mock.patch("os.walk") as mock_walk:
         with mock.patch.multiple(
-            "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
+                "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
         ) as mock_path:
             mock_walk.return_value = mock_tree
             mock_path["isdir"].side_effect = mock_isdir
@@ -89,16 +94,16 @@ def test_does_not_ignore_similarly_named_package(
             assert mock_path["isdir"].call_args_list == [mock.call(".")]
             assert mock_path["isfile"].call_count == 1
             assert mock_path["isfile"].call_args_list == [
-                mock.call("./__init__.py"),
+                mock.call(f".{os.sep}__init__.py"),
             ]
 
     assert len(results) == 3
-    assert results == ("./manage.py", "./applications", "./applications_api")
+    assert results == (f".{os.sep}manage.py", f".{os.sep}applications", f".{os.sep}applications_api")
 
 
 def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
-    initialized_linter: PyLinter,
-    mock_tree: list[tuple[str, list[str], list[str]]],
+        initialized_linter: PyLinter,
+        mock_tree: list[tuple[str, list[str], list[str]]],
 ) -> None:
     """
     Test to see if we return the expected package/file list even if the shorter named package is processed
@@ -108,7 +113,7 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
     """
     with mock.patch("os.walk") as mock_walk:
         with mock.patch.multiple(
-            "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
+                "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
         ) as mock_path:
             initialized_linter.config.ignore = [
                 ".venv",
@@ -126,8 +131,8 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
             assert mock_path["isdir"].call_args_list == [mock.call(".")]
             assert mock_path["isfile"].call_count == 1
             assert mock_path["isfile"].call_args_list == [
-                mock.call("./__init__.py"),
+                mock.call(f".{os.sep}__init__.py"),
             ]
 
     assert len(results) == 2
-    assert results == ("./manage.py", "./applications_api")
+    assert results == (f".{os.sep}manage.py", f".{os.sep}applications_api")
