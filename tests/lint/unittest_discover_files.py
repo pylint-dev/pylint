@@ -57,7 +57,7 @@ def _mock_tree() -> list[tuple[str, list[str], list[str]]]:
         (
             f".{os.sep}applications{os.sep}tests",
             [],
-            ["test1.py", "test2.py", "__init__.py"]
+            ["test1.py", "test2.py", "__init__.py"],
         ),
         (
             f".{os.sep}applications_api",
@@ -73,8 +73,8 @@ def _mock_tree() -> list[tuple[str, list[str], list[str]]]:
 
 
 def test_does_not_ignore_similarly_named_package(
-        initialized_linter: PyLinter,
-        mock_tree: list[tuple[str, list[str], list[str]]],
+    initialized_linter: PyLinter,
+    mock_tree: list[tuple[str, list[str], list[str]]],
 ) -> None:
     """
     Test to see if we return the expected package/file list even if a shorter named package is processed
@@ -82,7 +82,7 @@ def test_does_not_ignore_similarly_named_package(
     """
     with mock.patch("os.walk") as mock_walk:
         with mock.patch.multiple(
-                "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
+            "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
         ) as mock_path:
             mock_walk.return_value = mock_tree
             mock_path["isdir"].side_effect = mock_isdir
@@ -98,12 +98,16 @@ def test_does_not_ignore_similarly_named_package(
             ]
 
     assert len(results) == 3
-    assert results == (f".{os.sep}manage.py", f".{os.sep}applications", f".{os.sep}applications_api")
+    assert results == (
+        f".{os.sep}manage.py",
+        f".{os.sep}applications",
+        f".{os.sep}applications_api",
+    )
 
 
 def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
-        initialized_linter: PyLinter,
-        mock_tree: list[tuple[str, list[str], list[str]]],
+    initialized_linter: PyLinter,
+    mock_tree: list[tuple[str, list[str], list[str]]],
 ) -> None:
     """
     Test to see if we return the expected package/file list even if the shorter named package is processed
@@ -113,7 +117,7 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
     """
     with mock.patch("os.walk") as mock_walk:
         with mock.patch.multiple(
-                "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
+            "os.path", isdir=mock.DEFAULT, isfile=mock.DEFAULT
         ) as mock_path:
             initialized_linter.config.ignore = [
                 ".venv",
