@@ -68,8 +68,8 @@ def _mock_tree() -> list[tuple[str, list[str], list[str]]]:
 
 
 def test_does_not_ignore_similarly_named_package(
-    initialized_linter,
-    mock_tree,
+    initialized_linter: PyLinter,
+    mock_tree: list[tuple[str, list[str], list[str]]],
 ) -> None:
     """
     Test to see if we return the expected package/file list even if a shorter named package is processed
@@ -97,8 +97,8 @@ def test_does_not_ignore_similarly_named_package(
 
 
 def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
-    initialized_linter,
-    mock_tree,
+    initialized_linter: PyLinter,
+    mock_tree: list[tuple[str, list[str], list[str]]],
 ) -> None:
     """
     Test to see if we return the expected package/file list even if the shorter named package is processed
