@@ -66,8 +66,20 @@ class JUnitReporter(BaseReporter):
             testsuite = ET.SubElement(testsuites, "testsuite")
             testsuite.set("name", filepath)
             testsuite.set("tests", str(len(messages)))
-            testsuite.set("failures", str(sum(1 for m in messages if m["category"] in ("error", "warning", "refactor", "convention"))))
-            testsuite.set("errors", str(sum(1 for m in messages if m["category"] == "fatal")))
+            testsuite.set(
+                "failures",
+                str(
+                    sum(
+                        1
+                        for m in messages
+                        if m["category"]
+                        in ("error", "warning", "refactor", "convention")
+                    )
+                ),
+            )
+            testsuite.set(
+                "errors", str(sum(1 for m in messages if m["category"] == "fatal"))
+            )
             testsuite.set("skipped", "0")
 
             for msg in messages:
@@ -76,7 +88,13 @@ class JUnitReporter(BaseReporter):
                 testcase.set("name", f"{msg['symbol']} ({msg['msg_id']})")
                 testcase.set("line", str(msg["line"]))
 
-                if msg["category"] in ("error", "warning", "refactor", "convention", "fatal"):
+                if msg["category"] in (
+                    "error",
+                    "warning",
+                    "refactor",
+                    "convention",
+                    "fatal",
+                ):
                     failure = ET.SubElement(testcase, "failure")
                     failure.set("type", msg["category"])
                     failure.set("message", msg["msg"])
@@ -86,10 +104,17 @@ class JUnitReporter(BaseReporter):
             total_tests += len(messages)
 
         testsuites.set("tests", str(total_tests))
-        testsuites.set("failures", str(sum(
-            1 for msgs in self._messages_by_file.values()
-            for m in msgs if m["category"] in ("error", "warning", "refactor", "convention")
-        )))
+        testsuites.set(
+            "failures",
+            str(
+                sum(
+                    1
+                    for msgs in self._messages_by_file.values()
+                    for m in msgs
+                    if m["category"] in ("error", "warning", "refactor", "convention")
+                )
+            ),
+        )
 
         tree = ET.ElementTree(testsuites)
         ET.indent(tree, space="  ")
