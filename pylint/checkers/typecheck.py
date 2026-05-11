@@ -1639,8 +1639,8 @@ accessed. Python regular expressions are accepted.",
             for i, [(name, _defval), _assigned] in enumerate(parameters):
                 # Assume that *kwargs provides values for all remaining
                 # unassigned named parameters.
-                if name is not None:
-                    parameters[i] = (parameters[i][0], True)
+                # FIXED #8785: Removed assumption
+                # if name is not None:
                 else:
                     # **kwargs can't assign to tuples.
                     pass
