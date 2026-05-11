@@ -553,34 +553,43 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _check_misplaced_dunders(self, node: nodes.Module) -> None:
         """Check if module-level dunders are placed before imports per PEP8.
-        
+
         PEP8 states that module-level dunders like __all__, __version__,
         __author__ should be placed after the module docstring but before
         any import statements (except from __future__ imports).
         """
         # Module-level dunders that should be before imports
         MODULE_DUNDERS = {
-            "__all__", "__version__", "__author__",
-            "__copyright__", "__credits__", "__license__",
-            "__email__", "__maintainer__", "__status__"
+            "__all__",
+            "__version__",
+            "__author__",
+            "__copyright__",
+            "__credits__",
+            "__license__",
+            "__email__",
+            "__maintainer__",
+            "__status__",
         }
-        
+
         first_import_lineno = None
         dunders_after_import = []
-        
+
         for child in node.body:
             # Skip docstring
             if isinstance(child, nodes.Expr) and isinstance(child.value, nodes.Const):
                 continue
-            
+
             # Track first import (excluding from __future__)
             if isinstance(child, (nodes.Import, nodes.ImportFrom)):
-                if isinstance(child, nodes.ImportFrom) and child.modname == "__future__":
+                if (
+                    isinstance(child, nodes.ImportFrom)
+                    and child.modname == "__future__"
+                ):
                     continue  # __future__ imports are allowed before dunders
                 if first_import_lineno is None:
                     first_import_lineno = child.fromlineno
                 continue
-            
+
             # Check for dunder assignments
             if isinstance(child, nodes.Assign):
                 for target in child.targets:
@@ -588,11 +597,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                         if target.name in MODULE_DUNDERS:
                             if first_import_lineno is not None:
                                 # Dunder is after an import
-                                dunders_after_import.append((target.name, child.fromlineno))
-        
+                                dunders_after_import.append(
+                                    (target.name, child.fromlineno)
+                                )
+
         # Report misplaced dunders
         for dunder_name, lineno in dunders_after_import:
             self.add_message("misplaced-module-dunder", args=dunder_name, node=node)
+
     def visit_import(self, node: nodes.Import) -> None:
         """Triggered when an import statement is seen."""
         self._check_reimport(node)
@@ -1360,4 +1372,3 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(ImportsChecker(linter))
-
