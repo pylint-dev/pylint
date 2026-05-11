@@ -311,6 +311,11 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Used when an import statement is used anywhere other than the module "
         "toplevel. Move this import to the top of the file.",
     ),
+    "C0416": (
+        "Module level dunder %s should be placed before any import statement",
+        "misplaced-module-dunder",
+        "Used when module level dunder names (e.g. __all__, __version__) are not placed before imports as per PEP8.",
+    ),
     "W0416": (
         "Shadowed %r (imported line %s)",
         "shadowed-import",
@@ -540,9 +545,54 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         return all_deprecated_modules
 
     def visit_module(self, node: nodes.Module) -> None:
-        """Store if current module is a package, i.e. an __init__ file."""
+        """Store if current module is a package, i.e. an __init__ file.
+        Also check for misplaced module-level dunders.
+        """
         self._current_module_package = node.package
+        self._check_misplaced_dunders(node)
 
+    def _check_misplaced_dunders(self, node: nodes.Module) -> None:
+        """Check if module-level dunders are placed before imports per PEP8.
+        
+        PEP8 states that module-level dunders like __all__, __version__,
+        __author__ should be placed after the module docstring but before
+        any import statements (except from __future__ imports).
+        """
+        # Module-level dunders that should be before imports
+        MODULE_DUNDERS = {
+            "__all__", "__version__", "__author__",
+            "__copyright__", "__credits__", "__license__",
+            "__email__", "__maintainer__", "__status__"
+        }
+        
+        first_import_lineno = None
+        dunders_after_import = []
+        
+        for child in node.body:
+            # Skip docstring
+            if isinstance(child, nodes.Expr) and isinstance(child.value, nodes.Const):
+                continue
+            
+            # Track first import (excluding from __future__)
+            if isinstance(child, (nodes.Import, nodes.ImportFrom)):
+                if isinstance(child, nodes.ImportFrom) and child.modname == "__future__":
+                    continue  # __future__ imports are allowed before dunders
+                if first_import_lineno is None:
+                    first_import_lineno = child.fromlineno
+                continue
+            
+            # Check for dunder assignments
+            if isinstance(child, nodes.Assign):
+                for target in child.targets:
+                    if isinstance(target, nodes.AssignName):
+                        if target.name in MODULE_DUNDERS:
+                            if first_import_lineno is not None:
+                                # Dunder is after an import
+                                dunders_after_import.append((target.name, child.fromlineno))
+        
+        # Report misplaced dunders
+        for dunder_name, lineno in dunders_after_import:
+            self.add_message("misplaced-module-dunder", args=dunder_name, node=node)
     def visit_import(self, node: nodes.Import) -> None:
         """Triggered when an import statement is seen."""
         self._check_reimport(node)
@@ -1310,3 +1360,4 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
 def register(linter: PyLinter) -> None:
     linter.register_checker(ImportsChecker(linter))
+
