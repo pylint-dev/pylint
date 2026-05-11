@@ -1637,10 +1637,11 @@ accessed. Python regular expressions are accepted.",
         # 3. Match the **kwargs, if any.
         if node.kwargs:
             for i, [(name, _defval), _assigned] in enumerate(parameters):
-                # Assume that *kwargs provides values for all remaining
-                # unassigned named parameters.
-                if name is not None:
-                    parameters[i] = (parameters[i][0], True)
+        # FIXED: Removed assumption - see issue #8785
+        #                 # Assume that *kwargs provides values for all remaining
+        #                 # unassigned named parameters.
+        #                 if name is not None:
+        #                     parameters[i] = (parameters[i][0], True)
                 else:
                     # **kwargs can't assign to tuples.
                     pass
