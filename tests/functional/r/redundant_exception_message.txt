@@ -1,0 +1,6 @@
+redundant-exception-message:15:4:15:63::"Redundant exception message: 'err' included in message with 'raise ... from err'":HIGH
+redundant-exception-message:21:4:21:68::"Redundant exception message: 'err' included in message with 'raise ... from err'":HIGH
+redundant-exception-message:27:4:27:68::"Redundant exception message: 'err' included in message with 'raise ... from err'":HIGH
+redundant-exception-message:33:4:33:40::"Redundant exception message: 'err' included in message with 'raise ... from err'":HIGH
+redundant-exception-message:39:4:39:35::"Redundant exception message: 'err' included in message with 'raise ... from err'":HIGH
+redundant-exception-message:45:4:45:66::"Redundant exception message: 'err' included in message with 'raise ... from err'":HIGH
