@@ -418,14 +418,12 @@ class BasicChecker(_BasicChecker):
         increment branch counter.
         """
         self.linter.stats.node_count["klass"] += 1
-        if not self.linter.is_message_enabled("dangerous-default-value"):
-            return
         try:
             if not any(
                 ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
             ):
                 return
-        except astroid.InferenceError:
+        except astroid.InferenceError:  # pragma: no cover
             return
         for child in node.body:
             if isinstance(child, nodes.AnnAssign) and child.value is not None:
@@ -620,11 +618,6 @@ class BasicChecker(_BasicChecker):
 
         if value is default:
             msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
-        elif isinstance(default, (nodes.List, nodes.Set, nodes.Dict)):
-            # A dict/set/list/tuple call which wasn't inferred to a syntax
-            # node ({}, () etc.). This can happen when the arguments are
-            # invalid or unknown to the inference.
-            msg = value.pytype()
         elif isinstance(default, nodes.Call):
             msg = f"{value.name}() ({value.qname()})"
         else:
