@@ -1,6 +1,11 @@
 # pylint: disable=missing-module-docstring, missing-class-docstring, use-list-literal, use-dict-literal
 import collections
+import random
 from typing import NamedTuple
+
+DANGEROUS_GLOBAL = set()
+
+AMBIGUOUS_DEFAULT = [] if random.random() > 0.5 else {}
 
 
 class BadListDefault(NamedTuple):
@@ -48,3 +53,11 @@ class MixedNamedTuple(NamedTuple):
 class NoDefaultNamedTuple(NamedTuple):
     name: str
     value: int
+
+
+class GlobalDangerousDefault(NamedTuple):
+    items: set = DANGEROUS_GLOBAL  # [dangerous-default-value]
+
+
+class UninferrableDefault(NamedTuple):
+    items: list | dict = AMBIGUOUS_DEFAULT

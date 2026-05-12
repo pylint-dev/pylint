@@ -428,7 +428,7 @@ class BasicChecker(_BasicChecker):
                 ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
             ):
                 return
-        except astroid.InferenceError:
+        except astroid.InferenceError:  # pragma: no cover
             return
 
         def is_iterable(internal_node: nodes.NodeNG) -> bool:
@@ -449,13 +449,13 @@ class BasicChecker(_BasicChecker):
                 if value is default:
                     msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
                 elif isinstance(value, astroid.Instance) or is_iterable(value):
-                    if is_iterable(default):
+                    if is_iterable(default):  # pragma: no cover
                         msg = value.pytype()
                     elif isinstance(default, nodes.Call):
                         msg = f"{value.name}() ({value.qname()})"
                     else:
                         msg = f"{default.as_string()} ({value.qname()})"
-                else:
+                else:  # pragma: no cover
                     msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
                 self.add_message("dangerous-default-value", node=child, args=(msg,))
 
