@@ -418,46 +418,18 @@ class BasicChecker(_BasicChecker):
         increment branch counter.
         """
         self.linter.stats.node_count["klass"] += 1
-        if self.linter.is_message_enabled("dangerous-default-value"):
-            self._check_namedtuple_dangerous_defaults(node)
-
-    def _check_namedtuple_dangerous_defaults(self, node: nodes.ClassDef) -> None:
-        """Check for dangerous default values in typing.NamedTuple fields."""
+        if not self.linter.is_message_enabled("dangerous-default-value"):
+            return
         try:
             if not any(
                 ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
             ):
                 return
-        except astroid.InferenceError:  # pragma: no cover
+        except astroid.InferenceError:
             return
-
-        def is_iterable(internal_node: nodes.NodeNG) -> bool:
-            return isinstance(internal_node, (nodes.List, nodes.Set, nodes.Dict))
-
         for child in node.body:
-            if not isinstance(child, nodes.AnnAssign) or child.value is None:
-                continue
-            default = child.value
-            value = utils.safe_infer(default)
-            if value is None:
-                continue
-
-            if (
-                isinstance(value, astroid.Instance)
-                and value.qname() in DEFAULT_ARGUMENT_SYMBOLS
-            ):
-                if value is default:
-                    msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
-                elif isinstance(value, astroid.Instance) or is_iterable(value):
-                    if is_iterable(default):  # pragma: no cover
-                        msg = value.pytype()
-                    elif isinstance(default, nodes.Call):
-                        msg = f"{value.name}() ({value.qname()})"
-                    else:
-                        msg = f"{default.as_string()} ({value.qname()})"
-                else:  # pragma: no cover
-                    msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
-                self.add_message("dangerous-default-value", node=child, args=(msg,))
+            if isinstance(child, nodes.AnnAssign) and child.value is not None:
+                self._check_dangerous_default(child.value, child)
 
     @utils.only_required_for_messages(
         "pointless-statement",
@@ -625,49 +597,41 @@ class BasicChecker(_BasicChecker):
             self.linter.stats.node_count["method"] += 1
         else:
             self.linter.stats.node_count["function"] += 1
-        self._check_dangerous_default(node)
+        for default in (node.args.defaults or []) + (node.args.kw_defaults or []):
+            if default:
+                self._check_dangerous_default(default, node)
 
     visit_asyncfunctiondef = visit_functiondef
 
-    def _check_dangerous_default(self, node: nodes.FunctionDef) -> None:
-        """Check for dangerous default values as arguments."""
+    def _check_dangerous_default(
+        self, default: nodes.NodeNG, msg_node: nodes.NodeNG
+    ) -> None:
+        """Emit dangerous-default-value if the inferred default is mutable."""
+        try:
+            value = next(default.infer())
+        except astroid.InferenceError:
+            return
 
-        def is_iterable(internal_node: nodes.NodeNG) -> bool:
-            return isinstance(internal_node, (nodes.List, nodes.Set, nodes.Dict))
+        if (
+            not isinstance(value, astroid.Instance)
+            or value.qname() not in DEFAULT_ARGUMENT_SYMBOLS
+        ):
+            return
 
-        defaults = (node.args.defaults or []) + (node.args.kw_defaults or [])
-        for default in defaults:
-            if not default:
-                continue
-            try:
-                value = next(default.infer())
-            except astroid.InferenceError:
-                continue
-
-            if (
-                isinstance(value, astroid.Instance)
-                and value.qname() in DEFAULT_ARGUMENT_SYMBOLS
-            ):
-                if value is default:
-                    msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
-                elif isinstance(value, astroid.Instance) or is_iterable(value):
-                    # We are here in the following situation(s):
-                    #   * a dict/set/list/tuple call which wasn't inferred
-                    #     to a syntax node ({}, () etc.). This can happen
-                    #     when the arguments are invalid or unknown to
-                    #     the inference.
-                    #   * a variable from somewhere else, which turns out to be a list
-                    #     or a dict.
-                    if is_iterable(default):
-                        msg = value.pytype()
-                    elif isinstance(default, nodes.Call):
-                        msg = f"{value.name}() ({value.qname()})"
-                    else:
-                        msg = f"{default.as_string()} ({value.qname()})"
-                else:
-                    # this argument is a name
-                    msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
-                self.add_message("dangerous-default-value", node=node, args=(msg,))
+        if value is default:
+            msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
+        elif isinstance(default, (nodes.List, nodes.Set, nodes.Dict)):
+            # A dict/set/list/tuple call which wasn't inferred to a syntax
+            # node ({}, () etc.). This can happen when the arguments are
+            # invalid or unknown to the inference.
+            msg = value.pytype()
+        elif isinstance(default, nodes.Call):
+            msg = f"{value.name}() ({value.qname()})"
+        else:
+            # The argument is a name referring to a value from somewhere else
+            # which turns out to be a list, dict or set.
+            msg = f"{default.as_string()} ({value.qname()})"
+        self.add_message("dangerous-default-value", node=msg_node, args=(msg,))
 
     @utils.only_required_for_messages("unreachable", "lost-exception")
     def visit_return(self, node: nodes.Return) -> None:
