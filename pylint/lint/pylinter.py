@@ -749,7 +749,7 @@ class PyLinter(
                             dirname,
                             self.config.ignore,
                             self.config.ignore_patterns,
-                            self.config.ignore_paths
+                            self.config.ignore_paths,
                         ):
                             dirnames.remove(dirname)
 

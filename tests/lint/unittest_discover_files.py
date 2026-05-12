@@ -5,6 +5,7 @@
 Unit tests specifically targeting PyLinter._discover_files() and its use of
 the os.walk() function.
 """
+
 import os
 from unittest import mock
 
@@ -49,11 +50,19 @@ def setup_mock_fs(fs: FakeFilesystem) -> FakeFilesystem:
     fs.create_file("/test/applications/migrations/__init__.py")
     fs.create_file("/test/applications/migrations/0002_alter_jobapplication_user.py")
     fs.create_file("/test/applications/migrations/0001_initial.py")
-    fs.create_file("/test/applications/migrations/__pycache__/0004_jobapplication_created_at_cpython-313.pyc")
-    fs.create_file("/test/applications/migrations/__pycache__/0002_alter_jobapplication_when.cpython-313.pyc")
-    fs.create_file("/test/applications/migrations/__pycache__/0002_alter_jobapplication_user_id.cpython-313.pyc")
+    fs.create_file(
+        "/test/applications/migrations/__pycache__/0004_jobapplication_created_at_cpython-313.pyc"
+    )
+    fs.create_file(
+        "/test/applications/migrations/__pycache__/0002_alter_jobapplication_when.cpython-313.pyc"
+    )
+    fs.create_file(
+        "/test/applications/migrations/__pycache__/0002_alter_jobapplication_user_id.cpython-313.pyc"
+    )
     fs.create_file("/test/applications/migrations/__pycache__/__init__.cpython-313.pyc")
-    fs.create_file("/test/applications/migrations/__pycache__/0001_initial.cpython-313.pyc")
+    fs.create_file(
+        "/test/applications/migrations/__pycache__/0001_initial.cpython-313.pyc"
+    )
     fs.create_file("/test/applications/urls.py")
     fs.create_file("/test/applications/__init__.py")
     fs.create_file("/test/applications/forms.py")
@@ -85,14 +94,7 @@ def setup_mock_fs(fs: FakeFilesystem) -> FakeFilesystem:
     return fs
 
 
-@pytest.mark.parametrize(
-    "os_type",
-    [
-        OSType.LINUX,
-        OSType.WINDOWS,
-        OSType.MACOS
-    ]
-)
+@pytest.mark.parametrize("os_type", [OSType.LINUX, OSType.WINDOWS, OSType.MACOS])
 def test_does_not_ignore_similarly_named_package(
     initialized_linter: PyLinter,
     fs: FakeFilesystem,
@@ -117,14 +119,7 @@ def test_does_not_ignore_similarly_named_package(
     assert f".{os.sep}applications_api" in results
 
 
-@pytest.mark.parametrize(
-    "os_type",
-    [
-        OSType.LINUX,
-        OSType.WINDOWS,
-        OSType.MACOS
-    ]
-)
+@pytest.mark.parametrize("os_type", [OSType.LINUX, OSType.WINDOWS, OSType.MACOS])
 def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
     initialized_linter: PyLinter,
     fs: FakeFilesystem,
@@ -157,14 +152,7 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
     assert f".{os.sep}applications_api" in results
 
 
-@pytest.mark.parametrize(
-    "os_type",
-    [
-        OSType.LINUX,
-        OSType.WINDOWS,
-        OSType.MACOS
-    ]
-)
+@pytest.mark.parametrize("os_type", [OSType.LINUX, OSType.WINDOWS, OSType.MACOS])
 def test_does_not_traverse_into_ignored_directories(
     initialized_linter: PyLinter,
     fs: FakeFilesystem,
