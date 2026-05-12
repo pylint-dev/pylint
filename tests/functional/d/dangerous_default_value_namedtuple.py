@@ -1,11 +1,11 @@
-# pylint: disable=missing-docstring, use-list-literal, use-dict-literal
+# pylint: disable=missing-module-docstring, missing-class-docstring, use-list-literal, use-dict-literal
 import collections
-from typing import List, NamedTuple
+from typing import NamedTuple
 
 
 class BadListDefault(NamedTuple):
-    avgs: List[float] = []  # [dangerous-default-value]
-    stds: List[float] = []  # [dangerous-default-value]
+    avgs: list[float] = []  # [dangerous-default-value]
+    stds: list[float] = []  # [dangerous-default-value]
 
 
 class BadDictDefault(NamedTuple):

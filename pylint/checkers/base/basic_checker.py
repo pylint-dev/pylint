@@ -413,13 +413,13 @@ class BasicChecker(_BasicChecker):
         """Check module name, docstring and required arguments."""
         self.linter.stats.node_count["module"] += 1
 
-    @utils.only_required_for_messages("dangerous-default-value")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         """Check module name, docstring and redefinition
         increment branch counter.
         """
         self.linter.stats.node_count["klass"] += 1
-        self._check_namedtuple_dangerous_defaults(node)
+        if self.linter.is_message_enabled("dangerous-default-value"):
+            self._check_namedtuple_dangerous_defaults(node)
 
     def _check_namedtuple_dangerous_defaults(self, node: nodes.ClassDef) -> None:
         """Check for dangerous default values in typing.NamedTuple fields."""
@@ -438,9 +438,8 @@ class BasicChecker(_BasicChecker):
             if not isinstance(child, nodes.AnnAssign) or child.value is None:
                 continue
             default = child.value
-            try:
-                value = next(default.infer())
-            except astroid.InferenceError:
+            value = utils.safe_infer(default)
+            if value is None:
                 continue
 
             if (
