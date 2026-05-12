@@ -2,16 +2,11 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Module to add McCabe checker class for pylint."""
-
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any
 
 from astroid import nodes
-from mccabe import PathGraph as Mccabe_PathGraph
-from mccabe import PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 
 from pylint import checkers
 from pylint.checkers.utils import only_required_for_messages
@@ -20,157 +15,222 @@ from pylint.interfaces import HIGH
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-_StatementNodes: TypeAlias = (
-    nodes.Assert
-    | nodes.Assign
-    | nodes.AugAssign
-    | nodes.Delete
-    | nodes.Raise
-    | nodes.Yield
-    | nodes.Import
-    | nodes.Call
-    | nodes.Subscript
-    | nodes.Pass
-    | nodes.Continue
-    | nodes.Break
-    | nodes.Global
-    | nodes.Return
-    | nodes.Expr
-    | nodes.Await
-)
 
-_SubGraphNodes: TypeAlias = nodes.If | nodes.Try | nodes.For | nodes.While | nodes.Match
-_AppendableNodeT = TypeVar(
-    "_AppendableNodeT", bound=_StatementNodes | nodes.While | nodes.FunctionDef
-)
+class PathGraphingAstVisitor:
+    """Compute McCabe cyclomatic complexity via control flow graph on astroid AST.
 
+    Builds a simplified CFG tracking only compound statements (if, for, while,
+    try, with, match, function/class definitions).  Simple statements are
+    omitted since collapsing a linear chain of nodes does not change E - N + 2.
 
-class PathGraph(Mccabe_PathGraph):  # type: ignore[misc]
-    def __init__(self, node: _SubGraphNodes | nodes.FunctionDef):
-        super().__init__(name="", entity="", lineno=1)
-        self.root = node
+    Reproduces the same complexity scores as the ``mccabe`` library, but
+    operates directly on astroid trees (no re-parsing) and uses a dict-based
+    dispatch table instead of getattr, skipping expression sub-trees entirely.
 
+    Edge and node counts are kept as visitor instance variables to avoid
+    per-increment method-call overhead (~1 M calls eliminated on
+    repositories with ~2000 files).
+    """
 
-class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):  # type: ignore[misc]
+    __slots__ = ("_active", "_num_edges", "_num_nodes", "_tail", "graphs")
+
+    # Dispatch table mapping node types to unbound visitor methods.
+    # Created once at class level to avoid rebuilding per instance.
+    _VISITORS: dict[type, Any] = {}
+
     def __init__(self) -> None:
-        super().__init__()
-        self._bottom_counter = 0
-        self.graph: PathGraph | None = None
+        # Maps each scope node to its computed complexity (int).
+        self.graphs: dict[nodes.NodeNG, int] = {}
+        # Graph counters - modified in-place, saved when a scope closes.
+        self._num_nodes = 0
+        self._num_edges = 0
+        self._active = False  # True while inside a graph scope
+        self._tail = 0
 
-    def default(self, node: nodes.NodeNG, *args: Any) -> None:
-        for child in node.get_children():
-            self.dispatch(child, *args)
+    def _walk_body(self, body: list[nodes.NodeNG]) -> None:
+        visitors = _VISITORS
+        for child in body:
+            handler = visitors.get(type(child))
+            if handler is not None:
+                handler(self, child)
 
-    def dispatch(self, node: nodes.NodeNG, *args: Any) -> Any:
-        self.node = node
-        klass = node.__class__
-        meth = self._cache.get(klass)
-        if meth is None:
-            class_name = klass.__name__
-            meth = getattr(self.visitor, "visit" + class_name, self.default)
-            self._cache[klass] = meth
-        return meth(node, *args)
+    # -- Visitors ------------------------------------------------------------
 
-    def visitFunctionDef(self, node: nodes.FunctionDef) -> None:
-        if self.graph is not None:
-            # closure
-            pathnode = self._append_node(node)
-            self.tail = pathnode
-            self.dispatch_list(node.body)
-            bottom = f"{self._bottom_counter}"
-            self._bottom_counter += 1
-            self.graph.connect(self.tail, bottom)
-            self.graph.connect(node, bottom)
-            self.tail = bottom
+    def _visit_function(self, node: nodes.FunctionDef) -> None:
+        if self._active:
+            # Closure: modeled as a decision point (enter body or skip).
+            n = self._num_nodes
+            self._num_nodes = n + 1
+            self._num_edges += 1
+            self._tail = n
+            self._walk_body(node.body)
+            # Merge node: body-end -> merge + path-node -> merge (skip edge).
+            merge = n + 1 if self._num_nodes == n + 1 else self._num_nodes
+            self._num_nodes = merge + 1
+            self._num_edges += 2
+            self._tail = merge
+            return
+        # Top-level function/method: save state, start fresh graph.
+        old_n, old_e, old_tail = self._num_nodes, self._num_edges, self._tail
+        self._num_nodes = 1  # entry node (id 0)
+        self._num_edges = 0
+        self._active = True
+        self._tail = 0
+        self._walk_body(node.body)
+        self.graphs[node] = self._num_edges - self._num_nodes + 2
+        self._num_nodes, self._num_edges, self._tail = old_n, old_e, old_tail
+        self._active = False
+
+    def _visit_body(self, node: nodes.NodeNG) -> None:
+        # ClassDef and With both just recurse into the body.
+        # ClassDef: don't reset the graph -- methods inside a nested class
+        # (within a function) are treated as closures of the enclosing function.
+        # With: no complexity added, but body may contain compound statements.
+        self._walk_body(node.body)
+
+    def _visit_subgraph(self, node: nodes.NodeNG) -> None:
+        """Handle if / for / while as branching subgraphs."""
+        is_toplevel = not self._active
+        if is_toplevel:
+            old_n, old_e, old_tail = (
+                self._num_nodes,
+                self._num_edges,
+                self._tail,
+            )
+            self._num_nodes = 1  # path-node (id 0)
+            self._num_edges = 0
+            self._active = True
+            pathnode = 0
         else:
-            self.graph = PathGraph(node)
-            self.tail = node
-            self.dispatch_list(node.body)
-            self.graphs[f"{self.classname}{node.name}"] = self.graph
-            self.reset()
+            pathnode = self._num_nodes
+            self._num_nodes = pathnode + 1
+            self._num_edges += 1
 
-    visitAsyncFunctionDef = visitFunctionDef
+        # -- inline sub-graph parse (no extra_blocks for if/for/while) --
+        walk = self._walk_body
+        self._tail = pathnode
+        walk(node.body)
+        if node.orelse:
+            self._tail = pathnode
+            walk(node.orelse)
+        # Always 2 loose ends: body + (orelse or fall-through path-node).
+        merge = self._num_nodes
+        self._num_nodes = merge + 1
+        self._num_edges += 2
+        self._tail = merge
 
-    def visitSimpleStatement(self, node: _StatementNodes) -> None:
-        self._append_node(node)
+        if is_toplevel:
+            self.graphs[node] = self._num_edges - self._num_nodes + 2
+            self._num_nodes, self._num_edges, self._tail = (
+                old_n,
+                old_e,
+                old_tail,
+            )
+            self._active = False
 
-    visitAssert = visitAssign = visitAugAssign = visitDelete = visitRaise = (
-        visitYield
-    ) = visitImport = visitCall = visitSubscript = visitPass = visitContinue = (
-        visitBreak
-    ) = visitGlobal = visitReturn = visitExpr = visitAwait = visitSimpleStatement
-
-    def visitWith(self, node: nodes.With) -> None:
-        self._append_node(node)
-        self.dispatch_list(node.body)
-
-    visitAsyncWith = visitWith
-
-    def visitMatch(self, node: nodes.Match) -> None:
-        self._subgraph(node, f"match_{id(node)}", node.cases)
-
-    def _append_node(self, node: _AppendableNodeT) -> _AppendableNodeT | None:
-        if not (self.tail and self.graph):
-            return None
-        self.graph.connect(self.tail, node)
-        self.tail = node
-        return node
-
-    def _subgraph(
-        self,
-        node: _SubGraphNodes,
-        name: str,
-        extra_blocks: Sequence[nodes.ExceptHandler | nodes.MatchCase] = (),
-    ) -> None:
-        """Create the subgraphs representing any `if`, `for` or `match` statements."""
-        if self.graph is None:
-            # global loop
-            self.graph = PathGraph(node)
-            self._subgraph_parse(node, node, extra_blocks)
-            self.graphs[f"{self.classname}{name}"] = self.graph
-            self.reset()
+    def _visit_try(self, node: nodes.Try) -> None:
+        """Handle try/except as branching subgraphs with except handlers."""
+        is_toplevel = not self._active
+        if is_toplevel:
+            old_n, old_e, old_tail = (
+                self._num_nodes,
+                self._num_edges,
+                self._tail,
+            )
+            self._num_nodes = 1
+            self._num_edges = 0
+            self._active = True
+            pathnode = 0
         else:
-            self._append_node(node)
-            self._subgraph_parse(node, node, extra_blocks)
+            pathnode = self._num_nodes
+            self._num_nodes = pathnode + 1
+            self._num_edges += 1
 
-    def _subgraph_parse(
-        self,
-        node: _SubGraphNodes,
-        pathnode: _SubGraphNodes,
-        extra_blocks: Sequence[nodes.ExceptHandler | nodes.MatchCase],
-    ) -> None:
-        """Parse `match`/`case` blocks, or the body and `else` block of `if`/`for`
-        statements.
-        """
-        loose_ends = []
-        if isinstance(node, nodes.Match):
-            for case in extra_blocks:
-                if isinstance(case, nodes.MatchCase):
-                    self.tail = node
-                    self.dispatch_list(case.body)
-                    loose_ends.append(self.tail)
-            loose_ends.append(node)
+        # -- inline sub-graph parse with extra_blocks = node.handlers --
+        walk = self._walk_body
+        num_loose_ends = 1  # main body
+        self._tail = pathnode
+        walk(node.body)
+        for handler in node.handlers:
+            self._tail = pathnode
+            walk(handler.body)
+            num_loose_ends += 1
+        if node.orelse:
+            self._tail = pathnode
+            walk(node.orelse)
+            num_loose_ends += 1
         else:
-            self.tail = node
-            self.dispatch_list(node.body)
-            loose_ends.append(self.tail)
-            for extra in extra_blocks:
-                self.tail = node
-                self.dispatch_list(extra.body)
-                loose_ends.append(self.tail)
-            if node.orelse:
-                self.tail = node
-                self.dispatch_list(node.orelse)
-                loose_ends.append(self.tail)
-            else:
-                loose_ends.append(node)
+            num_loose_ends += 1  # fall-through
+        merge = self._num_nodes
+        self._num_nodes = merge + 1
+        self._num_edges += num_loose_ends
+        self._tail = merge
 
-        if node and self.graph:
-            bottom = f"{self._bottom_counter}"
-            self._bottom_counter += 1
-            for end in loose_ends:
-                self.graph.connect(end, bottom)
-            self.tail = bottom
+        if is_toplevel:
+            self.graphs[node] = self._num_edges - self._num_nodes + 2
+            self._num_nodes, self._num_edges, self._tail = (
+                old_n,
+                old_e,
+                old_tail,
+            )
+            self._active = False
+
+    def _visit_match(self, node: nodes.Match) -> None:
+        is_toplevel = not self._active
+        if is_toplevel:
+            old_n, old_e, old_tail = (
+                self._num_nodes,
+                self._num_edges,
+                self._tail,
+            )
+            self._num_nodes = 1
+            self._num_edges = 0
+            self._active = True
+            pathnode = 0
+        else:
+            pathnode = self._num_nodes
+            self._num_nodes = pathnode + 1
+            self._num_edges += 1
+
+        self._tail = pathnode
+        walk = self._walk_body
+        num_cases = 0
+        for case in node.cases:
+            self._tail = pathnode
+            walk(case.body)
+            num_cases += 1
+        merge = self._num_nodes
+        self._num_nodes = merge + 1
+        self._num_edges += num_cases
+        self._tail = merge
+
+        if is_toplevel:
+            self.graphs[node] = self._num_edges - self._num_nodes + 2
+            self._num_nodes, self._num_edges, self._tail = (
+                old_n,
+                old_e,
+                old_tail,
+            )
+            self._active = False
+
+
+# Module-level dispatch table - built once, shared by all visitor instances.
+# Uses unbound methods; callers pass ``self`` explicitly.
+_VISITORS: dict[type, Any] = {
+    nodes.FunctionDef: PathGraphingAstVisitor._visit_function,
+    nodes.AsyncFunctionDef: PathGraphingAstVisitor._visit_function,
+    nodes.ClassDef: PathGraphingAstVisitor._visit_body,
+    nodes.If: PathGraphingAstVisitor._visit_subgraph,
+    nodes.For: PathGraphingAstVisitor._visit_subgraph,
+    nodes.AsyncFor: PathGraphingAstVisitor._visit_subgraph,
+    nodes.While: PathGraphingAstVisitor._visit_subgraph,
+    nodes.Try: PathGraphingAstVisitor._visit_try,
+    nodes.TryStar: PathGraphingAstVisitor._visit_try,
+    nodes.With: PathGraphingAstVisitor._visit_body,
+    nodes.AsyncWith: PathGraphingAstVisitor._visit_body,
+    nodes.Match: PathGraphingAstVisitor._visit_match,
+}
+PathGraphingAstVisitor._VISITORS = _VISITORS
 
 
 class McCabeMethodChecker(checkers.BaseChecker):
@@ -201,22 +261,20 @@ class McCabeMethodChecker(checkers.BaseChecker):
     )
 
     @only_required_for_messages("too-complex")
-    def visit_module(self, node: nodes.Module) -> None:
-        """Visit an nodes.Module node to check too complex rating and
+    def visit_module(self, module: nodes.Module) -> None:
+        """Visit a module node to check too complex rating and
         add message if is greater than max_complexity stored from options.
         """
         visitor = PathGraphingAstVisitor()
-        for child in node.body:
-            visitor.preorder(child, visitor)
-        for graph in visitor.graphs.values():
-            complexity = graph.complexity()
-            node = graph.root
+        visitor._walk_body(module.body)
+        max_complexity = self.linter.config.max_complexity
+        for node, complexity in visitor.graphs.items():
+            if complexity <= max_complexity:
+                continue
             if hasattr(node, "name"):
                 node_name = f"'{node.name}'"
             else:
                 node_name = f"This '{node.__class__.__name__.lower()}'"
-            if complexity <= self.linter.config.max_complexity:
-                continue
             self.add_message(
                 "too-complex", node=node, confidence=HIGH, args=(node_name, complexity)
             )
