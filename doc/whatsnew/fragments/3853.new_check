@@ -1,0 +1,5 @@
+Add ``missing-return-type-annotation`` and ``missing-param-type-annotation`` checks to enforce type annotation presence in functions and methods.
+
+These new convention-level checks help teams enforce type annotation standards. Both checks are opt-in (disabled by default) and can be enabled independently for granular control. The checks intelligently skip ``self``/``cls`` parameters, ``__init__`` methods (return type only), and methods decorated with ``@abstractmethod``, ``@property``, or ``@typing.overload``.
+
+Closes #3853
