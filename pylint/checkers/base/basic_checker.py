@@ -615,7 +615,7 @@ class BasicChecker(_BasicChecker):
         if value is default:
             msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
         elif isinstance(default, nodes.Call):
-            msg = f"{value.name}() ({value.qname()})"
+            msg = f"{value.name}()"
         else:
             # The argument is a name referring to a value from somewhere else
             # which turns out to be a list, dict or set.
