@@ -619,7 +619,7 @@ class BasicChecker(_BasicChecker):
         else:
             # The argument is a name referring to a value from somewhere else
             # which turns out to be a list, dict or set.
-            msg = f"{default.as_string()} ({value.qname()})"
+            msg = default.as_string()
         self.add_message("dangerous-default-value", node=msg_node, args=(msg,))
 
     @utils.only_required_for_messages("unreachable", "lost-exception")
