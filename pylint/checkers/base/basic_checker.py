@@ -605,11 +605,7 @@ class BasicChecker(_BasicChecker):
         self, default: nodes.NodeNG, msg_node: nodes.NodeNG
     ) -> None:
         """Emit dangerous-default-value if the inferred default is mutable."""
-        try:
-            value = next(default.infer())
-        except astroid.InferenceError:
-            return
-
+        value = utils.safe_infer(default)
         if (
             not isinstance(value, astroid.Instance)
             or value.qname() not in DEFAULT_ARGUMENT_SYMBOLS
