@@ -611,10 +611,25 @@ class BasicChecker(_BasicChecker):
             or value.qname() not in DEFAULT_ARGUMENT_SYMBOLS
         ):
             return
+        qname = value.qname()
+        if value is default:
+            # Literal: [], {}, {1, 2}
+            msg = DEFAULT_ARGUMENT_SYMBOLS[qname]
+        elif isinstance(default, nodes.Call):
+            # Call: set(), list(), collections.deque(). For builtins the
+            # qname is redundant with the call itself, so drop it.
+            if qname.startswith("builtins."):
+                msg = f"{value.name}()"
+            else:
+                msg = f"{value.name}() ({qname})"
+        else:
+            # Variable name referring to a mutable from somewhere else; the
+            # name alone is uninformative, so include the qname.
+            msg = f"{default.as_string()} ({qname})"
         self.add_message(
             "dangerous-default-value",
             node=msg_node,
-            args=(DEFAULT_ARGUMENT_SYMBOLS[value.qname()],),
+            args=(msg,),
             confidence=INFERENCE,
         )
 
