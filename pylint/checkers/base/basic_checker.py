@@ -611,16 +611,12 @@ class BasicChecker(_BasicChecker):
             or value.qname() not in DEFAULT_ARGUMENT_SYMBOLS
         ):
             return
-
-        if value is default:
-            msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
-        elif isinstance(default, nodes.Call):
-            msg = f"{value.name}()"
-        else:
-            # The argument is a name referring to a value from somewhere else
-            # which turns out to be a list, dict or set.
-            msg = default.as_string()
-        self.add_message("dangerous-default-value", node=msg_node, args=(msg,))
+        self.add_message(
+            "dangerous-default-value",
+            node=msg_node,
+            args=(DEFAULT_ARGUMENT_SYMBOLS[value.qname()],),
+            confidence=INFERENCE,
+        )
 
     @utils.only_required_for_messages("unreachable", "lost-exception")
     def visit_return(self, node: nodes.Return) -> None:
