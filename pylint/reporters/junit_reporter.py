@@ -1,0 +1,149 @@
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
+# Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
+
+"""JUnit XML reporter.
+
+Produces JUnit-compatible XML output for CI/CD integration with
+Jenkins, Azure DevOps, GitLab CI, GitHub Actions, and other tools
+that consume JUnit XML test results.
+"""
+
+from __future__ import annotations
+
+import xml.etree.ElementTree as ET
+from collections import defaultdict
+from linecache import getline
+from typing import TYPE_CHECKING, TextIO
+
+from pylint.message import Message
+from pylint.reporters.base_reporter import BaseReporter
+
+if TYPE_CHECKING:
+    from pylint.lint.pylinter import PyLinter
+    from pylint.reporters.ureports.nodes import Section
+
+
+class JUnitReporter(BaseReporter):
+    """Report messages in JUnit XML format.
+
+    Each linted module is represented as a ``<testsuite>`` element. Every
+    Pylint message for that module becomes a failing ``<testcase>`` so CI
+    systems can report messages independently. Modules with no messages produce
+    a passing testcase.
+
+    Usage::
+
+        pylint --output-format=junit mypackage/
+    """
+
+    name = "junit"
+    extension = "xml"
+
+    def __init__(self, output: TextIO | None = None) -> None:
+        super().__init__(output)
+        self._testsuites: dict[str, ET.Element] = {}
+        self._test_counts: defaultdict[str, int] = defaultdict(int)
+        self._failure_counts: defaultdict[str, int] = defaultdict(int)
+        self._current_module: str | None = None
+        self._current_filepath: str | None = None
+
+    def on_set_current_module(self, module: str, filepath: str | None) -> None:
+        """Track module boundaries so clean modules get passing testcases."""
+        self._add_success_testcase_for_current_module()
+        suite_name = module or filepath or "pylint"
+        self._current_module = suite_name
+        self._current_filepath = filepath
+        if filepath is not None:
+            self._get_testsuite(suite_name)
+
+    def handle_message(self, msg: Message) -> None:
+        """Add a failing testcase for a Pylint message."""
+        super().handle_message(msg)
+        suite_name = (
+            msg.module or msg.path or msg.abspath or self._current_module or "pylint"
+        )
+        testsuite_el = self._get_testsuite(suite_name)
+        file_path = msg.path or msg.abspath
+        source_line = getline(msg.abspath or msg.path, msg.line).strip()
+        stdout_line = f"{file_path}:{msg.line}:{msg.column}:{source_line}"
+        stderr_line = f"{msg.msg_id}:{msg.msg}\n{stdout_line}"
+        testcase_el = ET.SubElement(
+            testsuite_el,
+            "testcase",
+            name=f"{suite_name}:{msg.line}:{msg.column}",
+            classname="pylint",
+            file=file_path,
+            line=str(msg.line),
+            category=msg.category,
+        )
+        failure_el = ET.SubElement(
+            testcase_el,
+            "failure",
+            type=msg.category,
+            message=msg.symbol,
+        )
+        failure_el.text = stderr_line
+        ET.SubElement(testcase_el, "system-out").text = stdout_line
+        ET.SubElement(testcase_el, "system-err").text = stderr_line
+        self._test_counts[suite_name] += 1
+        self._failure_counts[suite_name] += 1
+
+    def display_messages(self, layout: Section | None) -> None:
+        """Build and write JUnit XML from collected messages."""
+        self._add_success_testcase_for_current_module()
+        testsuites_el = ET.Element("testsuites")
+        total_tests = 0
+        total_failures = 0
+        for suite_name, testsuite_el in self._testsuites.items():
+            tests = self._test_counts[suite_name]
+            failures = self._failure_counts[suite_name]
+            total_tests += tests
+            total_failures += failures
+            testsuite_el.set("tests", str(tests))
+            testsuite_el.set("errors", "0")
+            testsuite_el.set("failures", str(failures))
+            testsuites_el.append(testsuite_el)
+        testsuites_el.set("tests", str(total_tests))
+        testsuites_el.set("errors", "0")
+        testsuites_el.set("failures", str(total_failures))
+        tree = ET.ElementTree(testsuites_el)
+        ET.indent(tree, space="  ")
+        tree.write(self.out, encoding="unicode", xml_declaration=True)
+        print(file=self.out)
+
+    def _get_testsuite(self, name: str) -> ET.Element:
+        if name not in self._testsuites:
+            self._testsuites[name] = ET.Element("testsuite", name=name)
+        return self._testsuites[name]
+
+    def _add_success_testcase_for_current_module(self) -> None:
+        if (
+            self._current_module is None
+            or self._current_filepath is None
+            or self._test_counts[self._current_module]
+        ):
+            return
+        testsuite_el = self._get_testsuite(self._current_module)
+        file_path = self._current_filepath
+        stdout_line = f"All checks passed for: {file_path}"
+        testcase_el = ET.SubElement(
+            testsuite_el,
+            "testcase",
+            name=f"{self._current_module}:0:0",
+            classname="pylint",
+            file=file_path,
+            line="0",
+        )
+        ET.SubElement(testcase_el, "system-out").text = stdout_line
+        self._test_counts[self._current_module] += 1
+
+    def display_reports(self, layout: Section) -> None:
+        """Don't do anything in this reporter."""
+
+    def _display(self, layout: Section) -> None:
+        """Do nothing."""
+
+
+def register(linter: PyLinter) -> None:
+    linter.register_reporter(JUnitReporter)
