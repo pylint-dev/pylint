@@ -2044,6 +2044,15 @@ a metaclass class method.",
             else:
                 # filter out augment assignment nodes
                 defstmts = [stmt for stmt in defstmts if stmt not in nodes_lst]
+                # filter out bare annotations (self.x: Type) with no value
+                defstmts = [
+                    stmt
+                    for stmt in defstmts
+                    if not (
+                        isinstance(stmt.parent, nodes.AnnAssign)
+                        and stmt.parent.value is None
+                    )
+                ]
                 if not defstmts:
                     # only augment assignment for this node, no-member should be
                     # triggered by the typecheck checker

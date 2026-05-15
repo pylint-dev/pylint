@@ -45,3 +45,15 @@ class MyClass1:
     def __init__(self):
         self.first += 5  # [access-member-before-definition]
         self.first = 0
+
+
+class BareAnnotationNotADefinition:
+    def process(self):
+        _ = self.widget
+        self.widget: int
+
+
+class AnnotatedAssignmentIsADefinition:
+    def process(self):
+        _ = self.widget  # [access-member-before-definition]
+        self.widget: int = 5
