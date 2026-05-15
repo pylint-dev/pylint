@@ -681,11 +681,11 @@ class PyLinter(
                         self.config.ignore_patterns,
                         self.config.ignore_paths,
                     ):
-                        skip_subtrees.append(root)
+                        skip_subtrees.append(root + os.sep)
                         continue
 
                     if "__init__.py" in files:
-                        skip_subtrees.append(root)
+                        skip_subtrees.append(root + os.sep)
                         yield root
                     else:
                         yield from (
