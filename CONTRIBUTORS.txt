@@ -664,6 +664,8 @@ contributors:
 - Adam Tuft <73994535+adamtuft@users.noreply.github.com>
 - Adam Dangoor <adamdangoor@gmail.com>
 - 243f6a88 85a308d3 <33170174+243f6a8885a308d313198a2e037@users.noreply.github.com>
+- Doug Needham <douglas.w.needham@gmail.com>
+  * Fixed issue 10969, pylint not discovering similarly named package.
 
 
 Co-Author
