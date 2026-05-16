@@ -537,6 +537,87 @@ def test_addmessage_preserves_explicit_zero_col_offset(linter: PyLinter) -> None
     assert linter.reporter.messages[0].location.column == 0
 
 
+def test_add_message_at_location_override(linter: PyLinter) -> None:
+    """``add_message_at_location`` overrides module/filepath in the message location."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("current_module")
+    linter.add_message_at_location(
+        "C0301",
+        module="overridden_module",
+        filepath="/fake/path.py",
+        line=1,
+        args=(1, 2),
+    )
+    assert len(linter.reporter.messages) == 1
+    msg = linter.reporter.messages[0]
+    assert msg.location.module == "overridden_module"
+    assert msg.location.abspath == "/fake/path.py"
+    assert msg.location.path == "/fake/path.py"
+
+
+def test_add_message_at_location_forwards_line_and_col(linter: PyLinter) -> None:
+    """Line/column overrides land in the emitted message location tuple."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("current_module")
+    linter.add_message_at_location(
+        "C0301",
+        module="overridden_module",
+        filepath="/fake/path.py",
+        line=10,
+        col_offset=5,
+        end_lineno=12,
+        end_col_offset=20,
+        args=(1, 2),
+    )
+    msg = linter.reporter.messages[0]
+    assert msg.location.line == 10
+    assert msg.location.column == 5
+    assert msg.location.end_line == 12
+    assert msg.location.end_column == 20
+
+
+def test_add_message_at_location_requires_module_kwarg(linter: PyLinter) -> None:
+    """``module`` is keyword-only and required."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("current_module")
+    with pytest.raises(TypeError):
+        linter.add_message_at_location(  # type: ignore[call-arg]
+            "C0301", line=1, args=(1, 2)
+        )
+
+
+def test_add_message_at_location_skips_disabled(linter: PyLinter) -> None:
+    """Disabled messages are filtered before reaching the reporter."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("current_module")
+    linter.disable("C0301")
+    linter.add_message_at_location(
+        "C0301",
+        module="other_module",
+        filepath="/fake/path.py",
+        line=1,
+        args=(1, 2),
+    )
+    assert linter.reporter.messages == []
+
+
+def test_add_message_at_location_without_filepath(linter: PyLinter) -> None:
+    """With no ``filepath`` and no ``current_file``, path falls back to ``"configuration"``."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("current_module")
+    linter.current_file = None
+    linter.add_message_at_location("C0301", module="other_module", line=1, args=(1, 2))
+    assert len(linter.reporter.messages) == 1
+    location = linter.reporter.messages[0].location
+    assert location.abspath == ""
+    assert location.path == "configuration"
+
+
 def test_addmessage_invalid(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
     linter.open()

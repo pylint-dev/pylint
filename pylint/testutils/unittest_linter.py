@@ -12,7 +12,9 @@ from astroid import nodes
 
 from pylint.interfaces import UNDEFINED, Confidence
 from pylint.lint import PyLinter
+from pylint.message.message_definition import MessageDefinition
 from pylint.testutils.output_line import MessageTest
+from pylint.typing import MessageLocationTuple
 
 
 class UnittestLinter(PyLinter):
@@ -72,6 +74,33 @@ class UnittestLinter(PyLinter):
                 col_offset,
                 end_lineno,
                 end_col_offset,
+            )
+        )
+
+    def _emit_message(
+        self,
+        message_definition: MessageDefinition,
+        args: Any | None,
+        confidence: Confidence | None,
+        location: MessageLocationTuple,
+    ) -> None:
+        """Capture into ``_messages`` instead of dispatching to a reporter.
+
+        This catches calls coming through ``add_message_at_location`` (and
+        ``add_message_at_node``). The legacy ``add_message`` is overridden
+        separately so it can preserve the original ``node`` reference in
+        :class:`MessageTest`.
+        """
+        self._messages.append(
+            MessageTest(
+                message_definition.msgid,
+                location.line,
+                None,
+                args,
+                confidence,
+                location.column,
+                location.end_line,
+                location.end_column,
             )
         )
 

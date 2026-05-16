@@ -1264,19 +1264,6 @@ class PyLinter(
             )
             return
 
-        # update stats
-        msg_cat = MSG_TYPES[message_definition.msgid[0]]
-        self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
-        self.stats.increase_single_message_count(msg_cat, 1)
-        self.stats.increase_single_module_message_count(self.current_name, msg_cat, 1)
-        try:
-            self.stats.by_msg[message_definition.symbol] += 1
-        except KeyError:
-            self.stats.by_msg[message_definition.symbol] = 1
-        # Interpolate arguments into message string
-        msg = message_definition.msg
-        if args is not None:
-            msg %= args
         # get module and object
         if node is None:
             module, obj = self.current_name, ""
@@ -1288,21 +1275,51 @@ class PyLinter(
             path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
         else:
             path = "configuration"
-        # add the message
+
+        self._emit_message(
+            message_definition,
+            args,
+            confidence,
+            MessageLocationTuple(
+                abspath or "",
+                path,
+                module or "",
+                obj,
+                line or 1,
+                col_offset or 0,
+                end_lineno,
+                end_col_offset,
+            ),
+        )
+
+    def _emit_message(
+        self,
+        message_definition: MessageDefinition,
+        args: Any | None,
+        confidence: interfaces.Confidence | None,
+        location: MessageLocationTuple,
+    ) -> None:
+        """Dispatch a fully-resolved :class:`Message` to the reporter.
+
+        Callers are responsible for filtering disabled messages out *before*
+        calling this.
+        """
+        msg_cat = MSG_TYPES[message_definition.msgid[0]]
+        self.msg_status |= MSG_TYPES_STATUS[message_definition.msgid[0]]
+        self.stats.increase_single_message_count(msg_cat, 1)
+        self.stats.increase_single_module_message_count(self.current_name, msg_cat, 1)
+        try:
+            self.stats.by_msg[message_definition.symbol] += 1
+        except KeyError:
+            self.stats.by_msg[message_definition.symbol] = 1
+        msg = message_definition.msg
+        if args is not None:
+            msg %= args
         self.reporter.handle_message(
             Message(
                 message_definition.msgid,
                 message_definition.symbol,
-                MessageLocationTuple(
-                    abspath or "",
-                    path,
-                    module or "",
-                    obj,
-                    line or 1,
-                    col_offset or 0,
-                    end_lineno,
-                    end_col_offset,
-                ),
+                location,
                 msg,
                 confidence,
             )
@@ -1338,6 +1355,57 @@ class PyLinter(
                 col_offset,
                 end_lineno,
                 end_col_offset,
+            )
+
+    def add_message_at_location(
+        self,
+        msgid: str,
+        *,
+        module: str,
+        filepath: str | None = None,
+        line: int | None = None,
+        col_offset: int | None = None,
+        end_lineno: int | None = None,
+        end_col_offset: int | None = None,
+        args: Any | None = None,
+        confidence: interfaces.Confidence = interfaces.UNDEFINED,
+    ) -> None:
+        """Add a message at an explicit location, instead of deriving the
+        location from an AST node.
+
+        Use this when the message logically belongs to a module/position
+        other than the one currently being processed (e.g. cross-module
+        findings like duplicate-code).
+        """
+        for message_definition in self.msgs_store.get_message_definitions(msgid):
+            if not self.is_message_enabled(message_definition.msgid, line, confidence):
+                self.file_state.handle_ignored_message(
+                    self._get_message_state_scope(
+                        message_definition.msgid, line, confidence
+                    ),
+                    message_definition.msgid,
+                    line,
+                )
+                continue
+            abspath = filepath if filepath is not None else self.current_file
+            if abspath is not None:
+                path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
+            else:
+                path = "configuration"
+            self._emit_message(
+                message_definition,
+                args,
+                confidence,
+                MessageLocationTuple(
+                    abspath or "",
+                    path,
+                    module,
+                    "",
+                    line or 1,
+                    col_offset or 0,
+                    end_lineno,
+                    end_col_offset,
+                ),
             )
 
     def add_ignored_message(
