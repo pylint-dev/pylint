@@ -1314,7 +1314,7 @@ class PyLinter(
         line: int | None,
         node: nodes.NodeNG | None,
         args: Any | None,
-        confidence: interfaces.Confidence | None,
+        confidence: interfaces.Confidence,
         col_offset: int | None,
         end_lineno: int | None,
         end_col_offset: int | None,
@@ -1388,7 +1388,7 @@ class PyLinter(
         self,
         message_definition: MessageDefinition,
         args: Any | None,
-        confidence: interfaces.Confidence | None,
+        confidence: interfaces.Confidence,
         location: MessageLocationTuple,
     ) -> None:
         """Dispatch a fully-resolved :class:`Message` to the reporter.
