@@ -81,7 +81,7 @@ class UnittestLinter(PyLinter):
         self,
         message_definition: MessageDefinition,
         args: Any | None,
-        confidence: Confidence | None,
+        confidence: Confidence,
         location: MessageLocationTuple,
     ) -> None:
         """Capture into ``_messages`` instead of dispatching to a reporter.

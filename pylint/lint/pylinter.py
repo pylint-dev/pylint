@@ -1296,7 +1296,7 @@ class PyLinter(
         self,
         message_definition: MessageDefinition,
         args: Any | None,
-        confidence: interfaces.Confidence | None,
+        confidence: interfaces.Confidence,
         location: MessageLocationTuple,
     ) -> None:
         """Dispatch a fully-resolved :class:`Message` to the reporter.
