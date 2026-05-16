@@ -515,6 +515,20 @@ def test_addmessage(linter: PyLinter) -> None:
     )
 
 
+def test_addmessage_preserves_explicit_zero_col_offset(linter: PyLinter) -> None:
+    """An explicit ``col_offset=0`` from the caller must not be overwritten
+    by the node's value (``not 0`` is True so the old falsey check was buggy).
+    """
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("m")
+    module_node = astroid.parse("\n\nfunc(arg)", module_name="m")
+    arg_node = module_node.body[0].value.args[0]  # ``arg`` — col_offset == 5
+    assert arg_node.col_offset != 0  # sanity-check fixture
+    linter.add_message("C0321", node=arg_node, col_offset=0)
+    assert linter.reporter.messages[0].location.column == 0
+
+
 def test_addmessage_invalid(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
     linter.open()
