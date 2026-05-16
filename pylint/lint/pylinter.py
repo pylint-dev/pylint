@@ -1357,6 +1357,65 @@ class PyLinter(
                 end_col_offset,
             )
 
+    def add_message_at_node(
+        self,
+        msgid: str,
+        node: nodes.NodeNG,
+        args: Any | None = None,
+        confidence: interfaces.Confidence = interfaces.UNDEFINED,
+    ) -> None:
+        """Fast path for emitting a message at an AST node.
+
+        Avoids binding the ``line``/``col_offset``/``end_lineno``/
+        ``end_col_offset`` parameters that ``add_message`` carries for
+        non-AST callers, and skips ``_add_one_message`` entirely so a
+        disabled message pays for nothing beyond the filter check.
+        """
+        # Derive location once — same for every message_definition this
+        # msgid maps to (matters only for the rare ``old_names`` aliases).
+        pos = node.position
+        if pos is not None:
+            line = pos.lineno
+            col_offset = pos.col_offset
+            end_lineno = pos.end_lineno
+            end_col_offset = pos.end_col_offset
+        else:
+            line = node.fromlineno
+            col_offset = node.col_offset
+            end_lineno = node.end_lineno
+            end_col_offset = node.end_col_offset
+        for message_definition in self.msgs_store.get_message_definitions(msgid):
+            if not self.is_message_enabled(message_definition.msgid, line, confidence):
+                self.file_state.handle_ignored_message(
+                    self._get_message_state_scope(
+                        message_definition.msgid, line, confidence
+                    ),
+                    message_definition.msgid,
+                    line,
+                )
+                continue
+            module, obj = utils.get_module_and_frameid(node)
+            abspath = node.root().file
+            if abspath is not None:
+                path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
+            else:
+                path = "configuration"
+            self._emit_message(
+                message_definition,
+                args,
+                confidence,
+                MessageLocationTuple(
+                    abspath or "",
+                    path,
+                    module or "",
+                    obj,
+                    line,
+                    col_offset or 0,
+                    end_lineno,
+                    end_col_offset,
+                ),
+            )
+
     def add_message_at_location(
         self,
         msgid: str,

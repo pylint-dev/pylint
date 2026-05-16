@@ -4,6 +4,7 @@
 
 """Unittest for the BaseChecker class."""
 
+import astroid
 import pytest
 
 from pylint.checkers import BaseChecker
@@ -198,6 +199,23 @@ class _DelegationChecker(BaseChecker):
             "Used in tests to exercise add_message_at_* delegation.",
         ),
     }
+
+
+def test_base_checker_add_message_at_node_delegates() -> None:
+    """``BaseChecker.add_message_at_node`` forwards to the linter and captures."""
+    linter = UnittestLinter()
+    checker = _DelegationChecker(linter)
+    linter.register_checker(checker)
+
+    module_node = astroid.parse("def foo(): pass", module_name="m")
+    node = module_node.body[0]
+    checker.add_message_at_node("W9999", node, args=("hello",), confidence=HIGH)
+
+    messages = linter.release_messages()
+    assert len(messages) == 1
+    assert messages[0].msg_id == "W9999"
+    assert messages[0].args == ("hello",)
+    assert messages[0].confidence == HIGH
 
 
 def test_base_checker_add_message_at_location_delegates() -> None:

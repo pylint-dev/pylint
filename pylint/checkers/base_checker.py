@@ -154,6 +154,21 @@ class BaseChecker(_ArgumentsProvider):
             msgid, line, node, args, confidence, col_offset, end_lineno, end_col_offset
         )
 
+    def add_message_at_node(
+        self,
+        msgid: str,
+        node: nodes.NodeNG,
+        args: Any = None,
+        confidence: Confidence = UNDEFINED,
+    ) -> None:
+        """Fast path for the common case: emit a message located at ``node``.
+
+        Use :meth:`add_message` if you need to override
+        ``line``/``col_offset``, or :meth:`add_message_at_location` for
+        cross-module messages.
+        """
+        self.linter.add_message_at_node(msgid, node, args, confidence)
+
     def add_message_at_location(
         self,
         msgid: str,

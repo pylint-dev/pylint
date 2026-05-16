@@ -618,6 +618,21 @@ def test_add_message_at_location_without_filepath(linter: PyLinter) -> None:
     assert location.path == "configuration"
 
 
+def test_add_message_at_node(linter: PyLinter) -> None:
+    """Fast path: location is derived from the node."""
+    linter.set_reporter(testutils.GenericTestReporter())
+    linter.open()
+    linter.set_current_module("0123")
+    module_node = astroid.parse("\n\nx = 1; y = 2", module_name="my_module")
+    node = module_node.body[0]
+    linter.add_message_at_node("C0321", node)
+    assert len(linter.reporter.messages) == 1
+    msg = linter.reporter.messages[0]
+    assert msg.msg_id == "C0321"
+    assert msg.location.line == node.fromlineno
+    assert msg.location.module == "my_module"
+
+
 def test_addmessage_invalid(linter: PyLinter) -> None:
     linter.set_reporter(testutils.GenericTestReporter())
     linter.open()
