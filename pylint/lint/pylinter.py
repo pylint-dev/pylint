@@ -672,6 +672,7 @@ class PyLinter(
                 skip_subtrees: list[str] = []
                 for root, dirnames, files in os.walk(something, topdown=True):
 
+                    # pylint: disable=wrong-spelling-in-comment
                     # Caution: use of list() wrapping dirnames is required to
                     # avoid iteration issue.
                     for dirname in list(dirnames):
