@@ -1,0 +1,37 @@
+{
+  "astropy": {
+    "commit": "1fb40bc1f22f176254ef583065aa155f53f3b414",
+    "messages": [
+      {
+        "type": "info",
+        "module": "astropy.coordinates.angles.angle_parsetab",
+        "obj": "",
+        "line": 14,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py",
+        "symbol": "locally-disabled",
+        "message": "Locally disabling looping-through-iterator (W4801)",
+        "messageId": "I0011",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
+      },
+      {
+        "type": "warning",
+        "module": "astropy.coordinates.angles.angle_parsetab",
+        "obj": "",
+        "line": 14,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py",
+        "symbol": "useless-suppression",
+        "message": "Useless suppression of 'looping-through-iterator'",
+        "messageId": "I0021",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
+      }
+    ]
+  }
+}

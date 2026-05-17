@@ -47,7 +47,7 @@ jobs:
           - os: ubuntu-latest
             python-version: "pypy-3.10"
           - os: ubuntu-latest
-            python-version: "pypy-3.11"
+            python-version: "pypy-3.11-v7.3.20"
     runs-on: ${{ matrix.os }}
     outputs:
       python-key: ${{ steps.generate-python-key.outputs.key }}
@@ -76,7 +76,7 @@ jobs:
       - &cache-python
         name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache@v5.0.3
+        uses: actions/cache@v5.0.5
         with:
           path: venv
           key: >-
@@ -108,7 +108,7 @@ jobs:
           python -m pytest -vv --minimal-messages-config tests/test_functional.py --benchmark-disable
       - name: Upload coverage artifact
         if: runner.os == 'Linux' && inputs.astroid_sha == ''
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: coverage-${{ matrix.python-version }}
           include-hidden-files: true
@@ -131,7 +131,7 @@ jobs:
       - &cache-restore-python
         name: Restore Python virtual environment
         id: cache-venv
-        uses: actions/cache/restore@v5.0.3
+        uses: actions/cache/restore@v5.0.5
         with:
           path: venv
           fail-on-cache-miss: true
@@ -145,7 +145,7 @@ jobs:
           . venv/bin/activate
           coverage combine coverage*/.coverage
           coverage xml
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
@@ -181,7 +181,7 @@ jobs:
         run: >-
           echo "datetime="$(date "+%Y%m%d_%H%M") >> $GITHUB_OUTPUT
       - name: Upload benchmark artifact
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name:
             benchmark-${{ runner.os }}-${{ matrix.python-version }}_${{

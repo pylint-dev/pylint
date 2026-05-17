@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: Backport
+      deployment: false
     # Only react to merged PRs for security reasons.
     # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target.
     if: >
@@ -25,15 +26,15 @@ jobs:
         )
       )
     steps:
-      - uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+      - uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         id: app-token
         with:
-          app-id: ${{ vars.BACKPORT_APP_ID }}
+          client-id: ${{ vars.BACKPORT_CLIENT_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
           permission-contents: write # push branch to Github
           permission-pull-requests: write # create PR / add comment for manual backport
           permission-workflows: write # modify files in .github/workflows
-      - uses: pylint-dev/backport@e071919112ee369aaf4453465fa5037ac25cdd2d # v2.1.6
+      - uses: pylint-dev/backport@3adad52e5a8ba2ea731c32037442d507eed68b4c # v2.1.8
         with:
           github_token: ${{ steps.app-token.outputs.token }}
           user_name: ${{ vars.BACKPORT_USER_NAME }}

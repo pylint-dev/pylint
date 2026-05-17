@@ -13,7 +13,7 @@ MAX_GITHUB_COMMENT_LENGTH = 65536
 
 class CompareCommand(PrimerCommand):
     def run(self) -> None:
-        comparator = Comparator(
+        comparator = Comparator.from_json(
             self.config.base_file, self.config.new_file, self.config.batches
         )
         comment = self._create_comment(comparator)
@@ -22,12 +22,13 @@ class CompareCommand(PrimerCommand):
 
     def _create_comment(self, comparator: Comparator) -> str:
         comment = ""
-        for package, missing_messages, new_messages in comparator:
+        for diff in comparator:
             if len(comment) >= MAX_GITHUB_COMMENT_LENGTH:
                 break
-            comment += self._create_comment_for_package(
-                package, new_messages, missing_messages
-            )
+            package = diff.package
+            comment += f"\n**Effect on [{package}]({self.packages[package].url}):**\n\n"
+            comment += self._format_new_messages(package, diff.new)
+            comment += self._format_missing_messages(package, diff.missing)
         comment = (
             f"🤖 **Effect of this PR on checked open source code:** 🤖\n\n{comment}"
             if comment
@@ -38,11 +39,8 @@ class CompareCommand(PrimerCommand):
         )
         return self._truncate_comment(comment)
 
-    def _create_comment_for_package(
-        self, package: str, new_messages: PackageData, missing_messages: PackageData
-    ) -> str:
-        comment = f"\n\n**Effect on [{package}]({self.packages[package].url}):**\n"
-        # Create comment for new messages
+    def _format_new_messages(self, package: str, new_messages: PackageData) -> str:
+        comment = ""
         count = 1
         astroid_errors = 0
         new_non_astroid_messages = ""
@@ -75,10 +73,14 @@ class CompareCommand(PrimerCommand):
             comment += (
                 "The following messages are now emitted:\n\n<details>\n\n"
                 + new_non_astroid_messages
-                + "\n</details>\n\n"
+                + "</details>\n\n"
             )
+        return comment
 
-        # Create comment for missing messages
+    def _format_missing_messages(
+        self, package: str, missing_messages: PackageData
+    ) -> str:
+        comment = ""
         count = 1
         if missing_messages["messages"]:
             comment += "The following messages are no longer emitted:\n\n<details>\n\n"
@@ -95,12 +97,12 @@ class CompareCommand(PrimerCommand):
             ), "You don't need the .git at the end of the github url."
             comment += (
                 f"{self.packages[package].url}"
-                f"/blob/{new_messages['commit']}/{filepath}#L{message['line']}\n"
+                f"/blob/{missing_messages['commit']}/{filepath}#L{message['line']}\n"
             )
             count += 1
             print(message)
-        if missing_messages:
-            comment += "\n</details>\n\n"
+        if missing_messages["messages"]:
+            comment += "</details>\n\n"
         return comment
 
     def _truncate_comment(self, comment: str) -> str:
@@ -113,11 +115,24 @@ class CompareCommand(PrimerCommand):
                 f"*This comment was truncated because GitHub allows only"
                 f" {MAX_GITHUB_COMMENT_LENGTH} characters in a comment.*"
             )
+            # Reserve space for the suffix and a potential </details> closing tag.
+            suffix = f"\n{truncation_information}\n\n"
+            closing_tag = "</details>\n"
             max_len = (
                 MAX_GITHUB_COMMENT_LENGTH
                 - len(hash_information)
-                - len(truncation_information)
+                - len(suffix)
+                - len(closing_tag)
             )
-            comment = f"{comment[:max_len - 10]}...\n\n{truncation_information}\n\n"
+            # Cut at the last space before the limit to avoid mid-word truncation.
+            cut_point = comment.rfind(" ", 0, max_len - 10)
+            if cut_point > 0:
+                comment = comment[:cut_point] + "...\n"
+            else:
+                comment = comment[: max_len - 10] + "...\n"
+            # Close any <details> tag left open by the truncation.
+            if comment.count("<details>") > comment.count("</details>"):
+                comment += closing_tag
+            comment += suffix
         comment += hash_information
         return comment

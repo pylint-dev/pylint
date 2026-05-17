@@ -98,6 +98,16 @@ def _is_from_future_import(stmt: nodes.ImportFrom, name: str) -> bool | None:
     return None
 
 
+def _wildcard_import_binds(stmt: nodes.ImportFrom, name: str) -> bool:
+    """Check if the name is exported by a `from X import *` statement."""
+    if not any(node_name[0] == "*" for node_name in stmt.names):
+        return False
+    try:
+        return name in stmt.do_import_module(stmt.modname).wildcard_import_names()
+    except astroid.AstroidBuildingError:
+        return False
+
+
 def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> str:
     """Return extra information to add to the message for unpacking-non-sequence
     and unbalanced-tuple/dict-unpacking errors.
@@ -730,10 +740,10 @@ scope_type : {self.scope_type}
         # Search both if and else branches
         if_branch_handles = self._branch_handles_name(name, node.body)
         else_branch_handles = self._branch_handles_name(name, node.orelse)
-        if if_branch_handles ^ else_branch_handles:
+        if if_branch_handles and else_branch_handles:
+            self.names_defined_under_one_branch_only.discard(name)
+        elif if_branch_handles ^ else_branch_handles:
             self.names_defined_under_one_branch_only.add(name)
-        elif name in self.names_defined_under_one_branch_only:
-            self.names_defined_under_one_branch_only.remove(name)
         return if_branch_handles and else_branch_handles
 
     def _branch_handles_name(self, name: str, body: Iterable[nodes.NodeNG]) -> bool:
@@ -957,11 +967,17 @@ scope_type : {self.scope_type}
                 for child_named_expr in node.nodes_of_class(nodes.NamedExpr)
             ):
                 return True
-        if isinstance(node, (nodes.Import, nodes.ImportFrom)) and any(
-            (node_name[1] and node_name[1] == name)
-            or (node_name[0] == name)
-            or (node_name[0].startswith(name + "."))
-            for node_name in node.names
+        if isinstance(node, (nodes.Import, nodes.ImportFrom)) and (
+            any(
+                (node_name[1] and node_name[1] == name)
+                or (node_name[0] == name)
+                or (node_name[0].startswith(name + "."))
+                for node_name in node.names
+            )
+            or (
+                isinstance(node, nodes.ImportFrom)
+                and _wildcard_import_binds(node, name)
+            )
         ):
             return True
         if isinstance(node, nodes.With) and any(

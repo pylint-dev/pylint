@@ -253,6 +253,7 @@ DUNDER_PROPERTIES = [
     "__module__",
     "__sizeof__",
     "__subclasshook__",
+    "__suppress_context__",
     "__weakref__",
 ]
 

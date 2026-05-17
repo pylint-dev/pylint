@@ -1122,6 +1122,52 @@ a.py:1:4: E0001: Parsing failed: 'invalid syntax (a, line 1)' (syntax-error)"""
         with _test_cwd(path):
             self._runtest(args, code=0)
 
+    @pytest.mark.needs_two_cores
+    @pytest.mark.parametrize(
+        "jobs,to_lint",
+        [
+            ["0", "a/"],
+            ["1", "a/"],
+            ["1", "a/c/d.py"],
+            ["0", "a/c/d.py"],
+        ],
+        ids=["jobs-0-dir", "jobs-1-dir", "jobs-1-file", "jobs-0-file"],
+    )
+    def test_issue_10794_relative_beyond_top_level_parallel_specific_file_subprocess(
+        self, jobs: int, to_lint: str
+    ) -> None:
+        """Regression test for https://github.com/pylint-dev/pylint/issues/10794 invoked in a subprocess."""
+        path = join(HERE, "regrtest_data", "pep420", "issue_10794")
+        pylint_call = [
+            sys.executable,
+            "-m",
+            "pylint",
+            *_add_rcfile_default_pylintrc(
+                [
+                    "--jobs",
+                    str(jobs),
+                    "--disable=all",
+                    "--enable=relative-beyond-top-level",
+                    "--source-roots",
+                    ".",
+                    to_lint,
+                    "--persistent=no",
+                ]
+            ),
+        ]
+        with _test_cwd(path):
+            process = subprocess.run(
+                pylint_call,
+                cwd=path,
+                capture_output=True,
+                encoding="utf-8",
+                check=False,
+            )
+
+        output = f"{process.stdout}\n{process.stderr}"
+        assert process.returncode == 0, output
+        assert "relative-beyond-top-level" not in output
+
     def test_output_file_valid_path(self, tmp_path: Path) -> None:
         path = join(HERE, "regrtest_data", "unused_variable.py")
         output_file = tmp_path / "output.txt"

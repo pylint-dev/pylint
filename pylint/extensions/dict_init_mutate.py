@@ -6,12 +6,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
-from pylint.checkers.utils import only_required_for_messages
+from pylint.checkers.utils import only_required_for_messages, truncated_dict_suggestion
 from pylint.interfaces import HIGH
 
 if TYPE_CHECKING:
@@ -22,7 +23,7 @@ class DictInitMutateChecker(BaseChecker):
     name = "dict-init-mutate"
     msgs = {
         "C3401": (
-            "Declare all known key/values when initializing the dictionary.",
+            "Declare all known key/values when initializing the dictionary: %s",
             "dict-init-mutate",
             "Dictionaries can be initialized with a single statement "
             "using dictionary literal syntax.",
@@ -38,7 +39,8 @@ class DictInitMutateChecker(BaseChecker):
         """
         match node:
             case nodes.Assign(
-                targets=[nodes.AssignName(name=dict_name)], value=nodes.Dict()
+                targets=[nodes.AssignName(name=dict_name)],
+                value=nodes.Dict() as dict_node,
             ):
                 pass
             case _:
@@ -48,7 +50,50 @@ class DictInitMutateChecker(BaseChecker):
             case nodes.Assign(
                 targets=[nodes.Subscript(value=nodes.Name(name=name))]
             ) if (name == dict_name):
-                self.add_message("dict-init-mutate", node=node, confidence=HIGH)
+                suggestion = self._build_suggestion(
+                    dict_name, dict_node, node.next_sibling()
+                )
+                self.add_message(
+                    "dict-init-mutate",
+                    node=node,
+                    args=(suggestion,),
+                    confidence=HIGH,
+                )
+
+    @staticmethod
+    def _build_suggestion(
+        dict_name: str,
+        dict_node: nodes.Dict,
+        first_mutation: nodes.Assign,
+    ) -> str:
+        """Build a suggested dictionary literal from the init and subsequent
+        mutations.
+        """
+
+        def _items() -> Iterator[str]:
+            # Existing items from the dict literal
+            for key, value in dict_node.items:
+                if key is not None:
+                    yield f"{key.as_string()}: {value.as_string()}"
+
+            # Items from consecutive subscript assignments
+            sibling: nodes.NodeNG | None = first_mutation
+            while sibling is not None:
+                match sibling:
+                    case nodes.Assign(
+                        targets=[
+                            nodes.Subscript(value=nodes.Name(name=name), slice=key_node)
+                        ],
+                        value=val_node,
+                    ) if (
+                        name == dict_name
+                    ):
+                        yield f"{key_node.as_string()}: {val_node.as_string()}"
+                    case _:
+                        break
+                sibling = sibling.next_sibling()
+
+        return f"{dict_name} = {truncated_dict_suggestion(_items())}"
 
 
 def register(linter: PyLinter) -> None:
