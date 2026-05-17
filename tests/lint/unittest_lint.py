@@ -274,15 +274,23 @@ def test_message_state_scope(initialized_linter: PyLinter) -> None:
 
     linter = initialized_linter
     linter.disable("C0202")
-    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
+    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope(
+        "C0202", None, interfaces.UNDEFINED
+    )
     linter.disable("W0101", scope="module", line=3)
-    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope("C0202")
-    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0101", 3)
+    assert MSG_STATE_SCOPE_CONFIG == linter._get_message_state_scope(
+        "C0202", None, interfaces.UNDEFINED
+    )
+    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope(
+        "W0101", 3, interfaces.UNDEFINED
+    )
     linter.enable("W0102", scope="module", line=3)
-    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope("W0102", 3)
+    assert MSG_STATE_SCOPE_MODULE == linter._get_message_state_scope(
+        "W0102", 3, interfaces.UNDEFINED
+    )
     linter.config = FakeConfig()
     assert MSG_STATE_CONFIDENCE == linter._get_message_state_scope(
-        "this-is-bad", confidence=interfaces.INFERENCE
+        "this-is-bad", None, confidence=interfaces.INFERENCE
     )
 
 
