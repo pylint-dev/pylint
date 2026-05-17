@@ -36,15 +36,15 @@ class TestCheckerTestCase(CheckerTestCase):
 
     def test_assert_adds_messages_failure_not_raised(self) -> None:
         """Scenario 2: expected raised / actual not raised."""
-        with pytest.raises(
-            AssertionError, match="Expected messages did not match actual"
-        ):
+        with pytest.raises(AssertionError, match=r"Got:\s+No message\."):
             with self.assertAddsMessages(_MSG_A):
                 pass  # nothing emitted
 
     def test_assert_adds_messages_failure_wrong_message(self) -> None:
         """Scenario 3: expected raised / actual not raised but another one raised."""
-        with pytest.raises(AssertionError):
+        with pytest.raises(
+            AssertionError, match="Expected messages did not match actual"
+        ):
             with self.assertAddsMessages(_MSG_A):
                 self.linter.add_message("W9902", line=2)
 
