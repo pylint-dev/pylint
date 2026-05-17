@@ -1,12 +1,3 @@
-Optimize performance of ``PyLinter``.``_discover_files()`` traversal
-of a directory tree during startup. This is done by telling
-``os.walk()`` to do things in a top-down fashion, and properly
-removing ignored directories from the dirnames list so that those
-subtrees are not traversed. For a project such as Pylint, just
-ignoring a directory such as ``.venv``, even for a minimal install of
-testing/development tools can reduce the number of directories
-traversed from over 4600 to roughly 875, or roughly 19% of what would
-otherwise be traversed. Other projects could see even greater reductions.
+Optimize performance of ``PyLinter``.``_discover_files()`` traversal using ``os.walk()``
 
-Refs #10969
 Closes #11005
