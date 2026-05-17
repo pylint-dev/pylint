@@ -1,8 +1,0 @@
-The ``confidence`` parameter is no longer nullable on any APIs except for
-``is_message_enabled`` (where ``confidence=None`` means "don't filter by
-confidence"). The default became ``interfaces.UNDEFINED`` (an immutable value);
-the behavior is unchanged unless you were passing an explicit ``None``.
-
-This avoid a runtime check in multiple function to set the default value conditionally.
-
-Refs #11018
