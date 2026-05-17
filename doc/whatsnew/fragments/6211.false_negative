@@ -1,4 +1,6 @@
-Using "default" in parameter signatures of NumPy doctrings emitted a `missing-param`
-error.
+``missing-param-doc`` and ``missing-type-doc`` no longer false-negative on
+NumPy-style parameters whose type line includes a default value, e.g.
+``number : int, default 0``. Any text after the colon on the type line is
+now accepted as the type, matching the NumPy style guide.
 
 Closes #6211

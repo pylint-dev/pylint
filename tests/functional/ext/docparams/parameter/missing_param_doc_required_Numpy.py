@@ -444,3 +444,22 @@ def test_with_descriptions_instead_of_typing(arg, axis, option):
         Do I do it?
     """
     return arg, option
+
+
+def test_with_default_keyword_numpy(number, ratio, label, flag):
+    """Reported in https://github.com/pylint-dev/pylint/issues/6211.
+
+    NumPy style permits "default" alongside the type, in three forms.
+
+    Parameters
+    ----------
+    number : int, default 0
+        The number.
+    ratio : float, default=1.5
+        The ratio.
+    label : str, default: 'x'
+        The label.
+    flag : bool | None, default None
+        The flag.
+    """
+    return number, ratio, label, flag
