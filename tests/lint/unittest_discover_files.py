@@ -104,7 +104,7 @@ def test_does_not_ignore_similarly_named_package(
     Test to see if we return the expected package/file list even if a shorter named package is processed
     first and does not match an ignore config value.
     """
-    # Set our fake OS type and then initialize our mock fs
+    # Set our fake OS type and then initialize our mock file system
     fs.os = os_type
     setup_mock_fs(fs)
 
@@ -138,7 +138,7 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
         "manage.py",
     ]
 
-    # Set our fake OS type and then initialize our mock fs
+    # Set our fake OS type and then initialize our mock file system
     fs.os = os_type
     setup_mock_fs(fs)
 
@@ -189,7 +189,7 @@ def test_does_not_traverse_into_ignored_directories(
         been visited.
 
         NOTE: This method is necessary since due to the nature of os.walk,
-        and it being a generator, neither unittest's mock.patch or Pytest's
+        and it being a generator, neither unittest's mock.patch or pytest's
         mocker.spy give us access to the values returned.
 
         WARNING: Rather than make this and its associated variables file-level
