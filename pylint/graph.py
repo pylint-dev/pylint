@@ -14,7 +14,7 @@ import shutil
 import subprocess
 import tempfile
 from collections.abc import Sequence
-from typing import Any, Union
+from typing import Any
 
 
 def target_info_from_filename(filename: str) -> tuple[str, str, str]:
@@ -211,38 +211,38 @@ def _get_cycles(
     path.pop()
 
 
-node_types = Union[str, int, float]
+_Node = str | int | float
 
 
 def get_paths(
-    graph_dict: dict[node_types, set[node_types]],
-    indegree_dict: dict[node_types, int],
-    frequency_dict: dict[tuple[node_types, node_types], int],
-) -> list[tuple[node_types]]:
-    """Gets the minimum number of paths that span all the edges in graph_dict."""
+    graph_dict: dict[_Node, set[_Node]],
+    indegree_dict: dict[_Node, int],
+    frequency_dict: dict[tuple[_Node, _Node], int],
+) -> list[tuple[_Node, ...]]:
+    """Get the minimum number of paths that span all the edges in ``graph_dict``."""
     to_visit = {node for node in indegree_dict if indegree_dict[node] == 0}
-    paths = set()
+    paths: set[tuple[_Node, ...]] = set()
     while to_visit:
-        symbols_in_longest_path: dict[node_types, int] = {}
-        nodes_in_longest_path: dict[node_types, int] = {}
+        symbols_in_longest_path: dict[_Node, int] = {}
+        nodes_in_longest_path: dict[_Node, int] = {}
 
-        # Count the longest possible paths rooted at each node
+        # Count the longest possible paths rooted at each node.
         for root in to_visit:
-            count_nodes(
+            _count_nodes(
                 root,
                 graph_dict,
                 symbols_in_longest_path,
                 nodes_in_longest_path,
                 frequency_dict,
             )
-        path: list[node_types] = []
+        path: list[_Node] = []
 
-        # Get the node that can give us the longest path
-        longest_path_item = get_longest_path_item(
+        # Get the node that can give us the longest path.
+        longest_path_item = _get_longest_path_item(
             to_visit, symbols_in_longest_path, nodes_in_longest_path
         )
         to_visit.remove(longest_path_item)
-        get_path(
+        _get_path(
             path,
             graph_dict,
             longest_path_item,
@@ -252,27 +252,27 @@ def get_paths(
             nodes_in_longest_path,
         )
 
-        # Decrement the times we can use each node we visited so they are not revisited
+        # Decrement the times we can use each node we visited so they are not revisited.
         for i, item in enumerate(path):
             for val in path[:i]:
                 frequency_dict[(val, item)] = max(frequency_dict[(val, item)] - 1, 0)
 
-        path = strip_path(path)
+        path = _strip_path(path)
         if len(path) > 1:
             paths.add(tuple(path))
 
-    return sorted(list(paths), key=str)  # type: ignore[arg-type]
+    return sorted(paths, key=str)
 
 
-def get_longest_path_item(
-    items: set[node_types],
-    symbols_in_longest_path: dict[node_types, int],
-    nodes_in_longest_path: dict[node_types, int],
-) -> node_types:
-    """Return the item that is at the root of the longest path, prioritizing the number
-    of symbols (a, b, c) and breaking ties with the total number of nodes in the path.
+def _get_longest_path_item(
+    items: set[_Node],
+    symbols_in_longest_path: dict[_Node, int],
+    nodes_in_longest_path: dict[_Node, int],
+) -> _Node:
+    """Return the item that is at the root of the longest path.
 
-    and then the node value alphabetically.
+    Prioritize the number of symbols (``a``, ``b``, ``c``), break ties with the total
+    number of nodes in the path, and break further ties alphabetically.
     """
     return sorted(
         items,
@@ -281,64 +281,62 @@ def get_longest_path_item(
     )[0]
 
 
-def get_path(
-    path: list[node_types],
-    graph_dict: dict[node_types, set[node_types]],
-    node: node_types,
-    to_visit: set[node_types],
-    frequency_dict: dict[tuple[node_types, node_types], int],
-    symbols_in_longest_path: dict[node_types, int],
-    nodes_in_longest_path: dict[node_types, int],
+def _get_path(
+    path: list[_Node],
+    graph_dict: dict[_Node, set[_Node]],
+    node: _Node,
+    to_visit: set[_Node],
+    frequency_dict: dict[tuple[_Node, _Node], int],
+    symbols_in_longest_path: dict[_Node, int],
+    nodes_in_longest_path: dict[_Node, int],
 ) -> None:
-    """Appends to path the longest possible path in graph_dict starting at node."""
+    """Append to ``path`` the longest possible path in ``graph_dict`` starting at ``node``."""
     path.append(node)
-    # Find viable neighbors that can be in the path
+    # Find viable neighbors that can be in the path.
     adj = {a for a in graph_dict[node] if frequency_dict[(node, a)] != 0}
-    if len(adj) >= 1:
-        # Select the neighbor that will yield the longest path
-        next_item = get_longest_path_item(
-            adj, symbols_in_longest_path, nodes_in_longest_path
-        )
-        # Recursively get the path through that neighbor
-        get_path(
-            path,
-            graph_dict,
-            next_item,
-            to_visit,
-            frequency_dict,
-            symbols_in_longest_path,
-            nodes_in_longest_path,
-        )
+    if not adj:
+        return
+    # Select the neighbor that will yield the longest path.
+    next_item = _get_longest_path_item(
+        adj, symbols_in_longest_path, nodes_in_longest_path
+    )
+    # Recursively get the path through that neighbor.
+    _get_path(
+        path,
+        graph_dict,
+        next_item,
+        to_visit,
+        frequency_dict,
+        symbols_in_longest_path,
+        nodes_in_longest_path,
+    )
+    # If there are other adjacent nodes, or this node has more paths going
+    # through it, we need to revisit it.
+    if len(adj) >= 2 or frequency_dict[(node, next_item)] >= 2:
+        to_visit.add(node)
 
-        # If there are other adjacent nodes, or this node has more paths going through it, we need to revisit it
-        if len(adj) >= 2 or frequency_dict[(node, next_item)] >= 2:
-            to_visit.add(node)
 
-
-def count_nodes(
-    node: node_types,
-    graph_dict: dict[node_types, set[node_types]],
-    symbols_in_longest_path: dict[node_types, int],
-    nodes_in_longest_path: dict[node_types, int],
-    frequency_dict: dict[tuple[node_types, node_types], int],
+def _count_nodes(
+    node: _Node,
+    graph_dict: dict[_Node, set[_Node]],
+    symbols_in_longest_path: dict[_Node, int],
+    nodes_in_longest_path: dict[_Node, int],
+    frequency_dict: dict[tuple[_Node, _Node], int],
 ) -> tuple[int, int]:
-    """Calculates the number of symbols and nodes in the longest path reachable from
-    node and stores them in symbols_in_longest_path and nodes_in_longest_path.
+    """Calculate the number of symbols and nodes in the longest path reachable from
+    ``node`` and store them in ``symbols_in_longest_path`` and ``nodes_in_longest_path``.
     """
-    # Already calculated
     if node in symbols_in_longest_path and node in nodes_in_longest_path:
         return (symbols_in_longest_path[node], nodes_in_longest_path[node])
 
     adj = [a for a in graph_dict[node] if frequency_dict[(node, a)] != 0]
-    cur_node_symbol_count = (
-        1 if isinstance(node, str) else 0
-    )  # Indicates if the current node is a symbol
-    if not adj:  # Base case if there are no neighbors
+    cur_node_symbol_count = 1 if isinstance(node, str) else 0
+    if not adj:
         max_symbols_path = cur_node_symbol_count
         max_nodes_path = 1
-    else:  # Calculate the paths recursively based on the maximum lengths of neighbor nodes
+    else:
         adj_maximums = [
-            count_nodes(
+            _count_nodes(
                 a,
                 graph_dict,
                 symbols_in_longest_path,
@@ -352,15 +350,15 @@ def count_nodes(
         )
         max_nodes_path = max(adj_maxes[1] for adj_maxes in adj_maximums) + 1
 
-    # Update the graph and return
     symbols_in_longest_path[node] = max_symbols_path
     nodes_in_longest_path[node] = max_nodes_path
     return (max_symbols_path, max_nodes_path)
 
 
-def strip_path(path: list[node_types]) -> list[node_types]:
-    """Removes redundant constant comparisons at the ends of a path, e.g. simplifies {a,
-    3, 0} to {a, 3}.
+def _strip_path(path: list[_Node]) -> list[_Node]:
+    """Remove redundant constant comparisons at the ends of a path.
+
+    For example, simplifies ``{a, 3, 0}`` to ``{a, 3}``.
     """
     low = 0
     high = len(path) - 1

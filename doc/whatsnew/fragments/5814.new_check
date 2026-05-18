@@ -1,0 +1,5 @@
+Add new check ``impossible-comparison`` to detect boolean conditions whose chain of
+numeric comparisons is logically contradictory and can never be true (for example
+``a > b and b > a``).
+
+Closes #5814

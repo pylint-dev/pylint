@@ -1665,6 +1665,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         "consider-merging-isinstance",
         "consider-using-in",
         "chained-comparison",
+        "chained-comparison-all-equal",
+        "impossible-comparison",
         "simplifiable-condition",
         "condition-evals-to-constant",
     )
