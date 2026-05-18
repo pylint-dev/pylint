@@ -127,3 +127,8 @@ def test_chained_comparison_with_unprocessable_operands():
         pass
     if v >= 0 and v <= 999 and v != 42: # [chained-comparison]
         pass
+    # The type guard must stay before the numeric range even when it appears
+    # between two comparisons in the source: pulling it across the chain
+    # would change short-circuit evaluation.
+    if v >= 0 and is_int(v) and v <= 999:
+        pass

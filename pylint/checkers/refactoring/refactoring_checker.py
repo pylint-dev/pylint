@@ -44,24 +44,25 @@ _REVERSED_COMPARE = {">": "<", ">=": "<=", "==": "=="}
 
 @dataclass
 class _ComparisonGraph:
-    """Multigraph of operands extracted from a chain of ``and``-ed comparisons.
+    """Directed graph of operands extracted from a chain of ``and``-ed comparisons.
 
-    Each inequality edge points from the larger operand to the smaller one so
-    that ``a < b`` and ``b > a`` produce the same edge (``b -> a``). Equality
-    edges keep their source-order direction so ``b == 2`` renders as written.
+    ``<`` and ``<=`` are flipped so every inequality edge points from the
+    larger operand to the smaller one. This way ``a < b`` and ``b > a``
+    produce the same edge (``b -> a``). Equality edges keep their source-order
+    direction so ``b == 2`` renders as written.
 
     Attributes:
-        edges: outgoing neighbors of each node.
-        symbols: the operator on each ``(left, right)`` edge (``>``, ``>=`` or
-            ``==`` after normalisation).
-        indegree: number of edges pointing at each node — used to find path
-            roots (nodes with no incoming edge).
-        frequency: how many times each edge was contributed by the source
-            comparisons. Decremented as paths are extracted so a single edge
-            doesn't get rendered twice.
-        unprocessed: source-text of statements we couldn't fold into the graph
-            (function calls, ``!=`` comparisons, ...). Kept verbatim in the
-            final suggestion.
+        ``edges``: outgoing neighbors of each node.
+        ``symbols``: the operator on each ``(left, right)`` edge. One of
+            ``>``, ``>=`` or ``==`` once the inequalities have been flipped.
+        ``indegree``: number of edges pointing at each node. Nodes with no
+            incoming edge are the roots from which path search starts.
+        ``frequency``: how many times each edge was contributed by the
+            source comparisons. Decremented as paths are extracted so a
+            single edge doesn't get rendered twice.
+        ``source_count``: how many source-level ``Compare`` statements were
+            folded into this graph. Used to tell whether path extraction
+            actually shortened the chain.
     """
 
     edges: dict[_ComparisonOperand, set[_ComparisonOperand]] = field(
@@ -76,7 +77,7 @@ class _ComparisonGraph:
     frequency: dict[_ComparisonEdge, int] = field(
         default_factory=lambda: collections.defaultdict(int)
     )
-    unprocessed: list[str] = field(default_factory=list)
+    source_count: int = 0
 
 
 CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
@@ -1471,29 +1472,91 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     def _check_comparisons(self, node: nodes.BoolOp) -> None:
-        graph = self._get_graph_from_comparison_nodes(node)
-        if graph is None:
+        segments = self._segment_comparisons(node)
+        if segments is None:
             return
 
-        # Convert edges to all-string keys to satisfy get_cycles' typing.
+        # Bail on the first cycle. Reporting both ``impossible-comparison`` and
+        # ``chained-comparison`` on the same node would be noisy and the cycle
+        # is the strictly more important finding.
+        for segment in segments:
+            if isinstance(segment, _ComparisonGraph) and self._emit_cycles(
+                node, segment
+            ):
+                return
+
+        rendered: list[str] = []
+        for segment in segments:
+            if isinstance(segment, str):
+                rendered.append(segment)
+                continue
+            paths = get_paths(segment.edges, segment.indegree, segment.frequency)
+            rendered.extend(
+                sorted(self._render_path(p, segment.symbols) for p in paths)
+            )
+
+        if len(rendered) < len(node.values):
+            args = " and ".join(rendered)
+            self.add_message(
+                "chained-comparison", node=node, args=(args,), confidence=HIGH
+            )
+
+    def _segment_comparisons(
+        self, node: nodes.BoolOp
+    ) -> list[_ComparisonGraph | str] | None:
+        """Split ``node.values`` into runs of consecutive processable Compares.
+
+        Unprocessable parts (function calls, ``!=``, ``in``...) act as
+        boundaries: chaining across them would change the short-circuit
+        evaluation order, so ``_is_int(v) and v >= 0 and v <= 999`` must
+        always render the type guard before the numeric range. Each run is
+        wrapped in a ``_ComparisonGraph`` (which may then yield a chain);
+        each boundary statement is kept verbatim as a string.
+
+        Returns ``None`` when nothing in ``node.values`` is foldable, which
+        also covers the trivial single-statement or pure ``==`` cases the
+        original check already ignored.
+        """
+        if node.op != "and" or len(node.values) < 2:
+            return None
+
+        segments: list[_ComparisonGraph | str] = []
+        current = _ComparisonGraph()
+        const_values: list[int | float] = []
+        for statement in node.values:
+            if self._add_compare_to_graph(statement, current, const_values):
+                continue
+            if current.source_count > 0:
+                self._link_constants(current, const_values)
+                segments.append(current)
+            segments.append(statement.as_string())
+            current = _ComparisonGraph()
+            const_values = []
+        if current.source_count > 0:
+            self._link_constants(current, const_values)
+            segments.append(current)
+
+        graphs = [s for s in segments if isinstance(s, _ComparisonGraph)]
+        if not graphs:
+            return None
+        if all(symbol == "==" for g in graphs for symbol in g.symbols.values()):
+            return None
+        return segments
+
+    def _emit_cycles(self, node: nodes.BoolOp, graph: _ComparisonGraph) -> bool:
+        """Emit ``impossible-comparison`` / ``chained-comparison-all-equal``
+        for any cycle in ``graph``.
+
+        Returns whether anything was emitted.
+        """
         str_edges = {
             str(key): {str(dest) for dest in graph.edges[key]} for key in graph.edges
         }
         cycles = get_cycles(str_edges)
-        if cycles:
-            self._handle_cycles(node, graph, cycles)
-            return
-
-        paths = get_paths(graph.edges, graph.indegree, graph.frequency)
-
-        if len(paths) + len(graph.unprocessed) < len(node.values):
-            suggestions = list(graph.unprocessed)
-            for path in paths:
-                suggestions.append(self._render_path(path, graph.symbols))
-            args = " and ".join(sorted(suggestions))
-            self.add_message(
-                "chained-comparison", node=node, args=(args,), confidence=HIGH
-            )
+        if not cycles:
+            return False
+        self._handle_cycles(node, graph, cycles)
+        return True
 
     @staticmethod
     def _render_path(
@@ -1520,26 +1583,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             rendered += f" {symbol} {path[i - 1]}"
         return rendered
 
-    def _get_graph_from_comparison_nodes(
-        self, node: nodes.BoolOp
-    ) -> _ComparisonGraph | None:
-        if node.op != "and" or len(node.values) < 2:
-            return None
-
-        graph = _ComparisonGraph()
-        const_values: list[int | float] = []
-
-        for statement in node.values:
-            if not self._add_compare_to_graph(statement, graph, const_values):
-                graph.unprocessed.append(statement.as_string())
-
-        # Nothing was added and we have no recommendations.
-        if not graph.symbols or all(val == "==" for val in graph.symbols.values()):
-            return None
-
-        self._link_constants(graph, const_values)
-        return graph
-
     def _add_compare_to_graph(
         self,
         statement: nodes.NodeNG,
@@ -1548,12 +1591,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     ) -> bool:
         """Try to fold ``statement`` into ``graph``.
 
-        Returns ``True`` when every operator/operand in ``statement`` is something
-        we can reason about (a numeric/string comparison between Names and
-        Consts); ``False`` otherwise — the caller keeps the original text so the
-        suggestion can still mention it verbatim. The graph is only mutated when
-        the whole statement is processable so a partially-valid Compare doesn't
-        leave half-committed edges behind.
+        Returns ``True`` when every operator/operand in ``statement`` is
+        something we can reason about (a numeric or string comparison between
+        a variable name and a numeric literal). Returns ``False`` otherwise so
+        the caller can keep the original text and mention it verbatim in the
+        suggestion. The graph is only mutated when the whole statement is
+        processable, so a partially-valid Compare doesn't leave half-committed
+        edges behind.
         """
         if not isinstance(statement, nodes.Compare):
             return False
@@ -1588,7 +1632,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             graph.indegree[left] += 0
             graph.indegree[right] += 1
             graph.frequency[(left, right)] += 1
-        return bool(operators)
+        if not operators:
+            return False
+        graph.source_count += 1
+        return True
 
     @staticmethod
     def _link_constants(
