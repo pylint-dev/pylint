@@ -1506,12 +1506,12 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     ) -> list[_ComparisonGraph | str] | None:
         """Split ``node.values`` into runs of consecutive processable Compares.
 
-        Unprocessable parts (function calls, ``!=``, ``in``...) act as
-        boundaries: chaining across them would change the short-circuit
-        evaluation order, so ``_is_int(v) and v >= 0 and v <= 999`` must
-        always render the type guard before the numeric range. Each run is
-        wrapped in a ``_ComparisonGraph`` (which may then yield a chain);
-        each boundary statement is kept verbatim as a string.
+        Any statement we can't fold into the graph (function calls, ``!=``,
+        ``in``...) acts as a boundary: chaining across it would change the
+        short-circuit evaluation order, so ``_is_int(v) and v >= 0 and v <=
+        999`` must always render the type guard before the numeric range.
+        Each run is wrapped in a ``_ComparisonGraph`` (which may then yield
+        a chain); each boundary statement is kept verbatim as a string.
 
         Returns ``None`` when nothing in ``node.values`` is foldable, which
         also covers the trivial single-statement or pure ``==`` cases the
@@ -1521,26 +1521,33 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return None
 
         segments: list[_ComparisonGraph | str] = []
+        pending: list[tuple[_ComparisonGraph, list[int | float]]] = []
         current = _ComparisonGraph()
         const_values: list[int | float] = []
         for statement in node.values:
             if self._add_compare_to_graph(statement, current, const_values):
                 continue
             if current.source_count > 0:
-                self._link_constants(current, const_values)
+                pending.append((current, const_values))
                 segments.append(current)
             segments.append(statement.as_string())
             current = _ComparisonGraph()
             const_values = []
         if current.source_count > 0:
-            self._link_constants(current, const_values)
+            pending.append((current, const_values))
             segments.append(current)
 
-        graphs = [s for s in segments if isinstance(s, _ComparisonGraph)]
-        if not graphs:
+        if not pending:
             return None
-        if all(symbol == "==" for g in graphs for symbol in g.symbols.values()):
+        # Bail before constant linking. ``value == 1 and value == 2`` would
+        # otherwise gain a synthetic ``2 > 1`` edge and look chain-collapsible
+        # to ``value == 2``, which is wrong (the original is impossible). The
+        # plain all-``==`` case was silent in the pre-PR check, keep it that
+        # way.
+        if all(symbol == "==" for g, _ in pending for symbol in g.symbols.values()):
             return None
+        for graph, consts in pending:
+            self._link_constants(graph, consts)
         return segments
 
     def _emit_cycles(self, node: nodes.BoolOp, graph: _ComparisonGraph) -> bool:
