@@ -1,5 +1,2 @@
-a = int(input())
-b = int(input())
-c = int(input())
-if a == b == c:
-    pass
+def in_thermal_equilibrium(a, b, c):
+    return a == b == c
