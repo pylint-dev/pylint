@@ -296,27 +296,27 @@ class SpecialMethodsChecker(BaseChecker):
 
     @staticmethod
     def _is_iterator(node: InferenceResult) -> bool:
-        if isinstance(node, bases.Generator):
-            # Generators can be iterated.
-            return True
-        if isinstance(node, nodes.ComprehensionScope):
-            # Comprehensions can be iterated.
-            return True
-
-        if isinstance(node, bases.Instance):
-            try:
-                node.local_attr(NEXT_METHOD)
+        match node:
+            case bases.Generator():
+                # Generators can be iterated.
                 return True
-            except astroid.NotFoundError:
-                pass
-        elif isinstance(node, nodes.ClassDef):
-            metaclass = node.metaclass()
-            if metaclass and isinstance(metaclass, nodes.ClassDef):
+            case nodes.ComprehensionScope():
+                # Comprehensions can be iterated.
+                return True
+            case bases.Instance():
                 try:
-                    metaclass.local_attr(NEXT_METHOD)
+                    node.local_attr(NEXT_METHOD)
                     return True
                 except astroid.NotFoundError:
                     pass
+            case nodes.ClassDef():
+                metaclass = node.metaclass()
+                if metaclass and isinstance(metaclass, nodes.ClassDef):
+                    try:
+                        metaclass.local_attr(NEXT_METHOD)
+                        return True
+                    except astroid.NotFoundError:
+                        pass
         return False
 
     def _check_iter(self, node: nodes.FunctionDef, inferred: InferenceResult) -> None:
@@ -379,7 +379,7 @@ class SpecialMethodsChecker(BaseChecker):
             return
 
         if not isinstance(inferred, nodes.Tuple):
-            # If it's not an astroid.Tuple we can't analyze it further
+            # If it's not an nodes.Tuple we can't analyze it further
             return
 
         found_error = False
@@ -391,7 +391,7 @@ class SpecialMethodsChecker(BaseChecker):
                 (inferred.elts[0], self._is_tuple),
                 (inferred.elts[1], self._is_dict),
             ):
-                if isinstance(arg, nodes.Call):
+                if isinstance(arg, (nodes.Call, nodes.Name)):
                     arg = safe_infer(arg)
 
                 if arg and not isinstance(arg, util.UninferableBase):

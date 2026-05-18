@@ -18,7 +18,7 @@ from pylint.constants import (
 )
 from pylint.interfaces import HIGH
 from pylint.message import MessageDefinition
-from pylint.typing import ManagedMessage
+from pylint.typing import ManagedMessage, MessageDefinitionTuple
 from pylint.utils.pragma_parser import (
     OPTION_PO,
     InvalidPragmaError,
@@ -37,6 +37,11 @@ class _MessageStateHandler:
 
     def __init__(self, linter: PyLinter) -> None:
         self.linter = linter
+        self.default_enabled_messages: dict[str, MessageDefinitionTuple] = {
+            k: v
+            for k, v in self.linter.msgs.items()
+            if len(v) == 3 or v[3].get("default_enabled", True)
+        }
         self._msgs_state: dict[str, bool] = {}
         self._options_methods = {
             "enable": self.enable,
@@ -83,6 +88,14 @@ class _MessageStateHandler:
             for _msgid in MSG_TYPES:
                 message_definitions.extend(
                     self._get_messages_to_set(_msgid, enable, ignore_unknown)
+                )
+            if not enable:
+                # "all" should not disable pylint's own warnings
+                message_definitions = list(
+                    filter(
+                        lambda m: m.msgid not in self.default_enabled_messages,
+                        message_definitions,
+                    )
                 )
             return message_definitions
 
@@ -305,12 +318,14 @@ class _MessageStateHandler:
         line: int | None = None,
         confidence: interfaces.Confidence | None = None,
     ) -> bool:
-        """Return whether this message is enabled for the current file, line and
-        confidence level.
+        """Is this message enabled for the current file ?
 
-        This function can't be cached right now as the line is the line of
-        the currently analysed file (self.file_state), if it changes, then the
-        result for the same msg_descr/line might need to change.
+        Optionally, is it enabled for this line and confidence level ?
+
+        The current file is implicit and mandatory. As a result this function
+        can't be cached right now as the line is the line of the currently
+        analysed file (self.file_state), if it changes, then the result for
+        the same msg_descr/line might need to change.
 
         :param msg_descr: Either the msgid or the symbol for a MessageDefinition
         :param line: The line of the currently analysed file
@@ -363,7 +378,7 @@ class _MessageStateHandler:
                                 args=("disable-all", "skip-file"),
                             )
                         self.linter.add_message("file-ignored", line=start[0])
-                        self._ignore_file = True
+                        self._ignore_file: bool = True
                         return
                     try:
                         meth = self._options_methods[pragma_repr.action]

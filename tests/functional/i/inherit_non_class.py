@@ -4,6 +4,7 @@ a class emits a warning. """
 # pylint: disable=import-error, invalid-name, using-constant-test
 # pylint: disable=missing-docstring, too-few-public-methods, useless-object-inheritance
 
+from typing import Protocol, TypeVar
 from missing import Missing
 
 if 1:
@@ -101,3 +102,18 @@ class Child2(ParentBad[int]):  # [inherit-non-class]
 # Classes that don't implement '__class_getitem__' are marked as unsubscriptable
 class Child3(Empty[int]):  # [unsubscriptable-object]
     pass
+
+
+T = TypeVar("T")
+
+
+class Channel(Protocol[T]):
+    """A generic Protocol."""
+
+    async def get(self) -> T:
+        """A get method using the generic."""
+
+
+class DirectChannel(Channel[T]):
+    async def get(self) -> T:
+        """An implementation of the generic."""

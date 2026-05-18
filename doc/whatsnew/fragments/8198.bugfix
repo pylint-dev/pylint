@@ -1,4 +1,0 @@
-Fix ``used-before-assignment`` false negative when TYPE_CHECKING imports
-are used in multiple scopes.
-
-Closes #8198

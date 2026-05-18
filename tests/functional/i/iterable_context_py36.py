@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,too-few-public-methods,unused-variable,unnecessary-comprehension
+# pylint: disable=missing-docstring,too-few-public-methods,unused-variable,unnecessary-comprehension,use-yield-from
 import asyncio
 
 class AIter:

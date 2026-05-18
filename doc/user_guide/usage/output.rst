@@ -8,8 +8,15 @@ Output by default is written to stdout. The simplest way to output to a file is
 with the ``--output=<filename>`` option.
 
 The default format for the output is raw text. You can change this by passing
-pylint the ``--output-format=<value>`` option. Possible values are: ``text``, ``json``,
-``parseable``, ``colorized`` and ``msvs`` (for Visual Studio).
+pylint the ``--output-format=<value>`` option. Possible values are:
+
+* ``text``
+* ``parseable``
+* ``colorized``
+* ``json2``: improved json format
+* ``json``: old json format
+* ``msvs``: visual studio
+* ``github``: `GitHub action messages <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions>`_
 
 Multiple output formats can be used at the same time by passing
 a comma-separated list of formats to ``--output-format``.

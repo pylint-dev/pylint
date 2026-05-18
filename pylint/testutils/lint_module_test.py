@@ -11,17 +11,16 @@ import sys
 from collections import Counter
 from io import StringIO
 from pathlib import Path
-from typing import Counter as CounterType
-from typing import TextIO, Tuple
+from typing import TYPE_CHECKING, TextIO
 
 import pytest
 from _pytest.config import Config
 
 from pylint import checkers
 from pylint.config.config_initialization import _config_initialization
-from pylint.constants import IS_PYPY
 from pylint.lint import PyLinter
 from pylint.message.message import Message
+from pylint.reporters import BaseReporter
 from pylint.testutils.constants import _EXPECTED_RE, _OPERATORS, UPDATE_OPTION
 
 # need to import from functional.test_file to avoid cyclic import
@@ -33,7 +32,9 @@ from pylint.testutils.functional.test_file import (
 from pylint.testutils.output_line import OutputLine
 from pylint.testutils.reporter_for_tests import FunctionalTestReporter
 
-MessageCounter = CounterType[Tuple[int, str]]
+if TYPE_CHECKING:
+    import _csv
+MessageCounter = Counter[tuple[int, str]]
 
 PYLINTRC = Path(__file__).parent / "testing_pylintrc"
 
@@ -108,9 +109,6 @@ class LintModuleTest:
         self._check_end_position = (
             sys.version_info >= self._linter.config.min_pyver_end_position
         )
-        # TODO: PY3.9: PyPy supports end_lineno from 3.9 and above
-        if self._check_end_position and IS_PYPY:
-            self._check_end_position = sys.version_info >= (3, 9)  # pragma: no cover
 
         self._config = config
 
@@ -172,7 +170,7 @@ class LintModuleTest:
             line = match.group("line")
             if line is None:
                 lineno = i + 1
-            elif line.startswith("+") or line.startswith("-"):
+            elif line.startswith(("+", "-")):
                 lineno = i + 1 + int(line)
             else:
                 lineno = int(line)
@@ -272,10 +270,16 @@ class LintModuleTest:
         )
         if missing:
             msg.append("\nExpected in testdata:")
-            msg.extend(f" {msg[0]:3}: {msg[1]}" for msg in sorted(missing))
+            msg.extend(  # pragma: no cover
+                f" {msg[0]:3}: {msg[1]} (times {times})"
+                for msg, times in sorted(missing.items())
+            )
         if unexpected:
             msg.append("\nUnexpected in testdata:")
-            msg.extend(f" {msg[0]:3}: {msg[1]}" for msg in sorted(unexpected))
+            msg.extend(
+                f" {msg[0]:3}: {msg[1]} (times {times})"
+                for msg, times in sorted(unexpected.items())
+            )
         error_msg = "\n".join(msg)
         if self._config and self._config.getoption("verbose") > 0:
             error_msg += "\n\nActual pylint output for this file:\n"
@@ -308,9 +312,21 @@ class LintModuleTest:
             expected_csv = StringIO()
             writer = csv.writer(expected_csv, dialect="test")
             for line in sorted(received_lines, key=sort_by_line_number):
-                writer.writerow(line.to_csv())
+                self.safe_write_output_line(writer, line)
             error_msg += expected_csv.getvalue()
         return error_msg
+
+    def safe_write_output_line(self, writer: _csv._writer, line: OutputLine) -> None:
+        """Write an OutputLine to the CSV writer, handling UnicodeEncodeError."""
+        try:
+            writer.writerow(line.to_csv())
+        except UnicodeEncodeError:
+            writer.writerow(
+                [
+                    BaseReporter.reencode_output_after_unicode_error(s)
+                    for s in line.to_csv()
+                ]
+            )
 
     def _check_output_text(
         self,

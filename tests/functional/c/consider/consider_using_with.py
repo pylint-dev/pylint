@@ -1,16 +1,22 @@
-# pylint: disable=missing-function-docstring, missing-module-docstring, invalid-name, import-outside-toplevel
+# pylint: disable=missing-function-docstring, missing-module-docstring, invalid-name, import-outside-toplevel, deprecated-method
 import codecs
 import contextlib
 import multiprocessing
 import pathlib
 import subprocess
+import sys
 import tarfile
 import tempfile
 import threading
 import urllib
 import zipfile
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from pathlib import Path
+
+if sys.version_info >= (3, 14):
+    from concurrent.futures.process import ProcessPoolExecutor
+    from concurrent.futures.thread import ThreadPoolExecutor
+else:
+    from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 
 def test_pathlib_open():
@@ -186,9 +192,7 @@ with pool:
     pass
 
 
-global_pool = (
-    multiprocessing.Pool()
-)  # must not trigger, will be used in nested scope
+global_pool = multiprocessing.Pool()  # must not trigger, will be used in nested scope
 
 
 def my_nested_function():

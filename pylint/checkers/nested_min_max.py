@@ -23,7 +23,7 @@ DICT_TYPES = (
     objects.DictValues,
     objects.DictKeys,
     objects.DictItems,
-    nodes.node_classes.Dict,
+    nodes.Dict,
 )
 
 
@@ -46,30 +46,42 @@ class NestedMinMaxChecker(BaseChecker):
     }
 
     @classmethod
-    def is_min_max_call(cls, node: nodes.NodeNG) -> bool:
-        if not isinstance(node, nodes.Call):
-            return False
-
+    def maybe_get_inferred_min_max_call(
+        cls, node: nodes.Call
+    ) -> nodes.FunctionDef | None:
         inferred = safe_infer(node.func)
-        return (
+        if (
             isinstance(inferred, nodes.FunctionDef)
             and inferred.qname() in cls.FUNC_NAMES
-        )
+        ):
+            return inferred
+        return None
 
     @classmethod
-    def get_redundant_calls(cls, node: nodes.Call) -> list[nodes.Call]:
+    def get_redundant_calls(
+        cls, node: nodes.Call, inferred_call: nodes.FunctionDef
+    ) -> list[nodes.Call]:
         return [
             arg
             for arg in node.args
-            if cls.is_min_max_call(arg) and arg.func.name == node.func.name
+            if (
+                isinstance(arg, nodes.Call)
+                and (inferred := cls.maybe_get_inferred_min_max_call(arg))
+                and inferred.qname == inferred_call.qname
+                # Nesting is useful for finding the maximum in a matrix.
+                # Allow: max(max([[1, 2, 3], [4, 5, 6]]))
+                # Meaning, redundant call only if parent max call has more than 1 arg.
+                and len(arg.parent.args) > 1
+            )
         ]
 
     @only_required_for_messages("nested-min-max")
     def visit_call(self, node: nodes.Call) -> None:
-        if not self.is_min_max_call(node):
+        inferred = self.maybe_get_inferred_min_max_call(node)
+        if inferred is None:
             return
 
-        redundant_calls = self.get_redundant_calls(node)
+        redundant_calls = self.get_redundant_calls(node, inferred)
         if not redundant_calls:
             return
 
@@ -89,17 +101,14 @@ class NestedMinMaxChecker(BaseChecker):
                     )
                     break
 
-            redundant_calls = self.get_redundant_calls(fixed_node)
+            redundant_calls = self.get_redundant_calls(fixed_node, inferred)
 
         for idx, arg in enumerate(fixed_node.args):
             if not isinstance(arg, nodes.Const):
-                inferred = safe_infer(arg)
-                if isinstance(
-                    inferred, (nodes.List, nodes.Tuple, nodes.Set, *DICT_TYPES)
-                ):
+                if self._is_splattable_expression(arg):
                     splat_node = nodes.Starred(
                         ctx=Context.Load,
-                        lineno=inferred.lineno,
+                        lineno=arg.lineno,
                         col_offset=0,
                         parent=nodes.NodeNG(
                             lineno=None,
@@ -112,18 +121,55 @@ class NestedMinMaxChecker(BaseChecker):
                         end_col_offset=0,
                     )
                     splat_node.value = arg
-                    fixed_node.args = (
-                        fixed_node.args[:idx]
-                        + [splat_node]
-                        + fixed_node.args[idx + 1 : idx]
-                    )
-
+                    fixed_node.args = [
+                        *fixed_node.args[:idx],
+                        splat_node,
+                        *fixed_node.args[idx + 1 : idx],
+                    ]
+        func_name = (
+            node.func.attrname
+            if isinstance(node.func, nodes.Attribute)
+            else node.func.name
+        )
         self.add_message(
             "nested-min-max",
             node=node,
-            args=(node.func.name, fixed_node.as_string()),
+            args=(func_name, fixed_node.as_string()),
             confidence=INFERENCE,
         )
+
+    def _is_splattable_expression(self, arg: nodes.NodeNG) -> bool:
+        """Returns true if expression under min/max could be converted to splat
+        expression.
+        """
+        # Support sequence addition (operator __add__)
+        if isinstance(arg, nodes.BinOp) and arg.op == "+":
+            return self._is_splattable_expression(
+                arg.left
+            ) and self._is_splattable_expression(arg.right)
+        # Support dict merge (operator __or__)
+        if isinstance(arg, nodes.BinOp) and arg.op == "|":
+            return self._is_splattable_expression(
+                arg.left
+            ) and self._is_splattable_expression(arg.right)
+
+        inferred = safe_infer(arg)
+        if inferred and inferred.pytype() in {"builtins.list", "builtins.tuple"}:
+            return True
+        if isinstance(
+            inferred or arg,
+            (
+                nodes.List,
+                nodes.Tuple,
+                nodes.Set,
+                nodes.ListComp,
+                nodes.DictComp,
+                *DICT_TYPES,
+            ),
+        ):
+            return True
+
+        return False
 
 
 def register(linter: PyLinter) -> None:

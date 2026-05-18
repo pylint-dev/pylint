@@ -1,6 +1,2 @@
 [main]
 py-version=3.8
-
-[testoptions]
-min_pyver=3.9
-max_pyver=3.10

@@ -1,0 +1,3 @@
+Fix ``used-before-assignment`` false positive for names bound in only some arms of an ``if/elif/else`` chain.
+
+Closes #9879

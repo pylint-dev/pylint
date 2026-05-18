@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import ClassVar
 
 from pylint import config
-from pylint.checkers.utils import clear_lru_caches
+from pylint.checkers.clear_lru_cache import clear_lru_caches
 from pylint.config._pylint_config import (
     _handle_pylint_config_commands,
     _register_generate_config_options,
@@ -25,17 +25,6 @@ from pylint.lint.base_options import _make_run_options
 from pylint.lint.pylinter import MANAGER, PyLinter
 from pylint.reporters.base_reporter import BaseReporter
 
-try:
-    import multiprocessing
-    from multiprocessing import synchronize  # noqa pylint: disable=unused-import
-except ImportError:
-    multiprocessing = None  # type: ignore[assignment]
-
-try:
-    from concurrent.futures import ProcessPoolExecutor
-except ImportError:
-    ProcessPoolExecutor = None  # type: ignore[assignment,misc]
-
 
 def _query_cpu() -> int | None:
     """Try to determine number of CPUs allotted in a docker container.
@@ -43,8 +32,30 @@ def _query_cpu() -> int | None:
     This is based on discussion and copied from suggestions in
     https://bugs.python.org/issue36054.
     """
-    cpu_quota, avail_cpu = None, None
+    if Path("/sys/fs/cgroup/cpu.max").is_file():
+        avail_cpu = _query_cpu_cgroupv2()
+    else:
+        avail_cpu = _query_cpu_cgroupsv1()
+    return _query_cpu_handle_k8s_pods(avail_cpu)
 
+
+def _query_cpu_cgroupv2() -> int | None:
+    avail_cpu = None
+    with open("/sys/fs/cgroup/cpu.max", encoding="utf-8") as file:
+        line = file.read().rstrip()
+        fields = line.split()
+        if len(fields) == 2:
+            str_cpu_quota = fields[0]
+            cpu_period = int(fields[1])
+            # Make sure this is not in an unconstrained cgroup
+            if str_cpu_quota != "max":
+                cpu_quota = int(str_cpu_quota)
+                avail_cpu = int(cpu_quota / cpu_period)
+    return avail_cpu
+
+
+def _query_cpu_cgroupsv1() -> int | None:
+    cpu_quota, avail_cpu = None, None
     if Path("/sys/fs/cgroup/cpu/cpu.cfs_quota_us").is_file():
         with open("/sys/fs/cgroup/cpu/cpu.cfs_quota_us", encoding="utf-8") as file:
             # Not useful for AWS Batch based jobs as result is -1, but works on local linux systems
@@ -65,7 +76,10 @@ def _query_cpu() -> int | None:
             cpu_shares = int(file.read().rstrip())
         # For AWS, gives correct value * 1024.
         avail_cpu = int(cpu_shares / 1024)
+    return avail_cpu
 
+
+def _query_cpu_handle_k8s_pods(avail_cpu: int | None) -> int | None:
     # In K8s Pods also a fraction of a single core could be available
     # As multiprocessing is not able to run only a "fraction" of process
     # assume we have 1 CPU available
@@ -85,10 +99,13 @@ def _cpu_count() -> int:
     # pylint: disable=not-callable,using-constant-test,useless-suppression
     if sched_getaffinity:
         cpu_count = len(sched_getaffinity(0))
-    elif multiprocessing:
-        cpu_count = multiprocessing.cpu_count()
     else:
-        cpu_count = 1
+        try:
+            import multiprocessing  # pylint: disable=import-outside-toplevel
+
+            cpu_count = multiprocessing.cpu_count()
+        except ImportError:
+            cpu_count = 1
     if sys.platform == "win32":
         # See also https://github.com/python/cpython/issues/94242
         cpu_count = min(cpu_count, 56)  # pragma: no cover
@@ -147,7 +164,6 @@ group are mutually exclusive.",
         self.linter = linter = self.LinterClass(
             _make_run_options(self),
             option_groups=self.option_groups,
-            pylintrc=self._rcfile,
         )
         # register standard checkers
         linter.load_default_plugins()
@@ -159,7 +175,7 @@ group are mutually exclusive.",
         if self._is_pylint_config:
             _register_generate_config_options(linter._arg_parser)
 
-        args = _config_initialization(
+        _config_initialization(
             linter, args, reporter, config_file=self._rcfile, verbose_mode=self.verbose
         )
 
@@ -175,9 +191,13 @@ group are mutually exclusive.",
                 sys.exit(code)
             return
 
-        # Display help if there are no files to lint or no checks enabled
-        if not args or len(linter.config.disable) == len(
-            linter.msgs_store._messages_definitions
+        # Display help if there are no files to lint or only internal checks enabled (`--disable=all`)
+        disable_all_msg_set = set(
+            msg.symbol for msg in linter.msgs_store.messages
+        ) - set(msg[1] for msg in linter.default_enabled_messages.values())
+        if not linter.config.files or (
+            len(linter.config.enable) == 0
+            and set(linter.config.disable) == disable_all_msg_set
         ):
             print("No files to lint: exiting.")
             sys.exit(32)
@@ -189,27 +209,30 @@ group are mutually exclusive.",
             )
             sys.exit(32)
         if linter.config.jobs > 1 or linter.config.jobs == 0:
-            if ProcessPoolExecutor is None:
+            try:
+                # pylint: disable-next=import-outside-toplevel,unused-import
+                from concurrent.futures import ProcessPoolExecutor  # noqa: F401
+            except ImportError:
                 print(
                     "concurrent.futures module is missing, fallback to single process",
                     file=sys.stderr,
                 )
                 linter.set_option("jobs", 1)
-            elif linter.config.jobs == 0:
+            if linter.config.jobs == 0:
                 linter.config.jobs = _cpu_count()
 
         if self._output:
             try:
                 with open(self._output, "w", encoding="utf-8") as output:
                     linter.reporter.out = output
-                    linter.check(args)
-                    score_value = linter.generate_reports()
+                    linter.check(linter.config.files)
+                    score_value = linter.generate_reports(verbose=self.verbose)
             except OSError as ex:
                 print(ex, file=sys.stderr)
                 sys.exit(32)
         else:
-            linter.check(args)
-            score_value = linter.generate_reports()
+            linter.check(linter.config.files)
+            score_value = linter.generate_reports(verbose=self.verbose)
         if linter.config.clear_cache_post_run:
             clear_lru_caches()
             MANAGER.clear_cache()

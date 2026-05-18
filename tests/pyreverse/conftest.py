@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 
 import pytest
 from astroid.nodes.scoped_nodes import Module
@@ -16,7 +16,14 @@ from pylint.typing import GetProjectCallable
 
 
 @pytest.fixture()
+def default_args() -> Sequence[str]:
+    """Provides default command-line arguments for tests."""
+    return ["data"]
+
+
+@pytest.fixture()
 def default_config() -> PyreverseConfig:
+    """Provides default configuration for tests."""
     return PyreverseConfig()
 
 
@@ -67,6 +74,13 @@ def html_config() -> PyreverseConfig:
     )
 
 
+@pytest.fixture()
+def depth_limited_config(default_max_depth: int) -> PyreverseConfig:
+    return PyreverseConfig(
+        max_depth=default_max_depth,
+    )
+
+
 @pytest.fixture(scope="session")
 def get_project() -> GetProjectCallable:
     def _get_project(module: str, name: str | None = "No Name") -> Project:
@@ -78,7 +92,6 @@ def get_project() -> GetProjectCallable:
             return func(modname)
 
         with augmented_sys_path([discover_package_path(module, [])]):
-            project = project_from_files([module], _astroid_wrapper, project_name=name)
-        return project
+            return project_from_files([module], _astroid_wrapper, project_name=name)
 
     return _get_project

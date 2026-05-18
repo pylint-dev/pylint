@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import contextlib
 from collections.abc import Callable, Iterator
-from typing import Any, Type
+from typing import Any
 
 import astroid
 from astroid import nodes
@@ -16,7 +16,7 @@ from astroid.manager import AstroidManager
 from pylint.checkers import stdlib
 from pylint.testutils import CheckerTestCase
 
-_NodeNGT = Type[nodes.NodeNG]
+_NodeNGT = type[nodes.NodeNG]
 
 
 @contextlib.contextmanager
@@ -61,10 +61,8 @@ class TestStdlibChecker(CheckerTestCase):
         manager = astroid.MANAGER
         transform = astroid.inference_tip(infer_func)
         with _add_transform(manager, nodes.Name, transform):
-            node = astroid.extract_node(
-                """
+            node = astroid.extract_node("""
             call_something()
-            """
-            )
+            """)
             with self.assertNoMessages():
                 self.checker.visit_call(node)

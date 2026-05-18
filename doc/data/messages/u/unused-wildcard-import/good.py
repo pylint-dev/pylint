@@ -1,5 +1,4 @@
 from abc import ABC
 
 
-class Animal(ABC):
-    ...
+class Animal(ABC): ...

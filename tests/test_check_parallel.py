@@ -11,8 +11,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures.process import BrokenProcessPool
+from concurrent.futures.process import BrokenProcessPool, ProcessPoolExecutor
 from pathlib import Path
 from pickle import PickleError
 from typing import TYPE_CHECKING
@@ -25,10 +24,12 @@ import pylint.interfaces
 import pylint.lint.parallel
 from pylint.checkers import BaseRawFileChecker
 from pylint.checkers.imports import ImportsChecker
+from pylint.config.config_initialization import _config_initialization
 from pylint.lint import PyLinter, augmented_sys_path
 from pylint.lint.parallel import _worker_check_single_file as worker_check_single_file
 from pylint.lint.parallel import _worker_initialize as worker_initialize
 from pylint.lint.parallel import check_parallel
+from pylint.reporters.progress_reporters import ProgressReporter
 from pylint.testutils import GenericTestReporter as Reporter
 from pylint.testutils.utils import _test_cwd
 from pylint.typing import FileItem
@@ -45,12 +46,11 @@ def _gen_file_data(idx: int = 0) -> FileItem:
     filepath = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "input", "similar1")
     )
-    file_data = FileItem(
+    return FileItem(
         f"--test-file_data-name-{idx}--",
         filepath,
         f"--test-file_data-modname-{idx}--",
     )
-    return file_data
 
 
 def _gen_file_datas(count: int = 1) -> list[FileItem]:
@@ -217,6 +217,59 @@ class TestCheckParallelFramework:
         ) as executor:
             executor.map(print, [1, 2])
 
+    def test_worker_initialize_custom_plugins(self) -> None:
+        """Test plugins are initialized (only once) and messages are set to
+        enabled and disabled correctly, after the worker linter is initialized.
+        """
+        linter = PyLinter(reporter=Reporter())
+        linter.load_default_plugins()
+        config_data = {
+            "load-plugins": (
+                "pylint.extensions.code_style,"
+                "pylint.extensions.typing,"
+                "pylint.checkers.raw_metrics,"  # Custom report
+            ),
+        }
+        config_args = [
+            "--enable=consider-using-augmented-assign",
+            "--disable=consider-alternative-union-syntax",
+        ]
+        with patch(
+            "pylint.config.config_file_parser._ConfigurationFileParser.parse_config_file",
+            return_value=(config_data, config_args),
+        ):
+            _config_initialization(linter, [])
+        assert len(linter._checkers["code_style"]) == 1
+        assert len(linter._checkers["typing"]) == 1
+        assert len(linter._checkers["metrics"]) == 2
+        old_metrics_checker = linter._checkers["metrics"][-1]
+        assert len(linter._reports[old_metrics_checker]) == 2
+        assert linter.is_message_enabled("consider-using-augmented-assign") is True
+        assert (  # default disabled
+            linter.is_message_enabled("prefer-typing-namedtuple") is False
+        )
+        assert linter.is_message_enabled("consider-alternative-union-syntax") is False
+
+        worker_initialize(linter=dill.dumps(linter))
+        worker_linter = pylint.lint.parallel._worker_linter
+        assert isinstance(worker_linter, PyLinter)
+        assert len(worker_linter._registered_dynamic_plugin_checkers) == 3
+        assert len(worker_linter._checkers["code_style"]) == 1
+        assert len(worker_linter._checkers["typing"]) == 1
+        assert len(worker_linter._checkers["metrics"]) == 2
+        # The base checker overwrite __eq__ and __hash__ to only compare name and msgs.
+        # Thus, while the ids for the metrics checker are different, they have the same
+        # hash. That is used as key for the '_reports' dict.
+        new_metrics_checker = worker_linter._checkers["metrics"][-1]
+        assert id(old_metrics_checker) != id(new_metrics_checker)
+        assert old_metrics_checker == new_metrics_checker
+        assert len(worker_linter._reports[new_metrics_checker]) == 2
+        assert linter.is_message_enabled("consider-using-augmented-assign") is True
+        assert (  # default disabled
+            linter.is_message_enabled("prefer-typing-namedtuple") is False
+        )
+        assert linter.is_message_enabled("consider-alternative-union-syntax") is False
+
     def test_worker_check_single_file_uninitialised(self) -> None:
         pylint.lint.parallel._worker_linter = None
         with pytest.raises(  # Objects that do not match the linter interface will fail
@@ -263,13 +316,13 @@ class TestCheckParallelFramework:
         assert stats.warning == 0
 
     def test_linter_with_unpickleable_plugins_is_pickleable(self) -> None:
-        """The linter needs to be pickle-able in order to be passed between workers"""
+        """The linter needs to be pickle-able in order to be passed between workers."""
         linter = PyLinter(reporter=Reporter())
         # We load an extension that we know is not pickle-safe
         linter.load_plugin_modules(["pylint.extensions.overlapping_exceptions"])
         try:
             dill.dumps(linter)
-            # TODO: 3.0: Fix this test by raising this assertion again
+            # TODO: 4.0: Fix this test by raising this assertion again
             # raise AssertionError(
             #     "Plugins loaded were pickle-safe! This test needs altering"
             # )
@@ -382,6 +435,7 @@ class TestCheckParallel:
         # now run the regular mode of checking files and check that, in this proc, we
         # collect the right data
         filepath = [single_file_container[0][1]]  # get the filepath element
+        linter.stats = LinterStats()
         linter.check(filepath)
         assert {
             "input.similar1": {  # module is the only change from previous
@@ -478,14 +532,11 @@ class TestCheckParallel:
         This test becomes more important if we want to change how we parameterize the
         checkers, for example if we aim to batch the files across jobs.
         """
-
         # define the stats we expect to get back from the runs, these should only vary
         # with the number of files.
         expected_stats = LinterStats(
             by_module={
-                # pylint: disable-next=consider-using-f-string
-                "--test-file_data-name-%d--"
-                % idx: ModuleStats(
+                f"--test-file_data-name-{idx}--": ModuleStats(
                     convention=0,
                     error=0,
                     fatal=0,
@@ -508,6 +559,8 @@ class TestCheckParallel:
 
         file_infos = _gen_file_datas(num_files)
 
+        progress_reporter = ProgressReporter(is_verbose=False)
+
         # Loop for single-proc and mult-proc, so we can ensure the same linter-config
         for do_single_proc in range(2):
             linter = PyLinter(reporter=Reporter())
@@ -525,9 +578,13 @@ class TestCheckParallel:
                 assert (
                     linter.config.jobs == 1
                 ), "jobs>1 are ignored when calling _lint_files"
-                ast_mapping = linter._get_asts(iter(file_infos), None)
+                ast_mapping = linter._get_asts(
+                    iter(file_infos), None, progress_reporter
+                )
                 with linter._astroid_module_checker() as check_astroid_module:
-                    linter._lint_files(ast_mapping, check_astroid_module)
+                    linter._lint_files(
+                        ast_mapping, check_astroid_module, progress_reporter
+                    )
                 assert linter.msg_status == 0, "We should not fail the lint"
                 stats_single_proc = linter.stats
             else:
@@ -571,7 +628,6 @@ class TestCheckParallel:
 
         Checks regression of https://github.com/pylint-dev/pylint/issues/4118
         """
-
         # define the stats we expect to get back from the runs, these should only vary
         # with the number of files.
         file_infos = _gen_file_datas(num_files)
@@ -588,14 +644,20 @@ class TestCheckParallel:
             if num_checkers > 2:
                 linter.register_checker(ThirdParallelTestChecker(linter))
 
+            progress_reporter = ProgressReporter(is_verbose=False)
+
             if do_single_proc:
                 # establish the baseline
                 assert (
                     linter.config.jobs == 1
                 ), "jobs>1 are ignored when calling _lint_files"
-                ast_mapping = linter._get_asts(iter(file_infos), None)
+                ast_mapping = linter._get_asts(
+                    iter(file_infos), None, progress_reporter
+                )
                 with linter._astroid_module_checker() as check_astroid_module:
-                    linter._lint_files(ast_mapping, check_astroid_module)
+                    linter._lint_files(
+                        ast_mapping, check_astroid_module, progress_reporter
+                    )
                 stats_single_proc = linter.stats
             else:
                 check_parallel(
@@ -604,6 +666,7 @@ class TestCheckParallel:
                     files=file_infos,
                 )
                 stats_check_parallel = linter.stats
+        # pylint: disable=possibly-used-before-assignment
         assert str(stats_single_proc.by_msg) == str(
             stats_check_parallel.by_msg
         ), "Single-proc and check_parallel() should return the same thing"
@@ -715,3 +778,39 @@ class TestCheckParallel:
             )
 
         assert "cyclic-import" not in linter.stats.by_msg
+
+    @pytest.mark.needs_two_cores
+    def test_parallel_message_stats_are_not_inflated(self) -> None:
+        """The final message report stats must match emitted diagnostics.
+
+        Each worker can process more than one file. The stats returned for a
+        worker invocation must therefore be per-file stats, not cumulative
+        worker-process stats, otherwise merge_stats() counts messages repeatedly.
+        """
+        num_files = 10
+        linter = PyLinter(reporter=Reporter())
+        linter.register_checker(MessageEmittingSequentialTestChecker(linter))
+
+        check_parallel(linter, jobs=2, files=_gen_file_datas(num_files))
+
+        assert len(linter.reporter.messages) == num_files
+        assert linter.stats.by_msg == {
+            "message-emitting-sequential-test-check": num_files
+        }
+
+
+class MessageEmittingSequentialTestChecker(BaseRawFileChecker):
+    """A sequential checker that emits one message per processed module."""
+
+    name = "message-emitting-sequential-checker"
+    msgs = {
+        "R9998": (
+            "Test",
+            "message-emitting-sequential-test-check",
+            "Some helpful text.",
+        )
+    }
+
+    def process_module(self, node: nodes.Module) -> None:
+        """Emit exactly one message per checked module."""
+        self.add_message("R9998")

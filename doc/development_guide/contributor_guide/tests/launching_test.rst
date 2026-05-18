@@ -30,7 +30,7 @@ tox
 You can also *optionally* install tox_ and run our tests using the tox_ package, as in::
 
     python -m tox
-    python -m tox -epy38 # for Python 3.8 suite only
+    python -m tox -epy313 # for Python 3.13 suite only
     python -m tox -epylint # for running Pylint over Pylint's codebase
     python -m tox -eformatting # for running formatting checks over Pylint's codebase
 

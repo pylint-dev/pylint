@@ -40,12 +40,9 @@ def get_setters_property_name(node: nodes.FunctionDef) -> str | None:
     """
     decorators = node.decorators.nodes if node.decorators else []
     for decorator in decorators:
-        if (
-            isinstance(decorator, nodes.Attribute)
-            and decorator.attrname == "setter"
-            and isinstance(decorator.expr, nodes.Name)
-        ):
-            return decorator.expr.name  # type: ignore[no-any-return]
+        match decorator:
+            case nodes.Attribute(attrname="setter", expr=nodes.Name(name=name)):
+                return name  # type: ignore[no-any-return]
     return None
 
 
@@ -77,24 +74,21 @@ def returns_something(return_node: nodes.Return) -> bool:
     """Check if a return node returns a value other than None.
 
     :param return_node: The return node to check.
-    :type return_node: astroid.Return
+    :type return_node: nodes.Return
 
     :rtype: bool
     :return: True if the return node returns a value other than None,
         False otherwise.
     """
     returns = return_node.value
-
-    if returns is None:
-        return False
-
-    return not (isinstance(returns, nodes.Const) and returns.value is None)
+    return not (
+        returns is None or (isinstance(returns, nodes.Const) and returns.value is None)
+    )
 
 
 def _get_raise_target(node: nodes.NodeNG) -> nodes.NodeNG | UninferableBase | None:
-    if isinstance(node.exc, nodes.Call):
-        func = node.exc.func
-        if isinstance(func, (nodes.Name, nodes.Attribute)):
+    match node.exc:
+        case nodes.Call(func=nodes.Name() | nodes.Attribute() as func):
             return utils.safe_infer(func)
     return None
 
@@ -133,23 +127,24 @@ def possible_exc_types(node: nodes.NodeNG) -> set[nodes.ClassDef]:
             except astroid.InferenceError:
                 pass
     else:
-        target = _get_raise_target(node)
-        if isinstance(target, nodes.ClassDef):
-            exceptions = [target]
-        elif isinstance(target, nodes.FunctionDef):
-            for ret in target.nodes_of_class(nodes.Return):
-                if ret.value is None:
-                    continue
-                if ret.frame() != target:
-                    # return from inner function - ignore it
-                    continue
+        match target := _get_raise_target(node):
+            case nodes.ClassDef():
+                exceptions = [target]
+            case nodes.FunctionDef():
+                for ret in target.nodes_of_class(nodes.Return):
+                    if ret.value is None:
+                        continue
+                    if ret.frame() != target:
+                        # return from inner function - ignore it
+                        continue
 
-                val = utils.safe_infer(ret.value)
-                if val and utils.inherit_from_std_ex(val):
-                    if isinstance(val, nodes.ClassDef):
-                        exceptions.append(val)
-                    elif isinstance(val, astroid.Instance):
-                        exceptions.append(val.getattr("__class__")[0])
+                    val = utils.safe_infer(ret.value)
+                    if val and utils.inherit_from_std_ex(val):
+                        match val:
+                            case nodes.ClassDef():
+                                exceptions.append(val)
+                            case astroid.Instance():
+                                exceptions.append(val.getattr("__class__")[0])
 
     try:
         return {
@@ -347,12 +342,10 @@ class SphinxDocstring(Docstring):
         [\(\[] [^\n\s]+ [\)\]]        # with the contents of the container
     """
 
-    re_multiple_simple_type = r"""
-        (?:{container_type}|{type})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}))*
-    """.format(
-        type=re_type, container_type=re_simple_container_type
-    )
+    re_multiple_simple_type = rf"""
+        (?:{re_simple_container_type}|{re_type})
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{re_simple_container_type}|{re_type}))*
+    """
 
     re_xref = rf"""
         (?::\w+:)?                    # optional tag
@@ -549,12 +542,10 @@ class GoogleDocstring(Docstring):
         [\(\[] [^\n]+ [\)\]]          # with the contents of the container
     """
 
-    re_multiple_type = r"""
-        (?:{container_type}|{type}|{xref})
-        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{container_type}|{type}|{xref}))*
-    """.format(
-        type=re_type, xref=re_xref, container_type=re_container_type
-    )
+    re_multiple_type = rf"""
+        (?:{re_container_type}|{re_type}|{re_xref})
+        (?:(?:\s+(?:of|or)\s+|\s*,\s*|\s+\|\s+)(?:{re_container_type}|{re_type}|{re_xref}))*
+    """
 
     _re_section_template = r"""
         ^([ ]*)   {0} \s*:   \s*$     # Google parameter header

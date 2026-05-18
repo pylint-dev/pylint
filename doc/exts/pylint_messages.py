@@ -12,7 +12,7 @@ from enum import Enum
 from inspect import getmodule
 from itertools import chain, groupby
 from pathlib import Path
-from typing import DefaultDict, Dict, List, NamedTuple, Tuple
+from typing import NamedTuple
 
 from sphinx.application import Sphinx
 
@@ -34,6 +34,27 @@ PYLINT_MESSAGES_DATA_PATH = PYLINT_BASE_PATH / "doc" / "data" / "messages"
 
 MSG_TYPES_DOC = {k: v if v != "info" else "information" for k, v in MSG_TYPES.items()}
 
+MESSAGES_WITHOUT_EXAMPLES = {
+    "astroid-error",  # internal
+    "bad-configuration-section",  # configuration
+    "bad-plugin-value",  # internal
+    "c-extension-no-member",  # not easy to implement in the current doc framework
+    "config-parse-error",  # configuration
+    "fatal",  # internal
+    "import-self",  # not easy to implement in the current doc framework
+    "invalid-character-nul",  # not easy to implement in the current doc framework
+    "invalid-characters-in-docstring",  # internal in py-enchant
+    "invalid-unicode-codec",  # placeholder (not implemented yet)
+    "method-check-failed",  # internal
+    "parse-error",  # internal
+    "raw-checker-failed",  # internal
+    "unrecognized-option",  # configuration
+}
+MESSAGES_WITHOUT_BAD_EXAMPLES = {
+    "invalid-character-carriage-return",  # can't be raised in normal pylint use
+    "return-arg-in-generator",  # can't be raised in modern python
+}
+
 
 class MessageData(NamedTuple):
     checker: str
@@ -52,8 +73,8 @@ class ExampleType(str, Enum):
     BAD = "bad"
 
 
-MessagesDict = Dict[str, List[MessageData]]
-OldMessagesDict = Dict[str, DefaultDict[Tuple[str, str], List[Tuple[str, str]]]]
+MessagesDict = dict[str, list[MessageData]]
+OldMessagesDict = dict[str, defaultdict[tuple[str, str], list[tuple[str, str]]]]
 """DefaultDict is indexed by tuples of (old name symbol, old name id) and values are
 tuples of (new name symbol, new name category).
 """
@@ -99,6 +120,11 @@ def _get_pylintrc_code(data_path: Path) -> str:
 
 def _get_demo_code_for(data_path: Path, example_type: ExampleType) -> str:
     """Get code examples while handling multi-file code templates."""
+    if data_path.name in MESSAGES_WITHOUT_EXAMPLES or (
+        data_path.name in MESSAGES_WITHOUT_BAD_EXAMPLES
+        and example_type is ExampleType.BAD
+    ):
+        return ""
     single_file_path = data_path / f"{example_type.value}.py"
     multiple_code_path = data_path / f"{example_type.value}"
 
@@ -120,18 +146,17 @@ def _get_demo_code_for(data_path: Path, example_type: ExampleType) -> str:
         for file_as_str in sorted([str(p) for p in multiple_code_path.iterdir()]):
             file = Path(file_as_str)
             if file.suffix == ".py":
-                files.append(
-                    f"""\
+                files.append(f"""\
 ``{file.name}``:
 
 .. literalinclude:: /{file.relative_to(Path.cwd())}
     :language: python
 
-"""
-                )
+""")
         return _get_titled_rst(title=title, text="\n".join(files))
-
-    return ""
+    raise AssertionError(
+        f"Please add a {example_type.value} code example for {data_path}"
+    )
 
 
 def _check_placeholders(
@@ -187,9 +212,7 @@ def _get_ini_as_rst(code_path: Path) -> str:
 """
 
 
-def _get_all_messages(
-    linter: PyLinter,
-) -> tuple[MessagesDict, OldMessagesDict]:
+def _get_all_messages(linter: PyLinter) -> tuple[MessagesDict, OldMessagesDict]:
     """Get all messages registered to a linter and return a dictionary indexed by
     message type.
 
@@ -241,8 +264,8 @@ def _get_all_messages(
         if message.old_names:
             for old_name in message.old_names:
                 category = MSG_TYPES_DOC[old_name[0][0]]
-                # We check if the message is already in old_messages so
-                # we don't duplicate shared messages.
+                # We check if the message is already in old_messages, so we don't
+                # duplicate shared messages.
                 if (message.symbol, msg_type) not in old_messages[category][
                     (old_name[1], old_name[0])
                 ]:
@@ -319,14 +342,22 @@ def _generate_single_message_body(message: MessageData) -> str:
   This message is disabled by default. To enable it, add ``{message.name}`` to the ``enable`` option.
 
 """
+    if message.id.startswith("I"):
+        body += f"""
+.. caution::
+  By default, this message will not fail the execution (pylint will return 0).
+  To make pylint fail for this message use the ``--fail-on={message.id}`` option
+  or ``--fail-on=I`` to fail on all enabled informational messages.
 
-    body += "\n" + message.example_code + "\n"
+"""
+
+    body += f"\n{message.example_code}\n"
 
     if message.checker_module_name.startswith("pylint.extensions."):
         body += f"""
 .. note::
   This message is emitted by the optional :ref:`'{message.checker}'<{message.checker_module_name}>`
-   checker which requires the ``{message.checker_module_name}`` plugin to be loaded.
+  checker, which requires the ``{message.checker_module_name}`` plugin to be loaded.
 
 """
     return body
@@ -369,8 +400,7 @@ def _write_messages_list_page(
     with open(messages_file, "w", encoding="utf-8") as stream:
         # Write header of file
         title = "Messages overview"
-        stream.write(
-            f"""
+        stream.write(f"""
 .. _messages-overview:
 
 {"#" * len(title)}
@@ -381,8 +411,7 @@ def _write_messages_list_page(
 
 Pylint can emit the following messages:
 
-"""
-        )
+""")
         # Iterate over tuple to keep same order
         for category in (
             "fatal",
@@ -406,8 +435,7 @@ Pylint can emit the following messages:
             )
             # Write list per category. We need the '-category' suffix in the reference
             # because 'fatal' is also a message's symbol
-            stream.write(
-                f"""
+            stream.write(f"""
 .. _{category.lower()}-category:
 
 {get_rst_title(category.capitalize(), "*")}
@@ -424,8 +452,7 @@ All renamed messages in the {category} category:
    :maxdepth: 1
    :titlesonly:
 
-{old_messages_string}"""
-            )
+{old_messages_string}""")
 
 
 def _write_redirect_pages(old_messages: OldMessagesDict) -> None:
@@ -481,11 +508,12 @@ def build_messages_pages(app: Sphinx | None) -> None:
     _write_redirect_pages(old_messages)
 
 
-def setup(app: Sphinx) -> None:
+def setup(app: Sphinx) -> dict[str, bool]:
     """Connects the extension to the Sphinx process."""
     # Register callback at the builder-inited Sphinx event
     # See https://www.sphinx-doc.org/en/master/extdev/appapi.html
     app.connect("builder-inited", build_messages_pages)
+    return {"parallel_read_safe": True}
 
 
 if __name__ == "__main__":

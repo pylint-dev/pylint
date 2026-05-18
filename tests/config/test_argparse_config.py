@@ -2,7 +2,7 @@
 # For details: https://github.com/pylint-dev/pylint/blob/main/LICENSE
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
-"""Test for the (new) implementation of option parsing with argparse"""
+"""Test for the (new) implementation of option parsing with argparse."""
 
 import re
 from os.path import abspath, dirname, join

@@ -10,7 +10,7 @@ def is_palindrome(string):  # [too-many-lines]
 
 
 def main():
-    print(isPalindrome("aza"))
-    print(isPalindrome("racecar"))
-    print(isPalindrome("trigger"))
-    print(isPalindrome("ogre"))
+    print(is_palindrome("aza"))
+    print(is_palindrome("racecar"))
+    print(is_palindrome("trigger"))
+    print(is_palindrome("ogre"))

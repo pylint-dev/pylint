@@ -1,1 +1,0 @@
-duplicate-argument-name:4:16:4:17:foo1:Duplicate argument name _ in function definition:HIGH

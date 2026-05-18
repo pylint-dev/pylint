@@ -48,6 +48,7 @@ MODULES_NAMES = [m[1] for m in MODULES_TO_CHECK]
 @pytest.mark.parametrize(
     ("test_module_location", "test_module_name"), MODULES_TO_CHECK, ids=MODULES_NAMES
 )
+@pytest.mark.filterwarnings("ignore::pytest.PytestUnraisableExceptionWarning")
 def test_primer_stdlib_no_crash(
     test_module_location: str, test_module_name: str, capsys: CaptureFixture
 ) -> None:

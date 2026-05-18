@@ -7,7 +7,7 @@ from __future__ import annotations
 import collections
 from collections import defaultdict
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, Dict, Literal
+from typing import TYPE_CHECKING, Literal
 
 from astroid import nodes
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from pylint.message import MessageDefinition, MessageDefinitionStore
 
 
-MessageStateDict = Dict[str, Dict[int, bool]]
+MessageStateDict = dict[str, dict[int, bool]]
 
 
 class FileState:
@@ -38,9 +38,9 @@ class FileState:
         self.base_name = modname
         self._module_msgs_state: MessageStateDict = {}
         self._raw_module_msgs_state: MessageStateDict = {}
-        self._ignored_msgs: defaultdict[
-            tuple[str, int], set[int]
-        ] = collections.defaultdict(set)
+        self._ignored_msgs: defaultdict[tuple[str, int], set[int]] = (
+            collections.defaultdict(set)
+        )
         self._suppression_mapping: dict[tuple[str, int], int] = {}
         self._module = node
         if node:
@@ -63,8 +63,10 @@ class FileState:
         """Recursively walk (depth first) AST to collect block level options
         line numbers and set the state correctly.
         """
-        for child in node.get_children():
-            self._set_state_on_block_lines(msgs_store, child, msg, msg_state)
+        # Avoid recursing into child nodes on the same line.
+        if node.lineno != node.end_lineno:
+            for child in node.get_children():
+                self._set_state_on_block_lines(msgs_store, child, msg, msg_state)
         # first child line number used to distinguish between disable
         # which are the first child of scoped node with those defined later.
         # For instance in the code below:

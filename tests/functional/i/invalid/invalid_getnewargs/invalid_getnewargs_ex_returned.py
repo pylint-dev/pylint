@@ -30,6 +30,24 @@ class ThirdGoodGetNewArgsEx:
     """GetNewArgsEx through the metaclass."""
 
 
+class FourthGoodGetNewArgsEx:
+    """Test that `args` and `kwargs` (`Name` nodes) are inferred as tuples.
+
+    https://github.com/pylint-dev/pylint/issues/10208
+    """
+    def __init__(self, boo, far, *, hoo, haha):
+        self._foo = boo
+        self._bar = far
+        self._hoo = hoo
+        self._haha = haha
+
+    def __getnewargs_ex__(self):
+        args = (self._foo, self._bar)
+        kwargs = {'hoo': self._hoo,
+                  'haha': self._haha}
+        return args, kwargs
+
+
 class FirstBadGetNewArgsEx:
     """ __getnewargs_ex__ returns an integer """
 

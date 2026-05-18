@@ -1,4 +1,4 @@
-# OPEN BUG: https://github.com/pylint-dev/pylint/issues/8189
+# Test for https://github.com/pylint-dev/pylint/issues/8189
 class DuplicateFields():
     example1: int
     example2: int
@@ -8,7 +8,7 @@ class DuplicateFields():
         self.example2 = 2
 
 
-# OPEN BUG: https://github.com/pylint-dev/pylint/issues/8522
+# Test for https://github.com/pylint-dev/pylint/issues/8522
 class A:
     pass
 
@@ -20,7 +20,7 @@ class DuplicateArrows:
 
 
 
-# OPEN BUG: https://github.com/pylint-dev/pylint/issues/8888
+# Test for https://github.com/pylint-dev/pylint/issues/8888
 class DuplicateAnnotations:
     def __init__(self) -> None:
         self.val: str | int = "1"

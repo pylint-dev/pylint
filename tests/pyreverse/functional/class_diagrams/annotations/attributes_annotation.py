@@ -16,3 +16,6 @@ class Dummy2:
         self.union: Union[int, str] = ""
         self.alternative_union_syntax: str | int = 0
         self.optional: Optional[Dummy] = None
+        self.alternative_optional: int | None = None
+        self.alternative_optional_swapped: None | int = None
+        self.optional_union: int | str = None

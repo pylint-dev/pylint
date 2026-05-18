@@ -30,48 +30,48 @@ class MyClass:
     attr5: Dict[str, str]
 
 
-obj = MyClass(None, 1, 'hi', lambda x: x, [], {})
+OBJ = MyClass(None, 1, 'hi', lambda x: x, [], {})
 
-lst = [0, 1, 2]
-print(lst[obj.attr0])
-print(lst[obj.attr1])
-print(lst[obj.attr2])  # [invalid-sequence-index]
+LIST = [0, 1, 2]
+print(LIST[OBJ.attr0])
+print(LIST[OBJ.attr1])
+print(LIST[OBJ.attr2])  # [invalid-sequence-index]
 
-print(lst[obj.attr0::])
-print(lst[obj.attr1::])
-print(lst[obj.attr2::])  # [invalid-slice-index]
+print(LIST[OBJ.attr0::])
+print(LIST[OBJ.attr1::])
+print(LIST[OBJ.attr2::])  # [invalid-slice-index]
 
-obj.attr0(100)
-obj.attr1(100)  # [not-callable]
-obj.attr3(100)
+OBJ.attr0(100)
+OBJ.attr1(100)  # [not-callable]
+OBJ.attr3(100)
 
-print(-obj.attr0)
-print(-obj.attr1)
-print(-obj.attr2)  # [invalid-unary-operand-type]
+print(-OBJ.attr0)
+print(-OBJ.attr1)
+print(-OBJ.attr2)  # [invalid-unary-operand-type]
 
-print(1 + obj.attr0)
-print(1 + obj.attr1)
-print(1 + obj.attr2)  # Should be an error here once unsupported-binary-operation is enabled
+print(1 + OBJ.attr0)
+print(1 + OBJ.attr1)
+print(1 + OBJ.attr2)  # Should be an error here once unsupported-binary-operation is enabled
 
-print(1 in obj.attr0)
-print(1 in obj.attr1)  # [unsupported-membership-test]
-print(1 in obj.attr4)
-print('hi' in obj.attr5)
+print(1 in OBJ.attr0)
+print(1 in OBJ.attr1)  # [unsupported-membership-test]
+print(1 in OBJ.attr4)
+print('hi' in OBJ.attr5)
 
-print(obj.attr0[1])
-print(obj.attr1[1])  # [unsubscriptable-object]
-print(obj.attr4[1])
-print(obj.attr5['hi'])
+print(OBJ.attr0[1])
+print(OBJ.attr1[1])  # [unsubscriptable-object]
+print(OBJ.attr4[1])
+print(OBJ.attr5['hi'])
 
-obj.attr0[1] = 1
-obj.attr1[1] = 1  # [unsupported-assignment-operation]
-obj.attr4[1] = 1
-obj.attr5['hi'] = 'bye'
+OBJ.attr0[1] = 1
+OBJ.attr1[1] = 1  # [unsupported-assignment-operation]
+OBJ.attr4[1] = 1
+OBJ.attr5['hi'] = 'bye'
 
-del obj.attr0[1]
-del obj.attr1[1]  # [unsupported-delete-operation]
-del obj.attr4[1]
-del obj.attr5['hi']
+del OBJ.attr0[1]
+del OBJ.attr1[1]  # [unsupported-delete-operation]
+del OBJ.attr4[1]
+del OBJ.attr5['hi']
 
 
 class Manager:
@@ -89,33 +89,33 @@ class MyClass2:
     attr2: str
 
 
-obj2 = MyClass2(None, Manager(), 'hi')
-with obj2.attr0:
+OBJ2 = MyClass2(None, Manager(), 'hi')
+with OBJ2.attr0:
     pass
-with obj2.attr1:
+with OBJ2.attr1:
     pass
-with obj2.attr2:  # [not-context-manager]
-    pass
-
-
-class Test1(metaclass=obj.attr0):
+with OBJ2.attr2:  # [not-context-manager]
     pass
 
 
-class Test2(metaclass=obj.attr1):  # [invalid-metaclass]
+class Test1(metaclass=OBJ.attr0):
     pass
 
 
-{}[obj.attr0] = 1
-{}[obj.attr1] = 1
-{}[obj.attr5] = 1  # [unhashable-member]
+class Test2(metaclass=OBJ.attr1):  # [invalid-metaclass]
+    pass
 
-for k, v in obj.attr5:  # TODO: Should be a dict-iter-missing-items error
+
+{}[OBJ.attr0] = 1
+{}[OBJ.attr1] = 1
+{}[OBJ.attr5] = 1  # [unhashable-member]
+
+for k, v in OBJ.attr5:  # TODO: Should be a dict-iter-missing-items error
     print(k, v)
 
-__name__ = obj.attr0
-__name__ = obj.attr1  # TODO: Should be a non-str-assignment-to-dunder-name error
-__name__ = obj.attr2
+__name__ = OBJ.attr0
+__name__ = OBJ.attr1  # TODO: Should be a non-str-assignment-to-dunder-name error
+__name__ = OBJ.attr2
 
-print(isinstance(1, obj.attr0))
-print(isinstance(1, obj.attr1))  # [isinstance-second-argument-not-valid-type]
+print(isinstance(1, OBJ.attr0))
+print(isinstance(1, OBJ.attr1))  # [isinstance-second-argument-not-valid-type]

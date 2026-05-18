@@ -1,0 +1,9 @@
+@startuml classes
+set namespaceSeparator none
+class "Monkey" as method_annotation_no_signatures.Monkey {
+  eat()
+  jump()
+  munch()
+  scream()
+}
+@enduml

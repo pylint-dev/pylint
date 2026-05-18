@@ -14,8 +14,6 @@ import warnings
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, TextIO
 
-import tomlkit
-
 from pylint import utils
 from pylint.config.argument import (
     _Argument,
@@ -133,7 +131,7 @@ class _ArgumentsManager:
                 *argument.flags,
                 action=argument.action,
                 default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                type=argument.type,
                 help=argument.help,
                 metavar=argument.metavar,
                 choices=argument.choices,
@@ -144,12 +142,12 @@ class _ArgumentsManager:
                 **argument.kwargs,
                 action=argument.action,
                 default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                type=argument.type,
                 help=argument.help,
                 metavar=argument.metavar,
                 choices=argument.choices,
             )
-            # We add the old name as hidden option to make it's default value gets loaded when
+            # We add the old name as hidden option to make its default value get loaded when
             # argparse initializes all options from the checker
             assert argument.kwargs["old_names"]
             for old_name in argument.kwargs["old_names"]:
@@ -157,7 +155,7 @@ class _ArgumentsManager:
                     f"--{old_name}",
                     action="store",
                     default=argument.default,
-                    type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                    type=argument.type,
                     help=argparse.SUPPRESS,
                     metavar=argument.metavar,
                     choices=argument.choices,
@@ -168,7 +166,7 @@ class _ArgumentsManager:
                 **argument.kwargs,
                 action=argument.action,
                 default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                type=argument.type,
                 help=argument.help,
                 metavar=argument.metavar,
                 choices=argument.choices,
@@ -193,7 +191,7 @@ class _ArgumentsManager:
                 *argument.flags,
                 action=argument.action,
                 default=argument.default,
-                type=argument.type,  # type: ignore[arg-type] # incorrect typing in typeshed
+                type=argument.type,
                 help=argument.help,
                 metavar=argument.metavar,
                 choices=argument.choices,
@@ -302,6 +300,8 @@ class _ArgumentsManager:
         """Write a configuration file according to the current configuration into
         stdout.
         """
+        import tomlkit  # pylint: disable=import-outside-toplevel
+
         toml_doc = tomlkit.document()
         tool_table = tomlkit.table(is_super_table=True)
         toml_doc.add(tomlkit.key("tool"), tool_table)

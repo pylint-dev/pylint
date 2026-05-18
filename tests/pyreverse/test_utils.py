@@ -107,7 +107,7 @@ def test_get_annotation_label_of_return_type(
 @patch("astroid.nodes.NodeNG.infer", side_effect=astroid.InferenceError)
 def test_infer_node_1(mock_infer: Any, mock_get_annotation: Any) -> None:
     """Return set() when astroid.InferenceError is raised and an annotation has
-    not been returned
+    not been returned.
     """
     mock_get_annotation.return_value = None
     node = astroid.extract_node("a: str = 'mystr'")
@@ -120,7 +120,7 @@ def test_infer_node_1(mock_infer: Any, mock_get_annotation: Any) -> None:
 @patch("astroid.nodes.NodeNG.infer")
 def test_infer_node_2(mock_infer: Any, mock_get_annotation: Any) -> None:
     """Return set(node.infer()) when InferenceError is not raised and an
-    annotation has not been returned
+    annotation has not been returned.
     """
     mock_get_annotation.return_value = None
     node = astroid.extract_node("a: str = 'mystr'")
@@ -131,18 +131,16 @@ def test_infer_node_2(mock_infer: Any, mock_get_annotation: Any) -> None:
 
 def test_infer_node_3() -> None:
     """Return a set containing a nodes.ClassDef object when the attribute
-    has a type annotation
+    has a type annotation.
     """
-    node = astroid.extract_node(
-        """
+    node = astroid.extract_node("""
         class Component:
             pass
 
         class Composite:
             def __init__(self, component: Component):
                 self.component = component
-    """
-    )
+    """)
     instance_attr = node.instance_attrs.get("component")[0]
     assert isinstance(infer_node(instance_attr), set)
     assert isinstance(infer_node(instance_attr).pop(), nodes.ClassDef)
@@ -150,15 +148,13 @@ def test_infer_node_3() -> None:
 
 def test_infer_node_4() -> None:
     """Verify the label for an argument with a typehint of the type
-    nodes.Subscript
+    nodes.Subscript.
     """
-    node = astroid.extract_node(
-        """
+    node = astroid.extract_node("""
         class MyClass:
             def __init__(self, my_int: Optional[int] = None):
                 self.my_test_int = my_int
-    """
-    )
+    """)
 
     instance_attr = node.instance_attrs.get("my_test_int")[0]
     assert isinstance(instance_attr, nodes.AssignAttr)

@@ -53,5 +53,11 @@ class Apples:
         return 1
 
 
+class MyError(Exception):
+    @property
+    def __suppress_context__(self):
+        return True
+
+
 def __increase_me__(val):
     return val + 1

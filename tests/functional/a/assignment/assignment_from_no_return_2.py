@@ -1,4 +1,4 @@
-# pylint: disable=useless-return, condition-evals-to-constant
+# pylint: disable=useless-return, condition-evals-to-constant, invalid-name
 """check assignment to function call where the function doesn't return
 
     'E1111': ('Assigning to function call which doesn\'t return',

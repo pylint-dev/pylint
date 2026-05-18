@@ -26,9 +26,9 @@ def initialize(linter: PyLinter) -> None:
 
 __all__ = [
     "BaseReporter",
-    "ReportsHandlerMixIn",
-    "JSONReporter",
-    "JSON2Reporter",
     "CollectingReporter",
+    "JSON2Reporter",
+    "JSONReporter",
     "MultiReporter",
+    "ReportsHandlerMixIn",
 ]

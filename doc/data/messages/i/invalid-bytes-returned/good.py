@@ -1,4 +1,4 @@
-class GoodBytes:
+class CustomBytes:
     """__bytes__ returns <type 'bytes'>"""
 
     def __bytes__(self):

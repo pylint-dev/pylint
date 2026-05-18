@@ -30,10 +30,16 @@ SHAPES: dict[NodeType, str] = {
 # pylint: disable-next=consider-using-namedtuple-or-dataclass
 ARROWS: dict[EdgeType, dict[str, str]] = {
     EdgeType.INHERITS: {"arrowtail": "none", "arrowhead": "empty"},
-    EdgeType.ASSOCIATION: {
+    EdgeType.COMPOSITION: {
         "fontcolor": "green",
         "arrowtail": "none",
         "arrowhead": "diamond",
+        "style": "solid",
+    },
+    EdgeType.ASSOCIATION: {
+        "fontcolor": "green",
+        "arrowtail": "none",
+        "arrowhead": "vee",
         "style": "solid",
     },
     EdgeType.AGGREGATION: {
@@ -59,10 +65,11 @@ class DotPrinter(Printer):
         title: str,
         layout: Layout | None = None,
         use_automatic_namespace: bool | None = None,
+        show_signatures: bool = True,
     ):
         layout = layout or Layout.BOTTOM_TO_TOP
         self.charset = "utf-8"
-        super().__init__(title, layout, use_automatic_namespace)
+        super().__init__(title, layout, use_automatic_namespace, show_signatures)
 
     def _open_graph(self) -> None:
         """Emit the header lines."""
@@ -118,14 +125,17 @@ class DotPrinter(Printer):
         # Add class methods
         methods: list[nodes.FunctionDef] = properties.methods or []
         for func in methods:
-            args = self._get_method_arguments(func)
             method_name = (
                 f"<I>{func.name}</I>" if func.is_abstract() else f"{func.name}"
             )
-            label += rf"{method_name}({', '.join(args)})"
-            if func.returns:
-                annotation_label = get_annotation_label(func.returns)
-                label += ": " + self._escape_annotation_label(annotation_label)
+            if self.show_signatures:
+                args = ", ".join(self._get_method_arguments(func)).replace("|", r"\|")
+                label += rf"{method_name}({args})"
+                if func.returns:
+                    annotation_label = get_annotation_label(func.returns)
+                    label += ": " + self._escape_annotation_label(annotation_label)
+            else:
+                label += rf"{method_name}()"
             label += rf"{HTMLLabels.LINEBREAK_LEFT.value}"
         label += "}"
         return label
@@ -133,9 +143,7 @@ class DotPrinter(Printer):
     def _escape_annotation_label(self, annotation_label: str) -> str:
         # Escape vertical bar characters to make them appear as a literal characters
         # otherwise it gets treated as field separator of record-based nodes
-        annotation_label = annotation_label.replace("|", r"\|")
-
-        return annotation_label
+        return annotation_label.replace("|", r"\|")
 
     def emit_edge(
         self,

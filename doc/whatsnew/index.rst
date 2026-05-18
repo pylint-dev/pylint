@@ -5,6 +5,7 @@
    :titlesonly:
    :hidden:
 
+   4/index
    3/index
    2/index
    1/index

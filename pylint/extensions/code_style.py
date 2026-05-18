@@ -4,8 +4,8 @@
 
 from __future__ import annotations
 
-import sys
-from typing import TYPE_CHECKING, Tuple, Type, cast
+import difflib
+from typing import TYPE_CHECKING, TypeGuard, cast
 
 from astroid import nodes
 
@@ -15,11 +15,6 @@ from pylint.interfaces import INFERENCE
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
-
-if sys.version_info >= (3, 10):
-    from typing import TypeGuard
-else:
-    from typing_extensions import TypeGuard
 
 
 class CodeStyleChecker(BaseChecker):
@@ -80,6 +75,13 @@ class CodeStyleChecker(BaseChecker):
                 "default_enabled": False,
             },
         ),
+        "R6106": (
+            "Consider %smath.%s instead of %s",
+            "consider-math-not-float",
+            "Using math.inf or math.nan permits to benefit from typing and it is up "
+            "to 4 times faster than a float call (after the initial import of math). "
+            "This check also catches typos in float calls as a side effect.",
+        ),
     }
     options = (
         (
@@ -107,14 +109,42 @@ class CodeStyleChecker(BaseChecker):
             or self.linter.config.max_line_length
         )
 
-    @only_required_for_messages("prefer-typing-namedtuple")
+    @only_required_for_messages("prefer-typing-namedtuple", "consider-math-not-float")
     def visit_call(self, node: nodes.Call) -> None:
         if self._py36_plus:
             called = safe_infer(node.func)
-            if called and called.qname() == "collections.namedtuple":
+            if not (called and isinstance(called, (nodes.FunctionDef, nodes.ClassDef))):
+                return
+            if called.qname() == "collections.namedtuple":
                 self.add_message(
                     "prefer-typing-namedtuple", node=node, confidence=INFERENCE
                 )
+            elif called.qname() == "builtins.float":
+                if (
+                    node.args
+                    and isinstance(node.args[0], nodes.Const)
+                    and isinstance(node.args[0].value, str)
+                    and any(
+                        c.isalpha() and c.lower() != "e" for c in node.args[0].value
+                    )
+                ):
+                    value = node.args[0].value.lower()
+                    math_call: str
+                    if "nan" in value:
+                        math_call = "nan"
+                    elif "inf" in value:
+                        math_call = "inf"
+                    else:
+                        math_call = difflib.get_close_matches(
+                            value, ["inf", "nan"], n=1, cutoff=0
+                        )[0]
+                    minus = "-" if math_call == "inf" and value.startswith("-") else ""
+                    self.add_message(
+                        "consider-math-not-float",
+                        node=node,
+                        args=(minus, math_call, node.as_string()),
+                        confidence=INFERENCE,
+                    )
 
     @only_required_for_messages("consider-using-namedtuple-or-dataclass")
     def visit_dict(self, node: nodes.Dict) -> None:
@@ -138,11 +168,15 @@ class CodeStyleChecker(BaseChecker):
     def _check_dict_consider_namedtuple_dataclass(self, node: nodes.Dict) -> None:
         """Check if dictionary values can be replaced by Namedtuple or Dataclass."""
         if not (
-            isinstance(node.parent, (nodes.Assign, nodes.AnnAssign))
-            and isinstance(node.parent.parent, nodes.Module)
-            or isinstance(node.parent, nodes.AnnAssign)
-            and isinstance(node.parent.target, nodes.AssignName)
-            and utils.is_assign_name_annotated_with(node.parent.target, "Final")
+            (
+                isinstance(node.parent, (nodes.Assign, nodes.AnnAssign))
+                and isinstance(node.parent.parent, nodes.Module)
+            )
+            or (
+                isinstance(node.parent, nodes.AnnAssign)
+                and isinstance(node.parent.target, nodes.AssignName)
+                and utils.is_assign_name_annotated_with(node.parent.target, "Final")
+            )
         ):
             # If dict is not part of an 'Assign' or 'AnnAssign' node in
             # a module context OR 'AnnAssign' with 'Final' annotation, skip check.
@@ -152,7 +186,7 @@ class CodeStyleChecker(BaseChecker):
         if len(node.items) > 1 and all(
             isinstance(dict_value, nodes.Dict) for _, dict_value in node.items
         ):
-            KeyTupleT = Tuple[Type[nodes.NodeNG], str]
+            KeyTupleT = tuple[type[nodes.NodeNG], str]
 
             # Makes sure all keys are 'Const' string nodes
             keys_checked: set[KeyTupleT] = set()
@@ -222,23 +256,15 @@ class CodeStyleChecker(BaseChecker):
         Note: Assignment expressions were added in Python 3.8
         """
         # Check if `node.test` contains a `Name` node
-        node_name: nodes.Name | None = None
-        if isinstance(node.test, nodes.Name):
-            node_name = node.test
-        elif (
-            isinstance(node.test, nodes.UnaryOp)
-            and node.test.op == "not"
-            and isinstance(node.test.operand, nodes.Name)
-        ):
-            node_name = node.test.operand
-        elif (
-            isinstance(node.test, nodes.Compare)
-            and isinstance(node.test.left, nodes.Name)
-            and len(node.test.ops) == 1
-        ):
-            node_name = node.test.left
-        else:
-            return
+        match node.test:
+            case (
+                (nodes.Name() as node_name)
+                | nodes.UnaryOp(op="not", operand=nodes.Name() as node_name)
+                | nodes.Compare(left=nodes.Name() as node_name, ops=[_])
+            ):
+                pass
+            case _:
+                return
 
         # Make sure the previous node is an assignment to the same name
         # used in `node.test`. Furthermore, ignore if assignment spans multiple lines.
@@ -264,8 +290,7 @@ class CodeStyleChecker(BaseChecker):
             if (
                 node.col_offset is not None
                 and len(suggestion) + node.col_offset > self._max_length
-                or len(suggestion) > self._max_length
-            ):
+            ) or len(suggestion) > self._max_length:
                 return
 
             self.add_message(
@@ -285,19 +310,11 @@ class CodeStyleChecker(BaseChecker):
         if prev_sibling is None or prev_sibling.tolineno - prev_sibling.fromlineno != 0:
             return False
 
-        if (
-            isinstance(prev_sibling, nodes.Assign)
-            and len(prev_sibling.targets) == 1
-            and isinstance(prev_sibling.targets[0], nodes.AssignName)
-            and prev_sibling.targets[0].name == name
-        ):
-            return True
-        if (
-            isinstance(prev_sibling, nodes.AnnAssign)
-            and isinstance(prev_sibling.target, nodes.AssignName)
-            and prev_sibling.target.name == name
-        ):
-            return True
+        match prev_sibling:
+            case nodes.Assign(
+                targets=[nodes.AssignName(name=target_name)]
+            ) | nodes.AnnAssign(target=nodes.AssignName(name=target_name)):
+                return target_name == name and prev_sibling.value is not None
         return False
 
     @staticmethod
@@ -319,17 +336,11 @@ class CodeStyleChecker(BaseChecker):
                 # separate if block
                 next_if_node = next_sibling
 
-            if (  # pylint: disable=too-many-boolean-expressions
-                next_if_node is not None
-                and (
-                    isinstance(next_if_node.test, nodes.Compare)
-                    and isinstance(next_if_node.test.left, nodes.Name)
-                    and next_if_node.test.left.name == name
-                    or isinstance(next_if_node.test, nodes.Name)
-                    and next_if_node.test.name == name
-                )
-            ):
-                return True
+            match next_if_node:
+                case nodes.If(
+                    test=nodes.Compare(left=nodes.Name(name=n)) | nodes.Name(name=n)
+                ) if (n == name):
+                    return True
         return False
 
     @only_required_for_messages("consider-using-augmented-assign")
@@ -340,8 +351,6 @@ class CodeStyleChecker(BaseChecker):
                 "consider-using-augmented-assign",
                 args=f"{op}=",
                 node=node,
-                line=node.lineno,
-                col_offset=node.col_offset,
                 confidence=INFERENCE,
             )
 

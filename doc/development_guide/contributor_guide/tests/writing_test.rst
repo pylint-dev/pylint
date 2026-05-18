@@ -21,7 +21,7 @@ Unittest tests
 
 Most other tests reside in the '/pylint/test' directory. These unittests can be used to test
 almost all functionality within Pylint. A good step before writing any new unittests is to look
-at some tests that test a similar funcitionality. This can often help write new tests.
+at some tests that test a similar functionality. This can often help write new tests.
 
 If your new test requires any additional files you can put those in the
 ``/pylint/test/regrtest_data`` directory. This is the directory we use to store any data needed for
@@ -66,6 +66,32 @@ test runner. The following options are currently supported:
 - "except_implementations": List of python implementations on which the test should not run
 - "exclude_platforms": List of operating systems on which the test should not run
 
+**Different output for different Python versions**
+
+Sometimes the linting result can change between Python releases. In these cases errors can be marked as conditional.
+Supported operators are ``<``, ``<=``, ``>`` and ``>=``.
+
+.. code-block:: python
+
+    def some_func() -> X:  # <3.14:[undefined-variable]
+      ...
+
+    # It can also be combined with offsets
+    # +1:<3.14:[undefined-variable]
+    def some_other_func() -> X:
+      ...
+
+    class X: ...
+
+Since the output messages are different, it is necessary to add two separate files for it.
+First ``<test-file-name>.314.txt``, this will include the output messages for ``>=3.14``, i.e. should be empty here.
+Second ``<test-file-name>.txt``, this will be the default for all other Python versions.
+
+.. note::
+
+    This does only work if the code itself is parsable in all tested Python versions.
+    For new syntax, use ``min_pyver`` / ``max_pyver`` instead.
+
 **Functional test file locations**
 
 For existing checkers, new test cases should preferably be appended to the existing test file.
@@ -93,7 +119,7 @@ current environment in order to have faster feedback. Run from Pylint root direc
 
 You can use all the options you would use for pytest_, for example ``-k "test_functional[len_checks]"``.
 Furthermore, if required the .txt file with expected messages can be regenerated based
-on the the current output by appending ``--update-functional-output`` to the command line::
+on the current output by appending ``--update-functional-output`` to the command line::
 
     python tests/test_functional.py --update-functional-output -k "test_functional[len_checks]"
 

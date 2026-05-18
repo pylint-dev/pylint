@@ -10,17 +10,17 @@ class MyEnum(Enum):
 
 
 
-correct_dict = {
+CORRECT_DICT = {
     'tea': 'for two',
     'two': 'for tea',
 }
 
-wrong_with_enum = {  # [duplicate-key]
+WRONG_WITH_ENUM = {  # [duplicate-key]
     MyEnum.KEY: "value 1",
     MyEnum.KEY: "value 2",
 }
 
-wrong_dict = {  # [duplicate-key]
+WRONG_DICT = {  # [duplicate-key]
     'tea': 'for two',
     'two': 'for tea',
     'tea': 'time',

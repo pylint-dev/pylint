@@ -58,7 +58,7 @@ try:
 except None: # [catching-non-exception]
     print("caught")
 
-EXCEPTION = None
+EXCEPTION = None  # pylint: disable=invalid-name
 EXCEPTION = ZeroDivisionError
 try:
     1 + 46
@@ -131,4 +131,12 @@ EXCEPTIONS = (SomeBase, ValueError)
 try:
     raise ValueError
 except EXCEPTIONS:
+    pass
+
+
+LAMBDA = lambda x: 1, 2
+
+try:
+    pass
+except LAMBDA:  # [catching-non-exception]
     pass

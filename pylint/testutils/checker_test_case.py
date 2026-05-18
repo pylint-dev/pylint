@@ -10,7 +10,6 @@ from typing import Any
 
 from astroid import nodes
 
-from pylint.constants import IS_PYPY, PY39_PLUS
 from pylint.testutils.global_test_linter import linter
 from pylint.testutils.output_line import MessageTest
 from pylint.testutils.unittest_linter import UnittestLinter
@@ -39,9 +38,38 @@ class CheckerTestCase:
             yield
 
     @contextlib.contextmanager
+    def assertDoesNotAddMessages(self, *message_ids: str) -> Generator[None]:
+        """Assert that none of the given message IDs are emitted by the checker.
+
+        Unlike ``assertNoMessages``, other messages may still be emitted.
+        Only the specified message IDs are checked to be absent.
+        """
+        if not message_ids:
+            raise TypeError(
+                "assertDoesNotAddMessages requires at least one message ID argument"
+            )
+        exception_raised = False
+        try:
+            yield
+        except Exception:
+            exception_raised = True
+            raise
+        finally:
+            got = self.linter.release_messages()
+            if not exception_raised:
+                emitted_ids = {m.msg_id for m in got}
+                for unwanted_id in message_ids:
+                    if unwanted_id in emitted_ids:
+                        got_str = "\n".join(repr(m) for m in got)
+                        raise AssertionError(
+                            f"Message '{unwanted_id}' was not expected to be emitted"
+                            f" but it was found among the actual messages:\n\n{got_str}\n"
+                        )
+
+    @contextlib.contextmanager
     def assertAddsMessages(
         self, *messages: MessageTest, ignore_position: bool = False
-    ) -> Generator[None, None, None]:
+    ) -> Generator[None]:
         """Assert that exactly the given method adds the given messages.
 
         The list of messages must exactly match *all* the messages added by the
@@ -76,9 +104,8 @@ class CheckerTestCase:
 
             assert expected_msg.line == gotten_msg.line, msg
             assert expected_msg.col_offset == gotten_msg.col_offset, msg
-            if not IS_PYPY or PY39_PLUS:
-                assert expected_msg.end_line == gotten_msg.end_line, msg
-                assert expected_msg.end_col_offset == gotten_msg.end_col_offset, msg
+            assert expected_msg.end_line == gotten_msg.end_line, msg
+            assert expected_msg.end_col_offset == gotten_msg.end_col_offset, msg
 
     def walk(self, node: nodes.NodeNG) -> None:
         """Recursive walk on the given node."""

@@ -4,7 +4,11 @@
 
 from __future__ import annotations
 
+import copy
+import os
 import re
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -28,13 +32,24 @@ def test__is_in_ignore_list_re_match() -> None:
 
 TEST_DIRECTORY = Path(__file__).parent.parent
 INIT_PATH = str(TEST_DIRECTORY / "lint/__init__.py")
-EXPAND_MODULES = str(TEST_DIRECTORY / "lint/unittest_expand_modules.py")
+EXPAND_MODULES_BASE = "unittest_expand_modules.py"
+EXPAND_MODULES = str(TEST_DIRECTORY / "lint" / EXPAND_MODULES_BASE)
 this_file = {
     "basename": "lint.unittest_expand_modules",
     "basepath": EXPAND_MODULES,
     "isarg": True,
     "name": "lint.unittest_expand_modules",
     "path": EXPAND_MODULES,
+    "isignored": False,
+}
+
+this_file_relative_to_parent = {
+    "basename": "lint.unittest_expand_modules",
+    "basepath": EXPAND_MODULES_BASE,
+    "isarg": True,
+    "name": "lint.unittest_expand_modules",
+    "path": EXPAND_MODULES_BASE,
+    "isignored": False,
 }
 
 this_file_from_init = {
@@ -43,6 +58,7 @@ this_file_from_init = {
     "isarg": False,
     "name": "lint.unittest_expand_modules",
     "path": EXPAND_MODULES,
+    "isignored": False,
 }
 
 this_file_from_init_deduplicated = {
@@ -51,6 +67,16 @@ this_file_from_init_deduplicated = {
     "isarg": True,
     "name": "lint.unittest_expand_modules",
     "path": EXPAND_MODULES,
+    "isignored": False,
+}
+
+unittest_discover_files = {
+    "basename": "lint",
+    "basepath": INIT_PATH,
+    "isarg": False,
+    "name": "lint.unittest_discover_files",
+    "path": str(TEST_DIRECTORY / "lint/unittest_discover_files.py"),
+    "isignored": False,
 }
 
 unittest_lint = {
@@ -59,6 +85,7 @@ unittest_lint = {
     "isarg": False,
     "name": "lint.unittest_lint",
     "path": str(TEST_DIRECTORY / "lint/unittest_lint.py"),
+    "isignored": False,
 }
 
 test_utils = {
@@ -67,6 +94,7 @@ test_utils = {
     "isarg": False,
     "name": "lint.test_utils",
     "path": str(TEST_DIRECTORY / "lint/test_utils.py"),
+    "isignored": False,
 }
 
 test_run_pylint = {
@@ -75,6 +103,7 @@ test_run_pylint = {
     "isarg": False,
     "name": "lint.test_run_pylint",
     "path": str(TEST_DIRECTORY / "lint/test_run_pylint.py"),
+    "isignored": False,
 }
 
 test_pylinter = {
@@ -83,6 +112,7 @@ test_pylinter = {
     "isarg": False,
     "name": "lint.test_pylinter",
     "path": str(TEST_DIRECTORY / "lint/test_pylinter.py"),
+    "isignored": False,
 }
 
 test_caching = {
@@ -91,6 +121,7 @@ test_caching = {
     "isarg": False,
     "name": "lint.test_caching",
     "path": str(TEST_DIRECTORY / "lint/test_caching.py"),
+    "isignored": False,
 }
 
 init_of_package = {
@@ -99,6 +130,36 @@ init_of_package = {
     "isarg": True,
     "name": "lint",
     "path": INIT_PATH,
+    "isignored": False,
+}
+
+# A directory that is not a python package.
+REPORTERS_PATH = Path(__file__).parent.parent / "reporters"
+test_reporters = {  # pylint: disable=consider-using-namedtuple-or-dataclass
+    str(REPORTERS_PATH / "__init__.py"): {
+        "basename": "reporters",
+        "basepath": str(REPORTERS_PATH / "__init__.py"),
+        "isarg": True,
+        "name": "reporters",
+        "path": str(REPORTERS_PATH / "__init__.py"),
+        "isignored": False,
+    },
+    str(REPORTERS_PATH / "unittest_json_reporter.py"): {
+        "basename": "reporters",
+        "basepath": str(REPORTERS_PATH / "__init__.py"),
+        "isarg": False,
+        "name": "reporters.unittest_json_reporter",
+        "path": str(REPORTERS_PATH / "unittest_json_reporter.py"),
+        "isignored": False,
+    },
+    str(REPORTERS_PATH / "unittest_reporting.py"): {
+        "basename": "reporters",
+        "basepath": str(REPORTERS_PATH / "__init__.py"),
+        "isarg": False,
+        "path": str(REPORTERS_PATH / "unittest_reporting.py"),
+        "name": "reporters.unittest_reporting",
+        "isignored": False,
+    },
 }
 
 
@@ -113,8 +174,30 @@ def _list_expected_package_modules(
         test_run_pylint,
         test_utils,
         this_file_from_init_deduplicated if deduplicating else this_file_from_init,
+        unittest_discover_files,
         unittest_lint,
     )
+
+
+def _list_expected_package_modules_relative() -> tuple[dict[str, object], ...]:
+    """Generates reusable list of modules for our package with relative path input."""
+    abs_result = copy.deepcopy(_list_expected_package_modules())
+    for item in abs_result:
+        assert isinstance(item["basepath"], str)
+        assert isinstance(item["path"], str)
+        item["basepath"] = os.path.relpath(item["basepath"], str(Path(__file__).parent))
+        item["path"] = os.path.relpath(item["path"], str(Path(__file__).parent))
+    return abs_result
+
+
+@contextmanager
+def pushd(path: Path) -> Iterator[None]:
+    prev = os.getcwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(prev)
 
 
 class TestExpandModules(CheckerTestCase):
@@ -140,6 +223,7 @@ class TestExpandModules(CheckerTestCase):
                     for module in _list_expected_package_modules()
                 },
             ),
+            ([str(Path(__file__).parent.parent / "reporters")], test_reporters),
         ],
     )
     @set_config(ignore_paths="")
@@ -158,6 +242,40 @@ class TestExpandModules(CheckerTestCase):
         )
         assert modules == expected
         assert not errors
+
+    @pytest.mark.parametrize(
+        "files_or_modules,expected",
+        [
+            (
+                [Path(__file__).name],
+                {this_file_relative_to_parent["path"]: this_file_relative_to_parent},
+            ),
+            (
+                ["./"],
+                {
+                    module["path"]: module  # pylint: disable=unsubscriptable-object
+                    for module in _list_expected_package_modules_relative()
+                },
+            ),
+        ],
+    )
+    @set_config(ignore_paths="")
+    def test_expand_modules_relative_path(
+        self, files_or_modules: list[str], expected: dict[str, ModuleDescriptionDict]
+    ) -> None:
+        """Test expand_modules with the default value of ignore-paths and relative path as input."""
+        ignore_list: list[str] = []
+        ignore_list_re: list[re.Pattern[str]] = []
+        with pushd(Path(__file__).parent):
+            modules, errors = expand_modules(
+                files_or_modules,
+                [],
+                ignore_list,
+                ignore_list_re,
+                self.linter.config.ignore_paths,
+            )
+            assert modules == expected
+            assert not errors
 
     @pytest.mark.parametrize(
         "files_or_modules,expected",
@@ -216,5 +334,25 @@ class TestExpandModules(CheckerTestCase):
             ignore_list_re,
             self.linter.config.ignore_paths,
         )
-        assert modules == expected
+        assert {k: v for k, v in modules.items() if not v["isignored"]} == expected
+        assert not errors
+
+    @set_config(ignore=["test"])
+    def test_expand_modules_with_ignore_list(self) -> None:
+        """Test expand_modules with a non-default value of ignore."""
+        ignore_list: list[str] = self.linter.config.ignore
+        ignore_list_re = [re.compile("^\\.#")]
+        path = Path(__file__).parent.parent / "regrtest_data" / "ignore_option_10669"
+        modules, errors = expand_modules(
+            [str(path)],
+            [],
+            ignore_list,
+            ignore_list_re,
+            [],
+        )
+        expected_keys = {
+            str(path / "__init__.py"),
+            str(path / "main.py"),
+        }
+        assert {k for k, v in modules.items() if not v["isignored"]} == expected_keys
         assert not errors

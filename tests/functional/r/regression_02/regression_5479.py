@@ -1,7 +1,7 @@
 """Test for a regression on slots and annotated assignments.
 Reported in https://github.com/pylint-dev/pylint/issues/5479
 """
-# pylint: disable=too-few-public-methods, unused-private-member, missing-class-docstring, missing-function-docstring
+# pylint: disable=too-few-public-methods, unused-private-member, missing-class-docstring, missing-function-docstring, declare-non-slot
 
 from __future__ import annotations
 

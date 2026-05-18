@@ -24,7 +24,6 @@ def _add_rcfile_default_pylintrc(args: list[str]) -> list[str]:
 
 
 class _Run(LintRun):
-
     """Like Run, but we're using an explicitly set empty pylintrc.
 
     We don't want to use the project's pylintrc during tests, because

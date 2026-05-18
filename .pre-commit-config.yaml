@@ -3,28 +3,33 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         exclude: tests(/\w*)*/functional/t/trailing_whitespaces.py|tests/pyreverse/data/.*.html|doc/data/messages/t/trailing-whitespace/bad.py
+      #      - id: file-contents-sorter # commented out because it does not preserve comments order
+      #        args: ["--ignore-case", "--unique"]
+      #        files: "custom_dict.txt"
       - id: end-of-file-fixer
         exclude: |
           (?x)^(
             tests(/\w*)*/functional/m/missing/missing_final_newline.py|
             tests/functional/t/trailing_newlines.py|
             doc/data/messages/t/trailing-newlines/bad.py|
-            doc/data/messages/m/missing-final-newline/bad.py|
+            doc/data/messages/m/missing-final-newline/bad/lf.py|
+            doc/data/messages/m/missing-final-newline/bad/crlf.py
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.0.286"
+    rev: "v0.15.12"
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: ["--fix"]
-        exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
-      - id: ruff
+        exclude: doc/data/messages
+      - id: ruff-check
         name: ruff-doc
         files: doc/data/messages
-        args: ["--config", "doc/data/ruff.toml"]
+        # Please exclude using doc/data/ruff.toml
+        # exclude: ""  # Leave empty
   - repo: https://github.com/Pierre-Sassoulas/copyright_notice_precommit
     rev: 0.1.2
     hooks:
@@ -32,23 +37,17 @@ repos:
         args: ["--notice=script/copyright.txt", "--enforce-all"]
         exclude: tests(/\w*)*/functional/|tests/input|doc/data/messages|examples/|setup.py|tests(/\w*)*data/
         types: [python]
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.10.1
-    hooks:
-      - id: pyupgrade
-        args: [--py38-plus]
-        exclude: *fixtures
   - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
+    rev: 9.0.0a3
     hooks:
       - id: isort
         exclude: doc/data/messages/
-  - repo: https://github.com/psf/black
-    rev: 23.7.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.3.1
     hooks:
       - id: black
         args: [--safe, --quiet]
-        exclude: *fixtures
+        exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
       - id: black
         name: black-doc
         args: [--safe, --quiet]
@@ -59,10 +58,11 @@ repos:
             doc/data/messages/i/inconsistent-quotes/bad.py|
             doc/data/messages/i/invalid-format-index/bad.py|
             doc/data/messages/l/line-too-long/bad.py|
-            doc/data/messages/m/missing-final-newline/bad.py|
+            doc/data/messages/m/missing-final-newline/bad/crlf.py|
+            doc/data/messages/m/missing-final-newline/bad/lf.py|
             doc/data/messages/m/multiple-statements/bad.py|
             doc/data/messages/r/redundant-u-string-prefix/bad.py|
-            doc/data/messages/s/superfluous-parens/bad.py|
+            doc/data/messages/s/superfluous-parens/bad/example_1.py|
             doc/data/messages/s/syntax-error/bad.py|
             doc/data/messages/t/too-many-ancestors/bad.py|
             doc/data/messages/t/trailing-comma-tuple/bad.py|
@@ -81,8 +81,21 @@ repos:
         entry: pylint
         language: system
         types: [python]
+        # Not that problematic to run in parallel see Pre-commit
+        # integration in the doc for details
+        # require_serial: true
         args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/\w*)*data/|doc/
+      - id: pyright
+        name: pyright
+        description: "Python command line wrapper for pyright, a static type checker"
+        entry: pyright
+        language: python
+        "types_or": [python, pyi]
+        require_serial: true
+        minimum_pre_commit_version: "2.9.2"
+        exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
+        stages: [manual]
       # We define an additional manual step to allow running pylint with a spelling
       # checker in CI.
       - id: pylint
@@ -91,16 +104,17 @@ repos:
         entry: pylint
         language: system
         types: [python]
-        args: ["-rn", "-sn", "--rcfile=pylintrc", "--fail-on=I", "--spelling-dict=en"]
+        args:
+          [
+            "-rn",
+            "-sn",
+            "--rcfile=pylintrc",
+            "--fail-on=I",
+            "--spelling-dict=en",
+            "--output-format=github",
+          ]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/\w*)*data/|doc/
         stages: [manual]
-      - id: sphinx-generated-doc
-        alias: sphinx-generated-doc
-        name: sphinx-generated-doc
-        entry: make -C doc/ html
-        pass_filenames: false
-        language: system
-        stages: [push]
       - id: check-newsfragments
         name: Check newsfragments
         entry: python3 -m script.check_newsfragments
@@ -109,61 +123,52 @@ repos:
         files: ^(doc/whatsnew/fragments)
         exclude: doc/whatsnew/fragments/_.*.rst
   - repo: https://github.com/rstcheck/rstcheck
-    rev: "v6.1.2"
+    rev: "v6.2.5"
     hooks:
       - id: rstcheck
         args: ["--report-level=warning"]
         files: ^(doc/(.*/)*.*\.rst)
-        additional_dependencies: [Sphinx==5.0.1]
+        additional_dependencies: ["Sphinx==7.4.3"]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.5.1
+    rev: v2.0.0
     hooks:
       - id: mypy
         name: mypy
-        entry: mypy
-        language: python
-        types: [python]
         args: []
-        require_serial: true
         additional_dependencies:
-          [
-            "isort>=5",
-            "platformdirs==2.2.0",
-            "py==1.11",
-            "tomlkit>=0.10.1",
-            "types-pkg_resources==0.1.3",
-          ]
+          ["isort>=5", "platformdirs==2.2.0", "py==1.11", "tomlkit>=0.10.1"]
         exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.2
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.8.3
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
-        exclude: tests(/\w*)*data/
+        exclude: (tests(/\w*)*data/|.github/FUNDING.yml)
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.7.3
+    rev: v0.7.5
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures
         args: ["--max-summary-lines=2", "--linewrap-full-docstring"]
         files: "pylint"
-  - repo: https://github.com/regebro/pyroma
-    rev: "4.2"
-    hooks:
-      - id: pyroma
-        # Must be specified because of the default value in pyroma
-        always_run: false
-        files: |
-          (?x)^(
-              README.rst|
-              pyproject.toml|
-              pylint/__init__.py|
-              pylint/__pkginfo__.py|
-              setup.cfg
-          )$
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
+    rev: 1.9.4
     hooks:
       - id: bandit
         args: ["-r", "-lll"]
         exclude: *fixtures
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.2
+    hooks:
+      - id: codespell
+        args: ["--toml=pyproject.toml"]
+        additional_dependencies:
+          - tomli
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: "v2.21.2"
+    hooks:
+      - id: pyproject-fmt
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.25
+    hooks:
+      - id: validate-pyproject

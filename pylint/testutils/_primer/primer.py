@@ -105,6 +105,7 @@ class Primer:
             command_class = RunCommand
         elif self.config.command == "compare":
             command_class = CompareCommand
+        # pylint: disable-next=possibly-used-before-assignment
         self.command = command_class(self.primer_directory, self.packages, self.config)
 
     def run(self) -> None:

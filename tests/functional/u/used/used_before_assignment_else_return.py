@@ -1,5 +1,5 @@
 """If the else block returns, it is generally safe to rely on assignments in the except."""
-# pylint: disable=missing-function-docstring, invalid-name
+# pylint: disable=missing-function-docstring, invalid-name, useless-return
 import sys
 
 def valid():

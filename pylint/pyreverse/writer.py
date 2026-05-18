@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import itertools
 import os
+from collections import defaultdict
 from collections.abc import Iterable
 
 from astroid import modutils, nodes
@@ -34,6 +35,7 @@ class DiagramWriter:
         self.printer: Printer  # defined in set_printer
         self.file_name = ""  # defined in set_printer
         self.depth = self.config.max_color_depth
+        self.max_depth = self.config.max_depth
         # default colors are an adaption of the seaborn colorblind palette
         self.available_colors = itertools.cycle(self.config.color_palette)
         self.used_colors: dict[str, str] = {}
@@ -114,9 +116,15 @@ class DiagramWriter:
         # sorted to get predictable (hence testable) results
         for obj in sorted(diagram.objects, key=lambda x: x.title):
             obj.fig_id = obj.node.qname()
+
             if self.config.no_standalone and not any(
                 obj in (rel.from_object, rel.to_object)
-                for rel_type in ("specialization", "association", "aggregation")
+                for rel_type in (
+                    "specialization",
+                    "association",
+                    "aggregation",
+                    "composition",
+                )
                 for rel in diagram.get_relationships(rel_type)
             ):
                 continue
@@ -133,16 +141,28 @@ class DiagramWriter:
                 rel.to_object.fig_id,
                 type_=EdgeType.INHERITS,
             )
+        associations: dict[str, set[str]] = defaultdict(set)
         # generate associations
         for rel in diagram.get_relationships("association"):
+            associations[rel.from_object.fig_id].add(rel.to_object.fig_id)
+            self.printer.emit_edge(
+                rel.to_object.fig_id,
+                rel.from_object.fig_id,
+                label=rel.name,
+                type_=EdgeType.ASSOCIATION,
+            )
+        # generate compositions
+        for rel in diagram.get_relationships("composition"):
             self.printer.emit_edge(
                 rel.from_object.fig_id,
                 rel.to_object.fig_id,
                 label=rel.name,
-                type_=EdgeType.ASSOCIATION,
+                type_=EdgeType.COMPOSITION,
             )
         # generate aggregations
         for rel in diagram.get_relationships("aggregation"):
+            if rel.to_object.fig_id in associations[rel.from_object.fig_id]:
+                continue
             self.printer.emit_edge(
                 rel.from_object.fig_id,
                 rel.to_object.fig_id,
@@ -152,7 +172,8 @@ class DiagramWriter:
 
     def set_printer(self, file_name: str, basename: str) -> None:
         """Set printer."""
-        self.printer = self.printer_class(basename)
+        show_signatures = not self.config.no_signatures
+        self.printer = self.printer_class(basename, show_signatures=show_signatures)
         self.file_name = file_name
 
     def get_package_properties(self, obj: PackageEntity) -> NodeProperties:
@@ -164,14 +185,13 @@ class DiagramWriter:
 
     def get_class_properties(self, obj: ClassEntity) -> NodeProperties:
         """Get label and shape for classes."""
-        properties = NodeProperties(
+        return NodeProperties(
             label=obj.title,
             attrs=obj.attrs if not self.config.only_classnames else None,
             methods=obj.methods if not self.config.only_classnames else None,
             fontcolor="red" if is_exception(obj.node) else "black",
             color=self.get_shape_color(obj) if self.config.colorized else "black",
         )
-        return properties
 
     def get_shape_color(self, obj: DiagramEntity) -> str:
         """Get shape color."""

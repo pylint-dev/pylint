@@ -14,10 +14,9 @@ import platformdirs
 from pylint.__pkginfo__ import __version__
 from pylint.typing import MessageTypesFullName
 
-PY38_PLUS = sys.version_info[:2] >= (3, 8)
-PY39_PLUS = sys.version_info[:2] >= (3, 9)
-PY310_PLUS = sys.version_info[:2] >= (3, 10)
+PY311_PLUS = sys.version_info[:2] >= (3, 11)
 PY312_PLUS = sys.version_info[:2] >= (3, 12)
+PY314_PLUS = sys.version_info[:2] >= (3, 14)
 
 IS_PYPY = platform.python_implementation() == "PyPy"
 
@@ -76,6 +75,8 @@ HUMAN_READABLE_TYPES = {
     "class_const": "class constant",
     "inlinevar": "inline iteration",
     "typevar": "type variable",
+    "paramspec": "parameter specification variable",
+    "typevartuple": "type variable tuple",
     "typealias": "type alias",
 }
 
@@ -218,26 +219,31 @@ DUNDER_METHODS: dict[tuple[int, int], dict[str, str]] = {
         "__anext__": "Use anext built-in function",
     },
 }
-
-EXTRA_DUNDER_METHODS = [
-    "__new__",
-    "__subclasses__",
-    "__init_subclass__",
-    "__set_name__",
-    "__class_getitem__",
-    "__missing__",
-    "__exit__",
-    "__await__",
-    "__aexit__",
-    "__getnewargs_ex__",
-    "__getnewargs__",
-    "__getstate__",
-    "__index__",
-    "__setstate__",
-    "__reduce__",
-    "__reduce_ex__",
-    "__post_init__",  # part of `dataclasses` module
-]
+EXTRA_DUNDER_METHODS: dict[tuple[int, int], list[str]] = {
+    (0, 0): [
+        "__new__",
+        "__subclasses__",
+        "__init_subclass__",
+        "__set_name__",
+        "__class_getitem__",
+        "__missing__",
+        "__exit__",
+        "__await__",
+        "__aexit__",
+        "__getnewargs_ex__",
+        "__getnewargs__",
+        "__getstate__",
+        "__index__",
+        "__setstate__",
+        "__reduce__",
+        "__reduce_ex__",
+        "__post_init__",  # part of `dataclasses` module
+        "_generate_next_value_",
+        "_missing_",
+        "_numeric_repr_",
+    ],
+    (3, 13): ["_add_alias_", "_add_value_alias_"],
+}
 
 DUNDER_PROPERTIES = [
     "__class__",
@@ -247,5 +253,33 @@ DUNDER_PROPERTIES = [
     "__module__",
     "__sizeof__",
     "__subclasshook__",
+    "__suppress_context__",
     "__weakref__",
 ]
+
+# C2801 rule exceptions as their corresponding function/method/operator
+# is not valid python syntax in a lambda definition
+UNNECESSARY_DUNDER_CALL_LAMBDA_EXCEPTIONS = [
+    "__init__",
+    "__del__",
+    "__delattr__",
+    "__set__",
+    "__delete__",
+    "__setitem__",
+    "__delitem__",
+    "__iadd__",
+    "__isub__",
+    "__imul__",
+    "__imatmul__",
+    "__itruediv__",
+    "__ifloordiv__",
+    "__imod__",
+    "__ipow__",
+    "__ilshift__",
+    "__irshift__",
+    "__iand__",
+    "__ixor__",
+    "__ior__",
+]
+
+MAX_NUMBER_OF_IMPORT_SHOWN = 6

@@ -13,25 +13,26 @@ import argparse
 import os
 import pathlib
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from glob import glob
-from typing import Any, Literal, Pattern, Sequence, Tuple, Union
+from re import Pattern
+from typing import Any, Literal
 
 from pylint import interfaces
 from pylint import utils as pylint_utils
 from pylint.config.callback_actions import _CallbackAction
 from pylint.config.deprecation_actions import _NewNamesAction, _OldNamesAction
 
-_ArgumentTypes = Union[
-    str,
-    int,
-    float,
-    bool,
-    Pattern[str],
-    Sequence[str],
-    Sequence[Pattern[str]],
-    Tuple[int, ...],
-]
+_ArgumentTypes = (
+    str
+    | int
+    | float
+    | bool
+    | Pattern[str]
+    | Sequence[str]
+    | Sequence[Pattern[str]]
+    | tuple[int, ...]
+)
 """List of possible argument types."""
 
 
@@ -103,7 +104,7 @@ def _py_version_transformer(value: str) -> tuple[int, ...]:
 
 
 def _regex_transformer(value: str) -> Pattern[str]:
-    """Return `re.compile(value)`."""
+    """Prevents 're.error' from propagating and crash pylint."""
     try:
         return re.compile(value)
     except re.error as e:
@@ -124,7 +125,7 @@ def _regexp_paths_csv_transfomer(value: str) -> Sequence[Pattern[str]]:
     patterns: list[Pattern[str]] = []
     for pattern in _csv_transformer(value):
         patterns.append(
-            re.compile(
+            _regex_transformer(
                 str(pathlib.PureWindowsPath(pattern)).replace("\\", "\\\\")
                 + "|"
                 + pathlib.PureWindowsPath(pattern).as_posix()
@@ -228,7 +229,6 @@ class _StoreArgument(_BaseStoreArgument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=too-many-arguments
     def __init__(
         self,
         *,
@@ -306,7 +306,6 @@ class _DeprecationArgument(_Argument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=too-many-arguments
     def __init__(
         self,
         *,
@@ -396,7 +395,6 @@ class _StoreOldNamesArgument(_DeprecationArgument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=too-many-arguments
     def __init__(
         self,
         *,
@@ -434,7 +432,6 @@ class _StoreNewNamesArgument(_DeprecationArgument):
     https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
     """
 
-    # pylint: disable-next=too-many-arguments
     def __init__(
         self,
         *,
@@ -482,7 +479,7 @@ class _CallableArgument(_Argument):
         kwargs: dict[str, Any],
         hide_help: bool,
         section: str | None,
-        metavar: str,
+        metavar: str | None,
     ) -> None:
         super().__init__(
             flags=flags, arg_help=arg_help, hide_help=hide_help, section=section

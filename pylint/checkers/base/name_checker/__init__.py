@@ -3,14 +3,14 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 __all__ = [
+    "KNOWN_NAME_TYPES_WITH_STYLE",
+    "AnyStyle",
+    "CamelCaseStyle",
     "NameChecker",
     "NamingStyle",
-    "KNOWN_NAME_TYPES_WITH_STYLE",
-    "SnakeCaseStyle",
-    "CamelCaseStyle",
-    "UpperCaseStyle",
     "PascalCaseStyle",
-    "AnyStyle",
+    "SnakeCaseStyle",
+    "UpperCaseStyle",
 ]
 
 from pylint.checkers.base.name_checker.checker import NameChecker

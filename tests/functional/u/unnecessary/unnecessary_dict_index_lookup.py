@@ -1,33 +1,33 @@
 # pylint: disable=missing-docstring, too-few-public-methods, expression-not-assigned, line-too-long
 
-a_dict = {}
-b_dict = {}
+A_DICT = {}
+B_DICT = {}
 
-for k, v in a_dict.items():
-    print(a_dict[k])  # [unnecessary-dict-index-lookup]
-    print(b_dict[k])  # Should not emit warning, accessing other dictionary
-    a_dict[k] = 123  # Should not emit warning, key access necessary
-    a_dict[k] += 123  # Should not emit warning, key access necessary
-    print(a_dict[k])  # Should not emit warning, v != a_dict[k]
+for k, v in A_DICT.items():
+    print(A_DICT[k])  # [unnecessary-dict-index-lookup]
+    print(B_DICT[k])  # Should not emit warning, accessing other dictionary
+    A_DICT[k] = 123  # Should not emit warning, key access necessary
+    A_DICT[k] += 123  # Should not emit warning, key access necessary
+    print(A_DICT[k])  # Should not emit warning, v != a_dict[k]
 
-for k, v in b_dict.items():
+for k, v in B_DICT.items():
     print(k)
     k = "another key"
-    print(b_dict[k])  # This is fine, key reassigned
+    print(B_DICT[k])  # This is fine, key reassigned
 
 
 # Tests on comprehensions
-A = {v: 1 for k, v in a_dict.items() if a_dict[k]}  # [unnecessary-dict-index-lookup]
-B = {v: 1 for k, v in a_dict.items() if k}  # This is fine, no indexing
-C = {a_dict[k]: 1 for k, v in a_dict.items() if k}  # [unnecessary-dict-index-lookup]
+A = {v: 1 for k, v in A_DICT.items() if A_DICT[k]}  # [unnecessary-dict-index-lookup]
+B = {v: 1 for k, v in A_DICT.items() if k}  # This is fine, no indexing
+C = {A_DICT[k]: 1 for k, v in A_DICT.items() if k}  # [unnecessary-dict-index-lookup]
 # +1: [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
-D = {a_dict[k]: 1 for k, v in a_dict.items() if a_dict[k]}
+D = {A_DICT[k]: 1 for k, v in A_DICT.items() if A_DICT[k]}
 
-E = [v for k, v in a_dict.items() if a_dict[k]]  # [unnecessary-dict-index-lookup]
-F = [v for k, v in a_dict.items() if k]  # This is fine, no indexing
-G = [a_dict[k] for k, v in a_dict.items() if k]  # [unnecessary-dict-index-lookup]
+E = [v for k, v in A_DICT.items() if A_DICT[k]]  # [unnecessary-dict-index-lookup]
+f = [v for k, v in A_DICT.items() if k]  # This is fine, no indexing
+G = [A_DICT[k] for k, v in A_DICT.items() if k]  # [unnecessary-dict-index-lookup]
 # +1: [unnecessary-dict-index-lookup, unnecessary-dict-index-lookup]
-H = [a_dict[k] for k, v in a_dict.items() if a_dict[k]]
+H = [A_DICT[k] for k, v in A_DICT.items() if A_DICT[k]]
 
 
 # Tests on dict attribute of a class
@@ -36,7 +36,7 @@ class Foo:
 
 
 for k, v in Foo.c_dict.items():
-    print(b_dict[k])  # Should not emit warning, accessing other dictionary
+    print(B_DICT[k])  # Should not emit warning, accessing other dictionary
     print(Foo.c_dict[k])  # [unnecessary-dict-index-lookup]
     unnecessary = 0  # pylint: disable=invalid-name
     unnecessary += Foo.c_dict[k]  # [unnecessary-dict-index-lookup]
@@ -100,10 +100,10 @@ for item in d.items():
     del d[item[0]]
     break
 
-outer_dict = {"inner_dict": {}}
-for key, val in outer_dict.items():
+OUTER_DICT = {"inner_dict": {}}
+for key, val in OUTER_DICT.items():
     for key_two, val_two in val.items():
-        del outer_dict[key][key_two]  # [unnecessary-dict-index-lookup]
+        del OUTER_DICT[key][key_two]  # [unnecessary-dict-index-lookup]
         break
 
 # Test partial unpacking of items

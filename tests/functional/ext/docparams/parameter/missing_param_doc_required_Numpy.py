@@ -344,7 +344,7 @@ def my_func(
     named_arg_six,
     named_arg_seven,
     named_arg_eight,
-):
+):  # pylint: disable=too-many-positional-arguments
     """The docstring
 
     Args

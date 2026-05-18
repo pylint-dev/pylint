@@ -7,8 +7,6 @@
 from __future__ import annotations
 
 import itertools
-from collections.abc import Iterator
-from typing import Any
 
 import astroid
 from astroid import nodes
@@ -22,17 +20,17 @@ from pylint.interfaces import HIGH
 ABC_METACLASSES = {"_py_abc.ABCMeta", "abc.ABCMeta"}  # Python 3.7+,
 # List of methods which can be redefined
 REDEFINABLE_METHODS = frozenset(("__module__",))
-TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
+FORWARD_REF_QNAME = {"typing.ForwardRef", "annotationlib.ForwardRef"}
 
 
 def _get_break_loop_node(break_node: nodes.Break) -> nodes.For | nodes.While | None:
     """Returns the loop node that holds the break node in arguments.
 
     Args:
-        break_node (astroid.Break): the break node of interest.
+        break_node (nodes.Break): the break node of interest.
 
     Returns:
-        astroid.For or astroid.While: the loop node holding the break node.
+        nodes.For or nodes.While: the loop node holding the break node.
     """
     loop_nodes = (nodes.For, nodes.While)
     parent = break_node.parent
@@ -50,7 +48,7 @@ def _loop_exits_early(loop: nodes.For | nodes.While) -> bool:
     """Returns true if a loop may end with a break statement.
 
     Args:
-        loop (astroid.For, astroid.While): the loop node inspected.
+        loop (nodes.For, nodes.While): the loop node inspected.
 
     Returns:
         bool: True if the loop may end with a break statement, False otherwise.
@@ -94,6 +92,71 @@ def redefined_by_decorator(node: nodes.FunctionDef) -> bool:
                 and getattr(decorator.expr, "name", None) == node.name
             ):
                 return True
+    return False
+
+
+def _extract_register_target(dec: nodes.NodeNG) -> nodes.NodeNG | None:
+    """
+    If decorator `dec` looks like `@func.register(...)` or `@func.register`,
+    return the `func` target node (Name or Attribute). Otherwise return None.
+    """
+    if isinstance(dec, nodes.Call):
+        func_part = dec.func
+        if isinstance(func_part, nodes.Attribute) and func_part.attrname == "register":
+            return func_part.expr
+        return None
+
+    if isinstance(dec, nodes.Attribute) and dec.attrname == "register":
+        return dec.expr
+
+    return None
+
+
+def _inferred_has_singledispatchmethod(target: nodes.NodeNG) -> bool:
+    """
+    Infer `target` and return True if the inferred object has a
+    @singledispatchmethod decorator.
+    """
+    inferred = utils.safe_infer(target)
+    if not inferred:
+        return False
+
+    if isinstance(inferred, (nodes.FunctionDef, nodes.AsyncFunctionDef)):
+        decorators = inferred.decorators
+        if isinstance(decorators, nodes.Decorators):
+            for dec in decorators.nodes:
+                inferred_dec = utils.safe_infer(dec)
+                if (
+                    inferred_dec
+                    and inferred_dec.qname() == "functools.singledispatchmethod"
+                ):
+                    return True
+
+    return False
+
+
+def _is_singledispatchmethod_registration(node: nodes.FunctionDef) -> bool:
+    """
+    Return True if `node` is a function decorated like:
+
+        @func.register(...)
+        def _(…): ...
+
+    where `func` is a singledispatchmethod (i.e. its base was decorated
+    with @singledispatchmethod).
+    """
+    decorators = node.decorators
+    if not decorators:
+        return False
+
+    for dec in decorators.nodes:
+        target = _extract_register_target(dec)
+        if target is None:
+            continue
+
+        if _inferred_has_singledispatchmethod(target):
+            return True
+
     return False
 
 
@@ -145,7 +208,7 @@ class BasicErrorChecker(_BasicChecker):
             "pre-decrement operator -- and ++, which doesn't exist in Python.",
         ),
         "E0108": (
-            "Duplicate argument name %s in function definition",
+            "Duplicate argument name %r in function definition",
             "duplicate-argument-name",
             "Duplicate argument names in function definitions are syntax errors.",
         ),
@@ -184,12 +247,6 @@ class BasicErrorChecker(_BasicChecker):
             "nonlocal-and-global",
             "Emitted when a name is both nonlocal and global.",
         ),
-        "E0116": (
-            "'continue' not supported inside 'finally' clause",
-            "continue-in-finally",
-            "Emitted when the `continue` keyword is found "
-            "inside a finally clause, which is a SyntaxError.",
-        ),
         "E0117": (
             "nonlocal name %s found without binding",
             "nonlocal-without-binding",
@@ -203,11 +260,21 @@ class BasicErrorChecker(_BasicChecker):
             "which results in an error since Python 3.6.",
             {"minversion": (3, 6)},
         ),
+        "W0136": (
+            "'continue' discouraged inside 'finally' clause",
+            "continue-in-finally",
+            "Emitted when the `continue` keyword is found "
+            "inside a finally clause. This will raise a SyntaxWarning "
+            "starting in Python 3.14.",
+        ),
+        "W0137": (
+            "'break' discouraged inside 'finally' clause",
+            "break-in-finally",
+            "Emitted when the `break` keyword is found "
+            "inside a finally clause. This will raise a SyntaxWarning "
+            "starting in Python 3.14.",
+        ),
     }
-
-    def open(self) -> None:
-        py_version = self.linter.config.py_version
-        self._py38_plus = py_version >= (3, 8)
 
     @utils.only_required_for_messages("function-redefined")
     def visit_classdef(self, node: nodes.ClassDef) -> None:
@@ -216,26 +283,25 @@ class BasicErrorChecker(_BasicChecker):
     def _too_many_starred_for_tuple(self, assign_tuple: nodes.Tuple) -> bool:
         starred_count = 0
         for elem in assign_tuple.itered():
-            if isinstance(elem, nodes.Tuple):
-                return self._too_many_starred_for_tuple(elem)
-            if isinstance(elem, nodes.Starred):
-                starred_count += 1
+            match elem:
+                case nodes.Tuple():
+                    return self._too_many_starred_for_tuple(elem)
+                case nodes.Starred():
+                    starred_count += 1
         return starred_count > 1
 
     @utils.only_required_for_messages(
         "too-many-star-expressions", "invalid-star-assignment-target"
     )
     def visit_assign(self, node: nodes.Assign) -> None:
-        # Check *a, *b = ...
-        assign_target = node.targets[0]
-        # Check *a = b
-        if isinstance(node.targets[0], nodes.Starred):
-            self.add_message("invalid-star-assignment-target", node=node)
-
-        if not isinstance(assign_target, nodes.Tuple):
-            return
-        if self._too_many_starred_for_tuple(assign_target):
-            self.add_message("too-many-star-expressions", node=node)
+        match assign_target := node.targets[0]:
+            case nodes.Starred():
+                # Check *a = b
+                self.add_message("invalid-star-assignment-target", node=node)
+            case nodes.Tuple():
+                # Check *a, *b = ...
+                if self._too_many_starred_for_tuple(assign_target):
+                    self.add_message("too-many-star-expressions", node=node)
 
     @utils.only_required_for_messages("star-needs-assignment-target")
     def visit_starred(self, node: nodes.Starred) -> None:
@@ -270,7 +336,9 @@ class BasicErrorChecker(_BasicChecker):
         if not redefined_by_decorator(
             node
         ) and not utils.is_registered_in_singledispatch_function(node):
-            self._check_redefinition(node.is_method() and "method" or "function", node)
+            self._check_redefinition(
+                (node.is_method() and "method") or "function", node
+            )
         # checks for max returns, branch, return in __init__
         returns = node.nodes_of_class(
             nodes.Return, skip_klass=(nodes.FunctionDef, nodes.ClassDef)
@@ -285,8 +353,7 @@ class BasicErrorChecker(_BasicChecker):
                     self.add_message("return-in-init", node=node)
         # Check for duplicate names by clustering args with same name for detailed report
         arg_clusters = {}
-        arguments: Iterator[Any] = filter(None, [node.args.args, node.args.kwonlyargs])
-        for arg in itertools.chain.from_iterable(arguments):
+        for arg in node.args.arguments:
             if arg.name in arg_clusters:
                 self.add_message(
                     "duplicate-argument-name",
@@ -370,7 +437,7 @@ class BasicErrorChecker(_BasicChecker):
     def visit_continue(self, node: nodes.Continue) -> None:
         self._check_in_loop(node, "continue")
 
-    @utils.only_required_for_messages("not-in-loop")
+    @utils.only_required_for_messages("not-in-loop", "break-in-finally")
     def visit_break(self, node: nodes.Break) -> None:
         self._check_in_loop(node, "break")
 
@@ -477,9 +544,9 @@ class BasicErrorChecker(_BasicChecker):
             self.add_message(
                 "useless-else-on-loop",
                 node=node,
-                # This is not optimal, but the line previous
-                # to the first statement in the else clause
-                # will usually be the one that contains the else:.
+                # The else keyword has no AST node; the line before
+                # the first statement in the else clause is the best
+                # approximation of its location.
                 line=node.orelse[0].lineno - 1,
             )
 
@@ -498,9 +565,14 @@ class BasicErrorChecker(_BasicChecker):
                 isinstance(parent, nodes.Try)
                 and node in parent.finalbody
                 and isinstance(node, nodes.Continue)
-                and not self._py38_plus
             ):
                 self.add_message("continue-in-finally", node=node)
+            if (
+                isinstance(parent, nodes.Try)
+                and node in parent.finalbody
+                and isinstance(node, nodes.Break)
+            ):
+                self.add_message("break-in-finally", node=node)
 
         self.add_message("not-in-loop", node=node, args=node_name)
 
@@ -529,32 +601,29 @@ class BasicErrorChecker(_BasicChecker):
             ):
                 return
 
+            if _is_singledispatchmethod_registration(node):
+                return
+
             # Skip typing.overload() functions.
             if utils.is_overload_stub(node):
                 return
 
             # Exempt functions redefined on a condition.
             if isinstance(node.parent, nodes.If):
-                # Exempt "if not <func>" cases
-                if (
-                    isinstance(node.parent.test, nodes.UnaryOp)
-                    and node.parent.test.op == "not"
-                    and isinstance(node.parent.test.operand, nodes.Name)
-                    and node.parent.test.operand.name == node.name
-                ):
-                    return
-
-                # Exempt "if <func> is not None" cases
-                # pylint: disable=too-many-boolean-expressions
-                if (
-                    isinstance(node.parent.test, nodes.Compare)
-                    and isinstance(node.parent.test.left, nodes.Name)
-                    and node.parent.test.left.name == node.name
-                    and node.parent.test.ops[0][0] == "is"
-                    and isinstance(node.parent.test.ops[0][1], nodes.Const)
-                    and node.parent.test.ops[0][1].value is None
-                ):
-                    return
+                match node.parent.test:
+                    case nodes.UnaryOp(op="not", operand=nodes.Name(name=name)) if (
+                        name == node.name
+                    ):
+                        # Exempt "if not <func>" cases
+                        return
+                    case nodes.Compare(
+                        left=nodes.Name(name=name),
+                        ops=[["is", nodes.Const(value=None)]],
+                    ) if (
+                        name == node.name
+                    ):
+                        # Exempt "if <func> is not None" cases
+                        return
 
             # Check if we have forward references for this node.
             try:
@@ -567,13 +636,10 @@ class BasicErrorChecker(_BasicChecker):
                     if (
                         inferred
                         and isinstance(inferred, astroid.Instance)
-                        and inferred.qname() == TYPING_FORWARD_REF_QNAME
+                        and inferred.qname() in FORWARD_REF_QNAME
                     ):
                         return
 
-            dummy_variables_rgx = self.linter.config.dummy_variables_rgx
-            if dummy_variables_rgx and dummy_variables_rgx.match(node.name):
-                return
             self.add_message(
                 "function-redefined",
                 node=node,

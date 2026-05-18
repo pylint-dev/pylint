@@ -8,3 +8,4 @@ ruff
 flake8-typing-imports
 isort
 mypy
+pyright

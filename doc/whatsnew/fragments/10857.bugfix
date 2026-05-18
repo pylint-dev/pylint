@@ -1,0 +1,3 @@
+dependency on isort is now set to <9, permitting to use isort 8.
+
+Closes #10857

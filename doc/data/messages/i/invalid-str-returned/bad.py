@@ -1,4 +1,4 @@
-class Str:
+class CustomStr:
     """__str__ returns int"""
 
     def __str__(self):  # [invalid-str-returned]

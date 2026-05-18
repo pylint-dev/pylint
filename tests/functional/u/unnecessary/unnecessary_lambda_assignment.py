@@ -23,11 +23,11 @@ a, b = (
     lambda y: y,  # [unnecessary-lambda-assignment]
     lambda z: z,  # This isn't assigned so don't flag.
 )
-a, b, c = lambda x: x, lambda y: y  # [unnecessary-lambda-assignment,unnecessary-lambda-assignment]
+a, b, C = lambda x: x, lambda y: y  # [unnecessary-lambda-assignment,unnecessary-lambda-assignment]
 
 # Only flag lambdas directly assigned to variables.
 d["key"] = lambda x: x
-squares = list(map(lambda x: x**2, range(10)))
+SQUARES = list(map(lambda x: x**2, range(10)))
 
 DICT = {1: lambda x: x, 2: lambda x: x + 1}
 for key, value in DICT.items():
@@ -36,3 +36,7 @@ for key, value in DICT.items():
 # Flag lambda expression assignments via named expressions as well.
 if (e := lambda: 2) and e():  # [unnecessary-lambda-assignment]
     pass
+
+# Multi-assignments
+a = b = lambda: None  # [unnecessary-lambda-assignment]
+a, b = x = lambda: None, None  # [unnecessary-lambda-assignment]

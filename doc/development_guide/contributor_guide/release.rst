@@ -19,9 +19,6 @@ patch release first. See ``Releasing a patch version``.**
    ``tbump 2.4.0 --no-push --no-tag``)
 -  Check the commit created with ``git show`` amend the commit if
    required.
--  Create a new ``What's new in Pylint X.Y+1`` document. Add it to
-   ``doc/index.rst``. Take a look at the examples from ``doc/whatsnew``.
-   Commit that with ``git commit -am "wip"``.
 -  Move the ``main`` branch up to a dev version with ``tbump``:
 
 .. code:: bash
@@ -36,11 +33,12 @@ For example:
    tbump 2.5.0-dev0 --no-tag --no-push
    git commit -am "Upgrade the version to 2.5.0-dev0 following 2.4.0 release"
 
-Check the commit, fixup the ‘wip’ commit with the what’s new then push
-to a release branch
-
--  Open a merge request with the two commits (no one can push directly
-   on ``main``)
+-  tbump will have created a new ``What's new in Pylint X.Y+1`` document.
+   Add it to ``doc/whatsnew/X/index.rst``. Take a look at the examples from ``doc/whatsnew``.
+   Commit that with ``git commit -a --amend``.
+- Push to a release branch
+- Open a merge request with the two commits (no one can push directly
+  on ``main``)
 -  After the merge, recover the merged commits on ``main`` and tag the
    first one (the version should be ``X.Y.Z``) as ``vX.Y.Z`` (For
    example: ``v2.4.0``)
@@ -57,7 +55,7 @@ to a release branch
    scratch.
 -  Delete the ``maintenance/X.Y-1.x`` branch. (For example:
    ``maintenance/2.3.x``)
--  Select all the issues labelled ``backport maintenance/X.Y-1.x`` and
+-  Select all the *closed* issues labelled ``backport maintenance/X.Y-1.x`` and
    label them ``backported``, then rename the
    ``backport maintenance/X.Y-1.x`` label to
    ``backport maintenance/X.Y.x`` (for example rename
@@ -66,7 +64,7 @@ to a release branch
    close ``2.4.0``, create ``2.4.1`` and ``2.6.0``)
 -  Hide and deactivate all the patch releases for the previous minor
    release on
-   `readthedoc <https://readthedocs.org/projects/pylint/versions/>`__,
+   `readthedocs <https://readthedocs.org/projects/pylint/versions/>`__,
    except the last one. (For example: hide ``v2.4.0``, ``v2.4.1``,
    ``v2.4.2`` and keep only ``v2.4.3``)
 

@@ -6,21 +6,20 @@
 
 from __future__ import annotations
 
-import collections
 import copy
 import itertools
+import math
 import os
 import re
 from collections import defaultdict
-from collections.abc import Generator, Iterable, Iterator
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING
 
 import astroid
-from astroid import bases, extract_node, nodes, util
-from astroid.nodes import _base_nodes
-from astroid.typing import InferenceResult
+import astroid.exceptions
+import astroid.modutils
+from astroid import bases, extract_node, nodes, objects, util
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -30,12 +29,20 @@ from pylint.checkers.utils import (
     is_sys_guard,
     overridden_method,
 )
-from pylint.constants import PY39_PLUS, TYPING_NEVER, TYPING_NORETURN
+from pylint.constants import TYPING_NEVER, TYPING_NORETURN
 from pylint.interfaces import CONTROL_FLOW, HIGH, INFERENCE, INFERENCE_FAILURE
-from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Iterable, Iterator
+
+    from astroid.nodes import _base_nodes
+    from astroid.typing import InferenceResult
+
     from pylint.lint import PyLinter
+    from pylint.typing import MessageDefinitionTuple
+
+    Consumption = dict[str, list[nodes.NodeNG]]
+
 
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 FUTURE = "__future__"
@@ -47,69 +54,12 @@ IGNORED_ARGUMENT_NAMES = re.compile("_.*|^ignored_|^unused_")
 METACLASS_NAME_TRANSFORMS = {"_py_abc": "abc"}
 BUILTIN_RANGE = "builtins.range"
 TYPING_MODULE = "typing"
-TYPING_NAMES = frozenset(
-    {
-        "Any",
-        "Callable",
-        "ClassVar",
-        "Generic",
-        "Optional",
-        "Tuple",
-        "Type",
-        "TypeVar",
-        "Union",
-        "AbstractSet",
-        "ByteString",
-        "Container",
-        "ContextManager",
-        "Hashable",
-        "ItemsView",
-        "Iterable",
-        "Iterator",
-        "KeysView",
-        "Mapping",
-        "MappingView",
-        "MutableMapping",
-        "MutableSequence",
-        "MutableSet",
-        "Sequence",
-        "Sized",
-        "ValuesView",
-        "Awaitable",
-        "AsyncIterator",
-        "AsyncIterable",
-        "Coroutine",
-        "Collection",
-        "AsyncGenerator",
-        "AsyncContextManager",
-        "Reversible",
-        "SupportsAbs",
-        "SupportsBytes",
-        "SupportsComplex",
-        "SupportsFloat",
-        "SupportsInt",
-        "SupportsRound",
-        "Counter",
-        "Deque",
-        "Dict",
-        "DefaultDict",
-        "List",
-        "Set",
-        "FrozenSet",
-        "NamedTuple",
-        "Generator",
-        "AnyStr",
-        "Text",
-        "Pattern",
-        "BinaryIO",
-    }
-)
 
 DICT_TYPES = (
-    astroid.objects.DictValues,
-    astroid.objects.DictKeys,
-    astroid.objects.DictItems,
-    astroid.nodes.node_classes.Dict,
+    objects.DictValues,
+    objects.DictKeys,
+    objects.DictItems,
+    nodes.Dict,
 )
 
 NODES_WITH_VALUE_ATTR = (
@@ -119,6 +69,7 @@ NODES_WITH_VALUE_ATTR = (
     nodes.Expr,
     nodes.Return,
     nodes.Match,
+    nodes.TypeAlias,
 )
 
 
@@ -138,7 +89,7 @@ def _is_from_future_import(stmt: nodes.ImportFrom, name: str) -> bool | None:
     """Check if the name is a future import from another module."""
     try:
         module = stmt.do_import_module(stmt.modname)
-    except astroid.AstroidBuildingException:
+    except astroid.AstroidBuildingError:
         return None
 
     for local_node in module.locals.get(name, []):
@@ -147,16 +98,27 @@ def _is_from_future_import(stmt: nodes.ImportFrom, name: str) -> bool | None:
     return None
 
 
+def _wildcard_import_binds(stmt: nodes.ImportFrom, name: str) -> bool:
+    """Check if the name is exported by a `from X import *` statement."""
+    if not any(node_name[0] == "*" for node_name in stmt.names):
+        return False
+    try:
+        return name in stmt.do_import_module(stmt.modname).wildcard_import_names()
+    except astroid.AstroidBuildingError:
+        return False
+
+
 def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> str:
     """Return extra information to add to the message for unpacking-non-sequence
     and unbalanced-tuple/dict-unpacking errors.
     """
     more = ""
     if isinstance(inferred, DICT_TYPES):
-        if isinstance(node, nodes.Assign):
-            more = node.value.as_string()
-        elif isinstance(node, nodes.For):
-            more = node.iter.as_string()
+        match node:
+            case nodes.Assign():
+                more = node.value.as_string()
+            case nodes.For():
+                more = node.iter.as_string()
         return more
 
     inferred_module = inferred.root().name
@@ -171,7 +133,9 @@ def _get_unpacking_extra_info(node: nodes.Assign, inferred: InferenceResult) -> 
 
 
 def _detect_global_scope(
-    node: nodes.Name, frame: nodes.LocalsDictNodeNG, defframe: nodes.LocalsDictNodeNG
+    node: nodes.Name,
+    frame: nodes.LocalsDictNodeNG,
+    defframe: nodes.LocalsDictNodeNG,
 ) -> bool:
     """Detect that the given frames share a global scope.
 
@@ -246,16 +210,14 @@ def _detect_global_scope(
     return frame.lineno < defframe.lineno  # type: ignore[no-any-return]
 
 
-def _infer_name_module(
-    node: nodes.Import, name: str
-) -> Generator[InferenceResult, None, None]:
+def _infer_name_module(node: nodes.Import, name: str) -> Generator[InferenceResult]:
     context = astroid.context.InferenceContext()
     context.lookupname = name
     return node.infer(context, asname=False)  # type: ignore[no-any-return]
 
 
 def _fix_dot_imports(
-    not_consumed: dict[str, list[nodes.NodeNG]]
+    not_consumed: Consumption,
 ) -> list[tuple[str, _base_nodes.ImportNode]]:
     """Try to fix imports with multiple dots, by returning a dictionary
     with the import names expanded.
@@ -323,7 +285,8 @@ def _find_frame_imports(name: str, frame: nodes.LocalsDictNodeNG) -> bool:
 
 
 def _import_name_is_global(
-    stmt: nodes.Global | _base_nodes.ImportNode, global_names: set[str]
+    stmt: nodes.Global | _base_nodes.ImportNode,
+    global_names: set[str],
 ) -> bool:
     for import_name, import_alias in stmt.names:
         # If the import uses an alias, check only that.
@@ -349,6 +312,31 @@ def _assigned_locally(name_node: nodes.Name) -> bool:
     assign_stmts = name_node_scope.nodes_of_class(nodes.AssignName)
     return any(a.name == name_node.name for a in assign_stmts) or _find_frame_imports(
         name_node.name, name_node_scope
+    )
+
+
+def _is_before(node: nodes.NodeNG, reference_node: nodes.NodeNG) -> bool:
+    """Checks if node appears before reference_node."""
+    if node.lineno < reference_node.lineno:
+        return True
+    if (
+        node.lineno == reference_node.lineno
+        and node.col_offset < reference_node.col_offset
+    ):
+        return True
+    return False
+
+
+def _is_nonlocal_name(node: nodes.Name, frame: nodes.LocalsDictNodeNG) -> bool:
+    """Checks if name node has a nonlocal declaration in the given frame."""
+    if not isinstance(frame, nodes.FunctionDef):
+        return False
+
+    return any(
+        isinstance(stmt, nodes.Nonlocal)
+        and node.name in stmt.names
+        and _is_before(stmt, node)
+        for stmt in frame.body
     )
 
 
@@ -399,6 +387,12 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         "Invalid format for __all__, must be tuple or list",
         "invalid-all-format",
         "Used when __all__ has an invalid format.",
+    ),
+    "E0606": (
+        "Possibly using variable %r before assignment",
+        "possibly-used-before-assignment",
+        "Emitted when a local variable is accessed before its assignment took place "
+        "in both branches of an if/else switch.",
     ),
     "E0611": (
         "No name %r in module %r",
@@ -517,30 +511,39 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 }
 
 
-class ScopeConsumer(NamedTuple):
-    """Store nodes and their consumption states."""
-
-    to_consume: dict[str, list[nodes.NodeNG]]
-    consumed: dict[str, list[nodes.NodeNG]]
-    consumed_uncertain: defaultdict[str, list[nodes.NodeNG]]
-    scope_type: str
-
-
 class NamesConsumer:
     """A simple class to handle consumed, to consume and scope type info of node locals."""
 
-    def __init__(self, node: nodes.NodeNG, scope_type: str) -> None:
-        self._atomic = ScopeConsumer(
-            copy.copy(node.locals), {}, collections.defaultdict(list), scope_type
-        )
+    node: nodes.NodeNG
+    scope_type: str
+
+    to_consume: Consumption
+    consumed: Consumption
+    consumed_uncertain: Consumption
+    """Retrieves nodes filtered out by get_next_to_consume() that may not
+    have executed.
+
+    These include nodes such as statements in except blocks, or statements
+    in try blocks (when evaluating their corresponding except and finally
+    blocks). Checkers that want to treat the statements as executed
+    (e.g. for unused-variable) may need to add them back.
+    """
+
+    def __init__(self, node: nodes.NodeNG, scope_type: str):
         self.node = node
+        self.scope_type = scope_type
+
+        self.to_consume = copy.copy(node.locals)
+        self.consumed = {}
+        self.consumed_uncertain = defaultdict(list)
+
+        self.names_under_always_false_test: set[str] = set()
+        self.names_defined_under_one_branch_only: set[str] = set()
 
     def __repr__(self) -> str:
-        _to_consumes = [f"{k}->{v}" for k, v in self._atomic.to_consume.items()]
-        _consumed = [f"{k}->{v}" for k, v in self._atomic.consumed.items()]
-        _consumed_uncertain = [
-            f"{k}->{v}" for k, v in self._atomic.consumed_uncertain.items()
-        ]
+        _to_consumes = [f"{k}->{v}" for k, v in self.to_consume.items()]
+        _consumed = [f"{k}->{v}" for k, v in self.consumed.items()]
+        _consumed_uncertain = [f"{k}->{v}" for k, v in self.consumed_uncertain.items()]
         to_consumes = ", ".join(_to_consumes)
         consumed = ", ".join(_consumed)
         consumed_uncertain = ", ".join(_consumed_uncertain)
@@ -548,35 +551,8 @@ class NamesConsumer:
 to_consume : {to_consumes}
 consumed : {consumed}
 consumed_uncertain: {consumed_uncertain}
-scope_type : {self._atomic.scope_type}
+scope_type : {self.scope_type}
 """
-
-    def __iter__(self) -> Iterator[Any]:
-        return iter(self._atomic)
-
-    @property
-    def to_consume(self) -> dict[str, list[nodes.NodeNG]]:
-        return self._atomic.to_consume
-
-    @property
-    def consumed(self) -> dict[str, list[nodes.NodeNG]]:
-        return self._atomic.consumed
-
-    @property
-    def consumed_uncertain(self) -> defaultdict[str, list[nodes.NodeNG]]:
-        """Retrieves nodes filtered out by get_next_to_consume() that may not
-        have executed.
-
-        These include nodes such as statements in except blocks, or statements
-        in try blocks (when evaluating their corresponding except and finally
-        blocks). Checkers that want to treat the statements as executed
-        (e.g. for unused-variable) may need to add them back.
-        """
-        return self._atomic.consumed_uncertain
-
-    @property
-    def scope_type(self) -> str:
-        return self._atomic.scope_type
 
     def mark_as_consumed(self, name: str, consumed_nodes: list[nodes.NodeNG]) -> None:
         """Mark the given nodes as consumed for the name.
@@ -620,25 +596,20 @@ scope_type : {self._atomic.scope_type}
             and parent_node.iter == node
             and parent_node.target in found_nodes
         ):
-            found_nodes = None
+            # Only filter out the for-loop target if there are other definitions besides the target
+            other_definitions = [fn for fn in found_nodes if fn != parent_node.target]
+            if other_definitions:
+                found_nodes = other_definitions
+            else:
+                found_nodes = None
 
         # Before filtering, check that this node's name is not a nonlocal
-        if any(
-            isinstance(child, nodes.Nonlocal) and node.name in child.names
-            for child in node.frame().get_children()
-        ):
+        if _is_nonlocal_name(node, node.frame()):
             return found_nodes
 
         # And no comprehension is under the node's frame
         if VariablesChecker._comprehension_between_frame_and_node(node):
             return found_nodes
-
-        # Filter out assignments guarded by always false conditions
-        if found_nodes:
-            uncertain_nodes = self._uncertain_nodes_in_false_tests(found_nodes, node)
-            self.consumed_uncertain[node.name] += uncertain_nodes
-            uncertain_nodes_set = set(uncertain_nodes)
-            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
         # Filter out assignments in ExceptHandlers that node is not contained in
         if found_nodes:
@@ -648,6 +619,13 @@ scope_type : {self._atomic.scope_type}
                 if not isinstance(n.statement(), nodes.ExceptHandler)
                 or n.statement().parent_of(node)
             ]
+
+        # Filter out assignments guarded by always false conditions
+        if found_nodes:
+            uncertain_nodes = self._uncertain_nodes_if_tests(found_nodes, node)
+            self.consumed_uncertain[node.name] += uncertain_nodes
+            uncertain_nodes_set = set(uncertain_nodes)
+            found_nodes = [n for n in found_nodes if n not in uncertain_nodes_set]
 
         # Filter out assignments in an Except clause that the node is not
         # contained in, assuming they may fail
@@ -664,7 +642,7 @@ scope_type : {self._atomic.scope_type}
         if found_nodes:
             uncertain_nodes = (
                 self._uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-                    found_nodes, node_statement
+                    found_nodes, node_statement, name
                 )
             )
             self.consumed_uncertain[node.name] += uncertain_nodes
@@ -685,36 +663,57 @@ scope_type : {self._atomic.scope_type}
 
         return found_nodes
 
-    @staticmethod
-    def _inferred_to_define_name_raise_or_return(name: str, node: nodes.NodeNG) -> bool:
+    def _inferred_to_define_name_raise_or_return(
+        self,
+        name: str,
+        node: nodes.Try | nodes.With | nodes.For | nodes.While | nodes.Match | nodes.If,
+    ) -> bool:
         """Return True if there is a path under this `if_node`
         that is inferred to define `name`, raise, or return.
         """
-        # Handle try and with
-        if isinstance(node, nodes.Try):
-            # Allow either a path through try/else/finally OR a path through ALL except handlers
-            try_except_node = node
-            if node.finalbody:
-                try_except_node = next(
-                    (child for child in node.nodes_of_class(nodes.Try)),
-                    None,
+        match node:
+            case nodes.Try():
+                # Allow either a path through try/else/finally OR a path through ALL except handlers
+                try_except_node = node
+                if node.finalbody:
+                    try_except_node = next(
+                        (child for child in node.nodes_of_class(nodes.Try)),
+                        None,
+                    )
+                handlers = try_except_node.handlers if try_except_node else []
+                return NamesConsumer._defines_name_raises_or_returns_recursive(
+                    name, node
+                ) or all(
+                    NamesConsumer._defines_name_raises_or_returns_recursive(
+                        name, handler
+                    )
+                    for handler in handlers
                 )
-            handlers = try_except_node.handlers if try_except_node else []
-            return NamesConsumer._defines_name_raises_or_returns_recursive(
-                name, node
-            ) or all(
-                NamesConsumer._defines_name_raises_or_returns_recursive(name, handler)
-                for handler in handlers
-            )
 
-        if isinstance(node, (nodes.With, nodes.For, nodes.While)):
-            return NamesConsumer._defines_name_raises_or_returns_recursive(name, node)
+            case nodes.With() | nodes.For() | nodes.While():
+                return NamesConsumer._defines_name_raises_or_returns_recursive(
+                    name, node
+                )
 
-        if not isinstance(node, nodes.If):
-            return False
+            case nodes.Match():
+                return all(
+                    NamesConsumer._defines_name_raises_or_returns_recursive(name, case)
+                    for case in node.cases
+                )
+            case nodes.If():
+                return self._inferred_to_define_name_raise_or_return_for_if_node(
+                    name, node
+                )
+            case _:  # pragma: no cover
+                # The function is only called for Try, With, For, While, Match and
+                # If nodes. All of which are being handled above.
+                raise AssertionError
 
-        # Be permissive if there is a break
-        if any(node.nodes_of_class(nodes.Break)):
+    def _inferred_to_define_name_raise_or_return_for_if_node(
+        self, name: str, node: nodes.If
+    ) -> bool:
+        # Be permissive if there is a break or a continue
+        if any(node.nodes_of_class(nodes.Break, nodes.Continue)):
             return True
 
         # Is there an assignment in this node itself, e.g. in named expression?
@@ -736,52 +735,59 @@ scope_type : {self._atomic.scope_type}
 
         # Only search else branch when test condition is inferred to be false
         if all_inferred and only_search_else:
-            return NamesConsumer._branch_handles_name(name, node.orelse)
-        # Only search if branch when test condition is inferred to be true
-        if all_inferred and only_search_if:
-            return NamesConsumer._branch_handles_name(name, node.body)
+            self.names_under_always_false_test.add(name)
+            return self._branch_handles_name(name, node.orelse)
         # Search both if and else branches
-        return NamesConsumer._branch_handles_name(
-            name, node.body
-        ) or NamesConsumer._branch_handles_name(name, node.orelse)
+        if_branch_handles = self._branch_handles_name(name, node.body)
+        else_branch_handles = self._branch_handles_name(name, node.orelse)
+        if if_branch_handles and else_branch_handles:
+            self.names_defined_under_one_branch_only.discard(name)
+        elif if_branch_handles ^ else_branch_handles:
+            self.names_defined_under_one_branch_only.add(name)
+        return if_branch_handles and else_branch_handles
 
-    @staticmethod
-    def _branch_handles_name(name: str, body: Iterable[nodes.NodeNG]) -> bool:
+    def _branch_handles_name(self, name: str, body: Iterable[nodes.NodeNG]) -> bool:
         return any(
             NamesConsumer._defines_name_raises_or_returns(name, if_body_stmt)
-            or isinstance(
-                if_body_stmt,
-                (
-                    nodes.If,
-                    nodes.Try,
-                    nodes.With,
-                    nodes.For,
-                    nodes.While,
-                ),
-            )
-            and NamesConsumer._inferred_to_define_name_raise_or_return(
-                name, if_body_stmt
+            or (
+                isinstance(
+                    if_body_stmt,
+                    (
+                        nodes.If,
+                        nodes.Try,
+                        nodes.With,
+                        nodes.For,
+                        nodes.While,
+                        nodes.Match,
+                    ),
+                )
+                and self._inferred_to_define_name_raise_or_return(name, if_body_stmt)
             )
             for if_body_stmt in body
         )
 
-    def _uncertain_nodes_in_false_tests(
-        self, found_nodes: list[nodes.NodeNG], node: nodes.NodeNG
+    def _uncertain_nodes_if_tests(
+        self,
+        found_nodes: list[nodes.NodeNG],
+        node: nodes.NodeNG,
     ) -> list[nodes.NodeNG]:
-        """Identify nodes of uncertain execution because they are defined under
-        tests that evaluate false.
+        """Identify nodes of uncertain execution because they are defined under if
+        tests.
 
         Don't identify a node if there is a path that is inferred to
         define the name, raise, or return (e.g. any executed if/elif/else branch).
         """
         uncertain_nodes = []
         for other_node in found_nodes:
-            if isinstance(other_node, nodes.AssignName):
-                name = other_node.name
-            elif isinstance(other_node, (nodes.Import, nodes.ImportFrom)):
-                name = node.name
-            else:
-                continue
+            match other_node:
+                case nodes.AssignName():
+                    name = other_node.name
+                case nodes.Import() | nodes.ImportFrom():
+                    name = node.name
+                case nodes.FunctionDef() | nodes.ClassDef():
+                    name = other_node.name
+                case _:
+                    continue
 
             all_if = [
                 n
@@ -805,7 +811,7 @@ scope_type : {self._atomic.scope_type}
                 continue
 
             # Name defined in the if/else control flow
-            if NamesConsumer._inferred_to_define_name_raise_or_return(name, outer_if):
+            if self._inferred_to_define_name_raise_or_return(name, outer_if):
                 continue
 
             uncertain_nodes.append(other_node)
@@ -820,10 +826,14 @@ scope_type : {self._atomic.scope_type}
         or if their inferred values consist only of constants and those constants
         are identical, and the if test guarding `node` is not a Name.
         """
-        other_if_test_as_string = other_if.test.as_string()
-        other_if_test_all_inferred = utils.infer_all(other_if.test)
+        if isinstance(other_if.test, nodes.NamedExpr):
+            other_if_test = other_if.test.target
+        else:
+            other_if_test = other_if.test
+        other_if_test_as_string = other_if_test.as_string()
+        other_if_test_all_inferred = utils.infer_all(other_if_test)
         for ancestor in node.node_ancestors():
-            if not isinstance(ancestor, nodes.If):
+            if not isinstance(ancestor, (nodes.If, nodes.IfExp)):
                 continue
             if ancestor.test.as_string() == other_if_test_as_string:
                 return True
@@ -848,7 +858,7 @@ scope_type : {self._atomic.scope_type}
     def _uncertain_nodes_in_except_blocks(
         found_nodes: list[nodes.NodeNG],
         node: nodes.NodeNG,
-        node_statement: nodes.Statement,
+        node_statement: _base_nodes.Statement,
     ) -> list[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain
         because they are in an except block.
@@ -881,6 +891,16 @@ scope_type : {self._atomic.scope_type}
                 and utils.is_terminating_func(else_statement.value)
                 for else_statement in closest_try_except.orelse
             )
+            else_block_continues = any(
+                isinstance(else_statement, nodes.Continue)
+                for else_statement in closest_try_except.orelse
+            )
+            if (
+                else_block_continues
+                and isinstance(node_statement.parent, (nodes.For, nodes.While))
+                and closest_try_except.parent.parent_of(node_statement)
+            ):
+                continue
 
             if try_block_returns or else_block_returns or else_block_exits:
                 # Exception: if this node is in the final block of the other_node_statement,
@@ -917,8 +937,16 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _defines_name_raises_or_returns(name: str, node: nodes.NodeNG) -> bool:
-        if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return)):
+        if isinstance(node, (nodes.Raise, nodes.Assert, nodes.Return, nodes.Continue)):
             return True
+        if isinstance(node, nodes.Expr) and isinstance(node.value, nodes.Call):
+            if utils.is_terminating_func(node.value):
+                return True
+            if (
+                isinstance(node.value.func, nodes.Name)
+                and node.value.func.name == "assert_never"
+            ):
+                return True
         if (
             isinstance(node, nodes.AnnAssign)
             and node.value
@@ -939,9 +967,17 @@ scope_type : {self._atomic.scope_type}
                 for child_named_expr in node.nodes_of_class(nodes.NamedExpr)
             ):
                 return True
-        if isinstance(node, (nodes.Import, nodes.ImportFrom)) and any(
-            (node_name[1] and node_name[1] == name) or (node_name[0] == name)
-            for node_name in node.names
+        if isinstance(node, (nodes.Import, nodes.ImportFrom)) and (
+            any(
+                (node_name[1] and node_name[1] == name)
+                or (node_name[0] == name)
+                or (node_name[0].startswith(name + "."))
+                for node_name in node.names
+            )
+            or (
+                isinstance(node, nodes.ImportFrom)
+                and _wildcard_import_binds(node, name)
+            )
         ):
             return True
         if isinstance(node, nodes.With) and any(
@@ -961,7 +997,8 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _defines_name_raises_or_returns_recursive(
-        name: str, node: nodes.NodeNG
+        name: str,
+        node: nodes.NodeNG,
     ) -> bool:
         """Return True if some child of `node` defines the name `name`,
         raises, or returns.
@@ -969,23 +1006,33 @@ scope_type : {self._atomic.scope_type}
         for stmt in node.get_children():
             if NamesConsumer._defines_name_raises_or_returns(name, stmt):
                 return True
-            if isinstance(stmt, (nodes.If, nodes.With)):
-                if any(
-                    NamesConsumer._defines_name_raises_or_returns(name, nested_stmt)
-                    for nested_stmt in stmt.get_children()
+            match stmt:
+                case nodes.If() | nodes.With():
+                    if any(
+                        NamesConsumer._defines_name_raises_or_returns(name, nested_stmt)
+                        for nested_stmt in stmt.get_children()
+                    ):
+                        return True
+                case nodes.Try() if (
+                    not stmt.finalbody
+                    and NamesConsumer._defines_name_raises_or_returns_recursive(
+                        name, stmt
+                    )
                 ):
                     return True
-            if (
-                isinstance(stmt, nodes.Try)
-                and not stmt.finalbody
-                and NamesConsumer._defines_name_raises_or_returns_recursive(name, stmt)
-            ):
-                return True
+                case nodes.Match():
+                    return all(
+                        NamesConsumer._defines_name_raises_or_returns_recursive(
+                            name, case
+                        )
+                        for case in stmt.cases
+                    )
         return False
 
     @staticmethod
     def _check_loop_finishes_via_except(
-        node: nodes.NodeNG, other_node_try_except: nodes.Try
+        node: nodes.NodeNG,
+        other_node_try_except: nodes.Try,
     ) -> bool:
         """Check for a specific control flow scenario.
 
@@ -996,7 +1043,6 @@ scope_type : {self._atomic.scope_type}
         the loop can depend on it being assigned.
 
         Example:
-
         for _ in range(3):
             try:
                 do_something()
@@ -1009,9 +1055,9 @@ scope_type : {self._atomic.scope_type}
         """
         if not other_node_try_except.orelse:
             return False
-        closest_loop: None | (
-            nodes.For | nodes.While
-        ) = utils.get_node_first_ancestor_of_type(node, (nodes.For, nodes.While))
+        closest_loop: nodes.For | nodes.While | None = (
+            utils.get_node_first_ancestor_of_type(node, (nodes.For, nodes.While))
+        )
         if closest_loop is None:
             return False
         if not any(
@@ -1029,7 +1075,8 @@ scope_type : {self._atomic.scope_type}
             return False
 
         def _try_in_loop_body(
-            other_node_try_except: nodes.Try, loop: nodes.For | nodes.While
+            other_node_try_except: nodes.Try,
+            loop: nodes.For | nodes.While,
         ) -> bool:
             """Return True if `other_node_try_except` is a descendant of `loop`."""
             return any(
@@ -1059,7 +1106,8 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _recursive_search_for_continue_before_break(
-        stmt: nodes.Statement, break_stmt: nodes.Break
+        stmt: _base_nodes.Statement,
+        break_stmt: nodes.Break,
     ) -> bool:
         """Return True if any Continue node can be found in descendants of `stmt`
         before encountering `break_stmt`, ignoring any nested loops.
@@ -1079,7 +1127,8 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_except_blocks(
-        found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
+        found_nodes: list[nodes.NodeNG],
+        node_statement: _base_nodes.Statement,
     ) -> list[nodes.NodeNG]:
         """Return any nodes in ``found_nodes`` that should be treated as uncertain.
 
@@ -1127,7 +1176,9 @@ scope_type : {self._atomic.scope_type}
 
     @staticmethod
     def _uncertain_nodes_in_try_blocks_when_evaluating_finally_blocks(
-        found_nodes: list[nodes.NodeNG], node_statement: nodes.Statement
+        found_nodes: list[nodes.NodeNG],
+        node_statement: _base_nodes.Statement,
+        name: str,
     ) -> list[nodes.NodeNG]:
         uncertain_nodes: list[nodes.NodeNG] = []
         (
@@ -1172,6 +1223,12 @@ scope_type : {self._atomic.scope_type}
                     )
                     for other_node_final_statement in other_node_try_finally_ancestor.finalbody
                 )
+            ):
+                continue
+            # Is the name defined in all exception clauses?
+            if other_node_try_finally_ancestor.handlers and all(
+                NamesConsumer._defines_name_raises_or_returns_recursive(name, handler)
+                for handler in other_node_try_finally_ancestor.handlers
             ):
                 continue
             # Passed all tests for uncertain execution
@@ -1290,10 +1347,14 @@ class VariablesChecker(BaseChecker):
             tuple[nodes.ExceptHandler, nodes.AssignName]
         ] = []
         """This is a queue, last in first out."""
-        self._evaluated_type_checking_scopes: dict[
+        self._reported_type_checking_usage_scopes: dict[
             str, list[nodes.LocalsDictNodeNG]
         ] = {}
         self._postponed_evaluation_enabled = False
+
+    def open(self) -> None:
+        py_version = self.linter.config.py_version
+        self._py314_plus = py_version >= (3, 14)
 
     @utils.only_required_for_messages(
         "unbalanced-dict-unpacking",
@@ -1313,7 +1374,7 @@ class VariablesChecker(BaseChecker):
             # no dict items returned
             return
 
-        if isinstance(inferred, astroid.objects.DictItems):
+        if isinstance(inferred, objects.DictItems):
             # dict.items() is a bit special because values will be a tuple
             # So as long as there are always 2 targets and values each are
             # a tuple with two items, this will unpack correctly.
@@ -1326,9 +1387,29 @@ class VariablesChecker(BaseChecker):
             if any(isinstance(target, nodes.Starred) for target in targets):
                 return
 
-        if len(targets) != len(values):
-            details = _get_unpacking_extra_info(node, inferred)
-            self._report_unbalanced_unpacking(node, inferred, targets, values, details)
+        if isinstance(inferred, nodes.Dict):
+            if isinstance(node.iter, nodes.Name):
+                # If this a case of 'dict-items-missing-iter', we don't want to
+                # report it as an 'unbalanced-dict-unpacking' as well
+                # TODO (performance), merging both checks would streamline this
+                if len(targets) == 2:
+                    return
+
+        else:
+            is_starred_targets = any(
+                isinstance(target, nodes.Starred) for target in targets
+            )
+            for value in values:
+                value_length = self._get_value_length(value)
+                is_valid_star_unpack = is_starred_targets and value_length >= len(
+                    targets
+                )
+                if len(targets) != value_length and not is_valid_star_unpack:
+                    details = _get_unpacking_extra_info(node, inferred)
+                    self._report_unbalanced_unpacking(
+                        node, inferred, targets, value_length, details
+                    )
+                    break
 
     def leave_for(self, node: nodes.For) -> None:
         self._store_type_annotation_names(node)
@@ -1338,7 +1419,9 @@ class VariablesChecker(BaseChecker):
         checks globals doesn't overrides builtins.
         """
         self._to_consume = [NamesConsumer(node, "module")]
-        self._postponed_evaluation_enabled = is_postponed_evaluation_enabled(node)
+        self._postponed_evaluation_enabled = (
+            self._py314_plus or is_postponed_evaluation_enabled(node)
+        )
 
         for name, stmts in node.locals.items():
             if utils.is_builtin(name):
@@ -1385,19 +1468,12 @@ class VariablesChecker(BaseChecker):
         # Check for hidden ancestor names
         # e.g. "six" in: Class X(six.with_metaclass(ABCMeta, object)):
         for name_node in node.nodes_of_class(nodes.Name):
-            if (
-                isinstance(name_node.parent, nodes.Call)
-                and isinstance(name_node.parent.func, nodes.Attribute)
-                and isinstance(name_node.parent.func.expr, nodes.Name)
-            ):
-                hidden_name_node = name_node.parent.func.expr
-                for consumer in self._to_consume:
-                    if hidden_name_node.name in consumer.to_consume:
-                        consumer.mark_as_consumed(
-                            hidden_name_node.name,
-                            consumer.to_consume[hidden_name_node.name],
-                        )
-                        break
+            match name_node.parent:
+                case nodes.Call(func=nodes.Attribute(expr=nodes.Name(name=name))):
+                    for consumer in self._to_consume:
+                        if name in consumer.to_consume:
+                            consumer.mark_as_consumed(name, consumer.to_consume[name])
+                            break
         self._to_consume.pop()
 
     def visit_lambda(self, node: nodes.Lambda) -> None:
@@ -1461,6 +1537,13 @@ class VariablesChecker(BaseChecker):
                     in_type_checking_block(definition) for definition in globs[name]
                 ):
                     continue
+
+                # Suppress emitting the message if the outer name is in the
+                # scope of an exception assignment.
+                # For example: the `e` in `except ValueError as e`
+                match globs[name][0]:
+                    case nodes.AssignName(parent=nodes.ExceptHandler()):
+                        continue
 
                 line = definition.fromlineno
                 if not self._is_name_ignored(stmt, name):
@@ -1541,7 +1624,7 @@ class VariablesChecker(BaseChecker):
 
         module = frame.root()
         default_message = True
-        locals_ = node.scope().locals
+        module_locals = node.root().locals
         for name in node.names:
             try:
                 assign_nodes = module.getattr(name)
@@ -1551,7 +1634,7 @@ class VariablesChecker(BaseChecker):
 
             not_defined_locally_by_import = not any(
                 isinstance(local, (nodes.Import, nodes.ImportFrom))
-                for local in locals_.get(name, ())
+                for local in module_locals.get(name, ())
             )
             if (
                 not utils.is_reassigned_after_current(node, name)
@@ -1621,7 +1704,7 @@ class VariablesChecker(BaseChecker):
 
     @utils.only_required_for_messages("redefined-outer-name")
     def visit_excepthandler(self, node: nodes.ExceptHandler) -> None:
-        if not node.name or not isinstance(node.name, nodes.AssignName):
+        if not isinstance(node.name, nodes.AssignName):
             return
 
         for outer_except, outer_except_assign_name in self._except_handler_names_queue:
@@ -1637,12 +1720,14 @@ class VariablesChecker(BaseChecker):
 
     @utils.only_required_for_messages("redefined-outer-name")
     def leave_excepthandler(self, node: nodes.ExceptHandler) -> None:
-        if not node.name or not isinstance(node.name, nodes.AssignName):
+        if not (node.name and isinstance(node.name, nodes.AssignName)):
             return
         self._except_handler_names_queue.pop()
 
     def _undefined_and_used_before_checker(
-        self, node: nodes.Name, stmt: nodes.NodeNG
+        self,
+        node: nodes.Name,
+        stmt: nodes.NodeNG,
     ) -> None:
         frame = stmt.scope()
         start_index = len(self._to_consume) - 1
@@ -1690,7 +1775,10 @@ class VariablesChecker(BaseChecker):
             self.add_message("undefined-variable", args=node.name, node=node)
 
     def _should_node_be_skipped(
-        self, node: nodes.Name, consumer: NamesConsumer, is_start_index: bool
+        self,
+        node: nodes.Name,
+        consumer: NamesConsumer,
+        is_start_index: bool,
     ) -> bool:
         """Tests a consumer and node for various conditions in which the node shouldn't
         be checked for the undefined-variable and used-before-assignment checks.
@@ -1705,17 +1793,24 @@ class VariablesChecker(BaseChecker):
             if utils.is_ancestor_name(consumer.node, node) or (
                 not is_start_index and self._ignore_class_scope(node)
             ):
+                if any(
+                    node.name == param.name.name for param in consumer.node.type_params
+                ):
+                    return False
+
                 return True
 
-            # Ignore inner class scope for keywords in class definition
-            if isinstance(node.parent, nodes.Keyword) and isinstance(
-                node.parent.parent, nodes.ClassDef
-            ):
-                return True
+            match node.parent:
+                case nodes.Keyword(parent=nodes.ClassDef()):
+                    # Ignore inner class scope for keywords in class definition
+                    return True
 
         elif consumer.scope_type == "function" and self._defined_in_function_definition(
             node, consumer.node
         ):
+            if any(node.name == param.name.name for param in consumer.node.type_params):
+                return False
+
             # If the name node is used as a function default argument's value or as
             # a decorator, then start from the parent frame of the function instead
             # of the function frame - and thus open an inner class scope
@@ -1753,12 +1848,12 @@ class VariablesChecker(BaseChecker):
         if found_nodes is None:
             return (VariableVisitConsumerAction.CONTINUE, None)
         if not found_nodes:
-            self._report_unfound_name_definition(node, current_consumer)
+            is_reported = self._report_unfound_name_definition(node, current_consumer)
             # Mark for consumption any nodes added to consumed_uncertain by
             # get_next_to_consume() because they might not have executed.
             nodes_to_consume = current_consumer.consumed_uncertain[node.name]
-            nodes_to_consume = self._filter_type_checking_import_from_consumption(
-                node, nodes_to_consume
+            nodes_to_consume = self._filter_type_checking_definitions_from_consumption(
+                node, nodes_to_consume, is_reported
             )
             return (
                 VariableVisitConsumerAction.RETURN,
@@ -1782,9 +1877,9 @@ class VariablesChecker(BaseChecker):
         if (
             is_recursive_klass
             and utils.get_node_first_ancestor_of_type(node, nodes.Lambda)
-            and (
-                not utils.is_default_argument(node)
-                or node.scope().parent.scope() is not defframe
+            and not (
+                utils.is_default_argument(node)
+                and node.scope().parent.scope() is defframe
             )
         ):
             # Self-referential class references are fine in lambda's --
@@ -1862,12 +1957,21 @@ class VariablesChecker(BaseChecker):
 
                 # Skip postponed evaluation of annotations
                 # and unevaluated annotations inside a function body
+                # as well as TypeAlias nodes.
                 if not (
-                    self._postponed_evaluation_enabled
-                    and isinstance(stmt, (nodes.AnnAssign, nodes.FunctionDef))
-                ) and not (
-                    isinstance(stmt, nodes.AnnAssign)
+                    self._postponed_evaluation_enabled  # noqa: RUF021
+                    and (
+                        isinstance(stmt, nodes.AnnAssign)
+                        or isinstance(stmt, nodes.FunctionDef)  # noqa: RUF021
+                        and node
+                        not in {
+                            *(stmt.args.defaults or ()),
+                            *(stmt.args.kw_defaults or ()),
+                        }
+                    )
+                    or isinstance(stmt, nodes.AnnAssign)  # noqa: RUF021
                     and utils.get_node_first_ancestor_of_type(stmt, nodes.FunctionDef)
+                    or isinstance(stmt, nodes.TypeAlias)
                 ):
                     self.add_message(
                         "used-before-assignment",
@@ -1912,7 +2016,9 @@ class VariablesChecker(BaseChecker):
                 )
             return (VariableVisitConsumerAction.RETURN, found_nodes)
 
-        elif isinstance(defstmt, nodes.ClassDef):
+        elif (
+            isinstance(defstmt, nodes.ClassDef) and defnode not in defframe.type_params
+        ):
             return self._is_first_level_self_reference(node, defstmt, found_nodes)
 
         elif isinstance(defnode, nodes.NamedExpr):
@@ -1929,59 +2035,79 @@ class VariablesChecker(BaseChecker):
         return (VariableVisitConsumerAction.RETURN, found_nodes)
 
     def _report_unfound_name_definition(
-        self, node: nodes.NodeNG, current_consumer: NamesConsumer
-    ) -> None:
-        """Reports used-before-assignment when all name definition nodes
-        get filtered out by NamesConsumer.
+        self,
+        node: nodes.Name,
+        current_consumer: NamesConsumer,
+    ) -> bool:
+        """Reports used-before-assignment error when all name definition nodes
+        are filtered out by NamesConsumer.
+
+        Returns True if an error is reported; otherwise, returns False.
         """
         if (
             self._postponed_evaluation_enabled
             and utils.is_node_in_type_annotation_context(node)
-        ):
-            return
+        ) or utils.is_node_in_pep695_type_context(node):
+            return False
         if self._is_builtin(node.name):
-            return
+            return False
         if self._is_variable_annotation_in_function(node):
-            return
-        if (
-            node.name in self._evaluated_type_checking_scopes
-            and node.scope() in self._evaluated_type_checking_scopes[node.name]
+            return False
+        if self._has_nonlocal_in_enclosing_frame(
+            node, current_consumer.consumed_uncertain.get(node.name, [])
         ):
-            return
+            return False
+        if (
+            node.name in self._reported_type_checking_usage_scopes
+            and node.scope() in self._reported_type_checking_usage_scopes[node.name]
+        ):
+            return False
 
-        confidence = (
-            CONTROL_FLOW if node.name in current_consumer.consumed_uncertain else HIGH
-        )
+        confidence = HIGH
+        if node.name in current_consumer.names_under_always_false_test:
+            confidence = INFERENCE
+        elif node.name in current_consumer.consumed_uncertain:
+            confidence = CONTROL_FLOW
+
+        if node.name in current_consumer.names_defined_under_one_branch_only:
+            msg = "possibly-used-before-assignment"
+        else:
+            msg = "used-before-assignment"
+
         self.add_message(
-            "used-before-assignment",
+            msg,
             args=node.name,
             node=node,
             confidence=confidence,
         )
 
-    def _filter_type_checking_import_from_consumption(
-        self, node: nodes.NodeNG, nodes_to_consume: list[nodes.NodeNG]
+        return True
+
+    def _filter_type_checking_definitions_from_consumption(
+        self,
+        node: nodes.NodeNG,
+        nodes_to_consume: list[nodes.NodeNG],
+        is_reported: bool,
     ) -> list[nodes.NodeNG]:
-        """Do not consume type-checking import node as used-before-assignment
-        may invoke in different scopes.
+        """Filters out type-checking definition nodes (e.g. imports, class definitions)
+        from consumption, as used-before-assignment may invoke in a different context.
+
+        If used-before-assignment is reported for the usage of a type-checking definition,
+        track the scope of that usage for future evaluation.
         """
-        type_checking_import = next(
-            (
-                n
-                for n in nodes_to_consume
-                if isinstance(n, (nodes.Import, nodes.ImportFrom))
-                and in_type_checking_block(n)
-            ),
-            None,
-        )
-        # If used-before-assignment reported for usage of type checking import
-        # keep track of its scope
-        if type_checking_import and not self._is_variable_annotation_in_function(node):
-            self._evaluated_type_checking_scopes.setdefault(node.name, []).append(
+        type_checking_definitions = {
+            n
+            for n in nodes_to_consume
+            if isinstance(n, (nodes.Import, nodes.ImportFrom, nodes.ClassDef))
+            and in_type_checking_block(n)
+        }
+
+        if type_checking_definitions and is_reported:
+            self._reported_type_checking_usage_scopes.setdefault(node.name, []).append(
                 node.scope()
             )
-        nodes_to_consume = [n for n in nodes_to_consume if n != type_checking_import]
-        return nodes_to_consume
+
+        return [n for n in nodes_to_consume if n not in type_checking_definitions]
 
     @utils.only_required_for_messages("no-name-in-module")
     def visit_import(self, node: nodes.Import) -> None:
@@ -2023,7 +2149,7 @@ class VariablesChecker(BaseChecker):
         name_parts = node.modname.split(".")
         try:
             module = node.do_import_module(name_parts[0])
-        except astroid.AstroidBuildingException:
+        except astroid.AstroidBuildingError:
             return
         module = self._check_module_attrs(node, module, name_parts[1:])
         if not module:
@@ -2052,11 +2178,10 @@ class VariablesChecker(BaseChecker):
         # Check if we have starred nodes.
         if any(isinstance(target, nodes.Starred) for target in targets):
             return
-
         try:
-            inferred = utils.safe_infer(node.value)
-            if inferred is not None:
-                self._check_unpacking(inferred, node, targets)
+            inferred = node.value.inferred()
+            if inferred is not None and len(inferred) == 1:
+                self._check_unpacking(inferred[0], node, targets)
         except astroid.InferenceError:
             return
 
@@ -2095,18 +2220,13 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _defined_in_function_definition(
-        node: nodes.NodeNG, frame: nodes.NodeNG
+        node: nodes.NodeNG,
+        frame: nodes.NodeNG,
     ) -> bool:
         in_annotation_or_default_or_decorator = False
         if isinstance(frame, nodes.FunctionDef) and node.statement() is frame:
             in_annotation_or_default_or_decorator = (
-                (
-                    node in frame.args.annotations
-                    or node in frame.args.posonlyargs_annotations
-                    or node in frame.args.kwonlyargs_annotations
-                    or node is frame.args.varargannotation
-                    or node is frame.args.kwargannotation
-                )
+                node in frame.args.get_annotations()
                 or frame.args.parent_of(node)
                 or (frame.decorators and frame.decorators.parent_of(node))
                 or (
@@ -2118,7 +2238,8 @@ class VariablesChecker(BaseChecker):
 
     @staticmethod
     def _in_lambda_or_comprehension_body(
-        node: nodes.NodeNG, frame: nodes.NodeNG
+        node: nodes.NodeNG,
+        frame: nodes.NodeNG,
     ) -> bool:
         """Return True if node within a lambda/comprehension body (or similar) and thus
         should not have access to class attributes in frame.
@@ -2128,18 +2249,19 @@ class VariablesChecker(BaseChecker):
         while parent is not None:
             if parent is frame:
                 return False
-            if isinstance(parent, nodes.Lambda) and child is not parent.args:
-                # Body of lambda should not have access to class attributes.
-                return True
-            if isinstance(parent, nodes.Comprehension) and child is not parent.iter:
-                # Only iter of list/set/dict/generator comprehension should have access.
-                return True
-            if isinstance(parent, nodes.ComprehensionScope) and not (
-                parent.generators and child is parent.generators[0]
-            ):
-                # Body of list/set/dict/generator comprehension should not have access to class attributes.
-                # Furthermore, only the first generator (if multiple) in comprehension should have access.
-                return True
+            match parent:
+                case nodes.Lambda() if child is not parent.args:
+                    # Body of lambda should not have access to class attributes.
+                    return True
+                case nodes.Comprehension() if child is not parent.iter:
+                    # Only iter of list/set/dict/generator comprehension should have access.
+                    return True
+                case nodes.ComprehensionScope() if not (
+                    parent.generators and child is parent.generators[0]
+                ):
+                    # Body of list/set/dict/generator comprehension should not have access to class attributes.
+                    # Furthermore, only the first generator (if multiple) in comprehension should have access.
+                    return True
             child = parent
             parent = parent.parent
         return False
@@ -2148,8 +2270,8 @@ class VariablesChecker(BaseChecker):
     def _is_variable_violation(
         node: nodes.Name,
         defnode: nodes.NodeNG,
-        stmt: nodes.Statement,
-        defstmt: nodes.Statement,
+        stmt: _base_nodes.Statement,
+        defstmt: _base_nodes.Statement,
         frame: nodes.LocalsDictNodeNG,  # scope of statement of node
         defframe: nodes.LocalsDictNodeNG,
         base_scope_type: str,
@@ -2185,10 +2307,7 @@ class VariablesChecker(BaseChecker):
                 )
             # check if we have a nonlocal
             elif node.name in defframe.locals:
-                maybe_before_assign = not any(
-                    isinstance(child, nodes.Nonlocal) and node.name in child.names
-                    for child in defframe.get_children()
-                )
+                maybe_before_assign = not _is_nonlocal_name(node, defframe)
 
         if (
             base_scope_type == "lambda"
@@ -2214,19 +2333,38 @@ class VariablesChecker(BaseChecker):
         elif isinstance(defframe, nodes.ClassDef) and isinstance(
             frame, nodes.FunctionDef
         ):
-            # Special rule for function return annotations,
-            # using a name defined earlier in the class containing the function.
-            if node is frame.returns and defframe.parent_of(frame.returns):
-                annotation_return = True
-                if (
-                    frame.returns.name in defframe.locals
-                    and defframe.locals[node.name][0].lineno < frame.lineno
+            # Special rules for function return annotations.
+            if node is frame.returns:
+                # Using a name defined earlier in the class containing the function.
+                if defframe.parent_of(frame.returns):
+                    annotation_return = True
+                    if frame.returns.name in defframe.locals:
+                        definition = defframe.locals[node.name][0]
+                        # no warning raised if a name was defined earlier in the class
+                        maybe_before_assign = (
+                            definition.lineno is not None
+                            and definition.lineno >= frame.lineno
+                        )
+                    else:
+                        maybe_before_assign = True
+                # Using a name defined in the module if this is a nested function.
+                elif (
+                    # defframe is the class containing the function.
+                    # It shouldn't be nested: expect its parent to be a module.
+                    (defframe_parent := next(defframe.node_ancestors()))
+                    and isinstance(defframe_parent, nodes.Module)
+                    # frame is the function inside the class.
+                    and (frame_ancestors := tuple(frame.node_ancestors()))
+                    # Does that function have any functions as ancestors?
+                    and any(
+                        isinstance(ancestor, nodes.FunctionDef)
+                        for ancestor in frame_ancestors
+                    )
+                    # And is its last ancestor the same module as the class's?
+                    and frame_ancestors[-1] is defframe_parent
                 ):
-                    # Detect class assignments with a name defined earlier in the
-                    # class. In this case, no warning should be raised.
+                    annotation_return = True
                     maybe_before_assign = False
-                else:
-                    maybe_before_assign = True
             if isinstance(node.parent, nodes.Arguments):
                 maybe_before_assign = stmt.fromlineno <= defstmt.fromlineno
         elif is_recursive_klass:
@@ -2240,10 +2378,13 @@ class VariablesChecker(BaseChecker):
                     isinstance(defframe, nodes.FunctionDef)
                     and frame is defframe
                     and defframe.parent_of(node)
-                    and stmt is not defstmt
+                    and (
+                        defnode in defframe.type_params
+                        # Single statement function, with the statement on the
+                        # same line as the function definition
+                        or stmt is not defstmt
+                    )
                 ):
-                    # Single statement function, with the statement on the
-                    # same line as the function definition
                     maybe_before_assign = False
                 elif (
                     isinstance(defstmt, NODES_WITH_VALUE_ATTR)
@@ -2257,36 +2398,11 @@ class VariablesChecker(BaseChecker):
                     # x = b if (b := True) else False
                     maybe_before_assign = False
                 elif (
-                    isinstance(  # pylint: disable=too-many-boolean-expressions
-                        defnode, nodes.NamedExpr
-                    )
+                    isinstance(defnode, nodes.NamedExpr)
                     and frame is defframe
                     and defframe.parent_of(stmt)
                     and stmt is defstmt
-                    and (
-                        (
-                            defnode.lineno == node.lineno
-                            and defnode.col_offset < node.col_offset
-                        )
-                        or (defnode.lineno < node.lineno)
-                        or (
-                            # Issue in the `ast` module until py39
-                            # Nodes in a multiline string have the same lineno
-                            # Could be false-positive without check
-                            not PY39_PLUS
-                            and defnode.lineno == node.lineno
-                            and isinstance(
-                                defstmt,
-                                (
-                                    nodes.Assign,
-                                    nodes.AnnAssign,
-                                    nodes.AugAssign,
-                                    nodes.Return,
-                                ),
-                            )
-                            and isinstance(defstmt.value, nodes.JoinedStr)
-                        )
-                    )
+                    and _is_before(defnode, node)
                 ):
                     # Relation of a name to the same name in a named expression
                     # Could be used before assignment if self-referencing:
@@ -2294,13 +2410,20 @@ class VariablesChecker(BaseChecker):
                     # Otherwise, safe if used after assignment:
                     # (b := 2) and b
                     maybe_before_assign = defnode.value is node or any(
-                        anc is defnode.value for anc in node.node_ancestors()
+                        a is defnode.value for a in node.node_ancestors()
                     )
+                elif (
+                    isinstance(defframe, nodes.ClassDef)
+                    and defnode in defframe.type_params
+                ):
+                    # Generic on parent class:
+                    # class Child[_T](Parent[_T])
+                    maybe_before_assign = False
 
         return maybe_before_assign, annotation_return, use_outer_definition
 
     @staticmethod
-    def _maybe_used_and_assigned_at_once(defstmt: nodes.Statement) -> bool:
+    def _maybe_used_and_assigned_at_once(defstmt: _base_nodes.Statement) -> bool:
         """Check if `defstmt` has the potential to use and assign a name in the
         same statement.
         """
@@ -2308,24 +2431,28 @@ class VariablesChecker(BaseChecker):
             return any(case.guard for case in defstmt.cases)
         if isinstance(defstmt, nodes.IfExp):
             return True
+        if isinstance(defstmt, nodes.TypeAlias):
+            return True
         if isinstance(defstmt.value, nodes.BaseContainer):
             return any(
                 VariablesChecker._maybe_used_and_assigned_at_once(elt)
                 for elt in defstmt.value.elts
                 if isinstance(elt, (*NODES_WITH_VALUE_ATTR, nodes.IfExp, nodes.Match))
             )
-        value = defstmt.value
-        if isinstance(value, nodes.IfExp):
-            return True
-        if isinstance(value, nodes.Lambda) and isinstance(value.body, nodes.IfExp):
-            return True
-        if isinstance(value, nodes.Dict) and any(
-            isinstance(item[0], nodes.IfExp) or isinstance(item[1], nodes.IfExp)
-            for item in value.items
-        ):
-            return True
-        if not isinstance(value, nodes.Call):
-            return False
+        match value := defstmt.value:
+            case nodes.IfExp():
+                return True
+            case nodes.Lambda(body=nodes.IfExp()):
+                return True
+            case nodes.Dict() if any(
+                isinstance(item[0], nodes.IfExp) or isinstance(item[1], nodes.IfExp)
+                for item in value.items
+            ):
+                return True
+            case nodes.Call():
+                pass
+            case _:
+                return False
         return any(
             any(isinstance(kwarg.value, nodes.IfExp) for kwarg in call.keywords)
             or any(isinstance(arg, nodes.IfExp) for arg in call.args)
@@ -2339,17 +2466,39 @@ class VariablesChecker(BaseChecker):
     def _is_builtin(self, name: str) -> bool:
         return name in self.linter.config.additional_builtins or utils.is_builtin(name)
 
+    def _has_nonlocal_in_enclosing_frame(
+        self, node: nodes.Name, uncertain_definitions: list[nodes.NodeNG]
+    ) -> bool:
+        """Check if there is a nonlocal declaration in the nearest frame that encloses
+        both usage and definitions.
+        """
+        defining_frames = {definition.frame() for definition in uncertain_definitions}
+        frame = node.frame()
+        is_enclosing_frame = False
+        while frame and not is_enclosing_frame:
+            is_enclosing_frame = all(
+                (frame is defining_frame) or frame.parent_of(defining_frame)
+                for defining_frame in defining_frames
+            )
+            if is_enclosing_frame and _is_nonlocal_name(node, frame):
+                return True
+            frame = frame.parent.frame() if frame.parent else None
+        return False
+
     @staticmethod
-    def _is_only_type_assignment(node: nodes.Name, defstmt: nodes.Statement) -> bool:
+    def _is_only_type_assignment(
+        node: nodes.Name,
+        defstmt: _base_nodes.Statement,
+    ) -> bool:
         """Check if variable only gets assigned a type and never a value."""
-        if not isinstance(defstmt, nodes.AnnAssign) or defstmt.value:
+        if not (isinstance(defstmt, nodes.AnnAssign) and defstmt.value is None):
             return False
 
         defstmt_frame = defstmt.frame()
         node_frame = node.frame()
 
         parent = node
-        while parent is not defstmt_frame.parent:
+        while parent not in {defstmt_frame.parent, None}:
             parent_scope = parent.scope()
 
             # Find out if any nonlocals receive values in nested functions
@@ -2387,17 +2536,17 @@ class VariablesChecker(BaseChecker):
                     # var: int
                     # if (var := var * var)  <-- "var" still undefined
                     isinstance(ref_node.parent, nodes.NamedExpr)
-                    and any(
-                        anc is ref_node.parent.value for anc in node.node_ancestors()
-                    )
+                    and any(a is ref_node.parent.value for a in node.node_ancestors())
                 ):
                     return False
             parent = parent_scope.parent
         return True
 
-    @staticmethod
     def _is_first_level_self_reference(
-        node: nodes.Name, defstmt: nodes.ClassDef, found_nodes: list[nodes.NodeNG]
+        self,
+        node: nodes.Name,
+        defstmt: nodes.ClassDef,
+        found_nodes: list[nodes.NodeNG],
     ) -> tuple[VariableVisitConsumerAction, list[nodes.NodeNG] | None]:
         """Check if a first level method's annotation or default values
         refers to its own class, and return a consumer action.
@@ -2406,38 +2555,39 @@ class VariablesChecker(BaseChecker):
             # Check if used as type annotation
             # Break if postponed evaluation is enabled
             if utils.is_node_in_type_annotation_context(node):
-                if not utils.is_postponed_evaluation_enabled(node):
+                if not self._postponed_evaluation_enabled:
                     return (VariableVisitConsumerAction.CONTINUE, None)
                 return (VariableVisitConsumerAction.RETURN, None)
             # Check if used as default value by calling the class
-            if isinstance(node.parent, nodes.Call) and isinstance(
-                node.parent.parent, nodes.Arguments
-            ):
-                return (VariableVisitConsumerAction.CONTINUE, None)
+            match node.parent:
+                case nodes.Call(parent=nodes.Arguments()):
+                    return (VariableVisitConsumerAction.CONTINUE, None)
         return (VariableVisitConsumerAction.RETURN, found_nodes)
 
     @staticmethod
     def _is_never_evaluated(
-        defnode: nodes.NamedExpr, defnode_parent: nodes.IfExp
+        defnode: nodes.NamedExpr,
+        defnode_parent: nodes.IfExp,
     ) -> bool:
         """Check if a NamedExpr is inside a side of if ... else that never
         gets evaluated.
         """
-        inferred_test = utils.safe_infer(defnode_parent.test)
-        if isinstance(inferred_test, nodes.Const):
-            if inferred_test.value is True and defnode == defnode_parent.orelse:
+        match utils.safe_infer(defnode_parent.test):
+            case nodes.Const(value=True) if defnode == defnode_parent.orelse:
                 return True
-            if inferred_test.value is False and defnode == defnode_parent.body:
+            case nodes.Const(value=False) if defnode == defnode_parent.body:
                 return True
-        return False
+            case _:
+                return False
 
     @staticmethod
-    def _is_variable_annotation_in_function(node: nodes.NodeNG) -> bool:
-        is_annotation = utils.get_node_first_ancestor_of_type(node, nodes.AnnAssign)
+    def _is_variable_annotation_in_function(node: nodes.Name) -> bool:
+        ann_assign = utils.get_node_first_ancestor_of_type(node, nodes.AnnAssign)
         return (
-            is_annotation
+            ann_assign
+            and (node is ann_assign.annotation or ann_assign.annotation.parent_of(node))
             and utils.get_node_first_ancestor_of_type(  # type: ignore[return-value]
-                is_annotation, nodes.FunctionDef
+                ann_assign, nodes.FunctionDef
             )
         )
 
@@ -2481,8 +2631,8 @@ class VariablesChecker(BaseChecker):
             and name in frame_locals
         )
 
-    # pylint: disable = too-many-branches
-    def _loopvar_name(self, node: astroid.Name) -> None:
+    # pylint: disable-next=too-many-branches,too-many-statements
+    def _loopvar_name(self, node: nodes.Name) -> None:
         # filter variables according to node's scope
         astmts = [s for s in node.lookup(node.name)[1] if hasattr(s, "assign_type")]
         # If this variable usage exists inside a function definition
@@ -2509,16 +2659,22 @@ class VariablesChecker(BaseChecker):
             )
             or (
                 astmts[0].is_statement
-                or not isinstance(astmts[0].parent, nodes.Module)
-                and astmts[0].statement().parent_of(node)
+                or (
+                    not isinstance(astmts[0].parent, nodes.Module)
+                    and astmts[0].statement().parent_of(node)
+                )
             )
         ):
             _astmts = []
         else:
             _astmts = astmts[:1]
         for i, stmt in enumerate(astmts[1:]):
-            if astmts[i].statement().parent_of(stmt) and not utils.in_for_else_branch(
-                astmts[i].statement(), stmt
+            try:
+                astmt_statement = astmts[i].statement()
+            except astroid.exceptions.ParentMissingError:
+                continue
+            if astmt_statement.parent_of(stmt) and not utils.in_for_else_branch(
+                astmt_statement, stmt
             ):
                 continue
             _astmts.append(stmt)
@@ -2541,7 +2697,8 @@ class VariablesChecker(BaseChecker):
                 else_stmt, (nodes.Return, nodes.Raise, nodes.Break, nodes.Continue)
             ):
                 return
-            # TODO: 3.0: Consider using RefactoringChecker._is_function_def_never_returning
+            # TODO: 4.0: Consider using utils.is_terminating_func
+            # after merging it with RefactoringChecker._is_function_def_never_returning
             if isinstance(else_stmt, nodes.Expr) and isinstance(
                 else_stmt.value, nodes.Call
             ):
@@ -2595,7 +2752,7 @@ class VariablesChecker(BaseChecker):
                 likely_call = assign.iter
                 if isinstance(assign.iter, nodes.IfExp):
                     likely_call = assign.iter.body
-                if isinstance(likely_call, nodes.Call):
+                if isinstance(likely_call, nodes.Call) and likely_call.args:
                     inferred = next(likely_call.args[0].infer())
         except astroid.InferenceError:
             self.add_message("undefined-loop-variable", args=node.name, node=node)
@@ -2613,7 +2770,7 @@ class VariablesChecker(BaseChecker):
                 nodes.Tuple,
                 nodes.Dict,
                 nodes.Set,
-                astroid.objects.FrozenSet,
+                objects.FrozenSet,
             )
             if not isinstance(inferred, sequences):
                 self.add_message("undefined-loop-variable", args=node.name, node=node)
@@ -2637,13 +2794,11 @@ class VariablesChecker(BaseChecker):
         if self._is_name_ignored(stmt, name):
             return
         # Ignore names that were added dynamically to the Function scope
-        if (
-            isinstance(node, nodes.FunctionDef)
-            and name == "__class__"
-            and len(node.locals["__class__"]) == 1
-            and isinstance(node.locals["__class__"][0], nodes.ClassDef)
-        ):
-            return
+        match node:
+            case nodes.FunctionDef(locals={"__class__": [nodes.ClassDef()]}) if (
+                name == "__class__"
+            ):
+                return
 
         # Ignore names imported by the global statement.
         if isinstance(stmt, (nodes.Global, nodes.Import, nodes.ImportFrom)):
@@ -2696,20 +2851,21 @@ class VariablesChecker(BaseChecker):
             if _has_locals_call_after_node(stmt, node.scope()):
                 message_name = "possibly-unused-variable"
             else:
-                if isinstance(stmt, nodes.Import):
-                    if asname is not None:
-                        msg = f"{qname} imported as {asname}"
-                    else:
-                        msg = f"import {name}"
-                    self.add_message("unused-import", args=msg, node=stmt)
-                    return
-                if isinstance(stmt, nodes.ImportFrom):
-                    if asname is not None:
-                        msg = f"{qname} imported from {stmt.modname} as {asname}"
-                    else:
-                        msg = f"{name} imported from {stmt.modname}"
-                    self.add_message("unused-import", args=msg, node=stmt)
-                    return
+                match stmt:
+                    case nodes.Import():
+                        if asname is not None:
+                            msg = f"{qname} imported as {asname}"
+                        else:
+                            msg = f"import {name}"
+                        self.add_message("unused-import", args=msg, node=stmt)
+                        return
+                    case nodes.ImportFrom():
+                        if asname is not None:
+                            msg = f"{qname} imported from {stmt.modname} as {asname}"
+                        else:
+                            msg = f"{name} imported from {stmt.modname}"
+                        self.add_message("unused-import", args=msg, node=stmt)
+                        return
                 message_name = "unused-variable"
 
             if isinstance(stmt, nodes.FunctionDef) and stmt.decorators:
@@ -2720,25 +2876,22 @@ class VariablesChecker(BaseChecker):
                 return
 
             # Special case for exception variable
-            if isinstance(stmt.parent, nodes.ExceptHandler) and any(
-                n.name == name for n in stmt.parent.nodes_of_class(nodes.Name)
-            ):
+            if self._is_exception_binding_used_in_handler(stmt, name):
                 return
 
             self.add_message(message_name, args=name, node=stmt)
 
     def _is_name_ignored(
-        self, stmt: nodes.NodeNG, name: str
+        self,
+        stmt: nodes.NodeNG,
+        name: str,
     ) -> re.Pattern[str] | re.Match[str] | None:
         authorized_rgx = self.linter.config.dummy_variables_rgx
-        if (
-            isinstance(stmt, nodes.AssignName)
-            and isinstance(stmt.parent, nodes.Arguments)
-            or isinstance(stmt, nodes.Arguments)
-        ):
-            regex: re.Pattern[str] = self.linter.config.ignored_argument_names
-        else:
-            regex = authorized_rgx
+        match stmt:
+            case nodes.AssignName(parent=nodes.Arguments()) | nodes.Arguments():
+                regex: re.Pattern[str] = self.linter.config.ignored_argument_names
+            case _:
+                regex = authorized_rgx
         # See https://stackoverflow.com/a/47007761/2519059 to
         # understand what this function return. Please do NOT use
         # this elsewhere, this is confusing for no benefit
@@ -2797,6 +2950,15 @@ class VariablesChecker(BaseChecker):
 
         self.add_message("unused-argument", args=name, node=stmt, confidence=confidence)
 
+    def _is_exception_binding_used_in_handler(
+        self, stmt: nodes.NodeNG, name: str
+    ) -> bool:
+        return (
+            isinstance(stmt.parent, nodes.ExceptHandler)
+            and stmt is stmt.parent.name
+            and any(n.name == name for n in stmt.parent.nodes_of_class(nodes.Name))
+        )
+
     def _check_late_binding_closure(self, node: nodes.Name) -> None:
         """Check whether node is a cell var that is assigned within a containing loop.
 
@@ -2822,7 +2984,7 @@ class VariablesChecker(BaseChecker):
             return
 
         assign_scope, stmts = node.lookup(node.name)
-        if not stmts or not assign_scope.parent_of(node_scope):
+        if not (stmts and assign_scope.parent_of(node_scope)):
             return
 
         if utils.is_comprehension(assign_scope):
@@ -2869,31 +3031,30 @@ class VariablesChecker(BaseChecker):
 
     def _store_type_annotation_node(self, type_annotation: nodes.NodeNG) -> None:
         """Given a type annotation, store all the name nodes it refers to."""
-        if isinstance(type_annotation, nodes.Name):
-            self._type_annotation_names.append(type_annotation.name)
-            return
+        match type_annotation:
+            case nodes.Name():
+                self._type_annotation_names.append(type_annotation.name)
+                return
+            case nodes.Attribute():
+                self._store_type_annotation_node(type_annotation.expr)
+                return
+            case nodes.Subscript():
+                pass
+            case _:
+                return
 
-        if isinstance(type_annotation, nodes.Attribute):
-            self._store_type_annotation_node(type_annotation.expr)
-            return
-
-        if not isinstance(type_annotation, nodes.Subscript):
-            return
-
-        if (
-            isinstance(type_annotation.value, nodes.Attribute)
-            and isinstance(type_annotation.value.expr, nodes.Name)
-            and type_annotation.value.expr.name == TYPING_MODULE
-        ):
-            self._type_annotation_names.append(TYPING_MODULE)
-            return
+        match type_annotation.value:
+            case nodes.Attribute(expr=nodes.Name(name=name)) if name == TYPING_MODULE:
+                self._type_annotation_names.append(TYPING_MODULE)
+                return
 
         self._type_annotation_names.extend(
             annotation.name for annotation in type_annotation.nodes_of_class(nodes.Name)
         )
 
     def _store_type_annotation_names(
-        self, node: nodes.For | nodes.Assign | nodes.With
+        self,
+        node: nodes.For | nodes.Assign | nodes.With,
     ) -> None:
         type_annotation = node.type_annotation
         if not type_annotation:
@@ -2904,12 +3065,15 @@ class VariablesChecker(BaseChecker):
         """Check that self/cls don't get assigned."""
         assign_names: set[str | None] = set()
         for target in node.targets:
-            if isinstance(target, nodes.AssignName):
-                assign_names.add(target.name)
-            elif isinstance(target, nodes.Tuple):
-                assign_names.update(
-                    elt.name for elt in target.elts if isinstance(elt, nodes.AssignName)
-                )
+            match target:
+                case nodes.AssignName():
+                    assign_names.add(target.name)
+                case nodes.Tuple():
+                    assign_names.update(
+                        elt.name
+                        for elt in target.elts
+                        if isinstance(elt, nodes.AssignName)
+                    )
         scope = node.scope()
         nonlocals_with_same_name = node.scope().parent and any(
             child for child in scope.body if isinstance(child, nodes.Nonlocal)
@@ -2931,7 +3095,10 @@ class VariablesChecker(BaseChecker):
             self.add_message("self-cls-assignment", node=node, args=(self_cls_name,))
 
     def _check_unpacking(
-        self, inferred: InferenceResult, node: nodes.Assign, targets: list[nodes.NodeNG]
+        self,
+        inferred: InferenceResult,
+        node: nodes.Assign,
+        targets: list[nodes.NodeNG],
     ) -> None:
         """Check for unbalanced tuple unpacking
         and unpacking non sequences.
@@ -2957,16 +3124,33 @@ class VariablesChecker(BaseChecker):
         if values is not None:
             if len(targets) != len(values):
                 self._report_unbalanced_unpacking(
-                    node, inferred, targets, values, details
+                    node, inferred, targets, len(values), details
                 )
         # attempt to check unpacking may be possible (i.e. RHS is iterable)
         elif not utils.is_iterable(inferred):
             self._report_unpacking_non_sequence(node, details)
 
     @staticmethod
+    def _get_value_length(value_node: nodes.NodeNG) -> int:
+        value_subnodes = VariablesChecker._nodes_to_unpack(value_node)
+        if value_subnodes is not None:
+            return len(value_subnodes)
+        match value_node:
+            case nodes.Const(value=str() | bytes()):
+                return len(value_node.value)
+            case nodes.Subscript():
+                step = value_node.slice.step or 1
+                splice_range = (
+                    value_node.slice.upper.value - value_node.slice.lower.value
+                )
+                # RUF046 says the return of 'math.ceil' is always an int, mypy doesn't see it
+                return math.ceil(splice_range / step)  # type: ignore[no-any-return]
+        return 1
+
+    @staticmethod
     def _nodes_to_unpack(node: nodes.NodeNG) -> list[nodes.NodeNG] | None:
         """Return the list of values of the `Assign` node."""
-        if isinstance(node, (nodes.Tuple, nodes.List, *DICT_TYPES)):
+        if isinstance(node, (nodes.Tuple, nodes.List, nodes.Set, *DICT_TYPES)):
             return node.itered()  # type: ignore[no-any-return]
         if isinstance(node, astroid.Instance) and any(
             ancestor.qname() == "typing.NamedTuple" for ancestor in node.ancestors()
@@ -2979,15 +3163,15 @@ class VariablesChecker(BaseChecker):
         node: nodes.NodeNG,
         inferred: InferenceResult,
         targets: list[nodes.NodeNG],
-        values: list[nodes.NodeNG],
+        values_count: int,
         details: str,
     ) -> None:
         args = (
             details,
             len(targets),
             "" if len(targets) == 1 else "s",
-            len(values),
-            "" if len(values) == 1 else "s",
+            values_count,
+            "" if values_count == 1 else "s",
         )
 
         symbol = (
@@ -3017,9 +3201,11 @@ class VariablesChecker(BaseChecker):
                 module = None
                 break
             try:
-                module = next(module.getattr(name)[0].infer())
+                module = module.getattr(name)[0]
                 if not isinstance(module, nodes.Module):
-                    return None
+                    module = next(module.infer())
+                    if not isinstance(module, nodes.Module):
+                        return None
             except astroid.NotFoundError:
                 # Unable to import `name` from `module`. Since `name` may itself be a
                 # module, we first check if it matches the ignored modules.
@@ -3042,7 +3228,9 @@ class VariablesChecker(BaseChecker):
         return None
 
     def _check_all(
-        self, node: nodes.Module, not_consumed: dict[str, list[nodes.NodeNG]]
+        self,
+        node: nodes.Module,
+        not_consumed: Consumption,
     ) -> None:
         try:
             assigned = next(node.igetattr("__all__"))
@@ -3051,8 +3239,7 @@ class VariablesChecker(BaseChecker):
         if isinstance(assigned, util.UninferableBase):
             return
         if assigned.pytype() not in {"builtins.list", "builtins.tuple"}:
-            line, col = assigned.tolineno, assigned.col_offset
-            self.add_message("invalid-all-format", line=line, col_offset=col, node=node)
+            self.add_message("invalid-all-format", node=assigned)
             return
         for elt in getattr(assigned, "elts", ()):
             try:
@@ -3064,8 +3251,8 @@ class VariablesChecker(BaseChecker):
             if not elt_name.parent:
                 continue
 
-            if not isinstance(elt_name, nodes.Const) or not isinstance(
-                elt_name.value, str
+            if not (
+                isinstance(elt_name, nodes.Const) and isinstance(elt_name.value, str)
             ):
                 self.add_message("invalid-all-object", args=elt.as_string(), node=elt)
                 continue
@@ -3097,22 +3284,35 @@ class VariablesChecker(BaseChecker):
                             # when the file will be checked
                             pass
 
-    def _check_globals(self, not_consumed: dict[str, nodes.NodeNG]) -> None:
+    def _check_globals(self, not_consumed: Consumption) -> None:
         if self._allow_global_unused_variables:
             return
         for name, node_lst in not_consumed.items():
             for node in node_lst:
                 if in_type_checking_block(node):
                     continue
+                if self._is_exception_binding_used_in_handler(node, name):
+                    continue
+                if isinstance(node, nodes.AssignName) and node.name == "__all__":
+                    continue
+                if (
+                    isinstance(node, nodes.ImportFrom)
+                    and name == "annotations"
+                    and node.modname == "__future__"
+                ):
+                    continue
+                if self._is_name_ignored(node, name):
+                    continue
                 self.add_message("unused-variable", args=(name,), node=node)
 
     # pylint: disable = too-many-branches
-    def _check_imports(self, not_consumed: dict[str, list[nodes.NodeNG]]) -> None:
+    def _check_imports(self, not_consumed: Consumption) -> None:
         local_names = _fix_dot_imports(not_consumed)
         checked = set()
         unused_wildcard_imports: defaultdict[
-            tuple[str, nodes.ImportFrom], list[str]
-        ] = collections.defaultdict(list)
+            tuple[str, nodes.ImportFrom],
+            list[str],
+        ] = defaultdict(list)
         for name, stmt in local_names:
             for imports in stmt.names:
                 real_name = imported_name = imports[0]
@@ -3198,50 +3398,55 @@ class VariablesChecker(BaseChecker):
 
     def _check_metaclasses(self, node: nodes.Module | nodes.FunctionDef) -> None:
         """Update consumption analysis for metaclasses."""
-        consumed: list[tuple[dict[str, list[nodes.NodeNG]], str]] = []
+        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
 
         for child_node in node.get_children():
             if isinstance(child_node, nodes.ClassDef):
                 consumed.extend(self._check_classdef_metaclasses(child_node, node))
 
-        # Pop the consumed items, in order to avoid having
-        # unused-import and unused-variable false positives
-        for scope_locals, name in consumed:
-            scope_locals.pop(name, None)
+        # Mark the consumed items properly so they move from to_consume
+        # to consumed, avoiding unused-import/unused-variable false positives
+        # while still allowing subsequent references to resolve.
+        for consumer, name, found_nodes in consumed:
+            if name in consumer.to_consume:
+                consumer.mark_as_consumed(name, found_nodes)
 
     def _check_classdef_metaclasses(
-        self, klass: nodes.ClassDef, parent_node: nodes.Module | nodes.FunctionDef
-    ) -> list[tuple[dict[str, list[nodes.NodeNG]], str]]:
+        self,
+        klass: nodes.ClassDef,
+        parent_node: nodes.Module | nodes.FunctionDef,
+    ) -> list[tuple[NamesConsumer, str, list[nodes.NodeNG]]]:
         if not klass._metaclass:
             # Skip if this class doesn't use explicitly a metaclass, but inherits it from ancestors
             return []
 
-        consumed: list[tuple[dict[str, list[nodes.NodeNG]], str]] = []
+        consumed: list[tuple[NamesConsumer, str, list[nodes.NodeNG]]] = []
         metaclass = klass.metaclass()
         name = ""
-        if isinstance(klass._metaclass, nodes.Name):
-            name = klass._metaclass.name
-        elif isinstance(klass._metaclass, nodes.Attribute) and klass._metaclass.expr:
-            attr = klass._metaclass.expr
-            while not isinstance(attr, nodes.Name):
-                attr = attr.expr
-            name = attr.name
-        elif isinstance(klass._metaclass, nodes.Call) and isinstance(
-            klass._metaclass.func, nodes.Name
-        ):
-            name = klass._metaclass.func.name
-        elif metaclass:
-            name = metaclass.root().name
+        match klass._metaclass:
+            case nodes.Name(name=name):
+                # bind name
+                pass
+            case nodes.Attribute(expr=attr):
+                while not isinstance(attr, nodes.Name):
+                    attr = attr.expr
+                name = attr.name
+            case nodes.Call(func=nodes.Name(name=name)):
+                # bind name
+                pass
+            case _ if metaclass:
+                name = metaclass.root().name
 
         found = False
         name = METACLASS_NAME_TRANSFORMS.get(name, name)
         if name:
             # check enclosing scopes starting from most local
-            for scope_locals, _, _, _ in self._to_consume[::-1]:
+            for to_consume in self._to_consume[::-1]:
+                scope_locals = to_consume.to_consume
                 found_nodes = scope_locals.get(name, [])
                 for found_node in found_nodes:
                     if found_node.lineno <= klass.lineno:
-                        consumed.append((scope_locals, name))
+                        consumed.append((to_consume, name, found_nodes))
                         found = True
                         break
             # Check parent scope
@@ -3268,20 +3473,36 @@ class VariablesChecker(BaseChecker):
 
         self._check_potential_index_error(node, inferred_slice)
 
+    def _inferred_iterable_length(self, iterable: nodes.Tuple | nodes.List) -> int:
+        length = 0
+        for elt in iterable.elts:
+            if not isinstance(elt, nodes.Starred):
+                length += 1
+                continue
+            unpacked = utils.safe_infer(elt.value)
+            if isinstance(unpacked, nodes.BaseContainer):
+                length += len(unpacked.elts)
+            else:
+                length += 1
+        return length
+
     def _check_potential_index_error(
-        self, node: nodes.Subscript, inferred_slice: nodes.NodeNG | None
+        self,
+        node: nodes.Subscript,
+        inferred_slice: nodes.NodeNG | None,
     ) -> None:
         """Check for the potential-index-error message."""
         # Currently we only check simple slices of a single integer
-        if not isinstance(inferred_slice, nodes.Const) or not isinstance(
-            inferred_slice.value, int
+        if not (
+            isinstance(inferred_slice, nodes.Const)
+            and isinstance(inferred_slice.value, int)
         ):
             return
 
         # If the node.value is a Tuple or List without inference it is defined in place
         if isinstance(node.value, (nodes.Tuple, nodes.List)):
             # Add 1 because iterables are 0-indexed
-            if len(node.value.elts) < inferred_slice.value + 1:
+            if self._inferred_iterable_length(node.value) < inferred_slice.value + 1:
                 self.add_message(
                     "potential-index-error", node=node, confidence=INFERENCE
                 )

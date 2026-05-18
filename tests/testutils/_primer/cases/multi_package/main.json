@@ -1,0 +1,42 @@
+{
+  "astroid": {
+    "commit": "1234567890abcdef",
+    "messages": [
+      {
+        "type": "convention",
+        "module": "astroid.node_classes",
+        "obj": "my_function",
+        "line": 100,
+        "column": 0,
+        "endLine": 100,
+        "endColumn": 15,
+        "path": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/node_classes.py",
+        "symbol": "too-complex",
+        "message": "'my_function' is too complex. The McCabe rating is 18",
+        "messageId": "R1260",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/pylint-dev/astroid/astroid/node_classes.py"
+      }
+    ]
+  },
+  "astropy": {
+    "commit": "1fb40bc1f22f176254ef583065aa155f53f3b414",
+    "messages": [
+      {
+        "type": "warning",
+        "module": "astropy.coordinates.angles.angle_parsetab",
+        "obj": "",
+        "line": 14,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py",
+        "symbol": "useless-suppression",
+        "message": "Useless suppression of 'looping-through-iterator'",
+        "messageId": "I0021",
+        "confidence": "UNDEFINED",
+        "absolutePath": "tests/.pylint_primer_tests/astropy/astropy/astropy/coordinates/angles/angle_parsetab.py"
+      }
+    ]
+  }
+}

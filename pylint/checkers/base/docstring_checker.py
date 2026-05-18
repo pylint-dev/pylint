@@ -35,11 +35,9 @@ def _infer_dunder_doc_attribute(
         return None
 
     docstring = utils.safe_infer(docstring)
-    if not docstring:
-        return None
-    if not isinstance(docstring, nodes.Const):
-        return None
-    return str(docstring.value)
+    if isinstance(docstring, nodes.Const):
+        return str(docstring.value)
+    return None
 
 
 class DocStringChecker(_BasicChecker):
@@ -178,25 +176,22 @@ class DocStringChecker(_BasicChecker):
                 self.linter.stats.undocumented["klass"] += 1
             else:
                 self.linter.stats.undocumented[node_type] += 1
-            if (
-                node.body
-                and isinstance(node.body[0], nodes.Expr)
-                and isinstance(node.body[0].value, nodes.Call)
-            ):
-                # Most likely a string with a format call. Let's see.
-                func = utils.safe_infer(node.body[0].value.func)
-                if isinstance(func, astroid.BoundMethod) and isinstance(
-                    func.bound, astroid.Instance
-                ):
-                    # Strings.
-                    if func.bound.name in {"str", "unicode", "bytes"}:
-                        return
-            if node_type == "module":
-                message = "missing-module-docstring"
-            elif node_type == "class":
-                message = "missing-class-docstring"
-            else:
-                message = "missing-function-docstring"
+            match node.body:
+                case [nodes.Expr(value=nodes.Call() as value), *_]:
+                    # Most likely a string with a format call. Let's see.
+                    match utils.safe_infer(value.func):
+                        case astroid.BoundMethod(
+                            bound=astroid.Instance(name="str" | "unicode" | "bytes")
+                        ):
+                            # Strings.
+                            return
+            match node_type:
+                case "module":
+                    message = "missing-module-docstring"
+                case "class":
+                    message = "missing-class-docstring"
+                case _:
+                    message = "missing-function-docstring"
             self.add_message(message, node=node, confidence=confidence)
         elif not docstring.strip():
             if node_type == "class":

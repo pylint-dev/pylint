@@ -1,0 +1,3 @@
+# Check that we report regex error in configuration file properly
+[tool.pylint."main"]
+ignore-paths = ['project/tooling_context/**']

@@ -4,14 +4,15 @@
 
 from __future__ import annotations
 
-from functools import lru_cache
+from collections.abc import Sequence
+from functools import cache
 from typing import NamedTuple
 
 
 class DeletedMessage(NamedTuple):
     msgid: str
     symbol: str
-    old_names: list[tuple[str, str]] = []
+    old_names: Sequence[tuple[str, str]] = ()
 
 
 DELETED_MSGID_PREFIXES: list[int] = []
@@ -131,7 +132,7 @@ MOVED_TO_EXTENSIONS = {
 }
 
 
-@lru_cache(maxsize=None)
+@cache
 def is_deleted_symbol(symbol: str) -> str | None:
     """Return the explanation for removal if the message was removed."""
     for explanation, deleted_messages in DELETED_MESSAGES_IDS.items():
@@ -143,7 +144,7 @@ def is_deleted_symbol(symbol: str) -> str | None:
     return None
 
 
-@lru_cache(maxsize=None)
+@cache
 def is_deleted_msgid(msgid: str) -> str | None:
     """Return the explanation for removal if the message was removed."""
     for explanation, deleted_messages in DELETED_MESSAGES_IDS.items():
@@ -155,7 +156,7 @@ def is_deleted_msgid(msgid: str) -> str | None:
     return None
 
 
-@lru_cache(maxsize=None)
+@cache
 def is_moved_symbol(symbol: str) -> str | None:
     """Return the explanation for moving if the message was moved to extensions."""
     for explanation, moved_messages in MOVED_TO_EXTENSIONS.items():
@@ -167,7 +168,7 @@ def is_moved_symbol(symbol: str) -> str | None:
     return None
 
 
-@lru_cache(maxsize=None)
+@cache
 def is_moved_msgid(msgid: str) -> str | None:
     """Return the explanation for moving if the message was moved to extensions."""
     for explanation, moved_messages in MOVED_TO_EXTENSIONS.items():

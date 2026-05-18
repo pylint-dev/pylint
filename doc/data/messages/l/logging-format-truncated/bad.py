@@ -1,3 +1,4 @@
 import logging
+import sys
 
-logging.warning("Here is a variable: %", my_var)  # [logging-format-truncated]
+logging.warning("Python version: %", sys.version)  # [logging-format-truncated]

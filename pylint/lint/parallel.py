@@ -9,25 +9,14 @@ from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, Any
 
-import dill
-
 from pylint import reporters
 from pylint.lint.utils import _augment_sys_path
 from pylint.message import Message
 from pylint.typing import FileItem
 from pylint.utils import LinterStats, merge_stats
 
-try:
-    import multiprocessing
-except ImportError:
-    multiprocessing = None  # type: ignore[assignment]
-
-try:
-    from concurrent.futures import ProcessPoolExecutor
-except ImportError:
-    ProcessPoolExecutor = None  # type: ignore[assignment,misc]
-
 if TYPE_CHECKING:
+
     from pylint.lint import PyLinter
 
 # PyLinter object used by worker processes when checking files using parallel mode
@@ -43,7 +32,12 @@ def _worker_initialize(
     :param linter: A linter-class (PyLinter) instance pickled with dill
     :param extra_packages_paths: Extra entries to be added to `sys.path`
     """
+    if extra_packages_paths:
+        _augment_sys_path(extra_packages_paths)
+
     global _worker_linter  # pylint: disable=global-statement
+    import dill  # pylint: disable=import-outside-toplevel
+
     _worker_linter = dill.loads(linter)
     assert _worker_linter
 
@@ -54,11 +48,14 @@ def _worker_initialize(
 
     # Re-register dynamic plugins, since the pool does not have access to the
     # astroid module that existed when the linter was pickled.
+    # Freeze register new messages to prevent overwriting enabled and disabled messaged
+    # during dynamic plugin re-load.
+    _worker_linter._freeze_register_msgs = True
+    _worker_linter._deregister_checkers(
+        _worker_linter._registered_dynamic_plugin_checkers
+    )
     _worker_linter.load_plugin_modules(_worker_linter._dynamic_plugins, force=True)
     _worker_linter.load_plugin_configuration()
-
-    if extra_packages_paths:
-        _augment_sys_path(extra_packages_paths)
 
 
 def _worker_check_single_file(
@@ -73,8 +70,19 @@ def _worker_check_single_file(
     int,
     defaultdict[str, list[Any]],
 ]:
+    import multiprocessing  # pylint: disable=import-outside-toplevel
+
     if not _worker_linter:
         raise RuntimeError("Worker linter not yet initialised")
+
+    # A worker process can lint multiple files. The parent process expects the
+    # returned LinterStats instance to describe only the current file because it
+    # merges one stats object per _worker_check_single_file() result. If we keep
+    # the worker-level accumulated stats here, values such as stats.by_msg are
+    # counted repeatedly in the final report.
+    _worker_linter.stats = LinterStats()
+    _worker_linter.msg_status = 0
+
     _worker_linter.open()
     _worker_linter.check_single_file_item(file_item)
     mapreduce_data = defaultdict(list)
@@ -138,14 +146,19 @@ def check_parallel(
     initializer = functools.partial(
         _worker_initialize, extra_packages_paths=extra_packages_paths
     )
+    # pylint: disable-next=import-outside-toplevel
+    from concurrent.futures import ProcessPoolExecutor
+
+    import dill  # pylint: disable=import-outside-toplevel
+
     with ProcessPoolExecutor(
         max_workers=jobs, initializer=initializer, initargs=(dill.dumps(linter),)
     ) as executor:
         linter.open()
         all_stats = []
-        all_mapreduce_data: defaultdict[
-            int, list[defaultdict[str, list[Any]]]
-        ] = defaultdict(list)
+        all_mapreduce_data: defaultdict[int, list[defaultdict[str, list[Any]]]] = (
+            defaultdict(list)
+        )
 
         # Maps each file to be worked on by a single _worker_check_single_file() call,
         # collecting any map/reduce data by checker module so that we can 'reduce' it

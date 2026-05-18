@@ -81,7 +81,7 @@ New checkers
   creates memory leaks by never letting the instance get garbage collected.
 
   Closes #5670
-  Clsoes #6180
+  Closes #6180
 
 Removed checkers
 ================
@@ -600,7 +600,7 @@ Other Changes
 
   Closes #6388
 
-* Fix false positive for 'nonexistent-operator' when repeated '-' are
+* Fix false positive for :ref:`nonexistent-operator`' when repeated '-' are
   separated (e.g. by parens).
 
   Closes #5769

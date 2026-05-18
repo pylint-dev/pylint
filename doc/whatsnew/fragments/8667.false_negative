@@ -1,3 +1,0 @@
-Fix a false negative for ``too-many-arguments`` by considering positional-only and keyword-only parameters.
-
-Closes #8667

@@ -11,7 +11,8 @@ import re
 import shutil
 import subprocess
 import sys
-from typing import TYPE_CHECKING, Any, Callable, Optional, Tuple, Union
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 import astroid
 from astroid import nodes
@@ -22,9 +23,9 @@ if TYPE_CHECKING:
 
     _CallbackT = Callable[
         [nodes.NodeNG],
-        Union[Tuple[ClassDiagram], Tuple[PackageDiagram, ClassDiagram], None],
+        tuple[ClassDiagram] | tuple[PackageDiagram, ClassDiagram] | None,
     ]
-    _CallbackTupleT = Tuple[Optional[_CallbackT], Optional[_CallbackT]]
+    _CallbackTupleT = tuple[_CallbackT | None, _CallbackT | None]
 
 
 RCFILE = ".pyreverserc"
@@ -46,9 +47,7 @@ def get_default_options() -> list[str]:
 
 def insert_default_options() -> None:
     """Insert default options to sys.argv."""
-    options = get_default_options()
-    options.reverse()
-    for arg in options:
+    for arg in reversed(get_default_options()):
         sys.argv.insert(1, arg)
 
 
@@ -194,14 +193,22 @@ def get_annotation(
         default = ""
 
     label = get_annotation_label(ann)
-    if ann:
-        label = (
-            rf"Optional[{label}]"
-            if getattr(default, "value", "value") is None
-            and not label.startswith("Optional")
-            else label
+
+    if (
+        ann
+        and getattr(default, "value", "value") is None
+        and not label.startswith("Optional")
+        and not (
+            isinstance(ann, nodes.BinOp)
+            and any(
+                isinstance(child, nodes.Const) and child.value is None
+                for child in ann.get_children()
+            )
         )
-    if label:
+    ):
+        label = rf"Optional[{label}]"
+
+    if label and ann:
         ann.name = label
     return ann
 
@@ -210,7 +217,6 @@ def infer_node(node: nodes.AssignAttr | nodes.AssignName) -> set[InferenceResult
     """Return a set containing the node annotation if it exists
     otherwise return a set of the inferred types using the NodeNG.infer method.
     """
-
     ann = get_annotation(node)
     try:
         if ann:

@@ -1,5 +1,5 @@
 """Warnings for using open() without specifying an encoding"""
-# pylint: disable=consider-using-with, too-few-public-methods
+# pylint: disable=consider-using-with, too-few-public-methods, invalid-name
 import dataclasses
 import io
 import locale
