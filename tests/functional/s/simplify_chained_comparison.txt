@@ -28,11 +28,12 @@ impossible-comparison:110:9:110:45:test_impossible_comparison:This comparison al
 impossible-comparison:112:9:112:38:test_impossible_comparison:This comparison always evaluates to False:HIGH
 impossible-comparison:116:9:116:25:test_impossible_comparison:This comparison always evaluates to False:HIGH
 impossible-comparison:118:9:118:25:test_impossible_comparison:This comparison always evaluates to False:HIGH
-chained-comparison-all-equal:127:7:127:24:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == b":HIGH
-chained-comparison-all-equal:129:9:129:37:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == b == c":HIGH
-chained-comparison-all-equal:131:9:131:48:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == d == c == b":HIGH
-chained-comparison:141:7:141:40:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: is_int(v) and 0 <= v <= 999":HIGH
-chained-comparison:143:7:143:38:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: 0 <= v <= 999 and v != 42":HIGH
-chained-comparison:154:7:154:40:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: items[0] < 5 and 1 < v < 10":HIGH
-impossible-comparison:174:7:174:36:test_cycles_do_not_cross_unprocessable_boundaries:This comparison always evaluates to False:HIGH
-chained-comparison-all-equal:176:7:176:38:test_cycles_do_not_cross_unprocessable_boundaries:"Simplify chained comparison cycle to equality between the operands: a == b":HIGH
+impossible-comparison:122:9:122:24:test_impossible_comparison:This comparison always evaluates to False:HIGH
+chained-comparison-all-equal:131:7:131:24:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == b":HIGH
+chained-comparison-all-equal:133:9:133:37:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == b == c":HIGH
+chained-comparison-all-equal:135:9:135:48:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == d == c == b":HIGH
+chained-comparison:145:7:145:40:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: is_int(v) and 0 <= v <= 999":HIGH
+chained-comparison:147:7:147:38:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: 0 <= v <= 999 and v != 42":HIGH
+chained-comparison:158:7:158:40:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: items[0] < 5 and 1 < v < 10":HIGH
+impossible-comparison:178:7:178:36:test_cycles_do_not_cross_unprocessable_boundaries:This comparison always evaluates to False:HIGH
+chained-comparison-all-equal:180:7:180:38:test_cycles_do_not_cross_unprocessable_boundaries:"Simplify chained comparison cycle to equality between the operands: a == b":HIGH

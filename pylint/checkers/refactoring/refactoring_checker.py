@@ -1639,8 +1639,6 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             graph.indegree[left] += 0
             graph.indegree[right] += 1
             graph.frequency[(left, right)] += 1
-        if not operators:
-            return False
         graph.source_count += 1
         return True
 

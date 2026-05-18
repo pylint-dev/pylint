@@ -117,6 +117,10 @@ def test_impossible_comparison():
         pass
     elif a >= b and b > a: # [impossible-comparison]
         pass
+    # Same constant on both sides exercises the duplicate-constant branch
+    # of ``_link_constants``.
+    elif a < 5 and a > 5: # [impossible-comparison]
+        pass
 
 
 def test_all_equal():
