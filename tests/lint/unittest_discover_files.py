@@ -182,8 +182,8 @@ def test_does_not_ignore_similarly_named_package(
         # Collect some additional diagnostics
         if platform.system() != "Windows":
             print("Additional diagnostics for unexpected os.walk() traversal...")
-            subprocess.run(["ls", "-f"])
-            subprocess.run(["df", "-Th", "."])
+            subprocess.run(["ls", "-f"], check=False)
+            subprocess.run(["df", "-Th", "."], check=False)
         else:
             print("Additional diagnostics are not available for this OS.")
 
