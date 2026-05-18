@@ -1,0 +1,3 @@
+The duplicate-code checker no longer runs when its message (R0801) is disabled, even if ``reports=yes`` is set. Previously, the checker's report (RP0801) would cause the expensive similarity computation to run regardless.
+
+Closes #3443

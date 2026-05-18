@@ -1,3 +1,0 @@
-Fix a crash when ``TYPE_CHECKING`` is used without importing it.
-
-Closes #8434

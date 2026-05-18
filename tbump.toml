@@ -1,7 +1,7 @@
 github_url = "https://github.com/pylint-dev/pylint"
 
 [version]
-current = "3.0.0a8-dev0"
+current = "4.1.0-dev0"
 regex = '''
 ^(?P<major>0|[1-9]\d*)
 \.
@@ -24,6 +24,10 @@ src = "pylint/__pkginfo__.py"
 # You can specify a list of commands to
 # run after the files have been patched
 # and before the git commit is made
+
+[[before_commit]]
+name = "Clean-up / normalize functional tests output"
+cmd = "python tests/test_functional.py --update-functional-output"
 
 [[before_commit]]
 name = "Normalize file ending"
@@ -52,6 +56,10 @@ cmd = "contributors-txt-normalize-configuration -a script/.contributors_aliases.
 [[before_commit]]
 name = "Upgrade the contributors list"
 cmd = "python3 script/create_contributor_list.py"
+
+[[before_commit]]
+name = "Update primer commit pins to latest"
+cmd = "python3 script/update_primer_commits.py"
 
 [[before_commit]]
 name = "Apply pre-commit"

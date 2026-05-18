@@ -1,3 +1,0 @@
-Renamed the "unneeded-not" error into "unnecessary_negation" to be clearer.
-
-Closes #8789

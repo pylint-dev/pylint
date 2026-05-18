@@ -1,5 +1,5 @@
 # pylint: disable=invalid-name,too-many-public-methods,attribute-defined-outside-init
-# pylint: disable=too-few-public-methods,deprecated-module
+# pylint: disable=too-few-public-methods,deprecated-module,consider-using-max-builtin
 """This module demonstrates a possible problem of pyLint with calling __init__ s
 from inherited classes.
 Initializations done there are not considered, which results in Error E0203 for
@@ -79,7 +79,7 @@ class QoSALConnection:
         pass
 
 class DefinedOutsideInit:
-    """use_attr is seen as the method defining attr because its in
+    """use_attr is seen as the method defining attr because it's in
     first position
     """
     def __init__(self):

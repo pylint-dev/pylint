@@ -128,3 +128,76 @@ class Parent:
 
 class ChildNotAffectedByValueInSlot(Parent):
     __slots__ = ('first', )
+
+
+class ClassTypeHintNotInSlotsWithoutDict:
+    __slots__ = ("a", "b")
+
+    a: int
+    b: str
+    c: bool # [declare-non-slot]
+
+
+class ClassTypeHintNotInSlotsWithDict:
+    __slots__ = ("a", "b", "__dict__")
+
+    a: int
+    b: str
+    c: bool
+
+
+class BaseNoSlots:
+    pass
+
+
+class DerivedWithSlots(BaseNoSlots):
+    __slots__ = ("age",)
+
+    price: int
+
+
+class BaseWithSlots:
+    __slots__ = ("a", "b",)
+
+
+class DerivedWithMoreSlots(BaseWithSlots):
+    __slots__ = ("c",)
+
+    # Is in base __slots__
+    a: int
+
+    # Not in any base __slots__
+    d: int # [declare-non-slot]
+    e: str= "AnnAssign.value is not None"
+
+
+class BaseWithSlotsDict:
+    __slots__ = ("__dict__", )
+
+class DerivedTypeHintNotInSlots(BaseWithSlotsDict):
+    __slots__ = ("other", )
+
+    a: int
+    def __init__(self) -> None:
+        super().__init__()
+        self.a = 42
+
+
+class ClassWithEmptySlotsAndAnnotation:
+    __slots__ = ()
+
+    a: int
+
+
+# https://github.com/pylint-dev/pylint/issues/9814
+class SlotsManipulationTest:
+    __slots__ = ["a", "b", "c"]
+
+
+class TestChild(SlotsManipulationTest):
+    __slots__ += ["d", "e", "f"]  # pylint: disable=undefined-variable
+
+
+T = TestChild()
+
+print(T.__slots__)

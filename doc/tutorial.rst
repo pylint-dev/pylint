@@ -64,9 +64,11 @@ preferences a bit better.
 Your First Pylint'ing
 ---------------------
 
-We'll use a basic Python script with ``black`` already applied on it,
+We'll use a basic Python script with `black`_ already applied on it,
 as fodder for our tutorial. The starting code we will use is called
 ``simplecaesar.py`` and is here in its entirety:
+
+.. _`black`: https://github.com/psf/black
 
 .. sourcecode:: python
 

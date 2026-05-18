@@ -1,17 +1,3 @@
 # These are supported funding model platforms
-
 tidelift: "pypi/pylint"
-github:
-  [
-    PCManticore,
-    Pierre-Sassoulas,
-    cdce8p,
-    hippo91,
-    AWhetter,
-    DanielNoord,
-    areveny,
-    DudeNr33,
-    jacobtylerwalls,
-    matusvalo,
-    yushao2,
-  ]
+github: [cdce8p, DanielNoord, jacobtylerwalls,Pierre-Sassoulas]

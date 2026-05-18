@@ -2,6 +2,7 @@
 import contextlib
 import typing
 
+
 def target(pos, *, keyword):
     return pos + keyword
 
@@ -13,18 +14,19 @@ def forwarding_kwds(pos, **kwds):
 def forwarding_args(*args, keyword):
     target(*args, keyword=keyword)
 
+
 def forwarding_conversion(*args, **kwargs):
     target(*args, **dict(kwargs))
 
 
 def not_forwarding_kwargs(*args, **kwargs):
-    target(*args) # [missing-kwoa]
+    target(*args)  # [missing-kwoa]
 
 
 target(1, keyword=2)
 
 PARAM = 1
-target(2, PARAM) # [too-many-function-args, missing-kwoa]
+target(2, PARAM)  # [too-many-function-args, missing-kwoa]
 
 
 def some_function(*, param):
@@ -39,9 +41,8 @@ other_function(param=2)
 
 
 class Parent:
-
     @typing.overload
-    def __init__( self, *, first, second, third):
+    def __init__(self, *, first, second, third):
         pass
 
     @typing.overload
@@ -53,22 +54,19 @@ class Parent:
         pass
 
     def __init__(
-            self,
-            *,
-            first,
-            second: typing.Optional[str] = None,
-            third: typing.Optional[str] = None):
+        self,
+        *,
+        first,
+        second: typing.Optional[str] = None,
+        third: typing.Optional[str] = None,
+    ):
         self._first = first
         self._second = second
         self._third = third
 
 
 class Child(Parent):
-    def __init__(
-            self,
-            *,
-            first,
-            second):
+    def __init__(self, *, first, second):
         super().__init__(first=first, second=second)
         self._first = first + second
 
@@ -76,6 +74,7 @@ class Child(Parent):
 @contextlib.contextmanager
 def run(*, a):
     yield
+
 
 def test_context_managers(**kw):
     run(**kw)
@@ -88,5 +87,6 @@ def test_context_managers(**kw):
 
     with run(**kw), run():  # [missing-kwoa]
         pass
+
 
 test_context_managers(a=1)

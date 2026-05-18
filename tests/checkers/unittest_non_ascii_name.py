@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import sys
 from collections.abc import Iterable
 
 import astroid
@@ -20,13 +19,9 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
     CHECKER_CLASS = pylint.checkers.non_ascii_names.NonAsciiNameChecker
     checker: pylint.checkers.non_ascii_names.NonAsciiNameChecker
 
-    @pytest.mark.skipif(
-        sys.version_info < (3, 8), reason="requires python3.8 or higher"
-    )
     def test_kwargs_and_position_only(self) -> None:
         """Even the new position only and keyword only should be found."""
-        node = astroid.extract_node(
-            """
+        node = astroid.extract_node("""
                 def name(
                     ok,
                     not_økay,
@@ -39,8 +34,7 @@ class TestNonAsciiChecker(pylint.testutils.CheckerTestCase):
                     kw_arg_not_økay,
                 ):
                     ...
-            """
-        )
+            """)
         assert isinstance(node, nodes.FunctionDef)
         arguments = node.args
 

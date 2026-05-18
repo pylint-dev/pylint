@@ -1,0 +1,2 @@
+bare-name-capture-pattern:10:9:10:10::The name capture `case a` makes the remaining patterns unreachable. Use a dotted name (for example an enum) to fix this.:HIGH
+bare-name-capture-pattern:12:9:12:10::The name capture `case b` makes the remaining patterns unreachable. Use a dotted name (for example an enum) to fix this.:HIGH

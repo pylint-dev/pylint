@@ -1,4 +1,0 @@
-Fix a ``used-before-assignment`` false positive when imports
-are made under the ``TYPE_CHECKING`` else if branch.
-
-Closes #8437

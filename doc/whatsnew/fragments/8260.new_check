@@ -1,3 +1,0 @@
-Add ``return-in-finally`` to emit a message if a return statement was found in a finally clause.
-
-Closes #8260

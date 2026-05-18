@@ -13,9 +13,13 @@ import sys
 from collections import defaultdict
 from collections.abc import ItemsView, Sequence
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import isort
 
 import astroid
+import astroid.modutils
 from astroid import nodes
 from astroid.nodes._base_nodes import ImportNode
 
@@ -28,12 +32,12 @@ from pylint.checkers.utils import (
     is_sys_guard,
     node_ignores_exception,
 )
+from pylint.constants import MAX_NUMBER_OF_IMPORT_SHOWN
 from pylint.exceptions import EmptyReportError
 from pylint.graph import DotBackend, get_cycles
 from pylint.interfaces import HIGH
 from pylint.reporters.ureports.nodes import Paragraph, Section, VerbatimText
 from pylint.typing import MessageDefinitionTuple
-from pylint.utils import IsortDriver
 from pylint.utils.linterstats import LinterStats
 
 if TYPE_CHECKING:
@@ -42,11 +46,10 @@ if TYPE_CHECKING:
 
 # The dictionary with Any should actually be a _ImportTree again
 # but mypy doesn't support recursive types yet
-_ImportTree = Dict[str, Union[List[Dict[str, Any]], List[str]]]
+_ImportTree = dict[str, list[dict[str, Any]] | list[str]]
 
 DEPRECATED_MODULES = {
     (0, 0, 0): {"tkinter.tix", "fpectl"},
-    (3, 2, 0): {"optparse"},
     (3, 3, 0): {"xml.etree.cElementTree"},
     (3, 4, 0): {"imp"},
     (3, 5, 0): {"formatter"},
@@ -317,8 +320,14 @@ MSGS: dict[str, MessageDefinitionTuple] = {
 
 
 DEFAULT_STANDARD_LIBRARY = ()
+DEFAULT_KNOWN_FIRST_PARTY = ()
 DEFAULT_KNOWN_THIRD_PARTY = ("enchant",)
 DEFAULT_PREFERRED_MODULES = ()
+
+# Messages that require isort-based import classification.
+ISORT_MESSAGES = frozenset(
+    ("wrong-import-order", "ungrouped-imports", "wrong-import-position")
+)
 
 
 class ImportsChecker(DeprecatedMixin, BaseChecker):
@@ -401,6 +410,16 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             },
         ),
         (
+            "known-first-party",
+            {
+                "default": DEFAULT_KNOWN_FIRST_PARTY,
+                "type": "csv",
+                "metavar": "<modules>",
+                "help": "Force import order to recognize a module as part of "
+                "a first party library.",
+            },
+        ),
+        (
             "known-third-party",
             {
                 "default": DEFAULT_KNOWN_THIRD_PARTY,
@@ -446,10 +465,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         BaseChecker.__init__(self, linter)
         self.import_graph: defaultdict[str, set[str]] = defaultdict(set)
         self._imports_stack: list[tuple[ImportNode, str]] = []
-        self._first_non_import_node = None
-        self._module_pkg: dict[
-            Any, Any
-        ] = {}  # mapping of modules to the pkg they belong in
+        self._non_import_nodes: list[nodes.NodeNG] = []
+        self._module_pkg: dict[Any, Any] = (
+            {}
+        )  # mapping of modules to the pkg they belong in
         self._allow_any_import_level: set[Any] = set()
         self.reports = (
             ("RP0401", "External dependencies", self._report_external_dependencies),
@@ -578,6 +597,14 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 self._add_imported_module(node, imported_module.name)
 
     def leave_module(self, node: nodes.Module) -> None:
+        # Skip the expensive isort-based classification when no
+        # import-ordering message is enabled (e.g. only cyclic-import).
+        if any(self.linter.is_message_enabled(m) for m in ISORT_MESSAGES):
+            self.isort_leave_module(node)
+        self._imports_stack = []
+        self._non_import_nodes = []
+
+    def isort_leave_module(self, node: nodes.Module) -> None:
         # Check imports are grouped by category (standard, 3rd party, local)
         std_imports, ext_imports, loc_imports = self._check_imports_order(node)
 
@@ -606,30 +633,18 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                 continue
             met.add(package)
 
-        self._imports_stack = []
-        self._first_non_import_node = None
-
     def compute_first_non_import_node(
         self,
-        node: nodes.If
-        | nodes.Expr
-        | nodes.Comprehension
-        | nodes.IfExp
-        | nodes.Assign
-        | nodes.AssignAttr
-        | nodes.Try,
+        node: (
+            nodes.Expr
+            | nodes.Comprehension
+            | nodes.IfExp
+            | nodes.Assign
+            | nodes.AssignAttr
+        ),
     ) -> None:
-        # if the node does not contain an import instruction, and if it is the
-        # first node of the module, keep a track of it (all the import positions
-        # of the module will be compared to the position of this first
-        # instruction)
-        if self._first_non_import_node:
-            return
+        # Track non-import nodes at module level
         if not isinstance(node.parent, nodes.Module):
-            return
-        if isinstance(node, nodes.Try) and any(
-            node.nodes_of_class((nodes.Import, nodes.ImportFrom))
-        ):
             return
         if isinstance(node, nodes.Assign):
             # Add compatibility for module level dunder names
@@ -642,39 +657,31 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ]
             if all(valid_targets):
                 return
-        self._first_non_import_node = node
 
-    visit_try = (
-        visit_assignattr
-    ) = (
-        visit_assign
-    ) = (
-        visit_ifexp
-    ) = visit_comprehension = visit_expr = visit_if = compute_first_non_import_node
+        self._non_import_nodes.append(node)
+
+    visit_assignattr = visit_assign = visit_ifexp = visit_comprehension = visit_expr = (
+        compute_first_non_import_node
+    )
 
     def visit_functiondef(
-        self, node: nodes.FunctionDef | nodes.While | nodes.For | nodes.ClassDef
+        self,
+        node: (
+            nodes.FunctionDef
+            | nodes.AsyncFunctionDef
+            | nodes.While
+            | nodes.For
+            | nodes.ClassDef
+        ),
     ) -> None:
-        # If it is the first non import instruction of the module, record it.
-        if self._first_non_import_node:
+        # Track non-import nodes at module level
+        if not isinstance(node.parent, nodes.Module):
             return
+        self._non_import_nodes.append(node)
 
-        # Check if the node belongs to an `If` or a `Try` block. If they
-        # contain imports, skip recording this node.
-        if not isinstance(node.parent.scope(), nodes.Module):
-            return
-
-        root = node
-        while not isinstance(root.parent, nodes.Module):
-            root = root.parent
-
-        if isinstance(root, (nodes.If, nodes.Try)):
-            if any(root.nodes_of_class((nodes.Import, nodes.ImportFrom))):
-                return
-
-        self._first_non_import_node = node
-
-    visit_classdef = visit_for = visit_while = visit_functiondef
+    visit_asyncfunctiondef = visit_classdef = visit_for = visit_while = (
+        visit_functiondef
+    )
 
     def _check_misplaced_future(self, node: nodes.ImportFrom) -> None:
         basename = node.modname
@@ -687,7 +694,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
                     isinstance(prev, nodes.ImportFrom) and prev.modname == "__future__"
                 ):
                     self.add_message("misplaced-future", node=node)
-            return
 
     def _check_same_line_imports(self, node: nodes.ImportFrom) -> None:
         # Detect duplicate imports on the same line.
@@ -702,19 +708,39 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
         Send a message  if `node` comes before another instruction
         """
-        # if a first non-import instruction has already been encountered,
-        # it means the import comes after it and therefore is not well placed
-        if self._first_non_import_node:
-            if self.linter.is_message_enabled(
-                "wrong-import-position", self._first_non_import_node.fromlineno
+        # Check if import comes after a non-import statement
+        if self._non_import_nodes:
+            # Check for inline pragma on the import line
+            if not self.linter.is_message_enabled(
+                "wrong-import-position", node.fromlineno
             ):
-                self.add_message(
-                    "wrong-import-position", node=node, args=node.as_string()
-                )
-            else:
                 self.linter.add_ignored_message(
                     "wrong-import-position", node.fromlineno, node
                 )
+                return
+
+            # Check for pragma on the preceding non-import statement
+            most_recent_non_import = None
+            for non_import_node in self._non_import_nodes:
+                if non_import_node.fromlineno < node.fromlineno:
+                    most_recent_non_import = non_import_node
+                else:
+                    break
+
+            if most_recent_non_import:
+                check_line = most_recent_non_import.fromlineno
+                if not self.linter.is_message_enabled(
+                    "wrong-import-position", check_line
+                ):
+                    self.linter.add_ignored_message(
+                        "wrong-import-position", check_line, most_recent_non_import
+                    )
+                    self.linter.add_ignored_message(
+                        "wrong-import-position", node.fromlineno, node
+                    )
+                    return
+
+            self.add_message("wrong-import-position", node=node, args=node.as_string())
 
     def _record_import(
         self,
@@ -748,8 +774,25 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         imports = [import_node for (import_node, _) in imports]
         return any(astroid.are_exclusive(import_node, node) for import_node in imports)
 
-    # pylint: disable = too-many-statements
-    def _check_imports_order(
+    @cached_property
+    def _isort_config(self) -> isort.Config:
+        """Get the config for use with isort.
+
+        Only valid after CLI parsing finished, i.e. not in __init__
+        """
+        import isort  # pylint: disable=import-outside-toplevel
+
+        return isort.Config(
+            # There is no typo here. EXTRA_standard_library is
+            # what most users want. The option has been named
+            # KNOWN_standard_library for ages in pylint, and we
+            # don't want to break compatibility.
+            extra_standard_library=self.linter.config.known_standard_library,
+            known_first_party=self.linter.config.known_first_party,
+            known_third_party=self.linter.config.known_third_party,
+        )
+
+    def _check_imports_order(  # pylint: disable=too-many-statements
         self, _module_node: nodes.Module
     ) -> tuple[
         list[tuple[ImportNode, str]],
@@ -758,8 +801,10 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     ]:
         """Checks imports of module `node` are grouped by category.
 
-        Imports must follow this order: standard, 3rd party, local
+        Imports must follow this order: standard, 3rd party, 1st party, local
         """
+        import isort  # pylint: disable=import-outside-toplevel
+
         std_imports: list[tuple[ImportNode, str]] = []
         third_party_imports: list[tuple[ImportNode, str]] = []
         first_party_imports: list[tuple[ImportNode, str]] = []
@@ -769,7 +814,6 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         third_party_not_ignored: list[tuple[ImportNode, str]] = []
         first_party_not_ignored: list[tuple[ImportNode, str]] = []
         local_not_ignored: list[tuple[ImportNode, str]] = []
-        isort_driver = IsortDriver(self.linter.config)
         for node, modname in self._imports_stack:
             if modname.startswith("."):
                 package = "." + modname.split(".")[1]
@@ -779,76 +823,235 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             ignore_for_import_order = not self.linter.is_message_enabled(
                 "wrong-import-order", node.fromlineno
             )
-            import_category = isort_driver.place_module(package)
+            import_category = isort.place_module(package, config=self._isort_config)
             node_and_package_import = (node, package)
-            if import_category in {"FUTURE", "STDLIB"}:
-                std_imports.append(node_and_package_import)
-                wrong_import = (
-                    third_party_not_ignored
-                    or first_party_not_ignored
-                    or local_not_ignored
-                )
-                if self._is_fallback_import(node, wrong_import):
-                    continue
-                if wrong_import and not nested:
-                    self.add_message(
-                        "wrong-import-order",
-                        node=node,
-                        args=(
-                            f'standard import "{node.as_string()}"',
-                            f'"{wrong_import[0][0].as_string()}"',
-                        ),
+
+            match import_category:
+                case "FUTURE" | "STDLIB":
+                    std_imports.append(node_and_package_import)
+                    wrong_import = (
+                        third_party_not_ignored
+                        or first_party_not_ignored
+                        or local_not_ignored
                     )
-            elif import_category == "THIRDPARTY":
-                third_party_imports.append(node_and_package_import)
-                external_imports.append(node_and_package_import)
-                if not nested:
-                    if not ignore_for_import_order:
-                        third_party_not_ignored.append(node_and_package_import)
-                    else:
-                        self.linter.add_ignored_message(
-                            "wrong-import-order", node.fromlineno, node
+                    if self._is_fallback_import(node, wrong_import):
+                        continue
+                    if wrong_import and not nested:
+                        self.add_message(
+                            "wrong-import-order",
+                            node=node,
+                            args=(  ## TODO - this isn't right for multiple on the same line...
+                                f'standard import "{self._get_full_import_name((node, package))}"',
+                                self._get_out_of_order_string(
+                                    third_party_not_ignored,
+                                    first_party_not_ignored,
+                                    local_not_ignored,
+                                ),
+                            ),
                         )
-                wrong_import = first_party_not_ignored or local_not_ignored
-                if wrong_import and not nested:
-                    self.add_message(
-                        "wrong-import-order",
-                        node=node,
-                        args=(
-                            f'third party import "{node.as_string()}"',
-                            f'"{wrong_import[0][0].as_string()}"',
-                        ),
-                    )
-            elif import_category == "FIRSTPARTY":
-                first_party_imports.append(node_and_package_import)
-                external_imports.append(node_and_package_import)
-                if not nested:
-                    if not ignore_for_import_order:
-                        first_party_not_ignored.append(node_and_package_import)
-                    else:
-                        self.linter.add_ignored_message(
-                            "wrong-import-order", node.fromlineno, node
+                case "THIRDPARTY":
+                    third_party_imports.append(node_and_package_import)
+                    external_imports.append(node_and_package_import)
+                    if not nested:
+                        if not ignore_for_import_order:
+                            third_party_not_ignored.append(node_and_package_import)
+                        else:
+                            self.linter.add_ignored_message(
+                                "wrong-import-order", node.fromlineno, node
+                            )
+                    wrong_import = first_party_not_ignored or local_not_ignored
+                    if wrong_import and not nested:
+                        self.add_message(
+                            "wrong-import-order",
+                            node=node,
+                            args=(
+                                f'third party import "{self._get_full_import_name((node, package))}"',
+                                self._get_out_of_order_string(
+                                    None, first_party_not_ignored, local_not_ignored
+                                ),
+                            ),
                         )
-                wrong_import = local_not_ignored
-                if wrong_import and not nested:
-                    self.add_message(
-                        "wrong-import-order",
-                        node=node,
-                        args=(
-                            f'first party import "{node.as_string()}"',
-                            f'"{wrong_import[0][0].as_string()}"',
-                        ),
-                    )
-            elif import_category == "LOCALFOLDER":
-                local_imports.append((node, package))
-                if not nested:
-                    if not ignore_for_import_order:
-                        local_not_ignored.append((node, package))
-                    else:
-                        self.linter.add_ignored_message(
-                            "wrong-import-order", node.fromlineno, node
+                case "FIRSTPARTY":
+                    first_party_imports.append(node_and_package_import)
+                    external_imports.append(node_and_package_import)
+                    if not nested:
+                        if not ignore_for_import_order:
+                            first_party_not_ignored.append(node_and_package_import)
+                        else:
+                            self.linter.add_ignored_message(
+                                "wrong-import-order", node.fromlineno, node
+                            )
+                    wrong_import = local_not_ignored
+                    if wrong_import and not nested:
+                        self.add_message(
+                            "wrong-import-order",
+                            node=node,
+                            args=(
+                                f'first party import "{self._get_full_import_name((node, package))}"',
+                                self._get_out_of_order_string(
+                                    None, None, local_not_ignored
+                                ),
+                            ),
                         )
+                case "LOCALFOLDER":
+                    local_imports.append((node, package))
+                    if not nested:
+                        if not ignore_for_import_order:
+                            local_not_ignored.append((node, package))
+                        else:
+                            self.linter.add_ignored_message(
+                                "wrong-import-order", node.fromlineno, node
+                            )
         return std_imports, external_imports, local_imports
+
+    def _get_out_of_order_string(
+        self,
+        third_party_imports: list[tuple[ImportNode, str]] | None,
+        first_party_imports: list[tuple[ImportNode, str]] | None,
+        local_imports: list[tuple[ImportNode, str]] | None,
+    ) -> str:
+        # construct the string listing out of order imports used in the message
+        # for wrong-import-order
+        if third_party_imports:
+            plural = "s" if len(third_party_imports) > 1 else ""
+            if len(third_party_imports) > MAX_NUMBER_OF_IMPORT_SHOWN:
+                imports_list = (
+                    ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in third_party_imports[
+                                : int(MAX_NUMBER_OF_IMPORT_SHOWN // 2)
+                            ]
+                        ]
+                    )
+                    + " (...) "
+                    + ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in third_party_imports[
+                                int(-MAX_NUMBER_OF_IMPORT_SHOWN // 2) :
+                            ]
+                        ]
+                    )
+                )
+            else:
+                imports_list = ", ".join(
+                    [
+                        f'"{self._get_full_import_name(tpi)}"'
+                        for tpi in third_party_imports
+                    ]
+                )
+            third_party = f"third party import{plural} {imports_list}"
+        else:
+            third_party = ""
+
+        if first_party_imports:
+            plural = "s" if len(first_party_imports) > 1 else ""
+            if len(first_party_imports) > MAX_NUMBER_OF_IMPORT_SHOWN:
+                imports_list = (
+                    ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in first_party_imports[
+                                : int(MAX_NUMBER_OF_IMPORT_SHOWN // 2)
+                            ]
+                        ]
+                    )
+                    + " (...) "
+                    + ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in first_party_imports[
+                                int(-MAX_NUMBER_OF_IMPORT_SHOWN // 2) :
+                            ]
+                        ]
+                    )
+                )
+            else:
+                imports_list = ", ".join(
+                    [
+                        f'"{self._get_full_import_name(fpi)}"'
+                        for fpi in first_party_imports
+                    ]
+                )
+            first_party = f"first party import{plural} {imports_list}"
+        else:
+            first_party = ""
+
+        if local_imports:
+            plural = "s" if len(local_imports) > 1 else ""
+            if len(local_imports) > MAX_NUMBER_OF_IMPORT_SHOWN:
+                imports_list = (
+                    ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in local_imports[
+                                : int(MAX_NUMBER_OF_IMPORT_SHOWN // 2)
+                            ]
+                        ]
+                    )
+                    + " (...) "
+                    + ", ".join(
+                        [
+                            f'"{self._get_full_import_name(tpi)}"'
+                            for tpi in local_imports[
+                                int(-MAX_NUMBER_OF_IMPORT_SHOWN // 2) :
+                            ]
+                        ]
+                    )
+                )
+            else:
+                imports_list = ", ".join(
+                    [f'"{self._get_full_import_name(li)}"' for li in local_imports]
+                )
+            local = f"local import{plural} {imports_list}"
+        else:
+            local = ""
+
+        delimiter_third_party = (
+            (
+                ", "
+                if (first_party and local)
+                else (" and " if (first_party or local) else "")
+            )
+            if third_party
+            else ""
+        )
+        delimiter_first_party1 = (
+            (", " if (third_party and local) else " ") if first_party else ""
+        )
+        delimiter_first_party2 = ("and " if local else "") if first_party else ""
+        delimiter_first_party = f"{delimiter_first_party1}{delimiter_first_party2}"
+        return (
+            f"{third_party}{delimiter_third_party}"
+            f"{first_party}{delimiter_first_party}"
+            f'{local if local else ""}'
+        )
+
+    def _get_full_import_name(self, importNode: ImportNode) -> str:
+        # construct a more descriptive name of the import
+        # for: import X, this returns X
+        # for: import X.Y this returns X.Y
+        # for: from X import Y, this returns X.Y
+
+        try:
+            # this will only succeed for ImportFrom nodes, which in themselves
+            # contain the information needed to reconstruct the package
+            return f"{importNode[0].modname}.{importNode[0].names[0][0]}"
+        except AttributeError:
+            # in all other cases, the import will either be X or X.Y
+            node: str = importNode[0].names[0][0]
+            package: str = importNode[1]
+
+            if node.split(".")[0] == package:
+                # this is sufficient with one import per line, since package = X
+                # and node = X.Y or X
+                return node
+
+            # when there is a node that contains multiple imports, the "current"
+            # import being analyzed is specified by package (node is the first
+            # import on the line and therefore != package in this case)
+            return package
 
     def _get_imported_module(
         self, importnode: ImportNode, modname: str
@@ -889,9 +1092,12 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
         base = os.path.splitext(os.path.basename(module_file))[0]
 
         try:
-            importedmodname = astroid.modutils.get_module_part(
-                importedmodname, module_file
-            )
+            if isinstance(node, nodes.ImportFrom) and node.level:
+                importedmodname = astroid.modutils.get_module_part(
+                    importedmodname, module_file
+                )
+            else:
+                importedmodname = astroid.modutils.get_module_part(importedmodname)
         except ImportError:
             pass
 
@@ -920,10 +1126,9 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
 
     def _check_preferred_module(self, node: ImportNode, mod_path: str) -> None:
         """Check if the module has a preferred replacement."""
-
         mod_compare = [mod_path]
         # build a comparison list of possible names using importfrom
-        if isinstance(node, astroid.nodes.node_classes.ImportFrom):
+        if isinstance(node, nodes.ImportFrom):
             mod_compare = [f"{node.modname}.{name[0]}" for name in node.names]
 
         # find whether there are matches with the import vs preferred_modules keys
@@ -1013,10 +1218,13 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
     ) -> None:
         """Write dependencies as a dot (graphviz) file."""
         dep_info = self.linter.stats.dependencies
-        if not dep_info or not (
-            self.linter.config.import_graph
-            or self.linter.config.ext_import_graph
-            or self.linter.config.int_import_graph
+        if not (
+            dep_info
+            and (
+                self.linter.config.import_graph
+                or self.linter.config.ext_import_graph
+                or self.linter.config.int_import_graph
+            )
         ):
             raise EmptyReportError()
         filename = self.linter.config.import_graph
@@ -1036,7 +1244,7 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             for importer in importers:
                 package = self._module_pkg.get(importer, importer)
                 is_inside = importee.startswith(package)
-                if is_inside and internal or not is_inside and not internal:
+                if (is_inside and internal) or (not is_inside and not internal):
                     graph[importee].add(importer)
         return graph
 
@@ -1081,9 +1289,11 @@ class ImportsChecker(DeprecatedMixin, BaseChecker):
             return
 
         module_names = [
-            f"{node.modname}.{name[0]}"
-            if isinstance(node, nodes.ImportFrom)
-            else name[0]
+            (
+                f"{node.modname}.{name[0]}"
+                if isinstance(node, nodes.ImportFrom)
+                else name[0]
+            )
             for name in node.names
         ]
 

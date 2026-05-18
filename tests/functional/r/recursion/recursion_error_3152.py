@@ -2,6 +2,6 @@
 import setuptools
 
 
-# pylint: disable=missing-docstring,too-few-public-methods
+# pylint: disable=missing-docstring,too-few-public-methods,abstract-method
 class Custom(setuptools.Command):
     pass

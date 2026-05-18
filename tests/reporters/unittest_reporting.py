@@ -84,7 +84,7 @@ def test_template_option_end_line(linter: PyLinter) -> None:
 def test_template_option_non_existing(linter: PyLinter) -> None:
     """Test the msg-template option with non-existent options.
     This makes sure that this option remains backwards compatible as new
-    parameters do not break on previous versions
+    parameters do not break on previous versions.
     """
     output = StringIO()
     linter.reporter.out = output
@@ -309,8 +309,7 @@ def test_multi_format_output(tmp_path: Path) -> None:
 
 
 def test_multi_reporter_independant_messages() -> None:
-    """Messages should not be modified by multiple reporters"""
-
+    """Messages should not be modified by multiple reporters."""
     check_message = "Not modified"
 
     class ReporterModify(BaseReporter):

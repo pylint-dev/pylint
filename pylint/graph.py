@@ -9,7 +9,6 @@
 
 from __future__ import annotations
 
-import codecs
 import os
 import shutil
 import subprocess
@@ -103,7 +102,7 @@ class DotBackend:
                 os.close(pdot)
             else:
                 dot_sourcepath = outputfile
-        with codecs.open(dot_sourcepath, "w", encoding="utf8") as file:
+        with open(dot_sourcepath, "w", encoding="utf8") as file:
             file.write(self.source)
         if target not in graphviz_extensions:
             if shutil.which(self.renderer) is None:

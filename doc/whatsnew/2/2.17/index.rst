@@ -29,6 +29,69 @@ so we find problems before the actual release.
 
 .. towncrier release notes start
 
+What's new in Pylint 2.17.7?
+----------------------------
+Release date: 2023-09-30
+
+
+False Positives Fixed
+---------------------
+
+- Fix a regression in pylint 2.17.6 / astroid 2.15.7 causing various
+  messages for code involving ``TypeVar``.
+
+  Closes #9069 (`#9069 <https://github.com/pylint-dev/pylint/issues/9069>`_)
+
+
+
+Other Bug Fixes
+---------------
+
+- Fix crash in refactoring checker when unary operand used with variable in for
+  loop.
+
+  Closes #9074 (`#9074 <https://github.com/pylint-dev/pylint/issues/9074>`_)
+
+
+What's new in Pylint 2.17.6?
+----------------------------
+Release date: 2023-09-24
+
+
+Other Bug Fixes
+---------------
+
+- When parsing comma-separated lists of regular expressions in the config,
+  ignore
+  commas that are inside braces since those indicate quantifiers, not
+  delineation
+  between expressions.
+
+  Closes #7229 (`#7229 <https://github.com/pylint-dev/pylint/issues/7229>`_)
+
+- ``sys.argv`` is now always correctly considered as impossible to infer
+  (instead of
+  using the actual values given to pylint).
+
+  Closes #7710 (`#7710 <https://github.com/pylint-dev/pylint/issues/7710>`_)
+
+- Don't show class fields more than once in Pyreverse diagrams.
+
+  Closes #8189 (`#8189 <https://github.com/pylint-dev/pylint/issues/8189>`_)
+
+- Don't show arrows more than once in Pyreverse diagrams.
+
+  Closes #8522 (`#8522 <https://github.com/pylint-dev/pylint/issues/8522>`_)
+
+- Don't show duplicate type annotations in Pyreverse diagrams.
+
+  Closes #8888 (`#8888 <https://github.com/pylint-dev/pylint/issues/8888>`_)
+
+- Don't add `Optional` to `|` annotations with `None` in Pyreverse diagrams.
+
+  Closes #9014 (`#9014 <https://github.com/pylint-dev/pylint/issues/9014>`_)
+
+
 What's new in Pylint 2.17.5?
 ----------------------------
 Release date: 2023-07-26
@@ -115,7 +178,7 @@ False Positives Fixed
 - Fix a false positive for ``bad-dunder-name`` when there is a user-defined
   ``__index__`` method.
 
-  Closes #8613 (`#8613 <https://github.com/PyCQA/pylint/issues/8613>`_)
+  Closes #8613 (`#8613 <https://github.com/pylint-dev/pylint/issues/8613>`_)
 
 
 
@@ -126,13 +189,13 @@ Other Bug Fixes
   produced by DOT printer to ensure it is not treated as field separator of
   record-based nodes.
 
-  Closes #8603 (`#8603 <https://github.com/PyCQA/pylint/issues/8603>`_)
+  Closes #8603 (`#8603 <https://github.com/pylint-dev/pylint/issues/8603>`_)
 
 - Fixed a crash when generating a configuration file:
   ``tomlkit.exceptions.TOMLKitError: Can't add a table to a dotted key``
   caused by tomlkit ``v0.11.8``.
 
-  Closes #8632 (`#8632 <https://github.com/PyCQA/pylint/issues/8632>`_)
+  Closes #8632 (`#8632 <https://github.com/pylint-dev/pylint/issues/8632>`_)
 
 
 What's new in Pylint 2.17.3?
@@ -146,41 +209,41 @@ False Positives Fixed
 - Fix `unused-argument` false positive when `__new__` does not use all the
   arguments of `__init__`.
 
-  Closes #3670 (`#3670 <https://github.com/PyCQA/pylint/issues/3670>`_)
+  Closes #3670 (`#3670 <https://github.com/pylint-dev/pylint/issues/3670>`_)
 
 - Fix ``unused-import`` false positive for usage of ``six.with_metaclass``.
 
-  Closes #7506 (`#7506 <https://github.com/PyCQA/pylint/issues/7506>`_)
+  Closes #7506 (`#7506 <https://github.com/pylint-dev/pylint/issues/7506>`_)
 
 - `logging-not-lazy` is not longer emitted for explicitly concatenated string
   arguments.
 
-  Closes #8410 (`#8410 <https://github.com/PyCQA/pylint/issues/8410>`_)
+  Closes #8410 (`#8410 <https://github.com/pylint-dev/pylint/issues/8410>`_)
 
-- Fix false positive for isinstance-second-argument-not-valid-type when union
+- Fix false positive for :ref:`isinstance-second-argument-not-valid-type` when union
   types contains None.
 
-  Closes #8424 (`#8424 <https://github.com/PyCQA/pylint/issues/8424>`_)
+  Closes #8424 (`#8424 <https://github.com/pylint-dev/pylint/issues/8424>`_)
 
 - Fixed `unused-import` so that it observes the `dummy-variables-rgx` option.
 
-  Closes #8500 (`#8500 <https://github.com/PyCQA/pylint/issues/8500>`_)
+  Closes #8500 (`#8500 <https://github.com/pylint-dev/pylint/issues/8500>`_)
 
 - `Union` typed variables without assignment are no longer treated as
   `TypeAlias`.
 
-  Closes #8540 (`#8540 <https://github.com/PyCQA/pylint/issues/8540>`_)
+  Closes #8540 (`#8540 <https://github.com/pylint-dev/pylint/issues/8540>`_)
 
 - Fix false positive for ``positional-only-arguments-expected`` when a function
   contains both a positional-only parameter that has a default value, and
   ``**kwargs``.
 
-  Closes #8555 (`#8555 <https://github.com/PyCQA/pylint/issues/8555>`_)
+  Closes #8555 (`#8555 <https://github.com/pylint-dev/pylint/issues/8555>`_)
 
 - Fix false positive for ``keyword-arg-before-vararg`` when a positional-only
   parameter with a default value precedes ``*args``.
 
-  Closes #8570 (`#8570 <https://github.com/PyCQA/pylint/issues/8570>`_)
+  Closes #8570 (`#8570 <https://github.com/pylint-dev/pylint/issues/8570>`_)
 
 
 
@@ -190,7 +253,7 @@ Other Bug Fixes
 - Improve output of ``consider-using-generator`` message for ``min()`` calls
   with ``default`` keyword.
 
-  Closes #8563 (`#8563 <https://github.com/PyCQA/pylint/issues/8563>`_)
+  Closes #8563 (`#8563 <https://github.com/pylint-dev/pylint/issues/8563>`_)
 
 
 What's new in Pylint 2.17.2?
@@ -205,18 +268,18 @@ False Positives Fixed
   - now valid: ``Good2Name``, ``GoodName2``.
   - still invalid: ``_1BadName``.
 
-  Closes #8485 (`#8485 <https://github.com/PyCQA/pylint/issues/8485>`_)
+  Closes #8485 (`#8485 <https://github.com/pylint-dev/pylint/issues/8485>`_)
 
 - No longer consider ``Union`` as type annotation as type alias for naming
   checks.
 
-  Closes #8487 (`#8487 <https://github.com/PyCQA/pylint/issues/8487>`_)
+  Closes #8487 (`#8487 <https://github.com/pylint-dev/pylint/issues/8487>`_)
 
 - ``unnecessary-lambda`` no longer warns on lambdas which use its parameters in
   their body (other than the final arguments), e.g.
   ``lambda foo: (bar if foo else baz)(foo)``.
 
-  Closes #8496 (`#8496 <https://github.com/PyCQA/pylint/issues/8496>`_)
+  Closes #8496 (`#8496 <https://github.com/pylint-dev/pylint/issues/8496>`_)
 
 
 
@@ -226,7 +289,7 @@ Other Bug Fixes
 - Fix a crash in pyreverse when "/" characters are used in the output filename
   e.g pyreverse -o png -p name/ path/to/project.
 
-  Closes #8504 (`#8504 <https://github.com/PyCQA/pylint/issues/8504>`_)
+  Closes #8504 (`#8504 <https://github.com/pylint-dev/pylint/issues/8504>`_)
 
 
 What's new in Pylint 2.17.1?
@@ -361,7 +424,7 @@ False Positives Fixed
 
   Closes #7574 (`#7574 <https://github.com/pylint-dev/pylint/issues/7574>`_)
 
-- Fix false positive for isinstance-second-argument-not-valid-type with union
+- Fix false positive for :ref:`isinstance-second-argument-not-valid-type` with union
   types.
 
   Closes #8205 (`#8205 <https://github.com/pylint-dev/pylint/issues/8205>`_)
@@ -381,7 +444,7 @@ False Positives Fixed
 False Negatives Fixed
 ---------------------
 
-- Fix a false negative for 'missing-parentheses-for-call-in-test' when
+- Fix a false negative for :ref:`missing-parentheses-for-call-in-test`' when
   inference
   failed for the internal of the call as we did not need that information to
   raise

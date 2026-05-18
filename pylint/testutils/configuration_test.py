@@ -9,17 +9,16 @@ from __future__ import annotations
 import copy
 import json
 import logging
-import unittest
+import unittest.mock
 from pathlib import Path
-from typing import Any, Dict
-from unittest.mock import Mock
+from typing import Any
 
 from pylint.lint import Run
 
 # We use Any in this typing because the configuration contains real objects and constants
 # that could be a lot of things.
 ConfigurationValue = Any
-PylintConfiguration = Dict[str, ConfigurationValue]
+PylintConfiguration = dict[str, ConfigurationValue]
 
 
 def get_expected_or_default(
@@ -134,19 +133,22 @@ def get_expected_output(
 
 
 def run_using_a_configuration_file(
-    configuration_path: Path | str, file_to_lint: str = __file__
-) -> tuple[Mock, Mock, Run]:
-    """Simulate a run with a configuration without really launching the checks."""
+    configuration_path: Path | str, file_to_lint: str | None = __file__
+) -> Run:
+    """Simulate a run with a configuration without really launching the checks.
+
+    Pass ``file_to_lint=None`` to omit the positional argument, e.g. when
+    testing a configuration that supplies the files to lint via the
+    ``files`` option.
+    """
     configuration_path = str(configuration_path)
-    args = ["--rcfile", configuration_path, file_to_lint]
-    # We do not capture the `SystemExit` as then the `runner` variable
-    # would not be accessible outside the `with` block.
-    with unittest.mock.patch("sys.exit") as mocked_exit:
-        # Do not actually run checks, that could be slow. We don't mock
-        # `PyLinter.check`: it calls `PyLinter.initialize` which is
-        # needed to properly set up messages inclusion/exclusion
-        # in `_msg_states`, used by `is_message_enabled`.
-        check = "pylint.lint.pylinter.check_parallel"
-        with unittest.mock.patch(check) as mocked_check_parallel:
-            runner = Run(args)
-    return mocked_exit, mocked_check_parallel, runner
+    args = ["--rcfile", configuration_path]
+    if file_to_lint is not None:
+        args.append(file_to_lint)
+    # Do not actually run checks, that could be slow. We don't mock
+    # `PyLinter.check`: it calls `PyLinter.initialize` which is
+    # needed to properly set up messages inclusion/exclusion
+    # in `_msg_states`, used by `is_message_enabled`.
+    check = "pylint.lint.pylinter.check_parallel"
+    with unittest.mock.patch(check):
+        return Run(args, exit=False)

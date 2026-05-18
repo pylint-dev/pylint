@@ -1,9 +1,16 @@
 """Tests for fixme and its disabling and enabling."""
-# pylint: disable=missing-function-docstring, unused-variable
+# pylint: disable=missing-function-docstring, unused-variable, pointless-string-statement
 
 # +1: [fixme]
 # FIXME: beep
+# +1: [fixme]
+    # TODO: don't forget indented ones should trigger
+# +1: [fixme]
+# TODO: that precedes another TODO: is treated as one and the message starts after the first
+# +1: [fixme]
+#           TODO: large indentations after hash are okay
 
+# but things cannot precede the TODO: do this
 
 def function():
     variable = "FIXME: Ignore me!"
@@ -34,6 +41,8 @@ def function():
 
 # pylint: disable-next=fixme
 # FIXME: Don't raise when the message is disabled
+
+"""TODO: Don't raise when docstring fixmes are disabled"""
 
 # This line needs to be at the end of the file to make sure it doesn't end with a comment
 # Pragma's compare against the 'lineno' attribute of the respective nodes which

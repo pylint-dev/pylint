@@ -1,0 +1,1 @@
+function-redefined:5:0:5:12:_my_func:function already defined line 2:UNDEFINED

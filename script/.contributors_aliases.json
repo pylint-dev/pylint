@@ -12,6 +12,13 @@
     "name": "Daniël van Noord",
     "team": "Maintainers"
   },
+  "153769403+Akshay9715@users.noreply.github.com": {
+    "mails": [
+      "153769403+Akshay9715@users.noreply.github.com",
+      "akshaychoudhary2040@gmail.com"
+    ],
+    "name": "Akshay Choudhary"
+  },
   "15907922+kasium@users.noreply.github.com": {
     "mails": ["15907922+kasium@users.noreply.github.com"],
     "name": "Kai Mueller"
@@ -81,8 +88,12 @@
     "mails": ["46202743+lorena-b@users.noreply.github.com"],
     "name": "Lorena Buciu"
   },
+  "51880314+Julfried@users.noreply.github.com": {
+    "mails": ["51880314+Julfried@users.noreply.github.com"],
+    "name": "Julian Grimm"
+  },
   "53538590+zenlyj@users.noreply.github.com": {
-    "mails": ["53538590+zenlyj@users.noreply.github.com"],
+    "mails": ["53538590+zenlyj@users.noreply.github.com", "zenlyj97@gmail.com"],
     "name": "Zen Lee"
   },
   "53625739+dbrookman@users.noreply.github.com": {
@@ -104,6 +115,10 @@
     "comment": "\n  * Fixed \"no-self-use\" for async methods\n  * Fixed \"docparams\" extension for async functions and methods",
     "mails": ["62866982+SupImDos@users.noreply.github.com"],
     "name": "Hayden Richards"
+  },
+  "6644187+moylop260@users.noreply.github.com": {
+    "mails": ["6644187+moylop260@users.noreply.github.com", "moylop260@vauxoo.com"],
+    "name": "Moisés López"
   },
   "74228962+tanvimoharir@users.noreply.github.com": {
     "comment": ": Fix for invalid toml config",
@@ -131,6 +146,10 @@
   "Github@pheanex.de": {
     "mails": ["Github@pheanex.de"],
     "name": "Konstantin"
+  },
+  "Hnasar@users.noreply.github.com": {
+    "mails": ["Hnasar@users.noreply.github.com", "hashem@hudson-trading.com"],
+    "name": "Hashem Nasarat"
   },
   "Humetsky@gmail.com": {
     "comment": " (mhumetskyi)\n  * Fixed ignored empty functions by similarities checker with \"ignore-signatures\" option enabled\n  * Ignore function decorators signatures as well by similarities checker with \"ignore-signatures\" option enabled\n  * Ignore class methods and nested functions signatures as well by similarities checker with \"ignore-signatures\" option enabled",
@@ -269,7 +288,10 @@
     "mails": [
       "66853113+pre-commit-ci[bot]@users.noreply.github.com",
       "49699333+dependabot[bot]@users.noreply.github.com",
-      "41898282+github-actions[bot]@users.noreply.github.com"
+      "212256041+pylint-backport-bot[bot]@users.noreply.github.com",
+      "41898282+github-actions[bot]@users.noreply.github.com",
+      "212256041+pylint-backport[bot]@users.noreply.github.com",
+      "198982749+Copilot@users.noreply.github.com"
     ],
     "name": "bot"
   },
@@ -518,7 +540,10 @@
     "name": "Robert Hofer"
   },
   "hugovk@users.noreply.github.com": {
-    "mails": ["hugovk@users.noreply.github.com"],
+    "mails": [
+      "hugovk@users.noreply.github.com",
+      "1324225+hugovk@users.noreply.github.com"
+    ],
     "name": "Hugo van Kemenade"
   },
   "hugues.bruant@affirm.com": {
@@ -562,6 +587,10 @@
     "comment": " (jaehoonhwang)",
     "mails": ["jaehoonhwang@users.noreply.github.com"],
     "name": "Jaehoon Hwang"
+  },
+  "jake.lishman@ibm.com": {
+    "mails": ["jake.lishman@ibm.com", "jake@binhbar.com"],
+    "name": "Jake Lishman"
   },
   "james.morgensen@gmail.com": {
     "comment": ": ignored-modules option applies to import errors.",
@@ -768,6 +797,10 @@
     "mails": ["pedro@algarvio.me"],
     "name": "Pedro Algarvio"
   },
+  "perrinjerome@gmail.com": {
+    "mails": ["jerome@nexedi.com", "perrinjerome@gmail.com"],
+    "name": "Jérome Perrin"
+  },
   "peter.kolbus@gmail.com": {
     "comment": " (Garmin)",
     "mails": ["peter.kolbus@gmail.com", "peter.kolbus@garmin.com"],
@@ -886,6 +919,10 @@
   "svet@hyperscience.com": {
     "mails": ["svet@hyperscience.com"],
     "name": "Svetoslav Neykov"
+  },
+  "sviat@redhat.com": {
+    "mails": ["sviat@redhat.com", "wk@sydorenko.org.ua"],
+    "name": "Sviatoslav Sydorenko"
   },
   "tanant@users.noreply.github.com": {
     "mails": ["tanant@users.noreply.github.com"],

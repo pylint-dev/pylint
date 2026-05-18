@@ -6,11 +6,11 @@ from __future__ import annotations
 
 __all__ = [
     "__version__",
-    "version",
     "modify_sys_path",
     "run_pylint",
-    "run_symilar",
     "run_pyreverse",
+    "run_symilar",
+    "version",
 ]
 
 import os
@@ -53,7 +53,7 @@ def run_pyreverse(argv: Sequence[str] | None = None) -> NoReturn:
     """
     from pylint.pyreverse.main import Run as PyreverseRun
 
-    PyreverseRun(argv or sys.argv[1:])
+    sys.exit(PyreverseRun(argv or sys.argv[1:]).run())
 
 
 def run_symilar(argv: Sequence[str] | None = None) -> NoReturn:
@@ -61,9 +61,9 @@ def run_symilar(argv: Sequence[str] | None = None) -> NoReturn:
 
     argv can be a sequence of strings normally supplied as arguments on the command line
     """
-    from pylint.checkers.similar import Run as SimilarRun
+    from pylint.checkers.symilar import Run as SymilarRun
 
-    SimilarRun(argv or sys.argv[1:])
+    SymilarRun(argv or sys.argv[1:])
 
 
 def modify_sys_path() -> None:
@@ -93,6 +93,27 @@ def modify_sys_path() -> None:
         sys.path.pop(0)
     elif env_pythonpath.endswith(":") and env_pythonpath not in (f"{cwd}:", ".:"):
         sys.path.pop(1)
+
+
+def _catch_valueerror(unraisable: sys.UnraisableHookArgs) -> None:  # pragma: no cover
+    """Overwrite sys.unraisablehook to catch incorrect ValueError.
+
+    Python 3.12 introduced changes that sometimes cause astroid to emit ValueErrors
+    with 'generator already executing'. Fixed in Python 3.12.3 and 3.13.
+
+    https://github.com/pylint-dev/pylint/issues/9138
+    """
+    if (
+        isinstance(unraisable.exc_value, ValueError)
+        and unraisable.exc_value.args[0] == "generator already executing"
+    ):
+        return
+
+    sys.__unraisablehook__(unraisable)
+
+
+if (3, 12, 0) <= sys.version_info[:3] < (3, 12, 3) or sys.version_info >= (3, 12, 5):
+    sys.unraisablehook = _catch_valueerror
 
 
 version = __version__

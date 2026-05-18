@@ -4,8 +4,3 @@
 from collections import Iterable  # [deprecated-class]
 
 import collections.Set  # [deprecated-class]
-
-import collections
-
-
-_ = collections.Awaitable()  # [deprecated-class]

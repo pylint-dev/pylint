@@ -55,15 +55,11 @@ typing.AsyncContextManager[int]
 # re
 typing.Pattern[str]
 typing.Match[str]
-typing.re.Pattern[str]
-typing.re.Match[str]
 
 
 # unsubscriptable types
-typing.ByteString
 typing.Hashable
 typing.Sized
-typing.ByteString[int]  # [unsubscriptable-object]
 typing.Hashable[int]  # [unsubscriptable-object]
 typing.Sized[int]  # [unsubscriptable-object]
 
@@ -129,14 +125,11 @@ var_iterable: typing.Iterable[int]
 var_awaitable: typing.Awaitable[int]
 var_contextmanager: typing.ContextManager[int]
 var_pattern: typing.Pattern[int]
-var_pattern2: typing.re.Pattern[int]
-var_bytestring: typing.ByteString
 var_hashable: typing.Hashable
 var_sized: typing.Sized
 
 # Type annotation with unsubscriptable type
 var_int: int[int]  # [unsubscriptable-object]
-var_bytestring2: typing.ByteString[int]  # [unsubscriptable-object]
 var_hashable2: typing.Hashable[int]  # [unsubscriptable-object]
 var_sized2: typing.Sized[int]  # [unsubscriptable-object]
 

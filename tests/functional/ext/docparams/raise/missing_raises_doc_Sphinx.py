@@ -123,21 +123,21 @@ def test_find_sphinx_attr_raises_exact_exc(self):
 def test_find_sphinx_attr_raises_substr_exc(self):
     """This is a sphinx docstring.
 
-    :raises re.error: Sometimes
+    :raises calendar.IllegalMonthError: Sometimes
     """
-    from re import error
+    from calendar import IllegalMonthError
 
-    raise error("hi")
+    raise IllegalMonthError(-1)
 
 
 def test_find_valid_missing_sphinx_attr_raises(self):  # [missing-raises-doc]
     """This is a sphinx docstring.
 
-    :raises re.anothererror: Sometimes
+    :raises calendar.anothererror: Sometimes
     """
-    from re import error
+    from calendar import IllegalMonthError
 
-    raise error("hi")
+    raise IllegalMonthError(-1)
 
 
 def test_find_invalid_missing_sphinx_attr_raises(self):
@@ -145,11 +145,11 @@ def test_find_invalid_missing_sphinx_attr_raises(self):
     pylint allows this to pass since the comparison between Raises and
     raise are based on the class name, not the qualified name.
 
-    :raises bogusmodule.error: Sometimes
+    :raises bogusmodule.IllegalMonthError: Sometimes
     """
-    from re import error
+    from calendar import IllegalMonthError
 
-    raise error("hi")
+    raise IllegalMonthError(-1)
 
 
 class Foo:

@@ -1,3 +1,0 @@
-Search for ``pyproject.toml`` recursively in parent directories up to a project or file system root.
-
-Refs #7163, Closes #3289

@@ -243,7 +243,7 @@ class _GenerateRCFileAction(_AccessRunObjectAction):
         values: str | Sequence[Any] | None,
         option_string: str | None = "--generate-rcfile",
     ) -> None:
-        # TODO: 3.x: Deprecate this after the auto-upgrade functionality of
+        # TODO: 4.x: Deprecate this after the auto-upgrade functionality of
         # pylint-config is sufficient.
         self.run.linter._generate_config(skipsections=("Commands",))
         sys.exit(0)

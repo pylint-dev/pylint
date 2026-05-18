@@ -1,0 +1,3 @@
+Fix duplicate messages for extension checks if multiple jobs are used.
+
+Refs #10642

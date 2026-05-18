@@ -1,5 +1,5 @@
 """Test to see we don't crash on this code in pandas.
-See: https://github.com/pandas-dev/pandas/blob/master/pandas/core/indexes/period.py
+See: https://github.com/pandas-dev/pandas/blob/main/pandas/core/indexes/period.py
 Reported in https://github.com/pylint-dev/pylint/issues/5382
 """
 # pylint: disable=missing-function-docstring, missing-class-docstring, unused-argument

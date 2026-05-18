@@ -1,0 +1,3 @@
+Fix a false positive for ``bad-dunder-name`` when there is a user-defined ``__suppress_context__`` attribute on exception subclasses.
+
+Closes #10960

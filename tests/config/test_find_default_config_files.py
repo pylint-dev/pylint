@@ -18,13 +18,16 @@ import pytest
 from pytest import CaptureFixture
 
 from pylint import config, testutils
-from pylint.config.find_default_config_files import _cfg_has_config, _toml_has_config
+from pylint.config.find_default_config_files import (
+    _cfg_or_ini_has_config,
+    _toml_has_config,
+)
 from pylint.lint.run import Run
 
 
 @pytest.fixture
 def pop_pylintrc() -> None:
-    """Remove the PYLINTRC environment variable"""
+    """Remove the PYLINTRC environment variable."""
     os.environ.pop("PYLINTRC", None)
 
 
@@ -57,9 +60,6 @@ def fake_home() -> Iterator[None]:
         shutil.rmtree(folder, ignore_errors=True)
 
 
-# pylint: enable=duplicate-code
-
-
 @contextlib.contextmanager
 def tempdir() -> Iterator[str]:
     """Create a temp directory and change the current location to it.
@@ -78,6 +78,9 @@ def tempdir() -> Iterator[str]:
     finally:
         os.chdir(current_dir)
         shutil.rmtree(abs_tmp)
+
+
+# pylint: enable=duplicate-code
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
@@ -130,8 +133,43 @@ def test_pylintrc_parentdir() -> None:
 
 
 @pytest.mark.usefixtures("pop_pylintrc")
+def test_pylintrc_toml_parentdir() -> None:
+    """Test that the first pylintrc.toml we find is the first parent directory."""
+    # pylint: disable=duplicate-code
+    with tempdir() as chroot:
+        chroot_path = Path(chroot)
+        files = [
+            "a/pylintrc.toml",
+            "a/b/__init__.py",
+            "a/b/pylintrc.toml",
+            "a/b/c/__init__.py",
+            "a/b/c/d/__init__.py",
+            "a/b/c/d/e/.pylintrc.toml",
+        ]
+        testutils.create_files(files)
+        for config_file in files:
+            if config_file.endswith("pylintrc.toml"):
+                with open(config_file, "w", encoding="utf-8") as fd:
+                    fd.write('[tool.pylint."messages control"]\n')
+
+        with fake_home():
+            assert not list(config.find_default_config_files())
+
+        results = {
+            "a": chroot_path / "a" / "pylintrc.toml",
+            "a/b": chroot_path / "a" / "b" / "pylintrc.toml",
+            "a/b/c": chroot_path / "a" / "b" / "pylintrc.toml",
+            "a/b/c/d": chroot_path / "a" / "b" / "pylintrc.toml",
+            "a/b/c/d/e": chroot_path / "a" / "b" / "c" / "d" / "e" / ".pylintrc.toml",
+        }
+        for basedir, expected in results.items():
+            os.chdir(chroot_path / basedir)
+            assert next(config.find_default_config_files()) == expected
+
+
+@pytest.mark.usefixtures("pop_pylintrc")
 def test_pyproject_toml_parentdir() -> None:
-    """Test the search of pyproject.toml file in parent directories"""
+    """Test the search of pyproject.toml file in parent directories."""
     with tempdir() as chroot:
         with fake_home():
             chroot_path = Path(chroot)
@@ -272,12 +310,13 @@ disable = logging-not-lazy,logging-format-interpolation
         ],
     ],
 )
-def test_cfg_has_config(content: str, expected: bool, tmp_path: Path) -> None:
-    """Test that a cfg file has a pylint config."""
-    fake_cfg = tmp_path / "fake.cfg"
-    with open(fake_cfg, "w", encoding="utf8") as f:
-        f.write(content)
-    assert _cfg_has_config(fake_cfg) == expected
+def test_has_config(content: str, expected: bool, tmp_path: Path) -> None:
+    """Test that a .cfg file or .ini file has a pylint config."""
+    for file_name in ("fake.cfg", "tox.ini"):
+        fake_conf = tmp_path / file_name
+        with open(fake_conf, "w", encoding="utf8") as f:
+            f.write(content)
+        assert _cfg_or_ini_has_config(fake_conf) == expected
 
 
 def test_non_existent_home() -> None:

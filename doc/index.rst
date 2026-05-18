@@ -30,11 +30,12 @@
 
 .. toctree::
    :caption: Additional tools
+   :maxdepth: 3
    :titlesonly:
    :hidden:
 
-   pyreverse
-   symilar
+   additional_tools/pyreverse/index
+   additional_tools/symilar/index
 
 .. toctree::
    :caption: Changelog

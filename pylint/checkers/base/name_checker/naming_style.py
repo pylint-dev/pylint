@@ -64,7 +64,7 @@ class CamelCaseStyle(NamingStyle):
     MOD_NAME_RGX = re.compile(r"[^\W\dA-Z][^\W_]*$")
     CONST_NAME_RGX = re.compile(r"([^\W\dA-Z][^\W_]*|__.*__)$")
     COMP_VAR_RGX = MOD_NAME_RGX
-    DEFAULT_NAME_RGX = re.compile(r"([^\W\dA-Z][^\W_]*|__[^\W\dA-Z_]\w+__)$")
+    DEFAULT_NAME_RGX = re.compile(r"(?:__)?([^\W\dA-Z][^\W_]*|__[^\W\dA-Z_]\w+__)$")
     CLASS_ATTRIBUTE_RGX = re.compile(r"([^\W\dA-Z][^\W_]*|__.*__)$")
 
 
@@ -137,6 +137,8 @@ DEFAULT_NAMING_STYLES = {
 KNOWN_NAME_TYPES = {
     *KNOWN_NAME_TYPES_WITH_STYLE,
     "typevar",
+    "paramspec",
+    "typevartuple",
     "typealias",
 }
 

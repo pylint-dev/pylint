@@ -9,7 +9,7 @@ But this is not possible atm with pylint.
 
 
 class НoldIt:  # [non-ascii-name]
-    """nice classs"""
+    """Nice class."""
 
     def public(self):
         """do something"""

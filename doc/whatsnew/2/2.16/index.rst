@@ -40,7 +40,7 @@ Release date: 2023-03-06
 False Positives Fixed
 ---------------------
 
-- Fix false positive for isinstance-second-argument-not-valid-type with union
+- Fix false positive for :ref:`isinstance-second-argument-not-valid-type` with union
   types.
 
   Closes #8205 (`#8205 <https://github.com/pylint-dev/pylint/issues/8205>`_)
@@ -149,9 +149,9 @@ Changes requiring user actions
 - The ``accept-no-raise-doc`` option related to ``missing-raises-doc`` will now
   be correctly taken into account all the time.
 
-  Pylint will no longer raise missing-raises-doc (W9006) when no exceptions are
+  Pylint will no longer raise :ref:`missing-raises-doc` (W9006) when no exceptions are
   documented and accept-no-raise-doc is true (issue #7208).
-  If you were expecting missing-raises-doc errors to be raised in that case,
+  If you were expecting :ref:`missing-raises-doc` errors to be raised in that case,
   you
   will now have to add ``accept-no-raise-doc=no`` in your configuration to keep
   the same behavior.

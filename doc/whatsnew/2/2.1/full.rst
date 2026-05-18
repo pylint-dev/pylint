@@ -78,7 +78,7 @@ Release date: 2018-08-01
 
   Closes #2300
 
-* Fix false-positive undefined-variable for self referential class name in lamdbas
+* Fix false-positive :ref:`undefined-variable` for self referential class name in lamdbas
 
   Closes #704
 

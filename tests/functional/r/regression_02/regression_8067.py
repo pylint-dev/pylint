@@ -2,8 +2,8 @@
 
 # pylint: disable=missing-docstring,too-few-public-methods,disallowed-name
 
-x = slice(42)
-x()  # [not-callable]
+X = slice(42)
+X()  # [not-callable]
 
 
 class Foo:

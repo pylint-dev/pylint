@@ -40,7 +40,7 @@ class TestFixme(CheckerTestCase):
 
     def test_xxx_middle(self) -> None:
         code = """a = 1
-                # midle XXX
+                # middle XXX
                 """
         with self.assertNoMessages():
             self.checker.process_tokens(_tokenize_str(code))

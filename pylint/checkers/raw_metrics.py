@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import tokenize
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal
 
 from pylint.checkers import BaseTokenChecker
 from pylint.reporters.ureports.nodes import Paragraph, Section, Table, Text
@@ -25,7 +25,6 @@ def report_raw_stats(
     sect.insert(0, Paragraph([Text(f"{total_lines} lines have been analyzed\n")]))
     lines = ["type", "number", "%", "previous", "difference"]
     for node_type in ("code", "docstring", "comment", "empty"):
-        node_type = cast(Literal["code", "docstring", "comment", "empty"], node_type)
         total = stats.code_type_count[node_type]
         percent = float(total * 100) / total_lines if total_lines else None
         old = old_stats.code_type_count[node_type] if old_stats else None

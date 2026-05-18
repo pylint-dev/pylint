@@ -1,0 +1,4 @@
+using-generic-type-syntax-in-unsupported-version:3:0:3:35::Generic type syntax (PEP 695) is not supported by all versions included in the py-version setting:HIGH
+using-generic-type-syntax-in-unsupported-version:3:11:3:12::Generic type syntax (PEP 695) is not supported by all versions included in the py-version setting:HIGH
+using-generic-type-syntax-in-unsupported-version:5:0:5:28::Generic type syntax (PEP 695) is not supported by all versions included in the py-version setting:HIGH
+using-generic-type-syntax-in-unsupported-version:5:11:5:14::Generic type syntax (PEP 695) is not supported by all versions included in the py-version setting:HIGH

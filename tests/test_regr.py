@@ -3,7 +3,7 @@
 # Copyright (c) https://github.com/pylint-dev/pylint/blob/main/CONTRIBUTORS.txt
 
 """Non regression tests for pylint, which requires a too specific configuration
-to be incorporated in the automatic functional test framework
+to be incorporated in the automatic functional test framework.
 """
 
 # pylint: disable=redefined-outer-name
@@ -20,6 +20,7 @@ import pytest
 
 from pylint import testutils
 from pylint.lint.pylinter import PyLinter
+from pylint.utils.linterstats import LinterStats
 
 REGR_DATA = join(dirname(abspath(__file__)), "regrtest_data")
 sys.path.insert(1, REGR_DATA)
@@ -116,6 +117,7 @@ def test_check_package___init__(finalize_linter: PyLinter) -> None:
     assert sorted(checked) == sorted(filename)
 
     os.chdir(join(REGR_DATA, "package"))
+    finalize_linter.stats = LinterStats()
     finalize_linter.check(["__init__"])
     checked = list(finalize_linter.stats.by_module.keys())
     assert checked == ["__init__"]

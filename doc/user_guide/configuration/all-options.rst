@@ -90,6 +90,13 @@ Standard Checkers
 **Default:**  ``10``
 
 
+--files
+"""""""
+*The files to lint. The flag can also be omitted as pylint will try to lint any file passed as argument. This can be used to set files to a directory in a configuration file and invoke pylint by only typing pylint on the command line. Any file passed as argument will overwrite any file set in the configuration file.*
+
+**Default:**  ``[]``
+
+
 --from-stdin
 """"""""""""
 *Interpret the stdin as a python script, whose filename needs to be passed as the module_or_package argument.*
@@ -120,7 +127,7 @@ Standard Checkers
 
 --ignored-modules
 """""""""""""""""
-*List of module names for which member attributes should not be checked (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis). It supports qualified module names, as well as Unix pattern matching.*
+*List of module names for which member attributes should not be checked and will not be imported (useful for modules/projects where namespaces are manipulated during runtime and thus existing member attributes cannot be deduced by static analysis). It supports qualified module names, as well as Unix pattern matching.*
 
 **Default:**  ``()``
 
@@ -155,7 +162,7 @@ Standard Checkers
 
 --output-format
 """""""""""""""
-*Set the output format. Available formats are: text, parseable, colorized, json2 (improved json format), json (old json format) and msvs (visual studio). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
+*Set the output format. Available formats are: 'text', 'parseable', 'colorized', 'json2' (improved json format), 'json' (old json format), msvs (visual studio) and 'github' (GitHub actions). You can also give a reporter class, e.g. mypackage.mymodule.MyReporterClass.*
 
 **Default:**  ``text``
 
@@ -165,6 +172,13 @@ Standard Checkers
 *Pickle collected data for later comparisons.*
 
 **Default:**  ``True``
+
+
+--prefer-stubs
+""""""""""""""
+*Resolve imports to .pyi stubs if available. May reduce no-member messages and increase not-an-iterable messages.*
+
+**Default:**  ``False``
 
 
 --py-version
@@ -200,13 +214,6 @@ Standard Checkers
 *Add paths to the list of the source roots. Supports globbing patterns. The source root is an absolute path or a path relative to the current working directory used to determine a package namespace for modules located under the source root.*
 
 **Default:**  ``()``
-
-
---suggestion-mode
-"""""""""""""""""
-*When enabled, pylint would attempt to guess common misconfiguration and emit user-friendly hints instead of false-positive error messages.*
-
-**Default:**  ``True``
 
 
 --unsafe-load-any-extension
@@ -249,6 +256,8 @@ Standard Checkers
 
    fail-under = 10
 
+   files = []
+
    from-stdin = false
 
    ignore = ["CVS"]
@@ -271,6 +280,8 @@ Standard Checkers
 
    persistent = true
 
+   prefer-stubs = false
+
    py-version = "sys.version_info[:2]"
 
    recursive = false
@@ -280,8 +291,6 @@ Standard Checkers
    score = true
 
    source-roots = []
-
-   suggestion-mode = true
 
    unsafe-load-any-extension = false
 
@@ -492,6 +501,13 @@ Standard Checkers
 **Default:**  ``re.compile('^_')``
 
 
+--paramspec-rgx
+"""""""""""""""
+*Regular expression matching correct parameter specification variable names. If left empty, parameter specification variable names will be checked with the set naming style.*
+
+**Default:**  ``None``
+
+
 --property-classes
 """"""""""""""""""
 *List of decorators that produce properties, such as abc.abstractproperty. Add to this list to register other decorators that produce valid properties. These decorators are taken in consideration only for invalid-name.*
@@ -509,6 +525,13 @@ Standard Checkers
 --typevar-rgx
 """""""""""""
 *Regular expression matching correct type variable names. If left empty, type variable names will be checked with the set naming style.*
+
+**Default:**  ``None``
+
+
+--typevartuple-rgx
+""""""""""""""""""
+*Regular expression matching correct type variable tuple names. If left empty, type variable tuple names will be checked with the set naming style.*
 
 **Default:**  ``None``
 
@@ -604,11 +627,15 @@ Standard Checkers
 
    no-docstring-rgx = "^_"
 
+   # paramspec-rgx =
+
    property-classes = ["abc.abstractproperty"]
 
    # typealias-rgx =
 
    # typevar-rgx =
+
+   # typevartuple-rgx =
 
    # Possible choices: ['snake_case', 'camelCase', 'PascalCase', 'UPPER_CASE', 'any']
    variable-naming-style = "snake_case"
@@ -756,6 +783,13 @@ Standard Checkers
 **Default:**  ``7``
 
 
+--max-positional-arguments
+""""""""""""""""""""""""""
+*Maximum number of positional arguments for function / method.*
+
+**Default:**  ``5``
+
+
 --max-public-methods
 """"""""""""""""""""
 *Maximum number of public methods for a class (see R0904).*
@@ -812,6 +846,8 @@ Standard Checkers
    max-locals = 15
 
    max-parents = 7
+
+   max-positional-arguments = 5
 
    max-public-methods = 20
 
@@ -877,6 +913,13 @@ Standard Checkers
 **Default:**  ``^\s*(# )?<?https?://\S+>?$``
 
 
+--ignore-pattern-in-long-lines
+""""""""""""""""""""""""""""""
+*Regexp for a part of a line that will not be counted when calculating the line length.*
+
+**Default:**  ``None``
+
+
 --indent-after-paren
 """"""""""""""""""""
 *Number of spaces of indent required inside a hanging or continued line.*
@@ -893,7 +936,7 @@ Standard Checkers
 
 --max-line-length
 """""""""""""""""
-*Maximum number of characters on a single line.*
+*Maximum number of characters on a single line. Pylint's default of 100 is based on PEP 8's guidance that teams may choose line lengths up to 99 characters.*
 
 **Default:**  ``100``
 
@@ -934,6 +977,8 @@ Standard Checkers
    expected-line-ending-format = ""
 
    ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+
+   # ignore-pattern-in-long-lines =
 
    indent-after-paren = 4
 
@@ -1007,6 +1052,13 @@ Standard Checkers
 **Default:** ``""``
 
 
+--known-first-party
+"""""""""""""""""""
+*Force import order to recognize a module as part of a first party library.*
+
+**Default:**  ``()``
+
+
 --known-standard-library
 """"""""""""""""""""""""
 *Force import order to recognize a module as part of the standard compatibility libraries.*
@@ -1052,6 +1104,8 @@ Standard Checkers
    import-graph = ""
 
    int-import-graph = ""
+
+   known-first-party = []
 
    known-standard-library = []
 
@@ -1142,6 +1196,13 @@ Standard Checkers
 
 ``Miscellaneous`` **Checker**
 -----------------------------
+--check-fixme-in-docstring
+""""""""""""""""""""""""""
+*Whether or not to search for fixme's in docstrings.*
+
+**Default:**  ``False``
+
+
 --notes
 """""""
 *List of note tags to take in consideration, separated by a comma.*
@@ -1167,6 +1228,8 @@ Standard Checkers
 .. code-block:: toml
 
    [tool.pylint.miscellaneous]
+   check-fixme-in-docstring = false
+
    notes = ["FIXME", "XXX", "TODO"]
 
    notes-rgx = ""
@@ -1196,6 +1259,14 @@ Standard Checkers
 **Default:**  ``('sys.exit', 'argparse.parse_error')``
 
 
+--suggest-join-with-non-empty-separator
+"""""""""""""""""""""""""""""""""""""""
+*Let 'consider-using-join' be raised when the separator to join on would be non-empty (resulting in expected fixes of the type: ``"- " + "
+- ".join(items)``)*
+
+**Default:**  ``True``
+
+
 
 .. raw:: html
 
@@ -1210,6 +1281,8 @@ Standard Checkers
    max-nested-blocks = 5
 
    never-returning-functions = ["sys.exit", "argparse.parse_error"]
+
+   suggest-join-with-non-empty-separator = true
 
 
 
@@ -1464,7 +1537,7 @@ Standard Checkers
 
 --missing-member-hint-distance
 """"""""""""""""""""""""""""""
-*The minimum edit distance a name should have in order to be considered a similar match for a missing member name.*
+*The maximum edit distance a name should have in order to be considered a similar match for a missing member name.*
 
 **Default:**  ``1``
 

@@ -7,8 +7,8 @@ import os
 copy.copy(os.environ)  # [shallow-copy-environ]
 
 # Copying a dictionary is okay
-test_dict = {}
-copy.copy(test_dict)
+TEST_DICT = {}
+copy.copy(TEST_DICT)
 
 # Test with renaming the functions
 from copy import copy as test_cp
@@ -30,7 +30,7 @@ copy.deepcopy(os.environ)
 
 # Edge cases
 copy.copy()  # [no-value-for-parameter]
-copy.copy(x=test_dict)
+copy.copy(x=TEST_DICT)
 copy.copy(x=os.environ)  # [shallow-copy-environ]
 copy.copy(**{"x": os.environ})  # [shallow-copy-environ]
 copy.copy(**{"y": os.environ})  # [unexpected-keyword-arg]

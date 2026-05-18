@@ -112,7 +112,7 @@ Release date: 2020-04-27
 
   Closes #3445
 
-* Fix dangerous-default-value rule to account for keyword argument defaults
+* Fix :ref:`dangerous-default-value` rule to account for keyword argument defaults
 
   Closes #3373
 
@@ -184,16 +184,16 @@ Release date: 2020-04-27
   Closes #3281
 
 * Added errors for protocol functions when invalid return types are detected.
-  E0304 (invalid-bool-returned): __bool__ did not return a bool
-  E0305 (invalid-index-returned): __index__ did not return an integer
-  E0306 (invalid-repr-returned): __repr__ did not return a string
-  E0307 (invalid-str-returned): __str__ did not return a string
-  E0308 (invalid-bytes-returned): __bytes__ did not return a string
-  E0309 (invalid-hash-returned): __hash__ did not return an integer
-  E0310 (invalid-length-hint-returned): __length_hint__ did not return a non-negative integer
-  E0311 (invalid-format-returned): __format__ did not return a string
-  E0312 (invalid-getnewargs-returned): __getnewargs__ did not return a tuple
-  E0313 (invalid-getnewargs-ex-returned): __getnewargs_ex__ did not return a tuple of the form (tuple, dict)
+  E0304 (:ref:`invalid-bool-returned`): __bool__ did not return a bool
+  E0305 (:ref:`invalid-index-returned`): __index__ did not return an integer
+  E0306 (:ref:`invalid-repr-returned`): __repr__ did not return a string
+  E0307 (:ref:`invalid-str-returned`): __str__ did not return a string
+  E0308 (:ref:`invalid-bytes-returned`): __bytes__ did not return a string
+  E0309 (:ref:`invalid-hash-returned`): __hash__ did not return an integer
+  E0310 (:ref:`invalid-length-hint-returned`): __length_hint__ did not return a non-negative integer
+  E0311 (:ref:`invalid-format-returned`): __format__ did not return a string
+  E0312 (:ref:`invalid-getnewargs-returned`): __getnewargs__ did not return a tuple
+  E0313 (:ref:`invalid-getnewargs-ex-returned`): __getnewargs_ex__ did not return a tuple of the form (tuple, dict)
 
   Closes #560
 

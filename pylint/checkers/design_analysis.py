@@ -11,82 +11,90 @@ from collections import defaultdict
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
-import astroid
 from astroid import nodes
 
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import is_enum, only_required_for_messages
+from pylint.interfaces import HIGH
 from pylint.typing import MessageDefinitionTuple
 
 if TYPE_CHECKING:
     from pylint.lint import PyLinter
 
-MSGS: dict[
-    str, MessageDefinitionTuple
-] = {  # pylint: disable=consider-using-namedtuple-or-dataclass
-    "R0901": (
-        "Too many ancestors (%s/%s)",
-        "too-many-ancestors",
-        "Used when class has too many parent classes, try to reduce "
-        "this to get a simpler (and so easier to use) class.",
-    ),
-    "R0902": (
-        "Too many instance attributes (%s/%s)",
-        "too-many-instance-attributes",
-        "Used when class has too many instance attributes, try to reduce "
-        "this to get a simpler (and so easier to use) class.",
-    ),
-    "R0903": (
-        "Too few public methods (%s/%s)",
-        "too-few-public-methods",
-        "Used when class has too few public methods, so be sure it's "
-        "really worth it.",
-    ),
-    "R0904": (
-        "Too many public methods (%s/%s)",
-        "too-many-public-methods",
-        "Used when class has too many public methods, try to reduce "
-        "this to get a simpler (and so easier to use) class.",
-    ),
-    "R0911": (
-        "Too many return statements (%s/%s)",
-        "too-many-return-statements",
-        "Used when a function or method has too many return statement, "
-        "making it hard to follow.",
-    ),
-    "R0912": (
-        "Too many branches (%s/%s)",
-        "too-many-branches",
-        "Used when a function or method has too many branches, "
-        "making it hard to follow.",
-    ),
-    "R0913": (
-        "Too many arguments (%s/%s)",
-        "too-many-arguments",
-        "Used when a function or method takes too many arguments.",
-    ),
-    "R0914": (
-        "Too many local variables (%s/%s)",
-        "too-many-locals",
-        "Used when a function or method has too many local variables.",
-    ),
-    "R0915": (
-        "Too many statements (%s/%s)",
-        "too-many-statements",
-        "Used when a function or method has too many statements. You "
-        "should then split it in smaller functions / methods.",
-    ),
-    "R0916": (
-        "Too many boolean expressions in if statement (%s/%s)",
-        "too-many-boolean-expressions",
-        "Used when an if statement contains too many boolean expressions.",
-    ),
-}
+MSGS: dict[str, MessageDefinitionTuple] = (
+    {  # pylint: disable=consider-using-namedtuple-or-dataclass
+        "R0901": (
+            "Too many ancestors (%s/%s)",
+            "too-many-ancestors",
+            "Used when class has too many parent classes, try to reduce "
+            "this to get a simpler (and so easier to use) class.",
+        ),
+        "R0902": (
+            "Too many instance attributes (%s/%s)",
+            "too-many-instance-attributes",
+            "Used when class has too many instance attributes, try to reduce "
+            "this to get a simpler (and so easier to use) class.",
+        ),
+        "R0903": (
+            "Too few public methods (%s/%s)",
+            "too-few-public-methods",
+            "Used when class has too few public methods, so be sure it's "
+            "really worth it.",
+        ),
+        "R0904": (
+            "Too many public methods (%s/%s)",
+            "too-many-public-methods",
+            "Used when class has too many public methods, try to reduce "
+            "this to get a simpler (and so easier to use) class.",
+        ),
+        "R0911": (
+            "Too many return statements (%s/%s)",
+            "too-many-return-statements",
+            "Used when a function or method has too many return statement, "
+            "making it hard to follow.",
+        ),
+        "R0912": (
+            "Too many branches (%s/%s)",
+            "too-many-branches",
+            "Used when a function or method has too many branches, "
+            "making it hard to follow.",
+        ),
+        "R0913": (
+            "Too many arguments (%s/%s)",
+            "too-many-arguments",
+            "Used when a function or method takes too many arguments.",
+        ),
+        "R0914": (
+            "Too many local variables (%s/%s)",
+            "too-many-locals",
+            "Used when a function or method has too many local variables.",
+        ),
+        "R0915": (
+            "Too many statements (%s/%s)",
+            "too-many-statements",
+            "Used when a function or method has too many statements. You "
+            "should then split it in smaller functions / methods.",
+        ),
+        "R0916": (
+            "Too many boolean expressions in if statement (%s/%s)",
+            "too-many-boolean-expressions",
+            "Used when an if statement contains too many boolean expressions.",
+        ),
+        "R0917": (
+            "Too many positional arguments (%s/%s)",
+            "too-many-positional-arguments",
+            "Used when a function has too many positional arguments.",
+        ),
+    }
+)
 SPECIAL_OBJ = re.compile("^_{2}[a-z]+_{2}$")
 DATACLASSES_DECORATORS = frozenset({"dataclass", "attrs"})
 DATACLASS_IMPORT = "dataclasses"
+ATTRS_DECORATORS = frozenset({"define", "frozen"})
+ATTRS_IMPORT = "attrs"
 TYPING_NAMEDTUPLE = "typing.NamedTuple"
 TYPING_TYPEDDICT = "typing.TypedDict"
+TYPING_EXTENSIONS_TYPEDDICT = "typing_extensions.TypedDict"
 
 # Set of stdlib classes to ignore when calculating number of ancestors
 STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
@@ -168,18 +176,22 @@ STDLIB_CLASSES_IGNORE_ANCESTOR = frozenset(
         "typing.Sized",
         TYPING_NAMEDTUPLE,
         TYPING_TYPEDDICT,
+        TYPING_EXTENSIONS_TYPEDDICT,
     )
 )
 
 
-def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
+def _is_exempt_from_public_methods(node: nodes.ClassDef) -> bool:
     """Check if a class is exempt from too-few-public-methods."""
-
     # If it's a typing.Namedtuple, typing.TypedDict or an Enum
     for ancestor in node.ancestors():
         if is_enum(ancestor):
             return True
-        if ancestor.qname() in (TYPING_NAMEDTUPLE, TYPING_TYPEDDICT):
+        if ancestor.qname() in (
+            TYPING_NAMEDTUPLE,
+            TYPING_TYPEDDICT,
+            TYPING_EXTENSIONS_TYPEDDICT,
+        ):
             return True
 
     # Or if it's a dataclass
@@ -188,17 +200,20 @@ def _is_exempt_from_public_methods(node: astroid.ClassDef) -> bool:
 
     root_locals = set(node.root().locals)
     for decorator in node.decorators.nodes:
-        if isinstance(decorator, astroid.Call):
+        if isinstance(decorator, nodes.Call):
             decorator = decorator.func
-        if not isinstance(decorator, (astroid.Name, astroid.Attribute)):
-            continue
-        if isinstance(decorator, astroid.Name):
-            name = decorator.name
-        else:
-            name = decorator.attrname
+        match decorator:
+            case nodes.Name(name=name) | nodes.Attribute(attrname=name):
+                pass
+            case _:
+                continue
         if name in DATACLASSES_DECORATORS and (
             root_locals.intersection(DATACLASSES_DECORATORS)
             or DATACLASS_IMPORT in root_locals
+        ):
+            return True
+        if name in ATTRS_DECORATORS and (
+            root_locals.intersection(ATTRS_DECORATORS) or ATTRS_IMPORT in root_locals
         ):
             return True
     return False
@@ -211,7 +226,7 @@ def _count_boolean_expressions(bool_op: nodes.BoolOp) -> int:
     """
     nb_bool_expr = 0
     for bool_expr in bool_op.get_children():
-        if isinstance(bool_expr, astroid.BoolOp):
+        if isinstance(bool_expr, nodes.BoolOp):
             nb_bool_expr += _count_boolean_expressions(bool_expr)
         else:
             nb_bool_expr += 1
@@ -291,6 +306,15 @@ class MisdesignChecker(BaseChecker):
                 "type": "int",
                 "metavar": "<int>",
                 "help": "Maximum number of arguments for function / method.",
+            },
+        ),
+        (
+            "max-positional-arguments",
+            {
+                "default": 5,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "Maximum number of positional arguments for function / method.",
             },
         ),
         (
@@ -507,6 +531,7 @@ class MisdesignChecker(BaseChecker):
         "too-many-branches",
         "too-many-arguments",
         "too-many-locals",
+        "too-many-positional-arguments",
         "too-many-statements",
         "keyword-arg-before-vararg",
     )
@@ -517,24 +542,40 @@ class MisdesignChecker(BaseChecker):
         # init branch and returns counters
         self._returns.append(0)
         # check number of arguments
-        args = node.args.args + node.args.posonlyargs + node.args.kwonlyargs
+        pos_args = node.args.posonlyargs + node.args.args
+        if node.type in {"method", "classmethod"}:
+            pos_args = pos_args[1:]
+        args = pos_args + node.args.kwonlyargs
         ignored_argument_names = self.linter.config.ignored_argument_names
-        if args is not None:
-            ignored_args_num = 0
+        ignored_args_num = 0
+        if args:
             if ignored_argument_names:
-                ignored_args_num = sum(
-                    1 for arg in args if ignored_argument_names.match(arg.name)
+                ignored_pos_args_num = sum(
+                    1 for arg in pos_args if ignored_argument_names.match(arg.name)
                 )
+                ignored_kwonly_args_num = sum(
+                    1
+                    for arg in node.args.kwonlyargs
+                    if ignored_argument_names.match(arg.name)
+                )
+                ignored_args_num = ignored_pos_args_num + ignored_kwonly_args_num
 
-            argnum = len(args) - ignored_args_num
-            if argnum > self.linter.config.max_args:
+            args_num = len(args) - ignored_args_num
+            if args_num > self.linter.config.max_args:
                 self.add_message(
                     "too-many-arguments",
                     node=node,
-                    args=(len(args), self.linter.config.max_args),
+                    args=(args_num, self.linter.config.max_args),
                 )
-        else:
-            ignored_args_num = 0
+            pos_args_num = len(pos_args) - ignored_pos_args_num
+            if pos_args_num > self.linter.config.max_positional_arguments:
+                self.add_message(
+                    "too-many-positional-arguments",
+                    node=node,
+                    args=(pos_args_num, self.linter.config.max_positional_arguments),
+                    confidence=HIGH,
+                )
+
         # check number of local variables
         locnum = len(node.locals) - ignored_args_num
 
@@ -618,8 +659,8 @@ class MisdesignChecker(BaseChecker):
         self._check_boolean_expressions(node)
         branches = 1
         # don't double count If nodes coming from some 'elif'
-        if node.orelse and (
-            len(node.orelse) > 1 or not isinstance(node.orelse[0], astroid.If)
+        if node.orelse and not (
+            len(node.orelse) == 1 and isinstance(node.orelse[0], nodes.If)
         ):
             branches += 1
         self._inc_branch(node, branches)
@@ -630,7 +671,7 @@ class MisdesignChecker(BaseChecker):
         if the 'if' node test is a BoolOp node.
         """
         condition = node.test
-        if not isinstance(condition, astroid.BoolOp):
+        if not isinstance(condition, nodes.BoolOp):
             return
         nb_bool_expr = _count_boolean_expressions(condition)
         if nb_bool_expr > self.linter.config.max_bool_expr:
@@ -648,6 +689,11 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, branches)
 
     visit_for = visit_while
+
+    def visit_match(self, node: nodes.Match) -> None:
+        """Increments the branches counter."""
+        self._inc_all_stmts(1)
+        self._inc_branch(node, len(node.cases))
 
     def _inc_branch(self, node: nodes.NodeNG, branchesnum: int = 1) -> None:
         """Increments the branches counter."""

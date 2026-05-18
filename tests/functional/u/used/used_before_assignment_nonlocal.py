@@ -26,17 +26,17 @@ def test_fail2():
         cnt = cnt + 1 # [used-before-assignment]
     wrap()
 
-def test_fail3(arg: test_fail4): # [used-before-assignment]
+def test_fail3(arg: test_fail4): # <3.14:[used-before-assignment]
     """ Depends on `test_fail4`, in argument annotation. """
     return arg
-# +1: [used-before-assignment, used-before-assignment]
+# +1:<3.14: [used-before-assignment, used-before-assignment]
 def test_fail4(*args: test_fail5, **kwargs: undefined):
     """ Depends on `test_fail5` and `undefined` in
     variable and named arguments annotations.
     """
     return args, kwargs
 
-def test_fail5()->undefined1: # [used-before-assignment]
+def test_fail5()->undefined1: # <3.14:[used-before-assignment]
     """ Depends on `undefined1` in function return annotation. """
 
 def undefined():
@@ -106,3 +106,60 @@ def inner_function_ok(args):
         print(args)
     inner()
     print(args)
+
+
+def nonlocal_in_outer_frame_fail():
+    """Nonlocal declared in outer frame, bad usage and assignment in inner frame."""
+    num = 1
+    def outer():
+        nonlocal num
+        def inner():
+            print(num)  # [used-before-assignment]
+            num = 2
+        inner()
+    outer()
+
+
+def nonlocal_in_outer_frame_ok(callback, condition_a, condition_b):
+    """Nonlocal declared in outer frame, usage and definition in different frames,
+    both enclosed in outer frame.
+    """
+    def outer():
+        nonlocal callback
+        if condition_a:
+            def inner():
+                callback()  # should not emit possibly-used-before-assignment
+            inner()
+        else:
+            if condition_b:
+                def callback():
+                    pass
+    outer()
+
+
+def nonlocal_in_distant_outer_frame_fail(callback, condition_a, condition_b):
+    """Nonlocal declared in outer frame, both usage and definition immediately enclosed
+    in intermediate frame.
+    """
+    def outer():
+        nonlocal callback
+        def intermediate():
+            if condition_a:
+                def inner():
+                    callback()  # [possibly-used-before-assignment]
+                inner()
+            else:
+                if condition_b:
+                    def callback():
+                        pass
+        intermediate()
+    outer()
+
+
+def nonlocal_after_bad_usage_fail():
+    """Nonlocal declared after used-before-assignment."""
+    num = 1
+    def inner():
+        num = num + 1  # [used-before-assignment]
+        nonlocal num
+    inner()

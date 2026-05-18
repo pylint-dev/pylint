@@ -6,6 +6,10 @@ def simple_positives():
     type(42) is not int # [unidiomatic-typecheck]
     type(42) == int # [unidiomatic-typecheck]
     type(42) != int # [unidiomatic-typecheck]
+    int is type(42) # [unidiomatic-typecheck]
+    int is not type(42) # [unidiomatic-typecheck]
+    int == type(42) # [unidiomatic-typecheck]
+    int != type(42) # [unidiomatic-typecheck]
 
 def simple_inference_positives():
     alias = type
@@ -57,14 +61,28 @@ def parameter_shadowing_inference_negatives(type):
     type(42) in [int]
     type(42) not in [int]
 
-def deliberate_subclass_check_negatives(b):
+
+def deliberate_subclass_check_negatives(a, b):
     type(42) is type(b)
     type(42) is not type(b)
+    type(42) == type(b)
+    type(42) != type(b)
+    type(a) is type(b)
+    type(a) is not type(b)
+    type(a) == type(b)
+    type(a) != type(b)
+
 
 def type_of_literals_positives(a):
-    type(a) is type([]) # [unidiomatic-typecheck]
-    type(a) is not type([]) # [unidiomatic-typecheck]
-    type(a) is type({}) # [unidiomatic-typecheck]
-    type(a) is not type({}) # [unidiomatic-typecheck]
-    type(a) is type("") # [unidiomatic-typecheck]
-    type(a) is not type("") # [unidiomatic-typecheck]
+    type(a) is type([])  # [unidiomatic-typecheck]
+    type(a) is not type([])  # [unidiomatic-typecheck]
+    type(a) is type({})  # [unidiomatic-typecheck]
+    type(a) is not type({})  # [unidiomatic-typecheck]
+    type(a) is type("")  # [unidiomatic-typecheck]
+    type(a) is not type("")  # [unidiomatic-typecheck]
+    type(a) == type([])  # [unidiomatic-typecheck]
+    type(a) != type([])  # [unidiomatic-typecheck]
+    type(a) == type({})  # [unidiomatic-typecheck]
+    type(a) != type({})  # [unidiomatic-typecheck]
+    type(a) == type("")  # [unidiomatic-typecheck]
+    type(a) != type("")  # [unidiomatic-typecheck]

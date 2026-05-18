@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Optional, TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from pylint.interfaces import CONFIDENCE_MAP, UNDEFINED
 from pylint.message import Message
@@ -27,8 +27,8 @@ OldJsonExport = TypedDict(
         "obj": str,
         "line": int,
         "column": int,
-        "endLine": Optional[int],
-        "endColumn": Optional[int],
+        "endLine": int | None,
+        "endColumn": int | None,
         "path": str,
         "symbol": str,
         "message": str,
@@ -187,7 +187,7 @@ class JSON2Reporter(BaseReporter):
         except Exception as ex:  # pylint: disable=broad-except
             score: str | int = f"An exception occurred while rating: {ex}"
         else:
-            score = round(note, 2)
+            score = note
 
         return {
             "messageTypeCount": counts_dict,

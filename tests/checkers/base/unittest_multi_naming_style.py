@@ -20,16 +20,14 @@ class TestMultiNamingStyle(CheckerTestCase):
 
     @set_config(class_rgx=MULTI_STYLE_RE)
     def test_multi_name_detection_majority(self) -> None:
-        classes = astroid.extract_node(
-            """
+        classes = astroid.extract_node("""
         class classb(object): #@
             pass
         class CLASSA(object): #@
             pass
         class CLASSC(object): #@
             pass
-        """
-        )
+        """)
         message = MessageTest(
             "invalid-name",
             node=classes[0],
@@ -53,16 +51,14 @@ class TestMultiNamingStyle(CheckerTestCase):
 
     @set_config(class_rgx=MULTI_STYLE_RE)
     def test_multi_name_detection_first_invalid(self) -> None:
-        classes = astroid.extract_node(
-            """
+        classes = astroid.extract_node("""
         class class_a(object): #@
             pass
         class classb(object): #@
             pass
         class CLASSC(object): #@
             pass
-        """
-        )
+        """)
         messages = [
             MessageTest(
                 "invalid-name",
@@ -142,8 +138,7 @@ class TestMultiNamingStyle(CheckerTestCase):
         function_rgx=re.compile("(?:(?P<ignore>FOO)|(?P<UP>[A-Z]+)|(?P<down>[a-z]+))$")
     )
     def test_multi_name_detection_exempt(self) -> None:
-        function_defs = astroid.extract_node(
-            """
+        function_defs = astroid.extract_node("""
         def FOO(): #@
             pass
         def lower(): #@
@@ -152,8 +147,7 @@ class TestMultiNamingStyle(CheckerTestCase):
             pass
         def UPPER(): #@
             pass
-        """
-        )
+        """)
         message = MessageTest(
             "invalid-name",
             node=function_defs[3],

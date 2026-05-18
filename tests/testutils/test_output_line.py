@@ -17,8 +17,7 @@ from pylint.typing import MessageLocationTuple
 
 
 class _MessageCallable(Protocol):
-    def __call__(self, confidence: Confidence = HIGH) -> Message:
-        ...
+    def __call__(self, confidence: Confidence = HIGH) -> Message: ...
 
 
 @pytest.fixture()

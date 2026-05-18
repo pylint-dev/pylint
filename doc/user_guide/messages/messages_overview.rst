@@ -53,6 +53,7 @@ All messages in the error category:
    error/assigning-non-slot
    error/assignment-from-no-return
    error/assignment-from-none
+   error/async-context-manager-with-regular-with
    error/await-outside-async
    error/bad-configuration-section
    error/bad-except-order
@@ -63,12 +64,13 @@ All messages in the error category:
    error/bad-str-strip-call
    error/bad-string-format-type
    error/bad-super-call
+   error/bare-name-capture-pattern
    error/bidirectional-unicode
    error/broken-collections-callable
    error/broken-noreturn
    error/catching-non-exception
    error/class-variable-slots-conflict
-   error/continue-in-finally
+   error/declare-non-slot
    error/dict-iter-missing-items
    error/duplicate-argument-name
    error/duplicate-bases
@@ -99,6 +101,7 @@ All messages in the error category:
    error/invalid-index-returned
    error/invalid-length-hint-returned
    error/invalid-length-returned
+   error/invalid-match-args-definition
    error/invalid-metaclass
    error/invalid-repr-returned
    error/invalid-sequence-index
@@ -122,6 +125,7 @@ All messages in the error category:
    error/mixed-format-string
    error/modified-iterating-dict
    error/modified-iterating-set
+   error/multiple-class-sub-patterns
    error/no-member
    error/no-method-argument
    error/no-name-in-module
@@ -139,6 +143,7 @@ All messages in the error category:
    error/not-in-loop
    error/notimplemented-raised
    error/positional-only-arguments-expected
+   error/possibly-used-before-assignment
    error/potential-index-error
    error/raising-bad-type
    error/raising-non-exception
@@ -155,6 +160,7 @@ All messages in the error category:
    error/too-few-format-args
    error/too-many-format-args
    error/too-many-function-args
+   error/too-many-positional-sub-patterns
    error/too-many-star-expressions
    error/truncated-format-string
    error/undefined-all-variable
@@ -221,14 +227,18 @@ All messages in the warning category:
    warning/bare-except
    warning/binary-op-exception
    warning/boolean-datetime
+   warning/break-in-finally
    warning/broad-exception-caught
    warning/broad-exception-raised
    warning/cell-var-from-loop
    warning/comparison-with-callable
    warning/confusing-with-statement
    warning/consider-ternary-expression
+   warning/contextmanager-generator-missing-cleanup
+   warning/continue-in-finally
    warning/dangerous-default-value
    warning/deprecated-argument
+   warning/deprecated-attribute
    warning/deprecated-class
    warning/deprecated-decorator
    warning/deprecated-method
@@ -344,9 +354,13 @@ All messages in the warning category:
    warning/useless-parent-delegation
    warning/useless-type-doc
    warning/useless-with-lock
+   warning/using-assignment-expression-in-unsupported-version
    warning/using-constant-test
+   warning/using-exception-groups-in-unsupported-version
    warning/using-f-string-in-unsupported-version
    warning/using-final-decorator-in-unsupported-version
+   warning/using-generic-type-syntax-in-unsupported-version
+   warning/using-positional-only-args-in-unsupported-version
    warning/while-used
    warning/wildcard-import
    warning/wrong-exception-operation
@@ -477,6 +491,7 @@ All messages in the refactor category:
    refactor/condition-evals-to-constant
    refactor/confusing-consecutive-elif
    refactor/consider-alternative-union-syntax
+   refactor/consider-math-not-float
    refactor/consider-merging-isinstance
    refactor/consider-refactoring-into-while-condition
    refactor/consider-swap-variables
@@ -504,6 +519,8 @@ All messages in the refactor category:
    refactor/inconsistent-return-statements
    refactor/literal-comparison
    refactor/magic-value-comparison
+   refactor/match-class-bind-self
+   refactor/match-class-positional-attributes
    refactor/no-classmethod-decorator
    refactor/no-else-break
    refactor/no-else-continue
@@ -531,17 +548,20 @@ All messages in the refactor category:
    refactor/too-many-instance-attributes
    refactor/too-many-locals
    refactor/too-many-nested-blocks
+   refactor/too-many-positional-arguments
    refactor/too-many-public-methods
    refactor/too-many-return-statements
    refactor/too-many-statements
    refactor/trailing-comma-tuple
    refactor/unnecessary-comprehension
+   refactor/unnecessary-default-type-args
    refactor/unnecessary-dict-index-lookup
    refactor/unnecessary-list-index-lookup
    refactor/use-a-generator
    refactor/use-dict-literal
    refactor/use-list-literal
    refactor/use-set-for-membership
+   refactor/use-yield-from
    refactor/useless-object-inheritance
    refactor/useless-option-value
    refactor/useless-return

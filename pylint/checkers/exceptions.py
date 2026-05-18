@@ -35,7 +35,7 @@ def _builtin_exceptions() -> set[str]:
 
 def _annotated_unpack_infer(
     stmt: nodes.NodeNG, context: InferenceContext | None = None
-) -> Generator[tuple[nodes.NodeNG, SuccessfulInferenceResult], None, None]:
+) -> Generator[tuple[nodes.NodeNG, SuccessfulInferenceResult]]:
     """Recursively generate nodes inferred by the given statement.
 
     If the inferred value is a list or a tuple, recurse on the elements.
@@ -92,10 +92,9 @@ MSGS: dict[str, MessageDefinitionTuple] = {
         {"old_names": [("E0703", "bad-exception-context")]},
     ),
     "E0710": (
-        "Raising a new style class which doesn't inherit from BaseException",
+        "Raising a class which doesn't inherit from BaseException",
         "raising-non-exception",
-        "Used when a new style class which doesn't inherit from "
-        "BaseException is raised.",
+        "Used when a class which doesn't inherit from BaseException is raised.",
     ),
     "E0711": (
         "NotImplemented raised - should raise NotImplementedError",
@@ -230,16 +229,12 @@ class ExceptionRaiseRefVisitor(BaseVisitor):
     def visit_call(self, node: nodes.Call) -> None:
         if isinstance(node.func, nodes.Name):
             self.visit_name(node.func)
-        if (
-            len(node.args) > 1
-            and isinstance(node.args[0], nodes.Const)
-            and isinstance(node.args[0].value, str)
-        ):
-            msg = node.args[0].value
-            if "%" in msg or ("{" in msg and "}" in msg):
-                self._checker.add_message(
-                    "raising-format-tuple", node=self._node, confidence=HIGH
-                )
+        match node.args:
+            case [nodes.Const(value=str() as msg), _, *_]:
+                if "%" in msg or ("{" in msg and "}" in msg):
+                    self._checker.add_message(
+                        "raising-format-tuple", node=self._node, confidence=HIGH
+                    )
 
 
 class ExceptionRaiseLeafVisitor(BaseVisitor):
@@ -262,12 +257,11 @@ class ExceptionRaiseLeafVisitor(BaseVisitor):
 
     def visit_classdef(self, node: nodes.ClassDef) -> None:
         if not utils.inherit_from_std_ex(node) and utils.has_known_bases(node):
-            if node.newstyle:
-                self._checker.add_message(
-                    "raising-non-exception",
-                    node=self._node,
-                    confidence=INFERENCE,
-                )
+            self._checker.add_message(
+                "raising-non-exception",
+                node=self._node,
+                confidence=INFERENCE,
+            )
 
     def visit_tuple(self, _: nodes.Tuple) -> None:
         self._checker.add_message(
@@ -354,7 +348,7 @@ class ExceptionsChecker(checkers.BaseChecker):
             current = current.parent
 
         expected = (nodes.ExceptHandler,)
-        if not current or not isinstance(current.parent, expected):
+        if not (current and isinstance(current.parent, expected)):
             self.add_message("misplaced-bare-raise", node=node, confidence=HIGH)
 
     def _check_bad_exception_cause(self, node: nodes.Raise) -> None:
@@ -407,9 +401,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                 confidence=HIGH,
             )
         elif (
-            isinstance(node.exc, nodes.Call)
-            and isinstance(node.exc.func, nodes.Name)
-            or isinstance(node.exc, nodes.Name)
+            isinstance(node.exc, nodes.Call) and isinstance(node.exc.func, nodes.Name)
+        ) or (
+            isinstance(node.exc, nodes.Name)
             and node.exc.name != containing_except_node.name.name
         ):
             # We have a `raise SomeException(whatever)` or a `raise SomeException`
@@ -434,7 +428,13 @@ class ExceptionsChecker(checkers.BaseChecker):
                 return
             if all(
                 node
-                and (utils.inherit_from_std_ex(node) or not utils.has_known_bases(node))
+                and (
+                    utils.inherit_from_std_ex(node)
+                    or (
+                        isinstance(node, nodes.ClassDef)
+                        and not utils.has_known_bases(node)
+                    )
+                )
                 for node in inferred
             ):
                 return
@@ -443,25 +443,27 @@ class ExceptionsChecker(checkers.BaseChecker):
             # Don't emit the warning if the inferred stmt
             # is None, but the exception handler is something else,
             # maybe it was redefined.
-            if isinstance(exc, nodes.Const) and exc.value is None:
-                if (
-                    isinstance(handler.type, nodes.Const) and handler.type.value is None
-                ) or handler.type.parent_of(exc):
-                    # If the exception handler catches None or
-                    # the exception component, which is None, is
-                    # defined by the entire exception handler, then
-                    # emit a warning.
+            match exc:
+                case nodes.Const(value=None):
+                    if (
+                        isinstance(handler.type, nodes.Const)
+                        and handler.type.value is None
+                    ) or handler.type.parent_of(exc):
+                        # If the exception handler catches None or
+                        # the exception component, which is None, is
+                        # defined by the entire exception handler, then
+                        # emit a warning.
+                        self.add_message(
+                            "catching-non-exception",
+                            node=handler.type,
+                            args=(part.as_string(),),
+                        )
+                case _:
                     self.add_message(
                         "catching-non-exception",
                         node=handler.type,
                         args=(part.as_string(),),
                     )
-            else:
-                self.add_message(
-                    "catching-non-exception",
-                    node=handler.type,
-                    args=(part.as_string(),),
-                )
             return
 
         if (
@@ -533,8 +535,19 @@ class ExceptionsChecker(checkers.BaseChecker):
     @utils.only_required_for_messages("wrong-exception-operation")
     def visit_binop(self, node: nodes.BinOp) -> None:
         if isinstance(node.parent, nodes.ExceptHandler):
+            both_sides_tuple_or_uninferable = isinstance(
+                utils.safe_infer(node.left), (nodes.Tuple, util.UninferableBase)
+            ) and isinstance(
+                utils.safe_infer(node.right), (nodes.Tuple, util.UninferableBase)
+            )
+            # Tuple concatenation allowed
+            if both_sides_tuple_or_uninferable:
+                if node.op == "+":
+                    return
+                suggestion = f"Did you mean '({node.left.as_string()} + {node.right.as_string()})' instead?"
             # except (V | A)
-            suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
+            else:
+                suggestion = f"Did you mean '({node.left.as_string()}, {node.right.as_string()})' instead?"
             self.add_message("wrong-exception-operation", node=node, args=(suggestion,))
 
     @utils.only_required_for_messages("wrong-exception-operation")
@@ -556,6 +569,10 @@ class ExceptionsChecker(checkers.BaseChecker):
         "catching-non-exception",
         "duplicate-except",
     )
+    def visit_trystar(self, node: nodes.TryStar) -> None:
+        """Check for empty except*."""
+        self.visit_try(node)
+
     def visit_try(self, node: nodes.Try) -> None:
         """Check for empty except."""
         self._check_try_except_raise(node)
@@ -599,9 +616,9 @@ class ExceptionsChecker(checkers.BaseChecker):
                         continue
 
                     exc_ancestors = [
-                        anc
-                        for anc in exception.ancestors()
-                        if isinstance(anc, nodes.ClassDef)
+                        a
+                        for a in exception.ancestors()
+                        if isinstance(a, nodes.ClassDef)
                     ]
 
                     for previous_exc in exceptions_classes:

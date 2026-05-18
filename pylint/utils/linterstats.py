@@ -24,6 +24,8 @@ class BadNames(TypedDict):
     module: int
     variable: int
     typevar: int
+    paramspec: int
+    typevartuple: int
     typealias: int
 
 
@@ -102,6 +104,8 @@ class LinterStats:
             module=0,
             variable=0,
             typevar=0,
+            paramspec=0,
+            typevartuple=0,
             typealias=0,
         )
         self.by_module: dict[str, ModuleStats] = by_module or {}
@@ -109,6 +113,7 @@ class LinterStats:
         self.code_type_count = code_type_count or CodeTypeCount(
             code=0, comment=0, docstring=0, empty=0, total=0
         )
+        self.modules_names: set[str] = set()
 
         self.dependencies: dict[str, set[str]] = dependencies or {}
         self.duplicated_lines = duplicated_lines or DuplicatedLines(
@@ -128,6 +133,7 @@ class LinterStats:
         self.refactor = 0
         self.statement = 0
         self.warning = 0
+        self.skipped = 0
 
         self.global_note = 0
         self.nb_duplicated_lines = 0
@@ -151,6 +157,7 @@ class LinterStats:
         {self.refactor}
         {self.statement}
         {self.warning}
+        {self.skipped}
         {self.global_note}
         {self.nb_duplicated_lines}
         {self.percent_duplicated_lines}"""
@@ -178,6 +185,8 @@ class LinterStats:
             "module",
             "variable",
             "typevar",
+            "paramspec",
+            "typevartuple",
             "typealias",
         ],
     ) -> int:
@@ -201,6 +210,8 @@ class LinterStats:
             "module",
             "variable",
             "typevar",
+            "paramspec",
+            "typevartuple",
             "typealias",
         }:
             raise ValueError("Node type not part of the bad_names stat")
@@ -219,6 +230,8 @@ class LinterStats:
                 "module",
                 "variable",
                 "typevar",
+                "paramspec",
+                "typevartuple",
                 "typealias",
             ],
             node_name,
@@ -243,6 +256,8 @@ class LinterStats:
             module=0,
             variable=0,
             typevar=0,
+            paramspec=0,
+            typevartuple=0,
             typealias=0,
         )
 
@@ -292,9 +307,11 @@ class LinterStats:
         """Get a global message count."""
         return getattr(self, type_name, 0)
 
-    def get_module_message_count(self, modname: str, type_name: str) -> int:
+    def get_module_message_count(
+        self, modname: str, type_name: MessageTypesFullName
+    ) -> int:
         """Get a module message count."""
-        return getattr(self.by_module[modname], type_name, 0)
+        return self.by_module[modname].get(type_name, 0)
 
     def increase_single_message_count(self, type_name: str, increase: int) -> None:
         """Increase the message type count of an individual message type."""
@@ -336,6 +353,8 @@ def merge_stats(stats: list[LinterStats]) -> LinterStats:
         merged.bad_names["module"] += stat.bad_names["module"]
         merged.bad_names["variable"] += stat.bad_names["variable"]
         merged.bad_names["typevar"] += stat.bad_names["typevar"]
+        merged.bad_names["paramspec"] += stat.bad_names["paramspec"]
+        merged.bad_names["typevartuple"] += stat.bad_names["typevartuple"]
         merged.bad_names["typealias"] += stat.bad_names["typealias"]
 
         for mod_key, mod_value in stat.by_module.items():
@@ -383,6 +402,7 @@ def merge_stats(stats: list[LinterStats]) -> LinterStats:
         merged.refactor += stat.refactor
         merged.statement += stat.statement
         merged.warning += stat.warning
+        merged.skipped += stat.skipped
 
         merged.global_note += stat.global_note
     return merged
