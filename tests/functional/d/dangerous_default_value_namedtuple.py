@@ -5,6 +5,16 @@ from typing import NamedTuple
 DANGEROUS_GLOBAL = set()
 
 
+class CustomMutableStore(dict): pass
+class CustomImmutableStore(frozenset): pass
+
+def create_my_custom_immutable_data_store() -> CustomImmutableStore:
+    return CustomImmutableStore()
+    
+    
+def create_my_custom_mutable_data_store() -> CustomMutableStore:
+    return CustomMutableStore()
+
 class BadListDefault(NamedTuple):
     avgs: list[float] = []  # [dangerous-default-value]
     stds: list[float] = []  # [dangerous-default-value]
