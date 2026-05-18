@@ -823,7 +823,10 @@ class NumpyDocstring(GoogleDocstring):
 
     re_param_line = re.compile(
         r"""
-        \s*  (?P<param_name>\*{0,2}\w+)             # identifier with potential asterisks
+        \s*  (?P<param_name>
+            \*{0,2}\w+                              # first identifier (with optional asterisks)
+            (?:\s*,\s*\*{0,2}\w+)*                  # additional identifiers (NumPy "a, b : type" idiom)
+        )
         (?:
             [ \t]* : [ \t]*                         # colon separator
             (?P<param_type>[^\n]*?)                 # any type expression up to end of line
@@ -882,7 +885,7 @@ class NumpyDocstring(GoogleDocstring):
             if not match:
                 continue
 
-            param_name = match.group("param_name")
+            raw_names = match.group("param_name")
             param_type = match.group("param_type")
             param_desc = match.group("param_desc")
             # If a single-line entry only has typing after the colon (no
@@ -893,11 +896,14 @@ class NumpyDocstring(GoogleDocstring):
             if not param_desc and param_type:
                 param_desc = param_type
 
-            if param_type:
-                params_with_type.add(param_name)
+            # NumPy style permits documenting multiple identifiers per entry,
+            # e.g. ``a, b : array-like``. Apply the type/description to each.
+            for param_name in re.split(r"\s*,\s*", raw_names):
+                if param_type:
+                    params_with_type.add(param_name)
 
-            if param_desc:
-                params_with_doc.add(param_name)
+                if param_desc:
+                    params_with_doc.add(param_name)
 
         return params_with_doc, params_with_type
 

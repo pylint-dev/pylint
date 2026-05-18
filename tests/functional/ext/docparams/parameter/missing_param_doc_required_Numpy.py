@@ -463,3 +463,20 @@ def test_with_default_keyword_numpy(number, ratio, label, flag):
         The flag.
     """
     return number, ratio, label, flag
+
+
+def test_with_grouped_params_numpy(  # pylint: disable=too-many-positional-arguments
+    a, b, top, bottom, left, right
+):
+    """NumPy style permits documenting several parameters on the same line.
+
+    See https://numpydoc.readthedocs.io/en/latest/format.html#parameters.
+
+    Parameters
+    ----------
+    a, b : array-like
+        Inputs.
+    top, bottom, left, right : bool, optional
+        Where to draw.
+    """
+    return a, b, top, bottom, left, right
