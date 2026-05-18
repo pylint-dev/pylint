@@ -7,10 +7,10 @@ the os.walk() function.
 """
 
 import os
+from pathlib import Path
 from unittest import mock
 
 import pytest
-from pyfakefs.fake_filesystem import FakeFilesystem, OSType
 
 from pylint.lint import PyLinter
 
@@ -22,94 +22,98 @@ def _initialized_linter(linter: PyLinter) -> PyLinter:
     return linter
 
 
-# pylint: disable=too-many-statements
-def setup_mock_fs(fs: FakeFilesystem) -> FakeFilesystem:
+def setup_test_file_tree(tmp_path: Path) -> None:
     """
-    Produce a standardized fake file system for testing _discover_files().
-
-    NOTE: pyfakefs handles the mapping of Linux/macOS style names into Windows
-    style names in the background for us.
+    Produce a standardized fake file system for testing _discover_files() using
+    a list of files.
     """
-    fs.create_file("/test/manage.py")
-    fs.create_file("/test/pyproject.toml")
-    fs.create_file("/test/applications/static/applications/js/applications.js")
-    fs.create_file("/test/applications/static/applications/css/applications.css")
-    fs.create_file("/test/applications/views.py")
-    fs.create_file("/test/applications/management/commands/__init__.py")
-    fs.create_file("/test/applications/management/__init__.py")
-    fs.create_file("/test/applications/models.py")
-    fs.create_file("/test/applications/admin.py")
-    fs.create_file("/test/applications/apps.py")
-    fs.create_file("/test/applications/templates/ApplicationDetails.html")
-    fs.create_file("/test/applications/templates/ApplicationList.html")
-    fs.create_file("/test/applications/tests/__init__.py")
-    fs.create_file("/test/applications/tests/test_models.py")
-    fs.create_file("/test/applications/tests/test_unauthenticated_user.py")
-    fs.create_file("/test/applications/tests/test_authenticated_user.py")
-    fs.create_file("/test/applications/migrations/0003_alter_jobapplication_posting.py")
-    fs.create_file("/test/applications/migrations/__init__.py")
-    fs.create_file("/test/applications/migrations/0002_alter_jobapplication_user.py")
-    fs.create_file("/test/applications/migrations/0001_initial.py")
-    fs.create_file(
-        "/test/applications/migrations/__pycache__/0004_jobapplication_created_at_cpython-313.pyc"
-    )
-    fs.create_file(
-        "/test/applications/migrations/__pycache__/0002_alter_jobapplication_when.cpython-313.pyc"
-    )
-    fs.create_file(
-        "/test/applications/migrations/__pycache__/0002_alter_jobapplication_user_id.cpython-313.pyc"
-    )
-    fs.create_file("/test/applications/migrations/__pycache__/__init__.cpython-313.pyc")
-    fs.create_file(
-        "/test/applications/migrations/__pycache__/0001_initial.cpython-313.pyc"
-    )
-    fs.create_file("/test/applications/urls.py")
-    fs.create_file("/test/applications/__init__.py")
-    fs.create_file("/test/applications/forms.py")
-    fs.create_symlink("/test/.venv/bin/python", "/test/.venv/bin/python3.13")
-    fs.create_symlink("/test/.venv/bin/python3", "/test/.venv/bin/python3.13")
-    fs.create_symlink("/test/.venv/bin/python3.13", "/usr/bin/python3.13")
-    fs.create_file("/test/.venv/bin/pytest")
-    fs.create_file("/test/.venv/bin/pylint")
-    fs.create_file("/test/.venv/bin/pip")
-    fs.create_file("/test/.venv/bin/pip3")
-    fs.create_file("/test/.venv/bin/pip3.13")
-    fs.create_file("/test/.venv/lib/python3.13/site-packages/package_a")
-    fs.create_file("/test/.venv/lib/python3.13/site-packages/package_b")
-    fs.create_file("/test/applications_api/tests/test_unauthenticated_user.py")
-    fs.create_file("/test/applications_api/tests/__init__.py")
-    fs.create_file("/test/applications_api/tests/fixtures/job_applications.json")
-    fs.create_file("/test/applications_api/tests/test_authenticated_user.py")
-    fs.create_file("/test/applications_api/views.py")
-    fs.create_file("/test/applications_api/serializers.py")
-    fs.create_file("/test/applications_api/__init__.py")
-    fs.create_file("/test/applications_api/apps.py")
-    fs.create_file("/test/applications_api/admin.py")
-    fs.create_file("/test/applications_api/urls.py")
-    fs.create_file("/test/applications_api/models.py")
-    fs.create_file("/test/applications_api/migrations/__init__.py")
-    fs.create_file("/test/node_modules/node-package-a/file")
-    fs.create_file("/test/node_modules/node-package-b/file")
+    # A list of file names (represented by strings) and symlinks (represented
+    # by a sub-list containing the name and what it points to).
+    tree = [
+        "test/manage.py",
+        "test/pyproject.toml",
+        "test/applications/static/applications/js/applications.js",
+        "test/applications/static/applications/css/applications.css",
+        "test/applications/views.py",
+        "test/applications/management/commands/__init__.py",
+        "test/applications/management/__init__.py",
+        "test/applications/models.py",
+        "test/applications/admin.py",
+        "test/applications/apps.py",
+        "test/applications/templates/ApplicationDetails.html",
+        "test/applications/templates/ApplicationList.html",
+        "test/applications/tests/__init__.py",
+        "test/applications/tests/test_models.py",
+        "test/applications/tests/test_unauthenticated_user.py",
+        "test/applications/tests/test_authenticated_user.py",
+        "test/applications/migrations/0003_alter_jobapplication_posting.py",
+        "test/applications/migrations/__init__.py",
+        "test/applications/migrations/0002_alter_jobapplication_user.py",
+        "test/applications/migrations/0001_initial.py",
+        "test/applications/migrations/__pycache__/0004_jobapplication_created_at_cpython-313.pyc",
+        "test/applications/migrations/__pycache__/0002_alter_jobapplication_when.cpython-313.pyc",
+        "test/applications/migrations/__pycache__/0002_alter_jobapplication_user_id.cpython-313.pyc",
+        "test/applications/migrations/__pycache__/__init__.cpython-313.pyc",
+        "test/applications/migrations/__pycache__/0001_initial.cpython-313.pyc",
+        "test/applications/urls.py",
+        "test/applications/__init__.py",
+        "test/applications/forms.py",
+        ["test/.venv/bin/python", "test/.venv/bin/python3.13"],
+        ["test/.venv/bin/python3", "test/.venv/bin/python3.13"],
+        ["test/.venv/bin/python3.13", "/usr/bin/python3.13"],
+        "test/.venv/bin/pytest",
+        "test/.venv/bin/pylint",
+        "test/.venv/bin/pip",
+        "test/.venv/bin/pip3",
+        "test/.venv/bin/pip3.13",
+        "test/.venv/lib/python3.13/site-packages/package_a",
+        "test/.venv/lib/python3.13/site-packages/package_b",
+        "test/applications_api/tests/test_unauthenticated_user.py",
+        "test/applications_api/tests/__init__.py",
+        "test/applications_api/tests/fixtures/job_applications.json",
+        "test/applications_api/tests/test_authenticated_user.py",
+        "test/applications_api/views.py",
+        "test/applications_api/serializers.py",
+        "test/applications_api/__init__.py",
+        "test/applications_api/apps.py",
+        "test/applications_api/admin.py",
+        "test/applications_api/urls.py",
+        "test/applications_api/models.py",
+        "test/applications_api/migrations/__init__.py",
+        "test/node_modules/node-package-a/file",
+        "test/node_modules/node-package-b/file",
+    ]
 
-    return fs
+    for f in tree:
+        linkto = None
+        if isinstance(f, list):
+            path = tmp_path / f[0]
+            linkto = tmp_path / f[1]
+        else:
+            path = tmp_path / f
+
+        # Create parent directories if they don't exist.
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        if linkto:
+            path.symlink_to(linkto)
+        else:
+            path.touch()
 
 
-@pytest.mark.parametrize("os_type", [OSType.LINUX, OSType.WINDOWS, OSType.MACOS])
 def test_does_not_ignore_similarly_named_package(
     initialized_linter: PyLinter,
-    fs: FakeFilesystem,
-    os_type: str,
+    tmp_path: Path,
 ) -> None:
     """
     Test to see if we return the expected package/file list even if a shorter named package is processed
     first and does not match an ignore config value.
     """
     # Set our fake OS type and then initialize our mock file system
-    fs.os = os_type
-    setup_mock_fs(fs)
+    setup_test_file_tree(tmp_path)
 
-    # This is affected by mock_fs, and changes the results.
-    os.chdir(f"{os.sep}test")
+    # Change directory into our test directory, which changes the results.
+    os.chdir(tmp_path / "test")
 
     results = tuple(initialized_linter._discover_files(["."]))
 
@@ -119,11 +123,9 @@ def test_does_not_ignore_similarly_named_package(
     assert f".{os.sep}applications_api" in results
 
 
-@pytest.mark.parametrize("os_type", [OSType.LINUX, OSType.WINDOWS, OSType.MACOS])
 def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
     initialized_linter: PyLinter,
-    fs: FakeFilesystem,
-    os_type: str,
+    tmp_path: Path,
 ) -> None:
     """
     Test to see if we return the expected package/file list even if the shorter named package is processed
@@ -139,11 +141,10 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
     ]
 
     # Set our fake OS type and then initialize our mock file system
-    fs.os = os_type
-    setup_mock_fs(fs)
+    setup_test_file_tree(tmp_path)
 
-    # This is affected by mock_fs, and affects the results.
-    os.chdir(f"{os.sep}test")
+    # Change directory into our test directory, which changes the results.
+    os.chdir(tmp_path / "test")
 
     results = tuple(initialized_linter._discover_files(["."]))
 
@@ -152,14 +153,12 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
     assert f".{os.sep}applications_api" in results
 
 
-@pytest.mark.parametrize("os_type", [OSType.LINUX, OSType.WINDOWS, OSType.MACOS])
 def test_does_not_traverse_into_ignored_directories(
     initialized_linter: PyLinter,
-    fs: FakeFilesystem,
-    os_type: str,
+    tmp_path: Path,
 ) -> None:
     """
-    Verify that _discover_files supplies the correct "topdown=True" argument
+    Verify that _discover_files supplies the correct `topdown=True` argument
     and does not walk the directories which are to be ignored.
 
     NOTE: manage.py could be ignored here, but it is ignored later in the call to expand_modules.
@@ -172,11 +171,10 @@ def test_does_not_traverse_into_ignored_directories(
     ]
 
     # Set our fake OS type
-    fs.os = os_type
-    setup_mock_fs(fs)
+    setup_test_file_tree(tmp_path)
 
-    # This is affected by mock_fs, and changes the results.
-    os.chdir(f"{os.sep}test")
+    # Change directory into our test directory, which changes the results.
+    os.chdir(tmp_path / "test")
 
     # Variables used by debug_walk.
     os_walk_visited: list[str] = []
@@ -185,7 +183,7 @@ def test_does_not_traverse_into_ignored_directories(
     def debug_walk(top, **kwargs):
         """
         Wrap the original os.walk generator function so that we can inspect the
-        values returned for dirpath, which will tell us which directories have
+        values returned for `dirpath`, which will tell us which directories have
         been visited.
 
         NOTE: This method is necessary since due to the nature of os.walk,
