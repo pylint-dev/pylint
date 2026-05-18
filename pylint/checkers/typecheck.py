@@ -1635,13 +1635,21 @@ accessed. Python regular expressions are accepted.",
                 )
 
         # 3. Match the **kwargs, if any.
-        # When **kwargs is used, only mark parameters as assigned if the
-        # enclosing scope passes through variadic keywords without context
-        # (e.g. def wrapper(**kwargs): f(**kwargs)).  Otherwise, the kwargs
-        # dict was already unpacked by CallSite and its keys were matched
-        # in step 2 above; blindly marking all parameters as assigned would
-        # mask no-value-for-parameter false negatives.  (See #8785.)
-        if node.kwargs and has_no_context_keywords_variadic:
+        # CallSite already unpacked literal ``**{...}`` dicts in step 2, so
+        # we only assume the **kwargs covers remaining parameters when its
+        # full key set is NOT statically provable: either the enclosing
+        # scope forwards a variadic kwargs without context
+        # (``def wrapper(**kw): f(**kw)``) or any ``**operand`` is not a
+        # literal Dict node (Name, Call, subscript, comprehension, etc.).
+        # Otherwise the gate stays closed and ``no-value-for-parameter``
+        # is allowed to fire when keys don't match parameter names.
+        # See #8785 and primer follow-up on #11002.
+        kwargs_might_supply_more = any(
+            not isinstance(kw.value, nodes.Dict) for kw in node.kwargs
+        )
+        if node.kwargs and (
+            has_no_context_keywords_variadic or kwargs_might_supply_more
+        ):
             for i, [(name, _defval), _assigned] in enumerate(parameters):
                 if name is not None:
                     parameters[i] = (parameters[i][0], True)
