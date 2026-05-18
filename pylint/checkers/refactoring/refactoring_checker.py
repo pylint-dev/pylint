@@ -1491,7 +1491,9 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             for path in paths:
                 suggestions.append(self._render_path(path, graph.symbols))
             args = " and ".join(sorted(suggestions))
-            self.add_message("chained-comparison", node=node, args=(args,))
+            self.add_message(
+                "chained-comparison", node=node, args=(args,), confidence=HIGH
+            )
 
     @staticmethod
     def _render_path(
@@ -1639,9 +1641,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                     "chained-comparison-all-equal",
                     node=node,
                     args=(" == ".join(cycle),),
+                    confidence=HIGH,
                 )
             else:
-                self.add_message("impossible-comparison", node=node)
+                self.add_message("impossible-comparison", node=node, confidence=HIGH)
 
     @staticmethod
     def _apply_boolean_simplification_rules(
