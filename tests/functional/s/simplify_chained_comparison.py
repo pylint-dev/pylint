@@ -75,9 +75,6 @@ def test_not_simplify_chained_comparison_1():
         pass
     elif a == 1 and b == 2:
         pass
-    # All-`==` conjunctions stay silent: dropping any clause would change
-    # meaning (`value == 1 and value == 2` is impossible, not equivalent to
-    # `value == 2`) and the pre-PR check ignored them too.
     elif a == 1 and a == 2:
         pass
     elif a == b and b == c:
@@ -111,14 +108,10 @@ def test_impossible_comparison():
         pass
     elif a > 100 and c == b and a < 10: # [impossible-comparison]
         pass
-    # Mixed-symbol cycles are still impossible: ``==`` paired with any strict
-    # inequality forms a contradiction.
     elif a > b and b == a: # [impossible-comparison]
         pass
     elif a >= b and b > a: # [impossible-comparison]
         pass
-    # Same constant on both sides exercises the duplicate-constant branch
-    # of ``_link_constants``.
     elif a < 5 and a > 5: # [impossible-comparison]
         pass
 
@@ -151,11 +144,10 @@ def test_chained_comparison_with_unprocessable_operands():
     # would change short-circuit evaluation.
     if v >= 0 and is_int(v) and v <= 999:
         pass
-    # An attribute or subscript on either side of a Compare can't be folded
-    # into the graph either, so it's preserved verbatim and the numeric chain
-    # outside it still simplifies normally.
     items = (1, 2, 3)
     if items[0] < 5 and v > 1 and v < 10: # [chained-comparison]
+        pass
+    if 5 > items[0] and v > 1 and v < 10: # [chained-comparison]
         pass
 
 
