@@ -49,7 +49,7 @@ class MyClass1:
 
 class BareAnnotationNotADefinition:
     def process(self):
-        _ = self.widget
+        _ = self.widget  # known false negative
         self.widget: int
 
 
