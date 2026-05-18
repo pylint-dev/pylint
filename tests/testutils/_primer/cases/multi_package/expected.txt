@@ -3,28 +3,24 @@
 
 **Effect on [astroid](https://github.com/pylint-dev/astroid):**
 
-The following messages are now emitted:
+Changed messages:
 
 <details>
 
-1) too-complex:
-*'my_function' is too complex. The McCabe rating is 17*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L105
-</details>
+1) [too-complex](https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L105):
+Moved from `100:0`-`100:15` to `105:0`-`105:15`.
 
-The following messages are no longer emitted:
-
-<details>
-
-1) too-complex:
-*'my_function' is too complex. The McCabe rating is 18*
-https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/node_classes.py#L100
+```diff
+- 'my_function' is too complex. The McCabe rating is 18
++ 'my_function' is too complex. The McCabe rating is 17
+                                                      ^
+```
 </details>
 
 
 **Effect on [astropy](https://github.com/astropy/astropy):**
 
-The following messages are now emitted:
+New messages:
 
 <details>
 
@@ -33,7 +29,7 @@ The following messages are now emitted:
 https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/coordinates/angles/angle_parsetab.py#L14
 </details>
 
-The following messages are no longer emitted:
+Removed messages:
 
 <details>
 

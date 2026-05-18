@@ -3,6 +3,8 @@
 
 **Effect on [astropy](https://github.com/astropy/astropy):**
 
+1 "astroid error(s)" were found. Please open the GitHub Actions log to see what failed or crashed.
+
 🎉 Fixed false positives:
 
 <details>
@@ -19,6 +21,9 @@ New messages:
 1) locally-disabled:
 *Locally disabling looping-through-iterator (W4801)*
 https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/coordinates/angles/angle_parsetab.py#L14
+2) unused-variable:
+*Unused variable 'foo'*
+https://github.com/astropy/astropy/blob/1fb40bc1f22f176254ef583065aa155f53f3b414/astropy/coordinates/angles/angle_parsetab.py#L42
 </details>
 
 *This comment was generated for commit v2.14.2*
