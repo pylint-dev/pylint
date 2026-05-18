@@ -323,7 +323,7 @@ def _count_nodes(
     nodes_in_longest_path: dict[_Node, int],
     frequency_dict: dict[tuple[_Node, _Node], int],
 ) -> tuple[int, int]:
-    """Memoize the longest reachable path size into the two output dicts."""
+    """Cache the longest reachable path size into the two output dicts."""
     if node in symbols_in_longest_path and node in nodes_in_longest_path:
         return (symbols_in_longest_path[node], nodes_in_longest_path[node])
 
