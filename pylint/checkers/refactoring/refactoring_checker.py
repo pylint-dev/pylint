@@ -2019,7 +2019,10 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 if utils.is_terminating_func(node):
                     return True
                 return any(
-                    isinstance(maybe_func, (nodes.FunctionDef, bases.BoundMethod))
+                    isinstance(
+                        maybe_func,
+                        (nodes.FunctionDef, bases.BoundMethod, bases.UnboundMethod),
+                    )
                     and self._is_function_def_never_returning(maybe_func)
                     for maybe_func in utils.infer_all(node.func)
                 )
@@ -2060,12 +2063,14 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return False
 
     def _is_function_def_never_returning(
-        self, node: nodes.FunctionDef | astroid.BoundMethod
+        self,
+        node: nodes.FunctionDef | astroid.BoundMethod | astroid.UnboundMethod,
     ) -> bool:
         """Return True if the function never returns, False otherwise.
 
         Args:
-            node (nodes.FunctionDef or astroid.BoundMethod): function definition node to be analyzed.
+            node (nodes.FunctionDef, astroid.BoundMethod, or astroid.UnboundMethod):
+                function definition node to be analyzed.
 
         Returns:
             bool: True if the function never returns, False otherwise.
