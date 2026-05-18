@@ -612,14 +612,11 @@ class BasicChecker(_BasicChecker):
         if qname not in DEFAULT_ARGUMENT_SYMBOLS:
             # The inferred type itself isn't a known mutable, but it might
             # be a subclass of one (e.g. ``class MyDict(dict): ...``).
-            proxied = getattr(value, "_proxied", None)
-            if proxied is None:
-                return
             try:
                 qname = next(
                     (
                         cls.qname()
-                        for cls in proxied.ancestors()
+                        for cls in value._proxied.ancestors()
                         if cls.qname() in DEFAULT_ARGUMENT_SYMBOLS
                     ),
                     "",
