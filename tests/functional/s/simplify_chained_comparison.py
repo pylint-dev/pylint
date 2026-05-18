@@ -132,3 +132,31 @@ def test_chained_comparison_with_unprocessable_operands():
     # would change short-circuit evaluation.
     if v >= 0 and is_int(v) and v <= 999:
         pass
+
+
+def test_cycles_do_not_cross_unprocessable_boundaries():
+    """Known limit: an unprocessable statement breaks cycle detection.
+
+    A boundary statement (``is_int(v)``, ``v != 42``, ...) can short-circuit
+    before later comparisons are evaluated, so a cycle that only closes when
+    we cross such a boundary is *not* unconditionally impossible. The checker
+    deliberately bails out rather than risk a false positive.
+    """
+    def is_int(value):
+        return isinstance(value, int)
+
+    a = int(input())
+    b = int(input())
+    v = int(input())
+    # Pre-boundary check: when the cycle lives entirely inside a run of
+    # consecutive comparisons we still report it.
+    if a > b and b > a and is_int(v):  # [impossible-comparison]
+        pass
+    if a >= b and b >= a and is_int(v):  # [chained-comparison-all-equal]
+        pass
+    # Cross-boundary cycle: the guard sits between the two halves, so the
+    # checker keeps quiet even though ``a > b and b > a`` is a contradiction.
+    if a > b and is_int(v) and b > a:
+        pass
+    if a >= b and is_int(v) and b >= a:
+        pass
