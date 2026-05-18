@@ -175,7 +175,9 @@ def test_does_not_ignore_similarly_named_package(
         # Just double-check the order of the entries in the `tree` list in the
         # `setup_test_file_tree()` fixture to make sure that `applications_api`
         # entries come after those for `applications`.
-        print("This is a possible false error, due to the nature of os.walk()... see the test for more info.")
+        print(
+            "This is a possible false error, due to the nature of os.walk()... see the test for more info."
+        )
 
         # Collect some additional diagnostics
         if platform.system() != "Windows":
