@@ -64,3 +64,11 @@ class NoDefaultNamedTuple(NamedTuple):
 
 class GlobalDangerousDefault(NamedTuple):
     items: set = DANGEROUS_GLOBAL  # [dangerous-default-value]
+    
+    
+class BadCustomStoreDefault(NamedTuple):
+    store: CustomMutableStore = CustomMutableStore()  # [dangerous-default-value]
+    
+    
+class SafeCustomStoreDefault(NamedTuple):
+    store: CustomImmutableStore = CustomImmutableStore()    
