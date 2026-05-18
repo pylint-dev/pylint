@@ -290,7 +290,7 @@ def _get_path(
     symbols_in_longest_path: dict[_Node, int],
     nodes_in_longest_path: dict[_Node, int],
 ) -> None:
-    """Append to ``path`` the longest possible path in ``graph_dict`` starting at ``node``."""
+    """Append the longest path starting at ``node`` to ``path``."""
     path.append(node)
     # Find viable neighbors that can be in the path.
     adj = {a for a in graph_dict[node] if frequency_dict[(node, a)] != 0}
@@ -323,9 +323,7 @@ def _count_nodes(
     nodes_in_longest_path: dict[_Node, int],
     frequency_dict: dict[tuple[_Node, _Node], int],
 ) -> tuple[int, int]:
-    """Calculate the number of symbols and nodes in the longest path reachable from
-    ``node`` and store them in ``symbols_in_longest_path`` and ``nodes_in_longest_path``.
-    """
+    """Memoize the longest reachable path size into the two output dicts."""
     if node in symbols_in_longest_path and node in nodes_in_longest_path:
         return (symbols_in_longest_path[node], nodes_in_longest_path[node])
 

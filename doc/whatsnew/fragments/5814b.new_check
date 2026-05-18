@@ -1,6 +1,0 @@
-Add new check ``chained-comparison-all-equal`` to detect boolean conditions whose
-operands form a cycle of weak inequalities (``<=`` or ``>=``) and can therefore be
-simplified to a chain of equalities (for example ``a >= b and b >= a`` is equivalent
-to ``a == b``).
-
-Refs #5814

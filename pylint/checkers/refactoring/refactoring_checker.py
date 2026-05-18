@@ -1458,9 +1458,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             args = " and ".join(sorted(suggestions))
             self.add_message("chained-comparison", node=node, args=(args,))
 
-    def _get_graph_from_comparison_nodes(
-        self, node: nodes.BoolOp
-    ) -> (
+    def _get_graph_from_comparison_nodes(self, node: nodes.BoolOp) -> (
         None
         | tuple[
             dict[str | int | float, set[str | int | float]],
