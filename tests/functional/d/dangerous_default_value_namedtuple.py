@@ -10,8 +10,8 @@ class CustomImmutableStore(frozenset): pass
 
 def create_my_custom_immutable_data_store() -> CustomImmutableStore:
     return CustomImmutableStore()
-    
-    
+
+
 def create_my_custom_mutable_data_store() -> CustomMutableStore:
     return CustomMutableStore()
 
@@ -64,11 +64,11 @@ class NoDefaultNamedTuple(NamedTuple):
 
 class GlobalDangerousDefault(NamedTuple):
     items: set = DANGEROUS_GLOBAL  # [dangerous-default-value]
-    
-    
+
+
 class BadCustomStoreDefault(NamedTuple):
     store: CustomMutableStore = CustomMutableStore()  # [dangerous-default-value]
-    
-    
+
+
 class SafeCustomStoreDefault(NamedTuple):
-    store: CustomImmutableStore = CustomImmutableStore()    
+    store: CustomImmutableStore = CustomImmutableStore()
