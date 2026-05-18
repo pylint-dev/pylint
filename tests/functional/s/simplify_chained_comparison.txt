@@ -28,3 +28,5 @@ impossible-comparison:103:9:103:38:test_impossible_comparison:This comparison al
 chained-comparison-all-equal:112:7:112:24:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == b":UNDEFINED
 chained-comparison-all-equal:114:9:114:37:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == b == c":UNDEFINED
 chained-comparison-all-equal:116:9:116:48:test_all_equal:"Simplify chained comparison cycle to equality between the operands: a == d == c == b":UNDEFINED
+chained-comparison:126:7:126:40:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: 999 >= v >= 0 and is_int(v)":UNDEFINED
+chained-comparison:128:7:128:38:test_chained_comparison_with_unprocessable_operands:"Simplify chained comparison between the operands: 999 >= v >= 0 and v != 42":UNDEFINED

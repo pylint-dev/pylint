@@ -115,3 +115,15 @@ def test_all_equal():
         pass
     elif a <= b and b <= c and c <= d and d <= a: # [chained-comparison-all-equal]
         pass
+
+
+def test_chained_comparison_with_unprocessable_operands():
+    """Non-comparison operands should be preserved verbatim in the suggestion."""
+    def is_int(value):
+        return isinstance(value, int)
+
+    v = int(input())
+    if is_int(v) and v >= 0 and v <= 999: # [chained-comparison]
+        pass
+    if v >= 0 and v <= 999 and v != 42: # [chained-comparison]
+        pass

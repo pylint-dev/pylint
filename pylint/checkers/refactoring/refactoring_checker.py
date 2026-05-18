@@ -1433,6 +1433,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             symbol_dict,
             indegree_dict,
             frequency_dict,
+            unprocessed,
         ) = graph_info
 
         # Convert graph_dict to all strings to access the get_cycles API
@@ -1446,8 +1447,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
 
         paths = get_paths(graph_dict, indegree_dict, frequency_dict)
 
-        if len(paths) < len(node.values):
-            suggestions = []
+        if len(paths) + len(unprocessed) < len(node.values):
+            suggestions = list(unprocessed)
             for path in paths:
                 cur_statement = str(path[0])
                 for i in range(len(path) - 1):
@@ -1465,6 +1466,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             dict[tuple[str | int | float, str | int | float], str],
             dict[str | int | float, int],
             dict[tuple[str | int | float, str | int | float], int],
+            list[str],
         ]
     ):
         if node.op != "and" or len(node.values) < 2:
@@ -1481,42 +1483,21 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
         indegree_dict: dict[str | int | float, int] = collections.defaultdict(int)
         const_values: list[int | float] = []
+        # Statements we can't fold into the graph (e.g. ``f(x)`` in
+        # ``f(x) and v >= 0 and v <= 999``). Keep them verbatim so the
+        # suggestion message can still reproduce the original intent.
+        unprocessed: list[str] = []
 
         for statement in node.values:
-            if not isinstance(statement, nodes.Compare):
-                return None
-            ops = list(statement.ops)
-            left_statement = statement.left
-            while ops:
-                left = self._get_compare_operand_value(left_statement, const_values)
-                # Pop from ops or else we never advance along the statement
-                operator, right_statement = ops.pop(0)
-                # The operand is not a constant or variable or the operator is not a comparison
-                if operator not in {"<", ">", "==", "<=", ">="} or left is None:
-                    return None
-                right = self._get_compare_operand_value(right_statement, const_values)
-                if right is None:
-                    return None
-
-                # Make the graph always point from larger to smaller
-                if operator == "<":
-                    operator = ">"
-                    left, right = right, left
-                elif operator == "<=":
-                    operator = ">="
-                    left, right = right, left
-
-                # Update maps
-                graph_dict[left].add(right)
-                if not graph_dict[right]:
-                    graph_dict[right] = set()  # Ensure the node exists in graph
-                symbol_dict[(left, right)] = operator
-                indegree_dict[left] += 0  # Make sure every node has an entry
-                indegree_dict[right] += 1
-                frequency_dict[(left, right)] += 1
-
-                # advance onto the next comparison if it exists
-                left_statement = right_statement
+            if not self._add_compare_to_graph(
+                statement,
+                graph_dict,
+                symbol_dict,
+                indegree_dict,
+                frequency_dict,
+                const_values,
+            ):
+                unprocessed.append(statement.as_string())
 
         # Nothing was added and we have no recommendations
         if (
@@ -1543,7 +1524,62 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                         if isinstance(adj, str):
                             graph_dict[largest].discard(adj)
 
-        return (graph_dict, symbol_dict, indegree_dict, frequency_dict)
+        return (graph_dict, symbol_dict, indegree_dict, frequency_dict, unprocessed)
+
+    def _add_compare_to_graph(
+        self,
+        statement: nodes.NodeNG,
+        graph_dict: dict[str | int | float, set[str | int | float]],
+        symbol_dict: dict[tuple[str | int | float, str | int | float], str],
+        indegree_dict: dict[str | int | float, int],
+        frequency_dict: dict[tuple[str | int | float, str | int | float], int],
+        const_values: list[int | float],
+    ) -> bool:
+        """Try to fold ``statement`` into the comparison graph.
+
+        Returns ``True`` when every operator/operand in ``statement`` is something
+        we can reason about (a numeric/string comparison between Names and
+        Consts); ``False`` otherwise — the caller keeps the original text so the
+        suggestion can still mention it verbatim. The graph is only mutated when
+        the whole statement is processable so a partially-valid Compare doesn't
+        leave half-committed edges behind.
+        """
+        if not isinstance(statement, nodes.Compare):
+            return False
+        operands: list[str | int | float] = []
+        pending_consts: list[int | float] = []
+        left = self._get_compare_operand_value(statement.left, pending_consts)
+        if left is None:
+            return False
+        operands.append(left)
+        operators: list[str] = []
+        for operator, right_node in statement.ops:
+            if operator not in {"<", ">", "==", "<=", ">="}:
+                return False
+            right = self._get_compare_operand_value(right_node, pending_consts)
+            if right is None:
+                return False
+            operators.append(operator)
+            operands.append(right)
+
+        const_values.extend(pending_consts)
+        for i, operator in enumerate(operators):
+            left, right = operands[i], operands[i + 1]
+            # Make the graph always point from larger to smaller.
+            if operator == "<":
+                operator = ">"
+                left, right = right, left
+            elif operator == "<=":
+                operator = ">="
+                left, right = right, left
+            graph_dict[left].add(right)
+            if not graph_dict[right]:
+                graph_dict[right] = set()
+            symbol_dict[(left, right)] = operator
+            indegree_dict[left] += 0
+            indegree_dict[right] += 1
+            frequency_dict[(left, right)] += 1
+        return bool(operators)
 
     @staticmethod
     def _get_compare_operand_value(
