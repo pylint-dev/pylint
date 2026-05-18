@@ -1,4 +1,4 @@
-# pylint: disable=missing-module-docstring, missing-class-docstring, use-list-literal, use-dict-literal
+# pylint: disable=missing-module-docstring, missing-class-docstring, missing-function-docstring, multiple-statements, use-list-literal, use-dict-literal
 import collections
 from typing import NamedTuple
 

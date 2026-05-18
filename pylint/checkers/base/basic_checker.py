@@ -606,12 +606,28 @@ class BasicChecker(_BasicChecker):
     ) -> None:
         """Emit dangerous-default-value if the inferred default is mutable."""
         value = utils.safe_infer(default)
-        if (
-            not isinstance(value, astroid.Instance)
-            or value.qname() not in DEFAULT_ARGUMENT_SYMBOLS
-        ):
+        if not isinstance(value, astroid.Instance):
             return
         qname = value.qname()
+        if qname not in DEFAULT_ARGUMENT_SYMBOLS:
+            # The inferred type itself isn't a known mutable, but it might
+            # be a subclass of one (e.g. ``class MyDict(dict): ...``).
+            proxied = getattr(value, "_proxied", None)
+            if proxied is None:
+                return
+            try:
+                qname = next(
+                    (
+                        cls.qname()
+                        for cls in proxied.ancestors()
+                        if cls.qname() in DEFAULT_ARGUMENT_SYMBOLS
+                    ),
+                    "",
+                )
+            except astroid.InferenceError:  # pragma: no cover
+                return
+            if not qname:
+                return
         if value is default:
             # Literal: [], {}, {1, 2}
             msg = DEFAULT_ARGUMENT_SYMBOLS[qname]
