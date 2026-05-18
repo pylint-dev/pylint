@@ -33,6 +33,7 @@ NodesWithNestedBlocks: TypeAlias = nodes.Try | nodes.While | nodes.For | nodes.I
 
 KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
+_REVERSED_COMPARE = {">": "<", ">=": "<=", "==": "=="}
 CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
     (
         "threading.lock.acquire",
@@ -1450,14 +1451,34 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if len(paths) + len(unprocessed) < len(node.values):
             suggestions = list(unprocessed)
             for path in paths:
-                cur_statement = str(path[0])
-                for i in range(len(path) - 1):
-                    cur_statement += (
-                        " " + symbol_dict[path[i], path[i + 1]] + " " + str(path[i + 1])
-                    )
-                suggestions.append(cur_statement)
+                suggestions.append(self._render_path(path, symbol_dict))
             args = " and ".join(sorted(suggestions))
             self.add_message("chained-comparison", node=node, args=(args,))
+
+    @staticmethod
+    def _render_path(
+        path: tuple[str | int | float, ...],
+        symbol_dict: dict[tuple[str | int | float, str | int | float], str],
+    ) -> str:
+        """Render a graph path as the suggested simplified Python expression.
+
+        The graph is built largest-first so a ``>=``/``>`` path reads
+        ``999 >= v >= 0``. We flip it to smallest-first (``0 <= v <= 999``)
+        which is how Python code idiomatically writes a range check.
+        Equality-only paths keep their original direction so a single
+        ``b == 2`` is not rewritten as ``2 == b``.
+        """
+        edge_symbols = [symbol_dict[path[i], path[i + 1]] for i in range(len(path) - 1)]
+        if all(symbol == "==" for symbol in edge_symbols):
+            rendered = str(path[0])
+            for i, symbol in enumerate(edge_symbols):
+                rendered += f" {symbol} {path[i + 1]}"
+            return rendered
+        rendered = str(path[-1])
+        for i in range(len(path) - 1, 0, -1):
+            symbol = _REVERSED_COMPARE[symbol_dict[path[i - 1], path[i]]]
+            rendered += f" {symbol} {path[i - 1]}"
+        return rendered
 
     def _get_graph_from_comparison_nodes(self, node: nodes.BoolOp) -> (
         None
