@@ -31,9 +31,54 @@ if TYPE_CHECKING:
 
 NodesWithNestedBlocks: TypeAlias = nodes.Try | nodes.While | nodes.For | nodes.If
 
+# Operands of the simple comparisons we can reason about: variable names and
+# numeric literals (``a == 0``, ``a < b``...). Anything else is treated as
+# opaque and kept verbatim in the suggestion.
+_ComparisonOperand: TypeAlias = str | int | float
+_ComparisonEdge: TypeAlias = tuple[_ComparisonOperand, _ComparisonOperand]
+
 KNOWN_INFINITE_ITERATORS = {"itertools.count", "itertools.cycle"}
 BUILTIN_EXIT_FUNCS = frozenset(("quit", "exit"))
 _REVERSED_COMPARE = {">": "<", ">=": "<=", "==": "=="}
+
+
+@dataclass
+class _ComparisonGraph:
+    """Multigraph of operands extracted from a chain of ``and``-ed comparisons.
+
+    Each inequality edge points from the larger operand to the smaller one so
+    that ``a < b`` and ``b > a`` produce the same edge (``b -> a``). Equality
+    edges keep their source-order direction so ``b == 2`` renders as written.
+
+    Attributes:
+        edges: outgoing neighbors of each node.
+        symbols: the operator on each ``(left, right)`` edge (``>``, ``>=`` or
+            ``==`` after normalisation).
+        indegree: number of edges pointing at each node — used to find path
+            roots (nodes with no incoming edge).
+        frequency: how many times each edge was contributed by the source
+            comparisons. Decremented as paths are extracted so a single edge
+            doesn't get rendered twice.
+        unprocessed: source-text of statements we couldn't fold into the graph
+            (function calls, ``!=`` comparisons, ...). Kept verbatim in the
+            final suggestion.
+    """
+
+    edges: dict[_ComparisonOperand, set[_ComparisonOperand]] = field(
+        default_factory=lambda: collections.defaultdict(set)
+    )
+    symbols: dict[_ComparisonEdge, str] = field(
+        default_factory=lambda: collections.defaultdict(lambda: ">")
+    )
+    indegree: dict[_ComparisonOperand, int] = field(
+        default_factory=lambda: collections.defaultdict(int)
+    )
+    frequency: dict[_ComparisonEdge, int] = field(
+        default_factory=lambda: collections.defaultdict(int)
+    )
+    unprocessed: list[str] = field(default_factory=list)
+
+
 CALLS_THAT_COULD_BE_REPLACED_BY_WITH = frozenset(
     (
         "threading.lock.acquire",
@@ -1426,39 +1471,32 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         )
 
     def _check_comparisons(self, node: nodes.BoolOp) -> None:
-        graph_info = self._get_graph_from_comparison_nodes(node)
-        if not graph_info:
+        graph = self._get_graph_from_comparison_nodes(node)
+        if graph is None:
             return
-        (
-            graph_dict,
-            symbol_dict,
-            indegree_dict,
-            frequency_dict,
-            unprocessed,
-        ) = graph_info
 
-        # Convert graph_dict to all strings to access the get_cycles API
-        str_dict = {
-            str(key): {str(dest) for dest in graph_dict[key]} for key in graph_dict
+        # Convert edges to all-string keys to satisfy get_cycles' typing.
+        str_edges = {
+            str(key): {str(dest) for dest in graph.edges[key]} for key in graph.edges
         }
-        cycles = get_cycles(str_dict)
+        cycles = get_cycles(str_edges)
         if cycles:
-            self._handle_cycles(node, symbol_dict, cycles)
+            self._handle_cycles(node, graph, cycles)
             return
 
-        paths = get_paths(graph_dict, indegree_dict, frequency_dict)
+        paths = get_paths(graph.edges, graph.indegree, graph.frequency)
 
-        if len(paths) + len(unprocessed) < len(node.values):
-            suggestions = list(unprocessed)
+        if len(paths) + len(graph.unprocessed) < len(node.values):
+            suggestions = list(graph.unprocessed)
             for path in paths:
-                suggestions.append(self._render_path(path, symbol_dict))
+                suggestions.append(self._render_path(path, graph.symbols))
             args = " and ".join(sorted(suggestions))
             self.add_message("chained-comparison", node=node, args=(args,))
 
     @staticmethod
     def _render_path(
-        path: tuple[str | int | float, ...],
-        symbol_dict: dict[tuple[str | int | float, str | int | float], str],
+        path: tuple[_ComparisonOperand, ...],
+        symbols: dict[_ComparisonEdge, str],
     ) -> str:
         """Render a graph path as the suggested simplified Python expression.
 
@@ -1468,7 +1506,7 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         Equality-only paths keep their original direction so a single
         ``b == 2`` is not rewritten as ``2 == b``.
         """
-        edge_symbols = [symbol_dict[path[i], path[i + 1]] for i in range(len(path) - 1)]
+        edge_symbols = [symbols[path[i], path[i + 1]] for i in range(len(path) - 1)]
         if all(symbol == "==" for symbol in edge_symbols):
             rendered = str(path[0])
             for i, symbol in enumerate(edge_symbols):
@@ -1476,87 +1514,37 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             return rendered
         rendered = str(path[-1])
         for i in range(len(path) - 1, 0, -1):
-            symbol = _REVERSED_COMPARE[symbol_dict[path[i - 1], path[i]]]
+            symbol = _REVERSED_COMPARE[symbols[path[i - 1], path[i]]]
             rendered += f" {symbol} {path[i - 1]}"
         return rendered
 
-    def _get_graph_from_comparison_nodes(self, node: nodes.BoolOp) -> (
-        None
-        | tuple[
-            dict[str | int | float, set[str | int | float]],
-            dict[tuple[str | int | float, str | int | float], str],
-            dict[str | int | float, int],
-            dict[tuple[str | int | float, str | int | float], int],
-            list[str],
-        ]
-    ):
+    def _get_graph_from_comparison_nodes(
+        self, node: nodes.BoolOp
+    ) -> _ComparisonGraph | None:
         if node.op != "and" or len(node.values) < 2:
             return None
 
-        graph_dict: dict[str | int | float, set[str | int | float]] = (
-            collections.defaultdict(set)
-        )
-        symbol_dict: dict[tuple[str | int | float, str | int | float], str] = (
-            collections.defaultdict(lambda: ">")
-        )
-        frequency_dict: dict[tuple[str | int | float, str | int | float], int] = (
-            collections.defaultdict(int)
-        )
-        indegree_dict: dict[str | int | float, int] = collections.defaultdict(int)
+        graph = _ComparisonGraph()
         const_values: list[int | float] = []
-        # Statements we can't fold into the graph (e.g. ``f(x)`` in
-        # ``f(x) and v >= 0 and v <= 999``). Keep them verbatim so the
-        # suggestion message can still reproduce the original intent.
-        unprocessed: list[str] = []
 
         for statement in node.values:
-            if not self._add_compare_to_graph(
-                statement,
-                graph_dict,
-                symbol_dict,
-                indegree_dict,
-                frequency_dict,
-                const_values,
-            ):
-                unprocessed.append(statement.as_string())
+            if not self._add_compare_to_graph(statement, graph, const_values):
+                graph.unprocessed.append(statement.as_string())
 
-        # Nothing was added and we have no recommendations
-        if (
-            not graph_dict
-            or not symbol_dict
-            or all(val == "==" for val in symbol_dict.values())
-        ):
+        # Nothing was added and we have no recommendations.
+        if not graph.symbols or all(val == "==" for val in graph.symbols.values()):
             return None
 
-        # Link up constant nodes, i.e. create synthetic nodes between 1 and 5 such that 5 > 1
-        sorted_consts = sorted(const_values)
-        while sorted_consts:
-            largest = sorted_consts.pop()
-            for smaller in set(sorted_consts):
-                if smaller < largest:
-                    symbol_dict[(largest, smaller)] = ">"
-                    indegree_dict[smaller] += 1
-                    frequency_dict[(largest, smaller)] += 1
-                    graph_dict[largest].add(smaller)
-
-                    # Remove paths from the larger number to the smaller number's adjacent nodes
-                    # This prevents duplicated paths in the output
-                    for adj in graph_dict[smaller]:
-                        if isinstance(adj, str):
-                            graph_dict[largest].discard(adj)
-
-        return (graph_dict, symbol_dict, indegree_dict, frequency_dict, unprocessed)
+        self._link_constants(graph, const_values)
+        return graph
 
     def _add_compare_to_graph(
         self,
         statement: nodes.NodeNG,
-        graph_dict: dict[str | int | float, set[str | int | float]],
-        symbol_dict: dict[tuple[str | int | float, str | int | float], str],
-        indegree_dict: dict[str | int | float, int],
-        frequency_dict: dict[tuple[str | int | float, str | int | float], int],
+        graph: _ComparisonGraph,
         const_values: list[int | float],
     ) -> bool:
-        """Try to fold ``statement`` into the comparison graph.
+        """Try to fold ``statement`` into ``graph``.
 
         Returns ``True`` when every operator/operand in ``statement`` is something
         we can reason about (a numeric/string comparison between Names and
@@ -1567,12 +1555,11 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         """
         if not isinstance(statement, nodes.Compare):
             return False
-        operands: list[str | int | float] = []
         pending_consts: list[int | float] = []
         left = self._get_compare_operand_value(statement.left, pending_consts)
         if left is None:
             return False
-        operands.append(left)
+        operands: list[_ComparisonOperand] = [left]
         operators: list[str] = []
         for operator, right_node in statement.ops:
             if operator not in {"<", ">", "==", "<=", ">="}:
@@ -1593,19 +1580,44 @@ class RefactoringChecker(checkers.BaseTokenChecker):
             elif operator == "<=":
                 operator = ">="
                 left, right = right, left
-            graph_dict[left].add(right)
-            if not graph_dict[right]:
-                graph_dict[right] = set()
-            symbol_dict[(left, right)] = operator
-            indegree_dict[left] += 0
-            indegree_dict[right] += 1
-            frequency_dict[(left, right)] += 1
+            graph.edges[left].add(right)
+            graph.edges.setdefault(right, set())
+            graph.symbols[(left, right)] = operator
+            graph.indegree[left] += 0
+            graph.indegree[right] += 1
+            graph.frequency[(left, right)] += 1
         return bool(operators)
+
+    @staticmethod
+    def _link_constants(
+        graph: _ComparisonGraph, const_values: list[int | float]
+    ) -> None:
+        """Add synthetic ``>`` edges between every pair of constants.
+
+        Without this, ``a < b and b < 0 and c == 786`` wouldn't notice that
+        ``786 > 0``, so it would render as two unrelated chains. The synthetic
+        edges also let the search collapse the chain to its longest form.
+        """
+        sorted_consts = sorted(const_values)
+        while sorted_consts:
+            largest = sorted_consts.pop()
+            for smaller in set(sorted_consts):
+                if smaller >= largest:
+                    continue
+                graph.symbols[(largest, smaller)] = ">"
+                graph.indegree[smaller] += 1
+                graph.frequency[(largest, smaller)] += 1
+                graph.edges[largest].add(smaller)
+                # Drop redundant shortcut edges from ``largest`` to ``smaller``'s
+                # symbol neighbors so they're not rendered twice.
+                for adj in graph.edges[smaller]:
+                    if isinstance(adj, str):
+                        graph.edges[largest].discard(adj)
 
     @staticmethod
     def _get_compare_operand_value(
         node: nodes.NodeNG, const_values: list[int | float]
-    ) -> str | int | float | None:
+    ) -> _ComparisonOperand | None:
         if isinstance(node, nodes.Name) and isinstance(node.name, str):
             return node.name
         if isinstance(node, nodes.Const) and isinstance(node.value, (int, float)):
@@ -1616,17 +1628,13 @@ class RefactoringChecker(checkers.BaseTokenChecker):
     def _handle_cycles(
         self,
         node: nodes.BoolOp,
-        symbol_dict: dict[tuple[str | int | float, str | int | float], str],
+        graph: _ComparisonGraph,
         cycles: Sequence[list[str]],
     ) -> None:
         for cycle in cycles:
-            all_geq = all(
-                symbol_dict[(cur_item, cycle[i + 1])] == ">="
-                for (i, cur_item) in enumerate(cycle)
-                if i < len(cycle) - 1
-            )
-            all_geq = all_geq and symbol_dict[cycle[-1], cycle[0]] == ">="
-            if all_geq:
+            edges = [(cycle[i], cycle[i + 1]) for i in range(len(cycle) - 1)]
+            edges.append((cycle[-1], cycle[0]))
+            if all(graph.symbols[edge] == ">=" for edge in edges):
                 self.add_message(
                     "chained-comparison-all-equal",
                     node=node,
