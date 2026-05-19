@@ -494,6 +494,7 @@ All messages in the refactor category:
    refactor/consider-math-not-float
    refactor/consider-merging-isinstance
    refactor/consider-refactoring-into-while-condition
+   refactor/consider-rewriting-conditional
    refactor/consider-swap-variables
    refactor/consider-using-alias
    refactor/consider-using-assignment-expr
