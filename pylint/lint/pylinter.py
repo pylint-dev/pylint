@@ -1261,18 +1261,16 @@ class PyLinter(
             module, obj = utils.get_module_and_frameid(node)
             abspath = node.root().file
 
-        self._filter_and_emit_at_location(
-            message_definition,
-            args,
-            confidence,
+        location = self._build_location(
+            abspath,
             module or "",
             obj,
-            abspath,
             line or 1,
             col_offset,
             end_lineno,
             end_col_offset,
         )
+        self._filter_and_emit(message_definition, args, confidence, location)
 
     def _emit_message(
         self,
@@ -1369,19 +1367,11 @@ class PyLinter(
             end_col_offset = node.end_col_offset
         module, obj = utils.get_module_and_frameid(node)
         abspath = node.root().file
+        location = self._build_location(
+            abspath, module or "", obj, line, col_offset, end_lineno, end_col_offset
+        )
         for message_definition in self.msgs_store.get_message_definitions(msgid):
-            self._filter_and_emit_at_location(
-                message_definition,
-                args,
-                confidence,
-                module or "",
-                obj,
-                abspath,
-                line,
-                col_offset,
-                end_lineno,
-                end_col_offset,
-            )
+            self._filter_and_emit(message_definition, args, confidence, location)
 
     def add_message_at_location(
         self,
@@ -1404,68 +1394,58 @@ class PyLinter(
         findings like duplicate-code).
         """
         abspath = filepath if filepath is not None else self.current_file
+        location = self._build_location(
+            abspath, module, "", line or 1, col_offset, end_lineno, end_col_offset
+        )
         for message_definition in self.msgs_store.get_message_definitions(msgid):
-            self._filter_and_emit_at_location(
-                message_definition,
-                args,
-                confidence,
-                module,
-                "",
-                abspath,
-                line or 1,
-                col_offset,
-                end_lineno,
-                end_col_offset,
-            )
+            self._filter_and_emit(message_definition, args, confidence, location)
 
-    # pylint: disable-next=too-many-arguments
-    def _filter_and_emit_at_location(
+    def _build_location(
         self,
-        message_definition: MessageDefinition,
-        args: Any | None,
-        confidence: interfaces.Confidence,
+        abspath: str | None,
         module: str,
         obj: str,
-        abspath: str | None,
         line: int,
         col_offset: int | None,
         end_lineno: int | None,
         end_col_offset: int | None,
-    ) -> None:
-        """Filter and emit one message at an already-resolved location.
-
-        ``module``/``obj``/``abspath`` are loop-invariant across the
-        ``msgs_store.get_message_definitions(msgid)`` loop in the public
-        callers, so they're derived once and passed in.
-        """
-        if not self.is_message_enabled(message_definition.msgid, line, confidence):
-            self.file_state.handle_ignored_message(
-                self._get_message_state_scope(
-                    message_definition.msgid, line, confidence
-                ),
-                message_definition.msgid,
-                line,
-            )
-            return
+    ) -> MessageLocationTuple:
+        """Assemble a :class:`MessageLocationTuple`, deriving ``path`` from ``abspath``."""
         if abspath is not None:
             path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
         else:
             path = "configuration"
-        self._emit_message(
-            message_definition,
-            args,
-            confidence,
-            MessageLocationTuple(
-                abspath or "",
-                path,
-                module,
-                obj,
-                line,
-                col_offset or 0,
-                end_lineno,
-                end_col_offset,
-            ),
+        return MessageLocationTuple(
+            abspath or "",
+            path,
+            module,
+            obj,
+            line,
+            col_offset or 0,
+            end_lineno,
+            end_col_offset,
         )
+
+    def _filter_and_emit(
+        self,
+        message_definition: MessageDefinition,
+        args: Any | None,
+        confidence: interfaces.Confidence,
+        location: MessageLocationTuple,
+    ) -> None:
+        """Filter and emit one message at an already-built ``location``."""
+        if not self.is_message_enabled(
+            message_definition.msgid, location.line, confidence
+        ):
+            self.file_state.handle_ignored_message(
+                self._get_message_state_scope(
+                    message_definition.msgid, location.line, confidence
+                ),
+                message_definition.msgid,
+                location.line,
+            )
+            return
+        self._emit_message(message_definition, args, confidence, location)
 
     def add_ignored_message(
         self,
