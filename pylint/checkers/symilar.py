@@ -812,10 +812,12 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
             ignore_imports=self.linter.config.ignore_imports,
             ignore_signatures=self.linter.config.ignore_signatures,
         )
+        self._module_filepaths: dict[str, str | None] = {}
 
     def open(self) -> None:
         """Init the checkers: reset linesets and statistics information."""
         self.linesets = []
+        self._module_filepaths.clear()
         self.linter.stats.reset_duplicated_lines()
 
     def process_module(self, node: nodes.Module) -> None:
@@ -835,6 +837,7 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 DeprecationWarning,
                 stacklevel=2,
             )
+        self._module_filepaths[self.linter.current_name] = self.linter.current_file
         with node.stream() as stream:
             self.append_stream(self.linter.current_name, stream, node.file_encoding)
 
@@ -854,7 +857,15 @@ class SimilaritiesChecker(BaseRawFileChecker, Symilar):
                 for line in lineset.real_lines[start_line:end_line]:
                     msg.append(line.rstrip())
 
-            self.add_message("R0801", args=(len(couples), "\n".join(msg)))
+            # Attribute the message to the first module in alphabetical order rather
+            # than the last-checked module which may be unrelated (see #2368).
+            first_module = min(c[0].name for c in couples)
+            self.add_message(
+                "R0801",
+                args=(len(couples), "\n".join(msg)),
+                module=first_module,
+                filepath=self._module_filepaths.get(first_module),
+            )
             duplicated += num * (len(couples) - 1)
         stats.nb_duplicated_lines += int(duplicated)
         stats.percent_duplicated_lines += float(total and duplicated * 100.0 / total)
