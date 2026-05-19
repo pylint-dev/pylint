@@ -1471,6 +1471,7 @@ class VariablesChecker(BaseChecker):
         "invalid-all-format",
         "unused-variable",
         "undefined-variable",
+        "unguarded-typing-import",
     )
     def leave_module(self, node: nodes.Module) -> None:
         """Leave module: check globals."""
