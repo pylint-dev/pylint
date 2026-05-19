@@ -1253,17 +1253,6 @@ class PyLinter(
                 if end_col_offset is None:
                     end_col_offset = node.end_col_offset
 
-        # should this message be displayed
-        if not self.is_message_enabled(message_definition.msgid, line, confidence):
-            self.file_state.handle_ignored_message(
-                self._get_message_state_scope(
-                    message_definition.msgid, line, confidence
-                ),
-                message_definition.msgid,
-                line,
-            )
-            return
-
         # get module and object
         if node is None:
             module, obj = self.current_name, ""
@@ -1271,25 +1260,18 @@ class PyLinter(
         else:
             module, obj = utils.get_module_and_frameid(node)
             abspath = node.root().file
-        if abspath is not None:
-            path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
-        else:
-            path = "configuration"
 
-        self._emit_message(
+        self._filter_and_emit_at_location(
             message_definition,
             args,
             confidence,
-            MessageLocationTuple(
-                abspath or "",
-                path,
-                module or "",
-                obj,
-                line or 1,
-                col_offset or 0,
-                end_lineno,
-                end_col_offset,
-            ),
+            module or "",
+            obj,
+            abspath,
+            line or 1,
+            col_offset,
+            end_lineno,
+            end_col_offset,
         )
 
     def _emit_message(
@@ -1371,8 +1353,9 @@ class PyLinter(
         non-AST callers, and skips ``_add_one_message`` entirely so a
         disabled message pays for nothing beyond the filter check.
         """
-        # Derive location once — same for every message_definition this
-        # msgid maps to (matters only for the rare ``old_names`` aliases).
+        # Derive location once. These are the same for every message_definition
+        # this msgid maps to (multiple definitions only happen for the rare
+        # ``old_names`` aliases).
         pos = node.position
         if pos is not None:
             line = pos.lineno
@@ -1384,36 +1367,20 @@ class PyLinter(
             col_offset = node.col_offset
             end_lineno = node.end_lineno
             end_col_offset = node.end_col_offset
+        module, obj = utils.get_module_and_frameid(node)
+        abspath = node.root().file
         for message_definition in self.msgs_store.get_message_definitions(msgid):
-            if not self.is_message_enabled(message_definition.msgid, line, confidence):
-                self.file_state.handle_ignored_message(
-                    self._get_message_state_scope(
-                        message_definition.msgid, line, confidence
-                    ),
-                    message_definition.msgid,
-                    line,
-                )
-                continue
-            module, obj = utils.get_module_and_frameid(node)
-            abspath = node.root().file
-            if abspath is not None:
-                path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
-            else:
-                path = "configuration"
-            self._emit_message(
+            self._filter_and_emit_at_location(
                 message_definition,
                 args,
                 confidence,
-                MessageLocationTuple(
-                    abspath or "",
-                    path,
-                    module or "",
-                    obj,
-                    line,
-                    col_offset or 0,
-                    end_lineno,
-                    end_col_offset,
-                ),
+                module or "",
+                obj,
+                abspath,
+                line,
+                col_offset,
+                end_lineno,
+                end_col_offset,
             )
 
     def add_message_at_location(
@@ -1436,36 +1403,69 @@ class PyLinter(
         other than the one currently being processed (e.g. cross-module
         findings like duplicate-code).
         """
+        abspath = filepath if filepath is not None else self.current_file
         for message_definition in self.msgs_store.get_message_definitions(msgid):
-            if not self.is_message_enabled(message_definition.msgid, line, confidence):
-                self.file_state.handle_ignored_message(
-                    self._get_message_state_scope(
-                        message_definition.msgid, line, confidence
-                    ),
-                    message_definition.msgid,
-                    line,
-                )
-                continue
-            abspath = filepath if filepath is not None else self.current_file
-            if abspath is not None:
-                path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
-            else:
-                path = "configuration"
-            self._emit_message(
+            self._filter_and_emit_at_location(
                 message_definition,
                 args,
                 confidence,
-                MessageLocationTuple(
-                    abspath or "",
-                    path,
-                    module,
-                    "",
-                    line or 1,
-                    col_offset or 0,
-                    end_lineno,
-                    end_col_offset,
-                ),
+                module,
+                "",
+                abspath,
+                line or 1,
+                col_offset,
+                end_lineno,
+                end_col_offset,
             )
+
+    # pylint: disable-next=too-many-arguments
+    def _filter_and_emit_at_location(
+        self,
+        message_definition: MessageDefinition,
+        args: Any | None,
+        confidence: interfaces.Confidence,
+        module: str,
+        obj: str,
+        abspath: str | None,
+        line: int,
+        col_offset: int | None,
+        end_lineno: int | None,
+        end_col_offset: int | None,
+    ) -> None:
+        """Filter and emit one message at an already-resolved location.
+
+        ``module``/``obj``/``abspath`` are loop-invariant across the
+        ``msgs_store.get_message_definitions(msgid)`` loop in the public
+        callers, so they're derived once and passed in.
+        """
+        if not self.is_message_enabled(message_definition.msgid, line, confidence):
+            self.file_state.handle_ignored_message(
+                self._get_message_state_scope(
+                    message_definition.msgid, line, confidence
+                ),
+                message_definition.msgid,
+                line,
+            )
+            return
+        if abspath is not None:
+            path = abspath.replace(self.reporter.path_strip_prefix, "", 1)
+        else:
+            path = "configuration"
+        self._emit_message(
+            message_definition,
+            args,
+            confidence,
+            MessageLocationTuple(
+                abspath or "",
+                path,
+                module,
+                obj,
+                line,
+                col_offset or 0,
+                end_lineno,
+                end_col_offset,
+            ),
+        )
 
     def add_ignored_message(
         self,
