@@ -109,6 +109,7 @@ encodings
 endswith
 enum
 enums
+env
 epilog
 epylint
 epytext
