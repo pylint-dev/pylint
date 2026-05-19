@@ -40,3 +40,7 @@ unexpected-keyword-arg:218:0:218:43::Unexpected keyword argument 'fourth' in fun
 redundant-keyword-arg:308:0:308:79::Argument 'banana' passed by position and keyword in function call:UNDEFINED
 no-value-for-parameter:318:0:318:16::No value for argument 'param1' in function call:UNDEFINED
 no-value-for-parameter:335:0:335:13::No value for argument '__class_or_tuple' in function call:HIGH
+no-value-for-parameter:343:0:343:30::No value for argument 'x' in function call:UNDEFINED
+unexpected-keyword-arg:343:0:343:30::Unexpected keyword argument 'y' in function call:UNDEFINED
+no-value-for-parameter:344:0:344:23::No value for argument 'x' in function call:UNDEFINED
+unexpected-keyword-arg:344:0:344:23::Unexpected keyword argument 'y' in function call:UNDEFINED
