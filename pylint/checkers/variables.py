@@ -634,12 +634,15 @@ scope_type : {self.scope_type}
         if _is_nonlocal_name(node, node.frame()):
             return found_nodes
 
+        # Promote an earlier type-only consumption back to a runtime hit;
+        # must run before the comprehension early-return, because frame()
+        # is the enclosing function, not the comprehension.
+        if found_nodes is None:
+            found_nodes = self.consumed_as_type.get(name)
+
         # And no comprehension is under the node's frame
         if VariablesChecker._comprehension_between_frame_and_node(node):
             return found_nodes
-
-        if found_nodes is None:
-            found_nodes = self.consumed_as_type.get(name)
 
         # Filter out assignments in ExceptHandlers that node is not contained in
         if found_nodes:
