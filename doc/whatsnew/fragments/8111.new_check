@@ -1,0 +1,5 @@
+Add a ``unguarded-typing-import`` check that flags imports used solely
+for type annotations but imported outside of a ``TYPE_CHECKING`` block.
+The check is opinionated and disabled by default.
+
+Closes #8111
