@@ -1,0 +1,5 @@
+# Test that boolean true values in TOML config still work correctly
+# for store_true options.
+
+[tool.pylint.main]
+exit-zero = true
