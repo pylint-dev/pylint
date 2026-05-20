@@ -1,0 +1,24 @@
+🤖 **Effect of this PR on checked open source code:** 🤖
+
+
+**Effect on [astroid](https://github.com/pylint-dev/astroid):**
+
+The following messages are now emitted:
+
+<details>
+
+1) possibly-used-before-assignment:
+*Possibly using variable 'orig_key' before assignment*
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/wcs.py#L3072
+</details>
+
+The following messages are no longer emitted:
+
+<details>
+
+1) used-before-assignment:
+*Using variable 'orig_key' before assignment*
+https://github.com/pylint-dev/astroid/blob/123456789abcdef/astroid/wcs.py#L3072
+</details>
+
+*This comment was generated for commit v2.14.2*
