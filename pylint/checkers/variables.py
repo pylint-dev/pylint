@@ -159,6 +159,10 @@ def _detect_global_scope(
                 class B(C): ...
         class C: ...
     """
+    if defframe.lineno is None:
+        # ``defframe`` is a synthetic node, such as a dataclass-generated
+        # ``__init__``, so it has no source position to order against.
+        return False
     def_scope = scope = None
     if frame and frame.parent:
         scope = frame.parent.scope()
