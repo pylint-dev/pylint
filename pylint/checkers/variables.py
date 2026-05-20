@@ -731,7 +731,7 @@ scope_type : {self.scope_type}
                 continue
             val = inferred.value
             only_search_if = only_search_if or (val != NotImplemented and val)
-            only_search_else = only_search_else and not val
+            only_search_else = only_search_else and val != NotImplemented and not val
 
         # Only search else branch when test condition is inferred to be false
         if all_inferred and only_search_else:
