@@ -738,13 +738,21 @@ class NameChecker(_BasicChecker):
         for kw in keywords:
             if variance == TypeVarVariance.double_variant:
                 pass
-            elif kw.arg == "covariant" and kw.value.value:
+            elif (
+                kw.arg == "covariant"
+                and isinstance(kw.value, nodes.Const)
+                and kw.value.value
+            ):
                 variance = (
                     TypeVarVariance.covariant
                     if variance != TypeVarVariance.contravariant
                     else TypeVarVariance.double_variant
                 )
-            elif kw.arg == "contravariant" and kw.value.value:
+            elif (
+                kw.arg == "contravariant"
+                and isinstance(kw.value, nodes.Const)
+                and kw.value.value
+            ):
                 variance = (
                     TypeVarVariance.contravariant
                     if variance != TypeVarVariance.covariant
