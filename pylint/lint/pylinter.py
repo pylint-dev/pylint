@@ -673,10 +673,21 @@ class PyLinter(
                 for root, dirnames, files in os.walk(something, topdown=True):
 
                     # Caution: use of `list(dirnames)` is required to avoid
-                    # iteration issue.
+                    # iteration issue. We have to have two tests in the loop.
                     for dirname in list(dirnames):
+                        # First, check just the directory basename.
                         if _is_ignored_file(
                             dirname,
+                            self.config.ignore,
+                            self.config.ignore_patterns,
+                            self.config.ignore_paths,
+                        ):
+                            dirnames.remove(dirname)
+                            continue
+
+                        # Next, check the path-name of the directory.
+                        if _is_ignored_file(
+                            os.path.join(root, dirname),
                             self.config.ignore,
                             self.config.ignore_patterns,
                             self.config.ignore_paths,
