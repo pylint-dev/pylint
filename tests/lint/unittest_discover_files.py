@@ -8,6 +8,7 @@ the os.walk() function.
 
 import os
 import platform
+import re
 import subprocess
 from collections.abc import Generator, Iterator
 from pathlib import Path
@@ -23,6 +24,8 @@ from pylint.lint import PyLinter
 def _initialized_linter(linter: PyLinter) -> PyLinter:
     linter.open()
 
+    linter.config.ignore_patterns = (re.compile(r"^\.#"),)
+
     return linter
 
 
@@ -33,7 +36,8 @@ def _setup_test_file_tree(tmp_path: Path) -> Generator[Path]:
     a list of files.
     """
     # A list of file names (represented by strings) and symlinks (represented
-    # by a sub-list containing the name and what it points to).
+    # by a sub-list containing the name and what it points to). The order is
+    # important, as re-ordering can cause false passes of the code under test.
     tree = [
         "test/manage.py",
         "test/pyproject.toml",
@@ -85,8 +89,13 @@ def _setup_test_file_tree(tmp_path: Path) -> Generator[Path]:
         "test/applications_api/urls.py",
         "test/applications_api/models.py",
         "test/applications_api/migrations/__init__.py",
-        "test/node_modules/node-package-a/file",
-        "test/node_modules/node-package-b/file",
+        "test/node_modules/node-package-a/file.py",
+        "test/node_modules/node-package-b/file.py",
+        "test/src/a/path/ignored/path/subdir-a/file-a.py",
+        "test/src/a/path/ignored/not/path/subdir-b/file-b.py",
+        "test/src/another/path/skip/this/pattern/subdir-c/file-c.py",
+        "test/src/path/another/path/skip/don't/this/subdir-d/file-d.py",
+        "test/src/path/another/path/skip/don't/this/subdir-d/.#some-skipped-emacs.py",
     ]
 
     # Save the current working directory
@@ -124,9 +133,10 @@ def test_does_not_ignore_similarly_named_package(
     initialized_linter: PyLinter,
 ) -> None:
     """
-    Test to see if we return the expected package/file list even if a shorter named package is processed
-    first and does not match an ignore config value.
+    Test to see if we return the expected package/file list even if a shorter
+    named package is processed first and does not match an ignore config value.
     """
+
     # Variables used by debug_walk.
     os_walk_visited: list[str] = []
     orig_walk = os.walk
@@ -160,17 +170,53 @@ def test_does_not_ignore_similarly_named_package(
     applications_path = f".{os.sep}applications"
     applications_api_path = f".{os.sep}applications_api"
 
-    # Make sure that the OS has not re-ordered their order on how we visited
-    # them, capturing extra diagnostics if the assertion fails.
+    # Assert that we got the correct results. Do these first, so that if we
+    # pass these and get to the next assert, we are looking at a false pass.
+    assert len(results) == 10
+    assert f".{os.sep}manage.py" in results
+    assert applications_path in results
+    assert applications_api_path in results
+    assert f".{os.sep}node_modules{os.sep}node-package-a{os.sep}file.py" in results
+    assert f".{os.sep}node_modules{os.sep}node-package-b{os.sep}file.py" in results
+    assert (
+        f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path{os.sep}subdir-a{os.sep}file-a.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}not{os.sep}path{os.sep}subdir-b{os.sep}file-b.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}skip{os.sep}this{os.sep}pattern{os.sep}subdir-c{os.sep}file-c.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}file-d.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}.#some-skipped-emacs.py"
+        in results
+    )
+
+    # This is essentially a "test the test" scenario, where we make sure of the
+    # order of traversal between the two critical directories.  Since we could
+    # falsely get a pass on the assertions above by either reordering the tree
+    # in `setup_test_file_tree()` or having the OS re-order things underneath
+    # us. And for this particular test it is absolutely critical that we
+    # know. Fail this once, it is almost certainly the OS. Fail this repeatedly
+    # and across multiple platforms, it is almost certainly the test setup
+    # itself.
     try:
         assert os_walk_visited.index(applications_path) < os_walk_visited.index(
             applications_api_path
         ), "os.walk() traversed the tree in an unexpected order..."
     except AssertionError as e:
 
-        # Warn that this is a possible false failure caused by the fact that
-        # `os.warn()` relies on the underlying file system for determining the
-        # order for the entries in a directory.
+        # This is the critical part. Warn us and future folks that this is
+        # otherwise a possible false pass caused by the fact that `os.warn()`
+        # relies on the underlying file system for determining the order for the
+        # entries in a directory.
         #
         # Just double-check the order of the entries in the `tree` list in the
         # `setup_test_file_tree()` fixture to make sure that `applications_api`
@@ -179,7 +225,8 @@ def test_does_not_ignore_similarly_named_package(
             "This is a possible false error, due to the nature of os.walk()... see the test for more info."
         )
 
-        # Collect some additional diagnostics
+        # Collect some additional diagnostics, since this is typically the only
+        # chance we will get a peek inside the test runner.
         if platform.system() != "Windows":
             print("Additional diagnostics for unexpected os.walk() traversal...")
             subprocess.run(["ls", "-f"], check=False)
@@ -187,14 +234,8 @@ def test_does_not_ignore_similarly_named_package(
         else:
             print("Additional diagnostics are not available for this OS.")
 
-        # Re-raise the assertion
+        # Now, re-raise the assertion to cause the failure.
         raise e
-
-    # Assert that we got the correct results.
-    assert len(results) == 3
-    assert f".{os.sep}manage.py" in results
-    assert applications_path in results
-    assert applications_api_path in results
 
 
 @pytest.mark.usefixtures("setup_test_file_tree")
@@ -202,8 +243,8 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
     initialized_linter: PyLinter,
 ) -> None:
     """
-    Test to see if we return the expected package/file list even if the shorter named package is processed
-    first and matches an ignore config value.
+    Test to see if we return the expected package/file list even if the shorter
+    named package is processed first and matches an ignore config value.
 
     NOTE: manage.py could be ignored here, but it is ignored later in the call to expand_modules.
     """
@@ -247,9 +288,29 @@ def test_does_not_ignore_similarly_named_package_even_if_first_ignored(
     applications_api_path = f".{os.sep}applications_api"
 
     # Assert that we got the correct results.
-    assert len(results) == 2
+    assert len(results) == 7
     assert f".{os.sep}manage.py" in results
     assert applications_api_path in results
+    assert (
+        f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path{os.sep}subdir-a{os.sep}file-a.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}not{os.sep}path{os.sep}subdir-b{os.sep}file-b.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}skip{os.sep}this{os.sep}pattern{os.sep}subdir-c{os.sep}file-c.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}file-d.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}.#some-skipped-emacs.py"
+        in results
+    )
 
 
 @pytest.mark.usefixtures("setup_test_file_tree")
@@ -260,7 +321,8 @@ def test_does_not_traverse_into_ignored_directories(
     Verify that _discover_files supplies the correct `topdown=True` argument
     and does not walk the directories which are to be ignored.
 
-    NOTE: manage.py could be ignored here, but it is ignored later in the call to expand_modules.
+    NOTE: manage.py could be ignored here, but it is ignored later in the call
+    to expand_modules.
     """
     initialized_linter.config.ignore = [
         ".venv",
@@ -268,6 +330,14 @@ def test_does_not_traverse_into_ignored_directories(
         "node_modules",
         "manage.py",
     ]
+    # We need to do this, so that in the case of Windows, the os.sep value is
+    # properly escaped.
+    sep = re.escape(os.sep)
+    initialized_linter.config.ignore_paths = [
+        re.compile(rf"a{sep}path{sep}ignored{sep}path")
+    ]
+
+    initialized_linter.config.ignore_patterns = (re.compile(r"^\.#"),)
 
     # Variables used by debug_walk.
     os_walk_visited: list[str] = []
@@ -303,9 +373,29 @@ def test_does_not_traverse_into_ignored_directories(
     applications_api_path = f".{os.sep}applications_api"
 
     # Assert that we got the correct results.
-    assert len(results) == 2
+    assert len(results) == 7
     assert f".{os.sep}manage.py" in results
     assert applications_api_path in results
+    assert (
+        f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path{os.sep}subdir-a{os.sep}file-a.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}not{os.sep}path{os.sep}subdir-b{os.sep}file-b.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}skip{os.sep}this{os.sep}pattern{os.sep}subdir-c{os.sep}file-c.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}file-d.py"
+        in results
+    )
+    assert (
+        f".{os.sep}src{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}.#some-skipped-emacs.py"
+        in results
+    )
 
     # Assert that we did not traverse into ignored directories
     assert applications_path not in os_walk_visited
@@ -314,3 +404,21 @@ def test_does_not_traverse_into_ignored_directories(
     assert f".{os.sep}node_modules" not in os_walk_visited
     assert f".{os.sep}node_modules{os.sep}node-package-a" not in os_walk_visited
     assert f".{os.sep}node_modules{os.sep}node-package-b" not in os_walk_visited
+    # assert f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path" not in os_walk_visited
+    # assert (
+    #    f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}path{os.sep}subdir-a"
+    #    not in os_walk_visited
+    # )
+
+    # assert (
+    #    f".{os.sep}src{os.sep}a{os.sep}path{os.sep}ignored{os.sep}not{os.sep}path{os.sep}subdir-b{os.sep}file"
+    #    in os_walk_visited
+    # )
+    assert (
+        f".{os.sep}src{os.sep}another{os.sep}path{os.sep}skip{os.sep}this{os.sep}pattern{os.sep}subdir-c{os.sep}file"
+        not in os_walk_visited
+    )
+    # assert (
+    #    f".{os.sep}path{os.sep}another{os.sep}path{os.sep}skip{os.sep}don't{os.sep}this{os.sep}subdir-d{os.sep}file"
+    #    in os_walk_visited
+    # )
