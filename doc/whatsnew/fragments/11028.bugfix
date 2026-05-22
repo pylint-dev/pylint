@@ -1,0 +1,3 @@
+Avoided a crash from the implicit booleaness checker for ``len()`` calls without arguments.
+
+Closes #11028
