@@ -3432,9 +3432,10 @@ class VariablesChecker(BaseChecker):
                 # bind name
                 pass
             case nodes.Attribute(expr=attr):
-                while not isinstance(attr, nodes.Name):
+                while isinstance(attr, nodes.Attribute):
                     attr = attr.expr
-                name = attr.name
+                if isinstance(attr, nodes.Name):
+                    name = attr.name
             case nodes.Call(func=nodes.Name(name=name)):
                 # bind name
                 pass
@@ -3460,7 +3461,8 @@ class VariablesChecker(BaseChecker):
                     found = True
                     break
         if (
-            not found
+            name
+            and not found
             and not metaclass
             and not (
                 name in nodes.Module.scope_attrs
