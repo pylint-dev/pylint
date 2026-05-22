@@ -193,3 +193,10 @@ if len('TEST'):
 def github_issue_10100():
     if len((x for x in [1, 2, 3])):  # Should be fine
         print("yay!")
+
+
+def github_issue_11028():
+    # Do not crash when another checker handles the missing argument.
+    # pylint: disable=no-value-for-parameter
+    if len():
+        pass
