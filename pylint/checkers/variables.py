@@ -734,7 +734,15 @@ scope_type : {self.scope_type}
                 only_search_else = False
                 continue
             val = inferred.value
-            only_search_if = only_search_if or (val != NotImplemented and val)
+            # Guard against `NotImplemented`: `bool(NotImplemented)` raises
+            # `TypeError` in Python 3.12+, which would crash the variables
+            # checker on input such as ``if NotImplemented: ...``. Treat it
+            # the same way the ``only_search_if`` branch already does — as
+            # neither truthy nor falsy for control-flow analysis. See #11025.
+            if val is NotImplemented:
+                only_search_else = False
+                continue
+            only_search_if = only_search_if or val
             only_search_else = only_search_else and not val
 
         # Only search else branch when test condition is inferred to be false

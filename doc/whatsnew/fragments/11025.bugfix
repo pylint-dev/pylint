@@ -1,0 +1,7 @@
+Fix crash in the variables checker when ``NotImplemented`` is used as an
+``if`` test (e.g. ``if NotImplemented: ...``). ``bool(NotImplemented)``
+raises ``TypeError`` on Python 3.12+, which surfaced as
+``TypeError: NotImplemented should not be used in a boolean context``
+during used-before-assignment analysis.
+
+Closes #11025

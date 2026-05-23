@@ -1,0 +1,2 @@
+pointless-statement:14:0:14:1::"Statement seems to have no effect":UNDEFINED
+possibly-used-before-assignment:14:0:14:1::"Possibly using variable 'x' before assignment":CONTROL_FLOW
